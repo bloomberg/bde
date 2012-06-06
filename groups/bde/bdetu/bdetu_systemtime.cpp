@@ -32,7 +32,7 @@ bdetu_SystemTime::s_callback_p = bdetu_SystemTime::loadSystemTimeDefault;
 // CLASS METHODS
 bdet_Datetime bdetu_SystemTime::nowAsDatetimeLocal()
 {
-    return nowAsDatetimeGMT() + localTimeOffset();
+    return nowAsDatetimeUtc() + localTimeOffset();
 }
 
 bdet_DatetimeInterval bdetu_SystemTime::localTimeOffset()

@@ -332,7 +332,7 @@ BSLS_IDENT("$Id: $")
 // templates with the two test types above, and checks that the allocator slot
 // is as expected:
 //..
-//  void main()
+//  int main()
 //  {
 //      bslma::TestAllocator ta0;
 //      bslma::TestAllocator ta1;
@@ -361,6 +361,8 @@ BSLS_IDENT("$Id: $")
 //      allocSlot = &ta0;
 //      MyGenericContainer<MyTestTypeWithBslmaAllocatorTraits> y1(y, &ta1);
 //      assert(&ta1 == allocSlot);
+//
+//      return 0;
 //  }
 //..
 

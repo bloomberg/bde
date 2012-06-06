@@ -101,8 +101,12 @@ BDES_IDENT("$Id: $")
 //  }
 //..
 //
-///USAGE EXAMPLE: PAGE LISTS
-///-------------------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Page Lists
+///- - - - - - - - - - -
 // Using an example above, let's create a mapping manager with 100 MB limit and
 // one priority.  Then add a few pages, write data to every page and flush all
 // touched pages to disk:

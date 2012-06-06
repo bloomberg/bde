@@ -395,7 +395,7 @@ bool my_TimeUtil::isDaylightSavingTime(
         return false;                                                 // RETURN
       }
       case EU: {
-        const int m = universalTime.month(); // reference is GMT
+        const int m = universalTime.month(); // reference is UTC
         if (MARCH < m && m < OCTOBER) {
             return true;                                              // RETURN
         }
@@ -415,7 +415,7 @@ bool my_TimeUtil::isDaylightSavingTime(
             if (d > dom) {
                 return true;                                          // RETURN
             }
-            return universalTime.hour() >= 1; // changes at 1AM GMT
+            return universalTime.hour() >= 1; // changes at 1AM UTC
         }
         else {
             ASSERT(OCTOBER == m);
@@ -425,7 +425,7 @@ bool my_TimeUtil::isDaylightSavingTime(
             if (d > dom) {
                 return false;                                         // RETURN
             }
-            return universalTime.hour() < 1;  // changes at 1AM GMT
+            return universalTime.hour() < 1;  // changes at 1AM UTC
         }
       }
       case US: {
@@ -557,7 +557,7 @@ int main(int argc, char *argv[])
         //   precise date and time at which the transition to and from DST
         //   occurs.  In particular, we want to ensure that US indicates a
         //   transition at 2AM local time, while EU indicates a transition
-        //   at 1AM GMT.  We will use the Category Partitioning method applied
+        //   at 1AM UTC.  We will use the Category Partitioning method applied
         //   via a simple table-based approach.
         //
         // convertGmtToLocalTime/bdet_Datetime:
@@ -585,7 +585,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "USAGE EXAMPLE -- GMT TO LOCAL TIME" << endl
+                          << "USAGE EXAMPLE -- UTC TO LOCAL TIME" << endl
                           << "==================================" << endl;
 
         if (verbose) cout <<

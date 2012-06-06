@@ -33,6 +33,9 @@ BSLS_IDENT("$Id: $")
 
 // For reference implementation of atomics on HP-UX/IA64 see:
 // http://h21007.www2.hp.com/portal/download/files/unprot/itanium/spinlocks.pdf
+// and the Itanium Architecture Developer's Manual:
+// http://www.intel.com/content/www/us/en/processors/itanium/
+//                   itanium-architecture-vol-1-2-3-4-reference-set-manual.html
 //
 // Notes:
 // * const_cast is used where necessary to drop the volatile qualifier to avoid
@@ -202,6 +205,7 @@ inline
 int AtomicOperations_IA64_HP_ACC::
     swapInt(AtomicTypes::Int *atomicInt, int swapValue)
 {
+    _Asm_mf();  // need mf because xchg has acquire semantics only
     return int(_Asm_xchg(_SZ_W,
                          atomicInt,
                          (unsigned) swapValue,
@@ -308,6 +312,7 @@ Types::Int64 AtomicOperations_IA64_HP_ACC::
     swapInt64(AtomicTypes::Int64 *atomicInt,
               Types::Int64 swapValue)
 {
+    _Asm_mf();  // need mf because xchg has acquire semantics only
     return _Asm_xchg(_SZ_D,
                      atomicInt,
                      swapValue,

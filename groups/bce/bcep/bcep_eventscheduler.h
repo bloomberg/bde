@@ -116,7 +116,7 @@ BDES_IDENT("$Id: $")
 //
 //   void saveData(vector<Value> *array)
 //   {
-//      array->push_back(Value(bdetu_SystemTime::nowAsDatetimeGMT(), g_data));
+//      array->push_back(Value(bdetu_SystemTime::nowAsDatetimeUtc(), g_data));
 //   }
 //..
 // We allow the scheduler to run for a short time while changing this value
@@ -128,8 +128,8 @@ BDES_IDENT("$Id: $")
 //   scheduler.scheduleRecurringEvent(bdet_TimeInterval(1.5),
 //                                  bdef_BindUtil::bind(&saveData, &values)));
 //   scheduler.start();
-//   bdet_Datetime start = bdetu_SystemTime::nowAsDatetimeGMT();
-//   while ((bdetu_SystemTime::nowAsDatetimeGMT() -
+//   bdet_Datetime start = bdetu_SystemTime::nowAsDatetimeUtc();
+//   while ((bdetu_SystemTime::nowAsDatetimeUtc() -
 //                                          start).totalSeconds() < 7) {
 //     ++g_data;
 //   }
@@ -414,7 +414,7 @@ class bcep_EventScheduler {
         // is undefined if neither d_currentEvent nor d_currentRecurringEvent
         // is valid.  Note that the argument and return value of this method
         // are expressed in terms of the number of microseconds elapsed since
-        // midnight, January 1, 1970 GMT.  Also note that this method may
+        // midnight, January 1, 1970 UTC.  Also note that this method may
         // update the value of 'now' with the current system time if necessary.
 
     void dispatchEvents();
@@ -514,7 +514,7 @@ class bcep_EventScheduler {
                         const bdet_TimeInterval&  newTime);
         // Reschedule the event referred to by the specified 'handle' at
         // the specified (absolute) 'newTime'.  Absolute time is defined as
-        // the interval since midnight, Jan 1, 1970, GMT.  Return 0 on
+        // the interval since midnight, Jan 1, 1970, UTC.  Return 0 on
         // successful reschedule, and a non-zero value if the 'handle' is
         // invalid *or* if the event has already been dispatched.
 
@@ -522,7 +522,7 @@ class bcep_EventScheduler {
                                const bdet_TimeInterval&  newTime);
         // Reschedule the event referred to by the specified 'handle' at
         // the specified (absolute) 'newTime'.  Absolute time is defined as
-        // the interval since midnight, Jan 1, 1970, GMT.  Block until the
+        // the interval since midnight, Jan 1, 1970, UTC.  Block until the
         // event having the specified 'handle' (if it is valid) is either
         // successfully rescheduled or dispatched before the call returns.
         // Return 0 on successful reschedule, and a non-zero value if the
@@ -537,7 +537,7 @@ class bcep_EventScheduler {
                        const bdef_Function<void(*)()>&  callback);
         // Schedule the specified 'callback' to be dispatched at the specified
         // (absolute) 'time'.  Absolute time is defined as the interval since
-        // midnight, Jan 1, 1970, GMT.  Load into the optionally specified
+        // midnight, Jan 1, 1970, UTC.  Load into the optionally specified
         // 'event' a handle that can be used to cancel the event (by invoking
         // 'cancelEvent').  Note that 'time' may be in the past, in which case
         // the event will be executed as soon as possible.
@@ -547,7 +547,7 @@ class bcep_EventScheduler {
                           const bdef_Function<void(*)()>&   callback);
         // Schedule the specified 'callback' to be dispatched at the specified
         // (absolute) 'time'.  Absolute time is the defined as the interval
-        // since midnight, Jan 1, 1970, GMT.  Load into the specified 'event'
+        // since midnight, Jan 1, 1970, UTC.  Load into the specified 'event'
         // pointer a handle that can be used to cancel the event (by invoking
         // 'cancelEvent').  The 'event' pointer must be released by
         // invoking 'releaseEventRaw' when it is no longer needed.
@@ -564,7 +564,7 @@ class bcep_EventScheduler {
         // Schedule a recurring event that invokes the specified 'callback' at
         // every specified 'interval', with the first event dispatched at the
         // optionally-specified (absolute) 'startTime'.  Absolute time is
-        // defined as the interval since midnight, Jan 1, 1970, GMT.  If
+        // defined as the interval since midnight, Jan 1, 1970, UTC.  If
         // 'startTime' is not specified, the first event is dispatched at one
         // 'interval' from now.  Load into the optionally-specified 'event' a
         // handle that can be used to cancel the event (by invoking
@@ -579,7 +579,7 @@ class bcep_EventScheduler {
         // Schedule a recurring event that invokes the specified 'callback' at
         // every specified 'interval', with the first event dispatched at the
         // optionally-specified (absolute) 'startTime'.  Absolute time is
-        // defined as the interval since midnight, Jan 1, 1970, GMT.  If
+        // defined as the interval since midnight, Jan 1, 1970, UTC.  If
         // 'startTime' is not specified, the first event is dispatched at one
         // 'interval' from now.  Load into the specified 'event' pointer a
         // handle that can be used to cancel the event (by invoking
