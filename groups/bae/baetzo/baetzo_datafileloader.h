@@ -183,8 +183,8 @@ BDES_IDENT("$Id: $")
 // The 'timeZone' object can now be use for time-zone calculations.  See
 // 'baetzo_zoneinfoutil'.
 //
-///Example 2: Epilogue: Removing the Created Files
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///Epilogue: Removing the Created Files
+///  -  -  -  -  -  -  -  -  -  -  -  -
 // The file hierarchy we created Example 1 solely for Example 2, is no longer
 // needed, and is removed by:
 //..
@@ -204,9 +204,11 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
 class baetzo_Zoneinfo;
 

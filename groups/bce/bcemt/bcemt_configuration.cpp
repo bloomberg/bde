@@ -11,6 +11,7 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_c_limits.h>
 
 #if defined(BCES_PLATFORM__POSIX_THREADS)

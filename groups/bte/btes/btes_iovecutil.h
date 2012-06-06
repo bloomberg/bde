@@ -55,13 +55,15 @@ BDES_IDENT("$Id: $")
 #include <btes_iovec.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
                             // ====================
                             // class btes_IovecUtil
                             // ====================
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 class bcema_PooledBufferChain;
 class bcema_PooledBufferChainFactory;

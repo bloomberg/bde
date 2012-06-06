@@ -54,7 +54,7 @@ using namespace std;
 // test code for bitwise-copyable/moveable test types as well as those that do
 // not have those traits.
 //-----------------------------------------------------------------------------
-// bslalg_ArrayPrimitives public interface:
+// bslalg::ArrayPrimitives public interface:
 // [ 2] void uninitializedFillN(T *dstB, ne, const T& v, *a);
 // [ 3] void copyConstruct(T *dstB, FWD srcB, FWD srcE, *a);
 // [ 4] void destructiveMove(T *dstB, T *srcB, T *srcE, *a);
@@ -118,13 +118,14 @@ namespace {
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bslalg_ArrayPrimitives        Obj;
+typedef bslalg::ArrayPrimitives        Obj;
 
 // TYPES
 class TestType;
 class TestTypeNoAlloc;
 class BitwiseMoveableTestType;
 class BitwiseCopyableTestType;
+typedef int (*FuncPtrType)();
 
 template <int ADDITIONAL_FOOTPRINT>  class LargeBitwiseMoveableTestType;
 
@@ -132,6 +133,7 @@ typedef TestType                      T;    // uses 'bslma' allocators
 typedef TestTypeNoAlloc               TNA;  // does not use 'bslma' allocators
 typedef BitwiseMoveableTestType       BMT;  // uses 'bslma' allocators
 typedef BitwiseCopyableTestType       BCT;  // does not use 'bslma' allocators
+typedef FuncPtrType                   FPT;  // does not use 'bslma' allocators
 
 typedef LargeBitwiseMoveableTestType<8>   XXL8;   // uses 'bslma' allocators
 typedef LargeBitwiseMoveableTestType<16>  XXL16;  // uses 'bslma' allocators
@@ -140,13 +142,14 @@ typedef LargeBitwiseMoveableTestType<32>  XXL32;  // uses 'bslma' allocators
 typedef LargeBitwiseMoveableTestType<64>  XXL64;  // uses 'bslma' allocators
 typedef LargeBitwiseMoveableTestType<128> XXL128; // uses 'bslma' allocators
 
-typedef bsls_Types::Int64      Int64;
-typedef bsls_Types::Uint64     Uint64;
+typedef bsls::Types::Int64      Int64;
+typedef bsls::Types::Uint64     Uint64;
+typedef bsls::Types::UintPtr    UintPtr;
 
 // STATIC DATA
 static int verbose, veryVerbose, veryVeryVerbose;
 
-const int MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 static int numDefaultCtorCalls = 0;
 static int numCharCtorCalls    = 0;
@@ -154,7 +157,379 @@ static int numCopyCtorCalls    = 0;
 static int numAssignmentCalls  = 0;
 static int numDestructorCalls  = 0;
 
-bslma_TestAllocator *Z;  // initialized at the start of main()
+bslma::TestAllocator *Z;  // initialized at the start of main()
+
+template <class C>
+char getValue(const C& c)
+{
+    return c.datum();
+}
+
+                                // ===========
+                                // FuncPtrType
+                                // ===========
+
+template <int N>
+int funcTemplate()
+{
+    return N;
+}
+
+FuncPtrType funcPtrArray[128];
+
+// Initialize 'funcPtrArray' so that 'funcPtrArray[N] == &funcTemplate<N>'.
+
+template <int FROM, int TO>
+struct InitFuncPtrArray {
+    InitFuncPtrArray()
+    {
+        funcPtrArray[FROM] = &funcTemplate<FROM>;
+        InitFuncPtrArray<FROM + 1, TO> recurse;
+    }
+};
+template <int END>
+struct InitFuncPtrArray<END, END> {
+    InitFuncPtrArray()
+    {
+        funcPtrArray[END] = &funcTemplate<END>;
+    }
+};
+
+InitFuncPtrArray<  0,  15> initFuncPtrArray0;
+InitFuncPtrArray< 16,  31> initFuncPtrArray16;
+InitFuncPtrArray< 32,  47> initFuncPtrArray32;
+InitFuncPtrArray< 48,  63> initFuncPtrArray48;
+InitFuncPtrArray< 64,  79> initFuncPtrArray64;
+InitFuncPtrArray< 80,  95> initFuncPtrArray80;
+InitFuncPtrArray< 96, 111> initFuncPtrArray96;
+InitFuncPtrArray<112, 127> initFuncPtrArray112;
+
+
+char getValue(const FuncPtrType& fpt)
+{
+    return (char) (*fpt)();
+}
+
+void setValue(FuncPtrType *fpt, char ch)
+{
+    *fpt = funcPtrArray[ch];
+}
+
+                              // =============
+                              // MemberFuncPtr
+                              // =============
+
+struct Thing {
+    template <int N>
+    int memberFuncTemplate()
+    {
+        return N;
+    }
+};
+
+typedef int (Thing::*MemberFuncPtrType)();
+typedef MemberFuncPtrType MFPT;
+
+MemberFuncPtrType memberFuncPtrArray[128];
+
+template <int FROM, int TO>
+struct InitMemberFuncPtrArray {
+    InitMemberFuncPtrArray()
+    {
+        memberFuncPtrArray[FROM] = &Thing::memberFuncTemplate<FROM>;
+        InitMemberFuncPtrArray<FROM + 1, TO> recurse;
+    }
+};
+template <int END>
+struct InitMemberFuncPtrArray<END, END> {
+    InitMemberFuncPtrArray()
+    {
+        memberFuncPtrArray[END] = &Thing::memberFuncTemplate<END>;
+    }
+};
+
+InitMemberFuncPtrArray<  0,  15> initMemberFuncPtrArray0;
+InitMemberFuncPtrArray< 16,  31> initMemberFuncPtrArray16;
+InitMemberFuncPtrArray< 32,  47> initMemberFuncPtrArray32;
+InitMemberFuncPtrArray< 48,  63> initMemberFuncPtrArray48;
+InitMemberFuncPtrArray< 64,  79> initMemberFuncPtrArray64;
+InitMemberFuncPtrArray< 80,  95> initMemberFuncPtrArray80;
+InitMemberFuncPtrArray< 96, 111> initMemberFuncPtrArray96;
+InitMemberFuncPtrArray<112, 127> initMemberFuncPtrArray112;
+
+
+char getValue(const MemberFuncPtrType& mfpt)
+{
+    Thing t;
+    return (char) (t.*mfpt)();
+}
+
+void setValue(MemberFuncPtrType *mfpt, char ch)
+{
+    *mfpt = memberFuncPtrArray[ch];
+}
+
+                                // ==========
+                                // char types
+                                // ==========
+
+void setValue(char *c, char ch)
+{
+    *c = ch;
+}
+
+void setValue(signed char *c, char ch)
+{
+    *c = ch;
+}
+
+void setValue(unsigned char *c, char ch)
+{
+    *c = ch;
+}
+
+char getValue(const char& c)
+{
+    return c;
+}
+
+char getValue(const signed char& c)
+{
+    return c;
+}
+
+char getValue(const unsigned char& c)
+{
+    return c;
+}
+                                // ===========
+                                // short types
+                                // ===========
+
+void setValue(short *s, char ch)
+{
+    *s = ch;
+}
+
+void setValue(unsigned short *s, char ch)
+{
+    *s = ch;
+}
+
+char getValue(const short& s)
+{
+    return (char) s;
+}
+
+char getValue(const unsigned short& s)
+{
+    return (char) s;
+}
+
+                                // =========
+                                // int types
+                                // =========
+
+void setValue(int *pi, char ch)
+{
+    *pi = ch;
+}
+
+void setValue(unsigned int *pi, char ch)
+{
+    *pi = ch;
+}
+
+char getValue(const int& i)
+{
+    return (char) i;
+}
+
+char getValue(const unsigned int& i)
+{
+    return (char) i;
+}
+
+                                // ==========
+                                // long types
+                                // ==========
+
+void setValue(long *pl, char ch)
+{
+    *pl = ch;
+}
+
+void setValue(unsigned long *pl, char ch)
+{
+    *pl = ch;
+}
+
+char getValue(const long& ll)
+{
+    return (char) ll;
+}
+
+char getValue(const unsigned long& ll)
+{
+    return (char) ll;
+}
+
+                            // =====================
+                            // 64 bit integral types
+                            // =====================
+
+void setValue(Int64 *p64, char ch)
+{
+    *p64 = ch;
+}
+
+void setValue(Uint64 *p64, char ch)
+{
+    *p64 = ch;
+}
+
+char getValue(const Int64& i64)
+{
+    return (char) i64;
+}
+
+char getValue(const Uint64& u64)
+{
+    return (char) u64;
+}
+
+                            // ====================
+                            // floating point types
+                            // ====================
+
+void setValue(float *pf, char ch)
+{
+    *pf = (int) ch;
+}
+
+void setValue(double *pf, char ch)
+{
+    *pf = (int) ch;
+}
+
+void setValue(long double *pf, char ch)
+{
+    *pf = (int) ch;
+}
+
+char getValue(const float& f)
+{
+    return (char) ((int) f & 0xff);
+}
+
+char getValue(const double& f)
+{
+    return (char) ((int) f & 0xff);
+}
+
+char getValue(const long double& f)
+{
+    return (char) ((int) f & 0xff);
+}
+
+                                // ========
+                                // void *'s
+                                // ========
+
+void setValue(void **pvs, char ch)
+{
+    *pvs = (void *) (UintPtr) ch;
+}
+
+void setValue(const void **pvs, char ch)
+{
+    *pvs = (const void *) (UintPtr) ch;
+}
+
+#ifndef BSLS_PLATFORM__OS_AIX
+char getValue(void * const& vs)
+{
+    return (char) ((UintPtr) vs & 0xff);
+}
+#endif
+
+char getValue(const void * const& vs)
+{
+    return (char) ((UintPtr) vs & 0xff);
+}
+
+                                // =======
+                                // int *'s
+                                // =======
+
+void setValue(int **pis, char ch)
+{
+    *pis = (int *) (UintPtr) ch;
+}
+
+void setValue(const int **pis, char ch)
+{
+    *pis = (const int *) (UintPtr) ch;
+}
+
+#ifndef BSLS_PLATFORM__OS_AIX
+char getValue(int * const& is)
+{
+    return (char) ((UintPtr) is & 0xff);
+}
+#endif
+
+char getValue(const int * const& is)
+{
+    return (char) ((UintPtr) is & 0xff);
+}
+
+                           // ======================
+                           // class ConstructEnabler
+                           // ======================
+
+struct ConstructEnabler {
+    // DATA
+    char d_c;
+
+    ConstructEnabler() : d_c(0) {}
+    explicit
+    ConstructEnabler(char ch) : d_c(ch) {}
+    ConstructEnabler& operator=(char ch)
+    {
+        d_c = ch;
+        return *this;
+    }
+
+    operator FuncPtrType() const
+    {
+        FuncPtrType fpt;
+        setValue(&fpt, d_c);
+        return fpt;
+    }
+
+    operator char() const 
+    {
+        return d_c;
+    }
+
+    operator void *() const
+    {
+        return (void *) (UintPtr) d_c;
+    }
+
+    operator int *() const
+    {
+        return (int *) (UintPtr) d_c;
+    }
+
+    operator MemberFuncPtrType() const
+    {
+        MemberFuncPtrType mfpt;
+        setValue(&mfpt, d_c);
+        return mfpt;
+    }
+};
 
                                // ==============
                                // class TestType
@@ -167,36 +542,55 @@ class TestType {
     // It could have the bit-wise moveable traits but we defer that trait to
     // the 'MoveableTestType'.
 
-    char            *d_data_p;
-    bslma_Allocator *d_allocator_p;
+  protected:
+    char             *d_data_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                  bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TestType(bslma_Allocator *ba = 0)
+    TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numDefaultCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = '?';
     }
 
-    TestType(char c, bslma_Allocator *ba = 0)
+#if 0
+    // Killed char c'tor
+
+    TestType(char c, bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCharCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = c;
     }
-
-    TestType(const TestType& original, bslma_Allocator *ba = 0)
+#else
+    TestType(const ConstructEnabler cE, bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
+    {
+        ++numCharCtorCalls;
+        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+        *d_data_p = cE.d_c;
+    }
+
+    friend void setValue(TestType *c, char ch)
+    {
+        *c->d_data_p = ch;
+    }
+#endif
+
+    TestType(const TestType& original, bslma::Allocator *ba = 0)
+    : d_data_p(0)
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCopyCtorCalls;
         if (&original != this) {
@@ -224,10 +618,6 @@ class TestType {
             *d_data_p = *rhs.d_data_p;
         }
         return *this;
-    }
-
-    void setDatum(char c) {
-        *d_data_p = c;
     }
 
     // ACCESSORS
@@ -265,11 +655,12 @@ class TestTypeNoAlloc {
     // bit-wise copyable trait, but we defer this to the
     // 'BitwiseCopyableTestType'.
 
+  protected:
     // DATA
     union {
-        char                                   d_char;
-        char                                   d_fill[sizeof(TestType)];
-        bsls_AlignmentFromType<TestType>::Type d_align;
+        char                                    d_char;
+        char                                    d_fill[sizeof(TestType)];
+        bsls::AlignmentFromType<TestType>::Type d_align;
     } d_u;
 
   public:
@@ -280,11 +671,26 @@ class TestTypeNoAlloc {
         ++numDefaultCtorCalls;
     }
 
+#if 0
+    // Killed char c'tor
+
     TestTypeNoAlloc(char c)
     {
         d_u.d_char = c;
         ++numCharCtorCalls;
     }
+#else
+    TestTypeNoAlloc(const ConstructEnabler& cE)
+    {
+        d_u.d_char = cE.d_c;
+        ++numCharCtorCalls;
+    }
+
+    friend void setValue(TestTypeNoAlloc *c, char ch)
+    {
+        c->d_u.d_char = ch;
+    }
+#endif
 
     TestTypeNoAlloc(const TestTypeNoAlloc&  original)
     {
@@ -339,22 +745,38 @@ class BitwiseMoveableTestType : public TestType {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(BitwiseMoveableTestType,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
-                                  bslalg_TypeTraitBitwiseMoveable);
+                                  bslalg::TypeTraitUsesBslmaAllocator,
+                                  bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
-    BitwiseMoveableTestType(bslma_Allocator *ba = 0)
+    BitwiseMoveableTestType(bslma::Allocator *ba = 0)
     : TestType(ba)
     {
     }
 
-    BitwiseMoveableTestType(char c, bslma_Allocator *ba = 0)
+#if 0
+    // Killed char c'tor
+
+    BitwiseMoveableTestType(char c, bslma::Allocator *ba = 0)
     : TestType(c, ba)
     {
     }
+#else
+    BitwiseMoveableTestType(const ConstructEnabler&  cE,
+                            bslma::Allocator        *ba = 0)
+    : TestType(ba)
+    {
+        *d_data_p = cE.d_c;
+    }
+
+    friend void setValue(BitwiseMoveableTestType *c, char ch)
+    {
+        *c->d_data_p = ch;
+    }
+#endif
 
     BitwiseMoveableTestType(const BitwiseMoveableTestType&  original,
-                            bslma_Allocator                *ba = 0)
+                            bslma::Allocator               *ba = 0)
     : TestType(original, ba)
     {
     }
@@ -371,7 +793,7 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(BitwiseCopyableTestType,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 bslalg::TypeTraitBitwiseCopyable);
 
     // CREATORS
     BitwiseCopyableTestType()
@@ -379,14 +801,30 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
     {
     }
 
+#if 0
+    // Killed char c'tor
+
     BitwiseCopyableTestType(char c)
     : TestTypeNoAlloc(c)
     {
     }
+#else
+    BitwiseCopyableTestType(const ConstructEnabler& cE)
+    : TestTypeNoAlloc()
+    {
+        d_u.d_char = cE.d_c;
+    }
+
+    friend void setValue(BitwiseCopyableTestType *c, char ch)
+    {
+        c->d_u.d_char = ch;
+    }
+#endif
 
     BitwiseCopyableTestType(const BitwiseCopyableTestType&  original)
-    : TestTypeNoAlloc(original.datum())
+    : TestTypeNoAlloc()
     {
+        setValue(this, original.datum());
     }
 };
 
@@ -406,11 +844,11 @@ class LargeBitwiseMoveableTestType : public TestType {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(LargeBitwiseMoveableTestType,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
-                                  bslalg_TypeTraitBitwiseMoveable);
+                                  bslalg::TypeTraitUsesBslmaAllocator,
+                                  bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
-    LargeBitwiseMoveableTestType(bslma_Allocator *ba = 0)
+    LargeBitwiseMoveableTestType(bslma::Allocator *ba = 0)
     : TestType(ba)
     {
         for (int i = 0; i < FOOTPRINT; ++i) {
@@ -418,16 +856,35 @@ class LargeBitwiseMoveableTestType : public TestType {
         }
     }
 
-    LargeBitwiseMoveableTestType(char c, bslma_Allocator *ba = 0)
+#if 0
+    // Killed char c'tor
+
+    LargeBitwiseMoveableTestType(char c, bslma::Allocator *ba = 0)
     : TestType(c, ba)
     {
         for (int i = 0; i < FOOTPRINT; ++i) {
             d_junk[i] = i;
         }
     }
+#else
+    LargeBitwiseMoveableTestType(const ConstructEnabler&  cE,
+                                 bslma::Allocator        *ba = 0)
+    : TestType(ba)
+    {
+        d_data_p = cE.d_c;
+        for (int i = 0; i < FOOTPRINT; ++i) {
+            d_junk[i] = i;
+        }
+    }
+
+    friend void setValue(LargeBitwiseMoveableTestType *c, char ch)
+    {
+        *c->d_data_p = ch;
+    }
+#endif
 
     LargeBitwiseMoveableTestType(const LargeBitwiseMoveableTestType&  original,
-                                 bslma_Allocator                     *ba = 0)
+                                 bslma::Allocator                    *ba = 0)
     : TestType(original, ba)
     {
         for (int i = 0; i < FOOTPRINT; ++i) {
@@ -447,6 +904,8 @@ class LargeBitwiseMoveableTestType : public TestType {
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+
 
 template <class TYPE>
 class CleanupGuard {
@@ -486,7 +945,7 @@ class CleanupGuard {
                                            i < d_initialEndPtr_p - d_array_p) {
                     continue; // those elements have already been moved
                 }
-                bslalg_ScalarDestructionPrimitives::destroy(d_array_p + i);
+                bslalg::ScalarDestructionPrimitives::destroy(d_array_p + i);
             }
             else {
                 LOOP_ASSERT(i, '_' == c);
@@ -532,8 +991,8 @@ void cleanup(TYPE *array, const char *spec)
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
         if (isalpha(c)) {
-            LOOP_ASSERT(i, array[i].datum() == c);
-            bslalg_ScalarDestructionPrimitives::destroy(array + i);
+            LOOP_ASSERT(i, getValue(array[i]) == c);
+            bslalg::ScalarDestructionPrimitives::destroy(array + i);
         }
         else {
             LOOP_ASSERT(i, '_' == c);
@@ -564,7 +1023,7 @@ void verify(TYPE *array, const char *spec)
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
         if (isalpha(c)) {
-            LOOP3_ASSERT(i, array[i].datum(), c, array[i].datum() == c);
+            LOOP3_ASSERT(i, getValue(array[i]), c, getValue(array[i]) == c);
         }
         else {
             LOOP_ASSERT(i, '_' == c);
@@ -638,7 +1097,8 @@ int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
         char c = spec[i];
         guard.setLength(i);
         if (isalpha(c)) {
-            bslalg_ScalarPrimitives::construct(array, c, Z);
+            bslalg::ScalarPrimitives::defaultConstruct(array, Z);
+            setValue(array, c);
         }
         else if ('_' == c) {
             continue;
@@ -745,6 +1205,7 @@ const int NUM_DATA_8 = sizeof DATA_8 / sizeof *DATA_8;
 
 template <class TYPE>
 void testRotate(bool bitwiseMoveableFlag,
+                bool,
                 bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_8' elements of
     // the 'DATA_8' array, that rotating by 'd_m' positions the entries
@@ -755,10 +1216,10 @@ void testRotate(bool bitwiseMoveableFlag,
 {
     const int MAX_SIZE = 32;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(TYPE)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(TYPE)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE*)&u.d_raw[0];
+    TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
 
     for (int ti = 0; ti < NUM_DATA_8; ++ti) {
         const int         LINE  = DATA_8[ti].d_lineNum;
@@ -852,7 +1313,8 @@ static const struct {
 const int NUM_DATA_7 = sizeof DATA_7 / sizeof *DATA_7;
 
 template <class TYPE>
-void testErase(bool bitwiseMoveableFlag,
+void testErase(bool,
+               bool,
                bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_7' elements of
     // the 'DATA_7' array, that erasing the 'd_ne' entries at
@@ -863,10 +1325,10 @@ void testErase(bool bitwiseMoveableFlag,
 {
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(T)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(T)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE*)&u.d_raw[0];
+    TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
 
     for (int ti = 0; ti < NUM_DATA_7; ++ti) {
         const int         LINE  = DATA_7[ti].d_lineNum;
@@ -1019,18 +1481,19 @@ void testDestructiveMoveAndInsertValueN(bool bitwiseMoveableFlag,
 {
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(TYPE)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(TYPE)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u, v;
 
     const char *DST_SPEC = "________________";  // add more as needed
     ASSERT(MAX_SIZE <= (int)strlen(DST_SPEC));
 
     {
-        bsls_ObjectBuffer<TYPE> mV;
-        bslalg_ScalarPrimitives::construct(&mV.object(), 'V', Z);
+        bsls::ObjectBuffer<TYPE> mV;
+        bslalg::ScalarPrimitives::defaultConstruct(&mV.object(), Z);
+        setValue(&mV.object(), 'V');
         const TYPE& V = mV.object();
-        ASSERT('V' == V.datum());
+        ASSERT('V' == getValue(V));
 
         for (int ti = 0; ti < NUM_DATA_6V; ++ti) {
             const int         LINE     = DATA_6V[ti].d_lineNum;
@@ -1050,8 +1513,8 @@ void testDestructiveMoveAndInsertValueN(bool bitwiseMoveableFlag,
                        LINE, SRC_SPEC, NE, BEGIN, DST, END, SRC_EXP, DST_EXP);
             }
 
-            TYPE *srcBuf = (TYPE*)&u.d_raw[0];
-            TYPE *dstBuf = (TYPE*)&v.d_raw[0];
+            TYPE *srcBuf = (TYPE*) (void*) &u.d_raw[0];
+            TYPE *dstBuf = (TYPE*) (void*) &v.d_raw[0];
             TYPE *srcEnd = &srcBuf[END];
 
             if (exceptionSafetyFlag) {
@@ -1109,7 +1572,7 @@ void testDestructiveMoveAndInsertValueN(bool bitwiseMoveableFlag,
                 cleanup(dstBuf, DST_EXP);
             }
         }
-        bslalg_ScalarDestructionPrimitives::destroy(&mV.object());
+        bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
     }
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -1223,17 +1686,23 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
     // exceptions, check that the array has the same number of initialized
     // entries (and no more), although their values are unspecified.
 {
-    const char *INPUT = "tuvwxyz";
+    const char INPUT[] = { "tuvwxyz" };
+    enum { INPUT_LEN = sizeof INPUT / sizeof *INPUT };
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[2 * MAX_SIZE * sizeof(T)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[2 * MAX_SIZE * sizeof(T)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u, v, w;
 
     const char *DST_SPEC = "________________";  // add more as needed
     ASSERT(MAX_SIZE <= (int)strlen(DST_SPEC));
 
-    TYPE *input = (TYPE*)&w.d_raw[MAX_SIZE];
+    ConstructEnabler inputCe[INPUT_LEN - 1];
+    for (const char *pc = INPUT; *pc; ++pc) {
+        inputCe[pc - INPUT] = *pc;
+    }
+
+    TYPE *input = (TYPE*) (void*) &w.d_raw[MAX_SIZE];
     gg(input, INPUT);  verify(input, INPUT);
 
     for (int ti = 0; ti < NUM_DATA_6R; ++ti) {
@@ -1254,8 +1723,8 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
                    LINE, SRC_SPEC, NE, BEGIN, DST, END, SRC_EXP, DST_EXP);
         }
 
-        TYPE *srcBuf = (TYPE*)&u.d_raw[0];
-        TYPE *dstBuf = (TYPE*)&v.d_raw[0];
+        TYPE *srcBuf = (TYPE*) (void*) &u.d_raw[0];
+        TYPE *dstBuf = (TYPE*) (void*) &v.d_raw[0];
         TYPE *srcEnd = &srcBuf[END];
 
         if (veryVerbose) printf("\t\t...and arbitrary FWD_ITER\n");
@@ -1273,8 +1742,8 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
                                                   &srcBuf[BEGIN],
                                                   &srcBuf[DST],
                                                   &srcBuf[END],
-                                                  &INPUT[0],
-                                                  &INPUT[NE],
+                                                  &inputCe[0],
+                                                  &inputCe[NE],
                                                   NE,
                                                   Z);
 
@@ -1297,8 +1766,8 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
                                               &srcBuf[BEGIN],
                                               &srcBuf[DST],
                                               &srcBuf[END],
-                                              &INPUT[0],
-                                              &INPUT[NE],
+                                              &inputCe[0],
+                                              &inputCe[NE],
                                               NE,
                                               Z);
 
@@ -1384,7 +1853,7 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
 
 template <class TYPE>
 void testDestructiveMoveAndMoveInsert(bool bitwiseMoveableFlag,
-                                      bool bitwiseCopyableFlag,
+                                      bool,
                                       bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_6R' elements of
     // the 'DATA_6R' array, that inserting the 'd_neInsert' entries at the
@@ -1399,8 +1868,8 @@ void testDestructiveMoveAndMoveInsert(bool bitwiseMoveableFlag,
     const char *INPUT_EXP = "_______";  // after move
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[2 * MAX_SIZE * sizeof(T)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[2 * MAX_SIZE * sizeof(T)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u, v, w;
 
     const char *DST_SPEC = "________________";  // add more as needed
@@ -1426,11 +1895,11 @@ void testDestructiveMoveAndMoveInsert(bool bitwiseMoveableFlag,
                    LINE, SRC_SPEC, NE, BEGIN, DST, END, SRC_EXP, DST_EXP);
         }
 
-        TYPE *srcBuf = (TYPE*)&u.d_raw[0];
-        TYPE *dstBuf = (TYPE*)&v.d_raw[0];
+        TYPE *srcBuf = (TYPE*) (void*) &u.d_raw[0];
+        TYPE *dstBuf = (TYPE*) (void*) &v.d_raw[0];
         TYPE *srcEnd = &srcBuf[END];
 
-        TYPE *input = (TYPE*)&w.d_raw[MAX_SIZE];
+        TYPE *input = (TYPE*) (void *) &w.d_raw[MAX_SIZE];
         TYPE *inputEnd = &input[NE];
 
         if (exceptionSafetyFlag) {
@@ -1566,15 +2035,16 @@ void testInsertValueN(bool bitwiseMoveableFlag,
 {
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(TYPE)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(TYPE)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
 
     {
-        bsls_ObjectBuffer<TYPE> mV;
-        bslalg_ScalarPrimitives::construct(&mV.object(), 'V', Z);
+        bsls::ObjectBuffer<TYPE> mV;
+        bslalg::ScalarPrimitives::defaultConstruct(&mV.object(), Z);
+        setValue(&mV.object(), 'V');
         const TYPE& V = mV.object();
-        ASSERT('V' == V.datum());
+        ASSERT('V' == getValue(V));
 
         for (int ti = 0; ti < NUM_DATA_5V; ++ti) {
             const int         LINE = DATA_5V[ti].d_lineNum;
@@ -1591,7 +2061,7 @@ void testInsertValueN(bool bitwiseMoveableFlag,
                         LINE, SPEC, NE, DST, END, EXP);
             }
 
-            TYPE *buf = (TYPE*)&u.d_raw[0];
+            TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
 
             if (exceptionSafetyFlag) {
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
@@ -1625,7 +2095,7 @@ void testInsertValueN(bool bitwiseMoveableFlag,
             }
 
         }
-        bslalg_ScalarDestructionPrimitives::destroy(&mV.object());
+        bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
     }
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -1691,14 +2161,20 @@ void testInsertRange(bool bitwiseMoveableFlag,
     // exceptions, check that the array has the same number of initialized
     // entries (and no more), although their values are unspecified.
 {
-    const char *INPUT = "tuvwxyz";
+    const char INPUT[] = { "tuvwxyz" };
+    enum { INPUT_LEN = sizeof INPUT / sizeof *INPUT };
+    ConstructEnabler inputCe[INPUT_LEN - 1];
+    for (const char *pc = INPUT; *pc; ++pc) {
+        inputCe[pc - INPUT] = *pc;
+    }
+
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[2 * MAX_SIZE * sizeof(T)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[2 * MAX_SIZE * sizeof(T)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u, v;
 
-    TYPE *input = (TYPE*)&v.d_raw[MAX_SIZE];
+    TYPE *input = (TYPE*) (void*) &v.d_raw[MAX_SIZE];
     gg(input, INPUT);  verify(input, INPUT);
 
     for (int ti = 0; ti < NUM_DATA_5R; ++ti) {
@@ -1718,7 +2194,7 @@ void testInsertRange(bool bitwiseMoveableFlag,
 
         if (veryVerbose) printf("\t\t...and arbitrary FWD_ITER\n");
         {
-            TYPE *buf = (TYPE*)&u.d_raw[0];
+            TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
 
             if (exceptionSafetyFlag) {
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
@@ -1727,8 +2203,8 @@ void testInsertRange(bool bitwiseMoveableFlag,
 
                     Obj::insert(&buf[DST],
                                 &buf[END],
-                                &INPUT[0],
-                                &INPUT[NE],
+                                &inputCe[0],
+                                &inputCe[NE],
                                 NE,
                                 Z);
 
@@ -1744,8 +2220,8 @@ void testInsertRange(bool bitwiseMoveableFlag,
 
                 Obj::insert(&buf[DST],
                             &buf[END],
-                            &INPUT[0],
-                            &INPUT[NE],
+                            &inputCe[0],
+                            &inputCe[NE],
                             NE,
                             Z);
 
@@ -1763,7 +2239,7 @@ void testInsertRange(bool bitwiseMoveableFlag,
 
         if (veryVerbose) printf("\t\t...and FWD_ITER = TYPE*\n");
         {
-            TYPE *buf = (TYPE*)&u.d_raw[0];
+            TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
 
             if (exceptionSafetyFlag) {
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
@@ -1814,7 +2290,7 @@ void testInsertRange(bool bitwiseMoveableFlag,
 
 template <class TYPE>
 void testMoveInsert(bool bitwiseMoveableFlag,
-                    bool bitwiseCopyableFlag,
+                    bool,
                     bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_5R' elements of
     // the 'DATA_5R' array, that inserting the 'd_neInsert' entries at the
@@ -1829,8 +2305,8 @@ void testMoveInsert(bool bitwiseMoveableFlag,
     const char *INPUT_EXP = "_______";  // after move
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[2 * MAX_SIZE * sizeof(T)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[2 * MAX_SIZE * sizeof(T)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u, v;
 
     if (veryVerbose) printf("\t\t...FWD_ITER = TYPE* (only)\n");
@@ -1850,8 +2326,8 @@ void testMoveInsert(bool bitwiseMoveableFlag,
                     LINE, SPEC, NE, DST, END , EXP);
         }
 
-        TYPE *buf = (TYPE*)&u.d_raw[0];
-        TYPE *input = (TYPE*)&v.d_raw[MAX_SIZE];
+        TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
+        TYPE *input = (TYPE*) (void*) &v.d_raw[MAX_SIZE];
         TYPE *inputEnd = &input[NE];
 
         if (exceptionSafetyFlag) {
@@ -1964,14 +2440,15 @@ const int NUM_DATA_4 = sizeof DATA_4 / sizeof *DATA_4;
 
 template <class TYPE>
 void testDestructiveMove(bool bitwiseMoveableFlag,
+                         bool, // bitwiseCopyableFlag
                          bool exceptionSafetyFlag = false)
 {
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(TYPE)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(TYPE)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE *)&u.d_raw[0];
+    TYPE *buf = (TYPE *) (void *) &u.d_raw[0];
 
     for (int ti = 0; ti < NUM_DATA_4; ++ti) {
         const int         LINE = DATA_4[ti].d_lineNum;
@@ -2071,15 +2548,16 @@ static const struct {
 const int NUM_DATA_3 = sizeof DATA_3 / sizeof *DATA_3;
 
 template <class TYPE>
-void testCopyConstruct(bool bitwiseCopyableFlag,
+void testCopyConstruct(bool, // bitwiseMoveableFlag
+                       bool bitwiseCopyableFlag,
                        bool exceptionSafetyFlag = false)
 {
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(TYPE)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(TYPE)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE *)&u.d_raw[0];
+    TYPE *buf = (TYPE *) (void *) &u.d_raw[0];
 
     if (verbose) printf("\t\tfrom same type.\n");
 
@@ -2140,6 +2618,14 @@ void testCopyConstruct(bool bitwiseCopyableFlag,
         const char *const EXP  = DATA_3[ti].d_expected;
         ASSERT(MAX_SIZE >= (int)std::strlen(SPEC));
 
+        enum { SPEC_CE_LEN = 20 };
+        ASSERT(SPEC_CE_LEN > std::strlen(SPEC));
+
+        ConstructEnabler specCe[SPEC_CE_LEN];
+        for (const char *pc = SPEC; *pc; ++pc) {
+            specCe[pc - SPEC] = *pc;
+        }
+
         if (veryVerbose) {
             printf("LINE = %d, SPEC = %s, SRC = %d, "
                    "NE = %d, DST = %d, EXP = %s\n",
@@ -2152,11 +2638,14 @@ void testCopyConstruct(bool bitwiseCopyableFlag,
 
         if (exceptionSafetyFlag) {
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
-                Obj::copyConstruct(&buf[DST], &SPEC[SRC], &SPEC[SRC + NE], Z);
+                Obj::copyConstruct(&buf[DST],
+                                   &specCe[SRC],
+                                   &specCe[SRC + NE],
+                                   Z);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             if (veryVerbose) printf("\n");
         } else {
-            Obj::copyConstruct(&buf[DST], &SPEC[SRC], &SPEC[SRC + NE], Z);
+            Obj::copyConstruct(&buf[DST], &specCe[SRC], &specCe[SRC + NE], Z);
         }
 
         if (veryVerbose) {
@@ -2166,7 +2655,7 @@ void testCopyConstruct(bool bitwiseCopyableFlag,
                    numCharCtorCalls - NUM_CTORS);
         }
         ASSERT(NUM_COPIES     == numCopyCtorCalls);
-        ASSERT(NUM_CTORS + NE <= numCharCtorCalls);
+//      ASSERT(NUM_CTORS + NE <= numCharCtorCalls);
 
         verify(buf, EXP);
         cleanup(buf, EXP);
@@ -2213,7 +2702,8 @@ static const struct {
 const int NUM_DATA_2 = sizeof DATA_2 / sizeof *DATA_2;
 
 template <typename TYPE>
-void testUninitializedFillN(bool bitwiseCopyableFlag,
+void testUninitializedFillN(bool, // bitwiseMoveableFlag
+                            bool bitwiseCopyableFlag,
                             bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_2' elements of
     // the 'DATA_2' array, that initializing the 'd_ne' entries starting from
@@ -2223,16 +2713,17 @@ void testUninitializedFillN(bool bitwiseCopyableFlag,
 {
     const int MAX_SIZE = 26;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(TYPE)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(TYPE)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE*)&u.d_raw[0];
+    TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
 
     {
-        bsls_ObjectBuffer<TYPE> mV;
-        bslalg_ScalarPrimitives::construct(&mV.object(), 'V', Z);
+        bsls::ObjectBuffer<TYPE> mV;
+        bslalg::ScalarPrimitives::defaultConstruct(&mV.object(), Z);
+        setValue(&mV.object(), 'V');
         const TYPE& V = mV.object();
-        ASSERT('V' == V.datum());
+        ASSERT('V' == getValue(V));
 
         for (int ti = 0; ti < NUM_DATA_2; ++ti) {
             const int         LINE  = DATA_2[ti].d_lineNum;
@@ -2267,7 +2758,7 @@ void testUninitializedFillN(bool bitwiseCopyableFlag,
             verify(buf, EXP);
             cleanup(buf, EXP);
         }
-        bslalg_ScalarDestructionPrimitives::destroy(&mV.object());
+        bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
     }
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -2286,15 +2777,15 @@ void testUninitializedFillNBCT(TYPE value)
     const int BUFFER_SIZE = MAX_SIZE * sizeof(TYPE);
 
     typedef union {
-        char                               d_raw[BUFFER_SIZE];
-        int                                d_enum;
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[BUFFER_SIZE];
+        int                                 d_enum;
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } Buffer;
 
     Buffer u;
     Buffer v;
-    TYPE *bufU = reinterpret_cast<TYPE*>(&u.d_raw[0]);
-    TYPE *bufV = reinterpret_cast<TYPE*>(&v.d_raw[0]);
+    TYPE *bufU = (TYPE*) (void*) (&u.d_raw[0]);
+    TYPE *bufV = (TYPE*) (void*) (&v.d_raw[0]);
 
     for (int arraySize = 0; arraySize < MAX_SIZE; ++arraySize) {
         for (int begin = 0; begin <= arraySize; ++begin) {
@@ -2306,7 +2797,7 @@ void testUninitializedFillNBCT(TYPE value)
 
                 if (veryVerbose) {
                     printf("\t\tarraySz = %d, begin = %d, numElements = %d\n",
-                            arraySize, begin, numElements);
+                           arraySize, begin, numElements);
                 }
                 Obj::uninitializedFillN(&bufU[begin], numElements, value, Z);
 
@@ -2335,6 +2826,95 @@ void testUninitializedFillNBCT(TYPE value)
 }
 
 //=============================================================================
+//                          GAUNTLET MACRO
+// Passed 'func', which should be a template of a function whose single
+// template parameter is the type to be stored into the array, and which takes
+// 3 boolean arguments telling
+//    - the template parameter is a bitwise moveable type
+//    - the template parameter is a bitwise copyable type
+//    - exception testing is to be done.
+//
+// Run 'func' on a whole gauntlet of different types.
+//=============================================================================
+
+#define GAUNTLET(func) do {                                                   \
+        if (verbose) printf("\t...with TestTypeNoAlloc.\n");                  \
+        func<TNA>(false, false);                                              \
+                                                                              \
+        if (verbose) printf("\t...with TestType.\n");                         \
+        func<T>(false, false);                                                \
+                                                                              \
+        if (verbose) printf("\t...with BitwiseMoveableTestType.\n");          \
+        func<BMT>(true, false);                                               \
+                                                                              \
+        if (verbose) printf("\t...with BitwiseCopyableTestType.\n");          \
+        func<BCT>(true, true);                                                \
+                                                                              \
+        if (verbose) printf("\t...with FuncPtrType.\n");                      \
+        func<FPT>(true, true);                                                \
+                                                                              \
+        if (verbose) printf("\t...with MemberFuncPtrType.\n");                \
+        func<MFPT>(true, true);                                               \
+                                                                              \
+        if (verbose) printf("\t...with char.\n");                             \
+        func<char>(true, true);                                               \
+                                                                              \
+        if (verbose) printf("\t...with char.\n");                             \
+        func<signed char>(true, true);                                        \
+                                                                              \
+        if (verbose) printf("\t...with char.\n");                             \
+        func<unsigned char>(true, true);                                      \
+                                                                              \
+        if (verbose) printf("\t...with short.\n");                            \
+        func<short>(true, true);                                              \
+                                                                              \
+        if (verbose) printf("\t...with unsigned short.\n");                   \
+        func<unsigned short>(true, true);                                     \
+                                                                              \
+        if (verbose) printf("\t...with int.\n");                              \
+        func<int>(true, true);                                                \
+                                                                              \
+        if (verbose) printf("\t...with unsigned int.\n");                     \
+        func<unsigned int>(true, true);                                       \
+                                                                              \
+        if (verbose) printf("\t...with long.\n");                             \
+        func<long>(true, true);                                               \
+                                                                              \
+        if (verbose) printf("\t...with unsigned long.\n");                    \
+        func<unsigned long>(true, true);                                      \
+                                                                              \
+        if (verbose) printf("\t...with Int64.\n");                            \
+        func<Int64>(true, true);                                              \
+                                                                              \
+        if (verbose) printf("\t...with Uint64.\n");                           \
+        func<Uint64>(true, true);                                             \
+                                                                              \
+        if (verbose) printf("\t...with float.\n");                            \
+        func<float>(true, true);                                              \
+                                                                              \
+        if (verbose) printf("\t...with double.\n");                           \
+        func<double>(true, true);                                             \
+                                                                              \
+        if (verbose) printf("\t...with long double.\n");                      \
+        func<long double>(true, true);                                        \
+                                                                              \
+        if (verbose) printf("\t...with 'void *'.\n");                         \
+        func<void *>(true, true);                                             \
+                                                                              \
+        if (verbose) printf("\t...with 'const void *'.\n");                   \
+        func<const void *>(true, true);                                       \
+                                                                              \
+        if (verbose) printf("\t...with 'int *'.\n");                          \
+        func<int *>(true, true);                                              \
+                                                                              \
+        if (verbose) printf("\t...with 'const int *'.\n");                    \
+        func<const int *>(true, true);                                        \
+                                                                              \
+        if (verbose) printf("\tException test.\n");                           \
+        func<T>(false, false, true);                                          \
+    } while (false)
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -2350,7 +2930,7 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -2373,39 +2953,23 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTesting 'rotate'\n");
 
-        if (verbose) printf("\n\t...with 'char'.\n");
-        testRotate<char>(true);
+        GAUNTLET(testRotate);
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testRotate<TNA>(false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testRotate<T>(false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testRotate<BMT>(true);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testRotate<BCT>(true);
-
-        if (verbose) printf("\n\t...with VeryLargeBitwiseMoveableTypes.\n");
+        if (verbose) printf("\nTesting 'rotate'"
+                                   "...with VeryLargeBitwiseMoveableTypes.\n");
 
         if (verbose) printf("\t\t...with 8 extra bytes.\n");
-        testRotate<XXL8>(true);
+        testRotate<XXL8>(true, false);
         if (verbose) printf("\t\t...with 16 extra bytes.\n");
-        testRotate<XXL16>(true);
+        testRotate<XXL16>(true, false);
         if (verbose) printf("\t\t...with 24 extra bytes.\n");
-        testRotate<XXL24>(true);
+        testRotate<XXL24>(true, false);
         if (verbose) printf("\t\t...with 32 extra bytes.\n");
-        testRotate<XXL32>(true);
+        testRotate<XXL32>(true, false);
         if (verbose) printf("\t\t...with 64 extra bytes.\n");
-        testRotate<XXL64>(true);
+        testRotate<XXL64>(true, false);
         if (verbose) printf("\t\t...with 128 extra bytes.\n");
-        testRotate<XXL128>(true);
-
-        if (verbose) printf("\n\tException test.\n");
-        testRotate<T>(false, true);
-
+        testRotate<XXL128>(true, false);
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -2423,21 +2987,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting 'erase'."
                             "\n================\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testErase<TNA>(false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testErase<T>(false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testErase<BMT>(true);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testErase<BCT>(true);
-
-        if (verbose) printf("\n\tException test.\n");
-        testErase<T>(false, true);
-
+        GAUNTLET(testErase);
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -2460,55 +3010,19 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\nTesting 'destructiveMoveAndInsert(...).\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testDestructiveMoveAndInsertValueN<TNA>(false, false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testDestructiveMoveAndInsertValueN<T>(false, false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testDestructiveMoveAndInsertValueN<BMT>(true, false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testDestructiveMoveAndInsertValueN<BCT>(true, true);
+        GAUNTLET(testDestructiveMoveAndInsertValueN);
 
         if (verbose)
             printf("\nTesting 'destructiveMoveAndInsert(T *dstB, T *dstE, "
                                              "FWD srcB, FWD srcE, ne, *a)'\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testDestructiveMoveAndInsertRange<TNA>(false, false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testDestructiveMoveAndInsertRange<T>(false, false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testDestructiveMoveAndInsertRange<BMT>(true, false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testDestructiveMoveAndInsertRange<BCT>(true, true);
+        GAUNTLET(testDestructiveMoveAndInsertRange);
 
         if (verbose)
             printf("\nTesting 'destructiveMoveAndMoveInsert(T *dstB, T *dstE, "
                                              "FWD srcB, FWD srcE, ne, *a)'\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testDestructiveMoveAndMoveInsert<TNA>(false, false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testDestructiveMoveAndMoveInsert<T>(false, false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testDestructiveMoveAndMoveInsert<BMT>(true, false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testDestructiveMoveAndMoveInsert<BCT>(true, true);
-
-        if (verbose) printf("\nException test.\n");
-        testDestructiveMoveAndInsertValueN<T>(false, false, true);
-        testDestructiveMoveAndInsertRange<T>(false, false, true);
-        testDestructiveMoveAndMoveInsert<T>(false, false, true);
-
+        GAUNTLET(testDestructiveMoveAndMoveInsert);
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -2533,55 +3047,19 @@ int main(int argc, char *argv[])
             printf("\nTesting 'insert(T *dstB, T *dstE, "
                                                      "const T& v, ne, *a)'\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testInsertValueN<TNA>(false, false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testInsertValueN<T>(false, false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testInsertValueN<BMT>(true, false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testInsertValueN<BCT>(true, true);
+        GAUNTLET(testInsertValueN);
 
         if (verbose)
             printf("\nTesting 'insert(T *dstB, T *dstE, "
                                              "FWD srcB, FWD srcE, ne, *a)'\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testInsertRange<TNA>(false, false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testInsertRange<T>(false, false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testInsertRange<BMT>(true, false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testInsertRange<BCT>(true, true);
+        GAUNTLET(testInsertRange);
 
         if (verbose)
             printf("\nTesting 'moveInsert(T *dstB, T *dstE, T **srcEp, "
                                              "FWD srcB, FWD srcE, ne, *a)'\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testMoveInsert<TNA>(false, false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testMoveInsert<T>(false, false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testMoveInsert<BMT>(true, false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testMoveInsert<BCT>(true, true);
-
-        if (verbose) printf("\nException test.\n");
-        testInsertValueN<T>(false, false, true);
-        testInsertRange<T>(false, false, true);
-        testMoveInsert<T>(false, false, true);
-
+        GAUNTLET(testMoveInsert);
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -2600,21 +3078,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTesting 'destructiveMove'\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testDestructiveMove<TNA>(false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testDestructiveMove<T>(false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testDestructiveMove<BMT>(true);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testDestructiveMove<BCT>(true);
-
-        if (verbose) printf("\n\tException test.\n");
-        testDestructiveMove<T>(false, true);
-
+        GAUNTLET(testDestructiveMove);
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -2633,21 +3097,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTesting 'copyConstruct'\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testCopyConstruct<TNA>(false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testCopyConstruct<T>(false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testCopyConstruct<BMT>(false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testCopyConstruct<BCT>(true);
-
-        if (verbose) printf("\n\tException test.\n");
-        testCopyConstruct<T>(false, true);
-
+        GAUNTLET(testCopyConstruct);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2661,20 +3111,11 @@ int main(int argc, char *argv[])
         //   void uninitializedFillN(T *b, ne, const T& v, *a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'uninitializedFillN'"
-                            "\n============================\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testUninitializedFillN<TNA>(false);
+        if (verbose) printf("Testing 'uninitializedFillN'\n"
+                            "============================\n");
 
-        if (verbose) printf("\n\t...with TestType.\n");
-        testUninitializedFillN<T>(false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testUninitializedFillN<BMT>(false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testUninitializedFillN<BCT>(false);
+        GAUNTLET(testUninitializedFillN);
 
         if (verbose) printf("\n\t...with fundamental and pointer types.\n");
         {
@@ -2706,7 +3147,7 @@ int main(int argc, char *argv[])
             testUninitializedFillNBCT<short>(0);
             testUninitializedFillNBCT<short>(123);
             testUninitializedFillNBCT<short>(0x5b5b);
-            testUninitializedFillNBCT<unsigned char>(~0);
+            testUninitializedFillNBCT<short>(~0);
 
             if (verbose) printf("LINE = %d, TYPE = unsigned short\n", L_);
             testUninitializedFillNBCT<unsigned short>(0);
@@ -2776,10 +3217,6 @@ int main(int argc, char *argv[])
             testUninitializedFillNBCT<const int *>((const int*)&test);
             testUninitializedFillNBCT<const int *>((const int*)~0LL);
         }
-
-        if (verbose) printf("\n\tException test.\n");
-        testUninitializedFillN<T>(false, true);
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -2837,7 +3274,7 @@ int main(int argc, char *argv[])
             const int bufferSize = rawBufferSize;
             char *buffer = rawBuffer;
 
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 for (int j = 0; j < bufferSize; ++j) {
@@ -2880,9 +3317,9 @@ int main(int argc, char *argv[])
             timer.reset();
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                bslalg_ArrayPrimitives_Imp::bitwiseFillN(buffer,
-                                                         buffer[0],
-                                                         bufferSize);
+                bslalg::ArrayPrimitives_Imp::bitwiseFillN(buffer,
+                                                          buffer[0],
+                                                          bufferSize);
             }
             timer.stop();
             printf("fill<char>(1) - exp memcpy  : %f\n", timer.elapsedTime());
@@ -2891,9 +3328,9 @@ int main(int argc, char *argv[])
         printf("\n\tuninitializedFillN with int\n");
         {
             const int bufferSize = rawBufferSize / sizeof(int);
-            int *buffer = (int *)rawBuffer;
+            int *buffer = (int *) (void *) rawBuffer;
 
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 for (int j = 0; j < bufferSize; ++j) {
@@ -2937,9 +3374,9 @@ int main(int argc, char *argv[])
             timer.reset();
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                bslalg_ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,
-                                                         32,
-                                                         rawBufferSize);
+                bslalg::ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,
+                                                          32,
+                                                          rawBufferSize);
             }
             timer.stop();
             printf("fill<int>(1) - exp memcpy  : %f\n", timer.elapsedTime());
@@ -2948,9 +3385,9 @@ int main(int argc, char *argv[])
         printf("\n\tuninitializedFillN with double\n");
         {
             const int bufferSize = rawBufferSize / sizeof(double);
-            double *buffer = (double *)rawBuffer;
+            double *buffer = (double *) (void *) rawBuffer;
 
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 for (int j = 0; j < bufferSize; ++j) {
@@ -2995,9 +3432,9 @@ int main(int argc, char *argv[])
             buffer[0] = (double)numIter;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                bslalg_ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,
-                                                         32,
-                                                         rawBufferSize);
+                bslalg::ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,
+                                                          32,
+                                                          rawBufferSize);
             }
             timer.stop();
             printf("fill<double>(1) - exp memcpy : %f\n", timer.elapsedTime());
@@ -3006,9 +3443,9 @@ int main(int argc, char *argv[])
         printf("\n\tuninitializedFillN with void *\n");
         {
             const int bufferSize = rawBufferSize / sizeof(void *);
-            void **buffer = (void **)rawBuffer;
+            void **buffer = (void **) (void *) rawBuffer;
 
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 for (int j = 0; j < bufferSize; ++j) {
@@ -3053,9 +3490,9 @@ int main(int argc, char *argv[])
             buffer[0] = (void *)buffer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                bslalg_ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,
-                                                         32,
-                                                         rawBufferSize);
+                bslalg::ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,
+                                                          32,
+                                                          rawBufferSize);
             }
             timer.stop();
             printf("fill<void *>(1) - exp memcpy : %f\n", timer.elapsedTime());

@@ -38,7 +38,7 @@ using namespace bsl;  // automatically added by script
 // CREATORS
 // [ 2] bdet_DateTz();
 // [ 7] bdet_DateTz(const bdet_DateTz& original);
-// [13] bdet_DateTz(const bdet_Date& localDate, int offset);
+// [12] bdet_DateTz(const bdet_Date& localDate, int offset);
 //
 // MANIPULATORS
 // [2]  void setDateTz(const bdet_Date& localDate, int offset);
@@ -46,7 +46,8 @@ using namespace bsl;  // automatically added by script
 //
 // ACCESSORS
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
-// [11] bdet_Datetime gmtStartTime() const;
+// [11] bdet_Datetime utcStartTime() const;
+// [13] bdet_Datetime gmtStartTime() const;
 // [ 4] bdet_Date localDate() const;
 // [ 4] int offset() const;
 // [ 5] bsl::ostream& print(bsl::ostream& stream, int l, int spl) const;
@@ -57,7 +58,7 @@ using namespace bsl;  // automatically added by script
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const bdet_DateTz&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -139,7 +140,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -163,15 +164,15 @@ int main(int argc, char *argv[]) {
 // The following snippets of code illustrate how to create and use
 // 'bdet_DateTz' objects.  First we will default construct an object 'date1'.
 // A default constructed object contains an offset of 0, implying that the
-// object represents a date in the GMT time zone.  The value of the date is the
+// object represents a date in the UTC time zone.  The value of the date is the
 // same as that of a default constructed 'bdet_Date' object:
 //..
   bdet_DateTz dateTz1;
   ASSERT(0                   == dateTz1.offset());
-  ASSERT(dateTz1.localDate() == dateTz1.gmtStartTime().date());
+  ASSERT(dateTz1.localDate() == dateTz1.utcStartTime().date());
   ASSERT(dateTz1.localDate() == bdet_Date());
 //..
-// Next we set 'dateTz1' to 12/31/2005 in the EST time zone (GMT-5):
+// Next we set 'dateTz1' to 12/31/2005 in the EST time zone (UTC-5):
 //..
   bdet_Date     date1(2005, 12, 31);
   bdet_Datetime datetime1(date1, bdet_Time(0, 0, 0, 0));
@@ -179,23 +180,23 @@ int main(int argc, char *argv[]) {
 
   dateTz1.setDateTz(date1, offset1);
   ASSERT(offset1                == dateTz1.offset());
-  ASSERT(dateTz1.localDate()    == dateTz1.gmtStartTime().date());
+  ASSERT(dateTz1.localDate()    == dateTz1.utcStartTime().date());
   ASSERT(dateTz1.localDate()    == date1);
-  ASSERT(dateTz1.gmtStartTime() != datetime1);
+  ASSERT(dateTz1.utcStartTime() != datetime1);
 
   datetime1.addMinutes(-offset1);
-  ASSERT(dateTz1.gmtStartTime() == datetime1);
+  ASSERT(dateTz1.utcStartTime() == datetime1);
 //..
 // Then we create 'dateTz2' as a copy of 'dateTz1':
 //..
   bdet_DateTz dateTz2(dateTz1);
   ASSERT(offset1                == dateTz2.offset());
-  ASSERT(dateTz2.localDate()    == dateTz2.gmtStartTime().date());
+  ASSERT(dateTz2.localDate()    == dateTz2.utcStartTime().date());
   ASSERT(dateTz2.localDate()    == date1);
-  ASSERT(dateTz2.gmtStartTime() == datetime1);
+  ASSERT(dateTz2.utcStartTime() == datetime1);
 //..
 // We now create a third object, 'dateTz3', representing a date 01/01/2001 in
-// the PST time zone (GMT-8):
+// the PST time zone (UTC-8):
 //..
   bdet_Date     date2(2001, 01, 01);
   bdet_Datetime datetime2(date2, bdet_Time(0, 0, 0, 0));
@@ -203,12 +204,12 @@ int main(int argc, char *argv[]) {
 
   bdet_DateTz dateTz3(date2, offset2);
   ASSERT(offset2                == dateTz3.offset());
-  ASSERT(dateTz3.localDate()    == dateTz3.gmtStartTime().date());
+  ASSERT(dateTz3.localDate()    == dateTz3.utcStartTime().date());
   ASSERT(dateTz3.localDate()    == date2);
-  ASSERT(dateTz3.gmtStartTime() != datetime2);
+  ASSERT(dateTz3.utcStartTime() != datetime2);
 
   datetime2.addMinutes(-offset2);
-  ASSERT(dateTz3.gmtStartTime() == datetime2);
+  ASSERT(dateTz3.utcStartTime() == datetime2);
 //..
 // Finally we stream out the values of 'dateTz1', 'dateTz2' and 'dateTz3' to
 // 'stdout':
@@ -225,80 +226,19 @@ if (veryVerbose)
 //  01JAN2001-0800
 //..
       } break;
-      case 12: {
-        // --------------------------------------------------------------------
-        // TESTING STATE CONSTRUCTOR:
-        //
-        //
-        // Concerns:
-        //   The constructor must correctly forward its three parameters to a
-        //   tested utility function and correctly initialize the serial date
-        //   integer with the returned result.
-        //
-        // Plan:
-        //   Specify a set S of dates and offsets as (y, m, d, o) quadruplets
-        //   having widely varying values.  For each (y, m, d, o) in S,
-        //   construct a date object X and verify that X has the expected
-        //   value.
-        //
-        // Testing:
-        //   bdet_DateTz(const bdet_Date& localDate, int offset);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "Testing Copy Constructor" << endl
-                                  << "========================" << endl;
-
-        if (verbose) cout << "\nTesting copy constructor." << endl;
-        {
-            static const struct {
-                int d_year;  int d_month;  int d_day; int d_offset;
-            } DATA[] = {
-                //    year  mo day      off
-                //    ====  == ===    =======
-                    {    1,  1,  1,    0     },
-                    {   10,  4,  5,    1     },
-                    {  100,  6,  7,   -1439  },
-                    { 1000,  8,  9,    1439  },
-                    { 2000,  2, 29,   -1     },
-                    { 2002,  7,  4,    1380  },
-                    { 2003,  8,  5,   -1380  },
-                    { 2004,  9,  3,    5*60  },
-                    { 9999, 12, 31,   -5*60  }
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int YEAR   = DATA[i].d_year;
-                const int MONTH  = DATA[i].d_month;
-                const int DAY    = DATA[i].d_day;
-                const int OFFSET = DATA[i].d_offset;
-
-                if (veryVerbose) { T_ P_(YEAR) P_(MONTH) P_(DAY) P(OFFSET) }
-
-                const bdet_Date TEMP_DATE(YEAR, MONTH, DAY);
-                Obj x;  const Obj& X = x;
-                x.setDateTz(TEMP_DATE, OFFSET);
-
-                const Obj Y(TEMP_DATE, OFFSET);
-
-                if (veryVeryVerbose) { T_ T_ P_(X) P(Y) }
-                LOOP_ASSERT(i, X == Y);
-            }
-        }
-      } break;
-      case 11: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING 'gmtStartTime'
         //
         // Concerns:
-        //   That 'gmtStartTime' computes the correct GMT start time of the
-        //   local date accordingly to its timezone.
+        //   That the deprecated 'gmtStartTime' computes the correct UTC start
+        //   time of the local date accordingly to its timezone.
         //
         // Plan:
         //   Given a table of possible dates their offset and their starting
-        //   GMT time verify that 'gmtStartTime' computation corresponds to the
+        //   UTC time verify that 'utcStartTime' computation corresponds to the
         //   tabulated data and that it also holds that
-        //   'gmtStartTime() == localDate() - offset()'
+        //   'utcStartTime() == localDate() - offset()'
         //
         // Testing:
         //   bdet_Datetime gmtStartTime() const;
@@ -364,6 +304,147 @@ if (veryVerbose)
             }
             LOOP_ASSERT(i, EXP1 == X.gmtStartTime());
             LOOP_ASSERT(i, EXP2 == X.gmtStartTime());
+        }
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING STATE CONSTRUCTOR:
+        //
+        //
+        // Concerns:
+        //   The constructor must correctly forward its three parameters to a
+        //   tested utility function and correctly initialize the serial date
+        //   integer with the returned result.
+        //
+        // Plan:
+        //   Specify a set S of dates and offsets as (y, m, d, o) quadruplets
+        //   having widely varying values.  For each (y, m, d, o) in S,
+        //   construct a date object X and verify that X has the expected
+        //   value.
+        //
+        // Testing:
+        //   bdet_DateTz(const bdet_Date& localDate, int offset);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "Testing Copy Constructor" << endl
+                                  << "========================" << endl;
+
+        if (verbose) cout << "\nTesting copy constructor." << endl;
+        {
+            static const struct {
+                int d_year;  int d_month;  int d_day; int d_offset;
+            } DATA[] = {
+                //    year  mo day      off
+                //    ====  == ===    =======
+                    {    1,  1,  1,    0     },
+                    {   10,  4,  5,    1     },
+                    {  100,  6,  7,   -1439  },
+                    { 1000,  8,  9,    1439  },
+                    { 2000,  2, 29,   -1     },
+                    { 2002,  7,  4,    1380  },
+                    { 2003,  8,  5,   -1380  },
+                    { 2004,  9,  3,    5*60  },
+                    { 9999, 12, 31,   -5*60  }
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int YEAR   = DATA[i].d_year;
+                const int MONTH  = DATA[i].d_month;
+                const int DAY    = DATA[i].d_day;
+                const int OFFSET = DATA[i].d_offset;
+
+                if (veryVerbose) { T_ P_(YEAR) P_(MONTH) P_(DAY) P(OFFSET) }
+
+                const bdet_Date TEMP_DATE(YEAR, MONTH, DAY);
+                Obj x;  const Obj& X = x;
+                x.setDateTz(TEMP_DATE, OFFSET);
+
+                const Obj Y(TEMP_DATE, OFFSET);
+
+                if (veryVeryVerbose) { T_ T_ P_(X) P(Y) }
+                LOOP_ASSERT(i, X == Y);
+            }
+        }
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING 'utcStartTime'
+        //
+        // Concerns:
+        //   That 'utcStartTime' computes the correct UTC start time of the
+        //   local date accordingly to its timezone.
+        //
+        // Plan:
+        //   Given a table of possible dates their offset and their starting
+        //   UTC time verify that 'utcStartTime' computation corresponds to the
+        //   tabulated data and that it also holds that
+        //   'utcStartTime() == localDate() - offset()'
+        //
+        // Testing:
+        //   bdet_Datetime utcStartTime() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'utcStartTime'" << endl
+                          << "======================" << endl;
+        struct {
+            int d_line;
+            int d_year;
+            int d_month;
+            int d_day;
+            int d_offset;
+            int d_utcYear;
+            int d_utcMonth;
+            int d_utcDay;
+            int d_utcHour;
+            int d_utcMinute;
+        } DATA[] = {
+            //LINE YR MO D  OFF G_Y G_M G_D G_H G_M
+            //---- -- -- -- --- --- --- --- --- ---
+            { L_,   1, 1, 1,  0,  1,  1,  1,  0,  0 },
+            { L_,   1, 1, 1, -1,  1,  1,  1,  0,  1 },
+            { L_,   1, 1, 2,  1,  1,  1,  1, 23, 59 }
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int LINE       = DATA[i].d_line;
+            const int YEAR       = DATA[i].d_year;
+            const int MONTH      = DATA[i].d_month;
+            const int DAY        = DATA[i].d_day;
+            const int OFFSET     = DATA[i].d_offset;
+            const int UTC_YEAR   = DATA[i].d_utcYear;
+            const int UTC_MONTH  = DATA[i].d_utcMonth;
+            const int UTC_DAY    = DATA[i].d_utcDay;
+            const int UTC_HOUR   = DATA[i].d_utcHour;
+            const int UTC_MINUTE = DATA[i].d_utcMinute;
+
+            if(veryVerbose) {
+                T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P_(OFFSET) P_(UTC_YEAR)
+                          P_(UTC_MONTH) P_(UTC_DAY) P_(UTC_HOUR) P(UTC_MINUTE)
+            }
+
+            const bdet_Date TEMP_DATE(YEAR, MONTH, DAY);
+            Obj x; const Obj& X = x;
+            x.setDateTz(TEMP_DATE, OFFSET);
+
+            const bdet_Datetime EXP1(UTC_YEAR,
+                                     UTC_MONTH,
+                                     UTC_DAY,
+                                     UTC_HOUR,
+                                     UTC_MINUTE);
+
+            bdet_Datetime exp2(bdet_Datetime(X.localDate()));
+            const bdet_Datetime& EXP2 = exp2;
+            exp2.addMinutes(-X.offset());
+
+            if (veryVerbose) {
+                T_  cout << "UTC START TIME: " << X.utcStartTime() << endl;
+            }
+            LOOP_ASSERT(i, EXP1 == X.utcStartTime());
+            LOOP_ASSERT(i, EXP2 == X.utcStartTime());
         }
       } break;
       case 10: {

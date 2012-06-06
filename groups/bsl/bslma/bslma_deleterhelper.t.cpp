@@ -18,7 +18,7 @@ using namespace std;
 //                                  Overview
 //                                  --------
 // This test driver tests helper functions provided by the
-// 'bslma_DeleterHelper' namespace.  We need to verify that the 'deleteObject'
+// 'bslma::DeleterHelper' namespace.  We need to verify that the 'deleteObject'
 // method destroys an object and calls the deallocate method of the supplied
 // allocator or pool.
 //-----------------------------------------------------------------------------
@@ -91,14 +91,15 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bslma_DeleterHelper Obj;
+typedef bslma::DeleterHelper Obj;
 
 //=============================================================================
 //                          HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
 class my_NewDeleteAllocator {
-  // Test class used to verify examples.
+    // Test class used to verify examples.
+
     int d_count;
 
     enum { MAGIC   = 0xDEADBEEF,
@@ -110,16 +111,16 @@ class my_NewDeleteAllocator {
 
     void *allocate(unsigned size)  {
         unsigned *p = (unsigned *) operator new(size +
-                                       bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
         *p = MAGIC;
 
         ++d_count;
-        return (char *) p + bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        return (char *) p + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
     }
 
     void deallocate(void *address)  {
         unsigned *p = (unsigned *)
-                          ((bsls_AlignmentUtil::MaxAlignedType *) address - 1);
+                         ((bsls::AlignmentUtil::MaxAlignedType *) address - 1);
         ASSERT(MAGIC == *p);
         *p = DELETED;
 
@@ -246,7 +247,7 @@ public:
     inline
     my_RawDeleterGuard<TYPE, ALLOCATOR>::~my_RawDeleterGuard()
     {
-        bslma_DeleterHelper::deleteObjectRaw(d_object_p, d_allocator_p);
+        bslma::DeleterHelper::deleteObjectRaw(d_object_p, d_allocator_p);
     }
 //..
 // Note that we've denoted our guard to be a "raw" guard in keeping with this
@@ -440,8 +441,8 @@ int main(int argc, char *argv[])
         {
             if (verbose) cout << "\tNegative testing" << endl;
 
-            bsls_AssertFailureHandlerGuard guard(
-                                             &bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard guard(
+                                            &bsls::AssertTest::failTestDriver);
 
             my_NewDeleteAllocator a;
             my_NewDeleteAllocator *null = 0;
@@ -575,8 +576,8 @@ int main(int argc, char *argv[])
         {
             if (verbose) cout << "\tNegative testing" << endl;
 
-            bsls_AssertFailureHandlerGuard guard(
-                                             &bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard guard(
+                                            &bsls::AssertTest::failTestDriver);
 
             my_NewDeleteAllocator a;
             my_NewDeleteAllocator *null = 0;

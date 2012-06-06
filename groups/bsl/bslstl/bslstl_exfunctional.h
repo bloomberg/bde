@@ -10,10 +10,10 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace for functional extensions
 //
 //@CLASSES:
-//    bsl::compose1: create an unary function object adaptor
-//    bsl::compose2: create a binary function object adaptor
-//   bsl::select1st: select 'first' value of a pair
-//   bsl::select2nd: select 'second' value of a pair
+//  bsl::compose1: create an unary function object adaptor
+//  bsl::compose2: create a binary function object adaptor
+//  bsl::select1st: select 'first' value of a pair
+//  bsl::select2nd: select 'second' value of a pair
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 // Boris Fomitchev
 //
 // This material is provided "as is", with absolutely no warranty expressed
-// or implied. Any use is at your own risk.
+// or implied.  Any use is at your own risk.
 //
 // Permission to use or copy this software for any purpose is hereby granted
 // without fee, provided the above notices are retained on all copies.
@@ -188,8 +188,9 @@ template <class TYPE>
 struct identity : public std::unary_function<TYPE, TYPE>
 {
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(identity,
-                                 BloombergLP::bslalg_TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(
+                                identity,
+                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
 
     // ACCESSORS
     const TYPE& operator()(const TYPE& x) const
@@ -206,8 +207,9 @@ template <class PAIR>
 struct select1st : public std::unary_function<PAIR, typename PAIR::first_type>
 {
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(select1st,
-                                 BloombergLP::bslalg_TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(
+                                select1st,
+                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
 
     // ACCESSORS
     const typename PAIR::first_type& operator()(const PAIR& x) const
@@ -224,8 +226,9 @@ template <class PAIR>
 struct select2nd : public std::unary_function<PAIR, typename PAIR::second_type>
 {
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(select2nd,
-                                 BloombergLP::bslalg_TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(
+                                select2nd,
+                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
 
     // ACCESSORS
     const typename PAIR::second_type& operator()(const PAIR& x) const

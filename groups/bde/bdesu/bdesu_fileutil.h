@@ -19,6 +19,23 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a platform-independent interface to
 // filesystem utility methods.
 //
+///Platform Specific File Locking Caveats
+///--------------------------------------
+// Locking has the following caveats for the following operating systems:
+//:
+//: o On Posix, closing a file releases all locks on all file descriptors
+//:   referring to that file within the current process.  [Doc 1] [Doc 2]
+//:
+//: o On Posix, the child of a fork does not inherit the locks of the parent
+//:   process.  [Doc 1] [Doc 2]
+//:
+//: o On at least some flavors of Unix, you can't lock a file for writing using
+//:   file descriptor opened in read-only mode.
+//
+// Documents
+//: 1 POSIX:http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html
+//: 2 BSD: http://www.manpagez.com/man/2/fcntl
+//
 ///Usage
 ///-----
 ///Example 1: General Usage
@@ -243,6 +260,10 @@ struct bdesu_FileUtil {
         // otherwise.  Note that two calls are necessary to open a file which
         // may or may not exist.  Also note that if 'writableFlag' and
         // 'existFlag' are both 'false', this function will necessarily fail.
+        // Also note that when a file is opened in 'append' mode, all writes
+        // will go to the end of the file, even if there has been seeking on
+        // the file descriptor or another process has changed the length of
+        // the file, though append-mode writes are not guaranteed to be atomic.
 
     static int close(FileDescriptor descriptor);
         // Close the specified 'descriptor'.  Return 0 on success and a
@@ -391,11 +412,11 @@ struct bdesu_FileUtil {
         // 'BDESU_ERROR_LOCKING_CONFLICT' if the platform reports the lock
         // could not be acquired because another process holds a conflicting
         // lock, and a negative value for any other kind of error.  Note that
-        // this operation locks the indicated file for use by the current
-        // *process*, but the behavior is unspecified (and platform-dependent)
-        // when either attempting to lock 'fd' multiple times, or attempting
-        // to lock another descriptor referring to the same file, within a
-        // single process.
+        // this operation locks the indicated file for the current *process*,
+        // but the behavior is unspecified (and platform-dependent) when either
+        // attempting to lock 'fd' multiple times, or attempting to lock
+        // another descriptor referring to the same file, within a single
+        // process.
 
     static int unlock(FileDescriptor fd);
         // Release any lock this process holds on the file with the specified

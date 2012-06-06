@@ -10,22 +10,26 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                        // ---------------------
-                        // class bslma_Allocator
-                        // ---------------------
+namespace bslma {
+
+                        // ---------------
+                        // class Allocator
+                        // ---------------
 
 // CLASS METHODS
-void bslma_Allocator::throwBadAlloc()
+void Allocator::throwBadAlloc()
 {
     BSLS_THROW(std::bad_alloc());
 }
 
 // CREATORS
-bslma_Allocator::~bslma_Allocator()
+Allocator::~Allocator()
 {
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

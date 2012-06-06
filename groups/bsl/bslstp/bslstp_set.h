@@ -433,7 +433,10 @@ bool  operator<(const multiset<_Key,_Compare,_Alloc>& __x,
 template <class _Key, class _Compare, class _Alloc>
 inline
 bool operator!=(const multiset<_Key,_Compare,_Alloc>& __x,
-                const multiset<_Key,_Compare,_Alloc>& __y) {return !(__x == __y);}
+                const multiset<_Key,_Compare,_Alloc>& __y)
+{
+    return !(__x == __y);
+}
 
 template <class _Key, class _Compare, class _Alloc>
 inline

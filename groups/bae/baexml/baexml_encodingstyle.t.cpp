@@ -138,9 +138,13 @@ int main(int argc, char *argv[])
                 // line         enumerator value        expected result
                 // ----    -----------------------      -----------------
                 {  L_,     Obj::BAEXML_COMPACT,         "COMPACT"         },
+#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
                 {  L_,     Obj::COMPACT,                "COMPACT"         },
+#endif
                 {  L_,     Obj::BAEXML_PRETTY,          "PRETTY"          },
+#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
                 {  L_,     Obj::PRETTY,                 "PRETTY"          },
+#endif
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

@@ -1,4 +1,4 @@
-// bslma_autodestructor.t.cpp  -*-C++-*-
+// bslma_autodestructor.t.cpp                                         -*-C++-*-
 
 #include <bslma_autodestructor.h>
 #include <bslma_default.h>
@@ -18,7 +18,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// A 'bslma_AutoDestructor' (a kind of "range proctor") is a mechanism (i.e.,
+// A 'bslma::AutoDestructor' (a kind of "range proctor") is a mechanism (i.e.,
 // having state but no value) that is used to conditionally destroy a
 // contiguous sequence of objects of parameterized 'TYPE'.  We are mostly
 // concerned that this proctor destroys the proper sequence of contiguous
@@ -41,12 +41,12 @@ using namespace std;
 // sequences (differing in 'origin' and 'length') of the helper class objects
 // in an array.  Rather than using the primary manipulators ('reset' and
 // 'setLength'), we will use the "state" constructor to bring the
-// 'bslma_AutoDestructor' directly to any desired state.  After each proctor
+// 'bslma::AutoDestructor' directly to any desired state.  After each proctor
 // is destroyed, we will verify that the corresponding counters of the objects
 // managed by the proctor are each incremented exactly once.
 //
 // Note that the helper objects were constructed on the stack, so an object's
-// destructor could be invoked twice -- once when the 'bslma_AutoDestructor'
+// destructor could be invoked twice -- once when the 'bslma::AutoDestructor'
 // goes out of scope, and once when the object itself goes out of scope.
 // Although this repeated destruction of helper object is not a problem in
 // practice (as the destructor does not release any resources), it is
@@ -67,8 +67,8 @@ using namespace std;
 // counters.  The third is a 'printArray' function that is used to print an
 // array of counters.
 //-----------------------------------------------------------------------------
-// [4] bslma_AutoDestructor<TYPE>(TYPE *origin, int length = 0);
-// [4] ~bslma_AutoDestructor<TYPE>();
+// [4] bslma::AutoDestructor<TYPE>(TYPE *origin, int length = 0);
+// [4] ~bslma::AutoDestructor<TYPE>();
 // [8] void operator++();
 // [8] void operator--();
 // [5] void release();
@@ -256,17 +256,17 @@ static void printArray(const int *array, int numElements)
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// 'bslma_AutoDestructor' is normally used to achieve *exception* *safety*
+// 'bslma::AutoDestructor' is normally used to achieve *exception* *safety*
 // in an *exception* *neutral* way by automatically destroying
 // (otherwise-unmanaged) orphaned objects for an "in-place" array should an
 // exception occur.  The following example illustrates the insertion operation
 // for a generic array.  Assume that the array initially contains the following
 // five elements:
 //..
-//                 0     1     2     3     4
-//               _____ _____ _____ _____ _____ __
-//              | "A" | "B" | "C" | "D" | "E" |
-//              `=====^=====^=====^=====^=====^==
+//     0     1     2     3     4
+//   _____ _____ _____ _____ _____ __
+//  | "A" | "B" | "C" | "D" | "E" |
+//  `=====^=====^=====^=====^=====^==
 //..
 // To insert an element "F" at index position 2, the existing elements at index
 // positions 2 - 4 (i.e., "C", "D", and "E") are first shifted right to create
@@ -275,20 +275,20 @@ static void printArray(const int *array, int numElements)
 // one by one by invoking the copy constructor (immediately followed by
 // destroying the original elements).  However, should any of the copy
 // construction operations throw, all allocated resources from every previous
-// copy construction would be leaked.  Using the 'bslma_AutoDestructor'
+// copy construction would be leaked.  Using the 'bslma::AutoDestructor'
 // prevents the leak by invoking the destructor of each of the previously
 // copied elements should the proctor go out of scope before the 'release'
 // method of the proctor is called (such as when the function exits prematurely
 // due to an exception):
 //..
-//                 0     1     2     3     4     5     6
-//               _____ _____ _____ _____ _____ _____ _____
-//              | "A" | "B" | "C" | "D" | "E" |xxxxx|xxxxx|
-//              `=====^=====^=====^=====^=====^=====^====='
-//              my_Array                            ^----- bslma_AutoDestructor
-//              (length = 5)                           (origin = 6, length = 0)
+//     0     1     2     3     4     5     6
+//   _____ _____ _____ _____ _____ _____ _____
+//  | "A" | "B" | "C" | "D" | "E" |xxxxx|xxxxx|
+//  `=====^=====^=====^=====^=====^=====^====='
+//  my_Array                            ^----- bslma::AutoDestructor
+//  (length = 5)                           (origin = 6, length = 0)
 //
-//               Note: "xxxxx" denotes uninitialized memory.
+//   Note: "xxxxx" denotes uninitialized memory.
 //..
 // As each of the elements at index positions beyond the insertion position is
 // shifted up by one index position, the proctor (i.e., the proctor's length)
@@ -299,26 +299,26 @@ static void printArray(const int *array, int numElements)
 // always being managed (during an allocation attempt) either by the proctor or
 // the array itself, but not both:
 //..
-//                 0     1     2     3     4     5     6
-//               _____ _____ _____ _____ _____ _____ _____
-//              | "A" | "B" | "C" | "D" |xxxxx| "E" |xxxxx|
-//              `=====^=====^=====^=====^=====^=====^====='
-//              my_Array                      ^----------- bslma_AutoDestructor
-//              (length = 4)                          (origin = 6, length = -1)
+//     0     1     2     3     4     5     6
+//   _____ _____ _____ _____ _____ _____ _____
+//  | "A" | "B" | "C" | "D" |xxxxx| "E" |xxxxx|
+//  `=====^=====^=====^=====^=====^=====^====='
+//  my_Array                      ^----------- bslma::AutoDestructor
+//  (length = 4)                          (origin = 6, length = -1)
 //
-//               Note: Configuration after shifting up one element.
+//   Note: Configuration after shifting up one element.
 //..
-// When all elements are shifted, the 'bslma_AutoDestructor' will protect the
+// When all elements are shifted, the 'bslma::AutoDestructor' will protect the
 // entire range of shifted objects:
 //..
-//                0     1     2     3     4     5     6
-//              _____ _____ _____ _____ _____ _____ _____
-//             | "A" | "B" |xxxxx| "C" | "D" | "E" |xxxxx|
-//             `=====^=====^=====^=====^=====^=====^====='
-//             my_Array          ^----------------------- bslma_AutoDestructor
-//             (length = 2)                           (origin = 6, length = -3)
+//     0     1     2     3     4     5     6
+//   _____ _____ _____ _____ _____ _____ _____
+//  | "A" | "B" |xxxxx| "C" | "D" | "E" |xxxxx|
+//  `=====^=====^=====^=====^=====^=====^====='
+//  my_Array          ^----------------------- bslma::AutoDestructor
+//  (length = 2)                           (origin = 6, length = -3)
 //
-//               Note: Configuration after shifting up three elements.
+//    Note: Configuration after shifting up three elements.
 //..
 // Next, a new copy of element "F" must be created.  If, during creation,
 // an allocation fails and an exception is thrown, the array (now of length 2)
@@ -336,20 +336,20 @@ static void printArray(const int *array, int numElements)
         // parameterized 'TYPE' stored contiguously in memory.
 
         // DATA
-        TYPE            *d_array_p;      // dynamically allocated array
-        int              d_length;       // logical length of this array
-        int              d_size;         // physical capacity of this array
-        bslma_Allocator *d_allocator_p;  // allocator (held, not owned)
+        TYPE             *d_array_p;      // dynamically allocated array
+        int               d_length;       // logical length of this array
+        int               d_size;         // physical capacity of this array
+        bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 
       public:
         // CREATORS
-        my_Array(bslma_Allocator *basicAllocator = 0);
+        my_Array(bslma::Allocator *basicAllocator = 0);
             // Create a 'my_Array' object having an initial length and capacity
             // of 0.  Optionally specify a 'basicAllocator' used to supply
             // memory.  If 'basicAllocator' is 0, the currently installed
             // default allocator is used.
 
-        my_Array(int initialCapacity, bslma_Allocator *basicAllocator = 0);
+        my_Array(int initialCapacity, bslma::Allocator *basicAllocator = 0);
             // Create a 'my_Array' object having an initial length of 0 and
             // the specified 'initialCapacity'.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
@@ -377,26 +377,26 @@ static void printArray(const int *array, int numElements)
 //..
 // Note that the rest of the 'my_Array' interface (above) and implementation
 // (below) is omitted as the portion shown is sufficient to demonstrate the use
-// of 'bslma_AutoDestructor'.
+// of 'bslma::AutoDestructor'.
 //..
     // CREATORS
     template <class TYPE>
     inline
-    my_Array<TYPE>::my_Array(bslma_Allocator *basicAllocator)
+    my_Array<TYPE>::my_Array(bslma::Allocator *basicAllocator)
     : d_array_p(0)
     , d_length(0)
     , d_size(0)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
     }
 
     template <class TYPE>
     inline
-    my_Array<TYPE>::my_Array(int              initialCapacity,
-                             bslma_Allocator *basicAllocator)
+    my_Array<TYPE>::my_Array(int               initialCapacity,
+                             bslma::Allocator *basicAllocator)
     : d_length(0)
     , d_size(initialCapacity)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_array_p = (TYPE *)d_allocator_p->allocate(
                                                sizeof(TYPE) * initialCapacity);
@@ -413,7 +413,7 @@ static void printArray(const int *array, int numElements)
 //..
 // The elided implementation of the following 'insert' function (which shows
 // code for the case above, i.e., there is sufficient capacity) is sufficient
-// to illustrate the use of 'bslma_AutoDestructor':
+// to illustrate the use of 'bslma::AutoDestructor':
 //..
     // MANIPULATORS
     template <class TYPE>
@@ -437,7 +437,7 @@ static void printArray(const int *array, int numElements)
         // Note the use of the auto destructor on 'd_array_p' (below).  *
         //***************************************************************
 
-        bslma_AutoDestructor<TYPE> autoDtor(&d_array_p[d_length + 1], 0);
+        bslma::AutoDestructor<TYPE> autoDtor(&d_array_p[d_length + 1], 0);
         int origLen = d_length;
         for (int i = d_length - 1; i >= dstIndex; --i, --autoDtor,
                                                                   --d_length) {
@@ -460,7 +460,7 @@ static void printArray(const int *array, int numElements)
 // Note that the 'insert' method assumes the copy constructor of 'TYPE' takes
 // an allocator as a second argument.  In production code, a constructor proxy
 // that checks the traits of 'TYPE' (to determine whether 'TYPE' indeed uses
-// 'bslma_Allocator') should be used (see 'bslalg_constructorproxy').
+// 'bslma::Allocator') should be used (see 'bslalg_constructorproxy').
 
 //=============================================================================
 //           Additional Functionality Needed to Complete Usage Test Case
@@ -474,13 +474,13 @@ class my_AllocatingClass {
     // 'my_Array' class holding 'my_AllocatingClass' objects.
 
     // DATA
-    my_Class         d_my_Class;     // keeps track of counter
-    void            *d_memory_p;     // memory allocated
-    bslma_Allocator *d_allocator_p;  // allocator (held, not owned)
+    my_Class          d_my_Class;     // keeps track of counter
+    void             *d_memory_p;     // memory allocated
+    bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 
   public:
     // CREATORS
-    my_AllocatingClass(int *counter, bslma_Allocator *basicAllocator)
+    my_AllocatingClass(int *counter, bslma::Allocator *basicAllocator)
         // Create a 'my_AllocatingClass' using the specified (global) 'counter'
         // and 'basicAllocator'.
     : d_my_Class(counter)
@@ -490,7 +490,7 @@ class my_AllocatingClass {
     }
 
     my_AllocatingClass(const my_AllocatingClass&  original,
-                       bslma_Allocator           *basicAllocator)
+                       bslma::Allocator          *basicAllocator)
         // Create a 'my_AllocatingClass' using the same (global) counter
         // as the specified 'original' and the specified 'basicAllocator'.
     : d_my_Class(original.d_my_Class)
@@ -535,7 +535,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Run the usage example and exercise the creators and manipulators
         //   of 'my_Array' using a 'my_AllocatingClass' and
-        //   'bslma_TestAllocator'.  (Display individual memory allocations
+        //   'bslma::TestAllocator'.  (Display individual memory allocations
         //   and deallocations only in 'veryVeryVeryVerbose' mode.)
         //
         // Testing:
@@ -545,8 +545,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE TEST" << endl
                                   << "==================" << endl;
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
-        const bslma_TestAllocator& TA = ta;
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        const bslma::TestAllocator& TA = ta;
 
         enum { NUM_INIT = 5, INIT_SIZE = 8 };
         int counter = 0;
@@ -620,7 +620,7 @@ int main(int argc, char *argv[])
 
                 // Counter should be 11 because:
                 // 6 (temporaries) + 2 (originals of shifted elements)
-                // + 2 (guarded by 'bslma_AutoDestructor'
+                // + 2 (guarded by 'bslma::AutoDestructor'
                 // + 1 (constructed 'my_Class' object inside
                 //      'my_AllocatingClass', before the constructor throws)
 
@@ -676,7 +676,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nStart at length 0." << endl;
 
-        bslma_AutoDestructor<int> proctor(array, 0);
+        bslma::AutoDestructor<int> proctor(array, 0);
 
         if (verbose) cout << "\nIncrementing the length by 2." << endl;
 
@@ -732,25 +732,25 @@ int main(int argc, char *argv[])
         // Concerns:
         //   1) That the 'length' method properly returns the number of
         //      elements currently protected by a 'const'
-        //      'bslma_AutoDestructor'.
+        //      'bslma::AutoDestructor'.
         //   2) That 'setLength' properly sets the length of the sequence of
-        //      elements protected by the 'bslma_AutoDestructor'.
+        //      elements protected by the 'bslma::AutoDestructor'.
         //
         // Plan:
         //   Both concerns will be addressed using the table-driven technique.
         //   The origin offset and length are chosen to test all boundary
         //   conditions.
         //
-        //   For concern 1, initialize a 'const' 'bslma_AutoDestructor' with
+        //   For concern 1, initialize a 'const' 'bslma::AutoDestructor' with
         //   *both* the offset and length specified from a table.  Verify that
         //   'length' returns the expected length.
         //
-        //   For concern 2, construct 'bslma_AutoDestructor' to proctor
+        //   For concern 2, construct 'bslma::AutoDestructor' to proctor
         //   'my_Class' object arrays (each initialized with a unique global
         //   counter) using the offset from the same test vector.  Once
         //   constructed, change the length by invoking the 'setLength' method.
         //   Verify using 'length' that 'setLength' properly sets the length.
-        //   As the 'bslma_AutoDestructor' goes out of scope, verify that the
+        //   As the 'bslma::AutoDestructor' goes out of scope, verify that the
         //   values of the global counters match the specified expected values
         //   from the table.
         //
@@ -828,7 +828,7 @@ int main(int argc, char *argv[])
                 my_Class *classArray = load(buffer, counters, NUM_ELEM);
 
                 {
-                    const bslma_AutoDestructor<my_Class> PROCTOR(
+                    const bslma::AutoDestructor<my_Class> PROCTOR(
                                                            classArray + OFFSET,
                                                            LENGTH);
                     if (veryVeryVerbose) { T_ T_ T_ P(PROCTOR.length()); }
@@ -846,7 +846,8 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) { T_ T_ T_ PA(counters, NUM_ELEM); }
                 LOOP_ASSERT(LINE, areEqual(EMPTY, counters, NUM_ELEM));
                 {
-                    bslma_AutoDestructor<my_Class> proctor(classArray + OFFSET,
+                    bslma::AutoDestructor<my_Class> proctor(
+                                                           classArray + OFFSET,
                                                            0);
                     if (veryVeryVerbose) { T_ T_ T_ PA(counters, NUM_ELEM); }
                     LOOP_ASSERT(LINE, areEqual(EMPTY, counters, NUM_ELEM));
@@ -876,7 +877,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For concern 1, create three arrays of 'my_Class' objects of equal
-        //   length.  Next, initialize two 'bslma_AutoDestructor' proctors, one
+        //   length.  Next, initialize two 'bslma::AutoDestructor' proctors, one
         //   with the first array and one with the second.  Invoke 'reset' on
         //   the second proctor with the third array before both proctors go
         //   out of scope.  Once the proctors go out of scope, verify that only
@@ -921,8 +922,8 @@ int main(int argc, char *argv[])
         ASSERT(areEqual(cB, EMPTY, NUM_ELEM));
         ASSERT(areEqual(cC, EMPTY, NUM_ELEM));
         {
-            bslma_AutoDestructor<my_Class> proctorA(classArrayA, NUM_ELEM);
-            bslma_AutoDestructor<my_Class> proctorB(classArrayB, NUM_ELEM);
+            bslma::AutoDestructor<my_Class> proctorA(classArrayA, NUM_ELEM);
+            bslma::AutoDestructor<my_Class> proctorB(classArrayB, NUM_ELEM);
 
             if (veryVerbose) {
                 T_ T_ PA_(cA, NUM_ELEM) PA_(cB, NUM_ELEM) PA(cC, NUM_ELEM)
@@ -956,7 +957,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { T_ T_ PA(c, NUM_ELEM) }
         ASSERT(areEqual(c, EMPTY, NUM_ELEM));
         {
-            bslma_AutoDestructor<my_Class> proctor(0);
+            bslma::AutoDestructor<my_Class> proctor(0);
             proctor.reset(classArray);
 
             if (veryVerbose) { T_ T_ PA(c, NUM_ELEM) }
@@ -982,7 +983,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create two arrays of 'my_Class' objects of equal length, one to be
-        //   used as a control.  Next initialize two 'bslma_AutoDestructor'
+        //   used as a control.  Next initialize two 'bslma::AutoDestructor'
         //   proctors, one with the first array and the other with the second.
         //   Invoke 'release' on the second proctor before it goes out of
         //   scope.  Verify that only the objects managed by the first proctor
@@ -1014,8 +1015,8 @@ int main(int argc, char *argv[])
             T_ PA_(cA, NUM_ELEM) PA(cB, NUM_ELEM)
         }
         {
-            bslma_AutoDestructor<my_Class> proctorA(classArrayA, NUM_ELEM);
-            bslma_AutoDestructor<my_Class> proctorB(classArrayB, NUM_ELEM);
+            bslma::AutoDestructor<my_Class> proctorA(classArrayA, NUM_ELEM);
+            bslma::AutoDestructor<my_Class> proctorB(classArrayB, NUM_ELEM);
 
             if (veryVerbose) {
                 T_ PA_(cA, NUM_ELEM) PA(cB, NUM_ELEM)
@@ -1043,38 +1044,38 @@ int main(int argc, char *argv[])
         // CTOR / DTOR TEST
         //
         // Concerns:
-        //   1) That the 'bslma_AutoDestructor' guards a sequence of objects of
-        //      the provided length (positive).
-        //   2) That the 'bslma_AutoDestructor' guards a sequence of objects of
-        //      the provided length (negative).
-        //   3) That the 'bslma_AutoDestructor' guards nothing when supplied a
-        //      zero length and non-zero origin at construction.
-        //   4) That we can construct a 'bslma_AutoDestructor' with zero length
-        //      and a null origin.
-        //   5) That length is default constructed to 0.
+        //: 1 That the 'bslma::AutoDestructor' guards a sequence of objects of
+        //:   the provided length (positive).
+        //: 2 That the 'bslma::AutoDestructor' guards a sequence of objects of
+        //:   the provided length (negative).
+        //: 3 That the 'bslma::AutoDestructor' guards nothing when supplied a
+        //:   zero length and non-zero origin at construction.
+        //: 4 That we can construct a 'bslma::AutoDestructor' with zero length
+        //:   and a null origin.
+        //: 5 That length is default constructed to 0.
         //
         // Plan:
         //   Concerns 1 - 3 will be addressed using the table-driven technique.
-        //   'bslma_AutoDestructor' will be constructed to proctor 'my_Class'
+        //   'bslma::AutoDestructor' will be constructed to proctor 'my_Class'
         //   object arrays (each initialized with a unique global counter)
         //   using the offset and length specified from the table.  As the
-        //   'bslma_AutoDestructor' goes out of scope, verify that the values
+        //   'bslma::AutoDestructor' goes out of scope, verify that the values
         //   of the global counters match the specified expected values from
         //   the table (i.e., only the counters of the proctored objects are
         //   incremented).  The origin and length are chosen to test all
         //   boundary conditions.
         //
         //   Concern 4 will be tested separately afterwards by constructing a
-        //   'bslma_AutoDestructor' with zero length and a null pointer.
+        //   'bslma::AutoDestructor' with zero length and a null pointer.
         //
         //   Concern 5 will also be tested separately by constructing a
-        //   'bslma_AutoDestructor' with an array of 'my_Class' objects without
-        //   specifying the length.  Verify that the counters used to
+        //   'bslma::AutoDestructor' with an array of 'my_Class' objects
+        //   without specifying the length.  Verify that the counters used to
         //   initialize the objects are not incremented.
         //
         // Testing:
-        //   bslma_AutoDestructor<TYPE>(TYPE *origin, int length = 0);
-        //   ~bslma_AutoDestructor<TYPE>();
+        //   bslma::AutoDestructor<TYPE>(TYPE *origin, int length = 0);
+        //   ~bslma::AutoDestructor<TYPE>();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "CTOR / DOTR TEST" << endl
@@ -1147,8 +1148,8 @@ int main(int argc, char *argv[])
             if (veryVeryVerbose) { T_ T_ PA(counters, NUM_ELEM) }
             LOOP_ASSERT(LINE, areEqual(EMPTY, counters, NUM_ELEM));
             {
-                bslma_AutoDestructor<my_Class> proctor(classArray + OFFSET,
-                                                       LENGTH);
+                bslma::AutoDestructor<my_Class> proctor(classArray + OFFSET,
+                                                        LENGTH);
 
                 if (veryVeryVerbose) { T_ T_ PA(counters, NUM_ELEM) }
                 LOOP_ASSERT(LINE, areEqual(EMPTY, counters, NUM_ELEM));
@@ -1160,7 +1161,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Construction with null pointer."
                           << endl;
         {
-            bslma_AutoDestructor<my_Class> destructor(0, 0);
+            bslma::AutoDestructor<my_Class> destructor(0, 0);
         }
 
         if (verbose) cout << "\nTesting length defaults to 0 at construction."
@@ -1174,7 +1175,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) { T_ T_ PA(counters, NUM_ELEM) }
         ASSERT(areEqual(EMPTY, counters, NUM_ELEM));
         {
-            bslma_AutoDestructor<my_Class> destructor(classArray);
+            bslma::AutoDestructor<my_Class> destructor(classArray);
             if (veryVeryVerbose) { T_ T_ PA(counters, NUM_ELEM) }
             ASSERT(areEqual(EMPTY, counters, NUM_ELEM));
         }
@@ -1369,15 +1370,15 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   1) A 'bslma_AutoDestructor' can be created and destroyed
+        //   1) A 'bslma::AutoDestructor' can be created and destroyed
         //      gracefully.
-        //   2) The objects managed by 'bslma_AutoDestructor' are destroyed
+        //   2) The objects managed by 'bslma::AutoDestructor' are destroyed
         //      when the range proctor goes out of scope.
         //
         // Plan:
         //   Create an array of 'my_Class' objects initialized with the same
         //   counter.  Proctor the array of objects with a
-        //   'bslma_AutoDestructor'.  Verify that when the range proctor goes
+        //   'bslma::AutoDestructor'.  Verify that when the range proctor goes
         //   out of scope, the counter is incremented.
         //
         // Testing:
@@ -1400,7 +1401,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { T_ PA(counters, NUM_TEST) }
         ASSERT(areEqual(EMPTY, counters, NUM_TEST));
         {
-            bslma_AutoDestructor<my_Class> proctor(classArray, NUM_TEST);
+            bslma::AutoDestructor<my_Class> proctor(classArray, NUM_TEST);
 
             if (veryVerbose) { T_ PA(counters, NUM_TEST) }
             ASSERT(areEqual(EMPTY, counters, NUM_TEST));

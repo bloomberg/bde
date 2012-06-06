@@ -20,23 +20,23 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_deque.h>' instead and use 'bsl::deque' directly.  This component
 // implements a dynamic double-ended array class that supports the
-// 'bslma_Allocator' model and is suitable for use as an implementation of the
+// 'bslma::Allocator' model and is suitable for use as an implementation of the
 // 'bsl::deque' class template.
 //
 ///Exceptional Behavior
 ///--------------------
 // Since this component is below the BSL STL, we centralize all the exceptional
-// behavior into a 'bslstl_DequeImpUtil' class, which has a dual purpose:
+// behavior into a 'bslstl::StdExceptUtil' class, which has a dual purpose:
 //..
-//   - Remove the dependency of this header on the '<exception>' header, so
-//     that this implementation can offer an exception handler with the native
-//     exceptions, and so that all the C-strings may be defined in a single
-//     library ('bsl') and not in all the translation units including this
-//     header.
-//   - Allow installation of exception handlers at a higher level to
-//     throw BSL STL exceptions (which differ from the native exceptions) and
-//     thus establish a full standard compliance for this component when used
-//     as 'bsl::deque' in the BSL STL.
+//  - Remove the dependency of this header on the '<exception>' header, so
+//    that this implementation can offer an exception handler with the native
+//    exceptions, and so that all the C-strings may be defined in a single
+//    library ('bsl') and not in all the translation units including this
+//    header.
+//  - Allow installation of exception handlers at a higher level to
+//    throw BSL STL exceptions (which differ from the native exceptions) and
+//    thus establish a full standard compliance for this component when used
+//    as 'bsl::deque' in the BSL STL.
 //..
 //
 ///Usage
@@ -218,18 +218,19 @@ class Deque_Base {
         BLOCK_LENGTH = Deque_BlockLengthCalcUtil<VALUE_TYPE>::BLOCK_LENGTH
     };
 
-    typedef BloombergLP::bslalg_DequeImpUtil<VALUE_TYPE,
-                                             BLOCK_LENGTH>       Imp;
+    typedef BloombergLP::bslalg::DequeImpUtil<VALUE_TYPE,
+                                              BLOCK_LENGTH>      Imp;
     typedef typename Imp::Block                                  Block;
     typedef typename Imp::BlockPtr                               BlockPtr;
-    typedef BloombergLP::bslalg_DequeIterator<VALUE_TYPE,
-                                              BLOCK_LENGTH>      IteratorImp;
+    typedef BloombergLP::bslalg::DequeIterator<VALUE_TYPE,
+                                               BLOCK_LENGTH>     IteratorImp;
     typedef BloombergLP::
-            bslstl_RandomAccessIterator<VALUE_TYPE, IteratorImp> Iterator;
+            bslstl::RandomAccessIterator<VALUE_TYPE, IteratorImp>
+                                                                 Iterator;
 
     typedef BloombergLP::
-            bslstl_RandomAccessIterator<
-                                  const VALUE_TYPE, IteratorImp> ConstIterator;
+            bslstl::RandomAccessIterator<const VALUE_TYPE, IteratorImp>
+                                                                 ConstIterator;
 
   public:
     // PUBLIC TYPES
@@ -283,7 +284,7 @@ class Deque_Base {
 
     reference at(size_type position);
         // Return a reference to the modifiable element at the specified
-        // 'position'.  Call 'DequeImpUtil::throwOutOfRange' if
+        // 'position'.  Call 'StdExceptUtil::throwOutOfRange' if
         // 'position >= size()'.
 
     reference front();
@@ -342,7 +343,7 @@ class Deque_Base {
 
     const_reference at(size_type position) const;
         // Return a reference to the non-modifiable element at the specified
-        // 'position'.  Call 'DequeImpUtil::throwOutOfRange' if
+        // 'position'.  Call 'bslstl::StdExceptUtil::throwOutOfRange' if
         // 'position >= size()'.
 
     const_reference front() const;
@@ -362,19 +363,19 @@ class Deque_Base {
 
 template <class VALUE_TYPE, class ALLOCATOR = allocator<VALUE_TYPE> >
 class deque : public  Deque_Base<VALUE_TYPE>
-            , private BloombergLP::bslstl_ContainerBase<ALLOCATOR> {
+            , private BloombergLP::bslstl::ContainerBase<ALLOCATOR> {
     // This class template provides an STL-compliant 'deque' that conforms to
-    // the 'bslma_Allocator' model.  For the requirements of a deque class,
+    // the 'bslma::Allocator' model.  For the requirements of a deque class,
     // consult the second revision of the ISO/IEC 14882 Programming Language
     // C++ (Working Paper, 2009).  In particular, this implementation offers
     // the general rules that:
     //..
     //   (1) any method that would result in a deque of length larger than
     //       the size returned by 'max_size' calls
-    //       'DequeImpUtil::throwLengthError', and
+    //       'bslstl::StdExceptUtil::throwLengthError', and
     //   (2) a call to the 'at' method that attempts to access a position
     //       outside the valid range of a deque triggers a call to
-    //       'DequeImpUtil::throwOutOfRange'.
+    //       'bslstl::StdExceptUtil::throwOutOfRange'.
     //..
     // Note that portions of the standard methods are implemented in
     // 'Deque_Base', which is parameterized only 'VALUE_TYPE', in order to
@@ -402,29 +403,29 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
     typedef Deque_Base<VALUE_TYPE>                             Base;
 
-    typedef BloombergLP::bslstl_ContainerBase<ALLOCATOR>       ContainerBase;
+    typedef BloombergLP::bslstl::ContainerBase<ALLOCATOR>      ContainerBase;
 
-    typedef BloombergLP::bslalg_DequeImpUtil<VALUE_TYPE,
+    typedef BloombergLP::bslalg::DequeImpUtil<VALUE_TYPE,
                                              BLOCK_LENGTH>     Imp;
     typedef typename Imp::Block                                Block;
     typedef typename Imp::BlockPtr                             BlockPtr;
 
-    typedef BloombergLP::bslalg_DequeIterator<VALUE_TYPE,
+    typedef BloombergLP::bslalg::DequeIterator<VALUE_TYPE,
                                               BLOCK_LENGTH>    IteratorImp;
 
     typedef BloombergLP::
-            bslstl_RandomAccessIterator<VALUE_TYPE,
+            bslstl::RandomAccessIterator<VALUE_TYPE,
                                         IteratorImp>           Iterator;
 
     typedef BloombergLP::
-            bslstl_RandomAccessIterator<const VALUE_TYPE,
+            bslstl::RandomAccessIterator<const VALUE_TYPE,
                                         IteratorImp>           ConstIterator;
 
     typedef Deque_BlockCreator<VALUE_TYPE, ALLOCATOR>          BlockCreator;
     typedef Deque_ClearGuard<VALUE_TYPE, ALLOCATOR>            ClearGuard;
     typedef Deque_Guard<VALUE_TYPE, ALLOCATOR>                 Guard;
 
-    typedef BloombergLP::bslalg_DequePrimitives<VALUE_TYPE,
+    typedef BloombergLP::bslalg::DequePrimitives<VALUE_TYPE,
                                                 BLOCK_LENGTH>  DequePrimitives;
 
     enum RawInit { RAW_INIT  = 0 };
@@ -453,10 +454,10 @@ class deque : public  Deque_Base<VALUE_TYPE>
   private:
     // ASSERTIONS
 
-    BSLMF_ASSERT((BloombergLP::bslmf_IsSame<reference,
-                               typename Base::reference>::VALUE));
-    BSLMF_ASSERT((BloombergLP::bslmf_IsSame<const_reference,
-                               typename Base::const_reference>::VALUE));
+    BSLMF_ASSERT((BloombergLP::bslmf::IsSame<reference,
+                                            typename Base::reference>::VALUE));
+    BSLMF_ASSERT((BloombergLP::bslmf::IsSame<const_reference,
+                                      typename Base::const_reference>::VALUE));
         // This need not necessarily be true as per the C++ standard, but is a
         // safe assumption for this implementation and allows to implement the
         // element access within the 'Base' type (that is parameterized by
@@ -503,7 +504,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
     void privateInsertDispatch(const_iterator          position,
                                INTEGER_TYPE            numElements,
                                INTEGER_TYPE            value,
-                               BloombergLP::bslstl_UtilIterator,
+                               BloombergLP::bslstl::UtilIterator,
                                int);
         // Insert the specified 'numElements' copies of the specified 'value'
         // into this deque at the specified 'position'.  This overload matches
@@ -515,8 +516,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
     void privateInsertDispatch(const_iterator position,
                                INPUT_ITER     first,
                                INPUT_ITER     last,
-                               BloombergLP::bslmf_AnyType,
-                               BloombergLP::bslmf_AnyType);
+                               BloombergLP::bslmf::AnyType,
+                               BloombergLP::bslmf::AnyType);
         // Insert the elements in the range specified as '[first, last)' into
         // this deque at the specified 'position'.  The third and fourth
         // arguments are used only for overload resolution so that this
@@ -583,7 +584,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
   public:
     // TRAITS
-    typedef BloombergLP::bslalg_TypeTraitsGroupStlSequence<VALUE_TYPE,
+    typedef BloombergLP::bslalg::TypeTraitsGroupStlSequence<VALUE_TYPE,
                                                            ALLOCATOR>
                                                                DequeTypeTraits;
     BSLALG_DECLARE_NESTED_TRAITS(deque, DequeTypeTraits);
@@ -636,7 +637,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // Create a deque that has the same value as the specified 'original'
         // deque.  Optionally specify an 'allocator' used to supply memory.  If
         // 'allocator' is not specified, then if 'ALLOCATOR' is convertible
-        // from 'bslma_Allocator *', the currently installed default allocator
+        // from 'bslma::Allocator *', the currently installed default allocator
         // is used, otherwise the 'original' allocator is used (as mandated per
         // the ISO standard).
 
@@ -670,9 +671,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // remain valid, provided that no more than the specified 'numElements'
         // objects are pushed to the front or back of the deque after this
         // call.  If 'numElements < capacity()', this method has no effect.
-        // Note that inserting to the deque may still incur memory
-        // allocations.  Also note that this method is not part of the C++
-        // standard.
+        // Note that inserting to the deque may still incur memory allocations.
+        // Also note that this method is not part of the C++ standard.
 
     void resize(size_type newLength);
     void resize(size_type newLength, VALUE_TYPE value);
@@ -888,7 +888,7 @@ class Deque_BlockCreator {
         BLOCK_LENGTH = Deque_BlockLengthCalcUtil<VALUE_TYPE>::BLOCK_LENGTH
     };
 
-    typedef BloombergLP::bslalg_DequeImpUtil<VALUE_TYPE,
+    typedef BloombergLP::bslalg::DequeImpUtil<VALUE_TYPE,
                                              BLOCK_LENGTH>       Imp;
     typedef typename Imp::Block                                  Block;
     typedef typename Imp::BlockPtr                               BlockPtr;
@@ -986,9 +986,9 @@ class Deque_Guard {
         BLOCK_LENGTH = Deque_BlockLengthCalcUtil<VALUE_TYPE>::BLOCK_LENGTH
     };
 
-    typedef BloombergLP::bslalg_DequeIterator<VALUE_TYPE,
+    typedef BloombergLP::bslalg::DequeIterator<VALUE_TYPE,
                                               BLOCK_LENGTH>    IteratorImp;
-    typedef BloombergLP::bslalg_DequePrimitives<VALUE_TYPE,
+    typedef BloombergLP::bslalg::DequePrimitives<VALUE_TYPE,
                                                 BLOCK_LENGTH>  DequePrimitives;
 
     // DATA
@@ -1094,8 +1094,8 @@ Deque_Base<VALUE_TYPE>::at(size_type position)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position >= size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwOutOfRange(
-                                "deque<...>::at(position): invalid position");
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                                 "deque<...>::at(position): invalid position");
     }
     return *(begin() + position);
 }
@@ -1231,8 +1231,8 @@ Deque_Base<VALUE_TYPE>::at(size_type position) const
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position >= size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwOutOfRange(
-                          "const deque<...>::at(position): invalid position");
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                           "const deque<...>::at(position): invalid position");
     }
     return *(begin() + position);
 }
@@ -1288,8 +1288,8 @@ deque<VALUE_TYPE,ALLOCATOR>::privateAppend(
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                     numElements > max_size() - this->size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
-                              "deque<...>::insert(pos,n,v): deque too long");
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                "deque<...>::insert(pos,n,v): deque too long");
     }
 
     for ( ; first != last; ++first) {
@@ -1305,7 +1305,7 @@ deque<VALUE_TYPE,ALLOCATOR>::privateAppend(
             newBlocks.insertAtBack(1);
             insertPoint = guard.end();  // 'insertAtBack(1)' invalidated iter
         }
-        BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
                                              BSLS_UTIL_ADDRESSOF(*insertPoint),
                                              *first,
                                              this->bslmaAllocator());
@@ -1335,8 +1335,8 @@ deque<VALUE_TYPE,ALLOCATOR>::privateAppend(INPUT_ITER              first,
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                                numElements > maxNumElements)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl_StdExceptUtil::throwLengthError(
-                              "deque<...>::insert(pos,n,v): deque too long");
+            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                "deque<...>::insert(pos,n,v): deque too long");
         }
         IteratorImp insertPoint = guard.end();
 
@@ -1350,7 +1350,7 @@ deque<VALUE_TYPE,ALLOCATOR>::privateAppend(INPUT_ITER              first,
             newBlocks.insertAtBack(1);
             insertPoint = guard.end();  // 'insertAtBack(1)' invalidated iter
         }
-        BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
                                              BSLS_UTIL_ADDRESSOF(*insertPoint),
                                              *first,
                                              this->bslmaAllocator());
@@ -1425,7 +1425,7 @@ void deque<VALUE_TYPE,ALLOCATOR>::privateInsertDispatch(
                                           const_iterator           position,
                                           INTEGRAL_TYPE            numElements,
                                           INTEGRAL_TYPE            value,
-                                          BloombergLP::bslstl_UtilIterator,
+                                          BloombergLP::bslstl::UtilIterator,
                                           int)
 {
     insert(position,
@@ -1436,11 +1436,11 @@ void deque<VALUE_TYPE,ALLOCATOR>::privateInsertDispatch(
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 void deque<VALUE_TYPE,ALLOCATOR>::privateInsertDispatch(
-                                                    const_iterator position,
-                                                    INPUT_ITER     first,
-                                                    INPUT_ITER     last,
-                                                    BloombergLP::bslmf_AnyType,
-                                                    BloombergLP::bslmf_AnyType)
+                                                   const_iterator position,
+                                                   INPUT_ITER     first,
+                                                   INPUT_ITER     last,
+                                                   BloombergLP::bslmf::AnyType,
+                                                   BloombergLP::bslmf::AnyType)
 {
     typedef typename iterator_traits<INPUT_ITER>::iterator_category Tag;
 
@@ -1492,8 +1492,8 @@ void deque<VALUE_TYPE,ALLOCATOR>::privateInsert(
 
 template <class VALUE_TYPE, class ALLOCATOR>
 void deque<VALUE_TYPE,ALLOCATOR>::privateSplit(
-                                    deque<VALUE_TYPE, ALLOCATOR> *other,
-                                    IteratorImp                   pos)
+                                           deque<VALUE_TYPE, ALLOCATOR> *other,
+                                           IteratorImp                   pos)
 {
     // BEFORE:
     //..
@@ -1533,11 +1533,11 @@ void deque<VALUE_TYPE,ALLOCATOR>::privateSplit(
 
         difference_type numAfter = this->d_finish.valuePtr() - pos.valuePtr();
         other->privateInit(numAfter);
-        BloombergLP::bslalg_ArrayPrimitives::destructiveMove(
-                                                other->d_start.valuePtr(),
-                                                pos.valuePtr(),
-                                                this->d_finish.valuePtr(),
-                                                this->bslmaAllocator());
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                     other->d_start.valuePtr(),
+                                                     pos.valuePtr(),
+                                                     this->d_finish.valuePtr(),
+                                                     this->bslmaAllocator());
         other->d_finish += numAfter;
         this->d_finish = pos;
         return;                                                       // RETURN
@@ -1549,11 +1549,11 @@ void deque<VALUE_TYPE,ALLOCATOR>::privateSplit(
 
         difference_type numBefore = pos.valuePtr() - this->d_start.valuePtr();
         other->privateInit(numBefore);
-        BloombergLP::bslalg_ArrayPrimitives::destructiveMove(
-                                                other->d_start.valuePtr(),
-                                                this->d_start.valuePtr(),
-                                                pos.valuePtr(),
-                                                this->bslmaAllocator());
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                     other->d_start.valuePtr(),
+                                                     this->d_start.valuePtr(),
+                                                     pos.valuePtr(),
+                                                     this->bslmaAllocator());
         other->d_finish += numBefore;
         this->d_start = pos;
         Deque_Util::swap(
@@ -1612,7 +1612,7 @@ void deque<VALUE_TYPE,ALLOCATOR>::privateSplit(
     //..
     // Now we split the block containing "BBBxx" into two blocks, with the "xx"
     // part going into '*newBlockPtr'.  An exception can safely occur here
-    // because the 'bslstl_ArrayPrimitive' functions are exception-neutral and
+    // because the 'bslstl::ArrayPrimitive' functions are exception-neutral and
     // because all class invariants for both '*this' and 'other' hold going in
     // to this section.
 
@@ -1621,22 +1621,24 @@ void deque<VALUE_TYPE,ALLOCATOR>::privateSplit(
         // Move the tail part of the block into the new block.
 
         value_type *splitValuePtr = newBlock->d_data + splitOffset;
-        BloombergLP::bslalg_ArrayPrimitives::destructiveMove(splitValuePtr,
-                                                pos.valuePtr(),
-                                                pos.blockEnd(),
-                                                this->bslmaAllocator());
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                       splitValuePtr,
+                                                       pos.valuePtr(),
+                                                       pos.blockEnd(),
+                                                       this->bslmaAllocator());
     }
     else {
         // Move the head part of the block into the new block, then swap the
         // blocks within the 'd_blocks' array.
 
-        BloombergLP::bslalg_ArrayPrimitives::destructiveMove(newBlock->d_data,
-                                                pos.blockBegin(),
-                                                pos.valuePtr(),
-                                                this->bslmaAllocator());
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                       newBlock->d_data,
+                                                       pos.blockBegin(),
+                                                       pos.valuePtr(),
+                                                       this->bslmaAllocator());
         *newBlockPtr = *pos.blockPtr();
         *pos.blockPtr() = newBlock;
-        // bslalg_ScalarPrimitives::swap(*pos.blockPtr(), *newBlockPtr); NOTE:
+        // bslalg::ScalarPrimitives::swap(*pos.blockPtr(), *newBlockPtr); NOTE:
         // pos is invalid after swap.
     }
 
@@ -1668,7 +1670,7 @@ void deque<VALUE_TYPE,ALLOCATOR>::privateJoinPrepend(
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void deque<VALUE_TYPE,ALLOCATOR>::privateJoinAppend(
-                                    deque<VALUE_TYPE, ALLOCATOR> *other)
+                                           deque<VALUE_TYPE, ALLOCATOR> *other)
 {
     privateAppend(other->begin(),
                   other->end(),
@@ -1705,8 +1707,8 @@ void deque<VALUE_TYPE,ALLOCATOR>::privateInsert(
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                      numElements > max_size() - currentSize)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
-                              "deque<...>::insert(pos,n,v): deque too long");
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                "deque<...>::insert(pos,n,v): deque too long");
     }
 
     iterator pos(position.imp());
@@ -1809,8 +1811,8 @@ deque<VALUE_TYPE,ALLOCATOR>::privatePrepend(
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                                numElements > maxNumElements)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl_StdExceptUtil::throwLengthError(
-                              "deque<...>::insert(pos,n,v): deque too long");
+            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                "deque<...>::insert(pos,n,v): deque too long");
         }
 
         IteratorImp insertPoint = guard.begin();
@@ -1824,7 +1826,7 @@ deque<VALUE_TYPE,ALLOCATOR>::privatePrepend(
                                           // 'insertPoint'
         }
         --insertPoint;
-        BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
                                              BSLS_UTIL_ADDRESSOF(*insertPoint),
                                              *--last,
                                              this->bslmaAllocator());
@@ -1840,17 +1842,17 @@ template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 typename deque<VALUE_TYPE,ALLOCATOR>::size_type
 deque<VALUE_TYPE,ALLOCATOR>::privatePrepend(
-                                        INPUT_ITER                      first,
-                                        INPUT_ITER                      last,
-                                        std::random_access_iterator_tag)
+                                         INPUT_ITER                      first,
+                                         INPUT_ITER                      last,
+                                         std::random_access_iterator_tag)
 {
 
     const size_type numElements = bsl::distance(first, last);
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                     numElements > max_size() - this->size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
-                              "deque<...>::insert(pos,n,v): deque too long");
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                "deque<...>::insert(pos,n,v): deque too long");
     }
 
     BlockCreator newBlocks(this);
@@ -1868,7 +1870,7 @@ deque<VALUE_TYPE,ALLOCATOR>::privatePrepend(
                                           // 'insertPoint'
         }
         --insertPoint;
-        BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
                                              BSLS_UTIL_ADDRESSOF(*insertPoint),
                                              *--last,
                                              this->bslmaAllocator());
@@ -1897,7 +1899,7 @@ deque<VALUE_TYPE,ALLOCATOR>::deque(size_type         numElements,
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numElements > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                                        "deque<...>::deque(n): deque too long");
     }
     deque temp(RAW_INIT, this->get_allocator());
@@ -1914,8 +1916,8 @@ deque<VALUE_TYPE,ALLOCATOR>::deque(size_type         numElements,
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numElements > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
-                                   "deque<...>::deque(n,v): deque too long");
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                     "deque<...>::deque(n,v): deque too long");
     }
     deque temp(RAW_INIT, this->get_allocator());
     temp.privateInit(numElements);
@@ -1950,8 +1952,8 @@ deque<VALUE_TYPE,ALLOCATOR>::deque(const deque<VALUE_TYPE,ALLOCATOR>& rhs)
 
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(
-                           const deque<VALUE_TYPE,ALLOCATOR>& rhs,
-                           const ALLOCATOR&                   allocator)
+                                  const deque<VALUE_TYPE,ALLOCATOR>& rhs,
+                                  const ALLOCATOR&                   allocator)
 : ContainerBase(allocator)
 {
     deque temp(RAW_INIT, this->get_allocator());
@@ -2067,8 +2069,8 @@ void deque<VALUE_TYPE,ALLOCATOR>::assign(size_type         numElements,
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numElements > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
-                                  "deque<...>::assign(n,v): deque too long");
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                    "deque<...>::assign(n,v): deque too long");
     }
 
     // If anything throws, clear the deque, to simulate standard behavior,
@@ -2106,8 +2108,8 @@ void deque<VALUE_TYPE,ALLOCATOR>::reserve(size_type numElements)
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numElements > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
-                                   "deque<...>::reserve(n): deque too long");
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                     "deque<...>::reserve(n): deque too long");
     }
 
     // This number of blocks, when present on both sides of start and finish,
@@ -2139,8 +2141,8 @@ void deque<VALUE_TYPE,ALLOCATOR>::resize(size_type  newLength,
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newLength > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
-                                  "deque<...>::resize(n,v): deque too long");
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                    "deque<...>::resize(n,v): deque too long");
     }
 
     size_type origSize = this->size();
@@ -2158,8 +2160,8 @@ void deque<VALUE_TYPE,ALLOCATOR>::push_front(const VALUE_TYPE& value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(this->size() >= max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
-                            "deque<...>::push_front(pos,v): deque too long");
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                              "deque<...>::push_front(pos,v): deque too long");
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -2172,10 +2174,10 @@ void deque<VALUE_TYPE,ALLOCATOR>::push_front(const VALUE_TYPE& value)
 
         newBlocks.insertAtFront(1);
 
-        BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-                                               (this->d_start - 1).valuePtr(),
-                                               value,
-                                               this->bslmaAllocator());
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+                                                (this->d_start - 1).valuePtr(),
+                                                value,
+                                                this->bslmaAllocator());
 
         --this->d_start;
     }
@@ -2183,10 +2185,10 @@ void deque<VALUE_TYPE,ALLOCATOR>::push_front(const VALUE_TYPE& value)
         // Since the offset is non-zero, it is safe to directly decrement the
         // pointer.  This is much quicker than calling 'operator--'.
 
-        BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-                                               this->d_start.valuePtr() - 1,
-                                               value,
-                                               this->bslmaAllocator());
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+                                                  this->d_start.valuePtr() - 1,
+                                                  value,
+                                                  this->bslmaAllocator());
         this->d_start.valuePtrDecrement();
     }
 }
@@ -2196,16 +2198,16 @@ void deque<VALUE_TYPE,ALLOCATOR>::push_back(const VALUE_TYPE& value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(this->size() >= max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
-                             "deque<...>::push_back(pos,v): deque too long");
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                               "deque<...>::push_back(pos,v): deque too long");
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                       1 < this->d_finish.remainingInBlock())) {
-        BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-                                               this->d_finish.valuePtr(),
-                                               value,
-                                               this->bslmaAllocator());
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+                                                     this->d_finish.valuePtr(),
+                                                     value,
+                                                     this->bslmaAllocator());
         this->d_finish.valuePtrIncrement();
     }
     else {
@@ -2217,10 +2219,10 @@ void deque<VALUE_TYPE,ALLOCATOR>::push_back(const VALUE_TYPE& value)
         // still a valid reference even if it belongs to this deque.
 
         newBlocks.insertAtBack(1);
-        BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-                                               this->d_finish.valuePtr(),
-                                               value,
-                                               this->bslmaAllocator());
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+                                                     this->d_finish.valuePtr(),
+                                                     value,
+                                                     this->bslmaAllocator());
         this->d_finish.nextBlock();
     }
 }
@@ -2241,8 +2243,8 @@ void deque<VALUE_TYPE,ALLOCATOR>::insert(const_iterator    position,
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                      numElements > max_size() - currentSize)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
-                              "deque<...>::insert(pos,n,v): deque too long");
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                "deque<...>::insert(pos,n,v): deque too long");
     }
 
     if (position == this->cbegin()) {
@@ -2315,8 +2317,8 @@ deque<VALUE_TYPE,ALLOCATOR>::insert(const_iterator    position,
     const size_type currentSize = this->size();
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(currentSize >= max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
-                              "deque<...>::insert(pos,n,v): deque too long");
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                "deque<...>::insert(pos,n,v): deque too long");
     }
 
     iterator pos(position.imp());
@@ -2366,7 +2368,7 @@ void deque<VALUE_TYPE,ALLOCATOR>::pop_front()
 {
     BSLS_ASSERT_SAFE(!this->empty());
 
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
                                                      this->d_start.valuePtr());
 
     if (1 == this->d_start.remainingInBlock()) {
@@ -2385,14 +2387,14 @@ void deque<VALUE_TYPE,ALLOCATOR>::pop_back()
 
     if (0 == this->d_finish.offsetInBlock()) {
         --this->d_finish;
-        BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+        BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
                                                     this->d_finish.valuePtr());
         this->deallocateN(this->d_finish.blockPtr()[1], 1);
         return;                                                       // RETURN
     }
 
     this->d_finish.valuePtrDecrement();
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
                                                     this->d_finish.valuePtr());
 }
 
@@ -2457,7 +2459,7 @@ void deque<VALUE_TYPE,ALLOCATOR>::swap(deque<VALUE_TYPE,ALLOCATOR>& other)
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                              this->get_allocator() == other.get_allocator())) {
         Deque_Util::swap(static_cast<Base *>(this),
-                                                  static_cast<Base *>(&other));
+                         static_cast<Base *>(&other));
         return;                                                       // RETURN
     }
     else {
@@ -2468,7 +2470,7 @@ void deque<VALUE_TYPE,ALLOCATOR>::swap(deque<VALUE_TYPE,ALLOCATOR>& other)
 
         Deque_Util::swap(static_cast<Base *>(&d1), static_cast<Base *>(this));
         Deque_Util::swap(static_cast<Base *>(&d2),
-                                                  static_cast<Base *>(&other));
+                         static_cast<Base *>(&other));
     }
 }
 
@@ -2527,8 +2529,8 @@ bool operator==(const deque<VALUE_TYPE,ALLOCATOR>& lhs,
         BLOCK_LENGTH = Deque_BlockLengthCalcUtil<VALUE_TYPE>::BLOCK_LENGTH
     };
 
-    typedef BloombergLP::bslalg_DequeIterator<VALUE_TYPE,
-                                              BLOCK_LENGTH> Iterator;
+    typedef BloombergLP::bslalg::DequeIterator<VALUE_TYPE,
+                                               BLOCK_LENGTH> Iterator;
 
     Iterator lhsBegin = lhs.begin().imp();
     Iterator lhsEnd   = lhs.end().imp();
@@ -2555,12 +2557,12 @@ inline
 bool operator< (const deque<VALUE_TYPE,ALLOCATOR>& lhs,
                 const deque<VALUE_TYPE,ALLOCATOR>& rhs)
 {
-    return 0 > BloombergLP::bslalg_RangeCompare::lexicographical(lhs.begin(),
-                                                                 lhs.end(),
-                                                                 lhs.size(),
-                                                                 rhs.begin(),
-                                                                 rhs.end(),
-                                                                 rhs.size());
+    return 0 > BloombergLP::bslalg::RangeCompare::lexicographical(lhs.begin(),
+                                                                  lhs.end(),
+                                                                  lhs.size(),
+                                                                  rhs.begin(),
+                                                                  rhs.end(),
+                                                                  rhs.size());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -2595,9 +2597,9 @@ void swap(deque<VALUE_TYPE, ALLOCATOR>& a,
     a.swap(b);
 }
 
-                      // -------------------------------
-                      // class bslstl_Deque_BlockCreator
-                      // -------------------------------
+                      // --------------------------------
+                      // class bslstl::Deque_BlockCreator
+                      // --------------------------------
 
 // CREATORS
 template <class VALUE_TYPE, class ALLOCATOR>

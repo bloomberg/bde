@@ -907,7 +907,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
         virtual int handleTimeout(my_Connection *connection) {
             // Do something to handle timeout.
             if (d_verbose) {
-                bsl::cout << bdetu_SystemTime::nowAsDatetimeGMT() << ": ";
+                bsl::cout << bdetu_SystemTime::nowAsDatetimeUtc() << ": ";
                 bsl::cout << "Connection " << connection << "timed out.\n";
             }
             return 0;
@@ -916,7 +916,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
         virtual int processData(void *data, int length) {
             // Do something with the data...
             if (d_verbose) {
-                bsl::cout << bdetu_SystemTime::nowAsDatetimeGMT() << ": ";
+                bsl::cout << bdetu_SystemTime::nowAsDatetimeUtc() << ": ";
                 bsl::cout << "Processing data at address " << data
                           << " and length " << length << ".\n";
             }
@@ -963,7 +963,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
     void my_TestServer::closeConnection(my_Connection *connection)
     {
         if (d_verbose) {
-            bsl::cout << bdetu_SystemTime::nowAsDatetimeGMT() << ": ";
+            bsl::cout << bdetu_SystemTime::nowAsDatetimeUtc() << ": ";
             bsl::cout << "Closing connection " << connection << bsl::endl;
         }
         delete connection;
@@ -978,7 +978,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
         connection1->d_session_p = session;
         newConnection(connection1);
         if (d_verbose) {
-            bsl::cout << bdetu_SystemTime::nowAsDatetimeGMT() << ": ";
+            bsl::cout << bdetu_SystemTime::nowAsDatetimeUtc() << ": ";
             bsl::cout << "Opening connection " << connection1 << endl;
         }
 
@@ -986,7 +986,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
         connection2->d_session_p = session;
         newConnection(connection2);
         if (d_verbose) {
-            bsl::cout << bdetu_SystemTime::nowAsDatetimeGMT() << ": ";
+            bsl::cout << bdetu_SystemTime::nowAsDatetimeUtc() << ": ";
             bsl::cout << "Opening connection " << connection2 << endl;
         }
 
@@ -996,7 +996,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
         const int  length = 1024;
         const char*buffer[length];
         if (d_verbose) {
-            bsl::cout << bdetu_SystemTime::nowAsDatetimeGMT() << ": ";
+            bsl::cout << bdetu_SystemTime::nowAsDatetimeUtc() << ": ";
             bsl::cout << "Connection " << connection1
                       << " receives " << length << " bytes " << endl;
         }

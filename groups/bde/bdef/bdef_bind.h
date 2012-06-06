@@ -787,9 +787,11 @@ BDES_IDENT("$Id: $")
 #include <bslmf_typelist.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
 template <class RET, class FUNC> struct bdef_Bind_FuncTraits;
 template <class RET, int NUMARGS> struct bdef_Bind_Invoker;

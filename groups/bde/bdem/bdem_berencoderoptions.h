@@ -12,10 +12,6 @@ BDES_IDENT_PRAGMA_ONCE
 //
 //@AUTHOR: Rohan BHINDWALE (rbhindwale@bloomberg.net)
 
-#ifndef INCLUDED_BDESCM_VERSION
-#include <bdescm_version.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -88,23 +84,29 @@ class bdem_BerEncoderOptions {
         // This option allows users to control if empty arrays are encoded.  By
         // default empty arrays are encoded as not encoding empty arrays is
         // non-compliant with the BER encoding specification. 
+    bool  d_encodeDateAndTimeTypesAsBinary;
+        // This option allows users to control if date and time types are
+        // encoded as binary integers.  By default these types are encoded as 
+        // strings in the ISO 8601 format. 
 
   public:
     // TYPES
     enum {
-        ATTRIBUTE_ID_TRACE_LEVEL             = 0
-      , ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE = 1
-      , ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS     = 2
+        ATTRIBUTE_ID_TRACE_LEVEL                          = 0
+      , ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE              = 1
+      , ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS                  = 2
+      , ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
     };
 
     enum {
-        NUM_ATTRIBUTES = 3
+        NUM_ATTRIBUTES = 4
     };
 
     enum {
-        ATTRIBUTE_INDEX_TRACE_LEVEL             = 0
-      , ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE = 1
-      , ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS     = 2
+        ATTRIBUTE_INDEX_TRACE_LEVEL                          = 0
+      , ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE              = 1
+      , ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS                  = 2
+      , ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
     };
 
     // CONSTANTS
@@ -115,6 +117,8 @@ class bdem_BerEncoderOptions {
     static const int DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE;
 
     static const bool DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS;
+
+    static const bool DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY;
 
     static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
@@ -210,6 +214,15 @@ class bdem_BerEncoderOptions {
         // Set the "EncodeEmptyArrays" attribute of this object to the
         // specified 'value'.
 
+    void setEncodeDateAndTimeTypesAsBinary(bool value);
+        // Set the "EncodeDateAndTimeTypesAsBinary" attribute of this object to
+        // the specified 'value'.  If this option is set to 'true' then date
+        // and time types will be encoded (in a standard-incompliant way) as an
+        // octet string as opposed to as a string in the ISO 8601 format as
+        // required by the standard.  Note that the binary encoding format is
+        // incompatible with the string encoding format and must be used after
+        // ensuring that the ber decoder can decode the binary format.
+
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -274,6 +287,10 @@ class bdem_BerEncoderOptions {
     bool encodeEmptyArrays() const;
         // Return a reference to the non-modifiable "EncodeEmptyArrays"
         // attribute of this object.
+
+    bool encodeDateAndTimeTypesAsBinary() const;
+        // Return a reference to the non-modifiable
+        // "EncodeDateAndTimeTypesAsBinary" attribute of this object.
 };
 
 // FREE OPERATORS
@@ -326,6 +343,7 @@ STREAM& bdem_BerEncoderOptions::bdexStreamIn(STREAM& stream, int version)
             bdex_InStreamFunctions::streamIn(stream, d_traceLevel, 1);
             bdex_InStreamFunctions::streamIn(stream, d_bdeVersionConformance, 1);
             bdex_InStreamFunctions::streamIn(stream, d_encodeEmptyArrays, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_encodeDateAndTimeTypesAsBinary, 1);
           } break;
           default: {
             stream.invalidate();
@@ -355,13 +373,18 @@ int bdem_BerEncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
+    ret = manipulator(&d_encodeDateAndTimeTypesAsBinary, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
 template <class MANIPULATOR>
 int bdem_BerEncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { BDEM_NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_TRACE_LEVEL: {
@@ -373,8 +396,11 @@ int bdem_BerEncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id
       case ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS: {
         return manipulator(&d_encodeEmptyArrays, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
       } break;
+      case ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY: {
+        return manipulator(&d_encodeDateAndTimeTypesAsBinary, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
+      } break;
       default:
-        return BDEM_NOT_FOUND;
+        return NOT_FOUND;
     }
 }
 
@@ -384,12 +410,12 @@ int bdem_BerEncoderOptions::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { BDEM_NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return BDEM_NOT_FOUND;
+        return NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -413,6 +439,12 @@ void bdem_BerEncoderOptions::setEncodeEmptyArrays(bool value)
     d_encodeEmptyArrays = value;
 }
 
+inline
+void bdem_BerEncoderOptions::setEncodeDateAndTimeTypesAsBinary(bool value)
+{
+    d_encodeDateAndTimeTypesAsBinary = value;
+}
+
 // ACCESSORS
 template <class STREAM>
 STREAM& bdem_BerEncoderOptions::bdexStreamOut(STREAM& stream, int version) const
@@ -422,6 +454,7 @@ STREAM& bdem_BerEncoderOptions::bdexStreamOut(STREAM& stream, int version) const
         bdex_OutStreamFunctions::streamOut(stream, d_traceLevel, 1);
         bdex_OutStreamFunctions::streamOut(stream, d_bdeVersionConformance, 1);
         bdex_OutStreamFunctions::streamOut(stream, d_encodeEmptyArrays, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_encodeDateAndTimeTypesAsBinary, 1);
       } break;
     }
     return stream;
@@ -447,13 +480,18 @@ int bdem_BerEncoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
+    ret = accessor(d_encodeDateAndTimeTypesAsBinary, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
 template <class ACCESSOR>
 int bdem_BerEncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { BDEM_NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_TRACE_LEVEL: {
@@ -465,8 +503,11 @@ int bdem_BerEncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS: {
         return accessor(d_encodeEmptyArrays, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
       } break;
+      case ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY: {
+        return accessor(d_encodeDateAndTimeTypesAsBinary, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
+      } break;
       default:
-        return BDEM_NOT_FOUND;
+        return NOT_FOUND;
     }
 }
 
@@ -476,12 +517,12 @@ int bdem_BerEncoderOptions::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { BDEM_NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return BDEM_NOT_FOUND;
+       return NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -505,6 +546,12 @@ bool bdem_BerEncoderOptions::encodeEmptyArrays() const
     return d_encodeEmptyArrays;
 }
 
+inline
+bool bdem_BerEncoderOptions::encodeDateAndTimeTypesAsBinary() const
+{
+    return d_encodeDateAndTimeTypesAsBinary;
+}
+
 
 // FREE FUNCTIONS
 
@@ -515,7 +562,8 @@ bool operator==(
 {
     return  lhs.traceLevel() == rhs.traceLevel()
          && lhs.bdeVersionConformance() == rhs.bdeVersionConformance()
-         && lhs.encodeEmptyArrays() == rhs.encodeEmptyArrays();
+         && lhs.encodeEmptyArrays() == rhs.encodeEmptyArrays()
+         && lhs.encodeDateAndTimeTypesAsBinary() == rhs.encodeDateAndTimeTypesAsBinary();
 }
 
 inline
@@ -525,7 +573,8 @@ bool operator!=(
 {
     return  lhs.traceLevel() != rhs.traceLevel()
          || lhs.bdeVersionConformance() != rhs.bdeVersionConformance()
-         || lhs.encodeEmptyArrays() != rhs.encodeEmptyArrays();
+         || lhs.encodeEmptyArrays() != rhs.encodeEmptyArrays()
+         || lhs.encodeDateAndTimeTypesAsBinary() != rhs.encodeDateAndTimeTypesAsBinary();
 }
 
 inline
@@ -539,7 +588,7 @@ bsl::ostream& operator<<(
 }  // close namespace BloombergLP
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_3.6.9 Wed Feb  1 12:50:21 2012
+// GENERATED BY BLP_BAS_CODEGEN_3.6.9 Tue Feb 21 16:21:00 2012
 // ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012

@@ -1,4 +1,4 @@
-// bslstl_exalgorithm.cpp                  -*-C++-*-
+// bslstl_exalgorithm.cpp                                             -*-C++-*-
 #include <bslstl_exalgorithm.h>
 
 #include <bsls_ident.h>

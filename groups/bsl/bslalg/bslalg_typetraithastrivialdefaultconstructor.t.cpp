@@ -65,7 +65,7 @@ int verbose = 0;
 int veryVerbose = 0;
 int veryVeryVerbose = 0;
 
-typedef bslalg_TypeTraitHasTrivialDefaultConstructor  Obj;
+typedef bslalg::TypeTraitHasTrivialDefaultConstructor  Obj;
 
 //=============================================================================
 //                  USAGE EXAMPLE
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
         // Plan:  Create an instance of the trait class.
         //
         // Testing:
-        //   class bslalg_TypeTraitHasTrivialDefaultConstructor;
+        //   class bslalg::TypeTraitHasTrivialDefaultConstructor;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"

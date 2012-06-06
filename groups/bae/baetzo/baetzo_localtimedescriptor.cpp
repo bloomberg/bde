@@ -24,21 +24,12 @@ bsl::ostream& baetzo_LocalTimeDescriptor::print(
                                             int           level,
                                             int           spacesPerLevel) const
 {
-    if (stream.bad()) {
-        return stream;                                                // RETURN
-    }
-
-    const bsl::ios_base::fmtflags fmtFlags = stream.flags();
-    stream << bsl::boolalpha;
-
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
     printer.printAttribute("utcOffsetInSeconds", d_utcOffsetInSeconds);
     printer.printAttribute("dstInEffectFlag",    d_dstInEffectFlag);
     printer.printAttribute("description",        d_description.c_str());
     printer.end();
-
-    stream.flags(fmtFlags);
 
     return stream;
 }
@@ -47,17 +38,12 @@ bsl::ostream& baetzo_LocalTimeDescriptor::print(
 bsl::ostream& operator<<(bsl::ostream&                     stream,
                          const baetzo_LocalTimeDescriptor& object)
 {
-    const bsl::ios_base::fmtflags fmtFlags = stream.flags();
-    stream << bsl::boolalpha;
-
     bslim::Printer printer(&stream, 0, -1);
     printer.start();
     printer.print(object.utcOffsetInSeconds(),  0);
     printer.print(object.dstInEffectFlag(),     0);
     printer.print(object.description().c_str(), 0);
     printer.end();
-
-    stream.flags(fmtFlags);
 
     return stream;
 }

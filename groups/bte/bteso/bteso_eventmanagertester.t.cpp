@@ -52,10 +52,242 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 1] Breathing Test
 // [ 8] USAGE Example
+
+//=============================================================================
+//          CENTRAL TABLE OF RESULTS OF TESTS OF 'testDispatchPerforamnce'
+//                              ON ALL PLATFORMS
+//=============================================================================
+//
+// This test is a compilation of tables at the -1 test cases of
+// 'bteso_defaulteventmanager_*.t.cpp'.
+//
+// (note 'select' has a severe limit on the # of sockets it can listen to,
+//  so it has to be treated differently.  Also, Windows has a limitation on
+//  the total # of sockets).
+//
+// This set of test data is OBSOLETE, the tests were redone (see below).  This
+// data is only kept around to show that passing a timeout to the dispatcher
+// does not seem to significantly degrade performance (in the case of AIX it
+// resulted in a slight speedup, but that may just be spurious).
+//
+// R|N: R: signifies that callback actually read data from sockets (1 byte
+//         per socket)
+//      N: signifies that callbacks are just a nop function
+//
+// Linux: ---------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//      5000        0        0     R    Linux        20        epoll
+//      5000        0        0     R    Linux      3200        poll
+//       500        0        0     R    Linux       300        select
+//
+//      5000        0       0.1    R    Linux        23        epoll
+//      5000        0       0.1    R    Linux      2200        poll
+//       500        0       0.1    R    Linux       390        select
+//
+//      5000       0.5       0     R    Linux     11000        epoll
+//      5000       0.5       0     R    Linux     12000        poll
+//       500       0.5       0     R    Linux      1100        select
+//
+//      5000       0.5       0     N    Linux      2300        epoll
+//      5000       0.5       0     N    Linux      3675        poll
+//       500       0.5       0     N    Linux       550        select
+//
+// Solaris: -------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//      5000        0        0     R   Solaris       50        devpoll
+//      5000        0        0     R   Solaris      750        poll
+//       500        0        0     R   Solaris      430        select
+//
+//      5000        0       0.1    R   Solaris       52        devpoll
+//      5000        0       0.1    R   Solaris      690        poll
+//       500        0       0.1    R   Solaris      450        select
+//
+//      5000       0.5       0     R   Solaris     56000       devpoll
+//      5000       0.5       0     R   Solaris     58000       poll
+//       500       0.5       0     R   Solaris      5600       select
+//
+//      5000       0.5       0     N   Solaris     13500       devpoll
+//      5000       0.5       0     N   Solaris     24000       poll
+//       500       0.5       0     N   Solaris      2250       select
+//
+// HPUX: ----------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//      5000        0        0     R     HPUX        10        devpoll
+//      5000        0        0     R     HPUX      8200        poll
+//       500        0        0     R     HPUX       148        select
+//
+//      5000        0       0.1    R     HPUX        13        devpoll
+//      5000        0       0.1    R     HPUX      8900        poll
+//       500        0       0.1    R     HPUX       143        select
+//
+//      5000       0.5       0     R     HPUX     49000        devpoll
+//      5000       0.5       0     R     HPUX     55000        poll
+//       500       0.5       0     R     HPUX      1100        select
+//
+//      5000       0.5       0     N     HPUX     10500        devpoll
+//      5000       0.5       0     N     HPUX     23000        poll
+//       500       0.5       0     N     HPUX       400        select
+//
+// AIX: -----------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//      5000        0        0     R     AIX       8400        poll
+//      5000        0        0     R     AIX         25        pollset
+//      5000        0        0     R     AIX       6600        select
+//
+//      5000        0       0.1    R     AIX       5800        poll
+//      5000        0       0.1    R     AIX         30        pollset
+//      5000        0       0.1    R     AIX       4100        select
+//
+//      5000       0.5       0     R     AIX      17000        poll
+//      5000       0.5       0     R     AIX      12500        pollset
+//      5000       0.5       0     R     AIX      16500        select
+//
+//      5000       0.5       0     N     AIX       7500        poll
+//      5000       0.5       0     N     AIX       4600        pollset
+//      5000       0.5       0     N     AIX       7800        select
+//
+// Windows: -------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//
+//       'bdetu_SystemTime::now()' has a resolution of 1/60th of a second
+//       on Windows, so it just reports 0 microseconds everywhere.  It is
+//       not worth redoing the test to get meaningful results on Windows,
+//       since the only choice of event manager there is 'select.
+//
 //=============================================================================
 
+//=============================================================================
+//                              2nd pass results
+//                              ================
+//
+//
+// SocketsTotal: # of sockets being listened to
+//
+// # Busy: of the sockets being listened to, the # with data (1 byte each)
+//         ready for reading
+//
+// R|N: R: signifies that callback actually read data from sockets (1 byte
+//         per socket)
+//      N: signifies that callbacks are just a nop function
+//
+// Microseconds: time to call the 'dispatch' function, in microseconds.
+//
+// Benchmark of Windows is not done here, since only 'select' works there,
+// there is no decision of a default event manager to be made.
+//
+// ----------------------------------------------------------------------------
+// Table of AIX Dispatcher Results, 2nd Pass:
+//
+//                                  ----------- Microseconds ---------
+// SocketsTotal   # Busy    R|N         Poll      Pollset       Select
+// ------------   ------    ---     --------     --------     --------
+//       12            1     R         38.55        27.81        49.13 
+//       12            6     R         49.89        37.79        59.42
+//       12            6     N         29.58        25.38        40.56
+//
+//     5000            1     R       5092.62        18.99      5989.99
+//     5000         2500     R      13228.7      12034.6      15593.9
+//     5000         2500     N       4973.89      3316.96      6724.12
+//
+//    20000            1     R      27978.8         20.81     32116.5
+//    20000        10000     R      69348.3      59668.2      86618.5
+//    20000        10000     N      27031.1      17862.9      42468.9
+//
+// ----------------------------------------------------------------------------
+// Table of HP_UX Dispatcher Results, 2nd Pass:
+//
+//                                  ---- Microseconds ----
+// SocketsTotal   # Busy    R|N         Poll     /dev/poll
+// ------------   ------    ---     --------     ---------
+//       12            1     R             9             8
+//       12            6     R            24            21
+//       12            6     N             9             7
+//
+//     5000            1     R          7169             7
+//     5000         2500     R         19960         13468
+//     5000         2500     N          9736          2365
+//
+//    20000            1     R         44575             8
+//    20000        10000     R        104580         88438
+//    20000        10000     N         47988         17161
+//
+// Note: times given are for the 10th poll.  The first time the set of
+// descriptors is polled, there is an addition 3 ms lag when using 'poll', and
+// 8-30 ms lag when using '/dev/poll', depending how many ports are being
+// listed to.  This is a one time event.
+//
+//
+// ----------------------------------------------------------------------------
+// Table of Linux Dispatcher Results, 2nd Pass:
+//
+//                                  ---- Microseconds ----
+// SocketsTotal   # Busy    R|N         Poll         EPoll
+// ------------   ------    ---     --------     ---------
+//       12            1     R         30.1          21.32
+//       12            6     R         46.9          37.44
+//       12            6     N         24.2          15.77
+//
+//     5000            1     R       3124.35         22.78
+//     5000         2500     R       8427.31       7355.13
+//     5000         2500     N       3215.38       1951.78
+//
+//    20000            1     R      12586.4          23.5
+//    20000        10000     R      36049.7       32431
+//    20000        10000     N      13151.7       11217.8
+//
+//
+// ----------------------------------------------------------------------------
+// Table of Solaris Dispatcher Results, 2nd Pass:
+//
+//                                  ---- Microseconds ----
+// SocketsTotal   # Busy    R|N         Poll     /dev/poll
+// ------------   ------    ---     --------     ---------
+//       12            1     R            57            42
+//       12            6     R           128            90
+//       12            6     N            45            48
+//
+//      5000           1     R           599            66
+//      5000        2500     R         45395         39890
+//      5000        2500     N         16744         16911
+//
+//     20000           1     R          2380            89
+//     20000       10000     R        183668        169349
+//     20000       10000     N         73020         57642
+//
+// Note: times given are for the 10th poll.  The first time the set of
+// descriptors is polled, there is an addition 33-120 ms lag when using 'poll',
+// and 22-93 ms lag when using '/dev/poll', depending how many ports are being
+// listed to.  This is a one time event.
+// ----------------------------------------------------------------------------
+
+
+// ----------------------------------------------------------------------------
+// Registration time tests: test case -2 in bteso_defaulteventmanager_*.t.cpp
+// Note we don't show results for 'select' on unix platforms other than AIX --
+// though 'select' works on other Unix platforms, it cannot handle enough
+// sockets to be a contender.
+//
+//                         ----- Microseconds to Register all Sockets -----
+//                                            Event Manager
+// Platform NumSockets      devpoll     epoll      poll   pollset    select
+// -------- ----------     --------  --------  --------  --------  --------
+//     AIX      5000                            21562.8   40285.9   20559.9
+//     AIX     20000                            95107.5  168850     87524.4
+//
+//    HPUX      5000        40080               13111
+//    HPUX     20000       219252               49592
+//
+//   Linux      5000                  14072      8116
+//   Linux     20000                  58735     34352
+//
+// Solaris      5000       117983               49223
+// Solaris     20000       471784              219840
+// ----------------------------------------------------------------------------
+
+//=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -246,7 +478,7 @@ HelperEventManager::~HelperEventManager()
                              // ------------
 
 int HelperEventManager::dispatch(const bdet_TimeInterval& deadline,
-                                 int                      flags)
+                                 int)
 {
     OperationDetails info;
     info.d_functionCode = DISPATCHTIMEOUT;
@@ -258,7 +490,7 @@ int HelperEventManager::dispatch(const bdet_TimeInterval& deadline,
     return 1;
 }
 
-int HelperEventManager::dispatch(int flags)
+int HelperEventManager::dispatch(int)
 {
     OperationDetails info;
     info.d_functionCode = DISPATCH;
@@ -939,7 +1171,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1004,7 +1236,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                                                   details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1091,7 +1323,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1176,7 +1408,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1261,7 +1493,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1336,7 +1568,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1412,7 +1644,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1503,7 +1735,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1609,3 +1841,4 @@ int main(int argc, char *argv[])
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
+

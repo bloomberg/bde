@@ -148,9 +148,11 @@
 #include <bsl_cstdlib.h>            // 'bsl::size_t'
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                    // ===========================
                    // struct bcema_FixedPool_Node

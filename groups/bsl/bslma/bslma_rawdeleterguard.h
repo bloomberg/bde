@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a guard to unconditionally manage an object.
 //
 //@CLASSES:
-//   bslma_RawDeleterGuard: guard to unconditionally manage an object
+//  bslma::RawDeleterGuard: guard to unconditionally manage an object
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirement
 ///-----------
-// The parameterized 'ALLOCATOR' type of the 'bslma_RawDeleterGuard' class
+// The parameterized 'ALLOCATOR' type of the 'bslma::RawDeleterGuard' class
 // template must provide a (possibly 'virtual') method:
 //..
 //  void deallocate(void *address);
@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This example shows how one might use a 'bslma_RawDeleterGuard' to guard a
+// This example shows how one might use a 'bslma::RawDeleterGuard' to guard a
 // dynamically-allocated object, deleting that object automatically when the
 // guard goes out of scope.
 //
@@ -62,12 +62,12 @@ BSLS_IDENT("$Id: $")
 //      // a circular dependency in the physical hierarchy will not be created.
 //
 //      // DATA
-//      std::deque<TYPE *>  d_objects;      // objects stored in the queue
-//      bslma_Allocator    *d_allocator_p;  // allocator (held, not owned)
+//      std::deque<TYPE *>   d_objects;      // objects stored in the queue
+//      bslma::Allocator    *d_allocator_p;  // allocator (held, not owned)
 //
 //    public:
 //      // CREATORS
-//      my_Queue(bslma_Allocator *basicAllocator = 0);
+//      my_Queue(bslma::Allocator *basicAllocator = 0);
 //          // Create a 'my_Queue' object.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //          // 0, the currently installed default allocator is used.
@@ -101,9 +101,9 @@ BSLS_IDENT("$Id: $")
 //  // CREATORS
 //  template <class TYPE>
 //  inline
-//  my_Queue<TYPE>::my_Queue(bslma_Allocator *basicAllocator)
+//  my_Queue<TYPE>::my_Queue(bslma::Allocator *basicAllocator)
 //  : d_objects(basicAllocator)
-//  , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //  }
 //
@@ -140,14 +140,15 @@ BSLS_IDENT("$Id: $")
 //      //* Note the use of the raw deleter guard on 'tmp' (below). *
 //      //***********************************************************
 //
-//      bslma_RawDeleterGuard<TYPE, bslma_Allocator> guard(tmp, d_allocator_p);
+//      bslma::RawDeleterGuard<TYPE, bslma::Allocator>
+//                                                   guard(tmp, d_allocator_p);
 //
 //      return *tmp;
 //  }
 //..
 // The 'pushBack' method defined above stores a copy of the provided object.
 // The 'popFront' method returns the leading object by value, and the
-// 'bslma_RawDeleterGuard' is used to automatically delete the copy the queue
+// 'bslma::RawDeleterGuard' is used to automatically delete the copy the queue
 // manages when the guard goes out of scope (i.e., when the function returns).
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -164,12 +165,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ===========================
-                        // class bslma_RawDeleterGuard
-                        // ===========================
+namespace bslma {
+
+                        // =====================
+                        // class RawDeleterGuard
+                        // =====================
 
 template <class TYPE, class ALLOCATOR>
-class bslma_RawDeleterGuard {
+class RawDeleterGuard {
     // This class implements a guard that unconditionally deletes a managed
     // object upon destruction by first invoking the object's destructor, and
     // then invoking the 'deallocate' method of an allocator (or pool) of
@@ -183,12 +186,12 @@ class bslma_RawDeleterGuard {
     ALLOCATOR *d_allocator_p;  // allocator or pool (held, not owned)
 
     // NOT IMPLEMENTED
-    bslma_RawDeleterGuard(const bslma_RawDeleterGuard&);
-    bslma_RawDeleterGuard& operator=(const bslma_RawDeleterGuard&);
+    RawDeleterGuard(const RawDeleterGuard&);
+    RawDeleterGuard& operator=(const RawDeleterGuard&);
 
   public:
     // CREATORS
-    bslma_RawDeleterGuard(TYPE *object, ALLOCATOR *allocator);
+    RawDeleterGuard(TYPE *object, ALLOCATOR *allocator);
         // Create a raw deleter guard that unconditionally manages the
         // specified 'object', and that uses the specified 'allocator' to
         // delete 'object' upon the destruction of this guard.  The behavior is
@@ -196,7 +199,7 @@ class bslma_RawDeleterGuard {
         // 'allocator' supplied the memory for 'object'.  Note that 'allocator'
         // must remain valid throughout the lifetime of this guard.
 
-    ~bslma_RawDeleterGuard();
+    ~RawDeleterGuard();
         // Destroy this raw deleter guard and delete the object it manages by
         // first invoking the destructor of the (managed) object, and then
         // invoking the 'deallocate' method of the allocator (or pool) that was
@@ -207,15 +210,15 @@ class bslma_RawDeleterGuard {
 //                      TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ---------------------------
-                        // class bslma_RawDeleterGuard
-                        // ---------------------------
+                        // ---------------------
+                        // class RawDeleterGuard
+                        // ---------------------
 
 // CREATORS
 template <class TYPE, class ALLOCATOR>
 inline
-bslma_RawDeleterGuard<TYPE, ALLOCATOR>::
-bslma_RawDeleterGuard(TYPE *object, ALLOCATOR *allocator)
+RawDeleterGuard<TYPE, ALLOCATOR>::
+RawDeleterGuard(TYPE *object, ALLOCATOR *allocator)
 : d_object_p(object)
 , d_allocator_p(allocator)
 {
@@ -225,15 +228,27 @@ bslma_RawDeleterGuard(TYPE *object, ALLOCATOR *allocator)
 
 template <class TYPE, class ALLOCATOR>
 inline
-bslma_RawDeleterGuard<TYPE, ALLOCATOR>::~bslma_RawDeleterGuard()
+RawDeleterGuard<TYPE, ALLOCATOR>::~RawDeleterGuard()
 {
     BSLS_ASSERT_SAFE(d_object_p);
     BSLS_ASSERT_SAFE(d_allocator_p);
 
-    bslma_DeleterHelper::deleteObjectRaw(d_object_p, d_allocator_p);
+    DeleterHelper::deleteObjectRaw(d_object_p, d_allocator_p);
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslma_RawDeleterGuard
+#undef bslma_RawDeleterGuard
+#endif
+#define bslma_RawDeleterGuard bslma::RawDeleterGuard
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

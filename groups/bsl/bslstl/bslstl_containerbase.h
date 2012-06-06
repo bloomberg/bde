@@ -10,13 +10,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Base class for STL-style containers.
 //
 //@CLASSES:
-//  bslstl_ContainerBase: base class for STL-style containers
+//  bslstl::ContainerBase: base class for STL-style containers
 //
 //@SEE_ALSO:
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: This component defines a class, 'bslstl_ContainerBase', that
+//@DESCRIPTION: This component defines a class, 'bslstl::ContainerBase', that
 // provides a common base class for all STL-style containers defined in the
 // 'bslstl' package.
 //
@@ -45,26 +45,28 @@ BSL_OVERRIDES_STD mode"
 
 namespace BloombergLP {
 
-                        // ==========================
-                        // class bslstl_ContainerBase
-                        // ==========================
+namespace bslstl {
+
+                             // ===================
+                             // class ContainerBase
+                             // ===================
 
 template <class ALLOCATOR>
-class bslstl_ContainerBase : private bslstl_AllocatorProxy<ALLOCATOR> {
+class ContainerBase : private AllocatorProxy<ALLOCATOR> {
     // Base class for STL-style containers.  Provides access to the allocator.
-    // The 'bslstl_AllocatorProxy base class has two possible implementations
-    // depending on whether 'ALLOCATOR' is constructed from 'bslma_Allocator*'.
-    // Private inheritance is used in order to take advantage of
-    // empty-base-class optimization (implemented by most compilers) in the
-    // case where the base class has zero size.
+    // The 'AllocatorProxy base class has two possible implementations
+    // depending on whether 'ALLOCATOR' is constructed from
+    // 'bslma::Allocator*'.  Private inheritance is used in order to take
+    // advantage of empty-base-class optimization (implemented by most
+    // compilers) in the case where the base class has zero size.
 
     // PRIVATE TYPES
-    typedef bslstl_AllocatorProxy<ALLOCATOR> Base;
+    typedef AllocatorProxy<ALLOCATOR> Base;
         // Base class type.
 
   private:
     // NOT IMPLEMENTED
-    bslstl_ContainerBase& operator=(const bslstl_ContainerBase&);
+    ContainerBase& operator=(const ContainerBase&);
 
   public:
     // TYPES
@@ -73,17 +75,17 @@ class bslstl_ContainerBase : private bslstl_AllocatorProxy<ALLOCATOR> {
 
     typedef typename Base::bslmaAllocatorPtr bslmaAllocatorPtr;
         // Pointer type returned by 'Base::bslmaAllocator()'.  This type is
-        // 'bslma_Allocator*' for 'bslma'-based allocators and 'void*' for non
+        // 'bslma::Allocator*' for 'bslma'-based allocators and 'void*' for non
         // 'bslma'-based allocators.
 
     // CREATORS
     explicit
-    bslstl_ContainerBase(const ALLOCATOR& alloc = ALLOCATOR());
+    ContainerBase(const ALLOCATOR& alloc = ALLOCATOR());
         // Construct this object using the optionally specified 'alloc' of the
         // parameterized 'ALLOCATOR' type.  If 'alloc' is not specified, a
         // default-constructed 'ALLOCATOR' is used.
 
-    bslstl_ContainerBase(const bslstl_ContainerBase& rhs);
+    ContainerBase(const ContainerBase& rhs);
         // Initialize this container base with 'rhs'.  NOTE: This is not a true
         // copy constructor.  The allocator do not get copied if the allocator
         // is 'bslma'-based.  Using BSL allocator semantics, the 'bslma'-style
@@ -91,7 +93,7 @@ class bslstl_ContainerBase : private bslstl_AllocatorProxy<ALLOCATOR> {
         // else it is given a default value.  Non-'bslma' allocators ARE copied
         // because that is the way the ISO standard is currently written.
 
-    ~bslstl_ContainerBase();
+    ~ContainerBase();
         // Destroy this object.
 
     // MANIPULATORS
@@ -124,9 +126,9 @@ class bslstl_ContainerBase : private bslstl_AllocatorProxy<ALLOCATOR> {
 
     bslmaAllocatorPtr bslmaAllocator() const;
         // Return 'allocator().mechanism()' if 'ALLOCATOR' is constructed from
-        // 'bslma_Allocator*'.  Otherwise returns '(void*) 0'.
+        // 'bslma::Allocator*'.  Otherwise returns '(void*) 0'.
 
-    bool equalAllocator(bslstl_ContainerBase& rhs) const;
+    bool equalAllocator(ContainerBase& rhs) const;
         // Returns 'this->originalAllocator() == rhs.originalAllocator()'.
 
     allocator_type get_allocator() const;
@@ -138,31 +140,31 @@ class bslstl_ContainerBase : private bslstl_AllocatorProxy<ALLOCATOR> {
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                        // --------------------------
-                        // class bslstl_ContainerBase
-                        // --------------------------
+                             // -------------------
+                             // class ContainerBase
+                             // -------------------
 
 // CREATORS
 template <class ALLOCATOR>
 inline
-bslstl_ContainerBase<ALLOCATOR>::
-bslstl_ContainerBase(const ALLOCATOR& alloc)
+ContainerBase<ALLOCATOR>::
+ContainerBase(const ALLOCATOR& alloc)
 : Base(alloc)
 {
 }
 
 template <class ALLOCATOR>
 inline
-bslstl_ContainerBase<ALLOCATOR>::
-bslstl_ContainerBase(const bslstl_ContainerBase<ALLOCATOR>& rhs)
+ContainerBase<ALLOCATOR>::
+ContainerBase(const ContainerBase<ALLOCATOR>& rhs)
 : Base(rhs)
 {
 }
 
 template <class ALLOCATOR>
 inline
-bslstl_ContainerBase<ALLOCATOR>::
-~bslstl_ContainerBase()
+ContainerBase<ALLOCATOR>::
+~ContainerBase()
 {
 }
 
@@ -170,13 +172,13 @@ bslstl_ContainerBase<ALLOCATOR>::
 template <class ALLOCATOR>
 template <class T>
 inline
-T *bslstl_ContainerBase<ALLOCATOR>::allocateN(T *p, size_type n)
+T *ContainerBase<ALLOCATOR>::allocateN(T *p, size_type n)
 {
     return this->Base::allocateN(p, n);
 }
 
 template <class ALLOCATOR>
-ALLOCATOR& bslstl_ContainerBase<ALLOCATOR>::allocator()
+ALLOCATOR& ContainerBase<ALLOCATOR>::allocator()
 {
     return this->Base::allocator();
 }
@@ -184,7 +186,7 @@ ALLOCATOR& bslstl_ContainerBase<ALLOCATOR>::allocator()
 template <class ALLOCATOR>
 template <class T>
 inline
-void bslstl_ContainerBase<ALLOCATOR>::deallocateN(T *p, size_type n)
+void ContainerBase<ALLOCATOR>::deallocateN(T *p, size_type n)
 {
     this->Base::deallocateN(p, n);
 }
@@ -192,35 +194,37 @@ void bslstl_ContainerBase<ALLOCATOR>::deallocateN(T *p, size_type n)
 // ACCESSORS
 template <class ALLOCATOR>
 inline
-const ALLOCATOR& bslstl_ContainerBase<ALLOCATOR>::allocator() const
+const ALLOCATOR& ContainerBase<ALLOCATOR>::allocator() const
 {
     return this->Base::allocator();
 }
 
 template <class ALLOCATOR>
 inline
-typename bslstl_ContainerBase<ALLOCATOR>::bslmaAllocatorPtr
-bslstl_ContainerBase<ALLOCATOR>::bslmaAllocator() const
+typename ContainerBase<ALLOCATOR>::bslmaAllocatorPtr
+ContainerBase<ALLOCATOR>::bslmaAllocator() const
 {
     return this->Base::bslmaAllocator();
 }
 
 template <class ALLOCATOR>
 inline
-bool bslstl_ContainerBase<ALLOCATOR>::
-equalAllocator(bslstl_ContainerBase& rhs) const
+bool ContainerBase<ALLOCATOR>::
+equalAllocator(ContainerBase& rhs) const
 {
     return this->allocator() == rhs.allocator();
 }
 
 template <class ALLOCATOR>
 inline
-ALLOCATOR bslstl_ContainerBase<ALLOCATOR>::get_allocator() const
+ALLOCATOR ContainerBase<ALLOCATOR>::get_allocator() const
 {
     return allocator();
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

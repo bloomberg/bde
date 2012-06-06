@@ -78,7 +78,7 @@ int bteso_SocketOptUtil::setSocketOptions(bteso_SocketHandle::Handle handle,
                                                      options.linger().value();
         bteso_SocketOptUtil::LingerData lingerData;
 
-        lingerData.l_onoff  = lingerOptions.useLingering();
+        lingerData.l_onoff  = lingerOptions.lingerFlag();
         lingerData.l_linger = lingerOptions.timeout();
 
         const int rc = setOption(handle,

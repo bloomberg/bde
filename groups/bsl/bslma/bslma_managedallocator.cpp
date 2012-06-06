@@ -1,4 +1,4 @@
-// bslma_managedallocator.cpp           -*-C++-*-
+// bslma_managedallocator.cpp                                         -*-C++-*-
 #include <bslma_managedallocator.h>
 
 #include <bsls_ident.h>
