@@ -322,10 +322,6 @@ static void dummyFunction(void) {
 
 }
 
-void noopFunction()
-{
-}
-
 enum { NUM_REGISTER_PAIRS = 10 };
 
 bcemt_Barrier *globalBarrier;
@@ -662,7 +658,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 16: {
+      case 15: {
           // ----------------------------------------------------------------
           // TESTING USAGE EXAMPLE
           //   The usage example provided in the component header file must
@@ -712,31 +708,6 @@ int main(int argc, char *argv[])
                       << ": Consuming " << item << bsl::endl;
               }
           }
-      } break;
-
-      case 15: {
-        // -----------------------------------------------------------------
-        // TESTING DRQS 29286796
-        //
-        // Concern:
-        //: TBD
-        //
-        // Plan:
-        //: TBD
-        //
-        // Testing:
-        //   DRQS 29286796
-        // -----------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING DRQS 29286796" << endl
-                          << "=====================" << endl;
-
-        bdet_TimeInterval timeout = bdetu_SystemTime::now() + 1;
-        Obj mX;  const Obj& X = mX;
-        void *timerId = mX.registerTimer(timeout, &noopFunction);
-        mX.deregisterTimer(timerId);
-        ASSERT(0 == X.numTimers());
       } break;
 
       case 14: {
