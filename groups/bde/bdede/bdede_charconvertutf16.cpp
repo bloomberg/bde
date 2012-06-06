@@ -1,12 +1,15 @@
 // bdede_charconvertutf16.cpp                                         -*-C++-*-
 #include <bdede_charconvertutf16.h>
 
+#include <bdes_bitutil.h>
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslmf_assert.h>   // 'BSLMF_ASSERT'
+#include <bsls_assert.h>
 
-#include <bsl_climits.h>    // 'CHAR_BIT'
+#include <bsl_climits.h>      // 'CHAR_BIT'
 
 ///IMPLEMENTATION NOTES
 ///--------------------
@@ -336,7 +339,7 @@ struct Utf8 {
     {
         for (int i = 0; ; ++i) {
             if (i >= n || ! isContinuation(octbuf[i])) {
-                return i;
+                return i;                                             // RETURN
             }
         }
     }
@@ -576,30 +579,91 @@ namespace BloombergLP {
                         // -----------------------------
 
 // CLASS METHODS
-int bdede_CharConvertUtf16::utf8ToUtf16(unsigned short *dstBuffer,
-                                        bsl::size_t       dstCapacity,
-                                        const char       *srcString,
-                                        bsl::size_t      *numCharsWritten,
-                                        bsl::size_t      *numWordsWritten,
-                                        unsigned short    errorCharacter)
+int bdede_CharConvertUtf16::utf8ToUtf16(
+                                  bsl::vector<unsigned short> *dstVector,
+                                  const char                 **srcString,
+                                  bsl::size_t                 *numCharsWritten,
+                                  bsl::size_t                 *numWordsWritten,
+                                  unsigned short               errorCharacter)
 {
-    return utf8ToUtf16Partial(dstBuffer,
-                              dstCapacity,
-                              &srcString,
-                              numCharsWritten,
-                              numWordsWritten,
-                              errorCharacter);
+    enum { MAX_UTF16_CHAR_LENGTH = 2 };
+
+    int rc = 0;
+
+    if (dstVector->capacity() > dstVector->size()) {
+        dstVector->resize(dstVector->capacity());
+    }
+    if (dstVector->size() < MAX_UTF16_CHAR_LENGTH) {
+        dstVector->resize(64);
+    }
+    BSLS_ASSERT(dstVector->size() >= MAX_UTF16_CHAR_LENGTH);
+
+    bsl::size_t nChars = 0;
+    bsl::size_t nWords = 0;
+
+    while (true) {
+        BSLS_ASSERT(0 == (rc & ~1));
+
+        bsl::size_t deltaNChars = 0;
+        bsl::size_t deltaNWords = 0;
+
+        bsl::size_t segmentLeft = dstVector->size() - nWords;
+        BSLS_ASSERT(segmentLeft >= MAX_UTF16_CHAR_LENGTH);
+
+        rc |= utf8ToUtf16(&(*dstVector)[nWords],
+                          segmentLeft,
+                          srcString,
+                          &deltaNChars,
+                          &deltaNWords,
+                          errorCharacter,
+                          false);
+
+        BSLS_ASSERT(0 == (rc & ~3));
+
+        BSLS_ASSERT(deltaNChars > 0);
+        BSLS_ASSERT(deltaNWords >= deltaNChars);
+        BSLS_ASSERT(deltaNWords <= segmentLeft);
+
+        nChars += deltaNChars;
+        nWords += deltaNWords;
+        BSLS_ASSERT(nWords <= dstVector->size());
+
+        if (0 == (rc & 2)) {
+            break;
+        }
+        rc &= ~2;
+
+        BSLS_ASSERT(dstVector->size() - nWords < MAX_UTF16_CHAR_LENGTH);
+
+        dstVector->resize(bdes_BitUtil::roundUpToBinaryPower(
+                                   dstVector->size() + MAX_UTF16_CHAR_LENGTH));
+    }
+    BSLS_ASSERT(0 == (rc & ~1));
+    BSLS_ASSERT(nChars >  0);
+    BSLS_ASSERT(nWords >= nChars);
+    BSLS_ASSERT(0 == (*dstVector)[nWords - 1]);
+    dstVector->resize(nWords);
+
+    if (numCharsWritten) {
+        *numCharsWritten = nChars;
+    }
+    if (numWordsWritten) {
+        *numWordsWritten = nWords;
+    }
+
+    return rc;
 }
 
-int bdede_CharConvertUtf16::utf8ToUtf16Partial(
-                                             unsigned short   *dstBuffer,
-                                             bsl::size_t       dstCapacity,
-                                             const char      **srcStringArg,
-                                             bsl::size_t      *numCharsWritten,
-                                             bsl::size_t      *numWordsWritten,
-                                             unsigned short    errorCharacter)
+int bdede_CharConvertUtf16::utf8ToUtf16(unsigned short   *dstBuffer,
+                                        bsl::size_t       dstCapacity,
+                                        const char      **srcString,
+                                        bsl::size_t      *numCharsWritten,
+                                        bsl::size_t      *numWordsWritten,
+                                        unsigned short    errorCharacter,
+                                        bool              alwaysTerminate)
 {
     // We need at least room for a null character in the output.
+
     if (dstCapacity < 1) {
         if (numCharsWritten) {
             *numCharsWritten = 0;
@@ -607,7 +671,11 @@ int bdede_CharConvertUtf16::utf8ToUtf16Partial(
         if (numWordsWritten) {
             *numWordsWritten = 0;
         }
-        return BDEDE_OUTPUT_BUFFER_TOO_SMALL;
+        return BDEDE_OUTPUT_BUFFER_TOO_SMALL;                         // RETURN
+    }
+
+    if (alwaysTerminate) {
+        --dstCapacity;        // Make sure there will be room for terminating 0
     }
 
     unsigned short *const dstStart = dstBuffer;
@@ -618,14 +686,19 @@ int bdede_CharConvertUtf16::utf8ToUtf16Partial(
     // changing the type here keeps the low-level routines short.
 
     const Utf8::OctetType *octets = static_cast<const Utf8::OctetType*>(
-                                      static_cast<const void*>(*srcStringArg));
+                                         static_cast<const void*>(*srcString));
     const Utf8::OctetType *nextOctets = octets;
-    for (; ; octets = nextOctets) {
+    bool finished = false;
+    for (; dstCapacity > 0; octets = nextOctets) {
 
         // Are we done?
 
         if (0 == *octets) {
-            nextOctets = octets + 1;
+            ++octets;
+            *dstBuffer++ = 0;
+            --dstCapacity;
+            ++nChars;
+            finished = true;
             break;
         }
 
@@ -633,38 +706,16 @@ int bdede_CharConvertUtf16::utf8ToUtf16Partial(
         // and no replacement character, we may consume input octets without
         // using any space.
 
-        // Single-octet case is simple and quick.
-
-        if (Utf8::isSingleOctet(*octets)) {
-            if (dstCapacity < 2) {
-                // Are we out of output room, with only space for the null?
-                returnStatus |= BDEDE_OUTPUT_BUFFER_TOO_SMALL;
-                break;
-            }
-
-            Utf16::encodeSingleWord(dstBuffer, *octets);
-            nextOctets = octets + 1;
-            ++dstBuffer;
-            --dstCapacity;
-            ++nChars;
-            continue;
-        }
-
-        // Two, three, or four octets needed.
-
-        if (errorCharacter && dstCapacity < 2) {
-            // If there is an error character, we'll
-            // need at least one output slot.
-            returnStatus |= BDEDE_OUTPUT_BUFFER_TOO_SMALL;
-            break;
-        }
-
         // The error cases have a lot of repetition.  With the optimizer on,
         // the repeated code should all get folded together.
 
         Iso10646Char convBuf;
 
-        if (Utf8::isTwoOctetHeader(*octets)) {
+        if      (Utf8::isSingleOctet(*octets)) {
+            convBuf = *octets;
+            nextOctets = octets + 1;
+        }
+        else if (Utf8::isTwoOctetHeader(*octets)) {
             int nContins = Utf8::lookaheadContinuations(octets + 1, 1);
             if (nContins != 1) {
                 returnStatus |= BDEDE_INVALID_INPUT_CHARACTER;
@@ -722,6 +773,7 @@ int bdede_CharConvertUtf16::utf8ToUtf16Partial(
                 returnStatus |= BDEDE_INVALID_INPUT_CHARACTER;
                 nextOctets = octets + nContins + 1;  // Resynchronize past this
                                                      // group.
+
                 if (errorCharacter) {
                     *dstBuffer++ = errorCharacter;
                     --dstCapacity;
@@ -775,10 +827,6 @@ int bdede_CharConvertUtf16::utf8ToUtf16Partial(
                 }
                 continue;
             }
-            if (dstCapacity < 2) {  // Need room for at least one plus a null.
-                returnStatus |= BDEDE_OUTPUT_BUFFER_TOO_SMALL;
-                break;
-            }
             Utf16::encodeSingleWord(dstBuffer, convBuf);
             ++dstBuffer;
             --dstCapacity;
@@ -797,8 +845,7 @@ int bdede_CharConvertUtf16::utf8ToUtf16Partial(
                 }
                 continue;
             }
-            if (dstCapacity < 3) {  // Need room for at least two plus a null.
-                returnStatus |= BDEDE_OUTPUT_BUFFER_TOO_SMALL;
+            if (dstCapacity < 2) {  // Need room for at least two
                 break;
             }
             Utf16::encodeTwoWords(dstBuffer, convBuf);
@@ -807,12 +854,19 @@ int bdede_CharConvertUtf16::utf8ToUtf16Partial(
             ++nChars;
         }
     }
-    if (0 == (returnStatus & BDEDE_OUTPUT_BUFFER_TOO_SMALL)) {
-        octets = nextOctets;
+    if (!finished) {
+        if (alwaysTerminate) {
+            if (0 == *octets) {
+                ++octets;
+                finished = true;
+            }
+            *dstBuffer++ = 0;
+            ++nChars;
+        }
+        if (!finished) {
+            returnStatus |= BDEDE_OUTPUT_BUFFER_TOO_SMALL;
+        }
     }
-
-    *dstBuffer++ = 0;
-    ++nChars;
 
     if (numCharsWritten) {
         *numCharsWritten = nChars;
@@ -821,35 +875,110 @@ int bdede_CharConvertUtf16::utf8ToUtf16Partial(
         *numWordsWritten = dstBuffer - dstStart;
     }
 
-    *srcStringArg = static_cast<const char *>(
-                                            static_cast<const void *>(octets));
+    *srcString = static_cast<const char *>(static_cast<const void *>(octets));
     return returnStatus;
 }
 
-int bdede_CharConvertUtf16::utf16ToUtf8(char               *dstBuffer,
-                                        bsl::size_t           dstCapacity,
-                                        const unsigned short *srcString,
-                                        bsl::size_t          *numCharsWritten,
-                                        bsl::size_t          *numBytesWritten,
-                                        char                  errorCharacter)
+int bdede_CharConvertUtf16::utf8ToUtf16(unsigned short *dstBuffer,
+                                        bsl::size_t     dstCapacity,
+                                        const char     *srcString,
+                                        bsl::size_t    *numCharsWritten,
+                                        bsl::size_t    *numWordsWritten,
+                                        unsigned short  errorCharacter)
 {
-    return utf16ToUtf8Partial(dstBuffer,
-                              dstCapacity,
-                              &srcString,
-                              numCharsWritten,
-                              numBytesWritten,
-                              errorCharacter);
+    return utf8ToUtf16(dstBuffer,
+                       dstCapacity,
+                       &srcString,
+                       numCharsWritten,
+                       numWordsWritten,
+                       errorCharacter,
+                       true);
 }
 
-int bdede_CharConvertUtf16::utf16ToUtf8Partial(
-                                        char                  *dstBuffer,
-                                        bsl::size_t            dstCapacity,
-                                        const unsigned short **srcStringArg,
+int bdede_CharConvertUtf16::utf16ToUtf8(bsl::vector<char>     *dstVector,
+                                        const unsigned short **srcString,
                                         bsl::size_t           *numCharsWritten,
                                         bsl::size_t           *numBytesWritten,
                                         char                   errorCharacter)
 {
-    const unsigned short *srcString = *srcStringArg;
+    enum { MAX_UTF8_CHAR_LENGTH = 4 };
+
+    int rc = 0;
+
+    if (dstVector->capacity() > dstVector->size()) {
+        dstVector->resize(dstVector->capacity());
+    }
+    if (dstVector->size() < MAX_UTF8_CHAR_LENGTH) {
+        dstVector->resize(64);
+    }
+    BSLS_ASSERT(dstVector->size() >= MAX_UTF8_CHAR_LENGTH);
+
+    bsl::size_t nChars = 0;
+    bsl::size_t nBytes = 0;
+
+    while (true) {
+        BSLS_ASSERT(0 == (rc & ~1));
+
+        bsl::size_t deltaNChars = 0;
+        bsl::size_t deltaNBytes = 0;
+
+        bsl::size_t segmentLeft = dstVector->size() - nBytes;
+        BSLS_ASSERT(segmentLeft >= MAX_UTF8_CHAR_LENGTH);
+
+        rc |= utf16ToUtf8(&(*dstVector)[nBytes],
+                          segmentLeft,
+                          srcString,
+                          &deltaNChars,
+                          &deltaNBytes,
+                          errorCharacter);
+
+        BSLS_ASSERT(0 == (rc & ~3));
+
+        BSLS_ASSERT(deltaNChars > 0);
+        BSLS_ASSERT(deltaNBytes >= deltaNChars);
+        BSLS_ASSERT(deltaNBytes <= segmentLeft);
+
+        nChars += deltaNChars;
+        nBytes += deltaNBytes;
+        BSLS_ASSERT(nBytes <= dstVector->size());
+
+        if (0 == (rc & 2)) {
+            break;
+        }
+        rc &= ~2;
+
+        BSLS_ASSERT(dstVector->size() - nBytes < MAX_UTF8_CHAR_LENGTH);
+
+        dstVector->resize(bdes_BitUtil::roundUpToBinaryPower(
+                                    dstVector->size() + MAX_UTF8_CHAR_LENGTH));
+    }
+    BSLS_ASSERT(0 == (rc & ~1));
+    BSLS_ASSERT(nChars >  0);
+    BSLS_ASSERT(nBytes >= nChars);
+    BSLS_ASSERT(0 == (*dstVector)[nBytes - 1]);
+    dstVector->resize(nBytes);
+
+    if (numCharsWritten) {
+        *numCharsWritten = nChars;
+    }
+    if (numBytesWritten) {
+        *numBytesWritten = nBytes;
+    }
+
+    return rc;
+}
+
+int bdede_CharConvertUtf16::utf16ToUtf8(char                  *dstBuffer,
+                                        bsl::size_t            dstCapacity,
+                                        const unsigned short **srcString,
+                                        bsl::size_t           *numCharsWritten,
+                                        bsl::size_t           *numBytesWritten,
+                                        char                   errorCharacter)
+{
+    // '*srcString' is copied to 'srcStringLcl' for performance reasons
+
+    const unsigned short *words = *srcString;
+    const unsigned short *nextWords = words;
 
     if (dstCapacity < 1) {
         if (numCharsWritten) {
@@ -858,7 +987,7 @@ int bdede_CharConvertUtf16::utf16ToUtf8Partial(
         if (numBytesWritten) {
             *numBytesWritten = 0;
         }
-        return BDEDE_OUTPUT_BUFFER_TOO_SMALL;
+        return BDEDE_OUTPUT_BUFFER_TOO_SMALL;                         // RETURN
     }
 
     char *const dstStart = dstBuffer;
@@ -866,116 +995,112 @@ int bdede_CharConvertUtf16::utf16ToUtf8Partial(
     bsl::size_t nChars = 0;
 
     int returnStatus = 0;
-
-    for (;;) {
+    bool finished = false;
+    for (; dstCapacity > 0; words = nextWords) {
 
         // Are we done?
 
-        if (0 == *srcString) {
-            ++srcString;
-            break;
-        }
-
-        // We don't do the out-of-room tests until we know that we can
-        // generate valid Iso10646Char characters from the utf16 string.
-
-        // The single-byte case is the simplest.  It ought to be the fastest.
-
-        if (Utf16::isSingleUtf8(*srcString)) {
-            if (dstCapacity < 2) {
-                // One for the char, one for the null.
-                returnStatus |= BDEDE_OUTPUT_BUFFER_TOO_SMALL;
-                break;
-            }
-            *dstBuffer = Utf16::getUtf8Value(*srcString);
-            ++srcString;
-            ++dstBuffer;
+        if (0 == *words) {
+            ++words;
+            *dstBuffer++ = 0;
             --dstCapacity;
             ++nChars;
-            continue;
+            finished = true;
+            break;
         }
 
         Iso10646Char convBuf;
 
         // Is it a single-word character?
 
-        if (Utf16::isSingleWord(*srcString)) {
-            Utf16::decodeSingleWord(&convBuf, srcString);
+        if (Utf16::isSingleWord(*words)) {
+            Utf16::decodeSingleWord(&convBuf, words);
+            nextWords = words + 1;
 
             // One word encodes to one, two, or three utf8 octets.  We have
             // already handled the single-octet case.
 
-            if (Utf8::fitsInTwoOctets(convBuf)) {
-                // Need two spaces plus a null
-                if (dstCapacity < 3) {
-                    returnStatus |= BDEDE_OUTPUT_BUFFER_TOO_SMALL;
+            if      (Utf8::fitsInSingleOctet(convBuf)) {
+                BSLS_ASSERT(dstCapacity > 0);
+                *dstBuffer++ = convBuf;
+                --dstCapacity;
+                ++nChars;
+                continue;
+            }
+            else if (Utf8::fitsInTwoOctets(convBuf)) {
+                // Need two octets
+
+                if (dstCapacity < 2) {
                     break;
                 }
                 Utf8::encodeTwoOctets(dstBuffer, convBuf);
-                ++srcString;
                 dstBuffer += 2;
                 dstCapacity -= 2;
                 ++nChars;
                 continue;
             }
+            else {
+                // One word contains 16 bits, you can encode 16 bits in 3
+                // octets of utf-8.
 
-            // Need three spaces plus a null
+                BSLS_ASSERT(Utf8::fitsInThreeOctets(convBuf));
+
+                // Need three octets
+
+                if (dstCapacity < 3) {
+                    break;
+                }
+
+                Utf8::encodeThreeOctets(dstBuffer, convBuf);
+                dstBuffer += 3;
+                dstCapacity -= 3;
+                ++nChars;
+                continue;
+            }
+        }
+        else {
+            // Not one word, must be two.
+
+            if   (! Utf16::isFirstWord(*words)
+               || ! Utf16::isSecondWord(words[1])) {
+                nextWords = words + 1;
+
+                // ( ! isSecondWord() covers the case of null.  )
+
+                returnStatus |= BDEDE_INVALID_INPUT_CHARACTER;
+                if (0 != errorCharacter) {
+                    *dstBuffer++ = errorCharacter;
+                    --dstCapacity;
+                    ++nChars;
+                }
+                continue;
+            }
+
+            Utf16::decodeTwoWords(&convBuf, words);
+            nextWords = words + 2;
+
+            // It is impossible to encode anything in 2 octets of utf-16
+            // that can be represented in a 16 bit number.  3 octets of utf-8
+            // can encode exactly 16 bits of information.
+
+            BSLS_ASSERT(! Utf8::fitsInThreeOctets(convBuf));
+
+            // Two words of utf-16 always needs four octets to decode
 
             if (dstCapacity < 4) {
-                returnStatus |= BDEDE_OUTPUT_BUFFER_TOO_SMALL;
                 break;
             }
 
-            Utf8::encodeThreeOctets(dstBuffer, convBuf);
-            ++srcString;
-            dstBuffer += 3;
-            dstCapacity -= 3;
+            Utf8::encodeFourOctets(dstBuffer, convBuf);
+            dstBuffer += 4;
+            dstCapacity -= 4;
             ++nChars;
             continue;
         }
-
-        // Not one word, must be two.
-
-        if (! Utf16::isFirstWord(*srcString)
-         || ! Utf16::isSecondWord(srcString[1])) {
-
-            // ( ! isSecondWord() covers the case of null.  )
-
-            returnStatus |= BDEDE_INVALID_INPUT_CHARACTER;
-            ++srcString;
-            if (0 != errorCharacter) {
-                if (dstCapacity < 2) {
-                    // One for the char, one for the null.
-
-                    returnStatus |= BDEDE_OUTPUT_BUFFER_TOO_SMALL;
-                    break;
-                }
-                *dstBuffer = errorCharacter;
-                ++dstBuffer;
-                --dstCapacity;
-                ++nChars;
-            }
-            continue;
-        }
-
-        // Need four octets plus a null
-
-        if (dstCapacity < 5) {
-            returnStatus |= BDEDE_OUTPUT_BUFFER_TOO_SMALL;
-
-            break;
-        }
-
-        Utf16::decodeTwoWords(&convBuf, srcString);
-        Utf8::encodeFourOctets(dstBuffer, convBuf);
-        srcString += 2;
-        dstBuffer += 4;
-        dstCapacity -= 4;
-        ++nChars;
     }
-
-    *dstBuffer++ = 0;
-    ++nChars;
+    if (!finished) {
+        returnStatus |= BDEDE_OUTPUT_BUFFER_TOO_SMALL;
+    }
 
     if (numBytesWritten) {
         *numBytesWritten = dstBuffer - dstStart;
@@ -985,8 +1110,23 @@ int bdede_CharConvertUtf16::utf16ToUtf8Partial(
         *numCharsWritten = nChars;
     }
 
-    *srcStringArg = srcString;
+    *srcString = words;
     return returnStatus;
+}
+
+int bdede_CharConvertUtf16::utf16ToUtf8(char                 *dstBuffer,
+                                        bsl::size_t           dstCapacity,
+                                        const unsigned short *srcString,
+                                        bsl::size_t          *numCharsWritten,
+                                        bsl::size_t          *numBytesWritten,
+                                        char                  errorCharacter)
+{
+    return utf16ToUtf8(dstBuffer,
+                       dstCapacity,
+                       &srcString,
+                       numCharsWritten,
+                       numBytesWritten,
+                       errorCharacter);
 }
 
 }  // close namespace BloombergLP
