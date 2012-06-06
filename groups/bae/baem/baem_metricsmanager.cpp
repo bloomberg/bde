@@ -572,7 +572,7 @@ void baem_MetricsManager_PublicationHelper::publish(
     SampleCache  sampleCache;   // publisher -> sample (samples point to
                                 // records in the 'recordBuffer')
 
-    bdet_DatetimeTz   timeStamp(bdetu_SystemTime::nowAsDatetimeGMT(), 0);
+    bdet_DatetimeTz   timeStamp(bdetu_SystemTime::nowAsDatetimeUtc(), 0);
     bdet_TimeInterval now = bdetu_SystemTime::now();
 
     // Lock the publication lock *then* lock the other object properties.
@@ -1024,7 +1024,7 @@ void baem_MetricsManager::collectSample(
                                int                             numCategories,
                                bool                            resetFlag)
 {
-    bdet_DatetimeTz   timeStamp(bdetu_SystemTime::nowAsDatetimeGMT(), 0);
+    bdet_DatetimeTz   timeStamp(bdetu_SystemTime::nowAsDatetimeUtc(), 0);
     bdet_TimeInterval now = bdetu_SystemTime::now();
 
     sample->setTimeStamp(timeStamp);

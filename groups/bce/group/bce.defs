@@ -5,8 +5,8 @@
 #==============================================================================
 
 # External library dependencies for executables
-!! unix-*       _       BCE_LDFLAGS     = $(BDE_DYNAMIC) -lpthread $(BDE_STATIC)
-!! unix-SunOS   _       BCE_LDFLAGS     = $(BDE_DYNAMIC) -lpthread -lrt $(BDE_STATIC)
+!! unix-*       _       BCE_LDFLAGS     = $(BDE_DYNAMIC) -lpthread -lrt $(BDE_STATIC)
+!! unix-Darwin  _       BCE_LDFLAGS     = -lpthread
 !! unix-dgux    _       BCE_LDFLAGS     =
 
 -- *            _   BDE_ENDLDFLAGS  = $(BCE_LDFLAGS)

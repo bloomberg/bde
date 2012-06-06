@@ -162,7 +162,7 @@ int bteso_IpResolutionCache::getCacheData(
     bteso_IpResolutionCache_Entry::DataPtr dataPtr;
     bteso_IpResolutionCache_Entry *entry = 0;
 
-    const bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeGMT();
+    const bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeUtc();
 
     {
         bcemt_ReadLockGuard<bcemt_RWMutex> readLockGuard(&d_rwLock);

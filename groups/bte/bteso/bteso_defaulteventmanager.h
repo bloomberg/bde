@@ -91,6 +91,10 @@ BDES_IDENT("$Id: $")
 #include <bteso_defaulteventmanager_poll.h>
 #endif
 
+#ifndef INCLUDED_BTESO_DEFAULTEVENTMANAGER_POLLSET
+#include <bteso_defaulteventmanager_pollset.h>
+#endif
+
 #ifndef INCLUDED_BTESO_DEFAULTEVENTMANAGER_SELECT
 #include <bteso_defaulteventmanager_select.h>
 #endif
@@ -131,20 +135,27 @@ class bteso_TimeMetrics;
 struct bteso_EventMgr {
     // Provides a type definition for the default event manager for a given
     // platform.
-    typedef
-        bteso_DefaultEventManager<bteso_Platform::DEFAULT_POLLING_MECHANISM>
-        TYPE;
+
+    // This class is DEPRECATED: instead of 'bteso_EventMgr::TYPE', use
+    // 'bteso_DefaultEventManager<>' directly.
+
+    typedef bteso_DefaultEventManager<> TYPE;
 };
 
                      // ===============================
                      // class bteso_DefaultEventManager
                      // ===============================
 
-template<class POLLING_MECHANISM>
+template <class POLLING_MECHANISM>
 class bteso_DefaultEventManager : public bteso_EventManager {
     // This class standardizes the interface for the default event manager for
     // a given platform.  The generic class (this one) is NOT implemented.  All
     // specialized event managers must adhere to this interface.
+    //
+    // Note that 'POLLING_MECHANISM' is specified in the forward declaration in
+    // 'bteso_defaulteventmanagerimpl.h' to default to
+    // 'bteso_Platform::DEFAULT_POLLING_MECHANISM'.
+
   public:
     // CREATORS
     explicit

@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a representation of a date with time zone offset.
 //
 //@CLASSES:
-//     bdet_DateTz: local-date value with time zone offset from GMT
+//     bdet_DateTz: local-date value with time zone offset from UTC
 //
 //@SEE_ALSO: bdet_date, bdet_datetimetz
 //
@@ -18,21 +18,21 @@ BDES_IDENT("$Id: $")
 //
 //@CONTACT: Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION: This component provides a date value and an offset from GMT.
+//@DESCRIPTION: This component provides a date value and an offset from UTC.
 // Specifically, the 'bdet_DateTz' class provided by this component represents
 // a date value similar to 'bdet_Date', but explicitly as a local date; the
-// offset of that local date from GMT (in minutes) is also part of the value of
+// offset of that local date from UTC (in minutes) is also part of the value of
 // a 'bdet_DateTz' object.  For logical consistency, the date value and offset
 // should correspond to a geographically valid time zone, but such consistency
 // is the user's responsibility.  This component does not enforce logical
 // constraints on any values.
 //
 // The 'localDate' method returns a 'bdet_Date' value corresponding to the
-// local date.  The 'gmtStartTime' method returns a 'bdet_Datetime' value
-// corresponding to the GMT "point in time" when the local date starts (i.e.,
+// local date.  The 'utcStartTime' method returns a 'bdet_Datetime' value
+// corresponding to the UTC "point in time" when the local date starts (i.e.,
 // 0000 hours local time).  In addition, the 'offset' method returns the time
-// zone offset in integer minutes from GMT (i.e.,
-// 'localDate() - offset() == gmtStartTime()').
+// zone offset in integer minutes from UTC (i.e.,
+// 'localDate() - offset() == utcStartTime()').
 //
 ///A Note on Time Zone Support
 ///---------------------------
@@ -44,14 +44,14 @@ BDES_IDENT("$Id: $")
 // The rest is left to convention and to the interpretations of the user.
 //
 // A 'bdet_DateTz' value is intended to be interpreted as a value in some local
-// time zone, along with the offset of that value from GMT.  However, there are
+// time zone, along with the offset of that value from UTC.  However, there are
 // some problems with this simple interpretation.  First of all, the offset
 // value may not correspond to any time zone that has ever existed.  For
 // example, the offset value could be set to one minute, or to 1,234 minutes.
 // The meaning of the resulting "local time" value is always clear, but the
 // local time might not correspond to any geographical or historical time zone.
 //
-// The second problem is more subtle.  A given offset from GMT might be "valid"
+// The second problem is more subtle.  A given offset from UTC might be "valid"
 // in that it corresponds to a real time zone, but the actual date value might
 // not exist in that time zone.  To make matters worse, a "valid" offset may
 // not (indeed, rarely will) specify one time zone uniquely.  Moreover, the
@@ -67,15 +67,15 @@ BDES_IDENT("$Id: $")
 // The following snippets of code illustrate how to create and use
 // 'bdet_DateTz' objects.  First we will default construct an object 'dateTz1'.
 // A default constructed object contains an offset of 0, implying that the
-// object represents a date in the GMT time zone.  The value of the date is the
+// object represents a date in the UTC time zone.  The value of the date is the
 // same as that of a default constructed 'bdet_Date' object:
 //..
 //  bdet_DateTz dateTz1;
 //  assert(0                   == dateTz1.offset());
-//  assert(dateTz1.localDate() == dateTz1.gmtStartTime().date());
+//  assert(dateTz1.localDate() == dateTz1.utcStartTime().date());
 //  assert(dateTz1.localDate() == bdet_Date());
 //..
-// Next we set 'dateTz1' to 12/31/2005 in the EST time zone (GMT-5):
+// Next we set 'dateTz1' to 12/31/2005 in the EST time zone (UTC-5):
 //..
 //  bdet_Date     date1(2005, 12, 31);
 //  bdet_Datetime datetime1(date1, bdet_Time(0, 0, 0, 0));
@@ -83,23 +83,23 @@ BDES_IDENT("$Id: $")
 //
 //  dateTz1.setDateTz(date1, offset1);
 //  assert(offset1                == dateTz1.offset());
-//  assert(dateTz1.localDate()    == dateTz1.gmtStartTime().date());
+//  assert(dateTz1.localDate()    == dateTz1.utcStartTime().date());
 //  assert(dateTz1.localDate()    == date1);
-//  assert(dateTz1.gmtStartTime() != datetime1);
+//  assert(dateTz1.utcStartTime() != datetime1);
 //
 //  datetime1.addMinutes(-offset1);
-//  assert(dateTz1.gmtStartTime() == datetime1);
+//  assert(dateTz1.utcStartTime() == datetime1);
 //..
 // Then we create 'dateTz2' as a copy of 'dateTz1':
 //..
 //  bdet_DateTz dateTz2(dateTz1);
 //  assert(offset1                == dateTz2.offset());
-//  assert(dateTz2.localDate()    == dateTz2.gmtStartTime().date());
+//  assert(dateTz2.localDate()    == dateTz2.utcStartTime().date());
 //  assert(dateTz2.localDate()    == date1);
-//  assert(dateTz2.gmtStartTime() == datetime1);
+//  assert(dateTz2.utcStartTime() == datetime1);
 //..
 // We now create a third object, 'dateTz3', representing the date 01/01/2001 in
-// the PST time zone (GMT-8):
+// the PST time zone (UTC-8):
 //..
 //  bdet_Date     date2(2001, 01, 01);
 //  bdet_Datetime datetime2(date2, bdet_Time(0, 0, 0, 0));
@@ -107,12 +107,12 @@ BDES_IDENT("$Id: $")
 //
 //  bdet_DateTz dateTz3(date2, offset2);
 //  assert(offset2                == dateTz3.offset());
-//  assert(dateTz3.localDate()    == dateTz3.gmtStartTime().date());
+//  assert(dateTz3.localDate()    == dateTz3.utcStartTime().date());
 //  assert(dateTz3.localDate()    == date2);
-//  assert(dateTz3.gmtStartTime() != datetime2);
+//  assert(dateTz3.utcStartTime() != datetime2);
 //
 //  datetime2.addMinutes(-offset2);
-//  assert(dateTz3.gmtStartTime() == datetime2);
+//  assert(dateTz3.utcStartTime() == datetime2);
 //..
 // Finally we stream out the values of 'dateTz1', 'dateTz2' and 'dateTz3' to
 // 'stdout':
@@ -168,9 +168,9 @@ namespace BloombergLP {
 
 class bdet_DateTz {
     // This 'class' represents a date value explicitly in a local time zone;
-    // the offset of that time (in minutes) from GMT is also part of the value
+    // the offset of that time (in minutes) from UTC is also part of the value
     // of this class.  The offset is available via the 'offset' method, and is
-    // defined by the relationship: 'localDate() - offset() == gmtStartTime()'.
+    // defined by the relationship: 'localDate() - offset() == utcStartTime()'.
     // The date and offset values are logically assumed to correspond to
     // geographically valid values, however, this constraint is not enforced.
     // The default output format is 'ddMONyyyy[+-]hhmm'.
@@ -201,7 +201,7 @@ class bdet_DateTz {
     bdet_Date d_localDate;  // date, local to the timezone specified by
                             // 'd_offset'
 
-    int       d_offset;     // offset from GMT (in minutes)
+    int       d_offset;     // offset from UTC (in minutes)
 
   public:
     // TRAITS
@@ -227,7 +227,7 @@ class bdet_DateTz {
 
     bdet_DateTz(const bdet_Date& localDate, int offset);
         // Create a 'bdet_DateTz' object having a local date value equal to the
-        // specified 'localDate' and a time zone offset value from GMT equal
+        // specified 'localDate' and a time zone offset value from UTC equal
         // to the specified 'offset' (in minutes).  The behavior is undefined
         // unless 'offset' is in the range '( -1440 .. 1440 )'.  Note that this
         // method provides no validation, and it is the user's responsibility
@@ -284,15 +284,26 @@ class bdet_DateTz {
         // package-level documentation for more information on 'bdex' streaming
         // of value-semantic types and containers.
 
-    bdet_Datetime gmtStartTime() const;
-        // Return a 'bdet_Datetime' object having the value of the GMT "point
+    bdet_Datetime utcStartTime() const;
+        // Return a 'bdet_Datetime' object having the value of the UTC "point
         // in time" when the local date starts (i.e., 0000 hours local time).
         // The behavior is undefined unless the local date starting time
-        // represents a valid 'bdet_Datetime' value for the GMT timezone.  Note
+        // represents a valid 'bdet_Datetime' value for the UTC timezone.  Note
         // that the returned value is equal to:
         //..
         //  bdet_Datetime(localDate()).addMinutes(-offset());
         //..
+
+    bdet_Datetime gmtStartTime() const;
+        // Return a 'bdet_Datetime' object having the value of the UTC "point
+        // in time" when the local date starts (i.e., 0000 hours local time).
+        // The behavior is undefined unless the local date starting time
+        // represents a valid 'bdet_Datetime' value for the UTC timezone.  Note
+        // that the returned value is equal to:
+        //..
+        //  bdet_Datetime(localDate()).addMinutes(-offset());
+        //..
+        // DEPRECATED: replaced by 'utcStartTime'.
 
     bdet_Date localDate() const;
         // Return a 'bdet_Date' object having the value of the local date
@@ -302,7 +313,7 @@ class bdet_DateTz {
 
     int offset() const;
         // Return the time zone offset of this 'bdet_DateTz' object.  Note that
-        // the offset is in minutes from GMT.
+        // the offset is in minutes from UTC.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -457,11 +468,17 @@ STREAM& bdet_DateTz::bdexStreamOut(STREAM& stream, int version) const
 }
 
 inline
+bdet_Datetime bdet_DateTz::utcStartTime() const
+{
+    bdet_Datetime utc(d_localDate, bdet_Time(0,0,0,0));
+    utc.addMinutes(-d_offset);
+    return utc;
+}
+
+inline
 bdet_Datetime bdet_DateTz::gmtStartTime() const
 {
-    bdet_Datetime gmt(d_localDate, bdet_Time(0,0,0,0));
-    gmt.addMinutes(-d_offset);
-    return gmt;
+    return utcStartTime();
 }
 
 inline

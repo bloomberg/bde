@@ -21630,7 +21630,7 @@ bsl::ostream& MySequenceWithNillables::print(
 
     using namespace BloombergLP;
 
-    void usageExample1()
+    int usageExample1()
     {
         const char INPUT[] = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                              "<Employee>\n"
@@ -21661,6 +21661,8 @@ bsl::ostream& MySequenceWithNillables::print(
         ASSERT("Some City"   == bob.homeAddress().city());
         ASSERT("Some State"  == bob.homeAddress().state());
         ASSERT(21            == bob.age());
+
+        return 0;
     }
 //..
 //

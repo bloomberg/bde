@@ -595,7 +595,7 @@ static void recordCb(void *context,
                      bsl::vector<my_Event> *result) {
     my_Event event;
     event.d_thread = bcemt_ThreadUtil::selfIdAsInt();
-    event.d_timestamp = bdetu_SystemTime::nowAsDatetimeGMT().time();
+    event.d_timestamp = bdetu_SystemTime::nowAsDatetimeUtc().time();
     event.d_context = context;
     result->push_back(event);
 }
@@ -640,7 +640,7 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test
-         << " STARTED " << bdetu_SystemTime::nowAsDatetimeGMT() << endl;;
+         << " STARTED " << bdetu_SystemTime::nowAsDatetimeUtc() << endl;;
 
     bcema_TestAllocator testAllocator(veryVeryVerbose);
 
@@ -793,9 +793,16 @@ int main(int argc, char *argv[])
 
             enum { NUM_TIMERS  = 10000 };
             bdet_TimeInterval  timeValues[NUM_TIMERS];
-            bdet_TimeInterval  delta(0.5);
+
+            // DELTA had to be increased from 0.5 for when built in safe mode
+            // on Solaris
+
+            const double       DELTA = 1.25;
+            bdet_TimeInterval  delta(DELTA);
             int                flags[NUM_TIMERS];
             void              *ids[NUM_TIMERS];
+
+            bdet_TimeInterval  start = bdetu_SystemTime::now();
 
             for (int i = 0; i < NUM_TIMERS; ++i) {
                 flags[i] = 0;
@@ -816,9 +823,17 @@ int main(int argc, char *argv[])
                 cout << "\t\tRegistered " << NUM_TIMERS << " timers." << endl;
             }
 
+            double soFar =
+                      (bdetu_SystemTime::now() - start).totalSecondsAsDouble();
+            LOOP_ASSERT(soFar, soFar < DELTA);
+            if (verbose) { P_(DELTA); P(soFar); }
+
             for (int i = 0; i < NUM_TIMERS; ++i) {
                 LOOP_ASSERT(i, 0 == flags[i]);
             }
+
+            soFar = (bdetu_SystemTime::now() - start).totalSecondsAsDouble();
+            LOOP_ASSERT(soFar, soFar < DELTA);
 
             for (int i = 0; i < NUM_TIMERS; ++i) {
                 bslma_TestAllocator da;
@@ -899,6 +914,10 @@ int main(int argc, char *argv[])
               Obj mE(Obj::BTEMT_NO_HINT, false, true, &testAllocator);
               Obj mF(Obj::BTEMT_NO_HINT, false, false, &testAllocator);
               Obj mG(&dummyEventManager, &testAllocator);
+              Obj mH(true, &testAllocator);
+              Obj mI(false, &testAllocator);
+              Obj mJ(false, true, &testAllocator);
+              Obj mK(false, false, &testAllocator);
 
               const Obj& A = mA;
               const Obj& B = mB;
@@ -907,6 +926,10 @@ int main(int argc, char *argv[])
               const Obj& E = mE;
               const Obj& F = mF;
               const Obj& G = mG;
+              const Obj& H = mH;
+              const Obj& I = mI;
+              const Obj& J = mJ;
+              const Obj& K = mK;
               ASSERT(true  == A.hasTimeMetrics());
               ASSERT(true  == B.hasTimeMetrics());
               ASSERT(true  == C.hasTimeMetrics());
@@ -914,6 +937,10 @@ int main(int argc, char *argv[])
               ASSERT(false == E.hasTimeMetrics());
               ASSERT(false == F.hasTimeMetrics());
               ASSERT(false == G.hasTimeMetrics());
+              ASSERT(true  == H.hasTimeMetrics());
+              ASSERT(false == I.hasTimeMetrics());
+              ASSERT(false == J.hasTimeMetrics());
+              ASSERT(false == K.hasTimeMetrics());
           }
           {
               if (veryVerbose) {
@@ -1869,7 +1896,7 @@ int main(int argc, char *argv[])
     }
 
     cout << "TEST CASE " << test << " ENDED "
-         << bdetu_SystemTime::nowAsDatetimeGMT() << endl;
+         << bdetu_SystemTime::nowAsDatetimeUtc() << endl;
 
     return testStatus;
 }

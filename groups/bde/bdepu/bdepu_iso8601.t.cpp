@@ -321,7 +321,7 @@ int main(int argc, char *argv[])
     ASSERT(-240 == dateTime.offset());
 //..
 // Note that fractions of a second was rounded up to 123 milliseconds and that
-// the offset from GMT was converted to minutes.
+// the offset from UTC was converted to minutes.
 
       } break;
       case 5: {
@@ -690,7 +690,7 @@ int main(int argc, char *argv[])
 
                 {
                     const bdet_Datetime EXP_DATETIME = isValidDatetime ?
-                                 theDatetimeTz.gmtDatetime() : bdet_Datetime();
+                                 theDatetimeTz.utcDatetime() : bdet_Datetime();
 
                     bsl::memset(input, 0, sizeof(input));
                     bsl::strcpy(input, dateStr);
@@ -846,7 +846,7 @@ int main(int argc, char *argv[])
 
                 {
                     const bdet_Time EXP_TIME = isValidTime ?
-                                             theTimeTz.gmtTime() : bdet_Time();
+                                             theTimeTz.utcTime() : bdet_Time();
 
                     bsl::memset(input, 0, sizeof(input));
                     bsl::strcpy(input, timeStr);
@@ -1200,7 +1200,7 @@ int main(int argc, char *argv[])
 
                 {
                     const bdet_Datetime EXP_DATETIME = isValidDatetime ?
-                                 theDatetimeTz.gmtDatetime() : bdet_Datetime();
+                                 theDatetimeTz.utcDatetime() : bdet_Datetime();
 
                     bdet_Datetime datetime = initDatetime;
                     bsl::strcpy(input, dateStr);
@@ -1307,7 +1307,7 @@ int main(int argc, char *argv[])
 
                 {
                     const bdet_Time EXP_TIME = isValidTime ?
-                                             theTimeTz.gmtTime() : bdet_Time();
+                                             theTimeTz.utcTime() : bdet_Time();
 
                     bdet_Time time = initTime;
                     bsl::strcpy(input, timeStr);

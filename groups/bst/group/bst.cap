@@ -1,0 +1,19 @@
+# BST capabilities
+
+*                       _    OPTS_FILE = bst.cap
+*                       _    ASSET_OBJECT_NAME = libbst
+*                       _    ASSET_OBJECT_DESC = Core Bloomberg standard library test facilities
+*                       _    ASSET_DEPT_GROUP      = 101  # BDE
+*                       _    ASSET_CONTACT_PROG_1  = Henry (Mike) Verschell
+*                       _    ASSET_CONTACT_PROG_2  = Mike Giroux
+#*                       _    ASSET_PRODUCTION_LOCN = /bbsrc/bst
+
+#==============================================================================
+
+# bst builds on everything, in every way, except for noexc on hp
+*                      _ CAPABILITY  = ALWAYS
+
+!! unix-HP_UX-*        _ CAPABILITY  = NEVER
+!! unix-HP_UX-*      exc CAPABILITY  = ALWAYS
+
+#==============================================================================

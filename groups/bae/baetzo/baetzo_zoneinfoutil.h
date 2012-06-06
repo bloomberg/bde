@@ -249,7 +249,7 @@ BDES_IDENT("$Id: $")
 // Then we verify that 'localNYTime' is "Dec 12, 2010 10:00+5:00", the time in
 // New York corresponding to the UTC time "Dec 12, 2010 15:00".
 //..
-//  assert(utcTime                         == localNYTime.gmtDatetime());
+//  assert(utcTime                         == localNYTime.utcDatetime());
 //  assert(bdet_Datetime(2010, 12, 12, 10) == localNYTime.localDatetime());
 //  assert(-5 * 60                         == localNYTime.offset());
 //..
