@@ -36,6 +36,16 @@ BDES_IDENT("$Id: $")
 //: 1 POSIX:http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html
 //: 2 BSD: http://www.manpagez.com/man/2/fcntl
 //
+///Platform Specific Atomicity Caveats
+//------------------------------------
+// The 'bdesu_FileUtil::read' and 'bdesu_FileUtil::write' methods provide not
+// atomicity guarantees beyond those of the underlying platform methods for
+// reading and writing.  In particular, Linux platforms do not guarantee
+// atomicity of writes for regular files.  [Doc 3]
+//
+// Documents
+//: 1 http://lwn.net/Articles/180387/
+//
 ///Usage
 ///-----
 ///Example 1: General Usage
