@@ -41,7 +41,7 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Writing an HTTP file server
 /// - - - - - - - - - - - - - - - - - - -
@@ -226,9 +226,11 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                      // =================================
                      // class baenet_HttpMessageGenerator

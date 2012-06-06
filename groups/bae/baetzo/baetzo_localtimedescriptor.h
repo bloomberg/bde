@@ -49,7 +49,7 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Converting Between UTC and Local Times
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
@@ -146,9 +146,11 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                         // ================================
                         // class baetzo_LocalTimeDescriptor
@@ -316,12 +318,12 @@ bool operator!=(const baetzo_LocalTimeDescriptor& lhs,
 bsl::ostream& operator<<(bsl::ostream&                     stream,
                          const baetzo_LocalTimeDescriptor& object);
     // Write the value of the specified 'object' to the specified
-    // output 'stream' in a single-line format, and return a reference to
-    // 'stream'.  If 'stream' is not valid on entry, this operation has no
-    // effect.  Note that this human-readable format is not fully specified
-    // and can change without notice.  Also note that this method has the same
-    // behavior as 'object.print(stream, 0, -1)', but with the attribute names
-    // elided.
+    // output 'stream' in a single-line format, and return a reference
+    // providing modifiable access to 'stream'.  If 'stream' is not valid on
+    // entry, this operation has no effect.  Note that this human-readable
+    // format is not fully specified and can change without notice.  Also note
+    // that this method has the same behavior as 'object.print(stream, 0, -1)',
+    // but with the attribute names elided.
 
 // FREE FUNCTIONS
 void swap(baetzo_LocalTimeDescriptor& a, baetzo_LocalTimeDescriptor& b);

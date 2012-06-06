@@ -12,6 +12,7 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 #include <bsl_limits.h>
+#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -936,8 +937,6 @@ const char CustomizedInt::CLASS_NAME[] = "CustomizedInt";
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 

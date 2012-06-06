@@ -17,6 +17,10 @@ using namespace bsl;  // automatically added by script
 //                              --------
 // This program tests the functionality of the 'bcemt_Configuration' class.
 //
+// Note that since this component is below 'bcemt_ThreadUtil', we cannot
+// actually create any threads and verify stack sizes, so some testing of this
+// component is done in 'bcemt_threadutil.t.cpp'.
+//
 //-----------------------------------------------------------------------------
 // [1] Breathing Test
 // [2] recommendedDefaultThreadStackSize

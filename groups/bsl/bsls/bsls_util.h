@@ -10,18 +10,18 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide essential, low-level support for portable generic code.
 //
 //@CLASSES:
-//  bsls_Util: utility class supplying essential, low-level functionality
+//  bsls::Util: utility class supplying essential, low-level functionality
 //
 //@AUTHOR: Pablo Halpern (phalpern), Alisdair Meredith (ameredit)
 //
-//@DESCRIPTION: This component defines a utility 'struct', 'bsls_Util', that
+//@DESCRIPTION: This component defines a utility 'struct', 'bsls::Util', that
 // serves as a namespace for a suite of pure functions that supply essential
 // low-level support for implementing portable generic facilities such as might
 // be found in the C++ standard library.
 //
 ///Usage
 ///-----
-// This section illustrates intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Obtain the address of a 'class' that defines 'operator&'.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -89,7 +89,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we note that there are times when it might be desirable to get the
 // true address of a 'BitReference'.  Since the above overload prevents the
-// obvious syntax from working, we use 'bsls_Util::addressOf' to accomplish
+// obvious syntax from working, we use 'bsls::Util::addressOf' to accomplish
 // this task.
 //
 // Next, we create a 'BitReference' object:
@@ -97,11 +97,11 @@ BSLS_IDENT("$Id: $")
 //  char c[4];
 //  BitReference br(c, 3);
 //..
-// Now, we invoke 'bsls_Util::addressOf' to obtain and save the address of
+// Now, we invoke 'bsls::Util::addressOf' to obtain and save the address of
 // 'br':
 //..
-//  BitReference *p = bsls_Util::addressOf(br);  // OK
-//  // BitReference *p = &br;                    // Won't compile
+//  BitReference *p = bsls::Util::addressOf(br);  // OK
+//  // BitReference *p = &br;                     // Won't compile
 //..
 // Notice that the commented line illustrates canonical use of 'operator&' that
 // would not compile in this example.
@@ -114,15 +114,17 @@ BSLS_IDENT("$Id: $")
 //  assert(3 == p->bitpos());
 //..
 
-                               // ================
-                               // struct bsls_Util
-                               // ================
-
 namespace BloombergLP {
 
-struct bsls_Util {
-    // This 'struct' provides a namespace for essential low-level functions
-    // for implementing portable generic facilities such as the C++ standard
+namespace bsls {
+
+                                 // ===========
+                                 // struct Util
+                                 // ===========
+
+struct Util {
+    // This 'struct' provides a namespace for essential low-level functions for
+    // implementing portable generic facilities such as the C++ standard
     // library.
 
     // CLASS METHODS
@@ -131,11 +133,13 @@ struct bsls_Util {
         // Return the address of the specified 'obj', even if 'operator&' is
         // overloaded for objects of type 'BSLS_TYPE'.  Behavior is undefined
         // unless 'BSLS_TYPE' is an object type.  Note that this function
-        // conforms to the C++11 definition for 'addressof' as specified in
-        // the section [specialized.addressof] (20.6.12.1) of the C++11
-        // standard, except that function types, which are not object types,
-        // are supported by 'std::addressof' in C++11.
+        // conforms to the C++11 definition for 'addressof' as specified in the
+        // section [specialized.addressof] (20.6.12.1) of the C++11 standard,
+        // except that function types, which are not object types, are
+        // supported by 'std::addressof' in C++11.
 };
+
+}  // close package namespace
 
                                    // ======
                                    // MACROS
@@ -150,7 +154,7 @@ struct bsls_Util {
 // avoid additional template bloat in the 'big' only to support a class design
 // that is almost certainly an error.
 #ifdef BSLS_PLATFORM__CMP_MSVC
-#   define BSLS_UTIL_ADDRESSOF(OBJ) ::BloombergLP::bsls_Util::addressOf(OBJ)
+#   define BSLS_UTIL_ADDRESSOF(OBJ) ::BloombergLP::bsls::Util::addressOf(OBJ)
 
 #   if !defined(BDE_USE_ADDRESSOF)
 #       define BDE_USE_ADDRESSOF
@@ -158,8 +162,11 @@ struct bsls_Util {
 #else
 #   define BSLS_UTIL_ADDRESSOF(OBJ) (&(OBJ))
 #endif
-// This macro takes the address of an object by calling 'bsls_Util::addressOf'
-// on Windows, and simply taking the address with the '&' operator on all other
+
+namespace bsls {
+
+// This macro takes the address of an object by calling 'Util::addressOf' on
+// Windows, and simply taking the address with the '&' operator on all other
 // platforms.
 
 // ===========================================================================
@@ -169,12 +176,21 @@ struct bsls_Util {
 // CLASS METHODS
 template <class BSLS_TYPE>
 inline
-BSLS_TYPE *bsls_Util::addressOf(BSLS_TYPE& obj)
+BSLS_TYPE *Util::addressOf(BSLS_TYPE& obj)
 {
     return static_cast<BSLS_TYPE *>(
         static_cast<void *>(
             const_cast<char *>(&reinterpret_cast<const volatile char&>(obj))));
 }
+
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bsls::Util bsls_Util;
+    // This alias is defined for backward compatibility.
 
 }  // close enterprise namespace
 

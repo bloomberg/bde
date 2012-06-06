@@ -418,7 +418,7 @@ void defineHeader(baenet_HttpRequestLine   *requestLine,
 {
     typedef baenet_HttpRequestMethod RM;
 
-    bdet_Datetime nowAsDatetime = bdetu_SystemTime::nowAsDatetimeGMT();
+    bdet_Datetime nowAsDatetime = bdetu_SystemTime::nowAsDatetimeUtc();
 
     // The HTML Parser does not parse the milliseconds field.
     nowAsDatetime.setMillisecond(0);
@@ -573,7 +573,7 @@ void defineHeader(baenet_HttpStatusLine     *statusLine,
 {
     typedef baenet_HttpRequestMethod RM;
 
-    bdet_Datetime nowAsDatetime = bdetu_SystemTime::nowAsDatetimeGMT();
+    bdet_Datetime nowAsDatetime = bdetu_SystemTime::nowAsDatetimeUtc();
 
     // The HTML Parser does not parse the milliseconds field.
     nowAsDatetime.setMillisecond(0);

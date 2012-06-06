@@ -257,11 +257,13 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
 class bdem_List;
-class bslma_Allocator;
-
                     // =====================================
                     // class bael_LoggerManagerConfiguration
                     // =====================================
@@ -324,12 +326,12 @@ class bael_LoggerManagerConfiguration {
         // attribute is 'BAEL_BEGIN_END_MARKERS', then "BEGIN RECORD DUMP" and
         // "END RECORD DUMP" will be written before and after each sequence of
         // records logged due to a Trigger or Trigger-All event.  The default
-        // value of this attribute is 'BAEL_NO_MARKERS'.
+        // value of this attribute is 'BAEL_BEGIN_END_MARKERS'.
 
-        BAEL_NO_MARKERS,        // don't print any markers (default)
+        BAEL_NO_MARKERS,        // don't print any markers
 
         BAEL_BEGIN_END_MARKERS  // print "BEGIN RECORD DUMP" and
-                                // "END RECORD DUMP" markers
+                                // "END RECORD DUMP" markers (default)
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
       , NO_MARKERS        = BAEL_NO_MARKERS

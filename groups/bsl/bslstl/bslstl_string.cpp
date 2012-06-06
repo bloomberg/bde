@@ -4,15 +4,15 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-// IMPLEMENTATION NOTES: 
-// This string class implements a "short string optimization" which optimizes the
-// handling of short strings (strings shorter than a certain length) by putting
-// them into an internal short string buffer.  The short string buffer is a
-// part of the 'string' object and it doesn't require any memory allocations.
-// This avoids memory allocations/deallocations on operations on short strings
-// such as: construction, copy-construction, copy-assignment, destruction.
-// Those operations are much cheaper now than they used to be when they
-// required memory allocations.
+// IMPLEMENTATION NOTES:
+// This string class implements a "short string optimization" which optimizes
+// the handling of short strings (strings shorter than a certain length) by
+// putting them into an internal short string buffer.  The short string buffer
+// is a part of the 'string' object and it doesn't require any memory
+// allocations.  This avoids memory allocations/deallocations on operations on
+// short strings such as: construction, copy-construction, copy-assignment,
+// destruction.  Those operations are much cheaper now than they used to be
+// when they required memory allocations.
 //
 // There are also some side-effects of the short string optimization.  The
 // footprint of the 'string' object is larger now than it used to be due to the

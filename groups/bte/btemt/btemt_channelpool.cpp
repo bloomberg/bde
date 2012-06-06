@@ -28,6 +28,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdef_function.h>
 #include <bdef_bind.h>
 
+#include <bdeut_nullablevalue.h>
+
 #include <bslma_default.h>
 #include <bslmf_metaint.h>
 #include <bsls_assert.h>
@@ -261,7 +263,6 @@ class btemt_Channel {
                                                              // 'd_write*', and
                                                           // 'd_isWriteActive'.
 
-
     bool                            d_isWriteActive;         // a thread is
                                                              // actively
                                                              // writing
@@ -296,7 +297,7 @@ class btemt_Channel {
     bdet_TimeInterval               d_readTimeout;           // read timeout
                                                              // interval
 
-    const int                       d_writeCacheLowWat;
+    int                             d_writeCacheLowWat;
 
     int                             d_writeCacheHiWat;
 
@@ -337,6 +338,10 @@ class btemt_Channel {
                                                   // written to channel;
                                                   // modification synchronized
                                                   // with 'd_writeMutex'
+
+    bces_AtomicInt            d_recordedMaxWriteCacheSize;
+                                                  // maximum recorded size of
+                                                  // the write cache
 
     // Memory allocation section (pointers held, not owned)
     bcema_PooledBufferChainFactory *d_chainFactory_p;     // for d_currentMsg
@@ -572,8 +577,18 @@ class btemt_Channel {
         // during the entirety of this call.
 
     int setWriteCacheHiWatermark(int numBytes);
-        // Set the write-cache high-watermark for this channel to the
-        // specified 'numBytes'.
+        // Set the write-cache high-watermark for this channel to the specified
+        // 'numBytes'.
+
+    int setWriteCacheLowWatermark(int numBytes);
+        // Set the write-cache low-watermark for this channel to the specified
+        // 'numBytes'.  The behavior is undefined unless '0 <= numBytes'.
+
+    void resetRecordedMaxWriteCacheSize();
+        // Reset the recorded max write cache size for this channel to the
+        // current write cache size.  Note that this function resets the
+        // recorded max write cache size and does not change the write cache
+        // high watermark for this channel.
 
     // ACCESSORS
     int channelId() const;
@@ -607,6 +622,14 @@ class btemt_Channel {
     bsls_PlatformUtil::Int64 numBytesRequestedToBeWritten() const;
         // Return the number of bytes request to be written to this channel
         // since its construction or since the last reset.
+
+    int currentWriteCacheSize() const;
+        // Return a snapshot of the number of bytes currently cached to be
+        // written to this channel.
+
+    int recordedMaxWriteCacheSize() const;
+        // Return a snapshot of the maximum recorded size, in bytes, of the
+        // cache of data to be written to this channeel.
 
     StreamSocket *socket() const;
         // Return a pointer to this channel's underlying socket.
@@ -693,6 +716,18 @@ bsls_PlatformUtil::Int64 btemt_Channel::numBytesRequestedToBeWritten() const
 }
 
 inline
+int btemt_Channel::currentWriteCacheSize() const
+{
+    return d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
+}
+
+inline
+int btemt_Channel::recordedMaxWriteCacheSize() const
+{
+    return d_recordedMaxWriteCacheSize.relaxedLoad();
+}
+
+inline
 StreamSocket *btemt_Channel::socket() const
 {
     return d_socket_p;
@@ -772,10 +807,12 @@ class btemt_Connector {
                                                     // connections must
                                                     // create channels
 
-    const bteso_SocketOptions  *d_socketOptions_p;  // socket options provided
+    bdeut_NullableValue<bteso_SocketOptions> d_socketOptions;
+                                                    // socket options provided
                                                     // for connect
 
-    const bteso_IPv4Address    *d_localAddress_p;  // client address to bind
+    bdeut_NullableValue<bteso_IPv4Address>   d_localAddress;
+                                                    // client address to bind
                                                     // while connecting
 
     // CREATORS
@@ -796,8 +833,6 @@ class btemt_Connector {
 inline
 btemt_Connector::btemt_Connector(bslma_Allocator *basicAllocator)
 : d_serverName(basicAllocator)
-, d_socketOptions_p(0)
-, d_localAddress_p(0)
 {
 }
 
@@ -816,8 +851,8 @@ btemt_Connector::btemt_Connector(const btemt_Connector&  original,
 , d_resolutionFlag(original.d_resolutionFlag)
 , d_readEnabledFlag(original.d_readEnabledFlag)
 , d_keepHalfOpenMode(original.d_keepHalfOpenMode)
-, d_socketOptions_p(original.d_socketOptions_p)
-, d_localAddress_p(original.d_localAddress_p)
+, d_socketOptions(original.d_socketOptions)
+, d_localAddress(original.d_localAddress)
 {
 }
 
@@ -1602,7 +1637,8 @@ void btemt_Channel::registerReadTimeoutCallback(bdet_TimeInterval    timeout,
 
 void btemt_Channel::registerWriteCb(ChannelHandle self)
 {
-    // This callback is executed whenever data is available in 'd_writeActiveData'.
+    // This callback is executed whenever data is available in
+    // 'd_writeActiveData'.
     if (0 != protectAndCheckCallback(self, CLOSED_SEND_MASK)) {
         return;
     }
@@ -1859,6 +1895,7 @@ btemt_Channel::btemt_Channel(
 , d_numBytesRead(0)
 , d_numBytesWritten(0)
 , d_numBytesRequestedToBeWritten(0)
+, d_recordedMaxWriteCacheSize(0)
 , d_chainFactory_p(bufferPool)
 , d_writeBlobFactory_p(writeBlobBufferPool)
 , d_readBlobFactory_p(readBlobBufferPool)
@@ -1917,6 +1954,7 @@ btemt_Channel::~btemt_Channel()
 
     d_socketFactory_p->deallocate(d_socket_p);
     d_socket_p = 0; // for debugging for now, shouldn't slow anything down
+    BSLS_ASSERT(d_recordedMaxWriteCacheSize >= 0);
 }
 
 // MANIPULATORS
@@ -2103,6 +2141,13 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
+    int currentWriteCacheSize = d_writeEnqueuedCacheSize
+                              + d_writeActiveCacheSize.relaxedLoad();
+
+    if (d_recordedMaxWriteCacheSize.relaxedLoad() < currentWriteCacheSize) {
+        d_recordedMaxWriteCacheSize.relaxedStore(currentWriteCacheSize);
+    }
+
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
         // This message is the first and only in the outgoing queue.  Note that
         // if 'blob' were a 'bcema_SharedPtr<bcema_Blob> msg' instead, we could
@@ -2134,6 +2179,10 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         int writeRet = MessageUtil::write(this->socket(), d_ovecs, msg);
 
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < writeRet)) {
+            // 'd_numBytesWritten' is modified only in the 'writeCb' or
+            // 'notifyChannelDown' which will run only in the dispatcher
+            // thread and when 'd_isWriteActive' is 'true'.
+
             d_numBytesWritten += writeRet;
         }
         else if (bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK == writeRet) {
@@ -2224,12 +2273,11 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
 
 int btemt_Channel::setWriteCacheHiWatermark(int numBytes)
 {
-    // 'd_writeCacheLowWat' is const.
+    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
+
     if (d_writeCacheLowWat > numBytes) {
         return -1;
     }
-
-    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
 
     // Generate a 'HIWAT' alert if the new cache size limit is smaller than the
     // existing cache size and a 'HIWAT' alert has not already been generated.
@@ -2259,6 +2307,42 @@ int btemt_Channel::setWriteCacheHiWatermark(int numBytes)
 
     d_writeCacheHiWat = numBytes;
     return 0;
+}
+
+int btemt_Channel::setWriteCacheLowWatermark(int numBytes)
+{
+    BSLS_ASSERT(0 <= numBytes);
+
+    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
+
+    if (numBytes > d_writeCacheHiWat) {
+        return -1;                                                    // RETURN
+    }
+
+    d_writeCacheLowWat = numBytes;
+
+    if (d_hiWatermarkHitFlag
+     && (d_writeEnqueuedCacheSize
+               + d_writeActiveCacheSize.relaxedLoad() <= d_writeCacheLowWat)) {
+
+        d_hiWatermarkHitFlag = false;
+        bdef_Function<void (*)()> functor(bdef_BindUtil::bindA(
+                    d_allocator_p
+                  , &d_channelStateCb
+                  , d_channelId
+                  , d_sourceId
+                  , btemt_ChannelPool::BTEMT_WRITE_CACHE_LOWWAT
+                  , d_userData));
+
+        d_eventManager_p->execute(functor);
+    }
+
+    return 0;
+}
+
+void btemt_Channel::resetRecordedMaxWriteCacheSize()
+{
+    d_recordedMaxWriteCacheSize.relaxedStore(currentWriteCacheSize());
 }
 
 // ============================================================================
@@ -2942,13 +3026,13 @@ void btemt_ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
         // At this point, the serverAddress and socket are set and valid, and
         // socket is in non-blocking mode.
 
-        // If a client address is specified bind to that address.
-
-        if (cs.d_localAddress_p) {
-            const int rc = socket->bind(*cs.d_localAddress_p);
+        if (!cs.d_socketOptions.isNull()) {
+            const int rc = bteso_SocketOptUtil::setSocketOptions(
+                                                   socket->handle(),
+                                                   cs.d_socketOptions.value());
 
             if (rc) {
-                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_BINDING_CLIENT_ADDR,
+                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_SETTING_OPTIONS,
                               clientId,
                               BTEMT_ALERT);
                 bcemt_LockGuard<bcemt_Mutex> cGuard(&d_connectorsLock);
@@ -2957,13 +3041,13 @@ void btemt_ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
             }
         }
 
-        if (cs.d_socketOptions_p) {
-            const int rc = bteso_SocketOptUtil::setSocketOptions(
-                                                        socket->handle(),
-                                                        *cs.d_socketOptions_p);
+        // If a client address is specified bind to that address.
+
+        if (!cs.d_localAddress.isNull()) {
+            const int rc = socket->bind(cs.d_localAddress.value());
 
             if (rc) {
-                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_SETTING_OPTIONS,
+                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_BINDING_CLIENT_ADDR,
                               clientId,
                               BTEMT_ALERT);
                 bcemt_LockGuard<bcemt_Mutex> cGuard(&d_connectorsLock);
@@ -3620,8 +3704,14 @@ int btemt_ChannelPool::connect(const char                *serverName,
     cs.d_inProgress       = false;
     cs.d_readEnabledFlag  = readEnabledFlag;
     cs.d_keepHalfOpenMode = keepHalfOpenMode;
-    cs.d_socketOptions_p  = socketOptions;
-    cs.d_localAddress_p   = localAddress;
+
+    if (socketOptions) {
+        cs.d_socketOptions = *socketOptions;
+    }
+
+    if (localAddress) {
+        cs.d_localAddress = *localAddress;
+    }
 
     if (BTEMT_RESOLVE_ONCE == resolutionMode) {
         int errorCode = 0;
@@ -3701,8 +3791,14 @@ int btemt_ChannelPool::connect(const bteso_IPv4Address&   server,
     cs.d_inProgress       = false;
     cs.d_readEnabledFlag  = readEnabledFlag;
     cs.d_keepHalfOpenMode = mode;
-    cs.d_socketOptions_p  = socketOptions;
-    cs.d_localAddress_p   = localAddress;
+
+    if (socketOptions) {
+        cs.d_socketOptions = *socketOptions;
+    }
+
+    if (localAddress) {
+        cs.d_localAddress = *localAddress;
+    }
 
     bdetu_SystemTime::loadCurrentTime(&cs.d_start);
 
@@ -3851,8 +3947,7 @@ int btemt_ChannelPool::shutdown(int                      channelId,
     return SUCCESS;
 }
 
-int btemt_ChannelPool::setWriteCacheHiWatermark(int channelId,
-                                                   int numBytes)
+int btemt_ChannelPool::setWriteCacheHiWatermark(int channelId, int numBytes)
 {
     BSLS_ASSERT(numBytes >= 0);
     ChannelHandle channelHandle;
@@ -3862,6 +3957,31 @@ int btemt_ChannelPool::setWriteCacheHiWatermark(int channelId,
     BSLS_ASSERT(channelHandle);
 
     return channelHandle->setWriteCacheHiWatermark(numBytes);
+}
+
+int btemt_ChannelPool::setWriteCacheLowWatermark(int channelId, int numBytes)
+{
+    BSLS_ASSERT(0 <= numBytes);
+    ChannelHandle channelHandle;
+    if (0 != findChannelHandle(&channelHandle, channelId)) {
+        return -1;
+    }
+    BSLS_ASSERT(channelHandle);
+
+    return channelHandle->setWriteCacheLowWatermark(numBytes);
+}
+
+int btemt_ChannelPool::resetRecordedMaxWriteCacheSize(int channelId)
+{
+    ChannelHandle channelHandle;
+    if (0 != findChannelHandle(&channelHandle, channelId)) {
+        return -1;                                                    // RETURN
+    }
+    BSLS_ASSERT(channelHandle);
+
+    channelHandle->resetRecordedMaxWriteCacheSize();
+
+    return 0;
 }
 
                          // *** Thread management ***
@@ -4361,6 +4481,21 @@ int btemt_ChannelPool::getChannelStatistics(
         *numRequestedToBeWritten = channel->numBytesRequestedToBeWritten();
         *numWritten = channel->numBytesWritten();
         return 0;
+    }
+    return 1;
+}
+
+int btemt_ChannelPool::getChannelWriteCacheStatistics(
+                                                int *recordedMaxWriteCacheSize,
+                                                int *currentWriteCacheSize,
+                                                int  channelId) const
+{
+    ChannelHandle channelHandle;
+    if (0 == findChannelHandle(&channelHandle, channelId)) {
+        btemt_Channel *channel = channelHandle.ptr();
+        *recordedMaxWriteCacheSize = channel->recordedMaxWriteCacheSize();
+        *currentWriteCacheSize     = channel->currentWriteCacheSize();
+        return 0;                                                     // RETURN
     }
     return 1;
 }

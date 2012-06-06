@@ -61,8 +61,8 @@ BDES_IDENT("$Id: $")
 // invoke, and also by the total number 'N' of arguments (N >= 4) that the
 // function takes.  This component supplies a separate concrete implementation
 // for each of the specified types.  These 18 non-null concrete
-// implementations are named 'bcefi_Vfunc4XN' where 'X' is one of {'F', 'C',
-// 'M'} and 'N' is in the range [4..9].
+// implementations are named 'bcefi_Vfunc4XN' where 'X' is one of 'F', 'C', or
+// 'M', and 'N' is in the range [4..9].
 //
 // The possible function flavors (and labels) are classified as:
 //..
@@ -399,7 +399,7 @@ class bcefi_Vfunc4F8 : public bcefr_Vfunc4<A1, A2, A3, A4> {
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
         // four additional trailing arguments and the corresponding arguments'
-        // specified 'embeddedArg1', 'embeddedArg2, 'embeddedArg3', and
+        // specified 'embeddedArg1', 'embeddedArg2', 'embeddedArg3', and
         // 'embeddedArg4' values.  Use the specified 'basicAllocator' to
         // supply memory.  Note that any value returned from 'procedure' will
         // be ignored.
@@ -460,7 +460,7 @@ class bcefi_Vfunc4F9 : public bcefr_Vfunc4<A1, A2, A3, A4> {
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
         // five additional trailing arguments and the corresponding arguments'
-        // specified 'embeddedArg1', 'embeddedArg2, 'embeddedArg3',
+        // specified 'embeddedArg1', 'embeddedArg2', 'embeddedArg3',
         // 'embeddedArg4', and 'embeddedArg5' values.  Use the specified
         // 'basicAllocator' to supply memory.  Note that any value returned
         // from 'procedure' will be ignored.

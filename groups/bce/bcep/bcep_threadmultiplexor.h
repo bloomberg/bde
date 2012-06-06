@@ -49,6 +49,14 @@ BDES_IDENT("$Id: $")
 // to be used in a variety of situations that require partitioning thread
 // resources.
 //
+///Thread Safety
+///-------------
+// The 'bcep_ThreadMultiplexor' class is both *fully thread-safe* (i.e., all
+// non-creator methods can correctly execute concurrently), and is
+// *thread-enabled* (i.e., the class does not function correctly in a
+// non-multi-threading environment).  See 'bsldoc_glossary' for complete
+// definitions of *fully thread-safe* and *thread-enabled*.
+//
 ///Usage Examples
 ///--------------
 // The following usage example illustrates how the 'bcep_ThreadMultiplexor' can
@@ -223,9 +231,11 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                         // ============================
                         // class bcep_ThreadMultiplexor

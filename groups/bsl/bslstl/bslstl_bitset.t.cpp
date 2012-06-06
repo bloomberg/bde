@@ -1,4 +1,4 @@
-// bslstl_bitset.t.cpp                  -*-C++-*-
+// bslstl_bitset.t.cpp                                                -*-C++-*-
 #include <bslstl_bitset.h>
 
 #include <bslstl_string.h>
@@ -181,8 +181,8 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         const int TESTSIZE = 17;  // num bits of char + 1
-        if (verbose) cout << "\nTesting shift operators with bitset<" << TESTSIZE
-                          << ">" << endl;
+        if (verbose) cout <<
+           "\nTesting shift operators with bitset<" << TESTSIZE << ">" << endl;
 
         typedef bsl::bitset<TESTSIZE> Obj;
 
@@ -309,8 +309,8 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         const int TESTSIZE = 33;  // num bits of char + 1
-        if (verbose) cout << "\nTesting shift operators with bitset<" << TESTSIZE
-                          << ">" << endl;
+        if (verbose) cout <<
+           "\nTesting shift operators with bitset<" << TESTSIZE << ">" << endl;
 
         typedef bsl::bitset<TESTSIZE> Obj;
 

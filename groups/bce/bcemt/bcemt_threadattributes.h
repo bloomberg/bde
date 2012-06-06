@@ -113,7 +113,7 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustrates intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Creating and modifying thread attributes objects
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -427,8 +427,8 @@ class bcemt_ThreadAttributes {
 
     void setStackSize(int value);
         // Set the 'stackSize' attribute of this object to the specified
-        // 'value.  If 'stackSize' is 'BCEMT_UNSET_STACK_SIZE', thread creation
-        // should use the default stack size value provided by
+        // 'value'.  If 'stackSize' is 'BCEMT_UNSET_STACK_SIZE', thread
+        // creation should use the default stack size value provided by
         // 'bcemt_configuration'.  The behavior is undefined unless
         // 'BCEMT_UNSET_STACK_SIZE == stackSize' or '0 <= stackSize'.
 

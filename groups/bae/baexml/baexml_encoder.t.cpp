@@ -23,6 +23,7 @@
 #include <bsl_sstream.h>
 
 #include <bsl_cstdio.h>
+#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -436,7 +437,7 @@ typedef baexml_EncodingStyle  EncodingStyle;
 typedef baexml_Decoder           Decoder;
 typedef baexml_DecoderOptions    DecoderOptions;
 
-#define XSI "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+#define XSI " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
 
 int verbose;
 int veryVerbose;
@@ -498,8 +499,6 @@ int veryVeryVeryVerbose;
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -1199,8 +1198,6 @@ bsl::ostream& MySequence::print(
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -1992,8 +1989,6 @@ bsl::ostream& MySequenceWithNullables::print(
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -2796,8 +2791,6 @@ bsl::ostream& MyChoice::print(
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -3899,8 +3892,6 @@ bsl::ostream& MySequenceWithArrays::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class MySequenceWithAnonymousChoiceChoice {
@@ -4733,8 +4724,6 @@ bsl::ostream& MySequenceWithAnonymousChoiceChoice::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class MySequenceWithAnonymousChoice {
@@ -5543,8 +5532,6 @@ bsl::ostream& MySequenceWithAnonymousChoice::print(
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -6424,8 +6411,6 @@ bsl::ostream& MySequenceWithAttributes::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class MySimpleContent {
@@ -7224,8 +7209,6 @@ bsl::ostream& MySimpleContent::print(
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -8027,8 +8010,6 @@ bsl::ostream& MySimpleIntContent::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class MySequenceWithNillables {
@@ -8818,8 +8799,6 @@ bsl::ostream& MySequenceWithNillables::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class Address {
@@ -9585,8 +9564,6 @@ bsl::ostream& Address::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class Employee {
@@ -9997,7 +9974,7 @@ template <class ACCESSOR>
 inline
 int Employee::accessAttributes(ACCESSOR& accessor) const
 {
-    int ret;
+   int ret;
 
     ret = accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
     if (ret) {
@@ -10405,7 +10382,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -10422,6 +10399,736 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) cout << "\nEnd of Test." << endl;
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING XML HEADER WITH 'outputXMLHeader' option (DRQS 22278116)
+        //
+        // Concerns:
+        //: 1 If the 'outputXMLHeader' is set to 'true' or not set at all then
+        //:   the xml header is always output.
+        //:
+        //: 2 If the 'outputXMLHeader' is set to 'false' then the xml header is
+        //:   not output.
+        //
+        // Plan:
+        //: 1 Create three 'baexml_EncoderOptions' objects.  Set the
+        //:   'outputXMLHeader' option in one encoder options object to
+        //:   'true' and to 'false' in the another object.  Leave the third
+        //:   encoder options object unmodified.
+        //:
+        //: 2 Create three 'bsl::stringstream' objects.
+        //:
+        //: 3 Populate a 'MySequence' object.
+        //:
+        //: 4 Create three 'baexml_Encoder' objects passing the encoder
+        //:   options created above.
+        //:
+        //: 5 Encode the 'MySequence' object onto a 'bsl::stringstream' using
+        //:   one of the created 'baexml_Encoder' objects.
+        //:
+        //: 6 Ensure that the xml header is output only when 'outputXMLAlias'
+        //:   is not set to 'false'.
+        //:
+        //: 8 Repeat steps 1 - 7 for 'BAEXML_COMPACT' encoding style.
+        //:
+        //: 9 Repeat steps 1 - 8 for 'MyChoice' and 'MySimpleContent' objects.
+        //
+        // Testing:
+        //  Encoding of XML header
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Encoding of XML Header"
+                          << "\n==============================" << endl;
+
+        if (verbose) cout << "\nUsing MySequence with PRETTY style." << endl;
+        {
+            typedef test::MySequence Type;
+
+            Type mX;  const Type& X = mX;
+
+            mX.attribute1() = 434;
+            mX.attribute2() = "test string";
+
+            const char EXPECTED_RESULT1[]
+                              = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                                "<MySequence"XSI">\n"
+                                "    <Attribute1>434</Attribute1>\n"
+                                "    <Attribute2>test string</Attribute2>\n"
+                                "</MySequence>\n";
+            const char EXPECTED_RESULT2[]
+                              = "<MySequence"XSI">\n"
+                                "    <Attribute1>434</Attribute1>\n"
+                                "    <Attribute2>test string</Attribute2>\n"
+                                "</MySequence>\n";
+            const char EXPECTED_RESULT3[]
+                              = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                                "<MySequence"XSI">\n"
+                                "    <Attribute1>434</Attribute1>\n"
+                                "    <Attribute2>test string</Attribute2>\n"
+                                "</MySequence>\n";
+
+            bsl::stringstream result1, result2, result3;
+
+            EncoderOptions options1, options2, options3;
+            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options1.setOutputXMLHeader(true);
+            options2.setOutputXMLHeader(false);
+
+            baexml_Encoder encoder1(&options1, 0, 0);
+            int rc = encoder1.encodeToStream(result1, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT1,   result1.str(),
+                         EXPECTED_RESULT1 == result1.str());
+
+            baexml_Encoder encoder2(&options2, 0, 0);
+            rc = encoder2.encodeToStream(result2, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT2,   result2.str(),
+                         EXPECTED_RESULT2 == result2.str());
+
+            baexml_Encoder encoder3(&options3, 0, 0);
+            rc = encoder3.encodeToStream(result3, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT3,   result3.str(),
+                         EXPECTED_RESULT3 == result3.str());
+        }
+
+        if (verbose) cout << "\nUsing MySequence with COMPACT style." << endl;
+        {
+            typedef test::MySequence Type;
+
+            Type mX;  const Type& X = mX;
+
+            mX.attribute1() = 434;
+            mX.attribute2() = "test string";
+
+            const char EXPECTED_RESULT1[]
+                              = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                                "<MySequence"XSI">"
+                                "<Attribute1>434</Attribute1>"
+                                "<Attribute2>test string</Attribute2>"
+                                "</MySequence>";
+            const char EXPECTED_RESULT2[]
+                              = "<MySequence"XSI">"
+                                "<Attribute1>434</Attribute1>"
+                                "<Attribute2>test string</Attribute2>"
+                                "</MySequence>";
+            const char EXPECTED_RESULT3[]
+                              = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                                "<MySequence"XSI">"
+                                "<Attribute1>434</Attribute1>"
+                                "<Attribute2>test string</Attribute2>"
+                                "</MySequence>";
+
+            bsl::stringstream result1, result2, result3;
+
+            EncoderOptions options1, options2, options3;
+            options1.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options2.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options3.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options1.setOutputXMLHeader(true);
+            options2.setOutputXMLHeader(false);
+
+            baexml_Encoder encoder1(&options1, 0, 0);
+            int rc = encoder1.encodeToStream(result1, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT1,   result1.str(),
+                         EXPECTED_RESULT1 == result1.str());
+
+            baexml_Encoder encoder2(&options2, 0, 0);
+            rc = encoder2.encodeToStream(result2, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT2,   result2.str(),
+                         EXPECTED_RESULT2 == result2.str());
+
+            baexml_Encoder encoder3(&options3, 0, 0);
+            rc = encoder3.encodeToStream(result3, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT3,   result3.str(),
+                         EXPECTED_RESULT3 == result3.str());
+        }
+
+        if (verbose) cout << "\nUsing MyChoice with PRETTY style." << endl;
+        {
+            typedef test::MyChoice Type;
+
+            Type mX;  const Type& X = mX;
+
+            mX.makeSelection1();
+            mX.selection1() = 434;
+
+            const char EXPECTED_RESULT1[]
+                              = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                                "<MyChoice"XSI">\n"
+                                "    <Selection1>434</Selection1>\n"
+                                "</MyChoice>\n";
+            const char EXPECTED_RESULT2[]
+                              = "<MyChoice"XSI">\n"
+                                "    <Selection1>434</Selection1>\n"
+                                "</MyChoice>\n";
+            const char EXPECTED_RESULT3[]
+                              = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                                "<MyChoice"XSI">\n"
+                                "    <Selection1>434</Selection1>\n"
+                                "</MyChoice>\n";
+
+            bsl::stringstream result1, result2, result3;
+
+            EncoderOptions options1, options2, options3;
+            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options1.setOutputXMLHeader(true);
+            options2.setOutputXMLHeader(false);
+
+            baexml_Encoder encoder1(&options1, 0, 0);
+            int rc = encoder1.encodeToStream(result1, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT1,   result1.str(),
+                         EXPECTED_RESULT1 == result1.str());
+
+            baexml_Encoder encoder2(&options2, 0, 0);
+            rc = encoder2.encodeToStream(result2, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT2,   result2.str(),
+                         EXPECTED_RESULT2 == result2.str());
+
+            baexml_Encoder encoder3(&options3, 0, 0);
+            rc = encoder3.encodeToStream(result3, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT3,   result3.str(),
+                         EXPECTED_RESULT3 == result3.str());
+        }
+
+        if (verbose) cout << "\nUsing MyChoice with COMPACT style." << endl;
+        {
+            typedef test::MyChoice Type;
+
+            Type mX;  const Type& X = mX;
+
+            mX.makeSelection1();
+            mX.selection1() = 434;
+
+            const char EXPECTED_RESULT1[]
+                              = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                                "<MyChoice"XSI">"
+                                "<Selection1>434</Selection1>"
+                                "</MyChoice>";
+            const char EXPECTED_RESULT2[]
+                              = "<MyChoice"XSI">"
+                                "<Selection1>434</Selection1>"
+                                "</MyChoice>";
+            const char EXPECTED_RESULT3[]
+                              = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                                "<MyChoice"XSI">"
+                                "<Selection1>434</Selection1>"
+                                "</MyChoice>";
+
+            bsl::stringstream result1, result2, result3;
+
+            EncoderOptions options1, options2, options3;
+            options1.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options2.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options3.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options1.setOutputXMLHeader(true);
+            options2.setOutputXMLHeader(false);
+
+            baexml_Encoder encoder1(&options1, 0, 0);
+            int rc = encoder1.encodeToStream(result1, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT1,   result1.str(),
+                         EXPECTED_RESULT1 == result1.str());
+
+            baexml_Encoder encoder2(&options2, 0, 0);
+            rc = encoder2.encodeToStream(result2, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT2,   result2.str(),
+                         EXPECTED_RESULT2 == result2.str());
+
+            baexml_Encoder encoder3(&options3, 0, 0);
+            rc = encoder3.encodeToStream(result3, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT3,   result3.str(),
+                         EXPECTED_RESULT3 == result3.str());
+        }
+
+        if (verbose) cout << "\nUsing MySimpleContent with PRETTY." << endl;
+        {
+            typedef test::MySimpleContent Type;
+
+            Type mX;  const Type& X = mX;
+
+            mX.attribute1() = true;
+            mX.attribute2() = "Hello World!";
+            mX.theContent() = "  Some Stuff ";
+
+            const char EXPECTED_RESULT1[]
+                            = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                              "<MySimpleContent"XSI"\n    Attribute1=\"true\" "
+                              "Attribute2=\"Hello World!\">"
+                              "  Some Stuff "
+                              "</MySimpleContent>\n";
+            const char EXPECTED_RESULT2[]
+                            = "<MySimpleContent"XSI"\n    Attribute1=\"true\" "
+                              "Attribute2=\"Hello World!\">"
+                              "  Some Stuff "
+                              "</MySimpleContent>\n";
+            const char EXPECTED_RESULT3[]
+                            = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                              "<MySimpleContent"XSI"\n    Attribute1=\"true\" "
+                              "Attribute2=\"Hello World!\">"
+                              "  Some Stuff "
+                              "</MySimpleContent>\n";
+
+            bsl::stringstream result1, result2, result3;
+
+            EncoderOptions options1, options2, options3;
+            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options1.setOutputXMLHeader(true);
+            options2.setOutputXMLHeader(false);
+
+            baexml_Encoder encoder1(&options1, 0, 0);
+            int rc = encoder1.encodeToStream(result1, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT1,   result1.str(),
+                         EXPECTED_RESULT1 == result1.str());
+
+            baexml_Encoder encoder2(&options2, 0, 0);
+            rc = encoder2.encodeToStream(result2, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT2,   result2.str(),
+                         EXPECTED_RESULT2 == result2.str());
+
+            baexml_Encoder encoder3(&options3, 0, 0);
+            rc = encoder3.encodeToStream(result3, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT3,   result3.str(),
+                         EXPECTED_RESULT3 == result3.str());
+        }
+
+        if (verbose) cout << "\nUsing MySimpleContent with COMPACT." << endl;
+        {
+            typedef test::MySimpleContent Type;
+
+            Type mX;  const Type& X = mX;
+
+            mX.attribute1() = true;
+            mX.attribute2() = "Hello World!";
+            mX.theContent() = "  Some Stuff ";
+
+            const char EXPECTED_RESULT1[]
+                            = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                              "<MySimpleContent"XSI" Attribute1=\"true\" "
+                              "Attribute2=\"Hello World!\">"
+                              "  Some Stuff "
+                              "</MySimpleContent>";
+            const char EXPECTED_RESULT2[]
+                            = "<MySimpleContent"XSI" Attribute1=\"true\" "
+                              "Attribute2=\"Hello World!\">"
+                              "  Some Stuff "
+                              "</MySimpleContent>";
+            const char EXPECTED_RESULT3[]
+                            = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                              "<MySimpleContent"XSI" Attribute1=\"true\" "
+                              "Attribute2=\"Hello World!\">"
+                              "  Some Stuff "
+                              "</MySimpleContent>";
+
+            bsl::stringstream result1, result2, result3;
+
+            EncoderOptions options1, options2, options3;
+            options1.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options2.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options3.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options1.setOutputXMLHeader(true);
+            options2.setOutputXMLHeader(false);
+
+            baexml_Encoder encoder1(&options1, 0, 0);
+            int rc = encoder1.encodeToStream(result1, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT1,   result1.str(),
+                         EXPECTED_RESULT1 == result1.str());
+
+            baexml_Encoder encoder2(&options2, 0, 0);
+            rc = encoder2.encodeToStream(result2, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT2,   result2.str(),
+                         EXPECTED_RESULT2 == result2.str());
+
+            baexml_Encoder encoder3(&options3, 0, 0);
+            rc = encoder3.encodeToStream(result3, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT3,   result3.str(),
+                         EXPECTED_RESULT3 == result3.str());
+        }
+
+        if (verbose) cout << "\nEnd of Test." << endl;
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING NILLABLES WITH 'outputXSIAlias' option (DRQS 29523606)
+        //
+        // Concerns:
+        //: 1 If the 'outputXSIAlias' is set to 'true' or not set at all then
+        //:   the xsi prefix is always aliased to
+        //:   'xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"'.
+        //:
+        //: 2 If the 'outputXSIAlias' is set to 'false' then the xsi prefix is
+        //:   not aliased.
+        //:
+        //: 3 Nillable elements are encoded with 'xsi:nil=true' only if
+        //:   'outputXSIAlias' is not set to 'false'.
+        //:
+        //: 4 The specification of the 'objectNamespace' and 'schemaLocation'
+        //:   options interacts correctly with the 'outputXSIAlias' option.
+        //
+        // Plan:
+        //: 1 Create three 'baexml_EncoderOptions' objects.  Set the
+        //:   'outputXSIAlias' option in one encoder options object to
+        //:   'true' and to 'false' in the another object.  Leave the third
+        //:   encoder options object unmodified.
+        //:
+        //: 2 Create three 'bsl::stringstream' objects.
+        //:
+        //: 3 Populate a 'MySequenceWithNillables' object ensuring that one of
+        //:   its nillable elements is null.
+        //:
+        //: 4 Create three 'baexml_Encoder' objects passing the encoder
+        //:   options created above.
+        //:
+        //: 5 Encode the 'MySequenceWithNillables' object onto a
+        //:   'bsl::stringstream' using one of the created 'baexml_Encoder'
+        //:   objects.
+        //:
+        //: 6 Ensure that the xsi prefix is aliased only when 'outputXSIAlias'
+        //:   is not set to 'false'.
+        //:
+        //: 7 Also ensure that the 'xsi:nil' attribute is output only when
+        //:   'outputXSIAlias' is not set to 'false'.
+        //:
+        //: 8 Repeat steps 1 - 7 for 'BAEXML_COMPACT' encoding style.
+        //:
+        //: 9 Repeat steps 1 - 7 specifying an 'objectNamespace'.
+        //:
+        //:10 Repeat steps 1 - 7 specifying a 'schemaLocation'.
+        //
+        // Testing:
+        //  Encoding of Nillables
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Encoding of Nillables"
+                          << "\n=============================" << endl;
+
+        static const char OBJ_NS[] =
+            "http://bloomberg.com/schemas/baexml_encoder.t.xsd";
+        static const char PRETTY_NS_ATTR[] = "\n    "
+            "xmlns=\"http://bloomberg.com/schemas/baexml_encoder.t.xsd\"";
+        static const char PRETTY_XSI_ATTR[] = "\n    "
+            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
+        static const char COMPACT_NS_ATTR[] =
+            " xmlns=\"http://bloomberg.com/schemas/baexml_encoder.t.xsd\"";
+        static const char COMPACT_XSI_ATTR[] =
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
+        static const char NIL_ATTR[]=" xsi:nil=\"true\"";
+
+        typedef test::MySequenceWithNillables Type;
+
+        const int         ATTRIBUTE1_VALUE = 123;
+        const bsl::string ATTRIBUTE2_VALUE = "test string";
+        test::MySequence  ATTRIBUTE3_VALUE;
+
+        ATTRIBUTE3_VALUE.attribute1() = 987;
+        ATTRIBUTE3_VALUE.attribute2() = "inner";
+
+        for (int i = 0; i < Type::NUM_ATTRIBUTES; ++i) {
+
+            // In each expected string, the first %s will be replaced by the
+            // object namespace, the second %s will be replaced by the xsi
+            // namespace, and the third %s will be replaced by the xsi:nil
+            // attribute if the object namespace is used; otherwise, they will
+            // be replaced by empty strings.
+            static const char *PRETTY_RESULT[3] = {
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithNillables%s%s>\n"
+                "    <Attribute1%s/>\n"
+                "    <Attribute2>test string</Attribute2>\n"
+                "    <Attribute3>\n"
+                "        <Attribute1>987</Attribute1>\n"
+                "        <Attribute2>inner</Attribute2>\n"
+                "    </Attribute3>\n"
+                "</MySequenceWithNillables>\n",
+
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithNillables%s%s>\n"
+                "    <Attribute1>123</Attribute1>\n"
+                "    <Attribute2%s/>\n"
+                "    <Attribute3>\n"
+                "        <Attribute1>987</Attribute1>\n"
+                "        <Attribute2>inner</Attribute2>\n"
+                "    </Attribute3>\n"
+                "</MySequenceWithNillables>\n",
+
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithNillables%s%s>\n"
+                "    <Attribute1>123</Attribute1>\n"
+                "    <Attribute2>test string</Attribute2>\n"
+                "    <Attribute3%s/>\n"
+                "</MySequenceWithNillables>\n",
+            };
+
+            Type mX;  const Type& X = mX;
+
+            // Each attribute except attribute 'i' should be non-null:
+            if (0 != i) {
+                mX.attribute1().makeValue(ATTRIBUTE1_VALUE);
+            }
+            if (1 != i) {
+                mX.attribute2().makeValue(ATTRIBUTE2_VALUE);
+            }
+            if (2 != i) {
+                mX.attribute3().makeValue(ATTRIBUTE3_VALUE);
+            }
+
+            char expResult1[1000], expResult2[1000], expResult3[1000];
+            const char *EXPECTED_RESULT1 = expResult1;
+            const char *EXPECTED_RESULT2 = expResult2;
+            const char *EXPECTED_RESULT3 = expResult3;
+
+            EncoderOptions options1, options2, options3;
+            options1.setOutputXSIAlias(true);
+            options2.setOutputXSIAlias(false);
+
+            if (verbose) cout << "PRETTY without object namespace" << endl;
+
+            // Format expected result without object namespace and,
+            // therefore, without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            bsl::sprintf(expResult1, PRETTY_RESULT[i], "",
+                         PRETTY_XSI_ATTR, "");
+            bsl::sprintf(expResult2, PRETTY_RESULT[i], "",
+                         "", "");
+            bsl::sprintf(expResult3, PRETTY_RESULT[i], "",
+                         PRETTY_XSI_ATTR, "");
+
+            bsl::stringstream result1, result2, result3;
+
+            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+
+            int rc;
+            baexml_Encoder encoder1(&options1, 0, 0);
+            rc = encoder1.encodeToStream(result1, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT1,   result1.str(),
+                         EXPECTED_RESULT1 == result1.str());
+
+            baexml_Encoder encoder2(&options2, 0, 0);
+            rc = encoder2.encodeToStream(result2, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT2,   result2.str(),
+                         EXPECTED_RESULT2 == result2.str());
+
+            baexml_Encoder encoder3(&options3, 0, 0);
+            rc = encoder3.encodeToStream(result3, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT3,   result3.str(),
+                         EXPECTED_RESULT3 == result3.str());
+
+            if (verbose) cout << "PRETTY with object namespace" << endl;
+
+            // Format expected result with object namespace and,
+            // therefore, with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            bsl::sprintf(expResult1, PRETTY_RESULT[i],
+                         PRETTY_NS_ATTR, PRETTY_XSI_ATTR, NIL_ATTR);
+            bsl::sprintf(expResult2, PRETTY_RESULT[i],
+                         PRETTY_NS_ATTR, "", "");
+            bsl::sprintf(expResult3, PRETTY_RESULT[i],
+                         PRETTY_NS_ATTR, PRETTY_XSI_ATTR, NIL_ATTR);
+
+            result1.str("");
+            result2.str("");
+            result3.str("");
+
+            options1.setObjectNamespace(OBJ_NS);
+            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+
+            options2.setObjectNamespace(OBJ_NS);
+            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+
+            options3.setObjectNamespace(OBJ_NS);
+            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+
+            rc = encoder1.encodeToStream(result1, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT1,   result1.str(),
+                         EXPECTED_RESULT1 == result1.str());
+
+            rc = encoder2.encodeToStream(result2, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT2,   result2.str(),
+                         EXPECTED_RESULT2 == result2.str());
+
+            rc = encoder3.encodeToStream(result3, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT3,   result3.str(),
+                         EXPECTED_RESULT3 == result3.str());
+
+            static const char *COMPACT_RESULT[3] = {
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                "<MySequenceWithNillables%s%s>"
+                "<Attribute1%s/>"
+                "<Attribute2>test string</Attribute2>"
+                "<Attribute3>"
+                "<Attribute1>987</Attribute1>"
+                "<Attribute2>inner</Attribute2>"
+                "</Attribute3>"
+                "</MySequenceWithNillables>",
+
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                "<MySequenceWithNillables%s%s>"
+                "<Attribute1>123</Attribute1>"
+                "<Attribute2%s/>"
+                "<Attribute3>"
+                "<Attribute1>987</Attribute1>"
+                "<Attribute2>inner</Attribute2>"
+                "</Attribute3>"
+                "</MySequenceWithNillables>",
+
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                "<MySequenceWithNillables%s%s>"
+                "<Attribute1>123</Attribute1>"
+                "<Attribute2>test string</Attribute2>"
+                "<Attribute3%s/>"
+                "</MySequenceWithNillables>",
+            };
+
+            if (verbose) cout << "COMPACT without object namespace" << endl;
+
+            // Format expected result without object namespace and,
+            // therefore, without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            bsl::sprintf(expResult1, COMPACT_RESULT[i], "",
+                         COMPACT_XSI_ATTR, "");
+            bsl::sprintf(expResult2, COMPACT_RESULT[i], "", "", "");
+            bsl::sprintf(expResult3, COMPACT_RESULT[i], "",
+                         COMPACT_XSI_ATTR, "");
+
+            result1.str("");
+            result2.str("");
+            result3.str("");
+
+            options1.setObjectNamespace("");
+            options1.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+
+            options2.setObjectNamespace("");
+            options2.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+
+            options3.setObjectNamespace("");
+            options3.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+
+            rc = encoder1.encodeToStream(result1, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT1,   result1.str(),
+                         EXPECTED_RESULT1 == result1.str());
+
+            rc = encoder2.encodeToStream(result2, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT2,   result2.str(),
+                         EXPECTED_RESULT2 == result2.str());
+
+            rc = encoder3.encodeToStream(result3, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT3,   result3.str(),
+                         EXPECTED_RESULT3 == result3.str());
+
+            if (verbose) cout << "COMPACT with object namespace" << endl;
+
+            // Format expected result with object namespace and,
+            // therefore, with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            bsl::sprintf(expResult1, COMPACT_RESULT[i],
+                         COMPACT_NS_ATTR, COMPACT_XSI_ATTR, NIL_ATTR);
+            bsl::sprintf(expResult2, COMPACT_RESULT[i],
+                         COMPACT_NS_ATTR, "", "");
+            bsl::sprintf(expResult3, COMPACT_RESULT[i],
+                         COMPACT_NS_ATTR, COMPACT_XSI_ATTR, NIL_ATTR);
+
+            result1.str("");
+            result2.str("");
+            result3.str("");
+
+            options1.setObjectNamespace(OBJ_NS);
+            options1.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+
+            options2.setObjectNamespace(OBJ_NS);
+            options2.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+
+            options3.setObjectNamespace(OBJ_NS);
+            options3.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+
+            rc = encoder1.encodeToStream(result1, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT1,   result1.str(),
+                         EXPECTED_RESULT1 == result1.str());
+
+            rc = encoder2.encodeToStream(result2, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT2,   result2.str(),
+                         EXPECTED_RESULT2 == result2.str());
+
+            rc = encoder3.encodeToStream(result3, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT3,   result3.str(),
+                         EXPECTED_RESULT3 == result3.str());
+        } // End for i
+
+        if (verbose) cout << "Testing with 'schemaLocation' specified" << endl;
+        {
+            Type mX; const Type& X = mX;
+
+            bsl::stringstream result1, result2, result3;
+            EncoderOptions options1, options2, options3;
+            baexml_Encoder encoder1(&options1);
+            baexml_Encoder encoder2(&options2);
+            baexml_Encoder encoder3(&options3);
+
+            options1.setOutputXSIAlias(true);
+            options1.setSchemaLocation("bas/bassvc/bassvc.xsd");
+            options2.setOutputXSIAlias(false);
+            options2.setSchemaLocation("bas/bassvc/bassvc.xsd");
+            options3.setSchemaLocation("bas/bassvc/bassvc.xsd");
+
+            if (verbose) cout << "PRETTY with object namespace" << endl;
+
+            result1.str("");
+            result2.str("");
+            result3.str("");
+
+            options1.setObjectNamespace(OBJ_NS);
+            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+
+            options2.setObjectNamespace(OBJ_NS);
+            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+
+            options3.setObjectNamespace(OBJ_NS);
+            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+
+            int rc = encoder1.encodeToStream(result1, X);
+            rc = encoder2.encodeToStream(result2, X);
+            rc = encoder3.encodeToStream(result3, X);
+
+            if (veryVerbose) {
+                P(result1.str());
+                P(result2.str());
+                P(result3.str());
+            }
+        }
+
+        if (verbose) cout << "\nEnd of Test." << endl;
+
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -10453,7 +11160,7 @@ int main(int argc, char *argv[])
 
         const char expectedXML[] =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-            "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+            "<root"XSI">\n"
             "    <bool2>false</bool2>\n"
             "</root>\n";
 
@@ -10526,7 +11233,7 @@ int main(int argc, char *argv[])
             // be replaced by empty strings.
             static const char *PRETTY_RESULT[3] = {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                "<MySequenceWithNillables%s\n    " XSI ">\n"
+                "<MySequenceWithNillables%s%s>\n"
                 "    <Attribute1%s/>\n"
                 "    <Attribute2>test string</Attribute2>\n"
                 "    <Attribute3>\n"
@@ -10536,7 +11243,7 @@ int main(int argc, char *argv[])
                 "</MySequenceWithNillables>\n",
 
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                "<MySequenceWithNillables%s\n    " XSI ">\n"
+                "<MySequenceWithNillables%s%s>\n"
                 "    <Attribute1>123</Attribute1>\n"
                 "    <Attribute2%s/>\n"
                 "    <Attribute3>\n"
@@ -10546,7 +11253,7 @@ int main(int argc, char *argv[])
                 "</MySequenceWithNillables>\n",
 
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                "<MySequenceWithNillables%s\n    " XSI ">\n"
+                "<MySequenceWithNillables%s%s>\n"
                 "    <Attribute1>123</Attribute1>\n"
                 "    <Attribute2>test string</Attribute2>\n"
                 "    <Attribute3%s/>\n"
@@ -10573,7 +11280,8 @@ int main(int argc, char *argv[])
 
             // Format expected result without object namespace and,
             // therefore, without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
-            bsl::sprintf(expectedResult, PRETTY_RESULT[i], "", "");
+            bsl::sprintf(expectedResult, PRETTY_RESULT[i], "",
+                         PRETTY_XSI_ATTR, "");
 
             if (veryVerbose) { T_ P_(i) P_(X) P(EXPECTED_RESULT) }
 
@@ -10594,7 +11302,7 @@ int main(int argc, char *argv[])
             // Format expected result with object namespace and,
             // therefore, with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
             bsl::sprintf(expectedResult, PRETTY_RESULT[i],
-                         PRETTY_NS_ATTR, NIL_ATTR);
+                         PRETTY_NS_ATTR, PRETTY_XSI_ATTR, NIL_ATTR);
 
             if (veryVerbose) { T_ P_(i) P_(X) P(EXPECTED_RESULT) }
 
@@ -10611,7 +11319,7 @@ int main(int argc, char *argv[])
 
             static const char *COMPACT_RESULT[3] = {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                "<MySequenceWithNillables%s " XSI ">"
+                "<MySequenceWithNillables%s%s>"
                     "<Attribute1%s/>"
                     "<Attribute2>test string</Attribute2>"
                     "<Attribute3>"
@@ -10621,7 +11329,7 @@ int main(int argc, char *argv[])
                 "</MySequenceWithNillables>",
 
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                "<MySequenceWithNillables%s " XSI ">"
+                "<MySequenceWithNillables%s%s>"
                     "<Attribute1>123</Attribute1>"
                     "<Attribute2%s/>"
                     "<Attribute3>"
@@ -10631,7 +11339,7 @@ int main(int argc, char *argv[])
                 "</MySequenceWithNillables>",
 
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                "<MySequenceWithNillables%s " XSI ">"
+                "<MySequenceWithNillables%s%s>"
                     "<Attribute1>123</Attribute1>"
                     "<Attribute2>test string</Attribute2>"
                     "<Attribute3%s/>"
@@ -10642,7 +11350,8 @@ int main(int argc, char *argv[])
 
             // Format expected result without object namespace and,
             // therefore, without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
-            bsl::sprintf(expectedResult, COMPACT_RESULT[i], "", "");
+            bsl::sprintf(expectedResult, COMPACT_RESULT[i], "",
+                         COMPACT_XSI_ATTR, "");
 
             if (veryVerbose) { T_ P_(i) P_(X) P(EXPECTED_RESULT) }
 
@@ -10662,7 +11371,7 @@ int main(int argc, char *argv[])
             // Format expected result with object namespace and,
             // therefore, with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
             bsl::sprintf(expectedResult, COMPACT_RESULT[i],
-                         COMPACT_NS_ATTR, NIL_ATTR);
+                         COMPACT_NS_ATTR, COMPACT_XSI_ATTR, NIL_ATTR);
 
             if (veryVerbose) { T_ P_(i) P_(X) P(EXPECTED_RESULT) }
 
@@ -10708,12 +11417,11 @@ int main(int argc, char *argv[])
             mX.theContent() = "  Some Stuff ";
 
             const char EXPECTED_RESULT[]
-                             = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<MySimpleContent "XSI"\n"
-                               "    Attribute1=\"true\" "
-                               "Attribute2=\"Hello World!\">"
-                               "  Some Stuff "
-                               "</MySimpleContent>\n";
+                            = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                              "<MySimpleContent"XSI"\n    Attribute1=\"true\" "
+                              "Attribute2=\"Hello World!\">"
+                              "  Some Stuff "
+                              "</MySimpleContent>\n";
 
             if (veryVerbose) {
                 T_ P_(X) P(EXPECTED_RESULT)
@@ -10743,12 +11451,11 @@ int main(int argc, char *argv[])
             mX.theContent() = "  Some Stuff ";
 
             const char EXPECTED_RESULT[] =
-                               "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                               "<MySimpleContent "XSI" "
-                               "Attribute1=\"true\" "
-                               "Attribute2=\"Hello World!\">"
-                               "  Some Stuff "
-                               "</MySimpleContent>";
+                              "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                              "<MySimpleContent"XSI" Attribute1=\"true\" "
+                              "Attribute2=\"Hello World!\">"
+                              "  Some Stuff "
+                              "</MySimpleContent>";
 
             if (veryVerbose) {
                 T_ P_(X) P(EXPECTED_RESULT)
@@ -10778,12 +11485,11 @@ int main(int argc, char *argv[])
             mX.theContent() = 837;
 
             const char EXPECTED_RESULT[]
-                             = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<MySimpleIntContent "XSI"\n    "
-                               "Attribute1=\"false\" "
-                               "Attribute2=\"Hello World!\">"
-                               "837"
-                               "</MySimpleIntContent>\n";
+                        = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                          "<MySimpleIntContent"XSI"\n    Attribute1=\"false\" "
+                          "Attribute2=\"Hello World!\">"
+                          "837"
+                          "</MySimpleIntContent>\n";
 
             if (veryVerbose) {
                 T_ P_(X) P(EXPECTED_RESULT)
@@ -10814,12 +11520,11 @@ int main(int argc, char *argv[])
             mX.theContent() = 837;
 
             const char EXPECTED_RESULT[] =
-                               "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                               "<MySimpleIntContent "XSI" "
-                               "Attribute1=\"false\" "
-                               "Attribute2=\"Hello World!\">"
-                               "837"
-                               "</MySimpleIntContent>";
+                          "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                          "<MySimpleIntContent"XSI" Attribute1=\"false\" "
+                          "Attribute2=\"Hello World!\">"
+                          "837"
+                          "</MySimpleIntContent>";
 
             if (veryVerbose) {
                 T_ P_(X) P(EXPECTED_RESULT)
@@ -10868,7 +11573,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[] =
                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<MySequenceWithAttributes\n    "XSI" "
+                               "<MySequenceWithAttributes\n   "XSI" "
                                "Attribute1=\"34\">\n"
                                "    <Element1>45</Element1>\n"
                                "    <Element2>Hello</Element2>\n"
@@ -10904,13 +11609,12 @@ int main(int argc, char *argv[])
             mX.element2() = "Hello";
 
             const char EXPECTED_RESULT[]
-                             = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<MySequenceWithAttributes\n    "XSI" "
-                               "Attribute1=\"34\"\n"
-                               "    Attribute2=\"World!\">\n"
-                               "    <Element1>45</Element1>\n"
-                               "    <Element2>Hello</Element2>\n"
-                               "</MySequenceWithAttributes>\n";
+                            = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                              "<MySequenceWithAttributes\n   "XSI" "
+                              "Attribute1=\"34\"\n    Attribute2=\"World!\">\n"
+                              "    <Element1>45</Element1>\n"
+                              "    <Element2>Hello</Element2>\n"
+                              "</MySequenceWithAttributes>\n";
 
             if (veryVerbose) {
                 T_ P_(X) P(EXPECTED_RESULT)
@@ -10943,7 +11647,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[] =
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                               "<MySequenceWithAttributes "XSI" "
+                               "<MySequenceWithAttributes"XSI" "
                                "Attribute1=\"34\" "
                                "Attribute2=\"World!\">"
                                "<Element1>45</Element1>"
@@ -10997,7 +11701,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithAnonymousChoice\n    "XSI">\n"
+                                "<MySequenceWithAnonymousChoice\n   "XSI">\n"
                                 "    <Attribute1>34</Attribute1>\n"
                                 "    <MyChoice1>67</MyChoice1>\n"
                                 "    <Attribute2>Hello</Attribute2>\n"
@@ -11033,7 +11737,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithAnonymousChoice\n    "XSI">\n"
+                                "<MySequenceWithAnonymousChoice\n   "XSI">\n"
                                 "    <Attribute1>34</Attribute1>\n"
                                 "    <MyChoice2>World!</MyChoice2>\n"
                                 "    <Attribute2>Hello</Attribute2>\n"
@@ -11069,7 +11773,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[] =
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithAnonymousChoice "XSI">"
+                                "<MySequenceWithAnonymousChoice"XSI">"
                                 "<Attribute1>34</Attribute1>"
                                 "<MyChoice2>World!</MyChoice2>"
                                 "<Attribute2>Hello</Attribute2>"
@@ -11123,7 +11827,7 @@ int main(int argc, char *argv[])
             const char *EXPECTED_RESULT[3]
                             = {
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables\n    "XSI">\n"
+                                "<MySequenceWithNullables\n   "XSI">\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "    <Attribute3>\n"
                                 "        <Attribute1>987</Attribute1>\n"
@@ -11132,7 +11836,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNullables>\n",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables\n    "XSI">\n"
+                                "<MySequenceWithNullables\n   "XSI">\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute3>\n"
                                 "        <Attribute1>987</Attribute1>\n"
@@ -11141,7 +11845,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNullables>\n",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables\n    "XSI">\n"
+                                "<MySequenceWithNullables\n   "XSI">\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "</MySequenceWithNullables>\n",
@@ -11197,7 +11901,7 @@ int main(int argc, char *argv[])
             const char *EXPECTED_RESULT[3]
                             = {
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithNullables "XSI">"
+                                "<MySequenceWithNullables"XSI">"
                                 "<Attribute2>test string</Attribute2>"
                                 "<Attribute3>"
                                 "<Attribute1>987</Attribute1>"
@@ -11206,7 +11910,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNullables>",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithNullables "XSI">"
+                                "<MySequenceWithNullables"XSI">"
                                 "<Attribute1>123</Attribute1>"
                                 "<Attribute3>"
                                 "<Attribute1>987</Attribute1>"
@@ -11215,7 +11919,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNullables>",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithNullables "XSI">"
+                                "<MySequenceWithNullables"XSI">"
                                 "<Attribute1>123</Attribute1>"
                                 "<Attribute2>test string</Attribute2>"
                                 "</MySequenceWithNullables>",
@@ -11314,7 +12018,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithArrays "XSI">\n"
+                                "<MySequenceWithArrays"XSI">\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute1>456</Attribute1>\n"
                                 "    <Attribute1>927</Attribute1>\n"
@@ -11393,7 +12097,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]=
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithArrays "XSI">"
+                                "<MySequenceWithArrays"XSI">"
                                 "<Attribute1>123</Attribute1>"
                                 "<Attribute1>456</Attribute1>"
                                 "<Attribute1>927</Attribute1>"
@@ -11458,7 +12162,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MyChoice "XSI">\n"
+                                "<MyChoice"XSI">\n"
                                 "    <Selection1>434</Selection1>\n"
                                 "</MyChoice>\n";
 
@@ -11495,7 +12199,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MyChoice "XSI">\n"
+                                "<MyChoice"XSI">\n"
                                 "    <Selection2>test string</Selection2>\n"
                                 "</MyChoice>\n";
 
@@ -11549,7 +12253,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequence "XSI">\n"
+                                "<MySequence"XSI">\n"
                                 "    <Attribute1>434</Attribute1>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "</MySequence>\n";
@@ -11587,7 +12291,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequence "XSI">"
+                                "<MySequence"XSI">"
                                 "<Attribute1>434</Attribute1>"
                                 "<Attribute2>test string</Attribute2>"
                                 "</MySequence>";
@@ -11641,11 +12345,11 @@ int main(int argc, char *argv[])
                 //line  value  result
                 //----  -----  ------
                 { L_,   0,     "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<int "XSI">0</int>\n"                        },
+                               "<int"XSI">0</int>\n"                        },
                 { L_,   1,     "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<int "XSI">1</int>\n"                        },
+                               "<int"XSI">1</int>\n"                        },
                 { L_,   123,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<int "XSI">123</int>\n"                      },
+                               "<int"XSI">123</int>\n"                      },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -11683,17 +12387,17 @@ int main(int argc, char *argv[])
                 //line  value  result
                 //----  -----  ------
                 { L_,   "",    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string "XSI"></string>\n"                   },
+                               "<string"XSI"></string>\n"                   },
                 { L_,   "a",   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string "XSI">a</string>\n"                  },
+                               "<string"XSI">a</string>\n"                  },
                 { L_,   "abc", "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string "XSI">abc</string>\n"                },
+                               "<string"XSI">abc</string>\n"                },
                 { L_,   "\xc3\xb6" "abc",
                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string "XSI">\xc3\xb6" "abc</string>\n"     },
+                               "<string"XSI">\xc3\xb6" "abc</string>\n"     },
                 { L_,   "abc\xc3\xb6" "def",
                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string "XSI">abc\xc3\xb6" "def</string>\n"  },
+                               "<string"XSI">abc\xc3\xb6" "def</string>\n"  },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -11752,20 +12456,20 @@ int main(int argc, char *argv[])
 //                                    "<byte>100</byte>\n" },
                 { L_,   BASE64,    "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                             "<base64Binary "XSI">YWJjZA==</base64Binary>\n" },
+                             "<base64Binary"XSI">YWJjZA==</base64Binary>\n" },
                 { L_,   HEX,       "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                                   "<hexBinary "XSI">61626364</hexBinary>\n" },
+                                   "<hexBinary"XSI">61626364</hexBinary>\n" },
                 { L_,   TEXT,      "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                                   "<string "XSI">abcd</string>\n"           },
+                                   "<string"XSI">abcd</string>\n"           },
                 { L_,   IS_LIST,   "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                                   "<list "XSI">97 98 99 100</list>\n"       },
+                                   "<list"XSI">97 98 99 100</list>\n"       },
                 { L_,   LIST_OR_DEC,
                                    "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                                   "<list "XSI">97 98 99 100</list>\n"       },
+                                   "<list"XSI">97 98 99 100</list>\n"       },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -11827,7 +12531,7 @@ int main(int argc, char *argv[])
                 //----  ----       ------
                 { L_,   HEX,       "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-              "<hexBinary "XSI">04152726FFFFB554C023DFA4AD2BDCE9</hexBinary>\n"
+              "<hexBinary"XSI">04152726FFFFB554C023DFA4AD2BDCE9</hexBinary>\n"
                 },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;

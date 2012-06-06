@@ -2,6 +2,8 @@
 
 #include <bsls_unspecifiedbool.h>
 
+#include <bsls_bsltestutil.h>    // for testing purposes only
+
 #include <stdio.h>
 #include <stdlib.h>     // atoi()
 #include <typeinfo>     // for typeid, but bad levelization.
@@ -51,84 +53,31 @@ static void aSsErT(bool b, const char *s, int i) {
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-# define LOOP_ASSERT(I,X) { \
-    if (!(X)) { P_(I); aSsErT(!(X), #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-# define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { P(I) P_(J);   \
-                aSsErT(!(X), #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { P(I) P(J) P_(K) \
-                aSsErT(!(X), #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");      // Quote identifier literally.
-#define P(X) dbg_print(#X " = ", X, "\n");  // Print identifier and value.
-#define P_(X) dbg_print(#X " = ", X, ", "); // P(X) without '\n'
-#define L_ __LINE__                         // current Line number
-#define T_ putchar('\t');                   // Print a tab (w/o newline)
-
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-// Fundamental-type-specific print functions.
-inline void dbg_print(bool b) { printf(b ? "true" : "false"); fflush(stdout); }
-inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(short val) { printf("%d", (int)val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {
-    printf("%d", (int)val); fflush(stdout);
-}
-inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(long val) { printf("%ld", val); fflush(stdout); }
-inline void dbg_print(unsigned long val) {
-    printf("%lu", val); fflush(stdout);
-}
-inline void dbg_print(long long val) { printf("%lld", val); fflush(stdout); }
-inline void dbg_print(unsigned long long val) {
-    printf("%llu", val); fflush(stdout);
-}
-inline void dbg_print(float val) {
-    printf("'%f'", (double)val); fflush(stdout);
-}
-inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(long double val) {
-    printf("'%Lf'", val); fflush(stdout);
-}
-inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
-
-// Generic debug print function (3-arguments).
-template <typename T>
-void dbg_print(const char* s, const T& val, const char* nl) {
-    printf("%s", s); dbg_print(val);
-    printf("%s", nl);
-    fflush(stdout);
-}
-
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                         HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
 struct Booleable {
-    typedef bsls_UnspecifiedBool<Booleable>::BoolType BoolType;
+    typedef bsls::UnspecifiedBool<Booleable>::BoolType BoolType;
 
     operator BoolType() const
     {
-        return bsls_UnspecifiedBool<Booleable>::falseValue();
+        return bsls::UnspecifiedBool<Booleable>::falseValue();
     }
 };
 
@@ -196,18 +145,18 @@ namespace USAGE_EXAMPLE {
 //..
 // Next, we define, for convenience, an alias for a unique type that is
 // implicitly convertible to 'bool' (note that we pass the current template
-// instantiation to the 'bsls_UnspecifiedBool' template to guarantee
+// instantiation to the 'bsls::UnspecifiedBool' template to guarantee
 // a unique name, even for different instantiations of this same 'SimplePtr'
 // template):
 //..
         // TYPES
-        typedef typename bsls_UnspecifiedBool<SimplePtr>::BoolType BoolType;
+        typedef typename bsls::UnspecifiedBool<SimplePtr>::BoolType BoolType;
 //..
 // Now, we can define a boolean conversion operator that tests whether or not
 // this 'SimplePtr' object is holding a null pointer, or a valid address:
 //..
         operator BoolType() const {
-            return bsls_UnspecifiedBool<SimplePtr>::makeValue(d_ptr_p);
+            return bsls::UnspecifiedBool<SimplePtr>::makeValue(d_ptr_p);
         }
     }; // class SimplePtr
 //..
@@ -311,7 +260,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t1. Functions must return BoolType values\n");
 
-        typedef bsls_UnspecifiedBool<int(int)> HostType;
+        typedef bsls::UnspecifiedBool<int(int)> HostType;
         typedef HostType::BoolType        BoolType;
 
         typedef BoolType (*FuncType)();
@@ -348,9 +297,9 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // PROPERTIES: bsls_UnspecifiedBool<TYPE>::BoolType
+        // PROPERTIES: bsls::UnspecifiedBool<TYPE>::BoolType
         //
-        // The type 'bsls_UnspecifiedBool<TYPE>::BoolType' is intended to
+        // The type 'bsls::UnspecifiedBool<TYPE>::BoolType' is intended to
         // substitute as a boolean type; therefore, in C-1 and C-6 below, we
         // will test it in all contexts where the language demands a boolean
         // type.  The exhausive list of occasions in which a contextual
@@ -375,34 +324,34 @@ int main(int argc, char *argv[])
         // 'explicit operator bool()'.
         //
         // Concerns:
-        //: 1 Objects of type 'bsls_UnspecifiedBool<TYPE>::BoolType' must be
+        //: 1 Objects of type 'bsls::UnspecifiedBool<TYPE>::BoolType' must be
         //:   implicitly convertible to 'bool'.
         //:
-        //: 2 Objects of type 'bsls_UnspecifiedBool<TYPE>::BoolType' must not
+        //: 2 Objects of type 'bsls::UnspecifiedBool<TYPE>::BoolType' must not
         //:   promote to type 'int'.
         //:
-        //: 3 Objects of type 'bsls_UnspecifiedBool<TYPE>::BoolType' must not
+        //: 3 Objects of type 'bsls::UnspecifiedBool<TYPE>::BoolType' must not
         //:   convert to any native pointer type.
         //:
-        //: 4 A default constructed 'bsls_UnspecifiedBool<TYPE>::BoolType'
+        //: 4 A default constructed 'bsls::UnspecifiedBool<TYPE>::BoolType'
         //:   object, when converted to 'bool', has the value 'false',
         //:   the same value as a default constructed 'bool'.
         //:
-        //: 5 A 'bsls_UnspecifiedBool<TYPE>::BoolType' object initialized with
+        //: 5 A 'bsls::UnspecifiedBool<TYPE>::BoolType' object initialized with
         //:   the literal '0', when converted to a 'bool', has the value
         //:   'false'.
         //:
         //: 6 A class with a conversion operator to type
-        //:   'bsls_UnspecifiedBool<TYPE>::BoolType' should be implicitly
+        //:   'bsls::UnspecifiedBool<TYPE>::BoolType' should be implicitly
         //:   convertible to 'bool'.
         //:
         //: 7 Two classes that are implicitly convertible to different
-        //:   instantiations of type 'bsls_UnspecifiedBool<TYPE>::BoolType'
+        //:   instantiations of type 'bsls::UnspecifiedBool<TYPE>::BoolType'
         //:   should not accidentally be comparable to each other using
         //:   'operator=='.
         //
         // Plan:
-        //: 1 Evaluate a value of type 'bsls_UnspecifiedBool<TYPE>::BoolType'
+        //: 1 Evaluate a value of type 'bsls::UnspecifiedBool<TYPE>::BoolType'
         //:   in each situation where the language supports a contextual
         //:   conversion to a boolean type.  This must compile.  (C1)
         //:
@@ -410,7 +359,7 @@ int main(int argc, char *argv[])
         //:   one taking a single 'int' and returning 'true', the other
         //:   accepting anything through an ellipsis parameter
         //:   'false'.  Call this function function with a value of type
-        //:   'bsls_UnspecifiedBool<TYPE>::BoolType' to prove the 'int'
+        //:   'bsls::UnspecifiedBool<TYPE>::BoolType' to prove the 'int'
         //:   overload is *not* selected. (C2)
         //:
         //: 3 Define a set of overloaded functions returning a 'bool' value.
@@ -419,32 +368,32 @@ int main(int argc, char *argv[])
         //:   pointer, and return 'true'.  The other overload will accept
         //:   anything through an ellipsis parameter and return 'false'.  Call
         //:   this function function with a value of type
-        //:   'bsls_UnspecifiedBool<TYPE>::BoolType' to prove that none of the
+        //:   'bsls::UnspecifiedBool<TYPE>::BoolType' to prove that none of the
         //:   pointer-parameter overloads are selected. (C3)
         //:
         //: 4 Create a value-initialized object of type
-        //:   'bsls_UnspecifiedBool<TYPE>::BoolType' and assert that its value
+        //:   'bsls::UnspecifiedBool<TYPE>::BoolType' and assert that its value
         //:   when converted to 'bool' is 'false'. (C4)
         //:
-        //: 5 Create an object of type 'bsls_UnspecifiedBool<TYPE>::BoolType'
+        //: 5 Create an object of type 'bsls::UnspecifiedBool<TYPE>::BoolType'
         //:   and initialize it with the literal '0'.  Assert that its value
         //:   when converted to 'bool' is 'false'. (C5)
         //:
         //: 6 Define a new type, 'Booleable', with a conversion operator
-        //:   converting to type 'bsls_UnspecifiedBool<Booleable>::BoolType'.
+        //:   converting to type 'bsls::UnspecifiedBool<Booleable>::BoolType'.
         //:   Evaluate a value of type 'Booleable' in each context where the
         //:   language supports an implicit conversion to a boolean type.  (C6)
         //:
         //: 7 TBD (C7)
         //
         // Testing:
-        //   typedef bsls_UnspecifiedBool::BoolType
+        //   typedef bsls::UnspecifiedBool::BoolType
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING bsls_UnspecifiedBool"
-                            "\n----------------------------\n");
+        if (verbose) printf("\nTESTING bsls::UnspecifiedBool"
+                            "\n-----------------------------\n");
 
-        typedef bsls_UnspecifiedBool<int>::BoolType BoolType;
+        typedef bsls::UnspecifiedBool<int>::BoolType BoolType;
 
         if (verbose) printf("\t1. 'BoolType' implicitly converts to 'bool'\n");
 
@@ -790,7 +739,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        typedef bsls_UnspecifiedBool<void> HostType;
+        typedef bsls::UnspecifiedBool<void> HostType;
         ASSERT(!HostType::falseValue());
         if (HostType::trueValue()) {
             ASSERT(true);

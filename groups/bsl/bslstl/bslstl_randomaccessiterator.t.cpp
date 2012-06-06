@@ -1,9 +1,10 @@
-// bslstl_randomaccessiterator.t.cpp                  -*-C++-*-
+// bslstl_randomaccessiterator.t.cpp                                  -*-C++-*-
 
 #include <bslstl_randomaccessiterator.h>
 
 #include <bslstl_iterator.h>   // for testing only
 #include <bslmf_issame.h>      // for testing only
+#include <bsls_unspecifiedbool.h>
 
 #include <climits>
 #include <cstdlib>
@@ -19,9 +20,9 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bslstl_RandomAccessIterator' is an in-core value-semantic type that that
-// adapts a more limitted type, which offers a basic set of operations, so that
-// the resulting 'bslstl_RandomAccessIterator' object meets all the
+// 'bslstl::RandomAccessIterator' is an in-core value-semantic type that that
+// adapts a more limited type, which offers a basic set of operations, so that
+// the resulting 'bslstl::RandomAccessIterator' object meets all the
 // requirements of a standard Random access Iterator.  These requirements are
 // spelled out in [forward.iterators], Table 105 - Random access iterator
 // requirements.  The primary manipulator of an iterator is the pre-increment
@@ -33,57 +34,58 @@ using namespace std;
 //
 // In order to test this iterator adaptor, a simple container supporting
 // forward iterators will be implemented, to provide the basic type to be
-// adapted.  This container will use the 'bslstl_RandomAccessIterator' template
-// to declare its iterators, as suggested in the usage example.
+// adapted.  This container will use the 'bslstl::RandomAccessIterator'
+// template to declare its iterators, as suggested in the usage example.
 //
 //  SKETCH NOTES FOR A PLAN THAT NEEDS UPDATING
 //
-// The following is the set of direct accessors (i.e. accessors that have
+// The following is the set of direct accessors (i.e., accessors that have
 // direct contact with the physical state of the object):
 // - int value() const;
 // - ...;
 //-----------------------------------------------------------------------------
-// [ 2] bslstl_RandomAccessIterator();
-// [ 3] bslstl_RandomAccessIterator(IMPL);
-// [ 7] bslstl_RandomAccessIterator(const bslstl_RandomAccessIterator&);
-// [ 2] ~bslstl_RandomAccessIterator();
-// [ 9] bslstl_RandomAccessIterator& operator=(
-//                                         const bslstl_RandomAccessIterator&);
+// [ 2] bslstl::RandomAccessIterator();
+// [ 3] bslstl::RandomAccessIterator(IMPL);
+// [ 7] bslstl::RandomAccessIterator(const bslstl::RandomAccessIterator&);
+// [ 2] ~bslstl::RandomAccessIterator();
+// [ 9] bslstl::RandomAccessIterator& operator=(
+//                                        const bslstl::RandomAccessIterator&);
 // [ 4] T& operator*() const;
 // [10] T *operator->() const;
 // [14] T& operator[](int) const;
-// [ 2] bslstl_RandomAccessIterator& operator++();
-// [13] bslstl_RandomAccessIterator& operator+=(difference_type);
-// [11] bslstl_RandomAccessIterator& operator--();
-// [13] bslstl_RandomAccessIterator& operator-=(difference_type);
-// [12] bslstl_RandomAccessIterator  operator++(
-//                                          bslstl_RandomAccessIterator&, int);
-// [12] bslstl_RandomAccessIterator  operator--(
-//                                          bslstl_RandomAccessIterator&, int);
-// [ 6] bool operator==(const bslstl_RandomAccessIterator&,
-//                      const bslstl_RandomAccessIterator&);
-// [ 6] bool operator!=(const bslstl_RandomAccessIterator&,
-//                      const bslstl_RandomAccessIterator&);
-// [15] bool operator<(const bslstl_RandomAccessIterator&,
-//                     const bslstl_RandomAccessIterator&);
-// [15] bool operator>(const bslstl_RandomAccessIterator&,
-//                     const bslstl_RandomAccessIterator&);
-// [15] bool operator<=(const bslstl_RandomAccessIterator&,
-//                      const bslstl_RandomAccessIterator&);
-// [15] bool operator>=(const bslstl_RandomAccessIterator&,
-//                      const bslstl_RandomAccessIterator&);
-// [16] bslstl_RandomAccessIterator operator+(ptrdiff_t,
-//                                         const bslstl_RandomAccessIterator&);
-// [16] bslstl_RandomAccessIterator operator+(
-//                              const bslstl_RandomAccessIterator&, ptrdiff_t);
-// [16] bslstl_RandomAccessIterator operator-(
-//                              const bslstl_RandomAccessIterator&, ptrdiff_t);
-// [16] ptrdiff_t operator-(const bslstl_RandomAccessIterator&,
-//                          const bslstl_RandomAccessIterator&);
-// [  ] void swap(bslstl_RandomAccessIterator&, bslstl_RandomAccessIterator&);
+// [ 2] bslstl::RandomAccessIterator& operator++();
+// [13] bslstl::RandomAccessIterator& operator+=(difference_type);
+// [11] bslstl::RandomAccessIterator& operator--();
+// [13] bslstl::RandomAccessIterator& operator-=(difference_type);
+// [12] bslstl::RandomAccessIterator  operator++(
+//                                         bslstl::RandomAccessIterator&, int);
+// [12] bslstl::RandomAccessIterator  operator--(
+//                                         bslstl::RandomAccessIterator&, int);
+// [ 6] bool operator==(const bslstl::RandomAccessIterator&,
+//                      const bslstl::RandomAccessIterator&);
+// [ 6] bool operator!=(const bslstl::RandomAccessIterator&,
+//                      const bslstl::RandomAccessIterator&);
+// [15] bool operator<(const bslstl::RandomAccessIterator&,
+//                     const bslstl::RandomAccessIterator&);
+// [15] bool operator>(const bslstl::RandomAccessIterator&,
+//                     const bslstl::RandomAccessIterator&);
+// [15] bool operator<=(const bslstl::RandomAccessIterator&,
+//                      const bslstl::RandomAccessIterator&);
+// [15] bool operator>=(const bslstl::RandomAccessIterator&,
+//                      const bslstl::RandomAccessIterator&);
+// [16] bslstl::RandomAccessIterator operator+(ptrdiff_t,
+//                                        const bslstl::RandomAccessIterator&);
+// [16] bslstl::RandomAccessIterator operator+(
+//                             const bslstl::RandomAccessIterator&, ptrdiff_t);
+// [16] bslstl::RandomAccessIterator operator-(
+//                             const bslstl::RandomAccessIterator&, ptrdiff_t);
+// [16] ptrdiff_t operator-(const bslstl::RandomAccessIterator&,
+//                          const bslstl::RandomAccessIterator&);
+// [  ] void swap(bslstl::RandomAccessIterator&,
+//                bslstl::RandomAccessIterator&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [  ] USAGE EXAMPLE is informative only, and does not compile independantly
+// [  ] USAGE EXAMPLE is informative only, and does not compile independently
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -279,42 +281,41 @@ struct Wrap { int data; };
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-class UnspecifiedBool {
-    //  This class provides a value type that can be implicitly converted to
-    //  'bool'.  This will allow us to validate the minimum guarantees on
-    //  functions specified as returning a value "convertible to 'bool'".
-private:
-    struct impl { int data; };
-    typedef int impl::*result_type;
-    result_type d_result;
-
-public:
-    explicit UnspecifiedBool(bool b)
-      : d_result(b ? &impl::data : result_type()) {}
-
-    operator result_type() const { return d_result; }
-};
-
 template<typename T>
 class AdaptablePointer
 {
-    //  Thos class serves as the type supporting the minimal set of operations
-    //  required to satify the abilities of a random access iterator.  It will
+    //  This class serves as the type supporting the minimal set of operations
+    //  required to satisfy the abilities of a random access iterator.  It will
     //  be used to form the iterator type under test in our sample container.
   private:
+    // PRIVATE TYPES
+    typedef bsls::UnspecifiedBool<AdaptablePointer> BoolHost;
+    typedef typename BoolHost::BoolType             BoolType;
+
+    // DATA
     T*   d_ptr;
 
-    template <class T1>
-    friend UnspecifiedBool operator==(const AdaptablePointer<T1>& lhs,
-                                      const AdaptablePointer<T1>& rhs);
+    friend BoolType operator==(const AdaptablePointer& lhs,
+                               const AdaptablePointer& rhs)
+    {
+        return lhs.d_ptr == rhs.d_ptr
+             ? BoolHost::trueValue()
+             : BoolHost::falseValue();
+    }
 
-    template <class T1>
-    friend UnspecifiedBool operator<(const AdaptablePointer<T1>& lhs,
-                                     const AdaptablePointer<T1>& rhs);
+    friend BoolType operator<(const AdaptablePointer& lhs,
+                              const AdaptablePointer& rhs)
+    {
+        return lhs.d_ptr < rhs.d_ptr
+             ? BoolHost::trueValue()
+             : BoolHost::falseValue();
+    }
 
-    template <class T1>
-    friend std::ptrdiff_t operator-(const AdaptablePointer<T1>& lhs,
-                                    const AdaptablePointer<T1>& rhs);
+    friend std::ptrdiff_t operator-(const AdaptablePointer& lhs,
+                                    const AdaptablePointer& rhs)
+    {
+        return lhs.d_ptr - rhs.d_ptr;
+    }
 
   public:
     AdaptablePointer(T* ptr = 0) : d_ptr(ptr) { }
@@ -332,27 +333,6 @@ class AdaptablePointer
     void operator+=(std::ptrdiff_t n) { d_ptr += n; }
 };
 
-template <class T>
-inline
-UnspecifiedBool operator==(const AdaptablePointer<T>& lhs,
-                           const AdaptablePointer<T>& rhs) {
-    return UnspecifiedBool(lhs.d_ptr == rhs.d_ptr);
-}
-
-template <class T>
-inline
-UnspecifiedBool operator<(const AdaptablePointer<T>& lhs,
-                          const AdaptablePointer<T>& rhs) {
-    return UnspecifiedBool(lhs.d_ptr < rhs.d_ptr);
-}
-
-template <class T>
-inline
-std::ptrdiff_t operator-(const AdaptablePointer<T>& lhs,
-                         const AdaptablePointer<T>& rhs) {
-    return lhs.d_ptr - rhs.d_ptr;
-}
-
 
 //  A simple dynamic array to host random access iterators.  Does not support
 //  insert/erase operations, but must be initialized with an aggregate
@@ -361,7 +341,7 @@ template <class T, unsigned N>
 class my_Array
 {
   public:
-    T d_data[N];    //  single public data member of aggregrate
+    T d_data[N];    //  single public data member of aggregate
                     //  No user declared constructors or destructors
                     //  Support aggregate initialization syntax
   private:
@@ -369,8 +349,8 @@ class my_Array
 
   public:
     // Declare iterator types:
-    typedef bslstl_RandomAccessIterator<T, IteratorImp>       iterator;
-    typedef bslstl_RandomAccessIterator<const T, IteratorImp> const_iterator;
+    typedef bslstl::RandomAccessIterator<T, IteratorImp>       iterator;
+    typedef bslstl::RandomAccessIterator<const T, IteratorImp> const_iterator;
 
     iterator begin() { return IteratorImp(d_data); }
     iterator end()   { return IteratorImp(d_data + N); }
@@ -410,14 +390,14 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bslstl_RandomAccessIterator operator+(ptrdiff_t,
-        //                                 const bslstl_RandomAccessIterator&);
-        //   bslstl_RandomAccessIterator operator+(
-        //                      const bslstl_RandomAccessIterator&, ptrdiff_t);
-        //   bslstl_RandomAccessIterator operator-(
-        //                      const bslstl_RandomAccessIterator&, ptrdiff_t);
-        //   ptrdiff_t operator-(const bslstl_RandomAccessIterator&,
-        //                       const bslstl_RandomAccessIterator&);
+        //   bslstl::RandomAccessIterator operator+(ptrdiff_t,
+        //                                const bslstl::RandomAccessIterator&);
+        //   bslstl::RandomAccessIterator operator+(
+        //                     const bslstl::RandomAccessIterator&, ptrdiff_t);
+        //   bslstl::RandomAccessIterator operator-(
+        //                     const bslstl::RandomAccessIterator&, ptrdiff_t);
+        //   ptrdiff_t operator-(const bslstl::RandomAccessIterator&,
+        //                       const bslstl::RandomAccessIterator&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING ITERATOR ARITHMETIC" << endl
@@ -452,14 +432,14 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bool operator<(const bslstl_RandomAccessIterator&,
-        //                  const bslstl_RandomAccessIterator&);
-        //   bool operator>(const bslstl_RandomAccessIterator&,
-        //                  const bslstl_RandomAccessIterator&);
-        //   bool operator<=(const bslstl_RandomAccessIterator&,
-        //                   const bslstl_RandomAccessIterator&);
-        //   bool operator>=(const bslstl_RandomAccessIterator&,
-        //                   const bslstl_RandomAccessIterator&);
+        //   bool operator<(const bslstl::RandomAccessIterator&,
+        //                  const bslstl::RandomAccessIterator&);
+        //   bool operator>(const bslstl::RandomAccessIterator&,
+        //                  const bslstl::RandomAccessIterator&);
+        //   bool operator<=(const bslstl::RandomAccessIterator&,
+        //                   const bslstl::RandomAccessIterator&);
+        //   bool operator>=(const bslstl::RandomAccessIterator&,
+        //                   const bslstl::RandomAccessIterator&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING RELATIONAL OPERATORS" << endl
@@ -515,7 +495,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   T& operator[](const bslstl_RandomAccessIterator&,int);
+        //   T& operator[](const bslstl::RandomAccessIterator&,int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING OPERATOR []" << endl
@@ -568,8 +548,8 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bslstl_RandomAccessIterator& operator+=(difference_type);
-        //   bslstl_RandomAccessIterator& operator-=(difference_type);
+        //   bslstl::RandomAccessIterator& operator+=(difference_type);
+        //   bslstl::RandomAccessIterator& operator-=(difference_type);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING COMPOUND ASSIGNMENT" << endl
@@ -577,8 +557,8 @@ int main(int argc, char *argv[])
 
         //  Declare test data and types
         int testData[4] = { 0, 1, 2, 3 };
-        typedef bslstl_RandomAccessIterator<int, int*> iterator;
-        typedef bslstl_RandomAccessIterator<const int, int*> const_iterator;
+        typedef bslstl::RandomAccessIterator<int, int*> iterator;
+        typedef bslstl::RandomAccessIterator<const int, int*> const_iterator;
 
         //  Confirm that an iterator over our reference array does not have the
         //  same value as a default constructed iterator.  (Actually, this
@@ -588,11 +568,11 @@ int main(int argc, char *argv[])
         ASSERT( itcOrigin == itData);
 
         //  Confirm that an incremented iterator does not have the same value
-        //  as the intitial iterator
+        //  as the initial iterator
         itData += 2;
         ASSERT( itcOrigin != itData);
 
-        //  Confirm that decrementing a second copy of the intitial iterator
+        //  Confirm that decrementing a second copy of the initial iterator
         //  has the same value as the first incremented iterator.
         const_iterator itcCopy = itcOrigin;
         ASSERT( itcOrigin == itcCopy);
@@ -612,11 +592,11 @@ int main(int argc, char *argv[])
         ASSERT( itcRBegin == itData);
 
         //  Confirm that an incremented iterator does not have the same value
-        //  as the intitial iterator
+        //  as the initial iterator
         itData -= 2;
         ASSERT( itcOrigin != itData);
 
-        //  Confirm that decrementing a second copy of the intitial iterator
+        //  Confirm that decrementing a second copy of the initial iterator
         //  has the same value as the first incremented iterator.
         itcCopy = itcRBegin;
         ASSERT( itcRBegin == itcCopy);
@@ -641,16 +621,16 @@ int main(int argc, char *argv[])
         // Plan:.
         //
         // Testing:
-        //   bslstl_RandomAccessIterator& operator++(int);
-        //   bslstl_RandomAccessIterator& operator--(int);
+        //   bslstl::RandomAccessIterator& operator++(int);
+        //   bslstl::RandomAccessIterator& operator--(int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING POST-*CREMENT OPERATOR" << endl
                                   << "==============================" << endl;
 
         int testData[4] = { 0, 1, 2, 3 };
-        typedef bslstl_RandomAccessIterator<int, int*> iterator;
-        typedef bslstl_RandomAccessIterator<const int, int*> const_iterator;
+        typedef bslstl::RandomAccessIterator<int, int*> iterator;
+        typedef bslstl::RandomAccessIterator<const int, int*> const_iterator;
 
         if (verbose) cout << "\nConstruct basic iterator values" << endl;
         iterator it1 = testData;
@@ -676,7 +656,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bslstl_RandomAccessIterator& operator++();
+        //   bslstl::RandomAccessIterator& operator++();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING DECREMENT OPERATOR" << endl
@@ -684,8 +664,8 @@ int main(int argc, char *argv[])
 
         //  Declare test data and types
         int testData[4] = { 0, 1, 2, 3 };
-        typedef bslstl_RandomAccessIterator<int, int*> iterator;
-        typedef bslstl_RandomAccessIterator<const int, int*> const_iterator;
+        typedef bslstl::RandomAccessIterator<int, int*> iterator;
+        typedef bslstl::RandomAccessIterator<const int, int*> const_iterator;
 
         //  Confirm that an iterator over our reference array does not have the
         //  same value as a default constructed iterator.  (Actually, this
@@ -695,11 +675,11 @@ int main(int argc, char *argv[])
         ASSERT( itcOrigin == itData);
 
         //  Confirm that an decremented iterator does not have the same value
-        //  as the intitial iterator
+        //  as the initial iterator
         --itData;
         ASSERT( itcOrigin != itData);
 
-        //  Confirm that decrementing a second copy of the intitial iterator
+        //  Confirm that decrementing a second copy of the initial iterator
         //  has the same value as the first incremented iterator.
         const_iterator itcCopy = itcOrigin;
         ASSERT( itcOrigin == itcCopy);
@@ -716,7 +696,7 @@ int main(int argc, char *argv[])
             }
             else {
                 LOOP3_ASSERT(i, *itReader, *itValidator,
-                                                    &*itReader == itValidator);
+                             &*itReader == itValidator);
             }
         }
       } break;
@@ -738,8 +718,8 @@ int main(int argc, char *argv[])
 
         //  Declare test data and types
         Wrap testData[2] = { {13}, {99} };
-        typedef bslstl_RandomAccessIterator<Wrap, Wrap*> iterator;
-        typedef bslstl_RandomAccessIterator<const Wrap, Wrap*> const_iterator;
+        typedef bslstl::RandomAccessIterator<Wrap, Wrap*> iterator;
+        typedef bslstl::RandomAccessIterator<const Wrap, Wrap*> const_iterator;
 
         const iterator itWritable = testData;
         // Obtain a fresh copy of an equivalent constant iterator
@@ -788,8 +768,8 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bslstl_RandomAccessIterator& operator=(
-        //                                  const bslstl_RandomAccessIterator&)
+        //   bslstl::RandomAccessIterator& operator=(
+        //                                 const bslstl::RandomAccessIterator&)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING ASSIGNMENT OPERATOR" << endl
@@ -854,8 +834,8 @@ int main(int argc, char *argv[])
 
         //  Declare test data and types
         int testData[1] = { 13 };
-        typedef bslstl_RandomAccessIterator<int, int*> iterator;
-        typedef bslstl_RandomAccessIterator<const int, int*> const_iterator;
+        typedef bslstl::RandomAccessIterator<int, int*> iterator;
+        typedef bslstl::RandomAccessIterator<const int, int*> const_iterator;
 
         const iterator itSource = testData;
         const_iterator itCopy = itSource;
@@ -871,7 +851,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bslstl_RandomAccessIterator(const bslstl_RandomAccessIterator&);
+        //   bslstl::RandomAccessIterator(const bslstl::RandomAccessIterator&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING COPY CONSTRUCTOR" << endl
@@ -879,8 +859,8 @@ int main(int argc, char *argv[])
 
         //  Declare test data and types
         int testData[1] = { 13 };
-        typedef bslstl_RandomAccessIterator<int, int*> iterator;
-        typedef bslstl_RandomAccessIterator<const int, int*> const_iterator;
+        typedef bslstl::RandomAccessIterator<int, int*> iterator;
+        typedef bslstl::RandomAccessIterator<const int, int*> const_iterator;
 
         const iterator itSource = testData;
         iterator itCopy = itSource;
@@ -900,13 +880,13 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //    Iterators must compare equal to themselves.
-        //    constant iterators can be compared with mutable iterators
-        //    contant and mutable iterators referring to the same element shall
-        //    compare equal
-        //    iterators that do not refer to the same element shall not compare
-        //    equal
-        //    tests based on the identity of the referenced element must be
-        //    valid, even when the referenced element overloads operator&
+        //    Constant iterators can be compared with mutable iterators.
+        //    Constant and mutable iterators referring to the same element
+        //      shall compare equal.
+        //    Iterators that do not refer to the same element shall not compare
+        //      equal.
+        //    Tests based on the identity of the referenced element must be
+        //      valid, even when the referenced element overloads operator&.
         //
         // Plan:
         //   Create a list with a single element, so that the sequence is not
@@ -921,10 +901,10 @@ int main(int argc, char *argv[])
         //   values.
         //
         // Testing:
-        //   bool operator==(const bslstl_RandomAccessIterator&,
-        //                   const bslstl_RandomAccessIterator&);
-        //   bool operator!=(const bslstl_RandomAccessIterator&,
-        //                   const bslstl_RandomAccessIterator&);
+        //   bool operator==(const bslstl::RandomAccessIterator&,
+        //                   const bslstl::RandomAccessIterator&);
+        //   bool operator!=(const bslstl::RandomAccessIterator&,
+        //                   const bslstl::RandomAccessIterator&);
         // --------------------------------------------------------------------
         if (verbose) cout << endl << "TESTING EQUALITY OPERATOR" << endl
                                   << "=========================" << endl;
@@ -986,17 +966,17 @@ int main(int argc, char *argv[])
         //
         //
         // Concerns:
-        //   Derefencing an iterator should refer to the expected element
+        //   Dereferencing an iterator should refer to the expected element.
         //   Must be able to check dereferenced object's identity, even if it
-        //   overloads operator&
+        //     overloads operator&.
         //   Should be able to write through a mutable iterator, and observe
-        //   the effect through a constant iterator referring to the same
-        //   element.
+        //     the effect through a constant iterator referring to the same
+        //     element.
         //
         // Plan:
         //   Perform initial validation against an array of ints, that can be
         //   directly manipulated to confirm iterators are operating correctly.
-        //   Repeat tests using the sample list container to vefify that the
+        //   Repeat tests using the sample list container to verify that the
         //   same operations work as advertised when the adapted iterator
         //   offers only the minimal set of operations.
         //
@@ -1009,13 +989,13 @@ int main(int argc, char *argv[])
 
 
         {
-        if (verbose) cout << "\nVefify iterator properties with a"
+        if (verbose) cout << "\nVerify iterator properties with a"
                              " directly examinable container" << endl;
 
         //  Declare test data and types
         int testData[1] = { 13 };
-        typedef bslstl_RandomAccessIterator<int, int*> iterator;
-        typedef bslstl_RandomAccessIterator<const int, int*> const_iterator;
+        typedef bslstl::RandomAccessIterator<int, int*> iterator;
+        typedef bslstl::RandomAccessIterator<const int, int*> const_iterator;
 
         const iterator itWritable = testData;
         // Obtain a fresh copy of an equivalent constant iterator
@@ -1099,21 +1079,16 @@ int main(int argc, char *argv[])
         //      iterators.
         //
         // Testing:
-        //   class UnspecifiedBool
         //   class my_Array<T>
         //   my_Array<T>::begin()
         //   my_Array<T>::end()
-        //   bslstl_RandomAccessIterator(IMPL);
+        //   bslstl::RandomAccessIterator(IMPL);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING (PRIMITIVE) GENERATORS" << endl
                                   << "==============================" << endl;
 
         if (verbose) cout << "\nValidating primitive test machinery" << endl;
-
-        ASSERT(UnspecifiedBool(true));
-        ASSERT(!UnspecifiedBool(false));
-
 
         if (verbose) cout << "\nTesting class my_Array<int>" << endl;
 
@@ -1165,9 +1140,9 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bslstl_RandomAccessIterator();
-        //   ~bslstl_RandomAccessIterator();
-        //   bslstl_RandomAccessIterator& operator++();
+        //   bslstl::RandomAccessIterator();
+        //   ~bslstl::RandomAccessIterator();
+        //   bslstl::RandomAccessIterator& operator++();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING PRIMARY MANIPULATORS" << endl
@@ -1178,10 +1153,10 @@ int main(int argc, char *argv[])
 
         //  Declare test data and types
         int testData[4] = { 0, 1, 2, 3 };
-        typedef bslstl_RandomAccessIterator<int, int*> iterator;
-        typedef bslstl_RandomAccessIterator<const int, int*> const_iterator;
+        typedef bslstl::RandomAccessIterator<int, int*> iterator;
+        typedef bslstl::RandomAccessIterator<const int, int*> const_iterator;
 
-        //  Confirm that we can default-intialize const iterators.
+        //  Confirm that we can default-initialize const iterators.
         //  Confirm that iterator and const_iterator can be compared.
         const iterator itDefault;
         const const_iterator itcDefault;
@@ -1196,11 +1171,11 @@ int main(int argc, char *argv[])
         ASSERT( itcOrigin == itData);
 
         //  Confirm that an incremented iterator does not have the same value
-        //  as the intitial iterator
+        //  as the initial iterator
         ++itData;
         ASSERT( itcOrigin != itData);
 
-        //  Confirm that incrementing a second copy of the intitial iterator
+        //  Confirm that incrementing a second copy of the initial iterator
         //  has the same value as the first incremented iterator.
         const_iterator itcCopy = itcOrigin;
         ASSERT( itcOrigin == itcCopy);
@@ -1238,8 +1213,8 @@ int main(int argc, char *argv[])
                                   << "==============" << endl;
 
         int testData[4] = { 0, 1, 2, 3 };
-        typedef bslstl_RandomAccessIterator<int, int*> iterator;
-        typedef bslstl_RandomAccessIterator<const int, int*> const_iterator;
+        typedef bslstl::RandomAccessIterator<int, int*> iterator;
+        typedef bslstl::RandomAccessIterator<const int, int*> const_iterator;
 
         if (verbose) cout << "\nConstruct a basic iterator value" << endl;
         iterator it1 = testData;
@@ -1291,8 +1266,8 @@ int main(int argc, char *argv[])
 
         //  To test operator->, create an array of struct values
         Wrap testWrap[4] = { {0}, {1}, {2}, {3} };
-        typedef bslstl_RandomAccessIterator<Wrap, Wrap*> wrap_iterator;
-        typedef bslstl_RandomAccessIterator<const Wrap, Wrap*>
+        typedef bslstl::RandomAccessIterator<Wrap, Wrap*> wrap_iterator;
+        typedef bslstl::RandomAccessIterator<const Wrap, Wrap*>
                                                            const_wrap_iterator;
 
         wrap_iterator wit1 = testWrap;
@@ -1319,7 +1294,7 @@ int main(int argc, char *argv[])
 
 
         //  Test for default constructor, which constructs a singular iterator
-        //      Can assign to a sigular value, and destroy it
+        //      Can assign to a singular value, and destroy it
         //      may not make a copy
         const_wrap_iterator x;
 
@@ -1327,9 +1302,9 @@ int main(int argc, char *argv[])
         x = wit1;
         LOOP2_ASSERT(&*wit1, &*x, wit1 == x);
 
-        //  Not yet validated constness of any APIs, e.g. operator*, operator->
-        //  (are constness concerns appropriate for a breathing test, we just
-        //   want to confirm that each individual API can be called.)
+        // Not yet validated constness of any APIs, e.g., operator* and
+        // operator-> (are constness concerns appropriate for a breathing test,
+        // we just want to confirm that each individual API can be called.)
 
         // --------------------------------------------------------------------
         // (ORIGINAL) BREATHING/USAGE TEST
@@ -1369,21 +1344,22 @@ int main(int argc, char *argv[])
         //  Assert iterator_traits finds the expected typedefs
         typedef bsl::iterator_traits<iter_type>  IterTraits;
         typedef bsl::iterator_traits<const_iter_type>  ConstIterTraits;
-        ASSERT((bslmf_IsSame<IterTraits::difference_type,
-                             std::ptrdiff_t>::VALUE));
-        ASSERT((bslmf_IsSame<IterTraits::value_type, int>::VALUE));
-        ASSERT((bslmf_IsSame<IterTraits::pointer, int *>::VALUE));
-        ASSERT((bslmf_IsSame<IterTraits::reference, int &>::VALUE));
-        ASSERT((bslmf_IsSame<IterTraits::iterator_category,
-                             std::random_access_iterator_tag>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::difference_type,
+                              std::ptrdiff_t>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::value_type, int>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::pointer, int *>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::reference, int &>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::iterator_category,
+                              std::random_access_iterator_tag>::VALUE));
 
-        ASSERT((bslmf_IsSame<ConstIterTraits::difference_type,
-                             std::ptrdiff_t>::VALUE));
-        ASSERT((bslmf_IsSame<ConstIterTraits::value_type, const int>::VALUE));
-        ASSERT((bslmf_IsSame<ConstIterTraits::pointer, const int *>::VALUE));
-        ASSERT((bslmf_IsSame<ConstIterTraits::reference, const int &>::VALUE));
-        ASSERT((bslmf_IsSame<ConstIterTraits::iterator_category,
-                             std::random_access_iterator_tag>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::difference_type,
+                              std::ptrdiff_t>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::value_type, const int>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::pointer, const int *>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::reference,
+                              const int &>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::iterator_category,
+                              std::random_access_iterator_tag>::VALUE));
 
         //if (verbose) cout << "\nPopulate the test list." << std::endl;
         //int i;
@@ -1399,9 +1375,10 @@ int main(int argc, char *argv[])
                           << std::endl;
         int i = 0;
         for (const_iter_type it = A.begin(); it != A.end(); ++it, ++i){
-            // Note that we assume we can derference without changing the value
-            // of the iterator.  This is a fair assumption for a breathing test
-            // but should be checked strictly in the main driver.
+            // Note that we assume we can dereference without changing the
+            // value of the iterator.  This is a fair assumption for a
+            // breathing test but should be checked strictly in the main
+            // driver.
             if(veryVerbose) { T_ P_(i) P_(DATA[i]) P(*it) }
             LOOP3_ASSERT(i, DATA[i], *it, DATA[i] == *it);
         }
@@ -1410,9 +1387,10 @@ int main(int argc, char *argv[])
                           << std::endl;
         for (const_iter_type it = A.end(); it != A.begin();){
             // Note that we will be decremented inside the body of the loop.
-            // Note that we assume we can derference without changing the value
-            // of the iterator.  This is a fair assumption for a breathing test
-            // but should be checked strictly in the main driver.
+            // Note that we assume we can dereference without changing the
+            // value of the iterator.  This is a fair assumption for a
+            // breathing test but should be checked strictly in the main
+            // driver.
             --it;
             --i;
             if(veryVerbose) { T_ P_(i) P_(DATA[i]) P(*it) }
@@ -1469,21 +1447,22 @@ int main(int argc, char *argv[])
         typedef bsl::iterator_traits<iter_type>  IterTraits;
         typedef bsl::iterator_traits<const_iter_type>  ConstIterTraits;
 
-        ASSERT((bslmf_IsSame<IterTraits::difference_type,
-                             std::ptrdiff_t>::VALUE));
-        ASSERT((bslmf_IsSame<IterTraits::value_type, int>::VALUE));
-        ASSERT((bslmf_IsSame<IterTraits::pointer, int *>::VALUE));
-        ASSERT((bslmf_IsSame<IterTraits::reference, int &>::VALUE));
-        ASSERT((bslmf_IsSame<IterTraits::iterator_category,
-                             std::random_access_iterator_tag>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::difference_type,
+                              std::ptrdiff_t>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::value_type, int>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::pointer, int *>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::reference, int &>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::iterator_category,
+                              std::random_access_iterator_tag>::VALUE));
 
-        ASSERT((bslmf_IsSame<ConstIterTraits::difference_type,
-                             std::ptrdiff_t>::VALUE));
-        ASSERT((bslmf_IsSame<ConstIterTraits::value_type, const int>::VALUE));
-        ASSERT((bslmf_IsSame<ConstIterTraits::pointer, const int *>::VALUE));
-        ASSERT((bslmf_IsSame<ConstIterTraits::reference, const int &>::VALUE));
-        ASSERT((bslmf_IsSame<ConstIterTraits::iterator_category,
-                             std::random_access_iterator_tag>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::difference_type,
+                              std::ptrdiff_t>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::value_type, const int>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::pointer, const int *>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::reference,
+                              const int &>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::iterator_category,
+                              std::random_access_iterator_tag>::VALUE));
 
         ASSERT(A.begin() == a.begin());
         ASSERT(A.end() == a.end());

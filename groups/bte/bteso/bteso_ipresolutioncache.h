@@ -42,7 +42,7 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section, we show intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Retrieving the IPv4 Addresses of a Given Host
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -203,10 +203,12 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 class bteso_IpResolutionCache;
 class bteso_IpResolutionCache_Data;  // defined in .cpp

@@ -40,7 +40,7 @@ BSLS_IDENT("$Id$")
 //
 ///Usage
 ///-----
-// This section illustrates intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Implementing 'bdema_AlignedAllocator'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
@@ -236,6 +236,10 @@ BSLS_IDENT("$Id$")
 
 #ifndef INCLUDED_BSLS_ANNOTATION
 #include <bsls_annotation.h>
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
 #endif
 
 namespace BloombergLP {

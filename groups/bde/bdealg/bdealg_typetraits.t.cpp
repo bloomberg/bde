@@ -472,7 +472,7 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
 // templates with the two test types above, and checks that the allocator
 // slot is as expected:
 //..
-    void usageExample()
+    int usageExample()
     {
         bslma_TestAllocator ta0;
         bslma_TestAllocator ta1;
@@ -501,6 +501,8 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
         allocSlot = &ta0;
         MyGenericContainer<MyTestTypeWithBdemaAllocatorTraits> y1(y, &ta1);
         ASSERT(&ta1 == allocSlot);
+
+        return 0;
     }
 //..
 

@@ -33,11 +33,16 @@ BDES_IDENT("$Id: $")
 // that appropriate method (i.e., 'dispatch') is called.  Once deregistered,
 // the callback will no longer be invoked.
 //
+// Documentation for the underlying facility can be found in 'man 7d poll' on
+// Solaris and 'man 7 poll' on HPUX.
+//
 ///Availability
 ///------------
 // The '/dev/poll' device (and consequently this specialized component) is
-// currently supported only on Solaris platform.  Direct use of this library
-// component on *any* platform may result in non-portable software.
+// currently supported only on Solaris and HP-UX platforms.  Direct use of this
+// library component unconditionally may result in non-portable software.  It
+// is recommended you use 'bteso_Platform::DEFAULT_POLLING_MECHANISM' to choose
+// the optimal default event manager for each platform.
 //
 ///Component Diagram
 ///-----------------
@@ -45,9 +50,9 @@ BDES_IDENT("$Id: $")
 // 'bteso_defaulteventmanager' component; the other components are shown
 // (schematically) on the following diagram:
 //..
-//                          _bteso_defaulteventmanager_
-//                 _______/          |         |        \______
-//                 *_poll        *_select  *_devpoll      *_wfmo
+//                         _bteso_defaulteventmanager_
+//                 _______/    |        |        |    \_______
+//                 *_epoll *_select *_devpoll *_pollset *_poll
 //..
 ///Thread-safety
 ///-------------
@@ -72,7 +77,7 @@ BDES_IDENT("$Id: $")
 //  +=======================================================================+
 //  |        FUNCTION          | EXPECTED COMPLEXITY | WORST CASE COMPLEXITY|
 //  +-----------------------------------------------------------------------+
-//  | dispatch                 |        O(S)         |       O(S^2)         |
+//  | dispatch                 |        O(S)*        |       O(S^2)         |
 //  +-----------------------------------------------------------------------+
 //  | registerSocketEvent      |        O(1)         |        O(S)          |
 //  +-----------------------------------------------------------------------+
@@ -88,6 +93,11 @@ BDES_IDENT("$Id: $")
 //  +-----------------------------------------------------------------------+
 //  | isRegistered             |        O(1)         |        O(S)          |
 //  +=======================================================================+
+//
+// *: Note that we observe that if very few of the sockets being listened to
+// have events, the time taken by 'dispatch' remains roughly constant
+// regardless of the number of sockets.  See tables at the beginning of
+// 'bteso_eventmanagertester.t.cpp' for actual test results.
 //..
 ///Metrics
 ///-------
@@ -297,17 +307,19 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
+#if defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_HPUX)
 
 #ifndef INCLUDED_SYS_POLL
 #include <sys/poll.h>
 #define INCLUDED_SYS_POLL
-
 #endif
 
 namespace BloombergLP {
 
-class bslma_Allocator;
 class bdet_TimeInterval;
 class bteso_TimeMetrics;
 
@@ -380,7 +392,7 @@ class bteso_DefaultEventManager<bteso_Platform::DEVPOLL>
         // Note that all callbacks are invoked in the same thread that invokes
         // 'dispatch', and the order of invocation, relative to the order of
         // registration, is unspecified.  Also note that -1 is never returned
-        // if 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
+        // unless 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
 
     int dispatch(int flags);
         // For each pending socket event, invoke the corresponding callback
@@ -397,7 +409,7 @@ class bteso_DefaultEventManager<bteso_Platform::DEVPOLL>
         // identical system call).  Note that all callbacks are invoked in the
         // same thread that invokes 'dispatch', and the order of invocation,
         // relative to the order of registration, is unspecified.  Also note
-        // that -1 is never returned if 'option' is set to
+        // that -1 is never returned unless 'option' is set to
         // 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
 
     int registerSocketEvent(const bteso_SocketHandle::Handle&   handle,
@@ -468,7 +480,7 @@ bool bteso_DefaultEventManager<bteso_Platform::DEVPOLL>::
 
 }  // close namespace BloombergLP
 
-#endif // BSLS_PLATFORM__OS_SOLARIS
+#endif // SOLARIS || HPUX
 
 #endif
 

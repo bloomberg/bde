@@ -14,9 +14,9 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
 //
-//@DESCRIPTION: Provide functionality of the corresponding C++ standard
-// header.  This file includes the compiler provided native standard header.
-// In addition, in 'bde-stl' mode (used by Bloomberg managed code, see
+//@DESCRIPTION: Provide functionality of the corresponding C++ standard header.
+// This file includes the compiler provided native standard header.  In
+// addition, in 'bde-stl' mode (used by Bloomberg managed code, see
 // 'bsl+stdhdrs.txt' for more information) include the corresponding header in
 // 'bsl+bslhdrs' as well as 'bsl_stdhdrs_prologue.h' and
 // 'bsl_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
@@ -30,6 +30,23 @@ BSLS_IDENT("$Id: $")
 
 #if !defined(INCLUDED_BSLS_PLATFORM) && defined(__cplusplus)
 #  include <bsls_platform.h>
+#else
+
+// Workaround to detect the GCC compiler version, until bsls_platform.h is
+// fixed to compile by a C compiler.
+#if !defined(__cplusplus)
+    #if defined (__GNUC__)
+        #define BSLS_PLATFORM__CMP_GNU 1
+        #if defined(__GNU_PATCHLEVEL__)
+            #define BSLS_PLATFORM__CMP_VER_MAJOR (__GNUC__ * 10000 \
+                        + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+        #else
+            #define BSLS_PLATFORM__CMP_VER_MAJOR (__GNUC__ * 10000 \
+                        + __GNUC_MINOR__ * 100)
+        #endif
+    #endif
+#endif
+
 #endif
 
 #endif  /* INCLUDED_NATIVE_C_LIMITS */

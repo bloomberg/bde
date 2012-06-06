@@ -413,7 +413,7 @@ int main(int argc, char *argv[])
 // Then we verify that 'localNYTime' is "Dec 12, 2010 10:00+5:00", the time in
 // New York corresponding to the UTC time "Dec 12, 2010 15:00".
 //..
-    ASSERT(utcTime                         == localNYTime.gmtDatetime());
+    ASSERT(utcTime                         == localNYTime.utcDatetime());
     ASSERT(bdet_Datetime(2010, 12, 12, 10) == localNYTime.localDatetime());
     ASSERT(-5 * 60                         == localNYTime.offset());
 //..
@@ -1305,7 +1305,7 @@ int main(int argc, char *argv[])
                            toTimeT(toDatetime(
                                        DATA[RESULT_IDX].d_transitionTime)));
                     ASSERT(expDesc     == resultIt->descriptor());
-                    ASSERT(VALUE       == result.gmtDatetime());
+                    ASSERT(VALUE       == result.utcDatetime());
                     ASSERT(expLocal    == result.localDatetime());
                     ASSERT(expTzOffset == result.offset());
                     ASSERT(resultIt    == TZ.findTransitionForUtcTime(VALUE));
@@ -1347,7 +1347,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == defaultAllocator.numBytesInUse());
 
                 ASSERT(TIME_T   == resultIt->utcTime());
-                ASSERT(TIME     == result.gmtDatetime());
+                ASSERT(TIME     == result.utcDatetime());
                 ASSERT(expLocal == result.localDatetime());
                 ASSERT(OFFSET   == result.offset());
             }
@@ -1401,7 +1401,7 @@ int main(int argc, char *argv[])
                                            TZ);
 
                 ASSERT(TIME_T         == resultIt->utcTime());
-                ASSERT(TIME           == result.gmtDatetime());
+                ASSERT(TIME           == result.utcDatetime());
                 ASSERT(expLocal       == result.localDatetime());
                 ASSERT(EXP_RES_OFFSET == result.offset());
             }

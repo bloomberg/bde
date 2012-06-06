@@ -52,10 +52,11 @@ namespace BloombergLP {
 
 namespace {
 
-#if defined(BSLS_PLATFORM__OS_HPUX) \
-    || defined(BSLS_PLATFORM__OS_CYGWIN)
+#if defined(BSLS_PLATFORM__OS_HPUX)         \
+    || defined(BSLS_PLATFORM__OS_CYGWIN)    \
+    || defined(BSLS_PLATFORM__OS_DARWIN)
     // The re-entrant functions 'gethostbyname_r' and 'getservbyname_r',
-    // are not available on HPUX nor Cygwin, so we create local
+    // are not available on these platforms, so we create local
     // versions here.
 
                        // ==============================
@@ -201,7 +202,6 @@ struct servent *getservbyname_r(const char        *name,
     return result;
 }
 #endif
-// BSLS_PLATFORM__OS_HPUX || BSLS_PLATFORM__OS_CYGWIN
 
                 // ======================================
                 // local function defaultResolveByNameImp
@@ -269,8 +269,9 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
                             bufferLength,
                             &result,
                             &errCode) || !result) {
-        #elif defined(BSLS_PLATFORM__OS_HPUX) \
-           || defined(BSLS_PLATFORM__OS_CYGWIN)
+        #elif defined(BSLS_PLATFORM__OS_HPUX)   \
+           || defined(BSLS_PLATFORM__OS_CYGWIN) \
+           || defined(BSLS_PLATFORM__OS_DARWIN)
         if (0 == gethostbyname_r(hostName,
                                  &hostEntry,
                                  &buffer,  // private improvement
@@ -497,8 +498,9 @@ int bteso_ResolveUtil::getServicePort(bteso_IPv4Address *result,
                             &buffer.front(),
                             bufferLength,
                             &glibcResult)) || !glibcResult)
-        #elif defined(BSLS_PLATFORM__OS_HPUX) \
-           || defined(BSLS_PLATFORM__OS_CYGWIN)
+        #elif defined(BSLS_PLATFORM__OS_HPUX)   \
+           || defined(BSLS_PLATFORM__OS_CYGWIN) \
+           || defined(BSLS_PLATFORM__OS_DARWIN)
         if (0 == getservbyname_r(serviceName,
                                  protocol,
                                  &serverEntry,

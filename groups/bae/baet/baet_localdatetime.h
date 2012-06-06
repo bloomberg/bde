@@ -53,7 +53,7 @@ BDES_IDENT("$Id: $ $CSID: $")
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Creation and Use of a 'baet_LocalDatetime' Object
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -129,9 +129,11 @@ BDES_IDENT("$Id: $ $CSID: $")
 #include <bsl_string.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                         // ========================
                         // class baet_LocalDatetime

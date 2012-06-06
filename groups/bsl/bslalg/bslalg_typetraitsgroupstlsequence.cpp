@@ -1,4 +1,4 @@
-// bslalg_typetraitsgroupstlsequence.cpp                  -*-C++-*-
+// bslalg_typetraitsgroupstlsequence.cpp                              -*-C++-*-
 #include <bslalg_typetraitsgroupstlsequence.h>
 
 #include <bsls_ident.h>
@@ -6,7 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

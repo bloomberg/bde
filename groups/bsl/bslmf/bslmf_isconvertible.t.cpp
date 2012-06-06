@@ -1,4 +1,4 @@
-// bslmf_isconvertible.t.cpp       -*-C++-*-
+// bslmf_isconvertible.t.cpp                                          -*-C++-*-
 
 #include <bslmf_isconvertible.h>
 
@@ -15,7 +15,8 @@
 #if defined(BSLS_PLATFORM__CMP_SUN)  \
  || defined(BSLS_PLATFORM__CMP_MSVC) \
  || defined(BSLS_PLATFORM__CMP_HP)   \
- || defined(BSLS_PLATFORM__CMP_HP)
+ || defined(BSLS_PLATFORM__CMP_HP)   \
+ || defined(BSLS_PLATFORM__CMP_CLANG)
     #define BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES
 #endif
 
@@ -27,8 +28,8 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 //-----------------------------------------------------------------------------
-// [ 1] bslmf_IsConvertible
-// [ 2] bslmf_IsConvertible warnings during conversion
+// [ 1] bslmf::IsConvertible
+// [ 2] bslmf::IsConvertible warnings during conversion
 //-----------------------------------------------------------------------------
 // [ 3] Usage Example
 //=============================================================================
@@ -148,7 +149,7 @@ class my_StlAllocator
 };
 
 // Because this is a very low-level component, we are not allowed to use
-// '#include <new>' nor on '#include <bslma_PlacementNew>'.  Thus, we create
+// '#include <new>' nor on '#include <bslma::PlacementNew>'.  Thus, we create
 // our own placement new that won't conflict with the standard one but does
 // the same thing.
 struct my_PlacementNew { void *d_p; my_PlacementNew(void *p) : d_p(p) { } };
@@ -156,15 +157,15 @@ void *operator new(size_t, my_PlacementNew p) { return p.d_p; }
 
 // from component doc
 
-static const int A = bslmf_IsConvertible<int, char >::VALUE; // A is 1
-static const int B = bslmf_IsConvertible<int, char*>::VALUE; // B is 0
+static const int A = bslmf::IsConvertible<int, char >::VALUE; // A is 1
+static const int B = bslmf::IsConvertible<int, char*>::VALUE; // B is 0
 
 // verify that the 'VALUE' member is evaluated at compile-time
 
-static char C0[1 + bslmf_IsConvertible<int, int>::VALUE];     // sz=2
-static char C1[1 + bslmf_IsConvertible<int, char>::VALUE];    // sz=2
-static char C2[1 + bslmf_IsConvertible<void*, int>::VALUE];   // sz=1
-static char C3[1 + bslmf_IsConvertible<int, int *>::VALUE];   // sz=1
+static char C0[1 + bslmf::IsConvertible<int, int>::VALUE];     // sz=2
+static char C1[1 + bslmf::IsConvertible<int, char>::VALUE];    // sz=2
+static char C2[1 + bslmf::IsConvertible<void*, int>::VALUE];   // sz=1
+static char C3[1 + bslmf::IsConvertible<int, int *>::VALUE];   // sz=1
 
 // Usage Example
 // ----------------------------------------------------------------------------
@@ -183,20 +184,20 @@ struct Bar {
 };
 
 template<class T>
-void createObj(T *space, MyAllocator *, bslmf_MetaInt<0>)
+void createObj(T *space, MyAllocator *, bslmf::MetaInt<0>)
 {
    // Use the type's default constructor if
-   // bslmf_IsConvertible<MyAllocator*, T>::VALUE == 0, i.e., there is
+   // bslmf::IsConvertible<MyAllocator*, T>::VALUE == 0, i.e., there is
    // no conversion from a MyAllocator pointer to a T.
 
    new (space) T();
 }
 
 template<class T>
-void createObj(T *space, MyAllocator *alloc, bslmf_MetaInt<1>)
+void createObj(T *space, MyAllocator *alloc, bslmf::MetaInt<1>)
 {
    // Use the type's constructor that takes a pointer to an allocator if
-   // bslmf_IsConvertible<MyAllocator*, T>::VALUE == 1, i.e., there is
+   // bslmf::IsConvertible<MyAllocator*, T>::VALUE == 1, i.e., there is
    // a conversion from a MyAllocator pointer to a T.
 
    new (space) T(alloc);
@@ -228,7 +229,7 @@ class MyContainer {
         resizeInternalArrayIfNeeded();
         // kludge to workaround some Sun's compiler weirdness
         // the code won't compile with just the typename
-        typedef typename bslmf_IsConvertible<MyAllocator*, T>::Type isAlloc;
+        typedef typename bslmf::IsConvertible<MyAllocator*, T>::Type isAlloc;
         createObj(d_array_p + d_length++, d_alloc_p, isAlloc());
     }
 };
@@ -274,7 +275,6 @@ int main(int argc, char *argv[])
 
       } break;
       case 3: {
-    {
         // --------------------------------------------------------------------
         // Concern:
         //   Gcc, for instance, generates a warning for integral to floating
@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
         //   user-defined classes convertible to or from fundamental types.
         //
         // Test Plan:
-        //   Instantiate 'bslmf_IsConvertible' with various fundamental type
+        //   Instantiate 'bslmf::IsConvertible' with various fundamental type
         //   combinations and verify that the 'VALUE' member is initialized
         //   properly, and that no warning is generated for conversions between
         //   floating point types and integral types.
@@ -296,53 +296,52 @@ int main(int argc, char *argv[])
                       << std::endl;
 
         // Two user conversions is one too many.
-        ASSERT(0 == (bslmf_IsConvertible<ConvertibleFrom<int>,
-                                         ConvertibleTo<int> >::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<ConvertibleFrom<int>,
+                                          ConvertibleTo<int> >::VALUE));
 
         // Test conversion of basic types via a user-defined class.
-        ASSERT(1 == (bslmf_IsConvertible<ConvertibleTo<int>, float>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<ConvertibleTo<float>, int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int,
-                                         ConvertibleFrom<float> >::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<float,
-                                         ConvertibleFrom<int> >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<ConvertibleTo<int>, float>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<ConvertibleTo<float>, int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int,
+                                          ConvertibleFrom<float> >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<float,
+                                          ConvertibleFrom<int> >::VALUE));
 
         // Test const value conversions via a user-defined class.
-        ASSERT(1 == (bslmf_IsConvertible<ConvertibleTo<int>,
-                                         const float>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<ConvertibleTo<float>,
-                                         const int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<ConvertibleTo<const float>,
-                                         int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<ConvertibleTo<const int>,
-                                         float>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int,
-                                       ConvertibleFrom<const float> >::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<float,
-                                         ConvertibleFrom<const int> >::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const float,
-                                         ConvertibleFrom<int> >::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const int,
-                                         ConvertibleFrom<float> >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<ConvertibleTo<int>,
+                                          const float>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<ConvertibleTo<float>,
+                                          const int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<ConvertibleTo<const float>,
+                                          int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<ConvertibleTo<const int>,
+                                          float>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int,
+                                      ConvertibleFrom<const float> >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<float,
+                                      ConvertibleFrom<const int> >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const float,
+                                      ConvertibleFrom<int> >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const int,
+                                      ConvertibleFrom<float> >::VALUE));
 
         // Test volatile value conversions via a user-defined class.
-        ASSERT(1 == (bslmf_IsConvertible<ConvertibleTo<int>,
-                                         volatile float>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<ConvertibleTo<float>,
-                                         volatile int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<ConvertibleTo<volatile int>,
-                                         float>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<ConvertibleTo<volatile float>,
-                                         int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int,
-                                    ConvertibleFrom<volatile float> >::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<float,
-                                      ConvertibleFrom<volatile int> >::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<volatile int,
-                                         ConvertibleFrom<float> >::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<volatile float,
-                                         ConvertibleFrom<int> >::VALUE));
-    }
+        ASSERT(1 == (bslmf::IsConvertible<ConvertibleTo<int>,
+                                          volatile float>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<ConvertibleTo<float>,
+                                          volatile int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<ConvertibleTo<volatile int>,
+                                          float>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<ConvertibleTo<volatile float>,
+                                          int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int,
+                                  ConvertibleFrom<volatile float> >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<float,
+                                  ConvertibleFrom<volatile int> >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile int,
+                                  ConvertibleFrom<float> >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile float,
+                                  ConvertibleFrom<int> >::VALUE));
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -351,7 +350,7 @@ int main(int argc, char *argv[])
         //   point conversions for implicit conversion.
         //
         // Test Plan:
-        //   Instantiate 'bslmf_IsConvertible' with various fundamental type
+        //   Instantiate 'bslmf::IsConvertible' with various fundamental type
         //   combinations and verify that the 'VALUE' member is initialized
         //   properly, and that no warning is generated for conversions between
         //   floating point types and integral types.
@@ -363,132 +362,140 @@ int main(int argc, char *argv[])
                       << std::endl;
 
         // Test conversion of basic types.
-        ASSERT(1 == (bslmf_IsConvertible<int, float>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<float, int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int, float>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<float, int>::VALUE));
 
         // Test const value conversions.
-        ASSERT(1 == (bslmf_IsConvertible<int, const float>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<float, const int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const float, int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const int, float>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int, const float>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<float, const int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const float, int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const int, float>::VALUE));
 
         // Test volatile value conversions.
-        ASSERT(1 == (bslmf_IsConvertible<int, volatile float>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<float, volatile int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<volatile int, float>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<volatile float, int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int, volatile float>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<float, volatile int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile int, float>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile float, int>::VALUE));
 
         // Test volatile pointer and reference conversions
         // from integral to floating point.
-        ASSERT(0 == (bslmf_IsConvertible<int*, volatile float*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile int*, float*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int&, volatile float&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile int&, float&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int,  volatile float&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile int,  float&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int&,  volatile float>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<volatile int&,  float>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int*, volatile float*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile int*, float*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int&, volatile float&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile int&, float&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int,  volatile float&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile int,  float&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int&,  volatile float>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile int&,  float>::VALUE));
 
-        ASSERT(0 == (bslmf_IsConvertible<int*, const volatile float*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const volatile int*, float*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int*,
+                                          const volatile float*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const volatile int*,
+                                          float*>::VALUE));
 #if !defined(BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES)
-        ASSERT(0 == (bslmf_IsConvertible<int&, const volatile float&>::VALUE));
+       ASSERT(0 == (bslmf::IsConvertible<int&, const volatile float&>::VALUE));
 #endif
-        ASSERT(0 == (bslmf_IsConvertible<const volatile int&, float&>::VALUE));
+       ASSERT(0 == (bslmf::IsConvertible<const volatile int&, float&>::VALUE));
 #if !defined(BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES)
-        ASSERT(0 == (bslmf_IsConvertible<int,  const volatile float&>::VALUE));
+       ASSERT(0 == (bslmf::IsConvertible<int,  const volatile float&>::VALUE));
 #endif
-        ASSERT(0 == (bslmf_IsConvertible<const volatile int,  float&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int&,  const volatile float>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const volatile int&,  float>::VALUE));
+       ASSERT(0 == (bslmf::IsConvertible<const volatile int, float&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int&, const volatile float>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const volatile int&, float>::VALUE));
 
-        ASSERT(0 == (bslmf_IsConvertible<const int*, volatile float*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile int*, const float*>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const int&, volatile float>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<volatile int&, const float>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const int*,
+                                          volatile float*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile int*,
+                                          const float*>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const int&, volatile float>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile int&, const float>::VALUE));
 #if !defined(BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES)
-        ASSERT(0 == (bslmf_IsConvertible<const int&,
-                                         const volatile float&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile int&,
-                                         const volatile float&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const int,
-                                         const volatile float&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile int,
-                                         const volatile float&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const int&,
+                                          const volatile float&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile int&,
+                                          const volatile float&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const int,
+                                          const volatile float&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile int,
+                                          const volatile float&>::VALUE));
 #endif
-        ASSERT(0 == (bslmf_IsConvertible<const int,
-                                         volatile float&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const volatile int,
-                                         volatile float&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const int,
+                                          volatile float&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const volatile int,
+                                          volatile float&>::VALUE));
 
         // Sun 5.2 and 5.5 get this right if the cv-unqualified types differ.
-        ASSERT(1 == (bslmf_IsConvertible<volatile int,
-                                         const float&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const volatile int,
-                                         const float&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile int,
+                                          const float&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const volatile int,
+                                          const float&>::VALUE));
 
-        ASSERT(0 == (bslmf_IsConvertible<int*, float>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int, float*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int*, float>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int, float*>::VALUE));
 
         // Test volatile pointer and reference conversions
         // from floating point to integral.
-        ASSERT(0 == (bslmf_IsConvertible<float*, volatile int*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile float*, int*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<float&, volatile int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile float&, int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<float,  volatile int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile float,  int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<float&,  volatile int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<volatile float&,  int>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<float*, volatile int*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile float*, int*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<float&, volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile float&, int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<float,  volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile float,  int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<float&,  volatile int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile float&,  int>::VALUE));
 
-        ASSERT(0 == (bslmf_IsConvertible<float*, const volatile int*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const volatile float*, int*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<float*,
+                                          const volatile int*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const volatile float*,
+                                          int*>::VALUE));
 #if !defined(BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES)
-        ASSERT(0 == (bslmf_IsConvertible<float&, const volatile int&>::VALUE));
+       ASSERT(0 == (bslmf::IsConvertible<float&, const volatile int&>::VALUE));
 #endif
-        ASSERT(0 == (bslmf_IsConvertible<const volatile float&, int&>::VALUE));
+       ASSERT(0 == (bslmf::IsConvertible<const volatile float&, int&>::VALUE));
 #if !defined(BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES)
-        ASSERT(0 == (bslmf_IsConvertible<float,  const volatile int&>::VALUE));
+       ASSERT(0 == (bslmf::IsConvertible<float,  const volatile int&>::VALUE));
 #endif
-        ASSERT(0 == (bslmf_IsConvertible<const volatile float,  int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<float&,  const volatile int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const volatile float&,  int>::VALUE));
+       ASSERT(0 == (bslmf::IsConvertible<const volatile float,  int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<float&, const volatile int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const volatile float&, int>::VALUE));
 
-        ASSERT(0 == (bslmf_IsConvertible<const float*, volatile int*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile float*, const int*>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const float&, volatile int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<volatile float&, const int>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const float*,
+                                          volatile int*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile float*,
+                                          const int*>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const float&, volatile int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile float&, const int>::VALUE));
 #if !defined(BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES)
-        ASSERT(0 == (bslmf_IsConvertible<const float&,
-                                         const volatile int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile float&,
-                                         const volatile int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const float,
-                                         const volatile int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile float,
-                                         const volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const float&,
+                                          const volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile float&,
+                                          const volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const float,
+                                          const volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile float,
+                                          const volatile int&>::VALUE));
 #endif
-        ASSERT(0 == (bslmf_IsConvertible<const float,
-                                         volatile int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const volatile float,
-                                         volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const float,
+                                          volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const volatile float,
+                                          volatile int&>::VALUE));
 
 // #ifndef BSLS_PLATFORM__CMP_SUN
         // Sun 5.2 and 5.5 both get this wrong
-        ASSERT(1 == (bslmf_IsConvertible<volatile float,
-                                         const int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const volatile float,
-                                         const int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile float,
+                                          const int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const volatile float,
+                                          const int&>::VALUE));
 // #endif
 
-        ASSERT(0 == (bslmf_IsConvertible<float*, int>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<float, int*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<float*, int>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<float, int*>::VALUE));
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // Test Plan:
-        //   Instantiate 'bslmf_IsConvertible' with various type combinations
+        //   Instantiate 'bslmf::IsConvertible' with various type combinations
         //   and verify that the 'VALUE' member is initialized properly.
         // --------------------------------------------------------------------
 
@@ -501,233 +508,240 @@ int main(int argc, char *argv[])
         ASSERT(1 == sizeof(C3));
 
         // Test conversion of basic types.
-        ASSERT(1 == (bslmf_IsConvertible<int, int  >::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int, char >::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int, char*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<void*, char*>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<char*, void*>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int, int  >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int, char >::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int, char*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<void*, char*>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<char*, void*>::VALUE));
 
         // Test const value conversions.
-        ASSERT(1 == (bslmf_IsConvertible<int, const int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const int, int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int, const int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const int, int>::VALUE));
 
         // Test const pointer and reference conversions.
-        ASSERT(1 == (bslmf_IsConvertible<int*, const int*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const int*, int*>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int&, const int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const int&, int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int,  int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int,  const int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const int,  int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int&,  const int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const int&, int>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const int,  int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const int,  const int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const int&, const int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int*, const int*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const int*, int*>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int&, const int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const int&, int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int,  int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int,  const int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const int,  int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int&,  const int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const int&, int>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const int,  int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const int,  const int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const int&, const int>::VALUE));
 
         // Test volatile value conversions.
-        ASSERT(1 == (bslmf_IsConvertible<int, volatile int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<volatile int, int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int, volatile int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile int, int>::VALUE));
 
         // Test volatile pointer and reference conversions
-        ASSERT(1 == (bslmf_IsConvertible<int*, volatile int*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile int*, int*>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int&, volatile int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile int&, int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int,  volatile int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile int,  int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int&,  volatile int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<volatile int&,  int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int*, volatile int*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile int*, int*>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int&, volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile int&, int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int,  volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile int,  int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int&,  volatile int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile int&,  int>::VALUE));
 
-        ASSERT(1 == (bslmf_IsConvertible<int*, const volatile int*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const volatile int*, int*>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int&, const volatile int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const volatile int&, int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int,  const volatile int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const volatile int,  int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int&,  const volatile int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const volatile int&,  int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int*, const volatile int*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const volatile int*, int*>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int&, const volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const volatile int&, int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int,  const volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const volatile int,  int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int&,  const volatile int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const volatile int&,  int>::VALUE));
 
-        ASSERT(0 == (bslmf_IsConvertible<const int*, volatile int*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile int*, const int*>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const int&, volatile int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<volatile int&, const int>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const int&,
-                                         const volatile int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<volatile int&,
-                                         const volatile int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const int,
-                                         const volatile int&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<volatile int,
-                                         const volatile int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const int,
-                                         volatile int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const volatile int,
-                                         volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const int*, volatile int*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile int*, const int*>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const int&, volatile int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile int&, const int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const int&,
+                                          const volatile int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile int&,
+                                          const volatile int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const int,
+                                          const volatile int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<volatile int,
+                                          const volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const int,
+                                          volatile int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const volatile int,
+                                          volatile int&>::VALUE));
 
 #if !defined(BSLS_PLATFORM__CMP_SUN)
         // Sun 5.2 and 5.5 both get this wrong when the cv-unqualified types
         // are the same.
-        ASSERT(0 == (bslmf_IsConvertible<volatile int,
-                                         const int&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const volatile int,
-                                         const int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile int,
+                                          const int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const volatile int,
+                                          const int&>::VALUE));
 #endif
 
-        ASSERT(0 == (bslmf_IsConvertible<int*, int>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int, int*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int*, int>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int, int*>::VALUE));
 
-        ASSERT(1 == (bslmf_IsConvertible<MyAllocator*, MyAllocator*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<MyAllocator*, int*>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<MyAllocator*, MyAllocator*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<MyAllocator*, int*>::VALUE));
 
-        ASSERT(1 == (bslmf_IsConvertible<my_Class, my_Class>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_Class, const my_Class>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_Class, const my_Class&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<const my_Class, my_Class&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const my_Class,
-                                         const my_Class&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const my_Class&,
-                                         const my_Class>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_Class, my_Class>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_Class, const my_Class>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_Class, const my_Class&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const my_Class, my_Class&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const my_Class,
+                                          const my_Class&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const my_Class&,
+                                          const my_Class>::VALUE));
 
-        ASSERT(0 == (bslmf_IsConvertible<const my_Class, my_Class&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<int, my_Class>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_Class, int>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int*, my_Class*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const my_Class, my_Class&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int, my_Class>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_Class, int>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int*, my_Class*>::VALUE));
 
-        ASSERT(1 == (bslmf_IsConvertible<my_OtherClass, my_Class>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_OtherClass,
-                                         const my_Class>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_OtherClass, my_Class>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_OtherClass,
+                                          const my_Class>::VALUE));
 
-        ASSERT(0 == (bslmf_IsConvertible<const my_OtherClass,
-                                         const my_Class>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const my_OtherClass,
+                                          const my_Class>::VALUE));
 
-        ASSERT(1 == (bslmf_IsConvertible<my_Class, my_ThirdClass>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const my_Class,
-                                         my_ThirdClass>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_Class,
-                                         const my_ThirdClass>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const my_Class,
-                                         const my_ThirdClass>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile my_Class,
-                                         my_ThirdClass>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_Class&,
-                                         const my_ThirdClass>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const my_Class&,
-                                         const my_ThirdClass>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile my_Class&,
-                                         my_ThirdClass>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_Class&,
-                                         const my_ThirdClass&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const my_Class&,
-                                         const my_ThirdClass&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<volatile my_Class&,
-                                         my_ThirdClass&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_Class, my_ThirdClass>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const my_Class,
+                                          my_ThirdClass>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_Class,
+                                          const my_ThirdClass>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const my_Class,
+                                          const my_ThirdClass>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile my_Class,
+                                          my_ThirdClass>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_Class&,
+                                          const my_ThirdClass>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const my_Class&,
+                                          const my_ThirdClass>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile my_Class&,
+                                          my_ThirdClass>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_Class&,
+                                          const my_ThirdClass&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const my_Class&,
+                                          const my_ThirdClass&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<volatile my_Class&,
+                                          my_ThirdClass&>::VALUE));
 
-        ASSERT(0 == (bslmf_IsConvertible<my_OtherClass, int>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_OtherClass, int>::VALUE));
 
-        ASSERT(1 == (bslmf_IsConvertible<my_Enum, my_Enum >::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_Enum, int     >::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int, my_Enum     >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_Enum, my_Enum >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_Enum, int     >::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int, my_Enum     >::VALUE));
 
-        ASSERT(1 == (bslmf_IsConvertible<my_Enum,  my_Class>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_Class,  my_Enum>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_Enum, my_Class*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_Class, my_Enum*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_Enum*, my_Class>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_Class*, my_Enum>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_Enum,  my_Class>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_Class,  my_Enum>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_Enum, my_Class*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_Class, my_Enum*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_Enum*, my_Class>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_Class*, my_Enum>::VALUE));
 
-        ASSERT(1 == (bslmf_IsConvertible<my_EnumClass::Type,my_Class>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_Class,my_EnumClass::Type>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_EnumClass::Type,
-                                         my_Class*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_Class,
-                                         my_EnumClass::Type*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_EnumClass::Type*,
-                                         my_Class>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_Class*,
-                                         my_EnumClass::Type>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_EnumClass::Type,
+                                          my_Class>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_Class,
+                                          my_EnumClass::Type>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_EnumClass::Type,
+                                          my_Class*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_Class,
+                                          my_EnumClass::Type*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_EnumClass::Type*,
+                                          my_Class>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_Class*,
+                                          my_EnumClass::Type>::VALUE));
 
-        ASSERT(1 == (bslmf_IsConvertible<my_BslmaAllocator*,
-                                         my_StlAllocator<int> >::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_BslmaAllocator*,
-                                         my_StlAllocator<void> >::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_BslmaAllocator*,
-                                         my_StlAllocator<void*> >::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_BslmaAllocator*,
-                                         my_StlAllocator<my_Enum> >::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<void*,
-                                         my_StlAllocator<my_Enum> >::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_BslmaAllocator*,
-                                my_StlAllocator<my_EnumClass::Type> >::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<void*,
-                                my_StlAllocator<my_EnumClass::Type> >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_BslmaAllocator*,
+                                          my_StlAllocator<int> >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_BslmaAllocator*,
+                                          my_StlAllocator<void> >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_BslmaAllocator*,
+                                          my_StlAllocator<void*> >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_BslmaAllocator*,
+                                          my_StlAllocator<my_Enum> >::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<void*,
+                                          my_StlAllocator<my_Enum> >::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_BslmaAllocator*,
+                                          my_StlAllocator<my_EnumClass::Type>
+                                         >::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<void*,
+                                          my_StlAllocator<my_EnumClass::Type>
+                                         >::VALUE));
 
-        ASSERT(1 == (bslmf_IsConvertible<void, void>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<void, int>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int, void>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<void, void>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<void, int>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int, void>::VALUE));
 
         // An incomplete class can only be tested as the FROM parameter.
-        ASSERT(1 == (bslmf_IsConvertible<my_IncompleteClass,
-                                         my_IncompleteClass>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_IncompleteClass, int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_IncompleteClass,
+                                          my_IncompleteClass>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_IncompleteClass, int>::VALUE));
 
         // Test references with incomplete types as both TO and FROM parameters
-        ASSERT(1 == (bslmf_IsConvertible<my_IncompleteClass,
-                                         my_IncompleteClass&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_IncompleteClass&, int>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int, my_IncompleteClass&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_IncompleteClass,
-                                         my_IncompleteClass2&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_IncompleteClass&,
-                                         my_IncompleteClass2&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_IncompleteClass,
+                                          my_IncompleteClass&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_IncompleteClass&, int>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int, my_IncompleteClass&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_IncompleteClass,
+                                          my_IncompleteClass2&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_IncompleteClass&,
+                                          my_IncompleteClass2&>::VALUE));
 
         // Test abstract class.  Mainly just testing that it compiles at all.
-        ASSERT(1 == (bslmf_IsConvertible<my_AbstractClass,
-                                         my_AbstractClass>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_AbstractClass,
-                                         my_AbstractClass&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_AbstractClass&,
-                                         my_AbstractClass>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<const my_AbstractClass,
-                                         my_AbstractClass>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int, my_AbstractClass >::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int, my_AbstractClass&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_AbstractClass,  int>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_AbstractClass&, int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_AbstractClass,
+                                          my_AbstractClass>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_AbstractClass,
+                                          my_AbstractClass&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_AbstractClass&,
+                                          my_AbstractClass>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const my_AbstractClass,
+                                          my_AbstractClass>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int, my_AbstractClass >::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int, my_AbstractClass&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_AbstractClass,  int>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_AbstractClass&, int>::VALUE));
 
         // Test derived-to-base convertibility
-        ASSERT(1 == (bslmf_IsConvertible<my_DerivedClass,
-                                         my_AbstractClass>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_AbstractClass,
-                                         my_DerivedClass>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_DerivedClass&,
-                                         my_AbstractClass&>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_AbstractClass&,
-                                         my_DerivedClass&>::VALUE));
-        ASSERT(1 == (bslmf_IsConvertible<my_DerivedClass*,
-                                         my_AbstractClass*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<my_AbstractClass*,
-                                         my_DerivedClass*>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_DerivedClass,
+                                          my_AbstractClass>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_AbstractClass,
+                                          my_DerivedClass>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_DerivedClass&,
+                                          my_AbstractClass&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_AbstractClass&,
+                                          my_DerivedClass&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<my_DerivedClass*,
+                                          my_AbstractClass*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<my_AbstractClass*,
+                                          my_DerivedClass*>::VALUE));
 
         // Test pointer-to-member variable convertibility
-        ASSERT(1 == (bslmf_IsConvertible<int my_AbstractClass::*,
-                                         int my_DerivedClass::*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int my_DerivedClass::*,
-                                         int my_AbstractClass::*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int my_AbstractClass::*,
-                                         void*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<void*,
-                                         int my_AbstractClass::*>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int my_AbstractClass::*,
+                                          int my_DerivedClass::*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int my_DerivedClass::*,
+                                          int my_AbstractClass::*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int my_AbstractClass::*,
+                                          void*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<void*,
+                                          int my_AbstractClass::*>::VALUE));
 
         // Test pointer-to-member function convertibility
-        ASSERT(1 == (bslmf_IsConvertible<int (my_AbstractClass::*)(int),
-                                      int (my_DerivedClass::*)(int)>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int (my_DerivedClass::*)(int),
-                                      int (my_AbstractClass::*)(int)>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<int (my_AbstractClass::*)(int),
-                                         void*>::VALUE));
-        ASSERT(0 == (bslmf_IsConvertible<void*,
-                                      int (my_AbstractClass::*)(int)>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int (my_AbstractClass::*)(int),
+                                          int (my_DerivedClass::*)(int)
+                                         >::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int (my_DerivedClass::*)(int),
+                                          int (my_AbstractClass::*)(int)
+                                         >::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int (my_AbstractClass::*)(int),
+                                          void*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<void*,
+                                          int (my_AbstractClass::*)(int)
+                                         >::VALUE));
       } break;
 
       default: {

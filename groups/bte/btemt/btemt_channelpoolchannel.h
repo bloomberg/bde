@@ -59,14 +59,16 @@ BDES_IDENT("$Id: $")
 #include <bsl_climits.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
 class btemt_ChannelPool;
 class bcema_PooledBufferChainFactory;
 class bcema_PooledBlobBufferFactory;
 class bcema_PoolAllocator;
-class bslma_Allocator;
-
                        // ==============================
                        // class btemt_ChannelPoolChannel
                        // ==============================
@@ -121,11 +123,6 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
                                                   // channelPool but not yet
                                                   // consumed by any reader
 
-    bcema_Blob            d_blobPendingData;      // blob data that has been
-                                                  // read from channelPool but
-                                                  // not yet consumed by any
-                                                  // reader
-
     const bool            d_useBlobForDataReads;  // use blob for data reads
 
     bcemt_Mutex           d_mutex;                // mutex used to control
@@ -140,10 +137,26 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
                                                   // requests.
 
     bcema_PooledBufferChainFactory
-                         *d_bufferChainFactory_p; // held but not owned
+                         *d_bufferChainFactory_p; // buffer chain factory used
+                                                  // to allocate
+                                                  // 'btemt_DataMsg' objects
+                                                  // returned in data callback
+
+    bool                  d_isBufferChainFactoryOwnedFlag;
+                                                  // flag specifying if the
+                                                  // buffer chain factory is
+                                                  // owned by this channel
 
     bcema_PooledBlobBufferFactory
-                         *d_blobBufferFactory_p;  // held but not owned
+                         *d_blobBufferFactory_p;  // blob buffer factory used
+                                                  // to allocate
+                                                  // 'bcema_Blob' objects
+                                                  // returned in data callback
+
+    bool                  d_isBlobBufferFactoryOwnedFlag;
+                                                  // flag specifying if the
+                                                  // blob buffer factory is
+                                                  // owned by this channel
 
     bcema_PoolAllocator  *d_spAllocator_p;        // shared ptr pool
 
@@ -218,31 +231,39 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
 
   public:
     // CREATORS
-    btemt_ChannelPoolChannel(int                             channelId,
-                             btemt_ChannelPool              *channelPool,
-                             bcema_PooledBufferChainFactory *bufferFactory,
-                             bcema_PoolAllocator            *spAllocator,
-                             bslma_Allocator                *allocator);
+    btemt_ChannelPoolChannel(
+                        int                             channelId,
+                        btemt_ChannelPool              *channelPool,
+                        bcema_PooledBufferChainFactory *bufferFactory,
+                        bcema_PoolAllocator            *spAllocator,
+                        bslma_Allocator                *allocator,
+                        bcema_PooledBlobBufferFactory  *blobBufferFactory = 0);
         // Create a 'btemt_AsyncChannel' concrete implementation reading from
         // and writing to the channel referenced by the specified 'channelId'
         // in the specified 'channelPool', using the specified 'bufferFactory'
         // and 'spAllocator' to supply memory to the data messages, and the
         // specified 'allocator' to supply memory.  Note that the constructed
         // channel will use 'bcema_PooledBufferChain' to read data from the
-        // 'channelPool'.
+        // 'channelPool'.  Optionally specify 'blobBufferFactory' used to
+        // supply memory for 'bcema_Blob' objects returned in the data callback
+        // when a read is registered using a 'BlobBasedReadCallback'.
 
-    btemt_ChannelPoolChannel(int                             channelId,
-                             btemt_ChannelPool              *channelPool,
-                             bcema_PooledBlobBufferFactory  *blobBufferFactory,
-                             bcema_PoolAllocator            *spAllocator,
-                             bslma_Allocator                *allocator);
+    btemt_ChannelPoolChannel(
+                            int                             channelId,
+                            btemt_ChannelPool              *channelPool,
+                            bcema_PooledBlobBufferFactory  *blobBufferFactory,
+                            bcema_PoolAllocator            *spAllocator,
+                            bslma_Allocator                *allocator,
+                            bcema_PooledBufferChainFactory *bufferFactory = 0);
         // Create a 'btemt_AsyncChannel' concrete implementation reading from
         // and writing to the channel referenced by the specified 'channelId'
         // in the specified 'channelPool', using the specified
         // 'blobBufferFactory' and 'spAllocator' to supply memory to the data
         // messages, and the specified 'allocator' to supply memory.  Note
         // that the constructed channel will use 'bcema_Blob' to read data
-        // from the 'channelPool'.
+        // from the 'channelPool'.  Optionally specify 'bufferFactory' used to
+        // supply memory for 'btemt_DataMsg' objects returned in the data
+        // callback when a read is registered using a 'ReadCallback'.
 
     virtual ~btemt_ChannelPoolChannel();
         // Destroy this channel.

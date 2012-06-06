@@ -850,7 +850,7 @@ int bdeimp_DateUtil::serial2yearNoCache(int serialDay)
     BSLS_ASSERT_SAFE(true == isValidSerialDate(serialDay));
 
     int year, month, day;
-    serial2ymd(&year, &month, &day, serialDay);
+    serial2ymdNoCache(&year, &month, &day, serialDay);
     return year;
 }
 
@@ -860,7 +860,7 @@ int bdeimp_DateUtil::serial2monthNoCache(int serialDay)
     BSLS_ASSERT_SAFE(true == isValidSerialDate(serialDay));
 
     int year, month, day;
-    serial2ymd(&year, &month, &day, serialDay);
+    serial2ymdNoCache(&year, &month, &day, serialDay);
     return month;
 }
 
@@ -870,7 +870,7 @@ int bdeimp_DateUtil::serial2dayNoCache(int serialDay)
     BSLS_ASSERT_SAFE(true == isValidSerialDate(serialDay));
 
     int year, month, day;
-    serial2ymd(&year, &month, &day, serialDay);
+    serial2ymdNoCache(&year, &month, &day, serialDay);
     return day;
 }
 

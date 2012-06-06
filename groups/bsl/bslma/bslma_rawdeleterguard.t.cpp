@@ -1,4 +1,4 @@
-// bslma_rawdeleterguard.t.cpp  -*-C++-*-
+// bslma_rawdeleterguard.t.cpp                                        -*-C++-*-
 
 #include <bslma_rawdeleterguard.h>
 
@@ -22,20 +22,20 @@ using namespace std;
 // We are testing a guard object to ensure that, when the guard object goes
 // out of scope, it both destroys its managed object and deallocates memory
 // used by that object.  We achieve this goal by creating (using
-// 'bslma_TestAllocator') a dynamically-allocated, customized "test" object
+// 'bslma::TestAllocator') a dynamically-allocated, customized "test" object
 // that is initialized with the address of a global counter initialized to 0.
-// We then guard the object with a 'bslma_RawDeleterGuard'.  As the guard goes
+// We then guard the object with a 'bslma::RawDeleterGuard'.  As the guard goes
 // out of scope, the object is destroyed, and that object's destructor
 // increments the counter held by the (test) object.  After the guard is
 // destroyed, we verify that the (global) counter of the (managed) object is
 // correctly incremented to 1, and that all memory allocated by the test
 // allocator has been returned.  We then repeat the above process for a
 // 'my_Pool' class, which also has a 'deallocate' method, but is non-virtual
-// (i.e., does not inherit its interface from 'bslma_Allocator').
+// (i.e., does not inherit its interface from 'bslma::Allocator').
 //
 //-----------------------------------------------------------------------------
-// [3] bslma_RawDeleterGuard<TYPE, ALLOCATOR>(obj, allocator);
-// [3] ~bslma_RawDeleterGuard<TYPE, ALLOCATOR>();
+// [3] bslma::RawDeleterGuard<TYPE, ALLOCATOR>(obj, allocator);
+// [3] ~bslma::RawDeleterGuard<TYPE, ALLOCATOR>();
 //-----------------------------------------------------------------------------
 // [1] Breathing Test
 // [2] Helper Class: 'my_Class'
@@ -114,7 +114,7 @@ static int veryVeryVerbose;
 
 class my_Pool {
     // This class provides a 'deallocate' method, used to exercise the
-    // contract promised by the destructor of the 'bslma_RawDeleterGuard'.
+    // contract promised by the destructor of the 'bslma::RawDeleterGuard'.
     // This object indicates that its 'deallocate' method is called by
     // incrementing the global counter (supplied at construction) that it
     // *holds*.
@@ -162,7 +162,7 @@ class my_Class {
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-// This example shows how one might use a 'bslma_RawDeleterGuard' to guard a
+// This example shows how one might use a 'bslma::RawDeleterGuard' to guard a
 // dynamically-allocated object, deleting that object automatically when the
 // guard goes out of scope.
 //
@@ -182,12 +182,12 @@ class my_Queue {
     // a circular dependency in the physical hierarchy will not be created.
 
     // DATA
-    deque<TYPE *>       d_objects;      // objects stored in the queue
-    bslma_Allocator    *d_allocator_p;  // allocator (held, not owned)
+    deque<TYPE *>        d_objects;      // objects stored in the queue
+    bslma::Allocator    *d_allocator_p;  // allocator (held, not owned)
 
   public:
     // CREATORS
-    my_Queue(bslma_Allocator *basicAllocator = 0);
+    my_Queue(bslma::Allocator *basicAllocator = 0);
         // Create a 'my_Queue' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
         // 0, the currently installed default allocator is used.
@@ -215,9 +215,9 @@ class my_Queue {
 // CREATORS
 template <class TYPE>
 inline
-my_Queue<TYPE>::my_Queue(bslma_Allocator *basicAllocator)
+my_Queue<TYPE>::my_Queue(bslma::Allocator *basicAllocator)
 : d_objects(0)  // !!!WARNING: Modified to simplify assertion for memory usage
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -254,14 +254,14 @@ TYPE my_Queue<TYPE>::popFront()
     //* Note the use of the raw deleter guard on 'tmp' (below). *
     //***********************************************************
 
-    bslma_RawDeleterGuard<TYPE, bslma_Allocator> guard(tmp, d_allocator_p);
+    bslma::RawDeleterGuard<TYPE, bslma::Allocator> guard(tmp, d_allocator_p);
 
     return *tmp;
 }
 //..
 // The 'pushBack' method defined above stores a copy of the provided object.
 // The 'popFront' method returns the leading object by value, and the
-// 'bslma_RawDeleterGuard' is used to automatically delete the copy the queue
+// 'bslma::RawDeleterGuard' is used to automatically delete the copy the queue
 // manages when the guard goes out of scope (i.e., when the function returns).
 
 //=============================================================================
@@ -288,7 +288,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Run the usage example and exercise the creators and manipulators
-        //   of 'my_Queue' using a 'bslma_TestAllocator' to verify that memory
+        //   of 'my_Queue' using a 'bslma::TestAllocator' to verify that memory
         //   is allocated and deallocated properly.
         //
         // Testing:
@@ -302,8 +302,8 @@ int main(int argc, char *argv[])
 
         enum { INIT_SIZE = 5 };
 
-        bslma_TestAllocator allocator(veryVeryVerbose);
-        const bslma_TestAllocator *Z = &allocator;
+        bslma::TestAllocator allocator(veryVeryVerbose);
+        const bslma::TestAllocator *Z = &allocator;
 
         int counter = 0;
         my_Queue<my_Class> queue(&allocator);
@@ -346,22 +346,22 @@ int main(int argc, char *argv[])
         //   1) The guard object properly deletes its managed object
         //   at destruction using the allocator supplied at construction.
         //   2) When an allocator (or pool) not inherited from
-        //   'bslma_Allocator' is supplied to the 'bslma_RawDeleterGuard', the
-        //   destructor of the managed object and 'deallocate' method of the
-        //   allocator (or pool) supplied is still invoked.
+        //   'bslma::Allocator' is supplied to the 'bslma::RawDeleterGuard',
+        //   the destructor of the managed object and 'deallocate' method of
+        //   the allocator (or pool) supplied is still invoked.
         //
         // Plan:
         //   Create a 'my_Class' object, which increments a counter every time
-        //   it is destructed, using a 'bslma_TestAllocator' which keeps track
+        //   it is destructed, using a 'bslma::TestAllocator' which keeps track
         //   of how many bytes are allocated.  Next create a
-        //   'bslma_RawDeleterGuard' object to guard the created 'my_Class'
+        //   'bslma::RawDeleterGuard' object to guard the created 'my_Class'
         //   object.  When the guard object goes out of scope, verify that both
         //   the counter is incremented and memory is deallocated.  Repeat for
-        //   'my_Pool', which does not inherit from 'bslma_Allocator'.
+        //   'my_Pool', which does not inherit from 'bslma::Allocator'.
         //
         // Testing:
-        //   bslma_RawDeleterGuard<TYPE, ALLOCATOR>(obj, allocator);
-        //   ~bslma_RawDeleterGuard<TYPE, ALLOCATOR>();
+        //   bslma::RawDeleterGuard<TYPE, ALLOCATOR>(obj, allocator);
+        //   ~bslma::RawDeleterGuard<TYPE, ALLOCATOR>();
         //   Concern: the (non-virtual) 'deallocate' method for pools is also
         //            invoked
         // --------------------------------------------------------------------
@@ -369,14 +369,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "\nCTOR / DTOR TEST"
                                   << "\n================" << endl;
 
-        if (verbose) cout << "\nTesting with bslma_TestAllocator" << endl;
+        if (verbose) cout << "\nTesting with bslma::TestAllocator" << endl;
         {
             const int NUM_TEST = 10;
             int counter        = 0;
             int i;
 
-            bslma_TestAllocator allocator(veryVeryVerbose);
-            const bslma_TestAllocator *Z = &allocator;
+            bslma::TestAllocator allocator(veryVeryVerbose);
+            const bslma::TestAllocator *Z = &allocator;
 
             for (i = 0; i < NUM_TEST; ++i) {
 
@@ -393,7 +393,8 @@ int main(int argc, char *argv[])
                 ASSERT(i           == counter);
                 ASSERT(sizeof *pMC == Z->numBytesInUse());
 
-                bslma_RawDeleterGuard<my_Class, bslma_Allocator> mX(pMC,
+                bslma::RawDeleterGuard<my_Class, bslma::Allocator> mX(
+                                                                   pMC,
                                                                    &allocator);
 
                 ASSERT(i           == counter);
@@ -409,8 +410,8 @@ int main(int argc, char *argv[])
             int counter        = 0;
             int allocCounter   = 0;
 
-            bslma_TestAllocator allocator(veryVeryVerbose);
-            const bslma_TestAllocator *Z = &allocator;
+            bslma::TestAllocator allocator(veryVeryVerbose);
+            const bslma::TestAllocator *Z = &allocator;
 
             my_Pool myAlloc(&allocCounter);
 
@@ -437,7 +438,7 @@ int main(int argc, char *argv[])
                 ASSERT(i           == allocCounter);
                 ASSERT(sizeof *pMC == Z->numBytesInUse());
 
-                bslma_RawDeleterGuard<my_Class, my_Pool> mX(pMC, &myAlloc);
+                bslma::RawDeleterGuard<my_Class, my_Pool> mX(pMC, &myAlloc);
 
                 ASSERT(i           == counter);
                 ASSERT(i           == allocCounter);
@@ -519,16 +520,16 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   1) The 'bslma_RawDeleterGuard' can be constructed and destructed
+        //   1) The 'bslma::RawDeleterGuard' can be constructed and destructed
         //      gracefully.
         //   1) The allocator's 'deallocate' method is invoked.
         //   2) The (managed) object's destructor is invoked.
         //
         // Plan:
-        //   Allocate an 'std::string' with a 'bslma_TestAllocator' and guard
-        //   it with 'bslma_RawDeleterGuard' to show that both the destructor
+        //   Allocate an 'std::string' with a 'bslma::TestAllocator' and guard
+        //   it with 'bslma::RawDeleterGuard' to show that both the destructor
         //   and 'deallocate' is called (by verifying all memory is returned
-        //   to the 'bslma_TestAllocator').
+        //   to the 'bslma::TestAllocator').
         //
         // Testing:
         //   Breathing Test
@@ -537,8 +538,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "\nBREATHING TEST"
                                   << "\n==============" << endl;
 
-        bslma_TestAllocator allocator(veryVeryVerbose);
-        const bslma_TestAllocator *Z = &allocator;
+        bslma::TestAllocator allocator(veryVeryVerbose);
+        const bslma::TestAllocator *Z = &allocator;
 
         ASSERT(0 == Z->numBytesInUse());
         if (verbose) cout << "\tTesting with 'string' object" << endl;
@@ -546,8 +547,8 @@ int main(int argc, char *argv[])
             string *s = (string *)new(allocator)string();
             ASSERT(0 < Z->numBytesInUse());
             *s = "Hello World!";
-            bslma_RawDeleterGuard<string, bslma_Allocator> guard(s,
-                                                                 &allocator);
+            bslma::RawDeleterGuard<string, bslma::Allocator> guard(s,
+                                                                   &allocator);
         }
         ASSERT(0 == Z->numBytesInUse());
 

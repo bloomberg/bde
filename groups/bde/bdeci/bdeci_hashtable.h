@@ -225,6 +225,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_new.h>         // placement syntax
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 
 namespace BloombergLP {
 
@@ -233,8 +237,6 @@ class bdeci_HashtableSlotIter;
 
 template <class T, class HASH>
 class bdeci_HashtableSlotManip;
-
-class bslma_Allocator;
 
                         // ==========================
                         // class bdeci_Hashtable_Link
@@ -982,8 +984,7 @@ bdeci_Hashtable<T, HASH>::~bdeci_Hashtable()
 // MANIPULATORS
 template <class T, class HASH>
 bdeci_Hashtable<T, HASH>&
-                  bdeci_Hashtable<T, HASH>::
-                  operator=(const bdeci_Hashtable<T, HASH>& rhs)
+bdeci_Hashtable<T, HASH>::operator=(const bdeci_Hashtable<T, HASH>& rhs)
 {
     if (this != &rhs) {
         if (d_numElements < rhs.d_numElements) {
@@ -1416,8 +1417,9 @@ bdeci_HashtableSlotIter<T, HASH>::~bdeci_HashtableSlotIter()
 
 template <class T, class HASH>
 inline
-bdeci_HashtableSlotIter<T, HASH>& bdeci_HashtableSlotIter<T, HASH>::
-                         operator=(const bdeci_HashtableSlotIter<T, HASH>& rhs)
+bdeci_HashtableSlotIter<T, HASH>&
+bdeci_HashtableSlotIter<T, HASH>::operator=(
+                                   const bdeci_HashtableSlotIter<T, HASH>& rhs)
 {
     d_hashtable_p = rhs.d_hashtable_p;
     d_link_p = rhs.d_link_p;

@@ -10,9 +10,9 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a thread-safe recurring and non-recurring event scheduler.
 //
 //@CLASSES:
-//    bcep_TimerEventScheduler: thread-safe event scheduler
+//  bcep_TimerEventScheduler: thread-safe event scheduler
 //
-//@SEE_ALSO: bcec_timequeue
+//@SEE_ALSO: bcep_eventscheduler, bcec_timequeue
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
@@ -26,6 +26,21 @@ BDES_IDENT("$Id: $")
 // and the dispatcher functor").  Use this component for implementing timeouts,
 // deferred executions, calendars and reminders, and recurring tasks, among
 // other time-bound behaviors.
+//
+///Comparison to 'bcep_EventScheduler'
+///- - - - - - - - - - - - - - - - - -
+// This class has been made mostly obsolete by the newer
+// 'bcep_eventscheduler', which addresses two main disadvantages of this
+// component: 1) 'bcep_timereventscheduler' can only manage a finite number of
+// events -- this limit is in the millions, but 'bcep_eventscheduler' has no
+// such limit; and 2) accessing the queue of a 'bcep_TimerEventScheduler' is
+// inefficient when there is a large number of managed events (since adding or
+// removing an event involves a linear search); 'bcep_eventscheduler' has
+// a more sophisticated queue which can be accessed in constant or worst-case
+// log(n) time.  The advantage this component provides over
+// 'bcep_eventscheduler' is that it provides light-weight handles to events
+// in the queue, 'bcep_eventmanager' provides more heavy-weight
+// reference-counted handles that must be released.
 //
 ///Order of Execution of Events
 ///----------------------------
@@ -59,6 +74,14 @@ BDES_IDENT("$Id: $")
 // dispatcher functor (for example in order to use a thread pool or a separate
 // thread to run the callbacks).  In that case, the user-supplied functor will
 // still be run in the dispatcher thread, different from the scheduler thread.
+//
+///Thread Safety
+///-------------
+// The 'bcep_TimerEventScheduler' class is both *fully thread-safe* (i.e., all
+// non-creator methods can correctly execute concurrently), and is
+// *thread-enabled* (i.e., the classes does not function correctly in a
+// non-multi-threading environment).  See 'bsldoc_glossary' for complete
+// definitions of *fully thread-safe* and *thread-enabled*.
 //
 ///Usage
 ///-----
@@ -213,9 +236,11 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bdema_allocator;
+namespace BloombergLP {
 
                            // ==============================
                            // class bcep_TimerEventScheduler

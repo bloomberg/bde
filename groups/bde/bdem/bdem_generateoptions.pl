@@ -17,7 +17,7 @@ sub componentFiles(@)
     my @result;
     my $errors = "";
     foreach my $component (@ARG) {
-        foreach my $suffix (qw(.h .cpp .t.cpp)) {
+        foreach my $suffix (qw(.h .cpp)) {
             my $componentFile = $component.$suffix;
             if (-w $componentFile) {
                 push @result, $componentFile;
@@ -98,7 +98,7 @@ sub mungeConfigSchemaFile($$)
 # Generate the option files from the .xsd file:
 my $writable = 1;
         
-0 == system("/bb/shared/bin/bas_codegen.pl $xsdfile --noAggregateConversion -m msg -E --testDrivers y -P $dummyPrefix") or
+0 == system("/bb/shared/bin/bas_codegen.pl $xsdfile --noAggregateConversion -m msg -E --dualSTL=y -P $dummyPrefix") or
     die "bas_codegen.pl failed\n";
 
 foreach my $outputfile (@optionComponentFiles) {
@@ -110,7 +110,7 @@ foreach my $outputfile (@optionComponentFiles) {
 }
 
 # Generate the schemaconfig component from the .xsd file:
-0 == system("bas_codegen.pl -p ${pkg} -m cfg -E -s $pkg $xsdfile") or
+0 == system("bas_codegen.pl -p ${pkg} -m cfg -E -s 1-1.0 $xsdfile") or
     die "bas_codegen.pl failed\n";
 
 foreach my $configschemaFile (@configschemaFiles) {

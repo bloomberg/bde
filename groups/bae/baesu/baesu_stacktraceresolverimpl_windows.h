@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide resolution of symbols in stack trace for Windows objects
+//@PURPOSE: Provide resolution of symbols in stack trace for Windows objects.
 //
 //@CLASSES:
 //   baesu_StackTraceResolverImpl<Windows>: symbol resolution for Windows objs

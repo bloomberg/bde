@@ -5,9 +5,9 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-// IMPLEMENTATION NOTES: The 'bslalg_TypeTraitPair' trait is slated to
+// IMPLEMENTATION NOTES: The 'bslalg::TypeTraitPair' trait is slated to
 // disappear, as a pair is like any other type w.r.t. the constructors and
-// 'bslma_Allocator'.  Nevertheless, it is used for different purposes in
+// 'bslma::Allocator'.  Nevertheless, it is used for different purposes in
 // libraries that depend on 'bslalg'.  For instance, 'bdepu' uses it for
 // printing (a pair does not have a printing method, but it is possible to use
 // the trait to forward the call to 'print' to its two members if they both
@@ -16,7 +16,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // which did not support allocators).  'mgustd_Pair' should be redesigned, but
 // for now we have to support it or else risk breaking the Robo build.  For
 // these reasons, we have retained the trait and support it in the
-// implementations of 'bslalg_ScalarPrimitives::construct' and 'copyConstruct'.
+// implementations of 'bslalg::ScalarPrimitives::construct' and
+// 'copyConstruct'.
 #endif
 
 // ---------------------------------------------------------------------------

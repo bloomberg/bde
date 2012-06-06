@@ -10,20 +10,20 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a meta-function for adding "reference-ness" to a type.
 //
 //@CLASSES:
-//  bslmf_AddReference: meta-function to form a reference to a type
+//  bslmf::AddReference: meta-function to form a reference to a type
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component defines a simple template 'struct',
-// 'bslmf_AddReference', that is used to define a reference type from the type
+// 'bslmf::AddReference', that is used to define a reference type from the type
 // supplied as its single template type parameter.  Types that are 'void' or
 // already reference types are unmodified.
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: A Simple Wrapper Class
 ///- - - - - - - - - - - - - - - - -
@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TYPES
-//      typedef typename bslmf_AddReference<TYPE>::Type WrappedType;
+//      typedef typename bslmf::AddReference<TYPE>::Type WrappedType;
 //
 //      // CREATORS
 //      Wrapper(TYPE value) : d_data(value) {}
@@ -46,33 +46,33 @@ BSLS_IDENT("$Id: $")
 //      //! ~Wrapper() = default;
 //          // Destroy this object.
 //..
-// Then, we would like to expose access to the wrapped element through a
-// method that returns a reference to the data member 'd_data'.  However,
-// there would be a problem if the user supplied a parameterized type 'TYPE'
-// that is a reference type, as references-to-references were not permitted by
-// the language (prior the C++11 standard).  We can resolve such problems
-// using the meta-function 'bslmf_AddReference'.
+// Then, we would like to expose access to the wrapped element through a method
+// that returns a reference to the data member 'd_data'.  However, there would
+// be a problem if the user supplied a parameterized type 'TYPE' that is a
+// reference type, as references-to-references were not permitted by the
+// language (prior the C++11 standard).  We can resolve such problems using the
+// meta-function 'bslmf::AddReference'.
 //..
-//      // MANIPULATORS
-//      typename bslmf_AddReference<TYPE>::Type value()
-//      {
-//          return d_data;
-//      }
+//  // MANIPULATORS
+//  typename bslmf::AddReference<TYPE>::Type value()
+//  {
+//      return d_data;
+//  }
 //..
 // Next, we supply an accessor function, 'value', that similarly wraps the
-// parameterized type 'TYPE' with the 'bslmf_AddReference' meta-function.
-// In this case we must remember to const-quality 'TYPE' before passing it
-// on to the meta-function.
+// parameterized type 'TYPE' with the 'bslmf::AddReference' meta-function.  In
+// this case we must remember to const-quality 'TYPE' before passing it on to
+// the meta-function.
 //..
 //      // ACCESSORS
-//      typename bslmf_AddReference<const TYPE>::Type value() const
+//      typename bslmf::AddReference<const TYPE>::Type value() const
 //      {
 //          return d_data;
 //      }
 //  };
 //..
-// Now, we write a test function, 'runTest', to verify our simple wrapper
-// type.  We start by wrapping a simple 'int' value:
+// Now, we write a test function, 'runTest', to verify our simple wrapper type.
+// We start by wrapping a simple 'int' value:
 //..
 //  void runTests()
 //  {
@@ -104,26 +104,26 @@ BSLS_IDENT("$Id: $")
 ///Example 2: Expected Results
 ///- - - - - - - - - - - - - -
 // For this example, the associated comments below indicate the expected type
-// of 'bslmf_AddReference::Type' for a broad range of parameterized types:
+// of 'bslmf::AddReference::Type' for a broad range of parameterized types:
 //..
 //  struct MyType {};
 //  typedef MyType& MyTypeRef;
 //
-//  bslmf_AddReference<int             >::Type x1; // int&
-//  bslmf_AddReference<int&            >::Type x2; // int&
-//  bslmf_AddReference<int volatile    >::Type x3; // volatile int&
-//  bslmf_AddReference<int volatile&   >::Type x4; // volatile int&
+//  bslmf::AddReference<int             >::Type x1; // int&
+//  bslmf::AddReference<int&            >::Type x2; // int&
+//  bslmf::AddReference<int volatile    >::Type x3; // volatile int&
+//  bslmf::AddReference<int volatile&   >::Type x4; // volatile int&
 //
-//  bslmf_AddReference<MyType          >::Type     // MyType&
-//  bslmf_AddReference<MyType&         >::Type     // MyType&
-//  bslmf_AddReference<MyTypeRef       >::Type     // MyType&
-//  bslmf_AddReference<MyType const    >::Type     // const MyType&
-//  bslmf_AddReference<MyType const&   >::Type     // const MyType&
-//  bslmf_AddReference<const MyTypeRef >::Type     // MyType&
-//  bslmf_AddReference<const MyTypeRef&>::Type     // MyType& (REQUIRES C++11)
+//  bslmf::AddReference<MyType          >::Type     // MyType&
+//  bslmf::AddReference<MyType&         >::Type     // MyType&
+//  bslmf::AddReference<MyTypeRef       >::Type     // MyType&
+//  bslmf::AddReference<MyType const    >::Type     // const MyType&
+//  bslmf::AddReference<MyType const&   >::Type     // const MyType&
+//  bslmf::AddReference<const MyTypeRef >::Type     // MyType&
+//  bslmf::AddReference<const MyTypeRef&>::Type     // MyType& (REQUIRES C++11)
 //
-//  bslmf_AddReference<void            >::Type     // void
-//  bslmf_AddReference<void *          >::Type     // void *&
+//  bslmf::AddReference<void            >::Type     // void
+//  bslmf::AddReference<void *          >::Type     // void *&
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -132,13 +132,15 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // =========================
-                        // struct bslmf_AddReference
-                        // =========================
+namespace bslmf {
+
+                        // ===================
+                        // struct AddReference
+                        // ===================
 
 
 template <class BSLMF_TYPE>
-struct bslmf_AddReference {
+struct AddReference {
     // This meta-function class defines a typedef, 'Type', that is an alias for
     // a reference to the parameterized 'BSLMF_TYPE'.  References to
     // cv-qualified 'void' will produce the original 'void' type and not a
@@ -152,7 +154,7 @@ struct bslmf_AddReference {
 };
 
 template <class BSLMF_TYPE>
-struct bslmf_AddReference<BSLMF_TYPE &> {
+struct AddReference<BSLMF_TYPE &> {
     // Specialization to ensure reference-to-reference collapses to a plain
     // reference.
 
@@ -160,39 +162,51 @@ struct bslmf_AddReference<BSLMF_TYPE &> {
 };
 
 template <>
-struct bslmf_AddReference<void> {
-    // This specialization of 'bslmf_AddReference' for type 'void' is needed as
-    // the language does not support references to 'void'.
+struct AddReference<void> {
+    // This specialization of 'AddReference' for type 'void' is needed as the
+    // language does not support references to 'void'.
 
     typedef void Type;
 };
 
 template <>
-struct bslmf_AddReference<const void> {
-    // This specialization of 'bslmf_AddReference' for type 'const void' is
-    // needed as the language does not support references to 'const void'.
+struct AddReference<const void> {
+    // This specialization of 'AddReference' for type 'const void' is needed as
+    // the language does not support references to 'const void'.
 
     typedef const void Type;
 };
 
 template <>
-struct bslmf_AddReference<volatile void> {
-    // This specialization of 'bslmf_AddReference' for type 'volatile void' is
-    // needed as the language does not support references to 'volatile void'.
+struct AddReference<volatile void> {
+    // This specialization of 'AddReference' for type 'volatile void' is needed
+    // as the language does not support references to 'volatile void'.
 
     typedef volatile void Type;
 };
 
 template <>
-struct bslmf_AddReference<const volatile void> {
-    // This specialization of 'bslmf_AddReference' for type 'const volatile
-    // void' is needed as the language does not support references to 'const
-    // volatile void'.
+struct AddReference<const volatile void> {
+    // This specialization of 'AddReference' for type 'const volatile void' is
+    // needed as the language does not support references to
+    // 'const volatile void'.
 
     typedef const volatile void Type;
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_AddReference
+#undef bslmf_AddReference
+#endif
+#define bslmf_AddReference bslmf::AddReference
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

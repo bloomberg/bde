@@ -189,7 +189,8 @@ struct bael_Transmission {
         BAEL_TRIGGER            = 1,  // all records emitted; caused locally
         BAEL_TRIGGER_ALL        = 2,  // all records emitted; caused remotely
         BAEL_MANUAL_PUBLISH     = 3,  // manually publish a single record
-        BAEL_MANUAL_PUBLISH_ALL = 4   // manually publish all records
+        BAEL_MANUAL_PUBLISH_ALL = 4,  // manually publish all records
+        BAEL_END                = 5   // end flag for asynchronous publication
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
       , PASSTHROUGH        = BAEL_PASSTHROUGH

@@ -48,9 +48,11 @@ BDES_IDENT("$Id: $")
 #include <bdem_aggregateoption.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                         // ===========================
                         // class bdem_AllocatorManager
@@ -137,7 +139,7 @@ class bdem_AllocatorManager {
         // Reserve sufficient memory to satisfy allocation requests for at
         // least the specified 'numBytes' without replenishment (i.e., without
         // internal allocation) if 'allocationStrategy' is 'BDEM_WRITE_ONCE',
-        // or 'BDEM_WRITE_MANY.  If 'allocationStrategy' is 'BDEM_WRITE_MANY'
+        // or 'BDEM_WRITE_MANY'.  If 'allocationStrategy' is 'BDEM_WRITE_MANY'
         // then the reserved memory is supplied only for allocation requests
         // of 8 bytes or less (i.e., larger requests will issue new
         // allocations).  This method has no effect unless 'allocationStrategy'

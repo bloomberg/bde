@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a simple to use 'swap' algorithm.
 //
 //@CLASSES:
-//  bslalg_SwapUtil: namespace for the 'swap' utility function.
+//  bslalg::SwapUtil: namespace for the 'swap' utility function.
 //
 //@SEE_ALSO: bsl_algorithm.h
 //
@@ -32,11 +32,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended use of this component.
 //
-///Example 1: using 'bslalg_SwapUtil::swap'
+///Example 1: using 'bslalg::SwapUtil::swap'
 /// - - - - - - - - - - - - - - - - - - - -
-// In this example we define a type 'Container' and use 'bslalg_SwapUtil' to
+// In this example we define a type 'Container' and use 'bslalg::SwapUtil' to
 // both implement a user-defined 'swap' for 'Container', and swap two container
 // objects.
 //
@@ -65,20 +65,20 @@ BSLS_IDENT("$Id: $")
 // Note that the free function 'swap' is overloaded in the namespace of the
 // class 'Container', which is 'xyz'.
 //
-// Next, we implemented the 'swap' method using the 'bslalg_SwapUtil::swap' to
+// Next, we implemented the 'swap' method using the 'bslalg::SwapUtil::swap' to
 // swap the individual data elements:
 //..
 //  inline
 //  void Container::swap(Container& other)
 //  {
-//      bslalg_SwapUtil::swap(&d_expensiveData, &other.d_expensiveData);
+//      bslalg::SwapUtil::swap(&d_expensiveData, &other.d_expensiveData);
 //
 //      // Equivalent to:
 //      // using bsl::swap;
 //      // bsl::swap(d_expensiveData, other.d_expensiveData);
 //  }
 //..
-// Notice that calling 'bslalg_SwapUtil::swap' is equivalent to making the
+// Notice that calling 'bslalg::SwapUtil::swap' is equivalent to making the
 // 'bsl::swap' available in the current scope by doing 'using bsl::swap' and
 // making a subsequent call to an unqualified 'swap' function.
 //
@@ -92,12 +92,12 @@ BSLS_IDENT("$Id: $")
 //
 //  }  // close namespace xyz
 //..
-// Finally we can use 'bslalg_SwapUtil::swap' to swap two objects of class
+// Finally we can use 'bslalg::SwapUtil::swap' to swap two objects of class
 // 'xyz::Container':
 //..
 //  xyz::Container c1, c2;
 //
-//  bslalg_SwapUtil::swap(&c1, &c2);
+//  bslalg::SwapUtil::swap(&c1, &c2);
 //..
 // The above code correctly calls the 'xyz::swap' overload for the 'Container'
 // class.
@@ -128,11 +128,13 @@ void swap(bslalg_SwapUtil_Dummy);
     // else.
 #endif
 
-                           // ======================
-                           // struct bslalg_SwapUtil
-                           // ======================
+namespace bslalg {
 
-class bslalg_SwapUtil {
+                           // ===============
+                           // struct SwapUtil
+                           // ===============
+
+class SwapUtil {
     // This class provides a namespace for the 'swap' utility method.
 
   public:
@@ -150,13 +152,13 @@ class bslalg_SwapUtil {
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                           // ----------------------
-                           // struct bslalg_SwapUtil
-                           // ----------------------
+                           // ---------------
+                           // struct SwapUtil
+                           // ---------------
 
 // CLASS METHODS
 template <typename T>
-void bslalg_SwapUtil::swap(T *a, T *b)
+void SwapUtil::swap(T *a, T *b)
 {
     BSLS_ASSERT_SAFE(a != NULL);
     BSLS_ASSERT_SAFE(b != NULL);
@@ -170,6 +172,15 @@ void bslalg_SwapUtil::swap(T *a, T *b)
 
     swap(*a, *b);
 }
+
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::SwapUtil bslalg_SwapUtil;
+    // This alias is defined for backward compatibility.
 
 }  // close enterprise namespace
 

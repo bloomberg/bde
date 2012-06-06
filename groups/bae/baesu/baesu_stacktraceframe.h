@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide an attribute class describing an execution stack frame
+//@PURPOSE: Provide an attribute class describing an execution stack frame.
 //
 //@CLASSES:
 //   baesu_StackTraceFrame: a description of one frame of an execution stack
@@ -158,6 +158,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSL_ALGORITHM
+#include <bsl_algorithm.h>    // bsl::swap
 #endif
 
 #ifndef INCLUDED_BSL_CSTDDEF

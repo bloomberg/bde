@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
     baem_MetricSample sample(allocator);
 //
     sample.setTimeStamp(
-                   bdet_DatetimeTz(bdetu_SystemTime::nowAsDatetimeGMT(), 0));
+                   bdet_DatetimeTz(bdetu_SystemTime::nowAsDatetimeUtc(), 0));
     sample.appendGroup(records.data(),
                        records.size(),
                        bdet_TimeInterval(5, 0));
@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
 
         Obj mX(bsl::cout);
         baem_Category myCategory("MyCategory");
-        bdet_DatetimeTz now(bdetu_SystemTime::nowAsDatetimeGMT(), 0);
+        bdet_DatetimeTz now(bdetu_SystemTime::nowAsDatetimeUtc(), 0);
         for (int i = 0; i < baem_PublicationType::BAEM_LENGTH; ++i) {
             baem_MetricDescription desc(&myCategory, "Test");
 

@@ -123,9 +123,12 @@ BDES_IDENT("$Id: $")
 #include <bsl_algorithm.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
-class bslma_Allocator;
 template <typename TYPE> struct bdeut_NullableValue_Traits;
 template <typename TYPE> class  bdeut_NullableValue_WithAllocator;
 template <typename TYPE> class  bdeut_NullableValue_WithoutAllocator;

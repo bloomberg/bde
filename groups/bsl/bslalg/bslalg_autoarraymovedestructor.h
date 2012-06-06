@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a proctor for destroying arrays.
 //
 //@CLASSES:
-//  bslalg_AutoArrayMoveDestructor: exception-neutrality guard for arrays
+//  bslalg::AutoArrayMoveDestructor: exception-neutrality guard for arrays
 //
 //@SEE_ALSO: bslma_autodestructor, bslalg_autoarraydestructor
 //
@@ -65,23 +65,24 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                    // ====================================
-                    // class bslalg_AutoArrayMoveDestructor
-                    // ====================================
+namespace bslalg {
+
+                    // =============================
+                    // class AutoArrayMoveDestructor
+                    // =============================
 
 template <class OBJECT_TYPE>
-class bslalg_AutoArrayMoveDestructor {
+class AutoArrayMoveDestructor {
     // This 'class' provides a specialized proctor object that, upon
     // destruction and unless the 'release' method has been called, bit-wise
     // moves the elements in a segment of an array of parameterized
-    // 'OBJECT_TYPE' back to some destination, and destroys some other
-    // elements in an adjacent segment of the same array.  The elements
-    // destroyed are delimited by the range '[ begin(), middle() )' and those
-    // moved to 'destination()' and in the range '[ middle(), end() )'.
-    // Note that, once constructed, 'begin()' and 'end()' remain fixed.  As the
-    // guard advances, 'middle()' and 'destination()' move, reflecting the
-    // successful transfer of data between the moving range and the
-    // destination.
+    // 'OBJECT_TYPE' back to some destination, and destroys some other elements
+    // in an adjacent segment of the same array.  The elements destroyed are
+    // delimited by the range '[ begin(), middle() )' and those moved to
+    // 'destination()' and in the range '[ middle(), end() )'.  Note that, once
+    // constructed, 'begin()' and 'end()' remain fixed.  As the guard advances,
+    // 'middle()' and 'destination()' move, reflecting the successful transfer
+    // of data between the moving range and the destination.
 
     // DATA
     OBJECT_TYPE *d_dst_p;    // destination of the bit-wise move
@@ -96,21 +97,21 @@ class bslalg_AutoArrayMoveDestructor {
                              // guarded range
 
     // CLASS INVARIANT
-    BSLMF_ASSERT((bslalg_HasTrait<OBJECT_TYPE,
-                                  bslalg_TypeTraitBitwiseMoveable>::VALUE));
+    BSLMF_ASSERT((HasTrait<OBJECT_TYPE,
+                  TypeTraitBitwiseMoveable>::VALUE));
 
     // NOT IMPLEMENTED
   private:
-    bslalg_AutoArrayMoveDestructor(const bslalg_AutoArrayMoveDestructor&);
-    bslalg_AutoArrayMoveDestructor&
-    operator=(const bslalg_AutoArrayMoveDestructor&);
+    AutoArrayMoveDestructor(const AutoArrayMoveDestructor&);
+    AutoArrayMoveDestructor&
+    operator=(const AutoArrayMoveDestructor&);
 
   public:
     // CREATORS
-    bslalg_AutoArrayMoveDestructor(OBJECT_TYPE *destination,
-                                   OBJECT_TYPE *begin,
-                                   OBJECT_TYPE *middle,
-                                   OBJECT_TYPE *end);
+    AutoArrayMoveDestructor(OBJECT_TYPE *destination,
+                            OBJECT_TYPE *begin,
+                            OBJECT_TYPE *middle,
+                            OBJECT_TYPE *end);
         // Create a proctor for the sequence of elements of the parameterized
         // 'OBJECT_TYPE' in the specified range '[ begin, end )' which, upon
         // destruction, moves the range '[ begin, middle )' to the specified
@@ -119,7 +120,7 @@ class bslalg_AutoArrayMoveDestructor {
         // 'destination < begin' or 'end <= destination', and each element in
         // the range '[ begin, end )' has been initialized.
 
-    ~bslalg_AutoArrayMoveDestructor();
+    ~AutoArrayMoveDestructor();
         // Bit-wise move the range '[ middle(), end() )' to the 'destination()'
         // address and destroy '[ begin(), middle() )'.
 
@@ -149,14 +150,14 @@ class bslalg_AutoArrayMoveDestructor {
 //                         INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                    // ------------------------------------
-                    // class bslalg_AutoArrayMoveDestructor
-                    // ------------------------------------
+                    // -----------------------------
+                    // class AutoArrayMoveDestructor
+                    // -----------------------------
 
 // CREATORS
 template <class OBJECT_TYPE>
 inline
-bslalg_AutoArrayMoveDestructor<OBJECT_TYPE>::bslalg_AutoArrayMoveDestructor(
+AutoArrayMoveDestructor<OBJECT_TYPE>::AutoArrayMoveDestructor(
                                                       OBJECT_TYPE *destination,
                                                       OBJECT_TYPE *begin,
                                                       OBJECT_TYPE *middle,
@@ -175,7 +176,7 @@ bslalg_AutoArrayMoveDestructor<OBJECT_TYPE>::bslalg_AutoArrayMoveDestructor(
 }
 
 template <class OBJECT_TYPE>
-bslalg_AutoArrayMoveDestructor<OBJECT_TYPE>::~bslalg_AutoArrayMoveDestructor()
+AutoArrayMoveDestructor<OBJECT_TYPE>::~AutoArrayMoveDestructor()
 {
     BSLS_ASSERT_SAFE(!d_begin_p  == !d_middle_p);  // neither or both are null
     BSLS_ASSERT_SAFE(!d_middle_p == !d_end_p);     // neither or both are null
@@ -189,14 +190,14 @@ bslalg_AutoArrayMoveDestructor<OBJECT_TYPE>::~bslalg_AutoArrayMoveDestructor()
     if (d_middle_p != d_end_p) {
         std::size_t numBytes = (char *)d_end_p - (char *)d_middle_p;
         std::memcpy(d_dst_p, d_middle_p, numBytes);
-        bslalg_ArrayDestructionPrimitives::destroy(d_begin_p, d_middle_p);
+        ArrayDestructionPrimitives::destroy(d_begin_p, d_middle_p);
     }
 }
 
 // MANIPULATORS
 template <class OBJECT_TYPE>
 inline
-void bslalg_AutoArrayMoveDestructor<OBJECT_TYPE>::advance()
+void AutoArrayMoveDestructor<OBJECT_TYPE>::advance()
 {
     BSLS_ASSERT_SAFE(d_middle_p < d_end_p);
 
@@ -209,33 +210,45 @@ void bslalg_AutoArrayMoveDestructor<OBJECT_TYPE>::advance()
 // ACCESSORS
 template <class OBJECT_TYPE>
 inline
-OBJECT_TYPE *bslalg_AutoArrayMoveDestructor<OBJECT_TYPE>::begin() const
+OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::begin() const
 {
     return d_begin_p;
 }
 
 template <class OBJECT_TYPE>
 inline
-OBJECT_TYPE *bslalg_AutoArrayMoveDestructor<OBJECT_TYPE>::middle() const
+OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::middle() const
 {
     return d_middle_p;
 }
 
 template <class OBJECT_TYPE>
 inline
-OBJECT_TYPE *bslalg_AutoArrayMoveDestructor<OBJECT_TYPE>::end() const
+OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::end() const
 {
     return d_end_p;
 }
 
 template <class OBJECT_TYPE>
 inline
-OBJECT_TYPE *bslalg_AutoArrayMoveDestructor<OBJECT_TYPE>::destination() const
+OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::destination() const
 {
     return d_dst_p;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_AutoArrayMoveDestructor
+#undef bslalg_AutoArrayMoveDestructor
+#endif
+#define bslalg_AutoArrayMoveDestructor bslalg::AutoArrayMoveDestructor
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

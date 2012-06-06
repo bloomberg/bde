@@ -20,7 +20,7 @@ using namespace std;
 // method.
 //-----------------------------------------------------------------------------
 // [1] enum Strategy { ... };
-// [1] char *toAscii(bsls_BlockGrowth::Strategy)
+// [1] char *toAscii(bsls::BlockGrowth::Strategy)
 //-----------------------------------------------------------------------------
 // [2] USAGE EXAMPLE
 //=============================================================================
@@ -82,8 +82,8 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                  GLOBAL VARIABLES / TYPEDEF FOR TESTING
 //-----------------------------------------------------------------------------
-typedef bsls_BlockGrowth::Strategy Enum;
-typedef bsls_BlockGrowth           Class;
+typedef bsls::BlockGrowth::Strategy Enum;
+typedef bsls::BlockGrowth           Class;
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -109,7 +109,7 @@ typedef bsls_BlockGrowth           Class;
 
         int           d_currentBufferSize;  // size of current buffer
 
-        bsls_BlockGrowth::Strategy
+        bsls::BlockGrowth::Strategy
                       d_growthStrategy;     // growth strategy
 
         my_BlockList  d_blockList;          // manager for all allocated memory
@@ -127,7 +127,7 @@ typedef bsls_BlockGrowth           Class;
 
       public:
         // CREATORS
-        my_SequentialPool(bsls_BlockGrowth::Strategy  strategy);
+        my_SequentialPool(bsls::BlockGrowth::Strategy  strategy);
             // Create a pool with the specified memory block growth 'strategy'.
 
         // ...
@@ -148,7 +148,7 @@ typedef bsls_BlockGrowth           Class;
     // PRIVATE MANIPULATORS
     int my_SequentialPool::calculateNextSize(int size)
     {
-        if (bsls_BlockGrowth::BSLS_CONSTANT == d_growthStrategy) {
+        if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy) {
             return d_currentBufferSize;
         }
 //..
@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   enum Strategy { ... };
-        //   char *toAscii(bsls_BlockGrowth::Strategy)
+        //   char *toAscii(bsls::BlockGrowth::Strategy)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "VALUE TEST" << endl
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
                 T_ P_(LINE) P_((int) ENUMERATOR) P_(ASCII) P(VALUE)
             }
 
-            const char *result = bsls_BlockGrowth::toAscii(ENUMERATOR);
+            const char *result = bsls::BlockGrowth::toAscii(ENUMERATOR);
             LOOP3_ASSERT(LINE, ASCII, result, strlen(ASCII) == strlen(result));
             LOOP3_ASSERT(LINE, ASCII, result, 0 == strcmp(ASCII, result));
             if (VALUE >= 0) {

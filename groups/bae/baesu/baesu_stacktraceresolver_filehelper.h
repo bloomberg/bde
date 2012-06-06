@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide platform-independent file input for stack trace resolvers
+//@PURPOSE: Provide platform-independent file input for stack trace resolvers.
 //
 //@CLASSES:
 //   baesu_StackTraceResolver_FileHelper: file input for stack trace resolvers
@@ -131,9 +131,11 @@ BDES_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                  // =========================================
                  // class baesu_StackTraceResolver_FileHelper

@@ -31,10 +31,10 @@ using namespace std;
 //
 //: 1  That all alignment calculations result in a power of 2.
 //:
-//: 2  That 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT' really is the largest
+//: 2  That 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT' really is the largest
 //:    value that will be produced by the alignment calculations and that
-//:    'bsls_AlignmentUtil::MaxAlignedType' is aligned at
-//:    'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT'.
+//:    'bsls::AlignmentUtil::MaxAlignedType' is aligned at
+//:    'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
 //
 // For the few run-time functions provided in this component, we establish
 // post-conditions and test that the postconditions hold over a reasonable
@@ -106,7 +106,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL DEFINITIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_AlignmentUtil Class;
+typedef bsls::AlignmentUtil Class;
 
 #if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
 // On Linux x86, no natural type is aligned on a 64-bit boundary, but we need
@@ -145,10 +145,11 @@ struct Test8BytesAlignedType {
 //..
     void *naturallyAlign(void **currentAddress, std::size_t size)
     {
-        int   alignment = bsls_AlignmentUtil::calculateAlignmentFromSize(size);
-        int   offset    = bsls_AlignmentUtil::calculateAlignmentOffset(
+        int   alignment = bsls::AlignmentUtil::calculateAlignmentFromSize(
+                                                                size);
+        int   offset    = bsls::AlignmentUtil::calculateAlignmentOffset(
                                                                *currentAddress,
-                                                               alignment);
+                                                                alignment);
         char *result    = static_cast<char *>(*currentAddress) + offset;
         *currentAddress = result + size;
         return result;
@@ -218,18 +219,18 @@ typedef void (*FuncPtr)();
 enum {
     // Define alignments for kinds of primitive types.
 
-    CHAR_ALIGNMENT        = bsls_AlignmentFromType<char>::VALUE,
-    SHORT_ALIGNMENT       = bsls_AlignmentFromType<short>::VALUE,
-    INT_ALIGNMENT         = bsls_AlignmentFromType<int>::VALUE,
-    LONG_ALIGNMENT        = bsls_AlignmentFromType<long>::VALUE,
-    INT64_ALIGNMENT       = bsls_AlignmentFromType<long long>::VALUE,
-    BOOL_ALIGNMENT        = bsls_AlignmentFromType<bool>::VALUE,
-    WCHAR_T_ALIGNMENT     = bsls_AlignmentFromType<wchar_t>::VALUE,
-    PTR_ALIGNMENT         = bsls_AlignmentFromType<void*>::VALUE,
-    FUNC_PTR_ALIGNMENT    = bsls_AlignmentFromType<FuncPtr>::VALUE,
-    FLOAT_ALIGNMENT       = bsls_AlignmentFromType<float>::VALUE,
-    DOUBLE_ALIGNMENT      = bsls_AlignmentFromType<double>::VALUE,
-    LONG_DOUBLE_ALIGNMENT = bsls_AlignmentFromType<long double>::VALUE
+    CHAR_ALIGNMENT        = bsls::AlignmentFromType<char>::VALUE,
+    SHORT_ALIGNMENT       = bsls::AlignmentFromType<short>::VALUE,
+    INT_ALIGNMENT         = bsls::AlignmentFromType<int>::VALUE,
+    LONG_ALIGNMENT        = bsls::AlignmentFromType<long>::VALUE,
+    INT64_ALIGNMENT       = bsls::AlignmentFromType<long long>::VALUE,
+    BOOL_ALIGNMENT        = bsls::AlignmentFromType<bool>::VALUE,
+    WCHAR_T_ALIGNMENT     = bsls::AlignmentFromType<wchar_t>::VALUE,
+    PTR_ALIGNMENT         = bsls::AlignmentFromType<void*>::VALUE,
+    FUNC_PTR_ALIGNMENT    = bsls::AlignmentFromType<FuncPtr>::VALUE,
+    FLOAT_ALIGNMENT       = bsls::AlignmentFromType<float>::VALUE,
+    DOUBLE_ALIGNMENT      = bsls::AlignmentFromType<double>::VALUE,
+    LONG_DOUBLE_ALIGNMENT = bsls::AlignmentFromType<long double>::VALUE
 };
 
 //=============================================================================
@@ -287,17 +288,18 @@ int main(int argc, char *argv[])
         static
 #endif
         union {
-            bsls_AlignmentUtil::MaxAlignedType d_dummy;  // force max. align.
-            char                               d_buffer[BUFFER_SIZE];
+            bsls::AlignmentUtil::MaxAlignedType d_dummy;  // force max. align.
+            char                                d_buffer[BUFFER_SIZE];
         } buffer;
 //..
-// Next we use the 'bsls_AlignmentUtil' functions directly to confirm that
+// Next we use the 'bsls::AlignmentUtil' functions directly to confirm that
 // 'buffer' is sufficiently aligned to accommodate a 'MaxAlignedType' object:
 //..
-        int alignment = bsls_AlignmentFromType<
-                                    bsls_AlignmentUtil::MaxAlignedType>::VALUE;
+        int alignment = bsls::AlignmentFromType<
+                                   bsls::AlignmentUtil::MaxAlignedType>::VALUE;
         int offset =
-                  bsls_AlignmentUtil::calculateAlignmentOffset(buffer.d_buffer,
+                  bsls::AlignmentUtil::calculateAlignmentOffset(
+                                                               buffer.d_buffer,
                                                                alignment);
         ASSERT(0 == offset);  // sufficient alignment
 //..
@@ -306,7 +308,7 @@ int main(int argc, char *argv[])
 //..
         void *p         = static_cast<void *>(buffer.d_buffer);
 //
-        void *charPtr   = naturallyAlign(&p, sizeof(char));
+        (void)            naturallyAlign(&p, sizeof(char));
 //
         void *shortPtr5 = naturallyAlign(&p, 5 * sizeof(short));
 //
@@ -314,9 +316,9 @@ int main(int argc, char *argv[])
 // alignment of a 'short' on the current platform:
 //..
         ASSERT(0 == ((static_cast<char *>(shortPtr5) - buffer.d_buffer) %
-                                        bsls_AlignmentFromType<short>::VALUE));
+                                       bsls::AlignmentFromType<short>::VALUE));
 //
-        ASSERT(bsls_AlignmentUtil::is2ByteAligned(shortPtr5));
+        ASSERT(bsls::AlignmentUtil::is2ByteAligned(shortPtr5));
 //..
 // Next we use 'naturallyAlign' to allocate a block of appropriate size and
 // sufficient alignment to store a 'MyType' object:
@@ -326,9 +328,9 @@ int main(int argc, char *argv[])
 // Note that the alignment of the address held in 'objPtr' is numerically
 // divisible by the actual alignment requirement:
 //..
-        ASSERT(0 == bsls_AlignmentUtil::calculateAlignmentOffset(
-                                       objPtr,
-                                       bsls_AlignmentFromType<MyType>::VALUE));
+        ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
+                                      objPtr,
+                                      bsls::AlignmentFromType<MyType>::VALUE));
 //..
 // Assuming 'buffer' has sufficient capacity, and the alignments for 'char',
 // 'short', and 'MyType' are, respectively, 1, 2, and 8, we would expect this
@@ -391,10 +393,12 @@ int main(int argc, char *argv[])
 
         int i;
         for (i = 1; i <= maxAlignment; ++i) {
-            ASSERT(    maxAlignment == Class::roundUpToMaximalAlignment(i));
+            ASSERT(    maxAlignment ==
+                                    (int) Class::roundUpToMaximalAlignment(i));
         }
         for (i = maxAlignment + 1; i <= 2 * maxAlignment; ++i) {
-            ASSERT(2 * maxAlignment == Class::roundUpToMaximalAlignment(i));
+            ASSERT(2 * maxAlignment ==
+                                    (int) Class::roundUpToMaximalAlignment(i));
         }
       } break;
       case 5: {
@@ -404,9 +408,9 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bool bsls_AlignmentUtil::is2ByteAligned(const void *);
-        //   bool bsls_AlignmentUtil::is4ByteAligned(const void *);
-        //   bool bsls_AlignmentUtil::is8ByteAligned(const void *);
+        //   bool bsls::AlignmentUtil::is2ByteAligned(const void *);
+        //   bool bsls::AlignmentUtil::is4ByteAligned(const void *);
+        //   bool bsls::AlignmentUtil::is8ByteAligned(const void *);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -453,7 +457,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING FUNCTION 'bsls_AlignmentUtil::calculateAlignmentOffset'
+        // TESTING FUNCTION 'bsls::AlignmentUtil::calculateAlignmentOffset'
         //   Ensure correctness for each pair of (ma, a), where 'ma' is a
         //   memory address from 'baseAddr' to
         //   'baseAddr + 2 * BSLS_MAX_ALIGNMENT + 1'
@@ -469,14 +473,14 @@ int main(int argc, char *argv[])
         //     buffer of size 2 * BSLS_MAX_ALIGNMENT + 1.
         //   Iterate 'ma' over each address in buffer and iterate 'a' each
         //     power of two up to BSLS_MAX_ALIGNMENT.
-        //   Compute bsls_AlignmentUtil::calculateAlignmentOffset(ma, a) and
+        //   Compute bsls::AlignmentUtil::calculateAlignmentOffset(ma, a) and
         //     verify all concerns listed above.
         //
         // Tactics:
         //   Area test over meaningful range of inputs.
         //
         // Testing:
-        //   int bsls_AlignmentUtil::calculateAlignmentOffset(void *, int);
+        //   int bsls::AlignmentUtil::calculateAlignmentOffset(void *, int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "Test calculateAlignmentOffset" << endl
@@ -491,25 +495,25 @@ int main(int argc, char *argv[])
         // the compiler requires.  Moreover, this trick does not even work for
         // gcc builds on AIX.
 #if !defined(BSLS_PLATFORM__CMP_GNU) || !defined(BSLS_PLATFORM__OS_AIX)
-        const int BUF_SIZE = 3 * bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        const int BUF_SIZE = 3 * bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
         static union {
-            char                           d_buffer[BUF_SIZE];
-            bsls_AlignmentUtil::MaxAlignedType d_align;
+            char                                d_buffer[BUF_SIZE];
+            bsls::AlignmentUtil::MaxAlignedType d_align;
         } alignedBuf;
 #endif
 
         char *baseAddr = alignedBuf.d_buffer;
 
         for (char *ma = baseAddr;
-             ma < baseAddr + 2 * bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT + 1;
+             ma < baseAddr + 2 * bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT + 1;
              ++ma) {
             for (int a = 1;
-                 a <= bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+                 a <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
                  a <<= 1) {
 
-                int offset = bsls_AlignmentUtil::calculateAlignmentOffset(ma,
-                                                                          a);
+                int offset = bsls::AlignmentUtil::calculateAlignmentOffset(ma,
+                                                                           a);
 
                 if (veryVerbose) {
                     cout << "\tMemory address = " << (void*) ma
@@ -530,7 +534,7 @@ int main(int argc, char *argv[])
 
         {
 #ifdef BDE_BUILD_TARGET_EXC
-            bsls_Assert::setFailureHandler(&bsls_AssertTest::failTestDriver);
+            bsls::Assert::setFailureHandler(&bsls::AssertTest::failTestDriver);
 
             // '0' in the expected 'ALIGN' column indicates that the call is
             // out of contract, so any result will be accepted unless the
@@ -573,8 +577,8 @@ int main(int argc, char *argv[])
                     TAB P_(TYPE) P_(RESULT) P_(ADDRESS) P(ALIGN)
                 }
 
-                LOOP_ASSERT(LINE, bsls_AssertTest::isValidAssertBuild(TYPE));
-                LOOP_ASSERT(LINE, bsls_AssertTest::isValidExpected(RESULT));
+                LOOP_ASSERT(LINE, bsls::AssertTest::isValidAssertBuild(TYPE));
+                LOOP_ASSERT(LINE, bsls::AssertTest::isValidExpected(RESULT));
 
                 // Skip this test if the relevant assert is not active in this
                 // build.
@@ -584,17 +588,17 @@ int main(int argc, char *argv[])
 
                 // The relevant assert is active in this build
                 try {
-                    int a = bsls_AlignmentUtil::calculateAlignmentOffset(
-                                                                      ADDRESS,
-                                                                      ALIGN);
-                    LOOP_ASSERT(LINE, bsls_AssertTest::tryProbe(RESULT));
+                    int a = bsls::AlignmentUtil::calculateAlignmentOffset(
+                                                                       ADDRESS,
+                                                                       ALIGN);
+                    LOOP_ASSERT(LINE, bsls::AssertTest::tryProbe(RESULT));
 
 //                  LOOP4_ASSERT(LINE, ADDRESS, ALIGN, a, ALIGN == a);
                 }
-                catch (const bsls_AssertTestException& e) {
-                    LOOP_ASSERT(LINE, bsls_AssertTest::catchProbe(RESULT,
-                                                                  e,
-                                                                  __FILE__));
+                catch (const bsls::AssertTestException& e) {
+                    LOOP_ASSERT(LINE, bsls::AssertTest::catchProbe(RESULT,
+                                                                   e,
+                                                                   __FILE__));
                 }
             }
 #else
@@ -605,7 +609,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING FUNCTION 'bsls_AlignmentUtil::calculateAlignmentFromSize'
+        // TESTING FUNCTION 'bsls::AlignmentUtil::calculateAlignmentFromSize'
         //   Ensure correctness for all object sizes:
         //     Result must be greater than 0.
         //     Result must be less than or equal to 'BSLS_MAX_ALIGNMENT'.
@@ -623,7 +627,7 @@ int main(int argc, char *argv[])
         //   Area test over meaningful range of inputs.
         //
         // Testing:
-        //   int bsls_AlignmentUtil::calculateAlignmentFromSize(std::size_t);
+        //   int bsls::AlignmentUtil::calculateAlignmentFromSize(std::size_t);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -660,14 +664,14 @@ int main(int argc, char *argv[])
             const int INPUT    = DATA[i].d_input;
             const int EXPECTED = DATA[i].d_expected;
 
-            int a = bsls_AlignmentUtil::calculateAlignmentFromSize(INPUT);
+            int a = bsls::AlignmentUtil::calculateAlignmentFromSize(INPUT);
             LOOP_ASSERT(LINE, EXPECTED == a);
         }
 
         for (int size = 1;
-             size <= 2 * bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT + 1;
+             size <= 2 * bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT + 1;
              ++size) {
-            int a = bsls_AlignmentUtil::calculateAlignmentFromSize(size);
+            int a = bsls::AlignmentUtil::calculateAlignmentFromSize(size);
 
             if (veryVerbose) {
                 cout << "    Object size = " << size
@@ -676,10 +680,10 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(size,  a > 0);
             LOOP_ASSERT(size,  IS_POW2(a));
-            LOOP_ASSERT(size,  a <= bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+            LOOP_ASSERT(size,  a <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
             LOOP_ASSERT(size,  0 == size % a);
             LOOP_ASSERT(size, (0 != size % (2 * a) ||
-                               a == bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT));
+                               a == bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
 
         }
 
@@ -687,7 +691,7 @@ int main(int argc, char *argv[])
 
         {
 #ifdef BDE_BUILD_TARGET_EXC
-            bsls_Assert::setFailureHandler(&bsls_AssertTest::failTestDriver);
+            bsls::Assert::setFailureHandler(&bsls::AssertTest::failTestDriver);
 
             // '0' in the expected 'ALIGN' column indicates that the call is
             // out of contract, so any result will be accepted unless the
@@ -704,8 +708,8 @@ int main(int argc, char *argv[])
                 // ----  ----  ------  ----  -----
                 {  L_,   "S",  'F',     0,      0 },
                 {  L_,   "S",  'P',     1,      1 },
-                {  L_,   "S",  'P',
-       std::numeric_limits<std::size_t>::max(), 1 }
+                {  L_,   "S",  'P',    std::numeric_limits<std::size_t>::max(),
+                                                1 }
             };
             const int DATA_SIZE = sizeof DATA / sizeof *DATA;
 
@@ -720,8 +724,8 @@ int main(int argc, char *argv[])
                     TAB P_(TYPE) P_(RESULT) P_(SIZE) P(ALIGN)
                 }
 
-                LOOP_ASSERT(LINE, bsls_AssertTest::isValidAssertBuild(TYPE));
-                LOOP_ASSERT(LINE, bsls_AssertTest::isValidExpected(RESULT));
+                LOOP_ASSERT(LINE, bsls::AssertTest::isValidAssertBuild(TYPE));
+                LOOP_ASSERT(LINE, bsls::AssertTest::isValidExpected(RESULT));
 
                 // Skip this test if the relevant assert is not active in this
                 // build.
@@ -732,16 +736,15 @@ int main(int argc, char *argv[])
                 // The relevant assert is active in this build
                 try {
                     int a = 0;
-                    a = bsls_AlignmentUtil::calculateAlignmentFromSize(
-                                                                         SIZE);
-                    LOOP_ASSERT(LINE, bsls_AssertTest::tryProbe(RESULT));
+                    a = bsls::AlignmentUtil::calculateAlignmentFromSize(SIZE);
+                    LOOP_ASSERT(LINE, bsls::AssertTest::tryProbe(RESULT));
 
                     LOOP4_ASSERT(LINE, SIZE, ALIGN, a, ALIGN == a);
                 }
-                catch (const bsls_AssertTestException& e) {
-                    LOOP_ASSERT(LINE, bsls_AssertTest::catchProbe(RESULT,
-                                                                  e,
-                                                                  __FILE__));
+                catch (const bsls::AssertTestException& e) {
+                    LOOP_ASSERT(LINE, bsls::AssertTest::catchProbe(RESULT,
+                                                                   e,
+                                                                   __FILE__));
                 }
             }
 #else
@@ -752,27 +755,27 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING bsls_AlignmentUtil::MaxAlignedType
+        // TESTING bsls::AlignmentUtil::MaxAlignedType
         //   Ensure that alignment of MaxAlignedType is BSLS_MAX_ALIGNMENT
         //     and sizeof(MaxAlignedType) == BSLS_MAX_ALIGNMENT
         //
         // Plan:
-        //   Use bsls_AlignmentUtilFromType<T>::VALUE to verify
+        //   Use bsls::AlignmentUtilFromType<T>::VALUE to verify
         //   alignment of MaxAlignedType.
         //
         // Tactics:
         //   Exhaustive test over entire input range.
         //
         // Testing:
-        //   bsls_AlignmentUtil::MaxAlignedType
+        //   bsls::AlignmentUtil::MaxAlignedType
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "MaxAlignedType TEST" << endl
                                   << "===================" << endl;
 
-        typedef bsls_Types U;
+        typedef bsls::Types U;
 
-        ASSERT((int) bsls_AlignmentFromType<Class::MaxAlignedType>::VALUE ==
+        ASSERT((int) bsls::AlignmentFromType<Class::MaxAlignedType>::VALUE ==
                (int) Class::BSLS_MAX_ALIGNMENT);
 
         ASSERT(sizeof(Class::MaxAlignedType) == Class::BSLS_MAX_ALIGNMENT);
@@ -813,7 +816,7 @@ int main(int argc, char *argv[])
                 | (offsetof(VoidPtrAlign, d_voidPtr)       - 1)
 #if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
                 | (offsetof(Test8bytesAlign,
-                                d_8BytesAlignedType)       - 1)
+                            d_8BytesAlignedType)           - 1)
 #endif
 // TBD broke *lots* of stuff (bdem, etc.)
 #if 0
@@ -856,7 +859,7 @@ int main(int argc, char *argv[])
         //   Exhaustive test over entire input range.
         //
         // Testing:
-        //   bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT
+        //   bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
         //
         //   PRINT ALIGNMENTS IN VERY VERBOSE MODE
         // --------------------------------------------------------------------
@@ -866,13 +869,13 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             cout << endl << "ALIGNMENTS" << endl
                          << "----------" << endl;
-            P(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+            P(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
         }
 
         if (veryVerbose) {
             cout << endl << "SIZES" << endl
                          << "-----" << endl;
-            P(sizeof(bsls_AlignmentUtil::MaxAlignedType));
+            P(sizeof(bsls::AlignmentUtil::MaxAlignedType));
         }
 
         if (verbose) cout << "\nVerify 0 == BSLS_MAX_ALIGNMENT % alignment"

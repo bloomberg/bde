@@ -60,6 +60,14 @@ BDES_IDENT("$Id: $")
 // pool, enqueue a series of jobs to be executed, and wait until all the jobs
 // have executed.
 //
+///Thread Safety
+///-------------
+// The 'bcep_FixedThreadPool' class is both *fully thread-safe* (i.e., all
+// non-creator methods can correctly execute concurrently), and is
+// *thread-enabled* (i.e., the classes does not function correctly in a
+// non-multi-threading environment).  See 'bsldoc_glossary' for complete
+// definitions of *fully thread-safe* and *thread-enabled*.
+//
 ///Synchronous signals on unix
 ///---------------------------
 // A thread pool ensures that, on unix platforms, all the threads in the pool
@@ -312,6 +320,10 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 #if defined(BSLS_PLATFORM__OS_UNIX)
 #ifndef INCLUDED_BSL_C_SIGNAL
 #include <bsl_c_signal.h>              // sigset_t
@@ -319,8 +331,6 @@ BDES_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 extern "C" {
     typedef void (*bcep_FixedThreadPoolJobFunc)(void *);

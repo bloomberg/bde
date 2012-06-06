@@ -90,38 +90,38 @@ void printError(const char *text, const char *file, int line)
                           // in case it has been reopened as a buffered stream.
 }
 
-                              // -----------------
-                              // class bsls_Assert
-                              // -----------------
+namespace bsls {
+
+                                // ------------
+                                // class Assert
+                                // ------------
 
 // CLASS DATA
-bsls_Assert::Handler bsls_Assert::s_handler    = bsls_Assert::failAbort;
-bool                 bsls_Assert::s_lockedFlag = false;
+Assert::Handler Assert::s_handler    = Assert::failAbort;
+bool            Assert::s_lockedFlag = false;
 
 // CLASS METHODS
-void bsls_Assert::setFailureHandler(bsls_Assert::Handler function)
+void Assert::setFailureHandler(Assert::Handler function)
 {
     if (!s_lockedFlag) {
         s_handler = function;
     }
 }
 
-void bsls_Assert::lockAssertAdministration()
+void Assert::lockAssertAdministration()
 {
     s_lockedFlag = true;
 }
 
-bsls_Assert::Handler bsls_Assert::failureHandler()
+Assert::Handler Assert::failureHandler()
 {
     return s_handler;
 }
 
                        // Macro Dispatcher Method
 
-#ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
-BSLS_ASSERT_NORETURN
-#endif
-void bsls_Assert::invokeHandler(const char *text, const char *file, int line)
+BSLS_ASSERT_NORETURN_INVOKE_HANDLER
+void Assert::invokeHandler(const char *text, const char *file, int line)
 {
     s_handler(text, file, line);
 }
@@ -129,7 +129,7 @@ void bsls_Assert::invokeHandler(const char *text, const char *file, int line)
                      // Standard Assertion-Failure Handlers
 
 BSLS_ASSERT_NORETURN
-void bsls_Assert::failAbort(const char *text, const char *file, int line)
+void Assert::failAbort(const char *text, const char *file, int line)
 {
     printError(text, file, line);
 
@@ -167,7 +167,7 @@ void bsls_Assert::failAbort(const char *text, const char *file, int line)
 }
 
 BSLS_ASSERT_NORETURN
-void bsls_Assert::failSleep(const char *text, const char *file, int line)
+void Assert::failSleep(const char *text, const char *file, int line)
 {
     printError(text, file, line);
 
@@ -187,42 +187,47 @@ void bsls_Assert::failSleep(const char *text, const char *file, int line)
 }
 
 BSLS_ASSERT_NORETURN
-void bsls_Assert::failThrow(const char *text, const char *file, int line)
+void Assert::failThrow(const char *text, const char *file, int line)
 {
 
 #ifdef BDE_BUILD_TARGET_EXC
     if (!std::uncaught_exception()) {
-        throw bsls_AssertTestException(text, file, line);
+        throw AssertTestException(text, file, line);
     }
     else {
         std::fprintf(stderr,
                 "BSLS_ASSERTION ERROR: An uncaught exception is pending;"
-                " cannot throw 'bsls_AssertTestException'.\n");
+                " cannot throw 'AssertTestException'.\n");
     }
 #endif
 
     failAbort(text, file, line);
 }
 
+}  // close package namespace
+
 #undef BSLS_ASSERT_NORETURN
 
-                    // ------------------------------------
-                    // class bsls_AssertFailureHandlerGuard
-                    // ------------------------------------
+namespace bsls {
 
-bsls_AssertFailureHandlerGuard::bsls_AssertFailureHandlerGuard(
-                                                bsls_Assert::Handler temporary)
-: d_original(bsls_Assert::s_handler)
+                    // -------------------------------
+                    // class AssertFailureHandlerGuard
+                    // -------------------------------
+
+AssertFailureHandlerGuard::AssertFailureHandlerGuard(Assert::Handler temporary)
+: d_original(Assert::s_handler)
 {
-    bsls_Assert::s_handler = temporary;
+    Assert::s_handler = temporary;
 }
 
-bsls_AssertFailureHandlerGuard::~bsls_AssertFailureHandlerGuard()
+AssertFailureHandlerGuard::~AssertFailureHandlerGuard()
 {
-    bsls_Assert::s_handler = d_original;
+    Assert::s_handler = d_original;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

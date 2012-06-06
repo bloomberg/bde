@@ -1,4 +1,4 @@
-// bslma_autorawdeleter.cpp    -*-C++-*-
+// bslma_autorawdeleter.cpp                                           -*-C++-*-
 #include <bslma_autorawdeleter.h>
 
 #include <bsls_ident.h>

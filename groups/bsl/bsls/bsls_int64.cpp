@@ -1,4 +1,4 @@
-// bsls_int64.cpp               -*-C++-*-
+// bsls_int64.cpp                                                     -*-C++-*-
 #include <bsls_int64.h>
 
 #include <bsls_ident.h>

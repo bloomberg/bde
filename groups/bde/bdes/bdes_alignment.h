@@ -87,6 +87,10 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1
+///- - - - -
 // Suppose that we want to create a static function, 'allocateFromBuffer', that
 // takes a buffer, the size of the buffer, a cursor indicating a position
 // within the buffer, an allocation request size, and a memory alignment
@@ -200,10 +204,9 @@ BDES_IDENT("$Id: $")
 // to appropriately align memory blocks that are allocated from
 // internally-managed buffers.  For an example, see the 'bslma_bufferimputil'
 // component.
-///Usage
-///-----
-///Usage Example 1:
-///- - - - - - - -
+//
+///Example 2
+///- - - - -
 // The following shows how 'bdes_AlignmentOf' can be used to create a static
 // "database" of types and their attributes:
 //..
@@ -228,8 +231,9 @@ BDES_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-///Usage Example 2:
-///- - - - - - - -
+//
+///Example 3
+///- - - - -
 // The following shows how 'bdes_AlignmentOf' automatically computes the
 // alignment of a 'struct' as the alignment of its most restrictively aligned
 // member.
@@ -253,8 +257,9 @@ BDES_IDENT("$Id: $")
 //  }
 //
 //..
-///Usage Example 3:
-///- - - - - - - -
+//
+///Example 4
+///- - - - -
 // 'bdes_AlignmentOf<TYPE>::Type' can be used to create properly-aligned
 // buffers for constructing objects of 'TYPE'.  If 'TYPE' is
 // 'bdes_Alignment::MaxAlignedType' the resulting buffer can hold any type at
@@ -287,8 +292,9 @@ BDES_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-///Usage Example 4:
-///- - - - - - - -
+//
+///Example 5
+///- - - - -
 // The following function illustrates how to use the
 // 'calculateAlignmentOffset' function to align a memory address properly and
 // 'calculateAlignmentFromSize' to compute a safe alignment when none is
@@ -385,6 +391,7 @@ BDES_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
+//
 ///Principles of Operation
 ///-----------------------
 // The compiler alignment for a given type, 'T', can be computed by creating a

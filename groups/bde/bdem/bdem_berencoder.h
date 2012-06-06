@@ -909,7 +909,7 @@ int bdem_BerEncoder::encodeImpl(const TYPE&                  value,
                                              tagClass,
                                              bdem_BerConstants::BDEM_PRIMITIVE,
                                              tagNumber);
-    rc |= bdem_BerUtil::putValue(d_streamBuf, value);
+    rc |= bdem_BerUtil::putValue(d_streamBuf, value, d_options);
 
     return rc;
 }
@@ -941,7 +941,13 @@ bdem_BerEncoder::encodeArrayImpl(const TYPE&                  value,
                                  int                          tagNumber,
                                  int                          formattingMode)
 {
-    enum { BDEM_FAILURE = -1 };
+    enum { BDEM_FAILURE = -1, BDEM_SUCCESS = 0 };
+
+    const int size = (int) bdeat_ArrayFunctions::size(value);
+
+    if (0 == size && d_options && !d_options->encodeEmptyArrays()) {
+        return BDEM_SUCCESS;                                          // RETURN
+    }
 
     const bdem_BerConstants::TagType tagType =
                                            bdem_BerConstants::BDEM_CONSTRUCTED;
@@ -957,8 +963,6 @@ bdem_BerEncoder::encodeArrayImpl(const TYPE&                  value,
 
     bdem_BerEncoder_UniversalElementVisitor visitor(this,
                                                     formattingMode);
-
-    const int size = (int)bdeat_ArrayFunctions::size(value);
 
     for (int i = 0; i < size; ++i) {
         if (0 != bdeat_ArrayFunctions::accessElement(value, visitor, i)) {
@@ -1065,7 +1069,9 @@ int bdem_BerEncoder_UniversalElementVisitor::operator()(const TYPE& value)
     bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     bdem_BerUniversalTagNumber::Value tagNumber
-           = bdem_BerUniversalTagNumber::select(value, d_formattingMode);
+           = bdem_BerUniversalTagNumber::select(value,
+                                                d_formattingMode,
+                                                d_encoder->options());
 
     if (d_encoder->encodeImpl(value,
                               bdem_BerConstants::BDEM_UNIVERSAL,

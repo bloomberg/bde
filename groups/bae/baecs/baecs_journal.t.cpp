@@ -102,7 +102,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define MAX_TMPFILENAME (L_tmpnam+64)
 
-#if defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM__OS_AIX) ||   \
+    defined(BSLS_PLATFORM__OS_HPUX) ||  \
+    defined(BSLS_PLATFORM__OS_DARWIN)
 #define tmpnam_r tmpnam
 #endif
 
@@ -1687,10 +1689,13 @@ int main(int argc, char *argv[]) {
                 cout << "Closing and reopening journal..." << endl;
              }
 
+             bdesu_FileUtil::Offset fileSize = mX.getFileSize();
              mX.close();
 
              Obj mY(&mappingManager, &ta);
              ASSERT(0 == mY.open(filename, MODE_RO));
+             LOOP2_ASSERT(mY.getFileSize(), fileSize,
+                                                 mY.getFileSize() == fileSize);
 
              if (veryVerbose) {
                 cout << "Verifying data..." << endl;

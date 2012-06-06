@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide compile-time support for platform/attribute identification.
 //
 //@CLASSES:
-//   bsls_Platform: namespace for platform traits
+//  bsls::Platform: namespace for platform traits
 //
 //@AUTHOR: John Lakos (jlakos)
 //
@@ -468,12 +468,26 @@ struct bsls_Platform_Assert;
 
     #if defined (__GNUC__)
         #define BSLS_PLATFORM__CMP_GNU 1
-        #if defined(__GNU_PATCHLEVEL__)
-            #define BSLS_PLATFORM__CMP_VER_MAJOR (__GNUC__ * 10000 \
-                        + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+
+        #if defined(__clang__)
+            // Clang is GCC compatible, but sometimes we need to know about it
+            #define BSLS_PLATFORM__CMP_CLANG 1
+
+            #if defined(__CLANG_GNU_PATCHLEVEL__)
+                #define BSLS_PLATFORM__CMP_VER_MAJOR (__CLANG_GNUC__ * 10000 \
+                       + __CLANG_GNUC_MINOR__ * 100 + __CLANG_GNUC_PATCHLEVEL__)
+            #else
+                #define BSLS_PLATFORM__CMP_VER_MAJOR (__CLANG_GNUC__ * 10000 \
+                            + __CLANG_GNUC_MINOR__ * 100)
+            #endif
         #else
-            #define BSLS_PLATFORM__CMP_VER_MAJOR (__GNUC__ * 10000 \
-                        + __GNUC_MINOR__ * 100)
+            #if defined(__GNU_PATCHLEVEL__)
+                #define BSLS_PLATFORM__CMP_VER_MAJOR (__GNUC__ * 10000 \
+                            + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+            #else
+                #define BSLS_PLATFORM__CMP_VER_MAJOR (__GNUC__ * 10000 \
+                            + __GNUC_MINOR__ * 100)
+            #endif
         #endif
     #else
         #define BSLS_PLATFORM__CMP_EDG 1
@@ -500,6 +514,8 @@ struct bsls_Platform_Assert;
     #elif defined(_WIN32) || defined(__WIN32__) && \
           ! (defined(cygwin) || defined(__cygwin))
         #define BSLS_PLATFORM__OS_WINDOWS 1
+    #elif defined(__APPLE__)
+        #define BSLS_PLATFORM__OS_DARWIN 1
     #else
         #if defined(__GNUC__)
             #error "Unable to determine on which OS GNU compiler is running."
@@ -699,6 +715,7 @@ struct bsls_Platform_Assert;
 
 #define BSLS_PLATFORM__OS_SUBTYPE_COUNT \
     BSLS_PLATFORM__OS_AIX     \
+  + BSLS_PLATFORM__OS_DARWIN  \
   + BSLS_PLATFORM__OS_HPUX    \
   + BSLS_PLATFORM__OS_LINUX   \
   + BSLS_PLATFORM__OS_FREEBSD \
@@ -762,13 +779,16 @@ struct bsls_Platform_Assert;
     #error "Processor minor but not major version defined."
     char die[sizeof(bsls_Platform_Assert)];          // if '#error' unsupported
 #endif
+
+namespace bsls {
+
 // ----------------------------------------------------------------------------
 
-                               // =============
-                               // bsls_Platform
-                               // =============
+                               // ========
+                               // Platform
+                               // ========
 
-struct bsls_Platform {
+struct Platform {
     // Namespace for platform-trait definitions.
 
                                   // OS TYPES
@@ -858,6 +878,9 @@ struct bsls_Platform {
     #if defined(BSLS_PLATFORM__OS_WINDOWS)
         typedef OsWinNT             Os;
     #endif
+    #if defined(BSLS_PLATFORM__OS_DARWIN)
+        typedef OsDarwin            Os;
+    #endif
 
     // CPU TRAIT
     // Will fail to compile if more than one CPU type is set.
@@ -887,6 +910,8 @@ struct bsls_Platform {
     #endif
 
 };
+
+}  // close package namespace
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
@@ -924,6 +949,10 @@ struct bsls_Platform {
 
 #ifdef BSLS_PLATFORM__OS_LINUX
 #define BDES_PLATFORM__OS_LINUX       BSLS_PLATFORM__OS_LINUX
+#endif
+
+#ifdef BSLS_PLATFORM__OS_DARWIN
+#define BDES_PLATFORM__OS_DARWIN      BSLS_PLATFORM__OS_DARWIN
 #endif
 
 #ifdef BSLS_PLATFORM__OS_FREEBSD
@@ -1050,12 +1079,25 @@ struct bsls_Platform {
 #define BDES_PLATFORM__CPU_X86_64     BSLS_PLATFORM__CPU_X86_64
 #endif
 
-typedef bsls_Platform bdes_Platform;
+namespace bdes {
+
+typedef bsls::Platform Platform;
+    // This alias is defined for backward compatibility.
+
+}  // close package namespace
+
+#ifdef bdes_Platform
+#undef bdes_Platform
+#endif
+#define bdes_Platform bdes::Platform
     // This alias is defined for backward compatibility.
 
 #endif
 
-}  // close namespace BloombergLP
+typedef bsls::Platform bsls_Platform;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

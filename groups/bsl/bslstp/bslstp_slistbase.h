@@ -40,8 +40,8 @@ struct _Slist_node_base
 };
 
 inline
-_Slist_node_base* __slist_make_link(_Slist_node_base* __prev_node,
-                                    _Slist_node_base* __new_node)
+_Slist_node_base* __slist_make_link(_Slist_node_base *__prev_node,
+                                    _Slist_node_base *__new_node)
 {
   __new_node->_M_next = __prev_node->_M_next;
   __prev_node->_M_next = __new_node;
@@ -56,16 +56,16 @@ public:
   // moved here to reduce code bloat without templatizing _Slist_iterator_base
   static std::size_t  size(_Slist_node_base* __node);
   static _Slist_node_base*  __reverse(_Slist_node_base* __node);
-  static void  __splice_after(_Slist_node_base* __pos,
-                                        _Slist_node_base* __before_first,
-                                        _Slist_node_base* __before_last);
+  static void  __splice_after(_Slist_node_base *__pos,
+                              _Slist_node_base *__before_first,
+                              _Slist_node_base *__before_last);
 
   static void  __splice_after(_Slist_node_base* __pos, _Slist_node_base* __head);
 
-  static _Slist_node_base*  __previous(_Slist_node_base* __head,
-                                                 const _Slist_node_base* __node);
-  static const _Slist_node_base*  __previous(const _Slist_node_base* __head,
-                                             const _Slist_node_base* __node) {
+  static _Slist_node_base*  __previous(_Slist_node_base       *__head,
+                                       const _Slist_node_base *__node);
+  static const _Slist_node_base*  __previous(const _Slist_node_base *__head,
+                                             const _Slist_node_base *__node) {
     return _Sl_global<_Dummy>::__previous(const_cast<_Slist_node_base*>(__head), __node);
   }
 };
@@ -110,8 +110,8 @@ namespace bsl {
 
 template <class _Dummy>
 _Slist_node_base*
-_Sl_global<_Dummy>::__previous(_Slist_node_base* __head,
-                               const _Slist_node_base* __node)
+_Sl_global<_Dummy>::__previous(_Slist_node_base       *__head,
+                               const _Slist_node_base *__node)
 {
   while (__head && __head->_M_next != __node)
     __head = __head->_M_next;
@@ -133,9 +133,9 @@ _Sl_global<_Dummy>::__splice_after(_Slist_node_base* __pos, _Slist_node_base* __
 
 template <class _Dummy>
 void
-_Sl_global<_Dummy>::__splice_after(_Slist_node_base* __pos,
-                                   _Slist_node_base* __before_first,
-                                   _Slist_node_base* __before_last)
+_Sl_global<_Dummy>::__splice_after(_Slist_node_base *__pos,
+                                   _Slist_node_base *__before_first,
+                                   _Slist_node_base *__before_last)
 {
   if (__pos != __before_first && __pos != __before_last) {
     _Slist_node_base* __first = __before_first->_M_next;

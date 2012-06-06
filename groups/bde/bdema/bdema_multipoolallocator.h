@@ -610,9 +610,11 @@ BDES_IDENT("$Id: $")
 #include <bslma_managedallocator.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                      // ==============================
                      // class bdema_MultipoolAllocator

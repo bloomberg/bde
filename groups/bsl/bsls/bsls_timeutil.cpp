@@ -29,8 +29,8 @@ struct UnixTimerUtil {
 
   private:
     // CLASS DATA
-    static bsls_Types::Int64       s_ticksPerSecond;
-    static const bsls_Types::Int64 s_nsecsPerSecond;
+    static bsls::Types::Int64       s_ticksPerSecond;
+    static const bsls::Types::Int64 s_nsecsPerSecond;
 
   private:
     // PRIVATE CLASS METHODS
@@ -44,24 +44,23 @@ struct UnixTimerUtil {
         // Ensure all the fields are initialized (currently only the
         // 's_ticksPerSecond' value above).
 
-    static bsls_Types::Int64 systemTimer();
+    static bsls::Types::Int64 systemTimer();
         // Return converted to nanoseconds current value of system time as
         // returned by times() if the call succeeds, and zero otherwise.
 
-    static bsls_Types::Int64 userTimer();
+    static bsls::Types::Int64 userTimer();
         // Return converted to nanoseconds current value of user time as
         // returned by times() if the call succeeds, and zero otherwise.
 
-    static void processTimers(bsls_Types::Int64 *systemTimer,
-                              bsls_Types::Int64 *userTimer);
+    static void processTimers(bsls::Types::Int64 *systemTimer,
+                              bsls::Types::Int64 *userTimer);
         // Return converted to nanoseconds current values of system and user
         // times as returned by times() if the call succeeds, and zero values
         // otherwise
 };
 
-      bsls_Types::Int64 UnixTimerUtil::s_ticksPerSecond = -1;
-const bsls_Types::Int64 UnixTimerUtil::s_nsecsPerSecond =
-                                                            1000 * 1000 * 1000;
+      bsls::Types::Int64 UnixTimerUtil::s_ticksPerSecond = -1;
+const bsls::Types::Int64 UnixTimerUtil::s_nsecsPerSecond = 1000 * 1000 * 1000;
 
 inline
 void UnixTimerUtil::systemProcessTimers(clock_t *systemTimer,
@@ -92,41 +91,41 @@ void UnixTimerUtil::initialize()
 }
 
 inline
-bsls_Types::Int64 UnixTimerUtil::systemTimer()
+bsls::Types::Int64 UnixTimerUtil::systemTimer()
 {
     initialize();
 
     clock_t sTimer, dummy;
     systemProcessTimers(&sTimer, &dummy);
 
-    return static_cast<bsls_Types::Int64>(sTimer)
+    return static_cast<bsls::Types::Int64>(sTimer)
                                          * s_nsecsPerSecond / s_ticksPerSecond;
 }
 
 inline
-bsls_Types::Int64 UnixTimerUtil::userTimer()
+bsls::Types::Int64 UnixTimerUtil::userTimer()
 {
     initialize();
 
     clock_t dummy, uTimer;
     systemProcessTimers(&dummy, &uTimer);
 
-    return static_cast<bsls_Types::Int64>(uTimer)
+    return static_cast<bsls::Types::Int64>(uTimer)
                                          * s_nsecsPerSecond / s_ticksPerSecond;
 }
 
 inline
-void UnixTimerUtil::processTimers(bsls_Types::Int64 *systemTimer,
-                                  bsls_Types::Int64 *userTimer)
+void UnixTimerUtil::processTimers(bsls::Types::Int64 *systemTimer,
+                                  bsls::Types::Int64 *userTimer)
 {
     initialize();
 
     clock_t sTimer, uTimer;
     systemProcessTimers(&sTimer, &uTimer);
 
-    *systemTimer = static_cast<bsls_Types::Int64>(sTimer)
+    *systemTimer = static_cast<bsls::Types::Int64>(sTimer)
                                          * s_nsecsPerSecond / s_ticksPerSecond;
-    *userTimer   = static_cast<bsls_Types::Int64>(uTimer)
+    *userTimer   = static_cast<bsls::Types::Int64>(uTimer)
                                          * s_nsecsPerSecond / s_ticksPerSecond;
 }
 #endif
@@ -139,15 +138,15 @@ struct WindowsTimerUtil {
     // CLASS DATA
     static bool              s_initRequired;
 
-    static bsls_Types::Int64 s_initialTime;     // initial time for the
+    static bsls::Types::Int64 s_initialTime;    // initial time for the
                                                 // Windows hardware
                                                 // timer
 
-    static bsls_Types::Int64 s_timerFrequency;  // frequency of the
+    static bsls::Types::Int64 s_timerFrequency; // frequency of the
                                                 // Windows hardware
                                                 // timer
 
-    static const bsls_Types::Int64
+    static const bsls::Types::Int64
                              s_nsecsPerUnit;    // size in nanoseconds
                                                 // of one time unit used
                                                 // by GetProcessTimes()
@@ -165,31 +164,31 @@ struct WindowsTimerUtil {
         // Ensure all the fields are initialized (currently the 's_initialTime'
         // and the 's_timerFrequency' values above).
 
-    static bsls_Types::Int64 systemTimer();
+    static bsls::Types::Int64 systemTimer();
         // Return converted to nanoseconds current value of kernel (system)
         // time as returned by GetProcessTimes() if the call succeeds, and zero
         // otherwise.
 
-    static bsls_Types::Int64 userTimer();
+    static bsls::Types::Int64 userTimer();
         // Return converted to nanoseconds current value of user time as
         // returned by GetProcessTimes() if the call succeeds, and zero
         // otherwise.
 
-    static void processTimers(bsls_Types::Int64 *systemTimer,
-                              bsls_Types::Int64 *userTimer);
+    static void processTimers(bsls::Types::Int64 *systemTimer,
+                              bsls::Types::Int64 *userTimer);
         // Return converted to nanoseconds current value of kernel (system) and
         // user times as returned by GetProcessTimes() if the call succeeds,
         // and zero otherwise.
 
-    static bsls_Types::Int64 wallTimer();
+    static bsls::Types::Int64 wallTimer();
         // Return converted to nanoseconds current value of wall time as per
         // Windows hardware timer, if available, uses ::ftime otherwise.
 };
 
-bool                    WindowsTimerUtil::s_initRequired   = true;
-bsls_Types::Int64       WindowsTimerUtil::s_initialTime    = -1;
-bsls_Types::Int64       WindowsTimerUtil::s_timerFrequency = -1;
-const bsls_Types::Int64 WindowsTimerUtil::s_nsecsPerUnit   = 100;
+bool                     WindowsTimerUtil::s_initRequired   = true;
+bsls::Types::Int64       WindowsTimerUtil::s_initialTime    = -1;
+bsls::Types::Int64       WindowsTimerUtil::s_timerFrequency = -1;
+const bsls::Types::Int64 WindowsTimerUtil::s_nsecsPerUnit   = 100;
 
 inline
 void WindowsTimerUtil::systemProcessTimers(PULARGE_INTEGER systemTimer,
@@ -238,7 +237,7 @@ void WindowsTimerUtil::initialize()
 }
 
 inline
-bsls_Types::Int64 WindowsTimerUtil::systemTimer()
+bsls::Types::Int64 WindowsTimerUtil::systemTimer()
 {
     ULARGE_INTEGER sTimer, dummy;
     systemProcessTimers(&sTimer, &dummy);
@@ -247,7 +246,7 @@ bsls_Types::Int64 WindowsTimerUtil::systemTimer()
 }
 
 inline
-bsls_Types::Int64 WindowsTimerUtil::userTimer()
+bsls::Types::Int64 WindowsTimerUtil::userTimer()
 {
     ULARGE_INTEGER dummy, uTimer;
     systemProcessTimers(&dummy, &uTimer);
@@ -256,25 +255,25 @@ bsls_Types::Int64 WindowsTimerUtil::userTimer()
 }
 
 inline
-void WindowsTimerUtil::processTimers(bsls_Types::Int64 *systemTimer,
-                                     bsls_Types::Int64 *userTimer)
+void WindowsTimerUtil::processTimers(bsls::Types::Int64 *systemTimer,
+                                     bsls::Types::Int64 *userTimer)
 {
     ULARGE_INTEGER sTimer, uTimer;
     systemProcessTimers(&sTimer, &uTimer);
 
-    *systemTimer = static_cast<bsls_Types::Int64>(sTimer.QuadPart)
+    *systemTimer = static_cast<bsls::Types::Int64>(sTimer.QuadPart)
                                                               * s_nsecsPerUnit;
-    *userTimer = static_cast<bsls_Types::Int64>(uTimer.QuadPart)
+    *userTimer = static_cast<bsls::Types::Int64>(uTimer.QuadPart)
                                                               * s_nsecsPerUnit;
 }
 
 inline
-bsls_Types::Int64 WindowsTimerUtil::wallTimer()
+bsls::Types::Int64 WindowsTimerUtil::wallTimer()
 {
     initialize();
 
-    const bsls_Types::Int64 K = 1000;
-    const bsls_Types::Int64 M = 1000000;
+    const bsls::Types::Int64 K = 1000;
+    const bsls::Types::Int64 M = 1000000;
 
     if (0 != s_initialTime) {
         LARGE_INTEGER t;
@@ -285,9 +284,9 @@ bsls_Types::Int64 WindowsTimerUtil::wallTimer()
         timeb t;
         ::ftime(&t);
 
-        bsls_Types::Int64 t0;
+        bsls::Types::Int64 t0;
         t0 =
-           (static_cast<bsls_Types::Int64>(t.time) * K + t.millitm) * M;
+           (static_cast<bsls::Types::Int64>(t.time) * K + t.millitm) * M;
 
         return t0;
     }
@@ -296,12 +295,14 @@ bsls_Types::Int64 WindowsTimerUtil::wallTimer()
 
 }  // close unnamed namespace
 
-                            // --------------------
-                            // struct bsls_TimeUtil
-                            // --------------------
+namespace bsls {
+
+                            // ---------------
+                            // struct TimeUtil
+                            // ---------------
 
 // CLASS METHODS
-void bsls_TimeUtil::initialize()
+void TimeUtil::initialize()
 {
 #if defined BSLS_PLATFORM__OS_UNIX
     UnixTimerUtil::initialize();
@@ -312,8 +313,8 @@ void bsls_TimeUtil::initialize()
 #endif
 }
 
-bsls_Types::Int64
-bsls_TimeUtil::convertRawTime(bsls_TimeUtil::OpaqueNativeTime rawTime)
+Types::Int64
+TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 {
 #if defined BSLS_PLATFORM__OS_SOLARIS
 
@@ -321,9 +322,9 @@ bsls_TimeUtil::convertRawTime(bsls_TimeUtil::OpaqueNativeTime rawTime)
 
 #elif defined BSLS_PLATFORM__OS_AIX
 
-    const bsls_Types::Int64 G = 1000000000;
+    const Types::Int64 G = 1000000000;
     time_base_to_time(&rawTime, TIMEBASE_SZ);
-    return (bsls_Types::Int64) rawTime.tb_high * G + rawTime.tb_low;
+    return (Types::Int64) rawTime.tb_high * G + rawTime.tb_low;
 
 #elif defined BSLS_PLATFORM__OS_HPUX
 
@@ -331,12 +332,14 @@ bsls_TimeUtil::convertRawTime(bsls_TimeUtil::OpaqueNativeTime rawTime)
 
 #elif defined BSLS_PLATFORM__OS_LINUX
 
-    const bsls_Types::Int64 G = 1000000000;
-    return ((bsls_Types::Int64) rawTime.tv_sec * G + rawTime.tv_nsec);
+    const Types::Int64 G = 1000000000;
+    return ((Types::Int64) rawTime.tv_sec * G + rawTime.tv_nsec);
 
 #elif defined BSLS_PLATFORM__OS_UNIX
 
-    return ((bsls_Types::Int64) rawTime.tv_sec * M
+    const Types::Int64 K = 1000;
+    const Types::Int64 M = 1000000;
+    return ((Types::Int64) rawTime.tv_sec * M
               + rawTime.tv_usec) * K;
 
 #elif defined BSLS_PLATFORM__OS_WINDOWS
@@ -348,7 +351,7 @@ bsls_TimeUtil::convertRawTime(bsls_TimeUtil::OpaqueNativeTime rawTime)
 #endif
 }
 
-bsls_Types::Int64 bsls_TimeUtil::getTimer()
+Types::Int64 TimeUtil::getTimer()
 {
     // Historical Note: Older Sun machines (e.g., sundev2 circa 2003) exhibited
     // intermittent non-compliant (i.e., non-monotonic) behavior for function
@@ -382,12 +385,12 @@ bsls_Types::Int64 bsls_TimeUtil::getTimer()
     // observed to be non-monotonic when tested to better than 3 parts in 10^10
     // on ibm2.)  'time_base_to_time' is much slower (~1.2 usec).
 
-    const bsls_Types::Int64 G = 1000000000;
+    const Types::Int64 G = 1000000000;
     timebasestruct_t t;
     read_wall_time(&t, TIMEBASE_SZ);
     time_base_to_time(&t, TIMEBASE_SZ);
 
-    return (bsls_Types::Int64) t.tb_high * G + t.tb_low;
+    return (Types::Int64) t.tb_high * G + t.tb_low;
 
 #elif defined BSLS_PLATFORM__OS_HPUX
 
@@ -403,8 +406,8 @@ bsls_Types::Int64 bsls_TimeUtil::getTimer()
     // The algorithm implemented here defends against this behavior by
     // returning the maximum of two successive calls to 'gethrtime'.
 
-    bsls_Types::Int64 t1 = (bsls_Types::Int64) gethrtime();
-    bsls_Types::Int64 t2 = (bsls_Types::Int64) gethrtime();
+    Types::Int64 t1 = (Types::Int64) gethrtime();
+    Types::Int64 t2 = (Types::Int64) gethrtime();
     return t2 > t1 ? t2 : t1;
 
 #elif defined BSLS_PLATFORM__OS_LINUX
@@ -424,12 +427,12 @@ bsls_Types::Int64 bsls_TimeUtil::getTimer()
     // CLOCK_MONOTONIC                  ~1.8  usec
     //..
 
-    const bsls_Types::Int64 G = 1000000000;
+    const Types::Int64 G = 1000000000;
     timespec ts;
 
     clock_gettime(CLOCK_MONOTONIC, &ts);  // significantly slower ~1.8 usec
 
-    return (bsls_Types::Int64) ts.tv_sec * G + ts.tv_nsec;
+    return (Types::Int64) ts.tv_sec * G + ts.tv_nsec;
 
 #elif defined BSLS_PLATFORM__OS_UNIX
 
@@ -441,32 +444,34 @@ bsls_Types::Int64 bsls_TimeUtil::getTimer()
 
     timeval tv;
     gettimeofday(&tv, 0);
-    return = ((bsls_Types::Int64) tv.tv_sec * M + tv.tv_usec) * K;
+    const Types::Int64 K = 1000;
+    const Types::Int64 M = 1000000;
+    return ((Types::Int64) tv.tv_sec * M + tv.tv_usec) * K;
 
     // The below imp would cause bsls_stopwatch to profile at ~1.45 usec on AIX
     // when compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r
     //..
-    //  const bsls_Types::Int64 G = 1000000000;
+    //  const Types::Int64 G = 1000000000;
     //  timespec ts;
     //  clock_gettime(CLOCK_REALTIME, &ts);
-    //  return = (bsls_Types::Int64) ts.tv_sec * G + ts.tv_nsec;
+    //  return = (Types::Int64) ts.tv_sec * G + ts.tv_nsec;
     //..
 
     // Historic workaround for non-monotonic clock behavior.
     //..
-    //  const bsls_Types::Int64 K = 1000;
-    //  const bsls_Types::Int64 M = 1000000;
+    //  const Types::Int64 K = 1000;
+    //  const Types::Int64 M = 1000000;
     //  timeval t;
-    //  bsls_Types::Int64 t0, t1, t2;
+    //  Types::Int64 t0, t1, t2;
     //  gettimeofday(&t, 0);
-    //  t0 = ((bsls_Types::Int64) t.tv_sec * M + t.tv_usec) * K;
+    //  t0 = ((Types::Int64) t.tv_sec * M + t.tv_usec) * K;
     //  do {
     //      gettimeofday(&t, 0);
-    //      t1 = ((bsls_Types::Int64) t.tv_sec * M + t.tv_usec) * K;
+    //      t1 = ((Types::Int64) t.tv_sec * M + t.tv_usec) * K;
     //  } while (t1 == t0);
     //  do {
     //      gettimeofday(&t, 0);
-    //      t2 = ((bsls_Types::Int64) t.tv_sec * M + t.tv_usec) * K;
+    //      t2 = ((Types::Int64) t.tv_sec * M + t.tv_usec) * K;
     //  } while (t2 == t1);
     //  return t2 < t1 || t2 < t1 + 10 * M ? t2 : t1;
     //..
@@ -480,7 +485,7 @@ bsls_Types::Int64 bsls_TimeUtil::getTimer()
 #endif
 }
 
-void bsls_TimeUtil::getTimerRaw(bsls_TimeUtil::OpaqueNativeTime *timeValue)
+void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 {
 #if defined BSLS_PLATFORM__OS_SOLARIS
 
@@ -511,7 +516,7 @@ void bsls_TimeUtil::getTimerRaw(bsls_TimeUtil::OpaqueNativeTime *timeValue)
 #endif
 }
 
-bsls_Types::Int64 bsls_TimeUtil::getProcessSystemTimer()
+Types::Int64 TimeUtil::getProcessSystemTimer()
 {
 #if defined BSLS_PLATFORM__OS_UNIX
     return UnixTimerUtil::systemTimer();
@@ -522,7 +527,7 @@ bsls_Types::Int64 bsls_TimeUtil::getProcessSystemTimer()
 #endif
 }
 
-bsls_Types::Int64 bsls_TimeUtil::getProcessUserTimer()
+Types::Int64 TimeUtil::getProcessUserTimer()
 {
 #if defined BSLS_PLATFORM__OS_UNIX
     return UnixTimerUtil::userTimer();
@@ -533,8 +538,8 @@ bsls_Types::Int64 bsls_TimeUtil::getProcessUserTimer()
 #endif
 }
 
-void bsls_TimeUtil::getProcessTimers(bsls_Types::Int64 *systemTimer,
-                                     bsls_Types::Int64 *userTimer)
+void TimeUtil::getProcessTimers(Types::Int64 *systemTimer,
+                                Types::Int64 *userTimer)
 {
 #if defined BSLS_PLATFORM__OS_UNIX
     UnixTimerUtil::processTimers(systemTimer, userTimer);
@@ -545,7 +550,9 @@ void bsls_TimeUtil::getProcessTimers(bsls_Types::Int64 *systemTimer,
 #endif
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

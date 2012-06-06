@@ -1,4 +1,4 @@
-// bslstl_pair.t.cpp                  -*-C++-*-
+// bslstl_pair.t.cpp                                                  -*-C++-*-
 
 #include <bslstl_pair.h>
 
@@ -29,13 +29,13 @@ using namespace BloombergLP;
 // Because 'bsl::pair' is a simple struct containing two data members, there
 // are no real boundary conditions to test.  The main issue to be tested is
 // that the four variants of the class have working constructors.  The class
-// behaves differently when instantiated with types that use 'bslma_Allocator'.
-// Testing consists mostly of testing all constructors with every combination
-// of allocator-using/non-allocator-using template parameters.  The other
-// combinatorial issue is the propagation of type traits from template
-// parameters to 'bsl::pair' specializations.  Since this is a compile-time
-// computation, it is only necessary to instantiate a representative
-// combination of traits.
+// behaves differently when instantiated with types that use
+// 'bslma::Allocator'.  Testing consists mostly of testing all constructors
+// with every combination of allocator-using/non-allocator-using template
+// parameters.  The other combinatorial issue is the propagation of type traits
+// from template parameters to 'bsl::pair' specializations.  Since this is a
+// compile-time computation, it is only necessary to instantiate a
+// representative combination of traits.
 //
 // The test driver is rounded out by invoking each comparison operator for
 // each possible result to ensure that they work correctly.  There is no need
@@ -48,11 +48,11 @@ using namespace BloombergLP;
 // [2] T1 first;
 // [2] T1 second;
 // [2] pair();
-// [2] pair(bslma_Allocator *alloc);
+// [2] pair(bslma::Allocator *alloc);
 // [2] pair(const T1& a, const T2& b);
-// [2] pair(const T1& a, const T2& b, bslma_Allocator *alloc);
+// [2] pair(const T1& a, const T2& b, bslma::Allocator *alloc);
 // [2] pair(const pair& rhs);
-// [2] pair(const pair& rhs, bslma_Allocator *alloc);
+// [2] pair(const pair& rhs, bslma::Allocator *alloc);
 // [2] ~pair();
 // [2] pair& operator=(const pair& rhs);
 // [2] bool operator==(const pair& x, const pair& y);
@@ -65,7 +65,7 @@ using namespace BloombergLP;
 // [4] template <typename U1, typename U2>
 //     pair(const pair<U1, U2>& rhs);
 // [4] template <typename U1, typename U2>
-//     pair(const pair<U1, U2>& rhs, bslma_Allocator *alloc);
+//     pair(const pair<U1, U2>& rhs, bslma::Allocator *alloc);
 // [5] void pair::swap(pair& rhs);
 // [5] void swap(pair& lhs, pair& rhs);
 //-----------------------------------------------------------------------------
@@ -92,7 +92,7 @@ void aSsErT(int c, const char *s, int i) {
     }
 }
 
-}
+}  // close unnamed namespace
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //--------------------------------------------------------------------------
@@ -117,11 +117,11 @@ static int veryVerbose = 0;
 // static int veryVeryVerbose = 0;
 
 // Abbreviations for long trait names
-typedef bslalg_TypeTraitBitwiseMoveable BitwiseMoveable;
-typedef bslalg_TypeTraitBitwiseCopyable BitwiseCopyable;
-typedef bslalg_TypeTraitHasTrivialDefaultConstructor TrivialConstructor;
-typedef bslalg_TypeTraitBitwiseEqualityComparable    BitwiseComparable;
-typedef bslalg_TypeTraitUsesBslmaAllocator UsesBslmaAllocator;
+typedef bslalg::TypeTraitBitwiseMoveable BitwiseMoveable;
+typedef bslalg::TypeTraitBitwiseCopyable BitwiseCopyable;
+typedef bslalg::TypeTraitHasTrivialDefaultConstructor TrivialConstructor;
+typedef bslalg::TypeTraitBitwiseEqualityComparable    BitwiseComparable;
+typedef bslalg::TypeTraitUsesBslmaAllocator UsesBslmaAllocator;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -138,7 +138,7 @@ typedef bslalg_TypeTraitUsesBslmaAllocator UsesBslmaAllocator;
 // First, we create a utility function that copies a null-terminated string
 // into memory allocated from a supplied allocator:
 //..
-    char *myStrDup(const char *s, bslma_Allocator *alloc)
+    char *myStrDup(const char *s, bslma::Allocator *alloc)
         // Copy the specified null-terminated string 's' into memory allocated
         // from 'alloc'
     {
@@ -150,24 +150,24 @@ typedef bslalg_TypeTraitUsesBslmaAllocator UsesBslmaAllocator;
 // supplied allocator.  It uses 'myStrDup' (above) in its implementation:
 //..
     class my_String {
-        // Simple string class that uses a 'bslma_Allocator' allocator.
+        // Simple string class that uses a 'bslma::Allocator' allocator.
 
-        bslma_Allocator *d_allocator;
-        char            *d_data;
+        bslma::Allocator *d_allocator;
+        char             *d_data;
 
       public:
         BSLALG_DECLARE_NESTED_TRAITS(my_String,
-                                     bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 
-        explicit my_String(bslma_Allocator *alloc = 0);
+        explicit my_String(bslma::Allocator *alloc = 0);
             // Construct an empty string using the optionally-specified
             // allocator 'alloc'.
 
-        my_String(const char* s, bslma_Allocator *alloc = 0);
+        my_String(const char* s, bslma::Allocator *alloc = 0);
             // Construct a string with contents specified in 's' using the
             // optionally-specified allocator 'alloc'.
 
-        my_String(const my_String& rhs, bslma_Allocator *alloc = 0);
+        my_String(const my_String& rhs, bslma::Allocator *alloc = 0);
             // Construct a copy of the specified 'rhs' string using the
             // optionally-specified allocator 'alloc'.
 
@@ -180,61 +180,61 @@ typedef bslalg_TypeTraitUsesBslmaAllocator UsesBslmaAllocator;
         const char* c_str() const;
             // Return the null-terminated character array for this string.
 
-        bslma_Allocator *allocator() const;
+        bslma::Allocator *allocator() const;
             // Return the allocator used to construct this string or, if no
             // allocator was specified at construction, the default allocator
             // at the time of construction.
     };
 
-    bool operator==(const my_String& str1, const my_String& str2)
+    bool operator==(const my_String& lhs, const my_String& rhs)
     {
-        return 0 == std::strcmp(str1.c_str(), str2.c_str());
+        return 0 == std::strcmp(lhs.c_str(), rhs.c_str());
     }
 
-    bool operator==(const my_String& str, const char *p)
+    bool operator==(const my_String& lhs, const char *rhs)
     {
-        return 0 == std::strcmp(p, str.c_str());
+        return 0 == std::strcmp(rhs, lhs.c_str());
     }
 
-    bool operator==(const char *p, const my_String& str)
+    bool operator==(const char *lhs, const my_String& rhs)
     {
-        return str == p;
+        return rhs == lhs;
     }
 
-    bool operator!=(const my_String& str1, const my_String& str2)
+    bool operator!=(const my_String& lhs, const my_String& rhs)
     {
-        return ! (str1 == str2);
+        return ! (lhs == rhs);
     }
 
-    bool operator!=(const my_String& str, const char *p)
+    bool operator!=(const my_String& lhs, const char *rhs)
     {
-        return ! (str == p);
+        return ! (lhs == rhs);
     }
 
-    bool operator!=(const char *p, const my_String& str)
+    bool operator!=(const char *lhs, const my_String& rhs)
     {
-        return ! (str == p);
+        return ! (lhs == rhs);
     }
 
-    bool operator<(const my_String& str1, const my_String& str2)
+    bool operator<(const my_String& lhs, const my_String& rhs)
     {
-        return std::strcmp(str1.c_str(), str2.c_str()) < 0;
+        return std::strcmp(lhs.c_str(), rhs.c_str()) < 0;
     }
 
-    my_String::my_String(bslma_Allocator *alloc)
-    : d_allocator(bslma_Default::allocator(alloc)), d_data(0)
+    my_String::my_String(bslma::Allocator *alloc)
+    : d_allocator(bslma::Default::allocator(alloc)), d_data(0)
     {
         d_data = myStrDup("", d_allocator);
     }
 
-    my_String::my_String(const char *s, bslma_Allocator *alloc)
-    : d_allocator(bslma_Default::allocator(alloc)), d_data(0)
+    my_String::my_String(const char *s, bslma::Allocator *alloc)
+    : d_allocator(bslma::Default::allocator(alloc)), d_data(0)
     {
         d_data = myStrDup(s, d_allocator);
     }
 
-    my_String::my_String(const my_String& rhs, bslma_Allocator *alloc)
-    : d_allocator(bslma_Default::allocator(alloc)), d_data(0)
+    my_String::my_String(const my_String& rhs, bslma::Allocator *alloc)
+    : d_allocator(bslma::Default::allocator(alloc)), d_data(0)
     {
         d_data = myStrDup(rhs.d_data, d_allocator);
     }
@@ -258,7 +258,7 @@ typedef bslalg_TypeTraitUsesBslmaAllocator UsesBslmaAllocator;
         return d_data;
     }
 
-    bslma_Allocator *my_String::allocator() const
+    bslma::Allocator *my_String::allocator() const
     {
         return d_allocator;
     }
@@ -273,7 +273,7 @@ typedef bslalg_TypeTraitUsesBslmaAllocator UsesBslmaAllocator;
         typedef bsl::pair<my_String, int> Node;
 
         Node *mapping[3];
-        bslma_TestAllocator alloc;
+        bslma::TestAllocator alloc;
 //..
 // When constructing a 'Node', an allocator is supplied in addition to
 // parameters for the 'first' and 'second' data members.
@@ -320,7 +320,7 @@ class my_NoAllocString
     char *d_data;
 
   public:
-    static bslma_TestAllocator *allocator();
+    static bslma::TestAllocator *allocator();
         // Return pointer to singleton test allocator.
 
     my_NoAllocString();
@@ -328,9 +328,9 @@ class my_NoAllocString
     my_NoAllocString(const my_NoAllocString& rhs);
         // Construct a string the normal way.
 
-    explicit my_NoAllocString(bslma_Allocator *alloc);
-    my_NoAllocString(const char* s, bslma_Allocator *alloc);
-    my_NoAllocString(const my_NoAllocString& rhs, bslma_Allocator *alloc);
+    explicit my_NoAllocString(bslma::Allocator *alloc);
+    my_NoAllocString(const char* s, bslma::Allocator *alloc);
+    my_NoAllocString(const my_NoAllocString& rhs, bslma::Allocator *alloc);
         // Attempt to construct a string and specify a user-supplied
         // allocator.  Reports an assert failure and ignores 'alloc', but
         // otherwise compiles and runs.  These functions would be called if
@@ -347,44 +347,44 @@ class my_NoAllocString
         // Return the null-terminated character array for this string.
 };
 
-bool operator==(const my_NoAllocString& str1, const my_NoAllocString& str2)
+bool operator==(const my_NoAllocString& lhs, const my_NoAllocString& rhs)
 {
-    return 0 == std::strcmp(str1.c_str(), str2.c_str());
+    return 0 == std::strcmp(lhs.c_str(), rhs.c_str());
 }
 
-bool operator==(const my_NoAllocString& str, const char *p)
+bool operator==(const my_NoAllocString& lhs, const char *rhs)
 {
-    return 0 == std::strcmp(p, str.c_str());
+    return 0 == std::strcmp(rhs, lhs.c_str());
 }
 
-bool operator==(const char *p, const my_NoAllocString& str)
+bool operator==(const char *lhs, const my_NoAllocString& rhs)
 {
-    return str == p;
+    return rhs == lhs;
 }
 
-bool operator!=(const my_NoAllocString& str1, const my_NoAllocString& str2)
+bool operator!=(const my_NoAllocString& lhs, const my_NoAllocString& rhs)
 {
-    return ! (str1 == str2);
+    return ! (lhs == rhs);
 }
 
-bool operator!=(const my_NoAllocString& str, const char *p)
+bool operator!=(const my_NoAllocString& lhs, const char *rhs)
 {
-    return ! (str == p);
+    return ! (lhs == rhs);
 }
 
-bool operator!=(const char *p, const my_NoAllocString& str)
+bool operator!=(const char *lhs, const my_NoAllocString& rhs)
 {
-    return ! (str == p);
+    return ! (rhs == lhs);
 }
 
-bool operator<(const my_NoAllocString& str1, const my_NoAllocString& str2)
+bool operator<(const my_NoAllocString& lhs, const my_NoAllocString& rhs)
 {
-    return std::strcmp(str1.c_str(), str2.c_str()) < 0;
+    return std::strcmp(lhs.c_str(), rhs.c_str()) < 0;
 }
 
-bslma_TestAllocator *my_NoAllocString::allocator()
+bslma::TestAllocator *my_NoAllocString::allocator()
 {
-    static bslma_TestAllocator singleton(veryVerbose);
+    static bslma::TestAllocator singleton(veryVerbose);
     return &singleton;
 }
 
@@ -394,7 +394,7 @@ my_NoAllocString::my_NoAllocString()
     d_data = myStrDup("", allocator());
 }
 
-my_NoAllocString::my_NoAllocString(bslma_Allocator * /*alloc*/)
+my_NoAllocString::my_NoAllocString(bslma::Allocator * /*alloc*/)
 : d_data(0)
 {
     ASSERT("Shouldn't get here" && 0);
@@ -407,7 +407,7 @@ my_NoAllocString::my_NoAllocString(const char *s)
     d_data = myStrDup(s, allocator());
 }
 
-my_NoAllocString::my_NoAllocString(const char *s, bslma_Allocator * /*alloc*/)
+my_NoAllocString::my_NoAllocString(const char *s, bslma::Allocator * /*alloc*/)
 : d_data(0)
 {
     ASSERT("Shouldn't get here" && 0);
@@ -421,7 +421,7 @@ my_NoAllocString::my_NoAllocString(const my_NoAllocString& rhs)
 }
 
 my_NoAllocString::my_NoAllocString(const my_NoAllocString&  rhs,
-                                   bslma_Allocator         * /*alloc*/)
+                                   bslma::Allocator         * /*alloc*/)
 : d_data(0)
 {
     ASSERT("Shouldn't get here" && 0);
@@ -501,11 +501,12 @@ struct my_NoTraits
                            // ===================
 
 namespace TypeWithSwapNamespace {
+
     struct TypeWithSwap {
         int data;
         bool swapCalled;
 
-        TypeWithSwap(int d)
+        explicit TypeWithSwap(int d)
         : data(d)
         , swapCalled(false)
         {}
@@ -514,11 +515,11 @@ namespace TypeWithSwapNamespace {
             return data == rhs.data;
         }
 
-        void swap(TypeWithSwap& rhs) {
-            std::swap(data, rhs.data);
+        void swap(TypeWithSwap& other) {
+            std::swap(data, other.data);
 
             // set the flag indicating that this function has been called
-            rhs.swapCalled = swapCalled = true;
+            other.swapCalled = swapCalled = true;
         }
 
         void assertSwapCalled() const {
@@ -538,7 +539,7 @@ namespace TypeWithSwapNamespace {
 struct TypeWithoutSwap {
     int data;
 
-    TypeWithoutSwap(int d)
+    explicit TypeWithoutSwap(int d)
     : data(d)
     {}
 
@@ -691,11 +692,11 @@ int main(int argc, char *argv[])
         // Plan:
         // - Construct 'pair<int, double>' from 'pair<char, int>'
         // - Construct 'pair<my_String, int>' from
-        //   'pair<const char*, int>'.
+        //             'pair<const char*, int>'.
         // - Construct 'pair<my_String, int>' from
-        //   'pair<const char*, int>' using an allocator.
+        //             'pair<const char*, int>' using an allocator.
         // - Construct 'pair<my_NoAllocString, my_String>' from
-        //   'pair<const char*, const char*>' using an allocator.
+        //             'pair<const char*, const char*>' using an allocator.
         // - When an allocator is used, verify that result has correct
         //   allocator.
         // - When an allocator is used, verify no memory leaks.
@@ -706,17 +707,17 @@ int main(int argc, char *argv[])
         //
         //     template <typename U1, typename U2>
         //     pair(const pair<U1, U2>&  rhs,
-        //                 bslma_Allocator            *alloc);
+        //          bslma::Allocator    *alloc);
         // --------------------------------------------------------------------
 
         if (verbose) std::printf("\nCONVERSION CONSTRUCTOR TEST"
                                  "\n===========================\n");
 
-        bslma_TestAllocator ta1(veryVerbose);
-        bslma_TestAllocator ta2(veryVerbose);
-        bslma_TestAllocator& ta3 = *my_NoAllocString::allocator();
+        bslma::TestAllocator ta1(veryVerbose);
+        bslma::TestAllocator ta2(veryVerbose);
+        bslma::TestAllocator& ta3 = *my_NoAllocString::allocator();
 
-        bslma_DefaultAllocatorGuard allocGuard(&ta2);
+        bslma::DefaultAllocatorGuard allocGuard(&ta2);
 
         {
             bsl::pair<char, int> p1(9, 8), &P1 = p1;
@@ -791,11 +792,11 @@ int main(int argc, char *argv[])
         // - Verify that the resulting instantiation has the following traits
         //   only if and only if both types on which it is instantiated have
         //   those traits:
-        //   * bslalg_TypeTraitBitwiseMoveable
-        //   * bslalg_TypeTraitBitwiseCopyable (implies BitwiseMoveable)
-        //   * bslalg_TypeTraitTrivialConstructor
+        //   * bslalg::TypeTraitBitwiseMoveable
+        //   * bslalg::TypeTraitBitwiseCopyable (implies BitwiseMoveable)
+        //   * bslalg::TypeTraitTrivialConstructor
         // - Verify that the resulting instantiation has the trait
-        //   'bslalg_TypeTraitUsesBslmaAllocator' if and only BOTH types have
+        //   'bslalg::TypeTraitUsesBslmaAllocator' if and only BOTH types have
         //   this trait.
         //
         // Testing:
@@ -810,11 +811,11 @@ int main(int argc, char *argv[])
                         "bsl::pair<my_NoTraits, my_NoTraits>\n");
         }
         typedef bsl::pair<my_NoTraits, my_NoTraits> Pair0;
-        ASSERT(! (bslalg_HasTrait<Pair0, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair0, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair0, TrivialConstructor>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair0, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair0, BitwiseComparable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair0, BitwiseMoveable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair0, BitwiseCopyable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair0, TrivialConstructor>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair0, UsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair0, BitwiseComparable>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -822,143 +823,143 @@ int main(int argc, char *argv[])
                         "             my_MoveAbandonBslma>\n");
         }
         typedef bsl::pair<my_MoveAbandonBslma, my_MoveAbandonBslma> Pair1;
-        ASSERT(  (bslalg_HasTrait<Pair1, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair1, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair1, TrivialConstructor>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair1, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair1, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair1, BitwiseMoveable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair1, BitwiseCopyable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair1, TrivialConstructor>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair1, UsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair1, BitwiseComparable>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_CopyTrivial, my_CopyTrivial>\n");
         }
         typedef bsl::pair<my_CopyTrivial, my_CopyTrivial> Pair2;
-        ASSERT(  (bslalg_HasTrait<Pair2, BitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair2, BitwiseCopyable>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair2, TrivialConstructor>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair2, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair2, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair2, BitwiseMoveable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair2, BitwiseCopyable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair2, TrivialConstructor>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair2, UsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair2, BitwiseComparable>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_CopyTrivial, my_MoveAbandonBslma>\n");
         }
         typedef bsl::pair<my_CopyTrivial, my_MoveAbandonBslma> Pair3;
-        ASSERT(  (bslalg_HasTrait<Pair3, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair3, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair3, TrivialConstructor>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair3, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair3, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair3, BitwiseMoveable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair3, BitwiseCopyable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair3, TrivialConstructor>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair3, UsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair3, BitwiseComparable>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_MoveAbandonBslma, my_CopyTrivial>\n");
         }
         typedef bsl::pair<my_MoveAbandonBslma, my_CopyTrivial> Pair4;
-        ASSERT(  (bslalg_HasTrait<Pair4, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair4, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair4, TrivialConstructor>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair4, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair4, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair4, BitwiseMoveable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair4, BitwiseCopyable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair4, TrivialConstructor>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair4, UsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair4, BitwiseComparable>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_MoveAbandonBslma, my_NoTraits>\n");
         }
         typedef bsl::pair<my_MoveAbandonBslma, my_NoTraits> Pair5;
-        ASSERT(! (bslalg_HasTrait<Pair5, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair5, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair5, TrivialConstructor>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair5, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair5, BitwiseComparable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair5, BitwiseMoveable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair5, BitwiseCopyable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair5, TrivialConstructor>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair5, UsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair5, BitwiseComparable>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_CopyTrivial, my_NoTraits>\n");
         }
         typedef bsl::pair<my_CopyTrivial, my_NoTraits> Pair6;
-        ASSERT(! (bslalg_HasTrait<Pair6, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair6, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair6, TrivialConstructor>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair6, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair6, BitwiseComparable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair6, BitwiseMoveable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair6, BitwiseCopyable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair6, TrivialConstructor>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair6, UsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair6, BitwiseComparable>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_String, my_NoTraits>\n");
         }
         typedef bsl::pair<my_String, my_NoTraits> Pair7;
-        ASSERT(! (bslalg_HasTrait<Pair7, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair7, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair7, TrivialConstructor>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair7, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair7, BitwiseComparable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair7, BitwiseMoveable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair7, BitwiseCopyable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair7, TrivialConstructor>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair7, UsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair7, BitwiseComparable>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_MoveAbandonBslma, int>\n");
         }
         typedef bsl::pair<my_MoveAbandonBslma, int> Pair8;
-        ASSERT(  (bslalg_HasTrait<Pair8, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair8, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair8, TrivialConstructor>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair8, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair8, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair8, BitwiseMoveable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair8, BitwiseCopyable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair8, TrivialConstructor>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair8, UsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair8, BitwiseComparable>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<int, my_CopyTrivial>\n");
         }
         typedef bsl::pair<int, my_CopyTrivial> Pair9;
-        ASSERT(  (bslalg_HasTrait<Pair9, BitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair9, BitwiseCopyable>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair9, TrivialConstructor>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair9, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair9, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair9, BitwiseMoveable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair9, BitwiseCopyable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair9, TrivialConstructor>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair9, UsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair9, BitwiseComparable>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_String, my_MoveAbandonBslma>\n");
         }
         typedef bsl::pair<my_String, my_MoveAbandonBslma> Pair10;
-        ASSERT(! (bslalg_HasTrait<Pair10, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair10, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair10, TrivialConstructor>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair10, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair10, BitwiseComparable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair10, BitwiseMoveable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair10, BitwiseCopyable>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair10, TrivialConstructor>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair10, UsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair10, BitwiseComparable>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<char, int>\n");
         }
         typedef bsl::pair<char, int> Pair11;
-        ASSERT(  (bslalg_HasTrait<Pair11, BitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair11, BitwiseCopyable>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair11, TrivialConstructor>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair11, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair11, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair11, BitwiseMoveable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair11, BitwiseCopyable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair11, TrivialConstructor>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair11, UsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair11, BitwiseComparable>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<int, char>\n");
         }
         typedef bsl::pair<int, char> Pair12;
-        ASSERT(  (bslalg_HasTrait<Pair12, BitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair12, BitwiseCopyable>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair12, TrivialConstructor>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair12, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair12, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair12, BitwiseMoveable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair12, BitwiseCopyable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair12, TrivialConstructor>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair12, UsesBslmaAllocator>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair12, BitwiseComparable>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<int, int>\n");
         }
         typedef bsl::pair<int, int> Pair13;
-        ASSERT(  (bslalg_HasTrait<Pair13, BitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair13, BitwiseCopyable>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair13, TrivialConstructor>::VALUE));
-        ASSERT(! (bslalg_HasTrait<Pair13, UsesBslmaAllocator>::VALUE));
-        ASSERT(  (bslalg_HasTrait<Pair13, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair13, BitwiseMoveable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair13, BitwiseCopyable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair13, TrivialConstructor>::VALUE));
+        ASSERT(! (bslalg::HasTrait<Pair13, UsesBslmaAllocator>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair13, BitwiseComparable>::VALUE));
 
       } break;
 
@@ -971,10 +972,10 @@ int main(int argc, char *argv[])
         //    constructor with two arguments and copy constructor with no
         //    allocator.
         // 2. If and only if one or both members of the 'pair' have
-        //    the 'bslalg_TypeTraitUsesBslmaAllocator' trait, then the
+        //    the 'bslalg::TypeTraitUsesBslmaAllocator' trait, then the
         //    'pair' also has that trait.
-        // 3. If 'pair' has the 'bslalg_TypeTraitUsesBslmaAllocator'
-        //    trait, then each constructor can be passed a 'bslma_Allocator'
+        // 3. If 'pair' has the 'bslalg::TypeTraitUsesBslmaAllocator'
+        //    trait, then each constructor can be passed a 'bslma::Allocator'
         //    pointer and that pointer is passed through to the member(s) that
         //    take it.
         // 4. Assignment works as designed.
@@ -983,8 +984,8 @@ int main(int argc, char *argv[])
         // Plan:
         // - Select a small set of interesting types:
         //   'short'            - Fundamental type
-        //   'my_String'        - Uses 'bslma_Allocator' in constructor
-        //   'my_NoAllocString' - Does not use 'bslma_Allocator' in constructor
+        //   'my_String'        - Uses 'bslma::Allocator' in constructor
+        //   'my_NoAllocString' - Doesn't use 'bslma::Allocator' in constructor
         // - Instantiate 'pair' with each combination (9 total) of the
         //   above types.
         // - For each instantiation, do the following:
@@ -1013,11 +1014,11 @@ int main(int argc, char *argv[])
         //     T1 first;
         //     T1 second;
         //     pair();
-        //     pair(bslma_Allocator *alloc);
+        //     pair(bslma::Allocator *alloc);
         //     pair(const T1& a, const T2& b);
-        //     pair(const T1& a, const T2& b, bslma_Allocator *alloc);
+        //     pair(const T1& a, const T2& b, bslma::Allocator *alloc);
         //     pair(const pair& rhs);
-        //     pair(const pair& rhs, bslma_Allocator *alloc);
+        //     pair(const pair& rhs, bslma::Allocator *alloc);
         //     ~pair();
         //     pair& operator=(const pair& rhs);
         //     bool operator==(const pair& x, const pair& y);
@@ -1031,11 +1032,11 @@ int main(int argc, char *argv[])
         if (verbose) std::printf("\nFUNCTIONALITY TEST"
                                  "\n==================\n");
 
-        bslma_TestAllocator ta1(veryVerbose);
-        bslma_TestAllocator ta2(veryVerbose);
-        bslma_TestAllocator& ta3 = *my_NoAllocString::allocator();
+        bslma::TestAllocator ta1(veryVerbose);
+        bslma::TestAllocator ta2(veryVerbose);
+        bslma::TestAllocator& ta3 = *my_NoAllocString::allocator();
 
-        bslma_DefaultAllocatorGuard allocGuard(&ta2);
+        bslma::DefaultAllocatorGuard allocGuard(&ta2);
 
         ASSERT(0 == ta1.numBlocksInUse());
         ASSERT(0 == ta2.numBlocksInUse());
@@ -1044,18 +1045,18 @@ int main(int argc, char *argv[])
         if (verbose) std::printf("testing bsl::pair<short, short>\n");
         {
             typedef bsl::pair<short, short> Obj;
-            ASSERT((bslmf_IsSame<short, Obj::first_type>::VALUE));
-            ASSERT((bslmf_IsSame<short, Obj::second_type>::VALUE));
+            ASSERT((bslmf::IsSame<short, Obj::first_type>::VALUE));
+            ASSERT((bslmf::IsSame<short, Obj::second_type>::VALUE));
 
             const short NULL_FIRST   = 0;
             const short NULL_SECOND  = 0;
             const short VALUE_FIRST  = 3;
             const short VALUE_SECOND = 4;
 
-            ASSERT(  (bslalg_HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(  (bslalg_HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(  (bslalg_HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(  (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
+            ASSERT(  (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
+            ASSERT(  (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1089,23 +1090,23 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta2.numBlocksInUse());
             ASSERT(0 == ta3.numBlocksInUse());
         }
-        // End test bslstl_Pair<short, short>
+        // End test bslstl::Pair<short, short>
 
         if (verbose) std::printf("testing bsl::pair<short, my_String>\n");
         {
             typedef bsl::pair<short, my_String> Obj;
-            ASSERT((bslmf_IsSame<short, Obj::first_type>::VALUE));
-            ASSERT((bslmf_IsSame<my_String, Obj::second_type>::VALUE));
+            ASSERT((bslmf::IsSame<short, Obj::first_type>::VALUE));
+            ASSERT((bslmf::IsSame<my_String, Obj::second_type>::VALUE));
 
             const short        NULL_FIRST   = 0;
             const char  *const NULL_SECOND  = "";
             const short        VALUE_FIRST  = 4;
             const char  *const VALUE_SECOND = "Hello";
 
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(  (bslalg_HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
+            ASSERT(  (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1170,18 +1171,18 @@ int main(int argc, char *argv[])
         }
         {
             typedef bsl::pair<short, my_NoAllocString> Obj;
-            ASSERT((bslmf_IsSame<short, Obj::first_type>::VALUE));
-            ASSERT((bslmf_IsSame<my_NoAllocString, Obj::second_type>::VALUE));
+            ASSERT((bslmf::IsSame<short, Obj::first_type>::VALUE));
+            ASSERT((bslmf::IsSame<my_NoAllocString, Obj::second_type>::VALUE));
 
             const short        NULL_FIRST   = 0;
             const char  *const NULL_SECOND  = "";
             const short        VALUE_FIRST  = 4;
             const char  *const VALUE_SECOND = "Hello";
 
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1224,18 +1225,18 @@ int main(int argc, char *argv[])
         if (verbose) std::printf("testing bsl::pair<my_String, short>\n");
         {
             typedef bsl::pair<my_String, short> Obj;
-            ASSERT((bslmf_IsSame<my_String, Obj::first_type>::VALUE));
-            ASSERT((bslmf_IsSame<short, Obj::second_type>::VALUE));
+            ASSERT((bslmf::IsSame<my_String, Obj::first_type>::VALUE));
+            ASSERT((bslmf::IsSame<short, Obj::second_type>::VALUE));
 
             const char  *const NULL_FIRST   = "";
             const short        NULL_SECOND  = 0;
             const char  *const VALUE_FIRST  = "Hello";
             const short        VALUE_SECOND = 4;
 
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(  (bslalg_HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
+            ASSERT(  (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1300,18 +1301,18 @@ int main(int argc, char *argv[])
         }
         {
             typedef bsl::pair<my_String, my_String> Obj;
-            ASSERT((bslmf_IsSame<my_String, Obj::first_type>::VALUE));
-            ASSERT((bslmf_IsSame<my_String, Obj::second_type>::VALUE));
+            ASSERT((bslmf::IsSame<my_String, Obj::first_type>::VALUE));
+            ASSERT((bslmf::IsSame<my_String, Obj::second_type>::VALUE));
 
             const char *const NULL_FIRST   = "";
             const char *const NULL_SECOND  = "";
             const char *const VALUE_FIRST  = "Hello";
             const char *const VALUE_SECOND = "Goodbye";
 
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(  (bslalg_HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
+            ASSERT(  (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1382,18 +1383,18 @@ int main(int argc, char *argv[])
         }
         {
             typedef bsl::pair<my_String, my_NoAllocString> Obj;
-            ASSERT((bslmf_IsSame<my_String, Obj::first_type>::VALUE));
-            ASSERT((bslmf_IsSame<my_NoAllocString, Obj::second_type>::VALUE));
+            ASSERT((bslmf::IsSame<my_String, Obj::first_type>::VALUE));
+            ASSERT((bslmf::IsSame<my_NoAllocString, Obj::second_type>::VALUE));
 
             const char  *const NULL_FIRST   = "";
             const char  *const NULL_SECOND  = "";
             const char  *const VALUE_FIRST  = "Hello";
             const char  *const VALUE_SECOND = "Goodbye";
 
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(  (bslalg_HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
+            ASSERT(  (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1451,25 +1452,25 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta1.numBlocksInUse());
         ASSERT(0 == ta2.numBlocksInUse());
         ASSERT(0 == ta3.numBlocksInUse());
-        // End testing bslstl_Pair<my_String, my_NoAllocString>
+        // End testing bslstl::Pair<my_String, my_NoAllocString>
 
         if (verbose) {
             std::printf("testing bsl::pair<my_NoAllocString, short>\n");
         }
         {
             typedef bsl::pair<my_NoAllocString, short> Obj;
-            ASSERT((bslmf_IsSame<my_NoAllocString, Obj::first_type>::VALUE));
-            ASSERT((bslmf_IsSame<short, Obj::second_type>::VALUE));
+            ASSERT((bslmf::IsSame<my_NoAllocString, Obj::first_type>::VALUE));
+            ASSERT((bslmf::IsSame<short, Obj::second_type>::VALUE));
 
             const char  *const NULL_FIRST   = "";
             const short        NULL_SECOND  = 0;
             const char  *const VALUE_FIRST  = "Hello";
             const short        VALUE_SECOND = 4;
 
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1514,18 +1515,18 @@ int main(int argc, char *argv[])
         }
         {
             typedef bsl::pair<my_NoAllocString, my_String> Obj;
-            ASSERT((bslmf_IsSame<my_NoAllocString, Obj::first_type>::VALUE));
-            ASSERT((bslmf_IsSame<my_String, Obj::second_type>::VALUE));
+            ASSERT((bslmf::IsSame<my_NoAllocString, Obj::first_type>::VALUE));
+            ASSERT((bslmf::IsSame<my_String, Obj::second_type>::VALUE));
 
             const char  *const NULL_FIRST   = "";
             const char  *const NULL_SECOND  = "";
             const char  *const VALUE_FIRST  = "Hello";
             const char  *const VALUE_SECOND = "Goodbye";
 
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(  (bslalg_HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
+            ASSERT(  (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1591,18 +1592,18 @@ int main(int argc, char *argv[])
         }
         {
             typedef bsl::pair<my_NoAllocString, my_NoAllocString> Obj;
-            ASSERT((bslmf_IsSame<my_NoAllocString, Obj::first_type>::VALUE));
-            ASSERT((bslmf_IsSame<my_NoAllocString, Obj::second_type>::VALUE));
+            ASSERT((bslmf::IsSame<my_NoAllocString, Obj::first_type>::VALUE));
+            ASSERT((bslmf::IsSame<my_NoAllocString, Obj::second_type>::VALUE));
 
             const char  *const NULL_FIRST   = "";
             const char  *const NULL_SECOND  = "";
             const char  *const VALUE_FIRST  = "Hello";
             const char  *const VALUE_SECOND = "Goodbye";
 
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1653,7 +1654,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         // - Instantiate 'pair' with a simple string class that uses
-        //   'bslma_Allocator'.
+        //   'bslma::Allocator'.
         // - Construct a objects using the test allocator.
         // - Verify that object members have the correct value.
         // - Verify that that the correct allocator was used.
@@ -1665,20 +1666,20 @@ int main(int argc, char *argv[])
         if (verbose) std::printf("\nBREATHING TEST"
                                  "\n==============\n");
 
-        bslma_TestAllocator ta1(veryVerbose);
-        bslma_TestAllocator ta2(veryVerbose);
+        bslma::TestAllocator ta1(veryVerbose);
+        bslma::TestAllocator ta2(veryVerbose);
 
-        bslma_DefaultAllocatorGuard allocGuard(&ta2);
+        bslma::DefaultAllocatorGuard allocGuard(&ta2);
 
         {
             typedef bsl::pair<my_String, short> Obj;
-            ASSERT((bslmf_IsSame<my_String, Obj::first_type>::VALUE));
-            ASSERT((bslmf_IsSame<short, Obj::second_type>::VALUE));
+            ASSERT((bslmf::IsSame<my_String, Obj::first_type>::VALUE));
+            ASSERT((bslmf::IsSame<short, Obj::second_type>::VALUE));
 
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg_HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(  (bslalg_HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
+            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
+            ASSERT(  (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
 
             const my_String NULL_FIRST("");
             const short     NULL_SECOND  = 0;

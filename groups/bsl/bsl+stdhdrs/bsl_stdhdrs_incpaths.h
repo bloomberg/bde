@@ -26,16 +26,16 @@ BSLS_IDENT("$Id: $")
 // components in the bsl package group.  The stability of this interface is not
 // guaranteed.
 //
-// The macros in this component allow a source file compiled in bde-stl mode
-// to include the compiler's native C++ library headers, even when the 
-// compiler's search path would otherwise find the headers with the same name
-// in the 'bsl+stdhdrs' package.  The actual paths are hard coded to be
-// platform specific.
+// The macros in this component allow a source file compiled in bde-stl mode to
+// include the compiler's native C++ library headers, even when the compiler's
+// search path would otherwise find the headers with the same name in the
+// 'bsl+stdhdrs' package.  The actual paths are hard coded to be platform
+// specific.
 //
 // Each macro takes a 'filename' argument and expands to the path for the file
 // in the native compiler's directory.  The expanded macros are suitable for
-// use in '#include' directives.  In order to find the native file, the
-// correct macro must be used for each header file, as follows:
+// use in '#include' directives.  In order to find the native file, the correct
+// macro must be used for each header file, as follows:
 //..
 //  Macro                               Used for
 //  =================================   ======================================
@@ -64,8 +64,8 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The 'bsl+stdhdrs' package provides low-level system facilities, including a
-// replacement for some of the features of the C++ standard library.
-// Under bde-stl mode, including headers '<new>', '<vector>', '<strsteam>', and
+// replacement for some of the features of the C++ standard library.  Under
+// bde-stl mode, including headers '<new>', '<vector>', '<strsteam>', and
 // '<cstdlib>' as follows:
 //..
 //  #include <new>
@@ -73,10 +73,10 @@ BSLS_IDENT("$Id: $")
 //  #include <strstream>
 //  #include <cstdlib>
 //..
-// will usually find Bloomberg's implementation of standard headers provided
-// in the 'bsl+stdhdrs' package.  Sometimes, however, it is necessary to
-// force inclusion of the standard headers natively supplied with the compiler.
-// In these cases, one can use the macros in this component, as follows:
+// will usually find Bloomberg's implementation of standard headers provided in
+// the 'bsl+stdhdrs' package.  Sometimes, however, it is necessary to force
+// inclusion of the standard headers natively supplied with the compiler.  In
+// these cases, one can use the macros in this component, as follows:
 //..
 //  #include <bsl_bslhdrs_incpaths.h>
 //
@@ -87,9 +87,9 @@ BSLS_IDENT("$Id: $")
 //  #include BSL_NATIVE_C_LIB_HEADER(stdio.h)
 //..
 // Note that the macros used for '<new>' is different from that used for
-// '<vector>' because '<new>' is one of the headers that is closely related
-// to the compiler.  Note also that neither the arguments to the macros
-// nor their invocations are quoted or enclosed in angle brackets.
+// '<vector>' because '<new>' is one of the headers that is closely related to
+// the compiler.  Note also that neither the arguments to the macros nor their
+// invocations are quoted or enclosed in angle brackets.
 
 // Note that 'bslscm_version.h' is not included here because it pulls in c++
 // symbols.  When someone includes a C header file (such as stdio.h) inside an
@@ -130,6 +130,21 @@ BSLS_IDENT("$Id: $")
 #       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
                                         BSL_NATIVE_SUN_STLPORT_HEADER(filename)
 #   endif
+
+#elif defined(BSLS_PLATFORM__CMP_CLANG)
+  // Clang (should go before CMP_GNU)
+#   define BSL_NATIVE_CPP_LIB_HEADER(filename) \
+            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
+#   define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) \
+            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
+#   define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) \
+            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/backward/filename>
+#   define BSL_NATIVE_CPP_C_HEADER(filename) \
+            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
+#   define BSL_NATIVE_CISO646_HEADER(filename) \
+            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
+#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
 
 #elif defined(BSLS_PLATFORM__CMP_GNU)
   // gcc 4.1 or above

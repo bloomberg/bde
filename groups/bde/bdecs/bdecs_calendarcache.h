@@ -200,10 +200,13 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 
 namespace BloombergLP {
 
-class bslma_Allocator;
 class bdecs_CalendarLoader;
 class bdecs_CalendarCacheEntry;
 class bdecs_CalendarCacheIter;
@@ -386,7 +389,14 @@ struct bdecs_CalendarCache_Pair {
         // Destroy this object.
 };
 
+// FREE OPERATORS
+inline
+bool operator==(const bdecs_CalendarCache_Pair& lhs,
+                const bdecs_CalendarCache_Pair& rhs);
 
+inline
+bool operator!=(const bdecs_CalendarCache_Pair& lhs,
+                const bdecs_CalendarCache_Pair& rhs);
 
                      // =======================================
                      // class bdecs_CalendarCacheIter_PairProxy
