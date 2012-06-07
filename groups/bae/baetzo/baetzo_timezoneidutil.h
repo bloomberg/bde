@@ -151,24 +151,24 @@ BDES_IDENT("$Id: $")
 // The 'zoneinfoIdFromWindowsTimeZoneId' method converts a Windows time-zone
 // identifer to the default Zoneinfo equivalent time-zone identifer.
 //..
-//      int         rc;
-//      const char *timeZoneId;
-//      const char *windowsTimeZoneId;
+//  int         rc;
+//  const char *timeZoneId;
+//  const char *windowsTimeZoneId;
 //
-//      rc = baetzo_TimeZoneIdUtil::zoneinfoIdFromWindowsTimeZoneId(
+//  rc = baetzo_TimeZoneIdUtil::zoneinfoIdFromWindowsTimeZoneId(
 //                                           &timeZoneId,
 //                                           "Central Standard Time (Mexico)");
-//      assert(0 == rc);
-//      assert(0 == bsl::strcmp("America/Mexico_City", timeZoneId));
+//  assert(0 == rc);
+//  assert(0 == bsl::strcmp("America/Mexico_City", timeZoneId));
 //..
 // The 'windowsTimeZoneIdFromZoneinfoId' method performs the inverse mapping.
 //..
-//      rc = baetzo_TimeZoneIdUtil::windowsTimeZoneIdFromZoneinfoId(
+//  rc = baetzo_TimeZoneIdUtil::windowsTimeZoneIdFromZoneinfoId(
 //                                                      &windowsTimeZoneId,
 //                                                      "America/Mexico_City");
-//      assert(0 == rc);
-//      assert(0 == bsl::strcmp("Central Standard Time (Mexico)",
-//                               windowsTimeZoneId));
+//  assert(0 == rc);
+//  assert(0 == bsl::strcmp("Central Standard Time (Mexico)",
+//                           windowsTimeZoneId));
 //..
 //
 ///Example 2: Creating a 'baet_LocalDatetime' Object on Windows
@@ -236,24 +236,25 @@ namespace BloombergLP {
 
 struct baetzo_TimeZoneIdUtil {
     // This 'struct' provides a namespace for utility functions that convert
-    // Zoneinfo time-zone identifiers to- and from- other systems of time-zone
-    // identifiers.
+    // Zoneinfo time-zone identifiers both to and from other systems of
+    // time-zone identifiers.
 
     // CLASS METHODS
     static int zoneinfoIdFromWindowsTimeZoneId(const char **result,
                                                const char  *windowsTimeZoneId);
-        // Load into the specified 'result' the address of the default Zoneinfo
-        // time-zone identifier for the specified 'windowsTimeZoneId'.  Return
-        // 0 on success, and non-zero value with no other effect otherwise.
-        // The returned address is valid for the life-time of the process.
+        // Load into the specified 'result' the address a 0 terminated C-string
+        // containing the default Zoneinfo time-zone identifier for the
+        // specified 'windowsTimeZoneId'.  Return 0 on success, and non-zero
+        // value with no other effect otherwise.  The returned address is valid
+        // for the life-time of the process.
 
     static int windowsTimeZoneIdFromZoneinfoId(const char **result,
                                                const char  *zoneinfoId);
-        // Load into the specified 'result' the address the Windows time-zone
-        // identifier that has a default mapping to the specified 'zoneinfoId'.
-        // Return 0 on success, and non-zero value with no other effect
-        // otherwise.  The returned address is valid for the life-time of the
-        // process.
+        // Load into the specified 'result' the address a 0 terminated C-string
+        // containing the Windows time-zone identifier that has a default
+        // mapping to the specified 'zoneinfoId'.  Return 0 on success, and
+        // non-zero value with no other effect otherwise.  The returned address
+        // is valid for the life-time of the process.
 };
 
 // ============================================================================

@@ -68,6 +68,11 @@ static void aSsErT(int c, const char *s, int i)
                     << J << "\t" \
                     << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
 
+#define LOOP4_ASSERT(I,J,K,L,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
+       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
+       aSsErT(1, #X, __LINE__); } }
+
 // ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
@@ -1059,8 +1064,9 @@ int main(int argc, char *argv[])
             int         rc;
             const char *winId;
             rc = Obj::windowsTimeZoneIdFromZoneinfoId(&winId, GIVEN_ID);
-            ASSERT(0 == rc);
-            ASSERT(0 == bsl::strcmp(EXPECTED_ID, winId));
+            LOOP2_ASSERT(LINE, rc, 0 == rc);
+            LOOP4_ASSERT(LINE, GIVEN_ID, EXPECTED_ID, winId,
+                         0 == bsl::strcmp(EXPECTED_ID, winId));
         }
 
         if (verbose) cout << "\nFailure Testing." << endl;
@@ -1169,8 +1175,9 @@ int main(int argc, char *argv[])
             int         rc;
             const char *tzId;
             rc = Obj::zoneinfoIdFromWindowsTimeZoneId(&tzId, GIVEN_ID);
-            ASSERT(0 == rc);
-            ASSERT(0 == bsl::strcmp(EXPECTED_ID, tzId));
+            LOOP2_ASSERT(LINE, rc, 0 == rc);
+            LOOP4_ASSERT(LINE, GIVEN_ID, EXPECTED_ID, tzId,
+                         0 == bsl::strcmp(EXPECTED_ID, tzId));
         }
 
         if (verbose) cout << "\nFailure Testing." << endl;

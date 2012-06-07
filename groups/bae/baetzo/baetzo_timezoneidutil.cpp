@@ -36,9 +36,6 @@ typedef struct TimeZoneIdEntry {
     const char *d_value;
 } TimeZoneIdEntry;
 
-typedef bsl::pair<const TimeZoneIdEntry *,
-                  const TimeZoneIdEntry *> IteratorPair;
-
 static bool isLessThan(const TimeZoneIdEntry& a,
                        const TimeZoneIdEntry& b)
     // Return 'true' is the "key" field of the specified 'a' is lexically
@@ -282,22 +279,6 @@ BSLMF_ASSERT(numWindowsToZoneinfoIds == numZoneinfoToWindowsIds);
                         // ---------------------------
 
 // CLASS METHODS
-#if 0
-    static int zoneinfoIdFromWindowsTimeZoneId(const char **result,
-                                               const char  *windowsTimeZoneId);
-        // Load into the specified 'result' the address of the default Zoneinfo
-        // time-zone identifier for the specified 'windowsTimeZoneId'.  Return
-        // 0 on success, and non-zero value with no other effect otherwise.
-        // The returned address is valid for the life-time of the process.
-
-    static int windowsTimeZoneIdFromZoneinfoId(const char **result,
-                                               const char  *zoneinfoId);
-        // Load into the specified 'result' the address the Windows time-zone
-        // identifier that has a default mapping to the specified 'zoneinfoId'.
-        // Return 0 on success, and non-zero value with no other effect
-        // otherwise.  The returned address is valid for the life-time of the
-        // process.
-#endif
 int baetzo_TimeZoneIdUtil::zoneinfoIdFromWindowsTimeZoneId(
                                                 const char **result,
                                                 const char  *windowsTimeZoneId)
@@ -305,20 +286,17 @@ int baetzo_TimeZoneIdUtil::zoneinfoIdFromWindowsTimeZoneId(
     BSLS_ASSERT(result);
     BSLS_ASSERT(windowsTimeZoneId);
 
-    const TimeZoneIdEntry value = { windowsTimeZoneId, 0 };
-
-    IteratorPair iterators = bsl::equal_range(windowsToZoneinfoIdsBegin,
-                                              windowsToZoneinfoIdsEnd,
-                                              value,
-                                              isLessThan);
-
-    if (iterators.first == iterators.second) {
+    const TimeZoneIdEntry  value = { windowsTimeZoneId, 0 };
+    const TimeZoneIdEntry *ptr   = bsl::lower_bound(windowsToZoneinfoIdsBegin,
+                                                    windowsToZoneinfoIdsEnd,
+                                                    value,
+                                                    isLessThan);
+    if (windowsToZoneinfoIdsEnd == ptr
+     || 0 != bsl::strcmp(windowsTimeZoneId, ptr->d_key)) {
         return -1;                                                    // RETURN
     }
 
-    BSLS_ASSERT_SAFE(1 == bsl::distance(iterators.first, iterators.second));
-
-    *result = iterators.first->d_value;
+    *result = ptr->d_value;
     return 0;
 }
 
@@ -329,20 +307,17 @@ int baetzo_TimeZoneIdUtil::windowsTimeZoneIdFromZoneinfoId(
     BSLS_ASSERT(result);
     BSLS_ASSERT(zoneinfoId);
 
-    const TimeZoneIdEntry value = { zoneinfoId, 0 };
-
-    IteratorPair iterators = bsl::equal_range(zoneinfoToWindowsIdsBegin,
-                                              zoneinfoToWindowsIdsEnd,
-                                              value,
-                                              isLessThan);
-
-    if (iterators.first == iterators.second) {
+    const TimeZoneIdEntry  value = { zoneinfoId, 0 };
+    const TimeZoneIdEntry *ptr   = bsl::lower_bound(zoneinfoToWindowsIdsBegin,
+                                                    zoneinfoToWindowsIdsEnd,
+                                                    value,
+                                                    isLessThan);
+    if (zoneinfoToWindowsIdsEnd == ptr
+     || 0 != bsl::strcmp(zoneinfoId, ptr->d_key)) {
         return -1;                                                    // RETURN
     }
 
-    BSLS_ASSERT_SAFE(1 == bsl::distance(iterators.first, iterators.second));
-
-    *result = iterators.first->d_value;
+    *result = ptr->d_value;
     return 0;
 }
 
