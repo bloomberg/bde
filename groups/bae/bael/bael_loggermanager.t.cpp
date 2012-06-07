@@ -1460,7 +1460,7 @@ int main(int argc, char *argv[])
             ASSERT(A.severity() == cat->passLevel());
             ASSERT(0            == bsl::strcmp(__FILE__, A.fileName()));
             ASSERT(LINE         == A.lineNumber());
-            ASSERT(0            == bsl::strcmp(MESSAGE, A.message().data()));
+            ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
             const List& L = R.userFields();
             ASSERT(0 == L.length());
@@ -1586,7 +1586,7 @@ int main(int argc, char *argv[])
             ASSERT(A.severity() == cat->passLevel());
             ASSERT(0            == bsl::strcmp(__FILE__, A.fileName()));
             ASSERT(LINE         == A.lineNumber());
-            ASSERT(0            == bsl::strcmp(MESSAGE, A.message().data()));
+            ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
             const List& L = R.userFields();
             ASSERT(0 == L.length());
@@ -3524,7 +3524,7 @@ int main(int argc, char *argv[])
             ASSERT(17   == A.severity());
             ASSERT(0    == bsl::strcmp(__FILE__, A.fileName()));
             ASSERT(LINE == A.lineNumber());
-            ASSERT(0    == bsl::strcmp(MESSAGE, A.message().data()));
+            ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
             const List& L = R.userFields();
             ASSERT(   2 == L.length());
@@ -3636,7 +3636,7 @@ int main(int argc, char *argv[])
         ASSERT(17   == A.severity());
         ASSERT(0    == bsl::strcmp(__FILE__, A.fileName()));
         ASSERT(LINE == A.lineNumber());
-        ASSERT(0    == bsl::strcmp(MESSAGE, A.message().data()));
+        ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
         const List& L = R.userFields();
         ASSERT(   2 == L.length());
@@ -3743,7 +3743,7 @@ int main(int argc, char *argv[])
         ASSERT(FACTORY_PASS == A.severity());
         ASSERT(0            == bsl::strcmp(__FILE__, A.fileName()));
         ASSERT(LINE         == A.lineNumber());
-        ASSERT(0            == bsl::strcmp(MESSAGE, A.message().data()));
+        ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
         const List& L = R.userFields();
         ASSERT(   2 == L.length());
@@ -3845,7 +3845,7 @@ int main(int argc, char *argv[])
         ASSERT(17   == A.severity());
         ASSERT(0    == bsl::strcmp(__FILE__, A.fileName()));
         ASSERT(LINE == A.lineNumber());
-        ASSERT(0    == bsl::strcmp(MESSAGE, A.message().data()));
+        ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
         const List& L = R.userFields();
         ASSERT(   2 == L.length());
@@ -3945,7 +3945,7 @@ int main(int argc, char *argv[])
         ASSERT(FACTORY_PASS == A.severity());
         ASSERT(0            == bsl::strcmp(__FILE__, A.fileName()));
         ASSERT(LINE         == A.lineNumber());
-        ASSERT(0            == bsl::strcmp(MESSAGE, A.message().data()));
+        ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
         const List& L = R.userFields();
         ASSERT(   2 == L.length());
@@ -4125,7 +4125,7 @@ int main(int argc, char *argv[])
         ASSERT(17   == A.severity());
         ASSERT(0    == bsl::strcmp(__FILE__, A.fileName()));
         ASSERT(LINE == A.lineNumber());
-        ASSERT(0    == bsl::strcmp(MESSAGE, A.message().data()));
+        ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
         const List& L = R.userFields();
         ASSERT(0 == L.length());
@@ -4301,7 +4301,7 @@ int main(int argc, char *argv[])
         ASSERT(FACTORY_PASS == A.severity());
         ASSERT(0            == bsl::strcmp(__FILE__, A.fileName()));
         ASSERT(LINE         == A.lineNumber());
-        ASSERT(0            == bsl::strcmp(MESSAGE, A.message().data()));
+        ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
         const List& L = R.userFields();
         ASSERT(0 == L.length());
@@ -4443,7 +4443,7 @@ int main(int argc, char *argv[])
         ASSERT(17   == A.severity());
         ASSERT(0    == bsl::strcmp(__FILE__, A.fileName()));
         ASSERT(LINE == A.lineNumber());
-        ASSERT(0    == bsl::strcmp(MESSAGE, A.message().data()));
+        ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
         const List& L = R.userFields();
         ASSERT(0 == L.length());
@@ -4584,7 +4584,7 @@ int main(int argc, char *argv[])
         ASSERT(FACTORY_PASS == A.severity());
         ASSERT(0            == bsl::strcmp(__FILE__, A.fileName()));
         ASSERT(LINE         == A.lineNumber());
-        ASSERT(0            == bsl::strcmp(MESSAGE, A.message().data()));
+        ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
         const List& L = R.userFields();
         ASSERT(0 == L.length());

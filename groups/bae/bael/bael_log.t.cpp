@@ -336,7 +336,7 @@ static int isRecordOkay(const BloombergLP::bael_TestObserver&  observer,
         && severity   == attributes.severity()
         && 0          == bsl::strcmp(fileName, attributes.fileName())
         && lineNumber == attributes.lineNumber()
-        && 0          == bsl::strcmp(message, attributes.message().data());
+        && 0          == bsl::strcmp(message, attributes.message());
 
     if (!status) {
         P_(category->categoryName());  P(attributes.category());

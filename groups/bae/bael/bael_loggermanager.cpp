@@ -651,7 +651,7 @@ void bael_LoggerManager::logMessage(int severity, bael_Record *record)
                  record->fixedFields().fileName(),
                  record->fixedFields().lineNumber(),
                  "UNINITIALIZED_LOGGER_MANAGER",
-                 record->fixedFields().message().data());
+                 record->fixedFields().message());
 
     // This static method is called to log a message when the logger manager
     // singleton is not available (either has not been initialized or has been

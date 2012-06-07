@@ -244,14 +244,14 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                 output += fixedFields.category();
               } break;
               case 'm': {
-                bslstl_StringRef strref = fixedFields.message();
+                bslstl_StringRef strref = fixedFields.messageRef();
                 output.append(strref.data(), strref.length());
               } break;
               case 'x': {
                 bsl::stringstream ss;
                 int length = fixedFields.messageStreamBuf().length();
                 bdeu_Print::printString(ss,
-                                        fixedFields.message().data(),
+                                        fixedFields.message(),
                                         length,
                                         false);
                 output += ss.str();
@@ -260,7 +260,7 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                 bsl::stringstream ss;
                 int length = fixedFields.messageStreamBuf().length();
                 bdeu_Print::singleLineHexDump(ss,
-                                              fixedFields.message().data(),
+                                              fixedFields.message(),
                                               length);
                 output += ss.str();
               } break;

@@ -9,6 +9,7 @@ BDES_IDENT_RCSID(bael_recordattributes_cpp,"$Id$ $CSID$")
 
 #include <bsl_cstring.h>
 #include <bsl_ostream.h>
+#include <bsl_iostream.h>
 
 namespace BloombergLP {
 
@@ -97,7 +98,22 @@ bael_RecordAttributes& bael_RecordAttributes::operator=(
 }
 
 // ACCESSORS
-const bslstl_StringRef bael_RecordAttributes::message() const
+const char *bael_RecordAttributes::message() const
+{
+    const int length = d_messageStreamBuf.length();
+    if (0 == length || '\0' != *(d_messageStreamBuf.data() + length - 1)) {
+        // Null terminate the string.
+
+        bdesb_MemOutStreamBuf& streamBuf =
+            const_cast<bael_RecordAttributes *>(this)->d_messageStreamBuf;
+        streamBuf.sputc('\0');
+        streamBuf.pubseekoff(-1, bsl::ios_base::cur);
+    }
+
+    return d_messageStreamBuf.data();
+}
+
+bslstl_StringRef bael_RecordAttributes::messageRef() const
 {
     int length = d_messageStreamBuf.length();
     if (0 == length || '\0' != *(d_messageStreamBuf.data() + length - 1)) {
@@ -201,7 +217,7 @@ bsl::ostream& bael_RecordAttributes::print(bsl::ostream& stream,
     else {
         stream << ' ';
     }
-    stream << message().data();
+    stream << messageRef();
 
     if (0 <= spacesPerLevel) {
         stream << '\n';
@@ -226,7 +242,7 @@ bool operator==(const bael_RecordAttributes& lhs,
         && lhs.d_lineNumber == rhs.d_lineNumber
         && lhs.d_fileName   == rhs.d_fileName
         && lhs.d_category   == rhs.d_category
-        && !bsl::strcmp(lhs.message().data(), rhs.message().data());
+        && lhs.messageRef() == rhs.messageRef();
 }
 
 }  // close namespace BloombergLP

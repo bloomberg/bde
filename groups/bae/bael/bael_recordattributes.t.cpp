@@ -245,7 +245,7 @@ void initRecordAttributes(bael_RecordAttributes&     lhs,
 
     ASSERT(0 == strcmp(lhs.category(), rhs.category));
     ASSERT(0 == strcmp(lhs.fileName(), rhs.fileName));
-    ASSERT(0 == strcmp(lhs.message().data(),  rhs.message));
+    ASSERT(0 == strcmp(lhs.message(),  rhs.message));
     ASSERT(lhs.lineNumber() == rhs.lineNumber);
     ASSERT(lhs.processID()  == rhs.processID);
     ASSERT(lhs.severity()   == rhs.severity);
@@ -265,7 +265,7 @@ void initRecordAttributes(bael_RecordAttributes&     lhs,
             ALLOC);                                                 \
     ASSERT(0 == strcmp(OBJ.category(), ORA.category));              \
     ASSERT(0 == strcmp(OBJ.fileName(), ORA.fileName));              \
-    ASSERT(0 == strcmp(OBJ.message().data(),  ORA.message));        \
+    ASSERT(0 == strcmp(OBJ.message(),  ORA.message));        \
     ASSERT(OBJ.lineNumber() == ORA.lineNumber);                     \
     ASSERT(OBJ.processID()  == ORA.processID);                      \
     ASSERT(OBJ.severity()   == ORA.severity);                       \
@@ -786,7 +786,7 @@ int main(int argc, char *argv[])
             // white-box implementation of bael_recordattribute::streamOut
             bsl::string fn(Y.fileName());
             bsl::string cat(Y.category());
-            bsl::string msg(Y.message().data());
+            bsl::string msg(Y.message());
 
             Out out;
             now.bdexStreamOut(out, VERSION);
@@ -826,7 +826,7 @@ int main(int argc, char *argv[])
             const int version = 0; // too small ('version' must be >= 1)
             bsl::string fn(Y.fileName());
             bsl::string cat(Y.category());
-            bsl::string msg(Y.message().data());
+            bsl::string msg(Y.message());
 
             Out out;
             now.bdexStreamOut(out, VERSION);
@@ -865,7 +865,7 @@ int main(int argc, char *argv[])
             const char version = 5; // too large (currently 1)
             bsl::string fn(Y.fileName());
             bsl::string cat(Y.category());
-            bsl::string msg(Y.message().data());
+            bsl::string msg(Y.message());
 
             Out out;
 
@@ -966,7 +966,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == strcmp(DEFAULT_CATEGORY, X.category()));
         ASSERT(0 == strcmp(DEFAULT_FILENAME, X.fileName()));
-        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message().data()));
+        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message()));
         ASSERT(DEFAULT_LINENUMBER == X.lineNumber());
         ASSERT(DEFAULT_PROCESSID  == X.processID());
         ASSERT(DEFAULT_SEVERITY   == X.severity());
@@ -1003,7 +1003,7 @@ int main(int argc, char *argv[])
         mX.setCategory(OTHER_CATEGORY);
         ASSERT(0 == strcmp(OTHER_CATEGORY,   X.category()));
         ASSERT(0 == strcmp(DEFAULT_FILENAME, X.fileName()));
-        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message().data()));
+        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message()));
         ASSERT(DEFAULT_LINENUMBER == X.lineNumber());
         ASSERT(DEFAULT_PROCESSID  == X.processID());
         ASSERT(DEFAULT_SEVERITY   == X.severity());
@@ -1041,11 +1041,11 @@ int main(int argc, char *argv[])
         {
             Obj mA;
             char testMessage[] = "test-message";
-            ASSERT(0 == strcmp("", mA.message().data()));
+            ASSERT(0 == strcmp("", mA.message()));
             mA.setMessage(testMessage);
-            ASSERT(0 == strcmp(testMessage, mA.message().data()));
+            ASSERT(0 == strcmp(testMessage, mA.message()));
             mA.clearMessage();
-            ASSERT(0 == strcmp("", mA.message().data()));
+            ASSERT(0 == strcmp("", mA.message()));
         }
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1054,7 +1054,7 @@ int main(int argc, char *argv[])
         }
         {
             Obj mA;
-            ASSERT(0 == strcmp("", mA.message().data()));
+            ASSERT(0 == strcmp("", mA.message()));
 
             char str1[] = "str1";
             char str2[] = "str2";
@@ -1063,24 +1063,24 @@ int main(int argc, char *argv[])
             ostream os(&mA.messageStreamBuf());
 
             os << str1;
-            ASSERT(0 == strcmp("str1", mA.message().data()));
+            ASSERT(0 == strcmp("str1", mA.message()));
 
             os << str2;
-            ASSERT(0 == strcmp("str1str2", mA.message().data()));
+            ASSERT(0 == strcmp("str1str2", mA.message()));
 
             os << str3;
-            ASSERT(0 == strcmp("str1str2str3", mA.message().data()));
+            ASSERT(0 == strcmp("str1str2str3", mA.message()));
 
             mA.clearMessage();
 
             os << str1;
-            ASSERT(0 == strcmp("str1", mA.message().data()));
+            ASSERT(0 == strcmp("str1", mA.message()));
 
             os << str2;
-            ASSERT(0 == strcmp("str1str2", mA.message().data()));
+            ASSERT(0 == strcmp("str1str2", mA.message()));
 
             os << str3;
-            ASSERT(0 == strcmp("str1str2str3", mA.message().data()));
+            ASSERT(0 == strcmp("str1str2str3", mA.message()));
         }
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1089,7 +1089,7 @@ int main(int argc, char *argv[])
         mX.setFileName(OTHER_FILENAME);
         ASSERT(0 == strcmp(DEFAULT_CATEGORY, X.category()));
         ASSERT(0 == strcmp(OTHER_FILENAME,   X.fileName()));
-        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message().data()));
+        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message()));
         ASSERT(DEFAULT_LINENUMBER == X.lineNumber());
         ASSERT(DEFAULT_PROCESSID  == X.processID());
         ASSERT(DEFAULT_SEVERITY   == X.severity());
@@ -1126,7 +1126,7 @@ int main(int argc, char *argv[])
         mX.setMessage(OTHER_MESSAGE);
         ASSERT(0 == strcmp(DEFAULT_CATEGORY, X.category()));
         ASSERT(0 == strcmp(DEFAULT_FILENAME, X.fileName()));
-        ASSERT(0 == strcmp(OTHER_MESSAGE,    X.message().data()));
+        ASSERT(0 == strcmp(OTHER_MESSAGE,    X.message()));
         ASSERT(DEFAULT_LINENUMBER == X.lineNumber());
         ASSERT(DEFAULT_PROCESSID  == X.processID());
         ASSERT(DEFAULT_SEVERITY   == X.severity());
@@ -1163,7 +1163,7 @@ int main(int argc, char *argv[])
         mX.setLineNumber(OTHER_LINENUMBER);
         ASSERT(0 == strcmp(DEFAULT_CATEGORY, X.category()));
         ASSERT(0 == strcmp(DEFAULT_FILENAME, X.fileName()));
-        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message().data()));
+        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message()));
         ASSERT(OTHER_LINENUMBER  == X.lineNumber());
         ASSERT(DEFAULT_PROCESSID == X.processID());
         ASSERT(DEFAULT_SEVERITY  == X.severity());
@@ -1200,7 +1200,7 @@ int main(int argc, char *argv[])
         mX.setProcessID(OTHER_PROCESSID);
         ASSERT(0 == strcmp(DEFAULT_CATEGORY, X.category()));
         ASSERT(0 == strcmp(DEFAULT_FILENAME, X.fileName()));
-        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message().data()));
+        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message()));
         ASSERT(DEFAULT_LINENUMBER == X.lineNumber());
         ASSERT(OTHER_PROCESSID    == X.processID());
         ASSERT(DEFAULT_SEVERITY   == X.severity());
@@ -1237,7 +1237,7 @@ int main(int argc, char *argv[])
         mX.setSeverity(OTHER_SEVERITY);
         ASSERT(0 == strcmp(DEFAULT_CATEGORY, X.category()));
         ASSERT(0 == strcmp(DEFAULT_FILENAME, X.fileName()));
-        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message().data()));
+        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message()));
         ASSERT(DEFAULT_LINENUMBER == X.lineNumber());
         ASSERT(DEFAULT_PROCESSID  == X.processID());
         ASSERT(OTHER_SEVERITY     == X.severity());
@@ -1274,7 +1274,7 @@ int main(int argc, char *argv[])
         mX.setThreadID(OTHER_THREADID);
         ASSERT(0 == strcmp(DEFAULT_CATEGORY, X.category()));
         ASSERT(0 == strcmp(DEFAULT_FILENAME, X.fileName()));
-        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message().data()));
+        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message()));
         ASSERT(DEFAULT_LINENUMBER == X.lineNumber());
         ASSERT(DEFAULT_PROCESSID  == X.processID());
         ASSERT(DEFAULT_SEVERITY   == X.severity());
@@ -1311,7 +1311,7 @@ int main(int argc, char *argv[])
         mX.setTimestamp(OTHER_TIMESTAMP);
         ASSERT(0 == strcmp(DEFAULT_CATEGORY, X.category()));
         ASSERT(0 == strcmp(DEFAULT_FILENAME, X.fileName()));
-        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message().data()));
+        ASSERT(0 == strcmp(DEFAULT_MESSAGE,  X.message()));
         ASSERT(DEFAULT_LINENUMBER == X.lineNumber());
         ASSERT(DEFAULT_PROCESSID  == X.processID());
         ASSERT(DEFAULT_SEVERITY   == X.severity());
@@ -1708,7 +1708,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == strcmp(X3.category(), CATEGORY));
         ASSERT(0 == strcmp(X3.fileName(), FILENAME));
-        ASSERT(0 == strcmp(X3.message().data(),  MESSAGE));
+        ASSERT(0 == strcmp(X3.message(),  MESSAGE));
         ASSERT(X3.lineNumber() == LINENUMBER);
         ASSERT(X3.processID()  == PROCESSID);
         ASSERT(X3.threadID()   == THREADID);
@@ -1751,7 +1751,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == strcmp(X3.category(), CAT));
         ASSERT(0 == strcmp(X3.fileName(), FN));
-        ASSERT(0 == strcmp(X3.message().data(),  MSG));
+        ASSERT(0 == strcmp(X3.message(),  MSG));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (veryVerbose) cout << "\n 10. Assign x2 = x1, x3 = x4." << endl;
