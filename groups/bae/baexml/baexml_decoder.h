@@ -2925,13 +2925,7 @@ int baexml_Decoder_PrepareSequenceContext::operator()(TYPE             *object,
     if (info.formattingMode() & bdeat_FormattingMode::BDEAT_SIMPLE_CONTENT) {
         BSLS_ASSERT_SAFE(d_simpleContentId_p->isNull());
         d_simpleContentId_p->makeValue(info.id());
-        return BAEXML_SUCCESS;                                        // RETURN
     }
-
-    typedef typename
-    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
-
-    executeImp(object, info.formattingMode(), info.id(), TypeCategory());
 
     return BAEXML_SUCCESS;
 }
