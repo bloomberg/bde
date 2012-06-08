@@ -1,4 +1,4 @@
-// bael_recordattributes.cpp         -*-C++-*-
+// bael_recordattributes.cpp                                          -*-C++-*-
 #include <bael_recordattributes.h>
 
 #include <bdes_ident.h>
@@ -77,6 +77,12 @@ void bael_RecordAttributes::setMessage(const char *message)
         d_messageStreamBuf.sputc(*message);
         ++message;
     }
+}
+
+void bael_RecordAttributes::setMessageRef(const bslstl_StringRef& strref)
+{
+    d_messageStreamBuf.pubseekpos(0);
+    d_messageStreamBuf.sputn(strref.data(), strref.length());
 }
 
 bael_RecordAttributes& bael_RecordAttributes::operator=(
@@ -217,7 +223,8 @@ bsl::ostream& bael_RecordAttributes::print(bsl::ostream& stream,
     else {
         stream << ' ';
     }
-    stream << messageRef();
+    bslstl_StringRef strref = messageRef();
+    stream.write(strref.data(), strref.length());
 
     if (0 <= spacesPerLevel) {
         stream << '\n';

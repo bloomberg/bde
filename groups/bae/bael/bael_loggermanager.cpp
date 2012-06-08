@@ -643,15 +643,19 @@ void bael_LoggerManager::logMessage(int severity, bael_Record *record)
     bael_Severity::Level severityLevel = (bael_Severity::Level)severity;
 
     bsl::fprintf(stderr,
-                 "\n%s %d %llu %s %s %d %s %s\n",
+                 "\n%s %d %llu %s %s %d %s ",
                  datetimeStream.str().c_str(),
                  pid,
                  bcemt_ThreadUtil::selfIdAsUint64(),
                  bael_Severity::toAscii(severityLevel),
                  record->fixedFields().fileName(),
                  record->fixedFields().lineNumber(),
-                 "UNINITIALIZED_LOGGER_MANAGER",
-                 record->fixedFields().message());
+                 "UNINITIALIZED_LOGGER_MANAGER");
+
+    bslstl_StringRef strref = record->fixedFields().messageRef();
+    fwrite(strref.data(), strref.length(), 1, stderr);
+
+    bsl::fprintf(stderr, "\n");
 
     // This static method is called to log a message when the logger manager
     // singleton is not available (either has not been initialized or has been
