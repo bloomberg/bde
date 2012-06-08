@@ -346,8 +346,8 @@ struct bdede_CharConvertUtf16 {
         //:   likewise, the string is fitted to the output
         //:   ('dstString->length()' will *NOT* include the terminating 0).  In
         //:   the string and vector cases, 'numBytesWritten' would be redundant
-        //:   with 'dstVector->size()' or 'dstString->length()' and is not part
-        //:   of the interface.
+        //:   with 'dstVector->size()' or 'dstString->length() + 1' and is not
+        //:   part of the interface.
         //: o Optionally specify 'errorCharacter' to be substituted (if not 0)
         //:   for invalid encodings in the input string.  (Invalid encodings
         //:   are incomplete multi-word encodings or parts of a two-word
@@ -360,7 +360,7 @@ struct bdede_CharConvertUtf16 {
         //:   encountered in the input, and 'BDEDE_UTF16_OUT_OF_SPACE_FLAG'
         //:   will be set if the output space was exhausted before conversion
         //:   was complete.  'BDEDE_UTF16_OUT_OF_SPACE_FLAG' is never set if
-        //:   the output is a string or vector.
+        //:   the output is a 'string' or 'vector'.
         //: o The behavior is undefined unless 'dstBuffer' refers to an array
         //:   of at least 'dstCapacity' elements, 'srcString' is
         //:   null-terminated, and 'errorCharacter' is either zero or a valid
@@ -378,8 +378,8 @@ struct bdede_CharConvertUtf16 {
         //:   one-word (two-byte) UTF-16 character will require one to three
         //:   UTF-8 octets (bytes); a two-word (four-byte) UTF-16 character
         //:   will always require four UTF-8 octets.
-        //: o Also note that if the output is a string or vector, any previous
-        //:   contents of the vector are discarded.
+        //: o Also note that if the destination is a 'string' or 'vector', any
+        //:   previous contents of the destination are discarded.
         //: o Also note that if the output is a string or vector, the
         //:   efficiency is improved if enough room for the output is reserved
         //:   in the vector.  The amount of room needed will vary with the
