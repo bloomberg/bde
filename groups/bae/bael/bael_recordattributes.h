@@ -372,7 +372,7 @@ class bael_RecordAttributes {
         // Return the message attribute of this record attributes object.
 
     bslstl_StringRef messageRef() const;
-        // Return a modifiable message attribute of this record attributes
+        // Return a modifiable string reference of this record attributes
         // object.
 
     int processID() const;

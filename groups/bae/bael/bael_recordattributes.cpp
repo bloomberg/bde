@@ -9,7 +9,6 @@ BDES_IDENT_RCSID(bael_recordattributes_cpp,"$Id$ $CSID$")
 
 #include <bsl_cstring.h>
 #include <bsl_ostream.h>
-#include <bsl_iostream.h>
 
 namespace BloombergLP {
 

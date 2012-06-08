@@ -293,7 +293,7 @@ void initRecordAttributes(bael_RecordAttributes&     lhs,
             ALLOC);                                                 \
     ASSERT(0 == strcmp(OBJ.category(), ORA.category));              \
     ASSERT(0 == strcmp(OBJ.fileName(), ORA.fileName));              \
-    ASSERT(0 == strcmp(OBJ.message(),  ORA.message));        \
+    ASSERT(0 == strcmp(OBJ.message(),  ORA.message));               \
     ASSERT(OBJ.lineNumber() == ORA.lineNumber);                     \
     ASSERT(OBJ.processID()  == ORA.processID);                      \
     ASSERT(OBJ.severity()   == ORA.severity);                       \
