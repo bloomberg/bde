@@ -1,8 +1,8 @@
-// baetzo_timezoneidutil.cpp                                          -*-C++-*-
-#include <baetzo_timezoneidutil.h>
+// baetzo_windowstimezoneutil.cpp                                     -*-C++-*-
+#include <baetzo_windowstimezoneutil.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(baetzo_timezoneidutil_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baetzo_windowstimezoneutil_cpp,"$Id$ $CSID$")
 
 ///Implementation Notes
 ///--------------------
@@ -274,14 +274,13 @@ BSLMF_ASSERT(numWindowsToZoneinfoIds == numZoneinfoToWindowsIds);
 
 }  // close unnamed namespace
 
-                        // ---------------------------
-                        // class baetzo_TimeZoneUtilId
-                        // ---------------------------
+                        // --------------------------------
+                        // class baetzo_WindowsTimeZoneUtil
+                        // --------------------------------
 
 // CLASS METHODS
-int baetzo_TimeZoneIdUtil::zoneinfoIdFromWindowsTimeZoneId(
-                                                const char **result,
-                                                const char  *windowsTimeZoneId)
+int baetzo_WindowsTimeZoneUtil::getZoneinfoId(const char **result,
+                                              const char  *windowsTimeZoneId)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(windowsTimeZoneId);
@@ -300,9 +299,8 @@ int baetzo_TimeZoneIdUtil::zoneinfoIdFromWindowsTimeZoneId(
     return 0;
 }
 
-int baetzo_TimeZoneIdUtil::windowsTimeZoneIdFromZoneinfoId(
-                                                       const char **result,
-                                                       const char  *zoneinfoId)
+int baetzo_WindowsTimeZoneUtil::getWindowsTimeZoneId(const char **result,
+                                                     const char  *zoneinfoId)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(zoneinfoId);

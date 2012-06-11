@@ -1,5 +1,5 @@
-// baetzo_timezoneidutil.t.cpp                                        -*-C++-*-
-#include <baetzo_timezoneidutil.h>
+// baetzo_windowstimezoneutil.t.cpp                                   -*-C++-*-
+#include <baetzo_windowstimezoneutil.h>
 
 #include <baetzo_timezoneutil.h>
 #include <baetzo_testloader.h>
@@ -33,8 +33,8 @@ using namespace bsl;
 //
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 2] zoneinfoIdFromWindowsTimeZoneId(const char **, const char *);
-// [ 3] windowsTimeZoneIdFromZoneinfoId(const char **, const char *);
+// [ 2] getZoneinfoId(const char **, const char *);
+// [ 3] getWindowsTimeZoneId(const char **, const char *);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] USAGE EXAMPLE
@@ -96,7 +96,7 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef baetzo_TimeZoneIdUtil      Obj;
+typedef baetzo_WindowsTimeZoneUtil Obj;
 
 typedef struct DefaultDataRow {
     int         d_line;
@@ -927,22 +927,22 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // These code snippets show the basic syntax of this component's methods.
 //
-// The 'zoneinfoIdFromWindowsTimeZoneId' method converts a Windows time-zone
+// The 'getZoneinfoId' method converts a Windows time-zone
 // identifer to the default Zoneinfo equivalent time-zone identifer.
 //..
         int         rc;
         const char *timeZoneId;
         const char *windowsTimeZoneId;
 
-        rc = baetzo_TimeZoneIdUtil::zoneinfoIdFromWindowsTimeZoneId(
+        rc = baetzo_WindowsTimeZoneUtil::getZoneinfoId(
                                              &timeZoneId,
                                              "Central Standard Time (Mexico)");
         ASSERT(0 == rc);
         ASSERT(0 == bsl::strcmp("America/Mexico_City", timeZoneId));
 //..
-// The 'windowsTimeZoneIdFromZoneinfoId' method performs the inverse mapping.
+// The 'getWindowsTimeZoneId' method performs the inverse mapping.
 //..
-        rc = baetzo_TimeZoneIdUtil::windowsTimeZoneIdFromZoneinfoId(
+        rc = baetzo_WindowsTimeZoneUtil::getWindowsTimeZoneId(
                                                         &windowsTimeZoneId,
                                                         "America/Mexico_City");
         ASSERT(0 == rc);
@@ -965,13 +965,12 @@ int main(int argc, char *argv[])
 //..
     const char StandardName[32] = "Arab Standard Time";
 //..
-// Next, use the 'zoneinfoIdFromWindowsTimeZoneId' method to find the
+// Next, use the 'getZoneinfoId' method to find the
 // corresponding Zoneinfo time-zone identifier.
 //..
     const char *zoneinfoId;
-    int         rc = baetzo_TimeZoneIdUtil::zoneinfoIdFromWindowsTimeZoneId(
-                                                                 &zoneinfoId,
-                                                                 StandardName);
+    int         rc = baetzo_WindowsTimeZoneUtil::getZoneinfoId(&zoneinfoId,
+                                                               StandardName);
     ASSERT(0 == rc);
     ASSERT(0 == bsl::strcmp("Asia/Riyadh", zoneinfoId));
 //..
@@ -1007,7 +1006,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'windowsTimeZoneIdFromZoneinfoId'
+        // CLASS METHOD 'getWindowsTimeZoneId'
         //
         // Concerns:
         //: 1 The sorted static table mapping Zoneinfo time-zone identifiers to
@@ -1043,13 +1042,13 @@ int main(int argc, char *argv[])
         //:   (C-4)
         //
         // Testing:
-        //   windowsTimeZoneIdFromZoneinfoId(const char **, const char *);
+        //   getWindowsTimeZoneId(const char **, const char *);
         // --------------------------------------------------------------------
 
         if (verbose) cout
                 << endl
-                << "CLASS METHOD 'windowsTimeZoneIdFromZoneinfoId'" << endl
-                << "==============================================" << endl;
+                << "CLASS METHOD 'getWindowsTimeZoneId'" << endl
+                << "===================================" << endl;
 
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -1063,7 +1062,7 @@ int main(int argc, char *argv[])
 
             int         rc;
             const char *winId;
-            rc = Obj::windowsTimeZoneIdFromZoneinfoId(&winId, GIVEN_ID);
+            rc = Obj::getWindowsTimeZoneId(&winId, GIVEN_ID);
             LOOP2_ASSERT(LINE, rc, 0 == rc);
             LOOP4_ASSERT(LINE, GIVEN_ID, EXPECTED_ID, winId,
                          0 == bsl::strcmp(EXPECTED_ID, winId));
@@ -1093,9 +1092,7 @@ int main(int argc, char *argv[])
                                        P((void *)EXP_ADDR) }
 
                  const char *winId = EXP_ADDR;
-                 int         rc    = Obj::zoneinfoIdFromWindowsTimeZoneId(
-                                                                       &winId,
-                                                                       BAD_ID);
+                 int         rc    = Obj::getZoneinfoId(&winId, BAD_ID);
                  LOOP2_ASSERT(LINE, BAD_ID,           0        != rc);
                  LOOP2_ASSERT(LINE, (void *)EXP_ADDR, EXP_ADDR == winId);
              }
@@ -1108,16 +1105,15 @@ int main(int argc, char *argv[])
             const char  *tzId = "America/Mexico_City";
             const char *winId;
 
-            ASSERT_SAFE_PASS(Obj::windowsTimeZoneIdFromZoneinfoId(&winId,
-                                                                     tzId));
-            ASSERT_SAFE_FAIL(Obj::windowsTimeZoneIdFromZoneinfoId(0, tzId));
-            ASSERT_SAFE_FAIL(Obj::windowsTimeZoneIdFromZoneinfoId(&winId, 0));
-            ASSERT_SAFE_FAIL(Obj::windowsTimeZoneIdFromZoneinfoId(0, 0));
+            ASSERT_SAFE_PASS(Obj::getWindowsTimeZoneId(&winId, tzId));
+            ASSERT_SAFE_FAIL(Obj::getWindowsTimeZoneId(0,      tzId));
+            ASSERT_SAFE_FAIL(Obj::getWindowsTimeZoneId(&winId, 0));
+            ASSERT_SAFE_FAIL(Obj::getWindowsTimeZoneId(0,      0));
         }
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'zoneinfoIdFromWindowsTimeZoneId'
+        // CLASS METHOD 'getZoneinfoId'
         //
         // Concerns:
         //: 1 The sorted static table mapping Windows time-zone identifiers to
@@ -1154,13 +1150,13 @@ int main(int argc, char *argv[])
         //:   (C-4)
         //
         // Testing:
-        //   zoneinfoIdFromWindowsTimeZoneId(const char **, const char *);
+        //   getZoneinfoId(const char **, const char *);
         // --------------------------------------------------------------------
 
         if (verbose) cout
                 << endl
-                << "CLASS METHOD 'zoneinfoIdFromWindowsTimeZoneId'" << endl
-                << "==============================================" << endl;
+                << "CLASS METHOD 'getZoneinfoId'" << endl
+                << "============================"<< endl;
 
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -1174,7 +1170,7 @@ int main(int argc, char *argv[])
 
             int         rc;
             const char *tzId;
-            rc = Obj::zoneinfoIdFromWindowsTimeZoneId(&tzId, GIVEN_ID);
+            rc = Obj::getZoneinfoId(&tzId, GIVEN_ID);
             LOOP2_ASSERT(LINE, rc, 0 == rc);
             LOOP4_ASSERT(LINE, GIVEN_ID, EXPECTED_ID, tzId,
                          0 == bsl::strcmp(EXPECTED_ID, tzId));
@@ -1204,9 +1200,7 @@ int main(int argc, char *argv[])
                                        P((void *)EXP_ADDR) }
 
                  const char *tzId = EXP_ADDR;
-                 int         rc   = Obj::zoneinfoIdFromWindowsTimeZoneId(
-                                                                       &tzId,
-                                                                       BAD_ID);
+                 int         rc   = Obj::getZoneinfoId(&tzId, BAD_ID);
                  LOOP2_ASSERT(LINE, BAD_ID,           0        != rc);
                  LOOP2_ASSERT(LINE, (void *)EXP_ADDR, EXP_ADDR == tzId);
              }
@@ -1219,14 +1213,10 @@ int main(int argc, char *argv[])
             const char *winId = "Central Standard Time (Mexico)";
             const char *tzId;
 
-            ASSERT_SAFE_PASS(Obj::zoneinfoIdFromWindowsTimeZoneId(&tzId,
-                                                                     winId));
-            ASSERT_SAFE_FAIL(Obj::zoneinfoIdFromWindowsTimeZoneId(0,
-                                                                     winId));
-            ASSERT_SAFE_FAIL(Obj::zoneinfoIdFromWindowsTimeZoneId(&tzId,
-                                                                     0));
-            ASSERT_SAFE_FAIL(Obj::zoneinfoIdFromWindowsTimeZoneId(0,
-                                                                     0));
+            ASSERT_SAFE_PASS(Obj::getZoneinfoId(&tzId, winId));
+            ASSERT_SAFE_FAIL(Obj::getZoneinfoId(0,     winId));
+            ASSERT_SAFE_FAIL(Obj::getZoneinfoId(&tzId, 0));
+            ASSERT_SAFE_FAIL(Obj::getZoneinfoId(0,     0));
         }
       } break;
       default: {
