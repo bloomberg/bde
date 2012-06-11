@@ -119,89 +119,11 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
+// Used to test detection of legacy traits
 #define BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT)  \
     operator TRAIT::NestedTrait<T>() const {    \
         return TRAIT::NestedTrait<T>();         \
     }
-
-#if 0
-
-namespace BloombergLP {
-
-struct NonMoveableClass
-{
-};
-
-struct MoveableClass1
-{
-};
-
-namespace bslmf {
-    template <> struct IsBitwiseMoveable<MoveableClass1> : true_type { };
-}
-
-struct MoveableClass2
-{
-    BSLMF_DECLARE_NESTED_TRAIT(MoveableClass2, bslmf::IsBitwiseMoveable);
-};
-
-struct MoveableClass3
-{
-    BSLALG_DECLARE_NESTED_TRAITS(MoveableClass3,
-                                 bslalg::TypeTraitBitwiseMoveable);
-};
-
-template <class TYPE>
-struct NonMoveableTemplate
-{
-};
-
-template <class TYPE>
-struct MoveableTemplate1
-{
-};
-
-namespace bslmf {
-    template <class TYPE>
-    struct IsBitwiseMoveable<MoveableTemplate1<TYPE> > : true_type { };
-}
-
-template <class TYPE>
-struct MoveableTemplate2
-{
-    BSLMF_DECLARE_NESTED_TRAIT(MoveableTemplate2, bslmf::IsBitwiseMoveable);
-};
-
-template <class TYPE>
-struct MoveableTemplate3
-{
-    BSLALG_DECLARE_NESTED_TRAITS(MoveableTemplate3,
-                                 bslalg::TypeTraitBitwiseMoveable);
-};
-
-int usageExample1()
-{
-    using namespace bslmf;
-
-    ASSERT(! IsBitwiseMoveable<NonMoveableClass>::value);
-    ASSERT(  IsBitwiseMoveable<int>::value);
-    ASSERT(  IsBitwiseMoveable<int*>::value);
-    ASSERT(  IsBitwiseMoveable<const int*>::value);
-    ASSERT(  IsBitwiseMoveable<MoveableEnum>::value);
-    ASSERT(  IsBitwiseMoveable<MoveableClass1>::value);
-    ASSERT(  IsBitwiseMoveable<MoveableClass2>::value);
-    ASSERT(  IsBitwiseMoveable<MoveableClass3>::value);
-
-    ASSERT(  IsBitwiseMoveable<MoveableTemplate1<int> >::value);
-    ASSERT(  IsBitwiseMoveable<MoveableTemplate2<int> >::value);
-    ASSERT(  IsBitwiseMoveable<MoveableTemplate3<int> >::value);
-    
-    return 0;
-}
-
-} // Close enterprise namespace
-
-#endif // 0
 
 //..
 // Now we use this trait in a simple algorithm called 'destructiveMoveArray',
@@ -592,7 +514,7 @@ int usageExample1()
 // 'BSLALG_DECLARE_NESTED_TRAITS' macro has been rewritten to allow for this
 // detection of the 'bslalg::TypeTraitBitwiseMoveable' trait:
 //..
-    int usageExample4()
+    int usageExample3()
     {
         using namespace bslmf;
 
@@ -635,6 +557,7 @@ int main(int argc, char *argv[])
 
         usageExample1();
         usageExample2();
+        usageExample3();
 
       } break;
 
