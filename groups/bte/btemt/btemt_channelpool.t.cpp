@@ -8058,8 +8058,22 @@ int main(int argc, char *argv[])
         // Testing 'setNotifyLowWatermark'
         //
         // Concerns:
+        //: 1 'setNotifyLowWatermark' invokes the low watermark immediately if
+        //:   the write cache size is less than or equal to the current
+        //:   low-watermark.
+        //:
+        //: 2 'setNotifyLowWatermark' invokes the low watermark after the
+        //:   enqueue watermark is exceeded and the write cache size drops
+        //:   below the low-watermark.
         //
         // Plan:
+        //: 1 Assert that the low watermark is invoked immediately after
+        //:   'setNotifyWatermark' is called when the write cache size is less
+        //:   than or equal to the low-watermark specified at construction.
+        //:
+        //: 2 Write a message greater than the enqueue cache size and confirm
+        //:   that the low-watermark is not invoked.  Repeat after calling
+        //:   'setNotifyLowWatermark' and assert that low watermark is invoked.
         //
         // Testing:
         //   int setNotifyLowWatermark(int channelId);
