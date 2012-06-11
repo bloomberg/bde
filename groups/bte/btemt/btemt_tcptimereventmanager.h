@@ -317,6 +317,9 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
   public:
     // TYPES
     enum Hint {
+        // DEPRECATED: all methods that use this type are deprecated and the
+        // information passed via this type is always ignored.
+
         BTEMT_NO_HINT,                 // The (de)registrations will likely be
                                        // frequent.
 
@@ -433,18 +436,7 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
     btemt_TcpTimerEventManager(bool             collectTimeMetrics,
                                bool             poolTimerMemory,
                                bslma_Allocator *basicAllocator = 0);
-    explicit
-    btemt_TcpTimerEventManager(Hint             registrationHint,
-                               bslma_Allocator *basicAllocator = 0);
-    btemt_TcpTimerEventManager(Hint             registrationHint,
-                               bool             collectTimeMetrics,
-                               bslma_Allocator *basicAllocator = 0);
-    btemt_TcpTimerEventManager(Hint             registrationHint,
-                               bool             collectTimeMetrics,
-                               bool             poolTimerMemory,
-                               bslma_Allocator *basicAllocator = 0);
-        // Create an event manager.  Optionally specify a 'registrationHint'
-        // (*DEPRECATED* and ignored).  Optionally specify 'collectTimeMetrics'
+        // Create an event manager.  Optionally specify 'collectTimeMetrics'
         // indicating whether this event manager should collect timing metrics.
         // If 'collectTimeMetrics' is unspecified or 'true' then the event
         // manager will provide a categorization of the time it spends
@@ -459,6 +451,34 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
         // 'basicAllocator' refers to a *thread* *safe* allocator.  Note that
         // the dispatcher thread is NOT started by this method (i.e., it must
         // be started explicitly).
+
+    explicit
+    btemt_TcpTimerEventManager(Hint             registrationHint,
+                               bslma_Allocator *basicAllocator = 0);
+    btemt_TcpTimerEventManager(Hint             registrationHint,
+                               bool             collectTimeMetrics,
+                               bslma_Allocator *basicAllocator = 0);
+    btemt_TcpTimerEventManager(Hint             registrationHint,
+                               bool             collectTimeMetrics,
+                               bool             poolTimerMemory,
+                               bslma_Allocator *basicAllocator = 0);
+        // DEPRECATED: the 'registrationHint' parameter is ignored, the
+        // behavior is exactly as it would be had the corresponding constructor
+        // without that argument been called.  Create an event manager.
+        // Optionally specify 'collectTimeMetrics' indicating whether this
+        // event manager should collect timing metrics.  If
+        // 'collectTimeMetrics' is unspecified or 'true' then the event manager
+        // will provide a categorization of the time it spends processing data
+        // via 'timeMetrics()', and if 'collectTimeMetrics' is 'false' the
+        // value of 'timeMetrics()' is unspecified.  Optionally specify
+        // 'poolTimerMemory' indicating whether the memory used for internal
+        // timers should be pooled.  If 'poolTimerMemory' is unspecified then
+        // the memory used for allocating timers will not be pooled.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless 'basicAllocator' refers to a
+        // *thread* *safe* allocator.  Note that the dispatcher thread is NOT
+        // started by this method (i.e., it must be started explicitly).
 
     btemt_TcpTimerEventManager(bteso_EventManager  *rawEventManager,
                                bslma_Allocator     *basicAllocator = 0);
