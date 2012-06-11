@@ -2,11 +2,15 @@ bslmf_addreference
 bslmf_anytype
 bslmf_arraytopointer
 bslmf_assert
+bslmf_declarenestedtrait
+bslmf_detectnestedtrait
 bslmf_enableif
 bslmf_forwardingtype
 bslmf_functionpointertraits
 bslmf_if
+bslmf_integerconstant
 bslmf_isarray
+bslmf_isbitwisemoveable
 bslmf_isclass
 bslmf_isconvertible
 bslmf_isenum
