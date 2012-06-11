@@ -645,11 +645,10 @@ int bdede_CharConvertUtf16::utf8ToUtf16(
     return rc;
 }
 
-int bdede_CharConvertUtf16::utf8ToUtf16(
-                                 bsl::wstring                 *dstWstring,
-                                 const char                   *srcString,
-                                 bsl::size_t                  *numCharsWritten,
-                                 unsigned short                errorCharacter)
+int bdede_CharConvertUtf16::utf8ToUtf16(bsl::wstring   *dstWstring,
+                                        const char     *srcString,
+                                        bsl::size_t    *numCharsWritten,
+                                        unsigned short  errorCharacter)
 {
     bsl::vector<unsigned short> tmpVector;
     tmpVector.reserve(dstWstring->capacity());
@@ -663,20 +662,19 @@ int bdede_CharConvertUtf16::utf8ToUtf16(
     // is at least 32 bits while an unsigned short is 16 bits.
 
     bsl::size_t len = tmpVector.size();
-    BSLS_ASSERT(len > 0);
+    BSLS_ASSERT(len > 0);                // must contain at least terminating 0
     
-    dstWstring->resize(len);
+    dstWstring->resize(len - 1);
     wchar_t        *to   = dstWstring->begin();
     unsigned short *from = tmpVector.begin();
+    wchar_t         c;
 
-    while ((*to++ = *from++)) {
-        ;
+    while ((c = *from++)) {
+        *to++ = c;
     }
 
     BSLS_ASSERT(tmpVector.end() == from);
-    BSLS_ASSERT(0 == to[-1]);
-
-    dstWstring->resize(len - 1);
+    BSLS_ASSERT(dstWstring->end() == to);
 
     return rc;
 }
@@ -961,8 +959,11 @@ int bdede_CharConvertUtf16::utf16ToUtf8(bsl::string          *dstString,
 
         BSLS_ASSERT(dstString->length() - nBytes < MAX_UTF8_CHAR_LENGTH);
 
+        // round up to '2**N - 1' since the string interface may add 1 extra
+        // char for '\0' and may round up to powers of 2.
+
         dstString->resize(bdes_BitUtil::roundUpToBinaryPower(
-                                  dstString->length() + MAX_UTF8_CHAR_LENGTH));
+                          dstString->length() + 1 + MAX_UTF8_CHAR_LENGTH) - 1);
     }
     BSLS_ASSERT(0 == (rc & ~BDEDE_UTF16_INVALID_CHARS_FLAG));
     BSLS_ASSERT(nChars >  0);
