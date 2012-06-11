@@ -622,6 +622,95 @@ void populateMessage(bcema_Blob      *msg,
 
 
 //-----------------------------------------------------------------------------
+// CASE 42
+//-----------------------------------------------------------------------------
+
+namespace CASE42 {
+
+void poolStateCb(int state, int source, int severity)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Pool state callback called with"
+                  << " State: " << state
+                  << " Source: "  << source
+                  << " Severity: " << severity << bsl::endl;
+    }
+}
+
+void channelStateCb(int              channelId,
+                    int              serverId,
+                    int              state,
+                    void            *arg,
+                    int             *id,
+                    int             *numTimesLowWatCalled,
+                    bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Channel state callback called with"
+                  << " Channel Id: " << channelId
+                  << " Server Id: "  << serverId
+                  << " State: " << state << bsl::endl;
+    }
+    if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
+        *id = channelId;
+        barrier->wait();
+    }
+    if (btemt_ChannelPool::BTEMT_WRITE_CACHE_LOWWAT == state) {
+        ++*numTimesLowWatCalled;
+        barrier->wait();
+    }
+}
+
+void blobBasedReadCb(int             *needed,
+                     bcema_Blob      *msg,
+                     int              channelId,
+                     void            *arg,
+                     bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Blob Based Read Cb called with"
+                  << " Channel Id: " << channelId
+                  << " of length: "  << msg->length() << bsl::endl;
+    }
+    *needed = 1;
+
+    barrier->wait();
+
+    msg->removeAll();
+}
+
+struct ReadData {
+    bteso_StreamSocket<bteso_IPv4Address> *d_socket_p;
+    int                                    d_numBytes;
+};
+
+void *readData(void *data)
+{
+    ReadData& td = *(ReadData *) data;
+
+    bteso_StreamSocket<bteso_IPv4Address> *socket    = td.d_socket_p;
+    const int                              NUM_BYTES = td.d_numBytes;
+
+    char buffer[NUM_BYTES];
+
+    int numRemaining = NUM_BYTES;
+    do {
+        int rc = socket->read(buffer, numRemaining);
+        if (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+            numRemaining -= rc;
+        }
+        bcemt_ThreadUtil::microSleep(1000 , 0);
+    } while (numRemaining > 0);
+    return 0;
+}
+
+}
+
+
+//-----------------------------------------------------------------------------
 // CASE 41
 //-----------------------------------------------------------------------------
 
@@ -7964,6 +8053,122 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 42: {
+        // --------------------------------------------------------------------
+        // Testing 'setNotifyLowWatermark'
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   int setNotifyLowWatermark(int channelId);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING 'setNotifyLowWatermark'"
+                 << "\n===============================" << endl;
+
+        using namespace CASE42;
+
+        btemt_ChannelPoolConfiguration config;
+        config.setMaxThreads(1);
+        config.setWriteCacheWatermarks(0, 1024 * 1024 * 1024);
+        config.setReadTimeout(0);        // in seconds
+        if (verbose) {
+            P(config);
+        }
+
+        bcemt_Barrier   channelCbBarrier(2);
+        int             channelId;
+        int             numTimesLowWatCalled = 0;
+        btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                                       bdef_BindUtil::bind(&channelStateCb,
+                                                         _1, _2, _3, _4,
+                                                         &channelId,
+                                                         &numTimesLowWatCalled,
+                                                         &channelCbBarrier));
+
+        btemt_ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
+
+        bcemt_Barrier dataCbBarrier(2);
+
+        btemt_ChannelPool::BlobBasedReadCallback dataCb(
+                                     bdef_BindUtil::bind(&blobBasedReadCb,
+                                                         _1, _2, _3, _4,
+                                                         &dataCbBarrier));
+
+        btemt_ChannelPool pool(channelCb, dataCb, poolCb, config);
+
+        ASSERT(0 == pool.start());
+
+        const int SERVER_ID = 100;
+
+        bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+        bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
+        ASSERT(0 == socket->bind(bteso_IPv4Address()));
+        ASSERT(0 == socket->listen(5));
+
+        bteso_IPv4Address serverAddr;
+        ASSERT(0 == socket->localAddress(&serverAddr));
+        P(serverAddr);
+
+        int rc = pool.connect(serverAddr,
+                              10,
+                              bdet_TimeInterval(1),
+                              SERVER_ID);
+        ASSERT(!rc);
+
+        channelCbBarrier.wait();
+
+        bteso_StreamSocket<bteso_IPv4Address> *client;
+        rc = socket->accept(&client);
+        ASSERT(!rc);
+        ASSERT(0 == client->setBlockingMode(
+                                          bteso_Flag::BTESO_NONBLOCKING_MODE));
+
+        pool.setNotifyLowWatermark(channelId);
+
+        channelCbBarrier.wait();
+        LOOP_ASSERT(numTimesLowWatCalled, 1 == numTimesLowWatCalled);
+
+        const int SIZE = 1024 * 1024 * 10;  // 10 MB
+        bcema_PooledBlobBufferFactory f(SIZE);
+        bcema_Blob                    b(&f);
+        b.setLength(SIZE);
+
+        rc = pool.write(channelId, b);
+        ASSERT(!rc);
+
+        rc = pool.write(channelId, b, 100);
+        ASSERT(rc);
+
+        ReadData rd;
+        rd.d_socket_p      = client;
+        rd.d_numBytes      = SIZE;
+
+        bcemt_ThreadUtil::Handle handle;
+        bcemt_ThreadUtil::create(&handle, &readData, &rd);
+
+        ASSERT(0 == bcemt_ThreadUtil::join(handle));
+        LOOP_ASSERT(numTimesLowWatCalled, 1 == numTimesLowWatCalled);
+
+        rc = pool.write(channelId, b);
+        ASSERT(!rc);
+
+        rc = pool.write(channelId, b, 100);
+        ASSERT(rc);
+
+        pool.setNotifyLowWatermark(channelId);
+
+        bcemt_ThreadUtil::create(&handle, &readData, &rd);
+
+        channelCbBarrier.wait();
+
+        ASSERT(0 == bcemt_ThreadUtil::join(handle));
+        LOOP_ASSERT(numTimesLowWatCalled, 2 == numTimesLowWatCalled);
+
+      } break;
       case 41: {
         // --------------------------------------------------------------------
         // ADDING WRITE STATISTICS - DRQS 30994480

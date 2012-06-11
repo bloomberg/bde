@@ -588,6 +588,17 @@ class btemt_Channel {
         // recorded max write cache size and does not change the write cache
         // high watermark for this channel.
 
+    void setNotifyLowWatermark();
+        // Notify the user of the 'BTEMT_WRITE_CACHE_LOWWAT' alert via the
+        // channel state callback when the internal write cache for the
+        // specified 'channelId' drops below the low-watermark specified at
+        // construction.  Note that the 'BTEMT_WRITE_CACHE_LOWWAT' alert is
+        // only invoked after a write failure because the write cache size
+        // exceeds the high-watermark and not the optional enqueue watermark
+        // argument of write.  So this function can be used to trigger the
+        // 'BTEMT_WRITE_CACHE_LOWWAT' alert if write failed because the enqueue
+        // watermark was exceeded.
+
     // ACCESSORS
     int channelId() const;
         // Return the unique identifier of this channel.
@@ -1762,8 +1773,7 @@ void btemt_Channel::writeCb(ChannelHandle self)
             d_writeActiveCacheSize.relaxedAdd(-writeRet);
 
             if (d_hiWatermarkHitFlag
-             && (d_writeEnqueuedCacheSize
-               + d_writeActiveCacheSize.relaxedLoad() <= d_writeCacheLowWat)) {
+             && (currentWriteCacheSize() <= d_writeCacheLowWat)) {
                 d_hiWatermarkHitFlag = false;
                 oGuard.release()->unlock();
                 d_channelStateCb(d_channelId, d_sourceId,
@@ -2123,11 +2133,10 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
-    int currentWriteCacheSize = d_writeEnqueuedCacheSize
-                              + d_writeActiveCacheSize.relaxedLoad();
+    int currWriteCacheSize = currentWriteCacheSize();
 
-    if (d_recordedMaxWriteCacheSize.relaxedLoad() < currentWriteCacheSize) {
-        d_recordedMaxWriteCacheSize.relaxedStore(currentWriteCacheSize);
+    if (d_recordedMaxWriteCacheSize.relaxedLoad() < currWriteCacheSize) {
+        d_recordedMaxWriteCacheSize.relaxedStore(currWriteCacheSize);
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
@@ -2325,6 +2334,26 @@ int btemt_Channel::setWriteCacheLowWatermark(int numBytes)
 void btemt_Channel::resetRecordedMaxWriteCacheSize()
 {
     d_recordedMaxWriteCacheSize.relaxedStore(currentWriteCacheSize());
+}
+
+void btemt_Channel::setNotifyLowWatermark()
+{
+    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
+
+    d_hiWatermarkHitFlag = true;
+    if (currentWriteCacheSize() <= d_writeCacheLowWat) {
+
+        d_hiWatermarkHitFlag = false;
+        bdef_Function<void (*)()> functor(bdef_BindUtil::bindA(
+                                   d_allocator_p,
+                                   &d_channelStateCb,
+                                   d_channelId,
+                                   d_sourceId,
+                                   btemt_ChannelPool::BTEMT_WRITE_CACHE_LOWWAT,
+                                   d_userData));
+
+        d_eventManager_p->execute(functor);
+    }
 }
 
 // ============================================================================
@@ -3952,6 +3981,19 @@ int btemt_ChannelPool::resetRecordedMaxWriteCacheSize(int channelId)
     BSLS_ASSERT(channelHandle);
 
     channelHandle->resetRecordedMaxWriteCacheSize();
+
+    return 0;
+}
+
+int btemt_ChannelPool::setNotifyLowWatermark(int channelId)
+{
+    ChannelHandle channelHandle;
+    if (0 != findChannelHandle(&channelHandle, channelId)) {
+        return -1;                                                    // RETURN
+    }
+    BSLS_ASSERT(channelHandle);
+
+    channelHandle->setNotifyLowWatermark();
 
     return 0;
 }
