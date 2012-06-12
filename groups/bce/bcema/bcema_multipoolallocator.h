@@ -244,7 +244,7 @@ BDES_IDENT("$Id: $")
 // pools needed by using the formula specified in the "configuration at
 // construction" section:
 //..
-//  largestPoolSize < 2 ^ (N + 2)'.
+//  largestPoolSize < 2 ^ (N + 2).
 //..
 // When solved for the above equation, the smallest 'N' that satisfies this
 // relationship is 3:
@@ -271,9 +271,11 @@ BDES_IDENT("$Id: $")
 #include <bslma_managedallocator.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                      // ==============================
                      // class bcema_MultipoolAllocator
@@ -289,7 +291,7 @@ class bcema_MultipoolAllocator : public bslma_ManagedAllocator {
     // (returns memory to) the internal pool having the smallest block size not
     // less than the requested size, or, if no pool manages memory blocks of
     // sufficient sized, from a separately managed list of memory blocks.  Both
-    // the 'release' method and the destructor of a 'bcema_MultipoolAllocator '
+    // the 'release' method and the destructor of a 'bcema_MultipoolAllocator'
     // release all memory currently allocated via the object.
 
     // DATA

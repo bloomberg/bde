@@ -72,9 +72,11 @@ BDES_IDENT("$Id: $")
 #include <bcemt_timedsemaphore.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                          // ==================
                          // class bcemt_Sluice

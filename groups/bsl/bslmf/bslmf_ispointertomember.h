@@ -10,9 +10,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time check for pointer-to-member types.
 //
 //@CLASSES:
-//          bslmf_IsPointerToMember: check for pointer-to-member types
-//      bslmf_IsPointerToMemberData: check for pointer-to-member data types
-//  bslmf_IsPointerToMemberFunction: check for pointer-to-member function types
+//  bslmf::IsPointerToMember: check for pointer-to-member types
+//  bslmf::IsPointerToMemberData: check for pointer-to-member data types
+//  bslmf::IsPointerToMemberFunction: check for pointer-to-member function types
 //
 //@AUTHOR: Clay Wilson (cwilson9)
 //
@@ -20,43 +20,43 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's parameter is a pointer to member, optionally qualified
-// with 'const' or 'volatile'.  'bslmf_IsPointerToMember' defines a 'VALUE'
+// with 'const' or 'volatile'.  'bslmf::IsPointerToMember' defines a 'VALUE'
 // member that is initialized (at compile-time) to 1 if the parameter is a
 // pointer to member (or a reference to such a type), and to 0 otherwise.  The
-// meta-functions 'bslmf_IsPointerToMemberData' and
-// 'bslmf_IsPointerToMemberFunction' are also provided to test specifically for
-// pointers to (non-'static') data members and pointers to (non-'static')
+// meta-functions 'bslmf::IsPointerToMemberData' and
+// 'bslmf::IsPointerToMemberFunction' are also provided to test specifically
+// for pointers to (non-'static') data members and pointers to (non-'static')
 // function members, respectively.  Note that, consistent with TR1, these
-// metafunctions evaluate to 0 (false) for reference types
-// (i.e., reference-to-pointer-to-member types).
+// metafunctions evaluate to 0 (false) for reference types (i.e.,
+// reference-to-pointer-to-member types).
 //
 ///Usage
 ///-----
 // For example:
 //..
-//   struct MyStruct {};
-//   enum   MyEnum {};
-//   class  MyClass {};
+//  struct MyStruct {};
+//  enum   MyEnum {};
+//  class  MyClass {};
 //
-//   typedef int (MyClass::* PMFdRi)(double, int&);
-//   typedef int (MyClass::* PMFCe)(MyEnum) const;
+//  typedef int (MyClass::* PMFdRi)(double, int&);
+//  typedef int (MyClass::* PMFCe)(MyEnum) const;
 //
-//   assert(0 == bslmf_IsPointerToMember<int             *>::VALUE);
-//   assert(0 == bslmf_IsPointerToMember<    MyStruct    *>::VALUE);
-//   assert(1 == bslmf_IsPointerToMember<int MyStruct::*  >::VALUE);
-//   assert(0 == bslmf_IsPointerToMember<int MyStruct::*& >::VALUE);
-//   assert(0 == bslmf_IsPointerToMember<int MyStruct::* *>::VALUE);
+//  assert(0 == bslmf::IsPointerToMember<int             *>::VALUE);
+//  assert(0 == bslmf::IsPointerToMember<    MyStruct    *>::VALUE);
+//  assert(1 == bslmf::IsPointerToMember<int MyStruct::*  >::VALUE);
+//  assert(0 == bslmf::IsPointerToMember<int MyStruct::*& >::VALUE);
+//  assert(0 == bslmf::IsPointerToMember<int MyStruct::* *>::VALUE);
 //
-//   assert(1 == bslmf_IsPointerToMemberData<int MyStruct::*>::VALUE);
-//   assert(0 == bslmf_IsPointerToMemberData<PMFdRi         >::VALUE);
+//  assert(1 == bslmf::IsPointerToMemberData<int MyStruct::*>::VALUE);
+//  assert(0 == bslmf::IsPointerToMemberData<PMFdRi         >::VALUE);
 //
-//   assert(1 == bslmf_IsPointerToMember<PMFdRi >::VALUE);
-//   assert(0 == bslmf_IsPointerToMember<PMFdRi&>::VALUE);
-//   assert(1 == bslmf_IsPointerToMember<PMFCe  >::VALUE);
-//   assert(0 == bslmf_IsPointerToMember<PMFCe& >::VALUE);
+//  assert(1 == bslmf::IsPointerToMember<PMFdRi >::VALUE);
+//  assert(0 == bslmf::IsPointerToMember<PMFdRi&>::VALUE);
+//  assert(1 == bslmf::IsPointerToMember<PMFCe  >::VALUE);
+//  assert(0 == bslmf::IsPointerToMember<PMFCe& >::VALUE);
 //
-//   assert(1 == bslmf_IsPointerToMemberFunction<PMFdRi        >::VALUE);
-//   assert(0 == bslmf_IsPointerToMemberFunction<int MyClass::*>::VALUE);
+//  assert(1 == bslmf::IsPointerToMemberFunction<PMFdRi        >::VALUE);
+//  assert(0 == bslmf::IsPointerToMemberFunction<int MyClass::*>::VALUE);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -73,76 +73,73 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                      // ======================================
-                      // struct bslmf_IsPointerToMemberFunction
-                      // ======================================
+namespace bslmf {
+
+                      // ================================
+                      // struct IsPointerToMemberFunction
+                      // ================================
 
 template <typename PROTOTYPE>
-struct bslmf_IsPointerToMemberFunction_Imp {
-    enum { VALUE = 0 };
+struct IsPointerToMemberFunction_Imp : MetaInt<0> {
 };
 
 template <typename RETURN, typename CLASS>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)()> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<RETURN (CLASS::*)()> : MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)(ARG1)> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<RETURN (CLASS::*)(ARG1)> : MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)(ARG1, ARG2)> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<RETURN (CLASS::*)(ARG1, ARG2)>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3>
-struct bslmf_IsPointerToMemberFunction_Imp<
-                                         RETURN (CLASS::*)(ARG1, ARG2, ARG3)> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<RETURN (CLASS::*)(ARG1, ARG2, ARG3)>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4>
-struct bslmf_IsPointerToMemberFunction_Imp<
-                                   RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4)> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4)>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5>
-struct bslmf_IsPointerToMemberFunction_Imp<
-                             RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5)> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+                               RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5)>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5, typename ARG6>
-struct bslmf_IsPointerToMemberFunction_Imp<
-                       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+                         RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5, typename ARG6,
                                            typename ARG7>
-struct bslmf_IsPointerToMemberFunction_Imp<
-                 RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+                   RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5, typename ARG6,
                                            typename ARG7, typename ARG8>
-struct bslmf_IsPointerToMemberFunction_Imp<
-           RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+             RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
@@ -150,9 +147,9 @@ template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG5, typename ARG6,
                                            typename ARG7, typename ARG8,
                                            typename ARG9>
-struct bslmf_IsPointerToMemberFunction_Imp<
-     RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
@@ -160,74 +157,76 @@ template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG5, typename ARG6,
                                            typename ARG7, typename ARG8,
                                            typename ARG9, typename ARG10>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)
-               (ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10)> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9, ARG10)> : MetaInt<1> {
 };
 
 // Match pointer to const member function:
 template <typename RETURN, typename CLASS>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)() const> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<RETURN (CLASS::*)() const>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)(ARG1) const> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<RETURN (CLASS::*)(ARG1) const>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2) const> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2) const>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2, ARG3) const> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3) const>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4) const> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4) const>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5) const> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5) const>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5, typename ARG6>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5, typename ARG6,
                                            typename ARG7>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) const> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7) const>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5, typename ARG6,
                                            typename ARG7, typename ARG8>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)
-             (ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) const> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8) const>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
@@ -235,9 +234,10 @@ template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG5, typename ARG6,
                                            typename ARG7, typename ARG8,
                                            typename ARG9>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)
-       (ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9) const> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9) const>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
@@ -245,74 +245,75 @@ template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG5, typename ARG6,
                                            typename ARG7, typename ARG8,
                                            typename ARG9, typename ARG10>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)
-         (ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10) const> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9, ARG10) const>
+: MetaInt<1> {
 };
 
 // Match pointer to volatile member function:
 template <typename RETURN, typename CLASS>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)() volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<RETURN (CLASS::*)() volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)(ARG1) volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<RETURN (CLASS::*)(ARG1) volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2) volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2) volatile> : MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2, ARG3) volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3) volatile> : MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4) volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4) volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5) volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5) volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5, typename ARG6>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5, typename ARG6,
                                            typename ARG7>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7) volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5, typename ARG6,
                                            typename ARG7, typename ARG8>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)
-             (ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8) volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
@@ -320,9 +321,10 @@ template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG5, typename ARG6,
                                            typename ARG7, typename ARG8,
                                            typename ARG9>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)
-       (ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9) volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9) volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
@@ -330,76 +332,78 @@ template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG5, typename ARG6,
                                            typename ARG7, typename ARG8,
                                            typename ARG9, typename ARG10>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)
-      (ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10) volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9, ARG10) volatile>
+: MetaInt<1> {
 };
 
 // Match pointer to const volatile member function:
 template <typename RETURN, typename CLASS>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)() const volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<RETURN (CLASS::*)() const volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1) const volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1) const volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2) const volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2) const volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2, ARG3) const volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3) const volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4) const volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4) const volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5) const volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5) const volatile>
+: MetaInt<1>{
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5, typename ARG6>
-struct bslmf_IsPointerToMemberFunction_Imp<
-        RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5, typename ARG6,
                                            typename ARG7>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)
-        (ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) const volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7) const volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG3, typename ARG4,
                                            typename ARG5, typename ARG6,
                                            typename ARG7, typename ARG8>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)
-             (ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) const volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8) const volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
@@ -407,9 +411,10 @@ template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG5, typename ARG6,
                                            typename ARG7, typename ARG8,
                                            typename ARG9>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)
-       (ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9) const volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9) const volatile>
+: MetaInt<1> {
 };
 
 template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
@@ -417,87 +422,95 @@ template <typename RETURN, typename CLASS, typename ARG1, typename ARG2,
                                            typename ARG5, typename ARG6,
                                            typename ARG7, typename ARG8,
                                            typename ARG9, typename ARG10>
-struct bslmf_IsPointerToMemberFunction_Imp<RETURN (CLASS::*)
-         (ARG1, ARG2, ARG3, ARG4, ARG5,
-          ARG6, ARG7, ARG8, ARG9, ARG10) const volatile> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberFunction_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9, ARG10) const volatile>
+: MetaInt<1> {
 };
 
 template <typename TYPE>
-struct bslmf_IsPointerToMemberFunction {
-    // Metafunction to test if 'TYPE' is a pointer to a member function.
-    // Note that the result is false if 'TYPE' is a reference.
-
-    typedef typename bslmf_RemoveCvq<TYPE>::Type NONCV_TYPE;
-
-    enum { VALUE = bslmf_IsPointerToMemberFunction_Imp<NONCV_TYPE>::VALUE };
-
-    typedef bslmf_MetaInt<VALUE> Type;
+struct IsPointerToMemberFunction
+: IsPointerToMemberFunction_Imp<typename RemoveCvq<TYPE>::Type>::Type {
+    // Metafunction to test if 'TYPE' is a pointer to a member function.  Note
+    // that the result is false if 'TYPE' is a reference.
 };
 
 template <typename TYPE>
-struct bslmf_IsPointerToMemberFunction<TYPE&> : bslmf_MetaInt<0> {
-    // Specialization of 'bslmf_IsPointerToMemberFunction' for reference
-    // types.  Result is always false.
+struct IsPointerToMemberFunction<TYPE&> : MetaInt<0> {
+    // Specialization of 'IsPointerToMemberFunction' for reference types.
+    // Result is always false.
 };
 
-                      // ==================================
-                      // struct bslmf_IsPointerToMemberData
-                      // ==================================
+                      // ============================
+                      // struct IsPointerToMemberData
+                      // ============================
 
 template <typename TYPE>
-struct bslmf_IsPointerToMemberData_Imp {
-    enum { VALUE = 0 };
+struct IsPointerToMemberData_Imp : MetaInt<0> {
 };
 
 template <typename TYPE, typename CLASS>
-struct bslmf_IsPointerToMemberData_Imp<TYPE CLASS::*> {
-    enum { VALUE = 1 };
+struct IsPointerToMemberData_Imp<TYPE CLASS::*> : MetaInt<1> {
 };
 
 template <typename TYPE>
-struct bslmf_IsPointerToMemberData {
-    // Metafunction to test if 'TYPE' is a pointer to a member object.
-    // Note that the result is false if 'TYPE' is a reference.
-
-    typedef typename bslmf_RemoveCvq<TYPE>::Type NONCV_TYPE;
-
-    enum { VALUE = bslmf_IsPointerToMemberFunction<TYPE>::VALUE ? 0 :
-             bslmf_IsPointerToMemberData_Imp<NONCV_TYPE>::VALUE ? 1 : 0
-    };
-
-    typedef bslmf_MetaInt<VALUE> Type;
+struct IsPointerToMemberData
+: MetaInt<!IsPointerToMemberFunction<TYPE>::VALUE &&
+                 IsPointerToMemberData_Imp<typename
+                                           RemoveCvq<TYPE>::Type>::VALUE> {
+    // Metafunction to test if 'TYPE' is a pointer to a member object.  Note
+    // that the result is false if 'TYPE' is a reference.
 };
 
 template <typename TYPE>
-struct bslmf_IsPointerToMemberData<TYPE&> : bslmf_MetaInt<0> {
-    // Specialization of 'bslmf_IsPointerToMemberData' for reference
-    // types.  Result is always false.
+struct IsPointerToMemberData<TYPE&> : MetaInt<0> {
+    // Specialization of 'IsPointerToMemberData' for reference types.  Result
+    // is always false.
 };
 
-                      // ==============================
-                      // struct bslmf_IsPointerToMember
-                      // ==============================
+                      // ========================
+                      // struct IsPointerToMember
+                      // ========================
 
 template <typename TYPE>
-struct bslmf_IsPointerToMember {
+struct IsPointerToMember
+: MetaInt<IsPointerToMemberData<TYPE>::VALUE ||
+                IsPointerToMemberFunction<TYPE>::VALUE> {
     // Metafunction to test if 'TYPE' is a pointer to member (function or
     // object).  The result is false if 'TYPE' is a reference.
-
-    enum { VALUE = bslmf_IsPointerToMemberData<TYPE>::VALUE ? 1 :
-               bslmf_IsPointerToMemberFunction<TYPE>::VALUE ? 1 : 0
-    };
-
-    typedef bslmf_MetaInt<VALUE> Type;
 };
 
 template <typename TYPE>
-struct bslmf_IsPointerToMember<TYPE&> : bslmf_MetaInt<0> {
-    // Specialization of 'bslmf_IsPointerToMember' for reference
-    // types.  Result is always false.
+struct IsPointerToMember<TYPE&> : MetaInt<0> {
+    // Specialization of 'IsPointerToMember' for reference types.  Result is
+    // always false.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_IsPointerToMember
+#undef bslmf_IsPointerToMember
+#endif
+#define bslmf_IsPointerToMember bslmf::IsPointerToMember
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_IsPointerToMemberFunction
+#undef bslmf_IsPointerToMemberFunction
+#endif
+#define bslmf_IsPointerToMemberFunction bslmf::IsPointerToMemberFunction
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_IsPointerToMemberData
+#undef bslmf_IsPointerToMemberData
+#endif
+#define bslmf_IsPointerToMemberData bslmf::IsPointerToMemberData
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

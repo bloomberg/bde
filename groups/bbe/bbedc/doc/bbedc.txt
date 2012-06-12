@@ -1,0 +1,58 @@
+ bbedc.txt
+
+@PURPOSE: Provide calendar approximations, e.g., for fixed-income securities.
+
+@MNEMONIC: Basic Business Environment Day-Count (bbedc)
+
+@AUTHOR: Bill Chapman (bchapman2)
+
+@SEE_ALSO:
+
+@DESCRIPTION: The 'bbedc' package consists of utilities for calculating common
+ day-count conventions.  In fixed income, interest payments occur at regular
+ intervals.  Various day-count conventions have been developed over the years
+ for simplifying the calculation of these interest-accrual periods.  For
+ example, simplifications include assuming (1) that all months have 30 days,
+ and/or (2) that all years have 360 or 365 days.  Complications arise when
+ these simplified day-counts eventually must be synchronized with actual months
+ (having anywhere from 28 to 31 days) and years (having either 365 or 366
+ days).  'bbedc' supports many of the standard day-count conventions, with each
+ in its own component.
+
+/Component Synopsis
+/------------------
+..
+  'bbedc_actual360'          - procedures relating to Actual/360 day-count
+                               convention
+
+  'bbedc_actual365fixed'     - provide support for the Actual/365 (fixed)
+                               day-count convention
+
+  'bbedc_daycount'           - procedures for 'enum' specified day count
+                               conventions
+
+  'bbedc_daycountadapter'    - provide a parametrized day-count convention
+                               implementation
+
+  'bbedc_daycountconvention' - namespace for enumerating day-count conventions
+
+  'bbedc_daycountinterface'  - provide an interface for day-count calculations
+
+  'bbedc_icmaactualactual'   - provide support for the ICMA Actual/Actual
+                               day-count convention
+
+  'bbedc_isdaactualactual'   - provide support for the ISDA Actual/Actual
+                               day-count convention
+
+  'bbedc_isma30360'          - procedures relating to the ISMA 30/360 day-count
+                               convention
+
+  'bbedc_psa30360eom'        - provide support for PSA 30/360 end-of-month
+                               day-count convention
+
+  'bbedc_sia30360eom'        - provide support for SIA 30/360 end-of-month
+                               day-count convention
+
+  'bbedc_sia30360neom'       - provide support for SIA 30/360 no-end-of-month
+                               day-count convention
+..

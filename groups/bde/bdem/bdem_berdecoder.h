@@ -374,7 +374,7 @@ class bdem_BerDecoder {
 
 class bdem_BerDecoder_Node {
     // This class provides current context for BER decoding process and
-    // represents a node for BER element.  The BER element consists of  element
+    // represents a node for BER element.  The BER element consists of element
     // tag, length field, body field and optional end of tag.  The class also
     // provides various methods to read the different parts of BER element
     // such as tag header (tag itself and length fields), body for any type of
@@ -493,14 +493,14 @@ class bdem_BerDecoder_Node {
         // to the decoder's log, and return a non-zero value.
 
     int readTagHeader();
-        // Read the node tag field, containing  tag class, tag type and tag
+        // Read the node tag field, containing tag class, tag type and tag
         // number, and the node length field.  Return zero on success and non
         // zero value otherwise.
 
     int readTagTrailer();
         // Read the node end-of-octets field, if such exists, so the stream
         // will be positioned at the start of next node.  Return zero on
-        // success  and non zero value otherwise.
+        // success and non zero value otherwise.
 
     bool hasMore();
         // Return 'true' if current node has more embedded elements and
@@ -514,7 +514,7 @@ class bdem_BerDecoder_Node {
 
     int readVectorChar(bsl::vector<char> *variable);
         // Read the node body content into specified 'variable'.  Return zero
-        // on success  and non zero otherwise.
+        // on success and non zero otherwise.
 
     // ACCESSORS
     bdem_BerDecoder_Node *parent() const;
@@ -1286,9 +1286,11 @@ bdem_BerDecoder_UniversalElementVisitor(bdem_BerDecoder *decoder)
 template <typename TYPE>
 int bdem_BerDecoder_UniversalElementVisitor::operator()(TYPE *variable)
 {
+    int alternateTag = -1;
     bdem_BerUniversalTagNumber::Value expectedTagNumber =
             bdem_BerUniversalTagNumber::select(*variable,
-                                               d_node.formattingMode());
+                                               d_node.formattingMode(),
+                                               &alternateTag);
 
 //    d_node.setType(variable);
 
@@ -1302,7 +1304,9 @@ int bdem_BerDecoder_UniversalElementVisitor::operator()(TYPE *variable)
     }
 
     if (d_node.tagNumber() != static_cast<int>(expectedTagNumber)) {
-        return d_node.logError("Unexpected tag number");
+        if (-1 == alternateTag || d_node.tagNumber() != alternateTag) {
+            return d_node.logError("Unexpected tag number");
+        }
     }
 
     rc = d_node(variable);

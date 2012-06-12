@@ -98,8 +98,8 @@ typedef bdex_TestOutStream Out;
      // date and time for a particular shipment.
 //
      // PRIVATE CLASS METHODS
-     static bdet_Datetime getCurrentGMTDatetime();
-         // Return the current GMT date and time.
+     static bdet_Datetime getCurrentUTCDatetime();
+         // Return the current UTC date and time.
 //
    public:
 //
@@ -126,7 +126,7 @@ typedef bdex_TestOutStream Out;
  const int MINUTES_PER_HOUR = 60;
 //
  static const struct {
-     int d_offset;         // time zone offset from GMT (in minutes)
+     int d_offset;         // time zone offset from UTC (in minutes)
      int d_deliveryTime;   // delivery time (in minutes)
  } DATA[] = {
     //    Offset                 DeliveryTime
@@ -149,7 +149,7 @@ typedef bdex_TestOutStream Out;
                              // ---------------------
 //
  // PRIVATE CLASS METHODS
- bdet_Datetime DeliverySystem::getCurrentGMTDatetime()
+ bdet_Datetime DeliverySystem::getCurrentUTCDatetime()
  {
      bsl::time_t currentTime = bsl::time(0);
      bsl::tm     gmtTime;
@@ -171,7 +171,7 @@ typedef bdex_TestOutStream Out;
  // CLASS METHODS
  bdet_DatetimeTz DeliverySystem::getEstimatedDeliveryDatetime(CITY city)
  {
-     bdet_Datetime localDatetime(getCurrentGMTDatetime());
+     bdet_Datetime localDatetime(getCurrentUTCDatetime());
      localDatetime.addMinutes(DATA[city].d_offset
                             + DATA[city].d_deliveryTime);
      return bdet_DatetimeTz(localDatetime, DATA[city].d_offset);
@@ -231,7 +231,7 @@ int main(int argc, char *argv[]) {
 // The following snippets of code illustrate how to create and use
 // 'bdet_DateTz' objects.  First we will default construct an object
 // 'datetimeTz1'.  A default constructed object contains an offset of 0,
-// implying that the object represents a date and time in the GMT time zone.
+// implying that the object represents a date and time in the UTC time zone.
 // The value of the date and time is the same as that of a default constructed
 // 'bdet_Datetime' object:
 //..
@@ -240,7 +240,7 @@ int main(int argc, char *argv[]) {
  ASSERT(datetimeTz1.localDatetime() == bdet_Datetime());
 //..
 // Next we set 'datetimeTz1' to 12:00 noon (12:00:00.000) on 12/31/2005 in the
-// EST time zone (GMT-5):
+// EST time zone (UTC-5):
 //..
  bdet_Datetime datetime1(2005, 12, 31, 12, 0, 0, 0);
  bdet_Datetime datetime2(datetime1);
@@ -248,22 +248,22 @@ int main(int argc, char *argv[]) {
 //
  datetimeTz1.setDatetimeTz(datetime1, offset1);
  ASSERT(offset1                     == datetimeTz1.offset());
- ASSERT(datetimeTz1.localDatetime() != datetimeTz1.gmtDatetime());
+ ASSERT(datetimeTz1.localDatetime() != datetimeTz1.utcDatetime());
  ASSERT(datetimeTz1.localDatetime() == datetime1);
- ASSERT(datetimeTz1.gmtDatetime()   != datetime2);
+ ASSERT(datetimeTz1.utcDatetime()   != datetime2);
 //
  datetime2.addMinutes(-offset1);
- ASSERT(datetimeTz1.gmtDatetime()   == datetime2);
+ ASSERT(datetimeTz1.utcDatetime()   == datetime2);
 //..
 // Then we create 'datetimeTz2' as a copy of 'datetimeTz1':
 //..
  bdet_DatetimeTz datetimeTz2(datetimeTz1);
  ASSERT(offset1                     == datetimeTz2.offset());
  ASSERT(datetimeTz2.localDatetime() == datetime1);
- ASSERT(datetimeTz2.gmtDatetime()   == datetime2);
+ ASSERT(datetimeTz2.utcDatetime()   == datetime2);
 //..
 // We now create a third object, 'datetimeTz3', representing the time
-// 10:33:25.000 on 01/01/2001 in the PST time zone (GMT-8):
+// 10:33:25.000 on 01/01/2001 in the PST time zone (UTC-8):
 //..
  bdet_Datetime  datetime3(2001, 1, 1, 10, 33, 25, 0);
  bdet_Datetime  datetime4(datetime3);
@@ -271,12 +271,12 @@ int main(int argc, char *argv[]) {
 //
  bdet_DatetimeTz datetimeTz3(datetime3, offset2);
  ASSERT(offset2                     == datetimeTz3.offset());
- ASSERT(datetimeTz3.localDatetime() != datetimeTz3.gmtDatetime());
+ ASSERT(datetimeTz3.localDatetime() != datetimeTz3.utcDatetime());
  ASSERT(datetimeTz3.localDatetime() == datetime3);
- ASSERT(datetimeTz3.gmtDatetime()   != datetime4);
+ ASSERT(datetimeTz3.utcDatetime()   != datetime4);
 //
  datetime4.addMinutes(-offset2);
- ASSERT(datetimeTz3.gmtDatetime()   == datetime4);
+ ASSERT(datetimeTz3.utcDatetime()   == datetime4);
 //..
 // Finally we stream out the values of 'datetimeTz1', 'datetimeTz2' and
 // 'datetimeTz3' to 'stdout':

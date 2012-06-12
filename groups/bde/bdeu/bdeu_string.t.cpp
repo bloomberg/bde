@@ -1010,6 +1010,8 @@ int main(int argc, char *argv[]) {
         //  2.  Specifically the methods that take a non-null-terminated
         //      'const char *' strings as input will not read pass the
         //      end of these strings.
+        //  3.  The algorithm performs coherently with extended ASCII
+        //      characters (128-255).
         //
         // Plan:
         //  To address concern 1, we arbitrarily select a set S of string pairs
@@ -1165,6 +1167,14 @@ int main(int argc, char *argv[]) {
             { L_,   "abcD",              "ABcD",    },
             { L_,   "abcd",              "accd",    },
             { L_,   "abc123de",          "Abc123DeF"},
+
+            // test with negative signed characters
+            { L_,   "\xc8\xc9\xca",    "\xc7\xc9\xca" },
+            { L_,   "\xc8\xc9\xcb",    "\xc7\xc9\xca" },
+            { L_,   "\xc8\xc9\xca",    "\xc7\xc9\xcb" },
+            { L_,   "\xc8\xc9\xca",    "\xc9\xc9\xca" },
+            { L_,   "\xc8\xc9\xca",    ""             },
+            { L_,   "",                "\xc8\xc9\xca" },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

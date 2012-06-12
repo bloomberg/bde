@@ -1,4 +1,4 @@
-// bslmf_metaint.cpp                  -*-C++-*-
+// bslmf_metaint.cpp                                                  -*-C++-*-
 #include <bslmf_metaint.h>
 
 #include <bsls_ident.h>

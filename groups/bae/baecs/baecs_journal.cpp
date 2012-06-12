@@ -488,6 +488,7 @@ BSLMF_ASSERT(sizeof(baecs_JournalPageHeader) == 112);
 baecs_Journal::baecs_Journal(baecs_MappingManager *mappingManager,
                              bslma_Allocator      *allocator)
 : d_mappingManager_p(mappingManager)
+, d_fileSize(-1)
 , d_fd(bdesu_FileUtil::INVALID_FD)
 , d_pageSetHeaderHandles(bslma_Default::allocator(allocator))
 , d_pageHandles(bslma_Default::allocator(allocator))
@@ -537,6 +538,7 @@ int baecs_Journal::openImpl(const char                   *filename,
         bdesu_FileUtil::close(fd);
         return BAECS_UNABLE_TO_LOCK_ERROR;
     }
+    d_fileSize = bdesu_FileUtil::getFileSize(filename);
 
     struct {
         // TBD: move to header component.

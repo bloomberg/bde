@@ -853,7 +853,7 @@ STREAM& baedb_TestUserDb::bdexStreamIn(STREAM& stream, int version)
             }
 
             removeAllFirms();
-            d_db.theList(USER_TABLE) = userTable;
+            d_db.theModifiableList(USER_TABLE) = userTable;
           } break;
           default: {
             stream.invalidate();

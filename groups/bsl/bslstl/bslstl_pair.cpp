@@ -1,6 +1,6 @@
-// bslstl_pair.cpp                  -*-C++-*-
+// bslstl_pair.cpp                                                    -*-C++-*-
 //
-// IMPLEMENTATION NOTES:  The 'bslstl' package provides an implementation of
+// IMPLEMENTATION NOTES: The 'bslstl' package provides an implementation of
 // 'bsl::pair' but not 'bsl::make_pair'.  This is because, if 'bsl::make_pair'
 // is provided, it would cause compilation errors on valid code, as in the
 // example below:
@@ -77,7 +77,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

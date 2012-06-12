@@ -10,12 +10,11 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a thread-safe recurring and one-time event scheduler.
 //
 //@CLASSES:
-//    bcep_EventScheduler:                     thread-safe event scheduler
-//    bcep_EventSchedulerEventHandle:          managed handle to a scheduled
-//                                             event
-//    bcep_EventSchedulerRecurringEventHandle: managed handle to a recurring
-//                                             scheduled event
+//  bcep_EventScheduler: a thread-safe event scheduler
+//  bcep_EventSchedulerEventHandle: handle to a single scheduled event
+//  bcep_EventSchedulerRecurringEventHandle: handle to a recurring event
 //
+//@SEE ALSO: bcep_timereventscheduler
 //
 //@AUTHOR: Vlad Kliatchko (vkliatch), David Schumann (dschumann1)
 //
@@ -32,6 +31,19 @@ BDES_IDENT("$Id: $")
 // 'Event' and 'RecurringEvent' pointers, which must be released using
 // 'releaseEventRaw'.  Such pointers are used in the "Raw" API of this class
 // and must be used carefully.
+//
+///Comparison to 'bcep_TimerEventScheduler'
+/// - - - - - - - - - - - - - - - - - - - -
+// This component was written after 'bcep_timereventscheduler', which suffered
+// from a couple of short-comings: 1) there was a maximum number of events it
+// could manage, and 2) it was inefficient at dealing with large numbers of
+// events.  This component addresses both those problems -- there is no limit
+// on the number of events it can , and it is more efficient at dealing
+// with large numbers of events.  The disadvantage of this component relative
+// to 'bcep_timereventscheduler' is that handles referring to managed events
+// in a 'bcep_EventScheduler' are reference-counted and need to be released,
+// while handles of events in a 'bcep_TimerEventScheduler' are integral types
+// that do not need to be released.
 //
 ///Thread Safety and "Raw" Event Pointers
 ///--------------------------------------
@@ -104,7 +116,7 @@ BDES_IDENT("$Id: $")
 //
 //   void saveData(vector<Value> *array)
 //   {
-//      array->push_back(Value(bdetu_SystemTime::nowAsDatetimeGMT(), g_data));
+//      array->push_back(Value(bdetu_SystemTime::nowAsDatetimeUtc(), g_data));
 //   }
 //..
 // We allow the scheduler to run for a short time while changing this value
@@ -116,13 +128,13 @@ BDES_IDENT("$Id: $")
 //   scheduler.scheduleRecurringEvent(bdet_TimeInterval(1.5),
 //                                  bdef_BindUtil::bind(&saveData, &values)));
 //   scheduler.start();
-//   bdet_Datetime start = bdetu_SystemTime::nowAsDatetimeGMT();
-//   while ((bdetu_SystemTime::nowAsDatetimeGMT() -
+//   bdet_Datetime start = bdetu_SystemTime::nowAsDatetimeUtc();
+//   while ((bdetu_SystemTime::nowAsDatetimeUtc() -
 //                                          start).totalSeconds() < 7) {
 //     ++g_data;
 //   }
 //   scheduler.stop();
-//   ASSERT(values.size() >= 4);
+//   assert(values.size() >= 4);
 //   for (int i = 0; i < values.size(); ++i) {
 //     bsl::cout << "At " << values[i].first << " g_data was "
 //               << values[i].second << bsl::endl;
@@ -237,7 +249,7 @@ BDES_IDENT("$Id: $")
 // {
 //     // If connection has already timed out and closed, simply return.
 //     if (d_scheduler.cancelEvent(connection->d_timerId)) {
-//         return;                                                // RETURN
+//         return;                                                    // RETURN
 //     }
 //
 //     // process the data
@@ -294,9 +306,12 @@ BDES_IDENT("$Id: $")
 #include <bsl_utility.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
-class bslma_Allocator;
 class bcep_EventSchedulerEventHandle;
 class bcep_EventSchedulerRecurringEventHandle;
 
@@ -329,8 +344,8 @@ class bcep_EventScheduler {
     // PUBLIC TYPES
     struct Event {};
     struct RecurringEvent {};
-       // Pointers to the opaque structures 'Event' and 'RecurringEvent' are
-       // populated by the "Raw" API of 'bcep_EventScheduler'.
+        // Pointers to the opaque structures 'Event' and 'RecurringEvent' are
+        // populated by the "Raw" API of 'bcep_EventScheduler'.
 
     typedef bcep_EventSchedulerEventHandle          EventHandle;
 
@@ -341,8 +356,8 @@ class bcep_EventScheduler {
 
   private:
     // NOT IMPLEMENTED
-    bcep_EventScheduler(const bcep_EventScheduler& original);
-    bcep_EventScheduler& operator=(const bcep_EventScheduler& rhs);
+    bcep_EventScheduler(const bcep_EventScheduler&);
+    bcep_EventScheduler& operator=(const bcep_EventScheduler&);
 
   private:
     // PRIVATE DATA
@@ -399,7 +414,7 @@ class bcep_EventScheduler {
         // is undefined if neither d_currentEvent nor d_currentRecurringEvent
         // is valid.  Note that the argument and return value of this method
         // are expressed in terms of the number of microseconds elapsed since
-        // midnight, January 1, 1970 GMT.  Also note that this method may
+        // midnight, January 1, 1970 UTC.  Also note that this method may
         // update the value of 'now' with the current system time if necessary.
 
     void dispatchEvents();
@@ -453,6 +468,14 @@ class bcep_EventScheduler {
         // successful cancellation, and a non-zero value if the 'handle' is
         // invalid *or* if the event has already been dispatched or canceled.
 
+    int cancelEvent(EventHandle          *handle);
+    int cancelEvent(RecurringEventHandle *handle);
+        // Cancel the event having the specified 'handle' and release the
+        // handle.  Return 0 on successful cancellation, and a non-zero value
+        // if the 'handle' is invalid *or* if the event has already been
+        // dispatched or canceled.  Note that 'handle' is released whether this
+        // call is successful or not.
+
     int cancelEventAndWait(const Event          *handle);
     int cancelEventAndWait(const RecurringEvent *handle);
         // Cancel the event having the specified 'handle'.  Block until
@@ -464,6 +487,20 @@ class bcep_EventScheduler {
         // from the dispatcher thread.  Note that if the event is being
         // executed when this method is invoked, this method will block until
         // it is completed and then return a nonzero value.
+
+    int cancelEventAndWait(EventHandle          *handle);
+    int cancelEventAndWait(RecurringEventHandle *handle);
+        // Cancel the event having the specified 'handle' and release
+        // '*handle'.  Block until the event having the specified 'handle' (if
+        // it is valid) is either successfully canceled or dispatched before
+        // the call returns.  Return 0 on successful cancellation, and a
+        // non-zero value if the 'handle' is invalid *or* if the event has
+        // already been dispatched or canceled.  The behavior is undefined if
+        // this method is invoked from the dispatcher thread.  Note that if the
+        // event is being executed when this method is invoked, this method
+        // will block until it is completed and then return a nonzero value.
+        // Also note that it is guaranteed that '*handle' will be released
+        // whether this call is successful or not.
 
     void releaseEventRaw(Event          *handle);
     void releaseEventRaw(RecurringEvent *handle);
@@ -477,7 +514,7 @@ class bcep_EventScheduler {
                         const bdet_TimeInterval&  newTime);
         // Reschedule the event referred to by the specified 'handle' at
         // the specified (absolute) 'newTime'.  Absolute time is defined as
-        // the interval since midnight, Jan 1, 1970, GMT.  Return 0 on
+        // the interval since midnight, Jan 1, 1970, UTC.  Return 0 on
         // successful reschedule, and a non-zero value if the 'handle' is
         // invalid *or* if the event has already been dispatched.
 
@@ -485,7 +522,7 @@ class bcep_EventScheduler {
                                const bdet_TimeInterval&  newTime);
         // Reschedule the event referred to by the specified 'handle' at
         // the specified (absolute) 'newTime'.  Absolute time is defined as
-        // the interval since midnight, Jan 1, 1970, GMT.  Block until the
+        // the interval since midnight, Jan 1, 1970, UTC.  Block until the
         // event having the specified 'handle' (if it is valid) is either
         // successfully rescheduled or dispatched before the call returns.
         // Return 0 on successful reschedule, and a non-zero value if the
@@ -500,7 +537,7 @@ class bcep_EventScheduler {
                        const bdef_Function<void(*)()>&  callback);
         // Schedule the specified 'callback' to be dispatched at the specified
         // (absolute) 'time'.  Absolute time is defined as the interval since
-        // midnight, Jan 1, 1970, GMT.  Load into the optionally specified
+        // midnight, Jan 1, 1970, UTC.  Load into the optionally specified
         // 'event' a handle that can be used to cancel the event (by invoking
         // 'cancelEvent').  Note that 'time' may be in the past, in which case
         // the event will be executed as soon as possible.
@@ -510,7 +547,7 @@ class bcep_EventScheduler {
                           const bdef_Function<void(*)()>&   callback);
         // Schedule the specified 'callback' to be dispatched at the specified
         // (absolute) 'time'.  Absolute time is the defined as the interval
-        // since midnight, Jan 1, 1970, GMT.  Load into the specified 'event'
+        // since midnight, Jan 1, 1970, UTC.  Load into the specified 'event'
         // pointer a handle that can be used to cancel the event (by invoking
         // 'cancelEvent').  The 'event' pointer must be released by
         // invoking 'releaseEventRaw' when it is no longer needed.
@@ -527,7 +564,7 @@ class bcep_EventScheduler {
         // Schedule a recurring event that invokes the specified 'callback' at
         // every specified 'interval', with the first event dispatched at the
         // optionally-specified (absolute) 'startTime'.  Absolute time is
-        // defined as the interval since midnight, Jan 1, 1970, GMT.  If
+        // defined as the interval since midnight, Jan 1, 1970, UTC.  If
         // 'startTime' is not specified, the first event is dispatched at one
         // 'interval' from now.  Load into the optionally-specified 'event' a
         // handle that can be used to cancel the event (by invoking
@@ -542,7 +579,7 @@ class bcep_EventScheduler {
         // Schedule a recurring event that invokes the specified 'callback' at
         // every specified 'interval', with the first event dispatched at the
         // optionally-specified (absolute) 'startTime'.  Absolute time is
-        // defined as the interval since midnight, Jan 1, 1970, GMT.  If
+        // defined as the interval since midnight, Jan 1, 1970, UTC.  If
         // 'startTime' is not specified, the first event is dispatched at one
         // 'interval' from now.  Load into the specified 'event' pointer a
         // handle that can be used to cancel the event (by invoking
@@ -624,29 +661,30 @@ class bcep_EventSchedulerEventHandle
 
     // CREATORS
     bcep_EventSchedulerEventHandle();
-       // Create a new handle object that does not refer to an event.
+        // Create a new handle object that does not refer to an event.
 
-    bcep_EventSchedulerEventHandle(const bcep_EventSchedulerEventHandle& rhs);
-       // Create a new handle object referring to the same event as the
-       // specified 'rhs' handle.
+    bcep_EventSchedulerEventHandle(
+                               const bcep_EventSchedulerEventHandle& original);
+        // Create a new handle object referring to the same event as the
+        // specified 'rhs' handle.
 
     ~bcep_EventSchedulerEventHandle();
-       // Destroy this object and release the managed reference, if any.
+        // Destroy this object and release the managed reference, if any.
 
     // MANIPULATORS
     bcep_EventSchedulerEventHandle& operator=(
                                     const bcep_EventSchedulerEventHandle& rhs);
-       // Release this handle's reference, if any; then make this handle
-       // refer to the same event as the specified 'rhs' handle.
-       // Return a modifiable reference to this handle.
+        // Release this handle's reference, if any; then make this handle
+        // refer to the same event as the specified 'rhs' handle.
+        // Return a modifiable reference to this handle.
 
     void release();
-       // Release the reference (if any) held by this object.
+        // Release the reference (if any) held by this object.
 
     // ACCESSORS
     operator const Event*() const;
-       // Return a "raw" pointer to the event managed by this handle, or 0
-       // if this handle does not manage a reference.
+        // Return a "raw" pointer to the event managed by this handle, or 0
+        // if this handle does not manage a reference.
 };
 
                  // =============================================
@@ -678,30 +716,30 @@ class bcep_EventSchedulerRecurringEventHandle
 
     // CREATORS
     bcep_EventSchedulerRecurringEventHandle();
-       // Create a new handle object.
+        // Create a new handle object.
 
     bcep_EventSchedulerRecurringEventHandle(
-                           const bcep_EventSchedulerRecurringEventHandle& rhs);
-       // Create a new handle object referring to the same recurring event
-       // as the specified 'rhs' handle.
+                      const bcep_EventSchedulerRecurringEventHandle& original);
+        // Create a new handle object referring to the same recurring event
+        // as the specified 'rhs' handle.
 
     ~bcep_EventSchedulerRecurringEventHandle();
-       // Destroy this object and release the managed reference, if any.
+        // Destroy this object and release the managed reference, if any.
 
     // MANIPULATORS
     bcep_EventSchedulerRecurringEventHandle& operator=(
                            const bcep_EventSchedulerRecurringEventHandle& rhs);
-       // Release the reference managed by this handle, if any; then make
-       // this handle refer to the same recurring event as the specified
-       // 'rhs' handle.  Return a modifiable reference to this event handle.
+        // Release the reference managed by this handle, if any; then make
+        // this handle refer to the same recurring event as the specified
+        // 'rhs' handle.  Return a modifiable reference to this event handle.
 
     void release();
-       // Release the reference managed by this handle, if any.
+        // Release the reference managed by this handle, if any.
 
     // ACCESSORS
     operator const RecurringEvent*() const;
-       // Return a "raw" pointer to the recurring event managed by this
-       // handle, or 0 if this handle does not manage a reference.
+        // Return a "raw" pointer to the recurring event managed by this
+        // handle, or 0 if this handle does not manage a reference.
 
 };
 

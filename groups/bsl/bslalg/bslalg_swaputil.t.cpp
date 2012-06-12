@@ -12,7 +12,7 @@
 //                              --------
 //
 //-----------------------------------------------------------------------------
-// bslalg_SwapUtil public interface:
+// bslalg::SwapUtil public interface:
 // [ 2] void swap(T *a, T *b);
 //-----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
@@ -99,7 +99,7 @@ struct SwapContainer
 
     void swap(SwapContainer & other)
     {
-        bslalg_SwapUtil::swap(&m_t, &other.m_t);
+        bslalg::SwapUtil::swap(&m_t, &other.m_t);
     }
 };
 
@@ -121,9 +121,9 @@ using namespace BloombergLP;
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: using 'bslalg_SwapUtil::swap'
+///Example 1: using 'bslalg::SwapUtil::swap'
 /// - - - - - - - - - - - - - - - - - - - -
-// In this example we define a type 'Container' and use 'bslalg_SwapUtil' to
+// In this example we define a type 'Container' and use 'bslalg::SwapUtil' to
 // both implement a user-defined 'swap' for 'Container', and swap two container
 // objects.
 //
@@ -152,20 +152,20 @@ void swap(Container& a, Container& b);
 // Note that the free function 'swap' is overloaded in the namespace of the
 // class 'Container', which is 'xyz'.
 //
-// Next, we implemente the 'swap' method using the 'bslalg_SwapUtil::swap' to
+// Next, we implemente the 'swap' method using the 'bslalg::SwapUtil::swap' to
 // swap the individual data elements:
 //..
 inline
 void Container::swap(Container& other)
 {
-    bslalg_SwapUtil::swap(&d_expensiveData, &other.d_expensiveData);
+    bslalg::SwapUtil::swap(&d_expensiveData, &other.d_expensiveData);
 
     // Equivalent to:
     // using bsl::swap;
     // bsl::swap(d_expensiveData, other.d_expensiveData);
 }
 //..
-// Notice that calling 'bslalg_SwapUtil::swap' is equivalent to making the
+// Notice that calling 'bslalg::SwapUtil::swap' is equivalent to making the
 // 'bsl::swap' available in the current scope by doing 'using bsl::swap' and
 // making a subsequent call to an unqualified 'swap' function.
 //
@@ -203,12 +203,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-// Finally we can use 'bslalg_SwapUtil::swap' to swap two objects of class
+// Finally we can use 'bslalg::SwapUtil::swap' to swap two objects of class
 // 'xyz::Container':
 //..
 xyz::Container c1, c2;
 
-bslalg_SwapUtil::swap(&c1, &c2);
+bslalg::SwapUtil::swap(&c1, &c2);
 //..
 // The above code correctly calls the 'xyz::swap' overload for the 'Container'
 // class.
@@ -219,7 +219,7 @@ bslalg_SwapUtil::swap(&c1, &c2);
         // TESTING swap
         //
         // Concerns:
-        //: 1 'bslalg_SwapUtil::swap' calls the 'swap' found by ADL in the
+        //: 1 'bslalg::SwapUtil::swap' calls the 'swap' found by ADL in the
         //:   namespace of a class for the class that provides its own 'swap'
         //:   overload.
         //: 2 'bslald_SwapUtil::swap' calls the generic 'bsl::swap' for a class
@@ -227,9 +227,9 @@ bslalg_SwapUtil::swap(&c1, &c2);
         //
         // Plan:
         //: 1 Create two objects of type 'SwapTester' which provides its own
-        //:   overload of 'swap'.  Call the 'bslalg_SwapUtil::swap' on them and
+        //:   overload of 'swap'.  Call the 'bslalg::SwapUtil::swap' on them and
         //:   verify that the overloaded 'swap' has been called.
-        //: 2 Call 'bslalg_SwapUtil::swap' on two ints.  Since 'int' doesn't
+        //: 2 Call 'bslalg::SwapUtil::swap' on two ints.  Since 'int' doesn't
         //:   have its own 'swap' overload, the generic 'swap' has to be found.
         //
         // Testing:
@@ -244,7 +244,7 @@ bslalg_SwapUtil::swap(&c1, &c2);
         ASSERT(!a.swapped);
         ASSERT(!b.swapped);
 
-        bslalg_SwapUtil::swap(&a, &b);
+        bslalg::SwapUtil::swap(&a, &b);
 
         ASSERT(a.swapped);
         ASSERT(b.swapped);
@@ -252,7 +252,7 @@ bslalg_SwapUtil::swap(&c1, &c2);
         int c = 10;
         int d = 20;
 
-        bslalg_SwapUtil::swap(&c, &d);
+        bslalg::SwapUtil::swap(&c, &d);
 
         ASSERT(c == 20);
         ASSERT(d == 10);
@@ -264,7 +264,7 @@ bslalg_SwapUtil::swap(&c1, &c2);
         ASSERT(!ca.m_t.swapped);
         ASSERT(!cb.m_t.swapped);
 
-        bslalg_SwapUtil::swap(&ca, &cb);
+        bslalg::SwapUtil::swap(&ca, &cb);
 
         ASSERT(ca.m_t.swapped);
         ASSERT(cb.m_t.swapped);
@@ -283,7 +283,7 @@ bslalg_SwapUtil::swap(&c1, &c2);
         int c = 10;
         int d = 20;
 
-        bslalg_SwapUtil::swap(&c, &d);
+        bslalg::SwapUtil::swap(&c, &d);
 
         ASSERT(c == 20);
         ASSERT(d == 10);

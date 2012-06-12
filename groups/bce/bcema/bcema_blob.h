@@ -321,7 +321,7 @@ BDES_IDENT("$Id: $")
 //      BSLS_ASSERT(0 < blob->numDataBuffers());
 //
 //      bcema_BlobBuffer buffer;
-//      bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeGMT();
+//      bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeUtc();
 //
 //      SimpleBlobBufferFactory fa(128, allocator);
 //      bcema_BlobBuffer timestampBuffer;
@@ -389,9 +389,11 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                            // ======================
                            // class bcema_BlobBuffer

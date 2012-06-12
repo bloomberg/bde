@@ -413,13 +413,16 @@ inline
 bool operator<(const map<_Key,_Tp,_Compare,_Alloc>& __x,
                const map<_Key,_Tp,_Compare,_Alloc>& __y) {
   return std::lexicographical_compare(__x.begin(), __x.end(),
-          __y.begin(), __y.end());
+                                      __y.begin(), __y.end());
 }
 
 template <class _Key, class _Tp, class _Compare, class _Alloc>
 inline
 bool operator!=(const map<_Key,_Tp,_Compare,_Alloc>& __x,
-                const map<_Key,_Tp,_Compare,_Alloc>& __y) {return !(__x == __y);}
+                const map<_Key,_Tp,_Compare,_Alloc>& __y) 
+{
+    return !(__x == __y);
+}
 
 template <class _Key, class _Tp, class _Compare, class _Alloc>
 inline
@@ -463,9 +466,9 @@ bool  operator==(const multimap<_Key,_Tp,_Compare,_Alloc>& __x,
 template <class _Key, class _Tp, class _Compare, class _Alloc>
 inline
 bool operator<(const multimap<_Key,_Tp,_Compare,_Alloc>& __x,
-              const multimap<_Key,_Tp,_Compare,_Alloc>& __y) {
+               const multimap<_Key,_Tp,_Compare,_Alloc>& __y) {
   return std::lexicographical_compare(__x.begin(), __x.end(),
-          __y.begin(), __y.end());
+                                      __y.begin(), __y.end());
 }
 
 template <class _Key, class _Tp, class _Compare, class _Alloc>

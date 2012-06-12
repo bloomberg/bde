@@ -268,9 +268,11 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
 class bael_Context;
 class bael_Record;
@@ -337,7 +339,7 @@ class bael_FileObserver : public bael_Observer {
         // 'stdoutThreshold' level.  If 'stdoutThreshold' is not specified, log
         // records are published to 'stdout' if their severity is at least as
         // severe as 'bael_Severity::BAEL_WARN'.  The timestamp attribute of
-        // published records is written in GMT time by default.  Optionally
+        // published records is written in UTC time by default.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  Note that user-defined fields are published to 'stdout' by

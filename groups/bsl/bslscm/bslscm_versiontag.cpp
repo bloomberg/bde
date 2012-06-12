@@ -1,4 +1,4 @@
-// bslscm_versiontag.cpp -*-C++-*-
+// bslscm_versiontag.cpp                                              -*-C++-*-
 #include <bslscm_versiontag.h>
 
 #include <bsls_ident.h>

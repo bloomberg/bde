@@ -1,4 +1,4 @@
-// bslalg_typetraithasstliterators.t.cpp                  -*-C++-*-
+// bslalg_typetraithasstliterators.t.cpp                              -*-C++-*-
 
 #include <bslalg_typetraithasstliterators.h>
 
@@ -65,7 +65,7 @@ int verbose = 0;
 int veryVerbose = 0;
 int veryVeryVerbose = 0;
 
-typedef bslalg_TypeTraitHasStlIterators  Obj;
+typedef bslalg::TypeTraitHasStlIterators  Obj;
 
 //=============================================================================
 //                  USAGE EXAMPLE
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
         // Plan:  Create an instance of the trait class.
         //
         // Testing:
-        //   class bslalg_TypeTraitHasStlIterators;
+        //   class bslalg::TypeTraitHasStlIterators;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"

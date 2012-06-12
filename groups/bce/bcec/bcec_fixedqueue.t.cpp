@@ -4,16 +4,17 @@
 #include <bcec_queue.h>
 #include <bcec_skiplist.h>
 
-#include <bcema_sharedptr.h>
-#include <bcema_testallocator.h>
 #include <bcemt_barrier.h>
+#include <bcemt_configuration.h>
 #include <bcemt_lockguard.h>
 #include <bcemt_qlock.h>
+#include <bcema_sharedptr.h>
+#include <bcema_testallocator.h>
 #include <bcemt_threadgroup.h>
 #include <bcemt_turnstile.h>
 
-#include <bdef_function.h>
 #include <bdef_bind.h>
+#include <bdef_function.h>
 #include <bdetu_systemtime.h>
 #include <bdeu_random.h>
 
@@ -1030,6 +1031,9 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
+    bcemt_Configuration::setDefaultThreadStackSize(
+                     bcemt_Configuration::recommendedDefaultThreadStackSize());
+
     switch (test) { case 0:  // Zero is always the leading case.
       case 20: {
         // ---------------------------------------------------------
@@ -1038,12 +1042,13 @@ int main(int argc, char *argv[])
         // bcec_FixedQueue<T> should work for types T that have no default
         // constructor and a 1-arg copy constructor.
         // ---------------------------------------------------------
-          bcec_FixedQueue<TestType> q(10);
 
-          TestType t(1, 2);
-          q.pushBack(t);
+        bcec_FixedQueue<TestType> q(10);
 
-          TestType t2 = q.popFront();
+        TestType t(1, 2);
+        q.pushBack(t);
+
+         TestType t2 = q.popFront();
       } break;
 
       case 19: {
@@ -1055,6 +1060,7 @@ int main(int argc, char *argv[])
         // the real length of the queue will always be between 0 and N,
         // so verify that the reported length is always in this range.
         // ---------------------------------------------------------
+
         enum {
             NUM_PUSHPOP_THREADS = 6,
             TEST_DURATION = 3 // in seconds
@@ -1098,6 +1104,7 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // IndexQueue size and range test
         // ---------------------------------------------------------
+
         if (verbose) cout << endl
                           << "IndexQueue size and range test" << endl
                           << "==============================" << endl;
@@ -1173,6 +1180,7 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // Disable while pushing into a full queue
         // ---------------------------------------------------------
+
         if (verbose) cout << endl
                           << "Disable while pushing into a full queue" << endl
                           << "=======================================" << endl;
@@ -1193,6 +1201,7 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // Pushing zeros through the IndexQueue
         // ---------------------------------------------------------
+
         if (verbose) cout << endl
                           << "Pushing zeros through the IndexQueue" << endl
                           << "====================================" << endl;
@@ -1214,6 +1223,7 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // IndexQueue disable/enable test
         // ---------------------------------------------------------
+
         if (verbose) cout << endl
                           << "IndexQueue disable/enable test" << endl
                           << "==============================" << endl;
@@ -1286,6 +1296,7 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // IndexQueue breathing test
         // ---------------------------------------------------------
+
         if (verbose) cout << endl
                           << "IndexQueue breathing test" << endl
                           << "=========================" << endl;
@@ -1354,6 +1365,7 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // TESTING sequence constraints
         // ---------------------------------------------------------
+
         if (verbose) cout << endl
                           << "sequence constraint test" << endl
                           << "========================" << endl;
@@ -1374,6 +1386,7 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // TESTING sequence constraints
         // ---------------------------------------------------------
+
         if (verbose) cout << endl
                           << "sequence constraint test" << endl
                           << "========================" << endl;
@@ -1482,6 +1495,7 @@ int main(int argc, char *argv[])
         //   * Re-run the last test with fewer threads and a much larger queue
         //     so that it is *not* full at any point during the test.
         // ---------------------------------------------------------
+
         if (verbose) cout << endl
                           << "enable/disable test" << endl
                           << "==================="   << endl;
@@ -1839,9 +1853,9 @@ int main(int argc, char *argv[])
         //   to 'removeAll'.
         // --------------------------------------------------------------------
 
-         if (verbose) cout << endl
-                           << "removeAll test" << endl
-                           << "==================" << endl;
+        if (verbose) cout << endl
+                          << "removeAll test" << endl
+                          << "==================" << endl;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Single thread, queue of T

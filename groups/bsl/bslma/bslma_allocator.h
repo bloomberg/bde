@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a pure abstract interface for memory-allocation mechanisms.
 //
 //@CLASSES:
-//  bslma_Allocator: protocol class for memory allocation and deallocation
+//  bslma::Allocator: protocol class for memory allocation and deallocation
 //
 //@SEE_ALSO: bslma_newdeleteallocator, bslma_testallocator
 //
@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 //      individual destructors in a dynamically allocated type and remove
 //      all memory for one or more associated object almost instantly.
 //
-//  (3) The 'bslma_Allocator' protocol, like any other protocol, isolates
+//  (3) The 'bslma::Allocator' protocol, like any other protocol, isolates
 //      clients from direct coupling with platform level facilities that
 //      are not fully under their control.  By installing a test allocator
 //      (see 'bslma_testallocator'), we are able to orchestrate the white-box
@@ -54,19 +54,19 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // Unless otherwise documented, a single allocator object is not safe for
 // concurrent access by multiple threads.  Classes derived from
-// 'bslma_Allocator' that are specifically designed for concurrent access must
+// 'bslma::Allocator' that are specifically designed for concurrent access must
 // be documented as such.  Unless specifically documented otherwise, separate
-// objects of classes derived from 'bslma_Allocator' may safely be used in
+// objects of classes derived from 'bslma::Allocator' may safely be used in
 // separate threads.
 //
 ///Allocators Versus Pools
 ///-----------------------
 // An allocator and a pool are quite different.  For starters,
-// 'bslma_Allocator' is an abstract class used to obtain "raw" memory of
+// 'bslma::Allocator' is an abstract class used to obtain "raw" memory of
 // arbitrary size.  A pool is a concrete data structure used to organize and
 // supply memory according to specific needs (e.g., a consistent size).
 // Concrete allocators may use pools in their implementations, and pools will
-// aways take a base 'bslma_Allocator' protocol in their interface.  You can
+// aways take a base 'bslma::Allocator' protocol in their interface.  You can
 // think of an allocator as a stream of memory that flows into a pool of
 // memory.  Memory is allocated from the pool until it is dry; only then does
 // new memory flow into the pool from the allocator.
@@ -74,16 +74,16 @@ BSLS_IDENT("$Id: $")
 ///Overloaded Global Operators 'new' and 'delete'
 ///----------------------------------------------
 // This component overloads the global operator 'new' to allow convenient
-// syntax for the construction of objects using the 'bslma_Allocator' protocol.
-// The overloaded 'new' operator defined in this component has a second
-// parameter, 'bslma_Allocator&', that identifies the concrete (derived)
-// allocator that will be used to supply memory.
+// syntax for the construction of objects using the 'bslma::Allocator'
+// protocol.  The overloaded 'new' operator defined in this component has a
+// second parameter, 'bslma::Allocator&', that identifies the concrete
+// (derived) allocator that will be used to supply memory.
 //
 // Consider the following use of standard placement syntax (supplied by
-// '#include <new>') along with a 'bslma_Allocator', used to allocate an
+// '#include <new>') along with a 'bslma::Allocator', used to allocate an
 // arbitrary 'TYPE'.
 //..
-//  void someFunction(bslma_Allocator *basicAllocator)
+//  void someFunction(bslma::Allocator *basicAllocator)
 //  {
 //      TYPE *obj = new (basicAllocator->allocate(sizeof(TYPE))) TYPE(...);
 //
@@ -94,11 +94,11 @@ BSLS_IDENT("$Id: $")
 // 'basicAllocator->deallocate' method is never called.
 //
 // Providing an overloaded global operator 'new', taking a reference to a
-// modifiable 'bslma_Allocator' as an explicit argument allows for cleaner
-// usage and guarantees that the 'basicAllocator->deallocate' method is
-// called in case of an exception:
+// modifiable 'bslma::Allocator' as an explicit argument allows for cleaner
+// usage and guarantees that the 'basicAllocator->deallocate' method is called
+// in case of an exception:
 //..
-//  void someFunction(bslma_Allocator *basicAllocator)
+//  void someFunction(bslma::Allocator *basicAllocator)
 //  {
 //      TYPE *obj = new (*basicAllocator) TYPE(...);
 //
@@ -106,53 +106,52 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, the analogous version of operator 'delete' should not be called
 // directly: The overloaded operator 'delete' supplied in this component is
-// solely for the compiler to invoke in the event an exception is thrown
-// during a failed construction.  Instead, the 'bslma_Allocator' protocol
-// provides 'deleteObject' (a template member function parameterized by the
-// type of the object being deleted), which is implemented *conceptually*
-// as follows:
+// solely for the compiler to invoke in the event an exception is thrown during
+// a failed construction.  Instead, the 'bslma::Allocator' protocol provides
+// 'deleteObject' (a template member function parameterized by the type of the
+// object being deleted), which is implemented *conceptually* as follows:
 //..
 //  template <class TYPE>
-//  void bslma_Allocator::deleteObject(TYPE *address)
+//  void bslma::Allocator::deleteObject(TYPE *address)
 //  {
 //      address->~TYPE();
 //      this->deallocate(address);
 //  }
 //..
-// Note that there is also a 'deleteObjectRaw' which is more efficient when
-// it is known that the 'address' does *not* refer to a secondary base class
-// of the object being deleted.
+// Note that there is also a 'deleteObjectRaw' which is more efficient when it
+// is known that the 'address' does *not* refer to a secondary base class of
+// the object being deleted.
 //
 ///Usage
 ///-----
-// The 'bslma_Allocator' protocol provided in this component defines a
-// bilateral contract between suppliers and consumers of raw memory.
-// The following subsections illustrate (1) use, and (2) implementation of
-// the abstract 'bslma_Allocator' base class:
+// The 'bslma::Allocator' protocol provided in this component defines a
+// bilateral contract between suppliers and consumers of raw memory.  The
+// following subsections illustrate (1) use, and (2) implementation of the
+// abstract 'bslma::Allocator' base class:
 //
 ///Usage 1: Container Objects
 ///- - - - - - - - - - - - -
 // Allocators are often supplied to objects requiring dynamically-allocated
 // memory at construction.  For example, consider the following
-// 'my_DoubleStack' class, parameterized by a 'bslma_Allocator':
+// 'my_DoubleStack' class, parameterized by a 'bslma::Allocator':
 //..
 //  // my_doublestack.h
 //  // ...
 //
-//  class bslma_Allocator; // forward declaration of allocator type
+//  namespace bslma { class Allocator; } // forward declaration of allocator
 //
 //  class my_DoubleStack {
 //      // DATA
-//      double          *d_stack_p;     // dynamically allocated array (d_size
-//                                      // elements)
+//      double           *d_stack_p;     // dynamically allocated array (d_size
+//                                       // elements)
 //
-//      int              d_size;        // physical capacity of this stack (in
-//                                      // elements)
+//      int               d_size;        // physical capacity of this stack (in
+//                                       // elements)
 //
-//      int              d_length;      // logical index of next available
-//                                      // stack element
+//      int               d_length;      // logical index of next available
+//                                       // stack element
 //
-//      bslma_Allocator *d_allocator_p; // holds (but does not own) object
+//      bslma::Allocator *d_allocator_p; // holds (but does not own) object
 //
 //      // FRIENDS
 //      friend class my_DoubleStackIter;
@@ -163,9 +162,9 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_DoubleStack(bslma_Allocator *basicAllocator = 0);
+//      my_DoubleStack(bslma::Allocator *basicAllocator = 0);
 //      my_DoubleStack(const my_DoubleStack&  other,
-//                     bslma_Allocator       *basicAllocator = 0);
+//                     bslma::Allocator       *basicAllocator = 0);
 //      ~my_DoubleStack();
 //
 //      // MANIPULATORS
@@ -212,12 +211,12 @@ BSLS_IDENT("$Id: $")
 //  // ...
 //
 //  // CREATORS
-//  my_DoubleStack::my_DoubleStack(bslma_Allocator *basicAllocator)
+//  my_DoubleStack::my_DoubleStack(bslma::Allocator *basicAllocator)
 //  : d_size(INITIAL_SIZE)
 //  , d_length(0)
-//  , d_allocator_p(bslma_NewDeleteAllocator::allocator(basicAllocator))
+//  , d_allocator_p(bslma::NewDeleteAllocator::allocator(basicAllocator))
 //      // The above initialization expression is equivalent to 'basicAllocator
-//      // ? basicAllocator : &bslma_NewDeleteAllocator::singleton()'.
+//      // ? basicAllocator : &bslma::NewDeleteAllocator::singleton()'.
 //  {
 //      assert(d_allocator_p);
 //      d_stack_p = (double *)
@@ -244,7 +243,7 @@ BSLS_IDENT("$Id: $")
 //  void reallocate(double          **array,
 //                  int               newSize,
 //                  int               length,
-//                  bslma_Allocator  *basicAllocator)
+//                  bslma::Allocator  *basicAllocator)
 //      // Reallocate memory in the specified 'array' to the specified
 //      // 'newSize' using the specified 'basicAllocator'.  The specified
 //      // 'length' number of leading elements are preserved.  Since the
@@ -278,22 +277,21 @@ BSLS_IDENT("$Id: $")
 //..
 ///Usage 2: Derived Concrete Allocators
 ///- - - - - - - - - - - - - - - - - -
-// In order for the 'bslma_Allocator' interface to be useful, we must supply a
-// concrete allocator that implements it.  In this example we demonstrate
-// how to adapt 'operator new' and 'operator delete' to this protocol base
-// class.
+// In order for the 'bslma::Allocator' interface to be useful, we must supply a
+// concrete allocator that implements it.  In this example we demonstrate how
+// to adapt 'operator new' and 'operator delete' to this protocol base class.
 //..
 //  // my_newdeleteallocator.h
 //  // ...
 //
-//  class my_NewDeleteAllocator : public bslma_Allocator {
+//  class my_NewDeleteAllocator : public bslma::Allocator {
 //      // This class is a sample concrete implementation of the
-//      // 'bslma_Allocator' protocol that provides direct access to the
+//      // 'bslma::Allocator' protocol that provides direct access to the
 //      // system-supplied (native) global operators 'new' and 'delete'.
 //
 //      // NOT IMPLEMENTED
-//      my_NewDeleteAllocator(const bslma_NewDeleteAllocator&);
-//      my_NewDeleteAllocator& operator=(const bslma_NewDeleteAllocator&);
+//      my_NewDeleteAllocator(const bslma::NewDeleteAllocator&);
+//      my_NewDeleteAllocator& operator=(const bslma::NewDeleteAllocator&);
 //
 //    public:
 //      // CREATORS
@@ -394,22 +392,24 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // =====================
-                        // class bslma_Allocator
-                        // =====================
+namespace bslma {
 
-class bslma_Allocator {
+                        // ===============
+                        // class Allocator
+                        // ===============
+
+class Allocator {
     // This protocol class provides a pure abstract interface and contract for
-    // clients and suppliers of raw memory.  If the requested memory cannot
-    // be returned; the contract requires that an 'std::bad_alloc' exception
-    // be thrown.  Note that memory is guaranteed to be sufficiently aligned
-    // for any object of the requested size on the current platform, which
-    // may be less than the maximal alignment guarantee afforded by global
+    // clients and suppliers of raw memory.  If the requested memory cannot be
+    // returned; the contract requires that an 'std::bad_alloc' exception be
+    // thrown.  Note that memory is guaranteed to be sufficiently aligned for
+    // any object of the requested size on the current platform, which may be
+    // less than the maximal alignment guarantee afforded by global
     // 'operator new'.
 
   public:
     // PUBLIC TYPES
-    typedef bsls_Types::size_type size_type;  // TBD change to unsigned?
+    typedef bsls::Types::size_type size_type;  // TBD change to unsigned?
         // Alias for a signed integral type capable of representing the number
         // of bytes in this platform's virtual address space.
 
@@ -421,7 +421,7 @@ class bslma_Allocator {
         // allocation request.  This function never returns.
 
     // CREATORS
-    virtual ~bslma_Allocator();
+    virtual ~Allocator();
         // Destroy this allocator.  Note that the behavior of destroying an
         // allocator while memory is allocated from it is not specified.
         // (Unless you *know* that it is valid to do so, don't!)
@@ -435,8 +435,8 @@ class bslma_Allocator {
         // exception in an exception-enabled build, or else will abort the
         // program in a non-exception build.  The behavior is undefined unless
         // '0 <= size'.  Note that the alignment of the address returned
-        // conforms to the platform requirement for any object of the
-        // specified 'size'.
+        // conforms to the platform requirement for any object of the specified
+        // 'size'.
 
     virtual void deallocate(void *address) = 0;
         // Return the memory block at the specified 'address' back to this
@@ -465,7 +465,16 @@ class bslma_Allocator {
         // deallocated.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::Allocator bslma_Allocator;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 // FREE OPERATORS
 
@@ -481,7 +490,7 @@ class bslma_Allocator {
 // overloaded the array version of operator 'new':
 //..
 //  void *operator new[](std::size_t size,
-//                       BloombergLP::bslma_Allocator& basicAllocator)
+//                       BloombergLP::bslma::Allocator& basicAllocator)
 //..
 // The user of the allocator class may expect to be able to use array
 // 'operator new' as follows:
@@ -494,20 +503,20 @@ class bslma_Allocator {
 // invoke the destructor.  On the other hand, the pointer returned by
 // 'operator new' cannot be passed to the 'deallocate' method directly because
 // the pointer is different from the one returned by the 'allocate' method.
-// The compiler offsets the value of this pointer by a header, which is used
-// to maintain the number of objects in the array (so that the non-overloaded
+// The compiler offsets the value of this pointer by a header, which is used to
+// maintain the number of objects in the array (so that the non-overloaded
 // 'operator delete' can destroy the right number of objects).
 
 inline
-void *operator new(std::size_t                   size,
-                   BloombergLP::bslma_Allocator& basicAllocator);
+void *operator new(std::size_t                    size,
+                   BloombergLP::bslma::Allocator& basicAllocator);
     // Return the memory allocated from the specified 'basicAllocator' of at
     // least the specified 'size' bytes, or 0 if 'size' is 0.  The behavior is
-    // undefined unless '0 <= static_cast<bslma_Allocator::size_type>(size)'.
+    // undefined unless '0 <= static_cast<bslma::Allocator::size_type>(size)'.
     // Note that an object may allocate additional memory internally, requiring
     // the allocator to be passed in as a constructor argument:
     //..
-    //  my_Type *createMyType(bslma_Allocator *basicAllocator)
+    //  my_Type *createMyType(bslma::Allocator *basicAllocator)
     //  {
     //      return new (*basicAllocator) my_Type(..., basicAllocator);
     //  }
@@ -517,7 +526,7 @@ void *operator new(std::size_t                   size,
     // function 'deleteObject' parameterized by 'TYPE' that effectively
     // performs the following operations:
     //..
-    //  void deleteMyType(bslma_Allocator *basicAllocator, my_Type *address)
+    //  void deleteMyType(bslma::Allocator *basicAllocator, my_Type *address)
     //  {
     //      address->~my_Type();
     //      basicAllocator->deallocate(object);
@@ -527,8 +536,8 @@ void *operator new(std::size_t                   size,
     // known not be a secondary base type of the object being deleted.
 
 inline
-void operator delete(void                          *address,
-                     BloombergLP::bslma_Allocator&  basicAllocator);
+void operator delete(void                           *address,
+                     BloombergLP::bslma::Allocator&  basicAllocator);
     // Use the specified 'basicAllocator' to deallocate the memory at the
     // specified 'address'.  The behavior is undefined unless 'address' was
     // allocated using 'basicAllocator' and has not already been deallocated.
@@ -538,12 +547,12 @@ void operator delete(void                          *address,
 // NOTE: The following two operators are declared but never defined to force a
 // link-time error should any code inadvertently use them.
 
-void *operator new(std::size_t                   size,
-                   BloombergLP::bslma_Allocator *basicAllocator);
+void *operator new(std::size_t                    size,
+                   BloombergLP::bslma::Allocator *basicAllocator);
     // Note that this operator is intentionally not defined.
 
-void operator delete(void                         *address,
-                     BloombergLP::bslma_Allocator *basicAllocator);
+void operator delete(void                          *address,
+                     BloombergLP::bslma::Allocator *basicAllocator);
     // Note that this operator is intentionally not defined.
 
 // ============================================================================
@@ -552,41 +561,57 @@ void operator delete(void                         *address,
 
 namespace BloombergLP {
 
-                        // ---------------------
-                        // class bslma_Allocator
-                        // ---------------------
+namespace bslma {
+
+                        // ---------------
+                        // class Allocator
+                        // ---------------
 
 // MANIPULATORS
 template <class TYPE>
 inline
-void bslma_Allocator::deleteObject(const TYPE *object)
+void Allocator::deleteObject(const TYPE *object)
 {
-    bslma_DeleterHelper::deleteObject(object, this);
+    DeleterHelper::deleteObject(object, this);
 }
 
 template <class TYPE>
 inline
-void bslma_Allocator::deleteObjectRaw(const TYPE *object)
+void Allocator::deleteObjectRaw(const TYPE *object)
 {
-    bslma_DeleterHelper::deleteObjectRaw(object, this);
+    DeleterHelper::deleteObjectRaw(object, this);
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::Allocator bslma_Allocator;
+    // This alias is defined for backward compatibility.
+
+#ifdef bdema_Allocator
+#undef bdema_Allocator
+#endif
+#define bdema_Allocator bslma::Allocator
+
+}  // close enterprise namespace
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 inline
-void *operator new(std::size_t                   size,
-                   BloombergLP::bslma_Allocator& basicAllocator)
+void *operator new(std::size_t                    size,
+                   BloombergLP::bslma::Allocator& basicAllocator)
 {
     return basicAllocator.allocate(size);
 }
 
 inline
-void operator delete(void                          *address,
-                     BloombergLP::bslma_Allocator&  basicAllocator)
+void operator delete(void                           *address,
+                     BloombergLP::bslma::Allocator&  basicAllocator)
 {
     basicAllocator.deallocate(address);
 }

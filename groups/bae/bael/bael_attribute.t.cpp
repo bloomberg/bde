@@ -860,13 +860,13 @@ int main(int argc, char *argv[])
                           << endl;
 
         static const struct {
-            int         d_line;            // line number
-            const char *d_name;            // attribute name
-            int         d_type;            // type of attribute value
-            int         d_ivalue;          // integer attribute value
-            const char *d_svalue;          // string attribute value
-            int         d_hashSize;        // hashtable size
-            int         d_hashValue;       // expected hash value
+            int                d_line;       // line number
+            const char        *d_name;       // attribute name
+            int                d_type;       // type of attribute value
+            bsls_Types::Int64  d_ivalue;     // integer attribute value
+            const char        *d_svalue;     // string attribute value
+            int                d_hashSize;   // hashtable size
+            int                d_hashValue;  // expected hash value
         } HDATA[] = {
             // line  name  type  ivalue   svalue  hsize       hash value
             // ----  ----  ----  ------   ------  -----       ----------
@@ -880,8 +880,8 @@ int main(int argc, char *argv[])
             {  L_,   "A",  1,    1,       0,      256,        34           },
             {  L_,   "A",  1,    INT_MAX, 0,      256,        122          },
             {  L_,   "A",  1,    INT_MIN, 0,      256,        50           },
-            {  L_,   "A",  1,    LLONG_MAX, 0,    256,        55           },
-            {  L_,   "A",  1,    LLONG_MIN, 0,    256,        136          },
+            {  L_,   "A",  1,    LLONG_MAX, 0,    256,        15           },
+            {  L_,   "A",  1,    LLONG_MIN, 0,    256,        10           },
             {  L_,   "",   2,    0,       "",     256,        26           },
             {  L_,   "A",  2,    0,       "",     256,        90           },
             {  L_,   "A",  2,    0,       "A",    256,        154          },
@@ -897,8 +897,8 @@ int main(int argc, char *argv[])
             {  L_,   "A",  1,    1,       0,      65536,      40738        },
             {  L_,   "A",  1,    INT_MAX, 0,      65536,      20346        },
             {  L_,   "A",  1,    INT_MIN, 0,      65536,      17970        },
-            {  L_,   "A",  1,    LLONG_MAX, 0,    65536,      52535        },
-            {  L_,   "A",  1,    LLONG_MIN, 0,    65536,      10888        },
+            {  L_,   "A",  1,    LLONG_MAX, 0,    65536,      61711        },
+            {  L_,   "A",  1,    LLONG_MIN, 0,    65536,      10506        },
             {  L_,   "",   2,    0,       "",     65536,      41498        },
             {  L_,   "A",  2,    0,       "",     65536,      7258         },
             {  L_,   "A",  2,    0,       "A",    65536,      38554        },
@@ -914,8 +914,8 @@ int main(int argc, char *argv[])
             {  L_,   "A",  1,    1,       0,      7,          1            },
             {  L_,   "A",  1,    INT_MAX, 0,      7,          6            },
             {  L_,   "A",  1,    INT_MIN, 0,      7,          0            },
-            {  L_,   "A",  1,    LLONG_MAX, 0,    7,          1            },
-            {  L_,   "A",  1,    LLONG_MIN, 0,    7,          5            },
+            {  L_,   "A",  1,    LLONG_MAX, 0,    7,          6            },
+            {  L_,   "A",  1,    LLONG_MIN, 0,    7,          0            },
             {  L_,   "",   2,    0,       "",     7,          5            },
             {  L_,   "A",  2,    0,       "",     7,          1            },
             {  L_,   "A",  2,    0,       "A",    7,          4            },
@@ -931,8 +931,8 @@ int main(int argc, char *argv[])
             {  L_,   "A",  1,    1,       0,      1610612741, 221028130    },
             {  L_,   "A",  1,    INT_MAX, 0,      1610612741, 371216250    },
             {  L_,   "A",  1,    INT_MIN, 0,      1610612741, 929711661    },
-            {  L_,   "A",  1,    LLONG_MAX, 0,    1610612741, 690343218    },
-            {  L_,   "A",  1,    LLONG_MIN, 0,    1610612741, 933309054    },
+            {  L_,   "A",  1,    LLONG_MAX, 0,    1610612741, 1138749706   },
+            {  L_,   "A",  1,    LLONG_MIN, 0,    1610612741, 60893445     },
             {  L_,   "",   2,    0,       "",     1610612741, 445882901    },
             {  L_,   "A",  2,    0,       "",     1610612741, 1588272218   },
             {  L_,   "A",  2,    0,       "A",    1610612741, 1120048794   },
@@ -958,7 +958,7 @@ int main(int argc, char *argv[])
             }
             LOOP_ASSERT(LINE, 0 <= hash);
             LOOP_ASSERT(LINE, hash < HDATA[i].d_hashSize);
-            LOOP_ASSERT(LINE, HDATA[i].d_hashValue == hash);
+            LOOP2_ASSERT(LINE, hash, HDATA[i].d_hashValue == hash);
         }
 
       } break;

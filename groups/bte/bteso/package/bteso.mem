@@ -20,9 +20,10 @@ bteso_eventmanagertester
 
 bteso_defaulteventmanager
 bteso_defaulteventmanagerimpl
-bteso_defaulteventmanager_poll
-bteso_defaulteventmanager_epoll
 bteso_defaulteventmanager_devpoll
+bteso_defaulteventmanager_epoll
+bteso_defaulteventmanager_poll
+bteso_defaulteventmanager_pollset
 bteso_defaulteventmanager_select
 
 bteso_timemetrics

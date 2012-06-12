@@ -2566,11 +2566,11 @@ baea_CommandLineOption::baea_CommandLineOption(bslma_Allocator *basicAllocator)
 }
 
 baea_CommandLineOption::baea_CommandLineOption(
-                                 const baea_CommandLineOption&  optionInfo,
+                                 const baea_CommandLineOption&  original,
                                  bslma_Allocator               *basicAllocator)
 : d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
-    init(static_cast<const baea_CommandLineOptionInfo&>(optionInfo));
+    init(static_cast<const baea_CommandLineOptionInfo&>(original));
 }
 
 baea_CommandLineOption::baea_CommandLineOption(
@@ -3439,16 +3439,16 @@ void baea_CommandLine::location(bsl::ostream& stream,
         stream << "The error occurred while parsing the "
                << baea_Ordinal(start) << " to "
                << baea_Ordinal(end) << " characters of the "
-               << baea_Ordinal(argc) << " argument." << bsl::endl;
+               << baea_Ordinal(argc - 1) << " argument." << bsl::endl;
     }
     else if (start != -1) {
         stream << "The error occurred while parsing the "
                << baea_Ordinal(start) << " character of the "
-               << baea_Ordinal(argc) << " argument." << bsl::endl;
+               << baea_Ordinal(argc - 1) << " argument." << bsl::endl;
     }
     else {
         stream << "The error occurred while parsing the "
-               << baea_Ordinal(argc) << " argument." << bsl::endl;
+               << baea_Ordinal(argc - 1) << " argument." << bsl::endl;
     }
 }
 
@@ -3495,7 +3495,7 @@ int baea_CommandLine::missing(bool checkAlsoNonOptions) const
 // CREATORS
 baea_CommandLine::baea_CommandLine(
                               const baea_CommandLineOptionInfo *specTable,
-                              int                               size,
+                              int                               length,
                               bslma_Allocator                  *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
@@ -3508,8 +3508,8 @@ baea_CommandLine::baea_CommandLine(
 , d_data2(basicAllocator)
 , d_isBindin2Valid(false)
 {
-    d_options.reserve(size);
-    for (int i = 0; i < size; ++i) {
+    d_options.reserve(length);
+    for (int i = 0; i < length; ++i) {
         baea_CommandLineOption tmp(specTable[i]);
         d_options.push_back(tmp);
     }
@@ -3519,7 +3519,7 @@ baea_CommandLine::baea_CommandLine(
 
 baea_CommandLine::baea_CommandLine(
                               const baea_CommandLineOptionInfo *specTable,
-                              int                               size,
+                              int                               length,
                               bsl::ostream&                    stream,
                               bslma_Allocator                  *basicAllocator)
 : d_options(basicAllocator)
@@ -3533,8 +3533,8 @@ baea_CommandLine::baea_CommandLine(
 , d_data2(basicAllocator)
 , d_isBindin2Valid(false)
 {
-    d_options.reserve(size);
-    for (int i = 0; i < size; ++i) {
+    d_options.reserve(length);
+    for (int i = 0; i < length; ++i) {
         baea_CommandLineOption tmp(specTable[i]);
         d_options.push_back(tmp);
     }
@@ -3853,21 +3853,9 @@ void baea_CommandLine::printUsage(bsl::ostream& stream) const
     bsl::vector<bsl::string> options;
     bsl::vector<bsl::string> nonOptions;
 
-    options.push_back("");  // optional flags
-    options.push_back("");  // required flags
     for (unsigned int i = 0; i < d_options.size(); ++i) {
         switch (d_options[i].argType()) {
-          case baea_CommandLineOptionInfo::BAEA_FLAG: {
-            if (!d_options[i].occurrenceInfo().isHidden()
-             && d_options[i].shortTag()) {
-                if (d_options[i].occurrenceInfo().isRequired()) {
-                    options[1].append(1, d_options[i].shortTag());
-                } else {
-                    options[0].append(1, d_options[i].shortTag());
-                }
-                break;                                                 // BREAK
-            }
-          }                                                     // FALL THROUGH
+          case baea_CommandLineOptionInfo::BAEA_FLAG:
           case baea_CommandLineOptionInfo::BAEA_OPTION: {
             if (d_options[i].occurrenceInfo().isHidden()) {
                 break;
@@ -3884,65 +3872,65 @@ void baea_CommandLine::printUsage(bsl::ostream& stream) const
             }
 
             options.push_back("");
+            bsl::string& latest = options.back();
             if (start) {
-                options.back().append(1, start);
+                latest.append(1, start);
             }
             if (d_options[i].shortTag()) {
-                options.back().append(1, '-');
-                options.back().append(1, d_options[i].shortTag());
+                latest.append(1, '-');
+                latest.append(1, d_options[i].shortTag());
+                latest.append(1, '|');
             } else {
-                options.back().append(2, '-');
-                options.back().append(d_options[i].longTag());
+                latest.append(2, '-');
             }
-            options.back().append(1, ' ');
-            options.back().append(1, '<');
-            options.back().append(d_options[i].name());
-            options.back().append(1, '>');
+            latest.append(d_options[i].longTag());
+            if (baea_CommandLineOptionInfo::BAEA_FLAG != 
+                                                      d_options[i].argType()) {
+                latest.append(1, ' ');
+                latest.append(1, '<');
+                latest.append(d_options[i].name());
+                latest.append(1, '>');
+            }
             if (end) {
-                options.back().append(1, end);
+                latest.append(1, end);
             }
             if (multiIndicator) {
-                options.back().append(1, multiIndicator);
+                latest.append(1, multiIndicator);
             }
           } break;                                                     // BREAK
           case baea_CommandLineOptionInfo::BAEA_NON_OPTION: {
             char start = 0, end = 0, multiIndicator = 0;
 
-             if (d_options[i].isArray()
-              || !d_options[i].occurrenceInfo().isRequired()) {
-                 start = '[';
-                 end = ']';
-             }
+            if (d_options[i].isArray()
+             || !d_options[i].occurrenceInfo().isRequired()) {
+                start = '[';
+                end = ']';
+            }
+            
+            if (d_options[i].isArray()) {
+                multiIndicator =
+                      !d_options[i].occurrenceInfo().isRequired() ? '*' : '+';
+            }
 
-             if (d_options[i].isArray()) {
-                 multiIndicator =
-                       !d_options[i].occurrenceInfo().isRequired() ? '*' : '+';
-             }
-
-             nonOptions.push_back("");
-             if (start) {
-                 nonOptions.back().append(1, start);
-             }
-             nonOptions.back().append(1, '<');
-             nonOptions.back().append(d_options[i].name());
-             nonOptions.back().append(1, '>');
-             if (end) {
-                 nonOptions.back().append(1, end);
-             }
-             if (multiIndicator) {
-                 nonOptions.back().append(1, multiIndicator);
-             }
+            nonOptions.push_back("");
+            bsl::string& latest = nonOptions.back();
+            if (start) {
+                latest.append(1, start);
+            }
+            latest.append(1, '<');
+            latest.append(d_options[i].name());
+            latest.append(1, '>');
+            if (end) {
+                latest.append(1, end);
+            }
+            if (multiIndicator) {
+                latest.append(1, multiIndicator);
+            }
           } break;                                                     // BREAK
           default: {
             BSLS_ASSERT(0);
           } break;
         }
-    }
-    if (options[0].size() != 0) {
-        options[0] = bsl::string("[-") + options[0] + bsl::string("]");
-    }
-    if (options[1].size() != 0) {
-        options[1] = bsl::string("-") + options[1];
     }
     options.insert(options.end(), nonOptions.begin(), nonOptions.end());
 
@@ -3952,7 +3940,7 @@ void baea_CommandLine::printUsage(bsl::ostream& stream) const
     stream << usage;
     format(usage.size(), end, options, stream, usage.size());
 
-    stream << "\nWhere: \n";
+    stream << "\nWhere:\n";
 
     bsl::string temp;
     temp.append(start, ' ');

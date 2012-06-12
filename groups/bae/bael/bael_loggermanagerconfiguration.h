@@ -257,11 +257,13 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
 class bdem_List;
-class bslma_Allocator;
-
                     // =====================================
                     // class bael_LoggerManagerConfiguration
                     // =====================================

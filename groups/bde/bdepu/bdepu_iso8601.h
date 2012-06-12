@@ -1,4 +1,4 @@
-// bdepu_iso8601.h              -*-C++-*-
+// bdepu_iso8601.h                                                    -*-C++-*-
 #ifndef INCLUDED_BDEPU_ISO8601
 #define INCLUDED_BDEPU_ISO8601
 
@@ -59,7 +59,7 @@ BDES_IDENT("$Id: $")
 //  assert(-240 == dateTime.offset());
 //..
 // Note that fractions of a second was rounded up to 123 milliseconds and that
-// the offset from GMT was converted to minutes.
+// the offset from UTC was converted to minutes.
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
@@ -174,25 +174,142 @@ struct bdepu_Iso8601 {
     static int parse(bdet_Date  *result,
                      const char *input,
                      int         inputLength);
+        // Parse a date, represented in the "YYYY-MM-DD" format, from the
+        // specified 'input' of the specified 'inputLength' and load it into
+        // the specified 'result'.  In the "YYYY-MM-DD" format accepted by this
+        // function, 'YYYY', 'MM', and 'DD' are strings representing positive
+        // integers, '-' is literally a dash character, 'YYYY' is 4 chars long,
+        // and 'MM' and 'DD' are both 2 chars long.  'YYYY' must be in the
+        // range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12 ], and
+        // 'DD' must be in the range [ 01, 31 ], such that 'YYYY-MM-DD'
+        // represents a valid date.  Do not modify 'result' on failure.  Return
+        // 0 on success, and a non-zero value otherwise.  Note that if
+        // 'inputLength' is longer than necessary, extra trailing characters
+        // are ignored.
+
     static int parse(bdet_Datetime *result,
                      const char    *input,
                      int            inputLength);
+        // Parse a date time, represented in the "YYYY-MM-DDThh:mm:ss[.d+]"
+        // format, from the specified 'input' of the specified 'inputLength'
+        // and load it into the specified 'result'.  In the "YYYY-MM-DD" format
+        // accepted by this function, 'YYYY', 'MM', and 'DD' are strings
+        // representing positive integers, '-' is literally a dash character,
+        // 'YYYY' is 4 chars long, and 'MM' and 'DD' are both 2 chars long.
+        // 'YYYY' must be in the range '[ 0001, 9999 ]', 'MM' must be in the
+        // range [ 01, 12 ], and 'DD' must be in the range [ 01, 31 ], such
+        // that 'YYYY-MM-DD' represents a valid date.  'T' literally represents
+        // the 'T' character.  In the "hh:mm:ss[.d+]" format, 'hh', 'mm', 'ss'
+        // are all 2 digit integers (left padded with 0's if necessary)
+        // denoting hours, minutes, and seconds, ':' is literally a colon
+        // character, and [.d+] is the optional fraction of a second,
+        // consisting of a '.' followed by one or more decimal digits.  'hh'
+        // must be in the range '[ 00, 24 )', 'mm' must be in the range
+        // '[ 00, 60 )', and 'ss' must be in the range '[ 00, 60 )'.  If
+        // '[.d+]' contains more than 3 digits, the value will be rounded to
+        // the nearest value in milliseconds, possibly resulting in time being
+        // rounded up a full second.  Do not modify 'result' on failure.
+        // Return 0 on success, and a non-zero value otherwise.  Note that if
+        // 'inputLength' is longer than necessary, extra trailing characters
+        // are ignored.
+
     static int parse(bdet_DatetimeTz *result,
                      const char      *input,
                      int              inputLength);
+        // Parse a date time, represented in the
+        // "YYYY-MM-DDThh:mm:ss[.d+][Shh:mm|Z|z]" format, from the specified
+        // 'input' of the specified 'inputLength' and load it into the
+        // specified 'result'.  In the "YYYY-MM-DD" format accepted by this
+        // function, 'YYYY', 'MM', and 'DD' are strings representing positive
+        // integers, '-' is literally a dash character, 'YYYY' is 4 chars long,
+        // and 'MM' and 'DD' are both 2 chars long.  'YYYY' must be in the
+        // range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12 ], and
+        // 'DD' must be in the range [ 01, 31 ], such that 'YYYY-MM-DD'
+        // represents a valid date.  'T' literally represents the 'T'
+        // character.  In the "hh:mm:ss[.d+]" format, 'hh', 'mm', 'ss' are all
+        // 2 digit integers (left padded with 0's if necessary) denoting hours,
+        // minutes, and seconds, ':' is literally a colon character, and [.d+]
+        // is the optional fraction of a second, consisting of a '.' followed
+        // by one or more decimal digits.  If '[.d+]' contains more than 3
+        // digits, the value will be rounded to the nearest value in
+        // milliseconds, possibly rounding 'result' up by a full second.  'hh'
+        // must be in the range '[ 00, 24 )', 'mm' must be in the range
+        // '[ 00, 60 )', and 'ss' must be in the range '[ 00, 60 )'.  The time
+        // zone information is optional but if it is provided then in the
+        // "Shh:mm" format, 'S' is either '+' or '-', 'hh' and 'mm' are 2 digit
+        // integers (left padded with '0's if necessary).  'hh' must be in the
+        // range '[ 00, 24 )' and 'mm' must be in the range '[ 00, 60 )'.  An
+        // alternate form of representing the time zone is 'Z' or 'z',
+        // signifying a zero offset.  Do not modify 'result' on failure.
+        // Return 0 on success, and a non-zero value otherwise.  Note that if
+        // 'inputLength' is longer than necessary, extra trailing characters
+        // are ignored.
+
     static int parse(bdet_DateTz *result,
                      const char  *input,
                      int          inputLength);
+        // Parse a date, represented in the "YYYY-MM-DD[Shh:mm|Z|z]" format,
+        // from the specified 'input' of the specified 'inputLength' and load
+        // it into the specified 'result'.  In the "YYYY-MM-DD" format accepted
+        // by this function, 'YYYY', 'MM', and 'DD' are strings representing
+        // positive integers, '-' is literally a dash character, 'YYYY' is 4
+        // chars long, and 'MM' and 'DD' are both 2 chars long.  'YYYY' must be
+        // in the range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12 ],
+        // and 'DD' must be in the range [ 01, 31 ], such that 'YYYY-MM-DD'
+        // represents a valid date.  The time zone information is optional but
+        // if it is provided then in the "Shh:mm" format accepted by this
+        // function, 'S' is either '+' or '-', 'hh' and 'mm' are 2 digit
+        // integers (left padded with '0's if necessary).  'hh' must be in the
+        // range '[ 00, 24 )' and 'mm' must be in the range '[ 00, 60 )'.  An
+        // alternate form of the representation for the time zone is 'Z' or
+        // 'z', signifying a zero offset.  Do not modify 'result' on failure.
+        // Return 0 on success, and a non-zero value otherwise.  Note that if
+        // 'inputLength' is longer than necessary, extra trailing characters
+        // are ignored.
+
     static int parse(bdet_Time  *result,
                      const char *input,
                      int         inputLength);
+        // Parse a time, represented in the "hh:mm:ss[.d+]" format, from the
+        // specified 'input' of the specified 'inputLength' and load it into
+        // the specified 'result'.  In the "hh:mm:ss[.d+]" format accepted by
+        // this function, 'hh', 'mm', 'ss' are all 2 digit integers (left
+        // padded with 0's if necessary) denoting hours, minutes, and seconds,
+        // ':' is literally a colon character, and [.d+] is the optional
+        // fraction of a second, consisting of a '.' followed by one or more
+        // decimal digits.  'hh' must be in the range '[ 00, 24 )', 'mm' must
+        // be in the range '[ 00, 60 )', and 'ss' must be in the range
+        // '[ 00, 60 )'.  If '[.d+]' contains more than 3 digits, the value
+        // will be rounded to the nearest value in milliseconds, possibly
+        // rounding 'result' up a full second.  Do not modify 'result' on
+        // failure.  Return 0 on success, and a non-zero otherwise.  Note that
+        // if 'inputLength' is longer than necessary, extra trailing characters
+        // are ignored.
+
     static int parse(bdet_TimeTz *result,
                      const char  *input,
                      int          inputLength);
-        // Parse the string beginning at the specified 'input' and having the
-        // specified 'inputLength' and load the result into the specified
-        // 'result'.  Return 0 on success, and non-zero otherwise.  Do not
-        // modify 'result' on failure.
+        // Parse a time, represented in the "hh:mm:ss[.d+][Shh:mm|Z|z]" format,
+        // from the specified 'input' of the specified 'inputLength' and load
+        // it into the specified 'result'.  In the "hh:mm:ss[.d+]" format
+        // accepted by this function, 'hh', 'mm', 'ss' are all 2 digit integers
+        // (left padded with 0's if necessary) denoting hours, minutes, and
+        // seconds, ':' is literally a colon character, and [.d+] is the
+        // optional fraction of a second, consisting of a '.' followed by one
+        // or more decimal digits.  'hh' must be in the range '[ 00, 24 )',
+        // 'mm' must be in the range '[ 00, 60 )', and 'ss' must be in the
+        // range '[ 00, 60 )'.  If '[.d+]' contains more than 3 digits, the
+        // value will be rounded to the nearest value in milliseconds, possibly
+        // rounding the result up a full second.  The time zone information is
+        // optional but if it is provided then in the "Shh:mm" format accepted
+        // by this function, 'S' is either '+' or '-', 'hh' and 'mm' are 2
+        // digit integers (left padded with '0's if necessary).  'hh' must be
+        // in the range '[ 00, 24 )' and 'mm' must be in the range '[ 0, 60 )'.
+        // An alternate form of the representation for the time zone is 'Z' or
+        // 'z', signifying a zero offset.  Do not modify 'result' on failure.
+        // Return 0 on success, and a non-zero value otherwise.  Note that if
+        // 'inputLength' is longer than necessary, extra trailing characters
+        // are ignored.
 };
 
 // ===========================================================================

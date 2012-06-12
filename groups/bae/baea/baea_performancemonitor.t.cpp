@@ -8,6 +8,8 @@
 #include <bael_loggermanagerconfiguration.h>
 #include <bael_severity.h>
 
+#include <bdetu_systemtime.h>
+
 #include <bcema_testallocator.h>
 #include <bcemt_thread.h>
 
@@ -24,6 +26,7 @@
 
 #if defined(BSLS_PLATFORM__OS_UNIX)
 #include <sys/mman.h>
+#include <sys/times.h>
 #endif
 
 using namespace BloombergLP;
@@ -200,7 +203,7 @@ class MmapAllocator : public bslma_Allocator {
 
         return result;
 
-#elif defined(BSLS_PLATFORM__OS_LINUX)
+#elif defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)
         return d_allocator_p->allocate(size);
 #else
 #error Not implemented.
@@ -209,7 +212,7 @@ class MmapAllocator : public bslma_Allocator {
 
     virtual void deallocate(void *address)
     {
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)
         d_allocator_p->deallocate(address);
 #else
         MapType::iterator it = d_map.find(address);
@@ -278,6 +281,31 @@ void report(int               bufferSize,
 }
 #endif
 
+double wasteCpuTime()
+    // Just take up a measurable amount of cpu time.  Try 100 clock ticks (1.0
+    // seconds or less).
+{
+#ifdef BSLS_PLATFORM__OS_UNIX
+    struct tms tmsBuffer;
+    int rc = times(&tmsBuffer);
+    BSLS_ASSERT(-1 != rc);
+    int startTime = tmsBuffer.tms_utime + tmsBuffer.tms_stime;
+
+    double x = 1.0;
+    do {
+        x /= 0.999999;
+        x -= 0.000001;
+        rc = times(&tmsBuffer);
+        BSLS_ASSERT(-1 != rc);
+    } while (tmsBuffer.tms_utime + tmsBuffer.tms_stime - startTime < 50);
+
+    return x;
+#else
+    bcemt_ThreadUtil::microSleep(0, 1);
+    return 1.0;
+#endif
+}
+
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
@@ -285,10 +313,41 @@ int main(int argc, char *argv[])
     veryVerbose = (argc > 3);
     veryVeryVerbose = (argc > 4);
     veryVeryVeryVerbose = (argc > 5);
-    int verbosity = 1 + verbose + veryVerbose
-                  + veryVeryVerbose + veryVeryVeryVerbose;
+
+    bdet_TimeInterval startTime = bdetu_SystemTime::now();
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING PROCESS START TIME SANITY
+        //
+        // Concerns:
+        //   it appears that for some versions of Linux, either different
+        //   kernels or different distros, our estimation of process start
+        //   time will be wildly inaccurate.  Determine whether this is the
+        //   case.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "PROCESS START TIME SANITY\n"
+                             "=========================\n";
+
+        bslma_TestAllocator ta(veryVeryVeryVerbose);
+
+        baea_PerformanceMonitor perfmon(&ta);
+
+        int rc = perfmon.registerPid(0, "perfmon");
+        ASSERT(0 == rc);
+
+        bdet_Datetime st = perfmon.begin()->startupTime();// process start time
+
+        bdet_Datetime nowDt(1970, 1, 1);
+        nowDt.addSeconds(bdetu_SystemTime::now().totalSecondsAsDouble());
+
+        bdet_DatetimeInterval diff = nowDt - st;
+
+        ASSERT(diff.totalSeconds() > -10);
+        ASSERT(diff.totalSeconds() <  10);
+      }  break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
@@ -394,7 +453,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == rc);
 
                 for (int i = 0; i < 6; ++i) {
-                    bcemt_ThreadUtil::microSleep(0, 1);
+                    wasteCpuTime();
 
                     perfmon.collect();
 
@@ -473,13 +532,11 @@ int main(int argc, char *argv[])
             INITIALIZE_LOGGER();
 
             baea_PerformanceMonitor perfmon(&ta);
-            int                     rc;
 
             int                     bufferSize        = 0;
 
             double                  virtualSize       = 0;
             double                  residentSize      = 0;
-            double                  size              = 0;
 
             bsls_Types::Int64       currentBytesInUse = 0;
             bsls_Types::Int64       peakBytesInUse    = 0;

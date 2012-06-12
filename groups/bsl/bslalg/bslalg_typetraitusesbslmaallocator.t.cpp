@@ -1,4 +1,4 @@
-// bslalg_typetraitusesbslmaallocator.t.cpp                  -*-C++-*-
+// bslalg_typetraitusesbslmaallocator.t.cpp                           -*-C++-*-
 
 #include <bslalg_typetraitusesbslmaallocator.h>
 
@@ -27,7 +27,8 @@ static int testStatus = 0;
 
 namespace {
 
-void aSsErT(int c, const char *s, int i) {
+void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
@@ -65,7 +66,7 @@ int verbose = 0;
 int veryVerbose = 0;
 int veryVeryVerbose = 0;
 
-typedef bslalg_TypeTraitUsesBslmaAllocator  Obj;
+typedef bslalg::TypeTraitUsesBslmaAllocator  Obj;
 
 //=============================================================================
 //                  USAGE EXAMPLE
@@ -113,7 +114,7 @@ int main(int argc, char *argv[])
         // Plan:  Create an instance of the trait class.
         //
         // Testing:
-        //   class bslalg_TypeTraitUsesBslmaAllocator;
+        //   class bslalg::TypeTraitUsesBslmaAllocator;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
