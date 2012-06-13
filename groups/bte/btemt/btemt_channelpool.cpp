@@ -2090,8 +2090,7 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
 
     d_numBytesRequestedToBeWritten += dataLength;
 
-    const int writeCacheSize =
-               d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
+    const int writeCacheSize = currentWriteCacheSize();
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                          writeCacheSize > d_writeCacheHiWat)) {
@@ -2133,10 +2132,8 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
-    int currWriteCacheSize = currentWriteCacheSize();
-
-    if (d_recordedMaxWriteCacheSize.relaxedLoad() < currWriteCacheSize) {
-        d_recordedMaxWriteCacheSize.relaxedStore(currWriteCacheSize);
+    if (d_recordedMaxWriteCacheSize.relaxedLoad() < writeCacheSize) {
+        d_recordedMaxWriteCacheSize.relaxedStore(writeCacheSize);
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
