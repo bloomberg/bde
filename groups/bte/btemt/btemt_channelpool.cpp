@@ -589,15 +589,15 @@ class btemt_Channel {
         // high watermark for this channel.
 
     void setNotifyLowWatermark();
-        // Notify the user of the 'BTEMT_WRITE_CACHE_LOWWAT' alert via the
-        // channel state callback when the internal write cache for the
-        // specified 'channelId' drops below the low-watermark specified at
-        // construction.  Note that the 'BTEMT_WRITE_CACHE_LOWWAT' alert is
-        // only invoked after a write failure because the write cache size
-        // exceeds the high-watermark and not the optional enqueue watermark
-        // argument of write.  So this function can be used to trigger the
-        // 'BTEMT_WRITE_CACHE_LOWWAT' alert if write failed because the enqueue
-        // watermark was exceeded.
+        // Notify the client when the internal write cache for this channel
+        // drops below (or if it is currently below) the configured
+        // low-watermark by delivering a 'BTEMT_WRITE_CACHE_LOWWAT' alert via
+        // the channel state callback.  Note that by default a low-watermark
+        // event is only be provided after a write fails because the
+        // write-cache size has exceeded the configured high-watermark; this
+        // method configures the notification to be provided the next time the
+        // write-cache is below the low-water mark threshold, irrespective of
+        // whether the configured high-watermark has been reached.
 
     // ACCESSORS
     int channelId() const;
@@ -638,7 +638,7 @@ class btemt_Channel {
 
     int recordedMaxWriteCacheSize() const;
         // Return a snapshot of the maximum recorded size, in bytes, of the
-        // cache of data to be written to this channeel.
+        // cache of data to be written to this channel.
 
     StreamSocket *socket() const;
         // Return a pointer to this channel's underlying socket.
@@ -1478,7 +1478,7 @@ void btemt_Channel::readCb(ChannelHandle self)
                                          isChannelDown(CLOSED_RECEIVE_MASK))) {
         // This readCb was invoked by a socket event after we executed
         // 'notifyChannelDown' in a different thread (from 'shutdown') and the
-        // socket hasn't yet been deregistered (in pending
+        // socket has not yet been deregistered (in pending
         // 'invokeChannelDown').  We abort.  The reason the test is performed
         // so late in 'readCb' is to allow picking up such events as late as
         // possible.  Note that this test is done again in the loop below.
@@ -1487,7 +1487,7 @@ void btemt_Channel::readCb(ChannelHandle self)
         return;
     }
 
-    // Note that 'lastRead' is only used to re-initialize the read timeout.
+    // Note that 'lastRead' is used only to re-initialize the read timeout.
     bdet_TimeInterval lastRead;
     if (d_useReadTimeout) {
         lastRead = bdetu_SystemTime::now();

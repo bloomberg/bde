@@ -66,7 +66,7 @@ BDES_IDENT("$Id: $")
 // attempts to establish a connection fail, then a pool state callback
 // (see configuration) is invoked.  Once initiated, a connect request can
 // lead to only two outcomes -- success or failure.  In particular, it can't
-// be cancelled.
+// be canceled.
 //
 ///Half-open connections
 ///---------------------
@@ -1540,19 +1540,16 @@ class btemt_ChannelPool {
         // change the write cache high watermark for 'channelId'.
 
     int setNotifyLowWatermark(int channelId);
-        // Notify the user of the 'BTEMT_WRITE_CACHE_LOWWAT' alert via the
-        // channel state callback when the internal write cache for the
-        // specified 'channelId' drops below the low-watermark specified at
-        // construction.  Return 0 on success, or a non-zero value if
-        // 'channelId' does not exist.  Note that the
-        // 'BTEMT_WRITE_CACHE_LOWWAT' alert is only invoked after a write
-        // failure because the write cache size exceeds the high-watermark and
-        // not the optional enqueue watermark argument of write.  So this
-        // function can be used to trigger the 'BTEMT_WRITE_CACHE_LOWWAT' alert
-        // if write failed because the enqueue watermark was exceeded.  Also
-        // note that this method should normally *NOT* be called; it is
-        // provided as a work around and may be removed in a subsequent
-        // release.
+        // Notify the client when the internal write cache for the specified
+        // 'channelId' drops below (or if it is currently below) the configured
+        // low-watermark by delivering a 'BTEMT_WRITE_CACHE_LOWWAT' alert via
+        // the channel state callback.  Return 0 on success, or a non-zero
+        // value if 'channelId' doesn't exist.  Note that by default a
+        // low-watermark event is only provided after a write fails because
+        // the write-cache size has exceeded the configured high-watermark;
+        // this method configures the notification to be provided the next time
+        // the write-cache is below the low-water mark threshold, irrespective
+        // of whether the configured high-watermark has been reached.
 
                                   // *** Thread management ***
 
