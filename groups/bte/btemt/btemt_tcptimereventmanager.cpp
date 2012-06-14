@@ -934,7 +934,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
-, d_numTimers(0)
 , d_numTotalSocketEvents(0)
 , d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
 {
@@ -956,7 +955,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
-, d_numTimers(0)
 , d_numTotalSocketEvents(0)
 , d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
 {
