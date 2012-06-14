@@ -695,11 +695,11 @@ void *readData(void *data)
     bteso_StreamSocket<bteso_IPv4Address> *socket    = td.d_socket_p;
     const int                              NUM_BYTES = td.d_numBytes;
 
-    char buffer[NUM_BYTES];
+    bsl::vector<char> buffer(NUM_BYTES, 0);
 
     int numRemaining = NUM_BYTES;
     do {
-        int rc = socket->read(buffer, numRemaining);
+        int rc = socket->read(buffer.data(), numRemaining);
         if (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
             numRemaining -= rc;
         }
