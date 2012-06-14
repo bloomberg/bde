@@ -9,3 +9,4 @@
 # Force tests to run serially
 !! *               _       ALLTEST_PARALLEL = -s
 
+windows            _       CXXLINK          = advapi32.lib

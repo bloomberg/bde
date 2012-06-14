@@ -10,6 +10,12 @@
 #include <bsl_iostream.h>
 #include <bsls_asserttest.h>
 
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+#include <windows.h>
+#include <iostream>
+#include <iomanip>
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -853,6 +859,142 @@ static const char ASIA_SAIGON_DATA[] = {
     0x53, 0x4d, 0x54, 0x00, 0x49, 0x43, 0x54, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x0a, 0x49, 0x43, 0x54, 0x2d, 0x37, 0x0a,
 };
+// ============================================================================
+//                                 HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
+//
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+
+static int loadTimezoneObsoleteFlag(bool        *isTimezoneObsoleteFlag,
+                                    const HKEY&  zonesKey,
+                                    const char  *timezone)
+    // Load, into the specified 'isTimezoneObsolete', 'true' if the specified
+    // 'timezone' in the registry under the specified 'zonesKey' has an
+    // 'IsObsolete' value of 0x00000001, and 'false' otherwise.  Return 0 on
+    // success, and a non-zero value otherwise, with no other effect.  Note
+    // that this part of the registry is described in:
+    //..
+    //  http://cldr.unicode.org/development/development-process/
+    //                      design-proposals/extended-windows-olson-zid-mapping
+    //..
+{
+    ASSERT(isTimezoneObsoleteFlag);
+    ASSERT(timezone);
+
+    P(timezone);
+
+    HKEY zoneSubKey = {0};
+    int  res        = RegOpenKeyEx(zonesKey,
+                                   timezone,
+                                   0,
+                                   KEY_READ,
+                                   &zoneSubKey);
+
+    if (res != ERROR_SUCCESS) {
+        ASSERT(!"error opening registry for some specific time zone\n");
+        return -1;                                                   // RETURN
+    }
+
+    DWORD obsoleteValue     = 0;
+    DWORD obsoleteValueSize = sizeof(obsoleteValue);
+    res = RegQueryValueEx(zoneSubKey,
+                          "IsObsolete",
+                          0,
+                          0,
+                          reinterpret_cast<LPBYTE>(&obsoleteValue),
+                          &obsoleteValueSize);
+    if (ERROR_SUCCESS != res && ERROR_FILE_NOT_FOUND != res) {
+        ASSERT(!"error querying value of 'IsObsolete'\n");
+	P(res);
+        RegCloseKey(zoneSubKey);
+        return -1;                                                   // RETURN
+    }
+    RegCloseKey(zoneSubKey);
+
+    if (0x00000001 == obsoleteValue) {
+	P_(timezone) Q(NG)
+        *isTimezoneObsoleteFlag = true;
+    } else {
+	P_(timezone) Q(OK)
+        *isTimezoneObsoleteFlag = false;
+    }
+
+    return 0;
+}
+static int loadTimezonesFromRegistry(vector<string> *timezones)
+    // Load, into the specified 'timezones', a list of the timezone
+    // identifiers found in the "Time Zones"  Registry.  Those identifers are
+    // the keys under "Time Zones".  Obsolete time zones are not loaded.
+    // Return 0 on success, and a non-zero value otherwise.
+{
+    ASSERT(timezones);
+
+#if 0
+----^----|----^----|----^----|----^----|----^----|----^----|----^----|----^----|
+#endif
+    const char *registryPath =
+                 "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Time Zones";
+    HKEY        zonesKey     = {0};
+    LONG        res          = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                                            registryPath,
+                                            0,
+                                            KEY_READ,
+                                            &zonesKey);
+
+    if (res != ERROR_SUCCESS) {
+        ASSERT(!"error opening registry: Time Zones\n");
+        return -1;                                                   // RETURN
+    }
+
+    const size_t         MAX_REGKEY_NAME_LENGTH = 255;
+    char         zoneBuf[MAX_REGKEY_NAME_LENGTH +   1];
+
+    for (DWORD n = 0; ; ++n) {
+        DWORD zoneLength = sizeof(zoneBuf);
+        int   res        = RegEnumKeyEx(zonesKey,
+                                        n,
+                                        zoneBuf,
+                                        &zoneLength, // in/out parameter
+                                        0,
+                                        0,
+                                        0,
+                                        0);
+        if (res != ERROR_SUCCESS) {
+            ASSERT(ERROR_NO_MORE_ITEMS == res);
+            break;
+        }
+
+        bool isTimezoneObsoleteFlag;
+        res = loadTimezoneObsoleteFlag(&isTimezoneObsoleteFlag,
+                                       zonesKey,
+                                       zoneBuf);
+        if (0 != res) {
+            ASSERT(!"error getting timezone obsolete flag");
+            RegCloseKey(zonesKey);  // put this into a guard
+            return -1;                                               // RETURN
+        }
+
+        if (!isTimezoneObsoleteFlag) {
+            timezones->push_back(string(zoneBuf));
+        }
+    }
+
+    RegCloseKey(zonesKey);  // put this into a guard
+    return 0;
+}
+#else
+typedef struct _SYSTEMTIME {
+    int wYear;
+    int wMonth;
+    int wDayOfWeek;
+    int wDay;
+    int wHour;
+    int wMinute;
+    int wSecond;
+    int wMilliseconds;
+} SYSTEMTIME;
+
+#endif
 
 // ============================================================================
 //                                 MAIN PROGRAM
@@ -960,7 +1102,7 @@ int main(int argc, char *argv[])
 // for manipulating date/time values.
 //
 // First, use the Windows 'GetTimeZoneInformation' function to load a
-// 'LPTIME_ZONE_INFORMATION' structure.  That structure has a 'StandardName'
+// 'TIME_ZONE_INFORMATION' structure.  That structure has a 'StandardName'
 // array (represented by a simple array below).
 //..
     const char StandardName[32] = "Arab Standard Time";
@@ -974,20 +1116,29 @@ int main(int argc, char *argv[])
     ASSERT(0 == rc);
     ASSERT(0 == bsl::strcmp("Asia/Riyadh", zoneinfoId));
 //..
-// Then, use the Windows 'GetSystemTime' function to load an 'LPSYTEMTIME'
+// Then, use the Windows 'GetSystemTime' function to load an 'SYTEMTIME'
 // structure with UTC time information.  This includes year, month
 // ('[1 .. 12]'), day-of-month ('[1 .. 31]'), and hour-of-day ('[0 .. 23]').
 // Note 'bdet_date' and 'bdet_time' use the same numerical values to represent
 // month, day, etc.  The range of years is different but practically the same
 // as they overlap for several centuries around the current time.
 //
-// The members of the 'LPSYTEMTIME' structure are represented by simple
-// variables below:
 //..
-    const int wYear  = 2012;
-    const int wMonth =    5;
-    const int wDay   =   28;
-    const int wHour  =   23;
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    SYSTEMTIME systemTime;
+    GetSystemTime(&systemTime);
+#else
+    const SYSTEMTIME systemTime = {
+        2012,  // wYear
+           5,  // wMonth     (May)
+           2,  // wDayOfWeek (Monday)
+          28,  // wDay
+          23,  // wHour
+           0,  // wMinute
+           0,  // wSecond
+           0   // wMilliseconds
+    };
+#endif
 //..
 // Finally, use the these Windows SystemTime values and and the calculated
 // Zoneinfo time-zone identifier to set the value of a 'baet_LocalDatetime'
@@ -998,7 +1149,10 @@ int main(int argc, char *argv[])
     rc = baetzo_TimeZoneUtil::convertUtcToLocalTime(
                                     &localDatetime,
                                     zoneinfoId,
-                                    bdet_Datetime(wYear, wMonth, wDay, wHour));
+                                    bdet_Datetime(systemTime.wYear,
+                                                  systemTime.wMonth,
+                                                  systemTime.wDay,
+                                                  systemTime.wHour));
     ASSERT(0             == rc);
     ASSERT("Asia/Riyadh" == localDatetime.timeZoneId());
 //..
@@ -1060,9 +1214,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P_(LINE) P_(GIVEN_ID) P(EXPECTED_ID) }
 
-            int         rc;
             const char *winId;
-            rc = Obj::getWindowsTimeZoneId(&winId, GIVEN_ID);
+            int         rc = Obj::getWindowsTimeZoneId(&winId, GIVEN_ID);
             LOOP2_ASSERT(LINE, rc, 0 == rc);
             LOOP4_ASSERT(LINE, GIVEN_ID, EXPECTED_ID, winId,
                          0 == bsl::strcmp(EXPECTED_ID, winId));
@@ -1168,9 +1321,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P_(LINE) P_(GIVEN_ID) P(EXPECTED_ID) }
 
-            int         rc;
             const char *tzId;
-            rc = Obj::getZoneinfoId(&tzId, GIVEN_ID);
+            int         rc = Obj::getZoneinfoId(&tzId, GIVEN_ID);
             LOOP2_ASSERT(LINE, rc, 0 == rc);
             LOOP4_ASSERT(LINE, GIVEN_ID, EXPECTED_ID, tzId,
                          0 == bsl::strcmp(EXPECTED_ID, tzId));
@@ -1219,6 +1371,50 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(Obj::getZoneinfoId(0,     0));
         }
       } break;
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+      case -1: {
+        // --------------------------------------------------------------------
+        // WINDOWS PLATFORM CHECKS
+        //
+        // Concerns:
+        //: 1 Each Windows time-zone identifier on Windows platforms of
+        //:   interest can be mapped to a Zoneinfo identifier by the
+        //:   'getZoneinfoId' method.
+        //
+        // Plan:
+        //: 1 Obtain the set of Windows time-zone identifers from the Windows
+        //:   registry using the 'loadTimezonesFromRegistry' helper function.
+        //:
+        //: 2 Call the 'getZoneinfoId' method for each Windows time-zone
+        //:   identifier in turn.  Expect a successfull return from each call.
+        //
+        // Testing:
+        //   WINDOWS PLATFORM CHECKS
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "WINDOWS PLATFORM CHECKS" << endl
+                          << "=======================" << endl;
+
+#if 0
+----^----|----^----|----^----|----^----|----^----|----^----|----^----|----^----|
+#endif
+        vector<string> timezones;
+        int            rc = loadTimezonesFromRegistry(&timezones);
+        ASSERT(0 == rc);
+
+        for (vector<string>::const_iterator cur  = timezones.begin(),
+                                            end  = timezones.end();
+                                            end != cur; ++cur) {
+            const char *winId = cur->c_str();
+            if (veryVerbose) { P(winId); }
+
+            const char *tzId;
+            int         rc = Obj::getZoneinfoId(&tzId, winId);
+            LOOP_ASSERT(winId, 0 == rc);
+        }
+      } break;
+#endif
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
