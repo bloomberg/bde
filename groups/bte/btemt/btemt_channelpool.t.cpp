@@ -14,6 +14,7 @@
 
 #include <btesos_tcptimedacceptor.h>
 #include <btesos_tcpchannel.h>
+#include <btesos_tcptimedchannel.h>
 #include <bcemt_lockguard.h>
 #include <bcemt_thread.h>
 #include <btes_iovecutil.h>
@@ -1007,6 +1008,87 @@ extern "C" void* threadFunctionCase36(void *data)
 }
 
 }
+
+//-----------------------------------------------------------------------------
+// CASE 38
+//-----------------------------------------------------------------------------
+
+namespace CASE38 {
+
+btemt_ChannelPool *d_pool_p = 0;
+int                numRead = 0;
+bcemt_Mutex        dataMutex;
+ostringstream      dataStream;
+
+void poolStateCb(int state, int source, int severity)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Pool state callback called with"
+                  << " State: " << state
+                  << " Source: "  << source
+                  << " Severity: " << severity << bsl::endl;
+    }
+}
+
+void channelStateCb(int              channelId,
+                    int              serverId,
+                    int              state,
+                    void            *arg,
+                    int             *id)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Channel state callback called with"
+                  << " Channel Id: " << channelId
+                  << " Server Id: "  << serverId
+                  << " State: " << state << bsl::endl;
+    }
+    if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
+        *id = channelId;
+    }
+}
+
+void blobBasedReadCb(int             *needed,
+                     bcema_Blob      *msg,
+                     int              channelId,
+                     void            *arg,
+                     int             *numTimesCbCalled)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Blob Based Read Cb called with"
+                  << " Channel Id: " << channelId
+                  << " of length: "  << msg->length() << bsl::endl;
+    }
+
+    *numTimesCbCalled = *numTimesCbCalled + 1;
+
+    if (*numTimesCbCalled <= 2) {
+        d_pool_p->disableRead(channelId);
+    }
+    *needed = 1;
+
+    bcema_BlobUtil::asciiDump(dataStream, *msg);
+    msg->removeAll();
+}
+
+void populateText(char *text, int length)
+{
+    const char *data = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const int   dataLength = strlen(data);
+
+          char *curr = text;
+    const char *end  = text + length;
+
+    while (end - curr > dataLength) {
+        bsl::memcpy(curr, data, dataLength);
+        curr += dataLength;
+    }
+    memset(curr, 'A', end - curr);
+}
+
+}  // namespace TEST_CASE_38_NAMESPACE
 
 //-----------------------------------------------------------------------------
 // CASE 36
@@ -2700,7 +2782,6 @@ int drainSocket(bteso_StreamSocket<bteso_IPv4Address> *clientSocket,
     while (numBytesRead < numBytesExpected &&
            (rc = clientSocket->read(buffer, BUFF_SIZE)) > 0) {
         numBytesRead += rc;
-//         P_(rc) P(numBytesRead);
     }
     LOOP2_ASSERT(numBytesRead, numBytesExpected,
                                              numBytesRead == numBytesExpected);
@@ -8074,6 +8155,105 @@ int main(int argc, char *argv[])
         mutex.unlock();
 
         ASSERT(0 == bcemt_ThreadUtil::join(handles[NUM_THREADS]));
+      } break;
+      case 38: {
+        // --------------------------------------------------------------------
+        // REPRODUCING DRQS 28934644
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   int disableRead(int channelId);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nREPRODUCING DRQS 28934644"
+                          << "\n========================="
+                          << endl;
+
+        using namespace CASE38;
+
+        btemt_ChannelPoolConfiguration config;
+        config.setMaxThreads(1);
+        config.setReadTimeout(0);        // in seconds
+        if (verbose) {
+            P(config);
+        }
+
+        int channelId;
+        btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                                       bdef_BindUtil::bind(&channelStateCb,
+                                                           _1, _2, _3, _4,
+                                                           &channelId));
+
+        btemt_ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
+
+        int             numTimesDataCbCalled = 0;
+        btemt_ChannelPool::BlobBasedReadCallback dataCb(
+                                     bdef_BindUtil::bind(
+                                                       &blobBasedReadCb,
+                                                       _1, _2, _3, _4,
+                                                       &numTimesDataCbCalled));
+
+        btemt_ChannelPool pool(channelCb, dataCb, poolCb, config);
+
+        ASSERT(0 == pool.start());
+
+        const int SERVER_ID = 100;
+
+        bteso_IPv4Address serverAddr;
+        int rc = pool.listen(serverAddr, 5, SERVER_ID);
+        ASSERT(!rc);
+
+        ASSERT(0 == pool.getServerAddress(&serverAddr, SERVER_ID));
+
+        bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+        bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
+
+        ASSERT(0 == socket->connect(serverAddr));
+
+        d_pool_p = &pool;
+
+        const int  LEN  = 1024 * 10;
+        char       TEXT[LEN];
+
+        populateText(TEXT, LEN);
+
+        const int NUM_TIMES = 100;
+        const int TIMEOUT = 3;
+
+        socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+        for (int i = 0; i < NUM_TIMES; ++i) {
+            int rc = socket->write(TEXT, LEN);
+            if (rc < 0) {
+                break;
+            }
+        }
+
+        // Wait for the dispatcher thread to process the deregister the READ
+        // event.
+
+        bcemt_ThreadUtil::microSleep(0, 3);
+
+        LOOP_ASSERT(numTimesDataCbCalled, 1 == numTimesDataCbCalled);
+
+        pool.enableRead(channelId);
+
+        bcemt_ThreadUtil::microSleep(0, 3);
+
+        LOOP_ASSERT(numTimesDataCbCalled, 2 == numTimesDataCbCalled);
+
+        pool.enableRead(channelId);
+
+        bcemt_ThreadUtil::microSleep(0, 3);
+
+        LOOP_ASSERT(numTimesDataCbCalled, numTimesDataCbCalled > 2);
+        ASSERT(0 == memcmp(TEXT, dataStream.str().c_str(), LEN));
+
+        if (veryVerbose) {
+            P(dataStream.str())
+        }
       } break;
       case 37: {
         // --------------------------------------------------------------------
