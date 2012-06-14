@@ -1,4 +1,3 @@
-bsl+apache
 bsl+bslhdrs
 bsl+stdhdrs
 bslalg
@@ -11,4 +10,3 @@ bsls
 bslscm
 bslstl
 bslstp
-bsltst

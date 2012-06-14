@@ -42,7 +42,8 @@ using namespace bsl;  // automatically added by script
 //
 // ACCESSORS
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
-// [11] bdet_Time gmtTime() const;
+// [11] bdet_Time utcTime() const;
+// [13] bdet_Time gmtTime() const;
 // [ 4] bdet_Time localTime() const;
 // [ 4] int offset() const;
 // [ 5] bsl::ostream& print(bsl::ostream& stream, int l, int spl) const;
@@ -53,7 +54,7 @@ using namespace bsl;  // automatically added by script
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const bdet_TimeTz&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -122,15 +123,15 @@ struct TimeOracle {
     // user-specified city.
 
     // PRIVATE CLASS METHODS
-    static bdet_Time getCurrentGMTTime();
-        // Return the current GMT time.
+    static bdet_Time getCurrentUTCTime();
+        // Return the current UTC time.
 
     enum { MINUTES_PER_HOUR = 60 };
 
   public:
     // TYPES
     enum CITY {
-        // This enumeration stores the provides from GMT corresponding to
+        // This enumeration stores the provides from UTC corresponding to
         // various cities.
 
         LOS_ANGELES      = -8 * MINUTES_PER_HOUR,
@@ -157,24 +158,24 @@ struct TimeOracle {
 #include <bsl_ctime.h>         // various time functions
 
 // PRIVATE CLASS METHODS
-bdet_Time TimeOracle::getCurrentGMTTime()
+bdet_Time TimeOracle::getCurrentUTCTime()
 {
     bsl::time_t currentTime = bsl::time(0);
-    bsl::tm     gmtTime;
+    bsl::tm     utcTime;
 
 #if defined(BSLS_PLATFORM__OS_WINDOWS) || ! defined(BDE_BUILD_TARGET_MT)
-    gmtTime = *bsl::gmtime(&currentTime);
+    utcTime = *bsl::gmtime(&currentTime);
 #else
-    gmtime_r(&currentTime, &gmtTime);
+    gmtime_r(&currentTime, &utcTime);
 #endif
 
-    return bdet_Time(gmtTime.tm_hour, gmtTime.tm_min, gmtTime.tm_sec);
+    return bdet_Time(utcTime.tm_hour, utcTime.tm_min, utcTime.tm_sec);
 }
 
 // CLASS METHODS
 bdet_TimeTz TimeOracle::getLocalTime(CITY city)
 {
-    bdet_Time localTime(getCurrentGMTTime());
+    bdet_Time localTime(getCurrentUTCTime());
     localTime.addMinutes((int) city);
     return bdet_TimeTz(localTime, (int) city);
 }
@@ -226,7 +227,7 @@ int main(int argc, char *argv[])
 // The following snippets of code illustrate how to create and use
 // 'bdet_TimeTz' objects.  First we will default construct an object 'timeTz'.
 // A default constructed object contains an offset of 0, implying that the
-// object represents time in the GMT time zone.  The value of the time is the
+// object represents time in the UTC time zone.  The value of the time is the
 // same as that of a default constructed 'bdet_Time' object:
 //..
   bdet_TimeTz timeTz1;
@@ -234,7 +235,7 @@ int main(int argc, char *argv[])
   ASSERT(timeTz1.localTime() == bdet_Time());
 //..
 // Next we set 'timeTz1' to 12:00 noon (12:00:00.000) in the EST time zone
-// (GMT-5):
+// (UTC-5):
 //..
   bdet_Time time1(12, 0, 0, 0);
   bdet_Time time2(time1);
@@ -242,22 +243,22 @@ int main(int argc, char *argv[])
 
   timeTz1.setTimeTz(time1, offset1);
   ASSERT(offset1             == timeTz1.offset());
-  ASSERT(timeTz1.localTime() != timeTz1.gmtTime());
+  ASSERT(timeTz1.localTime() != timeTz1.utcTime());
   ASSERT(timeTz1.localTime() == time1);
-  ASSERT(timeTz1.gmtTime()   != time2);
+  ASSERT(timeTz1.utcTime()   != time2);
 
   time2.addMinutes(-offset1);
-  ASSERT(timeTz1.gmtTime()   == time2);
+  ASSERT(timeTz1.utcTime()   == time2);
 //..
 // Then we create 'timeTz2' as a copy of 'timeTz1':
 //..
   bdet_TimeTz timeTz2(timeTz1);
   ASSERT(offset1             == timeTz2.offset());
   ASSERT(timeTz2.localTime() == time1);
-  ASSERT(timeTz2.gmtTime()   == time2);
+  ASSERT(timeTz2.utcTime()   == time2);
 //..
 // We now create a third object, 'timeTz3', representing the time 10:33:25.000
-// in the PST time zone (GMT-8):
+// in the PST time zone (UTC-8):
 //..
   bdet_Time time3(10, 33, 25, 0);
   bdet_Time time4(time3);
@@ -265,12 +266,12 @@ int main(int argc, char *argv[])
 
   bdet_TimeTz timeTz3(time3, offset2);
   ASSERT(offset2             == timeTz3.offset());
-  ASSERT(timeTz3.localTime() != timeTz3.gmtTime());
+  ASSERT(timeTz3.localTime() != timeTz3.utcTime());
   ASSERT(timeTz3.localTime() == time3);
-  ASSERT(timeTz3.gmtTime()   != time4);
+  ASSERT(timeTz3.utcTime()   != time4);
 
   time4.addMinutes(-offset2);
-  ASSERT(timeTz3.gmtTime()   == time4);
+  ASSERT(timeTz3.utcTime()   == time4);
 //..
 // Finally we stream the values of 'timeTz1', 'timeTz2' and 'timeTz3' to
 // 'stdout':

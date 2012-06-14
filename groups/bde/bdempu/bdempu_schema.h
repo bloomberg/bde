@@ -172,22 +172,22 @@ BDES_IDENT("$Id: $")
 //      }
 //  }
 //..
-// In this example, the first record definition (labeled "{0}") identifies a
+// In this example, the first record definition (labeled '{0}') identifies a
 // (user-defined) construct named "Point" as two integer fields named "x"
 // and "y", respectively.  The strings representing a name can be either
 // quoted or unquoted (unless they contain embedded whitespace, in which case
 // they *must* be quoted).
 //
-// Record definition {1} illustrates the way a record definition may be
+// Record definition '{1}' illustrates the way a record definition may be
 // defined hierarchically.  This definition, named "Rectangle", is defined as
 // having two fields (named "lowerLeft" and "upperRight") of type defined by
 // the record definition in this schema whose name is "Point" (i.e., record
-// definition {0}) and a third field named "color" of type STRING.  A field of
-// type RECORD<"Point"> corresponds to the LIST data type; we say that the
+// definition '{0}') and a third field named "color" of type STRING.  A field
+// of type RECORD<"Point"> corresponds to the LIST data type; we say that the
 // elements in the LIST are "constrained" to conform to the field definitions
 // of "Point".
 //
-// Record definition {2} also illustrates the way in which to define one
+// Record definition '{2}' also illustrates the way in which to define one
 // record definition using another, this time for an array.  This record
 // definition, named "Polygon", contains a field named "vertices" of a type
 // that is conceptually an array of (zero or more) instances of the record
@@ -198,24 +198,24 @@ BDES_IDENT("$Id: $")
 // columns in the TABLE are constrained to conform to the field types of
 // "Point".
 //
-// Record definition {3} illustrates that all record-definition and
+// Record definition '{3}' illustrates that all record-definition and
 // field-definition names are optional.  The structure of record definition
-// {3} is, however, identical to that of record definition {0}.  We cannot
-// refer to record definition {3} by name, but we can refer to it by its
-// integer locator (i.e., {3}).
+// '{3}' is, however, identical to that of record definition '{0}'.  We cannot
+// refer to record definition '{3}' by name, but we can refer to it by its
+// integer locator (i.e., '{3}').
 //
-// Record definition {4} demonstrates how to refer to an unnamed record via its
-// integer locator.  Notice that names with embedded spaces are permitted if
-// quoted.
+// Record definition '{4}' demonstrates how to refer to an unnamed record via
+// its integer locator.  Notice that names with embedded spaces are permitted
+// if quoted.
 //
-// Record definition {5}, apart from its (missing) name, is defined identically
-// to record definition {2}; the additional white space is irrelevant.  Note
-// that record-definition names within schemas (as well as field names within
-// record definitions) must be unique.
+// Record definition '{5}', apart from its (missing) name, is defined
+// identically to record definition '{2}'; the additional white space is
+// irrelevant.  Note that record-definition names within schemas (as well as
+// field names within record definitions) must be unique.
 //
-// Record definition {6} is defined identically to record definition {2}.  Note
-// that each record definition within a schema has unique identity (e.g., its
-// index).
+// Record definition '{6}' is defined identically to record definition '{2}'.
+// Note that each record definition within a schema has unique identity (e.g.,
+// its index).
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>

@@ -13,6 +13,7 @@
 
 #include <bsls_alignmentutil.h>                 // for testing only
 #include <bsls_platform.h>                      // for testing only
+#include <bsls_stopwatch.h>
 
 #include <bsl_iostream.h>
 #include <bsl_map.h>
@@ -2037,6 +2038,9 @@ void testCase19(int argc)
     }
 }
 
+struct FunctorNop {
+    void operator()() {}
+};
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -5234,6 +5238,42 @@ int main(int argc, char *argv[])
             }
         }
 
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // TEST SPEED OF CALLING NOP THROUGH 'bdef_Function'
+        //
+        // Concern:
+        //   What is the cpu overhead of calling a 'bdef_Function'?
+        //
+        // Plan:
+        //   Load a 'bdef_Function' object with a nop functor and call it
+        //   repeatdly.  Time how long this takes.
+        // --------------------------------------------------------------------
+
+        cout << "'bdef_Function' nop benchmark\n"
+                "=============================\n";
+
+        int iterations;
+        cout << "Enter Iterations: " << flush;
+        cin >> iterations;
+
+        bdef_Function<void (*)()> f((FunctorNop()));
+
+        bsls_Stopwatch sw;
+        sw.start(true);
+
+        for (int i = iterations; i > 0; --i) {
+            f();
+        }
+
+        sw.stop();
+
+        double user = sw.accumulatedUserTime() / iterations;
+        double wall = sw.accumulatedWallTime() / iterations;
+
+        cout << "User time: " << user << " sec, Wall time: " << wall <<
+                                                                      " sec\n";
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

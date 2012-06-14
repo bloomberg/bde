@@ -6856,7 +6856,7 @@ static inline void  monitorPool(bcemt_Mutex              *coutLock,
         bcemt_ThreadUtil::microSleep(0, 2);  // 2 seconds
         if (verbose) {
             coutLock->lock();
-            bsl::cout << bdetu_SystemTime::nowAsDatetimeGMT() << "\n"
+            bsl::cout << bdetu_SystemTime::nowAsDatetimeUtc() << "\n"
                       << "The pool is " << pool.busyMetrics() << "% busy ("
                       << pool.numThreads() << " threads).  "
                       << pool.numChannels() << " channels.  Allocations =";
@@ -7941,7 +7941,7 @@ int main(int argc, char *argv[])
 #else
 
     cout << "TEST " << __FILE__ << " CASE " << test
-         << " STARTED " << bdetu_SystemTime::nowAsDatetimeGMT() << endl;
+         << " STARTED " << bdetu_SystemTime::nowAsDatetimeUtc() << endl;
 
     ASSERT(0 == bteso_SocketImpUtil::startup());
     bdef_Function<void (*)()> NULL_CB(&assertCb);
@@ -15340,7 +15340,7 @@ int main(int argc, char *argv[])
     }
 
     cout << "TEST CASE " << test << " ENDED "
-         << bdetu_SystemTime::nowAsDatetimeGMT() << endl;
+         << bdetu_SystemTime::nowAsDatetimeUtc() << endl;
 
 #endif // !BSLS_PLATFORM__OS_WINDOWS
 

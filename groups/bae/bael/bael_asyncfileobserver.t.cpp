@@ -690,6 +690,14 @@ int main(int argc, char *argv[])
 
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
             bcemt_ThreadUtil::microSleep(0, 1);
+
+            // Wait up to 3 seconds for the file rotation to complete
+
+            int loopCount = 0;
+            do {
+                bcemt_ThreadUtil::microSleep(0, 1);
+            } while (0 == cb.numInvocations() && loopCount++ < 3);
+
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
 
             ASSERT(1 ==
@@ -2156,7 +2164,7 @@ int main(int argc, char *argv[])
                 } else {
                     ASSERT(0 && "can't substr(11,2), string too short");
                 }
-                int difference = bdetu_SystemTime::nowAsDatetimeGMT().hour() -
+                int difference = bdetu_SystemTime::nowAsDatetimeUtc().hour() -
                                  bdetu_SystemTime::nowAsDatetimeLocal().hour();
                 LOOP3_ASSERT(fileObsHour, defaultObsHour, difference,
                        (fileObsHour + difference + 24) % 24 == defaultObsHour);

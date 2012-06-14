@@ -157,7 +157,7 @@ void waitTurnAndSleepCallback(
                     "counter = " << value
                  << ENDL;
         }
-    } while (bdetu_SystemTime::nowAsDatetimeGMT() < stopTime);
+    } while (bdetu_SystemTime::nowAsDatetimeUtc() < stopTime);
 }
 
 static
@@ -181,7 +181,7 @@ void waitTurnCallback(
                     "counter = " << value
                  << ENDL;
         }
-    } while (bdetu_SystemTime::nowAsDatetimeGMT() < stopTime);
+    } while (bdetu_SystemTime::nowAsDatetimeUtc() < stopTime);
 }
 
 static
@@ -366,7 +366,7 @@ int main(int argc, char *argv[])
         const int               NUM_TURNS   = 50;
         const int               NUM_THREADS = 3;
 
-        bdet_Datetime stopTime(bdetu_SystemTime::nowAsDatetimeGMT());
+        bdet_Datetime stopTime(bdetu_SystemTime::nowAsDatetimeUtc());
         stopTime.addMilliseconds(2 * OFFSET.totalMilliseconds());
 
         Obj        mX(RATE, OFFSET);
@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
         const int               NUM_TURNS   = 8;
         const int               NUM_THREADS = 3;
 
-        bdet_Datetime stopTime(bdetu_SystemTime::nowAsDatetimeGMT());
+        bdet_Datetime stopTime(bdetu_SystemTime::nowAsDatetimeUtc());
         stopTime.addMilliseconds(2 * OFFSET.totalMilliseconds());
 
         Obj        mX(RATE, OFFSET);

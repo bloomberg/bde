@@ -1574,9 +1574,9 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST: baem_MetricSample" << endl
                           << "=================================" << endl;
 
-        bdet_DatetimeTz timeStamp1(bdetu_SystemTime::nowAsDatetime(), 0);
-        bdet_DatetimeTz timeStamp2(bdetu_SystemTime::nowAsDatetime(), 1);
-        bdet_DatetimeTz timeStamp3(bdetu_SystemTime::nowAsDatetime(), 2);
+        bdet_DatetimeTz timeStamp1(bdetu_SystemTime::nowAsDatetimeUtc(), 0);
+        bdet_DatetimeTz timeStamp2(bdetu_SystemTime::nowAsDatetimeUtc(), 1);
+        bdet_DatetimeTz timeStamp3(bdetu_SystemTime::nowAsDatetimeUtc(), 2);
 
         bdet_TimeInterval interval1(1,0);
         bdet_TimeInterval interval2(2,0);
