@@ -709,12 +709,18 @@ BSLS_IDENT("$Id: $")
 #       define BSLS_ATOMICOPERATIONS_ERROR
 #   endif
 
-#elif defined(BSLS_PLATFORM__CPU_POWERPC) && defined(BSLS_PLATFORM__CMP_IBM)
+#elif defined(BSLS_PLATFORM__CPU_POWERPC)
 
-#   if defined(BSLS_PLATFORM__CPU_64_BIT)
-#       include <bsls_atomicoperations_powerpc64_aix_xlc.h>
+#   if defined(BSLS_PLATFORM__CMP_IBM)
+#       if defined(BSLS_PLATFORM__CPU_64_BIT)
+#           include <bsls_atomicoperations_powerpc64_aix_xlc.h>
+#       else
+#           include <bsls_atomicoperations_powerpc32_aix_xlc.h>
+#       endif
+#   elif defined(BSLS_PLATFORM__CMP_GNU)
+#       include <bsls_atomicoperations_powerpc_aix_gcc.h>
 #   else
-#       include <bsls_atomicoperations_powerpc32_aix_xlc.h>
+#       define BSLS_ATOMICOPERATIONS_ERROR
 #   endif
 
 #elif defined(BSLS_PLATFORM__CPU_SPARC_32) \

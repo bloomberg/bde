@@ -218,7 +218,7 @@ bool withinWindow(const bdet_DatetimeTz&   localTime,
     // Return 'true' if the specified 'localTime' is within the specified
     // 'windowMs' (milliseconds) of the specified 'utcExpectedTime'.
 {
-    bdet_Datetime gmtTime = localTime.gmtDatetime();
+    bdet_Datetime gmtTime = localTime.utcDatetime();
     bdet_Datetime begin   = utcExpectedTime;
     bdet_Datetime end     = utcExpectedTime;
     begin.addMilliseconds(-windowMs);
@@ -939,7 +939,7 @@ void ConcurrencyTest::execute()
                           allCategories.data(),
                           allCategories.size());
 
-        bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeGMT();
+        bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeUtc();
 
         ASSERT(!s1Cb.resetFlag());
         ASSERT(!s2Cb.resetFlag());
@@ -1708,7 +1708,7 @@ int main(int argc, char *argv[])
             mX.collectSample(&sample, &records, false);
 
             bdet_TimeInterval window = bdetu_SystemTime::now() - start;
-            bdet_Datetime     now    = bdetu_SystemTime::nowAsDatetimeGMT();
+            bdet_Datetime     now    = bdetu_SystemTime::nowAsDatetimeUtc();
             ASSERT(NUM_CATEGORIES * NUM_METRICS == records.size());
             ASSERT(NUM_CATEGORIES * NUM_METRICS == sample.numRecords());
             ASSERT(NUM_CATEGORIES               == sample.numGroups());
@@ -2625,7 +2625,7 @@ int main(int argc, char *argv[])
                    excludedSet.size() + combIt.current().size());
 
             // Publish the records.
-            bdet_Datetime tmStamp = bdetu_SystemTime::nowAsDatetimeGMT();
+            bdet_Datetime tmStamp = bdetu_SystemTime::nowAsDatetimeUtc();
             mX.publishAll(excludedSet);
 
             // Verify the "general" publishers has been invoked.
@@ -2724,7 +2724,7 @@ int main(int argc, char *argv[])
 
         // Invoke 'publishAll'.
         bcemt_ThreadUtil::microSleep(100000, 0);
-        bdet_Datetime tmStamp = bdetu_SystemTime::nowAsDatetimeGMT();
+        bdet_Datetime tmStamp = bdetu_SystemTime::nowAsDatetimeUtc();
         mX.publishAll();
 
         // Verify the "general" publisher has been invoked.
@@ -2819,7 +2819,7 @@ int main(int argc, char *argv[])
 
             // Publish the records.
             bcemt_ThreadUtil::microSleep(100000, 0);
-            bdet_Datetime tmStamp = bdetu_SystemTime::nowAsDatetimeGMT();
+            bdet_Datetime tmStamp = bdetu_SystemTime::nowAsDatetimeUtc();
             mX.publish(CAT);
 
             ASSERT(1 == gPub.invocations());
@@ -2921,7 +2921,7 @@ int main(int argc, char *argv[])
                                         bsl::less<const baem_Category *>(), Z);
 
             // Publish the records.
-            bdet_Datetime tmStamp = bdetu_SystemTime::nowAsDatetimeGMT();
+            bdet_Datetime tmStamp = bdetu_SystemTime::nowAsDatetimeUtc();
             mX.publish(categorySet);
 
             // Verify the "general" publishers has been invoked.
@@ -3068,7 +3068,7 @@ int main(int argc, char *argv[])
 
             //   2. Create a unique time interval and invoke 'publish'.
             const bsl::vector<const Category *>& categories = combIt.current();
-            bdet_Datetime tmStamp = bdetu_SystemTime::nowAsDatetimeGMT();
+            bdet_Datetime tmStamp = bdetu_SystemTime::nowAsDatetimeUtc();
             if (categories.size() > 0) {
                 mX.publish(categories.data(), categories.size());
             }
@@ -4064,7 +4064,7 @@ int main(int argc, char *argv[])
 
         // Use a 20 minute window to verify timestamps.  If the test
         // takes longer than 10 minutes to run, there are other issues.
-        bdet_Datetime now    = bdetu_SystemTime::nowAsDatetimeGMT();
+        bdet_Datetime now    = bdetu_SystemTime::nowAsDatetimeUtc();
         const int     WINDOW = 10 * 60 * MILLISECS_PER_SEC;
 
         // Reset dummy callbacks and dummy publishers

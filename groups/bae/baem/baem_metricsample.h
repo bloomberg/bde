@@ -55,7 +55,7 @@ BDES_IDENT("$Id: $")
 //  baem_MetricId metricB(&descB);
 //  baem_MetricId metricC(&descC);
 //
-//  const int TZ = 0;  // GMT time zone offset
+//  const int TZ = 0;  // UTC time zone offset
 //
 //  bdet_DatetimeTz timeStamp(bdet_Datetime(2008, 3, 26, 13, 30, 0, 0), TZ);
 //  baem_MetricRecord recordA(metricA, 0, 0, 0, 0);

@@ -316,7 +316,7 @@ BDES_IDENT("$Id: $")
 //  }
 //..
 // Now, we verify the value of 'localTime' is "Jul 31, 2010 15:00:00" with an
-// offset of -4:00 from GMT, in the time zone "America/New_York".
+// offset of -4:00 from UTC, in the time zone "America/New_York".
 //..
 //  const bdet_Datetime invalidTest = localTime.datetimeTz().localDatetime();
 //  assert(2010 == invalidTest.year());  assert(15 == invalidTest.hour());
@@ -401,7 +401,7 @@ BDES_IDENT("$Id: $")
 //  }
 //..
 // Now we examine the returned properties.  "Mar 14, 2010 03:30:00" is during
-// daylight-savings time, which is -4:00 GMT, and the type of local time is
+// daylight-savings time, which is -4:00 UTC, and the type of local time is
 // sometimes abbreviated "EDT" for "Eastern Daylight Time".  "Eastern
 // Daylight Time" is in effect from "Mar 14, 2010 7am UTC" to "Nov 7, 2010 6am
 // UTC".  Note that the abbreviation provided ("EDT") is not canonical or
@@ -652,7 +652,7 @@ struct baetzo_TimeZoneUtil {
         // Load, into the specified 'result', 'true' if the offset from UTC of
         // the specified 'localTime' (i.e., 'localTime.offset()') is consistent
         // with the actual local time offset, as indicated by time zone data,
-        // at the UTC time 'localTime.gmtDatetime()' in the time zone indicated
+        // at the UTC time 'localTime.utcDatetime()' in the time zone indicated
         // by the specified 'timeZoneId', and 'false' otherwise.  Return 0 on
         // success, and a non-zero value with 'false' loaded into 'result'
         // otherwise.  A return value of
@@ -668,7 +668,7 @@ struct baetzo_TimeZoneUtil {
         // 'localTime.timeZoneId()') is a valid identifier, and the offset from
         // UTC of 'localTime' (i.e., 'localTime.datetimeTz().offset()') is
         // consistent with the actual local time offset, as indicated by time
-        // zone data, at the UTC time 'localTime.dateTimeTz().gmtDatetime()' in
+        // zone data, at the UTC time 'localTime.dateTimeTz().utcDatetime()' in
         // the time zone inidicated by 'localTime.timeZoneId()', and 'false'
         // otherwise.  Return 0 on success, and a non-zero value with 'false'
         // loaded into 'result' otherwise.  A return value of
@@ -715,7 +715,7 @@ int baetzo_TimeZoneUtil::convertLocalToLocalTime(
 
     return convertUtcToLocalTime(result,
                                  targetTimeZoneId,
-                                 srcTime.datetimeTz().gmtDatetime());
+                                 srcTime.datetimeTz().utcDatetime());
 }
 
 inline
@@ -729,7 +729,7 @@ int baetzo_TimeZoneUtil::convertLocalToLocalTime(
 
     return convertUtcToLocalTime(result,
                                  targetTimeZoneId,
-                                 srcTime.gmtDatetime());
+                                 srcTime.utcDatetime());
 }
 
 inline
@@ -743,7 +743,7 @@ int baetzo_TimeZoneUtil::convertLocalToLocalTime(
 
     return convertUtcToLocalTime(result,
                                  targetTimeZoneId,
-                                 srcTime.datetimeTz().gmtDatetime());
+                                 srcTime.datetimeTz().utcDatetime());
 }
 
 inline
@@ -757,7 +757,7 @@ int baetzo_TimeZoneUtil::convertLocalToLocalTime(
 
     return convertUtcToLocalTime(result,
                                  targetTimeZoneId,
-                                 srcTime.gmtDatetime());
+                                 srcTime.utcDatetime());
 }
 
 inline
@@ -821,7 +821,7 @@ int baetzo_TimeZoneUtil::loadLocalTimePeriod(
 
     return loadLocalTimePeriodForUtc(result,
                                      timeZoneId,
-                                     localTime.gmtDatetime());
+                                     localTime.utcDatetime());
 }
 
 inline

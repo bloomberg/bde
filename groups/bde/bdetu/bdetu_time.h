@@ -251,12 +251,12 @@ struct bdetu_Time {
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
     static bdet_Time currentTime();
-        // Return the current time in the GMT timezone.
+        // Return the current time in the UTC timezone.
         //
         // DEPRECATED: See 'bdetu_systemtime'.
 
     static void loadCurrentTime(bdet_Time *result);
-        // Load into the specified 'result' the current time in the GMT
+        // Load into the specified 'result' the current time in the UTC
         // timezone.  The behavior is undefined unless 'result' is non-zero.
         //
         // DEPRECATED: See 'bdetu_systemtime'.

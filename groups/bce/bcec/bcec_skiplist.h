@@ -168,7 +168,7 @@ BDES_IDENT("$Id: $")
 //                bdet_TimeInterval when;
 //                bdetu_TimeInterval::convertToTimeInterval(&when,
 //                               firstItem.key() -
-//                               bdetu_SystemTime::nowAsDatetimeGMT());
+//                               bdetu_SystemTime::nowAsDatetimeUtc());
 //                if (when.totalSecondsAsDouble() <= 0) {
 //                    // Execute now and remove from schedule, then iterate.
 //
@@ -275,7 +275,7 @@ BDES_IDENT("$Id: $")
 //
 // bsl::vector<int> values;
 //
-// bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeGMT();
+// bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeUtc();
 // bdet_Datetime scheduleTime = now;
 //
 // // Add events out of sequence and ensure they are executed
@@ -299,7 +299,7 @@ BDES_IDENT("$Id: $")
 //                         scheduleTime);
 // assert(values.isEmpty());
 // scheduleTime.addMilliseconds(250);
-// while (bdetu_SystemTime::nowAsDatetimeGMT() < scheduleTime) {
+// while (bdetu_SystemTime::nowAsDatetimeUtc() < scheduleTime) {
 //     bcemt_ThreadUtil::microSleep(10000);
 // }
 // scheduler.stop();

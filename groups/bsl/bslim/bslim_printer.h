@@ -447,7 +447,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  class DateTz {
 //      // This 'class' represents a date value explicitly in a local time
-//      // zone.  The offset of that time (in minutes) from GMT is also part of
+//      // zone.  The offset of that time (in minutes) from UTC is also part of
 //      // the value of this class.
 //
 //    private:
@@ -455,7 +455,7 @@ BSLS_IDENT("$Id: $")
 //      int d_localDate;  // date in YYYYMMDD format, local to the timezone
 //                        // indicated by 'd_offset'
 //
-//      int d_offset;     // offset from GMT (in minutes)
+//      int d_offset;     // offset from UTC (in minutes)
 //
 //    public:
 //      // ...

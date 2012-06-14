@@ -449,7 +449,7 @@ void ReentrantRotationCallback::operator()(int                status,
 
 void publishRecord(Obj *mX, const char *message)
 {
-    bael_RecordAttributes attr(bdetu_SystemTime::nowAsDatetime(),
+    bael_RecordAttributes attr(bdetu_SystemTime::nowAsDatetimeUtc(),
                                1,
                                2,
                                "FILENAME",

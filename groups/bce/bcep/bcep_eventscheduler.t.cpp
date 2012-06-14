@@ -679,7 +679,7 @@ typedef pair<bdet_Datetime, int> Value;
 
 void saveData(vector<Value> *array)
 {
-    array->push_back(Value(bdetu_SystemTime::nowAsDatetimeGMT(), g_data));
+    array->push_back(Value(bdetu_SystemTime::nowAsDatetimeUtc(), g_data));
 }
 
 class my_Session{
@@ -2055,8 +2055,8 @@ int main(int argc, char *argv[])
                                              bdef_BindUtil::bind(&saveData,
                                                                  &values));
             scheduler.start();
-            bdet_Datetime start = bdetu_SystemTime::nowAsDatetimeGMT();
-            while ((bdetu_SystemTime::nowAsDatetimeGMT() -
+            bdet_Datetime start = bdetu_SystemTime::nowAsDatetimeUtc();
+            while ((bdetu_SystemTime::nowAsDatetimeUtc() -
                                                start).totalSeconds() < 7) {
                 ++g_data;
             }

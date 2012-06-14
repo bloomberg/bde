@@ -1366,148 +1366,58 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case -1: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PERFORMANCE TESTING 'dispatch':
         //   Get the performance data.
         //
         // Plan:
-        //   Set up multiple connections and register a read event for each
-        //   connection, calculate the average time taken to dispatch a read
-        //   event for a given number of registered read event.
+        //   Set up a collection of socketPairs and register one end of all the
+        //   pairs with the event manager.  Write 1 byte to
+        //   'fracBusy * numSocketPairs' of the connections, and measure the
+        //   average time taken to dispatch a read event for a given number of
+        //   registered read event.  If 'timeOut > 0' register a timeout
+        //   interval with the 'dispatch' call.  If 'R|N' is 'R', actually read
+        //   the bytes in the dispatch, if it's 'N', just call a null function
+        //   within the dispatch.
+        //
         // Testing:
         //   'dispatch' capacity
-        // -----------------------------------------------------------------
-        enum {
-            DEFAULT_NUM_PAIRS        = 1024,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
+        //
+        // See the compilation of results for all event managers & platforms
+        // at the beginning of 'bteso_eventmanagertester.t.cpp'.
+        // --------------------------------------------------------------------
 
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+        if (verbose) cout << "PERFORMANCE TESTING 'dispatch'\n"
+                             "==============================\n";
 
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-        if (verbose)
-            cout << endl
-                << "PERFORMANCE TESTING 'dispatch'" << endl
-                << "==============================" << endl;
         {
-            const char *FILENAME = "pollDispatch.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-            if (veryVerbose) {
-                cout << "Number of test socket pairs: " << numPairs
-                     << "; number of measurements: " << numMeasurements
-                     << bsl::endl;
-            }
-
             Obj mX(&timeMetric, &testAllocator);
-            bteso_EventManagerTester::testDispatchPerformance(&mX, outFile,
-                                    numPairs, numMeasurements, controlFlag);
-            outFile.close();
+            bteso_EventManagerTester::testDispatchPerformance(&mX, "poll",
+                                                                  controlFlag);
         }
       } break;
       case -2: {
         // -----------------------------------------------------------------
-        // PERFORMANCE TESTING 'registerSocketEvent':
-        //   Get the performance data.
+        // TESTING PERFORMANCE 'registerSocketEvent' METHOD:
+        //   Get performance data.
         //
         // Plan:
         //   Open multiple sockets and register a read event for each
         //   socket, calculate the average time taken to register a read
         //   event for a given number of registered read event.
+        //
         // Testing:
-        //   'dispatch' capacity
+        //   Obj::registerSocketEvent
+        //
+        // See the compilation of results for all event managers & platforms
+        // at the beginning of 'bteso_eventmanagertester.t.cpp'.
         // -----------------------------------------------------------------
-        enum {
-            DEFAULT_NUM_PAIRS        = 1024,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
 
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+        if (verbose) cout << "PERFORMANCE TESTING 'registerSocketEvent'\n"
+                             "=========================================\n";
 
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-
-        if (verbose)
-            cout << endl
-            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
-            << "=========================================" << endl;
-        {
-
-            const char *FILENAME = "pollRegister.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-            if (veryVerbose) {
-                cout << "Number of test sockets: " << numPairs
-                     << "; number of measurements: " << numMeasurements
-                     << bsl::endl;
-            }
-
-            Obj mX(&timeMetric, &testAllocator);
-            bdet_TimeInterval infinite, timeout;
-            if (!outFile) {
-                cout << "Cannot open pollregisterPerformance.dat "
-                     << "errno: " << errno << endl;
-                return 0;
-            }
-            bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
-                                     numPairs, numMeasurements, controlFlag);
-            outFile.close();
-        }
+        Obj mX(&timeMetric, &testAllocator);
+        bteso_EventManagerTester::testRegisterPerformance(&mX, controlFlag);
       } break;
       case -3: {
         // -----------------------------------------------------------------

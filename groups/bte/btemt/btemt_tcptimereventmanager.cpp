@@ -683,50 +683,28 @@ int btemt_TcpTimerEventManager_ControlChannel::serverRead()
                          // --------------------------------
 
 // PRIVATE METHODS
-void btemt_TcpTimerEventManager::initialize(Hint infrequentRegistrationHint)
+void btemt_TcpTimerEventManager::initialize()
 {
     BSLS_ASSERT(d_allocator_p);
 
     bteso_TimeMetrics *metrics = d_collectMetrics ? &d_metrics : 0;
 
     // Initialize the (managed) event manager.
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-    d_manager_p = new (*d_allocator_p)
-        bteso_DefaultEventManager<bteso_Platform::SELECT>(
-                                                       metrics, d_allocator_p);
-#elif defined(BSLS_PLATFORM__OS_SOLARIS)
-    switch (infrequentRegistrationHint) {
-      case BTEMT_NO_HINT: {
+#ifdef BSLS_PLATFORM__OS_LINUX
+    if (bteso_DefaultEventManager<>::isSupported()) {
         d_manager_p = new (*d_allocator_p)
-            bteso_DefaultEventManager<bteso_Platform::DEVPOLL>(
-                                                       metrics, d_allocator_p);
-      } break;
-      case BTEMT_INFREQUENT_REGISTRATION: {
-        d_manager_p = new (*d_allocator_p)
-            bteso_DefaultEventManager<bteso_Platform::POLL>(
-                                                       metrics, d_allocator_p);
-      } break;
-      default: {
-          BSLS_ASSERT(0);
-      }
-    }
-#elif defined(BSLS_PLATFORM__OS_LINUX)
-    if (bteso_DefaultEventManager<bteso_Platform::EPOLL>::isSupported()) {
-        d_manager_p = new (*d_allocator_p)
-                bteso_DefaultEventManager<bteso_Platform::EPOLL>(
-                                                       metrics, d_allocator_p);
+                           bteso_DefaultEventManager<>(metrics, d_allocator_p);
     }
     else {
         d_manager_p = new (*d_allocator_p)
-                bteso_DefaultEventManager<bteso_Platform::POLL>(
+                           bteso_DefaultEventManager<bteso_Platform::POLL>(
                                                        metrics, d_allocator_p);
     }
-
 #else
     d_manager_p = new (*d_allocator_p)
-                bteso_DefaultEventManager<bteso_Platform::POLL>(
-                                                       metrics, d_allocator_p);
+                           bteso_DefaultEventManager<>(metrics, d_allocator_p);
 #endif
+
     d_isManagedFlag = 1;
 
     // Initialize the functor containing the dispatch thread's entry point
@@ -902,7 +880,6 @@ void btemt_TcpTimerEventManager::dispatchThreadEntryPoint()
             for (int i = 0; i < numTimers; ++i) {
                 requests[i].data()();
             }
-            d_numTimers = d_timerQueue.length();
         }
 
         // If a signal to quit has been issued leave immediately,
@@ -937,36 +914,13 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(true)
-, d_numTimers(0)
 , d_numTotalSocketEvents(0)
 , d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
 {
-    initialize(BTEMT_NO_HINT);
+    initialize();
 }
 
 btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
-                                        Hint               registrationHint,
-                                        bslma_Allocator   *threadSafeAllocator)
-: d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
-                threadSafeAllocator)
-, d_requestQueue(threadSafeAllocator)
-, d_dispatcher(bcemt_ThreadUtil::invalidHandle())
-, d_state(BTEMT_DISABLED)
-, d_terminateThread(0)
-, d_timerQueue(threadSafeAllocator)
-, d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-            bteso_TimeMetrics::BTESO_IO_BOUND,
-            threadSafeAllocator)
-, d_collectMetrics(true)
-, d_numTimers(0)
-, d_numTotalSocketEvents(0)
-, d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
-{
-    initialize(registrationHint);
-}
-
-btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
-                                        Hint               registrationHint,
                                         bool               collectTimeMetrics,
                                         bslma_Allocator   *threadSafeAllocator)
 : d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
@@ -984,11 +938,10 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_numTotalSocketEvents(0)
 , d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
 {
-    initialize(registrationHint);
+    initialize();
 }
 
 btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
-                                        Hint               registrationHint,
                                         bool               collectTimeMetrics,
                                         bool               poolTimerMemory,
                                         bslma_Allocator   *threadSafeAllocator)
@@ -1007,7 +960,70 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_numTotalSocketEvents(0)
 , d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
 {
-    initialize(registrationHint);
+    initialize();
+}
+
+btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
+                                        Hint,
+                                        bslma_Allocator   *threadSafeAllocator)
+: d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
+                threadSafeAllocator)
+, d_requestQueue(threadSafeAllocator)
+, d_dispatcher(bcemt_ThreadUtil::invalidHandle())
+, d_state(BTEMT_DISABLED)
+, d_terminateThread(0)
+, d_timerQueue(threadSafeAllocator)
+, d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
+            bteso_TimeMetrics::BTESO_IO_BOUND,
+            threadSafeAllocator)
+, d_collectMetrics(true)
+, d_numTotalSocketEvents(0)
+, d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
+{
+    initialize();
+}
+
+btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
+                                        Hint,
+                                        bool               collectTimeMetrics,
+                                        bslma_Allocator   *threadSafeAllocator)
+: d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
+                threadSafeAllocator)
+, d_requestQueue(threadSafeAllocator)
+, d_dispatcher(bcemt_ThreadUtil::invalidHandle())
+, d_state(BTEMT_DISABLED)
+, d_terminateThread(0)
+, d_timerQueue(threadSafeAllocator)
+, d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
+            bteso_TimeMetrics::BTESO_IO_BOUND,
+            threadSafeAllocator)
+, d_collectMetrics(collectTimeMetrics)
+, d_numTotalSocketEvents(0)
+, d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
+{
+    initialize();
+}
+
+btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
+                                        Hint,
+                                        bool               collectTimeMetrics,
+                                        bool               poolTimerMemory,
+                                        bslma_Allocator   *threadSafeAllocator)
+: d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
+                threadSafeAllocator)
+, d_requestQueue(threadSafeAllocator)
+, d_dispatcher(bcemt_ThreadUtil::invalidHandle())
+, d_state(BTEMT_DISABLED)
+, d_terminateThread(0)
+, d_timerQueue(poolTimerMemory, threadSafeAllocator)
+, d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
+            bteso_TimeMetrics::BTESO_IO_BOUND,
+            threadSafeAllocator)
+, d_collectMetrics(collectTimeMetrics)
+, d_numTotalSocketEvents(0)
+, d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
+{
+    initialize();
 }
 
 btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
@@ -1026,7 +1042,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(false)
-, d_numTimers(0)
 , d_numTotalSocketEvents(0)
 , d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
 {
@@ -1259,7 +1274,6 @@ void *btemt_TcpTimerEventManager::registerTimer(
     if (bcemt_ThreadUtil::isEqual(
                     bcemt_ThreadUtil::self(), d_dispatcher)) {
         void *id = (void*)d_timerQueue.add(timeout, callback);
-        d_numTimers = d_timerQueue.length();
         return id;
     }
 
@@ -1280,7 +1294,6 @@ void *btemt_TcpTimerEventManager::registerTimer(
             if (!isNewTop) {
                 result = (void*)handle;
                 BSLS_ASSERT(result);
-                d_numTimers = newLength;
             }
             else {
                 // Signal dispatcher for the new minimum, if needed.
@@ -1301,7 +1314,6 @@ void *btemt_TcpTimerEventManager::registerTimer(
                 else {
                     result = (void*)handle;
                     BSLS_ASSERT(result);
-                    d_numTimers = newLength;
                 }
             }
           } break;
@@ -1313,7 +1325,6 @@ void *btemt_TcpTimerEventManager::registerTimer(
             result = (void*)d_timerQueue.add(timeout, callback,
                                              &newTop, &newLength);
             BSLS_ASSERT(result);
-            d_numTimers = newLength;
           } break;
         }
     }
@@ -1553,13 +1564,11 @@ void btemt_TcpTimerEventManager::deregisterTimer(const void *id)
     // pick a new top on the next iteration.
 
     d_timerQueue.remove((int)(bsls_Types::IntPtr)id);
-    d_numTimers = d_timerQueue.length();
 }
 
 void btemt_TcpTimerEventManager::deregisterAllTimers()
 {
     d_timerQueue.removeAll();
-    d_numTimers = d_timerQueue.length();
 }
 
 void btemt_TcpTimerEventManager::deregisterAll()
@@ -1631,7 +1640,7 @@ int btemt_TcpTimerEventManager::numEvents() const
 
 int btemt_TcpTimerEventManager::numTimers() const
 {
-    return d_numTimers;
+    return d_timerQueue.length();
 }
 
 int btemt_TcpTimerEventManager::numSocketEvents(

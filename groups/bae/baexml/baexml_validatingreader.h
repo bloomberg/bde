@@ -101,7 +101,7 @@ BDES_IDENT("$Id: $")
 // In this example, we will create a validating parser that
 // parses and validates document again the schema.
 //..
-//  #include <a_xercesc_validatingreader.h>
+//  #include <a_xercesc_reader.h>
 //
 //  #include <baexml_validatingreader.h>
 //  #include <baexml_errorinfo.h>
