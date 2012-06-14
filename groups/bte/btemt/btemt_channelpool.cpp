@@ -2270,8 +2270,7 @@ int btemt_Channel::setWriteCacheHiWatermark(int numBytes)
     // Generate a 'HIWAT' alert if the new cache size limit is smaller than the
     // existing cache size and a 'HIWAT' alert has not already been generated.
 
-    const int writeCacheSize =
-               d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
+    const int writeCacheSize = currentWriteCacheSize();
 
     if (!d_hiWatermarkHitFlag && writeCacheSize >= numBytes) {
         d_hiWatermarkHitFlag = true;
@@ -2310,8 +2309,7 @@ int btemt_Channel::setWriteCacheLowWatermark(int numBytes)
     d_writeCacheLowWat = numBytes;
 
     if (d_hiWatermarkHitFlag
-     && (d_writeEnqueuedCacheSize
-               + d_writeActiveCacheSize.relaxedLoad() <= d_writeCacheLowWat)) {
+     && (currentWriteCacheSize() <= d_writeCacheLowWat)) {
 
         d_hiWatermarkHitFlag = false;
         bdef_Function<void (*)()> functor(bdef_BindUtil::bindA(

@@ -1549,7 +1549,10 @@ class btemt_ChannelPool {
         // failure because the write cache size exceeds the high-watermark and
         // not the optional enqueue watermark argument of write.  So this
         // function can be used to trigger the 'BTEMT_WRITE_CACHE_LOWWAT' alert
-        // if write failed because the enqueue watermark was exceeded.
+        // if write failed because the enqueue watermark was exceeded.  Also
+        // note that this method should normally *NOT* be called; it is
+        // provided as a work around and may be removed in a subsequent
+        // release.
 
                                   // *** Thread management ***
 
