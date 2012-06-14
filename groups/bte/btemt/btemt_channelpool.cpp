@@ -2335,7 +2335,6 @@ void btemt_Channel::setNotifyLowWatermark()
 {
     bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
 
-    d_hiWatermarkHitFlag = true;
     if (currentWriteCacheSize() <= d_writeCacheLowWat) {
 
         d_hiWatermarkHitFlag = false;
@@ -2348,6 +2347,9 @@ void btemt_Channel::setNotifyLowWatermark()
                                    d_userData));
 
         d_eventManager_p->execute(functor);
+    }
+    else {
+        d_hiWatermarkHitFlag = true;
     }
 }
 
