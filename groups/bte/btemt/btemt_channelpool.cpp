@@ -590,6 +590,17 @@ class btemt_Channel {
         // recorded max write cache size and does not change the write cache
         // high watermark for this channel.
 
+    void setNotifyLowWatermark();
+        // Notify the client when the internal write cache for this channel
+        // drops below (or if it is currently below) the configured
+        // low-watermark by delivering a 'BTEMT_WRITE_CACHE_LOWWAT' alert via
+        // the channel state callback.  Note that by default a low-watermark
+        // event is only be provided after a write fails because the
+        // write-cache size has exceeded the configured high-watermark; this
+        // method configures the notification to be provided the next time the
+        // write-cache is below the low-water mark threshold, irrespective of
+        // whether the configured high-watermark has been reached.
+
     // ACCESSORS
     int channelId() const;
         // Return the unique identifier of this channel.
@@ -629,7 +640,7 @@ class btemt_Channel {
 
     int recordedMaxWriteCacheSize() const;
         // Return a snapshot of the maximum recorded size, in bytes, of the
-        // cache of data to be written to this channeel.
+        // cache of data to be written to this channel.
 
     StreamSocket *socket() const;
         // Return a pointer to this channel's underlying socket.
@@ -1467,7 +1478,7 @@ void btemt_Channel::readCb(ChannelHandle self)
                                          isChannelDown(CLOSED_RECEIVE_MASK))) {
         // This readCb was invoked by a socket event after we executed
         // 'notifyChannelDown' in a different thread (from 'shutdown') and the
-        // socket hasn't yet been deregistered (in pending
+        // socket has not yet been deregistered (in pending
         // 'invokeChannelDown').  We abort.  The reason the test is performed
         // so late in 'readCb' is to allow picking up such events as late as
         // possible.  Note that this test is done again in the loop below.
@@ -1476,7 +1487,7 @@ void btemt_Channel::readCb(ChannelHandle self)
         return;
     }
 
-    // Note that 'lastRead' is only used to re-initialize the read timeout.
+    // Note that 'lastRead' is used only to re-initialize the read timeout.
     bdet_TimeInterval lastRead;
     if (d_useReadTimeout) {
         lastRead = bdetu_SystemTime::now();
@@ -1766,8 +1777,7 @@ void btemt_Channel::writeCb(ChannelHandle self)
             d_writeActiveCacheSize.relaxedAdd(-writeRet);
 
             if (d_hiWatermarkHitFlag
-             && (d_writeEnqueuedCacheSize
-               + d_writeActiveCacheSize.relaxedLoad() <= d_writeCacheLowWat)) {
+             && (currentWriteCacheSize() <= d_writeCacheLowWat)) {
                 d_hiWatermarkHitFlag = false;
                 oGuard.release()->unlock();
                 d_channelStateCb(d_channelId, d_sourceId,
@@ -2098,8 +2108,7 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
 
     d_numBytesRequestedToBeWritten += dataLength;
 
-    const int writeCacheSize =
-               d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
+    const int writeCacheSize = currentWriteCacheSize();
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                          writeCacheSize > d_writeCacheHiWat)) {
@@ -2141,11 +2150,8 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
-    int currentWriteCacheSize = d_writeEnqueuedCacheSize
-                              + d_writeActiveCacheSize.relaxedLoad();
-
-    if (d_recordedMaxWriteCacheSize.relaxedLoad() < currentWriteCacheSize) {
-        d_recordedMaxWriteCacheSize.relaxedStore(currentWriteCacheSize);
+    if (d_recordedMaxWriteCacheSize.relaxedLoad() < writeCacheSize) {
+        d_recordedMaxWriteCacheSize.relaxedStore(writeCacheSize);
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
@@ -2282,8 +2288,7 @@ int btemt_Channel::setWriteCacheHiWatermark(int numBytes)
     // Generate a 'HIWAT' alert if the new cache size limit is smaller than the
     // existing cache size and a 'HIWAT' alert has not already been generated.
 
-    const int writeCacheSize =
-               d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
+    const int writeCacheSize = currentWriteCacheSize();
 
     if (!d_hiWatermarkHitFlag && writeCacheSize >= numBytes) {
         d_hiWatermarkHitFlag = true;
@@ -2322,8 +2327,7 @@ int btemt_Channel::setWriteCacheLowWatermark(int numBytes)
     d_writeCacheLowWat = numBytes;
 
     if (d_hiWatermarkHitFlag
-     && (d_writeEnqueuedCacheSize
-               + d_writeActiveCacheSize.relaxedLoad() <= d_writeCacheLowWat)) {
+     && (currentWriteCacheSize() <= d_writeCacheLowWat)) {
 
         d_hiWatermarkHitFlag = false;
         bdef_Function<void (*)()> functor(bdef_BindUtil::bindA(
@@ -2343,6 +2347,28 @@ int btemt_Channel::setWriteCacheLowWatermark(int numBytes)
 void btemt_Channel::resetRecordedMaxWriteCacheSize()
 {
     d_recordedMaxWriteCacheSize.relaxedStore(currentWriteCacheSize());
+}
+
+void btemt_Channel::setNotifyLowWatermark()
+{
+    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
+
+    if (currentWriteCacheSize() <= d_writeCacheLowWat) {
+
+        d_hiWatermarkHitFlag = false;
+        bdef_Function<void (*)()> functor(bdef_BindUtil::bindA(
+                                   d_allocator_p,
+                                   &d_channelStateCb,
+                                   d_channelId,
+                                   d_sourceId,
+                                   btemt_ChannelPool::BTEMT_WRITE_CACHE_LOWWAT,
+                                   d_userData));
+
+        d_eventManager_p->execute(functor);
+    }
+    else {
+        d_hiWatermarkHitFlag = true;
+    }
 }
 
 // ============================================================================
@@ -3980,6 +4006,19 @@ int btemt_ChannelPool::resetRecordedMaxWriteCacheSize(int channelId)
     BSLS_ASSERT(channelHandle);
 
     channelHandle->resetRecordedMaxWriteCacheSize();
+
+    return 0;
+}
+
+int btemt_ChannelPool::setNotifyLowWatermark(int channelId)
+{
+    ChannelHandle channelHandle;
+    if (0 != findChannelHandle(&channelHandle, channelId)) {
+        return -1;                                                    // RETURN
+    }
+    BSLS_ASSERT(channelHandle);
+
+    channelHandle->setNotifyLowWatermark();
 
     return 0;
 }
