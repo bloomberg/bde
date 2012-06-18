@@ -9,11 +9,14 @@
 
 #include <bsl_iostream.h>
 #include <bsls_asserttest.h>
+#include <bslma_allocator.h>
+#include <bslma_default.h>
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-#include <windows.h>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <windows.h>
+#include <wchar.h>
 #endif
 
 using namespace BloombergLP;
@@ -39,11 +42,12 @@ using namespace bsl;
 //
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 2] getZoneinfoId(const char **, const char *);
-// [ 3] getWindowsTimeZoneId(const char **, const char *);
+// [ 1] getZoneinfoId(const char **, const char *);
+// [ 2] getWindowsTimeZoneId(const char **, const char *);
 // ----------------------------------------------------------------------------
-// [ 1] BREATHING TEST
+// [ 3] MAPPING TABLE COVERAGE
 // [ 4] USAGE EXAMPLE
+// [-1] WINDOWS PLATFORM CHECKS
 //
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -881,69 +885,58 @@ static int loadTimezoneObsoleteFlag(bool        *isTimezoneObsoleteFlag,
     ASSERT(isTimezoneObsoleteFlag);
     ASSERT(timezone);
 
-    P(timezone);
-
     HKEY zoneSubKey = {0};
     int  res        = RegOpenKeyEx(zonesKey,
                                    timezone,
-                                   0,
+                                   NULL,
                                    KEY_READ,
                                    &zoneSubKey);
 
     if (res != ERROR_SUCCESS) {
         ASSERT(!"error opening registry for some specific time zone\n");
-        return -1;                                                   // RETURN
+        P(timezone);
+        return -1;                                                    // RETURN
     }
 
     DWORD obsoleteValue     = 0;
     DWORD obsoleteValueSize = sizeof(obsoleteValue);
     res = RegQueryValueEx(zoneSubKey,
                           "IsObsolete",
-                          0,
-                          0,
+                          NULL,
+                          NULL,
                           reinterpret_cast<LPBYTE>(&obsoleteValue),
                           &obsoleteValueSize);
     if (ERROR_SUCCESS != res && ERROR_FILE_NOT_FOUND != res) {
         ASSERT(!"error querying value of 'IsObsolete'\n");
-	P(res);
         RegCloseKey(zoneSubKey);
-        return -1;                                                   // RETURN
+        return -1;                                                    // RETURN
     }
     RegCloseKey(zoneSubKey);
 
-    if (0x00000001 == obsoleteValue) {
-	P_(timezone) Q(NG)
-        *isTimezoneObsoleteFlag = true;
-    } else {
-	P_(timezone) Q(OK)
-        *isTimezoneObsoleteFlag = false;
-    }
+    *isTimezoneObsoleteFlag = 0x00000001 == obsoleteValue;
 
     return 0;
 }
 static int loadTimezonesFromRegistry(vector<string> *timezones)
     // Load, into the specified 'timezones', a list of the timezone
     // identifiers found in the "Time Zones"  Registry.  Those identifers are
-    // the keys under "Time Zones".  Obsolete time zones are not loaded.
-    // Return 0 on success, and a non-zero value otherwise.
+    // the keys under "Time Zones".  Identifiers for obsolete time zones are
+    // not loaded.  Return 0 on success, and a non-zero value otherwise.
 {
     ASSERT(timezones);
 
-#if 0
-----^----|----^----|----^----|----^----|----^----|----^----|----^----|----^----|
-#endif
     const char *registryPath =
                  "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Time Zones";
     HKEY        zonesKey     = {0};
     LONG        res          = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
                                             registryPath,
-                                            0,
+                                            NULL,
                                             KEY_READ,
                                             &zonesKey);
 
     if (res != ERROR_SUCCESS) {
         ASSERT(!"error opening registry: Time Zones\n");
-        return -1;                                                   // RETURN
+        return -1;                                                    // RETURN
     }
 
     const size_t         MAX_REGKEY_NAME_LENGTH = 255;
@@ -955,13 +948,17 @@ static int loadTimezonesFromRegistry(vector<string> *timezones)
                                         n,
                                         zoneBuf,
                                         &zoneLength, // in/out parameter
-                                        0,
-                                        0,
-                                        0,
-                                        0);
+                                        NULL,
+                                        NULL,
+                                        NULL,
+                                        NULL);
         if (res != ERROR_SUCCESS) {
             ASSERT(ERROR_NO_MORE_ITEMS == res);
             break;
+        }
+
+        if (0 == ::strcmp("Mid-Atlantic Standard Time", zoneBuf)) {
+            continue;
         }
 
         bool isTimezoneObsoleteFlag;
@@ -971,7 +968,7 @@ static int loadTimezonesFromRegistry(vector<string> *timezones)
         if (0 != res) {
             ASSERT(!"error getting timezone obsolete flag");
             RegCloseKey(zonesKey);  // put this into a guard
-            return -1;                                               // RETURN
+            return -1;                                                // RETURN
         }
 
         if (!isTimezoneObsoleteFlag) {
@@ -1039,7 +1036,7 @@ int main(int argc, char *argv[])
     baetzo_DefaultZoneinfoCache::setDefaultCache(&testCache);
 
     switch (test) { case 0:
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1092,6 +1089,7 @@ int main(int argc, char *argv[])
                                  windowsTimeZoneId));
 //..
             }
+//
             {
 ///Example 2: Creating a 'baet_LocalDatetime' Object on Windows
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1102,17 +1100,50 @@ int main(int argc, char *argv[])
 // for manipulating date/time values.
 //
 // First, use the Windows 'GetTimeZoneInformation' function to load a
-// 'TIME_ZONE_INFORMATION' structure.  That structure has a 'StandardName'
-// array (represented by a simple array below).
+// 'TIME_ZONE_INFORMATION' structure.
 //..
-    const char StandardName[32] = "Arab Standard Time";
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    TIME_ZONE_INFORMATION tzi;
+    int rc = GetTimeZoneInformation(&tzi);
+    ASSERT(TIME_ZONE_ID_UNKNOWN  == rc
+        || TIME_ZONE_ID_STANDARD == rc
+        || TIME_ZONE_ID_DAYLIGHT == rc);
+#endif
 //..
-// Next, use the 'getZoneinfoId' method to find the
-// corresponding Zoneinfo time-zone identifier.
+// The 'StandardName' member of the structure, of type 'WCHAR[32]', contains
+// the Windows time-zone identifer for Standard Time for the local time zone.
+//
+// Next, use the 'wctob' function to convert each of these wide characters to
+// its single byte equivalent, and assign the result to 'localTimezone'.  Note
+// that every Windows time-zone identifier mapped by this component consists
+// entirely of 7-bit ASCII characters.
+//..
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    bsl::string localTimezone;
+
+    {   // Convert 'StandardName' field ('WCHAR[32]') to 'bsl::string'.
+        char StandardName[sizeof(tzi.StandardName)];
+        for (int i = 0; i < sizeof(StandardName); ++i) {
+            int ch = wctob(tzi.StandardName[i]);
+            ASSERT(EOF != ch);
+            StandardName[i] = ch;
+        }
+        localTimezone.assign(StandardName);
+    }
+#if 1 // Do not show this in component-level doc usage example.
+    localTimezone.assign("Arab Standard Time");  // a value in test database
+#endif
+#else // Non-Windows Platforms
+    bsl::string localTimezone("Arab Standard Time");
+#endif
+    ASSERT("Arab Standard Time" == localTimezone);
+//..
+// Next, use the 'getZoneinfoId' method to find the corresponding Zoneinfo
+// time-zone identifier.
 //..
     const char *zoneinfoId;
-    int         rc = baetzo_WindowsTimeZoneUtil::getZoneinfoId(&zoneinfoId,
-                                                               StandardName);
+    rc = baetzo_WindowsTimeZoneUtil::getZoneinfoId(&zoneinfoId,
+                                                   localTimezone.c_str());
     ASSERT(0 == rc);
     ASSERT(0 == bsl::strcmp("Asia/Riyadh", zoneinfoId));
 //..
@@ -1122,7 +1153,6 @@ int main(int argc, char *argv[])
 // Note 'bdet_date' and 'bdet_time' use the same numerical values to represent
 // month, day, etc.  The range of years is different but practically the same
 // as they overlap for several centuries around the current time.
-//
 //..
 #ifdef BSLS_PLATFORM__OS_WINDOWS
     SYSTEMTIME systemTime;
@@ -1157,6 +1187,148 @@ int main(int argc, char *argv[])
     ASSERT("Asia/Riyadh" == localDatetime.timeZoneId());
 //..
             }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // MAPPING TABLE COVERAGE
+        //
+        // Concerns:
+        //:
+        //: 1 The set of Windows time-zone identifers accepted by the
+        //:   'getZoneId' method is useful for the business needs of Bloomberg
+        //:   LP.
+        //
+        // Plan:
+        //:
+        //: 1 The {TZDF<GO>} function provides information on a set of time
+        //:   zones of interest to Bloomberg customers.  Check that these are
+        //:   found in the registry of the Windows test platform and that they
+        //:   are successfully mapped to Zoneinfo time-zone identifers.
+        //:
+        //: 2 Confirm that the current time-zone of the Windows test platform
+        //:   can be mapped to a Zoneinfo time-zone identifer.
+        //:   identifier in turn.  Expect a successfull return from each call.
+        //
+        // Testing:
+        //   MAPPING TABLE COVERAGE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "MAPPING TABLE COVERAGE" << endl
+                          << "======================" << endl;
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+        vector<string> timezones;
+        int            rc = loadTimezonesFromRegistry(&timezones);
+        ASSERT(0 == rc);
+
+        set<string> timezoneSet(timezones.begin(), timezones.end());
+
+        if (verbose) cout << "\nCheck Time Zones from {TZDF<GO>}" << endl;
+        {
+
+            const struct {
+                 int         d_line;
+                 const char *d_windowsTid;
+                 const char *d_zoneInfoTid; // known to 'bsitzo_timezoneutil'.
+            } DATA [] = {
+          // LI  WINDOWS TIME-ZONE IDENTIFER       ZONEINFO TID
+          // --  --------------------------------  ----------------------
+          {  L_, "Afghanistan Standard Time",      "Asia/Kabul"           },
+          {  L_, "Alaskan Standard Time",          "America/Anchorage"    },
+          {  L_, "Arabian Standard Time",          "Asia/Dubai"           },
+          {  L_, "Arab Standard Time",             "Asia/Riyadh"          },
+          {  L_, "Argentina Standard Time",        "America/Buenos_Aires" },
+          {  L_, "Atlantic Standard Time",         "America/Halifax"      },
+          {  L_, "AUS Central Standard Time",      "Australia/Darwin"     },
+          {  L_, "Azores Standard Time",           "Atlantic/Azores"      },
+          {  L_, "Bangladesh Standard Time",       "Asia/Dhaka"           },
+          {  L_, "Canada Central Standard Time",   "America/Regina"       },
+          {  L_, "Cen. Australia Standard Time",   "Australia/Adelaide"   },
+          {  L_, "Central Asia Standard Time",     "Asia/Almaty"          },
+          {  L_, "Central Pacific Standard Time",  "Pacific/Guadalcanal"  },
+          {  L_, "Central Standard Time",          "America/Chicago"      },
+          {  L_, "Central Standard Time (Mexico)", "America/Mexico_City"  },
+          {  L_, "China Standard Time",            "Asia/Shanghai"        },
+          {  L_, "Dateline Standard Time",         "Etc/GMT+12"           },
+          {  L_, "Dateline Standard Time",         "Etc/GMT+12"           },
+          {  L_, "Eastern Standard Time",          "America/New_York"     },
+          {  L_, "E. Australia Standard Time",     "Australia/Brisbane"   },
+          {  L_, "Egypt Standard Time",            "Africa/Cairo"         },
+          {  L_, "E. South America Standard Time", "America/Sao_Paulo"    },
+          {  L_, "Fiji Standard Time",             "Pacific/Fiji"         },
+          {  L_, "FLE Standard Time",              "Europe/Kiev"          },
+          {  L_, "GMT Standard Time",              "Europe/London"        },
+          {  L_, "Hawaiian Standard Time",         "Pacific/Honolulu"     },
+          {  L_, "India Standard Time",            "Asia/Calcutta"        },
+          {  L_, "Iran Standard Time",             "Asia/Tehran"          },
+          {  L_, "Israel Standard Time",           "Asia/Jerusalem"       },
+          {  L_, "Mountain Standard Time",         "America/Denver"       },
+          {  L_, "Newfoundland Standard Time",     "America/St_Johns"     },
+          {  L_, "New Zealand Standard Time",      "Pacific/Auckland"     },
+          {  L_, "Pacific SA Standard Time",       "America/Santiago"     },
+          {  L_, "Pacific Standard Time",          "America/Los_Angeles"  },
+          {  L_, "Pakistan Standard Time",         "Asia/Karachi"         },
+          {  L_, "Russian Standard Time",          "Europe/Moscow"        },
+          {  L_, "SA Pacific Standard Time",       "America/Bogota"       },
+          {  L_, "SE Asia Standard Time",          "Asia/Bangkok"         },
+          {  L_, "South Africa Standard Time",     "Africa/Johannesburg"  },
+          {  L_, "Tasmania Standard Time",         "Australia/Hobart"     },
+          {  L_, "Tokyo Standard Time",            "Asia/Tokyo"           },
+          {  L_, "US Mountain Standard Time",      "America/Phoenix"      },
+          {  L_, "UTC-02",                         "Etc/GMT+2"            },
+          {  L_, "UTC-11",                         "Etc/GMT+11"           },
+          {  L_, "UTC+12",                         "Etc/GMT-12"           },
+          {  L_, "UTC",                            "Etc/GMT"              },
+          {  L_, "Venezuela Standard Time",        "America/Caracas"      },
+          {  L_, "W. Europe Standard Time",        "Europe/Berlin"        }
+         };
+             const int NUM_DATA = sizeof(DATA)/sizeof(*DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE     = DATA[ti].d_line;
+                const char *WINTID   = DATA[ti].d_windowsTid;
+                const char *ZINFOTID = DATA[ti].d_zoneInfoTid;
+
+                if (veryVerbose) { T_ P_(LINE)
+                                      P_(WINTID)
+                                      P(ZINFOTID) }
+
+                set<string>::const_iterator itr  = timezoneSet.find(WINTID);
+                ASSERT(timezoneSet.end() != itr);
+            }
+        }
+
+        if (verbose) cout << "\nCheck Local Time Zone" << endl;
+        {
+            TIME_ZONE_INFORMATION tzi;
+            int rc = GetTimeZoneInformation(&tzi);
+            ASSERT(TIME_ZONE_ID_UNKNOWN  == rc
+                || TIME_ZONE_ID_STANDARD == rc
+                || TIME_ZONE_ID_DAYLIGHT == rc);
+
+            string localTimezone;
+
+            {   // Convert 'StandardName' field ('WCHAR[32]') to 'bsl::string'.
+                char StandardName[sizeof(tzi.StandardName)];
+                for (int i = 0; i < sizeof(StandardName); ++i) {
+                    int ch = wctob(tzi.StandardName[i]);
+                    ASSERT(EOF != ch);
+                    StandardName[i] = ch;
+                }
+                localTimezone.assign(StandardName);
+            }
+
+            const char *timeZoneId;
+            rc = baetzo_WindowsTimeZoneUtil::getZoneinfoId(
+                                                        &timeZoneId,
+                                                        localTimezone.c_str());
+            ASSERT(0 == rc);
+            if (veryVerbose) { T_ P_(localTimezone) P_(timeZoneId) }
+        }
+#else
+        cout << "Run on Windows Platform Only" << endl;
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1203,6 +1375,8 @@ int main(int argc, char *argv[])
                 << endl
                 << "CLASS METHOD 'getWindowsTimeZoneId'" << endl
                 << "===================================" << endl;
+
+        if (verbose) cout << "\nTest Good Zoneinfo Identifiers" << endl;
 
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -1309,7 +1483,10 @@ int main(int argc, char *argv[])
         if (verbose) cout
                 << endl
                 << "CLASS METHOD 'getZoneinfoId'" << endl
-                << "============================"<< endl;
+                << "============================" << endl;
+
+        if (verbose) cout << "\nTest Good Windows Time-Zone Identifiers"
+                          << endl;
 
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -1377,11 +1554,13 @@ int main(int argc, char *argv[])
         // WINDOWS PLATFORM CHECKS
         //
         // Concerns:
-        //: 1 Each Windows time-zone identifier on Windows platforms of
-        //:   interest can be mapped to a Zoneinfo identifier by the
-        //:   'getZoneinfoId' method.
+        //:
+        //: 1 Each non-obsolete Windows time-zone identifier on the Windows
+        //:   platforms of interest can be mapped to a Zoneinfo identifier by
+        //:   the 'getZoneinfoId' method.
         //
         // Plan:
+        //:
         //: 1 Obtain the set of Windows time-zone identifers from the Windows
         //:   registry using the 'loadTimezonesFromRegistry' helper function.
         //:
@@ -1396,9 +1575,6 @@ int main(int argc, char *argv[])
                           << "WINDOWS PLATFORM CHECKS" << endl
                           << "=======================" << endl;
 
-#if 0
-----^----|----^----|----^----|----^----|----^----|----^----|----^----|----^----|
-#endif
         vector<string> timezones;
         int            rc = loadTimezonesFromRegistry(&timezones);
         ASSERT(0 == rc);
