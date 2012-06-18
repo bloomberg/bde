@@ -1102,9 +1102,10 @@ int main(int argc, char *argv[])
 // First, use the Windows 'GetTimeZoneInformation' function to load a
 // 'TIME_ZONE_INFORMATION' structure.
 //..
+    int                    rc;
 #ifdef BSLS_PLATFORM__OS_WINDOWS
     TIME_ZONE_INFORMATION tzi;
-    int rc = GetTimeZoneInformation(&tzi);
+    rc = GetTimeZoneInformation(&tzi);
     ASSERT(TIME_ZONE_ID_UNKNOWN  == rc
         || TIME_ZONE_ID_STANDARD == rc
         || TIME_ZONE_ID_DAYLIGHT == rc);

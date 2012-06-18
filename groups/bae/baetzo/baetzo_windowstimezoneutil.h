@@ -179,34 +179,54 @@ BDES_IDENT("$Id: $")
 // for manipulating date/time values.
 //
 // First, use the Windows 'GetTimeZoneInformation' function to load a
-// 'LPTIME_ZONE_INFORMATION' structure.  That structure has a 'StandardName'
-// array (represented by a simple array below).
+// 'TIME_ZONE_INFORMATION' structure.
 //..
-//  const char StandardName[32] = "Arab Standard Time";
+//  int                   rc;
+//  TIME_ZONE_INFORMATION tzi;
+//  rc = GetTimeZoneInformation(&tzi);
+//  assert(TIME_ZONE_ID_UNKNOWN  == rc
+//      || TIME_ZONE_ID_STANDARD == rc
+//      || TIME_ZONE_ID_DAYLIGHT == rc);
 //..
-// Next, use the 'getZoneinfoId' method to find the
-// corresponding Zoneinfo time-zone identifier.
+// The 'StandardName' member of the structure, of type 'WCHAR[32]', contains
+// the Windows time-zone identifer for Standard Time for the local time zone.
+//
+// Next, use the 'wctob' function to convert each of these wide characters to
+// its single byte equivalent, and assign the result to 'localTimezone'.  Note
+// that every Windows time-zone identifier mapped by this component consists
+// entirely of 7-bit ASCII characters.
+//..
+//  bsl::string localTimezone;
+//
+//  {   // Convert 'StandardName' field ('WCHAR[32]') to 'bsl::string'.
+//      char StandardName[sizeof(tzi.StandardName)];
+//      for (int i = 0; i < sizeof(StandardName); ++i) {
+//          int ch = wctob(tzi.StandardName[i]);
+//          assert(EOF != ch);
+//          StandardName[i] = ch;
+//      }
+//      localTimezone.assign(StandardName);
+//  }
+//  assert("Arab Standard Time" == localTimezone);
+//..
+// Next, use the 'getZoneinfoId' method to find the corresponding Zoneinfo
+// time-zone identifier.
 //..
 //  const char *zoneinfoId;
-//  int         rc = baetzo_WindowsTimeZoneUtil::getZoneinfoId(&zoneinfoId,
-//                                                             StandardName);
+//  rc = baetzo_WindowsTimeZoneUtil::getZoneinfoId(&zoneinfoId,
+//                                                 localTimezone.c_str());
 //  assert(0 == rc);
 //  assert(0 == bsl::strcmp("Asia/Riyadh", zoneinfoId));
 //..
-// Then, use the Windows 'GetSystemTime' function to load an 'LPSYTEMTIME'
+// Then, use the Windows 'GetSystemTime' function to load an 'SYTEMTIME'
 // structure with UTC time information.  This includes year, month
 // ('[1 .. 12]'), day-of-month ('[1 .. 31]'), and hour-of-day ('[0 .. 23]').
 // Note 'bdet_date' and 'bdet_time' use the same numerical values to represent
 // month, day, etc.  The range of years is different but practically the same
 // as they overlap for several centuries around the current time.
-//
-// The members of the 'LPSYTEMTIME' structure are represented by simple
-// variables below:
 //..
-//  const int wYear  = 2012;
-//  const int wMonth =    5;
-//  const int wDay   =   28;
-//  const int wHour  =   23;
+//  SYSTEMTIME systemTime;
+//  GetSystemTime(&systemTime);
 //..
 // Finally, use the these Windows SystemTime values and and the calculated
 // Zoneinfo time-zone identifier to set the value of a 'baet_LocalDatetime'
@@ -217,7 +237,10 @@ BDES_IDENT("$Id: $")
 //  rc = baetzo_TimeZoneUtil::convertUtcToLocalTime(
 //                                  &localDatetime,
 //                                  zoneinfoId,
-//                                  bdet_Datetime(wYear, wMonth, wDay, wHour));
+//                                  bdet_Datetime(systemTime.wYear,
+//                                                systemTime.wMonth,
+//                                                systemTime.wDay,
+//                                                systemTime.wHour));
 //  assert(0             == rc);
 //  assert("Asia/Riyadh" == localDatetime.timeZoneId());
 //..
