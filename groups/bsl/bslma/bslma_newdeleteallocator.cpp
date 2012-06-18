@@ -5,6 +5,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
+#include <bsls_atomicoperations.h>
 #include <bsls_objectbuffer.h>
 
 #include <new>
@@ -20,7 +21,8 @@ static bslma_NewDeleteAllocator_Singleton g_newDeleteAllocatorSingleton;
     // 'g_newDeleteAllocatorSingleton' is a global static buffer to hold the
     // singleton.
 
-static bslma::NewDeleteAllocator *g_newDeleteAllocatorSingleton_p = 0;
+static bsls::AtomicOperations::AtomicTypes::Pointer
+                                         g_newDeleteAllocatorSingleton_p = {0};
     // 'g_newDeleteAllocatorSingleton_p' is a global static pointer to the
     // singleton, which is *statically* initialized to 0.
 
@@ -48,13 +50,10 @@ initSingleton(bslma_NewDeleteAllocator_Singleton *address)
     // thread's copy.
 
     bslma_NewDeleteAllocator_Singleton stackTemp;
-
-    void *v = new(&stackTemp) bslma::NewDeleteAllocator;
+    void *v = new(stackTemp.buffer()) bslma::NewDeleteAllocator();
 
     // Note that 'bsls::ObjectBuffer<T>' assignment is a bit-wise copy.
-
-    *address = *(static_cast<bslma_NewDeleteAllocator_Singleton *>(v));
-
+    *address = stackTemp;
     return &address->object();
 }
 
@@ -70,18 +69,15 @@ NewDeleteAllocator& NewDeleteAllocator::singleton()
     // This initialization is not guaranteed to happen once, but repeated
     // initialization will be safe (see the comment above).
 
-    if (!g_newDeleteAllocatorSingleton_p) {
-        g_newDeleteAllocatorSingleton_p =
-                                 initSingleton(&g_newDeleteAllocatorSingleton);
+    if (!bsls::AtomicOperations::getPtrAcquire(
+                                           &g_newDeleteAllocatorSingleton_p)) {
+        bsls::AtomicOperations::setPtrRelease(
+                &g_newDeleteAllocatorSingleton_p,
+                initSingleton(&g_newDeleteAllocatorSingleton));
     }
 
-    // In case the singleton has been previously initialized on another thread,
-    // the data dependency between 'g_newDeleteAllocator_p' and the singleton
-    // itself will guarantee visibility of singleton updates on most modern
-    // architectures.  This is the best we can do here in the absence of access
-    // to any kind of atomic operations.
-
-    return *g_newDeleteAllocatorSingleton_p;
+    return *(bslma::NewDeleteAllocator *)
+       bsls::AtomicOperations::getPtrRelaxed(&g_newDeleteAllocatorSingleton_p);
 }
 
 // CREATORS
