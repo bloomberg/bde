@@ -227,7 +227,7 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 // ----------------------------------------------------------------------------
 
 // America/New_York
-static const char AMERICA_NEW_YORK_DATA[] = {
+static const unsigned char AMERICA_NEW_YORK_DATA[] = {
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04,
     0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xeb,
@@ -525,7 +525,7 @@ static const char AMERICA_NEW_YORK_DATA[] = {
 };
 
 // GMT
-static const char GMT_DATA[] = {
+static const unsigned char GMT_DATA[] = {
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
     0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -539,7 +539,7 @@ static const char GMT_DATA[] = {
 };
 
 // Europe/Rome
-static const char EUROPE_ROME_DATA[] = {
+static const unsigned char EUROPE_ROME_DATA[] = {
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06,
     0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xaa,
@@ -764,7 +764,7 @@ static const char EUROPE_ROME_DATA[] = {
 };
 
 // Etc/GMT
-static const char ETC_GMT_DATA[] = {
+static const unsigned char ETC_GMT_DATA[] = {
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
     0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -778,7 +778,7 @@ static const char ETC_GMT_DATA[] = {
 };
 
 // Etc/GMT+1
-static const char ETC_GMTP1_DATA[] = {
+static const unsigned char ETC_GMTP1_DATA[] = {
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
     0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -793,7 +793,7 @@ static const char ETC_GMTP1_DATA[] = {
 };
 
 // Etc/GMT+2
-static const char ETC_GMTP2_DATA[] = {
+static const unsigned char ETC_GMTP2_DATA[] = {
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
     0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -808,7 +808,7 @@ static const char ETC_GMTP2_DATA[] = {
 };
 
 // Etc/GMT-1
-static const char ETC_GMTM1_DATA[] = {
+static const unsigned char ETC_GMTM1_DATA[] = {
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
     0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -823,7 +823,7 @@ static const char ETC_GMTM1_DATA[] = {
 };
 
 // Asia/Riyadh
-static const char ASIA_RIYADH_DATA[] = {
+static const unsigned char ASIA_RIYADH_DATA[] = {
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
     0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
@@ -841,7 +841,7 @@ static const char ASIA_RIYADH_DATA[] = {
 };
 
 // Asia/Saigon
-static const char ASIA_SAIGON_DATA[] = {
+static const unsigned char ASIA_SAIGON_DATA[] = {
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04,
     0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04,
@@ -1007,31 +1007,42 @@ int main(int argc, char *argv[])
 
     baetzo_TestLoader    testLoader;
     baetzo_ZoneinfoCache testCache(&testLoader);
-    ASSERT(0 == testLoader.setTimeZone("GMT", GMT_DATA, sizeof(GMT_DATA)));
-    ASSERT(0 == testLoader.setTimeZone("Etc/GMT",
-                                       ETC_GMT_DATA,
-                                       sizeof(ETC_GMT_DATA)));
-    ASSERT(0 == testLoader.setTimeZone("Etc/GMT+1",
-                                       ETC_GMTP1_DATA,
-                                       sizeof(ETC_GMTP1_DATA)));
-    ASSERT(0 == testLoader.setTimeZone("Etc/GMT+2",
-                                       ETC_GMTP2_DATA,
-                                       sizeof(ETC_GMTP2_DATA)));
-    ASSERT(0 == testLoader.setTimeZone("Etc/GMT-1",
-                                       ETC_GMTM1_DATA,
-                                       sizeof(ETC_GMTM1_DATA)));
-    ASSERT(0 == testLoader.setTimeZone("America/New_York",
-                                       AMERICA_NEW_YORK_DATA,
-                                       sizeof(AMERICA_NEW_YORK_DATA)));
-    ASSERT(0 == testLoader.setTimeZone("Asia/Riyadh",
-                                       ASIA_RIYADH_DATA,
-                                       sizeof(ASIA_RIYADH_DATA)));
-    ASSERT(0 == testLoader.setTimeZone("Asia/Saigon",
-                                       ASIA_SAIGON_DATA,
-                                       sizeof(ASIA_SAIGON_DATA)));
-    ASSERT(0 == testLoader.setTimeZone("Europe/Rome",
-                                       EUROPE_ROME_DATA,
-                                       sizeof(EUROPE_ROME_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                                     "GMT",
+                                     reinterpret_cast<const char  *>(GMT_DATA),
+                                     sizeof(GMT_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                                 "Etc/GMT",
+                                 reinterpret_cast<const char  *>(ETC_GMT_DATA),
+                                 sizeof(ETC_GMT_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                               "Etc/GMT+1",
+                               reinterpret_cast<const char  *>(ETC_GMTP1_DATA),
+                               sizeof(ETC_GMTP1_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                               "Etc/GMT+2",
+                               reinterpret_cast<const char  *>(ETC_GMTP2_DATA),
+                               sizeof(ETC_GMTP2_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                               "Etc/GMT-1",
+                               reinterpret_cast<const char  *>(ETC_GMTM1_DATA),
+                               sizeof(ETC_GMTM1_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                        "America/New_York",
+                        reinterpret_cast<const char  *>(AMERICA_NEW_YORK_DATA),
+                        sizeof(AMERICA_NEW_YORK_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                             "Asia/Riyadh",
+                             reinterpret_cast<const char  *>(ASIA_RIYADH_DATA),
+                             sizeof(ASIA_RIYADH_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                             "Asia/Saigon",
+                             reinterpret_cast<const char  *>(ASIA_SAIGON_DATA),
+                             sizeof(ASIA_SAIGON_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                             "Europe/Rome",
+                             reinterpret_cast<const char  *>(EUROPE_ROME_DATA),
+                             sizeof(EUROPE_ROME_DATA)));
 
     baetzo_DefaultZoneinfoCache::setDefaultCache(&testCache);
 
