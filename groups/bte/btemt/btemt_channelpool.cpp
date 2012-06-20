@@ -588,17 +588,6 @@ class btemt_Channel {
         // recorded max write cache size and does not change the write cache
         // high watermark for this channel.
 
-    void setNotifyLowWatermark();
-        // Notify the client when the internal write cache for this channel
-        // drops below (or if it is currently below) the configured
-        // low-watermark by delivering a 'BTEMT_WRITE_CACHE_LOWWAT' alert via
-        // the channel state callback.  Note that by default a low-watermark
-        // event is only be provided after a write fails because the
-        // write-cache size has exceeded the configured high-watermark; this
-        // method configures the notification to be provided the next time the
-        // write-cache is below the low-water mark threshold, irrespective of
-        // whether the configured high-watermark has been reached.
-
     // ACCESSORS
     int channelId() const;
         // Return the unique identifier of this channel.
@@ -2332,28 +2321,6 @@ void btemt_Channel::resetRecordedMaxWriteCacheSize()
     d_recordedMaxWriteCacheSize.relaxedStore(currentWriteCacheSize());
 }
 
-void btemt_Channel::setNotifyLowWatermark()
-{
-    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
-
-    if (currentWriteCacheSize() <= d_writeCacheLowWat) {
-
-        d_hiWatermarkHitFlag = false;
-        bdef_Function<void (*)()> functor(bdef_BindUtil::bindA(
-                                   d_allocator_p,
-                                   &d_channelStateCb,
-                                   d_channelId,
-                                   d_sourceId,
-                                   btemt_ChannelPool::BTEMT_WRITE_CACHE_LOWWAT,
-                                   d_userData));
-
-        d_eventManager_p->execute(functor);
-    }
-    else {
-        d_hiWatermarkHitFlag = true;
-    }
-}
-
 // ============================================================================
 //                           COMPONENT IMPLEMENTATION
 // ============================================================================
@@ -3979,19 +3946,6 @@ int btemt_ChannelPool::resetRecordedMaxWriteCacheSize(int channelId)
     BSLS_ASSERT(channelHandle);
 
     channelHandle->resetRecordedMaxWriteCacheSize();
-
-    return 0;
-}
-
-int btemt_ChannelPool::setNotifyLowWatermark(int channelId)
-{
-    ChannelHandle channelHandle;
-    if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return -1;                                                    // RETURN
-    }
-    BSLS_ASSERT(channelHandle);
-
-    channelHandle->setNotifyLowWatermark();
 
     return 0;
 }
