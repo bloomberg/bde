@@ -6,20 +6,22 @@ BDES_IDENT_RCSID(baetzo_windowstimezoneutil_cpp,"$Id$ $CSID$")
 
 ///Implementation Notes
 ///--------------------
-// This implementation uses standard algorithms to search two sorted statically
-// defined tables: one mapping Windows timezone identifiers to Zoneinfo
-// time-zone identifiers, and the other providing the inverse mapping.  The
-// source for these tables was
+// This implementation statically defines two sorted tables of data: one for
+// the mapping of Windows timezone identifiers to Zoneinfo time-zone
+// identifiers, and the other providing the inverse mapping.  The 'lower_bound'
+// standard algorithm is used used to search these table.
+//
+// The source for these tables was
 // 'http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/zone_tzid.html',
-// The entries were sorted using the 'isLessThan' function defined below as the
-// comparator.  Furthermore, the implementation assumes that each table has
-// only one entry for each given timezone identifier.  (That is, there is a
+// The entries were sorted using the 'isLessThan' function (defined below) as
+// the comparator.  Furthermore, this implementation assumes that each table
+// has only one entry for each given timezone identifier.  (That is, there is a
 // one-to-one relationship between the two sets of timezone identifiers.
 //
 // This implementation was deemed to provide sufficient performance.  If a
 // faster implementation is needed, we can take advantage of the fact that the
-// table entries are known at compile-time.  Consider using a prefix tree
-// (trie) or generating a perfect hash.
+// table entries are known at compile-time (e.g., using a prefix tree [trie],
+// generating a perfect hash).
 
 #include <baetzo_timezoneutil.h>  // for testing only
 #include <baetzo_testloader.h>    // for testing only
@@ -32,13 +34,13 @@ BDES_IDENT_RCSID(baetzo_windowstimezoneutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 typedef struct TimeZoneIdEntry {
-    const char *d_key;
-    const char *d_value;
+    const char *d_key;   // given time-zone identifer
+    const char *d_value; // time-zone identifer corresonding to the given
 } TimeZoneIdEntry;
 
 static bool isLessThan(const TimeZoneIdEntry& a,
                        const TimeZoneIdEntry& b)
-    // Return 'true' is the "key" field of the specified 'a' is lexically
+    // Return 'true' if the "key" field of the specified 'a' is lexically
     // less that the "key" field of the specified 'b', and 'false otherwise.
 {
     return bsl::strcmp(a.d_key, b.d_key) < 0;

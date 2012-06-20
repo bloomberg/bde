@@ -29,7 +29,7 @@ using namespace bsl;
 //                              --------
 // The component under test provide a utility for mapping time zone identifiers
 // between Zoneinfo and Windows naming systems.  The methods are implemented
-// using standard alorithms on two sorted static tables: one mapping Windows
+// using standard algorithms on two sorted static tables: one mapping Windows
 // time-zone identifiers to Zoneinfo time-zone identifiers; the other mapping
 // Zoneinfo time-zone identifiers to Windows time-zone identifiers.  These
 // tables were semi-mechanically generated from a mapping table obtained from
@@ -117,7 +117,7 @@ typedef struct DefaultDataRow {
 
 static const DefaultDataRow DEFAULT_DATA[] = {
       //  +--------------------------------+--------+---------------------+
-      //  |Windows Time Zone Identifer     | Region | Zoneinfo Identifier |
+      //  |Windows Time Zone Identifier    | Region | Zoneinfo Identifier |
       //  +--------------------------------+--------+---------------------+
     { L_,       "AUS Central Standard Time",  "001", "Australia/Darwin"    },
     { L_,       "AUS Eastern Standard Time",  "001", "Australia/Sydney"    },
@@ -919,7 +919,7 @@ static int loadTimezoneObsoleteFlag(bool        *isTimezoneObsoleteFlag,
 }
 static int loadTimezonesFromRegistry(vector<string> *timezones)
     // Load, into the specified 'timezones', a list of the timezone
-    // identifiers found in the "Time Zones"  Registry.  Those identifers are
+    // identifiers found in the "Time Zones"  Registry.  Those identifiers are
     // the keys under "Time Zones".  Identifiers for obsolete time zones are
     // not loaded.  Return 0 on success, and a non-zero value otherwise.
 {
@@ -1075,40 +1075,46 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Converting Between Windows and Zoneinfo Time-Zone Identifiers
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// These code snippets show the basic syntax of this component's methods.
+// This example shows how to find the Zoneinfo time-zone
+// time-zone identifier for a given Windows time-zone identifier, and the
+// inverse operation.
 //
-// The 'getZoneinfoId' method converts a Windows time-zone
-// identifer to the default Zoneinfo equivalent time-zone identifer.
+// First, given the "Central Standard Time (Mexico)" Windows time-zone
+// identifier, use the 'getZoneinfoId' method to find the corresponding
+// Zoneinfo time-zone identifier.
 //..
-        int         rc;
-        const char *timeZoneId;
-        const char *windowsTimeZoneId;
+    int         rc;
+    const char *timeZoneId;
+    const char *windowsTimeZoneId;
 
-        rc = baetzo_WindowsTimeZoneUtil::getZoneinfoId(
+    rc = baetzo_WindowsTimeZoneUtil::getZoneinfoId(
                                              &timeZoneId,
                                              "Central Standard Time (Mexico)");
-        ASSERT(0 == rc);
-        ASSERT(0 == bsl::strcmp("America/Mexico_City", timeZoneId));
+    ASSERT(0 == rc);
+    ASSERT(0 == bsl::strcmp("America/Mexico_City", timeZoneId));
 //..
-// The 'getWindowsTimeZoneId' method performs the inverse mapping.
+// Notice that the corresponding Zoneinfo time-zone identifier is
+// "America/Mexico_City".
+//
+// Next, use 'getWindowsTimeZoneId' method to find the Windows time-zone
+// identifier corresponding to "America/Mexico_City".
 //..
-        rc = baetzo_WindowsTimeZoneUtil::getWindowsTimeZoneId(
+    rc = baetzo_WindowsTimeZoneUtil::getWindowsTimeZoneId(
                                                         &windowsTimeZoneId,
                                                         "America/Mexico_City");
-        ASSERT(0 == rc);
-        ASSERT(0 == bsl::strcmp("Central Standard Time (Mexico)",
-                                 windowsTimeZoneId));
+    ASSERT(0 == rc);
+    ASSERT(0 == bsl::strcmp("Central Standard Time (Mexico)",
+                             windowsTimeZoneId));
 //..
+// Notice that the time zone returned is "Central Standard Time (Mexico)", the
+// original time-zone identifier.
             }
 //
             {
 ///Example 2: Creating a 'baet_LocalDatetime' Object on Windows
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The Windows API provides date, time, and time-zone information (e.g.,
-// 'GetSystemTime', 'GetTimeZoneInformation').  Windows clients may wish to use
-// that information to create a 'baet_LocalDatetime' object (or other
-// date/time-related vocabulary types) to allow use of BDE's rich facilities
-// for manipulating date/time values.
+// The following example demonstrates how to create on a Windows platform a
+// 'baet_LocalDatetime' object with the value of the current time.
 //
 // First, use the Windows 'GetTimeZoneInformation' function to load a
 // 'TIME_ZONE_INFORMATION' structure.
@@ -1123,7 +1129,8 @@ int main(int argc, char *argv[])
 #endif
 //..
 // The 'StandardName' member of the structure, of type 'WCHAR[32]', contains
-// the Windows time-zone identifer for Standard Time for the local time zone.
+// the Windows time-zone identifier for Standard Time for the system's local
+// time zone.
 //
 // Next, use the 'wctob' function to convert each of these wide characters to
 // its single byte equivalent, and assign the result to 'localTimezone'.  Note
@@ -1133,7 +1140,9 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM__OS_WINDOWS
     bsl::string localTimezone;
 
-    {   // Convert 'StandardName' field ('WCHAR[32]') to 'bsl::string'.
+    {
+        // Convert 'StandardName' field ('WCHAR[32]') to 'bsl::string'.
+
         char StandardName[sizeof(tzi.StandardName)];
         for (int i = 0; i < sizeof(StandardName); ++i) {
             int ch = wctob(tzi.StandardName[i]);
@@ -1150,7 +1159,7 @@ int main(int argc, char *argv[])
 #endif
     ASSERT("Arab Standard Time" == localTimezone);
 //..
-// Next, use the 'getZoneinfoId' method to find the corresponding Zoneinfo
+// Now, use the 'getZoneinfoId' method to find the corresponding Zoneinfo
 // time-zone identifier.
 //..
     const char *zoneinfoId;
@@ -1160,11 +1169,12 @@ int main(int argc, char *argv[])
     ASSERT(0 == bsl::strcmp("Asia/Riyadh", zoneinfoId));
 //..
 // Then, use the Windows 'GetSystemTime' function to load an 'SYTEMTIME'
-// structure with UTC time information.  This includes year, month
-// ('[1 .. 12]'), day-of-month ('[1 .. 31]'), and hour-of-day ('[0 .. 23]').
-// Note 'bdet_date' and 'bdet_time' use the same numerical values to represent
-// month, day, etc.  The range of years is different but practically the same
-// as they overlap for several centuries around the current time.
+// structure with UTC time information.  The returned information includes
+// year, month ('[1 .. 12]'), day-of-month ('[1 .. 31]'), and hour-of-day
+// ('[0 .. 23]').  Note 'bdet_date' and 'bdet_time' use the same numerical
+// values to represent month, day, etc.  The range of years is different but
+// practically the same as they overlap for several centuries around the
+// current time.
 //..
 #ifdef BSLS_PLATFORM__OS_WINDOWS
     SYSTEMTIME systemTime;
@@ -1206,7 +1216,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //:
-        //: 1 The set of Windows time-zone identifers accepted by the
+        //: 1 The set of Windows time-zone identifiers accepted by the
         //:   'getZoneId' method is useful for the business needs of Bloomberg
         //:   LP.
         //
@@ -1215,10 +1225,10 @@ int main(int argc, char *argv[])
         //: 1 The {TZDF<GO>} function provides information on a set of time
         //:   zones of interest to Bloomberg customers.  Check that these are
         //:   found in the registry of the Windows test platform and that they
-        //:   are successfully mapped to Zoneinfo time-zone identifers.
+        //:   are successfully mapped to Zoneinfo time-zone identifiers.
         //:
         //: 2 Confirm that the current time-zone of the Windows test platform
-        //:   can be mapped to a Zoneinfo time-zone identifer.
+        //:   can be mapped to a Zoneinfo time-zone identifier.
         //:   identifier in turn.  Expect a successfull return from each call.
         //
         // Testing:
@@ -1240,11 +1250,11 @@ int main(int argc, char *argv[])
         {
 
             const struct {
-                 int         d_line;
-                 const char *d_windowsTid;
-                 const char *d_zoneInfoTid; // known to 'bsitzo_timezoneutil'.
+                int         d_line;
+                const char *d_windowsTid;
+                const char *d_zoneInfoTid; // known to 'bsitzo_timezoneutil'.
             } DATA [] = {
-          // LI  WINDOWS TIME-ZONE IDENTIFER       ZONEINFO TID
+          // LI  WINDOWS TIME-ZONE IDENTIFIER      ZONEINFO TID
           // --  --------------------------------  ----------------------
           {  L_, "Afghanistan Standard Time",      "Asia/Kabul"           },
           {  L_, "Alaskan Standard Time",          "America/Anchorage"    },
@@ -1573,7 +1583,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //:
-        //: 1 Obtain the set of Windows time-zone identifers from the Windows
+        //: 1 Obtain the set of Windows time-zone identifiers from the Windows
         //:   registry using the 'loadTimezonesFromRegistry' helper function.
         //:
         //: 2 Call the 'getZoneinfoId' method for each Windows time-zone
