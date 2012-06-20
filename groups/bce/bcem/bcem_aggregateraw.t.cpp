@@ -58,13 +58,13 @@ using namespace bsl;
 // CLASS METHODS
 // [  ] int maxSupportedBdexVersion();
 // [  ] bdem_ElemType::Type getBdemType(const TYPE& value);
-// [  ] bool areEquivalent(const Obj& lhs, const Obj& rhs);
-// [  ] bool areIdentical(const Obj& lhs, const Obj& rhs);
+// [ 7] bool areEquivalent(const Obj& lhs, const Obj& rhs);
+// [ 7] bool areIdentical(const Obj& lhs, const Obj& rhs);
 //
 // CREATORS
-// [  ] bcem_AggregateRaw();
+// [ 8] bcem_AggregateRaw();
 // [  ] bcem_AggregateRaw(const bcem_AggregateRaw& original);
-// [  ] ~bcem_AggregateRaw();
+// [ 8] ~bcem_AggregateRaw();
 //
 // MANIPULATORS
 // [  ] bcem_AggregateRaw& operator=(const bcem_AggregateRaw& rhs);
@@ -158,7 +158,7 @@ using namespace bsl;
 // [  ] int resize(Error *error, bsl::size_t newSize) const;
 //
 // FREE OPERATORS
-// [  ] bsl::ostream& operator<<(bsl::ostream& stream, const Obj& obj);
+// [ 9] bsl::ostream& operator<<(bsl::ostream& stream, const Obj& obj);
 //
 // BDEAT FRAMEWORK
 // [  ] namespace bdeat_TypeCategoryFunctions
@@ -2256,27 +2256,27 @@ static bool compareNillableTable(bcem_AggregateRaw agg, const CERef& elemRef)
     return true;
 }
 
-static bool compareCERefs(const CERef& lhs, const CERef& rhs)
-{
-    // Special Handling of list/row and choice/choice-array-item combinations:
-    if (ET::BDEM_ROW == lhs.type() && ET::BDEM_LIST == rhs.type()) {
-        return *(Row *) lhs.data() == rhs.theList().row();
-    }
-    else if (ET::BDEM_LIST == lhs.type() && ET::BDEM_ROW == rhs.type()) {
-        return lhs.theList().row() == *(Row *) rhs.data();
-    }
-    else if (ET::BDEM_CHOICE_ARRAY_ITEM == lhs.type()
-          && ET::BDEM_CHOICE            == rhs.type()) {
-        return *(ChoiceItem *) lhs.data() == rhs.theChoice().item();
-    }
-    else if (ET::BDEM_CHOICE            == lhs.type()
-          && ET::BDEM_CHOICE_ARRAY_ITEM == rhs.type()) {
-        return lhs.theChoice().item() == *(ChoiceItem *) rhs.data();
-    }
-    else {
-        return lhs == rhs;
-    }
-}
+// static bool compareCERefs(const CERef& lhs, const CERef& rhs)
+// {
+//     // Special Handling of list/row and choice/choice-array-item combinations:
+//     if (ET::BDEM_ROW == lhs.type() && ET::BDEM_LIST == rhs.type()) {
+//         return *(Row *) lhs.data() == rhs.theList().row();
+//     }
+//     else if (ET::BDEM_LIST == lhs.type() && ET::BDEM_ROW == rhs.type()) {
+//         return lhs.theList().row() == *(Row *) rhs.data();
+//     }
+//     else if (ET::BDEM_CHOICE_ARRAY_ITEM == lhs.type()
+//           && ET::BDEM_CHOICE            == rhs.type()) {
+//         return *(ChoiceItem *) lhs.data() == rhs.theChoice().item();
+//     }
+//     else if (ET::BDEM_CHOICE            == lhs.type()
+//           && ET::BDEM_CHOICE_ARRAY_ITEM == rhs.type()) {
+//         return lhs.theChoice().item() == *(ChoiceItem *) rhs.data();
+//     }
+//     else {
+//         return lhs == rhs;
+//     }
+// }
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -2853,6 +2853,854 @@ int main(int argc, char *argv[])
                   field.print(bsl::cout, 0, -1);
               }
           }
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING print() FUNCTION AND OUTPUT (<<) OPERATOR:
+        //
+        // Concerns:
+        //   The print() function is correctly forwarded to the appropriate
+        //   print function for the type stored in the aggregate object.  The
+        //   '<<' operator prints the output on one line.
+        //
+        // Plan:
+        //   This function just forwards to the
+        //   'bdem_SchemaAggregateUtil::print' function.  So we can just test
+        //   that this function forwards parameters correctly to that function
+        //   with a small set of values and avoid exhaustive testing.
+        //
+        // Testing:
+        //   bsl::ostream& print(bsl::ostream& stream,
+        //                       int           level = 0,
+        //                       int           spacesPerLevel = 4) const;
+        //   ostream& operator<<(ostream&, const bcem_Aggregate&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << bsl::endl
+                          << "\nTESTING OUTPUT FUNCTIONS" << bsl::endl
+                          << "\n========================" << bsl::endl;
+
+        if (veryVerbose) cout << bsl::endl
+                              << "\n\tTest null aggregate" << bsl::endl;
+        {
+            Obj mX; const Obj& X = mX;
+            bsl::ostringstream os1, os2;
+            X.print(os1, 2, 4);
+            os2 << X;
+            ASSERT("        <null aggregate>\n" == os1.str());
+            ASSERT("<null aggregate>" == os2.str());
+        }
+
+        if (veryVerbose) tst::cout << bsl::endl
+                                   << "\n\tTest scalar values" << bsl::endl;
+        {
+            const struct {
+                int      d_line;
+                ET::Type d_type;
+            } DATA[] = {
+                // Line   Type
+                // ----   ----
+                {   L_,   ET::BDEM_INT },
+                {   L_,   ET::BDEM_DOUBLE },
+                {   L_,   ET::BDEM_STRING },
+                {   L_,   ET::BDEM_DATETIME },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int LINE = DATA[i].d_line;
+                ET::Type  TYPE = DATA[i].d_type;
+
+                const CERef CEA = getCERef(TYPE, 1);
+                const CERef CEB = getCERef(TYPE, 2);
+
+                bslma_TestAllocator t(veryVeryVerbose);
+                Obj mA(TYPE, CEA, &t); const Obj& A = mA;
+                Obj mB(TYPE, CEB, &t); const Obj& B = mB;
+
+                bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
+                bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
+                SchemaAggUtil::print(exp1, CEA, 0, 2, 4);
+                SchemaAggUtil::print(exp2, CEA, 0, 2, -4);
+                SchemaAggUtil::print(exp3, CEA, 0, -2, 4);
+                SchemaAggUtil::print(exp4, CEA, 0, -2, -4);
+                SchemaAggUtil::print(exp5, CEA, 0, 0, -1);
+                SchemaAggUtil::print(exp6, CEB, 0, 2, 4);
+                SchemaAggUtil::print(exp7, CEB, 0, 2, -4);
+                SchemaAggUtil::print(exp8, CEB, 0, -2, 4);
+                SchemaAggUtil::print(exp9, CEB, 0, -2, -4);
+                SchemaAggUtil::print(exp10, CEB, 0, 0, -1);
+
+                bsl::ostringstream os1, os2, os3, os4, os5;
+                bsl::ostringstream os6, os7, os8, os9, os10;
+                A.print(os1, 2, 4);
+                A.print(os2, 2, -4);
+                A.print(os3, -2, 4);
+                A.print(os4, -2, -4);
+                os5 << A;
+                B.print(os6, 2, 4);
+                B.print(os7, 2, -4);
+                B.print(os8, -2, 4);
+                B.print(os9, -2, -4);
+                os10 << B;
+
+                LOOP3_ASSERT(TYPE, exp1.str(), os1.str(),
+                             exp1.str() == os1.str());
+                LOOP3_ASSERT(TYPE, exp2.str(), os2.str(),
+                             exp2.str() == os2.str());
+                LOOP3_ASSERT(TYPE, exp3.str(), os3.str(),
+                             exp3.str() == os3.str());
+                LOOP3_ASSERT(TYPE, exp4.str(), os4.str(),
+                             exp4.str() == os4.str());
+                LOOP3_ASSERT(TYPE, exp5.str(), os5.str(),
+                             exp5.str() == os5.str());
+                LOOP3_ASSERT(TYPE, exp6.str(), os6.str(),
+                             exp6.str() == os6.str());
+                LOOP3_ASSERT(TYPE, exp7.str(), os7.str(),
+                             exp7.str() == os7.str());
+                LOOP3_ASSERT(TYPE, exp8.str(), os8.str(),
+                             exp8.str() == os8.str());
+                LOOP3_ASSERT(TYPE, exp9.str(), os9.str(),
+                             exp9.str() == os9.str());
+                LOOP3_ASSERT(TYPE, exp10.str(), os10.str(),
+                             exp10.str() == os10.str());
+            }
+        }
+
+        if (veryVerbose) tst::cout << bsl::endl
+                                   << "\n\tTest array values" << bsl::endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line  Spec
+                // ----  ----
+                {   L_,  ":aPa" },
+                {   L_,  ":aQa" },
+                {   L_,  ":aRa" },
+                {   L_,  ":aWa" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+
+                Schema s; ggSchema(&s, SPEC);
+                const RecDef& r = s.record(s.numRecords() - 1);
+                ConstRecDefShdPtr rp(&r, NilDeleter(), 0);
+
+                if (veryVerbose) { T_ P(s) };
+
+                bslma_TestAllocator t(veryVeryVerbose);
+                Obj mX(rp, &t); const Obj& X = mX;
+                Obj mY(rp, &t); const Obj& Y = mY;
+
+                const char *fldName = r.fieldName(0);
+                ET::Type    TYPE    = r.field(0).elemType();
+                const CERef CEA     = getCERef(TYPE, 1);
+                const CERef CEB     = getCERef(TYPE, 2);
+
+                X.setField(fldName, CEA);
+                Y.setField(fldName, CEB);
+
+                if (veryVerbose) { T_ P(X) };
+                Obj mA = X.field(fldName); const Obj& A = mA;
+                Obj mB = Y.field(fldName); const Obj& B = mB;
+
+                bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
+                bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
+                SchemaAggUtil::print(exp1, CEA, 0, 2, 4);
+                SchemaAggUtil::print(exp2, CEA, 0, 2, -4);
+                SchemaAggUtil::print(exp3, CEA, 0, -2, 4);
+                SchemaAggUtil::print(exp4, CEA, 0, -2, -4);
+                SchemaAggUtil::print(exp5, CEA, 0, 0, -1);
+                SchemaAggUtil::print(exp6, CEB, 0, 2, 4);
+                SchemaAggUtil::print(exp7, CEB, 0, 2, -4);
+                SchemaAggUtil::print(exp8, CEB, 0, -2, 4);
+                SchemaAggUtil::print(exp9, CEB, 0, -2, -4);
+                SchemaAggUtil::print(exp10, CEB, 0, 0, -1);
+
+                bsl::ostringstream os1, os2, os3, os4, os5;
+                bsl::ostringstream os6, os7, os8, os9, os10;
+                A.print(os1, 2, 4);
+                A.print(os2, 2, -4);
+                A.print(os3, -2, 4);
+                A.print(os4, -2, -4);
+                os5 << A;
+                B.print(os6, 2, 4);
+                B.print(os7, 2, -4);
+                B.print(os8, -2, 4);
+                B.print(os9, -2, -4);
+                os10 << B;
+
+                LOOP3_ASSERT(TYPE, exp1.str(), os1.str(),
+                             exp1.str() == os1.str());
+                LOOP3_ASSERT(TYPE, exp2.str(), os2.str(),
+                             exp2.str() == os2.str());
+                LOOP3_ASSERT(TYPE, exp3.str(), os3.str(),
+                             exp3.str() == os3.str());
+                LOOP3_ASSERT(TYPE, exp4.str(), os4.str(),
+                             exp4.str() == os4.str());
+                LOOP3_ASSERT(TYPE, exp5.str(), os5.str(),
+                             exp5.str() == os5.str());
+                LOOP3_ASSERT(TYPE, exp6.str(), os6.str(),
+                             exp6.str() == os6.str());
+                LOOP3_ASSERT(TYPE, exp7.str(), os7.str(),
+                             exp7.str() == os7.str());
+                LOOP3_ASSERT(TYPE, exp8.str(), os8.str(),
+                             exp8.str() == os8.str());
+                LOOP3_ASSERT(TYPE, exp9.str(), os9.str(),
+                             exp9.str() == os9.str());
+                LOOP3_ASSERT(TYPE, exp10.str(), os10.str(),
+                             exp10.str() == os10.str());
+            }
+        }
+
+        if (veryVerbose) tst::cout << bsl::endl
+                                   << "\n\tTest aggregate values" << bsl::endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line  Spec
+                // ----  ----
+                // For List Aggregates
+                {   L_,         ":aCa" },
+                {   L_,         ":aFa" },
+                {   L_,         ":aGa" },
+                {   L_,         ":aHa" },
+                {   L_,         ":aNa" },
+                {   L_,         ":aPa" },
+                {   L_,         ":aQa" },
+                {   L_,         ":aRa" },
+                {   L_,         ":aWa" },
+                {   L_,         ":aCbFcGdQf :g+ha" },
+                {   L_,         ":aCbFcGdQf :g#ha" },
+                {   L_,         ":a?CbFcGdQf :g%ha" },
+                {   L_,         ":a?CbFcGdQf :g@ha" },
+
+                // For Choice Aggregates
+                {   L_,         ":a?Ca" },
+                {   L_,         ":a?Fa" },
+                {   L_,         ":a?Ga" },
+                {   L_,         ":a?Ha" },
+                {   L_,         ":a?Na" },
+                {   L_,         ":a?Pa" },
+                {   L_,         ":a?Qa" },
+                {   L_,         ":a?Ra" },
+                {   L_,         ":a?Wa" },
+                {   L_,         ":aCbFcGdQf  :g?+ha" },
+                {   L_,         ":aCbFcGdQf  :g?#ha" },
+                {   L_,         ":a?CbFcGdQf :g?%ha" },
+                {   L_,         ":a?CbFcGdQf :g?@ha" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+
+                Schema s; ggSchema(&s, SPEC);
+                const RecDef& r = s.record(s.numRecords() - 1);
+                ConstRecDefShdPtr rp(&r, NilDeleter(), 0);
+
+                ET::Type TYPE =
+                    RecDef::BDEM_SEQUENCE_RECORD == r.recordType()
+                    ? ET::BDEM_LIST : ET::BDEM_CHOICE;
+
+                if (veryVerbose) { T_ P(s) };
+
+                if (ET::BDEM_LIST == TYPE) {
+                    List list;
+                    Table table;
+                    ggList(&list, &r);
+                    ggTable(&table, &r);
+
+                    ListShdPtr lp(&list, NilDeleter(), 0);
+                    TableShdPtr tp(&table, NilDeleter(), 0);
+
+                    bslma_TestAllocator t(veryVeryVerbose);
+                    Obj mX(rp, ET::BDEM_LIST);  const Obj& X = mX;
+                    mX.setValue(*lp);
+                    Obj mY(rp, ET::BDEM_TABLE);  const Obj& Y = mY;
+                    mY.setValue(*tp);
+
+                    if (veryVerbose) { T_ P(X) P(Y) };
+
+                    const CERef CL(&list, &bdem_ListImp::d_listAttr);
+                    const CERef CT(&table, &bdem_TableImp::d_tableAttr);
+
+                    bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
+                    bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
+                    SchemaAggUtil::print(exp1, CL, &r, 2, 4);
+                    SchemaAggUtil::print(exp2, CL, &r, 2, -4);
+                    SchemaAggUtil::print(exp3, CL, &r, -2, 4);
+                    SchemaAggUtil::print(exp4, CL, &r, -2, -4);
+                    SchemaAggUtil::print(exp5, CL, &r, 0, -1);
+                    SchemaAggUtil::print(exp6, CT, &r, 2, 4);
+                    SchemaAggUtil::print(exp7, CT, &r, 2, -4);
+                    SchemaAggUtil::print(exp8, CT, &r, -2, 4);
+                    SchemaAggUtil::print(exp9, CT, &r, -2, -4);
+                    SchemaAggUtil::print(exp10, CT, &r, 0, -1);
+
+                    bsl::ostringstream os1, os2, os3, os4, os5;
+                    bsl::ostringstream os6, os7, os8, os9, os10;
+                    X.print(os1, 2, 4);
+                    X.print(os2, 2, -4);
+                    X.print(os3, -2, 4);
+                    X.print(os4, -2, -4);
+                    os5 << X;
+                    Y.print(os6, 2, 4);
+                    Y.print(os7, 2, -4);
+                    Y.print(os8, -2, 4);
+                    Y.print(os9, -2, -4);
+                    os10 << Y;
+
+                    LOOP3_ASSERT(TYPE, exp1.str(), os1.str(),
+                                 exp1.str() == os1.str());
+                    LOOP3_ASSERT(TYPE, exp2.str(), os2.str(),
+                                 exp2.str() == os2.str());
+                    LOOP3_ASSERT(TYPE, exp3.str(), os3.str(),
+                                 exp3.str() == os3.str());
+                    LOOP3_ASSERT(TYPE, exp4.str(), os4.str(),
+                                 exp4.str() == os4.str());
+                    LOOP3_ASSERT(TYPE, exp5.str(), os5.str(),
+                                 exp5.str() == os5.str());
+                    LOOP3_ASSERT(TYPE, exp6.str(), os6.str(),
+                                 exp6.str() == os6.str());
+                    LOOP3_ASSERT(TYPE, exp7.str(), os7.str(),
+                                 exp7.str() == os7.str());
+                    LOOP3_ASSERT(TYPE, exp8.str(), os8.str(),
+                                 exp8.str() == os8.str());
+                    LOOP3_ASSERT(TYPE, exp9.str(), os9.str(),
+                                 exp9.str() == os9.str());
+                    LOOP3_ASSERT(TYPE, exp10.str(), os10.str(),
+                                 exp10.str() == os10.str());
+                }
+                else if (ET::BDEM_CHOICE == TYPE) {
+                    Choice choice;
+                    ChoiceArray choiceArray;
+                    ggChoice(&choice, &r);
+                    ggChoiceArray(&choiceArray, &r);
+                    ChoiceShdPtr cp(&choice, NilDeleter(), 0);
+                    ChoiceArrayShdPtr ccp(&choiceArray, NilDeleter(), 0);
+
+                    bslma_TestAllocator t(veryVeryVerbose);
+                    Obj mX(rp, ET::BDEM_CHOICE); const Obj& X = mX;
+                    mX.setValue(*cp);
+                    Obj mY(rp, ET::BDEM_CHOICE_ARRAY); const Obj& Y = mY;
+                    mY.setValue(*ccp);
+
+                    if (veryVerbose) { T_ P(X) };
+
+                    const CERef CC(&choice, &bdem_ChoiceImp::d_choiceAttr);
+                    const CERef CCA(&choiceArray,
+                                    &bdem_ChoiceArrayImp::d_choiceArrayAttr);
+
+                    bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
+                    bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
+                    SchemaAggUtil::print(exp1, CC, &r, 2, 4);
+                    SchemaAggUtil::print(exp2, CC, &r, 2, -4);
+                    SchemaAggUtil::print(exp3, CC, &r, -2, 4);
+                    SchemaAggUtil::print(exp4, CC, &r, -2, -4);
+                    SchemaAggUtil::print(exp5, CC, &r, 0, -1);
+                    SchemaAggUtil::print(exp6, CCA, &r, 2, 4);
+                    SchemaAggUtil::print(exp7, CCA, &r, 2, -4);
+                    SchemaAggUtil::print(exp8, CCA, &r, -2, 4);
+                    SchemaAggUtil::print(exp9, CCA, &r, -2, -4);
+                    SchemaAggUtil::print(exp10, CCA, &r, 0, -1);
+
+                    bsl::ostringstream os1, os2, os3, os4, os5;
+                    bsl::ostringstream os6, os7, os8, os9, os10;
+                    X.print(os1, 2, 4);
+                    X.print(os2, 2, -4);
+                    X.print(os3, -2, 4);
+                    X.print(os4, -2, -4);
+                    os5 << X;
+                    Y.print(os6, 2, 4);
+                    Y.print(os7, 2, -4);
+                    Y.print(os8, -2, 4);
+                    Y.print(os9, -2, -4);
+                    os10 << Y;
+
+                    LOOP3_ASSERT(TYPE, exp1.str(), os1.str(),
+                                 exp1.str() == os1.str());
+                    LOOP3_ASSERT(TYPE, exp2.str(), os2.str(),
+                                 exp2.str() == os2.str());
+                    LOOP3_ASSERT(TYPE, exp3.str(), os3.str(),
+                                 exp3.str() == os3.str());
+                    LOOP3_ASSERT(TYPE, exp4.str(), os4.str(),
+                                 exp4.str() == os4.str());
+                    LOOP3_ASSERT(TYPE, exp5.str(), os5.str(),
+                                 exp5.str() == os5.str());
+                    LOOP3_ASSERT(TYPE, exp6.str(), os6.str(),
+                                 exp6.str() == os6.str());
+                    LOOP3_ASSERT(TYPE, exp7.str(), os7.str(),
+                                 exp7.str() == os7.str());
+                    LOOP3_ASSERT(TYPE, exp8.str(), os8.str(),
+                                 exp8.str() == os8.str());
+                    LOOP3_ASSERT(TYPE, exp9.str(), os9.str(),
+                                 exp9.str() == os9.str());
+                    LOOP3_ASSERT(TYPE, exp10.str(), os10.str(),
+                                 exp10.str() == os10.str());
+               }
+           }
+        }
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING CREATORS
+        //
+        // Concerns:
+        //   - The constructor can be used to create an object containing any
+        //         unset value.
+        //   - The constructor taking an element type and value can be used to
+        //         construct all types of scalar aggregates.
+        //   - The constructors that take the meta-data and data information
+        //         properly construct the aggregate objects with them.
+        //
+        // Plan:
+        //   - Test creation of an empty aggregate.  Confirm its data type and
+        //         meta-data and data information is empty.
+        //   - Construct scalar aggregates by calling the constructor taking a
+        //     type and value.  Confirm that the data type of the constructed
+        //     object is as expected and that it stores the expected value.
+        //   - Construct aggregates by specifying various combinations of
+        //     meta-data and data values and confirm that in each case the
+        //     constructed object stores the expected meta-data and data.
+        //   - Confirm that the aggregates are constructed with the correct
+        //         allocator
+        //   - Confirm that none of the constructors leak any memory, even in
+        //     the presence of exceptions.
+        //
+        // Testing:
+        //   bcem_AggregateRaw();
+        //   ~bcem_AggregateRaw();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING CREATORS"
+                          << "\n================" << endl;
+
+        {
+            bslma_TestAllocator da;
+            bslma_DefaultAllocatorGuard allocGuard(&da);
+
+            Obj mX;  const Obj& X = mX;
+            ASSERT(ET::BDEM_VOID       == X.dataType());
+            ASSERT(0                   == X.data());
+            ASSERT(0                   == X.schema());
+            ASSERT(0                   == X.recordConstraint());
+            ASSERT(0                   == X.fieldDef());
+            ASSERT(true                == X.isNull());
+        }
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING IDENTITY AND EQUIVALENCE:
+        //
+        // Concerns:
+        //   - Confirm that empty aggregates compare identical.
+        //   - Aggregates compare identical only if they point to the same
+        //     object.
+        //   - Aggregates compare equivalent only if they have equivalent
+        //     structure and identical values.
+        //   - If two aggregates compare identical, they will also compare
+        //     equivalent.
+        //   - If two aggregates compare identical, then they will continue to
+        //     be identical after changing a field in either one.
+        //   - If two aggregates compare equivalent but not identical, then
+        //     they will no longer be equivalent after changing a field in
+        //     either one.
+        //
+        // Plan:
+        //   - Create empty aggregates and confirm that they compare identical
+        //     and equivalent.
+        //   - For each data type, separately create a pair of aggregates.
+        //     - Confirm that they not identical.
+        //     - Confirm that they are equivalent only if they were created
+        //       the same way.
+        //     - For equivalent aggregates, modify the value of one of them.
+        //     - Confirm that they are no longer equivalent nor identical.
+        //   - For each of a set of different schemas, create
+        //     two identical objects and a third that is equivalent but not
+        //     identical to the other two.
+        //     - Confirm the initial identity and equivalence attributes.
+        //     - Confirm that identical fields from identical aggregates are
+        //       also identical and that equivalent fields from equivalent
+        //       aggregates are also equivalent.
+        //     - Confirm that after modifying a field of the first or second
+        //       aggregate, it is no longer equivalent to the third aggregate,
+        //       but the identity relationships do not change.
+        //
+        // Testing:
+        //   bool areIdentical(const Raw&, const Raw&);
+        //   bool areEquivalent(const Raw&, const Raw&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING IDENTITY AND EQUIVALENCE"
+                          << "\n================================"
+                          << endl;
+
+        if (veryVerbose) { T_ cout << "Testing for empty aggregates" << endl; }
+        {
+            Obj mX; const Obj& X = mX;
+            Obj mY; const Obj& Y = mY;
+            ASSERT(!Obj::areIdentical(X, Y));
+            ASSERT(Obj::areEquivalent(X, Y));
+        }
+
+        if (veryVerbose) { T_ cout << "Testing for independent aggregates"
+                                   << endl; }
+        {
+            const struct {
+                int      d_line;
+                ET::Type d_type;
+            } DATA[] = {
+                // Line   Type
+                // ----   ----
+                {   L_,   ET::BDEM_BOOL },
+                {   L_,   ET::BDEM_INT },
+                {   L_,   ET::BDEM_DOUBLE },
+                {   L_,   ET::BDEM_STRING },
+                {   L_,   ET::BDEM_DATETIME },
+                {   L_,   ET::BDEM_CHAR_ARRAY },
+                {   L_,   ET::BDEM_STRING_ARRAY },
+                {   L_,   ET::BDEM_DATETIMETZ_ARRAY },
+                {   L_,   ET::BDEM_BOOL_ARRAY },
+                {   L_,   ET::BDEM_LIST },
+                {   L_,   ET::BDEM_TABLE },
+                {   L_,   ET::BDEM_CHOICE },
+                {   L_,   ET::BDEM_CHOICE_ARRAY },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            bslma_TestAllocator ta(veryVeryVerbose);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int LINE1 = DATA[i].d_line;
+                ET::Type  TYPE1 = DATA[i].d_type;
+
+                for (int j = 0; j < NUM_DATA; ++j) {
+                    const int LINE2 = DATA[j].d_line;
+                    ET::Type  TYPE2 = DATA[j].d_type;
+
+                    const CERef A1  = getCERef(TYPE1, 1);
+                    const CERef A2  = getCERef(TYPE1, 2);
+
+                    const CERef B1  = getCERef(TYPE2, 1);
+                    const CERef B2  = getCERef(TYPE2, 2);
+
+                    void *data1 = makeValuePtr(TYPE1, &ta);
+                    void *data2 = makeValuePtr(TYPE2, &ta);
+
+                    A1.descriptor()->assign(data1, A1.data());
+                    B1.descriptor()->assign(data2, B1.data());
+
+                    int nf1 = 0, nf2 = 0;
+
+                    Obj mX; const Obj& X = mX;
+                    mX.setDataType(TYPE1);
+                    mX.setDataPointer(data1);
+                    mX.setTopLevelAggregateNullnessPointer(&nf1);
+                    LOOP_ASSERT(TYPE1, !X.isNull());
+                    LOOP_ASSERT(TYPE1, TYPE1 == X.dataType());
+
+                    Obj mY; const Obj& Y = mY;
+                    mY.setDataType(TYPE2);
+                    mY.setDataPointer(data2);
+                    mY.setTopLevelAggregateNullnessPointer(&nf2);
+                    LOOP_ASSERT(TYPE2, !Y.isNull());
+                    LOOP_ASSERT(TYPE2, TYPE2 == Y.dataType());
+
+                    if (veryVerbose) { P_(i) P(TYPE1) P(X) P(Y) }
+
+                    Obj mZ(X); const Obj& Z = mZ;
+
+                    LOOP3_ASSERT(LINE1, X, Z, Obj::areIdentical(X, Z));
+
+                    if (i == j) {
+                        LOOP2_ASSERT(X, Y, ! Obj::areIdentical(X, Y));
+                        LOOP2_ASSERT(X, Y,   Obj::areEquivalent(X, Y));
+
+                        A1.descriptor()->assign(data1, A2.data());
+
+                        LOOP2_ASSERT(X, Z,   Obj::areIdentical(X, Z));
+                        LOOP2_ASSERT(X, Y, ! Obj::areIdentical(X, Y));
+                        LOOP2_ASSERT(X, Y, ! Obj::areEquivalent(X, Y));
+
+                        A1.descriptor()->assign(data2, A2.data());
+
+                        LOOP2_ASSERT(X, Y, ! Obj::areIdentical(X, Y));
+                        LOOP2_ASSERT(X, Y,   Obj::areEquivalent(X, Y));
+
+                        mX.makeNull();
+
+                        LOOP2_ASSERT(X, Z,   Obj::areIdentical(X, Z));
+                        LOOP2_ASSERT(X, Y, ! Obj::areIdentical(X, Y));
+                        LOOP2_ASSERT(X, Y, ! Obj::areEquivalent(X, Y));
+
+                        mY.makeNull();
+
+                        LOOP2_ASSERT(X, Y, ! Obj::areIdentical(X, Y));
+                        LOOP2_ASSERT(X, Y,   Obj::areEquivalent(X, Y));
+                    }
+                    else {
+                        LOOP2_ASSERT(X, Y, ! Obj::areIdentical(X, Y));
+                        LOOP2_ASSERT(X, Y, ! Obj::areEquivalent(X, Y));
+                    }
+
+                    destroyValuePtr(data1, TYPE1, &ta);
+                    destroyValuePtr(data2, TYPE2, &ta);
+                }
+            }
+        }
+
+        if (veryVerbose) { cout << "\tTesting array and aggregate types"
+                                << bsl::endl; }
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line         Spec
+                // ----         ----
+                // For List Aggregates
+                {   L_,         ":aNa" },
+                {   L_,         ":aNa&NT" },
+                {   L_,         ":aNa&NF" },
+                {   L_,         ":aNa&D0" },
+                {   L_,         ":aNa&FN" },
+                {   L_,         ":aPa" },
+                {   L_,         ":aPa&NT" },
+                {   L_,         ":aPa&NF" },
+                {   L_,         ":aPa&D0" },
+                {   L_,         ":aPa&FN" },
+                {   L_,         ":aQa" },
+                {   L_,         ":aQa&NT" },
+                {   L_,         ":aQa&NF" },
+                {   L_,         ":aQa&D0" },
+                {   L_,         ":aQa&FN" },
+                {   L_,         ":aRa" },
+                {   L_,         ":aRa&NT" },
+                {   L_,         ":aRa&NF" },
+                {   L_,         ":aRa&D0" },
+                {   L_,         ":aRa&FN" },
+                {   L_,         ":aWa" },
+                {   L_,         ":aWa&NT" },
+                {   L_,         ":aWa&NF" },
+                {   L_,         ":aaa&FN" },
+                {   L_,         ":aCbFcGdQf :g+ha" },
+                {   L_,         ":aCbFcGdQf :g#ha" },
+                {   L_,         ":a?CbFcGdQf :g%ha" },
+                {   L_,         ":a?CbFcGdQf :g@ha" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+                const bool  NSA  = (bool) bsl::strstr(SPEC, "&FN");
+
+                Schema s; ggSchema(&s, SPEC);
+                const RecDef& r = NSA
+                                ? s.record(0)
+                                : s.record(s.numRecords() - 1);
+
+                if (veryVerbose) { T_ P(s) };
+
+                // Create three objects:
+                //   X and Y are identical
+                //   Z is equivalent but not identical to X and Y
+
+                bslma_TestAllocator t(veryVeryVerbose);
+                Obj mX;  const Obj& X = mX;
+                int rc = ggAggData(&mX, r, &t);
+                ASSERT(!rc);
+
+                Obj mY(X);  const Obj& Y = mY;
+
+                Obj mZ;  const Obj& Z = mZ;
+                rc = ggAggData(&mZ, r, &t);
+                ASSERT(!rc);
+
+                LOOP2_ASSERT(X, Y,   Obj::areIdentical(X, Y));
+                LOOP2_ASSERT(X, Y,   Obj::areEquivalent(X, Y));
+                LOOP2_ASSERT(X, Z, ! Obj::areIdentical(X, Z));
+                LOOP2_ASSERT(X, Z,   Obj::areEquivalent(X, Z));
+                LOOP2_ASSERT(Z, Y, ! Obj::areIdentical(Y, Z));
+                LOOP2_ASSERT(Z, Y,   Obj::areEquivalent(Y, Z));
+
+                if (veryVerbose) { T_ P(X) P(Z) };
+
+                const char *fldName = r.fieldName(0);
+                ET::Type    fldType = NSA
+                             ? ET::toArrayType(s.record(1).field(0).elemType())
+                             : r.field(0).elemType();
+
+                const CERef A0 = getCERef(fldType, 0);
+                const CERef A1 = getCERef(fldType, 1);
+                const CERef A2 = getCERef(fldType, 2);
+
+                // Same field from identical objects are identical.
+                // Same field from equivalent objects are equivalent.
+
+                Error err;
+                Obj mA; const Obj& A = mA;
+                Obj mB; const Obj& B = mB;
+                Obj mC; const Obj& C = mC;
+                Obj mD; const Obj& D = mD;
+
+                rc = mX.getField(&mA, &err, false, fldName);
+                ASSERT(!rc);
+                rc = mX.getField(&mB, &err, false, fldName);
+                ASSERT(!rc);
+                rc = mY.getField(&mC, &err, false, fldName);
+                ASSERT(!rc);
+                rc = mZ.getField(&mD, &err, false, fldName);
+                ASSERT(!rc);
+
+                LOOP2_ASSERT(A, B,   Obj::areIdentical(A, B));
+                LOOP2_ASSERT(A, B,   Obj::areEquivalent(A, B));
+                LOOP2_ASSERT(A, C,   Obj::areIdentical(A, C));
+                LOOP2_ASSERT(A, C,   Obj::areEquivalent(A, C));
+                LOOP2_ASSERT(A, D, ! Obj::areIdentical(A, D));
+                LOOP2_ASSERT(A, D,   Obj::areEquivalent(A, D));
+                LOOP2_ASSERT(C, D, ! Obj::areIdentical(C, D));
+                LOOP2_ASSERT(C, D,   Obj::areEquivalent(C, D));
+
+                // Modifying field in identical objects preserves identity.
+                // Modifying field in equivalent objects does not preserve
+                // equivalence.
+
+                Obj mE; const Obj& E = mE;
+
+                rc = X.setField(&mE, &err, fldName, A1);
+                ASSERT(!rc);
+
+                LOOP2_ASSERT(X, Y,   Obj::areIdentical(X, Y));
+                LOOP2_ASSERT(X, Y,   Obj::areEquivalent(X, Y));
+                LOOP2_ASSERT(X, Z, ! Obj::areEquivalent(X, Z));
+                LOOP2_ASSERT(X, Z, ! Obj::areIdentical(X, Z));
+                LOOP2_ASSERT(Z, Y, ! Obj::areEquivalent(Y, Z));
+                LOOP2_ASSERT(Z, Y, ! Obj::areIdentical(Y, Z));
+
+                rc = Y.setField(&mE, &err, fldName, A2);
+                LOOP2_ASSERT(X, Y, Obj::areIdentical(X, Y));
+                LOOP2_ASSERT(X, Y, Obj::areEquivalent(X, Y));
+                if (A2 != A0) {
+                    LOOP2_ASSERT(X, Z, ! Obj::areEquivalent(X, Z));
+                    LOOP2_ASSERT(X, Z, ! Obj::areIdentical(X, Z));
+                    LOOP2_ASSERT(Z, Y, ! Obj::areEquivalent(Y, Z));
+                    LOOP2_ASSERT(Z, Y, ! Obj::areIdentical(Y, Z));
+               }
+
+                // Restore equivalence
+                rc = Z.setField(&mE, &err, fldName, A2);
+                LOOP2_ASSERT(X, Y,   Obj::areIdentical(X, Y));
+                LOOP2_ASSERT(X, Y,   Obj::areEquivalent(X, Y));
+                LOOP2_ASSERT(X, Z,   Obj::areEquivalent(X, Z));
+                LOOP2_ASSERT(X, Z, ! Obj::areIdentical(X, Z));
+                LOOP2_ASSERT(Z, Y,   Obj::areEquivalent(Y, Z));
+                LOOP2_ASSERT(Z, Y, ! Obj::areIdentical(Y, Z));
+
+                destroyAggData(&mX, &t);
+                destroyAggData(&mZ, &t);
+            }
+        }
+
+        if (veryVerbose) { cout << "\tChecking equality of a nillable "
+                                << "scalar array and a non-nillable scalar"
+                                << " array" << endl; }
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line          Spec
+                // ----          ----
+                {   L_,         ":aKa :bKa&FN" },
+                {   L_,         ":aLa :bLa&FN" },
+                {   L_,         ":aMa :bMa&FN" },
+                {   L_,         ":aNa :bNa&FN" },
+                {   L_,         ":aOa :bOa&FN" },
+                {   L_,         ":aPa :bPa&FN" },
+                {   L_,         ":aQa :bQa&FN" },
+                {   L_,         ":aRa :bRa&FN" },
+                {   L_,         ":aSa :bSa&FN" },
+                {   L_,         ":aTa :bTa&FN" },
+
+                {   L_,         ":aaa :baa&FN" },
+                {   L_,         ":aba :bba&FN" },
+                {   L_,         ":aca :bca&FN" },
+                {   L_,         ":ada :bda&FN" },
+                {   L_,         ":b=tu5v :a!ab :c!ab&FN" },
+                {   L_,         ":b=tu5v :a/ab :c/ab&FN" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef *R1 = &SCHEMA.record(0);
+                const RecDef *R2 = &SCHEMA.record(1);
+
+                if (veryVerbose) { T_ P(SPEC) P(SCHEMA) };
+
+                ET::Type    SUB_TYPE   = SCHEMA.record(2).field(0).elemType();
+                ET::Type    ARRAY_TYPE = EType::toArrayType(SUB_TYPE);
+                const char *name1 = R1->fieldName(0);
+                const char *name2 = R2->fieldName(0);
+
+                const CERef ARRAY_CEA = getCERef(ARRAY_TYPE, 1);
+
+                if (veryVerbose) { T_ P(SPEC) P(SCHEMA) P(ARRAY_CEA) };
+
+                bslma_TestAllocator t(veryVeryVerbose);
+
+                Obj mX;  const Obj& X = mX;
+                Obj mY;  const Obj& Y = mY;
+
+                int rc = ggAggData(&mX, *R1, &t);
+                ASSERT(!rc);
+                rc = ggAggData(&mY, *R2, &t);
+                ASSERT(!rc);
+
+                Error err;
+                Obj mA;  const Obj& A = mA;
+                Obj mB;  const Obj& B = mB;
+
+                rc = mX.setField(&mA, &err, name1, ARRAY_CEA);
+                ASSERT(!rc);
+                rc = mY.setField(&mB, &err, name2, ARRAY_CEA);
+                ASSERT(!rc);
+
+                if (veryVerbose) { T_ P(X) P(Y) };
+
+                ASSERT(! Obj::areIdentical(X, Y));
+                ASSERT(! Obj::areEquivalent(X, Y));
+
+                ASSERT(! Obj::areIdentical(A, B));
+                ASSERT(! Obj::areEquivalent(A, B));
+
+                Obj mC;  const Obj& C = mC;
+                Obj mD;  const Obj& D = mD;
+                rc = A.getField(&mC, &err, false, 0);
+                ASSERT(!rc);
+                rc = B.getField(&mD, &err, false, 0);
+                ASSERT(!rc);
+                ASSERT(! Obj::areIdentical(A, B));
+                ASSERT(! Obj::areEquivalent(A, B));
+
+                destroyAggData(&mX, &t);
+                destroyAggData(&mY, &t);
+            }
+        }
       } break;
       case 6: {
         // --------------------------------------------------------------------
