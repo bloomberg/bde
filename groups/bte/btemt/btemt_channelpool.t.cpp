@@ -8125,7 +8125,6 @@ int main(int argc, char *argv[])
 
         bteso_IPv4Address serverAddr;
         ASSERT(0 == socket->localAddress(&serverAddr));
-        P(serverAddr);
 
         int rc = pool.connect(serverAddr,
                               10,
@@ -8133,18 +8132,13 @@ int main(int argc, char *argv[])
                               SERVER_ID);
         ASSERT(!rc);
 
-        channelCbBarrier.wait();
-
         bteso_StreamSocket<bteso_IPv4Address> *client;
         rc = socket->accept(&client);
         ASSERT(!rc);
         ASSERT(0 == client->setBlockingMode(
                                           bteso_Flag::BTESO_NONBLOCKING_MODE));
 
-        pool.setNotifyLowWatermark(channelId);
-
         channelCbBarrier.wait();
-        LOOP_ASSERT(numTimesLowWatCalled, 1 == numTimesLowWatCalled);
 
         const int SIZE = 1024 * 1024 * 10;  // 10 MB
         bcema_PooledBlobBufferFactory f(SIZE);
@@ -8164,6 +8158,8 @@ int main(int argc, char *argv[])
         bcemt_ThreadUtil::Handle handle;
         bcemt_ThreadUtil::create(&handle, &readData, &rd);
 
+        channelCbBarrier.wait();
+
         ASSERT(0 == bcemt_ThreadUtil::join(handle));
         LOOP_ASSERT(numTimesLowWatCalled, 1 == numTimesLowWatCalled);
 
@@ -8173,15 +8169,12 @@ int main(int argc, char *argv[])
         rc = pool.write(channelId, b, 100);
         ASSERT(rc);
 
-        pool.setNotifyLowWatermark(channelId);
-
         bcemt_ThreadUtil::create(&handle, &readData, &rd);
 
         channelCbBarrier.wait();
 
         ASSERT(0 == bcemt_ThreadUtil::join(handle));
         LOOP_ASSERT(numTimesLowWatCalled, 2 == numTimesLowWatCalled);
-
       } break;
       case 41: {
         // --------------------------------------------------------------------

@@ -2101,6 +2101,7 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                           writeCacheSize > enqueueWatermark)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        d_hiWatermarkHitFlag = true;
         return ENQUEUE_WAT;
     }
 
