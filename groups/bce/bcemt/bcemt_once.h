@@ -229,8 +229,8 @@ BDES_IDENT("$Id: $")
 //  }
 //..
 //
-///Third Implementation
-/// - - - - - - - - - -
+///Fourth Implementation
+///- - - - - - - - - - -
 // Our final implementation, 'singleton3', uses 'bcemt_OnceGuard' to simplify
 // the previous implementation by using 'bcemt_OnceGuard' to hide (automate)
 // the use of 'bcemt_Once::OnceLock'.  We begin as before, defining a static

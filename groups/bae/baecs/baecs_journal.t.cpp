@@ -1689,10 +1689,13 @@ int main(int argc, char *argv[]) {
                 cout << "Closing and reopening journal..." << endl;
              }
 
+             bdesu_FileUtil::Offset fileSize = mX.getFileSize();
              mX.close();
 
              Obj mY(&mappingManager, &ta);
              ASSERT(0 == mY.open(filename, MODE_RO));
+             LOOP2_ASSERT(mY.getFileSize(), fileSize,
+                                                 mY.getFileSize() == fileSize);
 
              if (veryVerbose) {
                 cout << "Verifying data..." << endl;

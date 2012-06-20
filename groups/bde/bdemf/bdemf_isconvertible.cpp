@@ -4,7 +4,7 @@ BDES_IDENT_RCSID(bdemf_isconvertible_cpp,"$Id$ $CSID$")
 
 #include <bdemf_isconvertible.h>
 
-#include <bdemf_metavalue.h>  // for testing only
+#include <bslmf_metaint.h>  // for testing only
 #include <bsls_platform.h>
 
 #if defined(BSLS_PLATFORM__CMP_GNU)

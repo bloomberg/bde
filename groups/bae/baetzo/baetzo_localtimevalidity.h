@@ -45,14 +45,14 @@ BDES_IDENT("$Id: $")
 // and the transition to Eastern Daylight-Saving Time (EDT) was still weeks
 // away; "Jan 1, 2010 2:30am" is a patently valid -- and unique -- New York
 // local time.  The transition to EDT in New York in 2010 occurred on March 14
-// as of 2:00am EST, or more precisely, as of 7:00am GMT (which would have been
+// as of 2:00am EST, or more precisely, as of 7:00am UTC (which would have been
 // 2:00am EST, but became 3:00am EDT).  Consequently, "Mar 14, 2010 2:30am" is
 // an invalid New York local time, since clocks were advanced by one hour as of
 // 2:00am EST.  The change from EDT back to EST in New York in 2010 occurred on
 // November 7 as of 2:00am EDT.  Due to this transition, "Nov 7, 2010 1:30am"
 // is a valid New York local time.  However, that local time is ambiguous
 // because it corresponds to two possible clock times, 1:30am EDT and 1:30am
-// EST, since clocks were regressed by one hour as of 2:00am EDT (7:00am GMT).
+// EST, since clocks were regressed by one hour as of 2:00am EDT (7:00am UTC).
 //
 ///Usage
 ///-----

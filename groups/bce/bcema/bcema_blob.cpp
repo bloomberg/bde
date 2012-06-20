@@ -301,8 +301,6 @@ bcema_Blob::~bcema_Blob()
 // MANIPULATORS
 bcema_Blob& bcema_Blob::operator=(const bcema_Blob& rhs)
 {
-    // BSLS_ASSERT_SAFE(0 == assertInvariants());
-
     d_buffers.reserve(rhs.numBuffers());
 
     d_buffers            = rhs.d_buffers;
@@ -310,50 +308,73 @@ bcema_Blob& bcema_Blob::operator=(const bcema_Blob& rhs)
     d_dataLength         = rhs.d_dataLength;
     d_dataIndex          = rhs.d_dataIndex;
     d_preDataIndexLength = rhs.d_preDataIndexLength;
+
     return *this;
 }
 
 void bcema_Blob::appendBuffer(const bcema_BlobBuffer& buffer)
 {
-    // BSLS_ASSERT_SAFE(0 == assertInvariants());
-
     d_buffers.push_back(buffer);
     d_totalSize += buffer.size();
 }
 
 void bcema_Blob::appendDataBuffer(const bcema_BlobBuffer& buffer)
 {
-    // BSLS_ASSERT_SAFE(0 == assertInvariants());
-
-    const int bufferSize    = buffer.size();
+    const int bufferSize = buffer.size();
     const int oldDataLength = d_dataLength;
+
     d_totalSize  += bufferSize;
     d_dataLength += bufferSize;
-    if (bufferSize != d_dataLength) {
-        // This blob previously had one or more data buffers.
+
+    if (d_totalSize == d_dataLength) {
+        // Fast path.  At the start, we had 0 or more buffers in the blob and
+        // they were all full.
+    
+        BSLS_ASSERT_SAFE(d_dataIndex == (int) d_buffers.size() - 1 ||
+                                  (0 == d_dataIndex && 0 == d_buffers.size()));
+
+        d_buffers.push_back(buffer);
+        d_preDataIndexLength = oldDataLength;
+        d_dataIndex = d_buffers.size() - 1;
+    }
+    else if (bufferSize == d_dataLength) {
+        // Another fast path.  At the start, there was no data, but empty
+        // buffers were present.  Put the new buffer at the front.
+
+        BSLS_ASSERT_SAFE(d_totalSize > d_dataLength);
+        BSLS_ASSERT_SAFE(0 == d_dataIndex);
+        BSLS_ASSERT_SAFE(0 == d_preDataIndexLength);
+
+        d_buffers.insert(d_buffers.begin(), buffer);
+    }
+    else {
+        // Complicated case -- at the start, buffer(s) with data were present,
+        // trimming 'prevBuf' might or might not be necessary, empty space was
+        // present on the end, whole empty buffer(s) might or might not have
+        // been present on the end.
+
+        BSLS_ASSERT_SAFE(d_dataLength > bufferSize);
+        BSLS_ASSERT_SAFE(d_dataLength < d_totalSize);
+        BSLS_ASSERT_SAFE((unsigned) d_dataIndex < d_buffers.size());
+        BSLS_ASSERT_SAFE(oldDataLength >= d_preDataIndexLength);
+
+        bcema_BlobBuffer& prevBuf     = d_buffers[d_dataIndex];
+        const unsigned newPrevBufSize = oldDataLength - d_preDataIndexLength;
+        const unsigned trim           = prevBuf.size() - newPrevBufSize;
+
+        BSLS_ASSERT_SAFE(trim <= (unsigned) prevBuf.size());
+
+        prevBuf.setSize(newPrevBufSize);
 
         ++d_dataIndex;
-        if (d_totalSize == d_dataLength) {
-            // Fast path.  We have only data buffers in the blob and they are
-            // all full.
-
-            d_preDataIndexLength = oldDataLength;
-            d_buffers.push_back(buffer);  // TBD can 'throw'
-            return;                                                   // RETURN
-        }
         d_buffers.insert(d_buffers.begin() + d_dataIndex, buffer);
-        d_buffers[d_dataIndex - 1].setSize(oldDataLength -
-                                           d_preDataIndexLength);
         d_preDataIndexLength = oldDataLength;
-        return;                                                       // RETURN
+        d_totalSize -= trim;
     }
-    d_buffers.insert(d_buffers.begin(), buffer);  // TBD can 'throw'
 }
 
 void bcema_Blob::insertBuffer(int index, const bcema_BlobBuffer& buffer)
 {
-    // BSLS_ASSERT_SAFE(0 == assertInvariants());
-
     BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(     index <= static_cast<int>(d_buffers.size()));
 
@@ -371,8 +392,6 @@ void bcema_Blob::insertBuffer(int index, const bcema_BlobBuffer& buffer)
 
 void bcema_Blob::prependDataBuffer(const bcema_BlobBuffer& buffer)
 {
-    // BSLS_ASSERT_SAFE(0 == assertInvariants());
-
     const int bufferSize = buffer.size();
     BSLS_ASSERT(0 < bufferSize);
     d_buffers.insert(d_buffers.begin(), buffer);
@@ -386,8 +405,6 @@ void bcema_Blob::prependDataBuffer(const bcema_BlobBuffer& buffer)
 
 void bcema_Blob::removeAll()
 {
-    // BSLS_ASSERT_SAFE(0 == assertInvariants());
-
     d_buffers.clear();
     d_totalSize  = 0;
     d_dataLength = 0;
@@ -397,8 +414,6 @@ void bcema_Blob::removeAll()
 
 void bcema_Blob::removeBuffer(int index)
 {
-    // BSLS_ASSERT_SAFE(0 == assertInvariants());
-
     BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(     index < static_cast<int>(d_buffers.size()));
 

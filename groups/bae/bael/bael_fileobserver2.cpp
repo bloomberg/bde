@@ -121,7 +121,7 @@ void getLogFileName(bsl::string                  *logFileName,
     BSLS_ASSERT(timestamp);
     BSLS_ASSERT(logFilePattern);
 
-    *timestamp = bdetu_SystemTime::nowAsDatetimeGMT();
+    *timestamp = bdetu_SystemTime::nowAsDatetimeUtc();
 
     const bdet_Datetime logFileTimestamp = *timestamp + localTimeOffset;
 
@@ -627,7 +627,7 @@ void bael_FileObserver2::rotateOnTimeInterval(
                                          const bdet_DatetimeInterval& interval)
 {
     rotateOnTimeInterval(interval,
-                         bdetu_SystemTime::nowAsDatetimeGMT()
+                         bdetu_SystemTime::nowAsDatetimeUtc()
                                                           + d_localTimeOffset);
 }
 

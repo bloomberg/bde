@@ -466,7 +466,7 @@ BDES_IDENT("$Id: $")
 // chaining accommodates arbitrary load factors, while double hashing requires
 // that the load factor be strictly less than 1.
 //..
-//  void main() {
+//  int main() {
 //      const int SIZE = 10007;
 //      const int INC  = SIZE / 5; // load factors for every 20% percentile
 //      const int COLS = (4*SIZE)/INC;
@@ -590,6 +590,8 @@ BDES_IDENT("$Id: $")
 //              cout << "\n";
 //          }
 //      }
+//
+//      return 0;
 //  }
 //..
 // The above code produces the following results, slightly reformatted for

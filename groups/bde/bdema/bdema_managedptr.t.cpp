@@ -1548,8 +1548,8 @@ void doConstructObjectFactory(int callLine, int testLine, int,
 
         LOOP_ASSERT(deleteCount, ObjectPolicy::DELETE_DELTA == deleteCount);
 #else
-    if (verbose) cout << "\tNegative testing disabled due to lack of "
-                         "exception support\n";
+    if (g_verbose) cout << "\tNegative testing disabled due to lack of "
+                           "exception support\n";
 #endif
     }
 }
@@ -1627,8 +1627,8 @@ void doConstructObjectFactoryDzero(int callLine, int testLine, int,
         LOOP2_ASSERT(expectedCount,   deleteCount,
                      expectedCount == deleteCount);
 #else
-        if (verbose) cout << "\tNegative testing disabled due to lack of "
-                             "exception support\n";
+        if (g_verbose) cout << "\tNegative testing disabled due to lack of "
+                               "exception support\n";
 #endif
     }
 }
@@ -2071,8 +2071,8 @@ void doLoadObjectFactory(int callLine, int testLine, int index,
                         ObjectPolicy::DELETE_DELTA == deleteCount);
         }
 #else
-        if (verbose) cout << "\tNegative testing disabled due to lack of "
-                             "exception support\n";
+        if (g_verbose) cout << "\tNegative testing disabled due to lack of "
+                               "exception support\n";
 #endif
     }
 
@@ -2158,8 +2158,8 @@ void doLoadObjectFactoryDzero(int callLine, int testLine, int index,
                         ObjectPolicy::DELETE_DELTA == deleteCount);
         }
 #else
-        if (verbose) cout << "\tNegative testing disabled due to lack of "
-                             "exception support\n";
+        if (g_verbose) cout << "\tNegative testing disabled due to lack of "
+                               "exception support\n";
 #endif
     }
 }
@@ -2738,9 +2738,9 @@ void testLoadAliasOps1(int callLine,
                 }
 #else
                 TestPointer pAlias;
-                TEST_TARGET pTarget = 0 == p.ptr()
-                                    ? 0
-                                    : &aliasTarget;
+                TEST_TARGET *pTarget = 0 == p.ptr()
+                                     ? 0
+                                     : &aliasTarget;
 
                 pAlias.loadAlias(p, pTarget);
 
@@ -2875,11 +2875,11 @@ void testLoadAliasOps2(int callLine,
                 }
 #else
                 TestPointer pAlias1;
-                TEST_TARGET pTarget = 0 == p.ptr()
-                                    ? 0
-                                    : &alias1;
+                TEST_TARGET *pTarget = 0 == p.ptr()
+                                     ? 0
+                                     : &alias1;
 
-                pAlias.loadAlias(p, pTarget);
+                pAlias1.loadAlias(p, pTarget);
 
                 LOOP_ASSERT(p.ptr(),  0 == p.ptr());
                 LOOP2_ASSERT(pTarget, pAlias1.ptr(), pTarget == pAlias1.ptr());

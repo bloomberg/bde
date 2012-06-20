@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
                                           bael_Severity::BAEL_WARN,
                                           MSG);
 
-        fixedFields.setTimestamp(bdetu_SystemTime::nowAsDatetimeGMT());
+        fixedFields.setTimestamp(bdetu_SystemTime::nowAsDatetimeUtc());
 
         bdem_List userFields(listTypes, sizeof listTypes / sizeof *listTypes);
         userFields.theModifiableString(0) = "string";

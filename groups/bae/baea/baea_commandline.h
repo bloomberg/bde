@@ -2130,12 +2130,12 @@ class baea_CommandLine {
                                  bslalg_TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    template <int SIZE>
-    baea_CommandLine(const baea_CommandLineOptionInfo (&specTable)[SIZE],
+    template <int LENGTH>
+    baea_CommandLine(const baea_CommandLineOptionInfo (&specTable)[LENGTH],
                      bsl::ostream&                      stream,
                      bslma_Allocator                   *basicAllocator = 0);
-    template <int SIZE>
-    baea_CommandLine(baea_CommandLineOptionInfo (&specTable)[SIZE],
+    template <int LENGTH>
+    baea_CommandLine(baea_CommandLineOptionInfo (&specTable)[LENGTH],
                      bsl::ostream&                stream,
                      bslma_Allocator             *basicAllocator = 0);
         // Create an object with the command-line options described by the
@@ -2147,11 +2147,11 @@ class baea_CommandLine {
         // to supply memory.  If 'basicAllocator' is 0, the currently-installed
         // default allocator is used.
 
-    template <int SIZE>
-    baea_CommandLine(const baea_CommandLineOptionInfo (&specTable)[SIZE],
+    template <int LENGTH>
+    baea_CommandLine(const baea_CommandLineOptionInfo (&specTable)[LENGTH],
                      bslma_Allocator                   *basicAllocator = 0);
-    template <int SIZE>
-    baea_CommandLine(baea_CommandLineOptionInfo (&specTable)[SIZE],
+    template <int LENGTH>
+    baea_CommandLine(baea_CommandLineOptionInfo (&specTable)[LENGTH],
                      bslma_Allocator             *basicAllocator = 0);
         // Create an object with the command-line options described by the
         // specified 'specTable'.  The 'specTable' *must* *be* a statically-
@@ -2163,24 +2163,24 @@ class baea_CommandLine {
         // allocator is used.
 
     baea_CommandLine(const baea_CommandLineOptionInfo *specTable,
-                     int                               size,
+                     int                               length,
                      bslma_Allocator                  *basicAllocator = 0);
         // Create an object with the command-line options described by the
-        // specified 'specTable' of the specified 'size'.  The 'specTable' need
-        // not be a statically-created array.  If the tag, description, or name
-        // specified for an option in the 'specTable' is invalid, then the
+        // specified 'specTable' of the specified 'length'.  The 'specTable'
+        // need not be a statically-created array.  If the tag, description, or
+        // name specified for an option in the 'specTable' is invalid, then the
         // behavior is undefined; nevertheless, an appropriate error message is
         // written to 'bsl::cerr'.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     baea_CommandLine(const baea_CommandLineOptionInfo *specTable,
-                     int                               size,
+                     int                               length,
                      bsl::ostream&                     stream,
                      bslma_Allocator                  *basicAllocator = 0);
         // Create an object with the command-line options described by the
-        // specified 'specTable' of the specified 'size'.  The 'specTable' need
-        // not be a statically-created array.  If the tag, description, or
+        // specified 'specTable' of the specified 'length'.  The 'specTable'
+        // need not be a statically-created array.  If the tag, description, or
         // name specified for an option in the 'specTable' is invalid, then the
         // behavior is undefined; nevertheless, an appropriate error message is
         // written to the specified 'stream'.  Optionally specify a
@@ -2446,11 +2446,11 @@ bsl::ostream& operator<<(bsl::ostream& stream, const baea_CommandLine& rhs);
                         // ----------------------
 
 // CREATORS
-template <int SIZE>
+template <int LENGTH>
 baea_CommandLine::baea_CommandLine(
-                           const baea_CommandLineOptionInfo (&specTable)[SIZE],
-                           bsl::ostream&                      stream,
-                           bslma_Allocator                   *basicAllocator)
+                         const baea_CommandLineOptionInfo (&specTable)[LENGTH],
+                         bsl::ostream&                      stream,
+                         bslma_Allocator                   *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)
@@ -2462,18 +2462,18 @@ baea_CommandLine::baea_CommandLine(
 , d_data2(basicAllocator)
 , d_isBindin2Valid(false)
 {
-    for (int i = 0; i < SIZE; ++i) {
+    for (int i = 0; i < LENGTH; ++i) {
         d_options.push_back(baea_CommandLineOption(specTable[i]));
     }
     validateAndInitialize(stream);
     d_state = BAEA_NOT_PARSED;
 }
 
-template <int SIZE>
+template <int LENGTH>
 baea_CommandLine::baea_CommandLine(
-                                 baea_CommandLineOptionInfo (&specTable)[SIZE],
-                                 bsl::ostream&                stream,
-                                 bslma_Allocator             *basicAllocator)
+                               baea_CommandLineOptionInfo (&specTable)[LENGTH],
+                               bsl::ostream&                stream,
+                               bslma_Allocator             *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)
@@ -2485,17 +2485,17 @@ baea_CommandLine::baea_CommandLine(
 , d_data2(basicAllocator)
 , d_isBindin2Valid(false)
 {
-    for (int i = 0; i < SIZE; ++i) {
+    for (int i = 0; i < LENGTH; ++i) {
         d_options.push_back(baea_CommandLineOption(specTable[i]));
     }
     validateAndInitialize(stream);
     d_state = BAEA_NOT_PARSED;
 }
 
-template <int SIZE>
+template <int LENGTH>
 baea_CommandLine::baea_CommandLine(
-                           const baea_CommandLineOptionInfo (&specTable)[SIZE],
-                           bslma_Allocator                   *basicAllocator)
+                         const baea_CommandLineOptionInfo (&specTable)[LENGTH],
+                         bslma_Allocator                   *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)
@@ -2507,17 +2507,17 @@ baea_CommandLine::baea_CommandLine(
 , d_data2(basicAllocator)
 , d_isBindin2Valid(false)
 {
-    for (int i = 0; i < SIZE; ++i) {
+    for (int i = 0; i < LENGTH; ++i) {
         d_options.push_back(baea_CommandLineOption(specTable[i]));
     }
     validateAndInitialize();
     d_state = BAEA_NOT_PARSED;
 }
 
-template <int SIZE>
+template <int LENGTH>
 baea_CommandLine::baea_CommandLine(
-                                 baea_CommandLineOptionInfo (&specTable)[SIZE],
-                                 bslma_Allocator             *basicAllocator)
+                               baea_CommandLineOptionInfo (&specTable)[LENGTH],
+                               bslma_Allocator             *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)
@@ -2529,7 +2529,7 @@ baea_CommandLine::baea_CommandLine(
 , d_data2(basicAllocator)
 , d_isBindin2Valid(false)
 {
-    for (int i = 0; i < SIZE; ++i) {
+    for (int i = 0; i < LENGTH; ++i) {
         d_options.push_back(baea_CommandLineOption(specTable[i]));
     }
     validateAndInitialize();

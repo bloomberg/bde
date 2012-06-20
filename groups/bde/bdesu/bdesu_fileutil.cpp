@@ -11,6 +11,7 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 #include <bdetu_epoch.h>
 #include <bdetu_systemtime.h> // for testing only
 
+#include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -224,13 +225,17 @@ bdesu_FileUtil::open(const char *pathName,
                                          : 0);
     DWORD creationInfo = existFlag ? OPEN_EXISTING : CREATE_ALWAYS;
 
+    // The file locking behavior for the opened file 
+    // ('FILE_SHARE_READ | FILE_SHARE_WRITE') is chosen to match the posix
+    // behavior for open (DRQS 30568749).
+ 
     return CreateFile(pathName,
                       accessMode,
-                      FILE_SHARE_READ,       // share for reading??
-                      NULL,                  // default security
-                      creationInfo,          // existing file only
-                      FILE_ATTRIBUTE_NORMAL, // normal file
-                      NULL);                 // no attr
+                      FILE_SHARE_READ | FILE_SHARE_WRITE, // do not lock
+                      NULL,                               // default security
+                      creationInfo,                       // existing file only
+                      FILE_ATTRIBUTE_NORMAL,              // normal file
+                      NULL);                              // no attr
 
 }
 
@@ -940,7 +945,7 @@ void bdesu_FileUtil::visitPaths(
         return;                                                       // RETURN
     }
     if (GLOB_NOSPACE == rc) {
-        throw bsl::bad_alloc();
+        bslma::Allocator::throwBadAlloc();
     }
 
     for (int i = 0; i < static_cast<int>(pglob.gl_pathc); ++i) {
@@ -1127,7 +1132,7 @@ int bdesu_FileUtil::grow(FileDescriptor         fd,
                          bool                   reserve,
                          bsl::size_t            bufferSize)
 {
-    bslma_Allocator *allocator_p = bslma_Default::defaultAllocator();
+    bslma::Allocator *allocator_p = bslma::Default::defaultAllocator();
     Offset currentSize = seek(fd, 0, BDESU_SEEK_FROM_END);
 
     if (currentSize == -1) {
@@ -1166,7 +1171,7 @@ int bdesu_FileUtil::rollFileChain(const char *path, int maxSuffix)
     BSLS_ASSERT(path);
 
     enum { MAX_SUFFIX_LENGTH = 10 };
-    bslma_Allocator *allocator_p = bslma_Default::defaultAllocator();
+    bslma::Allocator *allocator_p = bslma::Default::defaultAllocator();
     int length = static_cast<int>(bsl::strlen(path)) + MAX_SUFFIX_LENGTH + 2;
 
     // Use a single allocation to insure exception neutrality.
