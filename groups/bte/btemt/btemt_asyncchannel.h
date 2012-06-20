@@ -57,12 +57,16 @@ class btemt_AsyncChannel {
     enum ReadResult{
         // result codes passed in read callback
 
-        BTEMT_SUCCESS    = 0  // The operation was successful.
+          BTEMT_SUCCESS  = 0  // The operation was successful.
+
         , BTEMT_TIMEOUT  = 1  // The 'timedRead' operation has timed out.
+
         , BTEMT_CLOSED   = 2  // The underlying stream used by this channel
                               // has been closed.
+
         , BTEMT_FAILURE  = 3  // An I/O error occurred during the read
                               // operation.
+
         , BTEMT_CANCELED = 4  // The asynchronous read request was canceled.
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
         , SUCCESS  = BTEMT_SUCCESS
