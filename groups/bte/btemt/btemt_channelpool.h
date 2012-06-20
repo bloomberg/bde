@@ -177,6 +177,30 @@ BDES_IDENT("$Id: $")
 // space.  A user-defined callback can be invoked from *any* (managed) thread
 // and the user must account for that.
 //
+///Invocation of high and low watermark callbacks
+///----------------------------------------------
+// When constructing a channel pool object, users can specify, via the
+// 'setWriteCacheWatermarks' function of 'btemt_ChannelPoolConfiguration', the
+// maximum data size (high-watermark) that can be enqueued for writing on a
+// channel.  If the write cache size exceeds this high-watermark value then
+// 'write' calls on that channel will fail.  This information is also
+// communicated by providing a 'BTEMT_WRITE_CACHE_HIWAT' alert to the client
+// via the channel state callback.  Note that 'write' calls can also fail if
+// the write cache size exceeds the optionally specified 'enqueueWatermark'
+// argument provided to 'write', but a 'BTEMT_WRITE_CACHE_HIWAT' alert is not
+// provided in this scenario.
+//
+// In addition to the high-watermark, users can also specify the write cache
+// size (low-watermark), again via the 'setWriteCacheWatermarks' function of
+// 'btemt_ChannelPoolConfiguration', below which users can start writing again.
+// After a write failure because the write cache size was exceeded channel pool
+// provides a 'BTEMT_WRITE_CACHE_LOWWAT' alert to the client via the channel
+// state callback when the write cache size falls below the low-watermark.
+// This alert allows clients to resume writing.  Note that a
+// 'BTEMT_WRITE_CACHE_LOWWAT' alert is also provided if the write cache size
+// exceeds the optionally specified 'enqueueWatermark' argument provided to
+// 'write'.
+//
 ///Usage
 ///-----
 // In this section, we show two usage examples.  The first illustrates the
