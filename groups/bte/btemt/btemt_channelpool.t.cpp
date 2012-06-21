@@ -8136,33 +8136,26 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 42: {
         // --------------------------------------------------------------------
-        // Testing 'setNotifyLowWatermark'
+        // Testing LOWAT called when 'enqueueWatermark' exceeded
         //
         // Concerns:
-        //: 1 'setNotifyLowWatermark' invokes the low watermark immediately if
-        //:   the write cache size is less than or equal to the current
-        //:   low-watermark.
-        //:
-        //: 2 'setNotifyLowWatermark' invokes the low watermark after the
-        //:   enqueue watermark is exceeded and the write cache size drops
-        //:   below the low-watermark.
+        //: 1 The low watermark is invoked after the enqueue watermark is
+        //:   exceeded and the write cache size drops below the low-watermark.
         //
         // Plan:
-        //: 1 Assert that the low watermark is invoked immediately after
-        //:   'setNotifyWatermark' is called when the write cache size is less
-        //:   than or equal to the low-watermark specified at construction.
-        //:
-        //: 2 Write a message greater than the enqueue cache size and confirm
-        //:   that the low-watermark is not invoked.  Repeat after calling
-        //:   'setNotifyLowWatermark' and assert that low watermark is invoked.
+        //: 1 Write a message greater than the enqueue cache size and confirm
+        //:   that the low-watermark is invoked after the write completes.
+        //:   Repeat a similar write again and assert that low watermark is
+        //:   invoked.
         //
         // Testing:
-        //   int setNotifyLowWatermark(int channelId);
+        //   DRQS 33107174
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'setNotifyLowWatermark'"
-                 << "\n===============================" << endl;
+            cout << "\nTESTING LOWAT called when 'enqueueWatermark' exceeded"
+                 << "\n====================================================="
+                 << endl;
 
         using namespace CASE42;
 
@@ -8206,7 +8199,6 @@ int main(int argc, char *argv[])
 
         bteso_IPv4Address serverAddr;
         ASSERT(0 == socket->localAddress(&serverAddr));
-        P(serverAddr);
 
         int rc = pool.connect(serverAddr,
                               10,
@@ -8214,18 +8206,13 @@ int main(int argc, char *argv[])
                               SERVER_ID);
         ASSERT(!rc);
 
-        channelCbBarrier.wait();
-
         bteso_StreamSocket<bteso_IPv4Address> *client;
         rc = socket->accept(&client);
         ASSERT(!rc);
         ASSERT(0 == client->setBlockingMode(
                                           bteso_Flag::BTESO_NONBLOCKING_MODE));
 
-        pool.setNotifyLowWatermark(channelId);
-
         channelCbBarrier.wait();
-        LOOP_ASSERT(numTimesLowWatCalled, 1 == numTimesLowWatCalled);
 
         const int SIZE = 1024 * 1024 * 10;  // 10 MB
         bcema_PooledBlobBufferFactory f(SIZE);
@@ -8245,6 +8232,8 @@ int main(int argc, char *argv[])
         bcemt_ThreadUtil::Handle handle;
         bcemt_ThreadUtil::create(&handle, &readData, &rd);
 
+        channelCbBarrier.wait();
+
         ASSERT(0 == bcemt_ThreadUtil::join(handle));
         LOOP_ASSERT(numTimesLowWatCalled, 1 == numTimesLowWatCalled);
 
@@ -8254,15 +8243,12 @@ int main(int argc, char *argv[])
         rc = pool.write(channelId, b, 100);
         ASSERT(rc);
 
-        pool.setNotifyLowWatermark(channelId);
-
         bcemt_ThreadUtil::create(&handle, &readData, &rd);
 
         channelCbBarrier.wait();
 
         ASSERT(0 == bcemt_ThreadUtil::join(handle));
         LOOP_ASSERT(numTimesLowWatCalled, 2 == numTimesLowWatCalled);
-
       } break;
       case 41: {
         // --------------------------------------------------------------------
