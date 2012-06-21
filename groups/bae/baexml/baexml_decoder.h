@@ -2922,11 +2922,6 @@ int baexml_Decoder_PrepareSequenceContext::operator()(const TYPE&      object,
         d_simpleContentId_p->makeValue(info.id());
     }
 
-    typedef typename
-    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
-
-    executeImp(object, info.formattingMode(), info.id(), TypeCategory());
-
     return BAEXML_SUCCESS;
 }
 
