@@ -190,14 +190,16 @@ BDES_IDENT("$Id: $")
 // argument provided to 'write', but a 'BTEMT_WRITE_CACHE_HIWAT' alert is not
 // provided in this scenario.
 //
-// In addition to the high-watermark, users can also specify the write cache
-// size (low-watermark), again via the 'setWriteCacheWatermarks' function of
-// 'btemt_ChannelPoolConfiguration', below which users can start writing again.
-// After a write failure because the write cache size was exceeded channel pool
-// provides a 'BTEMT_WRITE_CACHE_LOWWAT' alert to the client via the channel
-// state callback when the write cache size falls below the low-watermark.
-// This alert allows clients to resume writing.  Note that a
-// 'BTEMT_WRITE_CACHE_LOWWAT' alert is also provided if the write cache size
+// In addition to the high-watermark, users can also specify a low-watermark,
+// again via the 'setWriteCacheWatermarks' function of
+// 'btemt_ChannelPoolConfiguration'.  After a write fails because the write
+// cache size would be exceeded, the channel pool will later provide a
+// 'BTEMT_WRITE_CACHE_LOWWAT' alert to the client via the channel state
+// callback when the write cache size falls below the low-watermark.
+// Typically, clients will suspend writing to a channel if the write cache
+// exceeds the high-watermark or the optionally provided 'enqueueWaterk', and
+// then resume writing after they receive the low-watermark event.  Note that
+// a 'BTEMT_WRITE_CACHE_LOWWAT' alert is also provided if the write cache size
 // exceeds the optionally specified 'enqueueWatermark' argument provided to
 // 'write'.
 //
