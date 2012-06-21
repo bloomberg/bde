@@ -2891,8 +2891,8 @@ int main(int argc, char *argv[])
             ASSERT("<null aggregate>" == os2.str());
         }
 
-        if (veryVerbose) tst::cout << bsl::endl
-                                   << "\n\tTest scalar values" << bsl::endl;
+        if (veryVerbose) cout << bsl::endl
+                              << "\n\tTest scalar values" << bsl::endl;
         {
             const struct {
                 int      d_line;
@@ -2914,9 +2914,24 @@ int main(int argc, char *argv[])
                 const CERef CEA = getCERef(TYPE, 1);
                 const CERef CEB = getCERef(TYPE, 2);
 
+                void *data1 = makeValuePtr(TYPE, &ta);
+                void *data2 = makeValuePtr(TYPE, &ta);
+
+                CEA.descriptor()->assign(data1, CEA.data());
+                CEB.descriptor()->assign(data2, CEB.data());
+
                 bslma_TestAllocator t(veryVeryVerbose);
-                Obj mA(TYPE, CEA, &t); const Obj& A = mA;
-                Obj mB(TYPE, CEB, &t); const Obj& B = mB;
+                int nf1 = 0, nf2 = 0;
+
+                Obj mA; const Obj& A = mA;
+                mA.setDataType(TYPE);
+                mA.setDataPointer(data1);
+                mA.setTopLevelAggregateNullnessPointer(&nf1);
+
+                Obj mB; const Obj& B = mB;
+                mB.setDataType(TYPE);
+                mB.setDataPointer(data2);
+                mB.setTopLevelAggregateNullnessPointer(&nf2);
 
                 bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
                 bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
@@ -2967,8 +2982,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) tst::cout << bsl::endl
-                                   << "\n\tTest array values" << bsl::endl;
+#if 0
+        if (veryVerbose) cout << bsl::endl
+                              << "\n\tTest array values" << bsl::endl;
         {
             const struct {
                 int         d_line;
@@ -3058,8 +3074,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) tst::cout << bsl::endl
-                                   << "\n\tTest aggregate values" << bsl::endl;
+        if (veryVerbose) cout << bsl::endl
+                              << "\n\tTest aggregate values" << bsl::endl;
         {
             const struct {
                 int         d_line;
