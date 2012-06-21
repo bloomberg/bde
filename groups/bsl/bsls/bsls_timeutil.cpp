@@ -330,7 +330,7 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 
     return rawTime.d_opaque;
 
-#elif defined BSLS_PLATFORM__OS_LINUX
+#elif defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_CYGWIN)
 
     const Types::Int64 G = 1000000000;
     return ((Types::Int64) rawTime.tv_sec * G + rawTime.tv_nsec);
@@ -503,7 +503,7 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 
     clock_gettime(CLOCK_MONOTONIC, timeValue);
 
-#elif defined BSLS_PLATFORM__OS_UNIX
+#elif defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_CYGWIN)
 
     gettimeofday(timeValue, 0);
 

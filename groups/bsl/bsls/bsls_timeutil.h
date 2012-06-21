@@ -179,7 +179,7 @@ struct TimeUtil {
         typedef timebasestruct_t                  OpaqueNativeTime;
 #elif defined BSLS_PLATFORM__OS_HPUX
         typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
-#elif defined BSLS_PLATFORM__OS_LINUX
+#elif defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_CYGWIN)
         typedef timespec                          OpaqueNativeTime;
 #elif defined BSLS_PLATFORM__OS_UNIX
         typedef timeval                           OpaqueNativeTime;
