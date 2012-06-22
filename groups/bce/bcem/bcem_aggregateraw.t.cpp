@@ -243,6 +243,8 @@ typedef RecDef::RecordType      RecType;
 typedef bdem_EnumerationDef     EnumDef;
 typedef bdem_Schema             Schema;
 
+typedef bdem_SchemaAggregateUtil SchemaAggUtil;
+
 typedef bdem_ConstElemRef     CERef;
 typedef bdem_ElemRef          ERef;
 typedef RecDef::RecordType    RecType;
@@ -2907,6 +2909,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
+            bslma_TestAllocator ta;
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int LINE = DATA[i].d_line;
                 ET::Type  TYPE = DATA[i].d_type;
@@ -2979,10 +2982,12 @@ int main(int argc, char *argv[])
                              exp9.str() == os9.str());
                 LOOP3_ASSERT(TYPE, exp10.str(), os10.str(),
                              exp10.str() == os10.str());
+
+                destroyValuePtr(data1, TYPE, &ta);
+                destroyValuePtr(data2, TYPE, &ta);
             }
         }
 
-#if 0
         if (veryVerbose) cout << bsl::endl
                               << "\n\tTest array values" << bsl::endl;
         {
@@ -3005,25 +3010,31 @@ int main(int argc, char *argv[])
 
                 Schema s; ggSchema(&s, SPEC);
                 const RecDef& r = s.record(s.numRecords() - 1);
-                ConstRecDefShdPtr rp(&r, NilDeleter(), 0);
 
                 if (veryVerbose) { T_ P(s) };
 
                 bslma_TestAllocator t(veryVeryVerbose);
-                Obj mX(rp, &t); const Obj& X = mX;
-                Obj mY(rp, &t); const Obj& Y = mY;
+                Obj mX;  const Obj& X = mX;
+                int rc = ggAggData(&mX, r, &t);
+                ASSERT(!rc);
+
+                Obj mY;  const Obj& Y = mY;
+                rc = ggAggData(&mY, r, &t);
+                ASSERT(!rc);
 
                 const char *fldName = r.fieldName(0);
                 ET::Type    TYPE    = r.field(0).elemType();
                 const CERef CEA     = getCERef(TYPE, 1);
                 const CERef CEB     = getCERef(TYPE, 2);
 
-                X.setField(fldName, CEA);
-                Y.setField(fldName, CEB);
+                Error err;
+                Obj mA;  const Obj& A = mA;
+                Obj mB;  const Obj& B = mB;
 
-                if (veryVerbose) { T_ P(X) };
-                Obj mA = X.field(fldName); const Obj& A = mA;
-                Obj mB = Y.field(fldName); const Obj& B = mB;
+                rc = X.setField(&mA, &err, fldName, CEA);
+                ASSERT(!rc);
+                rc = Y.setField(&mB, &err, fldName, CEB);
+                ASSERT(!rc);
 
                 bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
                 bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
@@ -3071,6 +3082,9 @@ int main(int argc, char *argv[])
                              exp9.str() == os9.str());
                 LOOP3_ASSERT(TYPE, exp10.str(), os10.str(),
                              exp10.str() == os10.str());
+
+                destroyAggData(&mX, &t);
+                destroyAggData(&mY, &t);
             }
         }
 
@@ -3086,32 +3100,32 @@ int main(int argc, char *argv[])
                 // For List Aggregates
                 {   L_,         ":aCa" },
                 {   L_,         ":aFa" },
-                {   L_,         ":aGa" },
-                {   L_,         ":aHa" },
-                {   L_,         ":aNa" },
-                {   L_,         ":aPa" },
-                {   L_,         ":aQa" },
-                {   L_,         ":aRa" },
-                {   L_,         ":aWa" },
-                {   L_,         ":aCbFcGdQf :g+ha" },
-                {   L_,         ":aCbFcGdQf :g#ha" },
-                {   L_,         ":a?CbFcGdQf :g%ha" },
-                {   L_,         ":a?CbFcGdQf :g@ha" },
+//                 {   L_,         ":aGa" },
+//                 {   L_,         ":aHa" },
+//                 {   L_,         ":aNa" },
+//                 {   L_,         ":aPa" },
+//                 {   L_,         ":aQa" },
+//                 {   L_,         ":aRa" },
+//                 {   L_,         ":aWa" },
+//                 {   L_,         ":aCbFcGdQf :g+ha" },
+//                 {   L_,         ":aCbFcGdQf :g#ha" },
+//                 {   L_,         ":a?CbFcGdQf :g%ha" },
+//                 {   L_,         ":a?CbFcGdQf :g@ha" },
 
                 // For Choice Aggregates
-                {   L_,         ":a?Ca" },
-                {   L_,         ":a?Fa" },
-                {   L_,         ":a?Ga" },
-                {   L_,         ":a?Ha" },
-                {   L_,         ":a?Na" },
-                {   L_,         ":a?Pa" },
-                {   L_,         ":a?Qa" },
-                {   L_,         ":a?Ra" },
-                {   L_,         ":a?Wa" },
-                {   L_,         ":aCbFcGdQf  :g?+ha" },
-                {   L_,         ":aCbFcGdQf  :g?#ha" },
-                {   L_,         ":a?CbFcGdQf :g?%ha" },
-                {   L_,         ":a?CbFcGdQf :g?@ha" },
+//                 {   L_,         ":a?Ca" },
+//                 {   L_,         ":a?Fa" },
+//                 {   L_,         ":a?Ga" },
+//                 {   L_,         ":a?Ha" },
+//                 {   L_,         ":a?Na" },
+//                 {   L_,         ":a?Pa" },
+//                 {   L_,         ":a?Qa" },
+//                 {   L_,         ":a?Ra" },
+//                 {   L_,         ":a?Wa" },
+//                 {   L_,         ":aCbFcGdQf  :g?+ha" },
+//                 {   L_,         ":aCbFcGdQf  :g?#ha" },
+//                 {   L_,         ":a?CbFcGdQf :g?%ha" },
+//                 {   L_,         ":a?CbFcGdQf :g?@ha" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3121,7 +3135,6 @@ int main(int argc, char *argv[])
 
                 Schema s; ggSchema(&s, SPEC);
                 const RecDef& r = s.record(s.numRecords() - 1);
-                ConstRecDefShdPtr rp(&r, NilDeleter(), 0);
 
                 ET::Type TYPE =
                     RecDef::BDEM_SEQUENCE_RECORD == r.recordType()
@@ -3135,14 +3148,22 @@ int main(int argc, char *argv[])
                     ggList(&list, &r);
                     ggTable(&table, &r);
 
-                    ListShdPtr lp(&list, NilDeleter(), 0);
-                    TableShdPtr tp(&table, NilDeleter(), 0);
+                    int nf1 = 0, nf2 = 0;
 
                     bslma_TestAllocator t(veryVeryVerbose);
-                    Obj mX(rp, ET::BDEM_LIST);  const Obj& X = mX;
-                    mX.setValue(*lp);
-                    Obj mY(rp, ET::BDEM_TABLE);  const Obj& Y = mY;
-                    mY.setValue(*tp);
+                    List aggList;
+                    aggList.appendList(list);
+                    Obj mX; const Obj& X = mX;
+                    mX.setDataType(ET::BDEM_LIST);
+                    mX.setDataPointer(&list);
+                    mX.setTopLevelAggregateNullnessPointer(&nf1);
+                    mX.setRecordDefPointer(&r);
+
+                    Obj mY; const Obj& Y = mY;
+                    mY.setDataType(ET::BDEM_TABLE);
+                    mY.setDataPointer(&table);
+                    mY.setTopLevelAggregateNullnessPointer(&nf2);
+                    mX.setRecordDefPointer(&r);
 
                     if (veryVerbose) { T_ P(X) P(Y) };
 
@@ -3201,16 +3222,23 @@ int main(int argc, char *argv[])
                     ChoiceArray choiceArray;
                     ggChoice(&choice, &r);
                     ggChoiceArray(&choiceArray, &r);
-                    ChoiceShdPtr cp(&choice, NilDeleter(), 0);
-                    ChoiceArrayShdPtr ccp(&choiceArray, NilDeleter(), 0);
+
+                    int nf1 = 0, nf2 = 0;
 
                     bslma_TestAllocator t(veryVeryVerbose);
-                    Obj mX(rp, ET::BDEM_CHOICE); const Obj& X = mX;
-                    mX.setValue(*cp);
-                    Obj mY(rp, ET::BDEM_CHOICE_ARRAY); const Obj& Y = mY;
-                    mY.setValue(*ccp);
+                    Obj mX; const Obj& X = mX;
+                    mX.setDataType(ET::BDEM_CHOICE);
+                    mX.setDataPointer(&choice);
+                    mX.setTopLevelAggregateNullnessPointer(&nf1);
+                    mX.setRecordDefPointer(&r);
 
-                    if (veryVerbose) { T_ P(X) };
+                    Obj mY; const Obj& Y = mY;
+                    mY.setDataType(ET::BDEM_CHOICE_ARRAY);
+                    mY.setDataPointer(&choiceArray);
+                    mY.setTopLevelAggregateNullnessPointer(&nf2);
+                    mX.setRecordDefPointer(&r);
+
+                    if (veryVerbose) { T_ P(X) P(Y) };
 
                     const CERef CC(&choice, &bdem_ChoiceImp::d_choiceAttr);
                     const CERef CCA(&choiceArray,
