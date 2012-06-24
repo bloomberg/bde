@@ -410,30 +410,29 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTest bsls::AlignmentToType<T>::Type"
                           << "\n===================================" << endl;
 
-        // Test sameType function.
-        ASSERT(sameType(int(), int()));
-        ASSERT(! sameType(int(), short()));
+        // Test 'sameType' function.
+        ASSERT( sameType(int(), int()));
+        ASSERT(!sameType(int(), short()));
 
         typedef void (*FuncPtr)();
 
         enum {
-            CHAR_ALIGNMENT        = bsls::AlignmentImpCalc<char>::VALUE,
-            SHORT_ALIGNMENT       = bsls::AlignmentImpCalc<short>::VALUE,
-            INT_ALIGNMENT         = bsls::AlignmentImpCalc<int>::VALUE,
-            LONG_ALIGNMENT        = bsls::AlignmentImpCalc<long>::VALUE,
-            INT64_ALIGNMENT       = bsls::AlignmentImpCalc<long long>::VALUE,
-            BOOL_ALIGNMENT        = bsls::AlignmentImpCalc<bool>::VALUE,
-            WCHAR_T_ALIGNMENT     = bsls::AlignmentImpCalc<wchar_t>::VALUE,
-            PTR_ALIGNMENT         = bsls::AlignmentImpCalc<void*>::VALUE,
-            FUNC_PTR_ALIGNMENT    = bsls::AlignmentImpCalc<FuncPtr>::VALUE,
-            FLOAT_ALIGNMENT       = bsls::AlignmentImpCalc<float>::VALUE,
-            DOUBLE_ALIGNMENT      = bsls::AlignmentImpCalc<double>::VALUE,
+            CHAR_ALIGNMENT        = bsls::AlignmentImpCalc<char       >::VALUE,
+            SHORT_ALIGNMENT       = bsls::AlignmentImpCalc<short      >::VALUE,
+            INT_ALIGNMENT         = bsls::AlignmentImpCalc<int        >::VALUE,
+            LONG_ALIGNMENT        = bsls::AlignmentImpCalc<long       >::VALUE,
+            INT64_ALIGNMENT       = bsls::AlignmentImpCalc<long long  >::VALUE,
+            BOOL_ALIGNMENT        = bsls::AlignmentImpCalc<bool       >::VALUE,
+            WCHAR_T_ALIGNMENT     = bsls::AlignmentImpCalc<wchar_t    >::VALUE,
+            PTR_ALIGNMENT         = bsls::AlignmentImpCalc<void *     >::VALUE,
+            FUNC_PTR_ALIGNMENT    = bsls::AlignmentImpCalc<FuncPtr    >::VALUE,
+            FLOAT_ALIGNMENT       = bsls::AlignmentImpCalc<float      >::VALUE,
+            DOUBLE_ALIGNMENT      = bsls::AlignmentImpCalc<double     >::VALUE,
             LONG_DOUBLE_ALIGNMENT = bsls::AlignmentImpCalc<long double>::VALUE
         };
 
-        long double  LD = 0.0;
-        void        *V  = 0;
-        long long    LL = 0;
+        long double LD = 0.0;
+        long long   LL = 0;
 
         LOOP_ASSERT(CHAR_ALIGNMENT,
                     sameType(bsls::AlignmentToType<CHAR_ALIGNMENT>::Type(),
@@ -451,8 +450,8 @@ int main(int argc, char *argv[])
                     sameType(bsls::AlignmentToType<FLOAT_ALIGNMENT>::Type(),
                              int()));
 
-#if (defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__CPU_64_BIT))   \
- || (defined(BSLS_PLATFORM__OS_WINDOWS))
+#if (defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__CPU_64_BIT))  \
+ ||  defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BSLS_PLATFORM__OS_CYGWIN)
         LOOP_ASSERT(WCHAR_T_ALIGNMENT,
                     sameType(bsls::AlignmentToType<WCHAR_T_ALIGNMENT>::Type(),
                              short()));
@@ -481,7 +480,7 @@ int main(int argc, char *argv[])
                     sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
                              int()));
 
-        #ifdef BSLS_PLATFORM__OS_LINUX
+        #if defined(BSLS_PLATFORM__OS_LINUX)
         LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
                            int()));
@@ -509,6 +508,20 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(DOUBLE_ALIGNMENT,
                     sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
                              int()));
+        LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
+                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
+                           int()));
+    #endif
+#elif defined(BSLS_PLATFORM__OS_CYGWIN)
+    #if defined(BSLS_PLATFORM__CPU_64_BIT)
+        // TBD
+    #else
+        LOOP_ASSERT(INT64_ALIGNMENT,
+                    sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
+                             LL));
+        LOOP_ASSERT(DOUBLE_ALIGNMENT,
+                    sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
+                             LL));
         LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
                            int()));

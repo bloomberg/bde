@@ -499,11 +499,11 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 
     timeValue->d_opaque = gethrtime();
 
-#elif defined BSLS_PLATFORM__OS_LINUX
+#elif defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_CYGWIN)
 
     clock_gettime(CLOCK_MONOTONIC, timeValue);
 
-#elif defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_CYGWIN)
+#elif defined BSLS_PLATFORM__OS_UNIX
 
     gettimeofday(timeValue, 0);
 
