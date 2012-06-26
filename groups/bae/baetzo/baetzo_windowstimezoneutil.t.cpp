@@ -1143,13 +1143,14 @@ int main(int argc, char *argv[])
     {
         // Convert 'StandardName' field ('WCHAR[32]') to 'bsl::string'.
 
-        char StandardName[sizeof(tzi.StandardName)];
-        for (int i = 0; i < sizeof(StandardName); ++i) {
-            int ch = wctob(tzi.StandardName[i]);
-            ASSERT(EOF != ch);
-            StandardName[i] = ch;
-        }
-        localTimezone.assign(StandardName);
+        char    standardName[sizeof(tzi.StandardName) * 2 + 1] = { '\0' };
+        errno_t error = wcstombs_s(NULL,
+                                   standardName,
+                                   sizeof(standardName),
+                                   tzi.StandardName,
+                                   _TRUNCATE);
+        ASSERT(0 == errno);
+        localTimezone.assign(standardName);
     }
 #if 1 // Do not show this in component-level doc usage example.
     localTimezone.assign("Arab Standard Time");  // a value in test database
@@ -1332,13 +1333,15 @@ int main(int argc, char *argv[])
             string localTimezone;
 
             {   // Convert 'StandardName' field ('WCHAR[32]') to 'bsl::string'.
-                char StandardName[sizeof(tzi.StandardName)];
-                for (int i = 0; i < sizeof(StandardName); ++i) {
-                    int ch = wctob(tzi.StandardName[i]);
-                    ASSERT(EOF != ch);
-                    StandardName[i] = ch;
-                }
-                localTimezone.assign(StandardName);
+                char    standardName[sizeof(tzi.StandardName) * 2 + 1] =
+                                                                      { '\0' };
+                errno_t error = wcstombs_s(NULL,
+                                           standardName,
+                                           sizeof(standardName),
+                                           tzi.StandardName,
+                                           _TRUNCATE);
+                ASSERT(0 == errno);
+                localTimezone.assign(standardName);
             }
 
             const char *timeZoneId;
