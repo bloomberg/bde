@@ -4,5 +4,8 @@ baea_commandline
 baea_commandlineutil
 baea_controlmanager
 baea_metric
+baea_testmessages
 baea_performancemonitor
 baea_pipecontrolchannel
+baea_serializableobjectproxy
+baea_serializableobjectproxyutil
