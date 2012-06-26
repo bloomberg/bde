@@ -186,7 +186,7 @@ BDES_IDENT("$Id: $")
 // First, use the Windows 'GetTimeZoneInformation' function to load a
 // 'TIME_ZONE_INFORMATION' structure.
 //..
-//  int                    rc;
+//  int                   rc;
 //  TIME_ZONE_INFORMATION tzi;
 //  rc = GetTimeZoneInformation(&tzi);
 //  assert(TIME_ZONE_ID_UNKNOWN  == rc
@@ -197,23 +197,25 @@ BDES_IDENT("$Id: $")
 // the Windows time-zone identifier for Standard Time for the system's local
 // time zone.
 //
-// Next, use the 'wctob' function to convert each of these wide characters to
-// its single byte equivalent, and assign the result to 'localTimezone'.  Note
-// that every Windows time-zone identifier mapped by this component consists
-// entirely of 7-bit ASCII characters.
+// Next, use the 'wcstombs_s' function to convert the wide string in the
+// 'StandardName' member to its multi-byte equivalent in the 'standardName'
+// buffer, and assign the result to 'localTimezone'.  Note that every Windows
+// time-zone identifier mapped by this component consists entirely of 7-bit
+// ASCII characters.
 //..
 //  bsl::string localTimezone;
 //
 //  {
 //      // Convert 'StandardName' field ('WCHAR[32]') to 'bsl::string'.
 //
-//      char StandardName[sizeof(tzi.StandardName)];
-//      for (int i = 0; i < sizeof(StandardName); ++i) {
-//          int ch = wctob(tzi.StandardName[i]);
-//          assert(EOF != ch);
-//          StandardName[i] = ch;
-//      }
-//      localTimezone.assign(StandardName);
+//      char    standardName[sizeof(tzi.StandardName) * 2 + 1] = { '\0' };
+//      errno_t error = wcstombs_s(NULL,
+//                                 standardName,
+//                                 sizeof(standardName),
+//                                 tzi.StandardName,
+//                                 _TRUNCATE);
+//      assert(0 == errno);
+//      localTimezone.assign(standardName);
 //  }
 //  assert("Arab Standard Time" == localTimezone);
 //..

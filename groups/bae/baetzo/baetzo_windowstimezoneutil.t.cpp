@@ -1132,10 +1132,11 @@ int main(int argc, char *argv[])
 // the Windows time-zone identifier for Standard Time for the system's local
 // time zone.
 //
-// Next, use the 'wctob' function to convert each of these wide characters to
-// its single byte equivalent, and assign the result to 'localTimezone'.  Note
-// that every Windows time-zone identifier mapped by this component consists
-// entirely of 7-bit ASCII characters.
+// Next, use the 'wcstombs_s' function to convert the wide string in the
+// 'StandardName' member to its multi-byte equivalent in the 'standardName'
+// buffer, and assign the result to 'localTimezone'.  Note that every Windows
+// time-zone identifier mapped by this component consists entirely of 7-bit
+// ASCII characters.
 //..
 #ifdef BSLS_PLATFORM__OS_WINDOWS
     bsl::string localTimezone;
