@@ -218,11 +218,18 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+class bdesb_OverflowMemOutStreamBuf;
+
                    // ===================================
-                   // class bdesb_OverflowMemOutStreambuf
+                   // class bdesb_OverflowMemOutStreamBuf
                    // ===================================
 
-class bdesb_OverflowMemOutStreambuf : public bsl::streambuf {
+typedef bdesb_OverflowMemOutStreamBuf bdesb_OverflowMemOutStreambuf;
+    // DEPRECATED: This was an incorrect spelling (lowercase 'b') and this
+    // typedef will be removed soon.  The correct spelling is
+    // 'bdesb_OverflowMemOutStreamBuf'.
+
+class bdesb_OverflowMemOutStreamBuf : public bsl::streambuf {
     // This class implements the output functionality of the
     // 'bsl::basic_streambuf' protocol, using client-supplied memory and
     // client-supplied allocator if additional memory is needed.  It does
@@ -254,9 +261,9 @@ class bdesb_OverflowMemOutStreambuf : public bsl::streambuf {
          *d_allocator_p;           // memory allocator (held, not owned)
 
     // NOT IMPLEMENTED
-    bdesb_OverflowMemOutStreambuf(const bdesb_OverflowMemOutStreambuf&);
-    bdesb_OverflowMemOutStreambuf& operator=(
-                                         const bdesb_OverflowMemOutStreambuf&);
+    bdesb_OverflowMemOutStreamBuf(const bdesb_OverflowMemOutStreamBuf&);
+    bdesb_OverflowMemOutStreamBuf& operator=(
+                                         const bdesb_OverflowMemOutStreamBuf&);
 
   private:
     // PRIVATE MANIPULATORS
@@ -343,7 +350,7 @@ class bdesb_OverflowMemOutStreambuf : public bsl::streambuf {
 
   public:
     // CREATORS
-    bdesb_OverflowMemOutStreambuf(char            *buffer,
+    bdesb_OverflowMemOutStreamBuf(char            *buffer,
                                   int              length,
                                   bslma_Allocator *basicAllocator = 0);
         // Create an empty stream buffer that uses the specified 'buffer' as an
@@ -353,7 +360,7 @@ class bdesb_OverflowMemOutStreambuf : public bsl::streambuf {
         // used.  Note that this stream buffer does not assume ownership of
         // 'buffer'.
 
-    virtual ~bdesb_OverflowMemOutStreambuf();
+    virtual ~bdesb_OverflowMemOutStreamBuf();
         // Destroy this stream buffer.
 
     // ACCESSORS
@@ -393,20 +400,20 @@ class bdesb_OverflowMemOutStreambuf : public bsl::streambuf {
 // ============================================================================
 
                     // -----------------------------------
-                    // class bdesb_OverflowMemOutStreambuf
+                    // class bdesb_OverflowMemOutStreamBuf
                     // -----------------------------------
 
 // PROTECTED VIRTUAL FUNCTIONS
 inline
-bdesb_OverflowMemOutStreambuf::pos_type
-bdesb_OverflowMemOutStreambuf::seekpos(pos_type                position,
+bdesb_OverflowMemOutStreamBuf::pos_type
+bdesb_OverflowMemOutStreamBuf::seekpos(pos_type                position,
                                        bsl::ios_base::openmode which)
 {
     return seekoff(off_type(position), bsl::ios_base::beg, which);
 }
 
 inline
-int bdesb_OverflowMemOutStreambuf::sync()
+int bdesb_OverflowMemOutStreamBuf::sync()
 {
     privateSync();
     return 0;
@@ -414,50 +421,50 @@ int bdesb_OverflowMemOutStreambuf::sync()
 
 // CREATORS
 inline
-bdesb_OverflowMemOutStreambuf::~bdesb_OverflowMemOutStreambuf()
+bdesb_OverflowMemOutStreamBuf::~bdesb_OverflowMemOutStreamBuf()
 {
     d_allocator_p->deallocate(d_overflowBuffer_p);
 }
 
 // ACCESSORS
 inline
-int bdesb_OverflowMemOutStreambuf::dataLength() const
+int bdesb_OverflowMemOutStreamBuf::dataLength() const
 {
     return d_dataLength;
 }
 
 inline
-int bdesb_OverflowMemOutStreambuf::dataLengthInOverflowBuffer() const
+int bdesb_OverflowMemOutStreamBuf::dataLengthInOverflowBuffer() const
 {
     return d_inOverflowBufferFlag ? d_dataLength - d_initialBufferSize : 0;
 }
 
 inline
-int bdesb_OverflowMemOutStreambuf::dataLengthInInitialBuffer() const
+int bdesb_OverflowMemOutStreamBuf::dataLengthInInitialBuffer() const
 {
     return d_inOverflowBufferFlag ? d_initialBufferSize : d_dataLength;
 }
 
 inline
-const char *bdesb_OverflowMemOutStreambuf::initialBuffer() const
+const char *bdesb_OverflowMemOutStreamBuf::initialBuffer() const
 {
     return d_initialBuffer_p;
 }
 
 inline
-int bdesb_OverflowMemOutStreambuf::initialBufferSize() const
+int bdesb_OverflowMemOutStreamBuf::initialBufferSize() const
 {
     return d_initialBufferSize;
 }
 
 inline
-const char *bdesb_OverflowMemOutStreambuf::overflowBuffer() const
+const char *bdesb_OverflowMemOutStreamBuf::overflowBuffer() const
 {
     return d_overflowBuffer_p;
 }
 
 inline
-int bdesb_OverflowMemOutStreambuf::overflowBufferSize() const
+int bdesb_OverflowMemOutStreamBuf::overflowBufferSize() const
 {
     return d_overflowBufferSize;
 }
