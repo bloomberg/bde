@@ -528,6 +528,18 @@ class bcem_AggregateRaw {
         // otherwise, load into 'errorDescription' a description of the failure
         // (incorporating the value of 'caller') and return a nonzero value.
 
+    // TBD: Make public ?
+    int insertItemRaw(bcem_AggregateRaw   *newItem,
+                      bcem_AggregateError *errorDescription,
+                      int                  index) const;
+        // Insert a new element before the specified 'index' in the scalar
+        // array, table, or choice array referenced by this aggregate.  The new
+        // value is uninitialized, meaning it is *not* set to its default value
+        // as with the 'insertItems' method.  Return 0 on success and load a
+        // reference to the new item into the specified 'newItem'; otherwise,
+        // return a nonzero value and load a description into the specified
+        // 'errorDescription'.
+
   public:
 
     // TRAITS
@@ -618,6 +630,8 @@ class bcem_AggregateRaw {
         // Set the record definition poiner for this "raw" aggregate to the
         // specified 'recordDef'.  The behavior is undefined unless 'recordDef'
         // remains valid for the lifetime of this object.
+
+        // TBD: What about enumeration def ?
 
     void setFieldDefPointer(const bdem_FieldDef *fieldDef);
         // Set the field definition pointer for this "raw" aggregate to the
@@ -1115,16 +1129,7 @@ class bcem_AggregateRaw {
         // into the specified 'newItem'; otherwise, return a nonzero value and
         // load a description into the specified 'errorDescription'.
 
-    int insertItemRaw(bcem_AggregateRaw   *newItem,
-                      bcem_AggregateError *errorDescription,
-                      int                  index) const;
-        // Insert a new element before the specified 'index' in the scalar
-        // array, table, or choice array referenced by this aggregate.  The new
-        // value is uninitialized, meaning it is *not* set to its default value
-        // as with the 'insertItems' method.  Return 0 on success and load a
-        // reference to the new item into the specified 'newItem'; otherwise,
-        // return a nonzero value and load a description into the specified
-        // 'errorDescription'.
+        // TBD: Need a insertNullItem() ?
 
     int insertItems(bcem_AggregateError *errorDescription,
                     int                  index,

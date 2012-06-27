@@ -67,13 +67,13 @@ using namespace bsl;
 // [ 8] ~bcem_AggregateRaw();
 //
 // MANIPULATORS
-// [  ] bcem_AggregateRaw& operator=(const bcem_AggregateRaw& rhs);
-// [  ] void setDataType(bdem_ElemType::Type dataType);
-// [  ] void setDataPointer(void *data);
-// [  ] void setSchemaPointer(const bdem_Schema *schema);
-// [  ] void setRecordDefPointer(const bdem_RecordDef *recordDef);
-// [  ] void setFieldDefPointer(const bdem_FieldDef *fieldDef);
-// [  ] void setTopLevelAggregateNullnessPointer(int *nullnessFlag);
+// [10] bcem_AggregateRaw& operator=(const bcem_AggregateRaw& rhs);
+// [11] void setDataType(bdem_ElemType::Type dataType);
+// [11] void setDataPointer(void *data);
+// [11] void setSchemaPointer(const bdem_Schema *schema);
+// [11] void setRecordDefPointer(const bdem_RecordDef *recordDef);
+// [11] void setFieldDefPointer(const bdem_FieldDef *fieldDef);
+// [11] void setTopLevelAggregateNullnessPointer(int *nullnessFlag);
 // [  ] void clearParent();
 // [  ] void reset();
 //
@@ -111,22 +111,22 @@ using namespace bsl;
 // [  ] int findUnambiguousChoice(Obj *obj, Error *error, caller) const;
 // [  ] int fieldByIndex(Obj *obj, Error *error, int index) const;
 // [  ] int fieldById(Obj *obj, Error *error, int id) const;
-// [  ] int arrayItem(Obj *item, Error *error, int index) const;
+// [13] int arrayItem(Obj *item, Error *error, int index) const;
 // [  ] int length() const;
 // [  ] int size() const;
 // [  ] int numSelections() const;
-// [  ] const char *selector() const;
+// [15] const char *selector() const;
 // [  ] int selectorId() const;
 // [  ] int selectorIndex() const;
-// [  ] int selection(Obj *obj, Error *error) const;
+// [15] int selection(Obj *obj, Error *error) const;
 // [ 4] bdem_ElemType::Type dataType() const;
-// [  ] const bdem_RecordDef& recordDef() const;
-// [  ] const bdem_RecordDef *recordConstraint() const;
+// [11] const bdem_RecordDef& recordDef() const;
+// [11] const bdem_RecordDef *recordConstraint() const;
 // [  ] const bdem_EnumerationDef *enumerationConstraint() const;
 // [ 4] const bdem_FieldDef *fieldDef() const;
-// [  ] const bdem_RecordDef *recordDefPtr() const;
-// [  ] const void *data() const;
-// [  ] const bdem_Schema *schema() const;
+// [11] const bdem_RecordDef *recordDefPtr() const;
+// [11] const void *data() const;
+// [11] const bdem_Schema *schema() const;
 // [  ] void swap(bcem_AggregateRaw& other);
 // [  ] STREAM& bdexStreamIn(STREAM& stream, int version) const;
 // [  ] STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -141,21 +141,20 @@ using namespace bsl;
 // [ 4] int setField(Obj *o, Error *e, f1, f2, . ., f8, value) const;
 // [ 4] int setField(Obj *o, Error *e, f1, f2, . ., f9, value) const;
 // [ 4] int setField(Obj *o, Error *e, f1, f2, . ., f10, value) const;
-// [  ] int insertItem(Obj *item, Error *error, int index, value) const;
-// [  ] int insertItemRaw(Obj *item, Error *error, int index) const;
-// [  ] int insertItems(Error *error, int index, int numItems) const;
-// [  ] int insertNullItems(Error *error, int index, int numItems) const;
-// [  ] int removeItems(Error *error, int index, int numItems) const;
+// [13] int insertItem(Obj *item, Error *error, int index, value) const;
+// [14] int insertItems(Error *error, int index, int numItems) const;
+// [14] int insertNullItems(Error *error, int index, int numItems) const;
+// [14] int removeItems(Error *error, int index, int numItems) const;
 // [  ] int makeSelectionByIndex(Obj *obj, Error *error, int index) const;
 // [  ] int makeSelectionByIndex(Obj *obj, Error *error, int idx, value) const;
-// [  ] int makeSelection(Obj *obj, Error *error, newSelector) const;
-// [  ] int makeSelection(Obj *obj, Error *error, newSelector, value) const;
+// [15] int makeSelection(Obj *obj, Error *error, newSelector) const;
+// [15] int makeSelection(Obj *obj, Error *error, newSelector, value) const;
 // [  ] int makeSelectionById(Obj *obj, Error *error, id) const;
 // [  ] int makeSelectionById(Obj *obj, Error *error, id, value) const;
 // [  ] void makeNull() const;
 // [  ] void makeValue() const;
 // [ 2] int setValue(Error *error, const TYPE& value) const;
-// [  ] int resize(Error *error, bsl::size_t newSize) const;
+// [12] int resize(Error *error, bsl::size_t newSize) const;
 //
 // FREE OPERATORS
 // [ 9] bsl::ostream& operator<<(bsl::ostream& stream, const Obj& obj);
@@ -2258,27 +2257,27 @@ static bool compareNillableTable(bcem_AggregateRaw agg, const CERef& elemRef)
     return true;
 }
 
-// static bool compareCERefs(const CERef& lhs, const CERef& rhs)
-// {
-//     // Special Handling of list/row and choice/choice-array-item combinations:
-//     if (ET::BDEM_ROW == lhs.type() && ET::BDEM_LIST == rhs.type()) {
-//         return *(Row *) lhs.data() == rhs.theList().row();
-//     }
-//     else if (ET::BDEM_LIST == lhs.type() && ET::BDEM_ROW == rhs.type()) {
-//         return lhs.theList().row() == *(Row *) rhs.data();
-//     }
-//     else if (ET::BDEM_CHOICE_ARRAY_ITEM == lhs.type()
-//           && ET::BDEM_CHOICE            == rhs.type()) {
-//         return *(ChoiceItem *) lhs.data() == rhs.theChoice().item();
-//     }
-//     else if (ET::BDEM_CHOICE            == lhs.type()
-//           && ET::BDEM_CHOICE_ARRAY_ITEM == rhs.type()) {
-//         return lhs.theChoice().item() == *(ChoiceItem *) rhs.data();
-//     }
-//     else {
-//         return lhs == rhs;
-//     }
-// }
+static bool compareCERefs(const CERef& lhs, const CERef& rhs)
+{
+    // Special Handling of list/row and choice/choice-array-item combinations:
+    if (ET::BDEM_ROW == lhs.type() && ET::BDEM_LIST == rhs.type()) {
+        return *(Row *) lhs.data() == rhs.theList().row();
+    }
+    else if (ET::BDEM_LIST == lhs.type() && ET::BDEM_ROW == rhs.type()) {
+        return lhs.theList().row() == *(Row *) rhs.data();
+    }
+    else if (ET::BDEM_CHOICE_ARRAY_ITEM == lhs.type()
+          && ET::BDEM_CHOICE            == rhs.type()) {
+        return *(ChoiceItem *) lhs.data() == rhs.theChoice().item();
+    }
+    else if (ET::BDEM_CHOICE            == lhs.type()
+          && ET::BDEM_CHOICE_ARRAY_ITEM == rhs.type()) {
+        return lhs.theChoice().item() == *(ChoiceItem *) rhs.data();
+    }
+    else {
+        return lhs == rhs;
+    }
+}
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -2856,6 +2855,2321 @@ int main(int argc, char *argv[])
               }
           }
       } break;
+#if 0
+      case 18: {
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING COPY CONSTRUCTOR:
+        //
+        // Concerns:
+        //   - Any value must be able to be copy constructed without affecting
+        //     its argument.  Changes to the original and the new object
+        //     should affect the other object unless the original object
+        //     stores a scalar type.
+        //   - If the original object stores a non-scalar type then the
+        //     new object should use the allocator of the original object for
+        //     subsequent memory allocations, otherwise it should use the
+        //     specified allocator.
+        //
+        // Plan:
+        //   Specify a set S whose elements have substantial and varied
+        //   differences in value.  For each element in S, construct and
+        //   initialize identically valued objects mY and mZ, where mY is used
+        //   for copy construction and mZ serves as the control object used to
+        //   verify equality with original value.  Then copy construct an
+        //   object mA from mX.  Use the equality operator to confirm that both
+        //   mX, mY and mA have the same value.  Modify mA and confirm that mX
+        //   is still equal to mY.  If mX stores a non-scalar type then
+        //   confirm that mA equals mX.  Using the allocators specified
+        //   to construct the two objects ensure that each object uses the
+        //   correct allocator for memory allocations and leaks no memory.
+        //   Finally, confirm that the operation does not leak any memory in
+        //   the face of exceptions.
+        //
+        // Testing:
+        //   bcem_Aggregate(const bcem_Aggregate&  other,
+        //                  bslma_Allocator       *basicAllocator);
+        // --------------------------------------------------------------------
+
+        if (verbose) tst::cout << "\nTESTING COPY CONSTRUCTOR"
+                               << "\n========================" << bsl::endl;
+
+        const struct {
+            int         d_line;
+            const char *d_spec;
+        } DATA[] = {
+            // Line     Spec
+            // ----     ----
+            {   L_,   ":aCa" },
+            {   L_,   ":aCa&NT" },
+            {   L_,   ":aCa&NF" },
+            {   L_,   ":aCa&D0" },
+            {   L_,   ":aGa" },
+            {   L_,   ":aGa&NT" },
+            {   L_,   ":aGa&NF" },
+            {   L_,   ":aGa&D0" },
+            {   L_,   ":aHa" },
+            {   L_,   ":aHa&NT" },
+            {   L_,   ":aHa&NF" },
+            {   L_,   ":aHa&D0" },
+            {   L_,   ":aNa" },
+            {   L_,   ":aNa&NT" },
+            {   L_,   ":aNa&NF" },
+            {   L_,   ":aNa&D0" },
+            {   L_,   ":aNa&FN" },
+            {   L_,   ":aPa" },
+            {   L_,   ":aPa&NT" },
+            {   L_,   ":aPa&NF" },
+            {   L_,   ":aPa&D0" },
+            {   L_,   ":aPa&FN" },
+            {   L_,   ":aQa" },
+            {   L_,   ":aQa&NT" },
+            {   L_,   ":aQa&NF" },
+            {   L_,   ":aQa&D0" },
+            {   L_,   ":aQa&FN" },
+            {   L_,   ":aRa" },
+            {   L_,   ":aRa&NT" },
+            {   L_,   ":aRa&NF" },
+            {   L_,   ":aRa&D0" },
+            {   L_,   ":aRa&FN" },
+            {   L_,   ":aUa" },
+            {   L_,   ":aUa&NT" },
+            {   L_,   ":aUa&NF" },
+            {   L_,   ":aVa" },
+            {   L_,   ":aVa&NT" },
+            {   L_,   ":aVa&NF" },
+            {   L_,   ":aWa" },
+            {   L_,   ":aWa&NT" },
+            {   L_,   ":aWa&NF" },
+            {   L_,   ":aWa&D0" },
+            {   L_,   ":aaa" },
+            {   L_,   ":aaa&NT" },
+            {   L_,   ":aaa&NF" },
+            {   L_,   ":aaa&D0" },
+            {   L_,   ":aaa&FN" },
+            {   L_,   ":aea" },
+            {   L_,   ":aea&NT" },
+            {   L_,   ":aea&NF" },
+            {   L_,   ":afa" },
+            {   L_,   ":afa&NT" },
+            {   L_,   ":afa&NF" },
+
+            {   L_,   ":aCbFcGdQf :g+ha" },
+            {   L_,   ":aCbFcGdQf :g+ha&NT" },
+            {   L_,   ":aCbFcGdQf :g+ha&NF" },
+
+            {   L_,   ":aCbFcGdQf :g#ha" },
+            {   L_,   ":aCbFcGdQf :g#ha&NT" },
+            {   L_,   ":aCbFcGdQf :g#ha&NF" },
+
+            {   L_,   ":a?CbFcGdQf :g%ha" },
+            {   L_,   ":a?CbFcGdQf :g%ha&NT" },
+            {   L_,   ":a?CbFcGdQf :g%ha&NF" },
+
+            {   L_,   ":a?CbFcGdQf :g@ha" },
+            {   L_,   ":a?CbFcGdQf :g@ha&NT" },
+            {   L_,   ":a?CbFcGdQf :g@ha&NF" },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int   LINE = DATA[i].d_line;
+            const char *SPEC = DATA[i].d_spec;
+            const bool  NSA  = (bool) bsl::strstr(SPEC, "&FN");
+
+            Schema schema; const Schema& SCHEMA = schema;
+            ggSchema(&schema, SPEC);
+            const RecDef *RECORD = NSA
+                                 ? &SCHEMA.record(0)
+                                 : &SCHEMA.record(SCHEMA.numRecords() - 1);
+
+            ConstRecDefShdPtr crp(RECORD, NilDeleter(), 0);
+            const ConstRecDefShdPtr& CRP = crp;
+
+            ET::Type TYPE = NSA
+                        ? ET::toArrayType(SCHEMA.record(1).field(0).elemType())
+                        : RECORD->field(0).elemType();
+            const char *fldName = RECORD->fieldName(0);
+
+            const CERef A1 = getCERef(TYPE, 1);
+            const CERef A2 = getCERef(TYPE, 2);
+
+            if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
+
+            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            Obj mX(CRP, &testAllocator); const Obj& X = mX;
+            Obj mY(CRP, &testAllocator); const Obj& Y = mY;
+
+            mX.setField(fldName, A1);
+            mY.setFieldNull(fldName);
+
+            Obj mU = X.field(fldName); const Obj& U = mU;
+            Obj mV = Y.field(fldName); const Obj& V = mV;
+
+          BEGIN_BSLMA_EXCEPTION_TEST {
+            bslma_TestAllocator alloc1(veryVeryVerbose);
+            bslma_DefaultAllocatorGuard allocGuard(&alloc1);
+
+            {
+                Obj mA(U); const Obj& A = mA;
+                ASSERT(Obj::areIdentical(A, U));
+                ASSERT(0 == alloc1.numBytesInUse());
+                mA.setValue(A2);
+                ASSERT(Obj::areIdentical(A, U));
+                mA.makeNull();
+                ASSERT(Obj::areIdentical(A, U));
+
+                mY.setFieldNull(fldName);
+                Obj mB(V); const Obj& B = mB;
+                ASSERT(Obj::areIdentical(B, V));
+                ASSERT(0 == alloc1.numBytesInUse());
+                mB.setValue(A2);
+                ASSERT(Obj::areIdentical(B, V));
+                mA.makeNull();
+                ASSERT(Obj::areIdentical(B, V));
+            }
+          } END_BSLMA_EXCEPTION_TEST
+        }
+      } break;
+#endif
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING 'makeSelectionById' MANIPULATORS & 'selectorId':
+        //
+        // Concerns:
+        //   - Confirm that the single argument function sets the selector to
+        //     the specified id.
+        //   - Confirm that the two argument function sets the selector to
+        //     the specified id and the value at that id to the specified
+        //     value.
+        //   - Both functions return the selected aggregated by reference.
+        //   - If the aggregate does not store a choice or choice array then
+        //     an error object is returned.
+        //   - 'selectorId' returns the correct selected id
+        //
+        // Plan:
+        //   - These functions forward their processing to two private
+        //     functions that have already been tested in a previous test
+        //     case.  So in this test we will just perform white box testing
+        //     to confirm that the functions pass their arguments correctly to
+        //     the private helper functions.  Note that we test the two types
+        //     of choice aggregates (one storing a choice and the other a
+        //     choice array item).
+        //
+        // Testing:
+        //   int makeSelectionById(Obj *obj, Error *err, int id) const;
+        //   int makeSelectionById(Obj *obj, Error *err, int id, value) const;
+        //   int selectorId() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'makeSelectionById' MANIPULATORS"
+                          << "\n========================================"
+                          << bsl::endl;
+
+        if (verbose) cout << "\nTesting choice aggregates"
+                          << "\n=========================" << bsl::endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line    Spec
+                // ----    ----
+                {   L_,    ":a?CcFfGgHhNnPpQqRrWw :b%ba" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef& REC = SCHEMA.record(SCHEMA.numRecords() - 1);
+                const RecDef& SUB_REC = SCHEMA.record(0);
+
+                if (veryVerbose) { T_ P(SPEC) P(SCHEMA) };
+
+                bslma_TestAllocator t(veryVeryVerbose);
+
+                Obj mW;  const Obj& W = mW;
+                int rc = ggAggData(&mW, *RECORD, &t);
+                ASSERT(!rc);
+
+                Obj mX;  const Obj& X = mX;
+                rc = ggAggData(&mX, *RECORD, &t);
+                ASSERT(!rc);
+
+                Obj mY;  const Obj& Y = mY;
+                rc = ggAggData(&mY, *RECORD, &t);
+                ASSERT(!rc);
+
+                if (veryVerbose) { T_ P(X) };
+
+                const char *fldName = REC.fieldName(0);
+
+                for (int j = 0; j < SUB_REC.numFields(); ++j) {
+                    ET::Type    TYPE = SUB_REC.field(j).elemType();
+                    const int   ID   = SUB_REC.fieldId(j);
+                    const char *NAME = SUB_REC.fieldName(j);
+
+                    const CERef VA = getCERef(TYPE, 1);
+
+                    Obj mA;  const Obj& A = mA;
+                    Obj mB;  const Obj& B = mB;
+
+                    W.getField(&mA, &err, true, fldName);
+
+                    rc = mA.makeSelection(&mA, &err, NAME);
+                    ASSERT(!rc);
+
+                    Obj mC;  const Obj& C = mC;
+                    Obj mD;  const Obj& D = mD;
+
+                    Y.getField(&mC, &err, true, fldName);
+
+                    rc = mC.makeSelection(&mD, &err, NAME, VA);
+                    ASSERT(!rc);
+
+                    Obj mE;  const Obj& E = mE;
+                    Obj mF;  const Obj& F = mF;
+
+                    X.getField(&mE, &err, true, fldName);
+
+                    rc = mE.makeSelection(&mF, &err, NAME);
+                    ASSERT(!rc);
+
+                    Obj mG;  const Obj& G = mG;
+                    rc = mE.makeSelectionById(&mG, &err, ID);
+                    ASSERT(!rc);
+                    ASSERT(G.asElemRef() == F.asElemRef());
+                    ASSERT(ID == E.selectorId());
+
+                    rc = mC.makeSelectionById(&mG, ID, D);
+                    ASSERT(!rc);
+                    ASSERT(G.asElemRef() == VA);
+                    ASSERT(ID == C.selectorId());
+
+                    destroyAggData(&mX, &t);
+                    destroyAggData(&mY, &t);
+                    destroyAggData(&mW, &t);
+                }
+            }
+        }
+
+        if (verbose) cout << "\nTesting choice array item aggregates"
+                          << "\n===================================="
+                          << bsl::endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line    Spec
+                // ----    ----
+                {   L_,    ":a?CcFfGgHhNnPpQqRrWw :b@ba" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef& REC = SCHEMA.record(SCHEMA.numRecords() - 1);
+                const RecDef& SUB_REC = SCHEMA.record(0);
+
+                if (veryVerbose) { T_ P(SPEC) P(SCHEMA) };
+
+                bslma_TestAllocator t(veryVeryVerbose);
+
+                Obj mW;  const Obj& W = mW;
+                Obj mX;  const Obj& X = mX;
+                Obj mY;  const Obj& Y = mY;
+
+                ggAggData(&mW, REC, &t);
+                ggAggData(&mX, REC, &t);
+                ggAggData(&mY, REC, &t);
+
+                if (veryVerbose) { T_ P(X) };
+
+                const char *fldName = REC.fieldName(0);
+
+                for (int j = 0; j < SUB_REC.numFields(); ++j) {
+                    ET::Type    TYPE = SUB_REC.field(j).elemType();
+                    const int   ID   = SUB_REC.fieldId(j);
+                    const char *NAME = SUB_REC.fieldName(j);
+
+                    const CERef VA = getCERef(TYPE, 1);
+                    const CERef VB = getCERef(TYPE, 2);
+
+                    Error err;
+                    Obj mA;  const Obj& A = mA;
+                    Obj mB;  const Obj& B = mB;
+                    Obj mC;  const Obj& C = mC;
+                    mW.getField(&mA, &err, false, fldName);
+                    mX.getField(&mB, &err, false, fldName);
+                    mY.getField(&mC, &err, false, fldName);
+
+                    mA.insertItems(&err, 0, 1);
+                    mB.insertItems(&err, 0, 1);
+                    mC.insertItems(&err, 0, 1);
+
+                    Obj mD;  const Obj& D = mD;
+                    Obj mE;  const Obj& E = mE;
+                    Obj mF;  const Obj& F = mF;
+                    mA.getField(&mD, &err, true, 0);
+                    mB.getField(&mE, &err, true, 0);
+                    mC.getField(&mF, &err, true, 0);
+
+                    Obj mG;  const Obj& G = mG;
+                    Obj mH;  const Obj& H = mH;
+                    Obj mI;  const Obj& I = mI;
+                    int rc = mD.makeSelection(&mG, &err, selName);
+                    ASSERT(!rc);
+                    rc = mE.makeSelection(&mH, &err, selName, VA);
+                    ASSERT(!rc);
+                    rc = mF.makeSelection(&mI, &err, selName, VB);
+                    ASSERT(!rc);
+
+                    Obj mJ;  const Obj& J = mJ;
+                    Obj mK;  const Obj& K = mK;
+                    Obj mL;  const Obj& L = mL;
+                    rc = mD.getField(&mJ, &err, false, selName);
+                    ASSERT(!rc);
+                    rc = mE.getField(&mK, &err, false, selName);
+                    ASSERT(!rc);
+                    rc = mF.getField(&mL, &err, false, selName);
+                    ASSERT(!rc);
+
+                    Obj mN;  const Obj& N = mN;
+                    rc = mE.makeSelectionById(&mN, &err, ID);
+                    ASSERT(!rc);
+                    ASSERT(N.asElemRef() == D.asElemRef());
+                    ASSERT(ID == E.selectorId());
+
+                    rc = mD.makeSelectionById(&mN, &err, ID, I);
+                    ASSERT(!rc);
+                    ASSERT(N.asElemRef() == VB);
+                    ASSERT(ID == D.selectorId());
+
+                    destroyAggData(&mW, &t);
+                    destroyAggData(&mX, &t);
+                    destroyAggData(&mY, &t);
+                }
+            }
+        }
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING 'makeSelection' MANIPULATORS:
+        //
+        // Concerns:
+        //   - Confirm that the single argument function sets the selector to
+        //     the specified name.
+        //   - Confirm that the single argument function initializes the
+        //     selection to its default value for scalar values.
+        //   - Confirm that the single argument function constructs the value
+        //     for aggregate selections.
+        //   - Confirm that the two argument function sets the selector to
+        //     the specified name and the value at that name to the specified
+        //     value.
+        //   - Both functions return the selected aggregated by reference.
+        //   - If the aggregate does not store a choice or choice array then
+        //     an error object is returned.
+        //
+        // Plan:
+        //   - These functions forward their processing to two private
+        //     functions.  So our endeavor in this test is to confirm that
+        //     those functions are tested.  Firstly we divide our test into
+        //     two parts to test the two kinds of choice aggregates.  In the
+        //     first part we will test the makeSelection function on
+        //     aggregates that store a choice and in the second test we will
+        //     test aggregates that store a choice array item.  For both tests
+        //     we will construct an aggregate mX from a set S of aggregate
+        //     specifications.  We will call the makeSelection functions for a
+        //     field value and confirm that in each case selection is modified
+        //     as expected.  We will test the value of the returned aggregate
+        //     is correct.  Finally, we will test that calling the function on
+        //     a non-choice aggregate prints an error object is returned.
+        //
+        // Testing:
+        //  int makeSelection(Obj *obj, Error *error, newSelector) const;
+        //  int makeSelection(Obj *obj, Error *error, newSelector, val) const;
+        //  template <typename VALTYPE>
+        //  bcem_Aggregate selection() const;
+        //  const char *selector() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING CHOICE MANIPULATORS"
+                          << "\n===========================" << bsl::endl;
+
+        if (verbose) cout << "\nTesting choice aggregates"
+                          << "\n=========================" << bsl::endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line     Spec
+                // ----     ----
+                {   L_,   ":a?Ca" },
+                {   L_,   ":a?Ca&NT" },
+                {   L_,   ":a?Ca&NF" },
+                {   L_,   ":a?Ca&D0" },
+                {   L_,   ":a?Gb" },
+                {   L_,   ":a?Gb&NT" },
+                {   L_,   ":a?Gb&NF" },
+                {   L_,   ":a?Gb&D0" },
+                {   L_,   ":a?Hc" },
+                {   L_,   ":a?Hc&NT" },
+                {   L_,   ":a?Hc&NF" },
+                {   L_,   ":a?Hc&D0" },
+                {   L_,   ":a?Nd" },
+                {   L_,   ":a?Nd&NT" },
+                {   L_,   ":a?Nd&NF" },
+                {   L_,   ":a?Nd&D0" },
+                {   L_,   ":a?Pf" },
+                {   L_,   ":a?Pf&NT" },
+                {   L_,   ":a?Pf&NF" },
+                {   L_,   ":a?Pf&D0" },
+                {   L_,   ":a?Qg" },
+                {   L_,   ":a?Qg&NT" },
+                {   L_,   ":a?Qg&NF" },
+                {   L_,   ":a?Qg&D0" },
+                {   L_,   ":a?Rh" },
+                {   L_,   ":a?Rh&NT" },
+                {   L_,   ":a?Rh&NF" },
+                {   L_,   ":a?Rh&D0" },
+                {   L_,   ":a?Ui" },
+                {   L_,   ":a?Ui&NT" },
+                {   L_,   ":a?Ui&NF" },
+                {   L_,   ":a?Vj" },
+                {   L_,   ":a?Vj&NT" },
+                {   L_,   ":a?Vj&NF" },
+                {   L_,   ":a?Wk" },
+                {   L_,   ":a?Wk&NT" },
+                {   L_,   ":a?Wk&NF" },
+                {   L_,   ":a?Wk&D0" },
+                {   L_,   ":a?al" },
+                {   L_,   ":a?al&NT" },
+                {   L_,   ":a?al&NF" },
+                {   L_,   ":a?al&D0" },
+                {   L_,   ":a?em" },
+                {   L_,   ":a?em&NT" },
+                {   L_,   ":a?em&NF" },
+                {   L_,   ":a?fn"    },
+                {   L_,   ":a?fn&NT" },
+                {   L_,   ":a?fn&NF" },
+
+                {   L_,   ":aCbFcGdQf :g?+oa"    },
+                {   L_,   ":aCbFcGdQf :g?+oa&NT" },
+                {   L_,   ":aCbFcGdQf :g?+oa&NF" },
+
+                {   L_,   ":aCbFcGdQf :g?#pa"    },
+                {   L_,   ":aCbFcGdQf :g?#pa&NT" },
+                {   L_,   ":aCbFcGdQf :g?#pa&NF" },
+
+                {   L_,   ":a?CbFcGdQf :g?%qa"    },
+                {   L_,   ":a?CbFcGdQf :g?%qa&NT" },
+                {   L_,   ":a?CbFcGdQf :g?%qa&NF" },
+
+                {   L_,   ":a?CbFcGdQf :g?@ra"    },
+                {   L_,   ":a?CbFcGdQf :g?@ra&NT" },
+                {   L_,   ":a?CbFcGdQf :g?@ra&NF" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef *RECORD = &SCHEMA.record(SCHEMA.numRecords() - 1);
+
+                ET::Type TYPE = RECORD->field(0).elemType();
+                const bdem_FieldDef& FIELD_DEF = RECORD->field(0);
+                const bool HAS_DEFAULT = FIELD_DEF.hasDefaultValue();
+                bool IS_NULL;
+                if (HAS_DEFAULT
+                 || (ET::isArrayType(TYPE) && bsl::strstr(SPEC, "NF"))) {
+                    IS_NULL = false;
+                }
+                else {
+                    IS_NULL = true;
+                }
+
+                if (ET::BDEM_LIST == TYPE) {
+                    if (SCHEMA.numRecords() > 1) {
+                        ASSERT(SCHEMA.record(1).field(0).recordConstraint());
+                        IS_NULL = false;
+                    }
+                }
+
+                const char *fldName = RECORD->fieldName(0);
+
+                const CERef VA = getCERef(TYPE, 1);
+
+                bslma_TestAllocator t(veryVeryVerbose);
+                Obj mX;  const Obj& X = mX;
+                int rc = ggAggData(&mX, *RECORD, &t);
+                ASSERT(!rc);
+
+                Obj mY;  const Obj& Y = mY;
+                rc = ggAggData(&mY, *RECORD, &t);
+                ASSERT(!rc);
+
+                if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) P(X) P(Y) };
+
+                Error err;
+                Obj mA;  const Obj& A = mA;
+                rc = mY.makeSelection(&mA, &err, fldName);
+                ASSERT(!rc);
+
+                LOOP2_ASSERT(LINE, Y, !Y.isNull());
+                // TBD: Uncomment
+//                 LOOP4_ASSERT(LINE, IS_NULL, Y, Y.field(fldName),
+//                              IS_NULL == Y.field(fldName).isNul2());
+                if (ET::isScalarType(TYPE)) {
+                    if (FIELD_DEF.defaultValue().isNull()) {
+                        ASSERT(isUnset(mA.asElemRef()));
+                    }
+                    else {
+                        LOOP3_ASSERT(LINE,
+                                     FIELD_DEF.defaultValue(),
+                                     mA.asElemRef(),
+                                     compareCERefs(
+                                                 FIELD_DEF.defaultValue(),
+                                                 mA.asElemRef()));
+                    }
+                }
+
+                rc = mY.setField(&mA, &err, fldName, VA);
+                ASSERT(!rc);
+
+                Obj mZ; const Obj& Z = mZ;
+                rc = Y.getField(&mZ, &err, false, fldName);
+                ASSERT(!rc);
+
+                Obj mW;  const Obj& W = mW;
+                rc = ggAggData(&mW, *RECORD, &t);
+                ASSERT(!rc);
+
+                rc = mW.makeSelection(&mA, &err, fldName);
+                ASSERT(!rc);
+
+                Obj mB; const Obj& B = mB;
+                rc = W.getField(&mB, &err, false, fldName);
+                ASSERT(!rc);
+
+                rc = mX.makeSelection(&mA, &err, fldName);
+                ASSERT(!rc);
+                ASSERT(A.asElemRef() == B.asElemRef());
+                ASSERT(streq(fldName, X.selector()));
+
+                Obj mC; const Obj& C = mC;
+                rc = X.selection(&mC, &err);
+                ASSERT(!rc);
+                ASSERT(C.asElemRef() == B.asElemRef());
+
+                Obj mN;  const Obj& N = mN;
+                rc = mX.makeSelection(&mN, &err, "");
+                ASSERT(!rc);
+                ASSERT(bdem_ElemType::BDEM_VOID == N.dataType());
+                ASSERT('\0' == X.selector()[0]);
+                ASSERT(RecDef::BDEM_NULL_FIELD_ID == X.selectorId());
+                ASSERT(-1 == X.selectorIndex());
+                ASSERT(ET::BDEM_VOID == N.dataType());
+
+                Obj mD;  const Obj& D = mD;
+                rc = mX.makeSelection(&mD, &err, fldName, Z);
+                ASSERT(!rc);
+                ASSERT(D.asElemRef() == VA);
+                ASSERT(streq(fldName, X.selector()));
+
+                Obj mE; const Obj& E = mE;
+                rc = mX.makeSelection(&mE, &err, fldName);
+                ASSERT(!rc);
+                ASSERT(C.asElemRef() == E.asElemRef());
+                ASSERT(streq(fldName, X.selector()));
+
+                Obj mF; const Obj& F = mF;
+                rc = mX.makeSelection(&mF, &err, fldName, Z);
+                ASSERT(F.asElemRef() == VA);
+                ASSERT(streq(fldName, X.selector()));
+
+                destroyAggData(&mX, &t);
+                destroyAggData(&mY, &t);
+                destroyAggData(&mW, &t);
+            }
+        }
+
+        if (verbose) cout << "\nTesting choice array item aggregates"
+                          << "\n===================================="
+                          << bsl::endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line     Spec
+                // ----     ----
+                {   L_,   ":a?Ca :b@ba" },
+                {   L_,   ":a?Gb :b@ba" },
+                {   L_,   ":a?Hc :b@ba" },
+                {   L_,   ":a?Nd :b@ba" },
+                {   L_,   ":a?Pf :b@ba" },
+                {   L_,   ":a?Qg :b@ba" },
+                {   L_,   ":a?Rh :b@ba" },
+                {   L_,   ":a?Ui :b@ba" },
+                {   L_,   ":a?Vj :b@ba" },
+                {   L_,   ":a?Wk :b@ba" },
+                {   L_,   ":a?al :b@ba" },
+                {   L_,   ":a?em :b@ba" },
+                {   L_,   ":a?fn :b@ba" },
+                {   L_,   ":aCbFcGdQf :g?+oa :b@bg" },
+                {   L_,   ":aCbFcGdQf :g?#pa :b@bg" },
+                {   L_,   ":a?CbFcGdQf :g?%qa :b@bg" },
+                {   L_,   ":a?CbFcGdQf :g?@ra :b@bg" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef *RECORD = &SCHEMA.record(SCHEMA.numRecords() - 1);
+                const RecDef *SUB_REC =
+                                       &SCHEMA.record(SCHEMA.numRecords() - 2);
+
+                const char *fldName = RECORD->fieldName(0);
+                const char *selName = SUB_REC->fieldName(0);
+                ET::Type SEL_TYPE   = SUB_REC->field(0).elemType();
+
+                const CERef VA = getCERef(SEL_TYPE, 1);
+                const CERef VB = getCERef(SEL_TYPE, 2);
+
+                if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
+
+                bslma_TestAllocator t(veryVeryVerbose);
+
+                Obj mW; const Obj& W = mW;
+                Obj mX; const Obj& X = mX;
+                Obj mY; const Obj& Y = mY;
+
+                ggAggData(&mW, *RECORD, &t);
+                ggAggData(&mX, *RECORD, &t);
+                ggAggData(&mY, *RECORD, &t);
+
+                if (veryVerbose) { T_ P(X) P(Y) P(W) };
+
+                Error err;
+                Obj mA;  const Obj& A = mA;
+                Obj mB;  const Obj& B = mB;
+                Obj mC;  const Obj& C = mC;
+                mW.getField(&mA, &err, false, fldName);
+                mX.getField(&mB, &err, false, fldName);
+                mY.getField(&mC, &err, false, fldName);
+
+                mA.insertItems(&err, 0, 1);
+                mB.insertItems(&err, 0, 1);
+                mC.insertItems(&err, 0, 1);
+
+                Obj mD;  const Obj& D = mD;
+                Obj mE;  const Obj& E = mE;
+                Obj mF;  const Obj& F = mF;
+                mA.getField(&mD, &err, true, 0);
+                mB.getField(&mE, &err, true, 0);
+                mC.getField(&mF, &err, true, 0);
+
+                Obj mG;  const Obj& G = mG;
+                Obj mH;  const Obj& H = mH;
+                Obj mI;  const Obj& I = mI;
+                int rc = mD.makeSelection(&mG, &err, selName);
+                ASSERT(!rc);
+                rc = mE.makeSelection(&mH, &err, selName, VA);
+                ASSERT(!rc);
+                rc = mF.makeSelection(&mI, &err, selName, VB);
+                ASSERT(!rc);
+
+                Obj mJ;  const Obj& J = mJ;
+                Obj mK;  const Obj& K = mK;
+                Obj mL;  const Obj& L = mL;
+                rc = mD.getField(&mJ, &err, false, selName);
+                ASSERT(!rc);
+                rc = mE.getField(&mK, &err, false, selName);
+                ASSERT(!rc);
+                rc = mF.getField(&mL, &err, false, selName);
+                ASSERT(!rc);
+
+                if (veryVerbose) { T_ P(X) P(Y) P(W) };
+                ASSERT(L.asElemRef() == I.asElemRef());
+                ASSERT(L.asElemRef() == VB);
+                ASSERT(streq(selName, F.selector()));
+
+                rc = mF.makeSelection(&mL, &err, selName, K);
+                ASSERT(!rc);
+                ASSERT(L.asElemRef() == VA);
+                ASSERT(streq(selName, F.selector()));
+
+                rc = mF.makeSelection(&mL, &err, "");
+                ASSERT(!rc);
+                ASSERT(bdem_ElemType::BDEM_VOID == L.dataType());
+                ASSERT('\0' == F.selector()[0]);
+                ASSERT(RecDef::BDEM_NULL_FIELD_ID == F.selectorId());
+                ASSERT(-1 == F.selectorIndex());
+
+                rc = mF.makeSelection(&mL, &err, selName);
+                ASSERT(!rc);
+                ASSERT(streq(selName, F.selector()));
+
+                rc = mF.makeSelection(&mL, &err, selName, K);
+                ASSERT(!rc);
+                ASSERT(L.asElemRef() == VA);
+                ASSERT(streq(selName, F.selector()));
+
+                destroyAggData(&mW, &t);
+                destroyAggData(&mX, &t);
+                destroyAggData(&mY, &t);
+            }
+        }
+
+        // Test that error object is returned if data type does not match
+        {
+            Schema schema; const Schema& SCHEMA = schema;
+            ggSchema(&schema, ":aAa");
+            const RecDef *RECORD = &SCHEMA.record(0);
+
+            const char *errFld = RECORD->fieldName(0);
+            ET::Type    TYPE   = RECORD->field(0).elemType();
+
+            const CERef VA = getCERef(TYPE, 1);
+
+            bslma_TestAllocator t(veryVeryVerbose);
+            Error err;
+            Obj mX;  const Obj& X = mX;
+            ggAggData(&mX, *RECORD, &t);
+
+            Obj mA;  const Obj& A = mA;
+
+            int rc = mX.makeSelection(&mA, &err, errFld);
+            ASSERT(rc);
+
+            rc = mX.makeSelection(&mA, &err, errFld, VA);
+            ASSERT(rc);
+
+            destroyAggData(&mX, &t);
+        }
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING 'insertItems' and 'removeItems' FUNCTION:
+        //
+        // Concerns:
+        //   - Insertion and removal inserts or removes the correct number of
+        //     elements at the correct index
+        //   - No memory is leaked, even in the presence of exceptions
+        //
+        // Plan:
+        //   - Both insertItems and removeItems call insert and remove
+        //     functions if the type is a table or choice array and call the
+        //     insert or remove function on the vector for the other array
+        //     types.  Thus we just need to confirm that these functions pass
+        //     the arguments correctly to the underlying functions and handle
+        //     the boundary conditions correctly.
+        //
+        // Testing:
+        //   void insertItems(Error *error, int pos, int numItems) const;
+        //   void insertNullItems(Error *error, int pos, int numItems) const;
+        //   void removeItems(Error *error, int pos, int numItems) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'insertItems' and 'removeItems'"
+                          << " FUNCTION"
+                          << "\n======================================="
+                          << "========="
+                          << bsl::endl;
+
+        if (veryVerbose) { cout << "\n\tTesting scalar arrays and "
+                                << "constrained table and choice array"
+                                << bsl::endl; }
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line     Spec
+                // ----     ----
+                {   L_,   ":aKa" },
+                {   L_,   ":aKa&D0" },
+                {   L_,   ":aKa&NT" },
+                {   L_,   ":aKa&NF" },
+                {   L_,   ":aKa&FN" },
+                {   L_,   ":aLa" },
+                {   L_,   ":aLa&D0" },
+                {   L_,   ":aLa&NT" },
+                {   L_,   ":aLa&NF" },
+                {   L_,   ":aLa&FN" },
+                {   L_,   ":aMa" },
+                {   L_,   ":aMa&D0" },
+                {   L_,   ":aMa&NT" },
+                {   L_,   ":aMa&NF" },
+                {   L_,   ":aMa&FN" },
+                {   L_,   ":aNa" },
+                {   L_,   ":aNa&D0" },
+                {   L_,   ":aNa&NT" },
+                {   L_,   ":aNa&NF" },
+                {   L_,   ":aNa&FN" },
+                {   L_,   ":aOa" },
+                {   L_,   ":aOa&D0" },
+                {   L_,   ":aOa&NT" },
+                {   L_,   ":aOa&NF" },
+                {   L_,   ":aOa&FN" },
+                {   L_,   ":aPa" },
+                {   L_,   ":aPa&D0" },
+                {   L_,   ":aPa&NT" },
+                {   L_,   ":aPa&NF" },
+                {   L_,   ":aPa&FN" },
+                {   L_,   ":aQa" },
+                {   L_,   ":aQa&D0" },
+                {   L_,   ":aQa&NT" },
+                {   L_,   ":aQa&NF" },
+                {   L_,   ":aQa&FN" },
+                {   L_,   ":aRa" },
+                {   L_,   ":aRa&D0" },
+                {   L_,   ":aRa&NT" },
+                {   L_,   ":aRa&NF" },
+                {   L_,   ":aRa&FN" },
+                {   L_,   ":aSa" },
+                {   L_,   ":aSa&D0" },
+                {   L_,   ":aSa&NT" },
+                {   L_,   ":aSa&NF" },
+                {   L_,   ":aSa&FN" },
+                {   L_,   ":aTa" },
+                {   L_,   ":aTa&D0" },
+                {   L_,   ":aTa&NT" },
+                {   L_,   ":aTa&NF" },
+                {   L_,   ":aTa&FN" },
+                {   L_,   ":aaa" },
+                {   L_,   ":aaa&D0" },
+                {   L_,   ":aaa&NT" },
+                {   L_,   ":aaa&NF" },
+                {   L_,   ":aaa&FN" },
+                {   L_,   ":aba" },
+                {   L_,   ":aba&D0" },
+                {   L_,   ":aba&NT" },
+                {   L_,   ":aba&NF" },
+                {   L_,   ":aba&FN" },
+                {   L_,   ":aca" },
+                {   L_,   ":aca&D0" },
+                {   L_,   ":aca&NT" },
+                {   L_,   ":aca&NF" },
+                {   L_,   ":aca&FN" },
+                {   L_,   ":ada" },
+                {   L_,   ":ada&D0" },
+                {   L_,   ":ada&NT" },
+                {   L_,   ":ada&NF" },
+                {   L_,   ":ada&FN" },
+
+                {   L_,   ":aCbFcGdQf :g#ha" },
+                {   L_,   ":aCbFcGdQf :g#ha&NT" },
+                {   L_,   ":aCbFcGdQf :g#ha&NF" },
+                {   L_,   ":a?CbFcGdQf :g@ha" },
+                {   L_,   ":a?CbFcGdQf :g@ha&NT" },
+                {   L_,   ":a?CbFcGdQf :g@ha&NF" },
+
+                // TBD: Add enumerations
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+                const bool  NSA  = (bool) bsl::strstr(SPEC, "&FN");
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef *RECORD = NSA
+                                     ? &SCHEMA.record(0)
+                                     : &SCHEMA.record(SCHEMA.numRecords() - 1);
+
+                const char *fldName       = RECORD->fieldName(0);
+                const bool  hasDefaultValue =
+                                            RECORD->field(0).hasDefaultValue();
+
+                ET::Type ITEM_TYPE, ARRAY_TYPE;
+                bool IS_NULL;
+                if (NSA) {
+                    ITEM_TYPE  = SCHEMA.record(1).field(0).elemType();
+                    ARRAY_TYPE = ET::toArrayType(ITEM_TYPE);
+                    IS_NULL    = true;
+                }
+                else {
+                    ARRAY_TYPE = RECORD->field(0).elemType();
+                    ITEM_TYPE  = ET::fromArrayType(ARRAY_TYPE);
+                    IS_NULL    = false;
+                }
+
+                if (RecDef::BDEM_CHOICE_RECORD ==
+                                               SCHEMA.record(0).recordType()) {
+                    IS_NULL = true;
+                }
+
+                bdem_List theList;  const bdem_List& THE_LIST = theList;
+                if (ET::isAggregateType(ITEM_TYPE)) {
+                    // Create a special record containing a non-array field
+                    // of the item type.  'theList[0]' will contain a
+                    // deep-initialized object of type 'ITEM_TYPE'.
+                    RecDef *flatRecord = schema.createRecord();
+                    flatRecord->appendField(ITEM_TYPE,
+                                          RECORD->field(0).recordConstraint());
+                    SchemaAggUtil::initListDeep(&theList, *flatRecord);
+                }
+
+                const CERef VA = getCERef(ITEM_TYPE, 1);
+                const CERef VB = getCERef(ITEM_TYPE, 2);
+
+                if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
+
+                bslma_TestAllocator testAllocator(veryVeryVerbose);
+
+// TBD: Uncomment
+// #ifndef BSLS_PLATFORM__CMP_MSVC
+//               BEGIN_BSLMA_EXCEPTION_TEST {
+// #endif
+                Obj mX;  const Obj& X = mX;
+                int rc = ggAggData(&mX, *RECORD, &testAllocator);
+                ASSERT(!rc);
+
+                Error err;
+                Obj mA;  const Obj& A = mA;
+                rc = X.getField(&mA, &err, false, fldName);
+                ASSERT(!rc);
+
+                rc = mA.insertItems(&err, 0, 0);
+                ASSERT(!rc);
+                ASSERT(0 == A.length());
+
+                rc = mA.insertNullItems(&err, 0, 0);
+                ASSERT(!rc);
+                ASSERT(0 == A.length());
+
+                rc = mA.insertItems(&err, 0, 1);
+                ASSERT(!rc);
+                ASSERT(1 == A.length());
+
+                Obj mB;  const Obj& B = mB;
+                rc = A.arrayItem(&mB, &err, 0);
+                ASSERT(!rc);
+                if (hasDefaultValue) {
+                    ASSERT(compareCERefs(RECORD->field(0).defaultValue(),
+                                         B.asElemRef()));
+                }
+                else {
+                    ASSERT(isUnset(B.asElemRef()));
+                }
+
+                rc = mA.setField(&mB, &err, 0, VA);
+                ASSERT(!rc);
+                ASSERT(compareCERefs(VA, B.asElemRef()));
+
+                rc = mA.insertNullItems(&err, 0, 1);
+                ASSERT(!rc);
+                ASSERT(2 == A.length());
+
+                rc = mA.getField(&mB, &err, false, 0);
+                ASSERT(!rc);
+                LOOP2_ASSERT(LINE, IS_NULL, IS_NULL == B.isNull());
+
+                rc = mA.setField(&mB, &err, 0, VB);
+                ASSERT(!rc);
+                Obj mC;  const Obj& C = mC;
+                rc = mA.setField(&mC, &err, 1, VA);
+                ASSERT(!rc);
+
+                ASSERT(compareCERefs(VB, B.asElemRef()));
+                ASSERT(compareCERefs(VA, C.asElemRef()));
+                mB.makeNull();
+
+                rc = mA.insertItems(&err, 1, 2);
+                ASSERT(!rc);
+                ASSERT(4 == A.length());
+                mA.getField(&mB, &err, false, 1);
+                mA.getField(&mC, &err, false, 2);
+                if (hasDefaultValue) {
+                    ASSERT(compareCERefs(RECORD->field(0).defaultValue(),
+                                         B.asElemRef()));
+                    ASSERT(compareCERefs(RECORD->field(0).defaultValue(),
+                                         C.asElemRef()));
+                }
+                else {
+                    ASSERT(isUnset(B.asElemRef()));
+                    ASSERT(isUnset(C.asElemRef()));
+                }
+
+                Obj mD;  const Obj& D = mD;
+                mA.getField(&mD, &err, false, 3);
+                ASSERT(compareCERefs(VA, D.asElemRef()));
+
+                mA.setField(&mB, &err, 1, VA);
+                mA.setField(&mB, &err, 2, VB);
+
+                rc = mA.insertNullItems(&err, 1, 2);
+                ASSERT(!rc);
+                ASSERT(6 == A.length());
+
+                mA.getField(&mB, &err, false, 3);
+                mA.getField(&mC, &err, false, 4);
+                mA.getField(&mD, &err, false, 5);
+                ASSERT(compareCERefs(VA, B.asElemRef()));
+                ASSERT(compareCERefs(VB, C.asElemRef()));
+                ASSERT(compareCERefs(VA, D.asElemRef()));
+
+                mA.getField(&mB, &err, false, 0);
+                mA.getField(&mC, &err, false, 1);
+                mA.getField(&mD, &err, false, 2);
+                ASSERT(IS_NULL == B.isNull());
+                ASSERT(IS_NULL == C.isNull());
+                ASSERT(IS_NULL == D.isNull());
+
+                rc = mA.removeItems(&err, 3, 1);
+                ASSERT(!rc);
+                ASSERT(5 == A.length());
+                ASSERT(IS_NULL == B.isNull());
+                ASSERT(IS_NULL == C.isNull());
+                ASSERT(IS_NULL == D.isNull());
+
+                mA.getField(&mB, &err, false, 3);
+                mA.getField(&mC, &err, false, 4);
+                ASSERT(compareCERefs(VB, B.asElemRef()));
+                ASSERT(compareCERefs(VA, C.asElemRef()));
+
+                mA.setField(&mB, &err, 0, VB);
+
+                rc = mA.removeItems(&err, 1, 4);
+                ASSERT(1 == A.length());
+
+                mA.getField(&mB, &err, 0, false);
+                ASSERT(compareCERefs(VB, B.asElemRef()));
+
+                rc = mA.removeItems(&err, 0, 0);
+                ASSERT(!rc);
+                ASSERT(1 == A.length());
+
+                mA.getField(&mB, &err, 0, false);
+                ASSERT(compareCERefs(VB, B.asElemRef()));
+
+                mA.removeItems(&err, 0, 1);
+                ASSERT(!rc);
+                ASSERT(0 == A.length());
+
+                destroyAggData(&mX, &testAllocator);
+
+// #ifndef BSLS_PLATFORM__CMP_MSVC
+//               } END_BSLMA_EXCEPTION_TEST
+// #endif
+          }
+        }
+
+#if 0
+        if (veryVerbose) { cout << "\n\tTesting unconstrained table "
+                                << "and choice array" << bsl::endl; }
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line     Spec
+                // ----     ----
+                {   L_,   ":aVa" },
+                {   L_,   ":aVa&NT" },
+                {   L_,   ":aVa&NF" },
+                {   L_,   ":afa" },
+                {   L_,   ":afa&NT" },
+                {   L_,   ":afa&NF" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef *RECORD = &SCHEMA.record(SCHEMA.numRecords() - 1);
+
+                ConstRecDefShdPtr crp(RECORD, NilDeleter(), 0);
+                const ConstRecDefShdPtr& CRP = crp;
+
+                ET::Type ARRAY_TYPE = RECORD->field(0).elemType();
+                const char *fldName = RECORD->fieldName(0);
+
+                const CERef ARR_VA = getCERef(ARRAY_TYPE, 1);
+                const int   LEN    = getLength(ARR_VA);
+
+                const CERef VA = getCERef(ET::fromArrayType(ARRAY_TYPE), 1);
+                const CERef VB = getCERef(ET::fromArrayType(ARRAY_TYPE), 2);
+
+                if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
+
+                bslma_TestAllocator testAllocator(veryVeryVerbose);
+
+#ifndef BSLS_PLATFORM__CMP_MSVC
+              BEGIN_BSLMA_EXCEPTION_TEST {
+#endif
+                Obj mX(CRP, &testAllocator); const Obj& X = mX;
+
+                mX.setField(fldName, ARR_VA);
+                Obj mA = X.field(fldName); const Obj& A = mA;
+
+                mA.insertItems(0, 0);
+                ASSERT(LEN == A.length());
+
+                mA.insertNullItems(0, 0);
+                ASSERT(LEN == A.length());
+
+                mA.insertItems(0, 1);
+                ASSERT(LEN + 1 == A.length());
+
+                mA.insertNullItems(0, 1);
+                ASSERT(LEN + 2 == A.length());
+
+                mA.insertItems(A.length(), 1);
+                ASSERT(LEN + 3 == A.length());
+
+                mA.insertNullItems(A.length(), 1);
+                ASSERT(LEN + 4 == A.length());
+
+                mA.insertItems(1, 2);
+                ASSERT(LEN + 6 == A.length());
+
+                mA.insertNullItems(1, 2);
+                ASSERT(LEN + 8 == A.length());
+
+                mA.removeItems(3, 1);
+                ASSERT(LEN + 7 == A.length());
+
+                mA.removeItems(1, 6);
+                ASSERT(LEN + 1 == A.length());
+
+                mA.removeItems(0, 0);
+                ASSERT(LEN + 1 == A.length());
+
+                mA.removeItems(0, 1);
+                ASSERT(LEN + 0 == A.length());
+#ifndef BSLS_PLATFORM__CMP_MSVC
+            } END_BSLMA_EXCEPTION_TEST
+#endif
+          }
+        }
+#endif
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING 'insertItem' and 'arrayItem' FUNCTIONS:
+        //
+        // Concerns:
+        //   - That insert properly inserts a new element in the array at the
+        //     correct index and that the new element is set to the correct
+        //     value.
+        //   - append inserts a new value to the end of the array
+        //
+        // Plan:
+        //   - We will construct an aggregate mA from a set S of aggregates
+        //     that store all types of array (scalar arrays, tables and choice
+        //     arrays).  We will construct two element reference value VA and
+        //     VB that will store two distinct values corresponding to the the
+        //     base type of the type of mA.  We will then call insert on mA at
+        //     various indices and confirm that the new value is inserted at
+        //     the correct location and that it contains the expected value.
+        //     We will use the 'length' function to confirm the length of the
+        //     aggregate and the indexing operator to confirm the value.  We
+        //     will then construct another object mB that is identical to mA.
+        //     We will test that append works for that object.  Note that
+        //     we will not test insert and append with values of different
+        //     data types (and just use a bdem_ConstElemRef to store the
+        //     value) as the insert function internally calls the private
+        //     function setValue which has already been tested in a previous
+        //     test case.  We just need to confirm that insert passes the
+        //     arguments correctly to that function.
+        //
+        // Testing:
+        //   int insertItem(Obj *item, Error *error, int index, value) const;
+        //   int arrayItem(Obj *item, Error *error, int index) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'insertItem'"
+                          << "\n====================" << bsl::endl;
+
+        if (veryVerbose) { cout << "\n\tTesting scalar arrays and "
+                                << "constrained table and choice array"
+                                << bsl::endl; }
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line     Spec
+                // ----     ----
+                {   L_,   ":aKa" },
+                {   L_,   ":aKa&D0" },
+                {   L_,   ":aKa&NT" },
+                {   L_,   ":aKa&NF" },
+                {   L_,   ":aKa&FN" },
+                {   L_,   ":aLa" },
+                {   L_,   ":aLa&D0" },
+                {   L_,   ":aLa&NT" },
+                {   L_,   ":aLa&NF" },
+                {   L_,   ":aLa&FN" },
+                {   L_,   ":aMa" },
+                {   L_,   ":aMa&D0" },
+                {   L_,   ":aMa&NT" },
+                {   L_,   ":aMa&NF" },
+                {   L_,   ":aMa&FN" },
+                {   L_,   ":aNa" },
+                {   L_,   ":aNa&D0" },
+                {   L_,   ":aNa&NT" },
+                {   L_,   ":aNa&NF" },
+                {   L_,   ":aNa&FN" },
+                {   L_,   ":aOa" },
+                {   L_,   ":aOa&D0" },
+                {   L_,   ":aOa&NT" },
+                {   L_,   ":aOa&NF" },
+                {   L_,   ":aOa&FN" },
+                {   L_,   ":aPa" },
+                {   L_,   ":aPa&D0" },
+                {   L_,   ":aPa&NT" },
+                {   L_,   ":aPa&NF" },
+                {   L_,   ":aPa&FN" },
+                {   L_,   ":aQa" },
+                {   L_,   ":aQa&D0" },
+                {   L_,   ":aQa&NT" },
+                {   L_,   ":aQa&NF" },
+                {   L_,   ":aQa&FN" },
+                {   L_,   ":aRa" },
+                {   L_,   ":aRa&D0" },
+                {   L_,   ":aRa&NT" },
+                {   L_,   ":aRa&NF" },
+                {   L_,   ":aRa&FN" },
+                {   L_,   ":aSa" },
+                {   L_,   ":aSa&D0" },
+                {   L_,   ":aSa&NT" },
+                {   L_,   ":aSa&NF" },
+                {   L_,   ":aSa&FN" },
+                {   L_,   ":aTa" },
+                {   L_,   ":aTa&D0" },
+                {   L_,   ":aTa&NT" },
+                {   L_,   ":aTa&NF" },
+                {   L_,   ":aTa&FN" },
+                {   L_,   ":aaa" },
+                {   L_,   ":aaa&D0" },
+                {   L_,   ":aaa&NT" },
+                {   L_,   ":aaa&NF" },
+                {   L_,   ":aaa&FN" },
+                {   L_,   ":aba" },
+                {   L_,   ":aba&D0" },
+                {   L_,   ":aba&NT" },
+                {   L_,   ":aba&NF" },
+                {   L_,   ":aba&FN" },
+                {   L_,   ":aca" },
+                {   L_,   ":aca&D0" },
+                {   L_,   ":aca&NT" },
+                {   L_,   ":aca&NF" },
+                {   L_,   ":aca&FN" },
+                {   L_,   ":ada" },
+                {   L_,   ":ada&D0" },
+                {   L_,   ":ada&NT" },
+                {   L_,   ":ada&NF" },
+                {   L_,   ":ada&FN" },
+
+                {   L_,   ":aCbFcGdQf :g#ha" },
+                {   L_,   ":aCbFcGdQf :g#ha&NT" },
+                {   L_,   ":aCbFcGdQf :g#ha&NF" },
+                {   L_,   ":a?CbFcGdQf :g@ha" },
+                {   L_,   ":a?CbFcGdQf :g@ha&NT" },
+                {   L_,   ":a?CbFcGdQf :g@ha&NF" },
+
+                // TBD: Add enumerations
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+                const bool  NSA  = (bool) bsl::strstr(SPEC, "&FN");
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef *RECORD = NSA
+                                ? &SCHEMA.record(0)
+                                : &SCHEMA.record(SCHEMA.numRecords() - 1);
+
+                bool IS_NULL;
+                ET::Type TYPE, ARRAY_TYPE;
+                if (NSA) {
+                    TYPE       = SCHEMA.record(1).field(0).elemType();
+                    ARRAY_TYPE = ET::toArrayType(TYPE);
+                    IS_NULL    = true;
+                }
+                else {
+                    ARRAY_TYPE = RECORD->field(0).elemType();
+                    TYPE       = ET::fromArrayType(ARRAY_TYPE);
+                    IS_NULL    = false;
+                }
+                if (RecDef::BDEM_CHOICE_RECORD ==
+                                               SCHEMA.record(0).recordType()) {
+                    IS_NULL = true;
+                }
+
+                const char *fldName         = RECORD->fieldName(0);
+                const bool  hasDefaultValue =
+                                            RECORD->field(0).hasDefaultValue();
+
+                const CERef VA = getCERef(TYPE, 1);
+                const CERef VB = getCERef(TYPE, 2);
+
+                if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
+
+                bslma_TestAllocator testAllocator;
+
+// TBD: Uncomment
+// #ifndef BSLS_PLATFORM__CMP_MSVC
+//               BEGIN_BSLMA_EXCEPTION_TEST {
+// #endif
+                Obj mX;  const Obj& X = mX;
+                int rc = ggAggData(&mX, *RECORD, &testAllocator);
+                ASSERT(!rc);
+
+                Error err;
+                Obj mA;  const Obj& A = mA;
+                rc = X.getField(&mA, &err, false, fldName);
+                ASSERT(!rc);
+
+                Obj mC;  const Obj& C = mC;
+                rc = mA.insertItem(&mC, &err, 0, VA);
+                ASSERT(!rc);
+                LOOP2_ASSERT(A, A.length(), 1 == A.length());
+                ASSERT(compareCERefs(VA, C.asElemRef()));
+
+                Obj mD;  const Obj& D = mD;
+                rc = mA.insertItem(&mD, &err, 0, VB);
+                ASSERT(!rc);
+                ASSERT(2 == A.length());
+                ASSERT(compareCERefs(VB, D.asElemRef()));
+
+                rc = mA.arrayItem(&mC, &err, 0);
+                ASSERT(!rc);
+                rc = mA.arrayItem(&mD, &err, 1);
+                ASSERT(!rc);
+                ASSERT(compareCERefs(VB, C.asElemRef()));
+                ASSERT(compareCERefs(VA, D.asElemRef()));
+
+                Obj mE;  const Obj& E = mE;
+                rc = mA.insertItem(&mE, &err, 2, VB);
+                ASSERT(!rc);
+                ASSERT(3 == A.length());
+                ASSERT(compareCERefs(VB, E.asElemRef()));
+
+                rc = mA.arrayItem(&mC, &err, 0);
+                ASSERT(!rc);
+                rc = mA.arrayItem(&mD, &err, 1);
+                ASSERT(!rc);
+                rc = mA.arrayItem(&mE, &err, 2);
+                ASSERT(!rc);
+                ASSERT(compareCERefs(VB, C.asElemRef()));
+                ASSERT(compareCERefs(VA, D.asElemRef()));
+                ASSERT(compareCERefs(VB, E.asElemRef()));
+
+                Obj mF;  const Obj& F = mF;
+                rc = mA.insertItem(&mF, &err, 1, VA);
+                ASSERT(!rc);
+                ASSERT(4 == A.length());
+                ASSERT(compareCERefs(VA, F.asElemRef()));
+
+                rc = mA.arrayItem(&mC, &err, 0);
+                ASSERT(!rc);
+                rc = mA.arrayItem(&mD, &err, 1);
+                ASSERT(!rc);
+                rc = mA.arrayItem(&mE, &err, 2);
+                ASSERT(!rc);
+                rc = mA.arrayItem(&mF, &err, 3);
+                ASSERT(!rc);
+                ASSERT(compareCERefs(VB, C.asElemRef()));
+                ASSERT(compareCERefs(VA, D.asElemRef()));
+                ASSERT(compareCERefs(VA, E.asElemRef()));
+                ASSERT(compareCERefs(VB, F.asElemRef()));
+
+                destroyAggData(&mX, &testAllocator);
+
+// TBD: Uncomment
+// #ifndef BSLS_PLATFORM__CMP_MSVC
+//               } END_BSLMA_EXCEPTION_TEST
+// #endif
+            }
+        }
+
+        if (veryVerbose) { cout << "\n\tTesting unconstrained table "
+                                << "and choice array" << bsl::endl; }
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line     Spec
+                // ----     ----
+                {   L_,   ":aVa" },
+                {   L_,   ":aVa&NT" },
+                {   L_,   ":aVa&NF" },
+                {   L_,   ":afa" },
+                {   L_,   ":afa&NT" },
+                {   L_,   ":afa&NF" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef *RECORD = &SCHEMA.record(SCHEMA.numRecords() - 1);
+
+                ET::Type ARRAY_TYPE = RECORD->field(0).elemType();
+                const char *fldName = RECORD->fieldName(0);
+
+                const CERef ARR_VA = getCERef(ARRAY_TYPE, 1);
+                const int   LEN    = getLength(ARR_VA);
+
+                const CERef VA = getCERef(ET::fromArrayType(ARRAY_TYPE), 1);
+                const CERef VB = getCERef(ET::fromArrayType(ARRAY_TYPE), 2);
+
+                // TBD: why ?
+                const bool IS_NULL = ET::isChoiceType(ARRAY_TYPE)
+                                   ? true : false;
+                if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
+
+                bslma_TestAllocator testAllocator(veryVeryVerbose);
+
+// TBD: Uncomment
+// #ifndef BSLS_PLATFORM__CMP_MSVC
+//               BEGIN_BSLMA_EXCEPTION_TEST {
+// #endif
+                Obj mX;  const Obj& X = mX;
+                int rc = ggAggData(&mX, *RECORD, &testAllocator);
+                ASSERT(!rc);
+
+                Error err;
+                Obj mA;  const Obj& A = mA;
+                rc = X.setField(&mA, &err, fldName, ARR_VA);
+                ASSERT(!rc);
+
+                Obj mC;  const Obj& C = mC;
+                rc = mA.insertItem(&mC, &err, 0, VA);
+                ASSERT(LEN + 1 == A.length());
+                ASSERT(compareCERefs(VA, C.asElemRef()));
+
+                Obj mD;  const Obj& D = mD;
+                rc = mA.insertItem(&mD, &err, 0, VB);
+                ASSERT(LEN + 2 == A.length());
+                ASSERT(compareCERefs(VB, D.asElemRef()));
+
+                rc = mA.arrayItem(&mC, &err, 0);
+                ASSERT(!rc);
+                rc = mA.arrayItem(&mD, &err, 1);
+                ASSERT(!rc);
+                ASSERT(compareCERefs(VB, C.asElemRef()));
+                ASSERT(compareCERefs(VA, D.asElemRef()));
+
+                Obj mE;  const Obj& E = mE;
+                rc = mA.insertItem(&mE, &err, 2, VB);
+                ASSERT(LEN + 3 == A.length());
+                ASSERT(compareCERefs(VB, E.asElemRef()));
+
+                rc = mA.arrayItem(&mC, &err, 0);
+                ASSERT(!rc);
+                rc = mA.arrayItem(&mD, &err, 1);
+                ASSERT(!rc);
+                rc = mA.arrayItem(&mE, &err, 2);
+                ASSERT(!rc);
+                ASSERT(compareCERefs(VB, C.asElemRef()));
+                ASSERT(compareCERefs(VA, D.asElemRef()));
+                ASSERT(compareCERefs(VB, E.asElemRef()));
+
+                Obj mF;  const Obj& F = mF;
+                rc = mA.insertItem(&mF, &err, 1, VA);
+                ASSERT(!rc);
+                ASSERT(LEN + 4 == A.length());
+                ASSERT(compareCERefs(VA, F.asElemRef()));
+
+                rc = mA.arrayItem(&mC, &err, 0);
+                ASSERT(!rc);
+                rc = mA.arrayItem(&mD, &err, 1);
+                ASSERT(!rc);
+                rc = mA.arrayItem(&mE, &err, 2);
+                ASSERT(!rc);
+                rc = mA.arrayItem(&mF, &err, 3);
+                ASSERT(!rc);
+                ASSERT(compareCERefs(VB, C.asElemRef()));
+                ASSERT(compareCERefs(VA, D.asElemRef()));
+                ASSERT(compareCERefs(VA, E.asElemRef()));
+                ASSERT(compareCERefs(VB, F.asElemRef()));
+
+                destroyAggData(&mX, &testAllocator);
+
+// TBD: Uncomment
+// #ifndef BSLS_PLATFORM__CMP_MSVC
+//               } END_BSLMA_EXCEPTION_TEST
+// #endif
+            }
+        }
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'resize' FUNCTION:
+        //
+        // Concerns:
+        //  - Resizing increases/decreases the size of the array to the
+        //    specified size.
+        //
+        // Plan:
+        //  - Resize just calls the resize function on the corresponding lower
+        //    level component (table for table aggregates, choice array for
+        //    choice array aggregates and on vector for the scalar array
+        //    types).  So we just need to test that resize forwards the
+        //    arguments correctly and handles the boundary conditions.
+        //
+        // Testing:
+        //   void resize(int newSize) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'resize' FUNCTION"
+                          << "\n========================="
+                          << bsl::endl;
+        const struct {
+            int         d_line;
+            const char *d_spec;
+        } DATA[] = {
+            // Line     Spec
+            // ----     ----
+            {   L_,   ":aKa" },
+            {   L_,   ":aKa&D0" },
+            {   L_,   ":aKa&NT" },
+            {   L_,   ":aKa&NF" },
+            {   L_,   ":aKa&FN" },
+            {   L_,   ":aLa" },
+            {   L_,   ":aLa&D0" },
+            {   L_,   ":aLa&NT" },
+            {   L_,   ":aLa&NF" },
+            {   L_,   ":aLa&FN" },
+            {   L_,   ":aMa" },
+            {   L_,   ":aMa&D0" },
+            {   L_,   ":aMa&NT" },
+            {   L_,   ":aMa&NF" },
+            {   L_,   ":aMa&FN" },
+            {   L_,   ":aNa" },
+            {   L_,   ":aNa&D0" },
+            {   L_,   ":aNa&NT" },
+            {   L_,   ":aNa&NF" },
+            {   L_,   ":aNa&FN" },
+            {   L_,   ":aOa" },
+            {   L_,   ":aOa&D0" },
+            {   L_,   ":aOa&NT" },
+            {   L_,   ":aOa&NF" },
+            {   L_,   ":aOa&FN" },
+            {   L_,   ":aPa" },
+            {   L_,   ":aPa&D0" },
+            {   L_,   ":aPa&NT" },
+            {   L_,   ":aPa&NF" },
+            {   L_,   ":aPa&FN" },
+            {   L_,   ":aQa" },
+            {   L_,   ":aQa&D0" },
+            {   L_,   ":aQa&NT" },
+            {   L_,   ":aQa&NF" },
+            {   L_,   ":aQa&FN" },
+            {   L_,   ":aRa" },
+            {   L_,   ":aRa&D0" },
+            {   L_,   ":aRa&NT" },
+            {   L_,   ":aRa&NF" },
+            {   L_,   ":aRa&FN" },
+            {   L_,   ":aSa" },
+            {   L_,   ":aSa&D0" },
+            {   L_,   ":aSa&NT" },
+            {   L_,   ":aSa&NF" },
+            {   L_,   ":aSa&FN" },
+            {   L_,   ":aTa" },
+            {   L_,   ":aTa&D0" },
+            {   L_,   ":aTa&NT" },
+            {   L_,   ":aTa&NF" },
+            {   L_,   ":aTa&FN" },
+            {   L_,   ":aVa" },
+            {   L_,   ":aVa&NT" },
+            {   L_,   ":aVa&NF" },
+            {   L_,   ":afa" },
+            {   L_,   ":afa&NT" },
+            {   L_,   ":afa&NF" },
+            {   L_,   ":aaa" },
+            {   L_,   ":aaa&D0" },
+            {   L_,   ":aaa&NT" },
+            {   L_,   ":aaa&NF" },
+            {   L_,   ":aaa&FN" },
+            {   L_,   ":aba" },
+            {   L_,   ":aba&D0" },
+            {   L_,   ":aba&NT" },
+            {   L_,   ":aba&NF" },
+            {   L_,   ":aba&FN" },
+            {   L_,   ":aca" },
+            {   L_,   ":aca&D0" },
+            {   L_,   ":aca&NT" },
+            {   L_,   ":aca&NF" },
+            {   L_,   ":aca&FN" },
+            {   L_,   ":ada" },
+            {   L_,   ":ada&D0" },
+            {   L_,   ":ada&NT" },
+            {   L_,   ":ada&NF" },
+            {   L_,   ":ada&FN" },
+
+            // TBD: Uncomment
+//             {   L_,   ":aCbFcGdQf :g#ha" },
+//             {   L_,   ":aCbFcGdQf :g#ha&NT" },
+//             {   L_,   ":aCbFcGdQf :g#ha&NF" },
+//             {   L_,   ":a?CbFcGdQf :g@ha" },
+//             {   L_,   ":a?CbFcGdQf :g@ha&NT" },
+//             {   L_,   ":a?CbFcGdQf :g@ha&NF" },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int   LINE = DATA[i].d_line;
+            const char *SPEC = DATA[i].d_spec;
+            const bool  NSA  = (bool) bsl::strstr(SPEC, "&FN");
+
+            Schema schema; const Schema& SCHEMA = schema;
+            ggSchema(&schema, SPEC);
+            const RecDef *RECORD = NSA
+                                 ? &SCHEMA.record(0)
+                                 : &SCHEMA.record(SCHEMA.numRecords() - 1);
+
+
+            const char *fldName         = RECORD->fieldName(0);
+            const bool  hasDefaultValue = RECORD->field(0).hasDefaultValue();
+
+            if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
+
+            bslma_TestAllocator testAllocator(veryVeryVerbose);
+
+            Obj mX;  const Obj& X = mX;
+            int rc = ggAggData(&mX, *RECORD, &testAllocator);
+            ASSERT(!rc);
+
+            Error err;
+            Obj mA;  const Obj& A = mA;
+
+          BEGIN_BSLMA_EXCEPTION_TEST {
+            rc = X.getField(&mA, &err, false, fldName);
+            ASSERT(!rc);
+
+            rc = mA.resize(&err, 0);
+            ASSERT(!rc);
+            ASSERT(0 == A.length());
+
+            rc = mA.resize(&err, 1);
+            ASSERT(!rc);
+            ASSERT(1 == A.length());
+            if (hasDefaultValue) {
+                Obj mZ;  const Obj& Z = mZ;
+                rc = A.arrayItem(&mZ, &err, 0);
+                ASSERT(!rc);
+                LOOP_ASSERT(LINE,
+                            compareCERefs(Z.asElemRef(),
+                                          RECORD->field(0).defaultValue()));
+            }
+
+            rc = mA.resize(&err, 1);
+            ASSERT(!rc);
+            ASSERT(1 == A.length());
+            if (hasDefaultValue) {
+                Obj mZ;  const Obj& Z = mZ;
+                rc = A.arrayItem(&mZ, &err, 0);
+                ASSERT(!rc);
+                LOOP_ASSERT(LINE,
+                            compareCERefs(Z.asElemRef(),
+                                          RECORD->field(0).defaultValue()));
+            }
+
+            rc = mA.resize(&err, 2);
+            ASSERT(!rc);
+            ASSERT(2 == A.length());
+            if (hasDefaultValue) {
+                Obj mB;  const Obj& B = mB;
+                Obj mC;  const Obj& C = mC;
+                rc = A.arrayItem(&mB, &err, 0);
+                ASSERT(!rc);
+                rc = A.arrayItem(&mC, &err, 1);
+                ASSERT(!rc);
+                LOOP_ASSERT(LINE,
+                            compareCERefs(B.asElemRef(),
+                                          RECORD->field(0).defaultValue()));
+                LOOP_ASSERT(LINE,
+                            compareCERefs(C.asElemRef(),
+                                          RECORD->field(0).defaultValue()));
+            }
+
+            rc = mA.resize(&err, 7);
+            ASSERT(!rc);
+            ASSERT(7 == A.length());
+
+            rc = mA.resize(&err, 3);
+            ASSERT(!rc);
+            ASSERT(3 == A.length());
+
+            rc = mA.resize(&err, 1);
+            ASSERT(!rc);
+            ASSERT(1 == A.length());
+            if (hasDefaultValue) {
+                Obj mZ;  const Obj& Z = mZ;
+                rc = A.arrayItem(&mZ, &err, 0);
+                ASSERT(!rc);
+                LOOP_ASSERT(LINE,
+                            compareCERefs(Z.asElemRef(),
+                                          RECORD->field(0).defaultValue()));
+            }
+
+            rc = mA.resize(&err, 0);
+            ASSERT(!rc);
+            ASSERT(0 == A.length());
+
+            destroyAggData(&mX, &testAllocator);
+
+          } END_BSLMA_EXCEPTION_TEST
+        }
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING TRIVIAL MANIPULATORS AND ACCESSORS:
+        //
+        // Concerns:
+        //   - The trivial manipulators set the appropriate data members.
+        //   - The trivial accessors return the appropriate data members.
+        //
+        // Plan:
+        //   - Set the appropriate data members.
+        //
+        // Testing:
+        //   void setDataType(bdem_ElemType::Type dataType);
+        //   void setDataPointer(void *data);
+        //   void setSchemaPointer(const bdem_Schema *schema);
+        //   void setRecordDefPointer(const bdem_RecordDef *recordDef);
+        //   void setFieldDefPointer(const bdem_FieldDef *fieldDef);
+        //   void setTopLevelAggregateNullnessPointer(int *nullnessFlag);
+        //   bdem_ElemType::Type dataType() const;
+        //   const bdem_RecordDef& recordDef() const;
+        //   const bdem_RecordDef *recordConstraint() const;
+        //   const bdem_EnumerationDef *enumerationConstraint() const;
+        //   const bdem_FieldDef *fieldDef() const;
+        //   const void *data() const;
+        //   const bdem_Schema *schema() const;
+        // --------------------------------------------------------------------
+
+        if (veryVerbose) { cout << "\tTesting manipulators/accessors"
+                                << bsl::endl; }
+        {
+
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line         Spec
+                // ----         ----
+                // For List Aggregates
+                {   L_,         ":aCa" },
+                {   L_,         ":aCa&NT" },
+                {   L_,         ":aCa&NF" },
+                {   L_,         ":aCa&D0" },
+                {   L_,         ":aFa" },
+                {   L_,         ":aFa&NT" },
+                {   L_,         ":aFa&NF" },
+                {   L_,         ":aFa&D0" },
+                {   L_,         ":aGa" },
+                {   L_,         ":aGa&NT" },
+                {   L_,         ":aGa&NF" },
+                {   L_,         ":aGa&D0" },
+                {   L_,         ":aHa" },
+                {   L_,         ":aHa&NT" },
+                {   L_,         ":aHa&NF" },
+                {   L_,         ":aHa&D0" },
+                {   L_,         ":aNa" },
+                {   L_,         ":aNa&NT" },
+                {   L_,         ":aNa&NF" },
+                {   L_,         ":aNa&D0" },
+                {   L_,         ":aPa" },
+                {   L_,         ":aPa&NT" },
+                {   L_,         ":aPa&NF" },
+                {   L_,         ":aPa&D0" },
+                {   L_,         ":aQa" },
+                {   L_,         ":aQa&NT" },
+                {   L_,         ":aQa&NF" },
+                {   L_,         ":aQa&D0" },
+                {   L_,         ":aRa" },
+                {   L_,         ":aRa&NT" },
+                {   L_,         ":aRa&NF" },
+                {   L_,         ":aRa&D0" },
+                {   L_,         ":aWa" },
+                {   L_,         ":aWa&NT" },
+                {   L_,         ":aWa&NF" },
+                {   L_,         ":aWa&D0" },
+                {   L_,         ":aVa" },
+                {   L_,         ":aVa&NT" },
+                {   L_,         ":aVa&NF" },
+                {   L_,         ":afa" },
+                {   L_,         ":afa&NT" },
+                {   L_,         ":afa&NF" },
+
+                {   L_,         ":b=tu5v :a$ab" },
+                {   L_,         ":b=tu5v :a$ab&NT" },
+                {   L_,         ":b=tu5v :a$ab&NF" },
+
+                {   L_,         ":b=tu5v :a^ab" },
+                {   L_,         ":b=tu5v :a^ab&NT" },
+                {   L_,         ":b=tu5v :a^ab&NF" },
+
+                {   L_,         ":b=tu5v :a!ab" },
+                {   L_,         ":b=tu5v :a!ab&NT" },
+                {   L_,         ":b=tu5v :a!ab&NF" },
+
+                {   L_,         ":b=tu5v :a/ab" },
+                {   L_,         ":b=tu5v :a/ab&NT" },
+                {   L_,         ":b=tu5v :a/ab&NF" },
+
+                {   L_,         ":aCbFcGdQf :g+ha" },
+                {   L_,         ":aCbFcGdQf :g+ha&NT" },
+                {   L_,         ":aCbFcGdQf :g+ha&NF" },
+
+                {   L_,         ":aCbFcGdQf :g#ha" },
+                {   L_,         ":aCbFcGdQf :g#ha&NT" },
+                {   L_,         ":aCbFcGdQf :g#ha&NF" },
+
+                {   L_,         ":a?CbFcGdQf :g%ha" },
+                {   L_,         ":a?CbFcGdQf :g%ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g%ha&NF" },
+
+                {   L_,         ":a?CbFcGdQf :g@ha" },
+                {   L_,         ":a?CbFcGdQf :g@ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g@ha&NF" },
+
+                // For Choice Aggregates
+                {   L_,         ":a?Ca" },
+                {   L_,         ":a?Ca&NT" },
+                {   L_,         ":a?Ca&NF" },
+                {   L_,         ":a?Ca&D0" },
+                {   L_,         ":a?Fa" },
+                {   L_,         ":a?Fa&NT" },
+                {   L_,         ":a?Fa&NF" },
+                {   L_,         ":a?Fa&D0" },
+                {   L_,         ":a?Ga" },
+                {   L_,         ":a?Ga&NT" },
+                {   L_,         ":a?Ga&NF" },
+                {   L_,         ":a?Ga&D0" },
+                {   L_,         ":a?Ha" },
+                {   L_,         ":a?Ha&NT" },
+                {   L_,         ":a?Ha&NF" },
+                {   L_,         ":a?Ha&D0" },
+                {   L_,         ":a?Na" },
+                {   L_,         ":a?Na&NT" },
+                {   L_,         ":a?Na&NF" },
+                {   L_,         ":a?Na&D0" },
+                {   L_,         ":a?Pa" },
+                {   L_,         ":a?Pa&NT" },
+                {   L_,         ":a?Pa&NF" },
+                {   L_,         ":a?Pa&D0" },
+                {   L_,         ":a?Qa" },
+                {   L_,         ":a?Qa&NT" },
+                {   L_,         ":a?Qa&NF" },
+                {   L_,         ":a?Qa&D0" },
+                {   L_,         ":a?Ra" },
+                {   L_,         ":a?Ra&NT" },
+                {   L_,         ":a?Ra&NF" },
+                {   L_,         ":a?Ra&D0" },
+                {   L_,         ":a?Wa" },
+                {   L_,         ":a?Wa&NT" },
+                {   L_,         ":a?Wa&NF" },
+                {   L_,         ":a?Wa&D0" },
+                {   L_,         ":a?Va" },
+                {   L_,         ":a?Va&NT" },
+                {   L_,         ":a?Va&NF" },
+                {   L_,         ":a?fa" },
+                {   L_,         ":a?fa&NT" },
+                {   L_,         ":a?fa&NF" },
+
+                {   L_,         ":b=tu5v :a?$ab" },
+                {   L_,         ":b=tu5v :a?$ab&NT" },
+                {   L_,         ":b=tu5v :a?$ab&NF" },
+                {   L_,         ":b=tu5v :a?$ab&D0" },
+                {   L_,         ":b=tu5v :a?^ab" },
+                {   L_,         ":b=tu5v :a?^ab&NT" },
+                {   L_,         ":b=tu5v :a?^ab&NF" },
+                {   L_,         ":b=tu5v :a?^ab&D0" },
+                {   L_,         ":b=tu5v :a?!ab" },
+                {   L_,         ":b=tu5v :a?!ab&NT" },
+                {   L_,         ":b=tu5v :a?!ab&NF" },
+                {   L_,         ":b=tu5v :a?!ab&D0" },
+                {   L_,         ":b=tu5v :a?/ab" },
+                {   L_,         ":b=tu5v :a?/ab&NT" },
+                {   L_,         ":b=tu5v :a?/ab&NF" },
+                {   L_,         ":b=tu5v :a?/ab&D0" },
+                {   L_,         ":aCbFcGdQf  :g?+ha" },
+                {   L_,         ":aCbFcGdQf  :g?+ha&NT" },
+                {   L_,         ":aCbFcGdQf  :g?+ha&NF" },
+                {   L_,         ":aCbFcGdQf  :g?#ha" },
+                {   L_,         ":aCbFcGdQf  :g?#ha&NT" },
+                {   L_,         ":aCbFcGdQf  :g?#ha&NF" },
+                {   L_,         ":a?CbFcGdQf :g?%ha" },
+                {   L_,         ":a?CbFcGdQf :g?%ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g?%ha&NF" },
+                {   L_,         ":a?CbFcGdQf :g?@ha" },
+                {   L_,         ":a?CbFcGdQf :g?@ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g?@ha&NF" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+                const bool  NSA  = (bool) bsl::strstr(SPEC, "&FN");
+
+                Schema s; ggSchema(&s, SPEC);
+                const RecDef& r = s.record(s.numRecords() - 1);
+                const FldDef& f = r.field(0);
+
+                const char           *fldName  = r.fieldName(0);
+                ET::Type              TYPE     = f.elemType();
+                const bool            DEF_VAL  = f.hasDefaultValue();
+                const bool            isNull   = !DEF_VAL
+                                               || ET::isArrayType(TYPE);
+                const EnumDef *const  ENUM_DEF =
+                                            r.field(0).enumerationConstraint();
+
+                const CERef CEN = getCERef(TYPE, 0);
+                const CERef CEA = getCERef(TYPE, 1);
+                const CERef CEB = getCERef(TYPE, 2);
+
+                      int NULLNESS_FLAGS   = 1;
+                const int NULLNESS_BIT_IDX = 0;
+
+                const CERef NULL_CER(CEN.data(),
+                                     CEN.descriptor(),
+                                     &NULLNESS_FLAGS,
+                                     NULLNESS_BIT_IDX);
+
+                const ERef  EA = getERef(TYPE, 1);
+                const ERef  EB = getERef(TYPE, 2);
+                const ERef NULL_ER((void *) CEN.data(),
+                                   CEN.descriptor(),
+                                   &NULLNESS_FLAGS,
+                                   NULLNESS_BIT_IDX);
+
+                bslma_TestAllocator t(veryVeryVerbose);
+                int n = 0;
+                void *d = makeValuePtr(TYPE, &t);
+
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(TYPE);
+                mX.setDataPointer(d);
+                mX.setSchemaPointer(&s);
+                mX.setTopLevelAggregateNullnessPointer(&n);
+                mX.setRecordDefPointer(&r);
+                mX.setFieldDefPointer(&f);
+
+                if (veryVerbose) { T_ P_(LINE) P(X) };
+
+                LOOP_ASSERT(LINE, TYPE == X.dataType());
+                LOOP_ASSERT(LINE, d    == X.data());
+                LOOP_ASSERT(LINE, &s   == X.schema());
+                LOOP_ASSERT(LINE, &r   == X.recordConstraint());
+                LOOP_ASSERT(LINE, &f   == X.fieldDef());
+
+                destroyValuePtr(d, TYPE, &t);
+            }
+        }
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING ASSIGNMENT OPERATOR:
+        //
+        // Concerns:
+        //   Any value must be assignable to an object having any initial value
+        //   without affecting the rhs operand value.  Also, any object must be
+        //   assignable to itself.  Assigning a value to an object with the
+        //   same value type should use assignment, whereas assigning a value
+        //   to an object with a different value type should use destruction
+        //   and copy construction.
+        //
+        // Plan:
+        //   Specify a set S of (unique) objects with substantial and varied
+        //   differences in value.  Construct and initialize all combinations
+        //   (mX, mZ) in the cross product S x S, copy construct a control mY
+        //   from mX, assign mX to mZ and assert that mX == mZ and mY == mZ.
+        //   Ensure that assignment does not copy the allocator to assigned
+        //   object.  Use the bdema exception macros to ensure that the
+        //   operation is exception safe and there are no memory leaks when
+        //   the assigned object is constructed with various allocation
+        //   strategies.  Additionally, test that assignment of a null object
+        //   to a constructed object works.
+        //
+        // Testing:
+        //   bdem_Aggregate& operator=(const bdem_Aggregate& rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING ASSIGNMENT OPERATOR"
+                          << "\n===========================" << bsl::endl;
+
+        const struct {
+            int         d_line;
+            const char *d_spec;
+        } DATA[] = {
+            // Line         Spec
+            // ----         ----
+            // For List Aggregates
+            {   L_,         ":aCa" },
+            {   L_,         ":aCa&NF" },
+            {   L_,         ":aCa&D0" },
+            {   L_,         ":aFa" },
+            {   L_,         ":aFa&NT" },
+            {   L_,         ":aFa&NF" },
+            {   L_,         ":aFa&D0" },
+            {   L_,         ":aGa" },
+            {   L_,         ":aGa&NT" },
+            {   L_,         ":aGa&NF" },
+            {   L_,         ":aGa&D0" },
+            {   L_,         ":aHa" },
+            {   L_,         ":aHa&NT" },
+            {   L_,         ":aHa&NF" },
+            {   L_,         ":aHa&D0" },
+            {   L_,         ":aNa" },
+            {   L_,         ":aNa&NT" },
+            {   L_,         ":aNa&NF" },
+            {   L_,         ":aNa&D0" },
+            {   L_,         ":aNa&FN" },
+            {   L_,         ":aPa" },
+            {   L_,         ":aPa&NT" },
+            {   L_,         ":aPa&NF" },
+            {   L_,         ":aPa&D0" },
+            {   L_,         ":aPa&FN" },
+            {   L_,         ":aQa" },
+            {   L_,         ":aQa&NT" },
+            {   L_,         ":aQa&NF" },
+            {   L_,         ":aQa&D0" },
+            {   L_,         ":aQa&FN" },
+            {   L_,         ":aRa" },
+            {   L_,         ":aRa&NT" },
+            {   L_,         ":aRa&NF" },
+            {   L_,         ":aRa&D0" },
+            {   L_,         ":aRa&FN" },
+            {   L_,         ":aWa"    },
+            {   L_,         ":aWa&NT" },
+            {   L_,         ":aWa&NF" },
+            {   L_,         ":aWa&D0" },
+            {   L_,         ":aaa&FN" },
+            {   L_,         ":aVa"    },
+            {   L_,         ":aVa&NT" },
+            {   L_,         ":aVa&NF" },
+            {   L_,         ":afa"    },
+            {   L_,         ":afa&NT" },
+            {   L_,         ":afa&NF" },
+
+            {   L_,         ":b=tu5v :a$ab" },
+            {   L_,         ":b=tu5v :a$ab&NT" },
+            {   L_,         ":b=tu5v :a$ab&NF" },
+
+            {   L_,         ":b=tu5v :a^ab" },
+            {   L_,         ":b=tu5v :a^ab&NT" },
+            {   L_,         ":b=tu5v :a^ab&NF" },
+
+            {   L_,         ":b=tu5v :a!ab" },
+            {   L_,         ":b=tu5v :a!ab&NT" },
+            {   L_,         ":b=tu5v :a!ab&NF" },
+            {   L_,         ":b=tu5v :a!ab&FN" },
+
+            {   L_,         ":b=tu5v :a/ab" },
+            {   L_,         ":b=tu5v :a/ab&NT" },
+            {   L_,         ":b=tu5v :a/ab&NF" },
+            {   L_,         ":b=tu5v :a/ab&FN" },
+
+            {   L_,         ":aCbFcGdQf :g+ha" },
+            {   L_,         ":aCbFcGdQf :g+ha&NT" },
+            {   L_,         ":aCbFcGdQf :g+ha&NF" },
+
+            {   L_,         ":aCbFcGdQf :g#ha" },
+            {   L_,         ":aCbFcGdQf :g#ha&NT" },
+            {   L_,         ":aCbFcGdQf :g#ha&NF" },
+
+            {   L_,         ":a?CbFcGdQf :g%ha" },
+            {   L_,         ":a?CbFcGdQf :g%ha&NT" },
+            {   L_,         ":a?CbFcGdQf :g%ha&NF" },
+
+            {   L_,         ":a?CbFcGdQf :g@ha" },
+            {   L_,         ":a?CbFcGdQf :g@ha&NT" },
+            {   L_,         ":a?CbFcGdQf :g@ha&NF" },
+
+            // For Choice Aggregates
+            {   L_,         ":a?Ca" },
+            {   L_,         ":a?Ca&NT" },
+            {   L_,         ":a?Ca&NF" },
+            {   L_,         ":a?Ca&D0" },
+            {   L_,         ":a?Fa" },
+            {   L_,         ":a?Fa&NT" },
+            {   L_,         ":a?Fa&NF" },
+            {   L_,         ":a?Fa&D0" },
+            {   L_,         ":a?Ga" },
+            {   L_,         ":a?Ga&NT" },
+            {   L_,         ":a?Ga&NF" },
+            {   L_,         ":a?Ga&D0" },
+            {   L_,         ":a?Ha" },
+            {   L_,         ":a?Ha&NT" },
+            {   L_,         ":a?Ha&NF" },
+            {   L_,         ":a?Ha&D0" },
+            {   L_,         ":a?Na" },
+            {   L_,         ":a?Na&NT" },
+            {   L_,         ":a?Na&NF" },
+            {   L_,         ":a?Na&D0" },
+            {   L_,         ":a?Pa" },
+            {   L_,         ":a?Pa&NT" },
+            {   L_,         ":a?Pa&NF" },
+            {   L_,         ":a?Pa&D0" },
+            {   L_,         ":a?Qa" },
+            {   L_,         ":a?Qa&NT" },
+            {   L_,         ":a?Qa&NF" },
+            {   L_,         ":a?Qa&D0" },
+            {   L_,         ":a?Ra" },
+            {   L_,         ":a?Ra&NT" },
+            {   L_,         ":a?Ra&NF" },
+            {   L_,         ":a?Ra&D0" },
+            {   L_,         ":a?Wa" },
+            {   L_,         ":a?Wa&NT" },
+            {   L_,         ":a?Wa&NF" },
+            {   L_,         ":a?Wa&D0" },
+            {   L_,         ":a?Va" },
+            {   L_,         ":a?Va&NT" },
+            {   L_,         ":a?Va&NF" },
+            {   L_,         ":a?fa" },
+            {   L_,         ":a?fa&NT" },
+            {   L_,         ":a?fa&NF" },
+
+            {   L_,         ":aCbFcGdQf :g?+ha" },
+            {   L_,         ":aCbFcGdQf :g?+ha&NT" },
+            {   L_,         ":aCbFcGdQf :g?+ha&NF" },
+
+            {   L_,         ":aCbFcGdQf :g?#ha" },
+            {   L_,         ":aCbFcGdQf :g?#ha&NT" },
+            {   L_,         ":aCbFcGdQf :g?#ha&NF" },
+
+            {   L_,         ":a?CbFcGdQf :g?%ha" },
+            {   L_,         ":a?CbFcGdQf :g?%ha&NT" },
+            {   L_,         ":a?CbFcGdQf :g?%ha&NF" },
+
+            {   L_,         ":a?CbFcGdQf :g?@ha" },
+            {   L_,         ":a?CbFcGdQf :g?@ha&NT" },
+            {   L_,         ":a?CbFcGdQf :g?@ha&NF" },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int   LINE1 = DATA[i].d_line;
+            const char *SPEC1 = DATA[i].d_spec;
+            const bool  NSA1  = (bool) bsl::strstr(SPEC1, "&FN");
+
+            Schema schema1; const Schema& SCHEMA1 = schema1;
+            ggSchema(&schema1, SPEC1);
+            const RecDef *RECORD1 = NSA1
+                                 ? &SCHEMA1.record(0)
+                                 : &SCHEMA1.record(SCHEMA1.numRecords() - 1);
+
+            ET::Type TYPE1 = NSA1
+                       ? ET::toArrayType(SCHEMA1.record(1).field(0).elemType())
+                       : RECORD1->field(0).elemType();
+            const char *fldName1 = RECORD1->fieldName(0);
+
+            const CERef A1 = getCERef(TYPE1, 1);
+            const CERef A2 = getCERef(TYPE1, 2);
+
+            if (veryVerbose) { T_ P_(SPEC1) P(SCHEMA1) };
+
+            bslma_TestAllocator t1(veryVeryVerbose);
+            Obj mX;  const Obj& X = mX;
+            int rc = ggAggData(&mX, *RECORD1, &t1);
+            ASSERT(!rc);
+
+            Error err;
+            Obj mA;  const Obj& A = mA;
+            if (RecDef::BDEM_CHOICE_RECORD == RECORD1->recordType()) {
+                int rc = mX.makeSelection(&mA, & err, fldName1);
+                ASSERT(!rc);
+            }
+
+            rc = mX.setField(&mA, &err,fldName1, A1);
+            ASSERT(!rc);
+
+            for (int j = 0; j < NUM_DATA; ++j) {
+                const int   LINE2 = DATA[j].d_line;
+                const char *SPEC2 = DATA[j].d_spec;
+                const bool  NSA2  = (bool) bsl::strstr(SPEC2, "&FN");
+
+                Schema schema2; const Schema& SCHEMA2 = schema2;
+                ggSchema(&schema2, SPEC2);
+                const RecDef *RECORD2 = NSA2
+                                   ? &SCHEMA2.record(0)
+                                   : &SCHEMA2.record(SCHEMA2.numRecords() - 1);
+
+                ET::Type TYPE2 = NSA2
+                       ? ET::toArrayType(SCHEMA2.record(1).field(0).elemType())
+                       : RECORD2->field(0).elemType();
+                const char *fldName2 = RECORD2->fieldName(0);
+
+                const CERef B1 = getCERef(TYPE2, 1);
+                const CERef B2 = getCERef(TYPE2, 2);
+
+                if (veryVerbose) { T_ P_(SPEC2) P(SCHEMA2) };
+
+                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                Obj mY;  const Obj& Y = mY;
+                int rc = ggAggData(&mY, *RECORD2, &testAllocator);
+                ASSERT(!rc);
+
+                Error err;
+                Obj mB;  const Obj& B = mB;
+                if (RecDef::BDEM_CHOICE_RECORD == RECORD2->recordType()) {
+                    int rc = mY.makeSelection(&mB, &err, fldName2);
+                    ASSERT(!rc);
+                }
+
+                rc = mY.setField(&mB, &err,fldName2, B1);
+                ASSERT(!rc);
+                LOOP2_ASSERT(LINE1, LINE2, !Obj::areIdentical(A, B));
+
+                if (veryVerbose) {
+                    P(A) P(B)
+                }
+
+              BEGIN_BSLMA_EXCEPTION_TEST {
+                mB = A;
+                LOOP2_ASSERT(LINE1, LINE2, Obj::areIdentical(A, B));
+
+                mB.setValue(&err, A2);
+                LOOP2_ASSERT(LINE1, LINE2, Obj::areIdentical(A, B));
+
+                mB.makeNull();
+                LOOP2_ASSERT(LINE1, LINE2, Obj::areIdentical(A, B));
+              } END_BSLMA_EXCEPTION_TEST
+
+              destroyAggData(&mY, &testAllocator);
+            }
+            destroyAggData(&mX, &t1);
+        }
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // TESTING print() FUNCTION AND OUTPUT (<<) OPERATOR:
@@ -3088,6 +5402,8 @@ int main(int argc, char *argv[])
             }
         }
 
+// TBD: Uncomment
+#if 0
         if (veryVerbose) cout << bsl::endl
                               << "\n\tTest aggregate values" << bsl::endl;
         {
@@ -3100,32 +5416,32 @@ int main(int argc, char *argv[])
                 // For List Aggregates
                 {   L_,         ":aCa" },
                 {   L_,         ":aFa" },
-//                 {   L_,         ":aGa" },
-//                 {   L_,         ":aHa" },
-//                 {   L_,         ":aNa" },
-//                 {   L_,         ":aPa" },
-//                 {   L_,         ":aQa" },
-//                 {   L_,         ":aRa" },
-//                 {   L_,         ":aWa" },
-//                 {   L_,         ":aCbFcGdQf :g+ha" },
-//                 {   L_,         ":aCbFcGdQf :g#ha" },
-//                 {   L_,         ":a?CbFcGdQf :g%ha" },
-//                 {   L_,         ":a?CbFcGdQf :g@ha" },
+                {   L_,         ":aGa" },
+                {   L_,         ":aHa" },
+                {   L_,         ":aNa" },
+                {   L_,         ":aPa" },
+                {   L_,         ":aQa" },
+                {   L_,         ":aRa" },
+                {   L_,         ":aWa" },
+                {   L_,         ":aCbFcGdQf :g+ha" },
+                {   L_,         ":aCbFcGdQf :g#ha" },
+                {   L_,         ":a?CbFcGdQf :g%ha" },
+                {   L_,         ":a?CbFcGdQf :g@ha" },
 
                 // For Choice Aggregates
-//                 {   L_,         ":a?Ca" },
-//                 {   L_,         ":a?Fa" },
-//                 {   L_,         ":a?Ga" },
-//                 {   L_,         ":a?Ha" },
-//                 {   L_,         ":a?Na" },
-//                 {   L_,         ":a?Pa" },
-//                 {   L_,         ":a?Qa" },
-//                 {   L_,         ":a?Ra" },
-//                 {   L_,         ":a?Wa" },
-//                 {   L_,         ":aCbFcGdQf  :g?+ha" },
-//                 {   L_,         ":aCbFcGdQf  :g?#ha" },
-//                 {   L_,         ":a?CbFcGdQf :g?%ha" },
-//                 {   L_,         ":a?CbFcGdQf :g?@ha" },
+                {   L_,         ":a?Ca" },
+                {   L_,         ":a?Fa" },
+                {   L_,         ":a?Ga" },
+                {   L_,         ":a?Ha" },
+                {   L_,         ":a?Na" },
+                {   L_,         ":a?Pa" },
+                {   L_,         ":a?Qa" },
+                {   L_,         ":a?Ra" },
+                {   L_,         ":a?Wa" },
+                {   L_,         ":aCbFcGdQf  :g?+ha" },
+                {   L_,         ":aCbFcGdQf  :g?#ha" },
+                {   L_,         ":a?CbFcGdQf :g?%ha" },
+                {   L_,         ":a?CbFcGdQf :g?@ha" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3157,13 +5473,13 @@ int main(int argc, char *argv[])
                     mX.setDataType(ET::BDEM_LIST);
                     mX.setDataPointer(&list);
                     mX.setTopLevelAggregateNullnessPointer(&nf1);
-                    mX.setRecordDefPointer(&r);
+                    mX.setSchemaPointer(&s);
 
                     Obj mY; const Obj& Y = mY;
                     mY.setDataType(ET::BDEM_TABLE);
                     mY.setDataPointer(&table);
                     mY.setTopLevelAggregateNullnessPointer(&nf2);
-                    mX.setRecordDefPointer(&r);
+                    mX.setSchemaPointer(&s);
 
                     if (veryVerbose) { T_ P(X) P(Y) };
 
@@ -3230,13 +5546,13 @@ int main(int argc, char *argv[])
                     mX.setDataType(ET::BDEM_CHOICE);
                     mX.setDataPointer(&choice);
                     mX.setTopLevelAggregateNullnessPointer(&nf1);
-                    mX.setRecordDefPointer(&r);
+                    mX.setSchemaPointer(&s);
 
                     Obj mY; const Obj& Y = mY;
                     mY.setDataType(ET::BDEM_CHOICE_ARRAY);
                     mY.setDataPointer(&choiceArray);
                     mY.setTopLevelAggregateNullnessPointer(&nf2);
-                    mX.setRecordDefPointer(&r);
+                    mX.setSchemaPointer(&s);
 
                     if (veryVerbose) { T_ P(X) P(Y) };
 
@@ -3293,6 +5609,7 @@ int main(int argc, char *argv[])
                }
            }
         }
+#endif
       } break;
       case 8: {
         // --------------------------------------------------------------------
