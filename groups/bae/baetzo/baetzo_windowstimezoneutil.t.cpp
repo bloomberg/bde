@@ -1452,6 +1452,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
+#ifdef BDE_BUILD_TARGET_EXC
         {
             bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
 
@@ -1463,6 +1464,10 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(Obj::getWindowsTimeZoneId(&winId, 0));
             ASSERT_SAFE_FAIL(Obj::getWindowsTimeZoneId(0,      0));
         }
+#else  // BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\nDISABLED in this (non-exception) build mode."
+                          << endl;
+#endif // BDE_BUILD_TARGET_EXC
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1562,6 +1567,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
+#ifdef BDE_BUILD_TARGET_EXC
         {
             bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
 
@@ -1573,6 +1579,10 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(Obj::getZoneinfoId(&tzId, 0));
             ASSERT_SAFE_FAIL(Obj::getZoneinfoId(0,     0));
         }
+#else  // BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\nDISABLED in this (non-exception) build mode."
+                          << endl;
+#endif // BDE_BUILD_TARGET_EXC
       } break;
 #ifdef BSLS_PLATFORM__OS_WINDOWS
       case -1: {
