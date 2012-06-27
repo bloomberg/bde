@@ -169,7 +169,7 @@ bdesb_OverflowMemOutStreamBuf::seekoff(off_type                offset,
 
 bsl::streambuf *bdesb_OverflowMemOutStreamBuf::setbuf(char *, bsl::streamsize)
 {
-    // This function is not supported.
+    // this function is not supported
 
     return 0;
 }
