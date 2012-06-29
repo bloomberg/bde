@@ -42,10 +42,134 @@ BSLS_IDENT("$Id: $")
 //-----------------------------------------------------------------------------
 //..
 //
+// * HAS DUPLICATE CHARACTER instead?
+//
 ///Usage
 ///-----
-// This component is for use by the 'bsl+stdhdrs' package.  Use 'std::bitset'
-// directly.
+// This component is for use by the 'bsl+stdhdrs' package.  Developers should
+// include bsl_bitset.h and use 'bsl::bitset' from there.
+//
+// However, as a simple example we'll use this class to implement a function
+// which checks that a serial number satisfies some (artifical) constraints.
+//
+// Serial numbers must:
+// ..
+//: o consist of exactly 10 (ASCII) characters
+//:
+//: o contain only characters in the set '[0..9A-Z]'
+//:
+//: o not contain any repeated characters
+//..
+//
+// We start by implementing 'isValidSerialNumberCharacter':
+//..
+// bool isValidSerialNumberCharacter(char c)
+//   // Returns true if the specified 'c' is in the set '[0..9A..Z]'.
+// {
+//     return (c>='0' && c<='9') || (c>='A' && c<='Z');
+// }
+//..
+// Next, we implement 'convertSerialNumberCharToIndex':
+//..
+// std::size_t convertSerialNumberCharToIndex(char c)
+//   // Returns the 0-based position of the specified character 'c'
+//   // in the valid range '[0..9A-Z]'.  The behavior is undefined if 'c'
+//   // is not in the valid range.
+// {
+//     assert(isValidSerialNumberCharacter(c));
+//
+//     if (c >= '0' && c <= '9') {
+//         return c - '0';
+//     }
+//
+//     // 'c' must be in the 'A'..'Z' sub-range
+//     return ('9' - '0' + 1) + (c - 'A');
+// }
+//..
+// Next, we implement 'isValidSerialNumber':
+//..
+// bool isValidSerialNumber(const char *serialNumber)
+//   // Returns true if the specified 'serialNumber' satisfies the following
+//   // validation rules:
+//   // ...
+// {
+//     // First, we declare a bsl::bitset which will be used to check for
+//     // repeated characters:
+//     enum {
+//           SIZE_OF_ALLOWED_SET          = ('9' - '0' + 1) + ('Z' - 'A' + 1)
+//         , ALLOWED_SERIAL_NUMBER_LENGTH = 10
+//     };
+//
+//     typedef bsl::bitset<SIZE_OF_ALLOWED_SET> bitset;
+//
+//     bitset seenCharacters; // automatically 0-initialized
+//
+//     // Next, we check the length of the 'serialNumber':
+//     std::size_t length = std::strlen(serialNumber);
+//
+//     if (length != ALLOWED_SERIAL_NUMBER_LENGTH) {
+//         return false;                                              // RETURN
+//     }
+//
+//     // Finally, for each character in the 'serialNumber', we make sure it
+//     // is in the allowed range, and that it has not been seen before.  If
+//     // both of these conditions are satisfied, we mark it as seen and move
+//     // on to the next character.
+//
+//     for (int i = 0; i < length; ++i) {
+//         char c = serialNumber[i];
+//
+//         if ( ! isValidSerialNumberCharacter(c)) {
+//             return false;
+//         }
+//
+//         std::size_t index = convertSerialNumberCharToIndex(c);
+//         bitset::reference flag = seenCharacters[index];
+//
+//         if (flag) {
+//             // We have seen this character 'c' previously.
+//             return false;                                          // RETURN
+//         }
+//
+//         // 'flag' is a mutable reference:
+//         flag = true;
+//     }
+//
+//     // If we exit the loop, the serial number is valid.
+//     return true;
+// }
+//..
+// Finally, clients of 'isValidSerialNumber' can use the routine as follows:
+//..
+//     // "" is too short - validation should fail.
+//     assert( ! isValidSerialNumber(""));
+//
+//     // "123456789" is too short - validation should fail.
+//     assert( ! isValidSerialNumber("123456789"  ));
+//
+//     // "0000000000" is the right length, but contains repeated
+//     // characters - validation should fail.
+//     assert( ! isValidSerialNumber("0000000000" ));
+//
+//     // "123456789AZ" is too long - validation should fail.
+//     assert( ! isValidSerialNumber("123456789AZ"));
+//
+//     // "0123456789" is the right length, contains only valid characters,
+//     // and none of them are repeated.  Validation should succeed.
+//     assert(   isValidSerialNumber("0123456789" ));
+//
+//     // "ABCDEFGHIJ" is the right length, contains only valid characters,
+//     // and none of them are repeated.  Validation should succeed.
+//     assert( ! isValidSerialNumber("ABCDEFGHIJ" ));
+//
+//     // "aBCDEFGHIJ" is the right length, but contains an invalid character
+//     // ('a').  Validation should fail.
+//     assert( ! isValidSerialNumber("aBCDEFGHIJ" ));
+//
+//     // "ABCDEFGHIj" is the right length, but contains an invalid character
+//     // ('j').  Validation should fail.
+//     assert( ! isValidSerialNumber("ABCDEFGHIj" ));
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
