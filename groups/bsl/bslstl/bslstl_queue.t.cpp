@@ -2102,7 +2102,7 @@ void TestDriver<VALUE, CONTAINER>::testCase4()
                       objAllocatorPtr = &da;
                   } break;
                   case 'b': {
-                      objPtr = new (fa) Obj(0);
+                      objPtr = new (fa) Obj(static_cast<bslma_Allocator*>(0));
                       objAllocatorPtr = &da;
                   } break;
                   case 'c': {
@@ -2422,7 +2422,7 @@ void TestDriver<VALUE, CONTAINER>::testCase2()
                   objAllocatorPtr = &da;
               } break;
               case 'b': {
-                  objPtr = new (fa) Obj(0);
+                  objPtr = new (fa) Obj(static_cast<bslma_Allocator*>(0));
                   objAllocatorPtr = &da;
               } break;
               case 'c': {
@@ -2744,9 +2744,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         const int intArray[] = {0, -2, INT_MAX, INT_MIN, -1, 1, 2};
-              int numInt     = sizeof(intArray) / sizeof(*intArray);
+        const int numInt     = sizeof(intArray) / sizeof(*intArray);
 
-        bsl::queue<int, deque<int> > intQueue;
+        bsl::queue<int> intQueue;
         for (int i = 0; i < numInt; ++i) {
             intQueue.push(intArray[i]);
             ASSERT(intArray[i] == intQueue.back());

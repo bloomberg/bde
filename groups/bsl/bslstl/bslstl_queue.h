@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component defines a class template, 'bsl::queue', holding
 // a container (of a parameterized type 'CONTAINER' containing elements of
 // another parameterized type 'VALUE'), and adapting it to provide a
-// first-in-first-out data structure.
+// first-in-first-out queue data structure.
 //
 // An instantiation of 'queue' is an allocator-aware, value-semantic type whose
 // salient attributes are its size (number of elements held) and the sequence
@@ -29,12 +29,32 @@ BSLS_IDENT("$Id: $")
 // is not itself value-semantic, then it will not retain all of its
 // value-semantic qualities.
 //
-// A 'queue' meets the requirements of a container adapter in the C++ standard
+// 'queue' meets the requirements of a container adapter in the C++ standard
 // [23.6].  The 'queue' implemented here adheres to the C++11 standard, except
-// that it does not have interfaces that take rvalue references,
-// 'initializer_lists', and 'emplace'.  Note that excluded C++11 features are
-// those that require (or are greatly simplified by) C++11 compiler support.
-
+// that it does not have methods that take rvalue references and
+// 'initializer_lists'.  Note that excluded C++11 features are those that
+// require C++11 compiler support.
+//
+///Operations
+///----------
+// The C++11 standard [23.6.3.1] declares any container type supporting
+// operations 'front', 'back', 'push_back' and 'pop_front' can be used to
+// instantiate the parameterized type 'CONTAINER'.  Below is a list of public
+// methods of 'queue' class that effectively forward their implementations to
+// corresponding operations in the container type.
+//  +--------------------------------------+---------------------------+
+//  | Public methods in 'queue'            | Operation in 'CONTAINER'  |
+//  +======================================+===========================+
+//  | void push(const value_type& value);  | c.push_back(value);       |
+//  | void pop();                          | c.pop_front();            |
+//  | reference front();                   | c.front();                |
+//  | reference back();                    | c.back();                 |
+//  +--------------------------------------+---------------------------+
+//  | size_type size() const;              | c.size();                 |
+//  | const_reference front() const;       | c.front();                |
+//  | const_reference back()  const;       | c.back();                 |
+//  +--------------------------------------+---------------------------+
+//
 ///Memory Allocation
 ///-----------------
 // The type supplied as 'ALLOCATOR' template parameter in some of 'queue'
@@ -43,16 +63,9 @@ BSLS_IDENT("$Id: $")
 // allocators meeting the requirements of the C++11 standard [17.6.3.5] as long
 // as the held container does.  In addition it supports scoped-allocators
 // derived from the 'bslma_Allocator' memory allocation protocol.  Clients
-// intending to use 'bslma' style allocators should use the template's default
-// 'ALLOCATOR' type: The default type for the 'ALLOCATOR' template parameter,
-// 'bsl::allocator',  provides a C++11 standard-compatible adapter for a
-// 'bslma_Allocator' object.
-//
-///(TBD) Operations
-///----------
-// This section describes the run-time complexity of operations on 'queue'
-// objects : (skong25: the complexity of each operation depends on the adapted
-// container, do we need this section here?)
+// intending to use 'bslma' style allocators should use 'bsl::allocator' as the
+// 'ALLOCATOR' template parameter, providing a C++11 standard-compatible
+// adapter for a 'bslma_Allocator' object.
 //
 ///Usage
 ///-----
@@ -67,15 +80,15 @@ BSLS_IDENT("$Id: $")
 // First, we define an array of integers:
 //..
 //  const int intArray[] = {0, -2, INT_MAX, INT_MIN, -1, 1, 2};
-//        int numInt     = sizeof(intArray) / sizeof(*intArray);
+//  const int numInt     = sizeof(intArray) / sizeof(*intArray);
 //..
 // Then, we create a 'bsl::queue' object to adapt the 'bsl::deque<int>' type,
 // using the default constructor of 'queue':
 //..
-//  bsl::queue<int, deque<int> > intQueue;
+//  bsl::queue<int> intQueue;
 //..
-// Now, using a for loop, we push the integers in the previously defined array
-// into the queue:
+// Now, using a 'for' loop, we push the integers from the previously defined
+// array into the queue:
 //..
 //  for (int i = 0; i < numInt; ++i) {
 //      intQueue.push(intArray[i]);
@@ -86,7 +99,8 @@ BSLS_IDENT("$Id: $")
 // becomes the back element of the queue.  This is verified by invoking the
 // 'back' accessor.
 //
-// Finally, using a second for loop, we pop integers from the queue one by one,
+// Finally, using a second 'for' loop, we pop integers from the queue one by
+// one:
 //..
 //  for (int i = 0;i < numInt; ++i) {
 //      assert(intArray[i] == intQueue.front());
@@ -97,8 +111,8 @@ BSLS_IDENT("$Id: $")
 // Notice that every time an integer is popped out from the queue, the front
 // element of the queue becomes the previously next pushed integer.  This is
 // verified by invoking the 'front' accessor.  The sequence of integers popped
-// out is in the exact same order as they were pushed in, keeping the
-// first-in-first-out property.
+// out is in the exact same order as they were pushed in, according to the
+// first-in-first-out property of the queue.
 
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>
@@ -116,6 +130,14 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ENABLEIF
+#include <bslmf_enableif.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
+#include <bslmf_isconvertible.h>
+#endif
+
 #ifndef INCLUDED_FUNCTIONAL
 #include <functional>
 #define INCLUDED_FUNCTIONAL
@@ -128,149 +150,145 @@ namespace bsl {
                              // ===========
 
 template <class VALUE, class CONTAINER = deque<VALUE> >
-class queue {
+class queue
     // This class is a value-semantic class template, having a container of the
     // parameterized 'CONTAINER' type that holds elements of the parameterized
-    // 'VALUE' type, to provide a first-in-first-out data structure.
-
+    // 'VALUE' type, to provide a first-in-first-out queue data structure.  The
+    // container object held by a 'queue' class object is referenced as 'c' in
+    // the following documentation.
+{
     // FRIENDS
-    template<class VALUE2, class CONTAINER2>
+    template <class VALUE2, class CONTAINER2>
     friend bool operator==(const queue<VALUE2, CONTAINER2>&,
                            const queue<VALUE2, CONTAINER2>&);
 
-    template<class VALUE2, class CONTAINER2>
+    template <class VALUE2, class CONTAINER2>
     friend bool operator!=(const queue<VALUE2, CONTAINER2>&,
                            const queue<VALUE2, CONTAINER2>&);
 
-    template<class VALUE2, class CONTAINER2>
+    template <class VALUE2, class CONTAINER2>
     friend bool operator< (const queue<VALUE2, CONTAINER2>&,
                            const queue<VALUE2, CONTAINER2>&);
 
-    template<class VALUE2, class CONTAINER2>
+    template <class VALUE2, class CONTAINER2>
     friend bool operator> (const queue<VALUE2, CONTAINER2>&,
                            const queue<VALUE2, CONTAINER2>&);
 
-    template<class VALUE2, class CONTAINER2>
+    template <class VALUE2, class CONTAINER2>
     friend bool operator<=(const queue<VALUE2, CONTAINER2>&,
                            const queue<VALUE2, CONTAINER2>&);
 
-    template<class VALUE2, class CONTAINER2>
+    template <class VALUE2, class CONTAINER2>
     friend bool operator>=(const queue<VALUE2, CONTAINER2>&,
                            const queue<VALUE2, CONTAINER2>&);
 
-
-  protected:
-
-    CONTAINER c;
-
   public:
-
+    // TYPES
     typedef typename CONTAINER::value_type      value_type;
     typedef typename CONTAINER::reference       reference;
     typedef typename CONTAINER::const_reference const_reference;
     typedef typename CONTAINER::size_type       size_type;
     typedef          CONTAINER                  container_type;
 
-    // CREATORS
+  protected:
+    // DATA
+    CONTAINER c;    // container of elements that the queue holds, protected as
+                    // required by C++11
 
+  public:
+    // CREATORS
     explicit queue();
         // Construct an empty queue having a container of the parameterized
-        // 'CONTAINER' type.  Note that the memory is supplied by the currently
-        // installed default allocator.
+        // 'CONTAINER' type.
 
     explicit queue(const CONTAINER& container);
         // Construct a queue having the specified 'container' that holds
-        // elements of the parameterized 'VALUE' type.  Note that the memory is
-        // supplied by the currently installed default allocator.
-
-//  explicit queue(CONTAINER&& = CONTAINER());
-
-//  queue(queue&& q);
+        // elements of the parameterized 'VALUE' type.
 
     queue(const queue& original);
         // Construct a queue having the same value as that of the specified
-        // 'original'.  Note that the memory is supplied by the currently
-        // installed default allocator.
+        // 'original'.
 
     template <class ALLOCATOR>
-    explicit queue(const ALLOCATOR& allocator);
+    explicit
+    queue(const ALLOCATOR& allocator,
+          typename BloombergLP::bslmf_EnableIf<
+              BloombergLP::bslmf_IsConvertible<
+                           ALLOCATOR,
+                           typename CONTAINER::allocator_type>::VALUE>
+              ::type * = 0);
         // Construct an empty queue that holds a default-constructed container
         // of the parameterized 'CONTAINER' type, and will use the specified
-        // 'allocator' to supply memory.  If the template parameter 'ALLOCATOR'
-        // is 'bsl::allocator' (the default) then 'allocator' shall be
-        // convertible to 'bslma_Allocator*'.
+        // 'allocator' to supply memory.  The type 'ALLOCATOR' has to be the
+        // same as the one the held container is parameterized with.
 
     template <class ALLOCATOR>
-    queue(const CONTAINER& container, const ALLOCATOR& allocator);
+    queue(const CONTAINER& container,
+          const ALLOCATOR& allocator,
+          typename BloombergLP::bslmf_EnableIf<
+              BloombergLP::bslmf_IsConvertible<
+                           ALLOCATOR,
+                           typename CONTAINER::allocator_type>::VALUE>
+              ::type * = 0);
         // Construct an empty queue that holds the specified 'container', and
         // will use the specified 'allocator' to supply memory.  If the
         // template parameter 'ALLOCATOR' is 'bsl::allocator' (the default)
         // then 'allocator' shall be convertible to 'bslma_Allocator*'.
 
-//  template <class ALLOCATOR>
-//  queue(CONTAINER&& container, const ALLOCATOR& allocator);
-
     template <class ALLOCATOR>
-    queue(const queue& original, const ALLOCATOR& allocator);
+    queue(const queue& original,
+          const ALLOCATOR& allocator,
+          typename BloombergLP::bslmf_EnableIf<
+              BloombergLP::bslmf_IsConvertible<
+                           ALLOCATOR,
+                           typename CONTAINER::allocator_type>::VALUE>
+              ::type * = 0);
         // Construct a queue having the same value as that of the specified
         // 'original' that will use the specified 'allocator' to supply memory.
         // If the template parameter 'ALLOCATOR' is 'bsl::allocator' (the
         // default) then 'allocator' shall be convertible to
         // 'bslma_Allocator*'.
 
-
-//  template <class ALLOCATOR>
-//  queue(queue&& original, const ALLOCATOR& allocator);
-
     // MANIPULATORS
-
-//  queue& operator=(queue&& other);
-
-    queue& operator=(const queue& other);
-        // Assign to this 'queue' object the value of the specified 'other' and
-        // return a reference to this modifiable object.
-
     void push(const value_type& value);
-        // Insert a new element have the specified 'value' to the back of this
-        // 'queue' object.
-
-//  void push(value_type&& value) { c.push_back(std::move(value)); }
-//  template <class... Args> void emplace(Args&&... args)
-//  { c.emplace_back(std::forward<Args>(args)...); }
+        // Insert a new element having the specified 'value' to the back of
+        // this 'queue' object.  In effect, performs 'c.push_back(value);'.
 
     void pop();
         // Remove the front (the earliest pushed) element from this 'queue'
-        // object.
+        // object.  In effect, performs 'c.pop_front();'.
 
     void swap(queue& other);
         // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.
+        // specified 'other' object.  In effect, performs
+        // 'using bsl::swap; swap(c, other.c);'.
 
     reference front();
-        // Return the mutable front (the earliest pushed) element from this
-        // 'queue' object.
+        // Return the mutable reference to the front (the earliest pushed)
+        // element from this 'queue' object.  In effect, performs
+        // 'return c.front();'.
 
     reference back();
-        // Return the mutable back (the latest pushed) element from this
-        // 'queue' object.
+        // Return the mutable reference to the back (the latest pushed) element
+        // of this 'queue' object.  In effect, performs 'return c.back();'.
 
 
     // ACCESSORS
     bool empty() const;
         // Return 'true' if this 'queue' object contains no elements, and
-        // 'false' otherwise.
+        // 'false' otherwise.  In effect, performs 'return c.empty();'.
 
     size_type size() const;
         // Return 'true' if this 'queue' object contains no elements, and
-        // 'false' otherwise.
+        // 'false' otherwise.  In effect, performs 'return c.size();'.
 
     const_reference front() const;
         // Return the immutable front (the earliest pushed) element from this
-        // 'queue' object.
+        // 'queue' object.  In effect, performs 'c.front()'.
 
     const_reference back() const;
         // Return the immutable back (the latest pushed) element from this
-        // 'queue' object.
+        // 'queue' object.  In effect, performs 'c.back()'.
 };
 
 // FREE FUNCTIONS
@@ -336,12 +354,6 @@ void swap(queue<VALUE, CONTAINER>& lhs,
     // Swap the value of the specified 'lhs' queue with the value of the
     // specified 'rhs' queue.
 
-// template <class VALUE, class CONTAINER, class ALLOCATOR>
-// struct uses_allocator<queue<VALUE, CONTAINER>, ALLOCATOR>
-// : uses_allocator<CONTAINER, ALLOCATOR>::type
-// {
-// };
-
 // ==========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -374,7 +386,13 @@ queue<VALUE, CONTAINER>::queue(const queue& original)
 template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
-queue<VALUE, CONTAINER>::queue(const ALLOCATOR& allocator)
+queue<VALUE, CONTAINER>::queue(const ALLOCATOR& allocator,
+                               typename BloombergLP::bslmf_EnableIf<
+                                   BloombergLP::bslmf_IsConvertible<
+                                       ALLOCATOR,
+                                       typename CONTAINER::allocator_type>
+                                       ::VALUE>
+                                   ::type *)
 : c(allocator)
 {
 }
@@ -383,7 +401,13 @@ template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
 queue<VALUE, CONTAINER>::queue(const CONTAINER& container,
-                               const ALLOCATOR& allocator)
+                               const ALLOCATOR& allocator,
+                               typename BloombergLP::bslmf_EnableIf<
+                                   BloombergLP::bslmf_IsConvertible<
+                                       ALLOCATOR,
+                                       typename CONTAINER::allocator_type>
+                                       ::VALUE>
+                                   ::type *)
 : c(container, allocator)
 {
 }
@@ -392,24 +416,18 @@ template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
 queue<VALUE, CONTAINER>::queue(const queue&     queue,
-                               const ALLOCATOR& allocator)
+                               const ALLOCATOR& allocator,
+                               typename BloombergLP::bslmf_EnableIf<
+                                   BloombergLP::bslmf_IsConvertible<
+                                       ALLOCATOR,
+                                       typename CONTAINER::allocator_type>
+                                       ::VALUE>
+                                   ::type *)
 : c(queue.c, allocator)
 {
 }
 
 // MANIPULATORS
-
-template <class VALUE, class CONTAINER>
-inline
-queue<VALUE, CONTAINER>&
-queue<VALUE, CONTAINER>::operator=(const queue& other)
-{
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &other)) {
-        c = other.c;
-    }
-    return *this;
-}
-
 template <class VALUE, class CONTAINER>
 inline
 void queue<VALUE, CONTAINER>::push(const value_type& value)
