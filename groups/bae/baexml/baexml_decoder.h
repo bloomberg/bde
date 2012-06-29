@@ -2912,7 +2912,7 @@ baexml_Decoder_PrepareSequenceContext::baexml_Decoder_PrepareSequenceContext(
 
 // MANIPULATORS
 template <typename TYPE, typename INFO_TYPE>
-int baexml_Decoder_PrepareSequenceContext::operator()(const TYPE&      object,
+int baexml_Decoder_PrepareSequenceContext::operator()(const TYPE&,
                                                       const INFO_TYPE& info)
 {
     enum { BAEXML_SUCCESS = 0 };

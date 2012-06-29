@@ -874,7 +874,7 @@ void baea_SerializableObjectProxyUtil::makeDecodeProxy(
                                         bdeat_TypeCategory::Array)
 {
     proxy->loadArrayForDecoding(object,
-                                object->size(),
+                                static_cast<int>(object->size()),
                                 sizeof(ELEMENT_TYPE),
                                 object->size() ? &(*object->begin()) : 0,
                                 &vectorResizeFn<bsl::vector<ELEMENT_TYPE> >,
@@ -984,7 +984,7 @@ void baea_SerializableObjectProxyUtil::makeEncodeProxy(
                                           bsl::vector<ELEMENT_TYPE>    *object,
                                           bdeat_TypeCategory::Array)
 {
-    proxy->loadArrayForEncoding(object->size(),
+    proxy->loadArrayForEncoding(static_cast<int>(object->size()),
                                 sizeof(ELEMENT_TYPE),
                                 object->size() ? &(*object->begin()) : 0,
                                 &makeEncodeProxyRaw<ELEMENT_TYPE>);

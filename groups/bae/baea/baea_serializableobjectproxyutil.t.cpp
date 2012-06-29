@@ -2662,7 +2662,7 @@ int main(int argc, char *argv[])
         printf("Bytes Encoded: %u\n"
                "Objects Encoded: %d\n"
                "Encoding time: WALL: %3.2lf USER %3.2lf SYSTEM %3.2lf\n",
-               numBytesEncoded, numIter * objects.size(),
+               numBytesEncoded, (int)(numIter * objects.size()),
                wallTime, userTime, systemTime);
       } break;
       case -1: {
@@ -2764,7 +2764,7 @@ int main(int argc, char *argv[])
         printf("Bytes Encoded: %u\n"
                "Objects Encoded: %d\n"
                "Encoding time: WALL: %3.2lf USER %3.2lf SYSTEM %3.2lf\n",
-               numBytesEncoded, numIter * objects.size(),
+               numBytesEncoded, (int)(numIter * objects.size()),
                wallTime, userTime, systemTime);
 
       } break;
