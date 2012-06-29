@@ -102,6 +102,123 @@ bool verifyBitset(const bsl::bitset<N> obj, const char *expected)
     return true;
 }
 
+char notCharacter(char bit)
+    // Return '0' if the specified 'bit' is '1', and return '1' if the
+    // specified 'bit' is '0'.  The behavior is undefined unless 'bit'
+    // is '0' or '1'.
+{
+    if ('0' == bit) {
+        return '1';
+    }
+
+    return '0';
+}
+
+const bsl::string &orStrings(const bsl::string &a, const bsl::string &b)
+    // Return a string of 0's and 1's which is the "bitwise" (characterwise)
+    // or of the specified 'a' and 'b' strings.  The behavior is undefined
+    // unless 'a.length() == b.length()'.
+{
+    bsl::string result = a;
+
+    for (int i = 0; i < b.length(); ++i) {
+        // OR truth table
+        // a | b | result
+        // --+---+-------
+        // 0 | 0 | 0
+        // 0 | 1 | 1
+        // 1 | 0 | 1
+        // 1 | 1 | 1
+        // --+---+-------
+        //
+        // We only need to make a change if 'a[i]' is '0',
+        // and 'b[i]' is '1'.  In all other cases, 'result[i]' is
+        // already correct.
+        if (a[i] == '0' && b[i] == '1') {
+            result[i] = '1';
+        }
+    }
+
+    return result;
+}
+
+const bsl::string &andStrings(const bsl::string &a, const bsl::string &b)
+    // Return a string of 0's and 1's which is the "bitwise" (characterwise)
+    // and of the specified 'a' and 'b' strings.  The behavior is undefined
+    // unless 'a.length() == b.length()'.
+{
+    bsl::string result = a;
+
+    for (int i = 0; i < b.length(); ++i) {
+        // AND truth table
+        // a | b | result
+        // --+---+-------
+        // 0 | 0 | 0
+        // 0 | 1 | 0
+        // 1 | 0 | 0
+        // 1 | 1 | 1
+        // --+---+-------
+        //
+        // We only need to make a change if 'result[i]' is '1',
+        // AND 'b[i]' is '0'.  In all other cases, 'result[i]' is
+        // already correct.
+        if (result[i] == '1' && !b[i] == '1') {
+            result[i] = '0';
+        }
+    }
+
+    return result;
+}
+
+const bsl::string &xorStrings(const bsl::string &a, const bsl::string &b)
+    // Return a string of 0's and 1's which is the "bitwise" (characterwise)
+    // xor of the specified 'a' and 'b' strings.  The behavior is undefined
+    // unless 'a.length() == b.length()'.
+{
+    bsl::string result = a;
+
+    for (int i = 0; i < b.length(); ++i) {
+        // XOR truth table
+        // a | b | result
+        // --+---+-------
+        // 0 | 0 | 0
+        // 0 | 1 | 1
+        // 1 | 0 | 1
+        // 1 | 1 | 0
+        // --+---+-------
+        //
+        // We only need to make a change if 'b[i]' is '1'.
+        // In that case, the result is 'notCharacter(result[i])'.
+        if (b[i] == '1') {
+            result[i] = notCharacter(result[i]);
+        }
+    }
+
+    return result;
+}
+
+const bsl::string &negateString(const bsl::string &a)
+    // Return a string of 0's and 1's which is the "bitwise" (characterwise)
+    // negation of the specified 'a' string.
+{
+    bsl::string result = a;
+
+    for (int i = 0; i < a.length(); ++i) {
+        // NEGATION truth table
+        // a |  result
+        // --+--------
+        // 0 |  1
+        // 0 |  1
+        // 1 |  0
+        // 1 |  0
+        // --+--------
+
+        result[i] = notCharacter(a[i]);
+    }
+
+    return result;
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
