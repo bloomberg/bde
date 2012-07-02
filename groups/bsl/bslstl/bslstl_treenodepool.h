@@ -16,25 +16,29 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_simplepool
 //
-//@DESCRIPTION: This component implements a mechanism that creates and deletes
-// 'bslstl::TreeNode' objects for the parameterized 'VALUE' type for use in a
-// tree-based container.
+//@DESCRIPTION: This component implements a mechanism, 'bslstl::TreeNodePool'
+// that creates and deletes 'bslstl::TreeNode' objects containing a payload of
+// the parameterized 'VALUE' type for use in tree-based containers.
 //
-// A 'bslstl::TreeNodePool' contains a memory pool provided by the
-// 'bslstl_simplepool' component to provide memory for the nodes (see
-// 'bslstl_simplepool').  When the pool is empty, a number of memory blocks is
-// allocated and added to the pool, where each block is large enough to contain
-// a 'bslstl::TreeNode'.  The first allocation contains one memory block.
-// Subsequent allocations double the number of memory blocks of the previous
-// allocation up to an implementation defined maximum number of blocks.
+// The 'bslalg::TreeNode' class inherits from 'bslalg::RbTreeNode' with an
+// additional data member to store a payload value.  A 'bslstl::TreeNodePool'
+// object maintains an internal linked list of free memory blocks that can be
+// used to create a 'bslstl::TreeNode' object one block.  When a memory block
+// is deallocated, it is returned to the free list for potential reuse.
+//
+// When the pool is empty, a number of memory blocks is allocated and added to
+// the pool, where each block is large enough to contain a 'bslstl::TreeNode'.
+// The first allocation contains one memory block.  Subsequent allocations
+// double the number of memory blocks of the previous allocation up to an
+// implementation defined maximum number of blocks.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating a 'IntSet' Container
-/// - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create a container type, 'IntSet' using
+///Example 1: Creating an 'IntSet' Container
+///- - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates how to create a container type, 'IntSet', using
 // 'bslalg::RbTreeUtil'.
 //
 // First, we define a comparison functor for comparing a
@@ -68,7 +72,7 @@ BSLS_IDENT("$Id: $")
 // create and delete nodes.  Also note that a number of simplifications have
 // been made for the purpose of illustration.  For example, this implementation
 // provides only a minimal set of critical operations, and it does not use the
-// empty base-class optimization for the comparator.
+// empty-base-class optimization for the comparator.
 //..
 //  template <class ALLOCATOR = bsl::allocator<int> >
 //  class IntSet {
@@ -100,8 +104,9 @@ BSLS_IDENT("$Id: $")
 //          // Insert the specified 'value' into this set.
 //
 //      bool remove(int value);
-//          // If 'value' is a member of this set, then remove it from the set
-//          // and return 'true'.  Otherwise, return 'false' with no effect.
+//          // If the specified 'value' is a member of this set, remove it from
+//          // the set and return 'true'.  Otherwise, return 'false' with no
+//          // effect.
 //
 //      // ACCESSORS
 //      bool isElement(int value) const;
@@ -208,16 +213,8 @@ BSLS_IDENT("$Id: $")
 //  assert(0 <  objectAllocator.numBytesInUse());
 //..
 
-#ifndef INCLUDED_BSLALG_RBTREENODE
-#include <bslalg_rbtreenode.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
-#include <bslma_deallocatorproctor.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
-#include <bsls_util.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
@@ -232,6 +229,23 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_treenode.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_RBTREENODE
+#include <bslalg_rbtreenode.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
+#include <bslma_deallocatorproctor.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include <cstddef>    // std::size_t
+#define INCLUDED_CSTDDEF
+#endif
+
 namespace BloombergLP {
 namespace bslstl {
 
@@ -241,15 +255,18 @@ namespace bslstl {
 
 template <class VALUE, class ALLOCATOR>
 class TreeNodePool {
-    // This class provides methods for creating and deleting nodes using the
-    // appropriate allocator-traits of the parameterized 'ALLOCATOR'.  This
-    // type is intended to be used as a private base-class for a node-based
-    // container, in order to take advantage of the empty-base-class
-    // optimization in the case where the base-class has 0 size (as may the
-    // case if the parameterized 'ALLOCATOR' is not a 'bslma::Allocator').
+    // This class template provides methods for creating and deleting nodes
+    // with a payload value, of the parameterized 'VALUE' type, using the
+    // appropriate allocator-traits of the parameterized 'ALLOCATOR'.  An
+    // instance of this type is intended to be used as a private base class for
+    // a node-based container, in order to take advantage of the
+    // empty-base-class optimization in the case where the base class has 0
+    // size (as may be the case if the parameterized 'ALLOCATOR' is not a
+    // 'bslma::Allocator').
 
+    // PRIVATE TYPES
     typedef SimplePool<TreeNode<VALUE>, ALLOCATOR> Pool;
-        // Alias for the memory pool allocator.
+        // Alias for the type of the memory pooling allocator.
 
     typedef typename Pool::AllocatorTraits         AllocatorTraits;
         // Alias for the allocator traits defined by 'SimplePool'.
@@ -265,53 +282,58 @@ class TreeNodePool {
   public:
     // PUBLIC TYPE
     typedef typename Pool::AllocatorType AllocatorType;
-        // Alias for the allocator type defined by 'SimplePool'.
+        // Alias for the rebound allocator type used to allocate memory for
+        // this object.
 
   public:
     // CREATORS
     explicit TreeNodePool(const ALLOCATOR& allocator);
-        // Create a node-allocator that will use the specified 'allocator' to
-        // supply memory for allocated node objects.
+        // Create a tree node pool that uses the specified 'allocator' to
+        // supply memory.
+
+    //! ~TreeNodePool() = 0;
+        // Destroy this object.
 
     // MANIPULATORS
     AllocatorType& allocator();
         // Return a reference providing modifiable access to the rebound
-        // allocator traits for the node-type.  Note that this operation
-        // returns a base-class ('NodeAlloc') reference to this object.
+        // allocator used to allocate memory for this object.  Note that this
+        // operation returns a base-class reference to this object.
 
     bslalg::RbTreeNode *createNode();
-        // Allocate a node object having a default constructed 'VALUE'.
-
-    bslalg::RbTreeNode *createNode(const bslalg::RbTreeNode& original);
-        // Allocate a node object having a copy-constructed 'VALUE' of
-        // 'value()' of the specified 'original'.  The behavior is undefined
-        // unless 'original' refers to a 'TreeNode<VALUE>'.
+        // Return the address of a newly-created modifiable node object having
+        // the default constructed 'VALUE'.
 
     bslalg::RbTreeNode *createNode(const VALUE& value);
-        // Allocate a node object having the specified 'value'.  This operation
-        // will copy-construct 'value' into the value of the returned node.
+        // Return the address of a newly-created modifiable node object having
+        // the specified payload 'value'.
+
+    bslalg::RbTreeNode *createNode(const bslalg::RbTreeNode& other);
+        // Return the address of a newly-created modifiable node object having
+        // the same payload value as the specified 'other'.  The behavior is
+        // undefined unless 'other' refers to a 'TreeNode<VALUE>'.
 
     void deleteNode(bslalg::RbTreeNode *node);
-        // Destroy the 'VALUE' value of the specified 'node' and return the
+        // Destroy the 'VALUE' value of the specified 'node' and relinquish the
         // memory footprint of 'node' to this pool for potential reuse.  The
-        // behavior is undefined unless 'node' refers to a 'TreeNode<VALUE>'.
+        // behavior is undefined unless 'node' refers to a 'TreeNode<VALUE>'
+        // and the memory belongs to a chunk owned by this object.
 
     void reserveNodes(std::size_t numNodes);
         // Reserve memory from this pool to satisfy memory requests for at
-        // least the specified 'numBlocks' before the pool replenishes.  The
-        // behavior is undefined unless '0 < numBlocks'.
+        // least the specified 'numNodes' before the pool requires
+        // replenishment.  The behavior is undefined unless '0 <= numNodes'.
 
     void swap(TreeNodePool<VALUE, ALLOCATOR>& other);
         // Efficiently exchange the management of nodes of this object and
-        // the specified 'other' object.  The behavior is undefined unless the
-        // underlying mechanisms of 'allocator()' refers to the same allocator.
+        // the specified 'other' object.  The behavior is undefined unless
+        // 'allocator() == other.allocator()'.
 
     // ACCESSORS
     const AllocatorType& allocator() const;
         // Return a reference providing non-modifiable access to the rebound
-        // allocator traits for the node-type.  Note that this operation
-        // returns a base-class ('NodeAlloc') reference to this object.
-
+        // allocator used to allocate memory for this object.  Note that this
+        // operation returns a base-class reference to this object.
 };
 
 // ===========================================================================
@@ -336,7 +358,6 @@ TreeNodePool<VALUE, ALLOCATOR>::allocator()
 }
 
 template <class VALUE, class ALLOCATOR>
-inline
 bslalg::RbTreeNode *TreeNodePool<VALUE, ALLOCATOR>::createNode()
 {
     TreeNode<VALUE> *node = d_pool.allocate();
@@ -350,7 +371,6 @@ bslalg::RbTreeNode *TreeNodePool<VALUE, ALLOCATOR>::createNode()
 }
 
 template <class VALUE, class ALLOCATOR>
-inline
 bslalg::RbTreeNode *TreeNodePool<VALUE, ALLOCATOR>::createNode(
                                                             const VALUE& value)
 {
@@ -367,16 +387,16 @@ bslalg::RbTreeNode *TreeNodePool<VALUE, ALLOCATOR>::createNode(
 template <class VALUE, class ALLOCATOR>
 inline
 bslalg::RbTreeNode *TreeNodePool<VALUE, ALLOCATOR>::createNode(
-                                            const bslalg::RbTreeNode& original)
+                                            const bslalg::RbTreeNode& other)
 {
-    return createNode(static_cast<const TreeNode<VALUE>&>(original).value());
+    return createNode(static_cast<const TreeNode<VALUE>&>(other).value());
 }
 
 template <class VALUE, class ALLOCATOR>
 inline
 void TreeNodePool<VALUE, ALLOCATOR>::deleteNode(bslalg::RbTreeNode *node)
 {
-    BSLS_ASSERT(node);
+    BSLS_ASSERT_SAFE(node);
 
     TreeNode<VALUE> *treeNode = static_cast<TreeNode<VALUE> *>(node);
     AllocatorTraits::destroy(allocator(),
@@ -388,7 +408,7 @@ template <class VALUE, class ALLOCATOR>
 inline
 void TreeNodePool<VALUE, ALLOCATOR>::reserveNodes(std::size_t numNodes)
 {
-    BSLS_ASSERT_SAFE(0 < numNodes);
+    BSLS_ASSERT_SAFE(1 <= numNodes);
 
     d_pool.reserve(numNodes);
 }
