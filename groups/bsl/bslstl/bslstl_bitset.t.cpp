@@ -114,14 +114,18 @@ char notCharacter(char bit)
     return '0';
 }
 
-const bsl::string &orStrings(const bsl::string &a, const bsl::string &b)
-    // Return a string of 0's and 1's which is the "bitwise" (characterwise)
-    // or of the specified 'a' and 'b' strings.  The behavior is undefined
-    // unless 'a.length() == b.length()'.
+void orStrings(char *result, std::size_t resultSize, const char* a, const char* b)
+    // Return in the specified 'result' a string of 0's and 1's which is the
+    // "bitwise" (characterwise) 'or' of the specified 'a' and 'b' strings.  The
+    // behavior is undefined unless
+    // 'strlen(a) == strlen(b) && strlen(a) == resultSize - 1'
 {
-    bsl::string result = a;
+    std::size_t length = strlen(a);
 
-    for (int i = 0; i < b.length(); ++i) {
+    BSLS_ASSERT(strlen(b) == length);
+    BSLS_ASSERT(resultSize - 1 == length);
+
+    for (int i = 0; i < length; ++i) {
         // OR truth table
         // a | b | result
         // --+---+-------
@@ -130,27 +134,26 @@ const bsl::string &orStrings(const bsl::string &a, const bsl::string &b)
         // 1 | 0 | 1
         // 1 | 1 | 1
         // --+---+-------
-        //
-        // We only need to make a change if 'a[i]' is '0',
-        // and 'b[i]' is '1'.  In all other cases, 'result[i]' is
-        // already correct.
-        if (a[i] == '0' && b[i] == '1') {
-            result[i] = '1';
-        }
-    }
 
-    return result;
+        // Happily, we can bitwise 'or' the characters '0' and '1' and
+        // get the expected results.
+        result[i] = a[i] | b[i];
+    }
 }
 
-const bsl::string &andStrings(const bsl::string &a, const bsl::string &b)
-    // Return a string of 0's and 1's which is the "bitwise" (characterwise)
-    // and of the specified 'a' and 'b' strings.  The behavior is undefined
-    // unless 'a.length() == b.length()'.
+void andStrings(char *result, std::size_t resultSize, const char* a, const char* b)
+    // Return in the specified 'result' a string of 0's and 1's which is the
+    // "bitwise" (characterwise) 'and' of the specified 'a' and 'b' strings.  The
+    // behavior is undefined unless
+    // 'strlen(a) == strlen(b) && strlen(a) == resultSize - 1'
 {
-    bsl::string result = a;
+    std::size_t length = strlen(a);
 
-    for (int i = 0; i < b.length(); ++i) {
-        // AND truth table
+    BSLS_ASSERT(strlen(b) == length);
+    BSLS_ASSERT(resultSize - 1 == length);
+
+    for (int i = 0; i < length; ++i) {
+        // OR truth table
         // a | b | result
         // --+---+-------
         // 0 | 0 | 0
@@ -158,27 +161,26 @@ const bsl::string &andStrings(const bsl::string &a, const bsl::string &b)
         // 1 | 0 | 0
         // 1 | 1 | 1
         // --+---+-------
-        //
-        // We only need to make a change if 'result[i]' is '1',
-        // AND 'b[i]' is '0'.  In all other cases, 'result[i]' is
-        // already correct.
-        if (result[i] == '1' && !b[i] == '1') {
-            result[i] = '0';
-        }
-    }
 
-    return result;
+        // Happily, we can bitwise 'and' the characters '0' and '1' and
+        // get the expected results.
+        result[i] = a[i] & b[i];
+    }
 }
 
-const bsl::string &xorStrings(const bsl::string &a, const bsl::string &b)
-    // Return a string of 0's and 1's which is the "bitwise" (characterwise)
-    // xor of the specified 'a' and 'b' strings.  The behavior is undefined
-    // unless 'a.length() == b.length()'.
+void xorStrings(char *result, std::size_t resultSize, const char* a, const char* b)
+    // Return in the specified 'result' a string of 0's and 1's which is the
+    // "bitwise" (characterwise) 'xor' of the specified 'a' and 'b' strings.  The
+    // behavior is undefined unless
+    // 'strlen(a) == strlen(b) && strlen(a) == resultSize - 1'
 {
-    bsl::string result = a;
+    std::size_t length = strlen(a);
 
-    for (int i = 0; i < b.length(); ++i) {
-        // XOR truth table
+    BSLS_ASSERT(strlen(b) == length);
+    BSLS_ASSERT(resultSize - 1 == length);
+
+    for (int i = 0; i < length; ++i) {
+        // OR truth table
         // a | b | result
         // --+---+-------
         // 0 | 0 | 0
@@ -186,24 +188,24 @@ const bsl::string &xorStrings(const bsl::string &a, const bsl::string &b)
         // 1 | 0 | 1
         // 1 | 1 | 0
         // --+---+-------
-        //
-        // We only need to make a change if 'b[i]' is '1'.
-        // In that case, the result is 'notCharacter(result[i])'.
-        if (b[i] == '1') {
-            result[i] = notCharacter(result[i]);
-        }
-    }
 
-    return result;
+        // Happily, we can bitwise 'xor' the characters '0' and '1' and
+        // get the expected results.
+        result[i] = a[i] ^ b[i];
+    }
 }
 
-const bsl::string &negateString(const bsl::string &a)
-    // Return a string of 0's and 1's which is the "bitwise" (characterwise)
-    // negation of the specified 'a' string.
-{
-    bsl::string result = a;
+void negateString(char *result, std::size_t resultSize, const char* a)
+    // Return in the specified 'result' a string of 0's and 1's which is the
+    // "bitwise" (characterwise) negation of the specified 'a' string.  The
+    // behavior is undefined unless 'strlen(a) == resultSize - 1'
 
-    for (int i = 0; i < a.length(); ++i) {
+{
+    std::size_t length = strlen(a);
+
+    BSLS_ASSERT(resultSize - 1 == length);
+
+    for (int i = 0; i < length; ++i) {
         // NEGATION truth table
         // a |  result
         // --+--------
