@@ -10,6 +10,7 @@ BDES_IDENT_RCSID(baea_performancemonitor_cpp,"$Id$ $CSID$")
 #include <bslma_allocator.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 #include <bdet_datetime.h>
 #include <bdet_timeinterval.h>
 #include <bdetu_systemtime.h>
@@ -147,6 +148,18 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux> {
     struct ProcStatistics {
         // Describes the fields present in /proc/<pid>/stat.  For a complete
         // description of each field, see 'man proc'.
+        //
+        // Note that sizes of the data fields are defined in terms of scanf(3)
+        // format specifiers, such as %d, %lu or %c.  There is no good way to
+        // know if %lu is 32-bit wide or 64-bit, because the code can be built
+        // in the -m32 mode making sizeof(unsigned long)==4 and executed on a
+        // 64bit platform where the kernel thinks that %lu can represent 64-bit
+        // wide integers.  Therefore we use 'Uint64' regardless of the build
+        // configuration.
+
+        typedef bsls::Types::Int64  ld_type;
+        typedef bsls::Types::Uint64 lu_type;
+        typedef bsls::Types::Uint64 llu_type;
 
         int           d_pid;             // process pid
         bsl::string   d_comm;            // filename of executable
@@ -157,21 +170,21 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux> {
         int           d_tty_nr;          // the tty used by the process
         int           d_tpgid;           // tty owner's group id
         unsigned int  d_flags;           // kernel flags
-        unsigned int  d_minflt;          // num minor page faults
-        unsigned int  d_cminflt;         // num minor page faults - children
-        unsigned int  d_majflt;          // num major page faults
-        unsigned int  d_cmajflt;         // num major page faults - children
-        unsigned int  d_utime;           // num jiffies in user mode
-        unsigned int  d_stime;           // num jiffies in kernel mode
-        int           d_cutime;          // num jiffies, user mode, children
-        int           d_cstime;          // num jiffies, kernel mode, children
-        int           d_priority;        // standard nice value, plus fifteen
-        int           d_nice;            // nice value
-        int           d_unused;          // reserved value, always 0
-        int           d_itrealvalue;     // num jiffies before next SIGALRM
-        unsigned int  d_starttime;       // time in jiffies since system boot
-        unsigned int  d_vsize;           // virtual memory size, in bytes
-        int           d_rss;             // resident set size, in pages
+        lu_type       d_minflt;          // num minor page faults
+        lu_type       d_cminflt;         // num minor page faults - children
+        lu_type       d_majflt;          // num major page faults
+        lu_type       d_cmajflt;         // num major page faults - children
+        lu_type       d_utime;           // num jiffies in user mode
+        lu_type       d_stime;           // num jiffies in kernel mode
+        ld_type       d_cutime;          // num jiffies, user mode, children
+        ld_type       d_cstime;          // num jiffies, kernel mode, children
+        ld_type       d_priority;        // standard nice value, plus fifteen
+        ld_type       d_nice;            // nice value
+        ld_type       d_num_threads;     // number of threads (since Linux 2.6)
+        ld_type       d_itrealvalue;     // num jiffies before next SIGALRM
+        llu_type      d_starttime;       // time in jiffies since system boot
+        lu_type       d_vsize;           // virtual memory size, in bytes
+        ld_type       d_rss;             // resident set size, in pages
 
         ProcStatistics()
         : d_pid()
@@ -193,7 +206,7 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux> {
         , d_cstime()
         , d_priority()
         , d_nice()
-        , d_unused()
+        , d_num_threads()
         , d_itrealvalue()
         , d_starttime()
         , d_vsize()
@@ -248,34 +261,30 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::readProcStat(
         return -1;                                                    // RETURN
     }
 
-    bsl::string str((bsl::istreambuf_iterator<char>(ifs)),
-                     bsl::istreambuf_iterator<char>());
-
-    bsl::stringstream ss(str);
-    ss >> stats->d_pid;
-    ss >> stats->d_comm;
-    ss >> stats->d_state;
-    ss >> stats->d_ppid;
-    ss >> stats->d_pgrp;
-    ss >> stats->d_session;
-    ss >> stats->d_tty_nr;
-    ss >> stats->d_tpgid;
-    ss >> stats->d_flags;
-    ss >> stats->d_minflt;
-    ss >> stats->d_cminflt;
-    ss >> stats->d_majflt;
-    ss >> stats->d_cmajflt;
-    ss >> stats->d_utime;
-    ss >> stats->d_stime;
-    ss >> stats->d_cutime;
-    ss >> stats->d_cstime;
-    ss >> stats->d_priority;
-    ss >> stats->d_nice;
-    ss >> stats->d_unused;
-    ss >> stats->d_itrealvalue;
-    ss >> stats->d_starttime;
-    ss >> stats->d_vsize;
-    ss >> stats->d_rss;
+    ifs >> stats->d_pid
+        >> stats->d_comm
+        >> stats->d_state
+        >> stats->d_ppid
+        >> stats->d_pgrp
+        >> stats->d_session
+        >> stats->d_tty_nr
+        >> stats->d_tpgid
+        >> stats->d_flags
+        >> stats->d_minflt
+        >> stats->d_cminflt
+        >> stats->d_majflt
+        >> stats->d_cmajflt
+        >> stats->d_utime
+        >> stats->d_stime
+        >> stats->d_cutime
+        >> stats->d_cstime
+        >> stats->d_priority
+        >> stats->d_nice
+        >> stats->d_num_threads
+        >> stats->d_itrealvalue
+        >> stats->d_starttime
+        >> stats->d_vsize
+        >> stats->d_rss;
 
     return 0;
 }
