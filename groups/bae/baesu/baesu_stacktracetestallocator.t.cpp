@@ -1,5 +1,5 @@
-// baesu_testallocator.t.cpp                                          -*-C++-*-
-#include <baesu_testallocator.h>
+// baesu_stacktracetestallocator.t.cpp                                -*-C++-*-
+#include <baesu_stacktracetestallocator.h>
 
 #include <baesu_stacktrace.h>
 
@@ -185,18 +185,18 @@ struct Functor {
     enum { NUM_THREADS = 10 };
 
     // DATA
-    static bsls::AtomicInt      s_threadRand;
-    static bsls::AtomicInt      s_numUnfreedSegments;
-    static bcemt_Barrier        s_finishBarrier;
-    static int                  s_64;
+    static bsls::AtomicInt         s_threadRand;
+    static bsls::AtomicInt         s_numUnfreedSegments;
+    static bcemt_Barrier           s_finishBarrier;
+    static int                     s_64;
 
-    bsl::vector<int *>          d_alloced;
-    bsl::size_t                 d_randNum;
-    baesu_TestAllocator        *d_allocator;
+    bsl::vector<int *>             d_alloced;
+    bsl::size_t                    d_randNum;
+    baesu_StackTraceTestAllocator *d_allocator;
 
     // CREATORS
-    Functor(bslma::Allocator     *vecAllocator,
-            baesu_TestAllocator  *traceAllocator)
+    Functor(bslma::Allocator              *vecAllocator,
+            baesu_StackTraceTestAllocator *traceAllocator)
     : d_alloced(vecAllocator)
     , d_randNum(0x55aa55aa + ++s_threadRand)
     , d_allocator(traceAllocator)
@@ -391,7 +391,7 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //---------------------------------------------------------------------
 
-        baesu_TestAllocator ta("myTestAllocator");
+        baesu_StackTraceTestAllocator ta("myTestAllocator");
 
         int depth = 4;
         usageRecurser(&depth, &ta);
@@ -433,11 +433,12 @@ int main(int argc, char *argv[])
 
         bslma_TestAllocator sta("sta");
         bsl::stringstream ss(&sta);
-        baesu_TestAllocator *pta = new(sta) baesu_TestAllocator("ta",
-                                                                &ss,
-                                                                8,
-                                                                true,
-                                                                &sta);
+        baesu_StackTraceTestAllocator *pta =
+                                  new(sta) baesu_StackTraceTestAllocator("ta",
+                                                                         &ss,
+                                                                         8,
+                                                                         true,
+                                                                         &sta);
         for (int i = 0; i < 1000; ++i) {
             (void) pta->allocate(100);
         }
@@ -492,11 +493,12 @@ int main(int argc, char *argv[])
 
         bsl::stringstream ss(&sta);
 
-        baesu_TestAllocator *pta = new(sta) baesu_TestAllocator("ta",
-                                                                &ss,
-                                                                8,
-                                                                true,
-                                                                &sta);
+        baesu_StackTraceTestAllocator *pta =
+                                  new(sta) baesu_StackTraceTestAllocator("ta",
+                                                                         &ss,
+                                                                         8,
+                                                                         true,
+                                                                         &sta);
 
         Util::Handle handles[TC::Functor::NUM_THREADS];
         int rc = 0;
@@ -537,7 +539,7 @@ int main(int argc, char *argv[])
         {
             bsl::stringstream matchSs(&sta);
             matchSs << TC::Functor::s_numUnfreedSegments << 
-                                          " segments in allocator 'ta' in use";
+                                        " segment(s) in allocator 'ta' in use";
             ASSERT(npos != (pos = otherStr.find(matchSs.str())));
             ++expectedDefaultAllocations;              // otherSs.str() uses da
         }
@@ -588,9 +590,9 @@ int main(int argc, char *argv[])
         // Concern: If segments are allocated and deallocated, that the test
         //   allocator issues no complaints and leaks no memory of its own.
         //
-        // Plan: Create a baesu_TestAllocator based on a bslma_TestAllocator,
-        //   allocate a bunch of segments, storing pointers to them in an
-        //   array, then free the segments.  Observe
+        // Plan: Create a baesu_StackTraceTestAllocator based on a
+        //   bslma_TestAllocator, allocate a bunch of segments, storing
+        //   pointers to them in an array, then free the segments.  Observe
         //---------------------------------------------------------------------
 
         if (verbose) cout << "SUCCESSFUL FREEING TEST\n"
@@ -602,11 +604,11 @@ int main(int argc, char *argv[])
 
         QV(Named Allocator);
         {
-            baesu_TestAllocator ta("ta",
-                                   &ss,
-                                   8,
-                                   true,
-                                   &sta);
+            baesu_StackTraceTestAllocator ta("ta",
+                                             &ss,
+                                             8,
+                                             true,
+                                             &sta);
 
             enum { NUM_SEGMENTS = 100 };
 
@@ -625,7 +627,7 @@ int main(int argc, char *argv[])
             ++expectedDefaultAllocations;              // otherSs.str() uses da
 
             LOOP_ASSERT(otherStr, npos != otherStr.find(
-                                     "100 segments in allocator 'ta' in use"));
+                                   "100 segment(s) in allocator 'ta' in use"));
             LOOP_ASSERT(otherStr, npos != otherStr.find(" in 1 place"));
 
             if (verbose) {
@@ -641,10 +643,10 @@ int main(int argc, char *argv[])
 
         QV(Unnamed Allocator);
         {
-            baesu_TestAllocator ta(&ss,
-                                   8,
-                                   true,
-                                   &sta);
+            baesu_StackTraceTestAllocator ta(&ss,
+                                             8,
+                                             true,
+                                             &sta);
 
             enum { NUM_SEGMENTS = 100 };
 
@@ -663,7 +665,7 @@ int main(int argc, char *argv[])
             ++expectedDefaultAllocations;              // otherSs.str() uses da
 
             LOOP_ASSERT(otherStr, npos != otherStr.find(
-                                                      " 100 segments in use"));
+                                                    " 100 segment(s) in use"));
             LOOP_ASSERT(otherStr, npos != otherStr.find(" in 1 place"));
 
             if (verbose) {
@@ -706,7 +708,9 @@ int main(int argc, char *argv[])
             bsl::stringstream out(&otherTa);
 
             {
-                baesu_TestAllocator ta("TestAlloc1", &out, maxDepths[d]);
+                baesu_StackTraceTestAllocator ta("TestAlloc1",
+                                                 &out,
+                                                 maxDepths[d]);
 
                 (void) ta.allocate(100);    // leak some memory
 
@@ -758,7 +762,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
