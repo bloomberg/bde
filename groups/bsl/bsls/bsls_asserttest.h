@@ -540,8 +540,13 @@ BSLS_IDENT("$Id: $")
 #if !defined(BDE_BUILD_TARGET_EXC)
 // If exceptions are not enabled, all of the ASSERT_PASS tests must run, in
 // order to guarantee any stateful side-effects required by the test driver.
-// However, none of the ASSERT_FAIL tests should run any code, otherwise each
-// would invoke undefined behavior, if used correctly.
+// However, there is no way to validate the ASSERT_FAIL macros as that
+// requires installing an assert-handler that throws a specific exception.
+// As ASSERT_FAIL negative tests require calling the contract under test
+// with out-of-contract values, running those tests would invoke undefined
+// behavior with no protection, so we choose to simple not execute the test
+// calls designed to fail by expanding the test macros to an empty statement,
+// '{ }'.
 # define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
          { EXPRESSION_UNDER_TEST; }
 
@@ -572,8 +577,9 @@ BSLS_IDENT("$Id: $")
 // The following macros are not expanded on the Microsoft compiler to avoid
 // internal compiler errors in optimized builds, which are the result of
 // attempts to optimize many try/catch blocks in large switch statements.  Note
-// that the resulting test driver is just as thorough, but will crash on
-// failure rather than capturing and reporting the error.
+// that the resulting test driver is just as thorough, but will report failure
+// of a buggy library by simply crashing, rather than capturing and reporting
+// the specific error detected.
 #if (defined(BSLS_PLATFORM__CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT))
 # define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
          { EXPRESSION_UNDER_TEST; }
