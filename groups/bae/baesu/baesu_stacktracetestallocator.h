@@ -244,6 +244,16 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
                                                 // copied to the allocated
                                                 // segments.
 
+    void                     *d_topFrame;       // pointer to '&allocate'
+                                                // method saved from top of
+                                                // stack; reviewer wanted that
+                                                // added to the trace, want to
+                                                // avoid wasting one pointer of
+                                                // space per segment for no
+                                                // gain, compiler won't allow
+                                                // '(void *) &allocate' so
+                                                // saving it once globallly
+
     bsl::ostream             *d_ostream;        // stream to which reports are
                                                 // to be written.  Held, not
                                                 // owned.
@@ -297,14 +307,15 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
         // Optionally specify 'segFrames', the number of stack trace frame
         // pointers to be saved for every allocation, which, if not specified,
         // is '8'.  Specifying a larger number can give a more complete stack
-        // trace, but will consume more cpu time per allocation and more
-        // memory.  Optionally specify 'demanglingPreferredFlag' to indicate
-        // whether demangling is desired.  Demangling defaults to enabled.
-        // 'demanglingPreferredFlag' signals a preference only, on some
-        // platforms demangling is not implemented or not optional, and on
+        // trace, but will consume both more cpu time and more memory per
+        // allocation.  Optionally specify 'demanglingPreferredFlag' to
+        // indicate whether demangling is desired.  Demangling defaults to
+        // enabled.  'demanglingPreferredFlag' signals a preference only, on
+        // some platforms demangling is not implemented or not optional, and on
         // those platforms the flag is ignored.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the 'bslma::MallocFreeAllocator' singleton is used.  The behavior is
+        // the 'bslma::MallocFreeAllocator' singleton is used, since the client
+        // may be trying to avoid using the default allocator.  The behavior is
         // undefined unless the lifetimes of 'name', 'ostream', and
         // 'basicAllocator' are all longer than the lifetime of this object.
 
@@ -341,11 +352,11 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
     void setNoAbort(bool flagValue);
         // Set the no-abort mode for this test allcoator to the specified
         // (boolean) 'flagValue'.  'If flagValue' is 'true', aborting on fatal
-        // errors is suppressed, and the functions simply return.  Diagnostic
-        // reports are not affected.  Note that this function is provided
-        // primarily to enable visual testing of bizarre error messages in this
-        // component.  The value of the 'noAbort' flag is 'false' at
-        // construction.
+        // errors by the client is suppressed, and the functions simply return.
+        // Diagnostic reports are not affected.  Note that this function is
+        // provided primarily to enable testing of error messages in this
+        // component without having the test driver fail in the nightly build.
+        // The value of the 'noAbort' flag is 'false' at construction.
 
     // ACCESSORS
     bool isNoAbort() const;

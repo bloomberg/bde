@@ -14,6 +14,7 @@
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cmath.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
@@ -129,6 +130,7 @@ static const bsl::size_t npos = bsl::string::npos;
 struct S {
     // This 'struct' allows us to keep a linked list of 'double's.
 
+    // DATA
     static S                *s_head;
     S                       *d_next;
     double                   d_x;
@@ -141,20 +143,16 @@ void usagePushVal(double x, bslma::Allocator *alloc)
 {
     S *p = new(*alloc) S;
 
-    p->d_next = S::s_head;
     p->d_x = x;
+    p->d_next = S::s_head;
     S::s_head = p;
 }
 
 void usagePushGeometricSequence(double base, bslma::Allocator *alloc)
     // Given a specified 'base', dd a sequence of nodes to the linked list in a
     // geometric sequence from 'base' through 'base ** 4', in geometric
-    // increments of 'base'.  If 'base <= 1', do nothing.
+    // increments of 'base'.
 {
-    if (base <= 1) {
-        return;
-    }
-
     double x = 1.0;
     for (int i = 0; i < 4; ++i) {
         usagePushVal((x *= base), alloc);
@@ -205,7 +203,7 @@ void usageBottom()
 
         // Finally, destroy 'ta', leaking allocated memory.  The destructor of
         // 'ta' will write a report about the leaked segments to '*pOut', and
-        // automatically clean up, freeing all the unfreed segments.  Note that
+        // automatically clean up, freeing all the leaked segments.  Note that
         // although leaked memory was only allocated from one routine, it was
         // allocated from 2 call chains, so 2 call chains will be reported.
         // Also note that had no memory been leaked, no report would be
@@ -213,7 +211,10 @@ void usageBottom()
     }
 }
 
-// Output of usage example on AIX:
+// Output of usage example on AIX.  Note that the 2 call stacks shown are
+// different -- only one of them contains the routine
+// 'usagePushGeometricSequence':
+//
 //  46 segments leaked
 //  ============================================================================
 //  Error: memory leaked:
@@ -429,33 +430,58 @@ void Functor::operator()()
                                 // case 1
                                 // ------
 
+// I have to put some meaningless gobbledegook into these methods or the
+// optimizer will inline them.
+
 static
 int caseOneDelta = 64;
 
-void caseOne_c(bslma::Allocator *alloc)
+void caseOne_c(bslma::Allocator *alloc, int *depth)
 {
+    int depthIn = *depth + (int) (bsl::log(1.0) + 0.5);
+
+    for (int i = 0; 0 == (i & 0x473600); ++i) {
+        // This transform will toggle every bit in '*depth' that it touches
+        // an even number of times, leaving it unchanged, in a way that the
+        // optimizer can't figure out.
+
+        *depth ^= i;
+    }
+    ASSERT(*depth == depthIn + (int) (bsl::sin(M_PI) + 0.5));
+
     (void) alloc->allocate(100);    // leak some more memory
+
+    *depth += (int) (bsl::cos(M_PI_2) + 0.5);
 }
 
-static
-void caseOne_b(bslma::Allocator *alloc)
+void caseOne_b(bslma::Allocator *alloc, int *depth)
 {
+    int incCount = bsl::log(1.0);
     for (int i = 1; i < 1024 && (i & 1); i += (caseOneDelta * 2)) {
+        ++*depth;
+        ++incCount;
+
         if (i > 64) {
-            caseOne_c(alloc);
+            caseOne_c(alloc, depth);
             ++i;
         }
     }
+
+    *depth -= incCount;
 }
 
 void caseOne_a(bslma::Allocator *alloc)
 {
+    int depth = 0;
+
     for (int i = 1; i < 1024 && (i & 1); i += (caseOneDelta * 2)) {
         if (i > 64) {
-            caseOne_b(alloc);
+            caseOne_b(alloc, &depth);
             ++i;
         }
     }
+
+    ASSERT(depth == 0);
 }
 
 //=============================================================================
@@ -616,7 +642,7 @@ int main(int argc, char *argv[])
             ++expectedDefaultAllocations;              // otherSs.str() uses da
         }
 
-        const char *expectedStrings[] = { " in 1 place",
+        const char *expectedStrings[] = { " from 1 trace",
                                           "MultiThreadedTest",
                                           "Functor",
                                           "top",
@@ -703,7 +729,7 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(otherStr, npos != otherStr.find(
                                    "100 segment(s) in allocator 'ta' in use"));
-            LOOP_ASSERT(otherStr, npos != otherStr.find(" in 1 place"));
+            LOOP_ASSERT(otherStr, npos != otherStr.find(" from 1 trace"));
 
             if (verbose) {
                 cout << otherStr;
@@ -741,7 +767,7 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(otherStr, npos != otherStr.find(
                                                     " 100 segment(s) in use"));
-            LOOP_ASSERT(otherStr, npos != otherStr.find(" in 1 place"));
+            LOOP_ASSERT(otherStr, npos != otherStr.find(" from 1 trace"));
 
             if (verbose) {
                 cout << otherStr;

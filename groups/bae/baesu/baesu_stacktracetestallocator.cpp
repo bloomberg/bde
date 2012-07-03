@@ -158,8 +158,9 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckSegmentHdr(
             rc = -1;
         }
         else {
-            *d_ostream << "Error: corrupted segment at " << &segmentHdr[1] <<
-                    " attempted to be freed by '" << d_name << "'\n";
+            *d_ostream << "Error: corrupted segment at " <<
+                     &segmentHdr[1] << " attempted to be freed by '" <<
+                                                               d_name << "'\n";
 
             return -1;                                                // RETURN
         }
@@ -168,11 +169,12 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckSegmentHdr(
     if (this != segmentHdr->d_allocator) {
         baesu_StackTraceTestAllocator *otherAlloc = segmentHdr->d_allocator;
         bool notOurs = headNodeMagic != otherAlloc->d_headNode.d_magic;
-        *d_ostream << "Error: attempt to free segment by wrong allocator.\n"
-                                        "    Segment belongs to allocator '" <<
+        *d_ostream << "Error: attempt to free segment by wrong"
+                           " allocator.\n    Segment belongs to allocator '" <<
                           (notOurs ? "<<Not a baesu_StackTraceTestAllocator>>"
                                    : otherAlloc->d_name) <<
                          "'\n    Attempted to free by " << d_name << bsl::endl;
+
         if (notOurs) {
             return -1;                                                // RETURN
         }
@@ -182,7 +184,7 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckSegmentHdr(
 
     if (0 == segmentHdr->d_next || 0 == segmentHdr->d_prev) {
         *d_ostream << "Error: segment at " << &segmentHdr[1] <<
-                                          " corrupted: null list ptr(s)\n";
+                                              " corrupted: null list ptr(s)\n";
 
         return -1;                                                    // RETURN
     }
@@ -223,11 +225,10 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 , d_mutex()
 , d_name("<unnamed>")
 , d_segFrames(getSegFrames(segFrames))
-// , d_rawTraceFrames - in method
+, d_topFrame(0)
 , d_ostream(ostream)
 , d_demangle(demanglingPreferredFlag)
 , d_noAbortFlag(false)
-// , d_rawTraceBuffer - in method
 , d_numBlocksInUse(0)
 , d_allocator_p(basicAllocator ? basicAllocator
                                : &bslma::MallocFreeAllocator::singleton())
@@ -251,11 +252,10 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 , d_mutex()
 , d_name(name ? name : "<unnamed>")
 , d_segFrames(getSegFrames(segFrames))
-// , d_rawTraceFrames -- in method
+, d_topFrame(0)
 , d_ostream(ostream)
 , d_demangle(demanglingPreferredFlag)
 , d_noAbortFlag(false)
-// , d_rawTraceBuffer - in method
 , d_numBlocksInUse(0)
 , d_allocator_p(basicAllocator ? basicAllocator
                                : &bslma::MallocFreeAllocator::singleton())
@@ -274,16 +274,13 @@ baesu_StackTraceTestAllocator::~baesu_StackTraceTestAllocator()
     d_allocator_p->deallocate(d_rawTraceBuffer);
 
     if (numBlocksInUse() > 0) {
-        *d_ostream << "======================================="
-                                   "========================================\n"
-                                                    "Error: memory leaked:\n";
+        *d_ostream << "======================================================="
+                      "========================\nError: memory leaked:\n";
 
         reportBlocksInUse();
+        release();
 
-        if (d_noAbortFlag) {
-            release();
-        }
-        else {
+        if (!d_noAbortFlag) {
             abort();
         }
     }
@@ -296,8 +293,6 @@ void *baesu_StackTraceTestAllocator::allocate(size_type size)
     }
 
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-
-    BSLMF_ASSERT(IGNORE_FRAMES > 0);
 
     if (checkHeadNode()) {
         if (!d_noAbortFlag) {
@@ -334,6 +329,11 @@ void *baesu_StackTraceTestAllocator::allocate(size_type size)
 
     int depth = AddressUtil::getStackAddresses(
                                            d_rawTraceBuffer, d_rawTraceFrames);
+    if (0 == d_topFrame && depth >= IGNORE_FRAMES) {
+        BSLMF_ASSERT(IGNORE_FRAMES > 0);
+
+        d_topFrame = d_rawTraceBuffer[IGNORE_FRAMES - 1];
+    }
     depth = bsl::max(depth - IGNORE_FRAMES, 0);
 
     // The stack trace may have screwed up and put '0's into the stack trace.
@@ -462,8 +462,8 @@ bsl::size_t baesu_StackTraceTestAllocator::numBlocksInUse() const
 void baesu_StackTraceTestAllocator::reportBlocksInUse(
                                                    bsl::ostream *ostream) const
 {
-    typedef bsl::vector<const void *>    StackTraceVec;
-    typedef bsl::map<StackTraceVec, int> StackTraceVecMap;
+    typedef bsl::vector<const void *>     StackTraceVec;
+    typedef bsl::map<StackTraceVec, int>  StackTraceVecMap;
 
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
 
@@ -482,18 +482,41 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
     StackTraceVec v(d_allocator_p);
 
     int numBlocksInUse = 0;
-    for (SegmentHdr *segmentHdr = d_headNode.d_next; &d_headNode != segmentHdr;
+    for (SegmentHdr *segmentHdr = d_headNode.d_next;
+                                      !segmentHdr || &d_headNode != segmentHdr;
                                              segmentHdr = segmentHdr->d_next) {
+        if (!segmentHdr || unfreedSegmentMagic != segmentHdr->d_magic) {
+            if (segmentHdr && freedSegmentMagic != segmentHdr->d_magic) {
+                *ostream << "baesu_StackTraceTestAllocator: freed segment at "
+                                   << (segmentHdr + 1) << " in alloced list\n";
+            }
+            else {
+                *ostream << "baesu_StackTraceTestAllocator: memory corruption"
+                                       " detected, possible buffer underrun\n";
+
+                // if we're in the destructor, more detailed info will be given
+                // when we call 'release'.  We don't want to go on traversing
+                // the list because we don't even know that 'segmentHdr' points
+                // at a 'segmentHdr', so we can't trust 'segmentHdr->d_next'.
+
+                break;
+            }
+        }
+
         void **endTrace   = (void **) segmentHdr;
         void **startTrace = endTrace - d_segFrames;
         endTrace = bsl::find(startTrace, endTrace, (void *) 0);
         v.clear();
-        v.insert(v.begin(), startTrace, endTrace);
+        if (0 != d_topFrame) {
+            v.push_back(d_topFrame);
+        }
+        v.insert(v.end(), startTrace, endTrace);
 #if 0
-        // This would be a better way to do it, but the idiotic bsl::map
-        // implementatin in bslstp uses the default allocator to implement
-        // 'operator[]'.  This should be updated after we go to the new
-        // 'bslstl_map'.
+        // This would be a better way to do it, but 'bsl::map' uses the
+        // default allocator to implement 'operator[]'.  We want to avoid using
+        // the default allocator in a test allocator since the client may be
+        // debugging memory issues, and may want to closely monitor traffic on
+        // the default allocator.
 
         ++stackTraceVecMap[v];
 #else
@@ -511,8 +534,8 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
     }
     BSLS_ASSERT(d_numBlocksInUse == numBlocksInUse);
 
-    *ostream << "Segment(s) allocated in " <<
-                                     stackTraceVecMap.size() << " place(s).\n";
+    *ostream << "Segment(s) allocated from " <<
+                                     stackTraceVecMap.size() << " trace(s).\n";
 
     int place = 0;
     baesu_StackTrace st(d_allocator_p);
@@ -520,8 +543,8 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
     for (StackTraceVecMap::iterator it = stackTraceVecMap.begin();
                                                       mapend != it; ++it) {
         *ostream << "------------------------------------------"
-                                      "-------------------------------------\n"
-                                   << "Allocation place " << ++place << ", " <<
+                              "-------------------------------------\n"
+                                   << "Allocation trace " << ++place << ", " <<
                                          it->second << " segment(s) in use.\n";
         *ostream << "Stack trace at allocation time:\n";
 
