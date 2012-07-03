@@ -4284,6 +4284,7 @@ static void testCase36(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(106 == mA2.field("i", 1).asInt());
         if (veryVerbose) P(A2);
 
+        // TBD: Change Raw to Aggregate
         if (verbose) tst::cout << "Testing bdeat_ArrayFunctions on TABLEs"
                                << bsl::endl;
         ASSERT(2 == AF::size(mA1.field("j").rawData()));

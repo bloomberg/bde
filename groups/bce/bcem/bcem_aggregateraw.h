@@ -1964,6 +1964,15 @@ void bdeat_enumToString(bsl::string *result, const bcem_AggregateRaw& value)
 }
 
 // ============================================================================
+//                       'bdeat_typename' overloads
+// ============================================================================
+
+const char *bdeat_TypeName_className(const bcem_AggregateRaw& object);
+     // Return the name of the record or enumeration definition for the
+     // specified 'object' aggregate or a null pointer of 'object' does not
+     // have a named record or enumeration definition.
+
+// ============================================================================
 //                       'bdeat_valuetype' overloads
 // ============================================================================
 

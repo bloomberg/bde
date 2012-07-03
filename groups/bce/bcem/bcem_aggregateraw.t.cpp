@@ -16,10 +16,23 @@
 #include <bdem_schemaaggregateutil.h>
 #include <bdem_schemautil.h>
 #include <bdem_table.h>
+#include <bdem_berdecoder.h>
+#include <bdem_berencoder.h>
+
+#include <bdeat_arrayfunctions.h>
+#include <bdeat_choicefunctions.h>
+#include <bdeat_enumfunctions.h>
+#include <bdeat_nullablevaluefunctions.h>
+#include <bdeat_sequencefunctions.h>
+#include <bdeat_typecategory.h>
+#include <bdeat_typename.h>
+#include <bdeat_valuetypefunctions.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bsl_iostream.h>
+#include <bsl_stack.h>
+#include <bsl_list.h>
 
 
 using namespace BloombergLP;
@@ -63,7 +76,7 @@ using namespace bsl;
 //
 // CREATORS
 // [ 8] bcem_AggregateRaw();
-// [  ] bcem_AggregateRaw(const bcem_AggregateRaw& original);
+// [18] bcem_AggregateRaw(const bcem_AggregateRaw& original);
 // [ 8] ~bcem_AggregateRaw();
 //
 // MANIPULATORS
@@ -75,15 +88,15 @@ using namespace bsl;
 // [11] void setFieldDefPointer(const bdem_FieldDef *fieldDef);
 // [11] void setTopLevelAggregateNullnessPointer(int *nullnessFlag);
 // [  ] void clearParent();
-// [  ] void reset();
+// [20] void reset();
 //
 // REFERENCED-VALUE ACCESSORS
 // [  ] int reserveRaw(Error *error, bsl::size_t numItems) const;
 // [  ] int capacityRaw(Error *error, bsl::size_t *capacity) const;
 // [  ] bool isError() const;
 // [  ] bool isVoid() const;
-// [  ] bool isNull() const;
-// [  ] bool isNullable() const;
+// [20] bool isNull() const;
+// [20] bool isNullable() const;
 // [  ] int errorCode() const;
 // [  ] bsl::string errorMessage() const;
 // [  ] bsl::string asString() const;
@@ -112,12 +125,12 @@ using namespace bsl;
 // [  ] int fieldByIndex(Obj *obj, Error *error, int index) const;
 // [  ] int fieldById(Obj *obj, Error *error, int id) const;
 // [13] int arrayItem(Obj *item, Error *error, int index) const;
-// [  ] int length() const;
-// [  ] int size() const;
-// [  ] int numSelections() const;
+// [19] int length() const;
+// [19] int size() const;
+// [20] int numSelections() const;
 // [15] const char *selector() const;
-// [  ] int selectorId() const;
-// [  ] int selectorIndex() const;
+// [16] int selectorId() const;
+// [17] int selectorIndex() const;
 // [15] int selection(Obj *obj, Error *error) const;
 // [ 4] bdem_ElemType::Type dataType() const;
 // [11] const bdem_RecordDef& recordDef() const;
@@ -145,14 +158,14 @@ using namespace bsl;
 // [14] int insertItems(Error *error, int index, int numItems) const;
 // [14] int insertNullItems(Error *error, int index, int numItems) const;
 // [14] int removeItems(Error *error, int index, int numItems) const;
-// [  ] int makeSelectionByIndex(Obj *obj, Error *error, int index) const;
-// [  ] int makeSelectionByIndex(Obj *obj, Error *error, int idx, value) const;
+// [17] int makeSelectionByIndex(Obj *obj, Error *error, int index) const;
+// [17] int makeSelectionByIndex(Obj *obj, Error *error, int idx, value) const;
 // [15] int makeSelection(Obj *obj, Error *error, newSelector) const;
 // [15] int makeSelection(Obj *obj, Error *error, newSelector, value) const;
-// [  ] int makeSelectionById(Obj *obj, Error *error, id) const;
-// [  ] int makeSelectionById(Obj *obj, Error *error, id, value) const;
-// [  ] void makeNull() const;
-// [  ] void makeValue() const;
+// [16] int makeSelectionById(Obj *obj, Error *error, id) const;
+// [16] int makeSelectionById(Obj *obj, Error *error, id, value) const;
+// [20] void makeNull() const;
+// [21] void makeValue() const;
 // [ 2] int setValue(Error *error, const TYPE& value) const;
 // [12] int resize(Error *error, bsl::size_t newSize) const;
 //
@@ -160,13 +173,13 @@ using namespace bsl;
 // [ 9] bsl::ostream& operator<<(bsl::ostream& stream, const Obj& obj);
 //
 // BDEAT FRAMEWORK
-// [  ] namespace bdeat_TypeCategoryFunctions
-// [  ] namespace bdeat_SequenceFunctions
-// [  ] namespace bdeat_ChoiceFunctions
-// [  ] namespace bdeat_ArrayFunctions
-// [  ] namespace bdeat_EnumFunctions
-// [  ] namespace bdeat_NullableValueFunctions
-// [  ] namespace bdeat_ValueTypeFunctions
+// [22] namespace bdeat_TypeCategoryFunctions
+// [22] namespace bdeat_SequenceFunctions
+// [22] namespace bdeat_ChoiceFunctions
+// [22] namespace bdeat_ArrayFunctions
+// [22] namespace bdeat_EnumFunctions
+// [22] namespace bdeat_NullableValueFunctions
+// [22] namespace bdeat_ValueTypeFunctions
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -264,6 +277,16 @@ typedef bdet_TimeTz           TimeTz;
 
 typedef bsls_PlatformUtil::Int64         Int64;
 typedef bslma_TestAllocator   TestAllocator;
+
+typedef bdeat_TypeName     TN;
+typedef bdeat_TypeCategory TC;
+
+namespace TCF = bdeat_TypeCategoryFunctions;
+namespace SF  = bdeat_SequenceFunctions;
+namespace CF  = bdeat_ChoiceFunctions;
+namespace AF  = bdeat_ArrayFunctions;
+namespace EF  = bdeat_EnumFunctions;
+namespace NVF = bdeat_NullableValueFunctions;
 
 const int BCEM_ERR_TBD = -1;
 
@@ -2817,6 +2840,677 @@ static bool streq(const char *a, const char *b)
     }
 }
 
+//=============================================================================
+//                  CLASSES FOR TESTING USAGE EXAMPLES
+//-----------------------------------------------------------------------------
+
+class AggAccessor {
+    // Aggregate accessor class.  Keeps track of the values of every aggregate
+    // that it visits.  The list of values is reset automatically using the
+    // 'matchValue' or 'matchValues' functions.
+
+    bsl::vector<int> d_values;
+    bool             d_isNullable; // true if current node is nullable
+
+  public:
+    AggAccessor() : d_isNullable(false) { }
+        // Construct an accessor object
+
+    // MANIPULATORS
+    template <typename T>
+    int operator()(const T& value);
+    template <typename T, typename INFO>
+    int operator()(const T& value, const INFO& info);
+        // Convert 'value' to a series of integers and push onto value stack.
+
+    template <typename T>
+    int operator()(const T& value, const TC::Array&);
+    template <typename T>
+    int operator()(const T& value, const TC::Choice&);
+    template <typename T>
+    int operator()(const T& value, const TC::CustomizedType&);
+    template <typename T>
+    int operator()(const T& value, const TC::Enumeration&);
+    template <typename T>
+    int operator()(const T& value, const TC::NullableValue&);
+    template <typename T>
+    int operator()(const T& value, const TC::Sequence&);
+    template <typename T>
+    int operator()(const T& value, const TC::Simple&);
+
+    template <typename T>
+    int operator()(const T& value, const bslmf_Nil&);
+        // Illegal call: prevent recursive calls to the 'INFO' version of
+        // 'operator()' in case of incorrect overload selection by the
+        // compiler.
+
+    bool matchValue(int v);
+        // Return true if vector of 'numValues()' is 1 and 'v == value(0)'.
+        // Call 'reset()' before returning.
+
+    bool matchValues(int v0, int v1);
+        // Return true if vector of 'numValues()' is 2 and 'v0 == value(0)'
+        // and 'v1 == value(1)'.  Call 'reset()' before returning.
+
+    bool matchValues(int v0, int v1, int v2);
+        // Return true if vector of 'numValues()' is 2 and 'v0 == value(0)'
+        // and 'v1 == value(1)' and 'v2 == value(2)'.  Call 'reset()' before
+        // returning.
+
+    void reset() { d_values.clear(); }
+        // Clear accumulated values.
+
+    // ACCESSORS
+    int numValues() const { return d_values.size(); }
+        // Return the number of values since last call to 'reset'.
+
+    int value(int n) const;
+        // Return the 'n'th value received since the last call to 'reset' or
+        // the string -1 if 'n < 0 || numValues() < n'.
+};
+
+template <typename T>
+inline
+int AggAccessor::operator()(const T& value, const TC::Array&)
+{
+    for (int i = 0; i < (int) AF::size(value); ++i) {
+        AF::accessElement(value, *this, i);
+    }
+    return 0;
+}
+
+template <typename T>
+inline
+int AggAccessor::operator()(const T& value, const TC::Choice&)
+{
+    d_isNullable = false;
+    CF::accessSelection(value, *this);
+    return 0;
+}
+
+template <typename T>
+inline
+int AggAccessor::operator()(const T& value, const TC::CustomizedType&)
+{
+    ASSERT(! "Custom types are NOT HANDLED");
+    return -1;
+}
+
+template <typename T>
+inline
+int AggAccessor::operator()(const T& value, const TC::Enumeration&)
+{
+    int intValue;
+    bdeat_EnumFunctions::toInt(&intValue, value);
+    if (d_isNullable) {
+        intValue = -intValue;
+    }
+    d_values.push_back(intValue);
+    return 0;
+}
+
+template <typename T>
+inline
+int AggAccessor::operator()(const T& value, const TC::NullableValue&)
+{
+    d_isNullable = true;
+
+    if (NVF::isNull(value)) {
+        d_values.push_back(-5000);
+    }
+    else {
+        NVF::accessValue(value, *this);
+    }
+    return 0;
+}
+
+template <typename T>
+inline
+int AggAccessor::operator()(const T& value, const TC::Sequence&)
+{
+    d_isNullable = false;
+    SF::accessAttributes(value, *this);
+    return 0;
+}
+
+template <typename T>
+inline
+int AggAccessor::operator()(const T& value, const TC::Simple&)
+{
+    int intValue = -2;
+    bdem_Convert::convert(&intValue, value);
+    if (d_isNullable) {
+        intValue = -intValue;
+    }
+    d_values.push_back(intValue);
+    return 0;
+}
+
+template <typename T>
+inline
+int AggAccessor::operator()(const T& value, const bslmf_Nil&)
+{
+    // This method should never be instantiated
+    ASSERT("Shouldn't call this function" && 0);
+    return 0;
+}
+
+template <typename T>
+inline
+int AggAccessor::operator()(const T& value) {
+    bdeat_TypeCategoryUtil::accessByCategory(value, *this);
+    d_isNullable = false;
+    return 0;
+}
+
+template <typename T, typename INFO>
+int AggAccessor::operator()(const T& value, const INFO& info) {
+    return operator()(value);
+}
+
+bool AggAccessor::matchValue(int v)
+{
+    bool ret = (1 == d_values.size() && v == d_values[0]);
+//     P(d_values[0]);
+    reset();
+    return ret;
+}
+
+bool AggAccessor::matchValues(int v0, int v1)
+{
+    bool ret = (2 == d_values.size() &&
+                v0 == d_values[0] && v1 == d_values[1]);
+    reset();
+    return ret;
+}
+
+bool AggAccessor::matchValues(int v0, int v1, int v2)
+{
+    bool ret = (3 == d_values.size() &&
+                v0 == d_values[0] && v1 == d_values[1] && v2 == d_values[2]);
+    reset();
+    return ret;
+}
+
+int AggAccessor::value(int n) const
+{
+    if (0 <= n && (unsigned) n < d_values.size()) {
+        return d_values[n];
+    }
+    else {
+        return -1;
+    }
+}
+
+class NewAggAccessor {
+    // Aggregate accessor class.  Keeps track of the values of every aggregate
+    // that it visits.  The list of values is reset automatically using the
+    // 'matchValue' or 'matchValues' functions.
+
+    bsl::ostringstream      d_output;
+    bsl::stack<bsl::string> d_nodes;
+    bool                    d_isNillable; // true if current node is nillable
+
+  public:
+    NewAggAccessor() : d_isNillable(false) { }
+        // Construct an accessor object
+
+    // MANIPULATORS
+    template <typename T>
+    int operator()(const T& value);
+    template <typename T, typename INFO>
+    int operator()(const T& value, const INFO& info);
+        // Convert 'value' to a series of integers and push onto value stack.
+
+    template <typename T>
+    int operator()(const T& value, const TC::Array&);
+    template <typename T>
+    int operator()(const T& value, const TC::Choice&);
+    template <typename T>
+    int operator()(const T& value, const TC::CustomizedType&);
+    template <typename T>
+    int operator()(const T& value, const TC::Enumeration&);
+    template <typename T>
+    int operator()(const T& value, const TC::NullableValue&);
+    template <typename T>
+    int operator()(const T& value, const TC::Sequence&);
+    template <typename T>
+    int operator()(const T& value, const TC::Simple&);
+
+    template <typename T>
+    int operator()(const T& value, const bslmf_Nil&);
+        // Illegal call: prevent recursive calls to the 'INFO' version of
+        // 'operator()' in case of incorrect overload selection by the
+        // compiler.
+
+    void reset() { d_output.str(""); }
+        // Clear accumulated values.
+
+    // ACCESSORS
+
+    bsl::string value() const { return d_output.str(); }
+};
+
+template <typename T>
+inline
+int NewAggAccessor::operator()(const T& value, const TC::Array&)
+{
+    for (int i = 0; i < (int) AF::size(value); ++i) {
+        AF::accessElement(value, *this, i);
+    }
+    return 0;
+}
+
+template <typename T>
+inline
+int NewAggAccessor::operator()(const T& value, const TC::Choice&)
+{
+    const bsl::string& name = d_nodes.top();
+    d_output << '<' << name << '>';
+    CF::accessSelection(value, *this);
+    d_output << "</" << name << ">";
+    return 0;
+}
+
+template <typename T>
+inline
+int NewAggAccessor::operator()(const T& value, const TC::CustomizedType&)
+{
+    ASSERT(! "Custom types are NOT HANDLED");
+    return -1;
+}
+
+template <typename T>
+inline
+int NewAggAccessor::operator()(const T& value, const TC::Enumeration&)
+{
+    int intValue;
+    bdeat_EnumFunctions::toInt(&intValue, value);
+    const bsl::string& name = d_nodes.top();
+    d_output << '<' << name << '>'
+             << intValue
+             << "</" << name << ">";
+    return 0;
+}
+
+template <typename T>
+inline
+int NewAggAccessor::operator()(const T& value, const TC::NullableValue&)
+{
+    if (NVF::isNull(value)) {
+        if (d_isNillable) {
+            d_output << '<' << d_nodes.top() << " xsi:nil='true'/>";
+        }
+        else {
+            d_output << '<' << d_nodes.top() << "/>";
+        }
+    }
+    else {
+        NVF::accessValue(value, *this);
+    }
+    return 0;
+}
+
+template <typename T>
+inline
+int NewAggAccessor::operator()(const T& value, const TC::Sequence&)
+{
+    const bsl::string& name = d_nodes.top();
+    d_output << '<' << name << '>';
+    SF::accessAttributes(value, *this);
+    d_output << "</" << name << ">";
+    return 0;
+}
+
+template <typename T>
+inline
+int NewAggAccessor::operator()(const T& value, const TC::Simple&)
+{
+    int intValue = -2;
+    bdem_Convert::convert(&intValue, value);
+    const bsl::string& name = d_nodes.top();
+    d_output << '<' << name << '>'
+             << intValue
+             << "</" << name << ">";
+    return 0;
+}
+
+template <typename T>
+inline
+int NewAggAccessor::operator()(const T& value, const bslmf_Nil&)
+{
+    // This method should never be instantiated
+    ASSERT("Shouldn't call this function" && 0);
+    return 0;
+}
+
+template <typename T>
+inline
+int NewAggAccessor::operator()(const T& value) {
+    bdeat_TypeCategoryUtil::accessByCategory(value, *this);
+    return 0;
+}
+
+template <typename T, typename INFO>
+int NewAggAccessor::operator()(const T& value, const INFO& info) {
+    if (Format::BDEAT_NILLABLE & info.formattingMode()) {
+        d_isNillable = true;
+    }
+    d_nodes.push(info.name());
+    int rc = operator()(value);
+    d_nodes.pop();
+    return rc;
+}
+
+class NewAggManipulator {
+    // Manipulate an aggregate by setting it to the next counter value.
+
+   bsl::list<CERef> d_elements;
+   int              d_isNillable;
+
+  public:
+    NewAggManipulator() : d_isNillable(false) { }
+        // Construct an manipulator object
+
+    // MANIPULATORS
+    template <typename T>
+    int operator()(T* value);
+    template <typename T, typename INFO>
+    int operator()(T* value, const INFO& info);
+        // Set the specified 'value' to the current 'counter()' and increment
+        // the counter.
+
+    template <typename T>
+    int operator()(T* value, const TC::Array&);
+    template <typename T>
+    int operator()(T* value, const TC::Choice&);
+    template <typename T>
+    int operator()(T* value, const TC::CustomizedType&);
+    template <typename T>
+    int operator()(T* value, const TC::Enumeration&);
+    template <typename T>
+    int operator()(T* value, const TC::NullableValue&);
+    template <typename T>
+    int operator()(T* value, const TC::Sequence&);
+    template <typename T>
+    int operator()(T* value, const TC::Simple&);
+
+    void reset() { d_elements.clear(); }
+
+    bsl::list<CERef>& elements() { return d_elements; }
+};
+
+template <typename T>
+inline
+int NewAggManipulator::operator()(T* value, const TC::Array&)
+{
+    const int numItems = d_elements.front().theInt();
+    d_elements.pop_front();
+    AF::resize(value, numItems);
+    for (int i = 0; i < (int) AF::size(*value); ++i) {
+        AF::manipulateElement(value, *this, i);
+    }
+    return 0;
+}
+
+template <typename T>
+inline
+int NewAggManipulator::operator()(T* value, const TC::Choice&)
+{
+    // Calculate the number of selections supported by this choice
+    int numSelections = 0;
+    for ( ; CF::hasSelection(*value, numSelections); ++numSelections);
+
+    if (0 == numSelections) {
+        return 0;
+    }
+
+    const CERef& selectorRef = d_elements.front();
+    int selector = selectorRef.theInt();
+    CF::makeSelection(value, selector);
+    d_elements.pop_front();
+    CF::manipulateSelection(value, *this);
+    return 0;
+}
+
+template <typename T>
+inline
+int NewAggManipulator::operator()(T* value, const TC::CustomizedType&)
+{
+    ASSERT(! "Custom types are NOT HANDLED");
+    return -1;
+}
+
+template <typename T>
+inline
+int NewAggManipulator::operator()(T* value, const TC::Enumeration&)
+{
+    int intValue;
+    const CERef& ref = d_elements.front();
+    bdem_Convert::convert(&intValue, ref);
+    bdeat_EnumFunctions::fromInt(value, intValue);
+    d_elements.pop_front();
+    return 0;
+}
+
+template <typename T>
+inline
+int NewAggManipulator::operator()(T* value, const TC::NullableValue&)
+{
+    const CERef& ref = d_elements.front();
+    if (!ref.isBound()) {
+        bdeat_ValueTypeFunctions::reset(value);
+        d_elements.pop_front();
+        return 0;
+    }
+
+    if (NVF::isNull(*value)) {
+        NVF::makeValue(value);
+    }
+
+    NVF::manipulateValue(value, *this);
+    return 0;
+}
+
+template <typename T>
+inline
+int NewAggManipulator::operator()(T* value, const TC::Sequence&)
+{
+    SF::manipulateAttributes(value, *this);
+    return 0;
+}
+
+template <typename T>
+inline
+int NewAggManipulator::operator()(T* value, const TC::Simple&)
+{
+    const CERef& ref = d_elements.front();
+    int rc = bdem_Convert::convert(value, ref);
+    d_elements.pop_front();
+    return rc;
+}
+
+template <typename T>
+inline
+int NewAggManipulator::operator()(T* value) {
+    bdeat_TypeCategoryUtil::manipulateByCategory(value, *this);
+    return 0;
+}
+
+template <typename T, typename INFO>
+int NewAggManipulator::operator()(T* value, const INFO& info)
+{
+    return operator()(value);
+}
+
+class AggManipulator {
+    // Manipulate an aggregate by setting it to the next counter value.
+
+    int d_counter;
+    int d_isNullable;
+
+  public:
+    AggManipulator() : d_counter(100), d_isNullable(false) { }
+        // Construct an manipulator object
+
+    // MANIPULATORS
+    template <typename T>
+    int operator()(T* value);
+    template <typename T, typename INFO>
+    int operator()(T* value, const INFO& info);
+        // Set the specified 'value' to the current 'counter()' and increment
+        // the counter.
+
+    template <typename T>
+    int operator()(T* value, const TC::Array&);
+    template <typename T>
+    int operator()(T* value, const TC::Choice&);
+    template <typename T>
+    int operator()(T* value, const TC::CustomizedType&);
+    template <typename T>
+    int operator()(T* value, const TC::Enumeration&);
+    template <typename T>
+    int operator()(T* value, const TC::NullableValue&);
+    template <typename T>
+    int operator()(T* value, const TC::Sequence&);
+    template <typename T>
+    int operator()(T* value, const TC::Simple&);
+
+    void reset(int counter = 0) { d_counter = counter; }
+        // Reset the counter to the specified 'counter' value.
+
+    int counterNext() { return d_counter++; }
+        // Return the counter and increment count to the next value.
+
+    // ACCESSORS
+    int counter() const { return d_counter; }
+        // Return the current counter value.
+};
+
+template <typename T>
+inline
+int AggManipulator::operator()(T* value, const TC::Array&)
+{
+    for (int i = 0; i < (int) AF::size(*value); ++i) {
+        AF::manipulateElement(value, *this, i);
+    }
+    return 0;
+}
+
+template <typename T>
+inline
+int AggManipulator::operator()(T* value, const TC::Choice&)
+{
+    d_isNullable = false;
+
+    // Calculate the number of selections supported by this choice
+    int numSelections = 0;
+    for ( ; CF::hasSelection(*value, numSelections); ++numSelections)
+        ;
+
+    if (0 == numSelections)
+        return 0;
+
+    int selector = counter() % numSelections;
+    CF::makeSelection(value, selector);
+    CF::manipulateSelection(value, *this);
+    return 0;
+}
+
+template <typename T>
+inline
+int AggManipulator::operator()(T* value, const TC::CustomizedType&)
+{
+    ASSERT(! "Custom types are NOT HANDLED");
+    return -1;
+}
+
+template <typename T>
+inline
+int AggManipulator::operator()(T* value, const TC::Enumeration&)
+{
+    bdeat_EnumFunctions::fromInt(value, counterNext());
+    return 0;
+}
+
+template <typename T>
+inline
+int AggManipulator::operator()(T* value, const TC::NullableValue&)
+{
+    d_isNullable = true;
+
+    if (NVF::isNull(*value)) {
+        NVF::makeValue(value);
+    }
+
+    NVF::manipulateValue(value, *this);
+    return 0;
+}
+
+template <typename T>
+inline
+int AggManipulator::operator()(T* value, const TC::Sequence&)
+{
+    d_isNullable = false;
+    SF::manipulateAttributes(value, *this);
+    return 0;
+}
+
+template <typename T>
+inline
+int AggManipulator::operator()(T* value, const TC::Simple&)
+{
+    int intValue = counterNext();
+    if (d_isNullable) {
+        intValue = -intValue;
+    }
+    bdem_Convert::convert(value, intValue);
+    return 0;
+}
+
+template <typename T>
+inline
+int AggManipulator::operator()(T* value) {
+    bdeat_TypeCategoryUtil::manipulateByCategory(value, *this);
+    d_isNullable = false;
+    return 0;
+}
+
+template <typename T, typename INFO>
+int AggManipulator::operator()(T* value, const INFO& info) {
+    return operator()(value);
+}
+
+//=============================================================================
+//                    SUPPORT TYPES USED IN TEST CASES
+//-----------------------------------------------------------------------------
+
+enum {
+    NOT_CHOICE = Error::BCEM_ERR_NOT_A_CHOICE,
+    BAD_FLDNM  = Error::BCEM_ERR_BAD_FIELDNAME,
+    BAD_FLDIDX = Error::BCEM_ERR_BAD_FIELDINDEX,
+    NOT_SELECT = Error::BCEM_ERR_NOT_SELECTED,
+    NON_RECORD = Error::BCEM_ERR_NOT_A_RECORD,
+    AMBIGUOUS  = Error::BCEM_ERR_AMBIGUOUS_ANON
+};
+
+
+struct Accumulator {
+    int d_count;
+    
+    int operator()(const bcem_AggregateRaw& value) {
+        d_count += value.asInt();
+        return 0;
+    }
+
+    template<typename TYPE>
+    int operator()(const TYPE& value) {
+        return -1;
+    }
+   
+    Accumulator() : d_count(0) {}
+};
+
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -2834,7 +3528,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 20: {
+      case 30: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -2855,10 +3549,2078 @@ int main(int argc, char *argv[])
               }
           }
       } break;
-#if 0
-      case 18: {
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING 'bdeat' FUNCTIONS
+        //
+        // Concerns:
+        //   - 'bdeat_TypeName::className(bcem_AggregateRaw)' returns the
+        //     record name for aggregates that are constrained by a record
+        //     definition, and a zero pointer for aggregates that are not
+        //     constrained by a record definition.
+        //   - 'bdeat_TypeCategory::Select<bcem_AggregateRaw>::BDEAT_SELECTION'
+        //     is '0'
+        //   - 'bdeat_TypeCategoryFunctions::select(bdem_AggregateRaw)' returns
+        //     the category value appropriate to the value of the aggregate.
+        //   - The following methods in 'bdeat_SequenceFunctions' produce the
+        //     expected results on an aggregate holding a list or row:
+        //     - 'manipulateAttribute'
+        //     - 'manipulateAttributes'
+        //     - 'accessAttribute'
+        //     - 'accessAttributes'
+        //     - 'hasAttribute'
+        //   - The following methods in 'bdeat_ChoiceFunctions' produce the
+        //     expected result on an aggregate holding a choice or choice array
+        //     item:
+        //     - 'makeSelection'
+        //     - 'manipulateSelection'
+        //     - 'accessSelection'
+        //     - 'hasSelection'
+        //     - 'selectionId'
+        //   - The following methods in 'bdeat_ArrayFunctions' produce the
+        //     expected result on an aggregate holding an array, table, or
+        //     choice array:
+        //     - 'size'
+        //     - 'resize'
+        //     - 'manipulateElement'
+        //     - 'accessElement'
+        //   - The following methods in 'bdeat_NullableValueFunctions'
+        //     return the expected results when invoked on a nullable field
+        //     within an aggregate:
+        //     - 'makeValue'
+        //     - 'manipulateValue'
+        //     - 'accessValue'
+        //     - 'isNull'
+        //   - The following methods in 'bdeat_EnumFunctions' set and get the
+        //     correct values for an enumeration field within an aggregate:
+        //     - 'fromInt'
+        //     - 'fromString'
+        //     - 'toInt'
+        //     - 'toString'
+        //   - The following methods in 'bdeat_ValueTypeFunctions' assign the
+        //     correct values for a scalar aggregate and for a list aggregate:
+        //     - 'assign'
+        //     - 'reset'
+        //   - A complex operation that uses bdeat functions works as expected.
+        //
+        // Plan:
+        // - Construct a schema with a root sequence record containing at
+        //   least one of each of the categories to be tested.
+        // - Define a manipulator class that performs a standard set of
+        //   manipulations on each simple type and simple recursive operations
+        //   on each sequence, choice, and nullable type.
+        // - Define an accessor that records the sequence of calls.
+        // - Create an 'bcem_AggregateRaw' object that conforms to the root
+        //   record of the schema.
+        // - Call 'bdeat_TypeName::className(bcem_AggregateRaw)' on each field
+        //   and check for expected result.
+        // - Check that
+        //   'bdeat_TypeCategory::Select<bcem_AggregateRaw>::BDEAT_SELECTION'
+        //   is '0'.
+        // - Call 'bdeat_TypeCategoryFunctions::select(bdem_AggregateRaw)' on
+        //   each field and check for expected result.
+        // - Apply the manipulator to the aggregate and confirm that the final
+        //   state of the aggregate is as expected.
+        // - Apply the accessor to the aggregate and confirm that the values
+        //   and sequence of accesses are as expected.
+        // - To exercise the bdeat functions in a real-world scenario, encode
+        //   a complex aggregate using 'bdem_berencoder' and decode
+        //   it using 'bdem_berdecoderutil'.  Confirm that the decoded
+        //   aggregate is equivalent to the original.
+        //
+        // Testing:
+        //     namespace bdeat_TypeCategoryFunctions
+        //     namespace bdeat_SequenceFunctions
+        //     namespace bdeat_ChoiceFunctions
+        //     namespace bdeat_ArrayFunctions
+        //     namespace bdeat_EnumFunctions
+        //     namespace bdeat_NullableValueFunctions
+        //     namespace bdeat_ValueTypeFunctions
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'bdeat' FUNCTIONS"
+                          << "\n========================="
+                          << bsl::endl;
+
+        const char SPEC[] =
+            ":f= uvx"         // ENUM "f" { "you" => 0, "vee" => 1, "ex" => 2}
+            ":c? Aa&NF Bb&NF" // CHOICE "c" { CHAR "a"; SHORT "b"; }
+            ":s Cc&NF Dd"     // SEQUENCE "s" { INT "c"; INT64 "d"; }
+            ":r"              // SEQUENCE "r" {
+            "  Fa &NF"        //     DOUBLE "a" !nullable;
+            "  Fb &NT"        //     DOUBLE "b"  nullable;
+            "  Gc &NF"        //     STRING "c" !nullable;
+            "  Gd &NT &D1"    //     STRING "d"  nullable default="vee";
+            "  +fs &NF"       //     LIST<"s"> "f" !nullable;
+            "  +gs &NT"       //     LIST<"s"> "g"  nullable;
+            "  %hc"           //     CHOICE<"c"> "h";
+            "  Mi"            //     INT_ARRAY "i";
+            "  #js"           //     TABLE<"s"> "j"
+            "  @kc"           //     CHOICE_ARRAY<"c"> "k";
+            "  $mf &NF"       //     INT ENUM<"f"> "m" !nullable;
+            "  ^nf &NT"       //     STRING ENUM<"f"> "n" nullable;
+            "  Mo &FN"        //     INT_ARRAY     "o" !nullable nillable
+            "  #ps &FN"       //     TABLE<"s"> "p" nillable
+            "  /qf &FN"       //     STRING_ARRAY ENUM<"f"> "q" nillable
+            ;                 // }
+
+        Schema schema;
+
+        ggSchema(&schema, SPEC);
+        ASSERT(5 == schema.numRecords());
+        ASSERT(1 == schema.numEnumerations());
+        if (veryVerbose) P(schema);
+
+        ASSERT(0 == TC::Select<bcem_AggregateRaw>::BDEAT_SELECTION);
+
+        bslma_TestAllocator t(veryVeryVerbose);
+        bcem_AggregateRaw mA1, &A1 = mA1;
+        int rc = ggAggData(&mA1, *schema.lookupRecord("r"), &t);
+        ASSERT(!rc);
+
+        Error err;
+        Obj mX;  const Obj& X = mX;
+        Obj mY;  const Obj& Y = mY;
+
+        mA1.setField(&mX, &err, "a", 4.0);
+        mA1.setField(&mX, &err, "c", "22");
+        mA1.setField(&mX, &err, "d", "33");
+        mA1.setField(&mX, &err, "f", "c", 99);
+        mA1.setField(&mX, &err, "f", "d", 999);
+
+        mA1.getField(&mX, &err, false, "g");
+        mX.makeValue();
+
+        mA1.setField(&mX, &err, "g", "c", 88);
+        mA1.setField(&mX, &err, "g", "d", 888);
+
+        mA1.getField(&mX, &err, false, "h");
+        mX.makeSelection(&mY, &err, "a", 77);
+
+        mA1.getField(&mX, &err, false, "i");
+        mX.insertItem(&mY, &err, 0, 6);
+        mX.insertItem(&mY, &err, 1, 5);
+        mX.insertItem(&mY, &err, 2, 4);
+
+        mA1.getField(&mX, &err, false, "j");
+        mX.resize(&err, 2);
+
+        mA1.setField(&mX, &err, "j", 0, "c", 66);
+        mA1.setField(&mX, &err, "j", 0, "d", 666);
+        mA1.setField(&mX, &err, "j", 1, "c", 55);
+        mA1.setField(&mX, &err, "j", 1, "d", 555);
+
+        mA1.getField(&mX, &err, false, "k");
+        mX.resize(&err, 2);
+
+        mA1.getField(&mX, &err, false, "k", 0);
+        mX.makeSelection(&mY, &err, "a", 44);
+        mA1.getField(&mX, &err, false, "k", 1);
+        mX.makeSelection(&mY, &err, "b", 333);
+
+        mA1.setField(&mX, &err, "m", 1);    // == enumerator string "vee"
+        mA1.setField(&mX, &err, "n", "ex"); // == enumerator ID 2
+        A1.getField(&mX, &err, false, "i");
+        ASSERT(X.enumerationConstraint() == 0);
+        A1.getField(&mX, &err, false, "m");
+        ASSERT(X.enumerationConstraint() == schema.lookupEnumeration("f"));
+
+        mA1.getField(&mX, &err, false, "o");
+        mX.resize(&err, 2);
+
+        mA1.setField(&mX, &err, "o", 0, "33");
+
+        mA1.getField(&mX, &err, false, "p");
+        mX.resize(&err, 2);
+
+        mA1.getField(&mX, &err, false, "q");
+        mX.resize(&err, 2);
+
+        mA1.getField(&mY, &err, false, "j", 0);
+
+        mA1.setField(&mX, &err, "p", 0, Y);
+        mA1.setField(&mX, &err, "q", 1, "ex");
+
+        if (veryVerbose) P(A1);
+
+        bcem_AggregateRaw mA2, &A2 = mA2;
+        rc = ggAggData(&mA2, *schema.lookupRecord("r"), &t);
+        ASSERT(!rc);
+
+        if (verbose) cout << "Testing type name" << bsl::endl;
+        ASSERT(streq("r", TN::className(A1)));
+        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY == TCF::select(A1));
+
+        A1.getField(&mX, &err, false, "a");
+        ASSERT(      0 == TN::className(X) );
+        ASSERT(TC::BDEAT_SIMPLE_CATEGORY == TCF::select(X));
+
+        A1.getField(&mX, &err, false, "b");
+        ASSERT(      0 == TN::className(X) );
+        ASSERT(TC::BDEAT_SIMPLE_CATEGORY == TCF::select(X));
+
+        A1.getField(&mX, &err, false, "c");
+        ASSERT(      0 == TN::className(X) );
+        ASSERT(TC::BDEAT_SIMPLE_CATEGORY == TCF::select(X));
+
+        A1.getField(&mX, &err, false, "d");
+        ASSERT(      0 == TN::className(X) );
+        ASSERT(TC::BDEAT_SIMPLE_CATEGORY == TCF::select(X));
+
+        A1.getField(&mX, &err, false, "f");
+        ASSERT(streq("s", TN::className(X)));
+        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY == TCF::select(X));
+
+        A1.getField(&mX, &err, false, "g");
+        ASSERT(streq("s", TN::className(X)));
+        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY == TCF::select(X));
+
+        A1.getField(&mX, &err, false, "h");
+        ASSERT(streq("c", TN::className(X)));
+        ASSERT(TC::BDEAT_CHOICE_CATEGORY == TCF::select(X));
+
+        A1.getField(&mX, &err, false, "i");
+        ASSERT(      0 == TN::className(X) );
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY == TCF::select(X));
+
+        A1.getField(&mX, &err, false, "j");
+        ASSERT(streq("s", TN::className(X)));
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY == TCF::select(X));
+
+        A1.getField(&mX, &err, false, "k");
+        ASSERT(streq("c", TN::className(X)));
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY == TCF::select(X));
+
+        A1.getField(&mX, &err, false, "m");
+        ASSERT(streq("f", TN::className(X)));
+        ASSERT(TC::BDEAT_ENUMERATION_CATEGORY == TCF::select(X));
+
+        A1.getField(&mX, &err, false, "n");
+        ASSERT(streq("f", TN::className(X)));
+        ASSERT(TC::BDEAT_ENUMERATION_CATEGORY == TCF::select(X));
+
+        A1.getField(&mX, &err, false, "o");
+        ASSERT(      0 == TN::className(X) );
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY == TCF::select(X));
+
+        A1.getField(&mX, &err, false, "q");
+        ASSERT(      0 == TN::className(X) );
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY == TCF::select(X));
+
+        A1.getField(&mX, &err, false, "p");
+        ASSERT(streq("s", TN::className(X)));
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY == TCF::select(X));
+
+        if (verbose) cout << "Testing category selection" << bsl::endl;
+        ASSERT(0 ==
+               bdeat_TypeCategory::Select<bcem_AggregateRaw>::BDEAT_SELECTION);
+
+        AggAccessor       theAccessor;
+        AggManipulator    theManipulator;
+        NewAggAccessor    newAccessor;
+        NewAggManipulator newManipulator;
+
+        const bsl::string RA = "<a>4</a>";
+        const bsl::string RB = "<b/>";
+        const bsl::string RC = "<c>22</c>";
+        const bsl::string RD = "<d>33</d>";
+        const bsl::string RF = "<f><c>99</c><d>999</d></f>";
+        const bsl::string RG = "<g><c>88</c><d>888</d></g>";
+        const bsl::string RH = "<h><a>77</a></h>";
+        const bsl::string RI = "<i>6</i><i>5</i><i>4</i>";
+        const bsl::string RJ =
+                        "<j><c>66</c><d>666</d></j><j><c>55</c><d>555</d></j>";
+        const bsl::string RK = "<k><a>44</a></k><k><b>333</b></k>";
+        const bsl::string RM = "<m>1</m>";
+        const bsl::string RN = "<n>2</n>";
+        const bsl::string RO = "<o>33</o><o xsi:nil='true'/>";
+        const bsl::string RP = "<p><c>66</c><d>666</d></p><p xsi:nil='true'/>";
+        const bsl::string RQ = "<q xsi:nil='true'/><q>2</q>";
+
+        bsl::string res;
+        if (verbose) cout << "Testing bdeat_SequenceFunctions"<< bsl::endl;
+        ASSERT(SF::IsSequence<bcem_AggregateRaw>::VALUE);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "a", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RA, res, RA == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "b", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RB, res, RB == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "c", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RC, res, RC == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "d", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RD, res, RD == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "f", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RF, res, RF == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "g", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RG, res, RG == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "h", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RH, res, RH == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "i", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RI, res, RI == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "j", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RJ, res, RJ == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "k", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RK, res, RK == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "m", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RM, res, RM == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "n", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RN, res, RN == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "o", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RO, res, RO == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "p", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RP, res, RP == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "q", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RQ, res, RQ == res);
+
+        SF::accessAttribute(A1, theAccessor, "b", 1);
+        ASSERT(theAccessor.matchValue(-5000));
+        mA1.getField(&mX, &err, false, "f");
+        SF::accessAttribute(X, theAccessor, "c", 1);
+        ASSERT(theAccessor.matchValue(99));
+        SF::accessAttribute(X, theAccessor, 1);
+        ASSERT(theAccessor.matchValue(999));
+        SF::accessAttributes(X, theAccessor);
+        ASSERT(theAccessor.matchValues(99, 999));
+
+        Obj mB; const Obj& B = mB;
+        ggAggData(&mB, *schema.lookupRecord("r"), &t);
+
+        bsl::list<CERef>& values = newManipulator.elements();
+        const CERef& RefA = getCERef(ET::BDEM_DOUBLE, 1);
+        values.push_back(RefA);
+        SF::manipulateAttribute(&mB, newManipulator, "a", 1);
+        mB.getField(&mX, &err, false, "a");
+        ASSERT(compareCERefs(RefA, X.asElemRef()));
+
+        newManipulator.reset();
+        const CERef& RefB = getCERef(ET::BDEM_DOUBLE, 2);
+        values.push_back(RefB);
+        SF::manipulateAttribute(&mB, newManipulator, "b", 1);
+        mB.getField(&mX, &err, false, "b");
+        ASSERT(compareCERefs(RefB, X.asElemRef()));
+
+        newManipulator.reset();
+        const CERef& RefC = getCERef(ET::BDEM_STRING, 2);
+        values.push_back(RefC);
+        SF::manipulateAttribute(&mB, newManipulator, "c", 1);
+        mB.getField(&mX, &err, false, "c");
+        LOOP2_ASSERT(RefC, X.asElemRef(), compareCERefs(RefC, X.asElemRef()));
+
+        newManipulator.reset();
+        const CERef& RefD = getCERef(ET::BDEM_STRING, 0);
+        values.push_back(RefD);
+        SF::manipulateAttribute(&mB, newManipulator, "d", 1);
+        mB.getField(&mX, &err, false, "d");
+        ASSERT(compareCERefs(RefD, X.asElemRef()));
+
+        newManipulator.reset();
+        const CERef& RefFC = getCERef(ET::BDEM_INT, 2);
+        const CERef& RefFD = getCERef(ET::BDEM_INT64, 1);
+        values.push_back(RefFC);
+        values.push_back(RefFD);
+        SF::manipulateAttribute(&mB, newManipulator, "f", 1);
+        mB.getField(&mX, &err, false, "f");
+        mX.getField(&mY, &err, false, "c");
+        LOOP2_ASSERT(RefFC, Y.asElemRef(),
+                     compareCERefs(RefFC, Y.asElemRef()));
+        mX.getField(&mY, &err, false, "d");
+        ASSERT(compareCERefs(RefFD, Y.asElemRef()));
+
+        newManipulator.reset();
+        const CERef& RefGC = getCERef(ET::BDEM_INT, 0);
+        const CERef& RefGD = getCERef(ET::BDEM_INT64, 0);
+        values.push_back(RefGC);
+        values.push_back(RefGD);
+        SF::manipulateAttribute(&mB, newManipulator, "g", 1);
+        mB.getField(&mX, &err, false, "g");
+        mX.getField(&mY, &err, false, "c");
+        ASSERT(compareCERefs(RefGC, Y.asElemRef()));
+        mX.getField(&mY, &err, false, "d");
+        ASSERT(compareCERefs(RefGD, Y.asElemRef()));
+
+        newManipulator.reset();
+        int selector = 0;
+        const CERef  RefSelector(&selector, &bdem_Properties::d_intAttr);
+        values.push_back(RefSelector);
+        const CERef& RefH = getCERef(ET::BDEM_CHAR, 1);
+        values.push_back(RefH);
+        SF::manipulateAttribute(&mB, newManipulator, "h", 1);
+        mB.getField(&mX, &err, false, "h");
+        ASSERT(selector == X.selectorId());
+        ASSERT(bsl::string("a") == X.selector());
+        mX.getField(&mY, &err, false, "a");
+        ASSERT(compareCERefs(RefH, Y.asElemRef()));
+
+        newManipulator.reset();
+        int numItems = 1;
+        const CERef  RefNI(&numItems, &bdem_Properties::d_intAttr);
+        const CERef& RefI = getCERef(ET::BDEM_INT, 1);
+        values.push_back(RefNI);
+        values.push_back(RefI);
+        SF::manipulateAttribute(&mB, newManipulator, "i", 1);
+        mB.getField(&mX, &err, false, "i");
+        ASSERT(1 == X.length());
+        mX.getField(&mY, &err, false, 0);
+        LOOP2_ASSERT(RefI, Y.asElemRef(), compareCERefs(RefI, Y.asElemRef()));
+
+        newManipulator.reset();
+        numItems = 2;
+        const CERef& RefJA1 = getCERef(ET::BDEM_INT, 1);
+        const CERef& RefJA2 = getCERef(ET::BDEM_INT64, 1);
+        const CERef& RefJB1 = getCERef(ET::BDEM_INT, 2);
+        const CERef& RefJB2 = getCERef(ET::BDEM_INT64, 2);
+        values.push_back(RefNI);
+        values.push_back(RefJA1);
+        values.push_back(RefJA2);
+        values.push_back(RefJB1);
+        values.push_back(RefJB2);
+        SF::manipulateAttribute(&mB, newManipulator, "j", 1);
+        mB.getField(&mX, &err, false, "j");
+        ASSERT(2 == X.length());
+        X.getField(&mY, &err, false, 0);
+        Y.getField(&mX, &err, false, "c");
+        ASSERT(compareCERefs(RefJA1, X.asElemRef()));
+        Y.getField(&mX, &err, false, "d");
+        ASSERT(compareCERefs(RefJA2, X.asElemRef()));
+        B.getField(&mX, &err, false, "j");
+        X.getField(&mY, &err, false, 1);
+        Y.getField(&mX, &err, false, "c");
+        ASSERT(compareCERefs(RefJB1, X.asElemRef()));
+        Y.getField(&mX, &err, false, "d");
+        ASSERT(compareCERefs(RefJB2, X.asElemRef()));
+
+        newManipulator.reset();
+        int s1 = 0, s2 = 1;
+        const CERef  RefS1(&s1, &bdem_Properties::d_intAttr);
+        const CERef  RefS2(&s2, &bdem_Properties::d_intAttr);
+        const CERef& RefKA = getCERef(ET::BDEM_CHAR, 1);
+        const CERef& RefKB = getCERef(ET::BDEM_SHORT, 1);
+        values.push_back(RefNI);
+        values.push_back(RefS1);
+        values.push_back(RefKA);
+        values.push_back(RefS2);
+        values.push_back(RefKB);
+        SF::manipulateAttribute(&mB, newManipulator, "k", 1);
+        mB.getField(&mX, &err, false, "k");
+        ASSERT(numItems == X.length());
+
+        Obj RESA, RESB;
+        B.getField(&RESA, &err, false, "k", 0);
+        B.getField(&RESB, &err, false, "k", 1);
+
+        ASSERT(s1 == RESA.selectorId());
+        ASSERT(bsl::string("a") == RESA.selector());
+        RESA.selection(&mX, &err);
+        LOOP_ASSERT(RefKA, compareCERefs(RefKA, X.asElemRef()));
+        ASSERT(s2 == RESB.selectorId());
+        ASSERT(bsl::string("b") == RESB.selector());
+        RESB.selection(&mX, &err);
+        LOOP2_ASSERT(RefKB, X.asElemRef(),
+                     compareCERefs(RefKB, X.asElemRef()));
+
+        newManipulator.reset();
+        int enumId = 1;
+        const CERef enumRef1(&enumId, &bdem_Properties::d_intAttr);
+        values.push_back(enumRef1);
+        SF::manipulateAttribute(&mB, newManipulator, "m", 1);
+        B.getField(&mX, &err, false, "m");
+        LOOP2_ASSERT(enumRef1, X.asElemRef(),
+                     compareCERefs(enumRef1, X.asElemRef()));
+        enumId = 2;
+        values.push_back(enumRef1);
+        SF::manipulateAttribute(&mB, newManipulator, "m", 1);
+        B.getField(&mX, &err, false, "m");
+        LOOP2_ASSERT(enumRef1, X.asElemRef(),
+                     compareCERefs(enumRef1, X.asElemRef()));
+
+        newManipulator.reset();
+        enumId = 1;
+        bsl::string enumString = "1";
+        const CERef enumRef2(&enumString, &bdem_Properties::d_stringAttr);
+        values.push_back(enumRef2);
+        SF::manipulateAttribute(&mB, newManipulator, "m", 1);
+        B.getField(&mX, &err, false, "m");
+        LOOP2_ASSERT(enumRef1, X.asElemRef(),
+                     compareCERefs(enumRef1, X.asElemRef()));
+        enumId = 2;
+        enumString = "2";
+        values.push_back(enumRef2);
+        SF::manipulateAttribute(&mB, newManipulator, "m", 1);
+        B.getField(&mX, &err, false, "m");
+        LOOP2_ASSERT(enumRef1, X.asElemRef(),
+                     compareCERefs(enumRef1, X.asElemRef()));
+
+        newManipulator.reset();
+        enumId = 1;
+        values.push_back(enumRef1);
+        SF::manipulateAttribute(&mB, newManipulator, "n", 1);
+        B.getField(&mX, &err, false, "n");
+        ASSERT(bsl::string("vee") == X.asElemRef().theString());
+
+        newManipulator.reset();
+        enumId = 2;
+        values.push_back(enumRef1);
+        SF::manipulateAttribute(&mB, newManipulator, "n", 1);
+        B.getField(&mX, &err, false, "n");
+        LOOP_ASSERT(X.asElemRef().theString(),
+                    bsl::string("ex") == X.asElemRef().theString());
+
+        newManipulator.reset();
+        enumString = "1";
+        values.push_back(enumRef2);
+        SF::manipulateAttribute(&mB, newManipulator, "n", 1);
+        B.getField(&mX, &err, false, "n");
+        ASSERT(bsl::string("vee") == X.asElemRef().theString());
+
+        newManipulator.reset();
+        enumString = "2";
+        values.push_back(enumRef2);
+        SF::manipulateAttribute(&mB, newManipulator, "n", 1);
+        B.getField(&mX, &err, false, "n");
+        LOOP_ASSERT(X.asElemRef().theString(),
+                    bsl::string("ex") == X.asElemRef().theString());
+
+        newManipulator.reset();
+        numItems = 2;
+        const CERef& RefO = getCERef(ET::BDEM_INT, 0);
+        values.push_back(RefNI);
+        values.push_back(RefI);
+        values.push_back(RefO);
+        SF::manipulateAttribute(&mB, newManipulator, "o", 1);
+        B.getField(&mX, &err, false, "o");
+        ASSERT(2 == X.length());
+        X.getField(&mY, &err, false, 0);
+        LOOP_ASSERT(Y.asElemRef(), compareCERefs(RefI, Y.asElemRef()));
+        X.getField(&mY, &err, false, 1);
+        LOOP_ASSERT(Y.asElemRef(), compareCERefs(RefO, Y.asElemRef()));
+
+        newManipulator.reset();
+        numItems = 2;
+        values.push_back(RefNI);
+        values.push_back(RefJA1);
+        values.push_back(RefJA2);
+        values.push_back(RefJB1);
+        values.push_back(RefJB2);
+        SF::manipulateAttribute(&mB, newManipulator, "p", 1);
+        B.getField(&mX, &err, false, "p");
+        ASSERT(2 == X.length());
+        X.getField(&mY, &err, false, 0);
+        Y.getField(&mX, &err, false, "c");
+        ASSERT(compareCERefs(RefJA1, X.asElemRef()));
+        Y.getField(&mX, &err, false, "d");
+        ASSERT(compareCERefs(RefJA2, X.asElemRef()));
+        B.getField(&mX, &err, false, "p");
+        X.getField(&mY, &err, false, 1);
+        Y.getField(&mX, &err, false, "c");
+        ASSERT(compareCERefs(RefJB1, X.asElemRef()));
+        Y.getField(&mX, &err, false, "d");
+        ASSERT(compareCERefs(RefJB2, X.asElemRef()));
+
+        newManipulator.reset();
+        numItems = 1;
+        enumString = "1";
+        values.push_back(RefNI);
+        values.push_back(enumRef2);
+        SF::manipulateAttribute(&mB, newManipulator, "q", 1);
+        B.getField(&mX, &err, false, "q");
+        ASSERT(1 == X.length());
+        X.getField(&mY, &err, false, 0);
+        ASSERT(bsl::string("vee") == Y.asElemRef().theString());
+
+        Obj mA2f;
+        mA2.getField(&mA2f, &err, false, "f");
+        SF::manipulateAttribute(&mA2f, theManipulator,  0);
+        A2.getField(&mX, &err, false, "f", "c");
+        ASSERT(100 == X.asInt());
+        SF::manipulateAttribute(&mA2f, theManipulator,  "d", 1);
+        A2.getField(&mX, &err, false, "f", "d");
+        ASSERT(101 == X.asInt64());
+        SF::manipulateAttributes(&mA2f, theManipulator);
+        A2.getField(&mX, &err, false, "f", "c");
+        ASSERT(102 == X.asInt());
+        A2.getField(&mX, &err, false, "f", "d");
+        ASSERT(103 == X.asInt64());
+        if (veryVerbose) P(A2);
+
+        if (verbose) cout << "Testing bdeat_ChoiceFunctions" << bsl::endl;
+        ASSERT(CF::IsChoice<bcem_AggregateRaw>::VALUE);
+        int id = 99;
+        A1.getField(&mX, &err, false, "h");
+        id = CF::selectionId(X);
+        ASSERT(0 == id);
+        ASSERT(CF::hasSelection(X, 0));
+        ASSERT(CF::hasSelection(X, 1));
+        ASSERT(! CF::hasSelection(X, 2));
+        ASSERT(CF::hasSelection(X, "a", 1));
+        ASSERT(CF::hasSelection(X, "b", 1));
+        ASSERT(! CF::hasSelection(X, "ab", 2));
+        CF::accessSelection(X, theAccessor);
+        ASSERT(theAccessor.matchValue(77));
+
+        Obj mA2h;
+        A2.getField(&mA2h, &err, false, "h");
+        id = CF::selectionId(mA2h);
+        ASSERT(bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID == id);
+        CF::makeSelection(&mA2h, 0);
+        ASSERT(0 == CF::selectionId(mA2h));
+        CF::manipulateSelection(&mA2h, theManipulator);
+        A2.getField(&mX, &err, false, "h", "a");
+        ASSERT(104 == X.asChar());
+        CF::makeSelection(&mA2h, "b", 1);
+        ASSERT(1 == CF::selectionId(mA2h));
+        CF::manipulateSelection(&mA2h, theManipulator);
+        A2.getField(&mX, &err, false, "h", "");
+        ASSERT(105 == X.asShort());
+        if (veryVerbose) P(A2);
+
+        if (verbose) cout << "Testing bdeat_ArrayFunctions" << bsl::endl;
+        ASSERT(AF::IsArray<bcem_AggregateRaw>::VALUE);
+        A1.getField(&mX, &err, false, "i");
+        ASSERT(3 == AF::size(X));
+        AF::accessElement(X, theAccessor, 0);
+        ASSERT(theAccessor.matchValue(6));
+        AF::accessElement(X, theAccessor, 2);
+        ASSERT(theAccessor.matchValue(4));
+        AF::accessElement(X, theAccessor, 1);
+        ASSERT(theAccessor.matchValue(5));
+
+        A2.setField(&mY, &err, "i", X);
+        Obj mA2i(Y);
+        AF::manipulateElement(&mA2i, theManipulator, 1);
+        Y.getField(&mX, &err, false, 0);
+        ASSERT(6   == X.asInt());
+        Y.getField(&mX, &err, false, 1);
+        ASSERT(106 == X.asInt());
+        Y.getField(&mX, &err, false, 2);
+        ASSERT(4   == X.asInt());
+        AF::resize(&mA2i, 2);
+        ASSERT(2   == Y.size());
+        Y.getField(&mX, &err, false, 0);
+        ASSERT(6   == X.asInt());
+        Y.getField(&mX, &err, false, 1);
+        ASSERT(106 == X.asInt());
+        if (veryVerbose) P(A2);
+
+        if (verbose) cout << "Testing bdeat_ArrayFunctions on TABLEs"
+                          << bsl::endl;
+        A1.getField(&mX, &err, false, "j");
+        ASSERT(2 == AF::size(X));
+        AF::accessElement(X, theAccessor, 0);
+        ASSERT(theAccessor.matchValues(66, 666));
+        AF::accessElement(X, theAccessor, 1);
+        ASSERT(theAccessor.matchValues(55, 555));
+
+        A2.setField(&mY, &err, "j", X);
+        Obj mA2j(Y);
+        AF::manipulateElement(&mA2j, theManipulator, 0);
+        A2.getField(&mX, &err, false, "j", 0);
+        X.getField(&mY, &err, false, "c");
+        ASSERT(107 == Y.asInt());
+        X.getField(&mY, &err, false, "d");
+        ASSERT(108 == Y.asInt64());
+        A2.getField(&mX, &err, false, "j", 1);
+        X.getField(&mY, &err, false, "c");
+        ASSERT(55  == Y.asInt());
+        X.getField(&mY, &err, false, "d");
+        ASSERT(555 == Y.asInt64());
+        AF::resize(&mA2j, 3);
+        A2.getField(&mX, &err, false, "j");
+        ASSERT(3   == X.size());
+        AF::manipulateElement(&mA2j, theManipulator, 2);
+        A2.getField(&mX, &err, false, "j", 0);
+        X.getField(&mY, &err, false, "c");
+        ASSERT(107 == Y.asInt());
+        X.getField(&mY, &err, false, "d");
+        ASSERT(108 == Y.asInt64());
+        A2.getField(&mX, &err, false, "j", 1);
+        X.getField(&mY, &err, false, "c");
+        ASSERT(55  == Y.asInt());
+        X.getField(&mY, &err, false, "d");
+        ASSERT(555 == Y.asInt64());
+        A2.getField(&mX, &err, false, "j", 2);
+        X.getField(&mY, &err, false, "c");
+        ASSERT(109 == Y.asInt());
+        X.getField(&mY, &err, false, "d");
+        ASSERT(110 == Y.asInt64());
+        if (veryVerbose) P(A2);
+
+        if (verbose) cout << "Testing bdeat_ArrayFunctions on "
+                          << "CHOICE_ARRAYs" << bsl::endl;
+        A1.getField(&mX, &err, false, "k");
+        ASSERT(2 == AF::size(X));
+        X.getField(&mY, &err, false, 0);
+        ASSERT(0 == CF::selectionId(Y));
+        X.getField(&mY, &err, false, 1);
+        ASSERT(1 == CF::selectionId(Y));
+        AF::accessElement(X, theAccessor, 0);
+        ASSERT(theAccessor.matchValue(44));
+        AF::accessElement(X, theAccessor, 1);
+        ASSERT(theAccessor.matchValue(333));
+
+        A2.setField(&mY, &err, "k", X);
+        Obj mA2k(Y);
+        AF::manipulateElement(&mA2k, theManipulator, 0);
+        Y.getField(&mX, &err, false, 0);
+        ASSERT(1   == X.selectorId());
+        Y.getField(&mX, &err, false, 0, "b");
+        ASSERT(111 == X.asShort());
+        Y.getField(&mX, &err, false, 1);
+        ASSERT(1   == X.selectorId());
+        Y.getField(&mX, &err, false, 1, "b");
+        ASSERT(333 == X.asShort());
+        if (veryVerbose) P(A2);
+        AF::manipulateElement(&mA2k, theManipulator, 1);
+        A2.getField(&mX, &err, false, "k", 0);
+        ASSERT(1   == X.selectorId());
+        A2.getField(&mX, &err, false, "k", 0, "b");
+        ASSERT(111 == X.asShort());
+        A2.getField(&mX, &err, false, "k", 1);
+        ASSERT(0   == X.selectorId());
+        A2.getField(&mX, &err, false, "k", 1, "a");
+        ASSERT(112 == X.asChar());
+        AF::resize(&mA2k, 3);
+        A2.getField(&mX, &err, false, "k");
+        ASSERT(3   == X.size());
+        AF::manipulateElement(&mA2k, theManipulator, 2);
+        A2.getField(&mX, &err, false, "k", 0);
+        ASSERT(1   == X.selectorId());
+        A2.getField(&mX, &err, false, "k", 0, "b");
+        ASSERT(111 == X.asShort());
+        A2.getField(&mX, &err, false, "k", 1);
+        ASSERT(0   == X.selectorId());
+        A2.getField(&mX, &err, false, "k", 1, "a");
+        ASSERT(112 == X.asChar());
+        A2.getField(&mX, &err, false, "k", 2);
+        ASSERT(1   == X.selectorId());
+        A2.getField(&mX, &err, false, "k", 2, "b");
+        ASSERT(113 == X.asShort());
+        if (veryVerbose) P(A2);
+
+        // WHITE-BOX test of bcem_Aggregate_BdeatUtil::NullableAdapter
+        if (verbose) cout << "Testing bdeat_NullableValueFunctions:"
+                          << bsl::endl;
+        typedef bcem_AggregateRaw_BdeatUtil::NullableAdapter NullableAdapter;
+        ASSERT(! NVF::IsNullableValue<bcem_AggregateRaw>::VALUE);
+        ASSERT(NVF::IsNullableValue<NullableAdapter>::VALUE);
+        A1.getField(&mX, &err, false, "b");
+        Obj mA1b(X);
+        NullableAdapter nmA1b  = { &mA1b };
+        ASSERT(NVF::isNull(nmA1b));
+        A1.getField(&mX, &err, false, "g");
+        Obj mA1g(X);
+        NullableAdapter nmA1g  = { &mA1g };
+        ASSERT(!NVF::isNull(nmA1g));
+        A1.getField(&mX, &err, false, "g", "d");
+        Obj mA1gd(X);
+        NullableAdapter nmA1gd = { &mA1gd };
+        ASSERT(! NVF::isNull(nmA1gd));
+        NVF::accessValue(nmA1gd, theAccessor);
+        ASSERT(theAccessor.matchValue(888));
+        NVF::accessValue(nmA1g, theAccessor);
+        ASSERT(theAccessor.matchValues(88, 888));
+
+        A2.getField(&mX, &err, false, "b");
+        Obj mA2b(X);
+        NullableAdapter nmA2b  = { &mA2b };
+        ASSERT(NVF::isNull(nmA2b));
+        NVF::manipulateValue(&nmA2b, theManipulator);
+        ASSERT(! NVF::isNull(nmA2b));
+        ASSERT(114 == mA2b.asDouble());
+        // Note: mA2b is a COPY.  A2.field("b") is still null.
+        A2.getField(&mX, &err, false, "g");
+        Obj mA2g(X);
+        NullableAdapter nmA2g  = { &mA2g };
+        ASSERT(NVF::isNull(nmA2g));
+        mA2g.makeNull();
+        NVF::makeValue(&nmA2g);
+        ASSERT(! NVF::isNull(nmA2g));
+        NVF::manipulateValue(&nmA2g, theManipulator);
+        A2.getField(&mX, &err, false, "g", "d");
+        ASSERT(!X.isNull());
+        ASSERT(116 == X.asInt64());
+        A2.getField(&mX, &err, false, "g", "c");
+        ASSERT(115 == X.asInt());
+
+        // Black-box test of null value manipulator through parent sequence
+        mA2g.makeNull();
+        ASSERT(NVF::isNull(nmA2g));
+        A2.getField(&mX, &err, false, "g");
+        X.makeValue();
+        SF::manipulateAttribute(&A2, theManipulator, "g", 1);
+        ASSERT(! X.isNull());
+        A2.getField(&mX, &err, false, "g", "d");
+        ASSERT(! X.isNull());
+        ASSERT(118 == X.asInt64());
+        A2.getField(&mX, &err, false, "g", "c");
+        ASSERT(117 == X.asInt());
+        if (veryVerbose) P(A2);
+
+        if (verbose) cout << "Testing bdeat_EnumFunctions:" << bsl::endl;
+        ASSERT(EF::IsEnumeration<bcem_AggregateRaw>::VALUE);
+        int intValue;
+        bsl::string stringValue;
+        A1.getField(&mX, &err, false, "m");
+        EF::toInt(&intValue, X);
+        ASSERT(1 == intValue);
+        EF::toString(&stringValue, X);
+        ASSERT("vee" == stringValue);
+        A1.getField(&mX, &err, false, "n");
+        EF::toInt(&intValue, X);
+        ASSERT(2 == intValue);
+        EF::toString(&stringValue, X);
+        ASSERT("ex" == stringValue);
+
+        A2.getField(&mX, &err, false, "m");
+        Obj mA2m(X); const Obj &A2m = mA2m;
+        int status;
+        status = EF::fromInt(&mA2m, 0);
+        ASSERT(0 == status);
+        ASSERT(0 == A2m.asInt());
+        status = EF::fromString(&mA2m, "ex", 2);
+        ASSERT(0 == status);
+        ASSERT(2 == A2m.asInt());
+        status = EF::fromInt(&mA2m, 3);
+        ASSERT(0 != status);
+        ASSERT(2 == A2m.asInt());
+        status = EF::fromString(&mA2m, "doubleU", 7);
+        ASSERT(0 != status);
+        ASSERT(2 == A2m.asInt());
+
+        A2.getField(&mX, &err, false, "n");
+        Obj mA2n(X); const Obj &A2n = mA2n;
+        status = EF::fromInt(&mA2n, 1);
+        ASSERT(0 == status);
+        ASSERT("vee" == A2n.asString());
+        status = EF::fromString(&mA2n, "you", 3);
+        ASSERT(0 == status);
+        ASSERT("you" == A2n.asString());
+        status = EF::fromInt(&mA2n, 3);
+        ASSERT(0 != status);
+        ASSERT("you" == A2n.asString());
+        status = EF::fromString(&mA2n, "doubleU", 7);
+        ASSERT(0 != status);
+        ASSERT("you" == A2n.asString());
+
+        // Test enumeration operations using accessors from parent
+        SF::accessAttribute(A1, theAccessor, "m", 1);
+        ASSERT(theAccessor.matchValue(1));
+        SF::accessAttribute(A1, theAccessor, "n", 1);
+        ASSERT(theAccessor.matchValue(-2));
+
+        // Test enumeration operations using manipulators from parent
+        theManipulator.reset(2);
+        SF::manipulateAttribute(&mA2, theManipulator, "m", 1);
+        A2.getField(&mX, &err, false, "m");
+        ASSERT(2 == X.asInt())
+        theManipulator.reset(0);
+        SF::manipulateAttribute(&mA2, theManipulator, "n", 1);
+        A2.getField(&mX, &err, false, "n");
+        ASSERT("you" == X.asString())
+
+        if (veryVerbose) P(A2);
+
+        if (verbose) cout << "Testing BER encoding/decoding" << bsl::endl;
+        bsl::stringstream strm;
+        bdem_BerEncoderOptions berEncoderOptions;
+        berEncoderOptions.setTraceLevel(veryVeryVerbose);
+        bdem_BerEncoder berEncoder(&berEncoderOptions);
+        status = berEncoder.encode(strm, A1);
+        bsl::cerr << berEncoder.loggedMessages();
+        ASSERT(0 == status);
+        // Assert that enumerator "ex" is NOT stored in alpha form in stream.
+        ASSERT(bsl::string::npos == strm.str().find("ex"));
+
+        Obj mA4; const Obj& A4 = mA4;
+        ggAggData(&mA4, *schema.lookupRecord("r"), &t);
+        ASSERT(! Obj::areEquivalent(A1, A4));
+
+        bdem_BerDecoderOptions berDecoderOptions;
+        berDecoderOptions.setTraceLevel(veryVeryVerbose);
+        bdem_BerDecoder berDecoder(&berDecoderOptions);
+        status = berDecoder.decode(strm, &mA4);
+        bsl::cerr << berDecoder.loggedMessages();
+        // TBD: Uncomment
+//         ASSERT(0 == status);
+
+        // TBD: use areEquivalent
+        bsl::ostringstream A1str, A4str;
+        A1str << A1;
+        A4str << A4;
+        
+        // TBD: Uncomment
+//         LOOP2_ASSERT(A1, A4, A1str.str() == A4str.str());
+
+        if (veryVerbose) P(A4);
+
+        destroyAggData(&mA1, &t);
+        destroyAggData(&mA2, &t);
+        destroyAggData(&mB, &t);
+        destroyAggData(&mA4, &t);
+
       } break;
-      case 17: {
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING 'makeValue' FUNCTION
+        //
+        // Concerns:
+        //   - makeValue deeply initializes a null list with fields according
+        //     to its record definition
+        //   - Non empty lists and non list aggregates are not modified
+        //   - Unconstrained
+        //   - The allocator used for allocating memory is the same allocator
+        //     with which the object was constructed
+        //
+        // Plan:
+        //   - This function just forwards all the processing to
+        //     'bdem_SchemaAggregateUtil::initListDeep' function after checking
+        //     the input parameters.  So we basically need to confirm that it
+        //     passes the arguments to that function correctly and that the
+        //     boundary conditions are handled correctly.
+        //
+        // Testing:
+        //   void makeValue() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'makeValue' FUNCTION"
+                          << "\n============================"
+                          << bsl::endl;
+        {
+            // Testing setting the value on a VOID aggregate
+            Obj mX; const Obj& X = mX;
+            Obj mY; const Obj& Y = mY;
+            Obj mZ; const Obj& Z = mZ;
+            ASSERT(Obj::areEquivalent(X, Y));
+            ASSERT(Obj::areEquivalent(X, Z));
+
+            mX.makeValue();
+            ASSERT(!X.isError());
+            ASSERT(Obj::areEquivalent(X, Y));
+        }
+
+        const struct {
+            int         d_line;
+            const char *d_spec;
+        } DATA[] = {
+            // Line     Spec
+            // ----     ----
+            {   L_,   ":aCa" },
+            {   L_,   ":aCa&NT" },
+            {   L_,   ":aCa&NF" },
+            {   L_,   ":aCa&D0" },
+            {   L_,   ":aGa" },
+            {   L_,   ":aGa&NT" },
+            {   L_,   ":aGa&NF" },
+            {   L_,   ":aGa&D0" },
+            {   L_,   ":aHa" },
+            {   L_,   ":aHa&NT" },
+            {   L_,   ":aHa&NF" },
+            {   L_,   ":aHa&D0" },
+            {   L_,   ":aNa" },
+            {   L_,   ":aNa&NT" },
+            {   L_,   ":aNa&NF" },
+            {   L_,   ":aNa&D0" },
+            {   L_,   ":aNa&FN" },
+            {   L_,   ":aPa" },
+            {   L_,   ":aPa&NT" },
+            {   L_,   ":aPa&NF" },
+            {   L_,   ":aPa&D0" },
+            {   L_,   ":aPa&FN" },
+            {   L_,   ":aQa" },
+            {   L_,   ":aQa&NT" },
+            {   L_,   ":aQa&NF" },
+            {   L_,   ":aQa&D0" },
+            {   L_,   ":aQa&FN" },
+            {   L_,   ":aRa" },
+            {   L_,   ":aRa&NT" },
+            {   L_,   ":aRa&NF" },
+            {   L_,   ":aRa&D0" },
+            {   L_,   ":aRa&FN" },
+            {   L_,   ":aUa" },
+            {   L_,   ":aUa&NT" },
+            {   L_,   ":aUa&NF" },
+            {   L_,   ":aVa" },
+            {   L_,   ":aVa&NT" },
+            {   L_,   ":aVa&NF" },
+            {   L_,   ":aWa" },
+            {   L_,   ":aWa&NT" },
+            {   L_,   ":aWa&NF" },
+            {   L_,   ":aWa&D0" },
+            {   L_,   ":aXa" },
+            {   L_,   ":aXa&NT" },
+            {   L_,   ":aXa&NF" },
+            {   L_,   ":aXa&D0" },
+            {   L_,   ":aaa" },
+            {   L_,   ":aaa&NT" },
+            {   L_,   ":aaa&NF" },
+            {   L_,   ":aaa&D0" },
+            {   L_,   ":aaa&FN" },
+            {   L_,   ":ada"    },
+            {   L_,   ":ada&NT" },
+            {   L_,   ":ada&NF" },
+            {   L_,   ":ada&D0" },
+            {   L_,   ":ada&FN" },
+
+            {   L_,   ":aCbFcGdQf :g+ha"    },
+            {   L_,   ":aCbFcGdQf :g+ha&FN" },
+            {   L_,   ":aCbFcGdQf :g+ha&NT" },
+            {   L_,   ":aCbFcGdQf :g+ha&NF" },
+
+            {   L_,   ":aCbFcGdQf :g#ha"    },
+            {   L_,   ":aCbFcGdQf :g#ha&FN" },
+            {   L_,   ":aCbFcGdQf :g#ha&NT" },
+            {   L_,   ":aCbFcGdQf :g#ha&NF" },
+
+            {   L_,   ":a?Ca" },
+            {   L_,   ":a?Ca&NT" },
+            {   L_,   ":a?Ca&NF" },
+            {   L_,   ":a?Ca&D0" },
+            {   L_,   ":a?Gb" },
+            {   L_,   ":a?Gb&NT" },
+            {   L_,   ":a?Gb&NF" },
+            {   L_,   ":a?Gb&D0" },
+            {   L_,   ":a?Hc" },
+            {   L_,   ":a?Hc&NT" },
+            {   L_,   ":a?Hc&NF" },
+            {   L_,   ":a?Hc&D0" },
+            {   L_,   ":a?Nd" },
+            {   L_,   ":a?Nd&NT" },
+            {   L_,   ":a?Nd&NF" },
+            {   L_,   ":a?Nd&D0" },
+            {   L_,   ":a?Pf" },
+            {   L_,   ":a?Pf&NT" },
+            {   L_,   ":a?Pf&NF" },
+            {   L_,   ":a?Pf&D0" },
+            {   L_,   ":a?Qg" },
+            {   L_,   ":a?Qg&NT" },
+            {   L_,   ":a?Qg&NF" },
+            {   L_,   ":a?Qg&D0" },
+            {   L_,   ":a?Rh" },
+            {   L_,   ":a?Rh&NT" },
+            {   L_,   ":a?Rh&NF" },
+            {   L_,   ":a?Rh&D0" },
+            {   L_,   ":a?Ui" },
+            {   L_,   ":a?Ui&NT" },
+            {   L_,   ":a?Ui&NF" },
+            {   L_,   ":a?Vj" },
+            {   L_,   ":a?Vj&NT" },
+            {   L_,   ":a?Vj&NF" },
+            {   L_,   ":a?Wk" },
+            {   L_,   ":a?Wk&NT" },
+            {   L_,   ":a?Wk&NF" },
+            {   L_,   ":a?Wk&D0" },
+            {   L_,   ":a?al" },
+            {   L_,   ":a?al&NT" },
+            {   L_,   ":a?al&NF" },
+            {   L_,   ":a?al&D0" },
+            {   L_,   ":a?em" },
+            {   L_,   ":a?em&NT" },
+            {   L_,   ":a?em&NF" },
+            {   L_,   ":a?fn"    },
+            {   L_,   ":a?fn&NT" },
+            {   L_,   ":a?fn&NF" },
+
+            {   L_,   ":a?CbFcGdQf :g%ha"    },
+            {   L_,   ":a?CbFcGdQf :g%ha&FN" },
+            {   L_,   ":a?CbFcGdQf :g%ha&NT" },
+            {   L_,   ":a?CbFcGdQf :g%ha&NF" },
+
+            {   L_,   ":a?CbFcGdQf :g@ha"    },
+            {   L_,   ":a?CbFcGdQf :g@ha&FN" },
+            {   L_,   ":a?CbFcGdQf :g@ha&NT" },
+            {   L_,   ":a?CbFcGdQf :g@ha&NF" },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int   LINE = DATA[i].d_line;
+            const char *SPEC = DATA[i].d_spec;
+            const bool  NSA  = (bool) bsl::strstr(SPEC, "&FN")
+                               && !bsl::strchr(SPEC, ' ');
+
+            Schema schema; const Schema& SCHEMA = schema;
+
+            ggSchema(&schema, SPEC);
+            const RecDef *RECORD = NSA
+                                 ? &SCHEMA.record(0)
+                                 : &SCHEMA.record(SCHEMA.numRecords() - 1);
+
+            const bdem_FieldDef& FIELD_DEF = RECORD->field(0);
+            ET::Type TYPE = NSA
+                        ? ET::toArrayType(SCHEMA.record(1).field(0).elemType())
+                        : RECORD->field(0).elemType();
+            const char *fldName     = RECORD->fieldName(0);
+            const bool  HAS_DEFAULT = FIELD_DEF.hasDefaultValue();
+            if (ET::BDEM_LIST == TYPE) {
+                if (SCHEMA.numRecords() > 1) {
+                    ASSERT(SCHEMA.record(1).field(0).recordConstraint());
+                }
+            }
+
+            bslma_TestAllocator t(veryVeryVerbose);
+
+            Obj mX;  const Obj& X = mX;
+            int rc = ggAggData(&mX, *RECORD, &t);
+            ASSERT(!rc);
+
+            Obj mY;  const Obj& Y = mY;
+            rc = ggAggData(&mY, *RECORD, &t);
+            ASSERT(!rc);
+
+            if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) P(X) };
+
+            Error err;
+            Obj mA;  const Obj& A = mA;
+            Obj mB;  const Obj& B = mB;
+            if (RecDef::BDEM_CHOICE_RECORD == RECORD->recordType()) {
+                mX.makeSelection(&mA, &err, fldName);
+                mY.makeSelection(&mB, &err, fldName);
+            }
+
+            const CERef A1 = getCERef(TYPE, 1);
+
+            mY.setField(&mB, &err, fldName, A1);
+
+            mX.getField(&mA, &err, false, fldName);
+            mY.getField(&mB, &err, false, fldName);
+
+            if (veryVerbose) { P(LINE) P(SCHEMA) P(A) P(B) }
+
+            mA.makeValue();
+            mB.makeValue();
+            LOOP2_ASSERT(LINE, Y, !A.asElemRef().isNull());
+            LOOP2_ASSERT(LINE, B, !B.asElemRef().isNull());
+
+            if (ET::isScalarType(TYPE) && HAS_DEFAULT) {
+                LOOP_ASSERT(LINE,
+                            compareCERefs(A.asElemRef(),
+                                          RECORD->field(0).defaultValue()));
+            }
+            else if (ET::isAggregateType(TYPE) && SCHEMA.numRecords() > 1) {
+                const bdem_ElemRef&   ELEM_REF   = A.asElemRef();
+                const bdem_RecordDef& CONSTRAINT = SCHEMA.record(0);
+
+                switch (TYPE) {
+                  case ET::BDEM_LIST: {
+                    LOOP_ASSERT(LINE,
+                           SchemaAggUtil::canSatisfyRecord(ELEM_REF.theList(),
+                                                           CONSTRAINT));
+                  } break;
+                  case ET::BDEM_TABLE: {
+                    LOOP_ASSERT(LINE,
+                          SchemaAggUtil::canSatisfyRecord(ELEM_REF.theTable(),
+                                                          CONSTRAINT));
+                    mA.resize(&err, 1);
+                    Obj mC;  const Obj& C = mC;
+                    mA.arrayItem(&mC, &err, 0);
+                    mC.makeValue();
+                    LOOP_ASSERT(LINE,
+                    SchemaAggUtil::canSatisfyRecord(C.asElemRef().theRow(),
+                                                    CONSTRAINT));
+                  } break;
+                  case ET::BDEM_CHOICE: {
+                    LOOP_ASSERT(LINE,
+                         SchemaAggUtil::canSatisfyRecord(ELEM_REF.theChoice(),
+                                                         CONSTRAINT));
+                  } break;
+                  case ET::BDEM_CHOICE_ARRAY: {
+                    LOOP_ASSERT(LINE,
+                    SchemaAggUtil::canSatisfyRecord(ELEM_REF.theChoiceArray(),
+                                                    CONSTRAINT));
+                    mA.resize(&err, 1);
+                    Obj mC;  const Obj& C = mC;
+                    mA.arrayItem(&mC, &err, 0);
+                    mC.makeValue();
+                    LOOP_ASSERT(LINE,
+                                SchemaAggUtil::canSatisfyRecord(
+                                            C.asElemRef().theChoiceArrayItem(),
+                                            CONSTRAINT));
+                  } break;
+                  default: {
+                    ; // suppress warnings about incomplete case statement
+                  }
+                }
+            }
+            else if (NSA) {
+                const bdem_Table& T = A.asElemRef().theTable();
+                LOOP_ASSERT(LINE, 0 == T.numRows());
+                LOOP_ASSERT(LINE, 1 == T.numColumns());
+                LOOP_ASSERT(LINE, ET::fromArrayType(TYPE) == T.columnType(0));
+            }
+            else {
+                LOOP_ASSERT(LINE, isUnset(A.asElemRef()));
+            }
+
+            destroyAggData(&mX, &t);
+            destroyAggData(&mY, &t);
+        }
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING REMAINING ACCESSORS:
+        //
+        // Concerns:
+        //   - That reset resets the aggregate to its default constructed
+        //     state and releases all resources.
+        //   - makeNull sets the aggregate to its null value
+        //   - isNull returns the correct value
+        //   - numSelections returns the correct number of selections
+        //
+        // Plan:
+        //   - For reset function and null we will construct an aggregate
+        //     object mX from a set S of aggregates.  We will confirm that an
+        //     unassigned field in mX returns true for isNull.  We will then
+        //     assign to that field and confirm that isNull will return false.
+        //     We will then call reset on mX and confirm that it resembles an
+        //     default constructed aggregate.  Similarly, construct an object
+        //     mY equal to mX and confirm that calling makeNull sets the data
+        //     to its null value.
+        //   - Construct a aggregate mX (storing either a choice or choice
+        //     array item aggregate).  Confirm that calling numSelections on
+        //     mX returns the correct value.
+        //
+        // Testing:
+        //   void reset();
+        //   void makeNull();
+        //   bool isNull() const;
+        //   bool isNullable() const;
+        //   int numSelections() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING REMAINING ACCESSORS"
+                          << "\n===========================" << bsl::endl;
+
+        if (veryVerbose) { cout << "\n\tTesting reset & isNull"
+                                << "\n\t======================"
+                                << bsl::endl; }
+        {
+            // For a null aggregate
+            {
+                Obj mX; const Obj& X = mX;
+                Obj mY; const Obj& Y = mY;
+                ASSERT(X.isNull());
+                ASSERT(Y.isNull());
+                mX.reset();
+                ASSERT(ET::BDEM_VOID == X.dataType());
+                ASSERT(0 == X.data());
+                ASSERT(X.isNull());
+
+                mY.reset();
+                ASSERT(ET::BDEM_VOID == Y.dataType());
+                ASSERT(0 == Y.data());
+                ASSERT(Y.isNull());
+            }
+
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line         Spec
+                // ----         ----
+                // For List Aggregates
+                {   L_,         ":aCa"    },
+                {   L_,         ":aCa&NT" },
+                {   L_,         ":aCa&NF" },
+                {   L_,         ":aCa&D0" },
+                {   L_,         ":aEa"    },
+                {   L_,         ":aEa&NT" },
+                {   L_,         ":aEa&NF" },
+                {   L_,         ":aEa&D0" },
+                {   L_,         ":aGa"    },
+                {   L_,         ":aGa&NT" },
+                {   L_,         ":aGa&NF" },
+                {   L_,         ":aGa&D0" },
+                {   L_,         ":aHa"    },
+                {   L_,         ":aHa&NT" },
+                {   L_,         ":aHa&NF" },
+                {   L_,         ":aHa&D0" },
+                {   L_,         ":aNa"    },
+                {   L_,         ":aNa&NT" },
+                {   L_,         ":aNa&NF" },
+                {   L_,         ":aNa&D0" },
+                {   L_,         ":aNa&FN" },
+                {   L_,         ":aPa"    },
+                {   L_,         ":aPa&NT" },
+                {   L_,         ":aPa&NF" },
+                {   L_,         ":aPa&D0" },
+                {   L_,         ":aPa&FN" },
+                {   L_,         ":aWa"    },
+                {   L_,         ":aWa&NT" },
+                {   L_,         ":aWa&NF" },
+                {   L_,         ":aWa&D0" },
+                {   L_,         ":aaa"    },
+                {   L_,         ":aaa&NT" },
+                {   L_,         ":aaa&NF" },
+                {   L_,         ":aaa&D0" },
+                {   L_,         ":aaa&FN" },
+                {   L_,         ":aba"    },
+                {   L_,         ":aba&NT" },
+                {   L_,         ":aba&NF" },
+                {   L_,         ":aba&D0" },
+                {   L_,         ":aba&FN" },
+                {   L_,         ":aUa" },
+                {   L_,         ":aUa&NT" },
+                {   L_,         ":aUa&NF" },
+                {   L_,         ":aVa" },
+                {   L_,         ":aVa&NT" },
+                {   L_,         ":aVa&NF" },
+                {   L_,         ":aea" },
+                {   L_,         ":aea&NT" },
+                {   L_,         ":aea&NF" },
+                {   L_,         ":afa" },
+                {   L_,         ":afa&NT" },
+                {   L_,         ":afa&NF" },
+
+                {   L_,         ":aAaFb" },
+                {   L_,         ":aAaFb&NT" },
+                {   L_,         ":aAaFb&NF" },
+
+                {   L_,         ":aBaGbHc" },
+                {   L_,         ":aBaGbHc&NT" },
+                {   L_,         ":aBaGbHc&NF" },
+
+                {   L_,         ":aNaPbQcRd" },
+                {   L_,         ":aNaPbQcRd&NT" },
+                {   L_,         ":aNaPbQcRd&NF" },
+
+                {   L_,         ":aCbFcGdQf :g+ha" },
+                {   L_,         ":aCbFcGdQf :g+ha&NT" },
+                {   L_,         ":aCbFcGdQf :g+ha&NF" },
+
+                {   L_,         ":aCbFcGdQf :g#ha" },
+                {   L_,         ":aCbFcGdQf :g#ha&NT" },
+                {   L_,         ":aCbFcGdQf :g#ha&NF" },
+
+                {   L_,         ":a?CbFcGdQf :g%ha" },
+                {   L_,         ":a?CbFcGdQf :g%ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g%ha&NF" },
+
+                {   L_,         ":a?CbFcGdQf :g@ha" },
+                {   L_,         ":a?CbFcGdQf :g@ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g@ha&NF" },
+
+                // For Choice Aggregates
+                {   L_,         ":a?Ca" },
+                {   L_,         ":a?Ca&NT" },
+                {   L_,         ":a?Ca&NF" },
+                {   L_,         ":a?Ca&D0" },
+                {   L_,         ":a?Ua" },
+                {   L_,         ":a?Ua&NT" },
+                {   L_,         ":a?Ua&NF" },
+                {   L_,         ":a?Va" },
+                {   L_,         ":a?Va&NT" },
+                {   L_,         ":a?Va&NF" },
+                {   L_,         ":a?ea" },
+                {   L_,         ":a?ea&NT" },
+                {   L_,         ":a?ea&NF" },
+                {   L_,         ":a?fa" },
+                {   L_,         ":a?fa&NT" },
+                {   L_,         ":a?fa&NF" },
+
+                {   L_,         ":a?AaFb" },
+                {   L_,         ":a?AaFb&NT" },
+                {   L_,         ":a?AaFb&NF" },
+
+                {   L_,         ":a?BaGbHc" },
+                {   L_,         ":a?BaGbHc&NT" },
+                {   L_,         ":a?BaGbHc&NF" },
+
+                {   L_,         ":a?NaPbQcRd" },
+                {   L_,         ":a?NaPbQcRd&NT" },
+                {   L_,         ":a?NaPbQcRd&NF" },
+
+                {   L_,         ":aCbFcGdQf :g?+ha" },
+                {   L_,         ":aCbFcGdQf :g?+ha&NT" },
+                {   L_,         ":aCbFcGdQf :g?+ha&NF" },
+
+                {   L_,         ":aCbFcGdQf :g?#ha" },
+                {   L_,         ":aCbFcGdQf :g?#ha&NT" },
+                {   L_,         ":aCbFcGdQf :g?#ha&NF" },
+
+                {   L_,         ":a?CbFcGdQf :g?%ha" },
+                {   L_,         ":a?CbFcGdQf :g?%ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g?%ha&NF" },
+
+                {   L_,         ":a?CbFcGdQf :g?@ha" },
+                {   L_,         ":a?CbFcGdQf :g?@ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g?@ha&NF" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+                const bool  NSA  = (bool) bsl::strstr(SPEC, "&FN");
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef *RECORD = NSA
+                                ? &SCHEMA.record(0)
+                                : &SCHEMA.record(SCHEMA.numRecords() - 1);
+
+                ET::Type TYPE = NSA
+                        ? ET::toArrayType(SCHEMA.record(1).field(0).elemType())
+                        : RECORD->field(0).elemType();
+                const bool  DEF_VAL = RECORD->field(0).hasDefaultValue();
+                bool        IS_NULL;
+                if (DEF_VAL) {
+                    IS_NULL = ET::isArrayType(TYPE)
+                          || RecDef::BDEM_CHOICE_RECORD == RECORD->recordType()
+                            ? true : false;
+                }
+                else if (ET::isAggregateType(TYPE)) {
+                    if (1 == SCHEMA.numRecords()) {
+                        IS_NULL = true;
+                    }
+                    else if (ET::isArrayType(TYPE)) {
+                        IS_NULL =
+                            RecDef::BDEM_CHOICE_RECORD == RECORD->recordType()
+                            ? true : false;
+                    }
+                    else {
+                        IS_NULL = std::strstr(SPEC, "&NT")
+                          || RecDef::BDEM_CHOICE_RECORD == RECORD->recordType()
+                                ? true : false;
+                    }
+                }
+                else if (ET::isArrayType(TYPE)) {
+                    IS_NULL = NSA ? false : true;
+                }
+                else {
+                    IS_NULL = true;
+                }
+
+                const char *fldName = RECORD->fieldName(0);
+
+                const CERef VA = getCERef(TYPE, 1);
+                const CERef VN = getCERef(TYPE, 0);
+
+                bslma_TestAllocator t(veryVeryVerbose);
+
+                Obj mX;  const Obj& X = mX;
+                int rc = ggAggData(&mX, *RECORD, &t);
+                ASSERT(!rc);
+
+                Obj mY;  const Obj& Y = mY;
+                rc = ggAggData(&mY, *RECORD, &t);
+                ASSERT(!rc);
+
+                if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) P(X) };
+
+                Error err;
+                Obj mA;  const Obj& A = mA;
+                Obj mB;  const Obj& B = mB;
+                mX.getField(&mA, &err, false, fldName);
+
+// TBD: Uncomment
+//                 LOOP2_ASSERT(LINE, IS_NULL, IS_NULL != A.isNull());
+
+                if (RecDef::BDEM_CHOICE_RECORD == RECORD->recordType()) {
+                    mX.makeSelection(&mA, &err, fldName);
+                    mY.makeSelection(&mB, &err, fldName);
+                }
+
+                if (!ET::isAggregateType(TYPE)
+                 && RecDef::BDEM_CHOICE_RECORD != RECORD->recordType()) {
+                    LOOP3_ASSERT(LINE, X, IS_NULL,
+                                 IS_NULL == A.isNull());
+                }
+
+                if (!ET::isAggregateType(TYPE)) {
+                    mX.setField(&mA, &err, fldName, VN);
+                    LOOP2_ASSERT(LINE, X, !A.isNull());
+                }
+
+                mX.setField(&mA, &err, fldName, VA);
+                ASSERT(!A.isNull());
+
+                mY.getField(&mB, &err, false, fldName);
+                mB.makeNull();
+
+                Obj mC(X);  const Obj& C = mC;
+                Obj mD(Y);  const Obj& D = mD;
+
+                mX.reset();
+                ASSERT(ET::BDEM_VOID == X.dataType());
+                ASSERT(0 == X.data());
+                ASSERT(X.isNull());
+
+                mY.reset();
+                ASSERT(ET::BDEM_VOID == Y.dataType());
+                ASSERT(0 == Y.data());
+                ASSERT(Y.isNull());
+
+                destroyAggData(&mC, &t);
+                destroyAggData(&mD, &t);
+            }
+        }
+
+        if (veryVerbose) { cout << "\n\tTesting numSelections"
+                                << "\n\t====================="
+                                << bsl::endl; }
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line            Spec
+                // ----            ----
+                // For choice aggregates
+                {   L_,         ":a?" },
+                {   L_,         ":a?Ca" },
+                {   L_,         ":a?AaFb" },
+                {   L_,         ":a?BaGbHc" },
+                {   L_,         ":a?NaPbQcRd" },
+
+                // For choice array item aggregates
+                {   L_,         ":a?Ca :b@ba" },
+                {   L_,         ":a?AaFb :b@ba" },
+                {   L_,         ":a?BaGbHc :b@ba" },
+                {   L_,         ":a?NaPbQcRd :b@ba" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef *REC = &SCHEMA.record(SCHEMA.numRecords() - 1);
+
+                if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
+
+                bslma_TestAllocator t(veryVeryVerbose);
+
+                Obj mX;  const Obj& X = mX;
+                int rc = ggAggData(&mX, *REC, &t);
+                ASSERT(!rc);
+
+                Error err;
+                Obj mA;  const Obj& A = mA;
+                Obj mB;  const Obj& B = mB;
+                if (2 == SCHEMA.numRecords()) {
+                    X.getField(&mA, &err, false, REC->fieldName(0));
+                    mA.insertItem(&mB, &err, 0, 1);
+                    ASSERT(SCHEMA.record(0).numFields() ==
+                           B.numSelections());
+                }
+                else {
+                    ASSERT(REC->numFields() == X.numSelections());
+                }
+
+                destroyAggData(&mX, &t);
+            }
+
+            // Test that error message is printed if data type does not match
+            {
+                const CERef CEA = getCERef(ET::BDEM_DOUBLE, 1);
+                bsl::string sa; const bsl::string& SA = sa;
+
+                Obj mX;
+                mX.setDataType(ET::BDEM_DOUBLE);
+                mX.setDataPointer((void *) CEA.data());
+                int rc = mX.numSelections();
+                ASSERT(rc);
+            }
+        }
+
+        if (veryVerbose) { cout << "\n\tTesting makeNull"
+                                << "\n\t================" << bsl::endl; }
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line         Spec
+                // ----         ----
+                // For List Aggregates
+                {   L_,         ":aCa"    },
+                {   L_,         ":aCa&NT" },
+                {   L_,         ":aCa&NF" },
+                {   L_,         ":aCa&D0" },
+                {   L_,         ":aEa"    },
+                {   L_,         ":aEa&NT" },
+                {   L_,         ":aEa&NF" },
+                {   L_,         ":aEa&D0" },
+                {   L_,         ":aGa"    },
+                {   L_,         ":aGa&NT" },
+                {   L_,         ":aGa&NF" },
+                {   L_,         ":aGa&D0" },
+                {   L_,         ":aHa"    },
+                {   L_,         ":aHa&NT" },
+                {   L_,         ":aHa&NF" },
+                {   L_,         ":aHa&D0" },
+                {   L_,         ":aNa"    },
+                {   L_,         ":aNa&NT" },
+                {   L_,         ":aNa&NF" },
+                {   L_,         ":aNa&D0" },
+                {   L_,         ":aNa&FN" },
+                {   L_,         ":aPa"    },
+                {   L_,         ":aPa&NT" },
+                {   L_,         ":aPa&NF" },
+                {   L_,         ":aPa&D0" },
+                {   L_,         ":aPa&FN" },
+                {   L_,         ":aWa"    },
+                {   L_,         ":aWa&NT" },
+                {   L_,         ":aWa&NF" },
+                {   L_,         ":aWa&D0" },
+                {   L_,         ":aaa"    },
+                {   L_,         ":aaa&NT" },
+                {   L_,         ":aaa&NF" },
+                {   L_,         ":aaa&D0" },
+                {   L_,         ":aaa&FN" },
+                {   L_,         ":aba"    },
+                {   L_,         ":aba&NT" },
+                {   L_,         ":aba&NF" },
+                {   L_,         ":aba&D0" },
+                {   L_,         ":aba&FN" },
+                {   L_,         ":aUa" },
+                {   L_,         ":aUa&NT" },
+                {   L_,         ":aUa&NF" },
+                {   L_,         ":aVa" },
+                {   L_,         ":aVa&NT" },
+                {   L_,         ":aVa&NF" },
+                {   L_,         ":aea" },
+                {   L_,         ":aea&NT" },
+                {   L_,         ":aea&NF" },
+                {   L_,         ":afa" },
+                {   L_,         ":afa&NT" },
+                {   L_,         ":afa&NF" },
+
+                {   L_,         ":aAaFb" },
+                {   L_,         ":aAaFb&NT" },
+                {   L_,         ":aAaFb&NF" },
+
+                {   L_,         ":aBaGbHc" },
+                {   L_,         ":aBaGbHc&NT" },
+                {   L_,         ":aBaGbHc&NF" },
+
+                {   L_,         ":aNaPbQcRd" },
+                {   L_,         ":aNaPbQcRd&NT" },
+                {   L_,         ":aNaPbQcRd&NF" },
+
+                {   L_,         ":aCbFcGdQf :g+ha" },
+                {   L_,         ":aCbFcGdQf :g+ha&NT" },
+                {   L_,         ":aCbFcGdQf :g+ha&NF" },
+
+                {   L_,         ":aCbFcGdQf :g#ha" },
+                {   L_,         ":aCbFcGdQf :g#ha&NT" },
+                {   L_,         ":aCbFcGdQf :g#ha&NF" },
+
+                {   L_,         ":a?CbFcGdQf :g%ha" },
+                {   L_,         ":a?CbFcGdQf :g%ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g%ha&NF" },
+
+                {   L_,         ":a?CbFcGdQf :g@ha" },
+                {   L_,         ":a?CbFcGdQf :g@ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g@ha&NF" },
+
+                // For Choice Aggregates
+                {   L_,         ":a?Ca" },
+                {   L_,         ":a?Ca&NT" },
+                {   L_,         ":a?Ca&NF" },
+                {   L_,         ":a?Ca&D0" },
+                {   L_,         ":a?Ua" },
+                {   L_,         ":a?Ua&NT" },
+                {   L_,         ":a?Ua&NF" },
+                {   L_,         ":a?Va" },
+                {   L_,         ":a?Va&NT" },
+                {   L_,         ":a?Va&NF" },
+                {   L_,         ":a?ea" },
+                {   L_,         ":a?ea&NT" },
+                {   L_,         ":a?ea&NF" },
+                {   L_,         ":a?fa" },
+                {   L_,         ":a?fa&NT" },
+                {   L_,         ":a?fa&NF" },
+
+                {   L_,         ":a?AaFb" },
+                {   L_,         ":a?AaFb&NT" },
+                {   L_,         ":a?AaFb&NF" },
+
+                {   L_,         ":a?BaGbHc" },
+                {   L_,         ":a?BaGbHc&NT" },
+                {   L_,         ":a?BaGbHc&NF" },
+
+                {   L_,         ":a?NaPbQcRd" },
+                {   L_,         ":a?NaPbQcRd&NT" },
+                {   L_,         ":a?NaPbQcRd&NF" },
+
+                {   L_,         ":aCbFcGdQf :g?+ha" },
+                {   L_,         ":aCbFcGdQf :g?+ha&NT" },
+                {   L_,         ":aCbFcGdQf :g?+ha&NF" },
+
+                {   L_,         ":aCbFcGdQf :g?#ha" },
+                {   L_,         ":aCbFcGdQf :g?#ha&NT" },
+                {   L_,         ":aCbFcGdQf :g?#ha&NF" },
+
+                {   L_,         ":a?CbFcGdQf :g?%ha" },
+                {   L_,         ":a?CbFcGdQf :g?%ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g?%ha&NF" },
+
+                {   L_,         ":a?CbFcGdQf :g?@ha" },
+                {   L_,         ":a?CbFcGdQf :g?@ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g?@ha&NF" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+                const bool  NSA  = (bool) bsl::strstr(SPEC, "&FN");
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef *RECORD = NSA
+                                ? &SCHEMA.record(0)
+                                : &SCHEMA.record(SCHEMA.numRecords() - 1);
+
+                ET::Type    TYPE = NSA
+                        ? ET::toArrayType(SCHEMA.record(1).field(0).elemType())
+                        : RECORD->field(0).elemType();
+                const char *fldName = RECORD->fieldName(0);
+
+                const CERef VA = getCERef(TYPE, 1);
+                const CERef VB = getCERef(TYPE, 2);
+
+                bslma_TestAllocator t(veryVeryVerbose);
+
+                int nf1 = 0, nf2 = 0;
+
+                Obj mX;  const Obj& X = mX;
+                int rc = ggAggData(&mX, *RECORD, &t);
+                ASSERT(!rc);
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
+
+                Obj mY;  const Obj& Y = mY;
+                rc = ggAggData(&mY, *RECORD, &t);
+                ASSERT(!rc);
+                mY.setTopLevelAggregateNullnessPointer(&nf2);
+
+                if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) P(X) };
+
+                Error err;
+                Obj mA;  const Obj& A = mA;
+                Obj mB;  const Obj& B = mB;
+                if (RecDef::BDEM_CHOICE_RECORD == RECORD->recordType()) {
+                    mX.makeSelection(&mA, &err, fldName, VA);
+                    mY.makeSelection(&mB, &err, fldName, VA);
+                } else {
+                    mX.setField(&mA, &err, fldName, VA);
+                    mY.setField(&mA, &err, fldName, VA);
+                }
+
+                if (veryVerbose) { T_ P_(SPEC) P(X) P(SCHEMA) };
+
+                ASSERT(!A.isNull());
+                if (NSA) {
+                    ASSERT(compareNillableTable(A, VA));
+                }
+                else {
+                    ASSERT(VA == A.asElemRef());
+                }
+
+                mA.makeNull();
+                ASSERT(A.isNull());
+                ASSERT(A.asElemRef().isNull());
+                ASSERT(isUnset(A.asElemRef()));
+
+                mX.setField(&mA, &err, fldName, VB);
+                ASSERT(!A.isNull());
+
+                if (NSA) {
+                    ASSERT(compareNillableTable(A, VB));
+                }
+                else {
+                    ASSERT(VB == A.asElemRef());
+                }
+
+                mX.makeNull();
+                LOOP_ASSERT(X, X.isNull());
+                ASSERT(X.asElemRef().isNull());
+                ASSERT(isUnset(X.asElemRef()));
+
+                Obj mC(X);
+
+                mX = Y;
+                ASSERT(!X.isNull());
+                ASSERT(Obj::areIdentical(X, Y));
+
+                destroyAggData(&mC, &t);
+                destroyAggData(&mY, &t);
+            }
+        }
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING 'size' and 'length' ACCESSORS:
+        //
+        // Concerns:
+        //   - length returns the length of the array aggregate
+        //   - size returns the length of the array aggregate
+        //
+        // Plan:
+        //   - Construct object mY from a set S of aggregates of all array
+        //     types.  Assert that the initial length of mY is correct.
+        //
+        // Testing:
+        //   int length() const;
+        //   int size() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'length' and 'size' ACCESSORS"
+                          << "\n====================================="
+                          << bsl::endl;
+
+        const struct {
+            int         d_line;
+            const char *d_spec;
+        } DATA[] = {
+            // Line     Spec
+            // ----     ----
+            {   L_,   ":aKa" },
+            {   L_,   ":aKa&NT" },
+            {   L_,   ":aKa&NF" },
+            {   L_,   ":aKa&D0" },
+            {   L_,   ":aKa&FN" },
+            {   L_,   ":aLa" },
+            {   L_,   ":aLa&NT" },
+            {   L_,   ":aLa&NF" },
+            {   L_,   ":aLa&D0" },
+            {   L_,   ":aLa&FN" },
+            {   L_,   ":aMa" },
+            {   L_,   ":aMa&NT" },
+            {   L_,   ":aMa&NF" },
+            {   L_,   ":aMa&D0" },
+            {   L_,   ":aMa&FN" },
+            {   L_,   ":aNa" },
+            {   L_,   ":aNa&NT" },
+            {   L_,   ":aNa&NF" },
+            {   L_,   ":aNa&D0" },
+            {   L_,   ":aNa&FN" },
+            {   L_,   ":aOa" },
+            {   L_,   ":aOa&NT" },
+            {   L_,   ":aOa&NF" },
+            {   L_,   ":aOa&D0" },
+            {   L_,   ":aOa&FN" },
+            {   L_,   ":aPa" },
+            {   L_,   ":aPa&NT" },
+            {   L_,   ":aPa&NF" },
+            {   L_,   ":aPa&D0" },
+            {   L_,   ":aPa&FN" },
+            {   L_,   ":aQa" },
+            {   L_,   ":aQa&NT" },
+            {   L_,   ":aQa&NF" },
+            {   L_,   ":aQa&D0" },
+            {   L_,   ":aQa&FN" },
+            {   L_,   ":aRa" },
+            {   L_,   ":aRa&NT" },
+            {   L_,   ":aRa&NF" },
+            {   L_,   ":aRa&D0" },
+            {   L_,   ":aRa&FN" },
+            {   L_,   ":aSa" },
+            {   L_,   ":aSa&NT" },
+            {   L_,   ":aSa&NF" },
+            {   L_,   ":aSa&D0" },
+            {   L_,   ":aSa&FN" },
+            {   L_,   ":aTa" },
+            {   L_,   ":aTa&NT" },
+            {   L_,   ":aTa&NF" },
+            {   L_,   ":aTa&D0" },
+            {   L_,   ":aTa&FN" },
+            // TBD:
+//             {   L_,   ":aVa" },
+//             {   L_,   ":aVa&NT" },
+//             {   L_,   ":aVa&NF" },
+            {   L_,   ":aaa" },
+            {   L_,   ":aaa&NT" },
+            {   L_,   ":aaa&NF" },
+            {   L_,   ":aaa&D0" },
+            {   L_,   ":aaa&FN" },
+            {   L_,   ":aba" },
+            {   L_,   ":aba&NT" },
+            {   L_,   ":aba&NF" },
+            {   L_,   ":aba&D0" },
+            {   L_,   ":aba&FN" },
+            {   L_,   ":aca" },
+            {   L_,   ":aca&NT" },
+            {   L_,   ":aca&NF" },
+            {   L_,   ":aca&D0" },
+            {   L_,   ":aca&FN" },
+            {   L_,   ":ada" },
+            {   L_,   ":ada&NT" },
+            {   L_,   ":ada&NF" },
+            {   L_,   ":ada&D0" },
+            {   L_,   ":ada&FN" },
+            // TBD:
+//             {   L_,   ":afa" },
+//             {   L_,   ":afa&NT" },
+//             {   L_,   ":afa&NF" },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int   LINE = DATA[i].d_line;
+            const char *SPEC = DATA[i].d_spec;
+            const bool  NSA  = (bool) bsl::strstr(SPEC, "&FN");
+
+            Schema schema; const Schema& SCHEMA = schema;
+            ggSchema(&schema, SPEC);
+            const RecDef *RECORD = NSA
+                                 ? &SCHEMA.record(0)
+                                 : &SCHEMA.record(SCHEMA.numRecords() - 1);
+
+            ET::Type TYPE, ARRAY_TYPE;
+            if (NSA) {
+                TYPE       = SCHEMA.record(1).field(0).elemType();
+                ARRAY_TYPE = ET::toArrayType(TYPE);
+            }
+            else {
+                ARRAY_TYPE = RECORD->field(0).elemType();
+                TYPE       = ET::fromArrayType(ARRAY_TYPE);
+            }
+
+            const char *fldName = RECORD->fieldName(0);
+
+            const CERef VA = getCERef(ARRAY_TYPE, 1);
+            const CERef VB = getCERef(TYPE, 1);
+
+            if (ET::BDEM_LIST == TYPE) {
+                TYPE = ET::BDEM_ROW;
+            }
+            else if (ET::BDEM_CHOICE == TYPE) {
+                TYPE = ET::BDEM_CHOICE_ARRAY_ITEM;
+            }
+
+            if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
+
+            bslma_TestAllocator t;
+            Obj mX;  const Obj& X = mX;
+            int rc = ggAggData(&mX, *RECORD, &t);
+            ASSERT(!rc);
+
+            Error err;
+            Obj mY;  const Obj& Y = mY;
+            rc = mX.setField(&mY, &err, fldName, VA);
+            ASSERT(!rc);
+
+            const int LEN = getLength(VA);
+
+            LOOP_ASSERT(ARRAY_TYPE, Y.length() == LEN);
+            LOOP_ASSERT(ARRAY_TYPE, Y.size() == LEN);
+            if (NSA) {
+                LOOP_ASSERT(Y, ET::BDEM_TABLE == Y.asElemRef().type());
+            }
+            else {
+                LOOP_ASSERT(Y, ARRAY_TYPE == Y.asElemRef().type());
+            }
+
+            for (int j = 0; j < LEN; ++j) {
+                Obj mA; const Obj& A = mA;
+                mY.getField(&mA, &err, false, j);
+                Obj mB; const Obj& B = mB;
+                mY.arrayItem(&mB, &err, j);
+
+                if (veryVerbose) { P(X) P(Y) P(A) P(B) };
+
+                LOOP2_ASSERT(ARRAY_TYPE, j, Obj::areEquivalent(A, B));
+                LOOP2_ASSERT(ARRAY_TYPE, j, !A.isNull());
+                LOOP2_ASSERT(ARRAY_TYPE, j, !B.isNull());
+                LOOP2_ASSERT(A, j, TYPE == A.asElemRef().type());
+                LOOP2_ASSERT(B, j, TYPE == B.asElemRef().type());
+
+                B.makeNull();
+                bool isNull = NSA ? true : false;
+                LOOP3_ASSERT(ARRAY_TYPE, j, Y, isNull == B.isNull());
+                LOOP2_ASSERT(ARRAY_TYPE, j, isNull == A.isNull());
+                LOOP2_ASSERT(ARRAY_TYPE, j, isNull == B.isNull());
+                LOOP2_ASSERT(ARRAY_TYPE, j, isUnset(A.asElemRef()));
+                LOOP2_ASSERT(ARRAY_TYPE, j, isUnset(B.asElemRef()));
+                LOOP2_ASSERT(A, j, TYPE == A.asElemRef().type());
+                LOOP2_ASSERT(B, j, TYPE == B.asElemRef().type());
+
+                B.setValue(&err, VB);
+                LOOP2_ASSERT(ARRAY_TYPE, j, !A.isNull());
+                LOOP2_ASSERT(ARRAY_TYPE, j, !B.isNull());
+                LOOP2_ASSERT(ARRAY_TYPE, j, VB == A.asElemRef());
+                LOOP2_ASSERT(ARRAY_TYPE, j, VB == B.asElemRef());
+                LOOP2_ASSERT(A, j, TYPE == A.asElemRef().type());
+                LOOP2_ASSERT(B, j, TYPE == B.asElemRef().type());
+
+                A.makeNull();
+                LOOP2_ASSERT(ARRAY_TYPE, j, isNull == A.isNull());
+                LOOP2_ASSERT(ARRAY_TYPE, j, isNull == B.isNull());
+                LOOP2_ASSERT(ARRAY_TYPE, j, isUnset(A.asElemRef()));
+                LOOP2_ASSERT(ARRAY_TYPE, j, isUnset(B.asElemRef()));
+
+                B.setValue(&err, VB);
+                LOOP2_ASSERT(ARRAY_TYPE, j, !A.isNull());
+                LOOP2_ASSERT(ARRAY_TYPE, j, !B.isNull());
+                LOOP2_ASSERT(ARRAY_TYPE, j, VB == A.asElemRef());
+                LOOP2_ASSERT(ARRAY_TYPE, j, VB == B.asElemRef());
+                LOOP2_ASSERT(A, j, TYPE == A.asElemRef().type());
+                LOOP2_ASSERT(B, j, TYPE == B.asElemRef().type());
+
+                B.makeNull();
+                LOOP2_ASSERT(ARRAY_TYPE, j, isNull == A.isNull());
+                LOOP2_ASSERT(ARRAY_TYPE, j, isNull == B.isNull());
+                LOOP2_ASSERT(ARRAY_TYPE, j, isUnset(A.asElemRef()));
+                LOOP2_ASSERT(ARRAY_TYPE, j, isUnset(B.asElemRef()));
+
+                A.setValue(&err, VB);
+                LOOP2_ASSERT(ARRAY_TYPE, j, !A.isNull());
+                LOOP2_ASSERT(ARRAY_TYPE, j, !B.isNull());
+                LOOP2_ASSERT(ARRAY_TYPE, j, VB == A.asElemRef());
+                LOOP2_ASSERT(ARRAY_TYPE, j, VB == B.asElemRef());
+            }
+
+            destroyAggData(&mX, &t);
+        }
+      } break;
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING COPY CONSTRUCTOR:
         //
@@ -2888,12 +5650,11 @@ int main(int argc, char *argv[])
         //   the face of exceptions.
         //
         // Testing:
-        //   bcem_Aggregate(const bcem_Aggregate&  other,
-        //                  bslma_Allocator       *basicAllocator);
+        //   bcem_AggregateRaw(const bcem_AggregateRaw&  other);
         // --------------------------------------------------------------------
 
-        if (verbose) tst::cout << "\nTESTING COPY CONSTRUCTOR"
-                               << "\n========================" << bsl::endl;
+        if (verbose) cout << "\nTESTING COPY CONSTRUCTOR"
+                          << "\n========================" << bsl::endl;
 
         const struct {
             int         d_line;
@@ -2984,9 +5745,6 @@ int main(int argc, char *argv[])
                                  ? &SCHEMA.record(0)
                                  : &SCHEMA.record(SCHEMA.numRecords() - 1);
 
-            ConstRecDefShdPtr crp(RECORD, NilDeleter(), 0);
-            const ConstRecDefShdPtr& CRP = crp;
-
             ET::Type TYPE = NSA
                         ? ET::toArrayType(SCHEMA.record(1).field(0).elemType())
                         : RECORD->field(0).elemType();
@@ -2997,42 +5755,257 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
-            Obj mX(CRP, &testAllocator); const Obj& X = mX;
-            Obj mY(CRP, &testAllocator); const Obj& Y = mY;
+            bslma_TestAllocator t(veryVeryVerbose);
 
-            mX.setField(fldName, A1);
-            mY.setFieldNull(fldName);
+            Obj mX;  const Obj& X = mX;
+            int rc = ggAggData(&mX, *RECORD, &t);
+            ASSERT(!rc);
 
-            Obj mU = X.field(fldName); const Obj& U = mU;
-            Obj mV = Y.field(fldName); const Obj& V = mV;
+            Obj mY;  const Obj& Y = mY;
+            rc = ggAggData(&mY, *RECORD, &t);
+            ASSERT(!rc);
 
-          BEGIN_BSLMA_EXCEPTION_TEST {
-            bslma_TestAllocator alloc1(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard allocGuard(&alloc1);
+            if (veryVerbose) { T_ P(X) };
+
+            Error err;
+            Obj mU;  const Obj& U = mU;
+            Obj mV;  const Obj& V = mV;
+
+            mX.setField(&mU, &err, fldName, A1);
+            mY.getField(&mV, &err, false, fldName);
+            mV.makeNull();
 
             {
-                Obj mA(U); const Obj& A = mA;
+                Obj mA(U);  const Obj& A = mA;
                 ASSERT(Obj::areIdentical(A, U));
-                ASSERT(0 == alloc1.numBytesInUse());
-                mA.setValue(A2);
+
+                mA.setValue(&err, A2);
                 ASSERT(Obj::areIdentical(A, U));
                 mA.makeNull();
                 ASSERT(Obj::areIdentical(A, U));
 
-                mY.setFieldNull(fldName);
                 Obj mB(V); const Obj& B = mB;
                 ASSERT(Obj::areIdentical(B, V));
-                ASSERT(0 == alloc1.numBytesInUse());
-                mB.setValue(A2);
-                ASSERT(Obj::areIdentical(B, V));
-                mA.makeNull();
+                mB.setValue(&err, A2);
                 ASSERT(Obj::areIdentical(B, V));
             }
-          } END_BSLMA_EXCEPTION_TEST
+
+            destroyAggData(&mX, &t);
+            destroyAggData(&mY, &t);
         }
       } break;
-#endif
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING 'makeSelectionByIndex' MANIPULATORS & 'selectorIndex':
+        //
+        // Concerns:
+        //   - Confirm that the single argument function sets the selector to
+        //     the specified index.
+        //   - Confirm that the two argument function sets the selector to
+        //     the specified index and the value at that index to the specified
+        //     value.
+        //   - Both functions return the selected aggregated by reference.
+        //   - If the aggregate does not store a choice or choice array then
+        //     an error object is returned.
+        //   - 'selectorIndex' returns the correct selected index
+        //
+        // Plan:
+        //   - These functions forward their processing to two private
+        //     functions that have already been tested in a previous test
+        //     case.  So in this test we will just perform white box testing
+        //     to confirm that the functions pass their arguments correctly to
+        //     the private helper functions.  Note that we test the two types
+        //     of choice aggregates (one storing a choice and the other a
+        //     choice array item).
+        //
+        // Testing:
+        //   int makeSelectionByIndex(Obj *obj, Error *err, idx) const;
+        //   int makeSelectionByIndex(Obj *obj, Error *err, idx, value) const;
+        //   int selectorIndex() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'makeSelectionByIndex' MANIPULATORS"
+                          << "\n==========================================="
+                          << bsl::endl;
+
+        if (verbose) cout << "\nTesting choice aggregates"
+                          << "\n=========================" << bsl::endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line    Spec
+                // ----    ----
+                {   L_,    ":a?CcFfGgHhNnPpQqRrWw :b%ba" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef& REC = SCHEMA.record(SCHEMA.numRecords() - 1);
+                const RecDef& SUB_REC = SCHEMA.record(0);
+
+                if (veryVerbose) { T_ P(SPEC) P(SCHEMA) };
+
+                bslma_TestAllocator t(veryVeryVerbose);
+
+                Obj mW;  const Obj& W = mW;
+                int rc = ggAggData(&mW, REC, &t);
+                ASSERT(!rc);
+
+                Obj mX;  const Obj& X = mX;
+                rc = ggAggData(&mX, REC, &t);
+                ASSERT(!rc);
+
+                Obj mY;  const Obj& Y = mY;
+                rc = ggAggData(&mY, REC, &t);
+                ASSERT(!rc);
+
+                if (veryVerbose) { T_ P(X) };
+
+                Error err;
+                const char *fldName = REC.fieldName(0);
+
+                Obj mA;  const Obj& A = mA;
+                Obj mB;  const Obj& B = mB;
+                Obj mC;  const Obj& C = mC;
+
+                W.getField(&mA, &err, true, fldName);
+                Y.getField(&mB, &err, true, fldName);
+                X.getField(&mC, &err, true, fldName);
+
+                if (veryVerbose) { T_ P(A) };
+
+                for (int j = 0; j < SUB_REC.numFields(); ++j) {
+                    ET::Type     TYPE = SUB_REC.field(j).elemType();
+                    const char  *NAME = SUB_REC.fieldName(j);
+                    const CERef  VA   = getCERef(TYPE, 1);
+
+                    Obj mD;  const Obj& D = mD;
+                    Obj mE;  const Obj& E = mE;
+                    Obj mF;  const Obj& F = mF;
+                    Obj mG;  const Obj& G = mG;
+
+                    rc = mA.makeSelection(&mD, &err, NAME);
+                    ASSERT(!rc);
+
+                    rc = mB.makeSelection(&mE, &err, NAME, VA);
+                    ASSERT(!rc);
+
+                    rc = mC.makeSelectionByIndex(&mF, &err, j);
+                    ASSERT(!rc);
+                    ASSERT(D.asElemRef() == F.asElemRef());
+                    ASSERT(j == C.selectorIndex());
+
+                    rc = mC.makeSelectionByIndex(&mG, &err, j, VA);
+                    ASSERT(!rc);
+                    ASSERT(G.asElemRef() == E.asElemRef());
+                    ASSERT(j == C.selectorIndex());
+                }
+
+                destroyAggData(&mX, &t);
+                destroyAggData(&mY, &t);
+                destroyAggData(&mW, &t);
+            }
+        }
+
+        if (verbose) cout << "\nTesting choice array item aggregates"
+                          << "\n===================================="
+                          << bsl::endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line    Spec
+                // ----    ----
+                {   L_,    ":a?CcFfGgHhNnPpQqRrWw :b@ba" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef& REC     = SCHEMA.record(SCHEMA.numRecords() - 1);
+                const RecDef& SUB_REC = SCHEMA.record(0);
+
+                if (veryVerbose) { T_ P(SPEC) P(SCHEMA) };
+
+                bslma_TestAllocator t(veryVeryVerbose);
+
+                Obj mW;  const Obj& W = mW;
+                Obj mX;  const Obj& X = mX;
+                Obj mY;  const Obj& Y = mY;
+
+                ggAggData(&mW, REC, &t);
+                ggAggData(&mX, REC, &t);
+                ggAggData(&mY, REC, &t);
+
+                if (veryVerbose) { T_ P(X) };
+
+                Error err;
+                const char *fldName = REC.fieldName(0);
+
+                Obj mA;  const Obj& A = mA;
+                Obj mB;  const Obj& B = mB;
+                Obj mC;  const Obj& C = mC;
+
+                W.getField(&mA, &err, true, fldName);
+                Y.getField(&mB, &err, true, fldName);
+                X.getField(&mC, &err, true, fldName);
+
+                for (int j = 0; j < SUB_REC.numFields(); ++j) {
+                    ET::Type    TYPE    = SUB_REC.field(j).elemType();
+                    const char *selName = SUB_REC.fieldName(j);
+
+                    const CERef VA = getCERef(TYPE, 1);
+                    const CERef VB = getCERef(TYPE, 2);
+
+                    mA.insertItems(&err, 0, 1);
+                    mB.insertItems(&err, 0, 1);
+                    mC.insertItems(&err, 0, 1);
+
+                    Obj mD;  const Obj& D = mD;
+                    Obj mE;  const Obj& E = mE;
+                    Obj mF;  const Obj& F = mF;
+                    mA.getField(&mD, &err, true, 0);
+                    mB.getField(&mE, &err, true, 0);
+                    mC.getField(&mF, &err, true, 0);
+
+                    Obj mG;  const Obj& G = mG;
+                    Obj mH;  const Obj& H = mH;
+                    Obj mI;  const Obj& I = mI;
+                    Obj mJ;  const Obj& J = mJ;
+                    int rc = mD.makeSelection(&mG, &err, selName);
+                    ASSERT(!rc);
+                    rc = mE.makeSelection(&mH, &err, selName, VA);
+                    ASSERT(!rc);
+
+                    rc = mF.makeSelectionByIndex(&mI, &err, j);
+                    ASSERT(!rc);
+                    ASSERT(I.asElemRef() == G.asElemRef());
+                    ASSERT(j == F.selectorIndex());
+
+                    rc = mF.makeSelectionById(&mJ, &err, j, VA);
+                    ASSERT(!rc);
+                    ASSERT(J.asElemRef() == VA);
+                    ASSERT(j == F.selectorIndex());
+                }
+
+                destroyAggData(&mW, &t);
+                destroyAggData(&mX, &t);
+                destroyAggData(&mY, &t);
+            }
+        }
+      } break;
       case 16: {
         // --------------------------------------------------------------------
         // TESTING 'makeSelectionById' MANIPULATORS & 'selectorId':
@@ -3094,67 +6067,63 @@ int main(int argc, char *argv[])
                 bslma_TestAllocator t(veryVeryVerbose);
 
                 Obj mW;  const Obj& W = mW;
-                int rc = ggAggData(&mW, *RECORD, &t);
+                int rc = ggAggData(&mW, REC, &t);
                 ASSERT(!rc);
 
                 Obj mX;  const Obj& X = mX;
-                rc = ggAggData(&mX, *RECORD, &t);
+                rc = ggAggData(&mX, REC, &t);
                 ASSERT(!rc);
 
                 Obj mY;  const Obj& Y = mY;
-                rc = ggAggData(&mY, *RECORD, &t);
+                rc = ggAggData(&mY, REC, &t);
                 ASSERT(!rc);
 
                 if (veryVerbose) { T_ P(X) };
 
+                Error err;
                 const char *fldName = REC.fieldName(0);
 
+                Obj mA;  const Obj& A = mA;
+                Obj mB;  const Obj& B = mB;
+                Obj mC;  const Obj& C = mC;
+
+                W.getField(&mA, &err, true, fldName);
+                Y.getField(&mB, &err, true, fldName);
+                X.getField(&mC, &err, true, fldName);
+
+                if (veryVerbose) { T_ P(A) };
+
                 for (int j = 0; j < SUB_REC.numFields(); ++j) {
-                    ET::Type    TYPE = SUB_REC.field(j).elemType();
-                    const int   ID   = SUB_REC.fieldId(j);
-                    const char *NAME = SUB_REC.fieldName(j);
+                    ET::Type     TYPE = SUB_REC.field(j).elemType();
+                    const int    ID   = SUB_REC.fieldId(j);
+                    const char  *NAME = SUB_REC.fieldName(j);
+                    const CERef  VA   = getCERef(TYPE, 1);
 
-                    const CERef VA = getCERef(TYPE, 1);
-
-                    Obj mA;  const Obj& A = mA;
-                    Obj mB;  const Obj& B = mB;
-
-                    W.getField(&mA, &err, true, fldName);
-
-                    rc = mA.makeSelection(&mA, &err, NAME);
-                    ASSERT(!rc);
-
-                    Obj mC;  const Obj& C = mC;
                     Obj mD;  const Obj& D = mD;
-
-                    Y.getField(&mC, &err, true, fldName);
-
-                    rc = mC.makeSelection(&mD, &err, NAME, VA);
-                    ASSERT(!rc);
-
                     Obj mE;  const Obj& E = mE;
                     Obj mF;  const Obj& F = mF;
-
-                    X.getField(&mE, &err, true, fldName);
-
-                    rc = mE.makeSelection(&mF, &err, NAME);
-                    ASSERT(!rc);
-
                     Obj mG;  const Obj& G = mG;
-                    rc = mE.makeSelectionById(&mG, &err, ID);
-                    ASSERT(!rc);
-                    ASSERT(G.asElemRef() == F.asElemRef());
-                    ASSERT(ID == E.selectorId());
 
-                    rc = mC.makeSelectionById(&mG, ID, D);
+                    rc = mA.makeSelection(&mD, &err, NAME);
                     ASSERT(!rc);
-                    ASSERT(G.asElemRef() == VA);
+
+                    rc = mB.makeSelection(&mE, &err, NAME, VA);
+                    ASSERT(!rc);
+
+                    rc = mC.makeSelectionById(&mF, &err, ID);
+                    ASSERT(!rc);
+                    ASSERT(D.asElemRef() == F.asElemRef());
                     ASSERT(ID == C.selectorId());
 
-                    destroyAggData(&mX, &t);
-                    destroyAggData(&mY, &t);
-                    destroyAggData(&mW, &t);
+                    rc = mC.makeSelectionById(&mG, &err, ID, VA);
+                    ASSERT(!rc);
+                    ASSERT(G.asElemRef() == E.asElemRef());
+                    ASSERT(ID == C.selectorId());
                 }
+
+                destroyAggData(&mX, &t);
+                destroyAggData(&mY, &t);
+                destroyAggData(&mW, &t);
             }
         }
 
@@ -3178,7 +6147,7 @@ int main(int argc, char *argv[])
 
                 Schema schema; const Schema& SCHEMA = schema;
                 ggSchema(&schema, SPEC);
-                const RecDef& REC = SCHEMA.record(SCHEMA.numRecords() - 1);
+                const RecDef& REC     = SCHEMA.record(SCHEMA.numRecords() - 1);
                 const RecDef& SUB_REC = SCHEMA.record(0);
 
                 if (veryVerbose) { T_ P(SPEC) P(SCHEMA) };
@@ -3195,23 +6164,24 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P(X) };
 
+                Error err;
                 const char *fldName = REC.fieldName(0);
 
+                Obj mA;  const Obj& A = mA;
+                Obj mB;  const Obj& B = mB;
+                Obj mC;  const Obj& C = mC;
+
+                W.getField(&mA, &err, true, fldName);
+                Y.getField(&mB, &err, true, fldName);
+                X.getField(&mC, &err, true, fldName);
+
                 for (int j = 0; j < SUB_REC.numFields(); ++j) {
-                    ET::Type    TYPE = SUB_REC.field(j).elemType();
-                    const int   ID   = SUB_REC.fieldId(j);
-                    const char *NAME = SUB_REC.fieldName(j);
+                    ET::Type    TYPE    = SUB_REC.field(j).elemType();
+                    const int   ID      = SUB_REC.fieldId(j);
+                    const char *selName = SUB_REC.fieldName(j);
 
                     const CERef VA = getCERef(TYPE, 1);
                     const CERef VB = getCERef(TYPE, 2);
-
-                    Error err;
-                    Obj mA;  const Obj& A = mA;
-                    Obj mB;  const Obj& B = mB;
-                    Obj mC;  const Obj& C = mC;
-                    mW.getField(&mA, &err, false, fldName);
-                    mX.getField(&mB, &err, false, fldName);
-                    mY.getField(&mC, &err, false, fldName);
 
                     mA.insertItems(&err, 0, 1);
                     mB.insertItems(&err, 0, 1);
@@ -3227,38 +6197,26 @@ int main(int argc, char *argv[])
                     Obj mG;  const Obj& G = mG;
                     Obj mH;  const Obj& H = mH;
                     Obj mI;  const Obj& I = mI;
+                    Obj mJ;  const Obj& J = mJ;
                     int rc = mD.makeSelection(&mG, &err, selName);
                     ASSERT(!rc);
                     rc = mE.makeSelection(&mH, &err, selName, VA);
                     ASSERT(!rc);
-                    rc = mF.makeSelection(&mI, &err, selName, VB);
-                    ASSERT(!rc);
 
-                    Obj mJ;  const Obj& J = mJ;
-                    Obj mK;  const Obj& K = mK;
-                    Obj mL;  const Obj& L = mL;
-                    rc = mD.getField(&mJ, &err, false, selName);
+                    rc = mF.makeSelectionById(&mI, &err, ID);
                     ASSERT(!rc);
-                    rc = mE.getField(&mK, &err, false, selName);
-                    ASSERT(!rc);
-                    rc = mF.getField(&mL, &err, false, selName);
-                    ASSERT(!rc);
+                    ASSERT(I.asElemRef() == G.asElemRef());
+                    ASSERT(ID == F.selectorId());
 
-                    Obj mN;  const Obj& N = mN;
-                    rc = mE.makeSelectionById(&mN, &err, ID);
+                    rc = mF.makeSelectionById(&mJ, &err, ID, VA);
                     ASSERT(!rc);
-                    ASSERT(N.asElemRef() == D.asElemRef());
-                    ASSERT(ID == E.selectorId());
-
-                    rc = mD.makeSelectionById(&mN, &err, ID, I);
-                    ASSERT(!rc);
-                    ASSERT(N.asElemRef() == VB);
-                    ASSERT(ID == D.selectorId());
-
-                    destroyAggData(&mW, &t);
-                    destroyAggData(&mX, &t);
-                    destroyAggData(&mY, &t);
+                    ASSERT(J.asElemRef() == VA);
+                    ASSERT(ID == F.selectorId());
                 }
+
+                destroyAggData(&mW, &t);
+                destroyAggData(&mX, &t);
+                destroyAggData(&mY, &t);
             }
         }
       } break;
@@ -3298,8 +6256,7 @@ int main(int argc, char *argv[])
         // Testing:
         //  int makeSelection(Obj *obj, Error *error, newSelector) const;
         //  int makeSelection(Obj *obj, Error *error, newSelector, val) const;
-        //  template <typename VALTYPE>
-        //  bcem_Aggregate selection() const;
+        //  int selection(Obj *obj, Error *error) const;
         //  const char *selector() const;
         // --------------------------------------------------------------------
 
@@ -5189,7 +8146,7 @@ int main(int argc, char *argv[])
         //   bsl::ostream& print(bsl::ostream& stream,
         //                       int           level = 0,
         //                       int           spacesPerLevel = 4) const;
-        //   ostream& operator<<(ostream&, const bcem_Aggregate&);
+        //   ostream& operator<<(ostream&, const bcem_AggregateRaw&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << bsl::endl

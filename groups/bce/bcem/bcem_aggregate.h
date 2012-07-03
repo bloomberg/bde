@@ -3598,7 +3598,7 @@ int bdeat_typeCategoryAccessSimple(const bcem_Aggregate& object,
 //                       'bdeat_typename' overloads
 // ============================================================================
 
-const char *bdeat_TypeName_className(const bcem_AggregateRaw& object);
+const char *bdeat_TypeName_className(const bcem_Aggregate& object);
      // Return the name of the record or enumeration definition for the
      // specified 'object' aggregate or a null pointer of 'object' does not
      // have a named record or enumeration definition.
