@@ -36,18 +36,6 @@ using bsl::flush;
 //=============================================================================
 // TEST PLAN
 //-----------------------------------------------------------------------------
-// [ 1] loadStackTraceFromAddressArray
-// [ 1] loadStackTraceFrameStack
-// [ 2] printFormatted
-// [ 3] loadStackTraceFromAddressArray twice
-// [ 4] loadStackTraceFrameStack twice
-// [ 5] recursive deep twice
-// [ 6] multiple times
-// [ 7] large symbols
-// [ 8] output of trace with fprintf rather than stream
-// [ 9] line #'s and offsets
-// [10] usage 1
-// [11] usage 2
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -138,30 +126,136 @@ static const bsl::size_t npos = bsl::string::npos;
                                 // Usage
                                 // -----
 
-void usageTop(int *depth, bslma::Allocator *alloc)
+struct S {
+    // This 'struct' allows us to keep a linked list of 'double's.
+
+    static S                *s_head;
+    S                       *d_next;
+    double                   d_x;
+};
+S *S::s_head = 0;
+
+
+void usagePushVal(double x, bslma::Allocator *alloc)
+    // Add a node to our linked list containing the specified 'x'.
 {
-    if (!*depth) {
-        for (int i = 0; i < 1000; ++i) {
-            (void) alloc->allocate(100);    // memory leaked here 1000 times
-        }
+    S *p = new(*alloc) S;
+
+    p->d_next = S::s_head;
+    p->d_x = x;
+    S::s_head = p;
+}
+
+void usagePushGeometricSequence(double base, bslma::Allocator *alloc)
+    // Given a specified 'base', dd a sequence of nodes to the linked list in a
+    // geometric sequence from 'base' through 'base ** 4', in geometric
+    // increments of 'base'.  If 'base <= 1', do nothing.
+{
+    if (base <= 1) {
+        return;
+    }
+
+    double x = 1.0;
+    for (int i = 0; i < 4; ++i) {
+        usagePushVal((x *= base), alloc);
     }
 }
 
-void usageRecurser(int *depth, bslma::Allocator *alloc)
+void usageMiddle(bslma::Allocator *alloc)
+    // Iterate, doing 2 calls, each of which eventually calls 'pushVal' and
+    // thus allocate, but with 2 different call stacks.
 {
-    if (--*depth > 0) {
-        if (3 == *depth) {
-            (void) alloc->allocate(50);          // memory leaked here once
+    for (double x = 0; x < 100; x += 10) {
+        usagePushVal(x, alloc);
+        usagePushGeometricSequence(x, alloc);
+    }
+}
+
+void usageBottom()
+{
+    // First, create a stringstream to which output will go if we're not in
+    // verbose mode.  Create a pointer to an 'ostream' which will point to
+    // 'cout' if we're in verbose mode, the stringstream otherwise.
+
+    bsl::stringstream ss(&bslma::NewDeleteAllocator::singleton());
+    bsl::ostream *pOut = (verbose ? &cout : &ss);
+
+    {
+        // Next, create 'ta', a stack trace test allocator, and associate it
+        // with the stream 'pOut'.
+
+        baesu_StackTraceTestAllocator ta("Usage Test Allocator", pOut);
+
+        // Then, turn off abort mode.  If abort mode were left enabled, the
+        // destructor would abort if any memory were leaked.
+
+        ta.setNoAbort(true);
+
+        // Next, call 'usageMiddle', which will iterate, calling other routines
+        // which will allocate many segments of memory.
+
+        usageMiddle(&ta);
+
+        // Now, verify that we have unfreed memory outstanding.
+
+        ASSERT(ta.numBlocksInUse() > 0);
+        if (verbose) {
+            cout << ta.numBlocksInUse() << " segments leaked\n";
         }
 
-        usageRecurser(depth, alloc);
+        // Finally, destroy 'ta', leaking allocated memory.  The destructor of
+        // 'ta' will write a report about the leaked segments to '*pOut', and
+        // automatically clean up, freeing all the unfreed segments.  Note that
+        // although leaked memory was only allocated from one routine, it was
+        // allocated from 2 call chains, so 2 call chains will be reported.
+        // Also note that had no memory been leaked, no report would be
+        // written.
     }
-    else {
-        usageTop(depth, alloc);
-    }
-
-    ++*depth;   // Prevent compiler from optimizing tail recursion as a loop
 }
+
+// Output of usage example on AIX:
+//  46 segments leaked
+//  ============================================================================
+//  Error: memory leaked:
+//  46 segment(s) in allocator 'Usage Test Allocator' in use.
+//  Segment(s) allocated in 2 place(s).
+//  ----------------------------------------------------------------------------
+//  Allocation place 1, 10 segment(s) in use.
+//  Stack trace at allocation time:
+//  (0): .usagePushVal(double,BloombergLP::bslma::Allocator*)+0x5c at 0x1001bd54
+//  source:baesu_stacktracetestallocator.t.cpp:143 in
+//  baesu_stacktracetestallocator.t.
+//  (1): .usageMiddle(BloombergLP::bslma::Allocator*)+0x3c at 0x1001bc94 source:
+//  baesu_stacktracetestallocator.t.cpp:170 in baesu_stacktracetestallocator.t.
+//  (2): .usageBottom()+0x158 at 0x1001b4a8
+//  source:baesu_stacktracetestallocator.t.cpp:198 in
+//  baesu_stacktracetestallocator.t.
+//  (3): .main+0x198 at 0x100008f0
+//   source:baesu_stacktracetestallocator.t.cpp:471 in
+//  baesu_stacktracetestallocator.t.
+//  (4): .__start+0x6c at 0x1000020c source:crt0main.s in
+//  baesu_stacktracetestallocator.t.
+//  ----------------------------------------------------------------------------
+//  Allocation place 2, 36 segment(s) in use.
+//  Stack trace at allocation time:
+//  (0): .usagePushVal(double,BloombergLP::bslma::Allocator*)+0x5c at
+//  0x1001bd54 source:baesu_stacktracetestallocator.t.cpp:143 in
+//  baesu_stacktracetestallocator.t.
+//  (1): .usagePushGeometricSequence(double,BloombergLP::bslma::Allocator*)+0x6c
+//  at 0x1001be1c source:baesu_stacktracetestallocator.t.cpp:161 in
+//  baesu_stacktracetestallocator.t.
+//  (2): .usageMiddle(BloombergLP::bslma::Allocator*)+0x4c at 0x1001bca4
+//  source:baesu_stacktracetestallocator.t.cpp:171 in
+//  baesu_stacktracetestallocator.t.
+//  (3): .usageBottom()+0x158 at 0x1001b4a8
+//  source:baesu_stacktracetestallocator.t.cpp:198 in
+//  baesu_stacktracetestallocator.t.
+//  (4): .main+0x198 at 0x100008f0
+//  source:baesu_stacktracetestallocator.t.cpp:471 in
+//  baesu_stacktracetestallocator.t.
+//  (5): .__start+0x6c at 0x1000020c source:crt0main.s in
+//  baesu_stacktracetestallocator.t.
+//..
 
                                 // ------
                                 // case 3
@@ -188,10 +282,10 @@ struct Functor {
     static bsls::AtomicInt         s_threadRand;
     static bsls::AtomicInt         s_numUnfreedSegments;
     static bcemt_Barrier           s_finishBarrier;
-    static int                     s_64;
 
     bsl::vector<int *>             d_alloced;
     bsl::size_t                    d_randNum;
+    int                            d_64;
     baesu_StackTraceTestAllocator *d_allocator;
 
     // CREATORS
@@ -258,13 +352,12 @@ struct Functor {
 bsls::AtomicInt Functor::s_threadRand(0);
 bsls::AtomicInt Functor::s_numUnfreedSegments(0);
 bcemt_Barrier   Functor::s_finishBarrier(NUM_THREADS + 1);
-int             Functor::s_64(1 << 6);
 
 void Functor::top()
 {
     int allocLength = 5 + rand() % 20;
     int *segment = (int *) d_allocator->allocate(
-                                          (allocLength + 1) * sizeof(int));
+                                              (allocLength + 1) * sizeof(int));
     d_alloced.push_back(segment);
     *segment = allocLength;
     int fillWord = (int) (UintPtr) segment;
@@ -274,41 +367,30 @@ void Functor::top()
 
 void Functor::nest4()
 {
-    for (int i = 1; i < 1024 && (i & 1); i += (s_64 * 2)) {
-        if (i > 80) {
-            top();
-            ++i;
-        }
+    for (int i = 1; i < d_64; i += 32) {
+        top();
     }
 }
 
 void Functor::nest3()
 {
-    for (int i = 1; i < 1024 && (i & 1); i += (s_64 * 2)) {
-        if (i > 80) {
-            nest4();
-            ++i;
-        }
+    int end = d_64 >> 3;
+    for (int j = 4; j < end; ++j) {
+        nest4();
     }
 }
 
 void Functor::nest2()
 {
-    for (int i = 1; i < 1024 && (i & 1); i += (s_64 * 2)) {
-        if (i > 80) {
-            nest3();
-            ++i;
-        }
+    for (int i = 0; i < d_64 / 16; ++i) {
+        nest3();
     }
 }
 
 void Functor::nest1()
 {
-    for (int i = 1; i < 1024 && (i & 1); i += (s_64 * 2)) {
-        if (i > 64) {
-            nest2();
-            ++i;
-        }
+    for (int i = 0; i < 3; ++i) {
+        nest2();
     }
 }
 
@@ -316,7 +398,15 @@ void Functor::operator()()
 {
     ASSERT(0 == d_alloced.size());
 
-    for (int i = 0; i < 50; ++i) {
+    d_64 = 75;
+    for (int i = 0; 0 == (i & 0x23474000); ++i) {
+        d_64 ^= i;
+    }
+    d_64 -= 11;
+
+    ASSERT(64 == d_64);
+
+    for (int i = 0; i < 10; ++i) {
         nest1();
         freeSome();
     }
@@ -391,28 +481,10 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //---------------------------------------------------------------------
 
-        baesu_StackTraceTestAllocator ta("myTestAllocator");
+        if (verbose) cout << "Usage Example\n"
+                             "=============\n";
 
-        int depth = 4;
-        usageRecurser(&depth, &ta);
-
-        ASSERT(1001 == ta.numBlocksInUse());
-
-        if (verbose && !veryVerbose) {
-            ta.reportBlocksInUse(&cout);
-        }
-
-        if (!veryVerbose) {
-            ta.release();
-            ASSERT(0 == ta.numBlocksInUse());
-
-            bsl::stringstream ss;
-            ta.reportBlocksInUse(&ss);
-            ASSERT(ss.str().empty());
-        }
-
-        // if 'veryVerbose' was set, ta will write a report to 'cout' upon
-        // destruction about 1000 segments being in use, then abort.
+        usageBottom();
       }  break;
       case 4: {
         //---------------------------------------------------------------------
@@ -458,7 +530,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) {
             const bsl::string& ostr = ss.str();
-            ++expectedDefaultAllocations;               // otherSs.str() uses da
+            ++expectedDefaultAllocations;             // otherSs.str() uses da
 
             ASSERT(!ostr.empty());
             cout << ostr;
@@ -569,6 +641,9 @@ int main(int argc, char *argv[])
             bsl::size_t nextPos = otherStr.find(expectedStrings[i], pos);
             LOOP3_ASSERT(otherStr, i, expectedStrings[i], npos != nextPos);
             pos = npos != nextPos ? nextPos : pos;
+        }
+        if (veryVerbose) {
+            cout << "Report of blocks in use\n" << otherStr;
         }
                                    
         TC::Functor::s_finishBarrier.wait();
