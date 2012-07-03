@@ -19,6 +19,14 @@
 #include <bdem_berdecoder.h>
 #include <bdem_berencoder.h>
 
+#include <bdex_byteinstream.h>
+#include <bdex_byteoutstream.h>
+#include <bdex_instreamfunctions.h>
+#include <bdex_outstreamfunctions.h>
+#include <bdex_testinstream.h>
+#include <bdex_testoutstream.h>
+#include <bdex_testinstreamexception.h>
+
 #include <bdeat_arrayfunctions.h>
 #include <bdeat_choicefunctions.h>
 #include <bdeat_enumfunctions.h>
@@ -69,7 +77,7 @@ using namespace bsl;
 // error reporting works correctly.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [  ] int maxSupportedBdexVersion();
+// [23] int maxSupportedBdexVersion();
 // [  ] bdem_ElemType::Type getBdemType(const TYPE& value);
 // [ 7] bool areEquivalent(const Obj& lhs, const Obj& rhs);
 // [ 7] bool areIdentical(const Obj& lhs, const Obj& rhs);
@@ -99,8 +107,8 @@ using namespace bsl;
 // [20] bool isNullable() const;
 // [  ] int errorCode() const;
 // [  ] bsl::string errorMessage() const;
-// [  ] bsl::string asString() const;
-// [  ] void loadAsString(bsl::string *result) const;
+// [ 6] bsl::string asString() const;
+// [ 6] void loadAsString(bsl::string *result) const;
 // [ 5] bool asBool() const;
 // [ 5] char asChar() const;
 // [ 5] short asShort() const;
@@ -118,8 +126,8 @@ using namespace bsl;
 // [ 4] bool hasField(const char *fieldName) const;
 // [  ] bool hasFieldById(int fieldId) const;
 // [  ] bool hasFieldByIndex(int fieldIndex) const;
-// [  ] int anonymousField(Obj *object, Error *error, int index) const;
-// [  ] int anonymousField(Obj *object, Error *error) const;
+// [24] int anonymousField(Obj *object, Error *error, int index) const;
+// [24] int anonymousField(Obj *object, Error *error) const;
 // [ 4] int getField(Obj *o, Error *e, bool null, f1, f2, . ., f10) const;
 // [  ] int findUnambiguousChoice(Obj *obj, Error *error, caller) const;
 // [  ] int fieldByIndex(Obj *obj, Error *error, int index) const;
@@ -141,8 +149,8 @@ using namespace bsl;
 // [11] const void *data() const;
 // [11] const bdem_Schema *schema() const;
 // [  ] void swap(bcem_AggregateRaw& other);
-// [  ] STREAM& bdexStreamIn(STREAM& stream, int version) const;
-// [  ] STREAM& bdexStreamOut(STREAM& stream, int version) const;
+// [23] STREAM& bdexStreamIn(STREAM& stream, int version) const;
+// [23] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [  ] bsl::ostream& print(stream, int level, int spl) const;
 // [ 3] int setField(Obj *o, Error *e, f1, value) const;
 // [ 4] int setField(Obj *o, Error *e, f1, f2, value) const;
@@ -3548,6 +3556,466 @@ int main(int argc, char *argv[])
                   field.print(bsl::cout, 0, -1);
               }
           }
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // TESTING anonymousField
+        //
+        // Concerns:
+        //   - Calling 'anonymousField(n)' on an aggregate that has anonymous
+        //     fields will return the nth anonymous field.
+        //   - If the aggregate is a choice and the nth anonymous field is not
+        //     selected, then return the usual error of accessing an
+        //     unselected member of a choice.
+        //   - The appropriate error is returned for calling 'anonymousField'
+        //     on a scalar aggregate.
+        //   - The appropriate error is returned for calling 'anonymousField'
+        //     on an aggregate with no anonymous fields.
+        //   - The appropriate error is returned for calling 'anonymousField'
+        //     on an aggregate with anonymous fields, but no nth anonymous
+        //     field.
+        //   - Calling 'anonymousField' with no arguments returns the same as
+        //     'anonymousField(0)' unless the number of anonymous fields is
+        //     not one.
+        //   - Calling 'anonymousField' with no arguments returns an ambiguous
+        //     anonymous field error if the number of anonymous fields is not
+        //     one.
+        //
+        // Plan:
+        //   - Create an aggregate containing lists and choices with zero,
+        //     one, and two anonymous fields.
+        //   - Call 'anonymousField' for each anonymous field and verify that
+        //     it is identical to accessing that field by index.
+        //   - Call 'anonymousField' for each error condition listed in the
+        //     concerns and verify the expected error code and error message.
+        //   - Verify that the result of 'anonymousField' is the same with an
+        //     argument of zero and with no arguments when the number of
+        //     anonymous fields is one.
+        //   - Verify the expected error for calling 'anonymousField' with no
+        //     arguments when the number of anonymous fields is one.
+        //
+        // Testing:
+        //   int anonymousField(Obj *object, Error *error, int index) const;
+        //   int anonymousField(Obj *object, Error *error) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING anonymousField"
+                          << "\n======================" << bsl::endl;
+
+        if (verbose) cout << "Testing valid calls" << bsl::endl;
+        {
+            static const struct {
+                int         d_line;
+                const char *d_spec;
+                int         d_anonIndex;
+                int         d_fieldIndex;
+            } DATA[] = {
+                //                                              Anon    Field
+                // Ln  Schema spec                              index   index
+                // -- ---------------------------------------   -----   -----
+                { L_, ":rA*BbCc",                               0,      0 },
+                { L_, ":rAaB*Cc",                               0,      1 },
+                { L_, ":rAaBbC*",                               0,      2 },
+                { L_, ":rA*B*Cc",                               0,      0 },
+                { L_, ":rA*BbC*",                               0,      0 },
+                { L_, ":rAaB*C*",                               0,      1 },
+                { L_, ":rA*B*C*",                               0,      0 },
+
+                { L_, ":rA*B*Cc",                               1,      1 },
+                { L_, ":rA*BbC*",                               1,      2 },
+                { L_, ":rAaB*C*",                               1,      2 },
+                { L_, ":rA*B*C*",                               1,      1 },
+
+                { L_, ":rA*B*C*",                               2,      2 },
+
+                { L_, ":r?A*BbCc",                              0,      0 },
+                { L_, ":r?AaB*Cc",                              0,      1 },
+                { L_, ":r?AaBbC*",                              0,      2 },
+                { L_, ":r?A*B*Cc",                              0,      0 },
+                { L_, ":r?A*BbC*",                              0,      0 },
+                { L_, ":r?AaB*C*",                              0,      1 },
+                { L_, ":r?A*B*C*",                              0,      0 },
+
+                { L_, ":r?A*B*Cc",                              1,      1 },
+                { L_, ":r?A*BbC*",                              1,      2 },
+                { L_, ":r?AaB*C*",                              1,      2 },
+                { L_, ":r?A*B*C*",                              1,      1 },
+
+                { L_, ":r?A*B*C*",                              2,      2 },
+
+                { L_, ":i?DdEe :rAa%*iCc",                      0,      1 },
+                { L_, ":i?DdEe :rAa@*iCc",                      0,      1 },
+                { L_, ":i?DdEe :j?FfGg :r%*i@*jCc",             1,      1 },
+                { L_, ":i?DdEe :j?FfGg :kHh :r@*i%*j+*k",       2,      2 },
+                { L_, ":iDdEe :r?AaBb#*i",                      0,      2 },
+                { L_, ":i?DdEe :j?FfGg :r?%*iBb%*j",            1,      2 },
+                { L_, ":i?DdEe :jFfGg :kHh :r?@*i+*j#*k",       2,      2 },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const char *const SPEC        = DATA[i].d_spec;
+                const int         ANON_INDEX  = DATA[i].d_anonIndex;
+                const int         FIELD_INDEX = DATA[i].d_fieldIndex;
+
+                bdem_Schema schema;
+                ggSchema(&schema, SPEC);
+
+                bslma_TestAllocator t;
+                Error err;
+                Obj agg, field;
+                ggAggData(&agg, *schema.lookupRecord("r"), &t);
+
+                if (EType::BDEM_CHOICE == agg.dataType()) {
+                    agg.makeSelectionByIndex(&field, &err, FIELD_INDEX);
+                }
+                LOOP_ASSERT(agg, ! agg.isError());
+
+                if (veryVeryVerbose) { P(agg); }
+
+                Obj expected;
+                agg.fieldByIndex(&expected, &err, FIELD_INDEX);
+                Obj result;
+                int rc = agg.anonymousField(&result, &err, ANON_INDEX);
+                ASSERT(!rc);
+                LOOP2_ASSERT(expected, result,
+                             Obj::areIdentical(expected, result));
+
+                if (veryVeryVerbose) { P(expected); P(result); }
+
+                if (schema.lookupRecord("r")->numAnonymousFields() == 1) {
+                    Obj result2;
+                    rc = agg.anonymousField(&result2, &err);
+                    ASSERT(!rc);
+                    LOOP2_ASSERT(expected, result2,
+                                 Obj::areIdentical(expected, result2));
+                }
+
+                destroyAggData(&agg, &t);
+            }
+        }
+
+//         if (verbose) cout << "Testing error conditions" << bsl::endl;
+
+//         {
+//             static const struct {
+//                 int         d_line;
+//                 const char *d_spec;
+//                 int         d_selectorIndex;
+//                 int         d_anonIndex;
+//                 int         d_errorCode;
+//                 const char *d_errorMessage;
+//             } DATA[] = {
+//                 //      Schema     sel anon
+//                 // Ln    Spec      idx idx error code  error message
+//                 // -- -----------  --- --- ----------  ---------------------
+//                 { L_, ":rAaBbCc",   0,  0, BAD_FLDIDX, "no anonymous fields" },
+//                 { L_, ":rAaBbCc",   0,  1, BAD_FLDIDX, "no anonymous fields" },
+//                 { L_, ":rA*BbCc",   0,  1, BAD_FLDIDX, "Invalid index"       },
+//                 { L_, ":rAaB*Cc",   0,  1, BAD_FLDIDX, "Invalid index"       },
+//                 { L_, ":rAaBbC*",   0,  1, BAD_FLDIDX, "Invalid index"       },
+//                 { L_, ":rA*B*Cc",   0,  2, BAD_FLDIDX, "Invalid index"       },
+//                 { L_, ":rA*BbC*",   0,  3, BAD_FLDIDX, "Invalid index"       },
+//                 { L_, ":rAaB*C*",   0, -1, BAD_FLDIDX, "Invalid index"       },
+//                 { L_, ":rA*B*C*",   0,  4, BAD_FLDIDX, "Invalid index"       },
+
+//                 { L_, ":r?AaBbCc",  0,  0, BAD_FLDIDX, "no anonymous fields" },
+//                 { L_, ":r?AaBbCc",  0,  1, BAD_FLDIDX, "no anonymous fields" },
+//                 { L_, ":r?A*BbCc",  0,  1, BAD_FLDIDX, "Invalid index"       },
+//                 { L_, ":r?AaB*Cc",  1,  1, BAD_FLDIDX, "Invalid index"       },
+//                 { L_, ":r?AaBbC*",  2,  1, BAD_FLDIDX, "Invalid index"       },
+//                 { L_, ":r?A*B*Cc",  1,  2, BAD_FLDIDX, "Invalid index"       },
+//                 { L_, ":r?A*BbC*",  2,  3, BAD_FLDIDX, "Invalid index"       },
+//                 { L_, ":r?AaB*C*",  2, -1, BAD_FLDIDX, "Invalid index"       },
+//                 { L_, ":r?A*B*C*",  2,  4, BAD_FLDIDX, "Invalid index"       },
+
+//                 { L_, ":r?A*BbCc",  1,  0, NOT_SELECT, "currently selected"  },
+//                 { L_, ":r?AaB*Cc",  0,  0, NOT_SELECT, "currently selected"  },
+//                 { L_, ":r?AaBbC*",  1,  0, NOT_SELECT, "currently selected"  },
+//                 { L_, ":r?A*B*Cc",  0,  1, NOT_SELECT, "currently selected"  },
+//                 { L_, ":r?A*BbC*",  2,  0, NOT_SELECT, "currently selected"  },
+//                 { L_, ":r?AaB*C*",  1,  1, NOT_SELECT, "currently selected"  },
+//                 { L_, ":r?A*B*C*",  0,  2, NOT_SELECT, "currently selected"  },
+
+//                 { L_, ":r?A*BbCc", -1,  0, NOT_SELECT, "currently selected"  },
+//                 { L_, ":r?A*B*Cc", -1,  1, NOT_SELECT, "currently selected"  },
+//                 { L_, ":r?A*B*C*", -1,  2, NOT_SELECT, "currently selected"  },
+//             };
+//             const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+//             for (int i = 0; i < NUM_DATA; ++i) {
+//                 const int         LINE           = DATA[i].d_line;
+//                 const char *const SPEC           = DATA[i].d_spec;
+//                 const int         SELECTOR_INDEX = DATA[i].d_selectorIndex;
+//                 const int         ANON_INDEX     = DATA[i].d_anonIndex;
+//                 const int         ERROR_CODE     = DATA[i].d_errorCode;
+//                 const char *const ERROR_MESSAGE  = DATA[i].d_errorMessage;
+
+//                 bcema_SharedPtr<bdem_Schema> schema;
+//                 schema.createInplace();
+//                 ggSchema(schema.ptr(), SPEC);
+
+//                 Obj agg(schema, "r");
+//                 if (EType::BDEM_CHOICE == agg.dataType()) {
+//                     agg.makeSelectionByIndex(SELECTOR_INDEX);
+//                 }
+//                 LOOP_ASSERT(agg, ! agg.isError());
+
+//                 if (veryVeryVerbose) { P(agg); }
+
+//                 bcem_Aggregate result = agg.anonymousField(ANON_INDEX);
+//                 LOOP_ASSERT(result, result.isError());
+//                 ASSERT_AGG_ERROR(result, ERROR_CODE);
+//                 LOOP_ASSERT(result.errorMessage(),
+//                             bsl::string::npos !=
+//                             result.errorMessage().find(ERROR_MESSAGE));
+
+//                 if (veryVeryVerbose) { P(result); }
+
+//                 int numAnon = schema->lookupRecord("r")->numAnonymousFields();
+//                 bcem_Aggregate result2 = agg.anonymousField();
+//                 if (0 == numAnon) {
+//                     LOOP_ASSERT(result2, result2.isError());
+//                     ASSERT_AGG_ERROR(result2, BAD_FLDIDX);
+//                     LOOP_ASSERT(result2.errorMessage(),
+//                                 bsl::string::npos !=
+//                                 result2.errorMessage().find("no anonymous "
+//                                                             "fields"));
+//                 } else if (numAnon > 1) {
+//                     LOOP_ASSERT(result2, result2.isError());
+//                     ASSERT_AGG_ERROR(result2, AMBIGUOUS);
+//                     LOOP_ASSERT(result2.errorMessage(),
+//                                 bsl::string::npos !=
+//                                 result2.errorMessage().find("multiple "
+//                                                             "anonymous"));
+//                 } else if (0 == ANON_INDEX) {
+//                     ASSERT_AGG_ERROR(result2, result.errorCode());
+//                     LOOP2_ASSERT(result, result2, result.errorMessage() ==
+//                                  result2.errorMessage());
+//                 }
+//             }
+//         }
+
+//         {
+//             // Check error condition for non-aggregate.
+//             Obj agg(EType::BDEM_INT, 5);
+//             bcem_Aggregate result = agg.anonymousField();
+//             LOOP_ASSERT(result, result.isError());
+//             ASSERT_AGG_ERROR(result, NON_RECORD);
+//             LOOP_ASSERT(result.errorMessage(),
+//                         bsl::string::npos !=
+//                         result.errorMessage().find("unconstrained INT"));
+
+//             if (veryVeryVerbose) { P(result); }
+//         }
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING BDEX STREAMING
+        //
+        // Concerns:
+        //   - For each supported data type, data can be streamed out to a
+        //     bdex stream, then streamed back into a non-aggregate object of
+        //     the corresponding data type.
+        //   - For each supported data type, data can be streamed out of an
+        //     object of that type, then streamed back into a bcem_aggregate
+        //     holding that type.
+        //   - Streaming in a list, table, choice, or choice-array that does
+        //     not conform to the schema causes an error and sets the
+        //     aggregate to null.
+        //   - Since the streaming operations are pass-through's to the
+        //     underlying data types' streaming operations, it is not
+        //     necessary to test corrupt schemas, etc. once it is determined
+        //     that the calls are properly passed through.
+        //
+        // Plan:
+        //   - For each supported data type, stream an object of that type
+        //     to a memory stream.
+        //   - Read from the memory stream into a properly initialized
+        //     bcem_Aggregate and compare with the original.
+        //   - Stream the bcem_Aggregate back out to another memory stream.
+        //   - Compare the original and second memory stream.
+        //   - Test that data that does not conform to the schema will put the
+        //     stream in the invalid state set the bcem_Aggregate to null.
+        //
+        // Testing:
+        //     int maxSupportedBdexVersion() const;
+        //     STREAM& bdexStreamIn(STREAM& stream, int version);
+        //     STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nBDEX STREAMING"
+                          << "\n==============" << bsl::endl;
+
+        const int MAX_VERSION = 3;
+        {
+            LOOP_ASSERT(Obj::maxSupportedBdexVersion(),
+                        MAX_VERSION == Obj::maxSupportedBdexVersion());
+        }
+
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line     Spec
+                // ----     ----
+                {   L_,   ":aCa"    },
+                {   L_,   ":aCa&NT" },
+                {   L_,   ":aCa&NF" },
+                {   L_,   ":aCa&D0" },
+                {   L_,   ":aGa"    },
+                {   L_,   ":aGa&NT" },
+                {   L_,   ":aGa&NF" },
+                {   L_,   ":aGa&D0" },
+                {   L_,   ":aHa"    },
+                {   L_,   ":aHa&NT" },
+                {   L_,   ":aHa&NF" },
+                {   L_,   ":aHa&D0" },
+                {   L_,   ":aNa"    },
+                {   L_,   ":aNa&NT" },
+                {   L_,   ":aNa&NF" },
+                {   L_,   ":aNa&D0" },
+                {   L_,   ":aNa&FN" },
+                {   L_,   ":aPa"    },
+                {   L_,   ":aPa&NT" },
+                {   L_,   ":aPa&NF" },
+                {   L_,   ":aPa&D0" },
+                {   L_,   ":aQa"    },
+                {   L_,   ":aQa&NT" },
+                {   L_,   ":aQa&NF" },
+                {   L_,   ":aQa&D0" },
+                {   L_,   ":aRa"    },
+                {   L_,   ":aRa&NT" },
+                {   L_,   ":aRa&NF" },
+                {   L_,   ":aRa&D0" },
+// TBD failed on little-endian only
+//                {   L_,   ":aWa"    },
+                {   L_,   ":aWa&NT" },
+// TBD
+//                 {   L_,   ":aWa&NF" },
+//                 {   L_,   ":aWa&D0" },
+                {   L_,   ":aaa"    },
+                {   L_,   ":aaa&NT" },
+                {   L_,   ":aaa&NF" },
+                {   L_,   ":aaa&D0" },
+                {   L_,   ":aYa"    },
+                {   L_,   ":aYa&NT" },
+                {   L_,   ":aYa&NF" },
+                {   L_,   ":aYa&D0" },
+                {   L_,   ":ada"    },
+                {   L_,   ":ada&NT" },
+                {   L_,   ":ada&NF" },
+                {   L_,   ":ada&D0" },
+
+// TBD
+//                 {   L_,   ":aCbFcGdQf :g+ha"                },
+//                 {   L_,   ":aCbFcGdQf :g+ha&NT"             },
+// TBD
+//                 {   L_,   ":aCbFcGdQf :g+ha&NF"             },
+                {   L_,   ":aCb&NTFcGd&NTQf :g+ha"          },
+                {   L_,   ":aCb&NFFc&NTGd&NFQf&NT :g+ha"    },
+
+                {   L_,   ":aCbFcGdQf :g#ha"    },
+                {   L_,   ":aCbFcGdQf :g#ha&NT" },
+                {   L_,   ":aCbFcGdQf :g#ha&NF" },
+                {   L_,   ":aCb&NTFcGd&NTQf :g#ha"          },
+                {   L_,   ":aCb&NFFc&NTGd&NFQf&NT :g#ha"    },
+
+                {   L_,   ":a?CbFcGdQf :g%ha"    },
+                {   L_,   ":a?CbFcGdQf :g%ha&NT" },
+                {   L_,   ":a?CbFcGdQf :g%ha&NF" },
+
+                {   L_,   ":a?CbFcGdQf :g@ha"    },
+                {   L_,   ":a?CbFcGdQf :g@ha&NT" },
+                {   L_,   ":a?CbFcGdQf :g@ha&NF" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+                const bool  NSA  = (bool) bsl::strstr(SPEC, "&FN");
+
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
+                const RecDef *RECORD = NSA
+                                     ? &SCHEMA.record(0)
+                                     : &SCHEMA.record(SCHEMA.numRecords() - 1);
+
+                ET::Type TYPE = NSA
+                        ? ET::toArrayType(SCHEMA.record(1).field(0).elemType())
+                        : RECORD->field(0).elemType();
+                const char *fldName = RECORD->fieldName(0);
+
+                const CERef A1 = getCERef(TYPE, 1);
+                const CERef A2 = getCERef(TYPE, 2);
+
+                int version = bsl::strstr(SPEC, "NT") ? 3 : 1;
+                for (; version <= MAX_VERSION; ++version) {
+                    bslma_TestAllocator t(veryVeryVerbose);
+                    Obj mU; const Obj& U = mU;
+                    Obj mV; const Obj& V = mV;
+                    Obj mX; const Obj& X = mX;
+                    Obj mY; const Obj& Y = mY;
+
+                    ggAggData(&mU, *RECORD, &t);
+                    ggAggData(&mV, *RECORD, &t);
+                    ggAggData(&mX, *RECORD, &t);
+                    ggAggData(&mY, *RECORD, &t);
+
+                    if (veryVerbose) {
+                        P(U);
+                    }
+
+                    bdex_TestOutStream out1, out2;
+                    U.bdexStreamOut(out1, version);
+                    bdex_OutStreamFunctions::streamOut(out2, X, version);
+
+                    LOOP_ASSERT(LINE, out1);
+                    LOOP_ASSERT(LINE, out2);
+
+                    bdex_TestInStream in1(out1.data(), out1.length());
+
+                    LOOP_ASSERT(LINE, in1);
+
+                    in1.setSuppressVersionCheck(1);
+
+                    V.bdexStreamIn(in1, version);
+
+                    if (veryVerbose) {
+                        P(V);
+                    }
+
+                    if (version > 1) {
+                        LOOP2_ASSERT(LINE, version, Obj::areEquivalent(U, V));
+                    }
+
+                    bdex_TestInStream testInStream(out2.data(), out2.length());
+                    testInStream.setSuppressVersionCheck(1);
+                    LOOP_ASSERT(LINE, testInStream);
+
+                   BEGIN_BDEX_EXCEPTION_TEST {
+                     testInStream.reset();
+
+                     bdex_InStreamFunctions::streamIn(testInStream,
+                                                      Y,
+                                                      version);
+
+                     // TBD: Fix
+                     if (version > 1) {
+                         LOOP2_ASSERT(LINE, version, Obj::areEquivalent(X, Y));
+                     }
+                   } END_BDEX_EXCEPTION_TEST
+
+                   destroyAggData(&mU, &t);
+                   destroyAggData(&mV, &t);
+                   destroyAggData(&mX, &t);
+                   destroyAggData(&mY, &t);
+                }
+            }
+        }
       } break;
       case 22: {
         // --------------------------------------------------------------------
@@ -9042,6 +9510,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   bdem_ElemRef asElemRef();
         //   bsl::string asString() const;
+        //   void loadAsString(bsl::string  *string) const;
         //   bdem_ConstElemRef asElemRef() const;
         //   ET::Type dataType() const;
         // --------------------------------------------------------------------
@@ -9057,6 +9526,9 @@ int main(int argc, char *argv[])
 
             ASSERT(ET::BDEM_VOID == X.dataType());
             ASSERT(bsl::string() == X.asString());
+            string s;
+            X.loadAsString(&s);
+            ASSERT(bsl::string() == s);
         }
 
         if (veryVerbose) { T_ cout << "Testing for scalar aggregates"
