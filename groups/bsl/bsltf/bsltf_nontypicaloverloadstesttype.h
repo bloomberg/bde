@@ -175,12 +175,7 @@ void* NonTypicalOverloadsTestType::operator new(std::size_t size)
 inline
 void* NonTypicalOverloadsTestType::operator new(std::size_t, void *ptr)
 {
-    // FIXME: This method should assert like the other overloaded operators,
-    // but a bug in bslalg::ScalarPrimitive {DRQS 30940277} make this class
-    // difficult to use if it asserts.  Make it behave like the default
-    // in-place new until the bug is fixed.
-
-    // BSLS_ASSERT_OPT(0);
+    BSLS_ASSERT_OPT(0);
     return ptr;
 }
 

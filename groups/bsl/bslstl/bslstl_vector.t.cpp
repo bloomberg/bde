@@ -22,6 +22,7 @@
 #include <bsls_types.h>
 #include <bsls_stopwatch.h>                // for testing only
 #include <bsls_util.h>
+#include <bsltf_nontypicaloverloadstesttype.h>
 
 #include <iterator>   // 'iterator_traits'
 #include <stdexcept>  // 'length_error', 'out_of_range'
@@ -1015,6 +1016,9 @@ struct TestDriver {
     static void testCaseM1();
         // Performance test.
 
+    static void testCase22();
+        // Test overloaded new/delete.
+
     static void testCase21();
         // Test proper use of 'std::length_error'.
 
@@ -1810,6 +1814,66 @@ void TestDriver<TYPE,ALLOC>::testCaseM1()
         for (int i = 0; i < NUM_VECTOR_S; ++i) {
             delete vectors[i];
         }
+    }
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase22()
+{
+    // --------------------------------------------------------------------
+    // TESTING OVERLOADED NEW/DELETE
+    //
+    // Concern:
+    //: 1 Overloaded new is not used on construction.
+    //:
+    //: 2 Overloaded new is not used on insert.
+    //:
+    //: 3 Overloaded delete is not used on destruction.
+    //
+    // Plan:
+    //: 1 Use a type with overloaded new and delete that will assert when
+    //:   new/delete is called.
+    //:
+    //: 2 Construct vectors of that type with multiple elements in the
+    //:   vector using different variations of the constructor.  Notice that
+    //:   there is no need for other verification as the type should assert if
+    //:   the overload new is used.
+    //:
+    //: 3 Insert an element into the vector.
+    //:
+    //: 4 Destroy any vecto5rs that was created.
+    //
+    // Testing:
+    //  CONCERN: Vector support types with overloaded new/delete
+    // --------------------------------------------------------------------
+
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
+
+    if (verbose) printf("\nTESTING OVERLOADED NEW/DELETE"
+                        "\n=============================\n");
+
+    if (veryVerbose) printf(
+     "\nTesting with vector(size_type, const VALUE_TYPE&, const ALLOCATOR&\n");
+    {
+        Obj mX(1, TYPE(), &testAllocator);  const Obj& X = mX;
+        ASSERT(TYPE() == X[0]);
+
+        Obj mY(2, TYPE(), &testAllocator);  const Obj& Y = mY;
+        ASSERT(TYPE() == Y[0]);
+        ASSERT(TYPE() == Y[1]);
+    }
+
+    if (veryVerbose) printf(
+                       "\nTesting with other constructors and manipulators\n");
+    {
+        TYPE element;
+        Obj mX(&element, &element + 1, &testAllocator);  const Obj& X = mX;
+
+        Obj mY(mX, &testAllocator);  const Obj& Y = mY;
+        ASSERT(TYPE() == Y[0]);
+
+        mX.push_back(TYPE());
+        mX.resize(3);
     }
 }
 
@@ -8004,7 +8068,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // RANGE INSERT FUNCION PTR BUG
         //
@@ -8063,6 +8127,19 @@ int main(int argc, char *argv[])
             const int match = i - (i < 5 ? 0 : i < 15 ? 5 : 10);
             LOOP2_ASSERT(i, (w[i])(), match == (*w[i])());
         }
+      } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING EXCEPTIONS
+        //
+        // Testing:
+        //   CONCERN: Vector support types with overloaded new/delete
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting overloaded new/delete type"
+                            "\n==================================\n");
+
+        TestDriver<bsltf::NonTypicalOverloadsTestType>::testCase22();
       } break;
       case 21: {
         // --------------------------------------------------------------------

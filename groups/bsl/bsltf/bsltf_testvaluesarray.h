@@ -187,13 +187,13 @@ class TestValuesArrayIterator {
 
   private:
     // FRIENDS
-    template <class VALUE2>
-    friend bool operator==(const TestValuesArrayIterator<VALUE2>&,
-                           const TestValuesArrayIterator<VALUE2>&);
+    template <class OTHER_VALUE>
+    friend bool operator==(const TestValuesArrayIterator<OTHER_VALUE>&,
+                           const TestValuesArrayIterator<OTHER_VALUE>&);
 
-    template <class VALUE2>
-    friend bool operator!=(const TestValuesArrayIterator<VALUE2>&,
-                           const TestValuesArrayIterator<VALUE2>&);
+    template <class OTHER_VALUE>
+    friend bool operator!=(const TestValuesArrayIterator<OTHER_VALUE>&,
+                           const TestValuesArrayIterator<OTHER_VALUE>&);
 
   public:
     TestValuesArrayIterator(const VALUE *object,
@@ -420,8 +420,9 @@ namespace bsltf {
 
 // PRIVATE MANIPULATORS
 template <class VALUE, class CONVERTER>
-void TestValuesArray<VALUE, CONVERTER>::initialize(const char      *spec,
-                                        bslma::Allocator *basicAllocator)
+void TestValuesArray<VALUE, CONVERTER>::initialize(
+                                              const char       *spec,
+                                              bslma::Allocator *basicAllocator)
 {
     d_size = std::strlen(spec);
 
@@ -450,7 +451,8 @@ void TestValuesArray<VALUE, CONVERTER>::initialize(const char      *spec,
 
 // CREATORS
 template <class VALUE, class CONVERTER>
-TestValuesArray<VALUE, CONVERTER>::TestValuesArray(bslma::Allocator *basicAllocator)
+TestValuesArray<VALUE, CONVERTER>::TestValuesArray(
+                                              bslma::Allocator *basicAllocator)
 {
     static const char DEFAULT_SPEC[] =
                         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -459,8 +461,9 @@ TestValuesArray<VALUE, CONVERTER>::TestValuesArray(bslma::Allocator *basicAlloca
 }
 
 template <class VALUE, class CONVERTER>
-TestValuesArray<VALUE, CONVERTER>::TestValuesArray(const char      *spec,
-                                        bslma::Allocator *basicAllocator)
+TestValuesArray<VALUE, CONVERTER>::TestValuesArray(
+                                              const char       *spec,
+                                              bslma::Allocator *basicAllocator)
 {
     initialize(spec, basicAllocator);
 }
@@ -501,7 +504,8 @@ TestValuesArray<VALUE, CONVERTER>::index(size_t value)
 }
 
 template <class VALUE, class CONVERTER>
-typename TestValuesArray<VALUE, CONVERTER>::iterator TestValuesArray<VALUE, CONVERTER>::end()
+typename TestValuesArray<VALUE, CONVERTER>::iterator
+TestValuesArray<VALUE, CONVERTER>::end()
 {
     return iterator(data() + d_size,
                     data() + d_size,
