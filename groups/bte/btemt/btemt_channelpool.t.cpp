@@ -261,9 +261,16 @@ typedef bsls_PlatformUtil::Uint64 ThreadId;
 
 const ThreadId NULL_THREAD_ID = (ThreadId) (long long) -1;
 
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
+static inline void assertCb() {
+    ASSERT("This function should NOT be called" && 0);
+}
+
+static int          verbose = 0;
+static int          veryVerbose = 0;
+static int          veryVeryVerbose = 0;
+static int          ARGC = 0;
+static char       **ARGV = 0;
+static bdef_Function<void (*)()> NULL_CB(&assertCb);
 
 //=============================================================================
 //                       TESTING FUNCTIONS/CLASSES HELPER
@@ -380,10 +387,6 @@ void recordPoolState(int                        state,
 
     bcemt_LockGuard<bcemt_Mutex> lock(resultsLock);
     results->push_back(event);
-}
-
-static inline void assertCb() {
-    ASSERT("This function should NOT be called" && 0);
 }
 
 class ChannelPoolStateCbTester {
@@ -8094,47 +8097,7 @@ void *usageExampleMinusOne(void *arg)
 
 } // closing namespace USAGE_EXAMPLE_M1_NAMESPACE
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
-
-int main(int argc, char *argv[])
-{
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
-
-    // TBD: these tests frequently timeout on Windows, disabling until fixed
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-    testStatus = -1;
-#else
-
-    cout << "TEST " << __FILE__ << " CASE " << test
-         << " STARTED " << bdetu_SystemTime::nowAsDatetimeUtc() << endl;
-
-    ASSERT(0 == bteso_SocketImpUtil::startup());
-    bdef_Function<void (*)()> NULL_CB(&assertCb);
-
-#ifdef BSLS_PLATFORM__OS_UNIX
-    // Ignore SIGPIPE - test driver-wide.  This signal is raised when writing
-    // into a socket whose peer is down.  It creates havoc in test case 22 esp.
-    // but there is no reason it should be raised in any of the other test
-    // cases either.
-
-    struct sigaction sa;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sa.sa_handler = SIG_IGN;
-    if (0 != sigaction(SIGPIPE, &sa, NULL)) {
-        cout << "\n\t\t***WARNING****     Could not mask SIGPIPE."
-                "      ***WARNING***\n" << endl;
-        ASSERT(SIGPIPE);
-    }
-#endif
-
-    switch (test) { case 0:  // Zero is always the leading case.
-      case 42: {
+static void testCase42() {
         // --------------------------------------------------------------------
         // Testing LOWAT called when 'enqueueWatermark' exceeded
         //
@@ -8249,8 +8212,9 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == bcemt_ThreadUtil::join(handle));
         LOOP_ASSERT(numTimesLowWatCalled, 2 == numTimesLowWatCalled);
-      } break;
-      case 41: {
+}
+
+static void testCase41() {
         // --------------------------------------------------------------------
         // ADDING WRITE STATISTICS - DRQS 30994480
         //
@@ -8360,8 +8324,9 @@ int main(int argc, char *argv[])
         mutex.unlock();
 
         ASSERT(0 == bcemt_ThreadUtil::join(handles[NUM_THREADS]));
-      } break;
-      case 38: {
+}
+
+static void testCase38() {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 28934644
         //
@@ -8459,8 +8424,9 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             P(dataStream.str())
         }
-      } break;
-      case 37: {
+}
+
+static void testCase37() {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
         //   Send and receive various messages conforming to the vlm_EchoServer
@@ -8546,8 +8512,9 @@ int main(int argc, char *argv[])
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
 
-      } break;
-      case 36: {
+}
+
+static void testCase36() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST: my_QueueProcessor
         //
@@ -8574,11 +8541,11 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << "In another window, run this test driver's case -1, e.g.:";
-            cout << "\n\t" << argv[0] << " -1  10  2564  127.0.0.1  10000\n";
+            cout << "\n\t" << ARGV[0] << " -1  10  2564  127.0.0.1  10000\n";
             cout << "For bigger jobs (i.e, stress test), try:";
-            cout << "\n\t" << argv[0] << " -1  10  2564  127.0.0.1  10000\n";
+            cout << "\n\t" << ARGV[0] << " -1  10  2564  127.0.0.1  10000\n";
             cout << "For non-null testing in verbose mode, try:";
-            cout << "\n\t" << argv[0] << " 24 -1\n";
+            cout << "\n\t" << ARGV[0] << " 24 -1\n";
         }
 
         enum {
@@ -8633,8 +8600,9 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == qp.stopProcessor());
 
-      } break;
-      case 35: {
+}
+
+static void testCase35() {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -8668,10 +8636,9 @@ int main(int argc, char *argv[])
             MTCOUT << "monitor pool: count=" << NUM_MONITOR << MTENDL;
         }
         monitorPool(&coutMutex, echoServer.pool(), NUM_MONITOR, verbose);
+}
 
-      } break;
-
-      case 34: {
+static void testCase34() {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 25245489
         //   Reproducing that even when numNeeded is specified as 0 channel
@@ -8820,8 +8787,9 @@ int main(int argc, char *argv[])
           rc = write(CACHE_HI_WAT + 1);
           ASSERT(rc);
         }
-      } break;
-      case 33: {
+}
+
+static void testCase33() {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 20199908
         //   Reproducing that even when numNeeded is specified as 0 channel
@@ -8930,8 +8898,9 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             P(data);
         }
-      } break;
-      case 32: {
+}
+
+static void testCase32() {
         // --------------------------------------------------------------------
         // TESTING 'connect' & 'listen' with SocketOpts and clientAddress
         //   Ensure that the 'connect' and 'listen' functions have the
@@ -9736,8 +9705,9 @@ int main(int argc, char *argv[])
                 factory.deallocate(sockets[i]);
             }
         }
-      } break;
-      case 31: {
+}
+
+static void testCase31() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 22256519
         //
@@ -9810,8 +9780,9 @@ int main(int argc, char *argv[])
         const string& DATA = server.data();
 
         LOOP_ASSERT(DATA, DATA == string(TEXT));
-      } break;
-      case 30: {
+}
+
+static void testCase30() {
         // --------------------------------------------------------------------
         // READ TEST
         //
@@ -9916,8 +9887,9 @@ int main(int argc, char *argv[])
                 ASSERT(0 == server.stop());
             }
         }
-      } break;
-      case 29: {
+}
+
+static void testCase29() {
         // --------------------------------------------------------------------
         // CONCERN: Event Manager Allocation
         //
@@ -10255,8 +10227,9 @@ int main(int argc, char *argv[])
             }
 
         }
-      } break;
-      case 28: {
+}
+
+static void testCase28() {
         // --------------------------------------------------------------------
         // TESTING: 'busyMetrics' and time metrics collection.
         //
@@ -10416,8 +10389,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numBytesInUse());
             if (veryVerbose) { P(ta); }
         }
-      } break;
-      case 27: {
+}
+
+static void testCase27() {
         // --------------------------------------------------------------------
         // TESTING: readTimeout configuration
         //
@@ -10569,8 +10543,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 26: {
+}
+
+static void testCase26() {
         // --------------------------------------------------------------------
         // TESTING: struct 'btemt_ChannelPool_MessageUtil' and
         //          'btemt_ChannelPool_IovecArray'.
@@ -10959,8 +10934,9 @@ int main(int argc, char *argv[])
                 factory.deallocate(rcvSocket);
             }
         }
-      } break;
-      case 25: {
+}
+
+static void testCase25() {
         // --------------------------------------------------------------------
         // TESTING: 'setWriteCacheHigh/LowWatermark()'
         //
@@ -11225,8 +11201,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 24: {
+}
+
+static void testCase24() {
         // --------------------------------------------------------------------
         // TESTING 'enableRead' FIX
         //
@@ -11267,8 +11244,9 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'enableRead' fix."
                  << "\n=========================" << endl;
 
-      } break;
-      case 23: {
+}
+
+static void testCase23() {
         // --------------------------------------------------------------------
         // TESTING HALF-OPEN CONNECTIONS
         //
@@ -11501,8 +11479,9 @@ int main(int argc, char *argv[])
         if (veryVerbose) { P(ta); }
 #endif
 
-      } break;
-      case 22: {
+}
+
+static void testCase22() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: Stress test
         //
@@ -11572,7 +11551,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\t\tAlways invoke data callback." << endl;
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           NUM_THREADS, NUM_ITERS,
                           BUFFER_SIZE, MSG_SIZE,
                           SERVER_SIZE, 1,
@@ -11581,7 +11560,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\n\t\tInvoke data callback after "
                               << SERVER_NEEDED << " bytes only." << endl;
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           NUM_THREADS, NUM_ITERS,
                           BUFFER_SIZE, MSG_SIZE,
                           SERVER_SIZE, SERVER_NEEDED,
@@ -11591,7 +11570,7 @@ int main(int argc, char *argv[])
                               << SMALL_MSG_SIZE << " bytes (msg boundaries)."
                               << endl;
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           2, LARGE_NUM_ITERS,
                           BUFFER_SIZE, -SMALL_MSG_SIZE,
                           SERVER_SIZE, SERVER_NEEDED,
@@ -11601,7 +11580,7 @@ int main(int argc, char *argv[])
                               << MSG_SIZE << " bytes (msg boundaries)."
                               << endl;
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           2, LARGE_NUM_ITERS,
                           BUFFER_SIZE, -MSG_SIZE,
                           SERVER_SIZE, SERVER_NEEDED,
@@ -11636,7 +11615,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\t\tAlways invoke data callback." << endl;
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           NUM_THREADS, NUM_ITERS,
                           BUFFER_SIZE, MSG_SIZE,
                           SERVER_SIZE, 1,
@@ -11645,7 +11624,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\n\t\tInvoke data callback after "
                               << SERVER_NEEDED << " bytes only." << endl;
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           NUM_THREADS, NUM_ITERS,
                           BUFFER_SIZE, MSG_SIZE,
                           SERVER_SIZE, SERVER_NEEDED,
@@ -11677,7 +11656,7 @@ int main(int argc, char *argv[])
 
             // Always invoke data callback if data is incoming.
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           NUM_THREADS, NUM_ITERS,
                           BUFFER_SIZE, MSG_SIZE,
                           SERVER_SIZE, 1,
@@ -11686,7 +11665,7 @@ int main(int argc, char *argv[])
             // Only invoke data callback when 'SERVER_NEEDED' bytes are
             // available.
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           NUM_THREADS, NUM_ITERS,
                           BUFFER_SIZE, MSG_SIZE,
                           SERVER_SIZE, SERVER_NEEDED,
@@ -11697,8 +11676,9 @@ int main(int argc, char *argv[])
         if (veryVerbose) { P(ta); }
 #endif
 
-      } break;
-      case 21: {
+}
+
+static void testCase21() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: OpenSSL-like sockets
         //
@@ -11733,7 +11713,7 @@ int main(int argc, char *argv[])
             using namespace TEST_CASE_9_NAMESPACE;
 
             Factory factory(SSL_LIKE_SOCKET_BUFFER_SIZE, &ta);
-            runTestCase9(argv[0], &factory, ta);
+            runTestCase9(ARGV[0], &factory, ta);
                 // Note: ta passed by reference
         }
         ASSERT(0 <  ta.numAllocations());
@@ -11752,8 +11732,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 20: {
+}
+
+static void testCase20() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 8397003
         //
@@ -11928,8 +11909,9 @@ int main(int argc, char *argv[])
         if (veryVerbose) { P(ta); }
 #endif
 
-      } break;
-      case 19: {
+}
+
+static void testCase19() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 5425522
         //
@@ -12037,7 +12019,7 @@ int main(int argc, char *argv[])
                         factory.deallocate(sockets[--i]);
                     }
                     ASSERT(0 == bteso_SocketImpUtil::cleanup());
-                    return testStatus;
+                    return;
                 }
                 LOOP_ASSERT(i, sockets[i]);
                 retCode = sockets[i]->setBlockingMode(
@@ -12116,8 +12098,9 @@ int main(int argc, char *argv[])
         if (veryVerbose) { P(ta); }
 #endif
 
-      } break;
-      case 18: {
+}
+
+static void testCase18() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 4430835
         //
@@ -12355,8 +12338,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 17: {
+}
+
+static void testCase17() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 4340683
         //
@@ -12448,8 +12432,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 16: {
+}
+
+static void testCase16() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: SHUTDOWN INSIDE CHANNEL STATE CALLBACK
         //
@@ -12543,8 +12528,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 15: {
+}
+
+static void testCase15() {
         // --------------------------------------------------------------------
         // Testing getHandleStatistics facility
         //
@@ -12837,8 +12823,9 @@ int main(int argc, char *argv[])
             }
         }
 
-      } break;
-      case 14: {
+}
+
+static void testCase14() {
         // --------------------------------------------------------------------
         // Testing numBytes*(), totalBytes*() and getChannelStatistics*()
         // facility
@@ -12952,7 +12939,7 @@ int main(int argc, char *argv[])
             }
             else {
                 cout << "Failed to connect to channelpool.  Abort.\n";
-                return -1;
+                return;
             }
 
             ASSERT(0 == mX.setSocketOption(
@@ -13080,7 +13067,7 @@ int main(int argc, char *argv[])
             }
             else {
                 cout << "Failed to connect to channelpool.  Abort.\n";
-                return -1;
+                return;
             }
 
             ASSERT(0 == mX.setSocketOption(
@@ -13225,7 +13212,7 @@ int main(int argc, char *argv[])
             }
             else {
                 cout << "Failed to connect to channelpool.  Abort.\n";
-                return -1;
+                return;
             }
 
             ASSERT(0 == mX.setSocketOption(
@@ -13339,8 +13326,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 13: {
+}
+
+static void testCase13() {
         // --------------------------------------------------------------------
         // TESTING 'reportWeightedAverageReset()'
         //
@@ -13450,7 +13438,7 @@ int main(int argc, char *argv[])
                     double exp_lo = exp * (1 - TOLERANCE);
                     double exp_hi = exp * (1 + TOLERANCE);
                     if (!(exp_lo <i && i < exp_hi)) {
-                        cout << "*** Warning: " << argv[0] << ":" << L_
+                        cout << "*** Warning: " << ARGV[0] << ":" << L_
                              << ":\n*** Warning: anomalous timing results ***"
                              << endl;
                     }
@@ -13458,7 +13446,7 @@ int main(int argc, char *argv[])
                                           i < exp_really_hi);
                 }
                 else if (exp == -1) {
-                    cout << "*** Warning: " << argv[0] << ":" << L_
+                    cout << "*** Warning: " << ARGV[0] << ":" << L_
                          << ":\n*** Warning: less than 1ms between resets ***"
                          << endl;
                 }
@@ -13504,7 +13492,7 @@ int main(int argc, char *argv[])
             double exp_lo = exp * (1 - TOLERANCE);
             double exp_hi = exp * (1 + TOLERANCE);
             if (!(exp_lo < rr && rr < exp_hi)) {
-                cout << "*** Warning: " << argv[0] << ":" << L_ << ":\n"
+                cout << "*** Warning: " << ARGV[0] << ":" << L_ << ":\n"
                      << "*** Warning: anomalous timing results ***" << endl;
             }
 #ifndef BSLS_PLATFORM__OS_AIX
@@ -13516,8 +13504,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 12: {
+}
+
+static void testCase12() {
         // --------------------------------------------------------------------
         // TESTING FLOW CONTROL
         //
@@ -13648,8 +13637,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 11: {
+}
+
+static void testCase11() {
         // --------------------------------------------------------------------
         // TESTING 'disableRead' and 'enableRead' METHODS
         //
@@ -13689,8 +13679,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 10: {
+}
+
+static void testCase10() {
         // --------------------------------------------------------------------
         // TESTING 'registerClock' AND 'deregisterClock' METHODS
         //
@@ -14224,8 +14215,9 @@ int main(int argc, char *argv[])
             if (veryVerbose) { P(ta); }
         }
 
-      } break;
-      case 9: {
+}
+
+static void testCase9() {
         // --------------------------------------------------------------------
         // Testing 'writeMessage'
         //
@@ -14268,15 +14260,16 @@ int main(int argc, char *argv[])
 
         {
             bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
-            runTestCase9(argv[0], &factory, ta);
+            runTestCase9(ARGV[0], &factory, ta);
                 // Note: ta passed by reference
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 8: {
+}
+
+static void testCase8() {
         // --------------------------------------------------------------------
         // TESTING 'shutdown'
         //
@@ -14503,8 +14496,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 7: {
+}
+
+static void testCase7() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: IMPORT HALF-CLOSED SOCKET PAIR
         //
@@ -14596,8 +14590,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 6: {
+}
+
+static void testCase6() {
         // --------------------------------------------------------------------
         // TESTING 'import' METHOD
         //
@@ -14793,8 +14788,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 5: {
+}
+
+static void testCase5() {
         // --------------------------------------------------------------------
         // TESTING ESTABLISHING LISTENING SOCKET - BASIC TEST
         //
@@ -14933,8 +14929,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 4: {
+}
+
+static void testCase4() {
         // --------------------------------------------------------------------
         // TESTING 'connect' METHOD
         //
@@ -14995,7 +14992,7 @@ int main(int argc, char *argv[])
                 MTCOUT << "Creating server thread." << MTENDL;
             }
             const int PORT = PORT_BASE
-                           + bdeu_HashUtil::hash0(argv[0], PORT_RANGE);
+                           + bdeu_HashUtil::hash0(ARGV[0], PORT_RANGE);
             if (verbose) { P(PORT); }
 
             bteso_IPv4Address peer("127.0.0.1", PORT);
@@ -15130,7 +15127,7 @@ int main(int argc, char *argv[])
                 MTCOUT << "Creating server thread." << MTENDL;
             }
             const int PORT = PORT_BASE
-                           + bdeu_HashUtil::hash0(argv[0], PORT_RANGE);
+                           + bdeu_HashUtil::hash0(ARGV[0], PORT_RANGE);
             if (verbose) { P(PORT); }
 
             bteso_IPv4Address peer("127.0.0.1", PORT);
@@ -15419,8 +15416,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 3: {
+}
+
+static void testCase3() {
         // --------------------------------------------------------------------
         // TESTING 'start' AND 'stop' METHODS
         //
@@ -15465,8 +15463,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == ta.numBytesInUse());
 
-      } break;
-      case 2: {
+}
+
+static void testCase2() {
         // --------------------------------------------------------------------
         // TESTING CREATORS
         //
@@ -15478,8 +15477,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-      } break;
-      case 1: {
+}
+
+static void testCase1() {
         // --------------------------------------------------------------------
         // BREATHING TEST:
         //   Developer's sandbox.
@@ -15518,7 +15518,7 @@ int main(int argc, char *argv[])
                 BACKLOG    = 10
             };
             const int PORT = PORT_BASE
-                           + bdeu_HashUtil::hash0(argv[0], PORT_RANGE);
+                           + bdeu_HashUtil::hash0(ARGV[0], PORT_RANGE);
             if (verbose) { P(PORT); }
 
             for (int i = 0; i < 10; ++i) {
@@ -15548,9 +15548,9 @@ int main(int argc, char *argv[])
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == ta.numBytesInUse());
+}
 
-      } break;
-      case -1: {
+static void negativeCase1() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST:  my_QueueClient
         //
@@ -15585,19 +15585,19 @@ int main(int argc, char *argv[])
         };
 
         caseMinusOneInfo info;
-        info.d_numConnections = (argc > 3) ? atoi(argv[3])
+        info.d_numConnections = (ARGC > 3) ? atoi(ARGV[3])
                                            : DEFAULT_NUM_CONNECTIONS;
-        info.d_portNumber     = (argc > 4) ? atoi(argv[4])
+        info.d_portNumber     = (ARGC > 4) ? atoi(ARGV[4])
                                            : DEFAULT_PORT_NUMBER;
-        info.d_hostname       = (argc > 5) ? argv[5]
+        info.d_hostname       = (ARGC > 5) ? ARGV[5]
                                            : const_cast<char*>("127.0.0.1");
-        info.d_numMessages    = (argc > 6) ? atoi(argv[6])
+        info.d_numMessages    = (ARGC > 6) ? atoi(ARGV[6])
                                            : DEFAULT_NUM_MESSAGES;
 
-        if (argc > 2) {
-            verbose         = atoi(argv[2]) > 0;
-            veryVerbose     = atoi(argv[2]) > 1;
-            veryVeryVerbose = atoi(argv[2]) > 2;
+        if (ARGC > 2) {
+            verbose         = atoi(ARGV[2]) > 0;
+            veryVerbose     = atoi(ARGV[2]) > 1;
+            veryVeryVerbose = atoi(ARGV[2]) > 2;
         }
         else {
             verbose = 1;
@@ -15606,9 +15606,9 @@ int main(int argc, char *argv[])
 
         usageExampleMinusOne(&info);
 
-      } break;
-      case -2:
-      {
+}
+
+static void negativeCase2() {
         // --------------------------------------------------------------------
         // TESTING CONNECTION MEM USAGE:
         //
@@ -15698,7 +15698,7 @@ int main(int argc, char *argv[])
             }
             else {
                 cout << "Failed to connect to channelpool.  Abort.\n";
-                return -1;
+                return;
             }
             const int newNumBytes = ta.numBytesInUse();
             bsl::cout << "Channel " << i << ": "
@@ -15711,7 +15711,100 @@ int main(int argc, char *argv[])
             channels[i].second.clear();
             factory.deallocate(channels[i].first);
         }
+}
+
+
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
+
+int main(int argc, char **argv)
+{
+    int test = argc > 1 ? atoi(argv[1]) : 0;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
+    ARGC = argc;
+    ARGV = argv;
+
+    // TBD: these tests frequently timeout on Windows, disabling until fixed
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    testStatus = -1;
+#else
+
+    cout << "TEST " << __FILE__ << " CASE " << test
+         << " STARTED " << bdetu_SystemTime::nowAsDatetimeUtc() << endl;
+
+    ASSERT(0 == bteso_SocketImpUtil::startup());
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+    // Ignore SIGPIPE - test driver-wide.  This signal is raised when writing
+    // into a socket whose peer is down.  It creates havoc in test case 22 esp.
+    // but there is no reason it should be raised in any of the other test
+    // cases either.
+
+    struct sigaction sa;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sa.sa_handler = SIG_IGN;
+    if (0 != sigaction(SIGPIPE, &sa, NULL)) {
+        cout << "\n\t\t***WARNING****     Could not mask SIGPIPE."
+                "      ***WARNING***\n" << endl;
+        ASSERT(SIGPIPE);
+    }
+#endif
+
+    switch (test) { case 0:  // Zero is always the leading case.
+#define CASE(NUMBER) case NUMBER: testCase##NUMBER(); break
+      CASE(42);
+      CASE(41);
+//         CASE(40);
+//         CASE(39);
+      CASE(38);
+      CASE(37);
+      CASE(36);
+      CASE(35);
+      CASE(34);
+      CASE(33);
+      CASE(32);
+      CASE(31);
+      CASE(30);
+      CASE(29);
+      CASE(28);
+      CASE(27);
+      CASE(26);
+      CASE(25);
+      CASE(24);
+      CASE(23);
+      CASE(22);
+      CASE(21);
+      CASE(20);
+      CASE(19);
+      CASE(18);
+      CASE(17);
+      CASE(16);
+      CASE(15);
+      CASE(14);
+      CASE(13);
+      CASE(12);
+      CASE(11);
+      CASE(10);
+      CASE(9);
+      CASE(8);
+      CASE(7);
+      CASE(6);
+      CASE(5);
+      CASE(4);
+      CASE(3);
+      CASE(2);
+      CASE(1);
+      case -1: {
+        negativeCase1();
       } break;
+      case -2: {
+        negativeCase2();
+      } break;
+#undef CASE
       default: {
         cerr << "WARNING: CASE " << test << " NOT FOUND." << endl;
         testStatus = -1;
