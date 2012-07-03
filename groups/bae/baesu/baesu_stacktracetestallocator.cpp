@@ -274,7 +274,7 @@ baesu_StackTraceTestAllocator::~baesu_StackTraceTestAllocator()
     d_allocator_p->deallocate(d_rawTraceBuffer);
 
     if (numBlocksInUse() > 0) {
-        *d_ostream << "========================================"
+        *d_ostream << "======================================="
                                    "========================================\n"
                                                     "Error: memory leaked:\n";
 
@@ -481,6 +481,7 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
     StackTraceVecMap stackTraceVecMap(d_allocator_p);
     StackTraceVec v(d_allocator_p);
 
+    int numBlocksInUse = 0;
     for (SegmentHdr *segmentHdr = d_headNode.d_next; &d_headNode != segmentHdr;
                                              segmentHdr = segmentHdr->d_next) {
         void **endTrace   = (void **) segmentHdr;
@@ -505,7 +506,10 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
             ++stmit->second;
         }
 #endif
+
+        ++numBlocksInUse;
     }
+    BSLS_ASSERT(d_numBlocksInUse == numBlocksInUse);
 
     *ostream << "Segment(s) allocated in " <<
                                      stackTraceVecMap.size() << " place(s).\n";
@@ -515,7 +519,7 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
     const StackTraceVecMap::iterator mapend = stackTraceVecMap.end();
     for (StackTraceVecMap::iterator it = stackTraceVecMap.begin();
                                                       mapend != it; ++it) {
-        *ostream << "-------------------------------------------"
+        *ostream << "------------------------------------------"
                                       "-------------------------------------\n"
                                    << "Allocation place " << ++place << ", " <<
                                          it->second << " segment(s) in use.\n";
