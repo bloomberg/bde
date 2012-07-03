@@ -15,16 +15,15 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides an allocator,
-// 'baesu_StackTraceTestAllocator' that implements the 'bslma_Allocator'
-// protocol.  It requires another allocator of type 'bslma::Allocator' to be
-// passed to it at construction.  The underlying allocator supplies all memory,
-// but the 'baesu_StackTraceTestAllocator' layer keeps track of the segments
-// allocated until they are freed, so a report can be generated at any time
-// using the 'reportNumBlocksInUse' method listing all unfreed blocks, along
-// with the stack traces as of the point where they were allocated.
+// 'baesu_StackTraceTestAllocator' that implements the 'bslma::Allocator'
+// protocol.  It is supplied a 'bslma::Allocator' at construction that it uses
+// to allocator memory.  For each allocation the
+// 'baesu_StackTraceTestAllocator' records the call stack at the time of
+// allocation, and can later report, using 'reportBlocksInUse', the call stack
+// at which all unfreed blocks were allocated.
 //..
 //                    ,------------------------------.
-//                   ( baesu_StackTraceTestAllocator )
+//                   ( baesu_StackTraceTestAllocator  )
 //                    `------------------------------'
 //                                    |    ctor/dtor
 //                                    |    numBlocksInUse
@@ -51,10 +50,14 @@ BDES_IDENT("$Id: $")
 // immediately cause an error to be reported to the associated 'ostream' and,
 // unless the 'noAbort' flag is set, an abort.
 //
-///NO-ABORT MODE
+///No-Abort Mode
 ///-------------
-// (Defaults 0) Specifies that all abort statements are replaced by return
-// statements without suppressing diagnostics.
+// A 'baesu_StackTraceTestAllocator' object can be put into 'noAbort' mode.
+// If 'true', the stack trace test
+// allocator won't abort if it detects user errors, though it will still abort
+// if it detects a consistency error within its own code.  The 'noAbort' flag
+// is 'false' at construction, and can be set afterward with the 'setNoAbort'
+// manipulator.
 //
 ///USAGE
 ///-----
