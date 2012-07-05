@@ -610,7 +610,7 @@ btemt_TcpTimerEventManager_ControlChannel::
 , d_numServerReads(0)
 , d_numServerBytesRead(0)
 {
-    
+
 #ifdef BTESO_PLATFORM__BSD_SOCKETS
     // Use UNIX domain sockets, if possible, rather than a standard socket
     // pair, to avoid using ephemeral ports for the control channel.  AIX and
@@ -627,6 +627,13 @@ btemt_TcpTimerEventManager_ControlChannel::
                                      bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
 #endif
     if (rc) {
+#ifdef BTESO_PLATFORM__WIN_SOCKETS
+        d_fds[0] = d_fds[1] = INVALID_SOCKET;
+#else
+#ifdef BTESO_PLATFORM__BSD_SOCKETS
+        d_fds[0] = d_fds[1] = -1;
+#endif
+#endif
         bsl::printf("%s(%d): Failed to create control channel"
                     " (errno = %d, rc = %d).\n",
                     __FILE__, __LINE__, errno, rc);
@@ -716,14 +723,6 @@ void btemt_TcpTimerEventManager::initialize()
                     , this)
               , d_allocator_p);
 
-    // Register the server fd of 'd_controlChannel' for READs.
-    bteso_EventManager::Callback cb(
-            bdef_MemFnUtil::memFn(&btemt_TcpTimerEventManager::controlCb, this)
-          , d_allocator_p);
-
-    d_manager_p->registerSocketEvent(
-        d_controlChannel.serverFd(), bteso_EventType::BTESO_READ, cb);
-
     // Create the queue of executed timers.
     d_executeQueue_p = new (*d_allocator_p)
                         bsl::vector<bdef_Function<void (*)()> >(d_allocator_p);
@@ -734,7 +733,7 @@ void btemt_TcpTimerEventManager::controlCb()
     // At least one request is pending on the queue.  Process as many
     // as there are.
 {
-    int numRequests = d_controlChannel.serverRead();
+    int numRequests = d_controlChannel->serverRead();
 
     BSLS_ASSERT(0 <= numRequests);
     BSLS_ASSERT((bcemt_LockGuard<bcemt_Mutex>(&d_requestQueue.mutex()),
@@ -910,6 +909,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
+, d_controlChannel(0)
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
@@ -930,6 +930,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
+, d_controlChannel(0)
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
@@ -951,6 +952,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(poolTimerMemory, threadSafeAllocator)
+, d_controlChannel(0)
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
@@ -971,6 +973,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
+, d_controlChannel(0)
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
@@ -992,6 +995,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
+, d_controlChannel(0)
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
@@ -1014,6 +1018,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(poolTimerMemory, threadSafeAllocator)
+, d_controlChannel(0)
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
@@ -1036,6 +1041,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_manager_p(rawEventManager)
 , d_isManagedFlag(0)
 , d_timerQueue(threadSafeAllocator)
+, d_controlChannel(0)
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
@@ -1053,21 +1059,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
                                                      ::dispatchThreadEntryPoint
                                      , this)
               , d_allocator_p);
-
-    // Register the server fd of 'd_controlChannel' for READs.
-    bteso_EventManager::Callback cb(
-            bdef_MemFnUtil::memFn(&btemt_TcpTimerEventManager::controlCb, this)
-          , d_allocator_p);
-
-    if (0 != d_manager_p->registerSocketEvent(d_controlChannel.serverFd(),
-                                              bteso_EventType::BTESO_READ,
-                                              cb)) {
-        printf("%s(%d): Failed to register controlChannel for READ events"
-               " in btemt_TcpTimerEventManager constructor\n",
-               __FILE__, __LINE__);
-        BSLS_ASSERT("Failed to register controlChannel for READ events" &&
-                       0);
-    }
 
     // Create the queue of executed timers.
     d_executeQueue_p
@@ -1119,7 +1110,7 @@ int btemt_TcpTimerEventManager::disable()
                                  d_allocator_p);
         d_requestQueue.pushBack(req);
 
-        if (0 > d_controlChannel.clientWrite()) {
+        if (0 > d_controlChannel->clientWrite()) {
             d_requestQueue.popBack();
             d_requestPool.deleteObjectRaw(req);
             return -1;
@@ -1131,6 +1122,13 @@ int btemt_TcpTimerEventManager::disable()
         BSLS_ASSERT(0 == rc);
         d_requestPool.deleteObjectRaw(req);
         d_state = BTEMT_DISABLED;
+
+        // Release the control channel object.
+        BSLS_ASSERT(0 != d_controlChannel);
+        d_manager_p->deregisterSocket(d_controlChannel->serverFd());
+        d_controlChannel->~btemt_TcpTimerEventManager_ControlChannel();
+        d_allocator_p->deallocate(d_controlChannel);
+        d_controlChannel = 0;
     }
     return 0;
 }
@@ -1144,12 +1142,52 @@ int btemt_TcpTimerEventManager::enable(const bcemt_Attribute& attr)
     if (BTEMT_ENABLED == d_state) {
         return 0;
     }
+
     bcemt_WriteLockGuard<bcemt_RWMutex> guard(&d_stateLock);
     {
         // Synchronized section.
         if (BTEMT_ENABLED == d_state) {
             return 0;
         }
+
+        BSLS_ASSERT(0 == d_controlChannel);
+
+        // Create control channel object.
+        d_controlChannel
+            = new (*d_allocator_p) btemt_TcpTimerEventManager_ControlChannel();
+
+#ifdef BTESO_PLATFORM__WIN_SOCKETS
+        if (INVALID_SOCKET == d_controlChannel->serverFd())
+#else
+#ifdef BTESO_PLATFORM__BSD_SOCKETS
+        if (-1 == d_controlChannel->serverFd())
+#endif
+#endif
+        {
+            // Sockets were not successfully created.
+
+            return -1;
+        }
+
+
+        // Register the server fd of 'd_controlChannel' for READs.
+        bteso_EventManager::Callback cb(
+                  bdef_MemFnUtil::memFn(&btemt_TcpTimerEventManager::controlCb,
+                                        this),
+                  d_allocator_p);
+
+        int rc = d_manager_p->registerSocketEvent(d_controlChannel->serverFd(),
+                                                  bteso_EventType::BTESO_READ,
+                                                  cb);
+        if (rc) {
+            printf("%s(%d): Failed to register controlChannel for READ events"
+                    " in btemt_TcpTimerEventManager constructor\n",
+                    __FILE__, __LINE__);
+            BSLS_ASSERT("Failed to register controlChannel for READ events" &&
+                    0);
+            return rc;
+        }
+
 #if defined(BSLS_PLATFORM__OS_UNIX)
         sigset_t newset, oldset;
         sigfillset(&newset);
@@ -1175,8 +1213,7 @@ int btemt_TcpTimerEventManager::enable(const bcemt_Attribute& attr)
 #endif
 
         d_terminateThread = 0;
-        int rc = bcemt_ThreadUtil::create(
-                                      (bcemt_ThreadUtil::Handle*)&d_dispatcher,
+        rc = bcemt_ThreadUtil::create((bcemt_ThreadUtil::Handle*)&d_dispatcher,
                                       attr,
                                       d_dispatchThreadEntryPoint);
 
@@ -1203,7 +1240,7 @@ int btemt_TcpTimerEventManager::enable(const bcemt_Attribute& attr)
         BSLS_ASSERT(req->result() == -1);
         bcemt_LockGuard<bcemt_Mutex> lock(&mutex);
 
-        int ret = d_controlChannel.clientWrite();
+        int ret = d_controlChannel->clientWrite();
         if (0 > ret) {
             d_requestQueue.popBack();
             d_requestPool.deleteObjectRaw(req);
@@ -1246,7 +1283,7 @@ int btemt_TcpTimerEventManager::registerSocketEvent(
                                                                 callback,
                                                                 d_allocator_p);
         d_requestQueue.pushBack(req);
-        if (0 > d_controlChannel.clientWrite()) {
+        if (0 > d_controlChannel->clientWrite()) {
             d_requestQueue.popBack();
             d_requestPool.deleteObjectRaw(req);
             return -1;
@@ -1302,7 +1339,7 @@ void *btemt_TcpTimerEventManager::registerTimer(
                                                                 callback,
                                                                 d_allocator_p);
                 d_requestQueue.pushBack(req);
-                if (0 > d_controlChannel.clientWrite()) {
+                if (0 > d_controlChannel->clientWrite()) {
                     d_requestQueue.popBack();
                     d_requestPool.deleteObjectRaw(req);
                     d_timerQueue.remove(handle);
@@ -1362,7 +1399,7 @@ int btemt_TcpTimerEventManager::rescheduleTimer(
                                                                 d_allocator_p);
 
                 d_requestQueue.pushBack(req);
-                if (0 > d_controlChannel.clientWrite()) {
+                if (0 > d_controlChannel->clientWrite()) {
                     d_requestQueue.popBack();
                     d_requestPool.deleteObjectRaw(req);
                     d_timerQueue.remove((int)(bsls_Types::IntPtr)id);
@@ -1409,7 +1446,7 @@ void btemt_TcpTimerEventManager::deregisterSocketEvent(
                                                                 event,
                                                                 d_allocator_p);
         d_requestQueue.pushBack(req);
-        if (0 > d_controlChannel.clientWrite()) {
+        if (0 > d_controlChannel->clientWrite()) {
             d_requestQueue.popBack();
             d_requestPool.deleteObjectRaw(req);
         }
@@ -1419,7 +1456,10 @@ void btemt_TcpTimerEventManager::deregisterSocketEvent(
         // and process request in this thread.
 
         d_manager_p->deregisterSocketEvent(handle, event);
-        d_numTotalSocketEvents = d_manager_p->numEvents()-1;
+
+        // When disabled, the control channel object is destroyed, no need
+        // to minus one from 'numEvents()'.
+        d_numTotalSocketEvents = d_manager_p->numEvents();
         return;
       }
     }
@@ -1455,7 +1495,7 @@ void btemt_TcpTimerEventManager::execute(const bdef_Function<void (*)()>&
                                                                 d_allocator_p);
 
             d_requestQueue.pushBack(req);
-            if (0 > d_controlChannel.clientWrite()) {
+            if (0 > d_controlChannel->clientWrite()) {
                 d_requestQueue.popBack();
                 d_requestPool.deleteObjectRaw(req);
                 this->d_executeQueue_p->pop_back();
@@ -1502,7 +1542,7 @@ void btemt_TcpTimerEventManager::deregisterSocket(
                                                                 handle,
                                                                 d_allocator_p);
         d_requestQueue.pushBack(req);
-        if (0 > d_controlChannel.clientWrite()) {
+        if (0 > d_controlChannel->clientWrite()) {
             d_requestQueue.popBack();
             d_requestPool.deleteObjectRaw(req);
         }
@@ -1512,7 +1552,10 @@ void btemt_TcpTimerEventManager::deregisterSocket(
         // and process request in this thread.
 
         d_manager_p->deregisterSocket(handle);
-        d_numTotalSocketEvents = d_manager_p->numEvents()-1;
+
+        // When disabled, the control channel object is destroyed, no need
+        // to minus one from 'numEvents()'.
+        d_numTotalSocketEvents = d_manager_p->numEvents();
       }
     }
 }
@@ -1541,7 +1584,7 @@ void btemt_TcpTimerEventManager::deregisterAllSocketEvents()
              btemt_TcpTimerEventManager_Request::DEREGISTER_ALL_SOCKET_EVENTS,
              d_allocator_p);
         d_requestQueue.pushBack(req);
-        if (0 > d_controlChannel.clientWrite()) {
+        if (0 > d_controlChannel->clientWrite()) {
             d_requestQueue.popBack();
             d_requestPool.deleteObjectRaw(req);
         }
@@ -1609,7 +1652,7 @@ int btemt_TcpTimerEventManager::isRegistered(
                                                                 d_allocator_p);
         d_requestQueue.pushBack(req);
         bcemt_LockGuard<bcemt_Mutex> lock(&mutex);
-        if (0 > d_controlChannel.clientWrite()) {
+        if (0 > d_controlChannel->clientWrite()) {
             d_requestQueue.popBack();
             d_requestPool.deleteObjectRaw(req);
             result = -1;
@@ -1671,7 +1714,7 @@ int btemt_TcpTimerEventManager::numSocketEvents(
                                                                 d_allocator_p);
         d_requestQueue.pushBack(req);
         bcemt_LockGuard<bcemt_Mutex> lock(&mutex);
-        if (0 > d_controlChannel.clientWrite()) {
+        if (0 > d_controlChannel->clientWrite()) {
             d_requestQueue.popBack();
             d_requestPool.deleteObjectRaw(req);
             result = -1;
