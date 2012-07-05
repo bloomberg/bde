@@ -1143,6 +1143,114 @@ void timeLexicographicalAlgorithm(const char *typeName,
 }
 
 //=============================================================================
+//                     SUPPORT CLASSES FOR USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+// FixedList is a minimal container: a fixed-length ordered list
+// of int that supports only append and *list* comparison operations.
+// Elements in a FixedList object can only be accessed through an iterator.
+
+template <typename VALUE_TYPE, std::size_t CAPACITY>
+class FixedList {
+    private:
+        // DATA
+        std::size_t d_length;
+        VALUE_TYPE d_storage_p[CAPACITY];
+    
+    public:
+        // PUBLIC TYPES
+        typedef VALUE_TYPE const *const_iterator;
+
+        // CREATORS
+        explicit FixedList();
+            // Initialize this object as an empty list
+            
+        // MANIPULATORS
+        ~FixedList();
+        void append(const VALUE_TYPE& newValue);
+            // Add a new value to the end of the list.
+            // If d_length >= CAPACITY, behavior is undefined
+        const_iterator begin() const;
+            // Return an iterator pointing to the start of the list
+        const_iterator end() const;
+            // Return an iterator pointing to the end of the list
+
+        // ACCESSORS
+        std::size_t length() const;
+};
+
+template <typename VALUE_TYPE, std::size_t CAPACITY>
+FixedList<VALUE_TYPE, CAPACITY>::FixedList()
+    : d_length(0)
+{
+    BSLS_ASSERT(CAPACITY > 0);
+}
+
+template <typename VALUE_TYPE, std::size_t CAPACITY>
+FixedList<VALUE_TYPE, CAPACITY>::~FixedList()
+{
+}
+
+template <typename VALUE_TYPE, std::size_t CAPACITY>
+inline
+void FixedList<VALUE_TYPE, CAPACITY>::append(const VALUE_TYPE& newValue)
+{
+    BSLS_ASSERT(d_length < CAPACITY);
+
+    d_storage_p[d_length] = newValue;
+    ++d_length;
+}
+
+template <typename VALUE_TYPE, std::size_t CAPACITY>
+inline
+typename FixedList<VALUE_TYPE, CAPACITY>::const_iterator FixedList<VALUE_TYPE, CAPACITY>::begin() const
+{
+    return d_storage_p;
+}
+
+template <typename VALUE_TYPE, std::size_t CAPACITY>
+inline
+typename FixedList<VALUE_TYPE, CAPACITY>::const_iterator FixedList<VALUE_TYPE, CAPACITY>::end() const
+{
+    BSLS_ASSERT(d_length <= CAPACITY);
+
+    return d_storage_p + d_length;
+}
+
+template <typename VALUE_TYPE, std::size_t CAPACITY>
+inline
+std::size_t FixedList<VALUE_TYPE, CAPACITY>::length() const
+{
+    return d_length;
+}
+
+template<typename VALUE_TYPE, std::size_t CAPACITY>
+inline
+bool operator==(const FixedList<VALUE_TYPE, CAPACITY>& lhs,
+                const FixedList<VALUE_TYPE, CAPACITY>& rhs)
+{
+    return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
+                                                    lhs.end(),
+                                                    lhs.length(),
+                                                    rhs.begin(),
+                                                    rhs.end(),
+                                                    rhs.length());
+}
+
+template<typename VALUE_TYPE, std::size_t CAPACITY>
+inline
+bool operator!=(const FixedList<VALUE_TYPE, CAPACITY>& lhs,
+                const FixedList<VALUE_TYPE, CAPACITY>& rhs)
+{
+    return ! BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
+                                                    lhs.end(),
+                                                    lhs.length(),
+                                                    rhs.begin(),
+                                                    rhs.end(),
+                                                    rhs.length());
+}
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -1160,6 +1268,57 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 4: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        FixedList<int, 5> listA;
+        FixedList<int, 5> listB;
+        FixedList<int, 5> listC;
+        FixedList<int, 5> listD;
+        
+        listA.append(1);
+        listA.append(2);
+        listA.append(3);
+        listA.append(4);
+        listA.append(5);
+    
+        listB.append(1);
+        listB.append(2);
+        listB.append(3);
+        listB.append(4);
+        listB.append(5);
+    
+        listC.append(1);
+        listC.append(2);
+        listC.append(3);
+        listC.append(4);
+    
+        listD.append(5);
+        listD.append(4);
+        listD.append(3);
+        listD.append(2);
+        listD.append(1);
+    
+        ASSERT(listA == listA);
+        ASSERT(listA == listB);
+        ASSERT(listA != listC);
+        ASSERT(listA != listD);
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING 'lexicographical'
