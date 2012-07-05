@@ -25,8 +25,118 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is for use primarily by the 'bslstl' package.  Other clients
-// should use the STL algorithms (in header '<algorithm>' and '<memory>').
+// This section illustrates the intended use of this component.
+// 
+///Example 1: Defining Equality Comparison Operators on a Container
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we have a new iterable component that will be included in the 'bslstl'
+// package, and we wish to define comparison operators for the component.  If
+// there is an iterator for the component that returns the component's elements
+// in a consistent order, and the elements themselves are comparable, we can
+// implement comparison operators by doing pairwise comparisons over the elements
+// returned by a iterating over the entire component.
+// 
+// For a normal component, we could accomplish this using std::equal() (in header
+// '<algorithm>'), but std::equal() is not available for use in 'bslstl', so
+// instead we can make the comparison with bslalg::RangeCompare::equal().
+// 
+// First, we define a minimal container class, FixedList that provides a
+// read-only iterator FixedList::const_iterator.
+//..
+// template <typename VALUE_TYPE, bsl::size_t CAPACITY>
+// class FixedList {
+//     private:
+//         // DATA
+//         bsl::size_t d_length;
+//         VALUE_TYPE d_storage_p[CAPACITY];
+//     
+//     public:
+//         // PUBLIC TYPES
+//         typedef VALUE_TYPE const *const_iterator;
+// 
+//         // CREATORS
+//         explicit FixedList();
+//             // Initialize this object as an empty list
+//             
+//         // MANIPULATORS
+//         ~FixedList();
+//         void append(const VALUE_TYPE& newValue);
+//             // Add a new value to the end of the list.
+//             // If d_length >= CAPACITY, behavior is undefined
+//         const_iterator begin() const;
+//             // Return an iterator pointing to the start of the list
+//         const_iterator end() const;
+//             // Return an iterator pointing to the end of the list
+// 
+//         // ACCESSORS
+//         bsl::size_t length() const;
+// };
+//..
+// Then, we define the equality comparison operators for FixedList by applying
+// bslalg::RangeCompare over the FixedList's iterators.
+//..
+// template<typename VALUE_TYPE, bsl::size_t CAPACITY>
+// inline
+// bool operator==(const FixedList<VALUE_TYPE, CAPACITY>& lhs,
+//                 const FixedList<VALUE_TYPE, CAPACITY>& rhs)
+// {
+//     return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
+//                                                     lhs.end(),
+//                                                     lhs.length(),
+//                                                     rhs.begin(),
+//                                                     rhs.end(),
+//                                                     rhs.length());
+// }
+// 
+// template<typename VALUE_TYPE, bsl::size_t CAPACITY>
+// inline
+// bool operator!=(const FixedList<VALUE_TYPE, CAPACITY>& lhs,
+//                 const FixedList<VALUE_TYPE, CAPACITY>& rhs)
+// {
+//     return ! BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
+//                                                     lhs.end(),
+//                                                     lhs.length(),
+//                                                     rhs.begin(),
+//                                                     rhs.end(),
+//                                                     rhs.length());
+// }
+//..
+// Now, we can verify that comparisons between instances of FixedList produce the
+// expected results:
+//..
+//     bslex::FixedList<int, 5> listA;
+//     bslex::FixedList<int, 5> listB;
+//     bslex::FixedList<int, 5> listC;
+//     bslex::FixedList<int, 5> listD;
+//     
+//     listA.append(1);
+//     listA.append(2);
+//     listA.append(3);
+//     listA.append(4);
+//     listA.append(5);
+// 
+//     listB.append(1);
+//     listB.append(2);
+//     listB.append(3);
+//     listB.append(4);
+//     listB.append(5);
+// 
+//     listC.append(1);
+//     listC.append(2);
+//     listC.append(3);
+//     listC.append(4);
+// 
+//     listD.append(5);
+//     listD.append(4);
+//     listD.append(3);
+//     listD.append(2);
+//     listD.append(1);
+// 
+//     ASSERT(listA == listA);
+//     ASSERT(listA == listB);
+//     ASSERT(listA != listC);
+//     ASSERT(listA != listD);
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
