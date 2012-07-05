@@ -103,6 +103,8 @@ class DerivedOtherPolyThrowSpec2 : public PolyThrowSpec {
 #endif
 };
 
+class VirtuallyDerived : public virtual Base {
+};
 //=============================================================================
 //                 CLASSES, ETC. FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -495,6 +497,23 @@ int main(int argc, char *argv[])
         ASSERT(0 == bslmf::IsPolymorphic<int Poly::* const         >::VALUE);
         ASSERT(0 == bslmf::IsPolymorphic<int Poly::* volatile      >::VALUE);
         ASSERT(0 == bslmf::IsPolymorphic<int Poly::* const volatile>::VALUE);
+
+        ASSERT(0 == bslmf::IsPolymorphic<VirtuallyDerived               >::VALUE);
+        ASSERT(0 == bslmf::IsPolymorphic<VirtuallyDerived const         >::VALUE);
+        ASSERT(0 == bslmf::IsPolymorphic<VirtuallyDerived volatile      >::VALUE);
+        ASSERT(0 == bslmf::IsPolymorphic<VirtuallyDerived const volatile>::VALUE);
+
+        ASSERT(0 == bslmf::IsPolymorphic<VirtuallyDerived&               >::VALUE);
+        ASSERT(0 == bslmf::IsPolymorphic<VirtuallyDerived const&         >::VALUE);
+        ASSERT(0 == bslmf::IsPolymorphic<VirtuallyDerived volatile&      >::VALUE);
+        ASSERT(0 == bslmf::IsPolymorphic<VirtuallyDerived const volatile&>::VALUE);
+
+        ASSERT(0 == bslmf::IsPolymorphic<VirtuallyDerived *              >::VALUE);
+        ASSERT(0 == bslmf::IsPolymorphic<VirtuallyDerived *const         >::VALUE);
+        ASSERT(0 == bslmf::IsPolymorphic<VirtuallyDerived *volatile      >::VALUE);
+        ASSERT(0 == bslmf::IsPolymorphic<VirtuallyDerived *const volatile>::VALUE);
+
+
 
       } break;
       default: {
