@@ -1528,6 +1528,7 @@ int bcem_AggregateRaw::reserveRaw(bcem_AggregateError *errorDescription,
                                           &reserver);
       } break;
     }
+    return 0;
 }
 
 int bcem_AggregateRaw::resize(bcem_AggregateError *errorDescription,

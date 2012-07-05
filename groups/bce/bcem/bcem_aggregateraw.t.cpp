@@ -99,8 +99,8 @@ using namespace bsl;
 // [20] void reset();
 //
 // REFERENCED-VALUE ACCESSORS
-// [  ] int reserveRaw(Error *error, bsl::size_t numItems) const;
-// [  ] int capacityRaw(Error *error, bsl::size_t *capacity) const;
+// [26] int reserveRaw(Error *error, bsl::size_t numItems) const;
+// [27] int capacityRaw(Error *error, bsl::size_t *capacity) const;
 // [  ] bool isError() const;
 // [  ] bool isVoid() const;
 // [20] bool isNull() const;
@@ -124,14 +124,14 @@ using namespace bsl;
 // [ 5] bdet_TimeTz asTimeTz() const;
 // [ 6] const bdem_ElemRef asElemRef() const;
 // [ 4] bool hasField(const char *fieldName) const;
-// [  ] bool hasFieldById(int fieldId) const;
-// [  ] bool hasFieldByIndex(int fieldIndex) const;
+// [ 4] bool hasFieldById(int fieldId) const;
+// [ 4] bool hasFieldByIndex(int fieldIndex) const;
 // [24] int anonymousField(Obj *object, Error *error, int index) const;
 // [24] int anonymousField(Obj *object, Error *error) const;
 // [ 4] int getField(Obj *o, Error *e, bool null, f1, f2, . ., f10) const;
 // [  ] int findUnambiguousChoice(Obj *obj, Error *error, caller) const;
-// [  ] int fieldByIndex(Obj *obj, Error *error, int index) const;
-// [  ] int fieldById(Obj *obj, Error *error, int id) const;
+// [ 4] int fieldByIndex(Obj *obj, Error *error, int index) const;
+// [ 4] int fieldById(Obj *obj, Error *error, int id) const;
 // [13] int arrayItem(Obj *item, Error *error, int index) const;
 // [19] int length() const;
 // [19] int size() const;
@@ -3557,6 +3557,620 @@ int main(int argc, char *argv[])
               }
           }
       } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // ACCESSOR 'capacityRaw'
+        //
+        // Concerns:
+        //: 1 'capacityRaw' correctly forwards to the appropriate
+        //:   lower level function, when the type underlying the aggregate is
+        //:   an array type.
+        //: 2 The method loads the correct value in its output parameter.
+        //: 3 The method returns an error-aggregate if invoked on a
+        //:   'bcem_Aggregate' whose type is not an array-type.
+        //
+        // Plan:
+        //: 1 Instantiate one aggregate for each array type, and verify that
+        //:   invoking 'capacityRaw' on the aggregate loads the same value
+        //:   as the one returned by invoking the corresponding 'capacity'
+        //:   method on the underlying array type.  [C-1,2]
+        //: 2 Instantiate a 'bcem_Aggregate' with an underlying non-array
+        //:   'BDEM_ELEMTYPE' type and verify that an error-aggregate is
+        //:   returned. [C-3]
+        //
+        // Testing the following functions:
+        //   int capacityRaw(Error *error, bsl::size_t *capacity) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing with a table type aggregate" << endl;
+
+        for (int i = 1; i <= 4096; i <<= 1) {
+            bdem_Table table1, table2;
+            Obj mX;
+            mX.setDataType(bdem_ElemType::BDEM_TABLE);
+            mX.setDataPointer(&table1);
+
+            Error err;
+            mX.reserveRaw(&err, i);
+            table2.reserveRaw(i);
+
+            size_t aggCapacity = 1492;  // arbitrary flag value
+            size_t tableCapacity = table1.capacityRaw();
+            int rc = mX.capacityRaw(&err, &aggCapacity);
+            ASSERT(!rc);
+
+            LOOP2_ASSERT(i, tableCapacity, i == tableCapacity);
+            LOOP2_ASSERT(i, aggCapacity, i == aggCapacity);
+        }
+
+        if (verbose) cout << "Testing with a choice array type aggregate"
+                          << endl;
+
+        for (int i = 1; i <= 4096; i <<= 1) {
+            bdem_ChoiceArray ca1, ca2;
+            Obj mX;
+            mX.setDataType(bdem_ElemType::BDEM_CHOICE_ARRAY);
+            mX.setDataPointer(&ca1);
+
+            Error err;
+            mX.reserveRaw(&err, i);
+            ca2.reserveRaw(i);
+
+            size_t aggCapacity = 1492;  // arbitrary flag value
+            size_t choiceArrayCapacity = ca2.capacityRaw();
+            int rc = mX.capacityRaw(&err, &aggCapacity);
+            ASSERT(!rc);
+
+            LOOP2_ASSERT(i, choiceArrayCapacity, i == choiceArrayCapacity);
+            LOOP2_ASSERT(i, aggCapacity, i == aggCapacity);
+        }
+
+        if (verbose) cout << "Testing with a scalar array type aggregate"
+                          << endl;
+
+        for (int i = 1; i <= 4096; i <<= 1) {
+            bsl::vector<int> sa1, sa2;
+            Obj mX;
+            mX.setDataType(bdem_ElemType::BDEM_INT_ARRAY);
+            mX.setDataPointer(&sa1);
+
+            Error err;
+            mX.reserveRaw(&err, i);
+            sa2.reserve(i);
+
+            size_t aggCapacity = 1492;  // arbitrary flag value
+            size_t scalarCapacity = sa2.capacity();
+
+            int rc = mX.capacityRaw(&err, &aggCapacity);
+            ASSERT(!rc);
+
+            LOOP2_ASSERT(i, scalarCapacity, i == scalarCapacity);
+            LOOP2_ASSERT(i, aggCapacity, i == aggCapacity);
+        }
+
+        if (verbose) cout << "Testing with a non-array type aggregate" << endl;
+        {
+            bdem_List list;
+            Obj mX;
+            mX.setDataType(bdem_ElemType::BDEM_LIST);
+            mX.setDataPointer(&list);
+
+            Error err;
+            size_t capacity = 1492;  // arbitrary flag value
+            int rc = mX.capacityRaw(&err, &capacity);
+            ASSERT(rc);
+            ASSERT(1492 == capacity);
+        }
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // MANIPULATOR 'reserveRaw'
+        //
+        // Concerns:
+        //: 1 'reserveRaw' correctly forwards to the appropriate
+        //:   lower level function, when the type underlying the aggregate is
+        //:   an array type.
+        //: 2 'reserveRaw' does not allocate memory and returns an
+        //:   error aggregate when the type underlying the aggregate is not an
+        //:   array type.
+        //
+        // Plan:
+        //: 1 Instantiate one aggregate for each array type, and verify that
+        //:   invoking 'reserveRaw' on the aggregate allocates the same
+        //:   amount of memory as invoking the correspoding 'reserve' method on
+        //:   the underlying array type.  [C-1]
+        //: 2 Instantiate a 'bcem_Aggregate' with an underlying non-array
+        //:   'BDE_ELEM' type and verify that an error-aggregate is returned.
+        //:   [C-3]
+        //
+        // Testing the following functions:
+        //   int reserveRaw(Error *error, bsl::size_t numItems) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing with a table-type aggregate" << endl;
+        {
+            bslma_TestAllocator ta("TableTestAllocator", false);
+            bslma_TestAllocator aa("AggregateTestAllocator", false);
+            for (int i = 1; i <= 4096; i <<= 1) {
+                bdem_Table table1(&ta), table2(&aa);
+                Obj mX, mY;
+                mX.setDataType(bdem_ElemType::BDEM_TABLE);
+                mX.setDataPointer(&table1);
+                mY.setDataType(bdem_ElemType::BDEM_TABLE);
+                mY.setDataPointer(&table2);
+
+                LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
+
+                const size_t NUM_BYTES_TABLE = ta.numBytesTotal();
+                const size_t NUM_BYTES_AGGREGATE = aa.numBytesTotal();
+
+                table1.reserveRaw(i);
+
+                Error err;
+                int rc = mY.reserveRaw(&err, i);
+                LOOP_ASSERT(rc, !rc);
+
+                LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
+
+                const size_t DELTA_TABLE =
+                                          NUM_BYTES_TABLE - ta.numBytesTotal();
+                const size_t DELTA_AGGREGATE =
+                                      NUM_BYTES_AGGREGATE - aa.numBytesTotal();
+                LOOP3_ASSERT(i,
+                             DELTA_TABLE,
+                             DELTA_AGGREGATE,
+                             DELTA_TABLE == DELTA_AGGREGATE);
+            }
+        }
+
+        if (verbose) cout << "Testing with a choice-array-type aggregate"
+                          << endl;
+        {
+            bslma_TestAllocator ta("ChoiceArrayTestAllocator", false);
+            bslma_TestAllocator aa("AggregateTestAllocator", false);
+            for (int i = 1; i <= 4096; i <<= 1) {
+                bdem_ChoiceArray ca1(&ta), ca2(&aa);
+                Obj mX, mY;
+                mX.setDataType(bdem_ElemType::BDEM_CHOICE_ARRAY);
+                mX.setDataPointer(&ca1);
+                mY.setDataType(bdem_ElemType::BDEM_CHOICE_ARRAY);
+                mY.setDataPointer(&ca2);
+
+                LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
+
+                const size_t NUM_BYTES_CA        = ta.numBytesTotal();
+                const size_t NUM_BYTES_AGGREGATE = aa.numBytesTotal();
+
+                ca1.reserveRaw(i);
+
+                Error err;
+                int rc = mY.reserveRaw(&err, i);
+                ASSERT(!rc);
+
+                LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
+
+                const size_t DELTA_CA = NUM_BYTES_CA - ta.numBytesTotal();
+                const size_t DELTA_AGGREGATE =
+                                      NUM_BYTES_AGGREGATE - aa.numBytesTotal();
+                LOOP3_ASSERT(i,
+                             DELTA_CA,
+                             DELTA_AGGREGATE,
+                             DELTA_CA == DELTA_AGGREGATE);
+            }
+        }
+
+        if (verbose) cout << "Testing with a scalar-array-type aggregate"
+                          << endl;
+        {
+            bslma_TestAllocator ta("ScalarArrayTestAllocator", false);
+            bslma_TestAllocator aa("AggregateTestAllocator", false);
+            for (int i = 1; i <= 4096; i <<= 1) {
+                bsl::vector<int> sa1(&ta), sa2(&aa);
+                Obj mX, mY;
+                mX.setDataType(bdem_ElemType::BDEM_INT_ARRAY);
+                mX.setDataPointer(&sa1);
+                mY.setDataType(bdem_ElemType::BDEM_INT_ARRAY);
+                mY.setDataPointer(&sa2);
+
+                LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
+
+                const size_t NUM_BYTES_SA        = ta.numBytesTotal();
+                const size_t NUM_BYTES_AGGREGATE = aa.numBytesTotal();
+
+                sa1.reserve(i);
+
+                Error err;
+                int rc = mY.reserveRaw(&err, i);
+                ASSERT(!rc);
+
+                LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
+
+                const size_t DELTA_SA = NUM_BYTES_SA - ta.numBytesTotal();
+                const size_t DELTA_AGGREGATE =
+                                      NUM_BYTES_AGGREGATE - aa.numBytesTotal();
+                LOOP3_ASSERT(i,
+                             DELTA_SA,
+                             DELTA_AGGREGATE,
+                             DELTA_SA == DELTA_AGGREGATE);
+            }
+        }
+
+        if (verbose) cout << "Testing with a non-array type aggregate" << endl;
+        {
+            bslma_TestAllocator la("ListArrayTestAllocator", false);
+            bslma_TestAllocator aa("AggregateTestAllocator", false);
+
+            bdem_List list1(&la), list2(&aa);
+            Obj mX, mY;
+            mX.setDataType(bdem_ElemType::BDEM_LIST);
+            mX.setDataPointer(&list1);
+            mY.setDataType(bdem_ElemType::BDEM_LIST);
+            mY.setDataPointer(&list2);
+
+            const size_t NUM_BYTES_LIST      = la.numBytesTotal();
+            const size_t NUM_BYTES_AGGREGATE = aa.numBytesTotal();
+
+            Error err;
+            int rc = mY.reserveRaw(&err, 1);
+            ASSERT(rc);
+
+            ASSERT(NUM_BYTES_LIST      == la.numBytesTotal());
+            ASSERT(NUM_BYTES_AGGREGATE == aa.numBytesTotal());
+        }
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // TESTING EXTENDED FIELD LOOKUP
+        //
+        // Concerns:
+        //   1 The 'hasField', 'field', 'setField', 'makeSelection',
+        //     'selection', 'selector', 'selectorIndex', 'selectorId', and
+        //     'numSelections' methods work transparently when accessing an
+        //     unambiguously named child of an anonymous field within a 'LIST'
+        //     or 'CHOICE' aggregate.
+        //   2 'hasField' returns false and the other methods fail 'if the
+        //     aggregate contains one or more unnamed fields but not one with
+        //     the specified name.
+        //   3 The aggregate returned by 'field' refers to the expected data
+        //     (at the expected address) for the named child of an anonymous
+        //     field (as determined by the address of the data item itself).
+        //   4 If the record definition contains an unnamed field containing
+        //     a nested unnamed field containing the named field, then
+        //     both levels of nesting are traversed.
+        //   5 Anonymous fields of non-aggregate type are ignored during
+        //     field lookup.
+        //   6 All of the above apply when there exist multiple unnamed fields
+        //     at any level and when the field is in the first, middle, or last
+        //     unnamed field, provided the lookup is unambiguous.
+        //   7 All of the above apply when the unnamed field is a LIST, TABLE,
+        //     CHOICE, or CHOICE_ARRAY.
+        //
+        // Plan:
+        //   - Construct a set of test vectors where each vector consists of a
+        //     schema script and the indexes where the named child of the
+        //     unnamed field should be found.
+        //   - Each schema will have a top-level record definition named "a"
+        //     and the program will look for a field named "b" in "a".
+        //   - For each test vector, construct a 'bdem_Schema' from the script
+        //     and a bcem_Aggregate from record "a" in the schema.
+        //   - If the aggregate is a choice, call 'makeSelection("b")'.
+        //   - Insert data into the aggregate using primitive bdem calls.
+        //   - Set the value of field "b" using 'setField("b", 5)'.
+        //   - 'hasField', 'field', 'setField', 'makeSelection',
+        //     'selection', 'selector', 'selectorIndex', 'selectorId', and
+        //     'numSelections' all return the expected results.
+        //
+        // Testing the following functions with anonymous fields:
+        //   int makeSelection(Obj *obj, Error *error, newSelector) const;
+        //   const char *selector() const;
+        //   int selectorId() const;
+        //   int selectorIndex() const;
+        //   int numSelections() const;
+        //   int selection(Obj *obj, Error *error) const;
+        //   bool hasField(const char *fieldName) const;
+        //   int setField(Obj *o, Error *e, f1, value) const;
+        //   int getField(Obj *o, Error *e, bool null, f1, f2, . ., f10) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING EXTENDED FIELD LOOKUP"
+                          << "\n=============================\n"
+                          << bsl::endl;
+
+        const int MAX_DEPTH = 3;
+        static const struct {
+            int         d_line;
+            const char *d_spec;
+
+            const char  d_expectedIndexes[MAX_DEPTH + 1];
+                // String of 0-3 ascii digits, one per nested index, used to
+                // traverse the LIST structure.  The root LIST is always
+                // defined by record "a" in the schema and the target field is
+                // always named "b".  For example "21" means that record "a"
+                // has an anonymous field at index 2 that is a record with a
+                // field named "b" at index 1.  An empty string indicates that
+                // there is no anonymous path to a field "b" from record "a".
+        } DATA[] = {
+
+            //line Spec                                     Indexes  Concerns
+            //---- ---------------------------------------  -------  --------
+            { L_, ":a",                                      ""    },
+            { L_, ":aGc",                                    ""    },
+            { L_, ":aCb",                                    "0"   },
+            { L_, ":aGcCb",                                  "1"   },
+
+            { L_, ":*Gc :a+*0&FU",                           ""    }, // 2
+            { L_, ":*FaGcMd :a+*0&FU",                       ""    }, // 2
+            { L_, ":*Gc :aFa+*0&FUMd",                       ""    }, // 2
+            { L_, ":*GcXe :aFa+*0&FUMd",                     ""    }, // 2
+
+            { L_, ":*Cb :a+*0&FU",                           "00"  }, // 3
+            { L_, ":*Cb :a+*0&FUFaMd",                       "00"  }, // 3
+            { L_, ":*Cb :aFa+*0&FUMd",                       "10"  }, // 3
+            { L_, ":*Cb :aFaMd+*0&FU",                       "20"  }, // 3
+            { L_, ":*FaCbMd :a+*0&FU",                       "01"  }, // 3
+            { L_, ":*CbXe :aFa+*0&FUMd",                     "10"  }, // 3
+            { L_, ":*XeCb :aFa+*0&FUMd",                     "11"  }, // 3
+
+            { L_, ":*Cb :*+*0&FU :a+*1&FU",                  "000" }, // 4
+            { L_, ":*FaCbMd :*+*0&FU :a+*1&FU",              "001" }, // 4
+            { L_, ":*Cb :*+*0&FU :aFa+*1&FUMd",              "100" }, // 4
+            { L_, ":*Cb :*Fa+*0&FUMd :a+*1&FU",              "010" }, // 4
+            { L_, ":*Gc :*Fa+*0&FUCb :a+*1&FU",              "02"  }, // 4
+
+            { L_, ":aCb&FUD*",                               "0"   }, // 5
+            { L_, ":*Cb :aG*&FU+*0&FU",                      "10"  }, // 5
+            { L_, ":*Cb :aG*&FU+*0&FUDb",                    "2"   }, // 5
+            { L_, ":*Cb :aCb&FU+*0&FU",                      "0"   }, // 5
+
+            { L_, ":*Cg :*?Gc :*?Ad :a+*0&FUBf%*1&FU%*2&FU", ""    }, // 2,6
+
+            { L_, ":*Cb :*?Gc :*?Ad :a+*0&FUBf%*1&FU%*2&FU", "00"  }, // 3,6
+            { L_, ":*Gc :*?Cb :*?Ad :a+*0&FUBf%*1&FU%*2&FU", "20"  }, // 3,6
+            { L_, ":*Ad :*?Gc :*?Cb :a+*0&FUBf%*1&FU%*2&FU", "30"  }, // 3,6
+
+            { L_, ":*Cb :*?Gc :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
+                  ":a+*3&FU",                                "000" }, // 4,6
+            { L_, ":*Gc :*?Cb :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
+                  ":a+*3&FU",                                "020" }, // 4,6
+            { L_, ":*Ad :*?Gc :*?Cb :*+*0&FUBf%*1&FU%*2&FU"
+                  ":a+*3&FU",                                "030" }, // 4,6
+            { L_, ":*Cg :*?Gc :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
+                  ":a+*3&FU",                                ""    }, // 4,6
+
+            { L_, ":*?Gc :a%*0&FU",                          ""    }, // 2,7
+            { L_, ":*?Cb :aFa%*0&FUMd",                      "10"  }, // 3,7
+            { L_, ":*Cb :*+*0&FU :a+*1&FU",                  "000" }, // 4,7
+            { L_, ":*?Cb :*%*0&FU :a+*1&FU",                 "000" }, // 4,7
+            { L_, ":*Cb :*?+*0&FU :a%*1&FU",                 "000" }, // 4,7
+            { L_, ":*?Cb :aG*&FU%*0&FU",                     "10"  }, // 5,7
+
+        };
+        const int DATA_SIZE = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < DATA_SIZE; ++i) {
+
+            ///////////////// SET UP TESTS HERE /////////////////////////
+            //
+            // This is a rather elaborate setup procedure to compute
+            // expected values for each tested function.
+
+            const int         LINE          = DATA[i].d_line;
+            const char *const SPEC          = DATA[i].d_spec;
+            const char *const EXPECTED      = DATA[i].d_expectedIndexes;
+
+            int expectedIndexes[MAX_DEPTH];
+            int expectedDepth = 0;
+            for (expectedDepth = 0; EXPECTED[expectedDepth]; ++expectedDepth) {
+                expectedIndexes[expectedDepth] = EXPECTED[expectedDepth] - '0';
+            }
+            const int        EXPECTED_DEPTH   = expectedDepth;
+            const int *const EXPECTED_INDEXES = expectedIndexes;
+
+            Schema schema;
+            ggSchema(&schema, SPEC);
+
+            if (veryVerbose) { P_(LINE) P(schema) }
+
+            const RecDef *recA = schema.lookupRecord("a");
+            ASSERT(0 != recA);
+
+            bslma_TestAllocator t;
+            Obj theAgg;
+            ggAggData(&theAgg, *recA, &t);
+            CERef topRef = theAgg.asElemRef();
+
+            // Expected values if field does not exist and agg is not a choice.
+            EType::Type expMkSelectionType = EType::BDEM_VOID;
+            int         expMkSelectionErr  = BAD_FLDNM;
+            int         expSelectorIndex   = NOT_CHOICE;
+            int         expSelectorId      = RecDef::BDEM_NULL_FIELD_ID;
+            const char* expSelectorStr     = "";
+            int         expNumSelections   = NOT_CHOICE;
+            EType::Type expSelectionType   = EType::BDEM_VOID;
+            int         expSelectionErr    = NOT_CHOICE;
+            const void *expSelectionData   = 0;
+            bool        expHasField        = false;
+            EType::Type expFieldType       = EType::BDEM_VOID;
+            int         expFieldErr        = BAD_FLDNM;
+
+            if (EXPECTED_DEPTH > 0) {
+                // Field exists.
+                expMkSelectionErr = NOT_CHOICE;
+                expHasField       = true;
+                expFieldErr       = 0;
+            }
+
+            // Descend through the anonymous fields in the schema, looking for
+            // any choice records or ambiguous references in the
+            // expected path.  If found, set expected function values
+            // accordingly.
+            bool hasChoice   = false;
+            bool isAmbiguous = false;
+            const RecDef *constraint = recA;
+            for (int depth = 0; constraint && depth < MAX_DEPTH; ++depth) {
+
+                int index = (expHasField ? EXPECTED_INDEXES[depth] : -1);
+
+                if (RecDef::BDEM_CHOICE_RECORD == constraint->recordType())
+                {
+                    hasChoice = true;
+                    expSelectionErr  = 0;
+                    expNumSelections = constraint->numFields();
+
+                    if (expHasField) {
+                        // Operations are expected to succeed.
+                        expMkSelectionType = EType::BDEM_INT;
+                        expMkSelectionErr  = 0;
+                        expSelectorIndex   = index;
+                        expSelectorId      = index;
+                        expSelectorStr     = 
+                            constraint->fieldName(expSelectorIndex);
+                        expSelectionType   =
+                            constraint->field(expSelectorIndex).elemType();
+                    }
+                    else {
+                        // Operations are expected to fail.
+                        expMkSelectionType = EType::BDEM_VOID;
+                        expMkSelectionErr  = BAD_FLDNM;
+                        expSelectorIndex   = -1;
+                        expSelectorId      = RecDef::BDEM_NULL_FIELD_ID;
+                        expSelectorStr     = "";
+                        expSelectionType   = EType::BDEM_VOID;
+                    }
+
+                    break;
+                }
+
+                if (constraint->numAnonymousFields() > 1) {
+                    isAmbiguous = true;
+                }
+                else if (constraint->numAnonymousFields() < 1) {
+                    break;
+                }
+
+                if (index < 0) {
+                    // Find anonymous field
+                    for (index = 0; 0 != constraint->fieldName(index); ++index)
+                        ;
+                }
+
+                // Descend to the next level
+                constraint = constraint->field(index).recordConstraint();
+            }
+
+            if (isAmbiguous) {
+                expSelectorIndex   = AMBIGUOUS;
+                expSelectorId      = RecDef::BDEM_NULL_FIELD_ID;
+                expSelectorStr     = "";
+                expNumSelections   = AMBIGUOUS;
+                expSelectionType   = EType::BDEM_VOID;
+                expSelectionErr    = AMBIGUOUS;
+            }
+
+            ///////////////// BEGIN TESTING HERE /////////////////////////
+            //
+            // Expected values have been computed.  Test each function and
+            // compare against expected results.
+
+            Error err;
+            Obj mX;  const Obj& X = mX;
+            theAgg.makeValue();
+            int rc = theAgg.fieldByIndex(&mX, &err, 0);
+            ASSERT(!rc);
+            mX.makeValue();
+            Obj result;
+            rc = theAgg.makeSelection(&result, &err, "b");
+            ASSERT(rc);
+            ASSERT(expMkSelectionErr == err.code());
+            result.makeValue();
+
+            if (0 == expMkSelectionErr) {
+                // Prevent cascade errors if makeSelection fails unexpectedly.
+                continue;
+            }
+
+            bsls_ObjectBuffer<CERef> refs[MAX_DEPTH];
+            CERef *expRef = &topRef;
+            for (int depth = 0; depth < EXPECTED_DEPTH; ++depth) {
+                // Using 'bdem' primitives (not 'bcem_Aggregate' methods),
+                // find the field referenced by "b", using the array of
+                // expected indexes to descend down the data structure.
+                int index = EXPECTED_INDEXES[depth];
+
+                void *refp = &refs[depth];
+                if (ET::BDEM_CHOICE == expRef->type()) {
+                    LOOP_ASSERT(expRef->theChoice().selector(),
+                                index == expRef->theChoice().selector());
+                    expRef = new(refp) CERef(expRef->theChoice().selection());
+                    if (0 == expSelectionData) {
+                        // Keep track of first choice
+                        expSelectionData = expRef->data();
+                    }
+                }
+                else { // if LIST
+                    expRef = new(refp) CERef(expRef->theList()[index]);
+                }
+
+                expFieldType = expRef->type();
+            }
+
+            if (hasChoice) {
+                // Test result of 'makeSelection'
+                ASSERT(expMkSelectionErr ||
+                       expRef->data() == result.asElemRef().data());
+            }
+
+            // selectorIndex(), selectorId(), selector(), numSelections,
+            // selection():
+            int selectorIndex = theAgg.selectorIndex();
+            LOOP2_ASSERT(expSelectorIndex, selectorIndex,
+                         expSelectorIndex == selectorIndex);
+            if (veryVerbose && expSelectorIndex != selectorIndex) {
+                cout << "theAgg=" << theAgg << bsl::endl;
+                if (theAgg.schema()) {
+                    cout << "schema=" << *theAgg.schema() << bsl::endl;
+                }
+            }
+
+            int selectorId = theAgg.selectorId();
+            LOOP2_ASSERT(expSelectorId, selectorId,
+                         expSelectorId == selectorId);
+
+            const char* selectorStr = theAgg.selector();
+            LOOP2_ASSERT(expSelectorStr, selectorStr,
+                         streq(expSelectorStr, selectorStr));
+
+            int numSelections = theAgg.numSelections();
+            LOOP2_ASSERT(expNumSelections, numSelections,
+                         expNumSelections == numSelections);
+
+            rc = theAgg.selection(&mX, &err);
+            // TBD: Uncomment
+//             LOOP2_ASSERT(expSelectionType, mX.dataType(),
+//                          expSelectionType == mX.dataType());
+            ASSERT(expSelectionErr == err.code());
+
+            // Test hasField(), setField(), field()
+            LOOP2_ASSERT(expHasField, theAgg.hasField("b"),
+                         expHasField == theAgg.hasField("b"));
+
+            rc = theAgg.setField(&mX, &err, "b", 5);
+            // TBD: Uncomment
+//             LOOP2_ASSERT(expFieldType, mX.dataType(),
+//                          expFieldType == mX.dataType());
+            ASSERT(expFieldErr == err.code());
+            ASSERT(expRef->data() == mX.asElemRef().data());
+
+            rc = theAgg.getField(&mX, &err, false, "b");
+            // TBD: Uncomment
+//             LOOP2_ASSERT(expFieldType, mX.dataType(),
+//                          expFieldType == mX.dataType());
+            ASSERT(expFieldErr == err.code());
+            ASSERT(expRef->data() == mX.asElemRef().data());
+
+            destroyAggData(&theAgg, &t);
+        }
+      } break;
       case 24: {
         // --------------------------------------------------------------------
         // TESTING anonymousField
@@ -3696,119 +4310,127 @@ int main(int argc, char *argv[])
             }
         }
 
-//         if (verbose) cout << "Testing error conditions" << bsl::endl;
+        if (verbose) cout << "Testing error conditions" << bsl::endl;
 
-//         {
-//             static const struct {
-//                 int         d_line;
-//                 const char *d_spec;
-//                 int         d_selectorIndex;
-//                 int         d_anonIndex;
-//                 int         d_errorCode;
-//                 const char *d_errorMessage;
-//             } DATA[] = {
-//                 //      Schema     sel anon
-//                 // Ln    Spec      idx idx error code  error message
-//                 // -- -----------  --- --- ----------  ---------------------
-//                 { L_, ":rAaBbCc",   0,  0, BAD_FLDIDX, "no anonymous fields" },
-//                 { L_, ":rAaBbCc",   0,  1, BAD_FLDIDX, "no anonymous fields" },
-//                 { L_, ":rA*BbCc",   0,  1, BAD_FLDIDX, "Invalid index"       },
-//                 { L_, ":rAaB*Cc",   0,  1, BAD_FLDIDX, "Invalid index"       },
-//                 { L_, ":rAaBbC*",   0,  1, BAD_FLDIDX, "Invalid index"       },
-//                 { L_, ":rA*B*Cc",   0,  2, BAD_FLDIDX, "Invalid index"       },
-//                 { L_, ":rA*BbC*",   0,  3, BAD_FLDIDX, "Invalid index"       },
-//                 { L_, ":rAaB*C*",   0, -1, BAD_FLDIDX, "Invalid index"       },
-//                 { L_, ":rA*B*C*",   0,  4, BAD_FLDIDX, "Invalid index"       },
+        {
+            static const struct {
+                int         d_line;
+                const char *d_spec;
+                int         d_selectorIndex;
+                int         d_anonIndex;
+                int         d_errorCode;
+                const char *d_errorMessage;
+            } DATA[] = {
+                //      Schema     sel anon
+                // Ln    Spec      idx idx error code  error message
+                // -- -----------  --- --- ----------  ---------------------
+                { L_, ":rAaBbCc",   0,  0, BAD_FLDIDX, "no anonymous fields" },
+                { L_, ":rAaBbCc",   0,  1, BAD_FLDIDX, "no anonymous fields" },
+                { L_, ":rA*BbCc",   0,  1, BAD_FLDIDX, "Invalid index"       },
+                { L_, ":rAaB*Cc",   0,  1, BAD_FLDIDX, "Invalid index"       },
+                { L_, ":rAaBbC*",   0,  1, BAD_FLDIDX, "Invalid index"       },
+                { L_, ":rA*B*Cc",   0,  2, BAD_FLDIDX, "Invalid index"       },
+                { L_, ":rA*BbC*",   0,  3, BAD_FLDIDX, "Invalid index"       },
+                { L_, ":rAaB*C*",   0, -1, BAD_FLDIDX, "Invalid index"       },
+                { L_, ":rA*B*C*",   0,  4, BAD_FLDIDX, "Invalid index"       },
 
-//                 { L_, ":r?AaBbCc",  0,  0, BAD_FLDIDX, "no anonymous fields" },
-//                 { L_, ":r?AaBbCc",  0,  1, BAD_FLDIDX, "no anonymous fields" },
-//                 { L_, ":r?A*BbCc",  0,  1, BAD_FLDIDX, "Invalid index"       },
-//                 { L_, ":r?AaB*Cc",  1,  1, BAD_FLDIDX, "Invalid index"       },
-//                 { L_, ":r?AaBbC*",  2,  1, BAD_FLDIDX, "Invalid index"       },
-//                 { L_, ":r?A*B*Cc",  1,  2, BAD_FLDIDX, "Invalid index"       },
-//                 { L_, ":r?A*BbC*",  2,  3, BAD_FLDIDX, "Invalid index"       },
-//                 { L_, ":r?AaB*C*",  2, -1, BAD_FLDIDX, "Invalid index"       },
-//                 { L_, ":r?A*B*C*",  2,  4, BAD_FLDIDX, "Invalid index"       },
+                { L_, ":r?AaBbCc",  0,  0, BAD_FLDIDX, "no anonymous fields" },
+                { L_, ":r?AaBbCc",  0,  1, BAD_FLDIDX, "no anonymous fields" },
+                { L_, ":r?A*BbCc",  0,  1, BAD_FLDIDX, "Invalid index"       },
+                { L_, ":r?AaB*Cc",  1,  1, BAD_FLDIDX, "Invalid index"       },
+                { L_, ":r?AaBbC*",  2,  1, BAD_FLDIDX, "Invalid index"       },
+                { L_, ":r?A*B*Cc",  1,  2, BAD_FLDIDX, "Invalid index"       },
+                { L_, ":r?A*BbC*",  2,  3, BAD_FLDIDX, "Invalid index"       },
+                { L_, ":r?AaB*C*",  2, -1, BAD_FLDIDX, "Invalid index"       },
+                { L_, ":r?A*B*C*",  2,  4, BAD_FLDIDX, "Invalid index"       },
 
-//                 { L_, ":r?A*BbCc",  1,  0, NOT_SELECT, "currently selected"  },
-//                 { L_, ":r?AaB*Cc",  0,  0, NOT_SELECT, "currently selected"  },
-//                 { L_, ":r?AaBbC*",  1,  0, NOT_SELECT, "currently selected"  },
-//                 { L_, ":r?A*B*Cc",  0,  1, NOT_SELECT, "currently selected"  },
-//                 { L_, ":r?A*BbC*",  2,  0, NOT_SELECT, "currently selected"  },
-//                 { L_, ":r?AaB*C*",  1,  1, NOT_SELECT, "currently selected"  },
-//                 { L_, ":r?A*B*C*",  0,  2, NOT_SELECT, "currently selected"  },
+                { L_, ":r?A*BbCc",  1,  0, NOT_SELECT, "currently selected"  },
+                { L_, ":r?AaB*Cc",  0,  0, NOT_SELECT, "currently selected"  },
+                { L_, ":r?AaBbC*",  1,  0, NOT_SELECT, "currently selected"  },
+                { L_, ":r?A*B*Cc",  0,  1, NOT_SELECT, "currently selected"  },
+                { L_, ":r?A*BbC*",  2,  0, NOT_SELECT, "currently selected"  },
+                { L_, ":r?AaB*C*",  1,  1, NOT_SELECT, "currently selected"  },
+                { L_, ":r?A*B*C*",  0,  2, NOT_SELECT, "currently selected"  },
 
-//                 { L_, ":r?A*BbCc", -1,  0, NOT_SELECT, "currently selected"  },
-//                 { L_, ":r?A*B*Cc", -1,  1, NOT_SELECT, "currently selected"  },
-//                 { L_, ":r?A*B*C*", -1,  2, NOT_SELECT, "currently selected"  },
-//             };
-//             const int NUM_DATA = sizeof DATA / sizeof *DATA;
+                { L_, ":r?A*BbCc", -1,  0, NOT_SELECT, "currently selected"  },
+                { L_, ":r?A*B*Cc", -1,  1, NOT_SELECT, "currently selected"  },
+                { L_, ":r?A*B*C*", -1,  2, NOT_SELECT, "currently selected"  },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-//             for (int i = 0; i < NUM_DATA; ++i) {
-//                 const int         LINE           = DATA[i].d_line;
-//                 const char *const SPEC           = DATA[i].d_spec;
-//                 const int         SELECTOR_INDEX = DATA[i].d_selectorIndex;
-//                 const int         ANON_INDEX     = DATA[i].d_anonIndex;
-//                 const int         ERROR_CODE     = DATA[i].d_errorCode;
-//                 const char *const ERROR_MESSAGE  = DATA[i].d_errorMessage;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE           = DATA[i].d_line;
+                const char *const SPEC           = DATA[i].d_spec;
+                const int         SELECTOR_INDEX = DATA[i].d_selectorIndex;
+                const int         ANON_INDEX     = DATA[i].d_anonIndex;
+                const int         ERROR_CODE     = DATA[i].d_errorCode;
+                const char *const ERROR_MESSAGE  = DATA[i].d_errorMessage;
 
-//                 bcema_SharedPtr<bdem_Schema> schema;
-//                 schema.createInplace();
-//                 ggSchema(schema.ptr(), SPEC);
+                bdem_Schema schema;
+                ggSchema(&schema, SPEC);
 
-//                 Obj agg(schema, "r");
-//                 if (EType::BDEM_CHOICE == agg.dataType()) {
-//                     agg.makeSelectionByIndex(SELECTOR_INDEX);
-//                 }
-//                 LOOP_ASSERT(agg, ! agg.isError());
+                bslma_TestAllocator t;
+                Error err;
+                Obj agg, field;
+                ggAggData(&agg, *schema.lookupRecord("r"), &t);
 
-//                 if (veryVeryVerbose) { P(agg); }
+                if (EType::BDEM_CHOICE == agg.dataType()) {
+                    agg.makeSelectionByIndex(&field, &err, SELECTOR_INDEX);
+                }
+                LOOP_ASSERT(agg, ! agg.isError());
 
-//                 bcem_Aggregate result = agg.anonymousField(ANON_INDEX);
-//                 LOOP_ASSERT(result, result.isError());
-//                 ASSERT_AGG_ERROR(result, ERROR_CODE);
-//                 LOOP_ASSERT(result.errorMessage(),
-//                             bsl::string::npos !=
-//                             result.errorMessage().find(ERROR_MESSAGE));
+                if (veryVeryVerbose) { P(agg); }
 
-//                 if (veryVeryVerbose) { P(result); }
+                Obj result;
+                int rc = agg.anonymousField(&result, &err, ANON_INDEX);
+                ASSERT(rc);
+                ASSERT(ERROR_CODE == err.code());
+                LOOP_ASSERT(err.description(),
+                            bsl::string::npos !=
+                            err.description().find(ERROR_MESSAGE));
 
-//                 int numAnon = schema->lookupRecord("r")->numAnonymousFields();
-//                 bcem_Aggregate result2 = agg.anonymousField();
-//                 if (0 == numAnon) {
-//                     LOOP_ASSERT(result2, result2.isError());
-//                     ASSERT_AGG_ERROR(result2, BAD_FLDIDX);
-//                     LOOP_ASSERT(result2.errorMessage(),
-//                                 bsl::string::npos !=
-//                                 result2.errorMessage().find("no anonymous "
-//                                                             "fields"));
-//                 } else if (numAnon > 1) {
-//                     LOOP_ASSERT(result2, result2.isError());
-//                     ASSERT_AGG_ERROR(result2, AMBIGUOUS);
-//                     LOOP_ASSERT(result2.errorMessage(),
-//                                 bsl::string::npos !=
-//                                 result2.errorMessage().find("multiple "
-//                                                             "anonymous"));
-//                 } else if (0 == ANON_INDEX) {
-//                     ASSERT_AGG_ERROR(result2, result.errorCode());
-//                     LOOP2_ASSERT(result, result2, result.errorMessage() ==
-//                                  result2.errorMessage());
-//                 }
-//             }
-//         }
+                if (veryVeryVerbose) { P(result); }
 
-//         {
-//             // Check error condition for non-aggregate.
-//             Obj agg(EType::BDEM_INT, 5);
-//             bcem_Aggregate result = agg.anonymousField();
-//             LOOP_ASSERT(result, result.isError());
-//             ASSERT_AGG_ERROR(result, NON_RECORD);
-//             LOOP_ASSERT(result.errorMessage(),
-//                         bsl::string::npos !=
-//                         result.errorMessage().find("unconstrained INT"));
+                int numAnon = schema.lookupRecord("r")->numAnonymousFields();
+                Obj result2;
+                rc = agg.anonymousField(&result2, &err);
+                if (0 == numAnon) {
+                    ASSERT(BAD_FLDIDX == err.code());
+                    LOOP_ASSERT(err.description(),
+                                bsl::string::npos !=
+                                err.description().find("no anonymous "
+                                                       "fields"));
+                } else if (numAnon > 1) {
+                    ASSERT(AMBIGUOUS == err.code());
+                    LOOP_ASSERT(err.description(),
+                                bsl::string::npos !=
+                                err.description().find("ambiguous "
+                                                       "anonymous"));
+                } else if (0 == ANON_INDEX) {
+                    ASSERT(ERROR_CODE == err.code());
+                }
 
-//             if (veryVeryVerbose) { P(result); }
-//         }
+                destroyAggData(&agg, &t);
+            }
+        }
+
+        {
+            // Check error condition for non-aggregate.
+            int value = 5;
+            Obj mX;
+            mX.setDataType(ET::BDEM_INT);
+            mX.setDataPointer(&value);
+            Error err;
+            Obj result;
+            int rc = mX.anonymousField(&result, &err);
+            LOOP_ASSERT(rc, rc);
+            ASSERT(NON_RECORD == err.code());
+            LOOP_ASSERT(err.description(),
+                        bsl::string::npos !=
+                        err.description().find("unconstrained INT"));
+
+            if (veryVeryVerbose) { P(mX); }
+        }
       } break;
       case 23: {
         // --------------------------------------------------------------------
@@ -11523,6 +12145,10 @@ int main(int argc, char *argv[])
         //   int setField(Obj *o, Error *e, f1, f2, . ., f10, value) const;
         //   int getField(Obj *o, Error *e, bool null, f1, f2, . ., f10) const;
         //   bool hasField(const char *fieldName) const;
+        //   bool hasFieldById(int fieldId) const;
+        //   bool hasFieldByIndex(int fieldIndex) const;
+        //   int fieldByIndex(Obj *obj, Error *error, int index) const;
+        //   int fieldById(Obj *obj, Error *error, int id) const;
         //   const bdem_FieldDef *fieldDef() const;
         //   bdem_ElemType::Type dataType() const;
         //   const bdem_Schema *schema() const;
@@ -11642,12 +12268,17 @@ int main(int argc, char *argv[])
             ASSERT(&s == X.schema());
 
             const char *errorField = "ErrorField";
-            switch (s.numRecords()) {
+            const int   NUM_RECS   = s.numRecords();
+            switch (NUM_RECS) {
               case 1: {
                 const char f1[] = { (*bsl::strtok(SPEC, ":")), 0 };
 
                 ASSERT(X.hasField(f1));
+                ASSERT(X.hasFieldById(0));
+                ASSERT(X.hasFieldByIndex(0));
                 ASSERT(!X.hasField(errorField));
+                ASSERT(!X.hasFieldById(NUM_RECS));
+                ASSERT(!X.hasFieldByIndex(NUM_RECS));
 
                 Error error;
                 Obj   mS; const Obj& S = mS;
@@ -11658,6 +12289,30 @@ int main(int argc, char *argv[])
                 ASSERT(0        == S.recordConstraint());
                 ASSERT(VA       == S.asElemRef());
                 ASSERT(!S.isNull());
+
+                Obj   mT; const Obj& T = mT;
+                rc = mX.fieldById(&mT, &error, 0);
+                ASSERT(!rc);
+                ASSERT(FLD_TYPE == T.dataType());
+                ASSERT(&fd      == T.fieldDef());
+                ASSERT(0        == T.recordConstraint());
+                ASSERT(VA       == T.asElemRef());
+                ASSERT(!T.isNull());
+
+                rc = mX.fieldById(&mT, &error, NUM_RECS);
+                ASSERT(rc);
+
+                Obj   mV; const Obj& V = mV;
+                rc = mX.fieldByIndex(&mV, &error, 0);
+                ASSERT(!rc);
+                ASSERT(FLD_TYPE == V.dataType());
+                ASSERT(&fd      == V.fieldDef());
+                ASSERT(0        == V.recordConstraint());
+                ASSERT(VA       == V.asElemRef());
+                ASSERT(!V.isNull());
+
+                rc = mX.fieldByIndex(&mV, &error, NUM_RECS);
+                ASSERT(rc);
 
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f1);
@@ -11710,7 +12365,11 @@ int main(int argc, char *argv[])
                 const char f2[] = { *(bsl::strtok(0, ":") + 2), 0 };
 
                 ASSERT(X.hasField(f2));
+                ASSERT(X.hasFieldById(0));
+                ASSERT(X.hasFieldByIndex(0));
                 ASSERT(!X.hasField(errorField));
+                ASSERT(!X.hasFieldById(NUM_RECS));
+                ASSERT(!X.hasFieldByIndex(NUM_RECS));
 
                 Error error;
                 Obj   mS; const Obj& S = mS;
@@ -11721,6 +12380,22 @@ int main(int argc, char *argv[])
                 ASSERT(0        == S.recordConstraint());
                 ASSERT(VA       == S.asElemRef());
                 ASSERT(!S.isNull());
+
+                Obj   mT; const Obj& T = mT;
+                rc = mX.fieldById(&mT, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!T.isNull());
+
+                rc = mX.fieldById(&mT, &error, NUM_RECS);
+                ASSERT(rc);
+
+                Obj   mV; const Obj& V = mV;
+                rc = mX.fieldByIndex(&mV, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!V.isNull());
+
+                rc = mX.fieldByIndex(&mV, &error, NUM_RECS);
+                ASSERT(rc);
 
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f2, f1);
@@ -11773,7 +12448,11 @@ int main(int argc, char *argv[])
                 const char f3[] = { *(bsl::strtok(0, ":") + 2), 0 };
 
                 ASSERT(X.hasField(f3));
+                ASSERT(X.hasFieldById(0));
+                ASSERT(X.hasFieldByIndex(0));
                 ASSERT(!X.hasField(errorField));
+                ASSERT(!X.hasFieldById(NUM_RECS));
+                ASSERT(!X.hasFieldByIndex(NUM_RECS));
 
                 Error error;
                 Obj   mS; const Obj& S = mS;
@@ -11837,7 +12516,11 @@ int main(int argc, char *argv[])
                 const char f4[] = { *(bsl::strtok(0, ":") + 2), 0 };
 
                 ASSERT(X.hasField(f4));
+                ASSERT(X.hasFieldById(0));
+                ASSERT(X.hasFieldByIndex(0));
                 ASSERT(!X.hasField(errorField));
+                ASSERT(!X.hasFieldById(NUM_RECS));
+                ASSERT(!X.hasFieldByIndex(NUM_RECS));
 
                 Error error;
                 Obj   mS; const Obj& S = mS;
@@ -11888,7 +12571,11 @@ int main(int argc, char *argv[])
                 const char f5[] = { *(bsl::strtok(0, ":") + 2), 0 };
 
                 ASSERT(X.hasField(f5));
+                ASSERT(X.hasFieldById(0));
+                ASSERT(X.hasFieldByIndex(0));
                 ASSERT(!X.hasField(errorField));
+                ASSERT(!X.hasFieldById(NUM_RECS));
+                ASSERT(!X.hasFieldByIndex(NUM_RECS));
 
                 Error error;
                 Obj   mS; const Obj& S = mS;
@@ -11940,7 +12627,11 @@ int main(int argc, char *argv[])
                 const char f6[] = { *(bsl::strtok(0, ":") + 2), 0 };
 
                 ASSERT(X.hasField(f6));
+                ASSERT(X.hasFieldById(0));
+                ASSERT(X.hasFieldByIndex(0));
                 ASSERT(!X.hasField(errorField));
+                ASSERT(!X.hasFieldById(NUM_RECS));
+                ASSERT(!X.hasFieldByIndex(NUM_RECS));
 
                 Error error;
                 Obj   mS; const Obj& S = mS;
@@ -11993,7 +12684,11 @@ int main(int argc, char *argv[])
                 const char f7[] = { *(bsl::strtok(0, ":") + 2), 0 };
 
                 ASSERT(X.hasField(f7));
+                ASSERT(X.hasFieldById(0));
+                ASSERT(X.hasFieldByIndex(0));
                 ASSERT(!X.hasField(errorField));
+                ASSERT(!X.hasFieldById(NUM_RECS));
+                ASSERT(!X.hasFieldByIndex(NUM_RECS));
 
                 Error error;
                 Obj   mS; const Obj& S = mS;
@@ -12050,7 +12745,11 @@ int main(int argc, char *argv[])
                 const char f8[] = { *(bsl::strtok(0, ":") + 2), 0 };
 
                 ASSERT(X.hasField(f8));
+                ASSERT(X.hasFieldById(0));
+                ASSERT(X.hasFieldByIndex(0));
                 ASSERT(!X.hasField(errorField));
+                ASSERT(!X.hasFieldById(NUM_RECS));
+                ASSERT(!X.hasFieldByIndex(NUM_RECS));
 
                 Error error;
                 Obj   mS; const Obj& S = mS;
@@ -12110,7 +12809,11 @@ int main(int argc, char *argv[])
                 const char f9[] = { *(bsl::strtok(0, ":") + 2), 0 };
 
                 ASSERT(X.hasField(f9));
+                ASSERT(X.hasFieldById(0));
+                ASSERT(X.hasFieldByIndex(0));
                 ASSERT(!X.hasField(errorField));
+                ASSERT(!X.hasFieldById(NUM_RECS));
+                ASSERT(!X.hasFieldByIndex(NUM_RECS));
 
                 Error error;
                 Obj   mS; const Obj& S = mS;
@@ -12169,7 +12872,11 @@ int main(int argc, char *argv[])
                 const char f10[] = { *(bsl::strtok(0, ":") + 2), 0 };
 
                 ASSERT(X.hasField(f10));
+                ASSERT(X.hasFieldById(0));
+                ASSERT(X.hasFieldByIndex(0));
                 ASSERT(!X.hasField(errorField));
+                ASSERT(!X.hasFieldById(NUM_RECS));
+                ASSERT(!X.hasFieldByIndex(NUM_RECS));
 
                 Error error;
                 Obj   mS; const Obj& S = mS;
