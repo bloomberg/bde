@@ -386,7 +386,7 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
     bcec_TimeQueue<bdef_Function<void (*)()> >
                                d_timerQueue;      // queue of registered timers
 
-    mutable ControlChannel     d_controlChannel;  // channel for sending
+    mutable ControlChannel    *d_controlChannel;  // channel for sending
                                                   // control bytes from
                                                   // external threads operating
                                                   // on this manager to unlock
@@ -401,6 +401,11 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
                                                   // 'd_metrics'
 
     bces_AtomicInt             d_numTotalSocketEvents;
+                                                  // the total number of all
+                                                  // socket events registered
+                                                  // (excluding registered
+                                                  // events of
+                                                  // 'd_controlChannel')
 
     bslma_Allocator           *d_allocator_p;     // memory allocator (held,
                                                   // not owned)
