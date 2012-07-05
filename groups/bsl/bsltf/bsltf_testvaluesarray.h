@@ -144,6 +144,11 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_ITERATOR
+#include <iterator>
+#define INCLUDED_ITERATOR
+#endif
+
 #ifndef INCLUDED_CSTRING
 #include <cstring>
 #define INCLUDED_CSTRING
@@ -196,6 +201,16 @@ class TestValuesArrayIterator {
                            const TestValuesArrayIterator<OTHER_VALUE>&);
 
   public:
+    // TYPES
+    typedef typename std::forward_iterator_tag iterator_category;
+    typedef typename VALUE                     value_type;
+    typedef typename std::ptrdiff_t            difference_type;
+    typedef typename VALUE*                    pointer;
+    typedef typename VALUE&                    reference;
+        // Standard iterator defined types [24.4.2].
+
+  public:
+    // CREATORS
     TestValuesArrayIterator(const VALUE *object,
                             const VALUE *end,
                             bool        *dereferenceable,
@@ -207,6 +222,7 @@ class TestValuesArrayIterator {
         // until 'end' is allowed to be dereferenced or compared
         // respectively.
 
+    // MANIPULATORS
     const VALUE& operator *();
         // Return the value referred to by this object.  This object is no
         // longer dereferenceable after a call to this function.  The
@@ -344,6 +360,7 @@ class TestValuesArray {
                        // class TestValuesArrayIterator
                        // -----------------------------
 
+// CREATORS
 template <class VALUE>
 TestValuesArrayIterator<VALUE>::TestValuesArrayIterator(
                                                   const VALUE *object,
@@ -357,6 +374,7 @@ TestValuesArrayIterator<VALUE>::TestValuesArrayIterator(
 {
 }
 
+// MANIPULATORS
 template <class VALUE>
 const VALUE& TestValuesArrayIterator<VALUE>::operator *()
 {
@@ -431,8 +449,7 @@ void TestValuesArray<VALUE, CONVERTER>::initialize(
     // Allocate all memory in one go.
 
     d_data = reinterpret_cast<VALUE *>(d_allocator_p->allocate(
-                                           d_size * sizeof(VALUE)
-                                           + 2 * (d_size + 1) * sizeof(bool)));
+                    d_size * sizeof(VALUE) + 2 * (d_size + 1) * sizeof(bool)));
 
     d_dereferenceable = reinterpret_cast<bool *>(d_data + d_size);
     d_comparable = d_dereferenceable + d_size + 1;
