@@ -114,9 +114,9 @@ class VirtuallyDerived : public Base1, public Base2 {
 
 class PolyVirtuallyDerived : public Base1, public Base2 {
 #ifdef BDE_BUILD_TARGET_EXC
-    ~PolyVirtuallyDerived() throw();
+    virtual ~PolyVirtuallyDerived() throw();
 #else
-    ~PolyVirtuallyDerived();
+    virtual ~PolyVirtuallyDerived();
 #endif
 };
 
