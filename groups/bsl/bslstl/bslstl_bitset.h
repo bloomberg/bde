@@ -46,6 +46,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Check for duplicate characters
+///- - - - - - - - - - - - - - - - - - - - -
 // This component is for use by the 'bsl+stdhdrs' package.  Developers should
 // include bsl_bitset.h and use 'bsl::bitset' from there.
 //
