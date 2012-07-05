@@ -348,7 +348,8 @@ void bael_FileObserver2::logRecordDefault(bsl::ostream&      stream,
     stream << buffer;
     stream << fixedFields.category();
     stream << ' ';
-    stream << fixedFields.message();
+    bslstl_StringRef message = fixedFields.messageRef();
+    stream.write(message.data(), message.length());
     stream << ' ';
 
     const bdem_List& userFields = record.userFields();

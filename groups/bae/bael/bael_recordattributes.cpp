@@ -78,10 +78,10 @@ void bael_RecordAttributes::setMessage(const char *message)
     }
 }
 
-void bael_RecordAttributes::setMessageRef(const bslstl_StringRef& strref)
+void bael_RecordAttributes::setMessage(const bslstl_StringRef& message)
 {
     d_messageStreamBuf.pubseekpos(0);
-    d_messageStreamBuf.sputn(strref.data(), strref.length());
+    d_messageStreamBuf.sputn(message.data(), message.length());
 }
 
 bael_RecordAttributes& bael_RecordAttributes::operator=(
@@ -121,17 +121,10 @@ const char *bael_RecordAttributes::message() const
 bslstl_StringRef bael_RecordAttributes::messageRef() const
 {
     int length = d_messageStreamBuf.length();
-    if (0 == length || '\0' != *(d_messageStreamBuf.data() + length - 1)) {
-        // Null terminate the string.
-
-        bdesb_MemOutStreamBuf& streamBuf =
-            const_cast<bael_RecordAttributes *>(this)->d_messageStreamBuf;
-        streamBuf.sputc('\0');
-        streamBuf.pubseekoff(-1, bsl::ios_base::cur);
-        ++length;
-    }
-
-    return bslstl_StringRef(d_messageStreamBuf.data(), length - 1);
+    const char *str = d_messageStreamBuf.data();
+    return bslstl_StringRef(str,
+                            (!length ||'\0' != str[length - 1]) ? length
+                                                                : length - 1);
 }
 
 bsl::ostream& bael_RecordAttributes::print(bsl::ostream& stream,
@@ -222,8 +215,8 @@ bsl::ostream& bael_RecordAttributes::print(bsl::ostream& stream,
     else {
         stream << ' ';
     }
-    bslstl_StringRef strref = messageRef();
-    stream.write(strref.data(), strref.length());
+    bslstl_StringRef message = messageRef();
+    stream.write(message.data(), message.length());
 
     if (0 <= spacesPerLevel) {
         stream << '\n';

@@ -46,8 +46,12 @@ void bael_DefaultObserver::publish(const bael_Record&  record,
               << bael_Severity::toAscii(severityLevel) << ' '
               << fixedFields.fileName()                << ' '
               << fixedFields.lineNumber()              << ' '
-              << fixedFields.category()                << ' '
-              << fixedFields.message()                 << ' ';
+              << fixedFields.category()                << ' ';
+
+    bslstl_StringRef message = fixedFields.messageRef();
+    d_stream->write(message.data(), message.length());
+
+    *d_stream << ' ';
 
     const bdem_List& userFields = record.userFields();
     const int numUserFields = userFields.length();

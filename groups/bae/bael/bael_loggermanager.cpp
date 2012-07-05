@@ -652,8 +652,8 @@ void bael_LoggerManager::logMessage(int severity, bael_Record *record)
                  record->fixedFields().lineNumber(),
                  "UNINITIALIZED_LOGGER_MANAGER");
 
-    bslstl_StringRef strref = record->fixedFields().messageRef();
-    fwrite(strref.data(), strref.length(), 1, stderr);
+    bslstl_StringRef message = record->fixedFields().messageRef();
+    bsl::fwrite(message.data(), message.length(), 1, stderr);
 
     bsl::fprintf(stderr, "\n");
 

@@ -1629,16 +1629,16 @@ int main(int argc, char *argv[])
          record2->fixedFields().setMessage("No Logger Manager!");
          record3->fixedFields().setMessage("No Logger Manager!");
 
-         // The next three messages are set to strings without embedded '\0'.
+         // The next three messages are set to strings with embedded '\0'.
 
          bslstl_StringRef msg4("No Logger\0 Manager\0 4!", 22);
-         record4->fixedFields().setMessageRef(msg4);
+         record4->fixedFields().setMessage(msg4);
 
          bslstl_StringRef msg5("No Logger\0 Manager\0 5!", 22);
-         record5->fixedFields().setMessageRef(msg5);
+         record5->fixedFields().setMessage(msg5);
 
          bslstl_StringRef msg6("No Logger\0 Manager\0 6!", 22);
-         record6->fixedFields().setMessageRef(msg6);
+         record6->fixedFields().setMessage(msg6);
 
 #ifdef BSLS_PLATFORM__OS_UNIX
          fflush(stderr);

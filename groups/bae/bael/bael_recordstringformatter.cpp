@@ -33,8 +33,6 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
-
-
 namespace {
 
 const char *const DEFAULT_FORMAT_SPEC = "\n%d %p:%t %s %f:%l %c %m %u\n";
@@ -244,8 +242,8 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                 output += fixedFields.category();
               } break;
               case 'm': {
-                bslstl_StringRef strref = fixedFields.messageRef();
-                output.append(strref.data(), strref.length());
+                bslstl_StringRef message = fixedFields.messageRef();
+                output.append(message.data(), message.length());
               } break;
               case 'x': {
                 bsl::stringstream ss;

@@ -65,7 +65,7 @@ using namespace bsl;  // automatically added by script
 // [ 2] void setFileName(const char *fileName);
 // [ 2] void setLineNumber(int lineNumber);
 // [ 2] void setMessage(const char *message);
-// [ 2] void setMessageRef(const bslstl_StringRef& strref);
+// [ 2] void setMessage(const bslstl_StringRef& strref);
 // [ 2] void setProcessID(int processID);
 // [ 2] void setSeverity(int severity);
 // [ 2] void setThreadID(bsls_PlatformUtil::Uint64 threadID);
@@ -1078,7 +1078,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) {
-             cout << "\tTesting 'setMessageRef' and 'messageRef'" << endl;
+             cout << "\tTesting 'setMessage' and 'messageRef'" << endl;
         }
         {
             bslstl_StringRef emptyMsgRef("", 0);
@@ -1086,7 +1086,7 @@ int main(int argc, char *argv[])
                 Obj mA;
                 bslstl_StringRef testMsgRef(testMsgs[i].msg, testMsgs[i].len2);
                 ASSERT(emptyMsgRef == mA.messageRef());
-                mA.setMessageRef(testMsgRef);
+                mA.setMessage(testMsgRef);
 
                 bslstl_StringRef strref = mA.messageRef();
 
@@ -1573,7 +1573,7 @@ int main(int argc, char *argv[])
             mX.setCategory("category");
             mX.setFileName("bael_recordattributes.t.cpp");
             mX.setLineNumber(1066);
-            mX.setMessageRef(testMsgRef);
+            mX.setMessage(testMsgRef);
             mX.setProcessID(74372);
             mX.setSeverity(128);
             mX.setThreadID(19);

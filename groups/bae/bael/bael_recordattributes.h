@@ -323,11 +323,10 @@ class bael_RecordAttributes {
         // Set the message attribute of this record attributes object to the
         // specified (non-null) 'message'.
 
-    void setMessageRef(const bslstl_StringRef& strref);
+    void setMessage(const bslstl_StringRef& message);
         // Set the message attribute of this record attributes object to the
-        // specified string reference 'strref'.  This function does not
-        // truncate the string from 'strref' if there are embedded '\0'
-        // characters in it.
+        // specified 'message'.  Note that 'message' need not be
+        // null-terminated, and may contain null ('\0') characters.
 
     void setProcessID(int processID);
         // Set the processID attribute of this record attributes object to the
@@ -372,8 +371,10 @@ class bael_RecordAttributes {
         // Return the message attribute of this record attributes object.
 
     bslstl_StringRef messageRef() const;
-        // Return a modifiable string reference of this record attributes
-        // object.
+        // Return a string reference providing non-modifiable access to the
+        // message attribute of this record attributes object.  Note that the
+        // message need not be null-terminated, and may contain null ('\0')
+        // characters.
 
     int processID() const;
         // Return the processID attribute of this record attributes object.
