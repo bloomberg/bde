@@ -26,5 +26,6 @@ bslmf_nil
 bslmf_removecvq
 bslmf_removereference
 bslmf_switch
+bslmf_selecttrait
 bslmf_tag
 bslmf_typelist
