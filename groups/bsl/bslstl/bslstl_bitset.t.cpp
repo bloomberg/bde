@@ -118,12 +118,12 @@ void orStrings(char *result, std::size_t resultSize, const char* a, const char* 
     // Return in the specified 'result' a string of 0's and 1's which is the
     // "bitwise" (characterwise) 'or' of the specified 'a' and 'b' strings.  The
     // behavior is undefined unless
-    // 'strlen(a) == strlen(b) && strlen(a) == resultSize - 1'
+    // 'strlen(a) == strlen(b) && strlen(a) <= resultSize - 1'
 {
     std::size_t length = strlen(a);
 
     BSLS_ASSERT(strlen(b) == length);
-    BSLS_ASSERT(resultSize - 1 == length);
+    BSLS_ASSERT(resultSize - 1 >= length);
 
     for (int i = 0; i < length; ++i) {
         // OR truth table
@@ -135,22 +135,24 @@ void orStrings(char *result, std::size_t resultSize, const char* a, const char* 
         // 1 | 1 | 1
         // --+---+-------
 
-        // Happily, we can bitwise 'or' the characters '0' and '1' and
-        // get the expected results.
+        // We can bitwise 'or' the characters '0' and '1' and get the expected
+        // results.
         result[i] = a[i] | b[i];
     }
+
+    result[length] = '\0';
 }
 
 void andStrings(char *result, std::size_t resultSize, const char* a, const char* b)
     // Return in the specified 'result' a string of 0's and 1's which is the
     // "bitwise" (characterwise) 'and' of the specified 'a' and 'b' strings.  The
     // behavior is undefined unless
-    // 'strlen(a) == strlen(b) && strlen(a) == resultSize - 1'
+    // 'strlen(a) == strlen(b) && strlen(a) <= resultSize - 1'
 {
     std::size_t length = strlen(a);
 
     BSLS_ASSERT(strlen(b) == length);
-    BSLS_ASSERT(resultSize - 1 == length);
+    BSLS_ASSERT(resultSize - 1 >= length);
 
     for (int i = 0; i < length; ++i) {
         // OR truth table
@@ -162,22 +164,24 @@ void andStrings(char *result, std::size_t resultSize, const char* a, const char*
         // 1 | 1 | 1
         // --+---+-------
 
-        // Happily, we can bitwise 'and' the characters '0' and '1' and
-        // get the expected results.
+        // We can bitwise 'and' the characters '0' and '1' and get the expected
+        // results.
         result[i] = a[i] & b[i];
     }
+
+    result[length] = '\0';
 }
 
 void xorStrings(char *result, std::size_t resultSize, const char* a, const char* b)
     // Return in the specified 'result' a string of 0's and 1's which is the
     // "bitwise" (characterwise) 'xor' of the specified 'a' and 'b' strings.  The
     // behavior is undefined unless
-    // 'strlen(a) == strlen(b) && strlen(a) == resultSize - 1'
+    // 'strlen(a) == strlen(b) && strlen(a) <= resultSize - 1'
 {
     std::size_t length = strlen(a);
 
     BSLS_ASSERT(strlen(b) == length);
-    BSLS_ASSERT(resultSize - 1 == length);
+    BSLS_ASSERT(resultSize - 1 >= length);
 
     for (int i = 0; i < length; ++i) {
         // OR truth table
@@ -189,21 +193,24 @@ void xorStrings(char *result, std::size_t resultSize, const char* a, const char*
         // 1 | 1 | 0
         // --+---+-------
 
-        // Happily, we can bitwise 'xor' the characters '0' and '1' and
-        // get the expected results.
-        result[i] = a[i] ^ b[i];
+        // We can bitwise 'xor' the characters '0' and '1' and get the expected
+        // result for the lowest bit, and then 'or'-ing in '0' to provide the
+        // common bits which the 'xor' wipes out.
+        result[i] = (a[i] ^ b[i]) | '0';
     }
+
+    result[length] = '\0';
 }
 
 void negateString(char *result, std::size_t resultSize, const char* a)
     // Return in the specified 'result' a string of 0's and 1's which is the
     // "bitwise" (characterwise) negation of the specified 'a' string.  The
-    // behavior is undefined unless 'strlen(a) == resultSize - 1'
+    // behavior is undefined unless 'strlen(a) <= resultSize - 1'
 
 {
     std::size_t length = strlen(a);
 
-    BSLS_ASSERT(resultSize - 1 == length);
+    BSLS_ASSERT(resultSize - 1 >= length);
 
     for (int i = 0; i < length; ++i) {
         // NEGATION truth table
@@ -218,7 +225,7 @@ void negateString(char *result, std::size_t resultSize, const char* a)
         result[i] = notCharacter(a[i]);
     }
 
-    return result;
+    result[length] = '\0';
 }
 
 //=============================================================================
