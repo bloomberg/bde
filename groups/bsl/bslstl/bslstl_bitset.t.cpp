@@ -670,6 +670,9 @@ int main(int argc, char *argv[])
           //:
           //: 3 All bits in a bitset(unsigned long)-constructed bitset are as
           //:   expected.
+          //
+          // Plan:
+          //   
           //--------------------------------------------------------------------
 
       } break;
