@@ -123,8 +123,8 @@ bslstl_StringRef bael_RecordAttributes::messageRef() const
     int length = d_messageStreamBuf.length();
     const char *str = d_messageStreamBuf.data();
     return bslstl_StringRef(str,
-                            (!length ||'\0' != str[length - 1]) ? length
-                                                                : length - 1);
+                            (!length || '\0' != str[length - 1]) ? length
+                                                                 : length - 1);
 }
 
 bsl::ostream& bael_RecordAttributes::print(bsl::ostream& stream,

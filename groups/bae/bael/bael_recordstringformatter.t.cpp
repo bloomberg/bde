@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
                                           threadID,
                                           filename,
                                           lineNum,
-                                          "FOO.\0BAR.\0BAZ",
+                                          "FOO.BAR.BAZ",
                                           bael_Severity::BAEL_WARN,
                                           MSG);
 
@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
             mX.setFormat("%c");
             X(oss1, record);
             if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == "FOO.\0BAR.\0BAZ");
+            ASSERT(oss1.str() == "FOO.BAR.BAZ");
         }
 
         if (verbose) cout << "\n  Testing \"%m\"." << endl;
