@@ -20,17 +20,17 @@ using namespace std;
 //
 // ----------------------------------------------------------------------------
 // CREATORS:
-// [ 5] bitset()
-// [ 6] bitset(unsigned long)
-// [ 2] bitset(native_std::basic_string, size_type, size_type);
-// [ 2] bitset(bslstl::basic_string, size_type, size_type);
+// [ 2] bitset()
+// [ 2] bitset(unsigned long)
+// [ 3] bitset(native_std::basic_string, size_type, size_type);
+// [ 3] bitset(bslstl::basic_string, size_type, size_type);
 //
 // MANIPULATORS:
-// [ 3] bitset& operator<<=(std::size_t pos);
-// [ 3] bitset& operator>>=(std::size_t pos);
+// [ 4] bitset& operator<<=(std::size_t pos);
+// [ 4] bitset& operator>>=(std::size_t pos);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 4] USAGE EXAMPLE
+// [ 5] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //==========================================================================
@@ -310,21 +310,6 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // zero is always the leading case
     case 5: {
         // --------------------------------------------------------------------
-        // DEFAULT CONSTRUCTOR TEST
-        //   Ensure that the default constructor leaves the object in the
-        //   expected state for different initial sizes.
-        //
-        // Concerns:
-        //: 1 bitset<N> implies size()==N.
-        //:
-        //: 2 All bits in a default-constructed bitset<N> are initially 0.
-        //:
-        //: 3 
-        // --------------------------------------------------------------------
-
-    } break;
-    case 4: {
-        // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST
         //
         // Finally, we can exercise our 'isPrime' function:
@@ -353,7 +338,7 @@ int main(int argc, char *argv[])
         ASSERT( ! isPrime(9975));
         ASSERT( ! isPrime(10000));
     } break;
-    case 3: {
+    case 4: {
         // --------------------------------------------------------------------
         // SHIFT OPERATOR TEST
         //
@@ -585,7 +570,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // STRING CONSTRUCTOR TEST
         //
@@ -671,6 +656,24 @@ int main(int argc, char *argv[])
         }
 
       } break;
+
+      case 2: {
+          // --------------------------------------------------------------------
+          // DEFAULT CONSTRUCTOR TEST
+          //   Ensure that the default constructor leaves the object in the
+          //   expected state for different initial sizes.
+          //
+          // Concerns:
+          //: 1 bitset<N> implies size()==N.
+          //:
+          //: 2 All bits in a default-constructed bitset<N> are initially 0.
+          //:
+          //: 3 All bits in a bitset(unsigned long)-constructed bitset are as
+          //:   expected.
+          //--------------------------------------------------------------------
+
+      } break;
+
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -803,6 +806,7 @@ int main(int argc, char *argv[])
                              "x1 <op> x1, x2, x3, x4." << endl;
         ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
+
 
       } break;
       default: {
