@@ -499,6 +499,43 @@ class bdecs_PackedCalendar {
     // part of an object as both source and destination) for the same
     // operation is supported in all cases.
 
+    // PRIVATE TYPES
+    typedef bsl::vector<int>::const_iterator     OffsetsConstIterator;
+    typedef bsl::vector<int>::const_iterator     CodesIndexConstIterator;
+    typedef bsl::vector<int>::const_iterator     CodesConstIterator;
+    typedef bsl::vector<int>::const_reverse_iterator
+                                                 OffsetsConstReverseIterator;
+    typedef bsl::vector<int>::const_reverse_iterator
+                                                 CodesConstReverseIterator;
+    typedef bsl::vector<int>::iterator           OffsetsIterator;
+    typedef bsl::vector<int>::iterator           CodesIndexIterator;
+    typedef bsl::vector<int>::iterator           CodesIterator;
+    typedef bsl::vector<int>::reverse_iterator   OffsetsReverseIterator;
+    typedef bsl::vector<int>::reverse_iterator   CodesIndexReverseIterator;
+    typedef bsl::vector<int>::reverse_iterator   CodesReverseIterator;
+
+    typedef bsl::vector<int>::size_type          OffsetsSizeType;
+    typedef bsl::vector<int>::size_type          CodesIndexSizeType;
+    typedef bsl::vector<int>::size_type          CodesSizeType;
+
+    typedef bsl::pair<bdet_Date, bdec_DayOfWeekSet>
+                                                 WeekendDaysTransition;
+
+    typedef bsl::vector<WeekendDaysTransition>::iterator
+                                                 WeekendDaysTransitionIterator;
+
+    typedef bsl::vector<WeekendDaysTransition>::const_iterator
+                                            WeekendDaysTransitionConstIterator;
+
+
+    struct WeekendDaysTransitionLess {
+
+        bool operator() (const WeekendDaysTransition& lhs,
+                         const WeekendDaysTransition& rhs) {
+            return lhs.first < rhs.first;
+        }
+    };
+
     // DATA
     bdet_Date         d_firstDate;          // first valid date of calendar
                                             // or (9999,12,31) if this calendar
@@ -533,6 +570,10 @@ class bdecs_PackedCalendar {
     bslma_Allocator  *d_allocator_p;        // memory allocator (held, not
                                             // owned)
 
+    bsl::vector<WeekendDaysTransition> d_weekendDaysTransitions;
+        // chronological list of weekend days transitions
+
+
     // FRIENDS
     friend class bdecs_PackedCalendar_BusinessDayConstIterator;
     friend bool operator==(const bdecs_PackedCalendar&,
@@ -541,25 +582,6 @@ class bdecs_PackedCalendar {
                            const bdecs_PackedCalendar&);
 
   private:
-    // PRIVATE TYPES
-    typedef bsl::vector<int>::const_iterator       OffsetsConstIterator;
-    typedef bsl::vector<int>::const_iterator       CodesIndexConstIterator;
-    typedef bsl::vector<int>::const_iterator       CodesConstIterator;
-    typedef bsl::vector<int>::const_reverse_iterator
-                                                   OffsetsConstReverseIterator;
-    typedef bsl::vector<int>::const_reverse_iterator
-                                                   CodesConstReverseIterator;
-    typedef bsl::vector<int>::iterator             OffsetsIterator;
-    typedef bsl::vector<int>::iterator             CodesIndexIterator;
-    typedef bsl::vector<int>::iterator             CodesIterator;
-    typedef bsl::vector<int>::reverse_iterator     OffsetsReverseIterator;
-    typedef bsl::vector<int>::reverse_iterator     CodesIndexReverseIterator;
-    typedef bsl::vector<int>::reverse_iterator     CodesReverseIterator;
-
-    typedef bsl::vector<int>::size_type            OffsetsSizeType;
-    typedef bsl::vector<int>::size_type            CodesIndexSizeType;
-    typedef bsl::vector<int>::size_type            CodesSizeType;
-
     // PRIVATE MANIPULATORS
     CodesIterator beginHolidayCodes(const OffsetsIterator& iter);
         // Return an iterator that refers to the first modifiable holiday code
@@ -752,28 +774,42 @@ class bdecs_PackedCalendar {
 
     void addWeekendDay(bdet_DayOfWeek::Day weekendDay);
         // Add to this calendar the specified 'weekendDay' (i.e., a recurring
-        // non-business day).  All dates within the valid range
-        // '[ firstDate() .. lastDate() ]' that fall on this day of the week
-        // will cease to be business days.  Note that every occurrence of
-        // 'weekendDay' will continue be a non-business day, even if the
-        // valid range of this calendar is subsequently increased.
+        // non-business day).  All dates within the valid range '[ firstDate()
+        // .. lastDate() ]' that fall on this day of the week will cease to be
+        // business days.  Note that every occurrence of 'weekendDay' will
+        // continue be a non-business day, even if the valid range of this
+        // calendar is subsequently increased.  The behavior is undefined if
+        // weekend-days transitions (added via the 'addWeekendDaysTransition'
+        // method) exist in this calendar.
 
     void addWeekendDays(const bdec_DayOfWeekSet& weekendDays);
         // Add to this calendar the specified 'weekendDays' (i.e., recurring
-        // non-business days).  All dates within the valid range
-        // '[ firstDate() .. lastDate() ]' that fall on any day in
-        // 'weekendDays' cease to be business days.  Note that every occurrence
-        // of every day of the week in 'weekendDays' will continue to be a
-        // non-business day, even if the valid range of this calendar is
-        // subsequently increased.
+        // non-business days).  All dates within the valid range '[ firstDate()
+        // .. lastDate() ]' that fall on any day in 'weekendDays' cease to be
+        // business days.  Note that every occurrence of every day of the week
+        // in 'weekendDays' will continue to be a non-business day, even if the
+        // valid range of this calendar is subsequently increased.  The
+        // behavior is undefined if weekend-days transitions (added via the
+        // 'addWeekendDaysTransition' method) exist in this calendar.
+
+    void addWeekendDaysTransition(const bdet_Date& date,
+                                  const bdec_DayOfWeekSet& weekendDays);
+        // Add to this calendar a new weekend-days transition comprising the
+        // specified 'weekendDays' as days considered to be the weekend for the
+        // following period of time: the period starting from the specified
+        // 'date' to the date before the starting date of the next weekend-days
+        // transition or the last date of this calendar, if no following
+        // weekend-days transitions exist.  The behavior is undefined if
+        // weekend days have been added to this calendar via the
+        // 'addWeekendDay' method or the 'addWeekendDays' method.
 
     void intersectBusinessDays(const bdecs_PackedCalendar& other);
         // Merge the specified 'other' calendar into this calendar such that
         // the valid range of this calendar will become the *intersection* of
         // the two calendars' ranges, and the weekend days and holidays for
-        // this calendar become the union of those (non-business) days from
-        // the two calendars -- i.e., the valid business days of this calendar
-        // will become the intersection of those of the two original calendar
+        // this calendar become the union of those (non-business) days from the
+        // two calendars -- i.e., the valid business days of this calendar will
+        // become the intersection of those of the two original calendar
         // values.  For each holiday that remains, the resulting holiday codes
         // in this calendar will be the union of the corresponding original
         // holiday codes.
@@ -1016,7 +1052,9 @@ class bdecs_PackedCalendar {
 
     bool isWeekendDay(bdet_DayOfWeek::Day dayOfWeek) const;
         // Return 'true' if the specified 'dayOfWeek' is a weekend day in this
-        // calendar, and 'false' otherwise.
+        // calendar, and 'false' otherwise.  The behavior is undefined if
+        // weekend-days transitions (added via the 'addWeekendDaysTransition'
+        // method) exist in this calendar.
 
     const bdet_Date& lastDate() const;
         // Return a reference to the non-modifiable latest date in the valid
@@ -2107,13 +2145,44 @@ bdecs_PackedCalendar::endHolidayCodes(const OffsetsConstIterator& iter) const
 inline
 void bdecs_PackedCalendar::addWeekendDay(bdet_DayOfWeek::Day weekendDay)
 {
+    BSLS_ASSERT_SAFE(d_weekendDaysTransitions.empty());
+
     d_weekendDays.add(weekendDay);
 }
 
 inline
 void bdecs_PackedCalendar::addWeekendDays(const bdec_DayOfWeekSet& weekendDays)
 {
+    BSLS_ASSERT_SAFE(d_weekendDaysTransitions.empty());
+
     d_weekendDays |= weekendDays;
+}
+
+inline
+void bdecs_PackedCalendar::addWeekendDaysTransition(
+                                          const bdet_Date& date,
+                                          const bdec_DayOfWeekSet& weekendDays)
+{
+    BSLS_ASSERT_SAFE(d_weekendDays.length() == 0);
+
+    WeekendDaysTransition newTransition(date, weekendDays);
+
+    if (0 == d_weekendDaysTransitions.size()) {
+        d_weekendDaysTransitions.push_back(newTransition);
+    }
+
+    WeekendDaysTransitionIterator it =
+                             bsl::lower_bound(d_weekendDaysTransitions.begin(),
+                                              d_weekendDaysTransitions.end(),
+                                              newTransition,
+                                              WeekendDaysTransitionLess());
+
+    if (it != d_weekendDaysTransitions.end() && it->first == date) {
+        it->second = weekendDays;
+    }
+    else {
+        d_weekendDaysTransitions.insert(it, newTransition);
+    }
 }
 
 template <class STREAM>
@@ -2456,7 +2525,29 @@ bool bdecs_PackedCalendar::isWeekendDay(bdet_DayOfWeek::Day dayOfWeek) const
 inline
 bool bdecs_PackedCalendar::isWeekendDay(const bdet_Date& date) const
 {
-    return isWeekendDay(date.dayOfWeek());
+    BSLS_ASSERT_SAFE(d_weekendDaysTransitions.empty() ||
+                     d_weekendDays.length() == 0);
+
+    if (d_weekendDaysTransitions.empty()) {
+        return isWeekendDay(date.dayOfWeek());
+    }
+
+    bdec_DayOfWeekSet dummySet;
+
+    WeekendDaysTransitionConstIterator it =
+                        bsl::upper_bound(d_weekendDaysTransitions.begin(),
+                                         d_weekendDaysTransitions.end(),
+                                         WeekendDaysTransition(date, dummySet),
+                                         WeekendDaysTransitionLess());
+
+    if (it == d_weekendDaysTransitions.begin()) {
+        // The specified 'date' is prior to the first weekend-days transition.
+        return false;
+    }
+    else {
+        --it;
+        return it->second.isMember(date.dayOfWeek());
+    }
 }
 
 inline
