@@ -293,8 +293,9 @@ int main(int argc, char *argv[])
         //:   passing an argument of type 'MetaInt<1>' will dispatch t the
         //:   second.
         //
+        // TBD: Incomplete specification and implementation of this test case
         // Plan:
-==>        //: 1 Create a function template, 'matchIntConstant<V>' having two
+        //: 1 Create a function template, 'matchIntConstant<V>' having two
         //:   overloads: one that takes an argument of type
         //:   'integer_constant<int, V>' and returns 'true', and another which
         //:   takes an argument of a type convertible from *any*

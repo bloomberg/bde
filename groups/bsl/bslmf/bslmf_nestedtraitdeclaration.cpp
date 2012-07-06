@@ -1,6 +1,6 @@
-// bslmf_declarenestedtrait.cpp                  -*-C++-*-
+// bslmf_nestedtraitdeclaration.cpp                  -*-C++-*-
 
-#include <bslmf_declarenestedtrait.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
