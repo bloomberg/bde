@@ -20,6 +20,8 @@ using namespace std;
 //
 // ----------------------------------------------------------------------------
 // CREATORS:
+// [ 5] bitset()
+// [ 6] bitset(unsigned long)
 // [ 2] bitset(native_std::basic_string, size_type, size_type);
 // [ 2] bitset(bslstl::basic_string, size_type, size_type);
 //
@@ -28,6 +30,7 @@ using namespace std;
 // [ 3] bitset& operator>>=(std::size_t pos);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 4] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //==========================================================================
@@ -114,10 +117,11 @@ char notCharacter(char bit)
     return '0';
 }
 
-void orStrings(char *result, std::size_t resultSize, const char* a, const char* b)
+void orStrings(char *result, std::size_t resultSize,
+               const char* a, const char* b)
     // Return in the specified 'result' a string of 0's and 1's which is the
-    // "bitwise" (characterwise) 'or' of the specified 'a' and 'b' strings.  The
-    // behavior is undefined unless
+    // "bitwise" (characterwise) 'or' of the specified 'a' and 'b' strings.
+    // The behavior is undefined unless
     // 'strlen(a) == strlen(b) && strlen(a) <= resultSize - 1'
 {
     std::size_t length = strlen(a);
@@ -143,10 +147,11 @@ void orStrings(char *result, std::size_t resultSize, const char* a, const char* 
     result[length] = '\0';
 }
 
-void andStrings(char *result, std::size_t resultSize, const char* a, const char* b)
+void andStrings(char *result, std::size_t resultSize,
+                const char* a, const char* b)
     // Return in the specified 'result' a string of 0's and 1's which is the
-    // "bitwise" (characterwise) 'and' of the specified 'a' and 'b' strings.  The
-    // behavior is undefined unless
+    // "bitwise" (characterwise) 'and' of the specified 'a' and 'b' strings.
+    // The behavior is undefined unless
     // 'strlen(a) == strlen(b) && strlen(a) <= resultSize - 1'
 {
     std::size_t length = strlen(a);
@@ -172,10 +177,11 @@ void andStrings(char *result, std::size_t resultSize, const char* a, const char*
     result[length] = '\0';
 }
 
-void xorStrings(char *result, std::size_t resultSize, const char* a, const char* b)
+void xorStrings(char *result, std::size_t resultSize,
+                const char* a, const char* b)
     // Return in the specified 'result' a string of 0's and 1's which is the
-    // "bitwise" (characterwise) 'xor' of the specified 'a' and 'b' strings.  The
-    // behavior is undefined unless
+    // "bitwise" (characterwise) 'xor' of the specified 'a' and 'b' strings.
+    // The behavior is undefined unless
     // 'strlen(a) == strlen(b) && strlen(a) <= resultSize - 1'
 {
     std::size_t length = strlen(a);
@@ -229,6 +235,66 @@ void negateString(char *result, std::size_t resultSize, const char* a)
 }
 
 //=============================================================================
+//                             USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+// When implementing the classic 'Sieve of Eratosthenes' algorithm to enumerate
+// prime numbers, we want as efficient a way of representing a flag for each
+// potential prime number.  The following code illustrates how we can use
+// 'bsl::bitset' to accomplish this result.
+//
+// First, we need to set the limit for the domain we'll search for prime
+// numbers:
+//..
+enum { PRIME_NUMBER_LIMIT = 10000 };
+//..
+// Then, we define a function which will check whether a given number is prime
+// or not:
+//..
+bool isPrime(int candidate)
+    // Return 'true' if the specified 'candidate' value is a prime number.
+    // The behavior is undefined unless
+    // '2 <= candidate && candidate <= PRIME_NUMBER_LIMIT'
+{
+    ASSERT(2 <= candidate && candidate <= PRIME_NUMBER_LIMIT);
+//..
+// Next, we declare the bitset which will contain flags indicating whether each
+// element is potentially prime or not, and compute 'sqrt(candidate)', which is
+// as far as we need to compute:
+//..
+    // Candidate primes in the '[2, PRIME_NUMBER_LIMIT]' range.
+    bsl::bitset<PRIME_NUMBER_LIMIT - 2> potentialPrimes;
+    const int sqrtOfCandidate = native_std::sqrt(double(candidate));
+//..
+// As an optimization, we'll treat 0 values as potential primes, since that's
+// how 'bsl::bitset' is default-initialized.
+//
+// Now, we loop from 2 to 'candidate', and use the sieve algorithm to
+// eliminate non-primes.
+//..
+    for (int i = 2; i <= sqrtOfCandidate; ++i) {
+        if (potentialPrimes[i - 2]) {
+            continue; // Skip this value - it is already flagged as
+                      // composite.
+        }
+
+        for (int flagValue = i; flagValue <= candidate; flagValue += i) {
+            if (flagValue == candidate) {
+                return false;                                        // RETURN
+            }
+
+            potentialPrimes[flagValue - 2] = 1;
+        }
+    }
+//..
+// Then, we can check potentialPrimes[candidate] to see whether our
+// candidate value is a prime number.
+//..
+    return !potentialPrimes[candidate - 2];
+}
+
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -242,6 +308,51 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // zero is always the leading case
+    case 5: {
+        // --------------------------------------------------------------------
+        // DEFAULT CONSTRUCTOR TEST
+        //   Ensure that the default constructor leaves the object in the
+        //   expected state for different initial sizes.
+        //
+        // Concerns:
+        //: 1 bitset<N> implies size()==N.
+        //:
+        //: 2 All bits in a default-constructed bitset<N> are initially 0.
+        //:
+        //: 3 
+        // --------------------------------------------------------------------
+
+    } break;
+    case 4: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE TEST
+        //
+        // Finally, we can exercise our 'isPrime' function:
+        // --------------------------------------------------------------------
+
+        ASSERT(   isPrime(2));
+        ASSERT(   isPrime(3));
+        ASSERT( ! isPrime(4));
+        ASSERT(   isPrime(5));
+        ASSERT( ! isPrime(6));
+        ASSERT(   isPrime(7));
+        ASSERT( ! isPrime(8));
+        ASSERT( ! isPrime(9));
+        ASSERT( ! isPrime(10));
+        ASSERT(   isPrime(11));
+        ASSERT( ! isPrime(12));
+        ASSERT(   isPrime(13));
+        ASSERT( ! isPrime(14));
+        ASSERT( ! isPrime(15));
+        ASSERT( ! isPrime(16));
+        ASSERT(   isPrime(17));
+        ASSERT( ! isPrime(18));
+        ASSERT(   isPrime(19));
+        ASSERT( ! isPrime(20));
+        ASSERT(   isPrime(9973));
+        ASSERT( ! isPrime(9975));
+        ASSERT( ! isPrime(10000));
+    } break;
     case 3: {
         // --------------------------------------------------------------------
         // SHIFT OPERATOR TEST
