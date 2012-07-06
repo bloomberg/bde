@@ -43,42 +43,69 @@ BSLS_IDENT("$Id: $")
 // First, we define a minimal container class, FixedList that provides a
 // read-only iterator FixedList::const_iterator.
 //..
-// template <typename VALUE_TYPE, bsl::size_t CAPACITY>
-// class FixedList {
+// template <class VALUE_TYPE, std::size_t CAPACITY>
+// class FixedCapacityList {
+// 	// This class implements a fixed-capacity list of objects of the given
+// 	// VALUE_TYPE, which must provide value semantics and define a default
+// 	// constructor and an assignment operator.  The list capacity, defined
+// 	// by CAPACITY, is constant and set at compile time.  The result of any
+// 	// attempt to append elements beyond that capacity is undefined.  The
+// 	// functionality of this class has been intentionally stripped down in
+// 	// order to make it as simple as possible.  It is intended only for use
+// 	// as a support class in usage examples that require the existance of a
+// 	// container class.
+// 
 //     private:
 //         // DATA
-//         bsl::size_t d_length;
-//         VALUE_TYPE d_storage_p[CAPACITY];
+//         std::size_t d_length;               // number of elements stored
+//         VALUE_TYPE  d_storage_p[CAPACITY];  // storage for list elements
 //     
 //     public:
 //         // PUBLIC TYPES
 //         typedef VALUE_TYPE const *const_iterator;
+// 	    // Representation of a read-only iterator over the list elements
 // 
 //         // CREATORS
-//         explicit FixedList();
+//         FixedCapacityList();
 //             // Initialize this object as an empty list
 //             
 //         // MANIPULATORS
-//         ~FixedList();
+//         ~FixedCapacityList();
 //         void append(const VALUE_TYPE& newValue);
 //             // Add a new value to the end of the list.
 //             // If d_length >= CAPACITY, behavior is undefined
 //         const_iterator begin() const;
-//             // Return an iterator pointing to the start of the list
+//             // Return a read-only iterator pointing to the start of the list
 //         const_iterator end() const;
-//             // Return an iterator pointing to the end of the list
+//             // Return a read-only iterator pointing to the end of the list
 // 
 //         // ACCESSORS
-//         bsl::size_t length() const;
+//         std::size_t length() const;
+// 	    // Return the number of elements stored in the list
 // };
 //..
 // Then, we define the equality comparison operators for FixedList by applying
 // bslalg::RangeCompare over the FixedList's iterators.
 //..
-// template<typename VALUE_TYPE, bsl::size_t CAPACITY>
-// inline
-// bool operator==(const FixedList<VALUE_TYPE, CAPACITY>& lhs,
-//                 const FixedList<VALUE_TYPE, CAPACITY>& rhs)
+// template<class VALUE_TYPE, std::size_t CAPACITY>
+// inline bool operator==(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs, 
+//                        const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs);
+//     // Return 'true' if the specified 'lhs' and 'rhs' instances have the same
+//     // value, and 'false' otherwise.  Two instances have the same value if the
+//     // have the same length and each element in lhs has the same value as the
+//     // corresponding element in rhs.
+// 
+// template<class VALUE_TYPE, std::size_t CAPACITY>
+// inline bool operator!=(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs, 
+// 		       const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs);
+//     // Return 'true' if the specified 'lhs' and 'rhs' instances do not have the
+//     // same value, and 'false' otherwise.  Two instances differ in value if
+//     // they have differing lengths or if any element in lhs has differs in
+//     // value from the corresponding element in rhs.
+// 
+// template<class VALUE_TYPE, std::size_t CAPACITY>
+// inline bool operator==(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
+//                        const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs)
 // {
 //     return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
 //                                                     lhs.end(),
@@ -88,10 +115,9 @@ BSLS_IDENT("$Id: $")
 //                                                     rhs.length());
 // }
 // 
-// template<typename VALUE_TYPE, bsl::size_t CAPACITY>
-// inline
-// bool operator!=(const FixedList<VALUE_TYPE, CAPACITY>& lhs,
-//                 const FixedList<VALUE_TYPE, CAPACITY>& rhs)
+// template<class VALUE_TYPE, std::size_t CAPACITY>
+// inline bool operator!=(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
+//                        const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs)
 // {
 //     return ! BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
 //                                                     lhs.end(),
@@ -104,10 +130,10 @@ BSLS_IDENT("$Id: $")
 // Now, we can verify that comparisons between instances of FixedList produce the
 // expected results:
 //..
-//     bslex::FixedList<int, 5> listA;
-//     bslex::FixedList<int, 5> listB;
-//     bslex::FixedList<int, 5> listC;
-//     bslex::FixedList<int, 5> listD;
+//     FixedList<int, 5> listA;
+//     FixedList<int, 5> listB;
+//     FixedList<int, 5> listC;
+//     FixedList<int, 5> listD;
 //     
 //     listA.append(1);
 //     listA.append(2);
