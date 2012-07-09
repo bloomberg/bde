@@ -3686,7 +3686,7 @@ static void runBerBenchmark(bool verbose, bool veryVerbose,
 }
     
 
-static void testCase36(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
+static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // --------------------------------------------------------------------
         // TESTING 'bdeat' FUNCTIONS via RawPtr
         //
@@ -4507,63 +4507,6 @@ static void testCase36(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                      A1str.str() == A4str.str());
 
         if (veryVerbose) P(a4Ptr);
-}
-
-static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose)
-{
-    // --------------------------------------------------------------------
-    // TESTING RawPtr anonymous choices
-    //
-    // Concerns (when accessing data through RawPtr)
-    //   - That anonymousField returns the anonymous choice object
-    //   - That selectorIndex on an object that is an anonymous choicce
-    //     returns the correct value
-    //   - That findUnambiguousChoice works
-    // --------------------------------------------------------------------
-    if (verbose) tst::cout << "\nTESTING RawPtr error codes"
-                           << "\n=============================" << bsl::endl;
-    
-
-    Schema schema;
-    ggSchema(&schema, ":*?Gc :a%*0&FU");
-    
-    const RecDef* RECORD = schema.lookupRecord("a");
-    ConstRecDefShdPtr crp(RECORD, NilDeleter(), 0);
-    Obj mX(crp);
-
-    if (veryVerbose) {
-        tst::cout << "X=" << mX << bsl::endl;
-    }
-    
-    bcem_AggregateRaw data = mX.rawData();
-
-    bcem_AggregateRaw anon;
-    int rc = data.anonymousField(&anon);
-    ASSERT(0 == rc);
-
-    bcem_AggregateError error;
-    
-    rc = data.anonymousField(&anon, &error, 0);
-    LOOP2_ASSERT(rc, error.description(), 0 == rc);
-    LOOP_ASSERT(anon.dataType(), 
-                bdem_ElemType::BDEM_CHOICE == anon.dataType());
-
-    if (veryVerbose) {
-        tst::cout << "Anon=" << anon << bsl::endl;
-    }
-
-    bcem_AggregateRaw choice;
-    rc = data.findUnambiguousChoice(&choice, &error);
-    LOOP2_ASSERT(rc, error.description(), 0 == rc);
-    ASSERT(!choice.isNull());
-    ASSERT(TC::BDEAT_CHOICE_CATEGORY == TCF::select(choice));
-
-    if (veryVerbose) {
-        tst::cout << "Choice=" << choice << bsl::endl;
-    }
-
-    LOOP_ASSERT(data.selectorIndex(), -1 == data.selectorIndex());
-    
 }
 
 static void testCase34(bool verbose, bool veryVerbose, bool veryVeryVerbose)
@@ -8285,8 +8228,8 @@ static void testCase19(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                                      FIELD_DEF.defaultValue(),
                                      mY.fieldRef(fldName.c_str()),
                                      compareCERefs(
-                                                 FIELD_DEF.defaultValue(),
-                                                 mY.fieldRef(fldName.c_str())));
+                                                FIELD_DEF.defaultValue(),
+                                                mY.fieldRef(fldName.c_str())));
                     }
                 }
 
@@ -8311,7 +8254,8 @@ static void testCase19(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 Obj mB = mX.makeSelection(fldName.c_str(), Z);
                 const Obj& B = mB;
-                ASSERT(B.asElemRef() == VA);
+                P(X) P(Y) P(Z) P(Z.dataType()) P(B)
+                LOOP2_ASSERT(B, VA, B.asElemRef() == VA);
                 ASSERT(streq(fldName.c_str(), X.selector()));
                 ASSERT(X.selection().asElemRef() == VA);
 
@@ -17494,7 +17438,6 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER) \
     case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
-        CASE(36);
         CASE(35);
         CASE(34);
         CASE(33);

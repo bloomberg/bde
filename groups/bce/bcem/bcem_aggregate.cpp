@@ -214,7 +214,7 @@ bcema_SharedPtr<const bdem_RecordDef> bcem_Aggregate::recordDefPtr() const
     bcema_SharedPtr<const bdem_Schema> schema_sp(d_rawData.schema(),
                                                  d_schemaRep_p);
     return bcema_SharedPtr<const bdem_RecordDef>(schema_sp,
-                                                 d_rawData.recordDefPtr());
+                                                 d_rawData.recordConstraint());
 }
 
 bcema_SharedPtr<void> bcem_Aggregate::dataPtr() const
@@ -770,8 +770,8 @@ const bcem_Aggregate bcem_Aggregate::anonymousField(int n) const
 
 const bcem_Aggregate bcem_Aggregate::anonymousField() const
 {
-    if (d_rawData.recordDefPtr()
-     && 1 < d_rawData.recordDefPtr()->numAnonymousFields()) {
+    if (d_rawData.recordConstraint()
+     && 1 < d_rawData.recordConstraint()->numAnonymousFields()) {
 
         // Only report error if there are more than one anonymous fields.  The
         // case where there are zero anonymous fields is already handled by
@@ -957,11 +957,11 @@ bcem_Aggregate::clone(bslma_Allocator *basicAllocator) const
     }
     returnVal.d_schemaRep_p->acquireRef();
 
-    if (d_rawData.recordDefPtr()) {
+    if (d_rawData.recordConstraint()) {
 
         // Set the clone's record pointer to point into the cloned schema
 
-        int recordIndex = d_rawData.recordDefPtr()->recordIndex();
+        int recordIndex = d_rawData.recordConstraint()->recordIndex();
         returnVal.d_rawData.setRecordDefPointer(
                                            &schemaClone->record(recordIndex));
     }

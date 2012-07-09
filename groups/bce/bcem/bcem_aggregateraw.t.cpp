@@ -49,11 +49,10 @@ using namespace bsl;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// TBD: Update
-// This component provides an easy to use interface to the bdem
-// package.  It allows users to store complex data, bind it to some meta-data
-// and provides access to the stored data by field names or ids as specified in
-// the bound meta-data.
+// This component provides an easy to use interface to the bdem package.  It
+// allows users to store complex data, bind it to some meta-data and provides
+// access to the stored data by field names or ids as specified in the bound
+// meta-data.
 //
 // Most of the functionality provided by this component is performed by lower
 // level bdem components.  For example, the type conversions supported by this
@@ -99,14 +98,14 @@ using namespace bsl;
 // [20] void reset();
 //
 // REFERENCED-VALUE ACCESSORS
-// [26] int reserveRaw(Error *error, bsl::size_t numItems) const;
-// [27] int capacityRaw(Error *error, bsl::size_t *capacity) const;
-// [28] bool isError() const;
-// [28] bool isVoid() const;
+// [25] int reserveRaw(Error *error, bsl::size_t numItems) const;
+// [26] int capacityRaw(Error *error, bsl::size_t *capacity) const;
+// [27] bool isError() const;
+// [27] bool isVoid() const;
 // [20] bool isNull() const;
 // [20] bool isNullable() const;
-// [28] int errorCode() const;
-// [28] bsl::string errorMessage() const;
+// [27] int errorCode() const;
+// [27] bsl::string errorMessage() const;
 // [ 6] bsl::string asString() const;
 // [ 6] void loadAsString(bsl::string *result) const;
 // [ 5] bool asBool() const;
@@ -129,7 +128,7 @@ using namespace bsl;
 // [24] int anonymousField(Obj *object, Error *error, int index) const;
 // [24] int anonymousField(Obj *object, Error *error) const;
 // [ 4] int getField(Obj *o, Error *e, bool null, f1, f2, . ., f10) const;
-// [  ] int findUnambiguousChoice(Obj *obj, Error *error, caller) const;
+// [29] int findUnambiguousChoice(Obj *obj, Error *error, caller) const;
 // [ 4] int fieldByIndex(Obj *obj, Error *error, int index) const;
 // [ 4] int fieldById(Obj *obj, Error *error, int id) const;
 // [13] int arrayItem(Obj *item, Error *error, int index) const;
@@ -148,7 +147,7 @@ using namespace bsl;
 // [11] const bdem_RecordDef *recordDefPtr() const;
 // [11] const void *data() const;
 // [11] const bdem_Schema *schema() const;
-// [29] void swap(bcem_AggregateRaw& other);
+// [27] void swap(bcem_AggregateRaw& other);
 // [23] STREAM& bdexStreamIn(STREAM& stream, int version) const;
 // [23] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 9] bsl::ostream& print(stream, int level, int spl) const;
@@ -192,7 +191,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] ggSchema, ggAggData, destroyAggData
-// [  ] USAGE EXAMPLE
+// [30] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -3559,6 +3558,63 @@ int main(int argc, char *argv[])
       } break;
       case 29: {
         // --------------------------------------------------------------------
+        // TESTING 'findUnambiguousChoice'
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   int findUnambiguousChoice(Obj *obj, Error *error, caller) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'findUnambiguousChoice'"
+                          << "\n===============================" << bsl::endl;
+  
+        Schema schema;
+        ggSchema(&schema, ":*?Gc :a%*0&FU");
+
+        bslma_TestAllocator t;
+        const RecDef* RECORD = schema.lookupRecord("a");
+
+        Obj mX;  const Obj& X = mX;
+        int rc = ggAggData(&mX, *RECORD, &t);
+        ASSERT(!rc);
+
+        if (veryVerbose) {
+            P(X);
+        }
+
+        Error err;
+        Obj mA;  const Obj& A = mA;
+        rc = mX.anonymousField(&mA, &err);
+        ASSERT(!rc);
+
+        rc = mX.anonymousField(&mA, &err, 0);
+        ASSERT(!rc);
+
+        LOOP_ASSERT(A.dataType(), bdem_ElemType::BDEM_CHOICE == A.dataType());
+
+        if (veryVerbose) {
+            P(A);
+        }
+
+        Obj choice;
+        rc = mX.findUnambiguousChoice(&choice, &err);
+        ASSERT(!rc);
+        ASSERT(!choice.isNull());
+        ASSERT(TC::BDEAT_CHOICE_CATEGORY == TCF::select(choice));
+
+        if (veryVerbose) {
+            P(choice);
+        }
+
+        LOOP_ASSERT(X.selectorIndex(), -1 == X.selectorIndex());
+
+        destroyAggData(&mX, &t);
+      } break;
+      case 28: {
+        // --------------------------------------------------------------------
         // TESTING 'swap'
         //
         // Concerns:
@@ -3870,7 +3926,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 28: {
+      case 27: {
         // --------------------------------------------------------------------
         // TESTING error functions:
         //
@@ -3909,7 +3965,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 27: {
+      case 26: {
         // --------------------------------------------------------------------
         // ACCESSOR 'capacityRaw'
         //
@@ -4014,7 +4070,7 @@ int main(int argc, char *argv[])
             ASSERT(1492 == capacity);
         }
       } break;
-      case 26: {
+      case 25: {
         // --------------------------------------------------------------------
         // MANIPULATOR 'reserveRaw'
         //
@@ -4168,363 +4224,6 @@ int main(int argc, char *argv[])
 
             ASSERT(NUM_BYTES_LIST      == la.numBytesTotal());
             ASSERT(NUM_BYTES_AGGREGATE == aa.numBytesTotal());
-        }
-      } break;
-      case 25: {
-        // --------------------------------------------------------------------
-        // TESTING EXTENDED FIELD LOOKUP
-        //
-        // Concerns:
-        //   1 The 'hasField', 'field', 'setField', 'makeSelection',
-        //     'selection', 'selector', 'selectorIndex', 'selectorId', and
-        //     'numSelections' methods work transparently when accessing an
-        //     unambiguously named child of an anonymous field within a 'LIST'
-        //     or 'CHOICE' aggregate.
-        //   2 'hasField' returns false and the other methods fail 'if the
-        //     aggregate contains one or more unnamed fields but not one with
-        //     the specified name.
-        //   3 The aggregate returned by 'field' refers to the expected data
-        //     (at the expected address) for the named child of an anonymous
-        //     field (as determined by the address of the data item itself).
-        //   4 If the record definition contains an unnamed field containing
-        //     a nested unnamed field containing the named field, then
-        //     both levels of nesting are traversed.
-        //   5 Anonymous fields of non-aggregate type are ignored during
-        //     field lookup.
-        //   6 All of the above apply when there exist multiple unnamed fields
-        //     at any level and when the field is in the first, middle, or last
-        //     unnamed field, provided the lookup is unambiguous.
-        //   7 All of the above apply when the unnamed field is a LIST, TABLE,
-        //     CHOICE, or CHOICE_ARRAY.
-        //
-        // Plan:
-        //   - Construct a set of test vectors where each vector consists of a
-        //     schema script and the indexes where the named child of the
-        //     unnamed field should be found.
-        //   - Each schema will have a top-level record definition named "a"
-        //     and the program will look for a field named "b" in "a".
-        //   - For each test vector, construct a 'bdem_Schema' from the script
-        //     and a bcem_Aggregate from record "a" in the schema.
-        //   - If the aggregate is a choice, call 'makeSelection("b")'.
-        //   - Insert data into the aggregate using primitive bdem calls.
-        //   - Set the value of field "b" using 'setField("b", 5)'.
-        //   - 'hasField', 'field', 'setField', 'makeSelection',
-        //     'selection', 'selector', 'selectorIndex', 'selectorId', and
-        //     'numSelections' all return the expected results.
-        //
-        // Testing the following functions with anonymous fields:
-        //   int makeSelection(Obj *obj, Error *error, newSelector) const;
-        //   const char *selector() const;
-        //   int selectorId() const;
-        //   int selectorIndex() const;
-        //   int numSelections() const;
-        //   int selection(Obj *obj, Error *error) const;
-        //   bool hasField(const char *fieldName) const;
-        //   bool hasFieldById(int fieldId) const;
-        //   bool hasFieldByIndex(int fieldIndex) const;
-        //   int setField(Obj *o, Error *e, f1, value) const;
-        //   int getField(Obj *o, Error *e, bool null, f1, f2, . ., f10) const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTESTING EXTENDED FIELD LOOKUP"
-                          << "\n=============================\n"
-                          << bsl::endl;
-
-        const int MAX_DEPTH = 3;
-        static const struct {
-            int         d_line;
-            const char *d_spec;
-
-            const char  d_expectedIndexes[MAX_DEPTH + 1];
-                // String of 0-3 ascii digits, one per nested index, used to
-                // traverse the LIST structure.  The root LIST is always
-                // defined by record "a" in the schema and the target field is
-                // always named "b".  For example "21" means that record "a"
-                // has an anonymous field at index 2 that is a record with a
-                // field named "b" at index 1.  An empty string indicates that
-                // there is no anonymous path to a field "b" from record "a".
-        } DATA[] = {
-
-            //line Spec                                     Indexes  Concerns
-            //---- ---------------------------------------  -------  --------
-            { L_, ":a",                                      ""    },
-            { L_, ":aGc",                                    ""    },
-            { L_, ":aCb",                                    "0"   },
-            { L_, ":aGcCb",                                  "1"   },
-
-            { L_, ":*Gc :a+*0&FU",                           ""    }, // 2
-            { L_, ":*FaGcMd :a+*0&FU",                       ""    }, // 2
-            { L_, ":*Gc :aFa+*0&FUMd",                       ""    }, // 2
-            { L_, ":*GcXe :aFa+*0&FUMd",                     ""    }, // 2
-
-            { L_, ":*Cb :a+*0&FU",                           "00"  }, // 3
-            { L_, ":*Cb :a+*0&FUFaMd",                       "00"  }, // 3
-            { L_, ":*Cb :aFa+*0&FUMd",                       "10"  }, // 3
-            { L_, ":*Cb :aFaMd+*0&FU",                       "20"  }, // 3
-            { L_, ":*FaCbMd :a+*0&FU",                       "01"  }, // 3
-            { L_, ":*CbXe :aFa+*0&FUMd",                     "10"  }, // 3
-            { L_, ":*XeCb :aFa+*0&FUMd",                     "11"  }, // 3
-
-            { L_, ":*Cb :*+*0&FU :a+*1&FU",                  "000" }, // 4
-            { L_, ":*FaCbMd :*+*0&FU :a+*1&FU",              "001" }, // 4
-            { L_, ":*Cb :*+*0&FU :aFa+*1&FUMd",              "100" }, // 4
-            { L_, ":*Cb :*Fa+*0&FUMd :a+*1&FU",              "010" }, // 4
-            { L_, ":*Gc :*Fa+*0&FUCb :a+*1&FU",              "02"  }, // 4
-
-            { L_, ":aCb&FUD*",                               "0"   }, // 5
-            { L_, ":*Cb :aG*&FU+*0&FU",                      "10"  }, // 5
-            { L_, ":*Cb :aG*&FU+*0&FUDb",                    "2"   }, // 5
-            { L_, ":*Cb :aCb&FU+*0&FU",                      "0"   }, // 5
-
-            { L_, ":*Cg :*?Gc :*?Ad :a+*0&FUBf%*1&FU%*2&FU", ""    }, // 2,6
-
-            { L_, ":*Cb :*?Gc :*?Ad :a+*0&FUBf%*1&FU%*2&FU", "00"  }, // 3,6
-            { L_, ":*Gc :*?Cb :*?Ad :a+*0&FUBf%*1&FU%*2&FU", "20"  }, // 3,6
-            { L_, ":*Ad :*?Gc :*?Cb :a+*0&FUBf%*1&FU%*2&FU", "30"  }, // 3,6
-
-            { L_, ":*Cb :*?Gc :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
-                  ":a+*3&FU",                                "000" }, // 4,6
-            { L_, ":*Gc :*?Cb :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
-                  ":a+*3&FU",                                "020" }, // 4,6
-            { L_, ":*Ad :*?Gc :*?Cb :*+*0&FUBf%*1&FU%*2&FU"
-                  ":a+*3&FU",                                "030" }, // 4,6
-            { L_, ":*Cg :*?Gc :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
-                  ":a+*3&FU",                                ""    }, // 4,6
-
-            { L_, ":*?Gc :a%*0&FU",                          ""    }, // 2,7
-            { L_, ":*?Cb :aFa%*0&FUMd",                      "10"  }, // 3,7
-            { L_, ":*Cb :*+*0&FU :a+*1&FU",                  "000" }, // 4,7
-            { L_, ":*?Cb :*%*0&FU :a+*1&FU",                 "000" }, // 4,7
-            { L_, ":*Cb :*?+*0&FU :a%*1&FU",                 "000" }, // 4,7
-            { L_, ":*?Cb :aG*&FU%*0&FU",                     "10"  }, // 5,7
-
-        };
-        const int DATA_SIZE = sizeof DATA / sizeof *DATA;
-
-        for (int i = 0; i < DATA_SIZE; ++i) {
-
-            ///////////////// SET UP TESTS HERE /////////////////////////
-            //
-            // This is a rather elaborate setup procedure to compute
-            // expected values for each tested function.
-
-            const int         LINE          = DATA[i].d_line;
-            const char *const SPEC          = DATA[i].d_spec;
-            const char *const EXPECTED      = DATA[i].d_expectedIndexes;
-
-            int expectedIndexes[MAX_DEPTH];
-            int expectedDepth = 0;
-            for (expectedDepth = 0; EXPECTED[expectedDepth]; ++expectedDepth) {
-                expectedIndexes[expectedDepth] = EXPECTED[expectedDepth] - '0';
-            }
-            const int        EXPECTED_DEPTH   = expectedDepth;
-            const int *const EXPECTED_INDEXES = expectedIndexes;
-
-            Schema schema;
-            ggSchema(&schema, SPEC);
-
-            if (veryVerbose) { P_(LINE) P(schema) }
-
-            const RecDef *recA = schema.lookupRecord("a");
-            ASSERT(0 != recA);
-
-            bslma_TestAllocator t;
-            Obj theAgg;
-            ggAggData(&theAgg, *recA, &t);
-            CERef topRef = theAgg.asElemRef();
-
-            // Expected values if field does not exist and agg is not a choice.
-            EType::Type expMkSelectionType = EType::BDEM_VOID;
-            int         expMkSelectionErr  = BAD_FLDNM;
-            int         expSelectorIndex   = NOT_CHOICE;
-            int         expSelectorId      = RecDef::BDEM_NULL_FIELD_ID;
-            const char* expSelectorStr     = "";
-            int         expNumSelections   = NOT_CHOICE;
-            EType::Type expSelectionType   = EType::BDEM_VOID;
-            int         expSelectionErr    = NOT_CHOICE;
-            const void *expSelectionData   = 0;
-            bool        expHasField        = false;
-            EType::Type expFieldType       = EType::BDEM_VOID;
-            int         expFieldErr        = BAD_FLDNM;
-
-            if (EXPECTED_DEPTH > 0) {
-                // Field exists.
-                expMkSelectionErr = NOT_CHOICE;
-                expHasField       = true;
-                expFieldErr       = 0;
-            }
-
-            // Descend through the anonymous fields in the schema, looking for
-            // any choice records or ambiguous references in the
-            // expected path.  If found, set expected function values
-            // accordingly.
-            bool hasChoice   = false;
-            bool isAmbiguous = false;
-            const RecDef *constraint = recA;
-            for (int depth = 0; constraint && depth < MAX_DEPTH; ++depth) {
-
-                int index = (expHasField ? EXPECTED_INDEXES[depth] : -1);
-
-                if (RecDef::BDEM_CHOICE_RECORD == constraint->recordType())
-                {
-                    hasChoice = true;
-                    expSelectionErr  = 0;
-                    expNumSelections = constraint->numFields();
-
-                    if (expHasField) {
-                        // Operations are expected to succeed.
-                        expMkSelectionType = EType::BDEM_INT;
-                        expMkSelectionErr  = 0;
-                        expSelectorIndex   = index;
-                        expSelectorId      = index;
-                        expSelectorStr     = 
-                            constraint->fieldName(expSelectorIndex);
-                        expSelectionType   =
-                            constraint->field(expSelectorIndex).elemType();
-                    }
-                    else {
-                        // Operations are expected to fail.
-                        expMkSelectionType = EType::BDEM_VOID;
-                        expMkSelectionErr  = BAD_FLDNM;
-                        expSelectorIndex   = -1;
-                        expSelectorId      = RecDef::BDEM_NULL_FIELD_ID;
-                        expSelectorStr     = "";
-                        expSelectionType   = EType::BDEM_VOID;
-                    }
-
-                    break;
-                }
-
-                if (constraint->numAnonymousFields() > 1) {
-                    isAmbiguous = true;
-                }
-                else if (constraint->numAnonymousFields() < 1) {
-                    break;
-                }
-
-                if (index < 0) {
-                    // Find anonymous field
-                    for (index = 0; 0 != constraint->fieldName(index); ++index)
-                        ;
-                }
-
-                // Descend to the next level
-                constraint = constraint->field(index).recordConstraint();
-            }
-
-            if (isAmbiguous) {
-                expSelectorIndex   = AMBIGUOUS;
-                expSelectorId      = RecDef::BDEM_NULL_FIELD_ID;
-                expSelectorStr     = "";
-                expNumSelections   = AMBIGUOUS;
-                expSelectionType   = EType::BDEM_VOID;
-                expSelectionErr    = AMBIGUOUS;
-            }
-
-            ///////////////// BEGIN TESTING HERE /////////////////////////
-            //
-            // Expected values have been computed.  Test each function and
-            // compare against expected results.
-
-            Error err;
-            Obj mX;  const Obj& X = mX;
-            theAgg.makeValue();
-            ASSERT(theAgg.hasFieldById(0));
-            ASSERT(theAgg.hasFieldByIndex(0));
-            int rc = theAgg.fieldByIndex(&mX, &err, 0);
-            ASSERT(!rc);
-            mX.makeValue();
-            Obj result;
-            rc = theAgg.makeSelection(&result, &err, "b");
-            ASSERT(rc);
-            ASSERT(expMkSelectionErr == err.code());
-            result.makeValue();
-
-            if (0 == expMkSelectionErr) {
-                // Prevent cascade errors if makeSelection fails unexpectedly.
-                continue;
-            }
-
-            bsls_ObjectBuffer<CERef> refs[MAX_DEPTH];
-            CERef *expRef = &topRef;
-            for (int depth = 0; depth < EXPECTED_DEPTH; ++depth) {
-                // Using 'bdem' primitives (not 'bcem_Aggregate' methods),
-                // find the field referenced by "b", using the array of
-                // expected indexes to descend down the data structure.
-                int index = EXPECTED_INDEXES[depth];
-
-                void *refp = &refs[depth];
-                if (ET::BDEM_CHOICE == expRef->type()) {
-                    LOOP_ASSERT(expRef->theChoice().selector(),
-                                index == expRef->theChoice().selector());
-                    expRef = new(refp) CERef(expRef->theChoice().selection());
-                    if (0 == expSelectionData) {
-                        // Keep track of first choice
-                        expSelectionData = expRef->data();
-                    }
-                }
-                else { // if LIST
-                    expRef = new(refp) CERef(expRef->theList()[index]);
-                }
-
-                expFieldType = expRef->type();
-            }
-
-            if (hasChoice) {
-                // Test result of 'makeSelection'
-                ASSERT(expMkSelectionErr ||
-                       expRef->data() == result.asElemRef().data());
-            }
-
-            // selectorIndex(), selectorId(), selector(), numSelections,
-            // selection():
-            int selectorIndex = theAgg.selectorIndex();
-            LOOP2_ASSERT(expSelectorIndex, selectorIndex,
-                         expSelectorIndex == selectorIndex);
-            if (veryVerbose && expSelectorIndex != selectorIndex) {
-                cout << "theAgg=" << theAgg << bsl::endl;
-                if (theAgg.schema()) {
-                    cout << "schema=" << *theAgg.schema() << bsl::endl;
-                }
-            }
-
-            int selectorId = theAgg.selectorId();
-            LOOP2_ASSERT(expSelectorId, selectorId,
-                         expSelectorId == selectorId);
-
-            const char* selectorStr = theAgg.selector();
-            LOOP2_ASSERT(expSelectorStr, selectorStr,
-                         streq(expSelectorStr, selectorStr));
-
-            int numSelections = theAgg.numSelections();
-            LOOP2_ASSERT(expNumSelections, numSelections,
-                         expNumSelections == numSelections);
-
-            rc = theAgg.selection(&mX, &err);
-            // TBD: Uncomment
-//             LOOP2_ASSERT(expSelectionType, mX.dataType(),
-//                          expSelectionType == mX.dataType());
-            ASSERT(expSelectionErr == err.code());
-
-            // Test hasField(), setField(), field()
-            LOOP2_ASSERT(expHasField, theAgg.hasField("b"),
-                         expHasField == theAgg.hasField("b"));
-
-            rc = theAgg.setField(&mX, &err, "b", 5);
-            // TBD: Uncomment
-//             LOOP2_ASSERT(expFieldType, mX.dataType(),
-//                          expFieldType == mX.dataType());
-            ASSERT(expFieldErr == err.code());
-            ASSERT(expRef->data() == mX.asElemRef().data());
-
-            rc = theAgg.getField(&mX, &err, false, "b");
-            // TBD: Uncomment
-//             LOOP2_ASSERT(expFieldType, mX.dataType(),
-//                          expFieldType == mX.dataType());
-            ASSERT(expFieldErr == err.code());
-            ASSERT(expRef->data() == mX.asElemRef().data());
-
-            destroyAggData(&theAgg, &t);
         }
       } break;
       case 24: {
@@ -5928,16 +5627,10 @@ int main(int argc, char *argv[])
         bdem_BerDecoder berDecoder(&berDecoderOptions);
         status = berDecoder.decode(strm, &mA4);
         bsl::cerr << berDecoder.loggedMessages();
-        // TBD: Uncomment
-//         ASSERT(0 == status);
 
-        // TBD: use areEquivalent
         bsl::ostringstream A1str, A4str;
         A1str << A1;
         A4str << A4;
-        
-        // TBD: Uncomment
-//         LOOP2_ASSERT(A1, A4, A1str.str() == A4str.str());
 
         if (veryVerbose) P(A4);
 
@@ -9785,212 +9478,214 @@ int main(int argc, char *argv[])
             }
         }
 
+// TBD: Uncomment
+#if 0
         if (veryVerbose) cout << bsl::endl
                               << "\n\tTest aggregate values" << bsl::endl;
         {
-// TBD: Uncomment
-//             const struct {
-//                 int         d_line;
-//                 const char *d_spec;
-//             } DATA[] = {
-//                 // Line  Spec
-//                 // ----  ----
-//                 // For List Aggregates
-//                 {   L_,         ":aCa" },
-//                 {   L_,         ":aFa" },
-//                 {   L_,         ":aGa" },
-//                 {   L_,         ":aHa" },
-//                 {   L_,         ":aNa" },
-//                 {   L_,         ":aPa" },
-//                 {   L_,         ":aQa" },
-//                 {   L_,         ":aRa" },
-//                 {   L_,         ":aWa" },
-//                 {   L_,         ":aCbFcGdQf :g+ha" },
-//                 {   L_,         ":aCbFcGdQf :g#ha" },
-//                 {   L_,         ":a?CbFcGdQf :g%ha" },
-//                 {   L_,         ":a?CbFcGdQf :g@ha" },
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line  Spec
+                // ----  ----
+                // For List Aggregates
+                {   L_,         ":aCa" },
+                {   L_,         ":aFa" },
+                {   L_,         ":aGa" },
+                {   L_,         ":aHa" },
+                {   L_,         ":aNa" },
+                {   L_,         ":aPa" },
+                {   L_,         ":aQa" },
+                {   L_,         ":aRa" },
+                {   L_,         ":aWa" },
+                {   L_,         ":aCbFcGdQf :g+ha" },
+                {   L_,         ":aCbFcGdQf :g#ha" },
+                {   L_,         ":a?CbFcGdQf :g%ha" },
+                {   L_,         ":a?CbFcGdQf :g@ha" },
 
-//                 // For Choice Aggregates
-//                 {   L_,         ":a?Ca" },
-//                 {   L_,         ":a?Fa" },
-//                 {   L_,         ":a?Ga" },
-//                 {   L_,         ":a?Ha" },
-//                 {   L_,         ":a?Na" },
-//                 {   L_,         ":a?Pa" },
-//                 {   L_,         ":a?Qa" },
-//                 {   L_,         ":a?Ra" },
-//                 {   L_,         ":a?Wa" },
-//                 {   L_,         ":aCbFcGdQf  :g?+ha" },
-//                 {   L_,         ":aCbFcGdQf  :g?#ha" },
-//                 {   L_,         ":a?CbFcGdQf :g?%ha" },
-//                 {   L_,         ":a?CbFcGdQf :g?@ha" },
-//             };
-//             const int NUM_DATA = sizeof DATA / sizeof *DATA;
+                // For Choice Aggregates
+                {   L_,         ":a?Ca" },
+                {   L_,         ":a?Fa" },
+                {   L_,         ":a?Ga" },
+                {   L_,         ":a?Ha" },
+                {   L_,         ":a?Na" },
+                {   L_,         ":a?Pa" },
+                {   L_,         ":a?Qa" },
+                {   L_,         ":a?Ra" },
+                {   L_,         ":a?Wa" },
+                {   L_,         ":aCbFcGdQf  :g?+ha" },
+                {   L_,         ":aCbFcGdQf  :g?#ha" },
+                {   L_,         ":a?CbFcGdQf :g?%ha" },
+                {   L_,         ":a?CbFcGdQf :g?@ha" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-//             for (int i = 0; i < NUM_DATA; ++i) {
-//                 const int   LINE = DATA[i].d_line;
-//                 const char *SPEC = DATA[i].d_spec;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
 
-//                 Schema s; ggSchema(&s, SPEC);
-//                 const RecDef& r = s.record(s.numRecords() - 1);
+                Schema s; ggSchema(&s, SPEC);
+                const RecDef& r = s.record(s.numRecords() - 1);
 
-//                 ET::Type TYPE =
-//                     RecDef::BDEM_SEQUENCE_RECORD == r.recordType()
-//                     ? ET::BDEM_LIST : ET::BDEM_CHOICE;
+                ET::Type TYPE =
+                    RecDef::BDEM_SEQUENCE_RECORD == r.recordType()
+                    ? ET::BDEM_LIST : ET::BDEM_CHOICE;
 
-//                 if (veryVerbose) { T_ P(s) };
+                if (veryVerbose) { T_ P(s) };
 
-//                 if (ET::BDEM_LIST == TYPE) {
-//                     List list;
-//                     Table table;
-//                     ggList(&list, &r);
-//                     ggTable(&table, &r);
+                if (ET::BDEM_LIST == TYPE) {
+                    List list;
+                    Table table;
+                    ggList(&list, &r);
+                    ggTable(&table, &r);
 
-//                     int nf1 = 0, nf2 = 0;
+                    int nf1 = 0, nf2 = 0;
 
-//                     bslma_TestAllocator t(veryVeryVerbose);
-//                     List aggList;
-//                     aggList.appendList(list);
-//                     Obj mX; const Obj& X = mX;
-//                     mX.setDataType(ET::BDEM_LIST);
-//                     mX.setDataPointer(&list);
-//                     mX.setTopLevelAggregateNullnessPointer(&nf1);
-//                     mX.setSchemaPointer(&s);
+                    bslma_TestAllocator t(veryVeryVerbose);
+                    List aggList;
+                    aggList.appendList(list);
+                    Obj mX; const Obj& X = mX;
+                    mX.setDataType(ET::BDEM_LIST);
+                    mX.setDataPointer(&list);
+                    mX.setTopLevelAggregateNullnessPointer(&nf1);
+                    mX.setSchemaPointer(&s);
 
-//                     Obj mY; const Obj& Y = mY;
-//                     mY.setDataType(ET::BDEM_TABLE);
-//                     mY.setDataPointer(&table);
-//                     mY.setTopLevelAggregateNullnessPointer(&nf2);
-//                     mX.setSchemaPointer(&s);
+                    Obj mY; const Obj& Y = mY;
+                    mY.setDataType(ET::BDEM_TABLE);
+                    mY.setDataPointer(&table);
+                    mY.setTopLevelAggregateNullnessPointer(&nf2);
+                    mX.setSchemaPointer(&s);
 
-//                     if (veryVerbose) { T_ P(X) P(Y) };
+                    if (veryVerbose) { T_ P(X) P(Y) };
 
-//                     const CERef CL(&list, &bdem_ListImp::d_listAttr);
-//                     const CERef CT(&table, &bdem_TableImp::d_tableAttr);
+                    const CERef CL(&list, &bdem_ListImp::d_listAttr);
+                    const CERef CT(&table, &bdem_TableImp::d_tableAttr);
 
-//                     bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
-//                     bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
-//                     SchemaAggUtil::print(exp1, CL, &r, 2, 4);
-//                     SchemaAggUtil::print(exp2, CL, &r, 2, -4);
-//                     SchemaAggUtil::print(exp3, CL, &r, -2, 4);
-//                     SchemaAggUtil::print(exp4, CL, &r, -2, -4);
-//                     SchemaAggUtil::print(exp5, CL, &r, 0, -1);
-//                     SchemaAggUtil::print(exp6, CT, &r, 2, 4);
-//                     SchemaAggUtil::print(exp7, CT, &r, 2, -4);
-//                     SchemaAggUtil::print(exp8, CT, &r, -2, 4);
-//                     SchemaAggUtil::print(exp9, CT, &r, -2, -4);
-//                     SchemaAggUtil::print(exp10, CT, &r, 0, -1);
+                    bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
+                    bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
+                    SchemaAggUtil::print(exp1, CL, &r, 2, 4);
+                    SchemaAggUtil::print(exp2, CL, &r, 2, -4);
+                    SchemaAggUtil::print(exp3, CL, &r, -2, 4);
+                    SchemaAggUtil::print(exp4, CL, &r, -2, -4);
+                    SchemaAggUtil::print(exp5, CL, &r, 0, -1);
+                    SchemaAggUtil::print(exp6, CT, &r, 2, 4);
+                    SchemaAggUtil::print(exp7, CT, &r, 2, -4);
+                    SchemaAggUtil::print(exp8, CT, &r, -2, 4);
+                    SchemaAggUtil::print(exp9, CT, &r, -2, -4);
+                    SchemaAggUtil::print(exp10, CT, &r, 0, -1);
 
-//                     bsl::ostringstream os1, os2, os3, os4, os5;
-//                     bsl::ostringstream os6, os7, os8, os9, os10;
-//                     X.print(os1, 2, 4);
-//                     X.print(os2, 2, -4);
-//                     X.print(os3, -2, 4);
-//                     X.print(os4, -2, -4);
-//                     os5 << X;
-//                     Y.print(os6, 2, 4);
-//                     Y.print(os7, 2, -4);
-//                     Y.print(os8, -2, 4);
-//                     Y.print(os9, -2, -4);
-//                     os10 << Y;
+                    bsl::ostringstream os1, os2, os3, os4, os5;
+                    bsl::ostringstream os6, os7, os8, os9, os10;
+                    X.print(os1, 2, 4);
+                    X.print(os2, 2, -4);
+                    X.print(os3, -2, 4);
+                    X.print(os4, -2, -4);
+                    os5 << X;
+                    Y.print(os6, 2, 4);
+                    Y.print(os7, 2, -4);
+                    Y.print(os8, -2, 4);
+                    Y.print(os9, -2, -4);
+                    os10 << Y;
 
-//                     LOOP3_ASSERT(TYPE, exp1.str(), os1.str(),
-//                                  exp1.str() == os1.str());
-//                     LOOP3_ASSERT(TYPE, exp2.str(), os2.str(),
-//                                  exp2.str() == os2.str());
-//                     LOOP3_ASSERT(TYPE, exp3.str(), os3.str(),
-//                                  exp3.str() == os3.str());
-//                     LOOP3_ASSERT(TYPE, exp4.str(), os4.str(),
-//                                  exp4.str() == os4.str());
-//                     LOOP3_ASSERT(TYPE, exp5.str(), os5.str(),
-//                                  exp5.str() == os5.str());
-//                     LOOP3_ASSERT(TYPE, exp6.str(), os6.str(),
-//                                  exp6.str() == os6.str());
-//                     LOOP3_ASSERT(TYPE, exp7.str(), os7.str(),
-//                                  exp7.str() == os7.str());
-//                     LOOP3_ASSERT(TYPE, exp8.str(), os8.str(),
-//                                  exp8.str() == os8.str());
-//                     LOOP3_ASSERT(TYPE, exp9.str(), os9.str(),
-//                                  exp9.str() == os9.str());
-//                     LOOP3_ASSERT(TYPE, exp10.str(), os10.str(),
-//                                  exp10.str() == os10.str());
-//                 }
-//                 else if (ET::BDEM_CHOICE == TYPE) {
-//                     Choice choice;
-//                     ChoiceArray choiceArray;
-//                     ggChoice(&choice, &r);
-//                     ggChoiceArray(&choiceArray, &r);
+                    LOOP3_ASSERT(TYPE, exp1.str(), os1.str(),
+                                 exp1.str() == os1.str());
+                    LOOP3_ASSERT(TYPE, exp2.str(), os2.str(),
+                                 exp2.str() == os2.str());
+                    LOOP3_ASSERT(TYPE, exp3.str(), os3.str(),
+                                 exp3.str() == os3.str());
+                    LOOP3_ASSERT(TYPE, exp4.str(), os4.str(),
+                                 exp4.str() == os4.str());
+                    LOOP3_ASSERT(TYPE, exp5.str(), os5.str(),
+                                 exp5.str() == os5.str());
+                    LOOP3_ASSERT(TYPE, exp6.str(), os6.str(),
+                                 exp6.str() == os6.str());
+                    LOOP3_ASSERT(TYPE, exp7.str(), os7.str(),
+                                 exp7.str() == os7.str());
+                    LOOP3_ASSERT(TYPE, exp8.str(), os8.str(),
+                                 exp8.str() == os8.str());
+                    LOOP3_ASSERT(TYPE, exp9.str(), os9.str(),
+                                 exp9.str() == os9.str());
+                    LOOP3_ASSERT(TYPE, exp10.str(), os10.str(),
+                                 exp10.str() == os10.str());
+                }
+                else if (ET::BDEM_CHOICE == TYPE) {
+                    Choice choice;
+                    ChoiceArray choiceArray;
+                    ggChoice(&choice, &r);
+                    ggChoiceArray(&choiceArray, &r);
 
-//                     int nf1 = 0, nf2 = 0;
+                    int nf1 = 0, nf2 = 0;
 
-//                     bslma_TestAllocator t(veryVeryVerbose);
-//                     Obj mX; const Obj& X = mX;
-//                     mX.setDataType(ET::BDEM_CHOICE);
-//                     mX.setDataPointer(&choice);
-//                     mX.setTopLevelAggregateNullnessPointer(&nf1);
-//                     mX.setSchemaPointer(&s);
+                    bslma_TestAllocator t(veryVeryVerbose);
+                    Obj mX; const Obj& X = mX;
+                    mX.setDataType(ET::BDEM_CHOICE);
+                    mX.setDataPointer(&choice);
+                    mX.setTopLevelAggregateNullnessPointer(&nf1);
+                    mX.setSchemaPointer(&s);
 
-//                     Obj mY; const Obj& Y = mY;
-//                     mY.setDataType(ET::BDEM_CHOICE_ARRAY);
-//                     mY.setDataPointer(&choiceArray);
-//                     mY.setTopLevelAggregateNullnessPointer(&nf2);
-//                     mX.setSchemaPointer(&s);
+                    Obj mY; const Obj& Y = mY;
+                    mY.setDataType(ET::BDEM_CHOICE_ARRAY);
+                    mY.setDataPointer(&choiceArray);
+                    mY.setTopLevelAggregateNullnessPointer(&nf2);
+                    mX.setSchemaPointer(&s);
 
-//                     if (veryVerbose) { T_ P(X) P(Y) };
+                    if (veryVerbose) { T_ P(X) P(Y) };
 
-//                     const CERef CC(&choice, &bdem_ChoiceImp::d_choiceAttr);
-//                     const CERef CCA(&choiceArray,
-//                                     &bdem_ChoiceArrayImp::d_choiceArrayAttr);
+                    const CERef CC(&choice, &bdem_ChoiceImp::d_choiceAttr);
+                    const CERef CCA(&choiceArray,
+                                    &bdem_ChoiceArrayImp::d_choiceArrayAttr);
 
-//                     bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
-//                     bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
-//                     SchemaAggUtil::print(exp1, CC, &r, 2, 4);
-//                     SchemaAggUtil::print(exp2, CC, &r, 2, -4);
-//                     SchemaAggUtil::print(exp3, CC, &r, -2, 4);
-//                     SchemaAggUtil::print(exp4, CC, &r, -2, -4);
-//                     SchemaAggUtil::print(exp5, CC, &r, 0, -1);
-//                     SchemaAggUtil::print(exp6, CCA, &r, 2, 4);
-//                     SchemaAggUtil::print(exp7, CCA, &r, 2, -4);
-//                     SchemaAggUtil::print(exp8, CCA, &r, -2, 4);
-//                     SchemaAggUtil::print(exp9, CCA, &r, -2, -4);
-//                     SchemaAggUtil::print(exp10, CCA, &r, 0, -1);
+                    bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
+                    bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
+                    SchemaAggUtil::print(exp1, CC, &r, 2, 4);
+                    SchemaAggUtil::print(exp2, CC, &r, 2, -4);
+                    SchemaAggUtil::print(exp3, CC, &r, -2, 4);
+                    SchemaAggUtil::print(exp4, CC, &r, -2, -4);
+                    SchemaAggUtil::print(exp5, CC, &r, 0, -1);
+                    SchemaAggUtil::print(exp6, CCA, &r, 2, 4);
+                    SchemaAggUtil::print(exp7, CCA, &r, 2, -4);
+                    SchemaAggUtil::print(exp8, CCA, &r, -2, 4);
+                    SchemaAggUtil::print(exp9, CCA, &r, -2, -4);
+                    SchemaAggUtil::print(exp10, CCA, &r, 0, -1);
 
-//                     bsl::ostringstream os1, os2, os3, os4, os5;
-//                     bsl::ostringstream os6, os7, os8, os9, os10;
-//                     X.print(os1, 2, 4);
-//                     X.print(os2, 2, -4);
-//                     X.print(os3, -2, 4);
-//                     X.print(os4, -2, -4);
-//                     os5 << X;
-//                     Y.print(os6, 2, 4);
-//                     Y.print(os7, 2, -4);
-//                     Y.print(os8, -2, 4);
-//                     Y.print(os9, -2, -4);
-//                     os10 << Y;
+                    bsl::ostringstream os1, os2, os3, os4, os5;
+                    bsl::ostringstream os6, os7, os8, os9, os10;
+                    X.print(os1, 2, 4);
+                    X.print(os2, 2, -4);
+                    X.print(os3, -2, 4);
+                    X.print(os4, -2, -4);
+                    os5 << X;
+                    Y.print(os6, 2, 4);
+                    Y.print(os7, 2, -4);
+                    Y.print(os8, -2, 4);
+                    Y.print(os9, -2, -4);
+                    os10 << Y;
 
-//                     LOOP3_ASSERT(TYPE, exp1.str(), os1.str(),
-//                                  exp1.str() == os1.str());
-//                     LOOP3_ASSERT(TYPE, exp2.str(), os2.str(),
-//                                  exp2.str() == os2.str());
-//                     LOOP3_ASSERT(TYPE, exp3.str(), os3.str(),
-//                                  exp3.str() == os3.str());
-//                     LOOP3_ASSERT(TYPE, exp4.str(), os4.str(),
-//                                  exp4.str() == os4.str());
-//                     LOOP3_ASSERT(TYPE, exp5.str(), os5.str(),
-//                                  exp5.str() == os5.str());
-//                     LOOP3_ASSERT(TYPE, exp6.str(), os6.str(),
-//                                  exp6.str() == os6.str());
-//                     LOOP3_ASSERT(TYPE, exp7.str(), os7.str(),
-//                                  exp7.str() == os7.str());
-//                     LOOP3_ASSERT(TYPE, exp8.str(), os8.str(),
-//                                  exp8.str() == os8.str());
-//                     LOOP3_ASSERT(TYPE, exp9.str(), os9.str(),
-//                                  exp9.str() == os9.str());
-//                     LOOP3_ASSERT(TYPE, exp10.str(), os10.str(),
-//                                  exp10.str() == os10.str());
-//                }
-//            }
+                    LOOP3_ASSERT(TYPE, exp1.str(), os1.str(),
+                                 exp1.str() == os1.str());
+                    LOOP3_ASSERT(TYPE, exp2.str(), os2.str(),
+                                 exp2.str() == os2.str());
+                    LOOP3_ASSERT(TYPE, exp3.str(), os3.str(),
+                                 exp3.str() == os3.str());
+                    LOOP3_ASSERT(TYPE, exp4.str(), os4.str(),
+                                 exp4.str() == os4.str());
+                    LOOP3_ASSERT(TYPE, exp5.str(), os5.str(),
+                                 exp5.str() == os5.str());
+                    LOOP3_ASSERT(TYPE, exp6.str(), os6.str(),
+                                 exp6.str() == os6.str());
+                    LOOP3_ASSERT(TYPE, exp7.str(), os7.str(),
+                                 exp7.str() == os7.str());
+                    LOOP3_ASSERT(TYPE, exp8.str(), os8.str(),
+                                 exp8.str() == os8.str());
+                    LOOP3_ASSERT(TYPE, exp9.str(), os9.str(),
+                                 exp9.str() == os9.str());
+                    LOOP3_ASSERT(TYPE, exp10.str(), os10.str(),
+                                 exp10.str() == os10.str());
+               }
+           }
         }
+#endif
       } break;
       case 8: {
         // --------------------------------------------------------------------

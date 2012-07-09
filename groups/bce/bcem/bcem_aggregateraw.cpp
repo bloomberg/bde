@@ -684,8 +684,7 @@ bool bcem_AggregateRawUtil::isConformant(const void           *object,
     return result;
 }
 
-// TBD: Uncomment
-// #ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BDE_BUILD_TARGET_SAFE
 bcem_AggregateRaw::~bcem_AggregateRaw()
 {
     // Assert invariants (see member variable description in class definition)
@@ -705,7 +704,7 @@ bcem_AggregateRaw::~bcem_AggregateRaw()
                     || d_recordDef  == d_fieldDef->recordConstraint());
     }
 }
-// #endif
+#endif
 
 int bcem_AggregateRaw::toEnum(bcem_AggregateError *errorDescription,
                               const char          *value,
@@ -1428,16 +1427,14 @@ int bcem_AggregateRaw::makeSelectionByIndexRaw(
 
     choice->makeSelection(index);
 
-    if (selection) {
-        if (index >= 0) {
-            return fieldByIndex(selection, errorDescription, index);  // RETURN
-        }
-        else {
+    if (index >= 0) {
+        return fieldByIndex(selection, errorDescription, index);  // RETURN
+    }
+    else {
 
-            // No current selection.  Set to a void object.
+        // No current selection.  Set to a void object.
 
-            selection->reset();
-        }
+        selection->reset();
     }
 
     return 0;
@@ -1633,8 +1630,7 @@ int bcem_AggregateRaw::insertItems(bcem_AggregateError* errorDescription,
                 }
                 status = bcem_AggregateError::BCEM_ERR_BAD_ARRAYINDEX;
             }
-            // TBD: Remove
-//             arrayLen = inserter.length();
+            arrayLen = inserter.length();
         }
       } break;
     }
@@ -1717,8 +1713,7 @@ int bcem_AggregateRaw::insertNullItems(bcem_AggregateError* errorDescription,
                 }
                 status = bcem_AggregateError::BCEM_ERR_BAD_ARRAYINDEX;
             }
-            // TBD: Remove
-//             arrayLen = inserter.length();
+            arrayLen = inserter.length();
         }
       } break;
     }
@@ -1854,9 +1849,8 @@ bcem_AggregateRaw::makeSelection(bcem_AggregateRaw   *selection,
         return 7;                                                     // RETURN
     }
 
-    if (selection) {
-        *selection = obj;
-    }
+    *selection = obj;
+
     return 0;
 }
 

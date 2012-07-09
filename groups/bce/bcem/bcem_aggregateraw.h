@@ -13,40 +13,40 @@ BDES_IDENT("$Id: $")
 //   bcem_AggregateRaw: pointer to fully-introspective, dynamically-typed data
 //   bcem_AggregateRawNameOrIndex: simple discriminated union of string, index
 //
-//@SEE_ALSO: bdem package, bcem_aggregate
+//@SEE_ALSO: bcem_aggregate, bdem package
 //
 //@AUTHOR: David Schumann (dschumann1)
 //
-//@DESCRIPTION: This component provides a class representing dynamically
-// typed, introspective data optionally described by a 'bdem_Schema'.  The
-// type is similar to a "raw" (non-reference-counted) pointer in the sense that
-// multiple 'bcem_AggregateRaw' objects can refer to the same data and they
-// do not dispose of that data when they go out of scope.
+//@DESCRIPTION: This component provides a class representing dynamically typed,
+// introspective data optionally described by a 'bdem_Schema'.  The type is
+// similar to a "raw" (non-reference-counted) pointer in the sense that
+// multiple 'bcem_AggregateRaw' objects can refer to the same data and they do
+// not dispose of that data when they go out of scope.
 //
-// Thus 'bcem_AggregateRaw' is provided to allow efficient implementation
-// of operations such as "visiting" the fields of a large object recursively
-// (that may be inefficient on a reference counted aggregate, see
-// 'bcem_Aggregate').  Typically during such operations, a single aggregate
-// object representing the top-level value remains in scope, and
-// many sub-aggregate objects representing fields in that value are created
-// and destroyed on the stack.  The atomic operations required to maintain
-// the reference count would be wasted in this scenario, as the count never
-// reaches zero and when the operation is concluded there is no net change
-// in the reference count.  Using 'bcem_AggregateRaw' to represent the
-// sub-elements of the object will eliminate this expense.
+// Thus 'bcem_AggregateRaw' is provided to allow efficient implementation of
+// operations such as "visiting" the fields of a large object recursively (that
+// may be inefficient on a reference counted aggregate, see 'bcem_Aggregate').
+// Typically during such operations, a single aggregate object representing the
+// top-level value remains in scope, and many sub-aggregate objects
+// representing fields in that value are created and destroyed on the stack.
+// The atomic operations required to maintain the reference count would be
+// wasted in this scenario, as the count never reaches zero and when the
+// operation is concluded there is no net change in the reference count.  Using
+// 'bcem_AggregateRaw' to represent the sub-elements of the object will
+// eliminate this expense.
 //
 ///Data Representation
 ///-------------------
-// 'bcem_AggregateRaw' has a 3-tuple of pointers: the address of
-// a 'bdem_Schema' describing the structure of the data; a void* pointing
-// at the actual data; and the address of a control word holding a "top-level
-// nullness bit."  When an Aggregate object contains a nullable element, and
-// that element is null, that information is stored in the parent element.
-// But for top-level objects, those not contained within other objects, the
-// "nullness" of the object must be represented somewhere; the
-// "top-level nullness bit" is used for this purpose.  See the 'bdem_ElemRef'
-// component documentation, "Element Reference Nullability", for a discussion
-// of nullness control words (described there as "bitmaps").
+// 'bcem_AggregateRaw' has a 3-tuple of pointers: the address of a
+// 'bdem_Schema' describing the structure of the data; a void * pointing at the
+// actual data; and the address of a control word holding a "top-level nullness
+// bit." When an Aggregate object contains a nullable element, and that element
+// is null, that information is stored in the parent element.  But for
+// top-level objects, those not contained within other objects, the "nullness"
+// of the object must be represented somewhere; the "top-level nullness bit" is
+// used for this purpose.  See the 'bdem_ElemRef' component documentation,
+// "Element Reference Nullability", for a discussion of nullness control words
+// (described there as "bitmaps").
 //
 // 'bcem_AggregateRaw' also holds information referring to the parent element.
 // Like the schema, data, and nullness data, this reference is uncounted and
@@ -55,26 +55,25 @@ BDES_IDENT("$Id: $")
 //
 ///Error Handling
 ///--------------
-// 'bcem_AggregateRaw' returns descriptive errors when possible.  These
-// consist of an enumerated value of 'bcem_AggregateError::Code',
-// combined with a human-readable 'string' value.   In general, most
-// methods of 'bcem_AggregateRaw' will return an arbitrary non-zero value
-// on failure and populate a 'bcem_AggregateError' (passed by pointer as an
-// output parameter) with details.  See the documentation of
-// 'bcem_AggregateError' for the definition of the enumerated error conditions.
+// 'bcem_AggregateRaw' returns descriptive errors when possible.  These consist
+// of an enumerated value of 'bcem_AggregateError::Code', combined with a
+// human-readable 'string' value.  In general, most methods of
+// 'bcem_AggregateRaw' will return an arbitrary non-zero value on failure and
+// populate a 'bcem_AggregateError' (passed by pointer as an output parameter)
+// with details.  See the documentation of 'bcem_AggregateError' for the
+// definition of the enumerated error conditions.
 //
 ///Thread Safety
 ///-------------
 // A 'bcem_AggregateRaw' maintains a non-reference-counted handle to
-// possibly-shared data. It is not safe to access or modify this shared
-// data concurrently from different threads, therefore 'bcem_AggregateRaw' is,
-// strictly speaking, *thread* *unsafe* as two aggregates may refer to the
-// same shared data.  However, it is safe to concurrently access or modify
-// two different 'bcem_AggregateRaw' objects refering to different data.
+// possibly-shared data.  It is not safe to access or modify this shared data
+// concurrently from different threads, therefore 'bcem_AggregateRaw' is,
+// strictly speaking, *thread* *unsafe* as two aggregates may refer to the same
+// shared data.  However, it is safe to concurrently access or modify two
+// different 'bcem_AggregateRaw' objects refering to different data.
 //
 ///Usage
 ///-----
-//
 // Using 'bcem_AggregateRaw' typically involves starting with a
 // 'bcem_Aggregate' object and extracting 'bcem_AggregateRaw' from it,
 // then working with that in place of the original aggregate.  In this example,
@@ -175,10 +174,9 @@ struct bcem_AggregateRaw_BdeatUtil;
 
 class bcem_AggregateRawNameOrIndex {
     // This class holds a *temporary* name string, an integer index, or neither
-    // (the "empty" state).  It has conversion constructors
-    // from 'bsl::string', 'const char *', and 'int'.  It does not own its
-    // string data.  This class has in-core value semantics, except that it
-    // lacks printing support.
+    // (the "empty" state).  It has conversion constructors from 'bsl::string',
+    // 'const char *', and 'int'.  It does not own its string data.  This class
+    // has in-core value semantics, except that it lacks printing support.
 
     enum {
         // Select name, index, or neither ('BCEM_NOI_EMPTY').
@@ -330,7 +328,7 @@ struct bcem_AggregateRaw_ArraySizer {
 
 class bcem_AggregateRaw {
     // This type provides a non-counted reference to the data of a
-    // 'bcem_Aggregate' object. It can be used to efficiently implement
+    // 'bcem_Aggregate' object.  It can be used to efficiently implement
     // operations, particularly recursive "visiting", where an aggregate
     // remains in scope throughout the operation and there would otherwise be
     // many temporary aggregate objects created and discarded.
@@ -441,8 +439,6 @@ class bcem_AggregateRaw {
         // a nonzero value with a description loaded into the specified
         // 'errorDescription' on failure.
 
-    // TBD: Order functions
-
     // PRIVATE ACCESSORS
     template <typename TOTYPE>
     TOTYPE convertScalar() const;
@@ -500,19 +496,6 @@ class bcem_AggregateRaw {
         // 'errorDescription'; otherwise, load into 'errorDescription' a
         // description of the failure and return a nonzero value.
 
-    int makeSelectionByIndexRaw(bcem_AggregateRaw   *result,
-                                bcem_AggregateError *errorDescription,
-                                int                  index) const;
-        // Change the selector in the referenced choice object to the one at
-        // the specified 'index', and load a reference to the new selection
-        // into the specified 'result' if 'result' is not 0.  The new selection
-        // will not be initialized as in 'makeSelection' (so makeValue() will
-        // need to be invoked before using the new selection).  If
-        // '-1 == index' then the selector value of this object is reset to its
-        // default value, with no effect on 'result'.  Return 0 on success, or
-        // a nonzero value otherwise with the specified 'errorDescription'
-        // loaded with details.
-
     int getFieldIndex(int                 *index,
                       bcem_AggregateError *errorDescription,
                       const char          *fieldName,
@@ -528,7 +511,6 @@ class bcem_AggregateRaw {
         // otherwise, load into 'errorDescription' a description of the failure
         // (incorporating the value of 'caller') and return a nonzero value.
 
-    // TBD: Make public ?
     int insertItemRaw(bcem_AggregateRaw   *newItem,
                       bcem_AggregateError *errorDescription,
                       int                  index) const;
@@ -540,8 +522,20 @@ class bcem_AggregateRaw {
         // return a nonzero value and load a description into the specified
         // 'errorDescription'.
 
-  public:
+    int makeSelectionByIndexRaw(bcem_AggregateRaw   *result,
+                                bcem_AggregateError *errorDescription,
+                                int                  index) const;
+        // Change the selector in the referenced choice object to the one at
+        // the specified 'index', and load a reference to the new selection
+        // into the specified 'result' if 'result' is not 0.  The new selection
+        // will not be initialized as in 'makeSelection' (so makeValue() will
+        // need to be invoked before using the new selection).  If
+        // '-1 == index' then the selector value of this object is reset to its
+        // default value, with no effect on 'result'.  Return 0 on success, or
+        // a nonzero value otherwise with the specified 'errorDescription'
+        // loaded with details.
 
+  public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bcem_AggregateRaw,
                                   bslalg_TypeTraitBitwiseMoveable,
@@ -593,15 +587,14 @@ class bcem_AggregateRaw {
         // behavior is undefined unless the schema and data referred to by
         // 'other' remains valid for the lifetime of this object.
 
-// TBD: Uncomment
-// #ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BDE_BUILD_TARGET_SAFE
     ~bcem_AggregateRaw();
         // Destroy this object.
-// #else
+#else
     //~bcem_AggregateRaw() = default;
         // Destroy this object.  Note that the compiler-generated default
         // is used.
-// #endif
+#endif
 
     // MANIPULATORS
     bcem_AggregateRaw& operator=(const bcem_AggregateRaw& rhs);
@@ -612,6 +605,13 @@ class bcem_AggregateRaw {
         // 'other' remain valid for the lifetime of this object.  Note that if
         // 'rhs' is an error aggregate, then this aggregate will be assigned
         // the same error state as 'rhs'.
+
+    void clearParent();
+        // Make this aggregate a top-level aggregate by resetting the
+        // parent information.
+
+    void reset();
+        // Reset this object to its default-constructed state.
 
     void setDataType(bdem_ElemType::Type dataType);
         // Set the type of data referenced by this "raw" aggregate to the
@@ -632,25 +632,16 @@ class bcem_AggregateRaw {
         // specified 'recordDef'.  The behavior is undefined unless 'recordDef'
         // remains valid for the lifetime of this object.
 
-        // TBD: What about enumeration def ?
-
     void setFieldDefPointer(const bdem_FieldDef *fieldDef);
         // Set the field definition pointer for this "raw" aggregate to the
         // specified 'fieldDef'.  The behavior is undefined unless 'fieldDef'
         // remains valid for the lifetime of this object.
 
     void setTopLevelAggregateNullnessPointer(int *nullnessFlag);
-        // Set the address of the top-level nullness bit for this
-        // "raw" aggregate to the specified 'nullnessFlag'.  See "Data
+        // Set the address of the top-level nullness bit for this "raw"
+        // aggregate to the specified 'nullnessFlag'.  See "Data
         // Representation" in the component-level documentation for a
         // description of the top-level nullness bit.
-
-    void clearParent();
-        // Make this aggregate a top-level aggregate by resetting the 
-        // parent information.  TBD: Remove if possible
-    
-    void reset();
-        // Reset this object to its default-constructed state.
 
     // REFERENCED-VALUE ACCESSORS
     int reserveRaw(bcem_AggregateError *errorDescription,
@@ -776,8 +767,9 @@ class bcem_AggregateRaw {
         // If this aggregate contains exactly one field with a null name (i.e.,
         // an anonymous field), then load into the specified 'object' an
         // aggregate representing that field and return 0; otherwise return a
-        // non-zero value.  An anonymous field is a field with with a null
-        // name.  TBD: Update doc for errorDescription
+        // non-zero value, and load a descriptive error into
+        // 'errorDescription'.  An anonymous field is a field with with a null
+        // name.
 
     int getField(bcem_AggregateRaw   *resultField,
                  bcem_AggregateError *errorDescription,
@@ -853,10 +845,6 @@ class bcem_AggregateRaw {
         // table, or choice array referred to by this aggregate or
         // 'BCEM_ERR_NOT_AN_ARRAY' for other data types.  Note that 0 will be
         // returned if this aggregate refers to a null array.
-
-    int size() const;
-        // TBD: Remove one of length/size
-        // Equivalent to 'length()' (STL-style).
 
     int numSelections() const;
         // If this aggregate refers to choice or choice array item, return the
@@ -1108,7 +1096,7 @@ class bcem_AggregateRaw {
         // specified chain of one to ten 'fieldOrIndex' arguments, each of
         // which specifies a field name or array index, then set that field to
         // the specified 'value', resetting its nullness flag if
-        // 'field.isNul2()' is 'true', after appropriate conversions (see
+        // 'field.isNull()' is 'true', after appropriate conversions (see
         // "Extended Type Conversions" in the 'bcem_Aggregate' component-level
         // documentation).  Return a sub-aggregate referring to the modified
         // field on success or an error object on failure (as described in the
@@ -1118,7 +1106,7 @@ class bcem_AggregateRaw {
         // choice object.  If value is null then make the field null.  Note
         // that if any field in the chain of fields is null then an error is
         // returned.  This aggregate is not modified if an error is detected.
-        
+
     template <typename VALTYPE>
     int insertItem(bcem_AggregateRaw   *newItem,
                    bcem_AggregateError *errorDescription,
@@ -1745,7 +1733,7 @@ bool bdeat_choiceHasSelection(const bcem_AggregateRaw&  object,
     // Return 'true' if the specified 'object' has a field having the specified
     // 'selectionName' of the specified 'selectionNameLength' and 'false'
     // otherwise.  The behavior is undefined unless '0 < selectionNameLength'
-    // and 'selectionName' 
+    // and 'selectionName'
 
 int bdeat_choiceMakeSelection(bcem_AggregateRaw *object,
                               int                selectionId);
@@ -1848,7 +1836,7 @@ bsl::size_t bdeat_arraySize(const bcem_AggregateRaw& array)
     // Return the number of elements in the specified 'array'.  The behavior is
     // undefined unless 'array' refers to an array type.
 {
-    return array.size();
+    return array.length();
 }
 
 template <typename ACCESSOR>
@@ -3347,12 +3335,6 @@ inline
 int bcem_AggregateRaw::maxSupportedBdexVersion()
 {
     return 3;
-}
-
-inline
-int bcem_AggregateRaw::size() const
-{
-    return length();
 }
 
 inline

@@ -2042,7 +2042,7 @@ class bcem_Aggregate {
 
     const bcem_AggregateRaw& rawData() const;
         // Return a reference to the non-reference-counted portion of 
-        // this aggregate. 
+        // this aggregate.
 
     const bdem_RecordDef& recordDef() const;
         // Return a reference to the non-modifiable record definition that
@@ -2196,14 +2196,14 @@ inline
 bool bcem_Aggregate::areIdentical(const bcem_Aggregate& lhs,
                                   const bcem_Aggregate& rhs)
 {
-    return bcem_AggregateRaw::areIdentical(lhs.dataRaw(), rhs.dataRaw());
+    return bcem_AggregateRaw::areIdentical(lhs.rawData(), rhs.rawData());
 }
 
 inline
 bool bcem_Aggregate::areEquivalent(const bcem_Aggregate& lhs,
                                    const bcem_Aggregate& rhs)
 {
-    return bcem_AggregateRaw::areEquivalent(lhs.dataRaw(), rhs.dataRaw());
+    return bcem_AggregateRaw::areEquivalent(lhs.rawData(), rhs.rawData());
 }
 
 inline
@@ -3124,7 +3124,7 @@ bdem_ElemType::Type bcem_Aggregate::dataType() const
 inline
 const bdem_RecordDef& bcem_Aggregate::recordDef() const
 {
-    return d_rawData.recordDef();
+    return *recordConstraint();
 }
 
 inline
