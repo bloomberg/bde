@@ -133,7 +133,6 @@ using namespace bsl;
 // [ 4] int fieldById(Obj *obj, Error *error, int id) const;
 // [13] int arrayItem(Obj *item, Error *error, int index) const;
 // [19] int length() const;
-// [19] int size() const;
 // [20] int numSelections() const;
 // [15] const char *selector() const;
 // [16] int selectorId() const;
@@ -5382,7 +5381,7 @@ int main(int argc, char *argv[])
         Y.getField(&mX, &err, false, 2);
         ASSERT(4   == X.asInt());
         AF::resize(&mA2i, 2);
-        ASSERT(2   == Y.size());
+        ASSERT(2   == Y.length());
         Y.getField(&mX, &err, false, 0);
         ASSERT(6   == X.asInt());
         Y.getField(&mX, &err, false, 1);
@@ -5413,7 +5412,7 @@ int main(int argc, char *argv[])
         ASSERT(555 == Y.asInt64());
         AF::resize(&mA2j, 3);
         A2.getField(&mX, &err, false, "j");
-        ASSERT(3   == X.size());
+        ASSERT(3   == X.length());
         AF::manipulateElement(&mA2j, theManipulator, 2);
         A2.getField(&mX, &err, false, "j", 0);
         X.getField(&mY, &err, false, "c");
@@ -5468,7 +5467,7 @@ int main(int argc, char *argv[])
         ASSERT(112 == X.asChar());
         AF::resize(&mA2k, 3);
         A2.getField(&mX, &err, false, "k");
-        ASSERT(3   == X.size());
+        ASSERT(3   == X.length());
         AF::manipulateElement(&mA2k, theManipulator, 2);
         A2.getField(&mX, &err, false, "k", 0);
         ASSERT(1   == X.selectorId());
@@ -6534,7 +6533,7 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING 'size' and 'length' ACCESSORS:
+        // TESTING 'length' ACCESSORS:
         //
         // Concerns:
         //   - length returns the length of the array aggregate
@@ -6546,11 +6545,10 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int length() const;
-        //   int size() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'length' and 'size' ACCESSORS"
-                          << "\n====================================="
+        if (verbose) cout << "\nTESTING 'length' ACCESSORS"
+                          << "\n=========================="
                           << bsl::endl;
 
         const struct {
@@ -6688,7 +6686,6 @@ int main(int argc, char *argv[])
             const int LEN = getLength(VA);
 
             LOOP_ASSERT(ARRAY_TYPE, Y.length() == LEN);
-            LOOP_ASSERT(ARRAY_TYPE, Y.size() == LEN);
             if (NSA) {
                 LOOP_ASSERT(Y, ET::BDEM_TABLE == Y.asElemRef().type());
             }

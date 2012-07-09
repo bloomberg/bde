@@ -440,25 +440,6 @@ class bcem_AggregateRaw {
         // 'errorDescription' on failure.
 
     // PRIVATE ACCESSORS
-    template <typename TOTYPE>
-    TOTYPE convertScalar() const;
-        // Return the scalar value stored in this aggregate converted to the
-        // parameterized 'TOTYPE'.  Return an "unset" 'TOTYPE' value (see
-        // 'bdetu_unset') unless this aggregate holds a scalar value that is
-        // convertible to 'TOTYPE'.  'TOTYPE' shall be one of: 'bool', 'char',
-        // 'short', 'int', 'bsls_Types::Int64', 'float', 'double',
-        // 'bdet_Datetime', 'bdet_DatetimeTz', 'bdet_Date', 'bdet_DateTz',
-        // 'bdet_Time', 'bdet_TimeTz'; or, unsigned versions of these.  But
-        // note that if TOTYPE is unsigned, and this aggregate is not
-        // convertible to 'TOTYPE', then the unset value of the corresponding
-        // signed type is returned.
-
-    void convertScalarToString(bsl::string *result) const;
-        // Convert the scalar value stored in this aggregate to a string, and
-        // load the resulting string into the specified 'result', or make
-        // 'result' the empty string if this aggregate holds a value that is
-        // not convertible to a string.
-
     int descendIntoField(bcem_AggregateError *errorDescription,
                          const NameOrIndex&   fieldOrIdx,
                          bool                 makeNonNullFlag);
@@ -510,17 +491,6 @@ class bcem_AggregateRaw {
         // success, with no effect on the specified 'errorDescription';
         // otherwise, load into 'errorDescription' a description of the failure
         // (incorporating the value of 'caller') and return a nonzero value.
-
-    int insertItemRaw(bcem_AggregateRaw   *newItem,
-                      bcem_AggregateError *errorDescription,
-                      int                  index) const;
-        // Insert a new element before the specified 'index' in the scalar
-        // array, table, or choice array referenced by this aggregate.  The new
-        // value is uninitialized, meaning it is *not* set to its default value
-        // as with the 'insertItems' method.  Return 0 on success and load a
-        // reference to the new item into the specified 'newItem'; otherwise,
-        // return a nonzero value and load a description into the specified
-        // 'errorDescription'.
 
     int makeSelectionByIndexRaw(bcem_AggregateRaw   *result,
                                 bcem_AggregateError *errorDescription,
@@ -644,6 +614,27 @@ class bcem_AggregateRaw {
         // description of the top-level nullness bit.
 
     // REFERENCED-VALUE ACCESSORS
+
+    // TBD: Remove
+    template <typename TOTYPE>
+    TOTYPE convertScalar() const;
+        // Return the scalar value stored in this aggregate converted to the
+        // parameterized 'TOTYPE'.  Return an "unset" 'TOTYPE' value (see
+        // 'bdetu_unset') unless this aggregate holds a scalar value that is
+        // convertible to 'TOTYPE'.  'TOTYPE' shall be one of: 'bool', 'char',
+        // 'short', 'int', 'bsls_Types::Int64', 'float', 'double',
+        // 'bdet_Datetime', 'bdet_DatetimeTz', 'bdet_Date', 'bdet_DateTz',
+        // 'bdet_Time', 'bdet_TimeTz'; or, unsigned versions of these.  But
+        // note that if TOTYPE is unsigned, and this aggregate is not
+        // convertible to 'TOTYPE', then the unset value of the corresponding
+        // signed type is returned.
+
+    void convertScalarToString(bsl::string *result) const;
+        // Convert the scalar value stored in this aggregate to a string, and
+        // load the resulting string into the specified 'result', or make
+        // 'result' the empty string if this aggregate holds a value that is
+        // not convertible to a string.
+
     int reserveRaw(bcem_AggregateError *errorDescription,
                    bsl::size_t          numItems) const;
         // Reserve sufficient memory for at least the specified 'numItems' if
@@ -1107,6 +1098,17 @@ class bcem_AggregateRaw {
         // that if any field in the chain of fields is null then an error is
         // returned.  This aggregate is not modified if an error is detected.
 
+    int insertNullItem(bcem_AggregateRaw   *newItem,
+                       bcem_AggregateError *errorDescription,
+                       int                  index) const;
+        // Insert a new element before the specified 'index' in the scalar
+        // array, table, or choice array referenced by this aggregate.  The new
+        // value is null and it is *not* set to its default value as with the
+        // 'insertItems' method.  Return 0 on success and load a reference to
+        // the new item into the specified 'newItem'; otherwise, return a
+        // nonzero value and load a description into the specified
+        // 'errorDescription'.
+
     template <typename VALTYPE>
     int insertItem(bcem_AggregateRaw   *newItem,
                    bcem_AggregateError *errorDescription,
@@ -1117,8 +1119,6 @@ class bcem_AggregateRaw {
         // aggregate.  Return 0 on success and load a reference to the new item
         // into the specified 'newItem'; otherwise, return a nonzero value and
         // load a description into the specified 'errorDescription'.
-
-        // TBD: Need a insertNullItem() ?
 
     int insertItems(bcem_AggregateError *errorDescription,
                     int                  index,
@@ -3224,7 +3224,7 @@ int bcem_AggregateRaw::insertItem(bcem_AggregateRaw   *newItem,
                                   const VALTYPE&       value) const
 {
     bool wasNull = isNull();
-    if (0 != insertItemRaw(newItem, description, index)) {
+    if (0 != insertNullItem(newItem, description, index)) {
         return 1;                                                     // RETURN
     }
 

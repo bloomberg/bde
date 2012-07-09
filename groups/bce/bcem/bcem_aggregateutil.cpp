@@ -377,12 +377,12 @@ int fromAggregatePrimitiveImp(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    bcem_AggregateRaw data = aggregate.rawData();
+    bcem_AggregateRaw   data = aggregate.rawData(), field;
     bcem_AggregateError error;
-    if (0 != data.descendIntoFieldById(&error, fieldId)) {
+    if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
-    assignPrimitive(result, data);
+    assignPrimitive(result, field);
     return 0;    
 }
 
@@ -849,18 +849,18 @@ int fromAggregatePrimitiveImp(
         const bcem_Aggregate&                 aggregate,
         int                                   fieldId)
 {
-    bcem_AggregateRaw data = aggregate.rawData();
+    bcem_AggregateRaw   data = aggregate.rawData(), field;
     bcem_AggregateError error;
-    if (0 != data.descendIntoFieldById(&error, fieldId)) {
+    if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
-    
-    if (isPrimitiveArrayType<TYPE>(data.dataType())) {
-        assignArray(result, data);
+
+    if (isPrimitiveArrayType<TYPE>(field.dataType())) {
+        assignArray(result, field);
         return 0;
     }
 
-    const int length = data.length(); 
+    const int length = field.length(); 
     if (length < 0) {
         // error code rather than length
         return length;
@@ -870,7 +870,7 @@ int fromAggregatePrimitiveImp(
     result->reserve(length);
     for (int i = 0; i < length; ++i) {
         bcem_AggregateRaw element;
-        int rc = data.getField(&element, &error, false, i);
+        int rc = field.getField(&element, &error, false, i);
         BSLS_ASSERT(0 == rc);
 
         result->push_back(TYPE());
@@ -1326,12 +1326,12 @@ int toAggregatePrimitiveImp(bcem_Aggregate        *result,
                             int                    fieldId,
                             const PRIMITIVE_TYPE&  value)
 {
-    bcem_AggregateRaw data = result->rawData();
+    bcem_AggregateRaw data = result->rawData(), field;
     bcem_AggregateError error;
-    if (0 != data.descendIntoFieldById(&error, fieldId)) {
+    if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
-    if (0 != data.setValue(&error, value)) {
+    if (0 != field.setValue(&error, value)) {
         return error.code();
     }
     return 0;
@@ -1495,17 +1495,16 @@ int toAggregatePrimitiveImp(
         int                                         fieldId,
         const bdeut_NullableValue<PRIMITIVE_TYPE>&  value)
 {
-    bcem_AggregateRaw data = result->rawData();
+    bcem_AggregateRaw data = result->rawData(), field;
     bcem_AggregateError error;
-    if (0 != data.descendIntoFieldById(&error, fieldId)) {
+    if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
 
-
     if (value.isNull()) {
-        data.makeNull();
+        field.makeNull();
     }
-    else if (0 != data.setValue(&error, value.value())) {
+    else if (0 != field.setValue(&error, value.value())) {
         return error.code();
     }
 
@@ -1702,17 +1701,16 @@ int toAggregatePrimitiveImp(
         int                                                  fieldId,
         const bdeut_NullableAllocatedValue<PRIMITIVE_TYPE>&  value)
 {
-    bcem_AggregateRaw data = result->rawData();
+    bcem_AggregateRaw data = result->rawData(), field;
     bcem_AggregateError error;
-    if (0 != data.descendIntoFieldById(&error, fieldId)) {
+    if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
 
-
     if (value.isNull()) {
-        data.makeNull();
+        field.makeNull();
     }
-    else if (0 != data.setValue(&error, value.value())) {
+    else if (0 != field.setValue(&error, value.value())) {
         return error.code();
     }
 
@@ -1887,23 +1885,22 @@ int toAggregatePrimitiveImp(
 {
     typedef typename bsl::vector<PRIMITIVE_TYPE>::const_iterator ConstIter;
 
-    bcem_AggregateRaw data = result->rawData();
+    bcem_AggregateRaw data = result->rawData(), field;
     bcem_AggregateError error;
-    if (0 != data.descendIntoFieldById(&error, fieldId)) {
+    if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
     
-    if (isPrimitiveArrayType<PRIMITIVE_TYPE>(data.dataType())) {
-        assignArray(data, value);
+    if (isPrimitiveArrayType<PRIMITIVE_TYPE>(field.dataType())) {
+        assignArray(field, value);
         return 0;
     }
 
     bcem_AggregateRaw dummy;
-    data.removeItems(&error, 0, data.length());
+    field.removeItems(&error, 0, field.length());
 
     for (ConstIter it = value.begin(); it != value.end(); ++it) {
-        if (0 != data.insertItem(&dummy, &error, 
-                                 data.length(), *it))
+        if (0 != field.insertItem(&dummy, &error, field.length(), *it))
         {
             return error.code();
         }
@@ -2070,18 +2067,18 @@ int toAggregatePrimitiveImp(
         int                                                        fieldId,
         const bsl::vector< bdeut_NullableValue<PRIMITIVE_TYPE> >&  value)
 {
-    bcem_AggregateRaw data = result->rawData(), item;
+    bcem_AggregateRaw data = result->rawData(), field, item;
     bcem_AggregateError error;
-    if (0 != data.descendIntoFieldById(&error, fieldId)) {
+    if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
     typedef typename bsl::vector< bdeut_NullableValue<PRIMITIVE_TYPE>
                                 >::const_iterator ConstIter;
 
-    data.removeItems(&error, 0, data.length());
+    field.removeItems(&error, 0, field.length());
 
     for (ConstIter it = value.begin(); it != value.end(); ++it) {
-        if (0 != data.insertItemRaw(&item, &error, data.length())) {
+        if (0 != field.insertNullItem(&item, &error, field.length())) {
             return error.code();
         }
         if (it->isNull()) {
@@ -2257,18 +2254,18 @@ int toAggregatePrimitiveImp(
         const bsl::vector<
             bdeut_NullableAllocatedValue<PRIMITIVE_TYPE> >&        value)
 {
-    bcem_AggregateRaw data = result->rawData(), item;
+    bcem_AggregateRaw data = result->rawData(), field, item;
     bcem_AggregateError error;
-    if (0 != data.descendIntoFieldById(&error, fieldId)) {
+    if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
     typedef typename bsl::vector< bdeut_NullableAllocatedValue<PRIMITIVE_TYPE>
                                 >::const_iterator ConstIter;
 
-    data.removeItems(&error, 0, data.length());
+    field.removeItems(&error, 0, field.length());
 
     for (ConstIter it = value.begin(); it != value.end(); ++it) {
-        if (0 != data.insertItemRaw(&item, &error, data.length())) {
+        if (0 != field.insertNullItem(&item, &error, field.length())) {
             return error.code();
         }
         if (it->isNull()) {

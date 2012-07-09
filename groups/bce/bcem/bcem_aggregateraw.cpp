@@ -2218,9 +2218,9 @@ int bcem_AggregateRaw::anonymousField(bcem_AggregateRaw   *object,
     return fieldByIndex(object, errorDescription, fldIdx);
 }
 
-int bcem_AggregateRaw::insertItemRaw(bcem_AggregateRaw   *newItem,
-                                     bcem_AggregateError *errorDescription,
-                                     int                  index) const
+int bcem_AggregateRaw::insertNullItem(bcem_AggregateRaw   *newItem,
+                                      bcem_AggregateError *errorDescription,
+                                      int                  index) const
 {
     BSLS_ASSERT_SAFE(newItem);
     BSLS_ASSERT_SAFE(errorDescription);
