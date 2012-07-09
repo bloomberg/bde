@@ -1030,6 +1030,138 @@ bdecs_PackedCalendar g(const char *spec)
 #define DEFINE_TEST_CASE(NUMBER)                                              \
 void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
+
+DEFINE_TEST_CASE(24) {
+        // --------------------------------------------------------------------
+        // TESTING 'addWeekendDaysTransition' and 'isWeekendDay(bdet_Date&)':
+        //
+        // Concerns:
+        //: 1 The 'addWeekendDaysTransition' method adds a transition to a
+        //:   specified set of weekend days on a specified date.
+        //:
+        //: 2 'isWeekendDay(bdet_Date&)' properly identifies weekend days.
+        //:
+        //: 3 Assert precondition violation are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using a table-driven approach, specify a list of weekend-days
+        //:   transitions each comprising a transition date and a
+        //:   set of weekend days in ascending transition date order.
+        //:
+        //: 2 For each row in the table described in P-1:
+        //:
+        //:   1 Create a calendar having a range that encompases all the
+        //:     transition dates in the table.  Using the
+        //:     'addWeekendDaysTransition' method, add all transitions
+        //:     represented from the first row in the table up to the current
+        //:     row.  (C-1)
+        //:
+        //:   2 Verify by calling the 'isWeekendDay(bdet_Date&)' method that
+        //:     the correct value is return for all dates in the calendar.
+        //:     (C-2)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered when an attempt is made to add a weekend-days
+        //:   transition when one more more days have been added to using the
+        //:   'addWeekendDays' method or the 'addWeekenDay' method (using the
+        //:   'BSLS_ASSERTTEST_*' macros).  (C-3)
+        //
+        // Testing:
+        //    void addWeekendDaysTransition(bdet_Date&, bdec_DayOfWeekSet&);
+        //    bool isWeekendDay(const bdet_Date& date) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "Testing 'addWeekendDaysTransition'" << endl
+                          << "and     'isWeekendDay(bdet_Date&)'" << endl
+                          << "==================================" << endl;
+
+        static const struct {
+            int d_line;
+            int d_year;
+            int d_month;
+            int d_day;
+            const char *d_weekendDays;
+        } DATA[] = {
+            //LINE  YYYY  MM  DD   SMTWTFS
+            //----  ----  --  --   -------
+            { L_,   2000,  1, 10, "0000001" },
+            { L_,   2000,  2, 10, "0000010" },
+            { L_,   2000,  3, 10, "0000100" },
+            { L_,   2000,  4, 10, "0001000" },
+            { L_,   2000,  5, 10, "0010000" },
+            { L_,   2000,  6, 10, "0100000" },
+            { L_,   2000,  7, 10, "1000000" },
+            { L_,   2000,  8, 10, "1000001" },
+            { L_,   2000,  9, 10, "1100000" },
+            { L_,   2000, 10, 10, "0110000" },
+            { L_,   2000, 11, 10, "0011000" },
+            { L_,   2001,  1, 10, "0001100" },
+            { L_,   2001,  2, 10, "0000110" },
+            { L_,   2001,  3, 10, "0000011" },
+        };
+
+        const int NUM_DATA = sizeof DATA/sizeof *DATA;
+
+        const bdet_Date FIRST_DATE(DATA[0].d_year,
+                                   DATA[0].d_month,
+                                   DATA[0].d_day);
+
+        const bdet_Date LAST_DATE(DATA[NUM_DATA - 1].d_year,
+                                  DATA[NUM_DATA - 1].d_month,
+                                  DATA[NUM_DATA - 1].d_day + 10);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+
+            bslma_TestAllocator oa("oa", veryVeryVerbose);
+            Obj mX(FIRST_DATE, LAST_DATE, &oa); const Obj& X = mX;
+
+            typedef bsl::vector<bsl::pair<bdet_Date, bdec_DayOfWeekSet> >
+                                                              TransitionVector;
+            TransitionVector transitions;
+
+            for (int tj = 0; tj <= ti; ++tj)
+            {
+                bdet_Date date(DATA[tj].d_year,
+                               DATA[tj].d_month,
+                               DATA[tj].d_day);
+                bdec_DayOfWeekSet weekendDays;
+                int wdIndex = 1;
+                for(const char *wkStr = DATA[tj].d_weekendDays;
+                    *wkStr; ++wkStr, ++wdIndex) {
+                    if (*wkStr == '1') {
+                        if (veryVeryVerbose) {
+                            P(wdIndex)
+                        }
+                        weekendDays.add(
+                                    static_cast<bdet_DayOfWeek::Day>(wdIndex));
+                    }
+                }
+
+                if (veryVerbose) {
+                    P_(date) P(weekendDays)
+                }
+                mX.addWeekendDaysTransition(date, weekendDays);
+                transitions.push_back(bsl::make_pair(date, weekendDays));
+            }
+
+            int curTransI = 0;
+
+            for (bdet_Date date = FIRST_DATE; date < LAST_DATE; ++date) {
+                if (curTransI < transitions.size() - 1 &&
+                    date >= transitions[curTransI + 1].first) {
+                    ++curTransI;
+                }
+                bool isWeekend =
+                      transitions[curTransI].second.isMember(date.dayOfWeek());
+
+                LOOP2_ASSERT(isWeekend,
+                             date,
+                             isWeekend == X.isWeekendDay(date));
+            }
+        }
+}
+
 DEFINE_TEST_CASE(23) {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
@@ -8086,6 +8218,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER)                                                          \
   case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
+        CASE(24);
         CASE(23);
         CASE(22);
         CASE(21);

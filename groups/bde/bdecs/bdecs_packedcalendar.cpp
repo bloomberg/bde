@@ -1055,8 +1055,8 @@ bool operator!=(const bdecs_PackedCalendar& lhs,
 // PRIVATE MANIPULATORS
 void bdecs_PackedCalendar_BusinessDayConstIterator::nextBusinessDay()
 {
-    BSLS_ASSERT((d_calendar_p->firstDate() + d_currentOffset).dayOfWeek() ==
-                                                                  d_dayOfWeek);
+    // BSLS_ASSERT((d_calendar_p->firstDate() + d_currentOffset).dayOfWeek() ==
+    //                                                               d_dayOfWeek);
     BSLS_ASSERT(false == d_endFlag);
 
     const int lastOffset =
@@ -1064,12 +1064,13 @@ void bdecs_PackedCalendar_BusinessDayConstIterator::nextBusinessDay()
 
     while (d_currentOffset < lastOffset) {
         ++d_currentOffset;
-        d_dayOfWeek = d_dayOfWeek != bdet_DayOfWeek::BDET_SAT
-                      ? (bdet_DayOfWeek::Day)(1 + d_dayOfWeek)
-                      : bdet_DayOfWeek::BDET_SUN;
+        // d_dayOfWeek = d_dayOfWeek != bdet_DayOfWeek::BDET_SAT
+        //               ? (bdet_DayOfWeek::Day)(1 + d_dayOfWeek)
+        //               : bdet_DayOfWeek::BDET_SUN;
         if (d_offsetIter == d_calendar_p->d_holidayOffsets.end()
          || d_currentOffset < *d_offsetIter) {
-            if (!d_calendar_p->isWeekendDay(d_dayOfWeek)) {
+            if (!d_calendar_p->isWeekendDay(
+                                d_calendar_p->firstDate() + d_currentOffset)) {
 
                 // We found the next business day.
 
@@ -1089,15 +1090,15 @@ void bdecs_PackedCalendar_BusinessDayConstIterator::nextBusinessDay()
 
 void bdecs_PackedCalendar_BusinessDayConstIterator::previousBusinessDay()
 {
-    BSLS_ASSERT((d_calendar_p->firstDate() + d_currentOffset).dayOfWeek() ==
-                                                                  d_dayOfWeek);
+    // BSLS_ASSERT((d_calendar_p->firstDate() + d_currentOffset).dayOfWeek() ==
+    //                                                               d_dayOfWeek);
 
     while (d_currentOffset >= 0) {
         if (false == d_endFlag) {
             --d_currentOffset;
-            d_dayOfWeek = d_dayOfWeek != bdet_DayOfWeek::BDET_SUN
-                          ? (bdet_DayOfWeek::Day)(d_dayOfWeek - 1)
-                          : bdet_DayOfWeek::BDET_SAT;
+            // d_dayOfWeek = d_dayOfWeek != bdet_DayOfWeek::BDET_SUN
+            //               ? (bdet_DayOfWeek::Day)(d_dayOfWeek - 1)
+            //               : bdet_DayOfWeek::BDET_SAT;
         }
         else {
             d_endFlag = false;
@@ -1107,7 +1108,8 @@ void bdecs_PackedCalendar_BusinessDayConstIterator::previousBusinessDay()
             OffsetsConstIterator iter = d_offsetIter;
             --iter;
             if (d_currentOffset > *iter) {
-                if (!d_calendar_p->isWeekendDay(d_dayOfWeek)) {
+                if (!d_calendar_p->isWeekendDay(
+                                d_calendar_p->firstDate() + d_currentOffset)) {
 
                     // We found the previous business day.
 
@@ -1119,7 +1121,8 @@ void bdecs_PackedCalendar_BusinessDayConstIterator::previousBusinessDay()
             }
 
         }
-        else if (!d_calendar_p->isWeekendDay(d_dayOfWeek)) {
+        else if (!d_calendar_p->isWeekendDay(
+                                d_calendar_p->firstDate() + d_currentOffset)) {
 
             // We found the previous business day.
 
@@ -1139,7 +1142,6 @@ bdecs_PackedCalendar_BusinessDayConstIterator(
                                        const bdet_Date&            startDate,
                                        bool                        endIterFlag)
 : d_calendar_p(&calendar)
-, d_dayOfWeek(startDate.dayOfWeek())
 , d_currentOffset(startDate - calendar.firstDate())
 , d_endFlag(false)
 {
@@ -1163,7 +1165,7 @@ bdecs_PackedCalendar_BusinessDayConstIterator(
         ++d_offsetIter;
     }
 
-    if (calendar.isWeekendDay(d_dayOfWeek)) {
+    if (calendar.isWeekendDay(calendar.firstDate() + d_currentOffset)) {
         businessDayFlag = false;
     }
 
@@ -1186,12 +1188,11 @@ bdecs_PackedCalendar_BusinessDayConstIterator::operator=(
 {
     d_offsetIter    = rhs.d_offsetIter;
     d_calendar_p    = rhs.d_calendar_p;
-    d_dayOfWeek     = rhs.d_dayOfWeek;
     d_currentOffset = rhs.d_currentOffset;
     d_endFlag       = rhs.d_endFlag;
 
-    BSLS_ASSERT_SAFE(
-     (d_calendar_p->firstDate() + d_currentOffset).dayOfWeek() == d_dayOfWeek);
+    // BSLS_ASSERT_SAFE(
+    //  (d_calendar_p->firstDate() + d_currentOffset).dayOfWeek() == d_dayOfWeek);
 
     return *this;
 }

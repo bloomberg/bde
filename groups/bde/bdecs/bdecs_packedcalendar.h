@@ -1552,10 +1552,11 @@ class bdecs_PackedCalendar_BusinessDayConstIterator {
     const bdecs_PackedCalendar       *d_calendar_p;     // pointer to the
                                                         // calendar
 
-    bdet_DayOfWeek::Day               d_dayOfWeek;      // the day-of-week
-                                                        // value for the date
-                                                        // referenced by this
-                                                        // iterator
+    // bdet_DayOfWeek::Day               d_dayOfWeek;      // the day-of-week
+    //                                                     // value for the date
+    //                                                     // referenced by this
+    //                                                     // iterator
+
     int                               d_currentOffset;  // offset of the date
                                                         // referenced by this
                                                         // iterator
@@ -1989,12 +1990,12 @@ bdecs_PackedCalendar_BusinessDayConstIterator(
                  const bdecs_PackedCalendar_BusinessDayConstIterator& original)
 : d_offsetIter(original.d_offsetIter)
 , d_calendar_p(original.d_calendar_p)
-, d_dayOfWeek(original.d_dayOfWeek)
+// , d_dayOfWeek(original.d_dayOfWeek)
 , d_currentOffset(original.d_currentOffset)
 , d_endFlag(original.d_endFlag)
 {
-    BSLS_ASSERT_SAFE(
-     (d_calendar_p->firstDate() + d_currentOffset).dayOfWeek() == d_dayOfWeek);
+    // BSLS_ASSERT_SAFE(
+    //  (d_calendar_p->firstDate() + d_currentOffset).dayOfWeek() == d_dayOfWeek);
 }
 
 // MANIPULATORS
