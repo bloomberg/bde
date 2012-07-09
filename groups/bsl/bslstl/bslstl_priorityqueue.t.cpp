@@ -1921,7 +1921,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase4()
                       objAllocatorPtr = &da;
                   } break;
                   case 'b': {
-                      objPtr = new (fa) Obj(0);
+                      objPtr = new (fa) Obj(static_cast<bslma_Allocator*>(0));
                       objAllocatorPtr = &da;
                   } break;
                   case 'c': {

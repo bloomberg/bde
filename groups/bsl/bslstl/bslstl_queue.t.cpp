@@ -96,7 +96,7 @@ using namespace bsl;
 // [15]bool operator>=(const queue& lhs, const queue& rhs);
 // [15]bool operator<=(const queue& lhs, const queue& rhs);
 //
-// speicalized algorithms:
+// specialized algorithms:
 // [ 8]void swap(queue& lhs,queue& rhs);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST

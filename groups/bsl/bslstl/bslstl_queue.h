@@ -35,26 +35,6 @@ BSLS_IDENT("$Id: $")
 // 'initializer_lists'.  Note that excluded C++11 features are those that
 // require C++11 compiler support.
 //
-///Operations
-///----------
-// The C++11 standard [23.6.3.1] declares any container type supporting
-// operations 'front', 'back', 'push_back' and 'pop_front' can be used to
-// instantiate the parameterized type 'CONTAINER'.  Below is a list of public
-// methods of 'queue' class that effectively forward their implementations to
-// corresponding operations in the container type.
-//  +--------------------------------------+---------------------------+
-//  | Public methods in 'queue'            | Operation in 'CONTAINER'  |
-//  +======================================+===========================+
-//  | void push(const value_type& value);  | c.push_back(value);       |
-//  | void pop();                          | c.pop_front();            |
-//  | reference front();                   | c.front();                |
-//  | reference back();                    | c.back();                 |
-//  +--------------------------------------+---------------------------+
-//  | size_type size() const;              | c.size();                 |
-//  | const_reference front() const;       | c.front();                |
-//  | const_reference back()  const;       | c.back();                 |
-//  +--------------------------------------+---------------------------+
-//
 ///Memory Allocation
 ///-----------------
 // The type supplied as 'ALLOCATOR' template parameter in some of 'queue'
@@ -66,6 +46,27 @@ BSLS_IDENT("$Id: $")
 // intending to use 'bslma' style allocators should use 'bsl::allocator' as the
 // 'ALLOCATOR' template parameter, providing a C++11 standard-compatible
 // adapter for a 'bslma_Allocator' object.
+//
+///Operations
+///----------
+// The C++11 standard [23.6.3.1] declares any container type supporting
+// operations 'front', 'back', 'push_back' and 'pop_front' can be used to
+// instantiate the parameterized type 'CONTAINER'.  Below is a list of public
+// methods of 'queue' class that effectively forward their implementations to
+// corresponding operations in the held container (referenced as 'c').
+//  +--------------------------------------+---------------------------+
+//  | Public methods in 'queue'            | Operation in 'CONTAINER'  |
+//  +======================================+===========================+
+//  | void push(const value_type& value);  | c.push_back(value);       |
+//  | void pop();                          | c.pop_front();            |
+//  | reference front();                   | c.front();                |
+//  | reference back();                    | c.back();                 |
+//  +--------------------------------------+---------------------------+
+//  | bool empty() const;                  | c.empty();                |
+//  | size_type size() const;              | c.size();                 |
+//  | const_reference front() const;       | c.front();                |
+//  | const_reference back()  const;       | c.back();                 |
+//  +--------------------------------------+---------------------------+
 //
 ///Usage
 ///-----
@@ -219,8 +220,10 @@ class queue
               ::type * = 0);
         // Construct an empty queue that holds a default-constructed container
         // of the parameterized 'CONTAINER' type, and will use the specified
-        // 'allocator' to supply memory.  The type 'ALLOCATOR' has to be the
-        // same as the one the held container is parameterized with.
+        // 'allocator' to supply memory.  Note that the 'ALLOCATOR' parameter
+        // type has to be convertible to the allocator of the 'CONTAINER'
+        // parameter type, 'CONTAINER::allocator_type'.  Otherwise this
+        // constructor is disabled.
 
     template <class ALLOCATOR>
     queue(const CONTAINER& container,
@@ -231,9 +234,10 @@ class queue
                            typename CONTAINER::allocator_type>::VALUE>
               ::type * = 0);
         // Construct an empty queue that holds the specified 'container', and
-        // will use the specified 'allocator' to supply memory.  If the
-        // template parameter 'ALLOCATOR' is 'bsl::allocator' (the default)
-        // then 'allocator' shall be convertible to 'bslma_Allocator*'.
+        // will use the specified 'allocator' to supply memory.  Note that the
+        // 'ALLOCATOR' parameter type has to be convertible to the allocator of
+        // the 'CONTAINER' parameter type, 'CONTAINER::allocator_type'.
+        // Otherwise this constructor is disabled.
 
     template <class ALLOCATOR>
     queue(const queue& original,
@@ -245,9 +249,10 @@ class queue
               ::type * = 0);
         // Construct a queue having the same value as that of the specified
         // 'original' that will use the specified 'allocator' to supply memory.
-        // If the template parameter 'ALLOCATOR' is 'bsl::allocator' (the
-        // default) then 'allocator' shall be convertible to
-        // 'bslma_Allocator*'.
+        // Note that the 'ALLOCATOR' parameter type has to be convertible to
+        // the allocator of the 'CONTAINER' parameter type,
+        // 'CONTAINER::allocator_type'.  Otherwise this constructor is
+        // disabled.
 
     // MANIPULATORS
     void push(const value_type& value);
