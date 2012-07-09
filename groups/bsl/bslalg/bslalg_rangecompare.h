@@ -31,8 +31,9 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates the intended use of this component.
 //
-// Note that this component is for use primarily by the 'bslstl' package.  Other clients
-// should use the STL algorithms (in header '<algorithm>' and '<memory>').
+// Note that this component is for use primarily by the 'bslstl' package.
+// Other clients should use the STL algorithms (in header '<algorithm>'
+// and '<memory>').
 //
 ///Example 1: Defining Equality Comparison Operators on a Container
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -59,8 +60,8 @@ BSLS_IDENT("$Id: $")
 // template <class VALUE_TYPE, std::size_t CAPACITY>
 // class FixedCapacityList {
 //     // This class implements a fixed-capacity list of objects of the given
-//     // VALUE_TYPE, which must provide value semantics.  The list capacity,
-//     // defined by CAPACITY, is constant and set at compile time.
+//     // 'VALUE_TYPE', which must provide value semantics.  The list capacity,
+//     // defined by 'CAPACITY', is constant and set at compile time.
 //     // Note that the result of any attempt to append elements beyond that
 //     // capacity is undefined.  Also note that the functionality of this
 //     // class has been intentionally stripped down in order to make it as
@@ -153,11 +154,11 @@ BSLS_IDENT("$Id: $")
 //                        const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs)
 // {
 //     return ! BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
-//                                                     lhs.end(),
-//                                                     lhs.length(),
-//                                                     rhs.begin(),
-//                                                     rhs.end(),
-//                                                     rhs.length());
+//                                                       lhs.end(),
+//                                                       lhs.length(),
+//                                                       rhs.begin(),
+//                                                       rhs.end(),
+//                                                       rhs.length());
 // }
 //..
 // Note that because 'FixedCapacityList' has the
