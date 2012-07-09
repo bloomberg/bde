@@ -884,7 +884,7 @@ bool bcem_Aggregate::isUnset() const
     switch (dataType()) {
       case bdem_ElemType::BDEM_VOID: {
         isUnsetFlag = true;
-      }
+      } break;
       case bdem_ElemType::BDEM_TABLE: {
         const bdem_Table *table = (bdem_Table *) data();
         if (recordConstraint()) {
@@ -1055,6 +1055,12 @@ bcem_Aggregate::cloneData(bslma_Allocator *basicAllocator) const
                                                                     allocator);
             *static_cast<bcem_AggregateError *>(valuePtr.ptr()) =
                              *static_cast<const bcem_AggregateError *>(data());
+        }
+        else {
+
+            // Return an empty aggregate
+
+            return bcem_Aggregate();                                  // RETURN
         }
       } break;
       default: {

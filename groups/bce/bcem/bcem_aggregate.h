@@ -2948,7 +2948,7 @@ bcem_Aggregate::makeSelection(const char     *newSelector,
     if (0 == d_rawData.makeSelection(&field,
                                      &errorDescription,
                                      newSelector,
-                                     value)) {
+                                     valueRef(value))) {
         return bcem_Aggregate(field,
                               d_schemaRep_p,
                               d_valueRep_p,
@@ -2965,7 +2965,7 @@ const bcem_Aggregate
 bcem_Aggregate::makeSelection(const bsl::string& newSelector,
                               const VALTYPE&     value) const
 {
-    return makeSelection(newSelector.c_str(), value);
+    return makeSelection(newSelector.c_str(), valueRef(value));
 }
 
 template <typename VALTYPE>
@@ -2979,7 +2979,7 @@ bcem_Aggregate::makeSelectionById(int id, const VALTYPE& value) const
     if (0 == d_rawData.makeSelectionById(&field,
                                          &errorDescription,
                                          id,
-                                         value)) {
+                                         valueRef(value))) {
         return bcem_Aggregate(field,
                               d_schemaRep_p,
                               d_valueRep_p,
@@ -3000,7 +3000,7 @@ bcem_Aggregate::makeSelectionByIndex(int index, const VALTYPE& value) const
     if (0 == d_rawData.makeSelectionByIndex(&field,
                                             &errorDescription,
                                             index,
-                                            value)) {
+                                            valueRef(value))) {
         return bcem_Aggregate(field,
                               d_schemaRep_p,
                               d_valueRep_p,

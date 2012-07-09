@@ -2848,8 +2848,9 @@ int bdeat_choiceMakeSelection(bcem_AggregateRaw *object,
         return -1;                                                    // RETURN
     }
 
+    bcem_AggregateRaw   field;
     bcem_AggregateError dummy;
-    return object->makeSelection(0, &dummy, name);
+    return object->makeSelection(&field, &dummy, name);
 }
 
 

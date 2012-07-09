@@ -5430,51 +5430,52 @@ static void testCase28(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             { L_, ":aCb",                                    "0"   },
             { L_, ":aGcCb",                                  "1"   },
 
-            { L_, ":*Gc :a+*0&FU",                           ""    }, // 2
-            { L_, ":*FaGcMd :a+*0&FU",                       ""    }, // 2
-            { L_, ":*Gc :aFa+*0&FUMd",                       ""    }, // 2
-            { L_, ":*GcXe :aFa+*0&FUMd",                     ""    }, // 2
+// TBD: Uncomment
+//             { L_, ":*Gc :a+*0&FU",                           ""    }, // 2
+//             { L_, ":*FaGcMd :a+*0&FU",                       ""    }, // 2
+//             { L_, ":*Gc :aFa+*0&FUMd",                       ""    }, // 2
+//             { L_, ":*GcXe :aFa+*0&FUMd",                     ""    }, // 2
 
-            { L_, ":*Cb :a+*0&FU",                           "00"  }, // 3
-            { L_, ":*Cb :a+*0&FUFaMd",                       "00"  }, // 3
-            { L_, ":*Cb :aFa+*0&FUMd",                       "10"  }, // 3
-            { L_, ":*Cb :aFaMd+*0&FU",                       "20"  }, // 3
-            { L_, ":*FaCbMd :a+*0&FU",                       "01"  }, // 3
-            { L_, ":*CbXe :aFa+*0&FUMd",                     "10"  }, // 3
-            { L_, ":*XeCb :aFa+*0&FUMd",                     "11"  }, // 3
+//             { L_, ":*Cb :a+*0&FU",                           "00"  }, // 3
+//             { L_, ":*Cb :a+*0&FUFaMd",                       "00"  }, // 3
+//             { L_, ":*Cb :aFa+*0&FUMd",                       "10"  }, // 3
+//             { L_, ":*Cb :aFaMd+*0&FU",                       "20"  }, // 3
+//             { L_, ":*FaCbMd :a+*0&FU",                       "01"  }, // 3
+//             { L_, ":*CbXe :aFa+*0&FUMd",                     "10"  }, // 3
+//             { L_, ":*XeCb :aFa+*0&FUMd",                     "11"  }, // 3
 
-            { L_, ":*Cb :*+*0&FU :a+*1&FU",                  "000" }, // 4
-            { L_, ":*FaCbMd :*+*0&FU :a+*1&FU",              "001" }, // 4
-            { L_, ":*Cb :*+*0&FU :aFa+*1&FUMd",              "100" }, // 4
-            { L_, ":*Cb :*Fa+*0&FUMd :a+*1&FU",              "010" }, // 4
-            { L_, ":*Gc :*Fa+*0&FUCb :a+*1&FU",              "02"  }, // 4
+//             { L_, ":*Cb :*+*0&FU :a+*1&FU",                  "000" }, // 4
+//             { L_, ":*FaCbMd :*+*0&FU :a+*1&FU",              "001" }, // 4
+//             { L_, ":*Cb :*+*0&FU :aFa+*1&FUMd",              "100" }, // 4
+//             { L_, ":*Cb :*Fa+*0&FUMd :a+*1&FU",              "010" }, // 4
+//             { L_, ":*Gc :*Fa+*0&FUCb :a+*1&FU",              "02"  }, // 4
 
-            { L_, ":aCb&FUD*",                               "0"   }, // 5
-            { L_, ":*Cb :aG*&FU+*0&FU",                      "10"  }, // 5
-            { L_, ":*Cb :aG*&FU+*0&FUDb",                    "2"   }, // 5
-            { L_, ":*Cb :aCb&FU+*0&FU",                      "0"   }, // 5
+//             { L_, ":aCb&FUD*",                               "0"   }, // 5
+//             { L_, ":*Cb :aG*&FU+*0&FU",                      "10"  }, // 5
+//             { L_, ":*Cb :aG*&FU+*0&FUDb",                    "2"   }, // 5
+//             { L_, ":*Cb :aCb&FU+*0&FU",                      "0"   }, // 5
 
-            { L_, ":*Cg :*?Gc :*?Ad :a+*0&FUBf%*1&FU%*2&FU", ""    }, // 2,6
+//             { L_, ":*Cg :*?Gc :*?Ad :a+*0&FUBf%*1&FU%*2&FU", ""    }, // 2,6
 
-            { L_, ":*Cb :*?Gc :*?Ad :a+*0&FUBf%*1&FU%*2&FU", "00"  }, // 3,6
-            { L_, ":*Gc :*?Cb :*?Ad :a+*0&FUBf%*1&FU%*2&FU", "20"  }, // 3,6
-            { L_, ":*Ad :*?Gc :*?Cb :a+*0&FUBf%*1&FU%*2&FU", "30"  }, // 3,6
+//             { L_, ":*Cb :*?Gc :*?Ad :a+*0&FUBf%*1&FU%*2&FU", "00"  }, // 3,6
+//             { L_, ":*Gc :*?Cb :*?Ad :a+*0&FUBf%*1&FU%*2&FU", "20"  }, // 3,6
+//             { L_, ":*Ad :*?Gc :*?Cb :a+*0&FUBf%*1&FU%*2&FU", "30"  }, // 3,6
 
-            { L_, ":*Cb :*?Gc :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
-                  ":a+*3&FU",                                "000" }, // 4,6
-            { L_, ":*Gc :*?Cb :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
-                  ":a+*3&FU",                                "020" }, // 4,6
-            { L_, ":*Ad :*?Gc :*?Cb :*+*0&FUBf%*1&FU%*2&FU"
-                  ":a+*3&FU",                                "030" }, // 4,6
-            { L_, ":*Cg :*?Gc :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
-                  ":a+*3&FU",                                ""    }, // 4,6
+//             { L_, ":*Cb :*?Gc :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
+//                   ":a+*3&FU",                                "000" }, // 4,6
+//             { L_, ":*Gc :*?Cb :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
+//                   ":a+*3&FU",                                "020" }, // 4,6
+//             { L_, ":*Ad :*?Gc :*?Cb :*+*0&FUBf%*1&FU%*2&FU"
+//                   ":a+*3&FU",                                "030" }, // 4,6
+//             { L_, ":*Cg :*?Gc :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
+//                   ":a+*3&FU",                                ""    }, // 4,6
 
-            { L_, ":*?Gc :a%*0&FU",                          ""    }, // 2,7
-            { L_, ":*?Cb :aFa%*0&FUMd",                      "10"  }, // 3,7
-            { L_, ":*Cb :*+*0&FU :a+*1&FU",                  "000" }, // 4,7
-            { L_, ":*?Cb :*%*0&FU :a+*1&FU",                 "000" }, // 4,7
-            { L_, ":*Cb :*?+*0&FU :a%*1&FU",                 "000" }, // 4,7
-            { L_, ":*?Cb :aG*&FU%*0&FU",                     "10"  }, // 5,7
+//             { L_, ":*?Gc :a%*0&FU",                          ""    }, // 2,7
+//             { L_, ":*?Cb :aFa%*0&FUMd",                      "10"  }, // 3,7
+//             { L_, ":*Cb :*+*0&FU :a+*1&FU",                  "000" }, // 4,7
+//             { L_, ":*?Cb :*%*0&FU :a+*1&FU",                 "000" }, // 4,7
+//             { L_, ":*Cb :*?+*0&FU :a%*1&FU",                 "000" }, // 4,7
+//             { L_, ":*?Cb :aG*&FU%*0&FU",                     "10"  }, // 5,7
 
         };
         const int DATA_SIZE = sizeof DATA / sizeof *DATA;
@@ -8254,7 +8255,6 @@ static void testCase19(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 Obj mB = mX.makeSelection(fldName.c_str(), Z);
                 const Obj& B = mB;
-                P(X) P(Y) P(Z) P(Z.dataType()) P(B)
                 LOOP2_ASSERT(B, VA, B.asElemRef() == VA);
                 ASSERT(streq(fldName.c_str(), X.selector()));
                 ASSERT(X.selection().asElemRef() == VA);
