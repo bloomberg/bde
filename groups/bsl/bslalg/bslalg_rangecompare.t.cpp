@@ -154,43 +154,54 @@ typedef bslalg::RangeCompare   Obj;
 
 template <class VALUE_TYPE, std::size_t CAPACITY>
 class FixedCapacityList {
-	// This class implements a fixed-capacity list of objects of the given
-	// VALUE_TYPE, which must provide value semantics and define a default
-	// constructor and an assignment operator.  The list capacity, defined
-	// by CAPACITY, is constant and set at compile time.  The result of any
-	// attempt to append elements beyond that capacity is undefined.  The
-	// functionality of this class has been intentionally stripped down in
-	// order to make it as simple as possible.  It is intended only for use
-	// as a support class in usage examples that require the existance of a
-	// container class.
+    // This class implements a fixed-capacity list of objects of the given
+    // VALUE_TYPE, which must provide value semantics.  The list capacity,
+    // defined by CAPACITY, is constant and set at compile time.
+    // Note that the result of any attempt to append elements beyond that
+    // capacity is undefined.  Also note that the functionality of this
+    // class has been intentionally stripped down in order to make it as
+    // simple as possible.  It is intended only for use as a support class
+    // in usage examples that require the existence of a container class.
 
-    private:
-        // DATA
-        std::size_t d_length;               // number of elements stored
-        VALUE_TYPE  d_storage_p[CAPACITY];  // storage for list elements
-    
-    public:
-        // PUBLIC TYPES
-        typedef VALUE_TYPE const *const_iterator;
-	    // Representation of a read-only iterator over the list elements
+  private:
+    // DATA
+    std::size_t d_length;               // number of elements in the
+                                        // container
 
-        // CREATORS
-        FixedCapacityList();
-            // Initialize this object as an empty list
-            
-        // MANIPULATORS
-        ~FixedCapacityList();
-        void append(const VALUE_TYPE& newValue);
-            // Add a new value to the end of the list.
-            // If d_length >= CAPACITY, behavior is undefined
-        const_iterator begin() const;
-            // Return a read-only iterator pointing to the start of the list
-        const_iterator end() const;
-            // Return a read-only iterator pointing to the end of the list
+    VALUE_TYPE  d_storage_p[CAPACITY];  // array of contained elements
 
-        // ACCESSORS
-        std::size_t length() const;
-	    // Return the number of elements stored in the list
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(FixedCapacityList,
+                   BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
+        // Declare nested type traits for this class.
+
+    // PUBLIC TYPES
+    typedef VALUE_TYPE const *ConstIterator;
+        // This 'typedef' provides an alias for the type of iterator
+        // providing non-modifiable access to the elements in the
+        // container.
+
+    // CREATORS
+    FixedCapacityList();
+        // Initialize this object as an empty list.
+
+    // MANIPULATORS
+    ~FixedCapacityList();
+        // Destroy this object.
+    void append(const VALUE_TYPE& value);
+        // Append the specified 'value' to the end of this container.
+        // If d_length >= CAPACITY, behavior is undefined.
+
+    // ACCESSORS
+    ConstIterator begin() const;
+        // Return an iterator providing non-modifiable access to first
+        // element in this container.
+    ConstIterator end() const;
+        // Return an iterator providing non-modifiable access to
+        // past-the-end element in this container.
+    std::size_t length() const;
+        // Return the number of elements stored in the list.
 };
 
 // CREATORS
@@ -208,7 +219,9 @@ FixedCapacityList<VALUE_TYPE, CAPACITY>::~FixedCapacityList()
 }
 
 template <class VALUE_TYPE, std::size_t CAPACITY>
-inline void FixedCapacityList<VALUE_TYPE, CAPACITY>::append(const VALUE_TYPE& newValue)
+inline
+void FixedCapacityList<VALUE_TYPE, CAPACITY>::append(
+                                                   const VALUE_TYPE& newValue)
 {
     BSLS_ASSERT(d_length < CAPACITY);
 
@@ -218,13 +231,17 @@ inline void FixedCapacityList<VALUE_TYPE, CAPACITY>::append(const VALUE_TYPE& ne
 
 // ACCESSORS
 template <class VALUE_TYPE, std::size_t CAPACITY>
-inline typename FixedCapacityList<VALUE_TYPE, CAPACITY>::const_iterator FixedCapacityList<VALUE_TYPE, CAPACITY>::begin() const
+inline
+typename FixedCapacityList<VALUE_TYPE, CAPACITY>::ConstIterator
+FixedCapacityList<VALUE_TYPE, CAPACITY>::begin() const
 {
     return d_storage_p;
 }
 
 template <class VALUE_TYPE, std::size_t CAPACITY>
-inline typename FixedCapacityList<VALUE_TYPE, CAPACITY>::const_iterator FixedCapacityList<VALUE_TYPE, CAPACITY>::end() const
+inline
+typename FixedCapacityList<VALUE_TYPE, CAPACITY>::ConstIterator
+FixedCapacityList<VALUE_TYPE, CAPACITY>::end() const
 {
     BSLS_ASSERT(d_length <= CAPACITY);
 
@@ -232,7 +249,8 @@ inline typename FixedCapacityList<VALUE_TYPE, CAPACITY>::const_iterator FixedCap
 }
 
 template <class VALUE_TYPE, std::size_t CAPACITY>
-inline std::size_t FixedCapacityList<VALUE_TYPE, CAPACITY>::length() const
+inline
+std::size_t FixedCapacityList<VALUE_TYPE, CAPACITY>::length() const
 {
     return d_length;
 }
@@ -468,28 +486,31 @@ TYPE& gg(TYPE *array, const char *spec)
 }
 
 //=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR USAGE EXAMPLE 
+//                  GLOBAL HELPER FUNCTIONS FOR USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 template<class VALUE_TYPE, std::size_t CAPACITY>
-inline bool operator==(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs, 
-                       const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs);
+inline
+bool operator==(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
+                const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' instances have the same
     // value, and 'false' otherwise.  Two instances have the same value if the
     // have the same length and each element in lhs has the same value as the
     // corresponding element in rhs.
 
 template<class VALUE_TYPE, std::size_t CAPACITY>
-inline bool operator!=(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs, 
-		       const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs);
+inline
+bool operator!=(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
+                const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' instances do not have the
     // same value, and 'false' otherwise.  Two instances differ in value if
     // they have differing lengths or if any element in lhs has differs in
     // value from the corresponding element in rhs.
 
 template<class VALUE_TYPE, std::size_t CAPACITY>
-inline bool operator==(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
-                       const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs)
+inline
+bool operator==(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
+                const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs)
 {
     return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
                                                     lhs.end(),
@@ -500,8 +521,9 @@ inline bool operator==(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
 }
 
 template<class VALUE_TYPE, std::size_t CAPACITY>
-inline bool operator!=(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
-                       const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs)
+inline
+bool operator!=(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
+                const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs)
 {
     return ! BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
                                                     lhs.end(),
@@ -1303,7 +1325,7 @@ int main(int argc, char *argv[])
    FixedCapacityList<int, 5> listB;
    FixedCapacityList<int, 5> listC;
    FixedCapacityList<int, 5> listD;
-   
+
    listA.append(1);
    listA.append(2);
    listA.append(3);

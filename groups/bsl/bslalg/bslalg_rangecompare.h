@@ -16,93 +16,126 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnimann)
 //
-//@DESCRIPTION: This component provides two functions, 'equal' and
-// 'lexicographical', for comparing two ranges.  The function 'equal' uses
-// optimizations based on the 'bslalg::TypeTraitBitwiseEqualityComparable'
-// trait.  The function 'lexicographical' uses optimizations for ranges
-// specified by contiguous arrays of unsigned character types.  Both functions
-// are more efficient if the lengths of the ranges are specified.
+//@DESCRIPTION: This component provides two class methods,
+// 'RangeCompare::equal' and 'RangeCompare::lexicographical', for comparing two
+// ranges each specified by a pair of input iterators that are compliant with
+// the C++11 standard [24.2.3].  'equal' finds out whether two specified ranges
+// compare-equal, and uses optimizations based on the
+// 'bslalg::TypeTraitBitwiseEqualityComparable' trait, when possible.
+// 'lexicographical' finds out whether the first specified range compares
+// lexicographically less than the second specified range and uses
+// optimizations for ranges specified by contiguous arrays of unsigned
+// character types.
 //
 ///Usage
 ///-----
 // This section illustrates the intended use of this component.
-// 
+//
+// Note that this component is for use primarily by the 'bslstl' package.  Other clients
+// should use the STL algorithms (in header '<algorithm>' and '<memory>').
+//
 ///Example 1: Defining Equality Comparison Operators on a Container
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have a new iterable component that will be included in the 'bslstl'
-// package, and we wish to define comparison operators for the component.  If
-// there is an iterator for the component that returns the component's elements
-// in a consistent order, and the elements themselves are comparable, we can
-// implement comparison operators by doing pairwise comparisons over the elements
-// returned by a iterating over the entire component.
-// 
-// For a normal component, we could accomplish this using std::equal() (in header
-// '<algorithm>'), but std::equal() is not available for use in 'bslstl', so
-// instead we can make the comparison with bslalg::RangeCompare::equal().
-// 
-// First, we define a minimal container class, FixedList that provides a
-// read-only iterator FixedList::const_iterator.
+// In this example we will use the class method 'RangeCompare::equal' to
+// implement the equal comparison operators for an iterable component residing
+// in the 'bslstl' package.
+//
+// Suppose we have a new iterable component that will
+// be included in the 'bslstl' package, and we wish to define comparison
+// operators for the component.  If there is an iterator for the component that
+// returns the component's elements in a consistent order, and the elements
+// themselves are comparable, we can implement comparison operators by doing
+// pairwise comparisons over the elements returned by a iterating over the
+// entire component.
+//
+// For a normal component, we could accomplish this using 'std::equal' (in
+// header '<algorithm>').  However, for components in 'bslstl', we can use
+// 'bsalg::RangeCompare::equal' instead, taking advantage of the optimizations
+// it provides for bitwise equality comparable objects.
+//
+// First, we define a minimal container class, 'FixedCapacityList' that
+// provides a read-only iterator 'FixedCapacityList::ConstIterator'.
 //..
 // template <class VALUE_TYPE, std::size_t CAPACITY>
 // class FixedCapacityList {
-// 	// This class implements a fixed-capacity list of objects of the given
-// 	// VALUE_TYPE, which must provide value semantics and define a default
-// 	// constructor and an assignment operator.  The list capacity, defined
-// 	// by CAPACITY, is constant and set at compile time.  The result of any
-// 	// attempt to append elements beyond that capacity is undefined.  The
-// 	// functionality of this class has been intentionally stripped down in
-// 	// order to make it as simple as possible.  It is intended only for use
-// 	// as a support class in usage examples that require the existance of a
-// 	// container class.
+//     // This class implements a fixed-capacity list of objects of the given
+//     // VALUE_TYPE, which must provide value semantics.  The list capacity,
+//     // defined by CAPACITY, is constant and set at compile time.
+//     // Note that the result of any attempt to append elements beyond that
+//     // capacity is undefined.  Also note that the functionality of this
+//     // class has been intentionally stripped down in order to make it as
+//     // simple as possible.  It is intended only for use as a support class
+//     // in usage examples that require the existence of a container class.
 // 
-//     private:
-//         // DATA
-//         std::size_t d_length;               // number of elements stored
-//         VALUE_TYPE  d_storage_p[CAPACITY];  // storage for list elements
-//     
-//     public:
-//         // PUBLIC TYPES
-//         typedef VALUE_TYPE const *const_iterator;
-// 	    // Representation of a read-only iterator over the list elements
+//   private:
+//     // DATA
+//     std::size_t d_length;               // number of elements in the
+//                                         // container
 // 
-//         // CREATORS
-//         FixedCapacityList();
-//             // Initialize this object as an empty list
-//             
-//         // MANIPULATORS
-//         ~FixedCapacityList();
-//         void append(const VALUE_TYPE& newValue);
-//             // Add a new value to the end of the list.
-//             // If d_length >= CAPACITY, behavior is undefined
-//         const_iterator begin() const;
-//             // Return a read-only iterator pointing to the start of the list
-//         const_iterator end() const;
-//             // Return a read-only iterator pointing to the end of the list
+//     VALUE_TYPE  d_storage_p[CAPACITY];  // array of contained elements
 // 
-//         // ACCESSORS
-//         std::size_t length() const;
-// 	    // Return the number of elements stored in the list
+//   public:
+//     // TRAITS
+//     BSLALG_DECLARE_NESTED_TRAITS(FixedCapacityList,
+//                    BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
+//         // Declare nested type traits for this class.
+// 
+//     // PUBLIC TYPES
+//     typedef VALUE_TYPE const *ConstIterator;
+//         // This 'typedef' provides an alias for the type of iterator
+//         // providing non-modifiable access to the elements in the
+//         // container.
+// 
+//     // CREATORS
+//     FixedCapacityList();
+//         // Initialize this object as an empty list.
+// 
+//     // MANIPULATORS
+//     ~FixedCapacityList();
+//         // Destroy this object.
+//     void append(const VALUE_TYPE& value);
+//         // Append the specified 'value' to the end of this container.
+//         // If d_length >= CAPACITY, behavior is undefined.
+// 
+//     // ACCESSORS
+//     ConstIterator begin() const;
+//         // Return an iterator providing non-modifiable access to first
+//         // element in this container.
+//     ConstIterator end() const;
+//         // Return an iterator providing non-modifiable access to
+//         // past-the-end element in this container.
+//     std::size_t length() const;
+//         // Return the number of elements stored in the list.
 // };
+//
+// // Method implementations are not shown for brevity.  Note that the method
+// // implementation details do not affect usage of
+// // 'bslalg::RangeCompare::equal' in the implementations of 'operator=='
+// // and 'operator!='.
 //..
-// Then, we define the equality comparison operators for FixedList by applying
-// bslalg::RangeCompare over the FixedList's iterators.
+// Notice that 'FixedCapacityList' declares the
+// 'bslalg::TypeTraitBitwiseEqualityComparable' trait.
+//
+// Then, we use 'bslalg::RangeCompare::equal' to implement the equality
+// comparison operators for 'FixedCapacityList'.
 //..
 // template<class VALUE_TYPE, std::size_t CAPACITY>
-// inline bool operator==(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs, 
+// inline bool operator==(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
 //                        const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs);
-//     // Return 'true' if the specified 'lhs' and 'rhs' instances have the same
-//     // value, and 'false' otherwise.  Two instances have the same value if the
-//     // have the same length and each element in lhs has the same value as the
-//     // corresponding element in rhs.
-// 
+//     // Return 'true' if the specified 'lhs' and 'rhs' instances have the
+//     // same value, and 'false' otherwise.  Two 'FixedCapacityList' objects
+//     // have the same value if the have the same length and each element in
+//     // 'lhs' has the same value as the corresponding element in 'rhs'.
+//
 // template<class VALUE_TYPE, std::size_t CAPACITY>
-// inline bool operator!=(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs, 
-// 		       const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs);
-//     // Return 'true' if the specified 'lhs' and 'rhs' instances do not have the
-//     // same value, and 'false' otherwise.  Two instances differ in value if
-//     // they have differing lengths or if any element in lhs has differs in
-//     // value from the corresponding element in rhs.
-// 
+// inline bool operator!=(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
+//                        const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs);
+//     // Return 'true' if the specified 'lhs' and 'rhs' instances do not have
+//     // the same value, and 'false' otherwise.  Two 'FixedCapacityList'
+//     // objects differ in value if they have differing lengths or if any
+//     // element in 'lhs' has differs in value from the corresponding element
+//     // in 'rhs'.
+//
 // template<class VALUE_TYPE, std::size_t CAPACITY>
 // inline bool operator==(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
 //                        const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs)
@@ -114,7 +147,7 @@ BSLS_IDENT("$Id: $")
 //                                                     rhs.end(),
 //                                                     rhs.length());
 // }
-// 
+//
 // template<class VALUE_TYPE, std::size_t CAPACITY>
 // inline bool operator!=(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
 //                        const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs)
@@ -127,41 +160,48 @@ BSLS_IDENT("$Id: $")
 //                                                     rhs.length());
 // }
 //..
-// Now, we can verify that comparisons between instances of FixedList produce the
-// expected results:
+// Note that because 'FixedCapacityList' has the
+// 'bslalg::TypeTraitBitwiseEqualityComparable' trait, the calls to
+// 'bslalg::RangeCompare::equal' will use an optimized implementation.  If
+// 'FixedCapacityList' did not have the
+// 'bslalg::TypeTraitBitwiseEqualityComparable' trait, these definitions of
+// the equal comparison operators would still be correct, though slower.
+//
+// Now, we can verify that comparisons between instances of FixedList produce
+// the expected results:
 //..
-//     FixedList<int, 5> listA;
-//     FixedList<int, 5> listB;
-//     FixedList<int, 5> listC;
-//     FixedList<int, 5> listD;
-//     
+//     FixedCapacityList<int, 5> listA;
+//     FixedCapacityList<int, 5> listB;
+//     FixedCapacityList<int, 5> listC;
+//     FixedCapacityList<int, 5> listD;
+//
 //     listA.append(1);
 //     listA.append(2);
 //     listA.append(3);
 //     listA.append(4);
 //     listA.append(5);
-// 
+//
 //     listB.append(1);
 //     listB.append(2);
 //     listB.append(3);
 //     listB.append(4);
 //     listB.append(5);
-// 
+//
 //     listC.append(1);
 //     listC.append(2);
 //     listC.append(3);
 //     listC.append(4);
-// 
+//
 //     listD.append(5);
 //     listD.append(4);
 //     listD.append(3);
 //     listD.append(2);
 //     listD.append(1);
-// 
-//     ASSERT(listA == listA);
-//     ASSERT(listA == listB);
-//     ASSERT(listA != listC);
-//     ASSERT(listA != listD);
+//
+//     assert(listA == listA);
+//     assert(listA == listB);
+//     assert(listA != listC);
+//     assert(listA != listD);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
