@@ -101,12 +101,12 @@ using namespace bsl;
 // REFERENCED-VALUE ACCESSORS
 // [26] int reserveRaw(Error *error, bsl::size_t numItems) const;
 // [27] int capacityRaw(Error *error, bsl::size_t *capacity) const;
-// [  ] bool isError() const;
-// [  ] bool isVoid() const;
+// [28] bool isError() const;
+// [28] bool isVoid() const;
 // [20] bool isNull() const;
 // [20] bool isNullable() const;
-// [  ] int errorCode() const;
-// [  ] bsl::string errorMessage() const;
+// [28] int errorCode() const;
+// [28] bsl::string errorMessage() const;
 // [ 6] bsl::string asString() const;
 // [ 6] void loadAsString(bsl::string *result) const;
 // [ 5] bool asBool() const;
@@ -148,10 +148,10 @@ using namespace bsl;
 // [11] const bdem_RecordDef *recordDefPtr() const;
 // [11] const void *data() const;
 // [11] const bdem_Schema *schema() const;
-// [  ] void swap(bcem_AggregateRaw& other);
+// [29] void swap(bcem_AggregateRaw& other);
 // [23] STREAM& bdexStreamIn(STREAM& stream, int version) const;
 // [23] STREAM& bdexStreamOut(STREAM& stream, int version) const;
-// [  ] bsl::ostream& print(stream, int level, int spl) const;
+// [ 9] bsl::ostream& print(stream, int level, int spl) const;
 // [ 3] int setField(Obj *o, Error *e, f1, value) const;
 // [ 4] int setField(Obj *o, Error *e, f1, f2, value) const;
 // [ 4] int setField(Obj *o, Error *e, f1, f2, f3, value) const;
@@ -3557,6 +3557,358 @@ int main(int argc, char *argv[])
               }
           }
       } break;
+      case 29: {
+        // --------------------------------------------------------------------
+        // TESTING 'swap'
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   void swap(bcem_AggregateRaw& other);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'swap'"
+                          << "\n=============="
+                          << bsl::endl;
+
+        if (veryVerbose) { T_ cout << "Testing for empty aggregates" << endl; }
+        {
+            Obj mX;  const Obj& X = mX;
+            Obj mY;  const Obj& Y = mY;
+            Obj mZ;  const Obj& Z = mZ;
+            ASSERT(Obj::areEquivalent(X, Y));
+
+            mX.swap(mY);
+            ASSERT(Obj::areEquivalent(X, Y));
+
+            ET::Type    TYPE = ET::BDEM_STRING;
+            const CERef CER  = getCERef(TYPE, 1);
+
+            bslma_TestAllocator ta;
+            void *data = makeValuePtr(TYPE, &ta);
+            CER.descriptor()->assign(data, CER.data());
+
+            mX.setDataType(TYPE);
+            mX.setDataPointer(data);
+            ASSERT(!Obj::areEquivalent(X, Y));
+            ASSERT(!Obj::areEquivalent(X, Z));
+            ASSERT( Obj::areEquivalent(Y, Z));
+
+            mX.swap(mY);
+            ASSERT(!Obj::areEquivalent(X, Y));
+            ASSERT( Obj::areEquivalent(X, Z));
+            ASSERT(!Obj::areEquivalent(Y, Z));
+
+            destroyValuePtr(data, TYPE, &ta);
+        }
+
+        if (veryVerbose) { T_ cout << "Testing for scalar aggregates"
+                                   << endl; }
+        {
+            TestAllocator ta;
+            for (int i = 0; i < ET::BDEM_NUM_TYPES; ++i) {
+
+                ET::Type    TYPE1 = (ET::Type) i;
+                const CERef CER1  = getCERef(TYPE1, 1);
+
+                void *data1 = makeValuePtr(TYPE1, &ta);
+                CER1.descriptor()->assign(data1, CER1.data());
+
+                int nf1 = 0;
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(TYPE1);
+                mX.setDataPointer(data1);
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
+
+                for (int j = 0; j < ET::BDEM_NUM_TYPES; ++j) {
+                    ET::Type    TYPE2 = (ET::Type) j;
+                    const CERef CER2  = getCERef(TYPE2, 1);
+                    bool        IS_EQUAL = (i == j) ? true : false;
+
+                    void *data2 = makeValuePtr(TYPE2, &ta);
+                    CER2.descriptor()->assign(data2, CER2.data());
+
+                    int nf2 = 0;
+                    Obj mY; const Obj& Y = mY;
+                    mY.setDataType(TYPE2);
+                    mY.setDataPointer(data2);
+                    mY.setTopLevelAggregateNullnessPointer(&nf2);
+
+                    if (veryVerbose) { P(TYPE1) P(TYPE2) P(X) P(Y) }
+
+                    Obj mA(X);  const Obj& A = mA;
+                    Obj mB(Y);  const Obj& B = mB;
+
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(X, Y));
+                    ASSERT(            Obj::areEquivalent(X, A));
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(X, B));
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(Y, A));
+                    ASSERT(            Obj::areEquivalent(Y, B));
+
+                    mX.swap(mY);
+
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(X, Y));
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(X, A));
+                    ASSERT(            Obj::areEquivalent(X, B));
+                    ASSERT(            Obj::areEquivalent(Y, A));
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(Y, B));
+
+                    mY.swap(mX);
+
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(X, Y));
+                    ASSERT(            Obj::areEquivalent(X, A));
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(X, B));
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(Y, A));
+                    ASSERT(            Obj::areEquivalent(Y, B));
+
+                    destroyValuePtr(data2, TYPE2, &ta);
+                }
+
+                destroyValuePtr(data1, TYPE1, &ta);
+            }
+        }
+
+        if (veryVerbose) { T_ cout << "Testing for aggregates" << endl; }
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line         Spec
+                // ----         ----
+                // For List Aggregates
+                {   L_,         ":aCa" },
+                {   L_,         ":aCa&NT" },
+                {   L_,         ":aCa&D0" },
+                {   L_,         ":aFa" },
+                {   L_,         ":aFa&NT" },
+                {   L_,         ":aFa&D0" },
+                {   L_,         ":aGa" },
+                {   L_,         ":aGa&NT" },
+                {   L_,         ":aGa&D0" },
+                {   L_,         ":aHa"    },
+                {   L_,         ":aHa&NT" },
+                {   L_,         ":aHa&D0" },
+                {   L_,         ":aNa"    },
+                {   L_,         ":aNa&NT" },
+                {   L_,         ":aNa&D0" },
+                {   L_,         ":aNa&FN" },
+                {   L_,         ":aPa" },
+                {   L_,         ":aPa&NT" },
+                {   L_,         ":aPa&D0" },
+                {   L_,         ":aPa&FN" },
+                {   L_,         ":aQa" },
+                {   L_,         ":aQa&NT" },
+                {   L_,         ":aQa&D0" },
+                {   L_,         ":aQa&FN" },
+                {   L_,         ":aRa" },
+                {   L_,         ":aRa&NT" },
+                {   L_,         ":aRa&D0" },
+                {   L_,         ":aRa&FN" },
+                {   L_,         ":aWa" },
+                {   L_,         ":aWa&NT" },
+                {   L_,         ":aWa&D0" },
+                {   L_,         ":aaa&FN" },
+                {   L_,         ":aVa" },
+                {   L_,         ":aVa&NT" },
+                {   L_,         ":afa" },
+                {   L_,         ":afa&NT" },
+
+                {   L_,         ":b=tu5v :a$ab" },
+                {   L_,         ":b=tu5v :a$ab&NT" },
+
+                {   L_,         ":b=tu5v :a^ab" },
+                {   L_,         ":b=tu5v :a^ab&NT" },
+
+                {   L_,         ":b=tu5v :a!ab" },
+                {   L_,         ":b=tu5v :a!ab&NT" },
+                {   L_,         ":b=tu5v :a!ab&FN" },
+
+                {   L_,         ":b=tu5v :a/ab" },
+                {   L_,         ":b=tu5v :a/ab&NT" },
+                {   L_,         ":b=tu5v :a/ab&FN" },
+
+                {   L_,         ":aCbFcGdQf :g+ha" },
+                {   L_,         ":aCbFcGdQf :g+ha&NT" },
+
+                {   L_,         ":aCbFcGdQf :g#ha" },
+                {   L_,         ":aCbFcGdQf :g#ha&NT" },
+
+                {   L_,         ":a?CbFcGdQf :g%ha" },
+                {   L_,         ":a?CbFcGdQf :g%ha&NT" },
+
+                {   L_,         ":a?CbFcGdQf :g@ha" },
+                {   L_,         ":a?CbFcGdQf :g@ha&NT" },
+
+                // For Choice Aggregates
+                {   L_,         ":a?Ca" },
+                {   L_,         ":a?Ca&NT" },
+                {   L_,         ":a?Ca&D0" },
+                {   L_,         ":a?Fa" },
+                {   L_,         ":a?Fa&NT" },
+                {   L_,         ":a?Fa&D0" },
+                {   L_,         ":a?Ga" },
+                {   L_,         ":a?Ga&NT" },
+                {   L_,         ":a?Ga&D0" },
+                {   L_,         ":a?Ha" },
+                {   L_,         ":a?Ha&NT" },
+                {   L_,         ":a?Ha&D0" },
+                {   L_,         ":a?Na" },
+                {   L_,         ":a?Na&NT" },
+                {   L_,         ":a?Na&D0" },
+                {   L_,         ":a?Pa" },
+                {   L_,         ":a?Pa&NT" },
+                {   L_,         ":a?Pa&D0" },
+                {   L_,         ":a?Qa" },
+                {   L_,         ":a?Qa&NT" },
+                {   L_,         ":a?Qa&D0" },
+                {   L_,         ":a?Ra" },
+                {   L_,         ":a?Ra&NT" },
+                {   L_,         ":a?Ra&D0" },
+                {   L_,         ":a?Wa" },
+                {   L_,         ":a?Wa&NT" },
+                {   L_,         ":a?Wa&D0" },
+                {   L_,         ":a?Va" },
+                {   L_,         ":a?Va&NT" },
+                {   L_,         ":a?fa" },
+                {   L_,         ":a?fa&NT" },
+
+                {   L_,         ":aCbFcGdQf :g?+ha" },
+                {   L_,         ":aCbFcGdQf :g?+ha&NT" },
+
+                {   L_,         ":aCbFcGdQf :g?#ha" },
+                {   L_,         ":aCbFcGdQf :g?#ha&NT" },
+
+                {   L_,         ":a?CbFcGdQf :g?%ha"    },
+                {   L_,         ":a?CbFcGdQf :g?%ha&NT" },
+
+                {   L_,         ":a?CbFcGdQf :g?@ha" },
+                {   L_,         ":a?CbFcGdQf :g?@ha&NT" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            bslma_TestAllocator ta(veryVeryVerbose);
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE1 = DATA[i].d_line;
+                const char *SPEC1 = DATA[i].d_spec;
+                const bool  NSA1  = (bool) bsl::strstr(SPEC1, "&FN");
+
+                Schema s1; ggSchema(&s1, SPEC1);
+                const RecDef *r1 = NSA1
+                                 ? &s1.record(0)
+                                 : &s1.record(s1.numRecords() - 1);
+
+                const char *fldName1 = r1->fieldName(0);
+
+                Obj mX; const Obj& X = mX;
+                int rc = ggAggData(&mX, *r1, &ta);
+                ASSERT(!rc);
+
+                Obj   mA; const Obj& A = mA;
+                Error err;
+                if (RecDef::BDEM_CHOICE_RECORD == r1->recordType()) {
+                    rc = mX.makeSelection(&mA, &err, fldName1);
+                    ASSERT(!rc);
+                }
+
+                for (int j = 0; j < NUM_DATA; ++j) {
+                    const int   LINE2 = DATA[j].d_line;
+                    const char *SPEC2 = DATA[j].d_spec;
+                    const bool  NSA2  = (bool) bsl::strstr(SPEC2, "&FN");
+                    bool        IS_EQUAL = (i == j) ? true : false;
+
+                    Schema s2; ggSchema(&s2, SPEC2);
+                    const RecDef *r2 = NSA2
+                                     ? &s2.record(0)
+                                     : &s2.record(s2.numRecords() - 1);
+
+                    const char *fldName2 = r2->fieldName(0);
+
+                    Obj mY; const Obj& Y = mY;
+                    rc = ggAggData(&mY, *r2, &ta);
+                    ASSERT(!rc);
+
+                    if (RecDef::BDEM_CHOICE_RECORD == r2->recordType()) {
+                        rc = mY.makeSelection(&mA, &err, fldName2);
+                        ASSERT(!rc);
+                    }
+
+                    if (veryVerbose) { P(LINE1) P(LINE2) P(X) P(Y) }
+
+                    Obj mA(X);  const Obj& A = mA;
+                    Obj mB(Y);  const Obj& B = mB;
+
+                    LOOP3_ASSERT(X, Y, IS_EQUAL,
+                                 IS_EQUAL == Obj::areEquivalent(X, Y));
+                    ASSERT(            Obj::areEquivalent(X, A));
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(X, B));
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(Y, A));
+                    ASSERT(            Obj::areEquivalent(Y, B));
+
+                    mX.swap(mY);
+
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(X, Y));
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(X, A));
+                    ASSERT(            Obj::areEquivalent(X, B));
+                    ASSERT(            Obj::areEquivalent(Y, A));
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(Y, B));
+
+                    mY.swap(mX);
+
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(X, Y));
+                    ASSERT(            Obj::areEquivalent(X, A));
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(X, B));
+                    ASSERT(IS_EQUAL == Obj::areEquivalent(Y, A));
+                    ASSERT(            Obj::areEquivalent(Y, B));
+
+                    destroyAggData(&mY, &ta);
+                }
+
+                destroyAggData(&mX, &ta);
+            }
+        }
+      } break;
+      case 28: {
+        // --------------------------------------------------------------------
+        // TESTING error functions:
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   bool isError() const;
+        //   bool isVoid() const;
+        //   int errorCode() const;
+        //   bsl::string errorMessage() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING error functions"
+                          << "\n=======================" << bsl::endl;
+
+        {
+                  char        AA = 'X';
+                  bdet_Date   BB(1, 1, 1);
+            const bsl::string S1("Invalid conversion when setting "
+                                 "CHAR value from DATE value");
+
+            {
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(ET::BDEM_CHAR);
+                mX.setDataPointer(&AA);
+
+                ASSERT(!X.isError());
+                ASSERT(!X.isVoid());
+
+                Error err;
+                X.setValue(&err, BB);
+                ASSERT(Error::BCEM_ERR_BAD_CONVERSION == err.code());
+                LOOP_ASSERT(err.description(), S1 == err.description());
+            }
+        }
+      } break;
       case 27: {
         // --------------------------------------------------------------------
         // ACCESSOR 'capacityRaw'
@@ -3868,6 +4220,8 @@ int main(int argc, char *argv[])
         //   int numSelections() const;
         //   int selection(Obj *obj, Error *error) const;
         //   bool hasField(const char *fieldName) const;
+        //   bool hasFieldById(int fieldId) const;
+        //   bool hasFieldByIndex(int fieldIndex) const;
         //   int setField(Obj *o, Error *e, f1, value) const;
         //   int getField(Obj *o, Error *e, bool null, f1, f2, . ., f10) const;
         // --------------------------------------------------------------------
@@ -4075,6 +4429,8 @@ int main(int argc, char *argv[])
             Error err;
             Obj mX;  const Obj& X = mX;
             theAgg.makeValue();
+            ASSERT(theAgg.hasFieldById(0));
+            ASSERT(theAgg.hasFieldByIndex(0));
             int rc = theAgg.fieldByIndex(&mX, &err, 0);
             ASSERT(!rc);
             mX.makeValue();
@@ -4625,7 +4981,6 @@ int main(int argc, char *argv[])
                                                       Y,
                                                       version);
 
-                     // TBD: Fix
                      if (version > 1) {
                          LOOP2_ASSERT(LINE, version, Obj::areEquivalent(X, Y));
                      }
@@ -7885,10 +8240,6 @@ int main(int argc, char *argv[])
 
                 bslma_TestAllocator testAllocator(veryVeryVerbose);
 
-// TBD: Uncomment
-// #ifndef BSLS_PLATFORM__CMP_MSVC
-//               BEGIN_BSLMA_EXCEPTION_TEST {
-// #endif
                 Obj mX;  const Obj& X = mX;
                 int rc = ggAggData(&mX, *RECORD, &testAllocator);
                 ASSERT(!rc);
@@ -8284,10 +8635,6 @@ int main(int argc, char *argv[])
 
                 bslma_TestAllocator testAllocator;
 
-// TBD: Uncomment
-// #ifndef BSLS_PLATFORM__CMP_MSVC
-//               BEGIN_BSLMA_EXCEPTION_TEST {
-// #endif
                 Obj mX;  const Obj& X = mX;
                 int rc = ggAggData(&mX, *RECORD, &testAllocator);
                 ASSERT(!rc);
@@ -8352,11 +8699,6 @@ int main(int argc, char *argv[])
                 ASSERT(compareCERefs(VB, F.asElemRef()));
 
                 destroyAggData(&mX, &testAllocator);
-
-// TBD: Uncomment
-// #ifndef BSLS_PLATFORM__CMP_MSVC
-//               } END_BSLMA_EXCEPTION_TEST
-// #endif
             }
         }
 
@@ -8395,17 +8737,12 @@ int main(int argc, char *argv[])
                 const CERef VA = getCERef(ET::fromArrayType(ARRAY_TYPE), 1);
                 const CERef VB = getCERef(ET::fromArrayType(ARRAY_TYPE), 2);
 
-                // TBD: why ?
                 const bool IS_NULL = ET::isChoiceType(ARRAY_TYPE)
                                    ? true : false;
                 if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
                 bslma_TestAllocator testAllocator(veryVeryVerbose);
 
-// TBD: Uncomment
-// #ifndef BSLS_PLATFORM__CMP_MSVC
-//               BEGIN_BSLMA_EXCEPTION_TEST {
-// #endif
                 Obj mX;  const Obj& X = mX;
                 int rc = ggAggData(&mX, *RECORD, &testAllocator);
                 ASSERT(!rc);
@@ -8467,11 +8804,6 @@ int main(int argc, char *argv[])
                 ASSERT(compareCERefs(VB, F.asElemRef()));
 
                 destroyAggData(&mX, &testAllocator);
-
-// TBD: Uncomment
-// #ifndef BSLS_PLATFORM__CMP_MSVC
-//               } END_BSLMA_EXCEPTION_TEST
-// #endif
             }
         }
       } break;
@@ -8925,19 +9257,23 @@ int main(int argc, char *argv[])
 
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(TYPE);
-                mX.setDataPointer(d);
-                mX.setSchemaPointer(&s);
-                mX.setTopLevelAggregateNullnessPointer(&n);
-                mX.setRecordDefPointer(&r);
-                mX.setFieldDefPointer(&f);
-
-                if (veryVerbose) { T_ P_(LINE) P(X) };
-
                 LOOP_ASSERT(LINE, TYPE == X.dataType());
+
+                mX.setDataPointer(d);
                 LOOP_ASSERT(LINE, d    == X.data());
+
+                mX.setSchemaPointer(&s);
                 LOOP_ASSERT(LINE, &s   == X.schema());
+
+                mX.setTopLevelAggregateNullnessPointer(&n);
+
+                mX.setRecordDefPointer(&r);
                 LOOP_ASSERT(LINE, &r   == X.recordConstraint());
+
+                mX.setFieldDefPointer(&f);
                 LOOP_ASSERT(LINE, &f   == X.fieldDef());
+
+                mX.reset();
 
                 destroyValuePtr(d, TYPE, &t);
             }
@@ -9449,214 +9785,212 @@ int main(int argc, char *argv[])
             }
         }
 
-// TBD: Uncomment
-#if 0
         if (veryVerbose) cout << bsl::endl
                               << "\n\tTest aggregate values" << bsl::endl;
         {
-            const struct {
-                int         d_line;
-                const char *d_spec;
-            } DATA[] = {
-                // Line  Spec
-                // ----  ----
-                // For List Aggregates
-                {   L_,         ":aCa" },
-                {   L_,         ":aFa" },
-                {   L_,         ":aGa" },
-                {   L_,         ":aHa" },
-                {   L_,         ":aNa" },
-                {   L_,         ":aPa" },
-                {   L_,         ":aQa" },
-                {   L_,         ":aRa" },
-                {   L_,         ":aWa" },
-                {   L_,         ":aCbFcGdQf :g+ha" },
-                {   L_,         ":aCbFcGdQf :g#ha" },
-                {   L_,         ":a?CbFcGdQf :g%ha" },
-                {   L_,         ":a?CbFcGdQf :g@ha" },
+// TBD: Uncomment
+//             const struct {
+//                 int         d_line;
+//                 const char *d_spec;
+//             } DATA[] = {
+//                 // Line  Spec
+//                 // ----  ----
+//                 // For List Aggregates
+//                 {   L_,         ":aCa" },
+//                 {   L_,         ":aFa" },
+//                 {   L_,         ":aGa" },
+//                 {   L_,         ":aHa" },
+//                 {   L_,         ":aNa" },
+//                 {   L_,         ":aPa" },
+//                 {   L_,         ":aQa" },
+//                 {   L_,         ":aRa" },
+//                 {   L_,         ":aWa" },
+//                 {   L_,         ":aCbFcGdQf :g+ha" },
+//                 {   L_,         ":aCbFcGdQf :g#ha" },
+//                 {   L_,         ":a?CbFcGdQf :g%ha" },
+//                 {   L_,         ":a?CbFcGdQf :g@ha" },
 
-                // For Choice Aggregates
-                {   L_,         ":a?Ca" },
-                {   L_,         ":a?Fa" },
-                {   L_,         ":a?Ga" },
-                {   L_,         ":a?Ha" },
-                {   L_,         ":a?Na" },
-                {   L_,         ":a?Pa" },
-                {   L_,         ":a?Qa" },
-                {   L_,         ":a?Ra" },
-                {   L_,         ":a?Wa" },
-                {   L_,         ":aCbFcGdQf  :g?+ha" },
-                {   L_,         ":aCbFcGdQf  :g?#ha" },
-                {   L_,         ":a?CbFcGdQf :g?%ha" },
-                {   L_,         ":a?CbFcGdQf :g?@ha" },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+//                 // For Choice Aggregates
+//                 {   L_,         ":a?Ca" },
+//                 {   L_,         ":a?Fa" },
+//                 {   L_,         ":a?Ga" },
+//                 {   L_,         ":a?Ha" },
+//                 {   L_,         ":a?Na" },
+//                 {   L_,         ":a?Pa" },
+//                 {   L_,         ":a?Qa" },
+//                 {   L_,         ":a?Ra" },
+//                 {   L_,         ":a?Wa" },
+//                 {   L_,         ":aCbFcGdQf  :g?+ha" },
+//                 {   L_,         ":aCbFcGdQf  :g?#ha" },
+//                 {   L_,         ":a?CbFcGdQf :g?%ha" },
+//                 {   L_,         ":a?CbFcGdQf :g?@ha" },
+//             };
+//             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE = DATA[i].d_line;
-                const char *SPEC = DATA[i].d_spec;
+//             for (int i = 0; i < NUM_DATA; ++i) {
+//                 const int   LINE = DATA[i].d_line;
+//                 const char *SPEC = DATA[i].d_spec;
 
-                Schema s; ggSchema(&s, SPEC);
-                const RecDef& r = s.record(s.numRecords() - 1);
+//                 Schema s; ggSchema(&s, SPEC);
+//                 const RecDef& r = s.record(s.numRecords() - 1);
 
-                ET::Type TYPE =
-                    RecDef::BDEM_SEQUENCE_RECORD == r.recordType()
-                    ? ET::BDEM_LIST : ET::BDEM_CHOICE;
+//                 ET::Type TYPE =
+//                     RecDef::BDEM_SEQUENCE_RECORD == r.recordType()
+//                     ? ET::BDEM_LIST : ET::BDEM_CHOICE;
 
-                if (veryVerbose) { T_ P(s) };
+//                 if (veryVerbose) { T_ P(s) };
 
-                if (ET::BDEM_LIST == TYPE) {
-                    List list;
-                    Table table;
-                    ggList(&list, &r);
-                    ggTable(&table, &r);
+//                 if (ET::BDEM_LIST == TYPE) {
+//                     List list;
+//                     Table table;
+//                     ggList(&list, &r);
+//                     ggTable(&table, &r);
 
-                    int nf1 = 0, nf2 = 0;
+//                     int nf1 = 0, nf2 = 0;
 
-                    bslma_TestAllocator t(veryVeryVerbose);
-                    List aggList;
-                    aggList.appendList(list);
-                    Obj mX; const Obj& X = mX;
-                    mX.setDataType(ET::BDEM_LIST);
-                    mX.setDataPointer(&list);
-                    mX.setTopLevelAggregateNullnessPointer(&nf1);
-                    mX.setSchemaPointer(&s);
+//                     bslma_TestAllocator t(veryVeryVerbose);
+//                     List aggList;
+//                     aggList.appendList(list);
+//                     Obj mX; const Obj& X = mX;
+//                     mX.setDataType(ET::BDEM_LIST);
+//                     mX.setDataPointer(&list);
+//                     mX.setTopLevelAggregateNullnessPointer(&nf1);
+//                     mX.setSchemaPointer(&s);
 
-                    Obj mY; const Obj& Y = mY;
-                    mY.setDataType(ET::BDEM_TABLE);
-                    mY.setDataPointer(&table);
-                    mY.setTopLevelAggregateNullnessPointer(&nf2);
-                    mX.setSchemaPointer(&s);
+//                     Obj mY; const Obj& Y = mY;
+//                     mY.setDataType(ET::BDEM_TABLE);
+//                     mY.setDataPointer(&table);
+//                     mY.setTopLevelAggregateNullnessPointer(&nf2);
+//                     mX.setSchemaPointer(&s);
 
-                    if (veryVerbose) { T_ P(X) P(Y) };
+//                     if (veryVerbose) { T_ P(X) P(Y) };
 
-                    const CERef CL(&list, &bdem_ListImp::d_listAttr);
-                    const CERef CT(&table, &bdem_TableImp::d_tableAttr);
+//                     const CERef CL(&list, &bdem_ListImp::d_listAttr);
+//                     const CERef CT(&table, &bdem_TableImp::d_tableAttr);
 
-                    bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
-                    bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
-                    SchemaAggUtil::print(exp1, CL, &r, 2, 4);
-                    SchemaAggUtil::print(exp2, CL, &r, 2, -4);
-                    SchemaAggUtil::print(exp3, CL, &r, -2, 4);
-                    SchemaAggUtil::print(exp4, CL, &r, -2, -4);
-                    SchemaAggUtil::print(exp5, CL, &r, 0, -1);
-                    SchemaAggUtil::print(exp6, CT, &r, 2, 4);
-                    SchemaAggUtil::print(exp7, CT, &r, 2, -4);
-                    SchemaAggUtil::print(exp8, CT, &r, -2, 4);
-                    SchemaAggUtil::print(exp9, CT, &r, -2, -4);
-                    SchemaAggUtil::print(exp10, CT, &r, 0, -1);
+//                     bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
+//                     bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
+//                     SchemaAggUtil::print(exp1, CL, &r, 2, 4);
+//                     SchemaAggUtil::print(exp2, CL, &r, 2, -4);
+//                     SchemaAggUtil::print(exp3, CL, &r, -2, 4);
+//                     SchemaAggUtil::print(exp4, CL, &r, -2, -4);
+//                     SchemaAggUtil::print(exp5, CL, &r, 0, -1);
+//                     SchemaAggUtil::print(exp6, CT, &r, 2, 4);
+//                     SchemaAggUtil::print(exp7, CT, &r, 2, -4);
+//                     SchemaAggUtil::print(exp8, CT, &r, -2, 4);
+//                     SchemaAggUtil::print(exp9, CT, &r, -2, -4);
+//                     SchemaAggUtil::print(exp10, CT, &r, 0, -1);
 
-                    bsl::ostringstream os1, os2, os3, os4, os5;
-                    bsl::ostringstream os6, os7, os8, os9, os10;
-                    X.print(os1, 2, 4);
-                    X.print(os2, 2, -4);
-                    X.print(os3, -2, 4);
-                    X.print(os4, -2, -4);
-                    os5 << X;
-                    Y.print(os6, 2, 4);
-                    Y.print(os7, 2, -4);
-                    Y.print(os8, -2, 4);
-                    Y.print(os9, -2, -4);
-                    os10 << Y;
+//                     bsl::ostringstream os1, os2, os3, os4, os5;
+//                     bsl::ostringstream os6, os7, os8, os9, os10;
+//                     X.print(os1, 2, 4);
+//                     X.print(os2, 2, -4);
+//                     X.print(os3, -2, 4);
+//                     X.print(os4, -2, -4);
+//                     os5 << X;
+//                     Y.print(os6, 2, 4);
+//                     Y.print(os7, 2, -4);
+//                     Y.print(os8, -2, 4);
+//                     Y.print(os9, -2, -4);
+//                     os10 << Y;
 
-                    LOOP3_ASSERT(TYPE, exp1.str(), os1.str(),
-                                 exp1.str() == os1.str());
-                    LOOP3_ASSERT(TYPE, exp2.str(), os2.str(),
-                                 exp2.str() == os2.str());
-                    LOOP3_ASSERT(TYPE, exp3.str(), os3.str(),
-                                 exp3.str() == os3.str());
-                    LOOP3_ASSERT(TYPE, exp4.str(), os4.str(),
-                                 exp4.str() == os4.str());
-                    LOOP3_ASSERT(TYPE, exp5.str(), os5.str(),
-                                 exp5.str() == os5.str());
-                    LOOP3_ASSERT(TYPE, exp6.str(), os6.str(),
-                                 exp6.str() == os6.str());
-                    LOOP3_ASSERT(TYPE, exp7.str(), os7.str(),
-                                 exp7.str() == os7.str());
-                    LOOP3_ASSERT(TYPE, exp8.str(), os8.str(),
-                                 exp8.str() == os8.str());
-                    LOOP3_ASSERT(TYPE, exp9.str(), os9.str(),
-                                 exp9.str() == os9.str());
-                    LOOP3_ASSERT(TYPE, exp10.str(), os10.str(),
-                                 exp10.str() == os10.str());
-                }
-                else if (ET::BDEM_CHOICE == TYPE) {
-                    Choice choice;
-                    ChoiceArray choiceArray;
-                    ggChoice(&choice, &r);
-                    ggChoiceArray(&choiceArray, &r);
+//                     LOOP3_ASSERT(TYPE, exp1.str(), os1.str(),
+//                                  exp1.str() == os1.str());
+//                     LOOP3_ASSERT(TYPE, exp2.str(), os2.str(),
+//                                  exp2.str() == os2.str());
+//                     LOOP3_ASSERT(TYPE, exp3.str(), os3.str(),
+//                                  exp3.str() == os3.str());
+//                     LOOP3_ASSERT(TYPE, exp4.str(), os4.str(),
+//                                  exp4.str() == os4.str());
+//                     LOOP3_ASSERT(TYPE, exp5.str(), os5.str(),
+//                                  exp5.str() == os5.str());
+//                     LOOP3_ASSERT(TYPE, exp6.str(), os6.str(),
+//                                  exp6.str() == os6.str());
+//                     LOOP3_ASSERT(TYPE, exp7.str(), os7.str(),
+//                                  exp7.str() == os7.str());
+//                     LOOP3_ASSERT(TYPE, exp8.str(), os8.str(),
+//                                  exp8.str() == os8.str());
+//                     LOOP3_ASSERT(TYPE, exp9.str(), os9.str(),
+//                                  exp9.str() == os9.str());
+//                     LOOP3_ASSERT(TYPE, exp10.str(), os10.str(),
+//                                  exp10.str() == os10.str());
+//                 }
+//                 else if (ET::BDEM_CHOICE == TYPE) {
+//                     Choice choice;
+//                     ChoiceArray choiceArray;
+//                     ggChoice(&choice, &r);
+//                     ggChoiceArray(&choiceArray, &r);
 
-                    int nf1 = 0, nf2 = 0;
+//                     int nf1 = 0, nf2 = 0;
 
-                    bslma_TestAllocator t(veryVeryVerbose);
-                    Obj mX; const Obj& X = mX;
-                    mX.setDataType(ET::BDEM_CHOICE);
-                    mX.setDataPointer(&choice);
-                    mX.setTopLevelAggregateNullnessPointer(&nf1);
-                    mX.setSchemaPointer(&s);
+//                     bslma_TestAllocator t(veryVeryVerbose);
+//                     Obj mX; const Obj& X = mX;
+//                     mX.setDataType(ET::BDEM_CHOICE);
+//                     mX.setDataPointer(&choice);
+//                     mX.setTopLevelAggregateNullnessPointer(&nf1);
+//                     mX.setSchemaPointer(&s);
 
-                    Obj mY; const Obj& Y = mY;
-                    mY.setDataType(ET::BDEM_CHOICE_ARRAY);
-                    mY.setDataPointer(&choiceArray);
-                    mY.setTopLevelAggregateNullnessPointer(&nf2);
-                    mX.setSchemaPointer(&s);
+//                     Obj mY; const Obj& Y = mY;
+//                     mY.setDataType(ET::BDEM_CHOICE_ARRAY);
+//                     mY.setDataPointer(&choiceArray);
+//                     mY.setTopLevelAggregateNullnessPointer(&nf2);
+//                     mX.setSchemaPointer(&s);
 
-                    if (veryVerbose) { T_ P(X) P(Y) };
+//                     if (veryVerbose) { T_ P(X) P(Y) };
 
-                    const CERef CC(&choice, &bdem_ChoiceImp::d_choiceAttr);
-                    const CERef CCA(&choiceArray,
-                                    &bdem_ChoiceArrayImp::d_choiceArrayAttr);
+//                     const CERef CC(&choice, &bdem_ChoiceImp::d_choiceAttr);
+//                     const CERef CCA(&choiceArray,
+//                                     &bdem_ChoiceArrayImp::d_choiceArrayAttr);
 
-                    bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
-                    bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
-                    SchemaAggUtil::print(exp1, CC, &r, 2, 4);
-                    SchemaAggUtil::print(exp2, CC, &r, 2, -4);
-                    SchemaAggUtil::print(exp3, CC, &r, -2, 4);
-                    SchemaAggUtil::print(exp4, CC, &r, -2, -4);
-                    SchemaAggUtil::print(exp5, CC, &r, 0, -1);
-                    SchemaAggUtil::print(exp6, CCA, &r, 2, 4);
-                    SchemaAggUtil::print(exp7, CCA, &r, 2, -4);
-                    SchemaAggUtil::print(exp8, CCA, &r, -2, 4);
-                    SchemaAggUtil::print(exp9, CCA, &r, -2, -4);
-                    SchemaAggUtil::print(exp10, CCA, &r, 0, -1);
+//                     bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
+//                     bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
+//                     SchemaAggUtil::print(exp1, CC, &r, 2, 4);
+//                     SchemaAggUtil::print(exp2, CC, &r, 2, -4);
+//                     SchemaAggUtil::print(exp3, CC, &r, -2, 4);
+//                     SchemaAggUtil::print(exp4, CC, &r, -2, -4);
+//                     SchemaAggUtil::print(exp5, CC, &r, 0, -1);
+//                     SchemaAggUtil::print(exp6, CCA, &r, 2, 4);
+//                     SchemaAggUtil::print(exp7, CCA, &r, 2, -4);
+//                     SchemaAggUtil::print(exp8, CCA, &r, -2, 4);
+//                     SchemaAggUtil::print(exp9, CCA, &r, -2, -4);
+//                     SchemaAggUtil::print(exp10, CCA, &r, 0, -1);
 
-                    bsl::ostringstream os1, os2, os3, os4, os5;
-                    bsl::ostringstream os6, os7, os8, os9, os10;
-                    X.print(os1, 2, 4);
-                    X.print(os2, 2, -4);
-                    X.print(os3, -2, 4);
-                    X.print(os4, -2, -4);
-                    os5 << X;
-                    Y.print(os6, 2, 4);
-                    Y.print(os7, 2, -4);
-                    Y.print(os8, -2, 4);
-                    Y.print(os9, -2, -4);
-                    os10 << Y;
+//                     bsl::ostringstream os1, os2, os3, os4, os5;
+//                     bsl::ostringstream os6, os7, os8, os9, os10;
+//                     X.print(os1, 2, 4);
+//                     X.print(os2, 2, -4);
+//                     X.print(os3, -2, 4);
+//                     X.print(os4, -2, -4);
+//                     os5 << X;
+//                     Y.print(os6, 2, 4);
+//                     Y.print(os7, 2, -4);
+//                     Y.print(os8, -2, 4);
+//                     Y.print(os9, -2, -4);
+//                     os10 << Y;
 
-                    LOOP3_ASSERT(TYPE, exp1.str(), os1.str(),
-                                 exp1.str() == os1.str());
-                    LOOP3_ASSERT(TYPE, exp2.str(), os2.str(),
-                                 exp2.str() == os2.str());
-                    LOOP3_ASSERT(TYPE, exp3.str(), os3.str(),
-                                 exp3.str() == os3.str());
-                    LOOP3_ASSERT(TYPE, exp4.str(), os4.str(),
-                                 exp4.str() == os4.str());
-                    LOOP3_ASSERT(TYPE, exp5.str(), os5.str(),
-                                 exp5.str() == os5.str());
-                    LOOP3_ASSERT(TYPE, exp6.str(), os6.str(),
-                                 exp6.str() == os6.str());
-                    LOOP3_ASSERT(TYPE, exp7.str(), os7.str(),
-                                 exp7.str() == os7.str());
-                    LOOP3_ASSERT(TYPE, exp8.str(), os8.str(),
-                                 exp8.str() == os8.str());
-                    LOOP3_ASSERT(TYPE, exp9.str(), os9.str(),
-                                 exp9.str() == os9.str());
-                    LOOP3_ASSERT(TYPE, exp10.str(), os10.str(),
-                                 exp10.str() == os10.str());
-               }
-           }
+//                     LOOP3_ASSERT(TYPE, exp1.str(), os1.str(),
+//                                  exp1.str() == os1.str());
+//                     LOOP3_ASSERT(TYPE, exp2.str(), os2.str(),
+//                                  exp2.str() == os2.str());
+//                     LOOP3_ASSERT(TYPE, exp3.str(), os3.str(),
+//                                  exp3.str() == os3.str());
+//                     LOOP3_ASSERT(TYPE, exp4.str(), os4.str(),
+//                                  exp4.str() == os4.str());
+//                     LOOP3_ASSERT(TYPE, exp5.str(), os5.str(),
+//                                  exp5.str() == os5.str());
+//                     LOOP3_ASSERT(TYPE, exp6.str(), os6.str(),
+//                                  exp6.str() == os6.str());
+//                     LOOP3_ASSERT(TYPE, exp7.str(), os7.str(),
+//                                  exp7.str() == os7.str());
+//                     LOOP3_ASSERT(TYPE, exp8.str(), os8.str(),
+//                                  exp8.str() == os8.str());
+//                     LOOP3_ASSERT(TYPE, exp9.str(), os9.str(),
+//                                  exp9.str() == os9.str());
+//                     LOOP3_ASSERT(TYPE, exp10.str(), os10.str(),
+//                                  exp10.str() == os10.str());
+//                }
+//            }
         }
-#endif
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -12464,6 +12798,22 @@ int main(int argc, char *argv[])
                 ASSERT(VA       == S.asElemRef());
                 ASSERT(!S.isNull());
 
+                Obj   mT; const Obj& T = mT;
+                rc = mX.fieldById(&mT, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!T.isNull());
+
+                rc = mX.fieldById(&mT, &error, NUM_RECS);
+                ASSERT(rc);
+
+                Obj   mV; const Obj& V = mV;
+                rc = mX.fieldByIndex(&mV, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!V.isNull());
+
+                rc = mX.fieldByIndex(&mV, &error, NUM_RECS);
+                ASSERT(rc);
+
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f3, f2, f1);
                 ASSERT(!rc);
@@ -12531,6 +12881,22 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, VA, S.asElemRef(), VA == S.asElemRef());
                 ASSERT(!S.isNull());
 
+                Obj   mT; const Obj& T = mT;
+                rc = mX.fieldById(&mT, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!T.isNull());
+
+                rc = mX.fieldById(&mT, &error, NUM_RECS);
+                ASSERT(rc);
+
+                Obj   mV; const Obj& V = mV;
+                rc = mX.fieldByIndex(&mV, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!V.isNull());
+
+                rc = mX.fieldByIndex(&mV, &error, NUM_RECS);
+                ASSERT(rc);
+
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f4, f3, f2, f1);
                 ASSERT(!rc);
@@ -12585,6 +12951,22 @@ int main(int argc, char *argv[])
                 ASSERT(&fd      == S.fieldDef());
                 LOOP3_ASSERT(LINE, VA, S.asElemRef(), VA == S.asElemRef());
                 ASSERT(!S.isNull());
+
+                Obj   mT; const Obj& T = mT;
+                rc = mX.fieldById(&mT, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!T.isNull());
+
+                rc = mX.fieldById(&mT, &error, NUM_RECS);
+                ASSERT(rc);
+
+                Obj   mV; const Obj& V = mV;
+                rc = mX.fieldByIndex(&mV, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!V.isNull());
+
+                rc = mX.fieldByIndex(&mV, &error, NUM_RECS);
+                ASSERT(rc);
 
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f5, f4, f3, f2, f1);
@@ -12642,6 +13024,22 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, VA, S.asElemRef(), VA == S.asElemRef());
                 ASSERT(!S.isNull());
 
+                Obj   mT; const Obj& T = mT;
+                rc = mX.fieldById(&mT, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!T.isNull());
+
+                rc = mX.fieldById(&mT, &error, NUM_RECS);
+                ASSERT(rc);
+
+                Obj   mV; const Obj& V = mV;
+                rc = mX.fieldByIndex(&mV, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!V.isNull());
+
+                rc = mX.fieldByIndex(&mV, &error, NUM_RECS);
+                ASSERT(rc);
+
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f6, f5, f4, f3, f2, f1);
                 ASSERT(!rc);
@@ -12698,6 +13096,22 @@ int main(int argc, char *argv[])
                 ASSERT(&fd      == S.fieldDef());
                 LOOP3_ASSERT(LINE, VA, S.asElemRef(), VA == S.asElemRef());
                 ASSERT(!S.isNull());
+
+                Obj   mT; const Obj& T = mT;
+                rc = mX.fieldById(&mT, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!T.isNull());
+
+                rc = mX.fieldById(&mT, &error, NUM_RECS);
+                ASSERT(rc);
+
+                Obj   mV; const Obj& V = mV;
+                rc = mX.fieldByIndex(&mV, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!V.isNull());
+
+                rc = mX.fieldByIndex(&mV, &error, NUM_RECS);
+                ASSERT(rc);
 
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f7, f6, f5,
@@ -12761,6 +13175,22 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, VA, S.asElemRef(), VA == S.asElemRef());
                 ASSERT(!S.isNull());
 
+                Obj   mT; const Obj& T = mT;
+                rc = mX.fieldById(&mT, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!T.isNull());
+
+                rc = mX.fieldById(&mT, &error, NUM_RECS);
+                ASSERT(rc);
+
+                Obj   mV; const Obj& V = mV;
+                rc = mX.fieldByIndex(&mV, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!V.isNull());
+
+                rc = mX.fieldByIndex(&mV, &error, NUM_RECS);
+                ASSERT(rc);
+
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f8, f7, f6, f5,
                                 f4, f3, f2, f1);
@@ -12822,6 +13252,22 @@ int main(int argc, char *argv[])
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, VA, S.asElemRef(), VA == S.asElemRef());
                 ASSERT(!S.isNull());
+
+                Obj   mT; const Obj& T = mT;
+                rc = mX.fieldById(&mT, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!T.isNull());
+
+                rc = mX.fieldById(&mT, &error, NUM_RECS);
+                ASSERT(rc);
+
+                Obj   mV; const Obj& V = mV;
+                rc = mX.fieldByIndex(&mV, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!V.isNull());
+
+                rc = mX.fieldByIndex(&mV, &error, NUM_RECS);
+                ASSERT(rc);
 
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f9, f8, f7, f6, f5,
@@ -12888,6 +13334,22 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, VA, S.asElemRef(), VA == S.asElemRef());
                 ASSERT(!S.isNull());
 
+                Obj   mT; const Obj& T = mT;
+                rc = mX.fieldById(&mT, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!T.isNull());
+
+                rc = mX.fieldById(&mT, &error, NUM_RECS);
+                ASSERT(rc);
+
+                Obj   mV; const Obj& V = mV;
+                rc = mX.fieldByIndex(&mV, &error, 0);
+                ASSERT(!rc);
+                ASSERT(!V.isNull());
+
+                rc = mX.fieldByIndex(&mV, &error, NUM_RECS);
+                ASSERT(rc);
+
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f10, f9, f8, f7, f6, f5,
                                 f4, f3, f2, f1);
@@ -12914,7 +13376,6 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, VB, S.asElemRef(), VB == S.asElemRef());
                 ASSERT(!S.isNull());
 
-
                 // Test that scalar types are returned by reference
                 mS.setValue(&error, VA);
                 ASSERT(VA == S.asElemRef());
@@ -12926,42 +13387,71 @@ int main(int argc, char *argv[])
                 ASSERT(!S.isNull());
 
                 const char errFld[] = "ErrorField";
+                Error err;
+                Obj mZ;
 
-                // TBD: Uncomment
-#if 0
                 // Test error output
                 {
-                    ASSERT_AGG_ERROR(mX.setField(errFld, f9, f8, f7, f6, f5,
-                                f4, f3, f2, f1, VA), BCEM_ERR_TBD);
+                    rc = mX.setField(&mZ, &err, errFld, f9, f8, f7, f6, f5,
+                                     f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(err.code(),
+                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
 
-                    ASSERT_AGG_ERROR(mX.setField(f10, errFld, f8, f7, f6, f5,
-                                f4, f3, f2, f1, VA), BCEM_ERR_TBD);
+                    rc = mX.setField(&mZ, &err, f10, errFld, f8, f7, f6, f5,
+                                     f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(err.code(),
+                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
 
-                    ASSERT_AGG_ERROR(mX.setField(f10, f9, errFld, f7, f6, f5,
-                                f4, f3, f2, f1, VA), BCEM_ERR_TBD);
+                    rc = mX.setField(&mZ, &err, f10, f9, errFld, f7, f6, f5,
+                                     f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(err.code(),
+                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
 
-                    ASSERT_AGG_ERROR(mX.setField(f10, f9, f8, errFld, f6, f5,
-                                f4, f3, f2, f1, VA), BCEM_ERR_TBD);
+                    rc = mX.setField(&mZ, &err, f10, f9, f8, errFld, f6, f5,
+                                     f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(err.code(),
+                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
 
-                    ASSERT_AGG_ERROR(mX.setField(f10, f9, f8, f7, errFld, f5,
-                                f4, f3, f2, f1, VA), BCEM_ERR_TBD);
+                    rc = mX.setField(&mZ, &err, f10, f9, f8, f7, errFld, f5,
+                                     f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(err.code(),
+                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
 
-                    ASSERT_AGG_ERROR(mX.setField(f10, f9, f8, f7, f6, errFld,
-                                f4, f3, f2, f1, VA), BCEM_ERR_TBD);
+                    rc = mX.setField(&mZ, &err, f10, f9, f8, f7, f6, errFld,
+                                     f4, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(err.code(),
+                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
 
-                    ASSERT_AGG_ERROR(mX.setField(f10, f9, f8, f7, f6, f5,
-                                errFld, f3, f2, f1, VA), BCEM_ERR_TBD);
+                    rc = mX.setField(&mZ, &err, f10, f9, f8, f7, f6, f5,
+                                     errFld, f3, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(err.code(),
+                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
 
-                    ASSERT_AGG_ERROR(mX.setField(f10, f9, f8, f7, f6, f5,
-                                f4, errFld, f2, f1, VA), BCEM_ERR_TBD);
+                    rc = mX.setField(&mZ, &err, f10, f9, f8, f7, f6, f5,
+                                     f4, errFld, f2, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(err.code(),
+                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
 
-                    ASSERT_AGG_ERROR(mX.setField(f10, f9, f8, f7, f6, f5,
-                                f4, f3, errFld, f1, VA), BCEM_ERR_TBD);
+                    rc = mX.setField(&mZ, &err, f10, f9, f8, f7, f6, f5,
+                                     f4, f3, errFld, f1, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(err.code(),
+                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
 
-                    ASSERT_AGG_ERROR(mX.setField(f10, f9, f8, f7, f6, f5,
-                                f4, f3, f2, errFld, VA), BCEM_ERR_TBD);
+                    rc =  mX.setField(&mZ, &err, f10, f9, f8, f7, f6, f5,
+                                      f4, f3, f2, errFld, VA);
+                    ASSERT(rc);
+                    LOOP_ASSERT(err.code(),
+                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
                 }
-#endif
               } break;
               default:
                 ASSERT(0);
@@ -13273,33 +13763,27 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ P_(LINE) P(X) P(N)
                                    T_ T_ P(s) P(CEA) P(EA) };
 
+                Error error;
+                Obj mS; const Obj& S = mS;
                 if (RecDef::BDEM_CHOICE_RECORD == r.recordType()) {
-                    Error error;
-                    Obj mS; const Obj& S = mS;
-                    int rc = mX.makeSelection(&mS, &error, fldName);
+                    rc = mX.makeSelection(&mS, &error, fldName);
                     ASSERT(!rc);
                 }
 
                 if (!ET::BDEM_LIST == TYPE) {
-                    Error error;
-                    Obj   mS; const Obj& S = mS;
-                    int rc = X.getField(&mS, &error, false, fldName);
+                    rc = X.getField(&mS, &error, false, fldName);
                     ASSERT(!rc);
                     if (veryVerbose) { T_ P(S) };
                     LOOP2_ASSERT(LINE, S, S.isNull() == isNull);
                 }
 
                 // Test setField with bdem_ConstElemRef and bdem_ElemRef
-                Error error;
-                Obj   mS; const Obj& S = mS;
-
                 rc = mX.setField(&mS, &error, fldName, CEA);
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, CEA, S.asElemRef(),
                              CEA == S.asElemRef());
                 LOOP_ASSERT(S, !S.isNull());
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, CEA, S.asElemRef(),
@@ -13308,33 +13792,28 @@ int main(int argc, char *argv[])
 
                 mS.makeNull();
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP_ASSERT(S, S.isNull());
 
-                mS.reset();
                 rc = mX.setField(&mS, &error, fldName, CEB);
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, CEB, S.asElemRef(),
                              CEB == S.asElemRef());
                 LOOP_ASSERT(S, !S.isNull());
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, CEB, S.asElemRef(),
                              CEB == S.asElemRef());
                 LOOP_ASSERT(S, !S.isNull());
 
-                mS.reset();
                 rc = mX.setField(&mS, &error, fldName, NULL_CER);
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, NULL_CER, S.asElemRef(),
                              NULL_CER == S.asElemRef());
                 LOOP_ASSERT(S, S.isNull());
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, NULL_CER, S.asElemRef(),
@@ -13347,7 +13826,6 @@ int main(int argc, char *argv[])
                              EA == S.asElemRef());
                 LOOP_ASSERT(S, !S.isNull());
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, EA, S.asElemRef(),
@@ -13356,7 +13834,6 @@ int main(int argc, char *argv[])
 
                 mS.makeNull();
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP_ASSERT(S, S.isNull());
@@ -13367,7 +13844,6 @@ int main(int argc, char *argv[])
                              EB == S.asElemRef());
                 LOOP_ASSERT(S, !S.isNull());
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, EB, S.asElemRef(),
@@ -13380,7 +13856,6 @@ int main(int argc, char *argv[])
                              NULL_ER == S.asElemRef());
                 LOOP_ASSERT(S, S.isNull());
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, NULL_ER, S.asElemRef(),
@@ -13392,7 +13867,6 @@ int main(int argc, char *argv[])
 
                 funcVisitor(&f1, CEA);
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, CEA, S.asElemRef(),
@@ -13401,14 +13875,12 @@ int main(int argc, char *argv[])
 
                 mS.makeNull();
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP_ASSERT(S, S.isNull());
 
                 funcVisitor(&f1, CEB);
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, CEB, S.asElemRef(),
@@ -13417,7 +13889,6 @@ int main(int argc, char *argv[])
 
                 mS.makeNull();
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP_ASSERT(S, S.isNull());
@@ -13431,7 +13902,6 @@ int main(int argc, char *argv[])
                                      CEN == S.asElemRef());
                         LOOP_ASSERT(S, !S.isNull());
 
-                        mS.reset();
                         rc = X.getField(&mS, &error, false, fldName);
                         ASSERT(!rc);
                         LOOP3_ASSERT(LINE, CEN, S.asElemRef(),
@@ -13440,7 +13910,6 @@ int main(int argc, char *argv[])
 
                         mS.makeNull();
 
-                        mS.reset();
                         rc = X.getField(&mS, &error, false, fldName);
                         ASSERT(!rc);
                         LOOP_ASSERT(S, S.isNull());
@@ -13451,7 +13920,6 @@ int main(int argc, char *argv[])
                                      CEA == S.asElemRef());
                         LOOP_ASSERT(S, !S.isNull());
 
-                        mS.reset();
                         rc = X.getField(&mS, &error, false, fldName);
                         ASSERT(!rc);
                         LOOP3_ASSERT(LINE, CEA, S.asElemRef(),
@@ -13464,7 +13932,6 @@ int main(int argc, char *argv[])
                                      CEB == S.asElemRef());
                         LOOP_ASSERT(S, !S.isNull());
 
-                        mS.reset();
                         rc = X.getField(&mS, &error, false, fldName);
                         ASSERT(!rc);
                         LOOP3_ASSERT(LINE, CEB, S.asElemRef(),
@@ -13479,7 +13946,6 @@ int main(int argc, char *argv[])
                                      CEN == S.asElemRef());
                         LOOP_ASSERT(S, !S.isNull());
 
-                        mS.reset();
                         rc = X.getField(&mS, &error, false, fldName);
                         ASSERT(!rc);
                         LOOP3_ASSERT(LINE, CEN, S.asElemRef(),
@@ -13488,7 +13954,6 @@ int main(int argc, char *argv[])
 
                         mS.makeNull();
 
-                        mS.reset();
                         rc = X.getField(&mS, &error, false, fldName);
                         ASSERT(!rc);
                         LOOP_ASSERT(S, S.isNull());
@@ -13499,7 +13964,6 @@ int main(int argc, char *argv[])
                                      CEA == S.asElemRef());
                         LOOP_ASSERT(S, !S.isNull());
 
-                        mS.reset();
                         rc = X.getField(&mS, &error, false, fldName);
                         ASSERT(!rc);
                         LOOP3_ASSERT(LINE, CEA, S.asElemRef(),
@@ -13512,7 +13976,6 @@ int main(int argc, char *argv[])
                                      CEB == S.asElemRef());
                         LOOP_ASSERT(S, !S.isNull());
 
-                        mS.reset();
                         rc = X.getField(&mS, &error, false, fldName);
                         ASSERT(!rc);
                         LOOP3_ASSERT(LINE, CEB, S.asElemRef(),
@@ -13527,9 +13990,7 @@ int main(int argc, char *argv[])
                 ASSERT(!rc);
 
                 if (RecDef::BDEM_CHOICE_RECORD == r.recordType()) {
-                    Error error;
-                    Obj mS; const Obj& S = mS;
-                    int rc = mY.makeSelection(&mS, &error, fldName);
+                    rc = mY.makeSelection(&mS, &error, fldName);
                     ASSERT(!rc);
                 }
 
@@ -13546,7 +14007,6 @@ int main(int argc, char *argv[])
                              CEA == S.asElemRef());
                 LOOP_ASSERT(S, !S.isNull());
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, CEA, S.asElemRef(),
@@ -13555,7 +14015,6 @@ int main(int argc, char *argv[])
 
                 mS.makeNull();
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP_ASSERT(S, S.isNull());
@@ -13565,24 +14024,19 @@ int main(int argc, char *argv[])
                 ASSERT(!rc);
 
                 if (RecDef::BDEM_CHOICE_RECORD == r.recordType()) {
-                    Error error;
-                    Obj mS; const Obj& S = mS;
-                    int rc = mZ.makeSelection(&mS, &error, fldName);
+                    rc = mZ.makeSelection(&mS, &error, fldName);
                     ASSERT(!rc);
                 }
 
-                mT.reset();
                 rc = mZ.setField(&mT, &error, fldName, CEB);
                 ASSERT(!rc);
 
-                mS.reset();
                 rc = mX.setField(&mS, &error, fldName, T);
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, CEB, S.asElemRef(),
                              CEB == S.asElemRef());
                 LOOP_ASSERT(S, !S.isNull());
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP3_ASSERT(LINE, CEB, S.asElemRef(),
@@ -13591,14 +14045,12 @@ int main(int argc, char *argv[])
 
                 mS.makeNull();
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
                 LOOP_ASSERT(S, S.isNull());
 
                 // Test empty string if aggregate stores a choice
                 if (RecDef::BDEM_CHOICE_RECORD == r.recordType()) {
-                    mS.reset();
                     rc = mX.setField(&mS, &error, "", CEA);
                     ASSERT(!rc);
                     LOOP3_ASSERT(LINE, CEA, S.asElemRef(),
@@ -13607,7 +14059,6 @@ int main(int argc, char *argv[])
 
                     mS.makeNull();
 
-                    mS.reset();
                     rc = X.getField(&mS, &error, false, fldName);
                     ASSERT(!rc);
                     LOOP_ASSERT(S, S.isNull());
@@ -13615,7 +14066,6 @@ int main(int argc, char *argv[])
 
                 // Test setValue with bdem_ConstElemRef and bdem_ElemRef
 
-                mS.reset();
                 rc = X.getField(&mS, &error, false, fldName);
                 ASSERT(!rc);
 
@@ -13724,8 +14174,6 @@ int main(int argc, char *argv[])
                 // Test error conditions and output
 
                 // Test with an index value
-// TBD: Uncomment to remove mem leak
-#if 0
                 Obj err1, err2, err3;
                 rc = mX.setField(&err1, &error, 0, CEA);
                 ASSERT(rc);
@@ -13740,12 +14188,12 @@ int main(int argc, char *argv[])
                             Error::BCEM_ERR_BAD_FIELDNAME == error.code());
 
                 // Test that calling a field on an empty aggregate fails
-                mX.reset();
-                rc = mX.setField(&err3, &error, fldName, CEA);
+                Obj mV(X);
+                mV.reset();
+                rc = mV.setField(&err3, &error, fldName, CEA);
                 ASSERT(rc);
                 LOOP_ASSERT(error.code(),
                             Error::BCEM_ERR_NOT_A_RECORD == error.code());
-#endif
 
                 destroyAggData(&mZ, &t);
                 destroyAggData(&mY, &t);
@@ -14454,7 +14902,6 @@ int main(int argc, char *argv[])
                 ASSERT(!rc);
                 double dbl1 = agg2.asDouble();
                 ASSERT(3.4 == dbl1);
-                P(agg1)
 
                 rc = agg1.setField(&agg3,
                                    &error,

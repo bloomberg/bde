@@ -593,14 +593,15 @@ class bcem_AggregateRaw {
         // behavior is undefined unless the schema and data referred to by
         // 'other' remains valid for the lifetime of this object.
 
-#ifdef BDE_BUILD_TARGET_SAFE
+// TBD: Uncomment
+// #ifdef BDE_BUILD_TARGET_SAFE
     ~bcem_AggregateRaw();
         // Destroy this object.
-#else
+// #else
     //~bcem_AggregateRaw() = default;
         // Destroy this object.  Note that the compiler-generated default
         // is used.
-#endif
+// #endif
 
     // MANIPULATORS
     bcem_AggregateRaw& operator=(const bcem_AggregateRaw& rhs);
