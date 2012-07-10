@@ -239,7 +239,6 @@ static void aSsErT(int c, const char *s, int i)
                                               // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define NL "\n"
-#define T_() cout << '\t' << flush;
 #define T_ cout << "\t" << flush;             // Print a tab (w/o newline)
 
 //=============================================================================
@@ -14652,11 +14651,14 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Testing array operations" << bsl::endl;
             {
+                bslma_TestAllocator sa;
+                bdem_List data1(list1, &sa);
+                bdem_List data2(list2, &sa);
                 Obj agg1;
                 agg1.setSchemaPointer(schema.ptr());
                 agg1.setRecordDefPointer(schema->lookupRecord("Level2"));
                 agg1.setDataType(ET::BDEM_LIST);
-                agg1.setDataPointer(&list2);
+                agg1.setDataPointer(&data2);
 
                 Obj   agg2, agg3, agg4;
                 Error error;
@@ -14678,7 +14680,7 @@ int main(int argc, char *argv[])
                 agg5.setSchemaPointer(schema.ptr());
                 agg5.setRecordDefPointer(schema->lookupRecord("Level1"));
                 agg5.setDataType(ET::BDEM_LIST);
-                agg5.setDataPointer(&list1);
+                agg5.setDataPointer(&data1);
 
                 Obj agg6, agg7, agg8;
                 rc = agg5.getField(&agg6,
