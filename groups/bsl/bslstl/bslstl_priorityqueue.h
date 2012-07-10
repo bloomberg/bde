@@ -78,7 +78,7 @@ BSLS_IDENT("$Id: $")
 // In this example, we will define an element class 'Task', push a group of
 // 'Task' objects into a priority queue, and then pop them out according to
 // their priorities.  The parameterized type 'VALUE' is 'Task' in this example;
-// the parameterized type 'CONTAINER' to be adapted is 'bsl::deque<Task>'; the
+// the parameterized type 'CONTAINER' to be adapted is 'bsl::vector<Task>'; the
 // parameterized type 'COMPARATOR' is a user-defined functor 'TaskComparator'.
 //
 // First, we define a 'Task' class:
@@ -133,10 +133,10 @@ BSLS_IDENT("$Id: $")
 // 'Task::priority()', the higher the priority the task has.
 //
 // Next, we create a 'bsl::priority_queue' object via its default constructor
-// to adapt the 'bsl::deque<Task>' type, setting the parameterized 'COMPARATOR'
+// to adapt the 'bsl::vector<Task>' type, setting the parameterized 'COMPARATOR'
 // to 'TaskComparator':
 //..
-//  bsl::priority_queue<Task, deque<Task>, TaskComparator> taskPrQueue;
+//  bsl::priority_queue<Task, vector<Task>, TaskComparator> taskPrQueue;
 //..
 // Now, we push a series of 'Task' objects having different priorities
 // into the priority queue:
@@ -161,8 +161,7 @@ BSLS_IDENT("$Id: $")
 // Finally, using a 'for' loop, we pop tasks from the priority queue one by
 // one:
 //..
-//  size_t taskNum = taskPrQueue.size();
-//  for (size_t i = 0;i < taskNum; ++i) {
+//  for (int i = 0; !taskPrQueue.empty(); ++i) {
 //      printf("    %d: %d\n", i, taskPrQueue.top().priority());
 //      taskPrQueue.pop();
 //  }
@@ -174,7 +173,7 @@ BSLS_IDENT("$Id: $")
 // elements in the priority queue.
 //
 // The tasks are popped out on a highest-priority-first basis.  The screen
-// output will be like the following:
+// output will be as follows:
 //
 //    0: -2147483648
 //    1: -123456789
@@ -190,10 +189,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_DEQUE
-#include <bslstl_deque.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_VECTOR
@@ -236,12 +231,13 @@ class priority_queue
     // as 'c' in the following documentation.
 {
   protected:
-
-    CONTAINER c;
-    COMPARATOR comp;
+    // DATA
+    CONTAINER c;        // container for elements in the 'priority_queue',
+                        // protected as required by the C++11 Standard
+    COMPARATOR comp;    // comparator that defines the priority order of
+                        // elements in the 'priority_queue'
 
   public:
-
     // PUBLIC TYPES
     typedef typename CONTAINER::value_type      value_type;
     typedef typename CONTAINER::reference       reference;

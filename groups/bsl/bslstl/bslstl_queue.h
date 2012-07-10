@@ -103,7 +103,7 @@ BSLS_IDENT("$Id: $")
 // Finally, using a second 'for' loop, we pop integers from the queue one by
 // one:
 //..
-//  for (int i = 0;i < numInt; ++i) {
+//  for (int i = 0; !intQueue.empty(); ++i) {
 //      assert(intArray[i] == intQueue.front());
 //      intQueue.pop();
 //  }
@@ -121,10 +121,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLSTL_DEQUE
 #include <bslstl_deque.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_VECTOR
-#include <bslstl_vector.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_SWAPUTIL
