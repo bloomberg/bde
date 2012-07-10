@@ -472,7 +472,7 @@ bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
                             // ----------------
 
 template <class VALUE,
-          class CONTAINER  = deque<VALUE>,
+          class CONTAINER  = vector<VALUE>,
           class COMPARATOR = TestComparator<VALUE> >
 class TestDriver {
     // Test driver class for 'priority_queue'
@@ -2509,7 +2509,7 @@ namespace UsageExample {
 // In this example, we will define an element class 'Task', push a group of
 // 'Task' objects into a priority queue, and then pop them out according to
 // their priorities.  The parameterized type 'VALUE' is 'Task' in this example;
-// the parameterized type 'CONTAINER' to be adapted is 'bsl::deque<Task>'; the
+// the parameterized type 'CONTAINER' to be adapted is 'bsl::vector<Task>'; the
 // parameterized type 'COMPARATOR' is a user-defined functor 'TaskComparator'.
 //
 // First, we define a 'Task' class:
@@ -2600,7 +2600,7 @@ int main(int argc, char *argv[])
 
         using namespace UsageExample;
 
-        bsl::priority_queue<Task, deque<Task>, TaskComparator> taskPrQueue;
+        bsl::priority_queue<Task, vector<Task>, TaskComparator> taskPrQueue;
 
         taskPrQueue.push(Task(         1));
         taskPrQueue.push(Task(     65535));
@@ -2614,8 +2614,7 @@ int main(int argc, char *argv[])
         taskPrQueue.push(Task(   INT_MIN));
         taskPrQueue.push(Task(-123456789));
 
-        size_t taskNum = taskPrQueue.size();
-        for (size_t i = 0;i < taskNum; ++i) {
+        for (size_t i = 0; !taskPrQueue.empty(); ++i) {
             if (veryVeryVerbose)
                 printf("    %d: %d\n", i, taskPrQueue.top().priority());
             taskPrQueue.pop();
@@ -2769,11 +2768,11 @@ int main(int argc, char *argv[])
 
         // priority_queue
         typedef bool (*Comparator)(int, int);
-        TestDriver<int, deque<int>, Comparator>::testCase1(
+        TestDriver<int, vector<int>, Comparator>::testCase1(
                                                        &intLessThan,
                                                        SPECIAL_INT_VALUES,
                                                        NUM_SPECIAL_INT_VALUES);
-        TestDriver<int, deque<int>, std::less<int> >::testCase1(
+        TestDriver<int, vector<int>, std::less<int> >::testCase1(
                                                        std::less<int>(),
                                                        SPECIAL_INT_VALUES,
                                                        NUM_SPECIAL_INT_VALUES);

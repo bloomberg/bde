@@ -2752,7 +2752,7 @@ int main(int argc, char *argv[])
             ASSERT(intArray[i] == intQueue.back());
         }
 
-        for (int i = 0;i < numInt; ++i) {
+        for (int i = 0; !intQueue.empty(); ++i) {
             ASSERT(intArray[i] == intQueue.front());
             intQueue.pop();
         }
