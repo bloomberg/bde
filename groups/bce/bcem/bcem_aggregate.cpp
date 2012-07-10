@@ -933,8 +933,6 @@ bool bcem_Aggregate::isUnset() const
 const bcem_Aggregate
 bcem_Aggregate::clone(bslma_Allocator *basicAllocator) const
 {
-    // TBD: Revisit
-
     bcem_Aggregate returnVal(this->cloneData(basicAllocator));
 
     if (! d_rawData.schema()) {
@@ -1002,8 +1000,6 @@ bcem_Aggregate::clone(bslma_Allocator *basicAllocator) const
 const bcem_Aggregate
 bcem_Aggregate::cloneData(bslma_Allocator *basicAllocator) const
 {
-    // TBD: Revisit
-
     bcema_SharedPtr<void> valuePtr;
     bslma_Allocator *allocator = bslma_Default::allocator(basicAllocator);
 

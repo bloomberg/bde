@@ -614,7 +614,6 @@ class bcem_AggregateRaw {
         // description of the top-level nullness bit.
 
     // REFERENCED-VALUE ACCESSORS
-
     // TBD: Remove
     template <typename TOTYPE>
     TOTYPE convertScalar() const;
@@ -817,10 +816,10 @@ class bcem_AggregateRaw {
                   bcem_AggregateError *errorDescription,
                   int                  fieldId) const;
         // Load into the specified 'field' object the field within this
-        // aggregate with the specified (zero-based) 'index'.  Return 0 on
+        // aggregate with the specified (zero-based) 'fieldId'.  Return 0 on
         // success, with no effect on the specified 'errorDescription';
         // otherwise, load into 'errorDescription' a description of the failure
-        // and return a nonzero value. TBD: Update doc
+        // and return a nonzero value.
 
     int arrayItem(bcem_AggregateRaw   *item,
                   bcem_AggregateError *errorDescription,
@@ -887,16 +886,18 @@ class bcem_AggregateRaw {
 
     int selection(bcem_AggregateRaw   *field,
                   bcem_AggregateError *errorDescription) const;
-        // TBD: Fix
-        // If this aggregate refers to choice or choice array item, return the
-        // sub-aggregate that refers to the modifiable current selection, or a
-        // void aggregate if there is no current selection.  If this aggregate
-        // refers to a list or row, look for an anonymous field within the
-        // list or row and recursively look for a choice in the anonymous
-        // field (if any), as per the "Anonymous Fields" section of the
-        // 'bcem_aggregate' component-level documentation.  Otherwise, (if
+        // If this aggregate refers to choice or choice array item, load into
+        // the specified 'field' the sub-aggregate that refers to the
+        // modifiable current selection, or a void aggregate if there is no
+        // current selection.  If this aggregate refers to a list or row, look
+        // for an anonymous field within the list or row and recursively look
+        // for a choice in the anonymous field (if any), as per the "Anonymous
+        // Fields" section of the 'bcem_aggregate' component-level
+        // documentation.  Return 0 on success, with no effect on the specified
+        // 'errorDescription'; otherwise, load into 'errorDescription' a
+        // description of the failure and return a nonzero value.  Note that if
         // this aggregate does not directly or indirectly refer to a choice or
-        // choice array item) or 'true == isNul2()' return an error object.
+        // choice array item) or 'true == isNull()' an error is returned.
 
     bdem_ElemType::Type dataType() const;
         // Return the type of data referenced by this aggregate.  Return
@@ -1082,21 +1083,20 @@ class bcem_AggregateRaw {
                  NameOrIndex          fieldOrIndex9,
                  NameOrIndex          fieldOrIndex10,
                  const VALTYPE&       value) const;
-        // TBD: Check doc
         // Navigate to the field within this aggregate reached through the
         // specified chain of one to ten 'fieldOrIndex' arguments, each of
         // which specifies a field name or array index, then set that field to
         // the specified 'value', resetting its nullness flag if
         // 'field.isNull()' is 'true', after appropriate conversions (see
         // "Extended Type Conversions" in the 'bcem_Aggregate' component-level
-        // documentation).  Return a sub-aggregate referring to the modified
-        // field on success or an error object on failure (as described in the
-        // "Error Handling" section of the 'bcem_aggregate' component-level
         // documentation).  An empty string can be used for any of the
         // 'fieldOrIndex' arguments to specify the current selection within a
         // choice object.  If value is null then make the field null.  Note
         // that if any field in the chain of fields is null then an error is
-        // returned.  This aggregate is not modified if an error is detected.
+        // returned.  Return 0 on success and load a reference to the
+        // sub-aggregate into the specified 'field'; otherwise, return a
+        // nonzero value and load a description into the specified
+        // 'errorDescription'.
 
     int insertNullItem(bcem_AggregateRaw   *newItem,
                        bcem_AggregateError *errorDescription,
@@ -1158,17 +1158,13 @@ class bcem_AggregateRaw {
                              bcem_AggregateError *errorDescription,
                              int                  index) const;
         // Change the selector in the choice object referenced by this
-        // aggregate to the one specified by 'newSelectorIndex' resetting the
-        // nullness flag if 'isNul2()' returns 'true'.  If 'newSelectorIndex'
-        // is negative then the selection is reset.  The newly selected
-        // sub-object is initialized to its default value.  (See "Null Values
-        // and Default Values" in the 'bcem_Aggregate' component-level
-        // documentation for a more complete description of default values.)
-        // Return a sub-aggregate referring to the modifiable selection on
-        // success or an error object on failure (as described in the "Error
-        // Handling" section of the 'bcem_aggregate' component-level
-        // documentation).  This aggregate is not modified if an error is
-        // detected.  TBD: Update
+        // aggregate to the one specified by 'index', first making this choice
+        // non-null if it is currently null.  The newly selected sub-object is
+        // initialized to its default value.  Return 0 on success, loading a
+        // sub-aggregate referring to the modifiable selection into the
+        // specified 'field' object; otherwise, return a nonzero error and
+        // populate the specified 'errorDescription' with no effect on this
+        // object.
 
     template <typename VALTYPE>
     int makeSelectionByIndex(bcem_AggregateRaw   *field,
@@ -1176,32 +1172,26 @@ class bcem_AggregateRaw {
                              int                  index,
                              const VALTYPE&       value) const;
         // Change the selector in the choice object referenced by this
-        // aggregate to the one specified by 'newSelectorIndex' and set the
-        // newly selected sub-object to 'value' resetting the nullness flag if
-        // 'isNul2()' returns 'true', after appropriate conversions (see
+        // aggregate to the one specified by 'index', first making this choice
+        // non-null if it is currently null and initializing the sub-aggregate
+        // to the specified 'value' after appropriate conversions (see
         // "Extended Type Conversions" in the 'bcem_Aggregate' component-level
-        // documentation).  If 'newSelectorIndex' is negative then the
-        // selection is reset.  Return a sub-aggregate referring to the
-        // modifiable selection on success or an error object on failure (as
-        // described in the "Error Handling" section of the 'bcem_aggregate'
-        // component-level documentation).  If 'newSelectorIndex' is valid but
-        // 'value' is not convertible to the newly-selected sub-object type,
-        // then the sub-object is initialized to its default value, otherwise
-        // this aggregate is not modified when an error is detected.
-        // TBD: Update
+        // documentation).  Return 0 on success, loading a sub-aggregate
+        // referring to the modifiable selection into the specified 'field'
+        // object; otherwise, return a nonzero error and populate the specified
+        // 'errorDescription' with no effect on this object.
 
     int makeSelection(bcem_AggregateRaw   *result,
                       bcem_AggregateError *errorDescription,
                       const char          *newSelector) const;
         // Change the selector in the choice object referenced by this
         // aggregate to the one specified by 'newSelector', first making this
-        // choice non-null if it is currently null.  If 'newSelector' is null
-        // or the empty string then the selection is reset to its default
-        // value.  The newly selected sub-object is initialized to its default
-        // value.  Return 0 on success, loading a sub-aggregate referring to
-        // the modifiable selection into the specified 'result' object if
-        // 'result' is not 0; otherwise, return a nonzero error and populate
-        // the specified 'errorDescription' with no effect on this object.
+        // choice non-null if it is currently null.  The newly selected
+        // sub-object is initialized to its default value.  Return 0 on
+        // success, loading a sub-aggregate referring to the modifiable
+        // selection into the specified 'field' object; otherwise, return a
+        // nonzero error and populate the specified 'errorDescription' with no
+        // effect on this object.
 
     template <typename VALTYPE>
     int makeSelection(bcem_AggregateRaw   *result,
@@ -1210,26 +1200,26 @@ class bcem_AggregateRaw {
                       const VALTYPE&       value) const;
         // Change the selector in the choice object referenced by this
         // aggregate to the one specified by 'newSelector', first making this
-        // choice non-null if it is currently null.  If 'newSelector' is null
-        // or the empty string then the selection is reset to its default
-        // value.  The newly selected sub-object is initialized to its default
-        // value.  Return 0 on success, loading a sub-aggregate referring to
-        // the modifiable selection into the specified 'result' object if
-        // 'result' is not 0; otherwise, return a nonzero error and populate
-        // the specified 'errorDescription' with no effect on this object.
-        // TBD: Update
+        // choice non-null if it is currently null and initializing the
+        // sub-aggregate to the specified 'value' after appropriate conversions
+        // (see "Extended Type Conversions" in the 'bcem_Aggregate'
+        // component-level documentation).  Return 0 on success, loading a
+        // sub-aggregate referring to the modifiable selection into the
+        // specified 'field' object; otherwise, return a nonzero error and
+        // populate the specified 'errorDescription' with no effect on this
+        // object.
 
     int makeSelectionById(bcem_AggregateRaw   *field,
                           bcem_AggregateError *errorDescription,
                           int                  newSelectorId) const;
         // Change the selector in the choice object referenced by this
         // aggregate to the one specified by 'newSelectorId', first making this
-        // choice non-null if it is currently null.  If 'newSelector' is null
-        // or the empty string then the selection is reset to its default
-        // value.  The newly selected sub-object is initialized to its default
-        // value.  Return 0 on success; otherwise, return a nonzero error and
-        // populate the specified 'errorDescription' with no effect on this
-        // object.  TBD: Update
+        // choice non-null if it is currently null.  The newly selected
+        // sub-object is initialized to its default value.  Return 0 on
+        // success, loading a sub-aggregate referring to the modifiable
+        // selection into the specified 'field' object; otherwise, return a
+        // nonzero error and populate the specified 'errorDescription' with no
+        // effect on this object.
 
     template <typename VALTYPE>
     int makeSelectionById(bcem_AggregateRaw   *result,
@@ -1238,12 +1228,14 @@ class bcem_AggregateRaw {
                           const VALTYPE&       value) const;
         // Change the selector in the choice object referenced by this
         // aggregate to the one specified by 'newSelectorId', first making this
-        // choice non-null if it is currently null.  If 'newSelector' is null
-        // or the empty string then the selection is reset to its default
-        // value.  The newly selected sub-object is initialized to its default
-        // value.  Return 0 on success; otherwise, return a nonzero error and
+        // choice non-null if it is currently null and initializing the
+        // sub-aggregate to the specified 'value' after appropriate conversions
+        // (see "Extended Type Conversions" in the 'bcem_Aggregate'
+        // component-level documentation).  Return 0 on success, loading a
+        // sub-aggregate referring to the modifiable selection into the
+        // specified 'field' object; otherwise, return a nonzero error and
         // populate the specified 'errorDescription' with no effect on this
-        // object.  TBD: Update
+        // object.
 
     void makeNull() const;
         // Set the object referenced by this aggregate to null.  If the object

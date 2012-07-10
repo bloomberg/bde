@@ -20,9 +20,6 @@ namespace {
 
 static int s_voidNullnessWord = 1;
 
-// TBD: Uniform return value of -1
-
-
 // TBD TBD TBD TBD TBD
 // replace this custom type with bsl::make_signed<T> when that's available.
 
@@ -2081,7 +2078,6 @@ int bcem_AggregateRaw::getField(bcem_AggregateRaw   *fieldPointer,
     BSLS_ASSERT_SAFE(fieldPointer);
     BSLS_ASSERT_SAFE(errorDescription);
 
-    // TBD: Revisit
     *fieldPointer = *this;
 
     int rc = 1;
