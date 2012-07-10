@@ -2164,7 +2164,7 @@ void bdecs_PackedCalendar::addWeekendDaysTransition(
                                           const bdet_Date& date,
                                           const bdec_DayOfWeekSet& weekendDays)
 {
-    BSLS_ASSERT_SAFE(d_weekendDays.length() == 0);
+    BSLS_ASSERT(d_weekendDays.length() == 0);
 
     WeekendDaysTransition newTransition(date, weekendDays);
 

@@ -13,6 +13,9 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
+
 #include <bsl_cctype.h>      // isdigit() isupper() islower()
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>
@@ -262,6 +265,15 @@ static void aSsErT(int c, const char *s, int i)
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_ cout << '\t' << flush;
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -1030,10 +1042,9 @@ bdecs_PackedCalendar g(const char *spec)
 #define DEFINE_TEST_CASE(NUMBER)                                              \
 void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
-
 DEFINE_TEST_CASE(24) {
         // --------------------------------------------------------------------
-        // TESTING 'addWeekendDaysTransition' and 'isWeekendDay(bdet_Date&)':
+        // TESTING 'addWeekendDaysTransition'
         //
         // Concerns:
         //: 1 The 'addWeekendDaysTransition' method adds a transition to a
@@ -1041,7 +1052,9 @@ DEFINE_TEST_CASE(24) {
         //:
         //: 2 'isWeekendDay(bdet_Date&)' properly identifies weekend days.
         //:
-        //: 3 Assert precondition violation are detected when enabled.
+        //: 3 'BusinessDayConstIterator' objects properly skip weekend days.
+        //:
+        //: 4 Assert precondition violation are detected when enabled.
         //
         // Plan:
         //: 1 Using a table-driven approach, specify a list of weekend-days
@@ -1060,15 +1073,24 @@ DEFINE_TEST_CASE(24) {
         //:     the correct value is return for all dates in the calendar.
         //:     (C-2)
         //:
+        //:   3 Add a hard coded list of holiday dates to the calendar.
+        //:     Iterate from the iterator returned by the 'beginBusinessDays'
+        //:     method to the iterator returned by the 'endBusinessDays' method
+        //:     and ensure that both the just added holiday dates and weekend
+        //:     days in specified in the weekend-days transitions are properly
+        //:     skipped.  (C-3)
+        //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered when an attempt is made to add a weekend-days
         //:   transition when one more more days have been added to using the
         //:   'addWeekendDays' method or the 'addWeekenDay' method (using the
-        //:   'BSLS_ASSERTTEST_*' macros).  (C-3)
+        //:   'BSLS_ASSERTTEST_*' macros).  (C-4)
         //
         // Testing:
         //    void addWeekendDaysTransition(bdet_Date&, bdec_DayOfWeekSet&);
         //    bool isWeekendDay(const bdet_Date& date) const;
+        //    BusinessDayConstIterator beginBusinessDays() const;
+        //    BusinessDayConstIterator endBusinessDays() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1111,9 +1133,10 @@ DEFINE_TEST_CASE(24) {
                                   DATA[NUM_DATA - 1].d_month,
                                   DATA[NUM_DATA - 1].d_day + 10);
 
+        bslma_TestAllocator oa("oa", veryVeryVerbose);
+
         for (int ti = 0; ti < NUM_DATA; ++ti) {
 
-            bslma_TestAllocator oa("oa", veryVeryVerbose);
             Obj mX(FIRST_DATE, LAST_DATE, &oa); const Obj& X = mX;
 
             typedef bsl::vector<bsl::pair<bdet_Date, bdec_DayOfWeekSet> >
@@ -1159,6 +1182,73 @@ DEFINE_TEST_CASE(24) {
                              date,
                              isWeekend == X.isWeekendDay(date));
             }
+
+            bsl::vector<bdet_Date> holidays(&oa);
+            holidays.push_back(bdet_Date(2000, 1,17));
+            holidays.push_back(bdet_Date(2000, 2,21));
+            holidays.push_back(bdet_Date(2000, 2,22));
+            holidays.push_back(bdet_Date(2000, 4,21));
+            holidays.push_back(bdet_Date(2000, 5,14));
+            holidays.push_back(bdet_Date(2000, 7, 4));
+            holidays.push_back(bdet_Date(2000, 9, 4));
+            holidays.push_back(bdet_Date(2000,11,23));
+            holidays.push_back(bdet_Date(2000,12,25));
+
+            for (bsl::vector<bdet_Date>::const_iterator itr = holidays.begin();
+                 itr != holidays.end();
+                 ++itr) {
+                mX.addHoliday(*itr);
+            }
+
+            Obj::BusinessDayConstIterator itr = X.beginBusinessDays();
+            bdet_Date prevDate = *itr - 1;
+
+            while (itr != X.endBusinessDays()) {
+
+                bdet_Date curDate = *itr;
+                if ((prevDate + 1) != curDate) {
+                    // ensure that the skipped days are weekend days or
+                    // holidays
+                    for (bdet_Date d = prevDate + 1; d < curDate; ++d) {
+                        LOOP_ASSERT(d,
+                                    X.isWeekendDay(d) ||
+                                    0 < std::count(holidays.begin(),
+                                                   holidays.end(),
+                                                   d));
+                    }
+                }
+
+                // ensure that current date is not a weekend day or a holiday
+                LOOP_ASSERT(curDate,
+                            !(X.isWeekendDay(curDate) ||
+                              0 < std::count(holidays.begin(),
+                                             holidays.end(),
+                                             curDate)));
+
+                prevDate = curDate;
+                ++itr;
+            }
+
+            if (prevDate != LAST_DATE) {
+                // ensure that the skipped days are weekend days or holidays
+                for (bdet_Date d = prevDate + 1; d <= LAST_DATE; ++d) {
+                    LOOP_ASSERT(d,
+                                X.isWeekendDay(d) ||
+                                0 < std::count(holidays.begin(),
+                                               holidays.end(),
+                                               d));
+                }
+            }
+        }
+
+        {
+            Obj Y(&oa);
+            Y.addWeekendDay(bdet_DayOfWeek::BDET_SUN);
+            bdec_DayOfWeekSet weekendDays;
+            weekendDays.add(bdet_DayOfWeek::BDET_SUN);
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            ASSERT_FAIL(Y.addWeekendDaysTransition(bdet_Date(2012, 1, 1),
+                                                   weekendDays));
         }
 }
 
