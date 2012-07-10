@@ -548,7 +548,6 @@ bool bcem_AggregateRawUtil::isConformant(const bdem_ConstElemRef *object,
                                          const bdem_RecordDef    *recordDef)
 {
     BSLS_ASSERT_SAFE(object);
-    BSLS_ASSERT_SAFE(recordDef);
 
     bool result = bcem_AggregateRawUtil::isConformant(object->data(),
                                                       object->type(),
@@ -637,8 +636,6 @@ bool bcem_AggregateRawUtil::isConformant(const void           *object,
                                          bdem_ElemType::Type   type,
                                          const bdem_RecordDef *recordDef)
 {
-    BSLS_ASSERT_SAFE(object);
-
     bool result;
 
     if (recordDef) {
@@ -1263,7 +1260,7 @@ int bcem_AggregateRaw::getFieldIndex(int                 *index,
                                      const char          *caller) const
 {
     BSLS_ASSERT_SAFE(index);
-    BSLS_ASSERT_SAFE(errorDescription);
+    BSLS_ASSERT_SAFE(errorResult);
     BSLS_ASSERT_SAFE(fieldName);
     BSLS_ASSERT_SAFE(caller);
 
@@ -1312,7 +1309,7 @@ int bcem_AggregateRaw::getFieldIndex(int                 *index,
                                      const char          *caller) const
 {
     BSLS_ASSERT_SAFE(index);
-    BSLS_ASSERT_SAFE(errorDescription);
+    BSLS_ASSERT_SAFE(errorResult);
     BSLS_ASSERT_SAFE(caller);
 
     if (!bdem_ElemType::isAggregateType(d_dataType)) {
@@ -1360,9 +1357,9 @@ int bcem_AggregateRaw::makeSelectionByIndex(
                                          bcem_AggregateError *errorDescription,
                                          int                  index) const
 {
-    BSLS_ASSERT_SAFE(selection);
+    BSLS_ASSERT_SAFE(field);
     BSLS_ASSERT_SAFE(errorDescription);
-    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(-1 == index || 0 <= index);
     BSLS_ASSERT_SAFE(index < numSelections());
 
     bool isAggNull = isNull();
@@ -1389,7 +1386,7 @@ int bcem_AggregateRaw::makeSelectionByIndexRaw(
 {
     BSLS_ASSERT_SAFE(selection);
     BSLS_ASSERT_SAFE(errorDescription);
-    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(-1 == index || 0 <= index);
 
     bdem_ChoiceArrayItem *choice = 0;
 

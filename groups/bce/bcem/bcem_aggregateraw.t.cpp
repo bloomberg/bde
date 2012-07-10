@@ -1808,6 +1808,8 @@ void destroyValuePtr(void *value, bdem_ElemType::Type type, TestAllocator *ta)
     }
 }
 
+static int TOP_LEVEL_NULLNESS_FLAG = 0;
+
 int ggAggData(Obj *agg, const RecDef& record, bslma_Allocator *basicAllocator)
 {
     bslma_Allocator *allocator = bslma_Default::allocator(basicAllocator);
@@ -1863,6 +1865,7 @@ int ggAggData(Obj *agg, const RecDef& record, bslma_Allocator *basicAllocator)
     agg->setSchemaPointer(&record.schema());
     agg->setRecordDefPointer(&record);
     agg->setDataPointer(data);
+    agg->setTopLevelAggregateNullnessPointer(&TOP_LEVEL_NULLNESS_FLAG);
     return 0;
 }
 
@@ -1891,6 +1894,7 @@ int destroyAggData(Obj *agg, bslma_Allocator *allocator)
         return -1;                                                    // RETURN
       }
     }
+    ASSERT(0 == TOP_LEVEL_NULLNESS_FLAG);
     return 0;
 }
 
@@ -3544,7 +3548,14 @@ int main(int argc, char *argv[])
                                  << bsl::endl << "============="
                                  << bsl::endl;
 
+          const char *SPEC = ":aKa";
+          Schema schema; const Schema& SCHEMA = schema;
+          ggSchema(&schema, SPEC);
+          const RecDef *RECORD = &SCHEMA.record(SCHEMA.numRecords() - 1);
+
+          bslma_TestAllocator t;
           Obj object;
+          ggAggData(&object, *RECORD, &t);
 
           for (int i = 0; i < object.length(); ++i) {
               bcem_AggregateRaw field;
@@ -3553,6 +3564,8 @@ int main(int argc, char *argv[])
                   field.print(bsl::cout, 0, -1);
               }
           }
+
+          destroyAggData(&object, &t);
       } break;
       case 29: {
         // --------------------------------------------------------------------
@@ -3947,11 +3960,12 @@ int main(int argc, char *argv[])
                   bdet_Date   BB(1, 1, 1);
             const bsl::string S1("Invalid conversion when setting "
                                  "CHAR value from DATE value");
-
+                  int         nf = 0;
             {
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(ET::BDEM_CHAR);
                 mX.setDataPointer(&AA);
+                mX.setTopLevelAggregateNullnessPointer(&nf);
 
                 ASSERT(!X.isError());
                 ASSERT(!X.isVoid());
@@ -4097,13 +4111,16 @@ int main(int argc, char *argv[])
         {
             bslma_TestAllocator ta("TableTestAllocator", false);
             bslma_TestAllocator aa("AggregateTestAllocator", false);
+            int nf = 0;
             for (int i = 1; i <= 4096; i <<= 1) {
                 bdem_Table table1(&ta), table2(&aa);
                 Obj mX, mY;
                 mX.setDataType(bdem_ElemType::BDEM_TABLE);
                 mX.setDataPointer(&table1);
+                mX.setTopLevelAggregateNullnessPointer(&nf);
                 mY.setDataType(bdem_ElemType::BDEM_TABLE);
                 mY.setDataPointer(&table2);
+                mY.setTopLevelAggregateNullnessPointer(&nf);
 
                 LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
 
@@ -4134,13 +4151,16 @@ int main(int argc, char *argv[])
         {
             bslma_TestAllocator ta("ChoiceArrayTestAllocator", false);
             bslma_TestAllocator aa("AggregateTestAllocator", false);
+            int nf = 0;
             for (int i = 1; i <= 4096; i <<= 1) {
                 bdem_ChoiceArray ca1(&ta), ca2(&aa);
                 Obj mX, mY;
                 mX.setDataType(bdem_ElemType::BDEM_CHOICE_ARRAY);
                 mX.setDataPointer(&ca1);
+                mX.setTopLevelAggregateNullnessPointer(&nf);
                 mY.setDataType(bdem_ElemType::BDEM_CHOICE_ARRAY);
                 mY.setDataPointer(&ca2);
+                mY.setTopLevelAggregateNullnessPointer(&nf);
 
                 LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
 
@@ -4170,13 +4190,16 @@ int main(int argc, char *argv[])
         {
             bslma_TestAllocator ta("ScalarArrayTestAllocator", false);
             bslma_TestAllocator aa("AggregateTestAllocator", false);
+            int nf = 0;
             for (int i = 1; i <= 4096; i <<= 1) {
                 bsl::vector<int> sa1(&ta), sa2(&aa);
                 Obj mX, mY;
                 mX.setDataType(bdem_ElemType::BDEM_INT_ARRAY);
                 mX.setDataPointer(&sa1);
+                mX.setTopLevelAggregateNullnessPointer(&nf);
                 mY.setDataType(bdem_ElemType::BDEM_INT_ARRAY);
                 mY.setDataPointer(&sa2);
+                mY.setTopLevelAggregateNullnessPointer(&nf);
 
                 LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
 
@@ -4206,12 +4229,15 @@ int main(int argc, char *argv[])
             bslma_TestAllocator la("ListArrayTestAllocator", false);
             bslma_TestAllocator aa("AggregateTestAllocator", false);
 
+            int nf = 0;
             bdem_List list1(&la), list2(&aa);
             Obj mX, mY;
             mX.setDataType(bdem_ElemType::BDEM_LIST);
             mX.setDataPointer(&list1);
+            mX.setTopLevelAggregateNullnessPointer(&nf);
             mY.setDataType(bdem_ElemType::BDEM_LIST);
             mY.setDataPointer(&list2);
+            mY.setTopLevelAggregateNullnessPointer(&nf);
 
             const size_t NUM_BYTES_LIST      = la.numBytesTotal();
             const size_t NUM_BYTES_AGGREGATE = aa.numBytesTotal();
@@ -14486,11 +14512,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBREATHING TEST"
                           << "\n==============" << endl;
 
+        int nf1 = 0, nf2 = 1;
         if (verbose) cout << "Testing scalar constructors" << endl;
         {
             bslma_TestAllocator ta(veryVeryVerbose);
 
             Obj agg1;
+            agg1.setTopLevelAggregateNullnessPointer(&nf2);
             ASSERT(agg1.dataType() == ET::BDEM_VOID);
             ASSERT(agg1.isNull());
             if (verbose) P(agg1);
@@ -14499,6 +14527,7 @@ int main(int argc, char *argv[])
             Obj agg2;
             agg2.setDataType(ET::BDEM_INT);
             agg2.setDataPointer(&intData);
+            agg2.setTopLevelAggregateNullnessPointer(&nf1);
             ASSERT(agg2.dataType() == ET::BDEM_INT);
             ASSERT(!agg2.isNull());
             ASSERT(agg2.asInt() == intData);
@@ -14509,6 +14538,7 @@ int main(int argc, char *argv[])
             Obj agg3;
             agg3.setDataType(ET::BDEM_STRING);
             agg3.setDataPointer(&stringData);
+            agg3.setTopLevelAggregateNullnessPointer(&nf1);
             ASSERT(agg3.dataType() == ET::BDEM_STRING);
             ASSERT(!agg3.isNull());
             ASSERT(agg3.asString() == stringData);
@@ -14574,6 +14604,7 @@ int main(int argc, char *argv[])
         ct.push_back(ET::BDEM_INT);
         bdem_Choice choice(ct);
         choice.makeSelection(0).theModifiableString() = stringValue;
+
         {
             bslma_TestAllocator ta;
 
@@ -14585,6 +14616,7 @@ int main(int argc, char *argv[])
                 agg1.setRecordDefPointer(schema->lookupRecord("Level1"));
                 agg1.setDataType(ET::BDEM_LIST);
                 agg1.setDataPointer(&list1);
+                agg1.setTopLevelAggregateNullnessPointer(&nf1);
                 ASSERT(!agg1.isNull());
 
                 Obj   agg2, agg3, agg4, agg5, agg6;
@@ -14625,6 +14657,7 @@ int main(int argc, char *argv[])
                 agg1.setRecordDefPointer(schema->lookupRecord("Level1"));
                 agg1.setDataType(ET::BDEM_LIST);
                 agg1.setDataPointer(&list1);
+                agg1.setTopLevelAggregateNullnessPointer(&nf1);
 
                 Obj   agg2, agg3, agg4;
                 Error error;
@@ -14659,6 +14692,7 @@ int main(int argc, char *argv[])
                 agg1.setRecordDefPointer(schema->lookupRecord("Level2"));
                 agg1.setDataType(ET::BDEM_LIST);
                 agg1.setDataPointer(&data2);
+                agg1.setTopLevelAggregateNullnessPointer(&nf1);
 
                 Obj   agg2, agg3, agg4;
                 Error error;
@@ -14681,6 +14715,7 @@ int main(int argc, char *argv[])
                 agg5.setRecordDefPointer(schema->lookupRecord("Level1"));
                 agg5.setDataType(ET::BDEM_LIST);
                 agg5.setDataPointer(&data1);
+                agg5.setTopLevelAggregateNullnessPointer(&nf1);
 
                 Obj agg6, agg7, agg8;
                 rc = agg5.getField(&agg6,
@@ -14721,6 +14756,7 @@ int main(int argc, char *argv[])
             agg1.setRecordDefPointer(schema->lookupRecord("Table1Row"));
             agg1.setDataType(ET::BDEM_TABLE);
             agg1.setDataPointer(&table);
+            agg1.setTopLevelAggregateNullnessPointer(&nf1);
             ASSERT(1 == agg1.length());
 
             Obj   agg2, agg3, agg4, agg5;
@@ -14747,6 +14783,7 @@ int main(int argc, char *argv[])
             tmpAgg.setRecordDefPointer(schema->lookupRecord("Table1Row"));
             tmpAgg.setDataType(ET::BDEM_LIST);
             tmpAgg.setDataPointer(&list3);
+            tmpAgg.setTopLevelAggregateNullnessPointer(&nf1);
 
             rc = agg1.insertItem(&agg5, &error, 0, tmpAgg);
             ASSERT(!rc);
@@ -14777,6 +14814,7 @@ int main(int argc, char *argv[])
             agg1.setRecordDefPointer(schema->lookupRecord("Choice1"));
             agg1.setDataType(ET::BDEM_CHOICE);
             agg1.setDataPointer(&choice);
+            agg1.setTopLevelAggregateNullnessPointer(&nf1);
 
             Obj   agg2, agg3, agg4, agg5;
             Error error;
@@ -14808,6 +14846,7 @@ int main(int argc, char *argv[])
             agg1.setRecordDefPointer(schema->lookupRecord(recName.c_str()));
             agg1.setDataType(ET::BDEM_LIST);
             agg1.setDataPointer(&list1);
+            agg1.setTopLevelAggregateNullnessPointer(&nf1);
 
             Obj   agg2, agg3, agg4, agg5;
             Error error;
