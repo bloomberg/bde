@@ -119,6 +119,7 @@ typedef baea_SerializableObjectProxy     Proxy;
 typedef baea_SerializableObjectProxyUtil Obj;
 typedef bdeat_TypeCategory                Category;
 
+
 const char LOG_CATEGORY[] = "BAEA_SERIALIZABLEOBJECTPROXYUTIL.TEST";
 
 static const char* TEST_MESSAGES[] = {
@@ -1134,7 +1135,8 @@ static const char* TEST_MESSAGES[] = {
 "<Obj xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'><selection8><selec"
 "tion4>999</selection4></selection8></Obj>",
 
-"<Obj xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'><selection9/></Obj>",
+"<Obj xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'><selection9/></Obj"
+">",
 
 "<Obj xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'><selection10><elem"
 "ent1>3000000000</element1><element2>32794</element2><element3>922337203685478"
@@ -1142,7 +1144,7 @@ static const char* TEST_MESSAGES[] = {
 };
 
 void enlargeTestObjects(std::vector<baea::FeatureTestMessage>* objects,
-                        int arraySize)
+                        int                                    arraySize)
 {
     std::string longString =
 "\"My name is Ozymandias, king of kings:"
@@ -1199,6 +1201,7 @@ void enlargeTestObjects(std::vector<baea::FeatureTestMessage>* objects,
 
 void constructTestObjects(std::vector<baea::FeatureTestMessage>* objects)
 {
+    /*
     baexml_MiniReader reader;
     baexml_DecoderOptions options;
     baexml_ErrorInfo e;
@@ -1226,6 +1229,7 @@ void constructTestObjects(std::vector<baea::FeatureTestMessage>* objects)
         BSLS_ASSERT(0 == rc); // test invariant
         objects->push_back(object);
     }
+    */
 }
 
 //=============================================================================
@@ -1671,6 +1675,7 @@ int main(int argc, char *argv[])
     ASSERT(13 == decodeMessage.simpleRequest().responseLength());
 //..
       } break;
+        /*
       case 14: {
         // --------------------------------------------------------------------
         // XML decoder feature test
@@ -1915,6 +1920,7 @@ int main(int argc, char *argv[])
         ASSERT(request.simpleRequest().data() == "The quick brown fox");
 
       } break;
+      */
       case 8: {
         // --------------------------------------------------------------------
         // TESTING CUSTOMIZED
@@ -2562,6 +2568,7 @@ int main(int argc, char *argv[])
             ASSERTV(Category::BDEAT_SIMPLE_CATEGORY == X.category());
         }
       } break;
+          /*
       case -2: {
         // --------------------------------------------------------------------
         // Codec performance test: SERIALIZABLEOBJECTPROXY
@@ -2612,7 +2619,7 @@ int main(int argc, char *argv[])
         baexml_Decoder xDecoder(&dOptions, &reader, &e);
 
         enum {
-            BUFFER_SIZE=512 * 1024
+            BUFFER_SIZE = 256 * 1024
         };
         char BUFFER[BUFFER_SIZE];
         bslma_SequentialAllocator alloc(BUFFER, BUFFER_SIZE);
@@ -2621,7 +2628,8 @@ int main(int argc, char *argv[])
 
         baea::FeatureTestMessage request;
         baea_SerializableObjectProxy requestDec;
-        baea_SerializableObjectProxyUtil::makeDecodeProxy(&requestDec, &request);
+        baea_SerializableObjectProxyUtil::makeDecodeProxy(&requestDec,
+                                                          &request);
 
         bsls_Stopwatch timer;
         timer.start(true);
@@ -2768,6 +2776,7 @@ int main(int argc, char *argv[])
                wallTime, userTime, systemTime);
 
       } break;
+    */
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
