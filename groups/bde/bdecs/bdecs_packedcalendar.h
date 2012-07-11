@@ -529,9 +529,19 @@ class bdecs_PackedCalendar {
 
 
     struct WeekendDaysTransitionLess {
+        // This 'struct' provides a comparator predicate for the type
+        // 'WeekendDaysTransition' to enable the use of standard algorithms
+        // (such as 'bsl::lower_bound') on ranges of objects of that type.
 
         bool operator() (const WeekendDaysTransition& lhs,
-                         const WeekendDaysTransition& rhs) {
+                         const WeekendDaysTransition& rhs)
+            // Return 'true' if the value of the specified 'lhs' is less than
+            // (ordered before) the value of the specified 'rhs'.  The value of
+            // 'lhs' is less than the value of 'rhs' if the date represented by
+            // the data member 'first' of 'lhs' is earlier than the date
+            // represented by the data member 'first' of 'rhs'.
+        {
+
             return lhs.first < rhs.first;
         }
     };
@@ -1537,6 +1547,30 @@ operator--(bdecs_PackedCalendar_HolidayCodeConstIterator& iterator, int);
     // for the associated date in the calendar, and return the previous value
     // of 'iterator'.  The behavior is undefined unless, on entry, 'iterator'
     // references a valid holiday code.
+
+
+            // ==============================================================
+            // class bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator
+            // ==============================================================
+
+class bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator {
+    // This 'class' provides a read-only, 'const' iterator type to sequentially
+    // access (in increasing chronological order) the weekend-days transitions
+    // in a 'bdecs_PackedCalendar' object.  Note that, if no weekend-days
+    // transitions have been added to the calendar and some (universally
+    // applicable) weekend days have been added to the calendar using the
+    // 'bdecs_PackedCalendar::addWeekendDays' method or the
+    // 'bdecs_PackedCalendar::addWeekendDay' method, the set of weekend-days
+    // transitions observed using a iterator of this type comprises a single
+    // transition of the weekend days added by the two methods at the date
+    // '1/1/1'.
+
+
+    // DATA
+    WeekendDaysTransition
+
+
+};
 
                 // ===================================================
                 // class bdecs_PackedCalendar_BusinessDayConstIterator
