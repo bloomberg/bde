@@ -1074,11 +1074,10 @@ DEFINE_TEST_CASE(24) {
         //:     (C-2)
         //:
         //:   3 Add a hard coded list of holiday dates to the calendar.
-        //:     Iterate from the iterator returned by the 'beginBusinessDays'
-        //:     method to the iterator returned by the 'endBusinessDays' method
-        //:     and ensure that both the just added holiday dates and weekend
-        //:     days in specified in the weekend-days transitions are properly
-        //:     skipped.  (C-3)
+        //:     Iterate using a 'BusinessDayConstIterator' object from
+        //:     'beginBusinessDays()' up to 'endBusinessDays()' and ensure that
+        //:     both the holiday dates and weekend days are properly skipped by
+        //:     the iterator.  (C-3)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered when an attempt is made to add a weekend-days
