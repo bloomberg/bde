@@ -349,7 +349,13 @@ void bael_FileObserver2::logRecordDefault(bsl::ostream&      stream,
     stream << fixedFields.category();
     stream << ' ';
     bslstl_StringRef message = fixedFields.messageRef();
-    stream.write(message.data(), message.length());
+    length = message.length();
+    const char *str = message.data();
+
+    // The terminating '\0' of string reference is not written if it exists.
+
+    stream.write(str, (!length || '\0' != str[length - 1]) ? length
+                                                           : length - 1);
     stream << ' ';
 
     const bdem_List& userFields = record.userFields();

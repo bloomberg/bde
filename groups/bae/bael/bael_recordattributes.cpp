@@ -78,12 +78,6 @@ void bael_RecordAttributes::setMessage(const char *message)
     }
 }
 
-void bael_RecordAttributes::setMessage(const bslstl_StringRef& message)
-{
-    d_messageStreamBuf.pubseekpos(0);
-    d_messageStreamBuf.sputn(message.data(), message.length());
-}
-
 bael_RecordAttributes& bael_RecordAttributes::operator=(
                                               const bael_RecordAttributes& rhs)
 {
@@ -116,15 +110,6 @@ const char *bael_RecordAttributes::message() const
     }
 
     return d_messageStreamBuf.data();
-}
-
-bslstl_StringRef bael_RecordAttributes::messageRef() const
-{
-    int length = d_messageStreamBuf.length();
-    const char *str = d_messageStreamBuf.data();
-    return bslstl_StringRef(str,
-                            (!length || '\0' != str[length - 1]) ? length
-                                                                 : length - 1);
 }
 
 bsl::ostream& bael_RecordAttributes::print(bsl::ostream& stream,
@@ -216,8 +201,13 @@ bsl::ostream& bael_RecordAttributes::print(bsl::ostream& stream,
         stream << ' ';
     }
     bslstl_StringRef message = messageRef();
-    stream.write(message.data(), message.length());
+    int length = message.length();
+    const char *str = message.data();
 
+    // The terminating '\0' of string reference is not written if it exists.
+
+    stream.write(str, (!length || '\0' != str[length - 1]) ? length
+                                                           : length - 1);
     if (0 <= spacesPerLevel) {
         stream << '\n';
         bdeu_Print::indent(stream, level, spacesPerLevel);

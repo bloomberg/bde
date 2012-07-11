@@ -499,6 +499,13 @@ void bael_RecordAttributes::setLineNumber(int lineNumber)
 }
 
 inline
+void bael_RecordAttributes::setMessage(const bslstl_StringRef& message)
+{
+    d_messageStreamBuf.pubseekpos(0);
+    d_messageStreamBuf.sputn(message.data(), message.length());
+}
+
+inline
 void bael_RecordAttributes::setProcessID(int processID)
 {
     d_processID = processID;
@@ -601,6 +608,13 @@ inline
 int bael_RecordAttributes::lineNumber() const
 {
     return d_lineNumber;
+}
+
+inline
+bslstl_StringRef bael_RecordAttributes::messageRef() const
+{
+    return bslstl_StringRef(d_messageStreamBuf.data(),
+                            d_messageStreamBuf.length());
 }
 
 inline
