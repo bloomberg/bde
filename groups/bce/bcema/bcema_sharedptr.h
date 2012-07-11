@@ -2056,8 +2056,7 @@ struct bcema_SharedPtrNilDeleter {
     // nothing when invoked.
 
     // MANIPULATORS
-    template <class TYPE>
-    void operator()(TYPE *)
+    void operator()(const void *) const
         // No-Op.
     {
     }
