@@ -242,9 +242,9 @@ void bcem_Aggregate::init(
                      bdem_ElemType::Type                        elemType,
                      bslma_Allocator                           *basicAllocator)
 {
-    BSLS_ASSERT(0 == d_schemaRep_p);
-    BSLS_ASSERT(0 == d_valueRep_p);
-    BSLS_ASSERT(0 == d_isTopLevelAggregateNullRep_p);
+    BSLS_ASSERT_SAFE(0 == d_schemaRep_p);
+    BSLS_ASSERT_SAFE(0 == d_valueRep_p);
+    BSLS_ASSERT_SAFE(0 == d_isTopLevelAggregateNullRep_p);
 
     if (bdem_ElemType::BDEM_VOID == elemType) {
 
@@ -348,10 +348,9 @@ void bcem_Aggregate::init(
     d_isTopLevelAggregateNullRep_p = isNull_sp.rep();
     d_isTopLevelAggregateNullRep_p->acquireRef();
     d_rawData.setTopLevelAggregateNullnessPointer(isNull_sp.ptr());
-    *isNull_sp = isNul2();
 
-    schemaRepProctor.release();
     valueRepProtctor.release();
+    schemaRepProctor.release();
 }
 
 void bcem_Aggregate::init(
@@ -486,6 +485,7 @@ bcem_Aggregate::~bcem_Aggregate()
     if (d_schemaRep_p) {
         d_schemaRep_p->releaseRef();
     }
+    d_rawData.reset();
 }
 
 // MANIPULATORS
@@ -613,15 +613,17 @@ const bcem_Aggregate bcem_Aggregate::removeItems(int pos, int numItems) const
 
 const bcem_Aggregate bcem_Aggregate::selection() const
 {
-    bcem_AggregateRaw   obj;
+    bcem_AggregateRaw   field;
     bcem_AggregateError errorDescription;
-    if (0 != d_rawData.selection(&obj, &errorDescription)) {
-        return makeError(errorDescription);                           // RETURN
+    if (0 == d_rawData.selection(&field, &errorDescription)) {
+        return bcem_Aggregate(field,
+                              d_schemaRep_p,
+                              d_valueRep_p,
+                              d_isTopLevelAggregateNullRep_p);        // RETURN
     }
-    return bcem_Aggregate(obj,
-                          d_schemaRep_p,
-                          d_valueRep_p,
-                          d_isTopLevelAggregateNullRep_p);
+    else {
+        return makeError(errorDescription);
+    }
 }
 
 const bcem_Aggregate

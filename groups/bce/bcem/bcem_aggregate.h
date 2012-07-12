@@ -1085,6 +1085,10 @@ class bcem_Aggregate {
         // never be in an error state after a call to 'reset'.  After the
         // function call, 'isNul2()' returns 'true'.
 
+    bcem_AggregateRaw& rawData();
+        // Return a reference to the modifiable non-reference-counted portion
+        // of this aggregate.
+
     // REFERENCED-VALUE MANIPULATORS
 
     // The following set of methods are technically accessors in that they
@@ -3228,10 +3232,9 @@ int bdeat_arrayManipulateElement(bcem_Aggregate *array,
                                  MANIPULATOR&    manipulator,
                                  int             index)
 {
-    return bdeat_arrayManipulateElement(
-                            const_cast<bcem_AggregateRaw *>(&array->rawData()),
-                            manipulator,
-                            index);
+    return bdeat_arrayManipulateElement(&array->rawData(),
+                                        manipulator,
+                                        index);
 }
 
 inline
@@ -3288,9 +3291,7 @@ bool bdeat_choiceHasSelection(const bcem_Aggregate&  object,
 inline
 int bdeat_choiceMakeSelection(bcem_Aggregate *object, int selectionId)
 {
-    return bdeat_choiceMakeSelection(
-                           const_cast<bcem_AggregateRaw *>(&object->rawData()),
-                           selectionId);
+    return bdeat_choiceMakeSelection(&object->rawData(), selectionId);
 }
 
 inline
@@ -3470,11 +3471,10 @@ int bdeat_sequenceManipulateAttribute(bcem_Aggregate *object,
                                       const char     *attributeName,
                                       int             attributeNameLength)
 {
-    return bdeat_sequenceManipulateAttribute(
-                           const_cast<bcem_AggregateRaw *>(&object->rawData()),
-                           manipulator,
-                           attributeName,
-                           attributeNameLength);
+    return bdeat_sequenceManipulateAttribute(&object->rawData(),
+                                             manipulator,
+                                             attributeName,
+                                             attributeNameLength);
 }
 
 template <typename MANIPULATOR>
@@ -3483,10 +3483,9 @@ int bdeat_sequenceManipulateAttribute(bcem_Aggregate *object,
                                       MANIPULATOR&    manipulator,
                                       int             attributeId)
 {
-    return bdeat_sequenceManipulateAttribute(
-                           const_cast<bcem_AggregateRaw *>(&object->rawData()),
-                           manipulator,
-                           attributeId);
+    return bdeat_sequenceManipulateAttribute(&object->rawData(),
+                                             manipulator,
+                                             attributeId);
 }
 
 template <typename MANIPULATOR>
@@ -3494,9 +3493,7 @@ inline
 int bdeat_sequenceManipulateAttributes(bcem_Aggregate *object,
                                        MANIPULATOR&    manipulator)
 {
-    return bdeat_sequenceManipulateAttributes(
-                           const_cast<bcem_AggregateRaw *>(&object->rawData()),
-                           manipulator);
+    return bdeat_sequenceManipulateAttributes(&object->rawData(), manipulator);
 }
 
 template <typename ACCESSOR>
@@ -3563,9 +3560,7 @@ inline
 int bdeat_typeCategoryManipulateArray(bcem_Aggregate *object,
                                       MANIPULATOR&    manipulator)
 {
-    return bdeat_typeCategoryManipulateArray(
-                           const_cast<bcem_AggregateRaw *>(&object->rawData()),
-                           manipulator);
+    return bdeat_typeCategoryManipulateArray(&object->rawData(), manipulator);
 }
 
 template <typename MANIPULATOR>
@@ -3573,9 +3568,7 @@ inline
 int bdeat_typeCategoryManipulateSimple(bcem_Aggregate *object,
                                        MANIPULATOR&    manipulator)
 {
-    return bdeat_typeCategoryManipulateSimple(
-                           const_cast<bcem_AggregateRaw *>(&object->rawData()),
-                           manipulator);
+    return bdeat_typeCategoryManipulateSimple(&object->rawData(), manipulator);
 }
 
 template <typename ACCESSOR>
