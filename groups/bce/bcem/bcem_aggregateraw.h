@@ -78,7 +78,7 @@ BDES_IDENT("$Id: $")
 // 'bcem_Aggregate' object and extracting 'bcem_AggregateRaw' from it,
 // then working with that in place of the original aggregate.  In this example,
 // we elide the initial population of the 'bcem_AggregateRaw' object and
-// instead focus on iterating through fields in the object.
+// instead focus on iterating through fields of an array aggregate.
 //..
 //  void printFields(const bcem_AggregateRaw& object)
 //  {
@@ -110,6 +110,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDEAT_TYPECATEGORY
 #include <bdeat_typecategory.h>
+#endif
+
+#ifndef INCLUDED_BDEF_FUNCTION
+#include <bdef_function.h>
 #endif
 
 #ifndef INCLUDED_BDEM_CHOICEARRAYITEM
@@ -146,10 +150,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDEM_TABLE
 #include <bdem_table.h>
-#endif
-
-#ifndef INCLUDED_BDEF_FUNCTION
-#include <bdef_function.h>
 #endif
 
 #ifndef INCLUDED_BDETU_UNSET
@@ -341,34 +341,37 @@ class bcem_AggregateRaw {
     // - If 'd_dataType' is 'bdem_ElemType::BDEM_VOID', then 'd_value' will be
     //   null or point to an error record.  The remaining invariants need not
     //   hold.
-    // - If 'd_schema' is null, then both 'd_recordDef' and 'd_fieldDef' are
-    //   null.
-    // - If 'd_schema' is non-null, then 'd_recordDef' and/or 'd_fieldDef'
-    //   are non-null.
-    // - 'd_recordDef' is either null or points to a record within 'd_schema.'
-    //   Its memory is not managed separately from the schema's.
-    // - 'd_fieldDef' is either null or points to a field definition within
-    //   'd_schema'.  Its memory is not managed separately from the schema's.
-    // - If 'd_fieldDef' is not null, then 'd_fieldDef->elemType()' is equal
-    //   to either 'd_dataType' or to 'bdem_ElemType::toArrayType(d_dataType)'.
-    //   The code in this class always uses 'd_dataType', not
-    //   'd_fieldDef->elemType()'.
-    // - If this is the root object, then 'd_fieldDef' will be null, but
-    //   'd_recordDef' may still have a value.  Otherwise,
-    //   'd_recordDef'.  The code in this class always uses 'd_recordDef', not
-    //   'd_fieldDef->recordConstraint()' will always be equal to
-    //   'd_fieldDef->recordConstraint()'.
+    // - If 'd_schema_p' is null, then both 'd_recordDef_p' and 'd_fieldDef_p'
+    //   are null.
+    // - If 'd_schema_p' is non-null, then 'd_recordDef_p' and/or
+    //   'd_fieldDef_p' are non-null.
+    // - 'd_recordDef_p' is either null or points to a record within
+    //   'd_schema_p'.  Its memory is not managed separately from the schema's.
+    // - 'd_fieldDef_p' is either null or points to a field definition within
+    //   'd_schema_p'.  Its memory is not managed separately from the schema's.
+    // - If 'd_fieldDef_p' is not null, then 'd_fieldDef_p->elemType()' is
+    //   equal to either 'd_dataType' or to
+    //   'bdem_ElemType::toArrayType(d_dataType)'.  The code in this class
+    //   always uses 'd_dataType', not 'd_fieldDef_p->elemType()'.
+    // - If this is the root object, then 'd_fieldDef_p' will be null, but
+    //   'd_recordDef_p' may still have a value.  Otherwise,
+    //   'd_recordDef_p'.  The code in this class always uses 'd_recordDef_p',
+    //   not 'd_fieldDef_p->recordConstraint()' will always be equal to
+    //   'd_fieldDef_p->recordConstraint()'.
 
     // DATA
     bdem_ElemType::Type   d_dataType;       // value's type
-    const bdem_Schema    *d_schema_p;       // shared schema
-    const bdem_RecordDef *d_recordDef;      // record constraint
-    const bdem_FieldDef  *d_fieldDef;       // data description
-    void                 *d_value_p;        // pointer to data
+    const bdem_Schema    *d_schema_p;       // shared schema (held, not owned)
+    const bdem_RecordDef *d_recordDef_p;    // record constraint (held, not
+                                            // owned)
+    const bdem_FieldDef  *d_fieldDef_p;     // data description (held, not
+                                            // owned)
+    void                 *d_value_p;        // pointer to data (held, not
+                                            // owned)
     bdem_ElemType::Type   d_parentType;     // type of parent of this aggregate
                                             // ('VOID' if top-level)
-
-    void                 *d_parentData;     // address of owner; 0 if top-level
+    void                 *d_parentData_p;   // address of owner; 0 if top-level
+                                            // (held, not owned)
     int                   d_indexInParent;  // index into parent of this
                                             // aggregate; -1 if top-level,
                                             // scalar, or vector
@@ -376,6 +379,8 @@ class bcem_AggregateRaw {
     int                  *d_isTopLevelAggregateNull_p;
                                             // nullness indicator for
                                             // top-level aggregate in bit 0
+
+    // TBD: Reorder functions
 
     // PRIVATE MANIPULATORS
     template <typename TYPE>
@@ -517,11 +522,6 @@ class bcem_AggregateRaw {
         // by this class.  See the BDE package-group-level documentation for
         // more information on 'bdex' streaming of container types.
 
-    template <typename TYPE>
-    static bdem_ElemType::Type getBdemType(const TYPE& value);
-        // Return the 'bdem_ElemType::Type' corresponding to the parameterized
-        // 'value'.
-
     static bool areEquivalent(const bcem_AggregateRaw& lhs,
                               const bcem_AggregateRaw& rhs);
         // Return 'true' if the value of the object referenced by the specified
@@ -546,6 +546,11 @@ class bcem_AggregateRaw {
         // 'bdem_ElemType::BDEM_VOID == lhs.dataType()' or
         // 'bdem_ElemType::BDEM_VOID == rhs.dataType()', then 'false' is
         // returned.
+
+    template <typename TYPE>
+    static bdem_ElemType::Type getBdemType(const TYPE& value);
+        // Return the 'bdem_ElemType::Type' corresponding to the parameterized
+        // 'value'.
 
     // CREATORS
     bcem_AggregateRaw();
@@ -627,12 +632,6 @@ class bcem_AggregateRaw {
         // note that if TOTYPE is unsigned, and this aggregate is not
         // convertible to 'TOTYPE', then the unset value of the corresponding
         // signed type is returned.
-
-    void convertScalarToString(bsl::string *result) const;
-        // Convert the scalar value stored in this aggregate to a string, and
-        // load the resulting string into the specified 'result', or make
-        // 'result' the empty string if this aggregate holds a value that is
-        // not convertible to a string.
 
     int reserveRaw(bcem_AggregateError *errorDescription,
                    bsl::size_t          numItems) const;
@@ -1284,11 +1283,11 @@ int bcem_AggregateRaw::setValue<bcem_AggregateRaw>(
     // Specialization of 'setValue<VALUETYPE>' for
     // 'VALUETYPE = bcem_AggregateRaw'
 
-                   // ============================
-                   // struct bcem_AggregateRawUtil
-                   // ============================
+                   // =============================
+                   // struct bcem_AggregateRaw_Util
+                   // =============================
 
-struct bcem_AggregateRawUtil {
+struct bcem_AggregateRaw_Util {
     // This 'struct' provides a namespace for a set of utility methods
     // for working with the 'bdem' data representations of this component.
 
@@ -2457,13 +2456,13 @@ int bcem_AggregateRaw::makeSelection(bcem_AggregateRaw   *field,
 }
 
 
-                   // ----------------------------------
-                   // local struct bcem_AggregateRawUtil
-                   // ----------------------------------
+                   // -----------------------------------
+                   // local struct bcem_AggregateRaw_Util
+                   // -----------------------------------
 
 inline
-bool bcem_AggregateRawUtil::isConformant(const void           *,
-                                         const bdem_RecordDef *recordDef)
+bool bcem_AggregateRaw_Util::isConformant(const void           *,
+                                          const bdem_RecordDef *recordDef)
 {
     // A non-aggregate conforms only if 'recordDef' is null.
 
@@ -2472,9 +2471,9 @@ bool bcem_AggregateRawUtil::isConformant(const void           *,
 
 template <typename VISITOR>
 int
-bcem_AggregateRawUtil::visitArray(void                *array,
-                                  bdem_ElemType::Type  arrayType,
-                                  VISITOR             *visitorPtr)
+bcem_AggregateRaw_Util::visitArray(void                *array,
+                                   bdem_ElemType::Type  arrayType,
+                                   VISITOR             *visitorPtr)
 {
     VISITOR& visitorObj = *visitorPtr;
     switch (arrayType) {
@@ -2607,12 +2606,12 @@ int bcem_AggregateRaw::toEnum(bcem_AggregateError *errorDescription,
         oss << "Invalid conversion from \""
             << bdem_ElemType::toAscii(getBdemType(value))
             << "\" to enumeration \""
-            << bcem_AggregateRawUtil::enumerationName(enumerationConstraint())
+            << bcem_AggregateRaw_Util::enumerationName(enumerationConstraint())
             << '\"';
         errorDescription->description() = oss.str();
         errorDescription->code() =
                                   bcem_AggregateError::BCEM_ERR_BAD_CONVERSION;
-        return 1;                                                     // RETURN
+        return -1;                                                    // RETURN
     }
     return toEnum(errorDescription, intVal, direct);
 }
@@ -2650,9 +2649,9 @@ int bcem_AggregateRaw::assignToNillableScalarArrayImp(const TYPE& value) const
     bcem_AggregateRaw_ElemDataFetcher fetcher(value);
     void *srcData = fetcher.d_data_p;
     bcem_AggregateRaw_ArraySizer sizer;
-    const int  length  = bcem_AggregateRawUtil::visitArray(srcData,
-                                                           srcType,
-                                                           &sizer);
+    const int  length  = bcem_AggregateRaw_Util::visitArray(srcData,
+                                                            srcType,
+                                                            &sizer);
 
     bcem_AggregateError error;
     if (0 != resize(&error, length)) {
@@ -2665,7 +2664,7 @@ int bcem_AggregateRaw::assignToNillableScalarArrayImp(const TYPE& value) const
 
     for (int i = 0; i < length; ++i) {
         bcem_AggregateRaw_ArrayIndexer indexer(i);
-        bcem_AggregateRawUtil::visitArray(srcData, srcType, &indexer);
+        bcem_AggregateRaw_Util::visitArray(srcData, srcType, &indexer);
         baseTypeDesc->assign(dstTable->theModifiableRow(i)[0].data(),
                              indexer.data());
     }
@@ -2685,7 +2684,7 @@ inline
 int bcem_AggregateRaw::assignToNillableScalarArray(
                                                  const bdem_Table& value) const
 {
-    if (!bcem_AggregateRawUtil::isConformant(&value, recordConstraint())) {
+    if (!bcem_AggregateRaw_Util::isConformant(&value, recordConstraint())) {
         return bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;          // RETURN
     }
 
@@ -2740,7 +2739,7 @@ int bcem_AggregateRaw::assignToNillableScalarArray(
     return 0;
 }
 
-// CLASS METHODS
+// PRIVATE CLASS METHODS
 template <typename TYPE>
 inline
 bdem_ElemType::Type bcem_AggregateRaw::getBdemType(const TYPE&)
@@ -2799,7 +2798,7 @@ void bcem_AggregateRaw::setRecordDefPointer(const bdem_RecordDef *recordDef)
 {
     BSLS_ASSERT(recordDef);
 
-    d_recordDef = recordDef;
+    d_recordDef_p = recordDef;
 }
 
 inline
@@ -2807,7 +2806,7 @@ void bcem_AggregateRaw::setFieldDefPointer(const bdem_FieldDef *fieldDef)
 {
     BSLS_ASSERT(fieldDef);
 
-    d_fieldDef = fieldDef;
+    d_fieldDef_p = fieldDef;
 }
 
 inline
@@ -2822,6 +2821,10 @@ template <typename TYPE>
 int bcem_AggregateRaw::setValue(bcem_AggregateError *errorDescription,
                                 const TYPE&          value) const
 {
+    if (isError()) {
+        return 0;                                                     // RETURN
+    }
+
     if (bdem_SchemaUtil::isNillableScalarArrayRecordDef(dataType(),
                                                         recordConstraint())) {
         if (isNull()) {
@@ -2831,25 +2834,25 @@ int bcem_AggregateRaw::setValue(bcem_AggregateError *errorDescription,
         if (0 != assignToNillableScalarArray(value)) {
             bsl::ostringstream oss;
             oss << "Value does not conform to record \""
-                << bcem_AggregateRawUtil::recordName(recordConstraint())
+                << bcem_AggregateRaw_Util::recordName(recordConstraint())
                 << "\" in schema";
             errorDescription->description() = oss.str();
             errorDescription->code() =
                                   bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;
-            return 1;                                                 // RETURN
+            return -1;                                                // RETURN
         }
         return 0;                                                     // RETURN
     }
 
-    if (! bcem_AggregateRawUtil::isConformant(&value, recordConstraint())) {
+    if (! bcem_AggregateRaw_Util::isConformant(&value, recordConstraint())) {
         bsl::ostringstream oss;
         oss << "Value does not conform to record \""
-            << bcem_AggregateRawUtil::recordName(recordConstraint())
+            << bcem_AggregateRaw_Util::recordName(recordConstraint())
             << "\" in schema";
         errorDescription->description() = oss.str();
         errorDescription->code() =
                                   bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;
-        return 1;                                                     // RETURN
+        return -1;                                                    // RETURN
     }
 
     if (enumerationConstraint() && bdem_ElemType::isScalarType(dataType())) {
@@ -2867,7 +2870,7 @@ int bcem_AggregateRaw::setValue(bcem_AggregateError *errorDescription,
             errorDescription->description() = oss.str();
             errorDescription->code() =
                                   bcem_AggregateError::BCEM_ERR_BAD_CONVERSION;
-            return 1;                                                 // RETURN
+            return -1;                                                // RETURN
         }
     }
 
@@ -2941,10 +2944,10 @@ STREAM& bcem_AggregateRaw::bdexStreamIn(STREAM& stream, int version) const
                                         strmAttrLookup,
                                         elemAttrLookup);
 
-    if (recordConstraint() && !bcem_AggregateRawUtil::isConformant(
-                                                         d_value_p,
-                                                         d_dataType,
-                                                         d_recordDef)) {
+    if (recordConstraint() && !bcem_AggregateRaw_Util::isConformant(
+                                                              d_value_p,
+                                                              d_dataType,
+                                                              d_recordDef_p)) {
         makeNull();  // discard data
         stream.invalidate();
     }
@@ -3217,7 +3220,7 @@ int bcem_AggregateRaw::insertItem(bcem_AggregateRaw   *newItem,
 {
     bool wasNull = isNull();
     if (0 != insertNullItem(newItem, description, index)) {
-        return 1;                                                     // RETURN
+        return -1;                                                    // RETURN
     }
 
     int rc = newItem->setValue(description, value);
@@ -3302,13 +3305,13 @@ const bdem_RecordDef *bcem_AggregateRaw::recordConstraint() const
     if (0 == d_schema_p) {
         return 0;                                                     // RETURN
     }
-    return d_recordDef;
+    return d_recordDef_p;
 }
 
 inline
 const bdem_EnumerationDef *bcem_AggregateRaw::enumerationConstraint() const
 {
-    return d_fieldDef ? d_fieldDef->enumerationConstraint() : 0;
+    return d_fieldDef_p ? d_fieldDef_p->enumerationConstraint() : 0;
 }
 
 inline
@@ -3320,7 +3323,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bcem_AggregateRaw& rhs)
 inline
 const bdem_FieldDef *bcem_AggregateRaw::fieldDef() const
 {
-    return d_fieldDef;
+    return d_fieldDef_p;
 }
 
 inline

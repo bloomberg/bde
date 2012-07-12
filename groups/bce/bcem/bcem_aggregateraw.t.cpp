@@ -77,7 +77,6 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [23] int maxSupportedBdexVersion();
-// [  ] bdem_ElemType::Type getBdemType(const TYPE& value);
 // [ 7] bool areEquivalent(const Obj& lhs, const Obj& rhs);
 // [ 7] bool areIdentical(const Obj& lhs, const Obj& rhs);
 //

@@ -71,6 +71,16 @@ makeValuePtrInplaceWithAlloc(bslma_Allocator *basicAllocator)
     return result;
 }
 
+const char *recordName(const bdem_RecordDef *recordDef)
+{
+    if (! recordDef) {
+        return "(unconstrained)";                                     // RETURN
+    }
+
+    const char *ret = recordDef->schema().recordName(recordDef->recordIndex());
+    return ret ? ret : "(anonymous)";
+}
+
 }  // close unnamed namespace
 
 bcema_SharedPtr<void>
@@ -256,7 +266,7 @@ void bcem_Aggregate::init(
             *this = makeError(bcem_AggregateError::BCEM_ERR_NOT_A_SEQUENCE,
                               "Attempt to create a LIST aggregate from "
                               "non-SEQUENCE record def \"%s\"",
-                              bcem_AggregateRawUtil::recordName(recordDefPtr));
+                              recordName(recordDefPtr));
             return;                                                   // RETURN
         }
         bcema_SharedPtr<bdem_List> listPtr =
@@ -270,7 +280,7 @@ void bcem_Aggregate::init(
             *this = makeError(bcem_AggregateError::BCEM_ERR_NOT_A_SEQUENCE,
                               "Attempt to create a TABLE aggregate from "
                               "non-SEQUENCE record def \"%s\"",
-                              bcem_AggregateRawUtil::recordName(recordDefPtr));
+                              recordName(recordDefPtr));
             return;                                                   // RETURN
         }
         bcema_SharedPtr<bdem_Table> tablePtr =
@@ -283,7 +293,7 @@ void bcem_Aggregate::init(
             *this = makeError(bcem_AggregateError::BCEM_ERR_NOT_A_CHOICE,
                               "Attempt to create a CHOICE aggregate from "
                               "non-CHOICE record def \"%s\"",
-                              bcem_AggregateRawUtil::recordName(recordDefPtr));
+                              recordName(recordDefPtr));
             return;                                                   // RETURN
         }
         bcema_SharedPtr<bdem_Choice> choicePtr =
@@ -296,7 +306,7 @@ void bcem_Aggregate::init(
             *this = makeError(bcem_AggregateError::BCEM_ERR_NOT_A_CHOICE,
                               "Attempt to create a CHOICE_ARRAY aggregate "
                               "from non-CHOICE record def \"%s\"",
-                              bcem_AggregateRawUtil::recordName(recordDefPtr));
+                              recordName(recordDefPtr));
             return;                                                   // RETURN
         }
         bcema_SharedPtr<bdem_ChoiceArray> choiceArrayPtr =
