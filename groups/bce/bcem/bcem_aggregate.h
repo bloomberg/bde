@@ -2334,6 +2334,13 @@ bcem_Aggregate::bcem_Aggregate(
     init(schemaPtr, recordName.c_str(), elemType, basicAllocator);
 }
 
+// MANIPULATORS
+inline
+bcem_AggregateRaw& bcem_Aggregate::rawData()
+{
+    return d_rawData;
+}
+
 // REFERENCED-VALUE MANIPULATORS
 inline
 const bcem_Aggregate& bcem_Aggregate::makeNull()  const
