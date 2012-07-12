@@ -9,6 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a reference to a 'const' string.
 //
+//@DEPRECATED: Use 'bslstl::StringRef' (via 'bsl_string.h') instead.
+//
 //@CLASSES:
 //  bdeut_StringRef: reference wrapper for a 'const' string
 //
