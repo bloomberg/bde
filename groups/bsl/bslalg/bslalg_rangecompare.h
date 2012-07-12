@@ -17,192 +17,254 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnimann)
 //
 //@DESCRIPTION: This component provides two class methods,
-// 'RangeCompare::equal' and 'RangeCompare::lexicographical', for comparing two
-// ranges each specified by a pair of input iterators that are compliant with
-// the C++11 standard [24.2.3].  'equal' finds out whether two specified ranges
-// compare-equal, and uses optimizations based on the
-// 'bslalg::TypeTraitBitwiseEqualityComparable' trait, when possible.
-// 'lexicographical' finds out whether the first specified range compares
-// lexicographically less than the second specified range and uses
-// optimizations for ranges specified by contiguous arrays of unsigned
-// character types.
+// 'bslalg::RangeCompare::equal' and 'bslalg::RangeCompare::lexicographical',
+// for comparing two ranges each specified by a pair of input iterators that
+// are compliant with the C++11 standard [24.2.3].  The 'equal' class method
+// determines whether two specified ranges compare equal.  The
+// 'lexicographical' class method determines whether the first specified range
+// compares lexicographically less than, equal to, or greater than the second
+// specified range.  Under certain circumstances, 'bslalg::RangeCompare::equal'
+// and 'bslalg::RangeCompare::lexicographical' may perform optimized
+// comparisons, as described below.
+//
+// 'bslalg::RangeCompare::equal' may perform a bitwise comparison of the two
+// ranges when the following two criteria are met:
+//: o The input iterators are convertible to a pointer type.
+//: o The trait 'bslalg::TypeTraitBitwiseEqualityComparable' is declared for
+//:   the type of the objects in the ranges being compared.
+//
+// 'bslalg::RangeCompare::lexicographical' may perform a bitwise comparison of
+// the two ranges when the following criterion is met:
+//: o The input iterators are convertible to pointers to a wide or unsigned
+//    character type.
+//
+// Note that a class having the 'bslalg::TypeTraitBitwiseEqualityComparable'
+// trait can be described as bitwise-comparable and should meet the following
+// criteria:
+//: o The values represented by two objects belonging to the class are the same
+//:   if and only if each of the data members in the class has the same value
+//:   in both objects.
+//: o The class layout includes no padding.
+//: o The class has no virtual members.
+//
+// Note that this component is for use primarily by the 'bslstl' package.
+// Other clients should use the STL algorithms (in headers '<algorithm>'
+// and '<memory>').
 //
 ///Usage
 ///-----
-// This section illustrates the intended use of this component.
-//
-// Note that this component is for use primarily by the 'bslstl' package.
-// Other clients should use the STL algorithms (in header '<algorithm>'
-// and '<memory>').
+// This section illustrates intended use of this component.
 //
 ///Example 1: Defining Equality Comparison Operators on a Container
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we will use the class method 'RangeCompare::equal' to
-// implement the equal comparison operators for an iterable component residing
-// in the 'bslstl' package.
+// In this example we will use the 'bslalg::RangeCompare::equal' class method
+// to implement the equality comparison operators for an iterable container
+// type residing in the 'bslstl' package, and we will show the circumstances
+// under which the optimization provided by the class method may be applied.
 //
-// Suppose we have a new iterable component that will
-// be included in the 'bslstl' package, and we wish to define comparison
-// operators for the component.  If there is an iterator for the component that
-// returns the component's elements in a consistent order, and the elements
-// themselves are comparable, we can implement comparison operators by doing
-// pairwise comparisons over the elements returned by a iterating over the
-// entire component.
+// Suppose that we have a new iterable container type that will be included in
+// the 'bslstl' package, and we wish to define comparison operators for the
+// container.  If the container has an iterator that returns the container's
+// elements in a consistent order, and the elements themselves are equality
+// comparable, we can implement the container's equality comparison operators
+// by pairwise comparing each of the elements over the entire range of elements
+// in both containers.  Then the container can use the
+// 'bslalg::RangeCompare::equal' class method to equal-compare the container's
+// elements, taking advantage of the optimizations the class method provides
+// for bitwise equality comparable objects.
 //
-// For a normal component, we could accomplish this using 'std::equal' (in
-// header '<algorithm>').  However, for components in 'bslstl', we can use
-// 'bsalg::RangeCompare::equal' instead, taking advantage of the optimizations
-// it provides for bitwise equality comparable objects.
-//
-// First, we define a minimal container class, 'FixedCapacityList' that
-// provides a read-only iterator 'FixedCapacityList::ConstIterator'.
+// First, we create an elided definition of a container class, 'MyContainer',
+// which provides read-only iterators of the type 'MyContainer::ConstIterator':
 //..
-// template <class VALUE_TYPE, std::size_t CAPACITY>
-// class FixedCapacityList {
-//     // This class implements a fixed-capacity list of objects of the given
-//     // 'VALUE_TYPE', which must provide value semantics.  The list capacity,
-//     // defined by 'CAPACITY', is constant and set at compile time.
-//     // Note that the result of any attempt to append elements beyond that
-//     // capacity is undefined.  Also note that the functionality of this
-//     // class has been intentionally stripped down in order to make it as
-//     // simple as possible.  It is intended only for use as a support class
-//     // in usage examples that require the existence of a container class.
-// 
-//   private:
-//     // DATA
-//     std::size_t d_length;               // number of elements in the
-//                                         // container
-// 
-//     VALUE_TYPE  d_storage_p[CAPACITY];  // array of contained elements
-// 
-//   public:
-//     // TRAITS
-//     BSLALG_DECLARE_NESTED_TRAITS(FixedCapacityList,
-//                    BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
-//         // Declare nested type traits for this class.
-// 
-//     // PUBLIC TYPES
-//     typedef VALUE_TYPE const *ConstIterator;
-//         // This 'typedef' provides an alias for the type of iterator
-//         // providing non-modifiable access to the elements in the
-//         // container.
-// 
-//     // CREATORS
-//     FixedCapacityList();
-//         // Initialize this object as an empty list.
-// 
-//     // MANIPULATORS
-//     ~FixedCapacityList();
-//         // Destroy this object.
-//     void append(const VALUE_TYPE& value);
-//         // Append the specified 'value' to the end of this container.
-//         // If d_length >= CAPACITY, behavior is undefined.
-// 
-//     // ACCESSORS
-//     ConstIterator begin() const;
-//         // Return an iterator providing non-modifiable access to first
-//         // element in this container.
-//     ConstIterator end() const;
-//         // Return an iterator providing non-modifiable access to
-//         // past-the-end element in this container.
-//     std::size_t length() const;
-//         // Return the number of elements stored in the list.
-// };
+//  template <class VALUE_TYPE>
+//  class MyContainer {
+//      // This class implements a container, semantically similar to
+//      // std::vector, holding objects of the parameterizing 'VALUE_TYPE'.
 //
-// // Method implementations are not shown for brevity.  Note that the method
-// // implementation details do not affect usage of
-// // 'bslalg::RangeCompare::equal' in the implementations of 'operator=='
-// // and 'operator!='.
+//    private:
+//      // DATA
+//      // ...
+//
+//    public:
+//      // PUBLIC TYPES
+//      typedef VALUE_TYPE const *ConstIterator;
+//
+//      // CREATORS
+//      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
+//
+//      // ...
+//
+//      // MANIPULATORS
+//      void push_back(const VALUE_TYPE& value);
+//
+//      // ...
+//
+//      // ACCESSORS
+//      ConstIterator begin() const;
+//
+//      ConstIterator end() const;
+//
+//      std::size_t length() const;
+//
+//      // ...
+//  };
 //..
-// Notice that 'FixedCapacityList' declares the
-// 'bslalg::TypeTraitBitwiseEqualityComparable' trait.
+// Notice that 'ConstIterator' is defined as a pointer type, which is one of
+// the criteria required to enable the optimizations provided by the
+// 'bslalg::RangeCompare::equal' class method.
 //
-// Then, we use 'bslalg::RangeCompare::equal' to implement the equality
-// comparison operators for 'FixedCapacityList'.
+// Then, we declare the equality comparison operators for 'MyContainer':
 //..
-// template<class VALUE_TYPE, std::size_t CAPACITY>
-// inline bool operator==(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
-//                        const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs);
-//     // Return 'true' if the specified 'lhs' and 'rhs' instances have the
-//     // same value, and 'false' otherwise.  Two 'FixedCapacityList' objects
-//     // have the same value if the have the same length and each element in
-//     // 'lhs' has the same value as the corresponding element in 'rhs'.
+//  template<class VALUE_TYPE>
+//  inline bool operator==(const MyContainer<VALUE_TYPE>& lhs,
+//                         const MyContainer<VALUE_TYPE>& rhs);
+//      // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+//      // value, and 'false' otherwise.  Two 'MyContainer' objects have the
+//      // same value if they have the same length and each element in 'lhs'
+//      // has the same value as the corresponding element in 'rhs'.
 //
-// template<class VALUE_TYPE, std::size_t CAPACITY>
-// inline bool operator!=(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
-//                        const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs);
-//     // Return 'true' if the specified 'lhs' and 'rhs' instances do not have
-//     // the same value, and 'false' otherwise.  Two 'FixedCapacityList'
-//     // objects differ in value if they have differing lengths or if any
-//     // element in 'lhs' has differs in value from the corresponding element
-//     // in 'rhs'.
+//  template<class VALUE_TYPE>
+//  inline bool operator!=(const MyContainer<VALUE_TYPE>& lhs,
+//                         const MyContainer<VALUE_TYPE>& rhs);
+//      // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
+//      // the same value, and 'false' otherwise.  Two 'MyContainer' objects
+//      // differ in value if they have differing lengths or if any element in
+//      // 'lhs' differs in value from the corresponding element in 'rhs'.
+//..
+// Next, we implement the equality comparison operators using
+// 'bslalg::RangeCompare::equal':
+//..
+//  template<class VALUE_TYPE>
+//  inline bool operator==(const MyContainer<VALUE_TYPE>& lhs,
+//                         const MyContainer<VALUE_TYPE>& rhs)
+//  {
+//      return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
+//                                                      lhs.end(),
+//                                                      lhs.length(),
+//                                                      rhs.begin(),
+//                                                      rhs.end(),
+//                                                      rhs.length());
+//  }
 //
-// template<class VALUE_TYPE, std::size_t CAPACITY>
-// inline bool operator==(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
-//                        const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs)
-// {
-//     return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
-//                                                     lhs.end(),
-//                                                     lhs.length(),
-//                                                     rhs.begin(),
-//                                                     rhs.end(),
-//                                                     rhs.length());
-// }
-//
-// template<class VALUE_TYPE, std::size_t CAPACITY>
-// inline bool operator!=(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
-//                        const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs)
-// {
-//     return ! BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
+//  template<class VALUE_TYPE>
+//  inline bool operator!=(const MyContainer<VALUE_TYPE>& lhs,
+//                         const MyContainer<VALUE_TYPE>& rhs)
+//  {
+//      return !BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
 //                                                       lhs.end(),
 //                                                       lhs.length(),
 //                                                       rhs.begin(),
 //                                                       rhs.end(),
 //                                                       rhs.length());
-// }
+//  }
 //..
-// Note that because 'FixedCapacityList' has the
-// 'bslalg::TypeTraitBitwiseEqualityComparable' trait, the calls to
-// 'bslalg::RangeCompare::equal' will use an optimized implementation.  If
-// 'FixedCapacityList' did not have the
-// 'bslalg::TypeTraitBitwiseEqualityComparable' trait, these definitions of
-// the equal comparison operators would still be correct, though slower.
-//
-// Now, we can verify that comparisons between instances of FixedList produce
-// the expected results:
+// Then, we create the elided definition of a value semantic class
+// 'MyString', together with its definition of 'operator==':
 //..
-//     FixedCapacityList<int, 5> listA;
-//     FixedCapacityList<int, 5> listB;
-//     FixedCapacityList<int, 5> listC;
-//     FixedCapacityList<int, 5> listD;
+//  class MyString {
+//    private:
+//      // DATA
+//      char *d_start_p;
+//      std::size_t d_length;
 //
-//     listA.append(1);
-//     listA.append(2);
-//     listA.append(3);
-//     listA.append(4);
-//     listA.append(5);
+//      // ...
 //
-//     listB.append(1);
-//     listB.append(2);
-//     listB.append(3);
-//     listB.append(4);
-//     listB.append(5);
+//      // FRIENDS
+//      friend bool operator==(const MyString& lhs, const MyString& rhs);
 //
-//     listC.append(1);
-//     listC.append(2);
-//     listC.append(3);
-//     listC.append(4);
+//    public:
 //
-//     listD.append(5);
-//     listD.append(4);
-//     listD.append(3);
-//     listD.append(2);
-//     listD.append(1);
+//      // ...
+//  };
 //
-//     assert(listA == listA);
-//     assert(listA == listB);
-//     assert(listA != listC);
-//     assert(listA != listD);
+//  bool operator==(const MyString& lhs, const MyString& rhs)
+//  {
+//      return lhs.d_length == rhs.d_length && strncmp(lhs.d_start_p,
+//                                                     rhs.d_start_p,
+//                                                     lhs.d_length);
+//  }
+//..
+// Notice that 'MyString' is not bitwise-comparable, because the values of the
+// 'd_start_p' pointer data members in two 'MyString' objects will be
+// different, even if the string values of the two objects are the same.
+//
+// Next, we create two 'MyContainer<MyString>' objects and compare them
+// using 'operator==':
+//..
+//  MyContainer<MyString> c1;
+//  MyContainer<MyString> c2;
+//
+//  c1.push_back(MyString("hello"));
+//  c1.push_back(MyString("goodbye"));
+//
+//  c2.push_back(MyString("hello"));
+//  c2.push_back(MyString("goodbye"));
+//
+//  assert(c1 == c2);
+//..
+// Here, the call to the 'bslalg::RangeCompare::equal' class method in
+// 'operator==' will perform an unoptimized pairwise comparison of the elements
+// in 'c1' and 'c2'.
+//
+// Then, we create the elided definition of another value semantic class,
+// 'MyPoint', together with its definition of 'operator==':
+//..
+//  class MyPoint {
+//    private:
+//      // DATA
+//      int d_x;
+//      int d_y;
+//
+//      // FRIENDS
+//      friend bool operator==(const MyPoint& lhs, const MyPoint& rhs);
+//
+//    public:
+//      // TRAITS
+//      BSLALG_DECLARE_NESTED_TRAITS(MyPoint,
+//                    BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
+//
+//      // CREATORS
+//      MyPoint(int x, int y);
+//
+//      // ...
+//  };
+//
+//  bool operator==(const MyPoint& lhs, const MyPoint& rhs)
+//  {
+//      return lhs.d_x == rhs.d_x && lhs.d_y == rhs.d_y;
+//  }
+//..
+// Notice that the value of 'MyPoint' depends only on its data members and that
+// no padding is required for alignment.  Furthermore, 'MyPoint' has no virtual
+// members.  Therefore, 'MyPoint' objects are bitwise-comparable, and we can
+// correctly declare the 'bslalg::TypeTraitBitwiseEqualityComparable' trait for
+// the class.
+//
+// Now, we create two 'MyContainer<MyPoint>' objects and compare them using
+// 'operator==':
+//..
+//  MyContainer<MyPoint> c1;
+//  MyContainer<MyPoint> c2;
+//
+//  c1.push_back(MyPoint(1, 2));
+//  c1.push_back(MyPoint(3, 4));
+//
+//  c2.push_back(MyPoint(1, 2));
+//  c2.push_back(MyPoint(3, 4));
+//
+//  assert(c1 == c2);
+//..
+// Here, the call to 'bslalg::RangeCompare::equal' in 'operator==' may take
+// advantage of the fact that 'MyPoint' is bitwise-comparable and perform the
+// comparison by directly bitwise comparing the entire range of elements
+// contained in the 'MyContainer<MyPoint>' objects.  This comparison can
+// provide a significant performance boost over the comparison between two
+// 'MyContainer<MyString>' objects described previously.
+//
+// Finally, note that we can instantiate 'MyContainer' with 'int' or any other
+// primitive type as the 'VALUE_TYPE' and still benefit from the optimized
+// comparison operators, because primitive types are implicitly
+// bitwise-comparable.
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
