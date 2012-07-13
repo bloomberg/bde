@@ -39,7 +39,8 @@ using namespace std;
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -88,10 +89,96 @@ static void aSsErT(int c, const char *s, int i) {
 //                  CLASSES AND FUNCTIONS USED IN TESTS
 //-----------------------------------------------------------------------------
 
-struct S1 { char d_buff[8]; S1(char); };
+                                // -------
+                                // Usage 2
+                                // -------
+
+// First, we define 'ConvertAlignmentToType' a template class that will given
+// an alignment, yield a type that has both that alignment and a size equal to
+// that alignment.
+
+template <int ALIGNMENT>
+struct ConvertAlignmentToType {
+    // This 'struct' provides a 'typedef', 'Type', that aliases a primitive
+    // type having the specified 'ALIGNMENT' requirement.
+
+  private:
+    // PRIVATE TYPES
+    typedef typename bsls::AlignmentImpMatch::MaxPriority MaxPriority;
+    typedef          bsls::AlignmentImpTag<ALIGNMENT>     Tag;
+
+    enum {
+        // Compute the priority of the primitive type corresponding to the
+        // specified 'ALIGNMENT'.
+
+        PRIORITY = sizeof(bsls::AlignmentImpMatch::match(Tag(),
+                                                         Tag(),
+                                                         MaxPriority()))
+    };
+
+  public:
+    // TYPES
+    typedef typename bsls::AlignmentImpPriorityToType<PRIORITY>::Type Type;
+        // Alias for a primitive type that has the specified 'ALIGNMENT'
+        // requirement.
+};
+
+// Then, we define a template 'IsSame' whose 'VALUE' enum returns 'true' if
+// two matching types are passed to it:
+
+template <class A, class B>
+struct IsSame {
+    enum { VALUE = 0 };
+};
+
+template <class A>
+struct IsSame<A, A> {
+    enum { VALUE = 1 };
+};
+
+// Next, we define a boolean function of an int that returns 'true' if exactly
+// one bit of the int is set:
+
+bool oneBitSet(int i)
+{
+    return 0 != i && 0 == (i & (i - 1));
+}
+
+// Then, we define a few types we might want to evaluate:
+
+struct ThisStruct {
+    short  d_s;
+    double d_d;
+    int    d_i;
+};
+
+struct ThatStruct {
+    int    d_i;
+};
+
+struct OtherStruct {
+    int    d_i[40];
+    short  d_s;
+};
+
+                                // -------
+                                // Usage 1
+                                // -------
+
+struct MyStruct_1 {
+    char  d_c;
+    int   d_i;
+    short d_s;
+};
+
+//-----------------------------------------------------------------------------
+
+struct S1 { char d_buff[8]; S1(char); };                            // IMPLICIT
 struct S2 { char d_buff[8]; int d_int; S2(); private: S2(const S2&); };
 struct S3 { S1 d_s1; double d_double; short d_short; };
 struct S4 { short d_shorts[5]; char d_c;  S4(int); private: S4(const S4&); };
+                                                                    // IMPLICIT
+
 #if (defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)) \
  && defined(BSLS_PLATFORM__CPU_X86)
 struct S5 { long long d_longLong __attribute__((__aligned__(8))); };
@@ -127,11 +214,86 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+//  int veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 3: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 2
+        // --------------------------------------------------------------------
+
+        enum {
+            INT_ALIGNMENT   = bsls::AlignmentImpCalc<int        >::VALUE,
+            THIS_ALIGNMENT  = bsls::AlignmentImpCalc<ThisStruct >::VALUE,
+            THAT_ALIGNMENT  = bsls::AlignmentImpCalc<ThatStruct >::VALUE,
+            OTHER_ALIGNMENT = bsls::AlignmentImpCalc<OtherStruct>::VALUE };
+
+        typedef ConvertAlignmentToType<INT_ALIGNMENT  >::Type IntAlignType;
+        typedef ConvertAlignmentToType<THIS_ALIGNMENT >::Type ThisAlignType;
+        typedef ConvertAlignmentToType<THAT_ALIGNMENT >::Type ThatAlignType;
+        typedef ConvertAlignmentToType<OTHER_ALIGNMENT>::Type OtherAlignType;
+
+        enum {
+            INT_TYPE_ALIGNMENT   =
+                               bsls::AlignmentImpCalc<IntAlignType  >::VALUE,
+            THIS_TYPE_ALIGNMENT  =
+                               bsls::AlignmentImpCalc<ThisAlignType >::VALUE,
+            THAT_TYPE_ALIGNMENT  =
+                               bsls::AlignmentImpCalc<ThatAlignType >::VALUE,
+            OTHER_TYPE_ALIGNMENT =
+                               bsls::AlignmentImpCalc<OtherAlignType>::VALUE };
+
+        ASSERT((int) INT_ALIGNMENT   == INT_TYPE_ALIGNMENT);
+        ASSERT((int) THIS_ALIGNMENT  == THIS_TYPE_ALIGNMENT);
+        ASSERT((int) THAT_ALIGNMENT  == THAT_TYPE_ALIGNMENT);
+        ASSERT((int) OTHER_ALIGNMENT == OTHER_TYPE_ALIGNMENT);
+
+        ASSERT(  (IsSame<int,         IntAlignType  >::VALUE));
+        ASSERT(! (IsSame<ThisStruct,  ThisAlignType >::VALUE));
+        ASSERT(! (IsSame<ThatStruct,  ThatAlignType >::VALUE));
+        ASSERT(! (IsSame<OtherStruct, OtherAlignType>::VALUE));
+
+        ASSERT(sizeof(int)         >= sizeof(IntAlignType));
+        ASSERT(sizeof(ThisStruct)  >= sizeof(ThisAlignType));
+        ASSERT(sizeof(ThatStruct)  >= sizeof(ThatAlignType));
+        ASSERT(sizeof(OtherStruct) >= sizeof(OtherAlignType));
+
+        ASSERT(0 == sizeof(int)         % sizeof(IntAlignType));
+        ASSERT(0 == sizeof(ThisStruct)  % sizeof(ThisAlignType));
+        ASSERT(0 == sizeof(ThatStruct)  % sizeof(ThatAlignType));
+        ASSERT(0 == sizeof(OtherStruct) % sizeof(OtherAlignType));
+
+        ASSERT(INT_ALIGNMENT   == sizeof(IntAlignType));
+        ASSERT(THIS_ALIGNMENT  == sizeof(ThisAlignType));
+        ASSERT(THAT_ALIGNMENT  == sizeof(ThatAlignType));
+        ASSERT(OTHER_ALIGNMENT == sizeof(OtherAlignType));
+
+        ASSERT(oneBitSet(INT_TYPE_ALIGNMENT));
+        ASSERT(oneBitSet(THIS_TYPE_ALIGNMENT));
+        ASSERT(oneBitSet(THAT_TYPE_ALIGNMENT));
+        ASSERT(oneBitSet(OTHER_TYPE_ALIGNMENT));
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 1
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Usage Example 1\n"
+                             "===============\n";
+
+        enum {
+            INT_ALIGNMENT         = bsls::AlignmentImpCalc<int       >::VALUE,
+            MY_STRUCT_1_ALIGNMENT = bsls::AlignmentImpCalc<MyStruct_1>::VALUE
+        };
+
+        ASSERT(4 == sizeof(int));
+        ASSERT(4 == INT_ALIGNMENT);
+        ASSERT(4 == MY_STRUCT_1_ALIGNMENT);
+        ASSERT(0 == sizeof(MyStruct_1) % MY_STRUCT_1_ALIGNMENT);
+        ASSERT(sizeof(MyStruct_1) != MY_STRUCT_1_ALIGNMENT);
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // TESTING VARIOUS META-FUNCTIONS
@@ -224,7 +386,6 @@ int main(int argc, char *argv[])
             int EXP_S2_ALIGNMENT          = 4;
             int EXP_S3_ALIGNMENT          = 8;
             int EXP_S4_ALIGNMENT          = 2;
-            int EXP_S5_ALIGNMENT          = 8;
             int EXP_U1_ALIGNMENT          = 4;
 
 // Specializations for different architectures
@@ -232,6 +393,7 @@ int main(int argc, char *argv[])
  && defined(BSLS_PLATFORM__CPU_X86)
             EXP_INT64_ALIGNMENT           = 4;
             EXP_DOUBLE_ALIGNMENT          = 4;
+            int EXP_S5_ALIGNMENT          = 8;
 #ifdef BSLS_PLATFORM__OS_LINUX
             EXP_LONG_DOUBLE_ALIGNMENT     = 4;
 #else
