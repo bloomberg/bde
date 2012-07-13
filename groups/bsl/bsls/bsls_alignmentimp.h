@@ -74,12 +74,158 @@ BSLS_IDENT("$Id: $")
 // 'match' function.  The return value is mapped to a priority, which is, in
 // turn, mapped to an appropriate primitive type.
 //
-///Usage
-///-----
-// Since this component is not meant to be used directly by client code, a
-// usage example is not provided.  See 'bsls_alignmentfromtype' and
-// 'bsls_alignmenttotype' for examples of how to use the facilities provided by
-// this component.
+///Usage Example 1
+///---------------
+// First, we define a type we will want to take the alignment of.  'int's have
+// an alignment requirement of 4 bytes on all platforms we port to, and the
+// most alignment-demanding object in the class is an 'int', so we expect this
+// 'struct' to have an alignment requirement of 4 bytes.
+//..
+//  struct MyStruct {
+//      char  d_c;
+//      int   d_i;
+//      short d_s;
+//  };
+//..
+// Then, we use 'AlignmentImpCalc' to calculate the alignments of two
+// types, 'short' and the 'MyStruct' we just defined:
+//..
+//  enum {
+//      SHORT_ALIGNMENT     = bsls::AlignmentImpCalc<short   >::VALUE,
+//      MY_STRUCT_ALIGNMENT = bsls::AlignmentImpCalc<MyStruct>::VALUE
+//  };
+//..
+// Next, we observe the values of our alignments:
+//..
+//  assert(2 == SHORT_ALIGNMENT);
+//  assert(4 == MY_STRUCT_ALIGNMENT);
+//..
+// Now, we observe that the size of the 2 objects is a multiple of each
+// object's alignment.  This is true for all types.
+//..
+//  assert(0 == sizeof(short   ) % SHORT_ALIGNMENT);
+//  assert(0 == sizeof(MyStruct) % MY_STRUCT_ALIGNMENT);
+//..
+// Finally, we observe that the size of the 'struct' we defined is
+// larger than its alignment.
+//..
+//  assert(sizeof(MyStruct) > MY_STRUCT_ALIGNMENT);
+//..
+///Usage Example 2
+///---------------
+// First, we define 'ConvertAlignmentToType' a template class that will, given
+// an alignment, yield a type 'Type' that has both that alignment and a size
+// equal to that alignment.
+//..
+//  template <int ALIGNMENT>
+//  struct ConvertAlignmentToType {
+//      // This 'struct' provides a 'typedef', 'Type', that aliases a primitive
+//      // type having the specified 'ALIGNMENT' requirement.
+//..
+//    private:
+//      // PRIVATE TYPES
+//      typedef typename bsls::AlignmentImpMatch::MaxPriority MaxPriority;
+//      typedef          bsls::AlignmentImpTag<ALIGNMENT>     Tag;
+//..
+//      enum {
+//          // Compute the priority of the primitive type corresponding to the
+//          // specified 'ALIGNMENT'.  Many 'match' functions are declared, and
+//          // only one whose alignment and size fields are identical and equal
+//          // to 'ALIGNMENT'.
+//..
+//          PRIORITY = sizeof(bsls::AlignmentImpMatch::match(Tag(),
+//                                                           Tag(),
+//                                                           MaxPriority()))
+//      };
+//..
+//    public:
+//      // TYPES
+//      typedef typename bsls::AlignmentImpPriorityToType<PRIORITY>::Type Type;
+//          // Convert the 'PRIORITY' value we calculated back to a type which
+//          // has the value 'ALIGNMENT' for both its alignment and it's size.
+//  };
+//..
+// Then, we define a template 'IsSame' whose 'VALUE' enum returns 'true' if
+// two matching types are passed to it:
+//..
+//  template <class A, class B>
+//  struct IsSame {
+//      enum { VALUE = 0 };
+//  };
+//..
+//  template <class A>
+//  struct IsSame<A, A> {
+//      enum { VALUE = 1 };
+//  };
+//..
+// Next, we define a couple of types we might want to evaluate:
+//..
+//  struct ThisStruct {
+//      short  d_s;
+//      double d_d;
+//      int    d_i;
+//  };
+//..
+//  struct ThatStruct {
+//      double d_d[20];
+//  };
+//..
+// We will use the facilities in this component to evaluate a few
+// types: 'int', and 'ThisStruct' & 'ThatStruct' defined above.
+//
+// Then, we calculate alignments for our 3 types with
+// 'AlignmentImpCalc'.
+//..
+//  enum {
+//      INT_ALIGNMENT  = bsls::AlignmentImpCalc<int       >::VALUE,
+//      THIS_ALIGNMENT = bsls::AlignmentImpCalc<ThisStruct>::VALUE,
+//      THAT_ALIGNMENT = bsls::AlignmentImpCalc<ThatStruct>::VALUE };
+//..
+// Next, we use the 'ConvertAlignmentToType' we defined above to
+// convert those alignments to actual types.
+//..
+//  typedef ConvertAlignmentToType<INT_ALIGNMENT >::Type IntAlignType;
+//  typedef ConvertAlignmentToType<THIS_ALIGNMENT>::Type ThisAlignType;
+//  typedef ConvertAlignmentToType<THAT_ALIGNMENT>::Type ThatAlignType;
+//..
+// Then, we calculate alignments for these new '*AlignType's:
+//..
+//  enum {
+//      INT_TYPE_ALIGNMENT  =
+//                          bsls::AlignmentImpCalc<IntAlignType >::VALUE,
+//      THIS_TYPE_ALIGNMENT =
+//                          bsls::AlignmentImpCalc<ThisAlignType>::VALUE,
+//      THAT_TYPE_ALIGNMENT =
+//                          bsls::AlignmentImpCalc<ThatAlignType>::VALUE };
+//..
+// Next, we observe that the alignments of the '*AlignType's are the
+// same as the alignments of the types they are derived from:
+//..
+//  assert((int) INT_ALIGNMENT  == INT_TYPE_ALIGNMENT);
+//  assert((int) THIS_ALIGNMENT == THIS_TYPE_ALIGNMENT);
+//  assert((int) THAT_ALIGNMENT == THAT_TYPE_ALIGNMENT);
+//..
+// Then, we observe that the sizes of the '*AlignType's are the same as
+// their alignments:
+//..
+//  assert(INT_TYPE_ALIGNMENT  == sizeof(IntAlignType));
+//  assert(THIS_TYPE_ALIGNMENT == sizeof(ThisAlignType));
+//  assert(THAT_TYPE_ALIGNMENT == sizeof(ThatAlignType));
+//..
+// Now, we use our 'IsSame' template defined above to verify that
+// the '*AlignType's are not in all cases just the same as the original
+// types:
+//..
+//  assert(! (IsSame<ThisStruct, ThisAlignType >::VALUE));
+//  assert(! (IsSame<ThatStruct, ThatAlignType >::VALUE));
+//..
+// Finally, we observe that the size of the original type is always a
+// multiple of the size of the '*AlignType':
+//..
+//  assert(0 == sizeof(int)        % sizeof(IntAlignType));
+//  assert(0 == sizeof(ThisStruct) % sizeof(ThisAlignType));
+//  assert(0 == sizeof(ThatStruct) % sizeof(ThatAlignType));
+//..
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
@@ -152,17 +298,15 @@ struct AlignmentImpCalc {
                 // struct AlignmentImp8ByteAlignedType
                 // ===================================
 
+#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
 struct AlignmentImp8ByteAlignedType {
-# if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
     // On Linux x86, no natural type is aligned on an 8-byte boundary, but we
     // need such a type to implement low-level constructs (e.g., 64-bit atomic
     // types).
 
     long long d_dummy __attribute__((__aligned__(8)));
-# else
-    double d_dummy;
-# endif
 };
+#endif
 
                 // =================================
                 // struct AlignmentImpPriorityToType
@@ -234,10 +378,12 @@ struct AlignmentImpPriorityToType<12> {
     typedef char        Type;
 };
 
+#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
 template <>
 struct AlignmentImpPriorityToType<13> {
     typedef AlignmentImp8ByteAlignedType Type;
 };
+#endif
 
                 // ============================
                 // struct AlignmentImp_Priority
@@ -297,10 +443,15 @@ struct AlignmentImpMatch {
     static BSLS_ALIGNMENTIMP_MATCH_FUNC(int,                               10);
     static BSLS_ALIGNMENTIMP_MATCH_FUNC(short,                             11);
     static BSLS_ALIGNMENTIMP_MATCH_FUNC(char,                              12);
-    static BSLS_ALIGNMENTIMP_MATCH_FUNC(AlignmentImp8ByteAlignedType,      13);
         // This function will match a type with the size and alignment the size
         // of the type of the first macro argument, and return an object whose
         // size is the 2nd argument of the macro.
+
+# if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+        // This type only exists, and is only needed, on Linux
+
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(AlignmentImp8ByteAlignedType,      13);
+#endif
 
     typedef AlignmentImp_Priority<13> MaxPriority;
 };
