@@ -538,16 +538,16 @@ BSLS_IDENT("$Id: $")
 }
 
 #if !defined(BDE_BUILD_TARGET_EXC)
-// In non-exception enabled builds the is no way to safely use the ASSERT_FAIL
-// macros as they require installing an assert-handler that throws a specific
-// exception.  As ASSERT_FAIL negative tests require calling a method under
-// test with out-of-contract values, running those tests (without a
-// functioning assert-handler) would trigger undefined behavior with no
+// In non-exception enabled builds there is no way to safely use the
+// ASSERT_FAIL macros as they require installing an assert-handler that throws
+// a specific exception.  As ASSERT_FAIL negative tests require calling a
+// method under test with out-of-contract values, running those tests, without
+// a functioning assert-handler, would trigger undefined behavior with no
 // protection, so we choose to simple not execute the test calls that are
 // designed to fail by expanding the test macros to an empty statement, '{ }'.
 // All of the ASSERT_PASS macros are expanded however, as such tests call
-// methods with in-contract values, and they may still be needed to
-// guarantee stateful side-effects required by the test-driver.
+// methods with in-contract values, and they may still be needed to guarantee
+// stateful side-effects required by the test-driver.
 
 # define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
          { EXPRESSION_UNDER_TEST; }
