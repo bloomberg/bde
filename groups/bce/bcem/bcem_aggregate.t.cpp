@@ -1,7 +1,6 @@
 // bcem_aggregate.t.cpp                                               -*-C++-*-
 
 #include <bcem_aggregate.h>
-#include <bcem_aggregate.h>
 
 #include <bcema_sharedptr.h>
 
