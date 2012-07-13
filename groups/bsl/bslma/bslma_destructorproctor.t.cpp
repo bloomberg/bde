@@ -389,6 +389,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Usage Example Test" << endl
                           << "==================" << endl;
 
+#if !defined(BDE_BUILD_TARGET_EXC)
+        if (verbose) cout << "Test not run without exception support." << endl;
+#else
         bslma::TestAllocator z(veryVeryVerbose);
         const bslma::TestAllocator &Z = z;
 
@@ -474,7 +477,7 @@ int main(int argc, char *argv[])
         ASSERT(3 == counter1);
         ASSERT(2 == counter2);
         ASSERT(0 == z.numBytesInUse());
-
+#endif
       } break;
       case 5: {
         // --------------------------------------------------------------------

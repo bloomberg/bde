@@ -144,6 +144,11 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_ISTREAM
 #endif
 
+#ifndef INCLUDED_LIMITS
+#include <limits>
+#define INCLUDED_LIMITS
+#endif
+
 #ifndef INCLUDED_OSTREAM
 #include <ostream>  // for 'std::basic_ostream', 'sentry'
 #define INCLUDED_OSTREAM
@@ -4776,12 +4781,12 @@ operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&          os,
         ok = true;
         size_t n = str.size();
         size_t padLen = 0;
-        const bool left = (os.flags() & Ostrm::left) != 0;
-        const size_t w = os.width(0);
+        bool left = (os.flags() & Ostrm::left) != 0;
+        std::streamsize w = os.width(0);
         std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>* buf = os.rdbuf();
 
-        if (n < w) {
-            padLen = w - n;
+        if (w > 0 && size_t(w) > n) {
+            padLen = size_t(w) - n;
         }
 
         if (!left) {
@@ -4819,9 +4824,9 @@ operator>>(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
         const _C_type& ctype = std::use_facet<_C_type>(loc);
 
         str.clear();
-        size_t n = is.width(0);
-        if (n == 0) {
-            n = static_cast<size_t>(-1);
+        std::streamsize n = is.width(0);
+        if (n <= 0) {
+            n = std::numeric_limits<std::streamsize>::max();
         }
         else {
             str.reserve(n);

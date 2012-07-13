@@ -109,6 +109,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 4: {
+#if defined BDE_BUILD_TARGET_EXC
         // --------------------------------------------------------------------
         // Test usage example
         //
@@ -150,7 +151,12 @@ int main(int argc, char *argv[])
         ASSERT( 9 == __LINE__ - ex.lineNumber());
     }
 //..
-        } break;
+#else
+        if (verbose)
+            cout << "\nUsage example disabled without exception support."
+                 << endl;
+#endif
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // Test copy constructor
@@ -306,6 +312,9 @@ int main(int argc, char *argv[])
         LOOP2_ASSERT(filename, x.filename(), filename == x.filename());
         LOOP_ASSERT(x.lineNumber(), 42 == x.lineNumber());
 
+#if defined(BDE_BUILD_TARGET_EXC)
+        // This class is created for the express purpose of throwing as an
+        // exception, but this cannot be tested unless exceptions are enabled.
         if (verbose) cout << "\nThrow and catch a copy of x." << endl;
         try {
             throw x;
@@ -320,6 +329,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(x.lineNumber(), y.lineNumber(),
                          x.lineNumber() == y.lineNumber());
         }
+#endif
 
         if (verbose) cout << "\nConfirm that x has not changed." << endl;
         LOOP2_ASSERT(expression, x.expression(), expression == x.expression());
