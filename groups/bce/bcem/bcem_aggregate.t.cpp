@@ -4280,7 +4280,6 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(106 == mA2.field("i", 1).asInt());
         if (veryVerbose) P(A2);
 
-        // TBD: Change Raw to Aggregate
         if (verbose) tst::cout << "Testing bdeat_ArrayFunctions on TABLEs"
                                << bsl::endl;
         ASSERT(2 == AF::size(mA1.field("j").rawData()));
@@ -4494,7 +4493,6 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         bsl::cerr << berDecoder.loggedMessages();
         ASSERT(0 == status);
 
-        // TBD: use areEquivalent
         bsl::ostringstream A1str, A4str;
         A1str << A1;
         A4str << a4Ptr;
@@ -5426,52 +5424,51 @@ static void testCase28(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             { L_, ":aCb",                                    "0"   },
             { L_, ":aGcCb",                                  "1"   },
 
-// TBD: Uncomment
-//             { L_, ":*Gc :a+*0&FU",                           ""    }, // 2
-//             { L_, ":*FaGcMd :a+*0&FU",                       ""    }, // 2
-//             { L_, ":*Gc :aFa+*0&FUMd",                       ""    }, // 2
-//             { L_, ":*GcXe :aFa+*0&FUMd",                     ""    }, // 2
+            { L_, ":*Gc :a+*0&FU",                           ""    }, // 2
+            { L_, ":*FaGcMd :a+*0&FU",                       ""    }, // 2
+            { L_, ":*Gc :aFa+*0&FUMd",                       ""    }, // 2
+            { L_, ":*GcXe :aFa+*0&FUMd",                     ""    }, // 2
 
-//             { L_, ":*Cb :a+*0&FU",                           "00"  }, // 3
-//             { L_, ":*Cb :a+*0&FUFaMd",                       "00"  }, // 3
-//             { L_, ":*Cb :aFa+*0&FUMd",                       "10"  }, // 3
-//             { L_, ":*Cb :aFaMd+*0&FU",                       "20"  }, // 3
-//             { L_, ":*FaCbMd :a+*0&FU",                       "01"  }, // 3
-//             { L_, ":*CbXe :aFa+*0&FUMd",                     "10"  }, // 3
-//             { L_, ":*XeCb :aFa+*0&FUMd",                     "11"  }, // 3
+            { L_, ":*Cb :a+*0&FU",                           "00"  }, // 3
+            { L_, ":*Cb :a+*0&FUFaMd",                       "00"  }, // 3
+            { L_, ":*Cb :aFa+*0&FUMd",                       "10"  }, // 3
+            { L_, ":*Cb :aFaMd+*0&FU",                       "20"  }, // 3
+            { L_, ":*FaCbMd :a+*0&FU",                       "01"  }, // 3
+            { L_, ":*CbXe :aFa+*0&FUMd",                     "10"  }, // 3
+            { L_, ":*XeCb :aFa+*0&FUMd",                     "11"  }, // 3
 
-//             { L_, ":*Cb :*+*0&FU :a+*1&FU",                  "000" }, // 4
-//             { L_, ":*FaCbMd :*+*0&FU :a+*1&FU",              "001" }, // 4
-//             { L_, ":*Cb :*+*0&FU :aFa+*1&FUMd",              "100" }, // 4
-//             { L_, ":*Cb :*Fa+*0&FUMd :a+*1&FU",              "010" }, // 4
-//             { L_, ":*Gc :*Fa+*0&FUCb :a+*1&FU",              "02"  }, // 4
+            { L_, ":*Cb :*+*0&FU :a+*1&FU",                  "000" }, // 4
+            { L_, ":*FaCbMd :*+*0&FU :a+*1&FU",              "001" }, // 4
+            { L_, ":*Cb :*+*0&FU :aFa+*1&FUMd",              "100" }, // 4
+            { L_, ":*Cb :*Fa+*0&FUMd :a+*1&FU",              "010" }, // 4
+            { L_, ":*Gc :*Fa+*0&FUCb :a+*1&FU",              "02"  }, // 4
 
-//             { L_, ":aCb&FUD*",                               "0"   }, // 5
-//             { L_, ":*Cb :aG*&FU+*0&FU",                      "10"  }, // 5
-//             { L_, ":*Cb :aG*&FU+*0&FUDb",                    "2"   }, // 5
-//             { L_, ":*Cb :aCb&FU+*0&FU",                      "0"   }, // 5
+            { L_, ":aCb&FUD*",                               "0"   }, // 5
+            { L_, ":*Cb :aG*&FU+*0&FU",                      "10"  }, // 5
+            { L_, ":*Cb :aG*&FU+*0&FUDb",                    "2"   }, // 5
+            { L_, ":*Cb :aCb&FU+*0&FU",                      "0"   }, // 5
 
-//             { L_, ":*Cg :*?Gc :*?Ad :a+*0&FUBf%*1&FU%*2&FU", ""    }, // 2,6
+            { L_, ":*Cg :*?Gc :*?Ad :a+*0&FUBf%*1&FU%*2&FU", ""    }, // 2,6
 
-//             { L_, ":*Cb :*?Gc :*?Ad :a+*0&FUBf%*1&FU%*2&FU", "00"  }, // 3,6
-//             { L_, ":*Gc :*?Cb :*?Ad :a+*0&FUBf%*1&FU%*2&FU", "20"  }, // 3,6
-//             { L_, ":*Ad :*?Gc :*?Cb :a+*0&FUBf%*1&FU%*2&FU", "30"  }, // 3,6
+            { L_, ":*Cb :*?Gc :*?Ad :a+*0&FUBf%*1&FU%*2&FU", "00"  }, // 3,6
+            { L_, ":*Gc :*?Cb :*?Ad :a+*0&FUBf%*1&FU%*2&FU", "20"  }, // 3,6
+            { L_, ":*Ad :*?Gc :*?Cb :a+*0&FUBf%*1&FU%*2&FU", "30"  }, // 3,6
 
-//             { L_, ":*Cb :*?Gc :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
-//                   ":a+*3&FU",                                "000" }, // 4,6
-//             { L_, ":*Gc :*?Cb :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
-//                   ":a+*3&FU",                                "020" }, // 4,6
-//             { L_, ":*Ad :*?Gc :*?Cb :*+*0&FUBf%*1&FU%*2&FU"
-//                   ":a+*3&FU",                                "030" }, // 4,6
-//             { L_, ":*Cg :*?Gc :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
-//                   ":a+*3&FU",                                ""    }, // 4,6
+            { L_, ":*Cb :*?Gc :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
+                  ":a+*3&FU",                                "000" }, // 4,6
+            { L_, ":*Gc :*?Cb :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
+                  ":a+*3&FU",                                "020" }, // 4,6
+            { L_, ":*Ad :*?Gc :*?Cb :*+*0&FUBf%*1&FU%*2&FU"
+                  ":a+*3&FU",                                "030" }, // 4,6
+            { L_, ":*Cg :*?Gc :*?Ad :*+*0&FUBf%*1&FU%*2&FU"
+                  ":a+*3&FU",                                ""    }, // 4,6
 
-//             { L_, ":*?Gc :a%*0&FU",                          ""    }, // 2,7
-//             { L_, ":*?Cb :aFa%*0&FUMd",                      "10"  }, // 3,7
-//             { L_, ":*Cb :*+*0&FU :a+*1&FU",                  "000" }, // 4,7
-//             { L_, ":*?Cb :*%*0&FU :a+*1&FU",                 "000" }, // 4,7
-//             { L_, ":*Cb :*?+*0&FU :a%*1&FU",                 "000" }, // 4,7
-//             { L_, ":*?Cb :aG*&FU%*0&FU",                     "10"  }, // 5,7
+            { L_, ":*?Gc :a%*0&FU",                          ""    }, // 2,7
+            { L_, ":*?Cb :aFa%*0&FUMd",                      "10"  }, // 3,7
+            { L_, ":*Cb :*+*0&FU :a+*1&FU",                  "000" }, // 4,7
+            { L_, ":*?Cb :*%*0&FU :a+*1&FU",                 "000" }, // 4,7
+            { L_, ":*Cb :*?+*0&FU :a%*1&FU",                 "000" }, // 4,7
+            { L_, ":*?Cb :aG*&FU%*0&FU",                     "10"  }, // 5,7
 
         };
         const int DATA_SIZE = sizeof DATA / sizeof *DATA;
@@ -5646,7 +5643,7 @@ static void testCase28(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             // selectorIndex(), selectorId(), selector(), numSelections,
             // selection():
             int selectorIndex = theAgg.selectorIndex();
-            LOOP2_ASSERT(expSelectorIndex, selectorIndex,
+            LOOP3_ASSERT(LINE, expSelectorIndex, selectorIndex,
                          expSelectorIndex == selectorIndex);
             if (veryVerbose && expSelectorIndex != selectorIndex) {
                 tst::cout << "theAgg=" << theAgg << bsl::endl;
@@ -7102,7 +7099,6 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(0 == status);
 
 
-        // TBD: use areEquivalent
         bsl::ostringstream A1str, A4str;
         A1str << A1;
         A4str << A4;
@@ -8213,9 +8209,6 @@ static void testCase19(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 mY.makeSelection(fldName.c_str());
 
                 LOOP2_ASSERT(LINE, Y, !Y.isNul2());
-                // TBD: Uncomment
-//                 LOOP4_ASSERT(LINE, IS_NULL, Y, Y.field(fldName),
-//                              IS_NULL == Y.field(fldName).isNul2());
                 if (ET::isScalarType(TYPE)) {
                     if (FIELD_DEF.defaultValue().isNull()) {
                         ASSERT(isUnset(mY.fieldRef(fldName.c_str())));
@@ -15731,7 +15724,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 // Test error conditions and output
 
                 // Test with an index value
-// TBD                ASSERT_AGG_ERROR(mX.setField(0, CEA), BCEM_ERR_TBD);
+                ASSERT_AGG_ERROR(mX.setField(0, CEA), BCEM_ERR_TBD);
 
                 // Test with invalid field name
                 const char *errFldName = "ErrorField";
@@ -16015,7 +16008,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 ASSERT_AGG_ERROR(mY.setField(LEN, CEA), BCEM_ERR_TBD);
 
-// TBD                ASSERT_AGG_ERROR(mY.setField(-1, CEA), BCEM_ERR_TBD);
+                ASSERT_AGG_ERROR(mY.setField(-1, CEA), BCEM_ERR_TBD);
             }
         }
 
@@ -17244,8 +17237,6 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             agg1.makeSelectionById(0);
             ASSERT(streq("NameSelection", agg1.selector()));
             ASSERT(0 == agg1.selectorId());
-            // TBD:
-//             ASSERT(agg1.selection().isNul2());
             agg1.setField("", "pizza");
             ASSERT("pizza" == agg1.selection().asString());
             ASSERT("pizza" == agg1.field("NameSelection").asString());

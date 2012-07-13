@@ -6216,9 +6216,6 @@ int main(int argc, char *argv[])
                 Obj mB;  const Obj& B = mB;
                 mX.getField(&mA, &err, false, fldName);
 
-// TBD: Uncomment
-//                 LOOP2_ASSERT(LINE, IS_NULL, IS_NULL != A.isNull());
-
                 if (RecDef::BDEM_CHOICE_RECORD == RECORD->recordType()) {
                     mX.makeSelection(&mA, &err, fldName);
                     mY.makeSelection(&mB, &err, fldName);
@@ -7546,9 +7543,6 @@ int main(int argc, char *argv[])
                 ASSERT(!rc);
 
                 LOOP2_ASSERT(LINE, Y, !Y.isNull());
-                // TBD: Uncomment
-//                 LOOP4_ASSERT(LINE, IS_NULL, Y, Y.field(fldName),
-//                              IS_NULL == Y.field(fldName).isNul2());
                 if (ET::isScalarType(TYPE)) {
                     if (FIELD_DEF.defaultValue().isNull()) {
                         ASSERT(isUnset(mA.asElemRef()));
@@ -9499,8 +9493,6 @@ int main(int argc, char *argv[])
             }
         }
 
-// TBD: Uncomment
-#if 0
         if (veryVerbose) cout << bsl::endl
                               << "\n\tTest aggregate values" << bsl::endl;
         {
@@ -9571,12 +9563,14 @@ int main(int argc, char *argv[])
                     mX.setDataPointer(&list);
                     mX.setTopLevelAggregateNullnessPointer(&nf1);
                     mX.setSchemaPointer(&s);
+                    mX.setRecordDefPointer(&r);
 
                     Obj mY; const Obj& Y = mY;
                     mY.setDataType(ET::BDEM_TABLE);
                     mY.setDataPointer(&table);
                     mY.setTopLevelAggregateNullnessPointer(&nf2);
-                    mX.setSchemaPointer(&s);
+                    mY.setSchemaPointer(&s);
+                    mY.setRecordDefPointer(&r);
 
                     if (veryVerbose) { T_ P(X) P(Y) };
 
@@ -9644,12 +9638,14 @@ int main(int argc, char *argv[])
                     mX.setDataPointer(&choice);
                     mX.setTopLevelAggregateNullnessPointer(&nf1);
                     mX.setSchemaPointer(&s);
+                    mX.setRecordDefPointer(&r);
 
                     Obj mY; const Obj& Y = mY;
                     mY.setDataType(ET::BDEM_CHOICE_ARRAY);
                     mY.setDataPointer(&choiceArray);
                     mY.setTopLevelAggregateNullnessPointer(&nf2);
-                    mX.setSchemaPointer(&s);
+                    mY.setSchemaPointer(&s);
+                    mY.setRecordDefPointer(&r);
 
                     if (veryVerbose) { T_ P(X) P(Y) };
 
@@ -9706,7 +9702,6 @@ int main(int argc, char *argv[])
                }
            }
         }
-#endif
       } break;
       case 8: {
         // --------------------------------------------------------------------

@@ -1458,18 +1458,17 @@ bcem_AggregateRaw::findUnambiguousChoice(bcem_AggregateRaw   *choiceObject,
     } while (0 == rc &&
              bdem_ElemType::BDEM_CHOICE != choiceObject->dataType());
 
-    switch (rc) {
-      case 0: {
+    if (!rc) {
         return 0;                                                     // RETURN
-      } break;
+    }
+
+    switch (errorDescription->code()) {
       case bcem_AggregateError::BCEM_ERR_AMBIGUOUS_ANON: {
         bsl::ostringstream oss;
         oss << caller
             << " called for object with multiple anonymous fields.  "
             << "Cannot pick one.";
         errorDescription->description() = oss.str();
-        errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_AMBIGUOUS_ANON;
       } break;
       default: {
         bsl::ostringstream oss;
