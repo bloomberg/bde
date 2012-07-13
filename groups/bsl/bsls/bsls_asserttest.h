@@ -538,15 +538,17 @@ BSLS_IDENT("$Id: $")
 }
 
 #if !defined(BDE_BUILD_TARGET_EXC)
-// If exceptions are not enabled, all of the ASSERT_PASS tests must run, in
-// order to guarantee any stateful side-effects required by the test driver.
-// However, there is no way to validate the ASSERT_FAIL macros as that
-// requires installing an assert-handler that throws a specific exception.
-// As ASSERT_FAIL negative tests require calling the contract under test
-// with out-of-contract values, running those tests would invoke undefined
-// behavior with no protection, so we choose to simple not execute the test
-// calls designed to fail by expanding the test macros to an empty statement,
-// '{ }'.
+// In non-exception enabled builds the is no way to safely use the ASSERT_FAIL
+// macros as they require installing an assert-handler that throws a specific
+// exception.  As ASSERT_FAIL negative tests require calling a method under
+// test with out-of-contract values, running those tests (without a
+// functioning assert-handler) would trigger undefined behavior with no
+// protection, so we choose to simple not execute the test calls that are
+// designed to fail by expanding the test macros to an empty statement, '{ }'.
+// All of the ASSERT_PASS macros are expanded however, as such tests call
+// methods with in-contract values, and they may still be needed to
+// guarantee stateful side-effects required by the test-driver.
+
 # define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
          { EXPRESSION_UNDER_TEST; }
 
@@ -633,6 +635,9 @@ BSLS_IDENT("$Id: $")
 }
 
 #if defined(BSLS_PLATFORM__CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT)
+// The following MSVC specific work-around avoids compilation issues with
+// MSVC optimized builds.
+
 # define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST) \
          { EXPRESSION_UNDER_TEST; }
 
