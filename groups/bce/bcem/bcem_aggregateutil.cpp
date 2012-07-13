@@ -1896,11 +1896,17 @@ int toAggregatePrimitiveImp(
         return 0;
     }
 
-    bcem_AggregateRaw dummy;
-    field.removeItems(&error, 0, field.length());
+    bcem_AggregateRaw item;
+    field.resize(&error, value.size());
 
-    for (ConstIter it = value.begin(); it != value.end(); ++it) {
-        if (0 != field.insertItem(&dummy, &error, field.length(), *it))
+    int i = 0;
+    for (ConstIter it = value.begin(); it != value.end(); ++it, ++i) {
+        if (0 != field.getField(&item, &error, true, i))
+        {
+            return error.code();
+        }
+
+        if (0 != item.setValue(&error, *it))
         {
             return error.code();
         }
@@ -2075,12 +2081,15 @@ int toAggregatePrimitiveImp(
     typedef typename bsl::vector< bdeut_NullableValue<PRIMITIVE_TYPE>
                                 >::const_iterator ConstIter;
 
-    field.removeItems(&error, 0, field.length());
+    field.resize(&error, value.size());
 
-    for (ConstIter it = value.begin(); it != value.end(); ++it) {
-        if (0 != field.insertNullItem(&item, &error, field.length())) {
+    int i = 0;
+    for (ConstIter it = value.begin(); it != value.end(); ++it, ++i) {
+        if (0 != field.getField(&item, &error, true, i))
+        {
             return error.code();
         }
+
         if (it->isNull()) {
             item.makeNull();
         }
@@ -2262,12 +2271,15 @@ int toAggregatePrimitiveImp(
     typedef typename bsl::vector< bdeut_NullableAllocatedValue<PRIMITIVE_TYPE>
                                 >::const_iterator ConstIter;
 
-    field.removeItems(&error, 0, field.length());
+    field.resize(&error, value.size());
 
-    for (ConstIter it = value.begin(); it != value.end(); ++it) {
-        if (0 != field.insertNullItem(&item, &error, field.length())) {
+    int i = 0;
+    for (ConstIter it = value.begin(); it != value.end(); ++it, ++i) {
+        if (0 != field.getField(&item, &error, true, i))
+        {
             return error.code();
         }
+
         if (it->isNull()) {
             item.makeNull();
         }
