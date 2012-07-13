@@ -277,9 +277,11 @@ struct AlignmentImpCalc {
         // NOT IMPLEMENTED
         AlignmentCalc();
         AlignmentCalc(const AlignmentCalc&);
+        ~AlignmentCalc();
             // Prevent the compiler from automatically generating
-            // default & copy constructors, as this could cause problems if
-            // 'TYPE' has constructors that are private or unimplmented.
+            // default & copy constructors and destructor, as this could cause
+            // problems if 'TYPE' has constructors / destructor that are
+            // private or unimplmented.
     };
 
   public:
