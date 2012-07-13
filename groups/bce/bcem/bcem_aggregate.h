@@ -927,14 +927,16 @@ class bcem_Aggregate {
     bcem_Aggregate(const bdem_ElemType::Type  dataType,
                    const VALTYPE&             value,
                    bslma_Allocator           *basicAllocator = 0);
-        // Create an aggregate representing a value of the type specified
-        // in 'dataType' and initialize it to the specified 'value'.  If
-        // 'dataType' is a 'bdem' aggregate type, then the constructed object
-        // will be unconstrained, i.e., it will have no record definition and
-        // therefore no by-name or by-ID field access.  The constructed
-        // aggregate will be in an error state if 'value' is not convertible
-        // to the type specified by 'dataType'.  (See "Extended Type
-        // Conversions" and "Error Handling" in the 'bcem_Aggregate'
+        // Create an aggregate representing a value of the type specified in
+        // 'dataType' and initialize it to the specified 'value'.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  If 'dataType' is a 'bdem' aggregate type, then the
+        // constructed object will be unconstrained, i.e., it will have no
+        // record definition and therefore no by-name or by-ID field access.
+        // The constructed aggregate will be in an error state if 'value' is
+        // not convertible to the type specified by 'dataType'.  (See "Extended
+        // Type Conversions" and "Error Handling" in the 'bcem_Aggregate'
         // component-level documentation for a detailed definition of "is
         // convertible".)  Note that after construction, 'isNul2()' returns
         // 'false'.
@@ -954,9 +956,11 @@ class bcem_Aggregate {
     explicit bcem_Aggregate(
         const bcema_SharedPtr<bdem_RecordDef>&        recordDefPtr,
         bslma_Allocator                              *basicAllocator = 0);
-        // Create an aggregate containing a list or choice object
-        // structured according to the record definition pointed to by the
-        // specified 'recordDefPtr'.  If
+        // Create an aggregate containing a list or choice object structured
+        // according to the record definition pointed to by the specified
+        // 'recordDefPtr'.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  If
         // 'BDEM_SEQUENCE_RECORD == recordDefPtr->recordType()', create a
         // sequence (list) of fields, each initialized with its default value
         // (recursively for constrained list elements).  If
@@ -965,8 +969,8 @@ class bcem_Aggregate {
         // Values" in the 'bcem_Aggregate' component-level documentation for a
         // more complete description of default values.)  The new aggregate
         // retains a reference to the shared record definition.  The behavior
-        // is undefined if any part of the record definition's parent schema
-        // is modified during the lifetime of this aggregate.  Note that after
+        // is undefined if any part of the record definition's parent schema is
+        // modified during the lifetime of this aggregate.  Note that after
         // construction, 'isNul2()' returns 'false'.
 
     bcem_Aggregate(
@@ -979,25 +983,26 @@ class bcem_Aggregate {
         bslma_Allocator                              *basicAllocator = 0);
         // Create an aggregate containing a list, table, choice, or
         // choice-array object structured according to the record definition
-        // specified by 'recordDefPtr'.  The new aggregate retains a
-        // reference to the shared record definition.  If 'elemType' is
-        // 'LIST', initialize each element of the list according to its
-        // default value (recursively for constrained lists and choices).  If
-        // 'elemType' is 'CHOICE', initialize the choice object to have no
-        // current selection.  If 'elemType' is 'TABLE' or 'CHOICE_ARRAY',
-        // initialize the object to have no rows or items.  (See "Null Values
-        // and Default Values" in the 'bcem_Aggregate' component-level
-        // documentation for a more complete description of default values.)
-        // The constructed aggregate will be in an error state (see "Error
-        // Handling" in the 'bcem_Aggregate' component-level documentation)
-        // unless 'elemType' is 'LIST', 'TABLE', 'CHOICE', or 'CHOICE_ARRAY'
-        // and 'recordDefPtr->recordType()' is 'BDEM_SEQUENCE_RECORD' for an
-        // 'elemType' of 'LIST' or 'TABLE' and 'recordDefPtr->recordType()' is
-        // 'BDEM_CHOICE_RECORD' for an 'elemType' of 'CHOICE' or
-        // 'CHOICE_ARRAY'.  The behavior is undefined if any part of the
-        // record definition's parent schema is modified during the lifetime
-        // of this aggregate.  Note that after construction, 'isNul2()' returns
-        // 'false'.
+        // specified by 'recordDefPtr'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.  The new aggregate retains a
+        // reference to the shared record definition.  If 'elemType' is 'LIST',
+        // initialize each element of the list according to its default value
+        // (recursively for constrained lists and choices).  If 'elemType' is
+        // 'CHOICE', initialize the choice object to have no current selection.
+        // If 'elemType' is 'TABLE' or 'CHOICE_ARRAY', initialize the object to
+        // have no rows or items.  (See "Null Values and Default Values" in the
+        // 'bcem_Aggregate' component-level documentation for a more complete
+        // description of default values.)  The constructed aggregate will be
+        // in an error state (see "Error Handling" in the 'bcem_Aggregate'
+        // component-level documentation) unless 'elemType' is 'LIST', 'TABLE',
+        // 'CHOICE', or 'CHOICE_ARRAY' and 'recordDefPtr->recordType()' is
+        // 'BDEM_SEQUENCE_RECORD' for an 'elemType' of 'LIST' or 'TABLE' and
+        // 'recordDefPtr->recordType()' is 'BDEM_CHOICE_RECORD' for an
+        // 'elemType' of 'CHOICE' or 'CHOICE_ARRAY'.  The behavior is undefined
+        // if any part of the record definition's parent schema is modified
+        // during the lifetime of this aggregate.  Note that after
+        // construction, 'isNul2()' returns 'false'.
 
     bcem_Aggregate(
  const bcema_SharedPtr<const bdem_Schema>& schemaPtr,
@@ -1012,10 +1017,12 @@ class bcem_Aggregate {
         // Create an aggregate containing a list, table, choice, or
         // choice-array object structured according to the record definition
         // identified by the specified 'recordName' within the schema pointed
-        // to by specified 'schemaPtr'.  The new aggregate retains a reference
-        // to the shared record definition.  If the specified 'elemType' is
-        // 'VOID', then the element type is set to 'LIST' or 'CHOICE',
-        // depending on whether the referenced record definition is a
+        // to by specified 'schemaPtr'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.  The new aggregate retains a
+        // reference to the shared record definition.  If the specified
+        // 'elemType' is 'VOID', then the element type is set to 'LIST' or
+        // 'CHOICE', depending on whether the referenced record definition is a
         // 'BDEM_SEQUENCE_RECORD' or 'BDEM_CHOICE_RECORD', respectively.  If
         // the element type is 'LIST', each element of the list is initialized
         // according to its default value (recursively for constrained lists
@@ -1032,8 +1039,8 @@ class bcem_Aggregate {
         // 'BDEM_SEQUENCE_RECORD' for an element type of 'LIST' or 'TABLE' and
         // 'schemaPtr->lookupRecord(recordName)->recordType()' is
         // 'BDEM_CHOICE_RECORD' for an element type of 'CHOICE' or
-        // 'CHOICE_ARRAY'.  The behavior is undefined if the schema is
-        // modified during the lifetime of this aggregate.  Note that after
+        // 'CHOICE_ARRAY'.  The behavior is undefined if the schema is modified
+        // during the lifetime of this aggregate.  Note that after
         // construction, 'isNul2()' returns 'false'.
 
     bcem_Aggregate(const bcem_Aggregate& original);
@@ -1066,6 +1073,10 @@ class bcem_Aggregate {
         // error aggregate, then this aggregate will be assigned the same
         // error state.
 
+    bcem_AggregateRaw& rawData();
+        // Return a reference to the modifiable non-reference-counted portion
+        // of this aggregate.
+
     const bcem_Aggregate reserveRaw(bsl::size_t numItems);
         // Reserve sufficient memory for at least the specified 'numItems' if
         // this aggregate references a scalar or choice array, or reserve
@@ -1084,10 +1095,6 @@ class bcem_Aggregate {
         // data (possibly causing them to be destroyed).  This aggregate will
         // never be in an error state after a call to 'reset'.  After the
         // function call, 'isNul2()' returns 'true'.
-
-    bcem_AggregateRaw& rawData();
-        // Return a reference to the modifiable non-reference-counted portion
-        // of this aggregate.
 
     // REFERENCED-VALUE MANIPULATORS
 
