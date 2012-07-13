@@ -34,6 +34,8 @@
 #include <bsls_platform.h>                      // for testing only
 #include <bsls_platformutil.h>                  // for testing only
 
+#include <bslstl_stringref.h>
+
 #include <bsl_iostream.h>
 #include <bsl_fstream.h>
 #include <bsl_map.h>

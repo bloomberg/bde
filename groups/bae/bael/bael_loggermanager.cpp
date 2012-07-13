@@ -37,6 +37,8 @@ BDES_IDENT_RCSID(bael_loggermanager_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_platformutil.h>
 
+#include <bslstl_stringref.h>
+
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_new.h>            // placement 'new' syntax

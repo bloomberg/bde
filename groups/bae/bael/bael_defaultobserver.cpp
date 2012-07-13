@@ -15,6 +15,8 @@ BDES_IDENT_RCSID(bael_defaultobserver_cpp,"$Id$ $CSID$")
 
 #include <bsl_ostream.h>
 
+#include <bslstl_stringref.h>
+
 namespace BloombergLP {
 
                            // --------------------------

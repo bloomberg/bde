@@ -25,6 +25,8 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bslstl_stringref.h>
+
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
 #include <bsl_c_stdlib.h>
 #include <bsl_c_stdio.h>   // for 'snprintf'
@@ -249,42 +251,25 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                 // The terminating '\0' of string reference is not written
                 // if it exists.
 
-                output.append(str, (!length || '\0' != str[length - 1]) 
+                output.append(str, (!length || '\0' != str[length - 1])
                                                                  ? length
                                                                  : length - 1);
               } break;
               case 'x': {
                 bsl::stringstream ss;
-                bslstl_StringRef message = fixedFields.messageRef();
-                int length = message.length();
-                const char *str = message.data();
-
-                // The terminating '\0' of string reference is not written
-                // if it exists.
-
+                int length = fixedFields.messageStreamBuf().length();
                 bdeu_Print::printString(ss,
-                                        str,
-                                        (!length || '\0' != str[length - 1]) 
-                                                                  ? length
-                                                                  : length - 1,
+                                        fixedFields.message(),
+                                        length,
                                         false);
                 output += ss.str();
               } break;
               case 'X': {
                 bsl::stringstream ss;
-                bslstl_StringRef message = fixedFields.messageRef();
-                int length = message.length();
-                const char *str = message.data();
-
-                // The terminating '\0' of string reference is not written
-                // if it exists.
-
+                int length = fixedFields.messageStreamBuf().length();
                 bdeu_Print::singleLineHexDump(ss,
-                                              str,
-                                              (!length
-                                               || '\0' != str[length - 1]) 
-                                                                 ? length
-                                                                 : length - 1);
+                                              fixedFields.message(),
+                                              length);
                 output += ss.str();
               } break;
               case 'u': {

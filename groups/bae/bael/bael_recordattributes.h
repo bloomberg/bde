@@ -198,6 +198,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_STRINGREF
+#include <bslstl_stringref.h>
+#endif
+
 namespace BloombergLP {
 
 class bslma_Allocator;
