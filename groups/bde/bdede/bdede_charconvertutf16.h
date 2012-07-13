@@ -57,6 +57,17 @@ BDES_IDENT("$Id: $")
 // terminated.  Note that the null is implicit in the 'string' and 'wstring'
 // cases.
 //
+///WSTRINGS and UTF-16
+///-------------------
+// UTF-16 (or UTF-8, for that matter) can be stored in 'wstring's, but note
+// that the size of a 'wstring::value_type', also known as 'wchar_t', varies
+// across differently platforms -- it is 4 bytes on Solaris, Linux, HPUX, and
+// Darwin, and 2 bytes on AIX and Windows.  So a file of 'wchar_t' written by
+// one platform may not be readable by another.  Byte order is also a
+// consideration.  Another factor is that, since UTF-16 words all fit in 2
+// bytes, using 'wchar_t' to store UTF-16 is very wasteful of space on many
+// platforms.
+//
 ///Usage
 ///-----
 // The following snippets of code illustrate a typical use of the
