@@ -5,10 +5,12 @@
 #include <bslalg_typetraits.h>                          // for testing only
 #include <bslalg_typetraitbitwiseequalitycomparable.h>  // for testing only
 
+#include <bslma_default.h>
 #include <bslma_testallocator.h>
 #include <bsls_types.h>
 #include <bsls_stopwatch.h>
 
+#include <new> // placement 'new'
 #include <cstdio>
 #include <cstdlib>
 #include <cctype>
@@ -149,33 +151,83 @@ typedef bsls::Types::Uint64    Uint64;
 typedef bslalg::RangeCompare   Obj;
 
                         // =======================
-                        // class FixedCapacityList
+                        // struct ScalarPrimitives
                         // =======================
 
-template <class VALUE_TYPE, std::size_t CAPACITY>
-class FixedCapacityList {
-    // This class implements a fixed-capacity list of objects of the given
-    // VALUE_TYPE, which must provide value semantics.  The list capacity,
-    // defined by CAPACITY, is constant and set at compile time.
-    // Note that the result of any attempt to append elements beyond that
-    // capacity is undefined.  Also note that the functionality of this
-    // class has been intentionally stripped down in order to make it as
-    // simple as possible.  It is intended only for use as a support class
-    // in usage examples that require the existence of a container class.
+struct ScalarPrimitives
+{
+  public:
+      template <typename TARGET_TYPE>
+      static void copyConstruct(TARGET_TYPE        *address,
+                                const TARGET_TYPE&  original,
+                                bslma::Allocator   *allocator);
+        // Build an object of the parameterized 'TARGET_TYPE' from the
+        // specified 'original' object of the same 'TARGET_TYPE' in the
+        // uninitialized memory at the specified 'address', as if by using the
+        // copy constructor of 'TARGET_TYPE'.  If the constructor throws, the
+        // 'address' is left in an uninitialized state.
+
+      template <typename TARGET_TYPE>
+      static void destroy(TARGET_TYPE *object);
+        // Destroy the specified 'object' of the parameterized 'TARGET_TYPE',
+        // as if by calling the 'TARGET_TYPE' destructor, but do not deallocate
+        // the memory occupied by 'object'.  Note that the destructor may
+        // deallocate other memory owned by 'object'.
+};
+
+template <typename TARGET_TYPE>
+void ScalarPrimitives::copyConstruct(TARGET_TYPE               *address,
+                                            const TARGET_TYPE&  original,
+                                            bslma::Allocator   *allocator)
+{
+    new (address) TARGET_TYPE(original, allocator);
+}
+
+template <>
+void ScalarPrimitives::copyConstruct<int>(int              *address,
+                                          const int&        original,
+                                          bslma::Allocator *allocator)
+{
+    (void) allocator;
+    *address = original;
+}
+
+template <typename TARGET_TYPE>
+void ScalarPrimitives::destroy(TARGET_TYPE *object)
+{
+    object->~TARGET_TYPE();
+}
+
+template <>
+void ScalarPrimitives::destroy<int>(int *object)
+{
+    (void) object;
+}
+
+
+
+                        // =================
+                        // class MyContainer
+                        // =================
+
+template <class VALUE_TYPE>
+class MyContainer {
+    // This class implements a container, semantically similar to
+    // std::vector, holding objects of the given 'VALUE_TYPE',
+    // which must provide value semantics.
 
   private:
     // DATA
-    std::size_t d_length;               // number of elements in the
-                                        // container
+    std::size_t       d_size;
+    std::size_t       d_capacity;
+    VALUE_TYPE       *d_start_p;
+    bslma::Allocator *d_allocator_p;
 
-    VALUE_TYPE  d_storage_p[CAPACITY];  // array of contained elements
+    // NOT IMPLEMENTED
+    MyContainer(const MyContainer& other);
+    MyContainer& operator=(const MyContainer& other);
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(FixedCapacityList,
-                   BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
-        // Declare nested type traits for this class.
-
     // PUBLIC TYPES
     typedef VALUE_TYPE const *ConstIterator;
         // This 'typedef' provides an alias for the type of iterator
@@ -183,76 +235,293 @@ class FixedCapacityList {
         // container.
 
     // CREATORS
-    FixedCapacityList();
-        // Initialize this object as an empty list.
+    explicit MyContainer(bslma::Allocator *basicAllocator = 0);
+        // Initialize this object as an empty container with zero capacity.
+
+    MyContainer(std::size_t capacity, bslma::Allocator *basicAllocator = 0);
+    	// Initialize this object as an empty container 
+	// with the given capacity
+
+    ~MyContainer();
 
     // MANIPULATORS
-    ~FixedCapacityList();
-        // Destroy this object.
-    void append(const VALUE_TYPE& value);
-        // Append the specified 'value' to the end of this container.
-        // If d_length >= CAPACITY, behavior is undefined.
+    void reserve(std::size_t newCapacity);
+        // Change the capacity of this vector to the specified 'newCapacity'.
+        // Note that the capacity of a vector is the maximum number of elements
+        // it can accommodate without reallocation.  The actual storage
+        // allocated may be higher.
+
+    void push_back(const VALUE_TYPE& value);
+        // Add the specified value at the past-the-end position in this 
+        // container, increasing the container's capacity if needed.
+
+    // ...
 
     // ACCESSORS
     ConstIterator begin() const;
-        // Return an iterator providing non-modifiable access to first
+        // Return an iterator providing non-modifiable access to the first
         // element in this container.
+
     ConstIterator end() const;
-        // Return an iterator providing non-modifiable access to
+        // Return an iterator providing non-modifiable access to the
         // past-the-end element in this container.
-    std::size_t length() const;
-        // Return the number of elements stored in the list.
+
+    std::size_t size() const;
+        // Return the number of elements in this container.
+
+    // ...
 };
 
 // CREATORS
-template <class VALUE_TYPE, std::size_t CAPACITY>
-FixedCapacityList<VALUE_TYPE, CAPACITY>::FixedCapacityList()
-    : d_length(0)
+template <class VALUE_TYPE>
+MyContainer<VALUE_TYPE>::MyContainer(bslma::Allocator *basicAllocator)
+    : d_size(0)
+    , d_capacity(0)
+    , d_start_p(0)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT(CAPACITY > 0);
+    BSLS_ASSERT(d_allocator_p);
+}
+
+template <class VALUE_TYPE>
+MyContainer<VALUE_TYPE>::MyContainer(std::size_t capacity, 
+                                     bslma::Allocator *basicAllocator)
+    : d_size(0)
+    , d_capacity(0)
+    , d_start_p(0)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+        BSLS_ASSERT(d_allocator_p);
+        d_start_p = 
+            (VALUE_TYPE *) d_allocator_p->allocate(capacity * sizeof *d_start_p);
+        BSLS_ASSERT(d_start_p);
+        d_capacity = capacity;
+}
+
+template <class VALUE_TYPE>
+MyContainer<VALUE_TYPE>::~MyContainer()
+{
+    if (d_start_p) {
+        while (d_size > 0) {
+            ScalarPrimitives::destroy<VALUE_TYPE>(&d_start_p[d_size - 1]);
+            --d_size;
+        }
+        BSLS_ASSERT(0 == d_size);
+        d_allocator_p->deallocate(d_start_p);
+    }
 }
 
 // MANIPULATORS
-template <class VALUE_TYPE, std::size_t CAPACITY>
-FixedCapacityList<VALUE_TYPE, CAPACITY>::~FixedCapacityList()
+template <class VALUE_TYPE>
+void MyContainer<VALUE_TYPE>::reserve(std::size_t newCapacity)
 {
+    BSLS_ASSERT(newCapacity >= d_size);
+
+    if (newCapacity == d_capacity) {
+        // No change in size, so nothing to do.
+        return;
+    }
+
+    // Build replacement container
+    MyContainer replacement(newCapacity, d_allocator_p);
+    BSLS_ASSERT(d_start_p || 0 == d_size);
+    BSLS_ASSERT(0 == replacement.d_size);
+    while (replacement.d_size < d_size) {
+        replacement.push_back(d_start_p[replacement.d_size]);
+    }
+
+    // Swap our state with replacement.
+    // d_size and d_allocator_p are already the same,
+    // so they can be skipped.
+    {
+        std::size_t temp = d_capacity;
+        d_capacity = replacement.d_capacity;
+        replacement.d_capacity = temp;
+    }
+    {
+        VALUE_TYPE *temp = d_start_p;
+        d_start_p = replacement.d_start_p;
+        replacement.d_start_p = temp;
+    }
+    
+    // Old elements will be destroyed when replacement goes out of scope.
 }
 
-template <class VALUE_TYPE, std::size_t CAPACITY>
-inline
-void FixedCapacityList<VALUE_TYPE, CAPACITY>::append(
-                                                   const VALUE_TYPE& newValue)
+template <class VALUE_TYPE>
+void MyContainer<VALUE_TYPE>::push_back(const VALUE_TYPE& value)
 {
-    BSLS_ASSERT(d_length < CAPACITY);
+    if (0 == d_capacity) {
+        // Container has no storage.
+        BSLS_ASSERT(0 == d_size);
+        reserve(1);
+    } else if (d_capacity == d_size) {
+        // Container is at capacity.
+        reserve(d_capacity * 2);
+    }
 
-    d_storage_p[d_length] = newValue;
-    ++d_length;
+    BSLS_ASSERT(d_size < d_capacity);
+
+    ScalarPrimitives::copyConstruct<VALUE_TYPE>(&d_start_p[d_size], value, d_allocator_p);
+    ++d_size;
 }
 
 // ACCESSORS
-template <class VALUE_TYPE, std::size_t CAPACITY>
-inline
-typename FixedCapacityList<VALUE_TYPE, CAPACITY>::ConstIterator
-FixedCapacityList<VALUE_TYPE, CAPACITY>::begin() const
+template <class VALUE_TYPE>
+typename MyContainer<VALUE_TYPE>::ConstIterator MyContainer<VALUE_TYPE>::begin() const
 {
-    return d_storage_p;
+    return d_start_p;
 }
 
-template <class VALUE_TYPE, std::size_t CAPACITY>
-inline
-typename FixedCapacityList<VALUE_TYPE, CAPACITY>::ConstIterator
-FixedCapacityList<VALUE_TYPE, CAPACITY>::end() const
+template <class VALUE_TYPE>
+typename MyContainer<VALUE_TYPE>::ConstIterator MyContainer<VALUE_TYPE>::end() const
 {
-    BSLS_ASSERT(d_length <= CAPACITY);
-
-    return d_storage_p + d_length;
+    return d_start_p + d_size;
 }
 
-template <class VALUE_TYPE, std::size_t CAPACITY>
-inline
-std::size_t FixedCapacityList<VALUE_TYPE, CAPACITY>::length() const
+template <class VALUE_TYPE>
+std::size_t MyContainer<VALUE_TYPE>::size() const
+{
+    return d_size;
+}
+
+                              // ==============
+                              // class MyString
+                              // ==============
+
+class MyString {
+  private:
+    // DATA
+    char *d_start_p;
+    std::size_t d_length;
+    bslma::Allocator *d_allocator_p;
+
+    void set(const char* s, std::size_t length);
+
+    // FRIENDS
+    friend bool operator==(const MyString& lhs, const MyString& rhs);
+    friend bool operator!=(const MyString& lhs, const MyString& rhs);
+
+  public:
+    explicit MyString(const char* s, bslma::Allocator *basicAllocator = 0);
+    MyString(const MyString& rhs, bslma::Allocator *basicAllocator = 0);
+    MyString& operator=(const MyString& rhs);
+    ~MyString();
+
+    const char* c_str() const;
+    std::size_t length() const;
+};
+
+MyString::MyString(const char* s, bslma::Allocator *basicAllocator)
+    : d_start_p(0)
+    , d_length(0)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    set(s, strlen(s));
+}
+
+MyString::MyString(const MyString& rhs, bslma::Allocator *basicAllocator)
+    : d_start_p(0)
+    , d_length(0)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    set(rhs.d_start_p, rhs.d_length);
+}
+
+MyString::~MyString()
+{
+    d_allocator_p->deallocate(d_start_p);
+}
+
+MyString& MyString::operator=(const MyString& rhs)
+{
+    if (this != &rhs) {
+        d_allocator_p->deallocate(d_start_p);
+        set(rhs.d_start_p, rhs.d_length);
+    }
+    return *this;
+}
+
+void MyString::set(const char* s, std::size_t length)
+{
+    d_length = length;
+    d_start_p = (char *) d_allocator_p->allocate((length + 1) * sizeof *d_start_p);
+    memcpy(d_start_p, s, length);
+    d_start_p[length] = '\0';
+}
+
+const char* MyString::c_str() const
+{
+    return d_start_p;
+}
+
+std::size_t MyString::length() const
 {
     return d_length;
+}
+
+bool operator==(const MyString& lhs, const MyString& rhs)
+{
+    return lhs.d_length == rhs.d_length
+        && 0 == strncmp(lhs.d_start_p, rhs.d_start_p, lhs.d_length);
+}
+
+bool operator!=(const MyString& s1, const MyString& s2)
+{
+    return ! (s1 == s2);
+}
+
+                              // =============
+                              // class MyPoint
+                              // =============
+
+class MyPoint {
+  private:
+    // DATA
+    int d_x;
+    int d_y;
+
+    // FRIENDS
+    friend bool operator==(const MyPoint& lhs, const MyPoint& rhs);
+    friend bool operator!=(const MyPoint& lhs, const MyPoint& rhs);
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(MyPoint,
+                  BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
+
+    // CREATORS
+    MyPoint(int x, int y, bslma::Allocator *basicAllocator = 0);
+    MyPoint(const MyPoint& other, bslma::Allocator *basicAllocator = 0);
+
+    // ...
+
+    // MANIPULATORS
+    MyPoint& operator=(const MyPoint& other);
+};
+
+MyPoint::MyPoint(int x, int y, bslma::Allocator *basicAllocator)
+    : d_x(x)
+    , d_y(y)
+{
+    (void) basicAllocator;
+}
+
+MyPoint::MyPoint(const MyPoint& other, bslma::Allocator *basicAllocator)
+    : d_x(other.d_x)
+    , d_y(other.d_y)
+{
+    (void) basicAllocator;
+}
+
+MyPoint& MyPoint::operator=(const MyPoint& other)
+{
+    d_x = other.d_x;
+    d_y = other.d_y;
+}
+
+bool operator==(const MyPoint& lhs, const MyPoint& rhs)
+{
+    return lhs.d_x == rhs.d_x && lhs.d_y == rhs.d_y;
 }
 
                               // ===============
@@ -489,48 +758,48 @@ TYPE& gg(TYPE *array, const char *spec)
 //                  GLOBAL HELPER FUNCTIONS FOR USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-template<class VALUE_TYPE, std::size_t CAPACITY>
+template<class VALUE_TYPE>
 inline
-bool operator==(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
-                const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs);
+bool operator==(const MyContainer<VALUE_TYPE>& lhs,
+                const MyContainer<VALUE_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' instances have the same
     // value, and 'false' otherwise.  Two instances have the same value if the
     // have the same length and each element in lhs has the same value as the
     // corresponding element in rhs.
 
-template<class VALUE_TYPE, std::size_t CAPACITY>
+template<class VALUE_TYPE>
 inline
-bool operator!=(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
-                const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs);
+bool operator!=(const MyContainer<VALUE_TYPE>& lhs,
+                const MyContainer<VALUE_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' instances do not have the
     // same value, and 'false' otherwise.  Two instances differ in value if
     // they have differing lengths or if any element in lhs has differs in
     // value from the corresponding element in rhs.
 
-template<class VALUE_TYPE, std::size_t CAPACITY>
+template<class VALUE_TYPE>
 inline
-bool operator==(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
-                const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs)
+bool operator==(const MyContainer<VALUE_TYPE>& lhs,
+                const MyContainer<VALUE_TYPE>& rhs)
 {
     return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
                                                     lhs.end(),
-                                                    lhs.length(),
+                                                    lhs.size(),
                                                     rhs.begin(),
                                                     rhs.end(),
-                                                    rhs.length());
+                                                    rhs.size());
 }
 
-template<class VALUE_TYPE, std::size_t CAPACITY>
+template<class VALUE_TYPE>
 inline
-bool operator!=(const FixedCapacityList<VALUE_TYPE, CAPACITY>& lhs,
-                const FixedCapacityList<VALUE_TYPE, CAPACITY>& rhs)
+bool operator!=(const MyContainer<VALUE_TYPE>& lhs,
+                const MyContainer<VALUE_TYPE>& rhs)
 {
     return ! BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
                                                     lhs.end(),
-                                                    lhs.length(),
+                                                    lhs.size(),
                                                     rhs.begin(),
                                                     rhs.end(),
-                                                    rhs.length());
+                                                    rhs.size());
 }
 
 //=============================================================================
@@ -1321,38 +1590,49 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-   FixedCapacityList<int, 5> listA;
-   FixedCapacityList<int, 5> listB;
-   FixedCapacityList<int, 5> listC;
-   FixedCapacityList<int, 5> listD;
+        {
+            // Compare non-bitwise-comparable elements
+            MyContainer<MyString> c1;
+            MyContainer<MyString> c2;
+          
+            c1.push_back(MyString("hello"));
+            c1.push_back(MyString("goodbye"));
+          
+            c2.push_back(MyString("hello"));
+            c2.push_back(MyString("goodbye"));
+          
+            ASSERT(c1 == c2);
+        }
 
-   listA.append(1);
-   listA.append(2);
-   listA.append(3);
-   listA.append(4);
-   listA.append(5);
+        {
+            // Compare bitwise-comparable elements
+            MyContainer<MyPoint> c1;
+            MyContainer<MyPoint> c2;
+          
+            c1.push_back(MyPoint(1, 2));
+            c1.push_back(MyPoint(3, 4));
+          
+            c2.push_back(MyPoint(1, 2));
+            c2.push_back(MyPoint(3, 4));
+          
+            ASSERT(c1 == c2);
+        }
 
-   listB.append(1);
-   listB.append(2);
-   listB.append(3);
-   listB.append(4);
-   listB.append(5);
+        {
+            // Compare (bitwise-comparable) primitive types
+            MyContainer<int> c1;
+            MyContainer<int> c2;
 
-   listC.append(1);
-   listC.append(2);
-   listC.append(3);
-   listC.append(4);
+            c1.push_back(1);
+            c1.push_back(2);
+            c1.push_back(3);
 
-   listD.append(5);
-   listD.append(4);
-   listD.append(3);
-   listD.append(2);
-   listD.append(1);
+            c2.push_back(1);
+            c2.push_back(2);
+            c2.push_back(3);
 
-   ASSERT(listA == listA);
-   ASSERT(listA == listB);
-   ASSERT(listA != listC);
-   ASSERT(listA != listD);
+            ASSERT(c1 == c2);
+        }
      } break;
       case 3: {
         // --------------------------------------------------------------------
