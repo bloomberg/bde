@@ -3574,7 +3574,9 @@ struct Accumulator {
     }
 
     int operator()(const bcem_Aggregate& value) {
-        return (*this)(value.rawData());
+        d_count += value.asInt();
+        return 0;
+//         return (*this)(value.rawData());
     }
  
     template<typename TYPE>
@@ -3688,14 +3690,14 @@ static void runBerBenchmark(bool verbose, bool veryVerbose,
 
 static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // --------------------------------------------------------------------
-        // TESTING 'bdeat' FUNCTIONS via RawPtr
+        // TESTING 'bdeat' FUNCTIONS
         //
         // Concerns:
-        //   - 'bdeat_TypeName::className(bcem_AggregateRaw)' returns the
+        //   - 'bdeat_TypeName::className(bcem_Aggregate)' returns the
         //     record name for aggregates that are constrained by a record
         //     definition, and a zero pointer for aggregates that are not
         //     constrained by a record definition.
-        //   - 'bdeat_TypeCategory::Select<bcem_AggregateRaw>::
+        //   - 'bdeat_TypeCategory::Select<bcem_Aggregate>::
         //      BDEAT_SELECTION' is '0'
         //   - 'bdeat_TypeCategoryFunctions::select(bdem_AggregateRawPtr)' 
         //     returns the category value appropriate to the value of the 
@@ -3750,10 +3752,10 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // - Define an accessor that records the sequence of calls.
         // - Create an 'bcem_Aggregate' object that conforms to the root
         //   record of the schema.
-        // - Call 'bdeat_TypeName::className(bcem_AggregateRaw)' on each
+        // - Call 'bdeat_TypeName::className(bcem_Aggregate)' on each
         //   field and check for expected result.
         // - Check that
-        //   'bdeat_TypeCategory::Select<bcem_AggregateRaw>::
+        //   'bdeat_TypeCategory::Select<bcem_Aggregate>::
         //    BDEAT_SELECTION' is '0'.
         // - Call 'bdeat_TypeCategoryFunctions::select(bdem_AggregateRawPtr)' 
         //   on each field and check for expected result.
@@ -3812,8 +3814,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         ASSERT(0 == TC::Select<bcem_Aggregate>::BDEAT_SELECTION);
 
-        Obj mA1(schema, "r");
-        bcem_AggregateRaw A1 = mA1.rawData();
+        Obj mA1(schema, "r");  const Obj& A1 = mA1;
         mA1.setField("a", 4.0);
         mA1.setField("c", "22");
         mA1.setField("d", "33");
@@ -3848,10 +3849,9 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (veryVerbose) P(A1);
 
-        Obj mA2(schema, "r");
-        bcem_AggregateRaw A2 = mA2.rawData();
+        Obj mA2(schema, "r");  const Obj& A2 = mA2;
         if (veryVerbose) P(A2);
-        
+
         if (verbose) tst::cout << "Testing type name" << bsl::endl;
         ASSERT(streq("r", TN::className(A1))           );
         ASSERT(      0 == TN::className(mA1.field("a").rawData()) );
@@ -3905,8 +3905,8 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(TC::BDEAT_ARRAY_CATEGORY       == 
                TCF::select(mA1.field("q").rawData()));
 
-        AggAccessor    theAccessor;
-        AggManipulator theManipulator;
+        AggAccessor       theAccessor;
+        AggManipulator    theManipulator;
         NewAggAccessor    newAccessor;
         NewAggManipulator newManipulator;
 
@@ -3929,7 +3929,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         bsl::string res;
         if (verbose) tst::cout << "Testing bdeat_SequenceFunctions"<<bsl::endl;
-        ASSERT(SF::IsSequence<bcem_AggregateRaw>::VALUE);
+        ASSERT(SF::IsSequence<bcem_Aggregate>::VALUE);
 
         newAccessor.reset();
         SF::accessAttribute(A1, newAccessor, "a", 1);
@@ -4015,8 +4015,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         SF::accessAttributes(mA1.field("f").rawData(), theAccessor);
         ASSERT(theAccessor.matchValues(99, 999));
 
-        Obj mBagg(schema, "r"); const bcem_Aggregate& B = mBagg;
-        bcem_AggregateRaw mB = mBagg.rawData();
+        Obj mB(schema, "r"); const bcem_Aggregate& B = mB;
 
         bsl::list<CERef>& values = newManipulator.elements();
         const CERef& RefA = getCERef(ET::BDEM_DOUBLE, 1);
@@ -4082,8 +4081,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         values.push_back(RefNI);
         values.push_back(RefI);
         SF::manipulateAttribute(&mB, newManipulator, "i", 1);
-        Obj resAgg = B.field("i");
-        bcem_AggregateRaw RES = resAgg.rawData();
+        Obj resAgg = B.field("i");  const Obj& RES = resAgg;
         ASSERT(1 == RES.length());
         LOOP2_ASSERT(RefI, resAgg.asElemRef(),
                      compareCERefs(RefI, resAgg[0].asElemRef()));
@@ -4120,10 +4118,8 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         SF::manipulateAttribute(&mB, newManipulator, "k", 1);
         ASSERT(numItems == B.field("k").length());
 
-        Obj resaAgg = B.field("k", 0);
-        Obj resbAgg = B.field("k", 1);
-        bcem_AggregateRaw RESA = resaAgg.rawData();
-        bcem_AggregateRaw RESB = resbAgg.rawData();
+        Obj resaAgg = B.field("k", 0);  const Obj& RESA = resaAgg;
+        Obj resbAgg = B.field("k", 1);  const Obj& RESB = resbAgg;
 
         ASSERT(s1 == RESA.selectorId());
         ASSERT(bsl::string("a") == RESA.selector());
@@ -4225,7 +4221,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(1 == B.field("q").length());
         ASSERT(bsl::string("vee") == B.field("q", 0).asElemRef().theString());
 
-        bcem_AggregateRaw mA2f = mA2.field("f").rawData();
+        bcem_Aggregate mA2f = mA2.field("f");
         SF::manipulateAttribute(&mA2f, theManipulator,  0);
         ASSERT(100 == mA2.field("f", "c").asInt());
         SF::manipulateAttribute(&mA2f, theManipulator,  "d", 1);
@@ -4236,7 +4232,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (veryVerbose) P(A2);
 
         if (verbose) tst::cout << "Testing bdeat_ChoiceFunctions" << bsl::endl;
-        ASSERT(CF::IsChoice<bcem_AggregateRaw>::VALUE);
+        ASSERT(CF::IsChoice<bcem_Aggregate>::VALUE);
         int id = 99;
         id = CF::selectionId(mA1.field("h").rawData());
         ASSERT(0 == id);
@@ -4249,7 +4245,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         CF::accessSelection(mA1.field("h").rawData(), theAccessor);
         ASSERT(theAccessor.matchValue(77));
 
-        bcem_AggregateRaw mA2h(mA2.field("h").rawData());
+        bcem_Aggregate mA2h(mA2.field("h"));
         id = CF::selectionId(mA2h);
         ASSERT(bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID == id);
         CF::makeSelection(&mA2h, 0);
@@ -4273,7 +4269,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(theAccessor.matchValue(5));
 
         mA2.setField("i", mA1.field("i"));
-        bcem_AggregateRaw mA2i(mA2.field("i").rawData());
+        bcem_Aggregate mA2i(mA2.field("i"));
         AF::manipulateElement(&mA2i, theManipulator, 1);
         ASSERT(6   == mA2.field("i", 0).asInt());
         ASSERT(106 == mA2.field("i", 1).asInt());
@@ -4294,7 +4290,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(theAccessor.matchValues(55, 555));
 
         mA2.setField("j", mA1.field("j"));
-        bcem_AggregateRaw mA2j(mA2.field("j").rawData());
+        bcem_Aggregate mA2j(mA2.field("j"));
         AF::manipulateElement(&mA2j, theManipulator, 0);
         ASSERT(107 == mA2.field("j", 0, "c").asInt());
         ASSERT(108 == mA2.field("j", 0, "d").asInt64());
@@ -4322,7 +4318,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(theAccessor.matchValue(333));
 
         mA2.setField("k", mA1.field("k"));
-        bcem_AggregateRaw mA2k(mA2.field("k").rawData());
+        bcem_Aggregate mA2k(mA2.field("k"));
         AF::manipulateElement(&mA2k, theManipulator, 0);
         ASSERT(1   == mA2.field("k", 0).selectorId());
         ASSERT(111 == mA2.field("k", 0, "b").asShort());
@@ -4348,18 +4344,18 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // WHITE-BOX test of bcem_Aggregate_BdeatUtil::NullableAdapter
         if (verbose) tst::cout << "Testing bdeat_NullableValueFunctions:"
                                << bsl::endl;
-        typedef bcem_AggregateRaw_BdeatUtil::NullableAdapter NullableAdapter;
-        ASSERT(! NVF::IsNullableValue<bcem_AggregateRaw>::VALUE);
+        typedef bcem_Aggregate_NullableAdapter NullableAdapter;
+        ASSERT(! NVF::IsNullableValue<bcem_Aggregate>::VALUE);
         ASSERT(NVF::IsNullableValue<NullableAdapter>::VALUE);
         bcem_Aggregate mA1b(mA1.field("b"));
-        bcem_AggregateRaw mA1br(mA1.field("b").rawData());
+        bcem_Aggregate mA1br(mA1.field("b"));
         NullableAdapter nmA1b  = { &mA1br };
         ASSERT(NVF::isNull(nmA1b));
         bcem_Aggregate mA1g(mA1.field("g"));
-        bcem_AggregateRaw mA1gr = mA1g.rawData();
+        bcem_Aggregate mA1gr = mA1g;
         NullableAdapter nmA1g  = { &mA1gr };
         ASSERT(!NVF::isNull(nmA1g));
-        bcem_AggregateRaw mA1gd(mA1.field("g", "d").rawData());
+        bcem_Aggregate mA1gd(mA1.field("g", "d"));
         NullableAdapter nmA1gd = { &mA1gd };
         ASSERT(! NVF::isNull(nmA1gd));
         NVF::accessValue(nmA1gd, theAccessor);
@@ -4367,14 +4363,14 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         NVF::accessValue(nmA1g, theAccessor);
         ASSERT(theAccessor.matchValues(88, 888));
 
-        bcem_AggregateRaw mA2b(mA2.field("b").rawData());
+        bcem_Aggregate mA2b(mA2.field("b"));
         NullableAdapter nmA2b  = { &mA2b };
         ASSERT(NVF::isNull(nmA2b));
         NVF::manipulateValue(&nmA2b, theManipulator);
         ASSERT(! NVF::isNull(nmA2b));
         ASSERT(114 == mA2b.asDouble());
         // Note: mA2b is a COPY.  A2.field("b") is still null.
-        bcem_AggregateRaw mA2g(mA2.field("g").rawData());
+        bcem_Aggregate mA2g(mA2.field("g"));
         NullableAdapter nmA2g  = { &mA2g };
         ASSERT(NVF::isNull(nmA2g));
         mA2g.makeNull();
@@ -4389,8 +4385,8 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         mA2g.makeNull();
         ASSERT(NVF::isNull(nmA2g));
         mA2.field("g").makeValue();
-        
-        SF::manipulateAttribute(&A2, theManipulator, "g", 1);
+
+        SF::manipulateAttribute(&mA2, theManipulator, "g", 1);
         ASSERT(! mA2.field("g").isNul2());
         ASSERT(! mA2.field("g", "d").isNul2());
         ASSERT(117 == mA2.field("g", "c").asInt());
@@ -4398,7 +4394,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (veryVerbose) P(A2);
 
         if (verbose) tst::cout << "Testing bdeat_EnumFunctions:" << bsl::endl;
-        ASSERT(EF::IsEnumeration<bcem_AggregateRaw>::VALUE);
+        ASSERT(EF::IsEnumeration<bcem_Aggregate>::VALUE);
         int intValue;
         bsl::string stringValue;
         EF::toInt(&intValue, mA1.field("m").rawData());
@@ -4412,7 +4408,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         bcem_Aggregate mA2magg(mA2.field("m")); 
         const bcem_Aggregate &A2m = mA2magg;
-        bcem_AggregateRaw mA2mr = mA2magg.rawData();
+        bcem_Aggregate mA2mr = mA2magg;
         int status;
         status = EF::fromInt(&mA2mr, 0);
         ASSERT(0 == status);
@@ -4429,7 +4425,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         bcem_Aggregate mA2n(mA2.field("n")); 
         const bcem_Aggregate &A2n = mA2n;
-        bcem_AggregateRaw mA2nr = mA2n.rawData();
+        bcem_Aggregate mA2nr = mA2n;
         status = EF::fromInt(&mA2nr, 1);
         ASSERT(0 == status);
         ASSERT("vee" == A2n.asString());
@@ -4451,10 +4447,10 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         // Test enumeration operations using manipulators from parent
         theManipulator.reset(2);
-        SF::manipulateAttribute(&A2, theManipulator, "m", 1);
+        SF::manipulateAttribute(&mA2, theManipulator, "m", 1);
         ASSERT(2 == mA2.field("m").asInt())
         theManipulator.reset(0);
-        SF::manipulateAttribute(&A2, theManipulator, "n", 1);
+        SF::manipulateAttribute(&mA2, theManipulator, "n", 1);
         ASSERT("you" == mA2.field("n").asString())
 
         if (veryVerbose) P(A2);
@@ -4489,7 +4485,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         bcem_Aggregate mA4(schema, "r"); const bcem_Aggregate& A4 = mA4;
         ASSERT(! bcem_Aggregate::areEquivalent(mA1, A4));
-        bcem_AggregateRaw a4Ptr = A4.rawData();
+        bcem_Aggregate a4Ptr = A4;
 
         bdem_BerDecoderOptions berDecoderOptions;
         berDecoderOptions.setTraceLevel(veryVeryVerbose);
