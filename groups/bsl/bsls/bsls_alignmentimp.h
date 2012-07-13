@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::AlignmentImpCalc: map 'TYPE' parameter to alignment 'VALUE'
 //  bsls::AlignmentImpMatch: namespace for overloaded 'match' functions
-//  bsls::AlignmentImpPriorityToType: map 'PRIORITY' parameter to primitive type
+//  bsls::AlignmentImpPriorityToType: map 'PRIORITY' param to primitive type
 //  bsls::AlignmentImpTag: unique type of size 'SIZE' (parameter)
 //
 //@SEE_ALSO: bsls_alignmentfromtype, bsls_alignmenttotype, bsls_alignmentutil
@@ -127,17 +127,13 @@ struct AlignmentImpCalc {
         char d_c;
         TYPE d_aligned;
 
-        // CREATORS
+      private:
+        // NOT IMPLEMENTED
+        AlignmentCalc();
         AlignmentCalc(const AlignmentCalc&);
-            // The compiler will generate both a default constructor and a copy
-            // constructor if no constructors are explicitly provided.  The
-            // compiler-generated constructors will, in turn, invoke the
-            // default constructor and copy constructor for 'TYPE'.  If 'TYPE'
-            // does not have 'public' default and copy constructors, some
-            // compilers may produce diagnostics.  By declaring (but not
-            // defining) a copy constructor, we prevent the compiler from
-            // generating either constructor and, therefore, suppress
-            // diagnostics.
+            // Prevent the compiler from automatically generating
+            // default & copy constructors, as this could cause problems if
+            // 'TYPE' has constructors that are private or unimplmented.
     };
 
   public:
@@ -152,6 +148,22 @@ struct AlignmentImpCalc {
         // Alias for the unique type for each alignment value.
 };
 
+                // ===================================
+                // struct AlignmentImp8ByteAlignedType
+                // ===================================
+
+struct AlignmentImp8ByteAlignedType {
+# if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+    // On Linux x86, no natural type is aligned on an 8-byte boundary, but we
+    // need such a type to implement low-level constructs (e.g., 64-bit atomic
+    // types).
+
+    long long d_dummy __attribute__((__aligned__(8)));
+# else
+    double d_dummy;
+# endif
+};
+
                 // =================================
                 // struct AlignmentImpPriorityToType
                 // =================================
@@ -161,25 +173,6 @@ struct AlignmentImpPriorityToType {
     // Specializations of this 'struct' provide a primitive type (as a 'Type'
     // 'typedef') that corresponds to the specified 'PRIORITY' level.
 };
-
-}  // close package namespace
-
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
-
-namespace bsls {
-
-// On Linux x86, no natural type is aligned on an 8-byte boundary, but we need
-// such a type to implement low-level constructs (e.g., 64-bit atomic types).
-
-struct AlignmentImp8ByteAlignedType {
-    long long d_dummy __attribute__((__aligned__(8)));
-};
-
-}  // close package namespace
-
-#endif
-
-namespace bsls {
 
 template <>
 struct AlignmentImpPriorityToType< 1> {
@@ -241,22 +234,10 @@ struct AlignmentImpPriorityToType<12> {
     typedef char        Type;
 };
 
-}  // close package namespace
-
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
-
-namespace bsls {
-
 template <>
 struct AlignmentImpPriorityToType<13> {
     typedef AlignmentImp8ByteAlignedType Type;
 };
-
-}  // close package namespace
-
-#endif
-
-namespace bsls {
 
                 // ============================
                 // struct AlignmentImp_Priority
@@ -279,11 +260,6 @@ struct AlignmentImp_Priority<1> {
 
 }  // close package namespace
 
-#define BSLS_ALIGNMENTIMP_MATCH_FUNC(T, P)                                  \
-    static bsls::AlignmentImpTag<P> match(bsls::AlignmentImpCalc<T>::Tag,   \
-                                          bsls::AlignmentImpTag<sizeof(T)>, \
-                                          bsls::AlignmentImp_Priority<P>)
-
 namespace bsls {
 
     // Declare a 'match' function that is overloaded based on the alignment and
@@ -303,21 +279,28 @@ struct AlignmentImpMatch {
     // Namespace for a set of overloaded 'match' functions, as defined by the
     // macro 'BSLS_ALIGNMENTIMP_MATCH_FUNC'.
 
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(long double,                         1);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(double,                              2);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(float,                               3);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(void (*)(),                          4);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(void *,                              5);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(wchar_t,                             6);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(bool,                                7);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(long long,                           8);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(long,                                9);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(int,                                10);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(short,                              11);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(char,                               12);
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(AlignmentImp8ByteAlignedType,       13);
-#endif
+#   define BSLS_ALIGNMENTIMP_MATCH_FUNC(T, P)                               \
+           bsls::AlignmentImpTag<P> match(bsls::AlignmentImpCalc<T>::Tag,   \
+                                          bsls::AlignmentImpTag<sizeof(T)>, \
+                                          bsls::AlignmentImp_Priority<P>)
+
+    // CLASS METHODS
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(long double,                        1);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(double,                             2);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(float,                              3);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(void (*)(),                         4);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(void *,                             5);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(wchar_t,                            6);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(bool,                               7);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(long long,                          8);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(long,                               9);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(int,                               10);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(short,                             11);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(char,                              12);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(AlignmentImp8ByteAlignedType,      13);
+        // This function will match a type with the size and alignment the size
+        // of the type of the first macro argument, and return an object whose
+        // size is the 2nd argument of the macro.
 
     typedef AlignmentImp_Priority<13> MaxPriority;
 };
