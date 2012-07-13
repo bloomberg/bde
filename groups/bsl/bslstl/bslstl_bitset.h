@@ -42,8 +42,6 @@ BSLS_IDENT("$Id: $")
 //-----------------------------------------------------------------------------
 //..
 //
-// * HAS DUPLICATE CHARACTER instead?
-//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -51,7 +49,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Sieve of Eratosthenes
 ///- - - - - - - - - - - - - - - - -
 // When implementing the classic 'Sieve of Eratosthenes' algorithm to enumerate
-// prime numbers, we want as efficient a way of representing a flag for each
+// prime numbers, we want an efficient way of representing a flag for each
 // potential prime number.  The following code illustrates how we can use
 // 'bsl::bitset' to accomplish this result.
 //
@@ -78,11 +76,11 @@ BSLS_IDENT("$Id: $")
 //     bsl::bitset<PRIME_NUMBER_LIMIT - 2> potentialPrimes;
 //     const int sqrtOfCandidate = std::sqrt(double(candidate));
 //..
-// As an optimization, we'll treat 0 values as potential primes, since that's
-// how 'bsl::bitset' is default-initialized.
-//
 // Now, we loop from 2 to 'candidate', and use the sieve algorithm to
 // eliminate non-primes.
+//
+// As an optimization, we'll treat 'false' values as potential primes, since
+// that is how 'bsl::bitset' is default-initialized.
 //..
 //     for (int i = 2; i <= sqrtOfCandidate; ++i) {
 //         if (potentialPrimes[i]) {
@@ -95,14 +93,14 @@ BSLS_IDENT("$Id: $")
 //                 return false;                                      // RETURN
 //             }
 //
-//             potentialPrimes[flagValue] = 1;
+//             potentialPrimes[flagValue] = true;
 //         }
 //     }
 //..
-// Then, we can check potentialPrimes[candidate] to see whether our
+// Then, we can check '!potentialPrimes[candidate]' to see whether our
 // candidate value is a prime number.
 //..
-//     return potentialPrimes[candidate];
+//     return !potentialPrimes[candidate];
 // }
 //..
 // Finally, we can exercise our 'isPrime' function:

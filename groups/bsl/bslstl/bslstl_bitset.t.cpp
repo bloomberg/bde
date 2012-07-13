@@ -9,6 +9,8 @@
 #include <iostream>
 #include <string>
 
+#include <cmath>  // native_std::sqrt
+
 using namespace BloombergLP;
 using namespace std;
 
@@ -93,7 +95,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-template <std::size_t N>
+template <size_t N>
 bool verifyBitset(const bsl::bitset<N> obj, const char *expected)
 {
     for (unsigned int i = 0; i < N; ++i) {
@@ -117,19 +119,19 @@ char notCharacter(char bit)
     return '0';
 }
 
-void orStrings(char *result, std::size_t resultSize,
+void orStrings(char *result, size_t resultSize,
                const char* a, const char* b)
     // Return in the specified 'result' a string of 0's and 1's which is the
     // "bitwise" (characterwise) 'or' of the specified 'a' and 'b' strings.
     // The behavior is undefined unless
     // 'strlen(a) == strlen(b) && strlen(a) <= resultSize - 1'
 {
-    std::size_t length = strlen(a);
+    size_t length = strlen(a);
 
     BSLS_ASSERT(strlen(b) == length);
     BSLS_ASSERT(resultSize - 1 >= length);
 
-    for (int i = 0; i < length; ++i) {
+    for (size_t i = 0; i < length; ++i) {
         // OR truth table
         // a | b | result
         // --+---+-------
@@ -147,19 +149,19 @@ void orStrings(char *result, std::size_t resultSize,
     result[length] = '\0';
 }
 
-void andStrings(char *result, std::size_t resultSize,
+void andStrings(char *result, size_t resultSize,
                 const char* a, const char* b)
     // Return in the specified 'result' a string of 0's and 1's which is the
     // "bitwise" (characterwise) 'and' of the specified 'a' and 'b' strings.
     // The behavior is undefined unless
     // 'strlen(a) == strlen(b) && strlen(a) <= resultSize - 1'
 {
-    std::size_t length = strlen(a);
+    size_t length = strlen(a);
 
     BSLS_ASSERT(strlen(b) == length);
     BSLS_ASSERT(resultSize - 1 >= length);
 
-    for (int i = 0; i < length; ++i) {
+    for (size_t i = 0; i < length; ++i) {
         // OR truth table
         // a | b | result
         // --+---+-------
@@ -177,19 +179,19 @@ void andStrings(char *result, std::size_t resultSize,
     result[length] = '\0';
 }
 
-void xorStrings(char *result, std::size_t resultSize,
+void xorStrings(char *result, size_t resultSize,
                 const char* a, const char* b)
     // Return in the specified 'result' a string of 0's and 1's which is the
     // "bitwise" (characterwise) 'xor' of the specified 'a' and 'b' strings.
     // The behavior is undefined unless
     // 'strlen(a) == strlen(b) && strlen(a) <= resultSize - 1'
 {
-    std::size_t length = strlen(a);
+    size_t length = strlen(a);
 
     BSLS_ASSERT(strlen(b) == length);
     BSLS_ASSERT(resultSize - 1 >= length);
 
-    for (int i = 0; i < length; ++i) {
+    for (size_t i = 0; i < length; ++i) {
         // OR truth table
         // a | b | result
         // --+---+-------
@@ -208,17 +210,17 @@ void xorStrings(char *result, std::size_t resultSize,
     result[length] = '\0';
 }
 
-void negateString(char *result, std::size_t resultSize, const char* a)
+void negateString(char *result, size_t resultSize, const char* a)
     // Return in the specified 'result' a string of 0's and 1's which is the
     // "bitwise" (characterwise) negation of the specified 'a' string.  The
     // behavior is undefined unless 'strlen(a) <= resultSize - 1'
 
 {
-    std::size_t length = strlen(a);
+    size_t length = strlen(a);
 
     BSLS_ASSERT(resultSize - 1 >= length);
 
-    for (int i = 0; i < length; ++i) {
+    for (size_t i = 0; i < length; ++i) {
         // NEGATION truth table
         // a |  result
         // --+--------
@@ -283,7 +285,7 @@ bool isPrime(int candidate)
                 return false;                                        // RETURN
             }
 
-            potentialPrimes[flagValue - 2] = 1;
+            potentialPrimes[flagValue - 2] = true;
         }
     }
 //..
@@ -366,7 +368,7 @@ int main(int argc, char *argv[])
         static const struct {
             unsigned int d_lineNum;    // source line number
             const char*  d_string;     // bitset string
-            std::size_t  d_pos;        // amount to shift by
+            size_t       d_pos;        // amount to shift by
             const char*  d_shiftlexp;  // expected string after left shift
             const char*  d_shiftrexp;  // expected string after right shift
         } DATA[] = {
@@ -411,7 +413,7 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const unsigned int  LINE      = DATA[ti].d_lineNum;
             const char         *VALUE     = DATA[ti].d_string;
-            std::size_t         POS       = DATA[ti].d_pos;
+            size_t              POS       = DATA[ti].d_pos;
             const char         *SHIFTLEXP = DATA[ti].d_shiftlexp;
             const char         *SHIFTREXP = DATA[ti].d_shiftrexp;
 
@@ -446,7 +448,7 @@ int main(int argc, char *argv[])
         static const struct {
             unsigned int d_lineNum;    // source line number
             const char*  d_string;     // bitset string
-            std::size_t  d_pos;        // amount to shift by
+            size_t       d_pos;        // amount to shift by
             const char*  d_shiftlexp;  // expected string after left shift
             const char*  d_shiftrexp;  // expected string after right shift
         } DATA[] = {
@@ -539,7 +541,7 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const unsigned int  LINE      = DATA[ti].d_lineNum;
             const char         *VALUE     = DATA[ti].d_string;
-            std::size_t         POS       = DATA[ti].d_pos;
+            size_t              POS       = DATA[ti].d_pos;
             const char         *SHIFTLEXP = DATA[ti].d_shiftlexp;
             const char         *SHIFTREXP = DATA[ti].d_shiftrexp;
 
@@ -658,22 +660,22 @@ int main(int argc, char *argv[])
       } break;
 
       case 2: {
-          // --------------------------------------------------------------------
-          // DEFAULT CONSTRUCTOR TEST
-          //   Ensure that the default constructor leaves the object in the
-          //   expected state for different initial sizes.
-          //
-          // Concerns:
-          //: 1 bitset<N> implies size()==N.
-          //:
-          //: 2 All bits in a default-constructed bitset<N> are initially 0.
-          //:
-          //: 3 All bits in a bitset(unsigned long)-constructed bitset are as
-          //:   expected.
-          //
-          // Plan:
-          //   
-          //--------------------------------------------------------------------
+        // --------------------------------------------------------------------
+        // DEFAULT CONSTRUCTOR TEST
+        //   Ensure that the default constructor leaves the object in the
+        //   expected state for different initial sizes.
+        //
+        // Concerns:
+        //: 1 All N bits in a default-constructed bitset<N> are initially 0.
+        //:
+        //: 2 bitset<N> implies size()==N.
+        //:
+        //: 3 All bits in a bitset(unsigned long)-constructed bitset are as
+        //:   expected.
+        //
+        // Plan:
+        //
+        //---------------------------------------------------------------------
 
       } break;
 
