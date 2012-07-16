@@ -408,8 +408,7 @@ class MyString {
 
   public:
     explicit MyString(const char* s, bslma::Allocator *basicAllocator = 0);
-    explicit MyString(const MyString&   other,
-                      bslma::Allocator *basicAllocator = 0);
+    MyString(const MyString& other, bslma::Allocator *basicAllocator = 0);
     MyString& operator=(const MyString& other);
     ~MyString();
 
