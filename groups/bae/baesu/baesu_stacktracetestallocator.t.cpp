@@ -115,8 +115,10 @@ typedef bsls::Types::UintPtr UintPtr;
 }  // close unnamed namespace
 
 //=============================================================================
-// GLOBAL HELPER VARIABLES FOR TESTING
+// GLOBAL HELPER VARIABLES AND TYPES FOR TESTING
 //-----------------------------------------------------------------------------
+
+typedef baesu_StackTraceTestAllocator Obj;
 
 static int verbose;
 static int veryVerbose;
@@ -216,46 +218,45 @@ void usageBottom()
 // 'usagePushGeometricSequence':
 //
 //  46 segments leaked
-//  ============================================================================
+//  ===========================================================================
 //  Error: memory leaked:
-//  46 segment(s) in allocator 'Usage Test Allocator' in use.
+//  1001 segment(s) in allocator 'myTestAllocator' in use.
 //  Segment(s) allocated in 2 place(s).
-//  ----------------------------------------------------------------------------
-//  Allocation place 1, 10 segment(s) in use.
+//  ---------------------------------------------------------------------------
+//  Allocation place 1, 1 segment(s) in use.
 //  Stack trace at allocation time:
-//  (0): .usagePushVal(double,BloombergLP::bslma::Allocator*)+0x5c at 0x1001bd54
-//  source:baesu_stacktracetestallocator.t.cpp:143 in
-//  baesu_stacktracetestallocator.t.
-//  (1): .usageMiddle(BloombergLP::bslma::Allocator*)+0x3c at 0x1001bc94 source:
-//  baesu_stacktracetestallocator.t.cpp:170 in baesu_stacktracetestallocator.t.
-//  (2): .usageBottom()+0x158 at 0x1001b4a8
-//  source:baesu_stacktracetestallocator.t.cpp:198 in
-//  baesu_stacktracetestallocator.t.
-//  (3): .main+0x198 at 0x100008f0
-//   source:baesu_stacktracetestallocator.t.cpp:471 in
-//  baesu_stacktracetestallocator.t.
-//  (4): .__start+0x6c at 0x1000020c source:crt0main.s in
-//  baesu_stacktracetestallocator.t.
-//  ----------------------------------------------------------------------------
-//  Allocation place 2, 36 segment(s) in use.
+//  (0): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0x84 at 0x1001b80c
+//        source:baesu_stacktracetestallocator.t.cpp:155 in
+//        baesu_stacktracetestallocator.t.
+//  (1): .main+0x1b4 at 0x1000090c
+//        source:baesu_stacktracetestallocator.t.cpp:398 in
+//        baesu_stacktracetestallocator.t.
+//  (2): .__start+0x6c at 0x1000020c source:crt0main.s in
+//        baesu_stacktracetestallocator.t.
+//  ---------------------------------------------------------------------------
+//  Allocation place 2, 1000 segment(s) in use.
 //  Stack trace at allocation time:
-//  (0): .usagePushVal(double,BloombergLP::bslma::Allocator*)+0x5c at
-//  0x1001bd54 source:baesu_stacktracetestallocator.t.cpp:143 in
-//  baesu_stacktracetestallocator.t.
-//  (1): .usagePushGeometricSequence(double,BloombergLP::bslma::Allocator*)+0x6c
-//  at 0x1001be1c source:baesu_stacktracetestallocator.t.cpp:161 in
-//  baesu_stacktracetestallocator.t.
-//  (2): .usageMiddle(BloombergLP::bslma::Allocator*)+0x4c at 0x1001bca4
-//  source:baesu_stacktracetestallocator.t.cpp:171 in
-//  baesu_stacktracetestallocator.t.
-//  (3): .usageBottom()+0x158 at 0x1001b4a8
-//  source:baesu_stacktracetestallocator.t.cpp:198 in
-//  baesu_stacktracetestallocator.t.
-//  (4): .main+0x198 at 0x100008f0
-//  source:baesu_stacktracetestallocator.t.cpp:471 in
-//  baesu_stacktracetestallocator.t.
-//  (5): .__start+0x6c at 0x1000020c source:crt0main.s in
-//  baesu_stacktracetestallocator.t.
+//  (0): .usageTop(int*,BloombergLP::bslma::Allocator*)+0x70 at 0x1001b8e0
+//        source:baesu_stacktracetestallocator.t.cpp:146 in
+//        baesu_stacktracetestallocator.t.
+//  (1): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0xa8 at 0x1001b830
+//        source:baesu_stacktracetestallocator.t.cpp:161 in
+//        baesu_stacktracetestallocator.t.
+//  (2): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0x94 at 0x1001b81c
+//        source:baesu_stacktracetestallocator.t.cpp:158 in
+//        baesu_stacktracetestallocator.t.
+//  (3): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0x94 at 0x1001b81c
+//        source:baesu_stacktracetestallocator.t.cpp:158 in
+//        baesu_stacktracetestallocator.t.
+//  (4): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0x94 at 0x1001b81c
+//        source:baesu_stacktracetestallocator.t.cpp:158 in
+//        baesu_stacktracetestallocator.t.
+//  (5): .main+0x1b4 at 0x1000090c
+//        source:baesu_stacktracetestallocator.t.cpp:398 in
+//        baesu_stacktracetestallocator.t.
+//  (6): .__start+0x6c at 0x1000020c source:crt0main.s in
+//        baesu_stacktracetestallocator.t.
+//  IOT/Abort trap (core dumped)
 //..
 
                                 // ------
@@ -268,6 +269,7 @@ struct NotEqual {
     int d_value;
 
     // CREATORS
+    explicit
     NotEqual(int value) : d_value(value) {}
 
     bool operator()(int test)
@@ -502,7 +504,7 @@ int main(int argc, char *argv[])
     int expectedDefaultAllocations = 0;
 
     switch (test) { case 0:
-      case 5: {
+      case 6: {
         //---------------------------------------------------------------------
         // USAGE EXAMPLE
         //---------------------------------------------------------------------
@@ -511,6 +513,48 @@ int main(int argc, char *argv[])
                              "=============\n";
 
         usageBottom();
+      }  break;
+      case 5: {
+        //---------------------------------------------------------------------
+        // ERROR TEST
+        //
+        // Concern:
+        //   That errors are properly reported.
+        //
+        // Plan:
+        //   Provoke certain error messages and observe them being output.
+        //---------------------------------------------------------------------
+
+
+        expectedDefaultAllocations = -1;    // turn off default alloc checking
+
+        bsl::stringstream oss;
+        Obj ta("alpha",
+               &oss);
+        ta.setNoAbort(true);
+
+        void *ptr = ta.allocate(6);
+        ta.deallocate(ptr);
+        ASSERT(oss.str().empty());
+        ta.deallocate(ptr);
+        LOOP_ASSERT(oss.str(), npos != oss.str().find(
+                                    "freed second time by allocator 'alpha'"));
+        oss.str("");
+
+        bsl::stringstream oss2;
+        Obj ta2(&oss2);
+        ta2.setNoAbort(true);
+
+        ptr = ta2.allocate(100);
+        ta.deallocate(ptr);
+        ASSERT(oss2.str().empty());
+        LOOP_ASSERT(oss.str(), npos != oss.str().find("Error: attempt to free"
+            " segment by wrong allocator.\n    Segment belongs to allocator"
+                  " '<unnamed>'\n    Attempted to free by allocator 'alpha'"));
+        oss.str("");
+
+        ta2.deallocate(ptr);
+        ASSERT(oss2.str().empty());
       }  break;
       case 4: {
         //---------------------------------------------------------------------
@@ -607,7 +651,7 @@ int main(int argc, char *argv[])
             static
             bool isInplace = bdef_FunctionUtil::IsInplace<TC::Functor>::VALUE;
             expectedDefaultAllocations += 0 == isInplace;
-            
+
             static bool firstTime = true;
             if (verbose && firstTime) {
                 firstTime = false;
@@ -636,7 +680,7 @@ int main(int argc, char *argv[])
         bsl::size_t pos;
         {
             bsl::stringstream matchSs(&sta);
-            matchSs << TC::Functor::s_numUnfreedSegments << 
+            matchSs << TC::Functor::s_numUnfreedSegments <<
                                         " segment(s) in allocator 'ta' in use";
             ASSERT(npos != (pos = otherStr.find(matchSs.str())));
             ++expectedDefaultAllocations;              // otherSs.str() uses da
@@ -671,7 +715,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             cout << "Report of blocks in use\n" << otherStr;
         }
-                                   
+
         TC::Functor::s_finishBarrier.wait();
 
         for (int i = 0; i < TC::Functor::NUM_THREADS; ++i) {
@@ -851,6 +895,7 @@ int main(int argc, char *argv[])
     }
 
     LOOP2_ASSERT(expectedDefaultAllocations, da.numAllocations(),
+                        expectedDefaultAllocations < 0 ||
                             expectedDefaultAllocations == da.numAllocations());
 
     if (testStatus > 0) {
