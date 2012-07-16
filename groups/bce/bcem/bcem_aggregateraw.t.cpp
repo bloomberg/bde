@@ -1,5 +1,6 @@
 // bcem_aggregateraw.t.cpp                                            -*-C++-*-
 
+
 #include <bcem_aggregateraw.h>
 
 #include <bcema_sharedptr.h>
@@ -3520,23 +3521,12 @@ struct Accumulator {
 };
 
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+static int verbose;
+static int veryVerbose;
+static int veryVeryVerbose;
 
-int main(int argc, char *argv[])
-{
-    int test = argc > 1 ? std::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
-    initStaticData();
-
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
-
-    switch (test) { case 0:  // Zero is always the leading case.
-      case 30: {
+void testCase30() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -3565,8 +3555,9 @@ int main(int argc, char *argv[])
           }
 
           destroyAggData(&object, &t);
-      } break;
-      case 29: {
+}
+
+void testCase29() {
         // --------------------------------------------------------------------
         // TESTING 'findUnambiguousChoice'
         //
@@ -3622,8 +3613,9 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(X.selectorIndex(), -1 == X.selectorIndex());
 
         destroyAggData(&mX, &t);
-      } break;
-      case 28: {
+}
+
+void testCase28() {
         // --------------------------------------------------------------------
         // TESTING 'swap'
         //
@@ -3935,8 +3927,9 @@ int main(int argc, char *argv[])
                 destroyAggData(&mX, &ta);
             }
         }
-      } break;
-      case 27: {
+}
+
+void testCase27() {
         // --------------------------------------------------------------------
         // TESTING error functions:
         //
@@ -3975,8 +3968,9 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(err.description(), S1 == err.description());
             }
         }
-      } break;
-      case 26: {
+}
+
+void testCase26() {
         // --------------------------------------------------------------------
         // ACCESSOR 'capacityRaw'
         //
@@ -4080,8 +4074,9 @@ int main(int argc, char *argv[])
             ASSERT(rc);
             ASSERT(1492 == capacity);
         }
-      } break;
-      case 25: {
+}
+
+void testCase25() {
         // --------------------------------------------------------------------
         // MANIPULATOR 'reserveRaw'
         //
@@ -4248,8 +4243,9 @@ int main(int argc, char *argv[])
             ASSERT(NUM_BYTES_LIST      == la.numBytesTotal());
             ASSERT(NUM_BYTES_AGGREGATE == aa.numBytesTotal());
         }
-      } break;
-      case 24: {
+}
+
+void testCase24() {
         // --------------------------------------------------------------------
         // TESTING anonymousField
         //
@@ -4509,8 +4505,9 @@ int main(int argc, char *argv[])
 
             if (veryVeryVerbose) { P(mX); }
         }
-      } break;
-      case 23: {
+}
+
+void testCase23() {
         // --------------------------------------------------------------------
         // TESTING BDEX STREAMING
         //
@@ -4715,8 +4712,9 @@ int main(int argc, char *argv[])
                 }
             }
         }
-      } break;
-      case 22: {
+}
+
+void testCase22() {
         // --------------------------------------------------------------------
         // TESTING 'bdeat' FUNCTIONS
         //
@@ -5662,8 +5660,9 @@ int main(int argc, char *argv[])
         destroyAggData(&mB, &t);
         destroyAggData(&mA4, &t);
 
-      } break;
-      case 21: {
+}
+
+void testCase21() {
         // --------------------------------------------------------------------
         // TESTING 'makeValue' FUNCTION
         //
@@ -5922,11 +5921,13 @@ int main(int argc, char *argv[])
                     SchemaAggUtil::canSatisfyRecord(C.asElemRef().theRow(),
                                                     CONSTRAINT));
                   } break;
+
                   case ET::BDEM_CHOICE: {
                     LOOP_ASSERT(LINE,
                          SchemaAggUtil::canSatisfyRecord(ELEM_REF.theChoice(),
                                                          CONSTRAINT));
                   } break;
+
                   case ET::BDEM_CHOICE_ARRAY: {
                     LOOP_ASSERT(LINE,
                     SchemaAggUtil::canSatisfyRecord(ELEM_REF.theChoiceArray(),
@@ -5940,6 +5941,7 @@ int main(int argc, char *argv[])
                                             C.asElemRef().theChoiceArrayItem(),
                                             CONSTRAINT));
                   } break;
+
                   default: {
                     ; // suppress warnings about incomplete case statement
                   }
@@ -5958,8 +5960,9 @@ int main(int argc, char *argv[])
             destroyAggData(&mX, &t);
             destroyAggData(&mY, &t);
         }
-      } break;
-      case 20: {
+}
+
+void testCase20() {
         // --------------------------------------------------------------------
         // TESTING REMAINING ACCESSORS:
         //
@@ -6551,8 +6554,9 @@ int main(int argc, char *argv[])
                 destroyAggData(&mY, &t);
             }
         }
-      } break;
-      case 19: {
+}
+
+void testCase19() {
         // --------------------------------------------------------------------
         // TESTING 'length' ACCESSORS:
         //
@@ -6775,8 +6779,9 @@ int main(int argc, char *argv[])
 
             destroyAggData(&mX, &t);
         }
-      } break;
-      case 18: {
+}
+
+void testCase18() {
         // --------------------------------------------------------------------
         // TESTING COPY CONSTRUCTOR:
         //
@@ -6949,8 +6954,9 @@ int main(int argc, char *argv[])
             destroyAggData(&mX, &t);
             destroyAggData(&mY, &t);
         }
-      } break;
-      case 17: {
+}
+
+void testCase17() {
         // --------------------------------------------------------------------
         // TESTING 'makeSelectionByIndex' MANIPULATORS & 'selectorIndex':
         //
@@ -7161,8 +7167,9 @@ int main(int argc, char *argv[])
                 destroyAggData(&mY, &t);
             }
         }
-      } break;
-      case 16: {
+}
+
+void testCase16() {
         // --------------------------------------------------------------------
         // TESTING 'makeSelectionById' MANIPULATORS & 'selectorId':
         //
@@ -7375,8 +7382,9 @@ int main(int argc, char *argv[])
                 destroyAggData(&mY, &t);
             }
         }
-      } break;
-      case 15: {
+}
+
+void testCase15() {
         // --------------------------------------------------------------------
         // TESTING 'makeSelection' MANIPULATORS:
         //
@@ -7775,8 +7783,9 @@ int main(int argc, char *argv[])
 
             destroyAggData(&mX, &t);
         }
-      } break;
-      case 14: {
+}
+
+void testCase14() {
         // --------------------------------------------------------------------
         // TESTING 'insertItems' and 'removeItems' FUNCTION:
         //
@@ -8174,8 +8183,9 @@ int main(int argc, char *argv[])
           }
         }
 #endif
-      } break;
-      case 13: {
+}
+
+void testCase13() {
         // --------------------------------------------------------------------
         // TESTING 'insertItem' and 'arrayItem' FUNCTIONS:
         //
@@ -8514,8 +8524,9 @@ int main(int argc, char *argv[])
                 destroyAggData(&mX, &testAllocator);
             }
         }
-      } break;
-      case 12: {
+}
+
+void testCase12() {
         // --------------------------------------------------------------------
         // TESTING 'resize' FUNCTION:
         //
@@ -8734,8 +8745,9 @@ int main(int argc, char *argv[])
 
           } END_BSLMA_EXCEPTION_TEST
         }
-      } break;
-      case 11: {
+}
+
+void testCase11() {
         // --------------------------------------------------------------------
         // TESTING TRIVIAL MANIPULATORS AND ACCESSORS:
         //
@@ -8986,8 +8998,9 @@ int main(int argc, char *argv[])
                 destroyValuePtr(d, TYPE, &t);
             }
         }
-      } break;
-      case 10: {
+}
+
+void testCase10() {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR:
         //
@@ -9260,8 +9273,9 @@ int main(int argc, char *argv[])
             }
             destroyAggData(&mX, &t1);
         }
-      } break;
-      case 9: {
+}
+
+void testCase9() {
         // --------------------------------------------------------------------
         // TESTING print() FUNCTION AND OUTPUT (<<) OPERATOR:
         //
@@ -9702,8 +9716,9 @@ int main(int argc, char *argv[])
                }
            }
         }
-      } break;
-      case 8: {
+}
+
+void testCase8() {
         // --------------------------------------------------------------------
         // TESTING CREATORS
         //
@@ -9749,8 +9764,9 @@ int main(int argc, char *argv[])
             ASSERT(0                   == X.fieldDef());
             ASSERT(true                == X.isNull());
         }
-      } break;
-      case 7: {
+}
+
+void testCase7() {
         // --------------------------------------------------------------------
         // TESTING IDENTITY AND EQUIVALENCE:
         //
@@ -10154,8 +10170,9 @@ int main(int argc, char *argv[])
                 destroyAggData(&mY, &t);
             }
         }
-      } break;
-      case 6: {
+}
+
+void testCase6() {
         // --------------------------------------------------------------------
         // TESTING 'asElemRef' and related ACCESSORS:
         //
@@ -10454,8 +10471,9 @@ int main(int argc, char *argv[])
                 destroyAggData(&mX, &t);
             }
         }
-      } break;
-      case 5: {
+}
+
+void testCase5() {
         // --------------------------------------------------------------------
         // TESTING 'asXXX' ACCESSORS:
         //
@@ -12143,8 +12161,9 @@ int main(int argc, char *argv[])
                 destroyAggData(&mA, &t);
             }
         }
-      } break;
-      case 4: {
+}
+
+void testCase4() {
         // --------------------------------------------------------------------
         // TESTING 'setField' MANIPULATOR FUNCTIONS:
         //
@@ -12404,7 +12423,9 @@ int main(int argc, char *argv[])
                 ASSERT(0        == S.recordConstraint());
                 ASSERT(VA       == B.asElemRef());
                 ASSERT(!S.isNull());
+
               } break;
+
               case 2: {
                 const char f1[] = { *(bsl::strtok(SPEC, ":")), 0 };
                 const char f2[] = { *(bsl::strtok(0, ":") + 2), 0 };
@@ -12487,6 +12508,7 @@ int main(int argc, char *argv[])
                 ASSERT(VA       == B.asElemRef());
                 ASSERT(!S.isNull());
               } break;
+
               case 3: {
                 const char f1[] = { *(bsl::strtok(SPEC, ":")), 0 };
                 const char f2[] = { *(bsl::strtok(0, ":") + 2), 0 };
@@ -12570,6 +12592,7 @@ int main(int argc, char *argv[])
                 ASSERT(VA       == B.asElemRef());
                 ASSERT(!S.isNull());
               } break;
+
               case 4: {
                 const char f1[] = { *(bsl::strtok(SPEC, ":")), 0 };
                 const char f2[] = { *(bsl::strtok(0, ":") + 2), 0 };
@@ -12640,6 +12663,7 @@ int main(int argc, char *argv[])
                 ASSERT(VA == B.asElemRef());
                 ASSERT(!S.isNull());
               } break;
+
               case 5: {
                 const char f1[] = { *(bsl::strtok(SPEC, ":")), 0 };
                 const char f2[] = { *(bsl::strtok(0, ":") + 2), 0 };
@@ -12711,6 +12735,7 @@ int main(int argc, char *argv[])
                 ASSERT(VA == B.asElemRef());
                 ASSERT(!S.isNull());
               } break;
+
               case 6: {
                 const char f1[] = { *(bsl::strtok(SPEC, ":")), 0 };
                 const char f2[] = { *(bsl::strtok(0, ":") + 2), 0 };
@@ -12783,6 +12808,7 @@ int main(int argc, char *argv[])
                 ASSERT(VA == B.asElemRef());
                 ASSERT(!S.isNull());
               } break;
+
               case 7: {
                 const char f1[] = { *(bsl::strtok(SPEC, ":")), 0 };
                 const char f2[] = { *(bsl::strtok(0, ":") + 2), 0 };
@@ -12859,6 +12885,7 @@ int main(int argc, char *argv[])
                 ASSERT(VA == B.asElemRef());
                 ASSERT(!S.isNull());
               } break;
+
               case 8: {
                 const char f1[] = { *(bsl::strtok(SPEC, ":")), 0 };
                 const char f2[] = { *(bsl::strtok(0, ":") + 2), 0 };
@@ -12938,6 +12965,7 @@ int main(int argc, char *argv[])
                 ASSERT(VA == B.asElemRef());
                 ASSERT(!S.isNull());
               } break;
+
               case 9: {
                 const char f1[] = { *(bsl::strtok(SPEC, ":")), 0 };
                 const char f2[] = { *(bsl::strtok(0, ":") + 2), 0 };
@@ -13016,6 +13044,7 @@ int main(int argc, char *argv[])
                 ASSERT(VA == B.asElemRef());
                 ASSERT(!S.isNull());
               } break;
+
               case 10: {
                 const char f1 [] = { *(bsl::strtok(SPEC, ":")), 0 };
                 const char f2 [] = { *(bsl::strtok(0, ":") + 2), 0 };
@@ -13164,15 +13193,18 @@ int main(int argc, char *argv[])
                                 Error::BCEM_ERR_BAD_FIELDNAME == err.code());
                 }
               } break;
-              default:
+
+              default: {
                 ASSERT(0);
+              } break;
             }
 
             destroyAggData(&mY, &t);
             destroyAggData(&mX, &t);
         }
-      } break;
-      case 3: {
+}
+
+void testCase3() {
         // --------------------------------------------------------------------
         // TESTING PRIMARY MANIPULATORS (BOOTSTRAP):
         //
@@ -13912,8 +13944,9 @@ int main(int argc, char *argv[])
                 destroyAggData(&mN, &t);
             }
         }
-      } break;
-      case 2: {
+}
+
+void testCase2() {
         // --------------------------------------------------------------------
         //   Since the helper functions were copied verbatim from
         //   bdem_binding.t.cpp, the test cases for them were also copied from
@@ -14485,8 +14518,9 @@ int main(int argc, char *argv[])
                 }
             }
         }
-      } break;
-      case 1: {
+}
+
+void testCase1() {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
@@ -14860,7 +14894,58 @@ int main(int argc, char *argv[])
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == ta2.numBlocksInUse());
         }
-      } break;
+}
+
+
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
+
+int main(int argc, char *argv[])
+{
+    int test = argc > 1 ? std::atoi(argv[1]) : 0;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
+
+    initStaticData();
+
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    switch (test) { case 0:  // Zero is always the leading case.
+#define CASE(NUMBER) \
+      case NUMBER: testCase##NUMBER(); break
+        CASE(30);
+        CASE(29);
+        CASE(28);
+        CASE(27);
+        CASE(26);
+        CASE(25);
+        CASE(24);
+        CASE(23);
+        CASE(22);
+        CASE(21);
+        CASE(20);
+        CASE(19);
+        CASE(18);
+        CASE(17);
+        CASE(16);
+        CASE(15);
+        CASE(14);
+        CASE(13);
+        CASE(12);
+        CASE(11);
+        CASE(10);
+        CASE(9);
+        CASE(8);
+        CASE(7);
+        CASE(6);
+        CASE(5);
+        CASE(4);
+        CASE(3);
+        CASE(2);
+        CASE(1);
+#undef CASE
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
         testStatus = -1;
