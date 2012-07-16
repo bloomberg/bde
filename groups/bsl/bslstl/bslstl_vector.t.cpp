@@ -1867,7 +1867,10 @@ void TestDriver<TYPE,ALLOC>::testCase22()
                        "\nTesting with other constructors and manipulators\n");
     {
         TYPE element;
-        Obj mX(&element, &element + 1, &testAllocator);  const Obj& X = mX;
+        Obj mX(BSLS_UTIL_ADDRESSOF(element),
+               BSLS_UTIL_ADDRESSOF(element) + 1,
+               &testAllocator);
+        const Obj& X = mX;
 
         Obj mY(mX, &testAllocator);  const Obj& Y = mY;
         ASSERT(TYPE() == Y[0]);
