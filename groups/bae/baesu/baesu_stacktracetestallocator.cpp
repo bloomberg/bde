@@ -66,10 +66,9 @@ static void * const headNodeMagic       = (void *) 0xb055cafeb055cafeULL;
 
 static
 int getSegFrames(int segFramesArg)
-{
     // round the section for segment pointers up to the nearest multiple of
     // MAX_ALIGNMENT.
-
+{
     int minSegFramesBytes = segFramesArg * sizeof(void *);
     int roundedUpBytes = (((minSegFramesBytes + MAX_ALIGNMENT - 1) /
                                                MAX_ALIGNMENT) * MAX_ALIGNMENT);
@@ -152,20 +151,21 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckSegmentHdr(
 
     if (unfreedSegmentMagic != segmentHdr->d_magic) {
         if (freedSegmentMagic == segmentHdr->d_magic) {
-            *d_ostream << "Error: segment at " << &segmentHdr[1] <<
-                     " freed second time by allocator " << d_name << bsl::endl;
+            // Note: this write may allocate the freed segment, trashing
+            // '*segmentHdr'.
 
-            rc = -1;
+            *d_ostream << "Error: segment at " << &segmentHdr[1] <<
+                        " freed second time by allocator '" << d_name << "'\n";
         }
         else {
             *d_ostream << "Error: corrupted segment at " <<
-                     &segmentHdr[1] << " attempted to be freed by '" <<
+                   &segmentHdr[1] << " attempted to be freed by allocator '" <<
                                                                d_name << "'\n";
-
-            return -1;                                                // RETURN
         }
+
+        return -1;                                                    // RETURN
     }
-    
+
     if (this != segmentHdr->d_allocator) {
         baesu_StackTraceTestAllocator *otherAlloc = segmentHdr->d_allocator;
         bool notOurs = headNodeMagic != otherAlloc->d_headNode.d_magic;
@@ -173,7 +173,8 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckSegmentHdr(
                            " allocator.\n    Segment belongs to allocator '" <<
                           (notOurs ? "<<Not a baesu_StackTraceTestAllocator>>"
                                    : otherAlloc->d_name) <<
-                         "'\n    Attempted to free by " << d_name << bsl::endl;
+                                   "'\n    Attempted to free by allocator '" <<
+                                                               d_name << "'\n";
 
         if (notOurs) {
             return -1;                                                // RETURN
@@ -203,10 +204,10 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckSegmentHdr(
                                  d_name << "' corrupted, bad magic number: " <<
                                         adjacent->d_next->d_magic << bsl::endl;
             }
-    
+
             rc = -1;
         }
-    
+
         if (segmentHdr->d_prev == adjacent) {
             break;
         }
@@ -289,7 +290,7 @@ baesu_StackTraceTestAllocator::~baesu_StackTraceTestAllocator()
 void *baesu_StackTraceTestAllocator::allocate(size_type size)
 {
     if (0 == size) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
@@ -342,7 +343,7 @@ void *baesu_StackTraceTestAllocator::allocate(size_type size)
     // addresses.
 
     {
-        void **from    = d_rawTraceBuffer + IGNORE_FRAMES; 
+        void **from    = d_rawTraceBuffer + IGNORE_FRAMES;
         void **endFrom = from + depth;
 
         while (from < endFrom) {
@@ -373,9 +374,10 @@ void *baesu_StackTraceTestAllocator::allocate(size_type size)
 void baesu_StackTraceTestAllocator::deallocate(void *address)
 {
     if (!address) {
-        return;
+        return;                                                       // RETURN
     }
     BSLS_ASSERT(0 == ((UintPtr) address & (sizeof(void **) - 1)));
+    BSLS_ASSERT(0 == ((UintPtr) address & (MAX_ALIGNMENT   - 1)));
 
     SegmentHdr *segmentHdr = (SegmentHdr *) address - 1;
 
@@ -386,7 +388,7 @@ void baesu_StackTraceTestAllocator::deallocate(void *address)
             abort();
         }
 
-        return;
+        return;                                                       // RETURN
     }
 
     segmentHdr->d_next->d_prev = segmentHdr->d_prev;
@@ -408,7 +410,7 @@ void baesu_StackTraceTestAllocator::release()
             abort();
         }
 
-        return;
+        return;                                                       // RETURN
     }
 
     int numSegments = 0;
@@ -419,7 +421,7 @@ void baesu_StackTraceTestAllocator::release()
                 abort();
             }
 
-            return;
+            return;                                                   // RETURN
         }
 
         ++numSegments;
@@ -472,7 +474,7 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
     }
 
     if (0 == d_numBlocksInUse) {
-        return;
+        return;                                                       // RETURN
     }
 
     *ostream << d_numBlocksInUse << " segment(s) in allocator '" <<
@@ -560,7 +562,7 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
             baesu_StackTraceUtil::printFormatted(*ostream, st);
         }
         st.removeAll();
-    }           
+    }
 }
 
 }  // close enterprise namespace
