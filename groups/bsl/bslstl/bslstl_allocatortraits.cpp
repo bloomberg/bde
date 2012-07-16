@@ -2,10 +2,10 @@
 #include <bslstl_allocatortraits.h>
 
 #ifdef TESTING
-//#include <bslma_testallocator.h>               // for testing only
-//#include <bslma_default.h>                     // for testing only
-//#include <bslstl_allocator.h>                  // for testing only
-//#include <bslalg_typetraitsgroupstlsequence.h> // for testing only
+//#include <bslma_testallocator.h>                    // for testing only
+//#include <bslma_default.h>                          // for testing only
+//#include <bslstl_allocator.h>                       // for testing only
+//#include <bslalg_traitsgroupstlsequencecontainer.h> // for testing only
 #endif
 
 // ---------------------------------------------------------------------------

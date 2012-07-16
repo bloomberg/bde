@@ -55,23 +55,9 @@
 # endif
 #endif
 
-#ifdef BSL_INCLUDE_BSL_MAP
-# ifndef INCLUDED_BSLSTP_MAP
-#   include <bslstp_map.h>
-#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
-# endif
-#endif
-
 #ifdef BSL_INCLUDE_BSL_QUEUE
 # ifndef INCLUDED_BSLSTP_QUEUE
 #   include <bslstp_queue.h>
-#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
-# endif
-#endif
-
-#ifdef BSL_INCLUDE_BSL_SET
-# ifndef INCLUDED_BSLSTP_SET
-#   include <bslstp_set.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
@@ -148,6 +134,28 @@
 #ifdef BSL_INCLUDE_BSL_VECTOR
 # ifndef INCLUDED_BSLSTL_VECTOR
 #   include <bslstl_vector.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
+#ifdef BSL_INCLUDE_BSL_MAP
+# ifndef INCLUDED_BSLSTL_MAP
+#   include <bslstl_map.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_MULTIMAP
+#   include <bslstl_multimap.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
+#ifdef BSL_INCLUDE_BSL_SET
+# ifndef INCLUDED_BSLSTL_SET
+#   include <bslstl_set.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_MULTISET
+#   include <bslstl_multiset.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif

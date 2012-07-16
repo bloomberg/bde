@@ -14,17 +14,25 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
-//@SEE_ALSO: bslalg_rbtreeprimitives
+//@SEE_ALSO: bslalg_rbtreeutil
 //
 //@DESCRIPTION: This component provides a single POD-like class, 'RbTreeNode',
 // used to represent a node in a red-black binary search tree.  An 'RbTreeNode'
 // provides the address to its parent, left-child, and right-child nodes, as
 // well as providing a "color" (red or black).  'RbTreeNode' does not, however,
 // contain "payload" data (e.g., a value), as it is intended to work with
-// generalized tree operations (see 'bslalg_rbtreenodeprimitives').  Clients
-// creating a red-black binary search tree must define their own node type that
+// generalized tree operations (see 'bslalg_rbtreenodeutil').  Clients creating
+// a red-black binary search tree must define their own node type that
 // incorporates 'RbTreeNode' (generally via inheritance), and that maintains
 // the "key" value and any associated data.
+//
+///Storing Color Information
+///-------------------------
+// To reduce the memory footprint of the 'RbTreeNode', the color information is
+// stored at the least-significant-bit (LSB) of the parent node.  The address
+// of the parent node and the color can be accessed through bit-wise
+// operations.  This is possible because all memory addresses are at least
+// 4-bytes aligned, therefore, the 2 LSB of any pointer are always 0.
 //
 ///Usage
 ///-----
@@ -69,15 +77,15 @@ BSLS_IDENT("$Id$ $CSID$")
 //      fprintf(output, " ]");
 //  }
 //..
-// Finally, notice that we use 'FILE' in the context of this usage example to
-// avoid a dependency of standard library streams.  We will use 'printTree' to
+// Notice that we use 'FILE' in the context of this usage example to avoid a
+// dependency of standard library streams.  Finally, we will use 'printTree' to
 // print a description of a tree in the next example.
 //
 ///Example 2: Creating a Simple Red-Black Tree
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates creating a simple tree of integer values using
 // 'RbTreeNode'.  Note that, in practice, clients should use associated
-// utilities to manage such a tree (see 'bslalg_rbtreenodeprimitives').
+// utilities to manage such a tree (see 'bslalg_rbtreenodeutil').
 //
 // First, we define a node-type, 'IntTreeNode', that inherits from
 //'RbTreeNode':
@@ -102,16 +110,16 @@ BSLS_IDENT("$Id$ $CSID$")
 // Next, we define 'main' for our test, and create three nodes that we'll use
 // to construct a tree:
 //..
-//    int main(int argc, const char *argv[])
-//    {
+//  int main(int argc, const char *argv[])
+//  {
 //      IntTreeNode A, B, C;
 //..
 // Then, we describe the structure of the tree we wish to construct.
 //..
 //
 //                A (value: 2, BLACK)
-//              /       \
-//             /         \
+//              /       \.
+//             /         \.
 //  B (value: 1, RED)   C ( value: 3, RED )
 //..
 // Now, we set the properties for the nodes 'A', 'B', and 'C' to form a valid
@@ -139,6 +147,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // function to print the structure of our tree to 'stdout':
 //..
 //      printTree(stdout, &A, printIntTreeNodeValue);
+//  }
 //..
 // Resulting in a single line of console output:
 //..
@@ -164,7 +173,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      // negative value if 'rootNode' does not refer to a valid red-black
 //      // binary-search tree that is ordered according to the specified
 //      // 'comparator'.  'rootNode' is considered a valid red-black binary
-//      // search-tree if it obeys the following rules: 
+//      // search-tree if it obeys the following rules:
 //      //
 //      //: 1 All nodes in the left sub-tree of 'rootNode' are ordered at or
 //      //:   before 'rootNode' (as determined by 'comparator'), and all nodes
@@ -176,7 +185,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      //:
 //      //: 4 Every path from 'rootNode' to a leaf contains the same number of
 //      //:   black nodes (the uniform number of black nodes in every path is
-//      //:   returned by this function if valid). 
+//      //:   returned by this function if valid).
 //      //:
 //      //: 5 Rules (1-4) are obeyed, recursively, by the left and right
 //      //:   sub-trees of 'rootNode'.
@@ -198,17 +207,17 @@ BSLS_IDENT("$Id$ $CSID$")
 //                        const RbTreeNode *minNodeValue,
 //                        const RbTreeNode *maxNodeValue,
 //                        NODE_COMPARATOR   comparator);
-//   
+//
 //      // Return the uniform number of black nodes between every leaf node in
 //      // the tree and the specified 'rootNode', 0 if 'rootNode' is 0, and a
 //      // negative value if (1) 'rootNode' does not refer to a valid red-black
 //      // binary search tree that is ordered according to the specified
-//      // 'comparator', (2) the specified 'minNodeValue' is not 0 and all
-//      // nodes in the tree are at or after 'minNodeValue', or (3) if the
-//      // specified 'maxNodeValue' is not 0 and all nodes in the tree are at
-//      // or before 'maxNodeValue'.  
+//      // 'comparator', (2) the specified 'minNodeValue' is not 0 and there is
+//      // at least 1 node in the tree ordered before 'minNodeValue', or (3)
+//      // the specified 'maxNodeValue' is not 0 and there is at least 1 node
+//      // in the tree ordered after 'maxNodeValue'.
 //..
-// Next, we define the implementation of 'validateRbTree', which simply
+// Now, we define the implementation of 'validateRbTree', which simply
 // delegates to 'validateRbTreeRaw'.
 //..
 //  template <class NODE_COMPARATOR>
@@ -218,10 +227,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //      return validateRbTreeRaw(rootNode, 0, 0, comparator);
 //  }
 //..
-// Now, we define the implementation of 'validateRbTreeRaw', which tests if
+// Finally, we define the implementation of 'validateRbTreeRaw', which tests if
 // 'rootNode' violates any of the rules defined in the 'validateRbTree' method
 // documentation, and then recursively calls 'validateRbTreeRaw' on the left
-// and right sub-trees or 'rootNode': 
+// and right sub-trees or 'rootNode':
 //..
 //  template <class NODE_COMPARATOR>
 //  int validateRbTreeRaw(const RbTreeNode *rootNode,
@@ -289,6 +298,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //          ? leftDepth + 1
 //          : leftDepth;
 //  }
+//..
 
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -297,6 +307,14 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 namespace BloombergLP {
@@ -312,12 +330,15 @@ class RbTreeNode {
     // right-child nodes (any of which may be 0), as well as a "color" (red or
     // black).  This class is a "POD-like" to facilitate efficient allocation
     // and use in the context of a container implementation.  In order to meet
-    // the essential requirements of a POD type, this 'class' does not define
-    // a constructor or destructor.  However its data members are private.
-    // Note that this type does not contain any "payload" member data: Clients
-    // creating a red-black binary search tree must define an appropriate node
-    // type that incorporates 'RbTreeNode' (generally via inheritance), and
-    // that holds the "key" value and any associated data.
+    // the essential requirements of a POD type, this 'class' does not define a
+    // constructor or destructor.  However its data members are private.  Since
+    // this class will be aligned to a word boundary, a pointer type will be a
+    // multiple of 4.  This class use this property to reduce its size by
+    // storing the color information in the least significant bit of the parent
+    // pointer.  Note that this type does not contain any "payload" member
+    // data: Clients creating a red-black binary search tree must define an
+    // appropriate node type that incorporates 'RbTreeNode' (generally via
+    // inheritance), and that holds the "key" value and any associated data.
 
   public:
     // TYPES
@@ -328,13 +349,39 @@ class RbTreeNode {
 
   private:
     // DATA
-    Color       d_color;     // color of this node (Red or Black)
-    RbTreeNode *d_parent_p;  // parent of this node (may be 0)
-    RbTreeNode *d_left_p;    // left-child of this node (may be 0)
-    RbTreeNode *d_right_p;   // right-child of this node (may be 0)
+    RbTreeNode *d_parentWithColor_p;  // parent of this node (may be 0) with
+                                      // the color information stored in the
+                                      // least significant bit
+
+    RbTreeNode *d_left_p;             // left-child of this node (may be 0)
+
+    RbTreeNode *d_right_p;            // right-child of this node (may be 0)
+
+
+  private:
+    // PRIVATE CLASS METHODS
+    static bsls::Types::UintPtr toInt(RbTreeNode *value);
+        // Return the specified 'value' as an 'unsigned int'.
+
+    static RbTreeNode *toNode(bsls::Types::UintPtr value);
+        // Return the specified 'value' as 'RbTreeNode *'.
 
   public:
+    //! RbTreeNode() = default;
+        // Create a 'RbTreeNode' object having uninitialized values.
+
+    //! RbTreeNode(const RbTreeNode& original) = default;
+        // Create a 'RbTreeNode' object having the same value as the specified
+        // 'original' object.
+
+    //! ~RbTreeNode() = default;
+        // Destroy this object.
+
     // MANIPULATORS
+    //! RbTreeNode& operator= (const RbTreeNode& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
     void makeBlack();
         // Set the color of this node to black.  Note that this operation is
         // at least as fast as (and potentially faster than) 'setColor'.
@@ -346,7 +393,8 @@ class RbTreeNode {
     void setParent(RbTreeNode *address);
         // Set the parent of this node to the specified 'address'.  If
         // 'address' is 0, then this node will have not have a parent node
-        // (i.e., it will be the root node).
+        // (i.e., it will be the root node).  The behavior is undefined unless
+        // 'address' is aligned to at least two bytes.
 
     void setLeftChild(RbTreeNode *address);
         // Set the left child of this node to the specified 'address'.  If
@@ -363,7 +411,14 @@ class RbTreeNode {
         // Set the color of this node to the alternative color.  If this
         // node's color is red, set it to black, and set it to red otherwise.
         // Note that this operation is at least as fast as (and potentially
-        // faster than) 'setColor'. 
+        // faster than) 'setColor'.
+
+    void reset(RbTreeNode *parent,
+               RbTreeNode *leftChild,
+               RbTreeNode *rightChild,
+               Color       color);
+        // Reset this object to have the specified 'parent', 'leftChild',
+        // 'rightChild', and 'color' property values.
 
     RbTreeNode *parent();
         // Return the address of the (modifiable) parent of this node if one
@@ -382,6 +437,12 @@ class RbTreeNode {
         // Return the address of the parent of this node if one exists, and 0
         // otherwise.
 
+    bool isBlack() const;
+        // Return 'true' if this node is black.
+
+    bool isRed() const;
+        // Return 'true' if this node is red.
+
     const RbTreeNode *leftChild() const;
         // Return the address of the left child of this node if one exists,
         // and 0 otherwise.
@@ -398,41 +459,57 @@ class RbTreeNode {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+// PRIVATE METHODS
+inline
+bsls::Types::UintPtr RbTreeNode::toInt(RbTreeNode *value)
+{
+    return reinterpret_cast<bsls::Types::UintPtr>(value);
+}
+
+inline
+RbTreeNode *RbTreeNode::toNode(bsls::Types::UintPtr value)
+{
+    return reinterpret_cast<RbTreeNode *>(value);
+}
+
 // MANIPULATORS
 inline
 void RbTreeNode::makeBlack()
 {
-    d_color = BSLALG_BLACK;
+    d_parentWithColor_p = toNode(toInt(d_parentWithColor_p) | 0x01);
 }
 
-inline 
+inline
 void RbTreeNode::makeRed()
 {
-    d_color = BSLALG_RED;
+    d_parentWithColor_p = toNode(toInt(d_parentWithColor_p) & ~0x01);
 }
 
 inline
-void RbTreeNode::setParent(RbTreeNode *parent)
+void RbTreeNode::setParent(RbTreeNode *address)
 {
-    d_parent_p = parent;
+    BSLS_ASSERT_SAFE(0 == (toInt(address) & 0x01));
+
+    d_parentWithColor_p =
+                  toNode(toInt(address) | (toInt(d_parentWithColor_p) & 0x01));
 }
 
 inline
-void RbTreeNode::setLeftChild(RbTreeNode *leftChild)
+void RbTreeNode::setLeftChild(RbTreeNode *address)
 {
-    d_left_p = leftChild;
+    d_left_p = address;
 }
 
 inline
-void RbTreeNode::setRightChild(RbTreeNode *rightChild)
+void RbTreeNode::setRightChild(RbTreeNode *address)
 {
-    d_right_p = rightChild;
+    d_right_p = address;
 }
 
 inline
-void RbTreeNode::setColor(Color color)
+void RbTreeNode::setColor(Color value)
 {
-    d_color = color;
+    d_parentWithColor_p = toNode((toInt(d_parentWithColor_p) & ~0x01) | value);
 }
 
 inline
@@ -441,13 +518,26 @@ void RbTreeNode::toggleColor()
     BSLMF_ASSERT(0 == BSLALG_RED);
     BSLMF_ASSERT(1 == BSLALG_BLACK);
 
-    d_color = static_cast<Color>(d_color ^ 1);
+    d_parentWithColor_p = toNode(toInt(d_parentWithColor_p) ^ 0x01);
+}
+
+inline
+void RbTreeNode::reset(RbTreeNode *parent,
+                       RbTreeNode *leftChild,
+                       RbTreeNode *rightChild,
+                       Color       color)
+{
+    BSLS_ASSERT_SAFE(0 == (toInt(parent) & 0x01));
+
+    d_parentWithColor_p = toNode(toInt(parent) | color);
+    d_left_p = leftChild;
+    d_right_p = rightChild;
 }
 
 inline
 RbTreeNode *RbTreeNode::parent()
 {
-    return d_parent_p;
+    return toNode(toInt(d_parentWithColor_p) & ~0x01);
 }
 
 inline
@@ -466,7 +556,19 @@ RbTreeNode *RbTreeNode::rightChild()
 inline
 const RbTreeNode *RbTreeNode::parent() const
 {
-    return d_parent_p;
+    return toNode(toInt(d_parentWithColor_p) & ~0x01);
+}
+
+inline
+bool RbTreeNode::isBlack() const
+{
+    return toInt(d_parentWithColor_p) & 0x01;
+}
+
+inline
+bool RbTreeNode::isRed() const
+{
+    return !isBlack();
 }
 
 inline
@@ -484,7 +586,7 @@ const RbTreeNode *RbTreeNode::rightChild() const
 inline
 RbTreeNode::Color RbTreeNode::color() const
 {
-    return d_color;
+    return static_cast<Color>(toInt(d_parentWithColor_p) & 0x01);
 }
 
 }  // close namespace bslalg
@@ -494,7 +596,7 @@ RbTreeNode::Color RbTreeNode::color() const
 
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
