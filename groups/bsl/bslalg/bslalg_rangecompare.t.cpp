@@ -157,18 +157,18 @@ typedef bslalg::RangeCompare   Obj;
 struct ScalarPrimitives
 {
   public:
-      template <typename TARGET_TYPE>
-      static void copyConstruct(TARGET_TYPE        *address,
-                                const TARGET_TYPE&  original,
-                                bslma::Allocator   *allocator);
+    template <typename TARGET_TYPE>
+    static void copyConstruct(TARGET_TYPE        *address,
+                              const TARGET_TYPE&  original,
+                              bslma::Allocator   *allocator);
         // Build an object of the parameterized 'TARGET_TYPE' from the
         // specified 'original' object of the same 'TARGET_TYPE' in the
         // uninitialized memory at the specified 'address', as if by using the
         // copy constructor of 'TARGET_TYPE'.  If the constructor throws, the
         // 'address' is left in an uninitialized state.
 
-      template <typename TARGET_TYPE>
-      static void destroy(TARGET_TYPE *object);
+    template <typename TARGET_TYPE>
+    static void destroy(TARGET_TYPE *object);
         // Destroy the specified 'object' of the parameterized 'TARGET_TYPE',
         // as if by calling the 'TARGET_TYPE' destructor, but do not deallocate
         // the memory occupied by 'object'.  Note that the destructor may
@@ -224,8 +224,8 @@ class MyContainer {
     bslma::Allocator *d_allocator_p;
 
     // NOT IMPLEMENTED
-    MyContainer(const MyContainer& other);
-    MyContainer& operator=(const MyContainer& other);
+    MyContainer(const MyContainer&);
+    MyContainer& operator=(const MyContainer&);
 
   public:
     // PUBLIC TYPES
@@ -239,8 +239,8 @@ class MyContainer {
         // Initialize this object as an empty container with zero capacity.
 
     MyContainer(std::size_t capacity, bslma::Allocator *basicAllocator = 0);
-    	// Initialize this object as an empty container 
-	// with the given capacity
+        // Initialize this object as an empty container
+        // with the given capacity
 
     ~MyContainer();
 
@@ -252,7 +252,7 @@ class MyContainer {
         // allocated may be higher.
 
     void push_back(const VALUE_TYPE& value);
-        // Add the specified value at the past-the-end position in this 
+        // Add the specified value at the past-the-end position in this
         // container, increasing the container's capacity if needed.
 
     // ...
@@ -284,7 +284,7 @@ MyContainer<VALUE_TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 }
 
 template <class VALUE_TYPE>
-MyContainer<VALUE_TYPE>::MyContainer(std::size_t capacity, 
+MyContainer<VALUE_TYPE>::MyContainer(std::size_t capacity,
                                      bslma::Allocator *basicAllocator)
     : d_size(0)
     , d_capacity(0)
@@ -292,8 +292,9 @@ MyContainer<VALUE_TYPE>::MyContainer(std::size_t capacity,
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
         BSLS_ASSERT(d_allocator_p);
-        d_start_p = 
-            (VALUE_TYPE *) d_allocator_p->allocate(capacity * sizeof *d_start_p);
+
+        d_start_p =
+          (VALUE_TYPE *) d_allocator_p->allocate(capacity * sizeof *d_start_p);
         BSLS_ASSERT(d_start_p);
         d_capacity = capacity;
 }
@@ -343,7 +344,7 @@ void MyContainer<VALUE_TYPE>::reserve(std::size_t newCapacity)
         d_start_p = replacement.d_start_p;
         replacement.d_start_p = temp;
     }
-    
+
     // Old elements will be destroyed when replacement goes out of scope.
 }
 
@@ -361,19 +362,23 @@ void MyContainer<VALUE_TYPE>::push_back(const VALUE_TYPE& value)
 
     BSLS_ASSERT(d_size < d_capacity);
 
-    ScalarPrimitives::copyConstruct<VALUE_TYPE>(&d_start_p[d_size], value, d_allocator_p);
+    ScalarPrimitives::copyConstruct<VALUE_TYPE>(&d_start_p[d_size],
+                                                 value,
+                                                 d_allocator_p);
     ++d_size;
 }
 
 // ACCESSORS
 template <class VALUE_TYPE>
-typename MyContainer<VALUE_TYPE>::ConstIterator MyContainer<VALUE_TYPE>::begin() const
+typename MyContainer<VALUE_TYPE>::ConstIterator
+MyContainer<VALUE_TYPE>::begin() const
 {
     return d_start_p;
 }
 
 template <class VALUE_TYPE>
-typename MyContainer<VALUE_TYPE>::ConstIterator MyContainer<VALUE_TYPE>::end() const
+typename MyContainer<VALUE_TYPE>::ConstIterator
+MyContainer<VALUE_TYPE>::end() const
 {
     return d_start_p + d_size;
 }
@@ -398,13 +403,14 @@ class MyString {
     void set(const char* s, std::size_t length);
 
     // FRIENDS
-    friend bool operator==(const MyString& lhs, const MyString& rhs);
-    friend bool operator!=(const MyString& lhs, const MyString& rhs);
+    friend bool operator==(const MyString&, const MyString&);
+    friend bool operator!=(const MyString&, const MyString&);
 
   public:
     explicit MyString(const char* s, bslma::Allocator *basicAllocator = 0);
-    MyString(const MyString& rhs, bslma::Allocator *basicAllocator = 0);
-    MyString& operator=(const MyString& rhs);
+    explicit MyString(const MyString&   other,
+                      bslma::Allocator *basicAllocator = 0);
+    MyString& operator=(const MyString& other);
     ~MyString();
 
     const char* c_str() const;
@@ -444,7 +450,8 @@ MyString& MyString::operator=(const MyString& rhs)
 void MyString::set(const char* s, std::size_t length)
 {
     d_length = length;
-    d_start_p = (char *) d_allocator_p->allocate((length + 1) * sizeof *d_start_p);
+    d_start_p =
+           (char *) d_allocator_p->allocate((length + 1) * sizeof *d_start_p);
     memcpy(d_start_p, s, length);
     d_start_p[length] = '\0';
 }
@@ -465,9 +472,9 @@ bool operator==(const MyString& lhs, const MyString& rhs)
         && 0 == strncmp(lhs.d_start_p, rhs.d_start_p, lhs.d_length);
 }
 
-bool operator!=(const MyString& s1, const MyString& s2)
+bool operator!=(const MyString& lhs, const MyString& rhs)
 {
-    return ! (s1 == s2);
+    return ! (lhs == rhs);
 }
 
                               // =============
@@ -481,13 +488,13 @@ class MyPoint {
     int d_y;
 
     // FRIENDS
-    friend bool operator==(const MyPoint& lhs, const MyPoint& rhs);
-    friend bool operator!=(const MyPoint& lhs, const MyPoint& rhs);
+    friend bool operator==(const MyPoint&, const MyPoint&);
+    friend bool operator!=(const MyPoint&, const MyPoint&);
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(MyPoint,
-                  BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
+                     BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
 
     // CREATORS
     MyPoint(int x, int y, bslma::Allocator *basicAllocator = 0);
@@ -1594,13 +1601,13 @@ int main(int argc, char *argv[])
             // Compare non-bitwise-comparable elements
             MyContainer<MyString> c1;
             MyContainer<MyString> c2;
-          
+
             c1.push_back(MyString("hello"));
             c1.push_back(MyString("goodbye"));
-          
+
             c2.push_back(MyString("hello"));
             c2.push_back(MyString("goodbye"));
-          
+
             ASSERT(c1 == c2);
         }
 
@@ -1608,13 +1615,13 @@ int main(int argc, char *argv[])
             // Compare bitwise-comparable elements
             MyContainer<MyPoint> c1;
             MyContainer<MyPoint> c2;
-          
+
             c1.push_back(MyPoint(1, 2));
             c1.push_back(MyPoint(3, 4));
-          
+
             c2.push_back(MyPoint(1, 2));
             c2.push_back(MyPoint(3, 4));
-          
+
             ASSERT(c1 == c2);
         }
 

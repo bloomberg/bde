@@ -16,12 +16,12 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnimann)
 //
-//@DESCRIPTION: This component provides two class methods,
-// 'bslalg::RangeCompare::equal' and 'bslalg::RangeCompare::lexicographical',
-// for comparing two ranges each specified by a pair of input iterators that
-// are compliant with the C++11 standard [24.2.3].  The 'equal' class method
-// determines whether two specified ranges compare equal.  The
-// 'lexicographical' class method determines whether the first specified range
+//@DESCRIPTION: This component provides a utility 'struct',
+// 'bslalg::RangeCompare', that defines two class methods, 'equal' and
+// 'lexicographical', for comparing two ranges each specified by a pair of
+// input iterators that are compliant with the C++11 standard [24.2.3].  The
+// 'equal' method determines whether two specified ranges compare equal.  The
+// 'lexicographical' method determines whether the first specified range
 // compares lexicographically less than, equal to, or greater than the second
 // specified range.  Under certain circumstances, 'bslalg::RangeCompare::equal'
 // and 'bslalg::RangeCompare::lexicographical' may perform optimized
@@ -120,7 +120,7 @@ BSLS_IDENT("$Id: $")
 //                         const MyContainer<VALUE_TYPE>& rhs);
 //      // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
 //      // value, and 'false' otherwise.  Two 'MyContainer' objects have the
-//      // same value if they have the same length and each element in 'lhs'
+//      // same value if they have the same length, and each element in 'lhs'
 //      // has the same value as the corresponding element in 'rhs'.
 //
 //  template<class VALUE_TYPE>
@@ -128,8 +128,9 @@ BSLS_IDENT("$Id: $")
 //                         const MyContainer<VALUE_TYPE>& rhs);
 //      // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
 //      // the same value, and 'false' otherwise.  Two 'MyContainer' objects
-//      // differ in value if they have differing lengths or if any element in
-//      // 'lhs' differs in value from the corresponding element in 'rhs'.
+//      // do not have the same value if they do not have the same lengths, or
+//      // if any element in 'lhs' does not have the same value as the
+//      // corresponding element in 'rhs'.
 //..
 // Next, we implement the equality comparison operators using
 // 'bslalg::RangeCompare::equal':
@@ -164,7 +165,7 @@ BSLS_IDENT("$Id: $")
 //  class MyString {
 //    private:
 //      // DATA
-//      char *d_start_p;
+//      char       *d_start_p;
 //      std::size_t d_length;
 //
 //      // ...
@@ -184,11 +185,11 @@ BSLS_IDENT("$Id: $")
 //                                                     lhs.d_length);
 //  }
 //..
-// Notice that 'MyString' is not bitwise-comparable, because the values of the
-// 'd_start_p' pointer data members in two 'MyString' objects will be
+// Notice that 'MyString' is not bitwise-comparable, because the address values
+// of the 'd_start_p' pointer data members in two 'MyString' objects will be
 // different, even if the string values of the two objects are the same.
 //
-// Next, we create two 'MyContainer<MyString>' objects and compare them
+// Next, we create two 'MyContainer<MyString>' objects, and compare them
 // using 'operator==':
 //..
 //  MyContainer<MyString> c1;
@@ -200,7 +201,7 @@ BSLS_IDENT("$Id: $")
 //  c2.push_back(MyString("hello"));
 //  c2.push_back(MyString("goodbye"));
 //
-//  assert(c1 == c2);
+//  assert(c1 == c2);  // unoptimized
 //..
 // Here, the call to the 'bslalg::RangeCompare::equal' class method in
 // 'operator==' will perform an unoptimized pairwise comparison of the elements
@@ -234,11 +235,12 @@ BSLS_IDENT("$Id: $")
 //      return lhs.d_x == rhs.d_x && lhs.d_y == rhs.d_y;
 //  }
 //..
-// Notice that the value of 'MyPoint' depends only on its data members and that
-// no padding is required for alignment.  Furthermore, 'MyPoint' has no virtual
-// members.  Therefore, 'MyPoint' objects are bitwise-comparable, and we can
-// correctly declare the 'bslalg::TypeTraitBitwiseEqualityComparable' trait for
-// the class.
+// Notice that the value of 'MyPoint'  derives from the values of all of its
+// data members, and that no padding is required for alignment.  Furthermore,
+// 'MyPoint' has no virtual methods.  Therefore, 'MyPoint' objects are
+// bitwise-comparable, and we can correctly declare the
+// 'bslalg::TypeTraitBitwiseEqualityComparable' trait for the class, as shown
+// above under the public 'TRAITS' section.
 //
 // Now, we create two 'MyContainer<MyPoint>' objects and compare them using
 // 'operator==':
@@ -252,19 +254,34 @@ BSLS_IDENT("$Id: $")
 //  c2.push_back(MyPoint(1, 2));
 //  c2.push_back(MyPoint(3, 4));
 //
-//  assert(c1 == c2);
+//  assert(c1 == c2);  // potentially optimized
 //..
 // Here, the call to 'bslalg::RangeCompare::equal' in 'operator==' may take
 // advantage of the fact that 'MyPoint' is bitwise-comparable and perform the
 // comparison by directly bitwise comparing the entire range of elements
 // contained in the 'MyContainer<MyPoint>' objects.  This comparison can
 // provide a significant performance boost over the comparison between two
-// 'MyContainer<MyString>' objects described previously.
+// 'MyContainer<MyPoint>' objects in which the nested
+// 'TypeTraitsBitwiseEqualityComparable' trait is not associated with the
+// MyPoint class.
 //
 // Finally, note that we can instantiate 'MyContainer' with 'int' or any other
 // primitive type as the 'VALUE_TYPE' and still benefit from the optimized
-// comparison operators, because primitive types are implicitly
-// bitwise-comparable.
+// comparison operators, because primitive (i.e.: fundamental, enumerated, and
+// pointer) types are implicitly bitwise-comparable:
+//..
+//  MyContainer<int> c1;
+//  MyContainer<int> c2;
+//
+//  c1.push_back(1);
+//  c1.push_back(2);
+//  c1.push_back(3);
+//
+//  c2.push_back(1);
+//  c2.push_back(2);
+//  c2.push_back(3);
+//
+//  assert(c1 == c2);  // potentially optimized
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -307,7 +324,25 @@ namespace bslalg {
                           // ==================
 
 struct RangeCompare {
-    // Namespace for range comparison algorithms.
+    // This utility 'struct' provides two methods, 'equal' and
+    // 'lexicographical', for comparing two ranges each specified by a set of
+    // input iterators.  Ranges are identified by specifying their starting and
+    // ending points, though variants are provided to allow the lengths of the
+    // ranges to be specified, or to allow the endpoint of one range to be
+    // omitted by the caller.
+    //
+    // 'equal' requires that the elements in the ranges can be compared either
+    // with 'operator==' or through bitwise comparison (as defined by
+    // association with the nested trait
+    // 'bslalg::TypeTraitBitwiseEqualityComparable'.  'equal' returns 'true' if
+    // each element in one range has the same value as the corresponding
+    // element in the other range.
+    //
+    // 'lexicographical' requires that the elements in the ranges can be
+    // compared with 'operator<'.  'lexicographical' returns 0 if the two
+    // ranges are equal, a positive value if the first range is greater than
+    // the second, and a negative value if the second range is greater than the
+    // first.
 
     // PUBLIC TYPES
     typedef std::size_t  size_type;
@@ -320,11 +355,11 @@ struct RangeCompare {
         // Compare each element in the range starting at the specified 'start1'
         // and ending immediately before the specified 'end1' with the
         // corresponding element in the range of the same length starting at
-        // the specified 'start2', as if using 'operator=='.  Return 'true' if
-        // every pair of corresponding elements compares equal, and 'false'
-        // otherwise.  Note that this implementation uses 'operator==' to
-        // perform the comparisons, or bitwise comparison if the value type has
-        // the bit-wise equality comparable trait.
+        // the specified 'start2', as if using 'operator==' element by element.
+        // Return 'true' if every pair of corresponding elements compares
+        // equal, and 'false' otherwise.  Note that this implementation uses
+        // 'operator==' to perform the comparisons, or bitwise comparison if
+        // the value type has the bit-wise equality comparable trait.
 
     template <typename INPUT_ITER>
     static bool equal(INPUT_ITER start1,
@@ -339,16 +374,17 @@ struct RangeCompare {
         // corresponding element in the range starting at 'start2' and ending
         // immediately before the specified 'end2', provided both elements
         // exist, as if by using 'operator==' element by element.  Optionally
-        // specify both the length of each range in 'length1' and 'length2'.
-        // Return 'true' if the ranges have the same length and every pair of
-        // corresponding elements compares equal, and 'false' otherwise.  The
-        // behavior is undefined unless 'length1' is either unspecified or
-        // equals the length of the range '[start1, end1)', and 'length2' is
-        // either unspecified or equals the length of the range
-        // '[start2, end2)'.  Note that this implementation uses 'operator=='
-        // to perform the comparisons, or bit-wise comparison if the value type
-        // has the bit-wise equality comparable trait.  Also note that
-        // providing lengths may reduce the cost of this operation.
+        // specify both the length of each range, 'length1' and 'length2'.
+        // Return 'true' if the ranges have the same length and every element
+        // in the first range compares equal with the corresponding element in
+        // the second, and 'false' otherwise.  The behavior is undefined unless
+        // 'length1' is either unspecified or equals the length of the range
+        // '[start1, end1)', and 'length2' is either unspecified or equals the
+        // length of the range '[start2, end2)'.  Note that this implementation
+        // uses 'operator==' to perform the comparisons, or bit-wise comparison
+        // if the value type has the bit-wise equality comparable trait.  Also
+        // note that providing lengths may reduce the runtime cost of this
+        // operation.
 
     template <typename INPUT_ITER>
     static int lexicographical(INPUT_ITER start1,
@@ -366,16 +402,17 @@ struct RangeCompare {
         // and ending immediately before the specified 'end1', to the
         // corresponding element in the range starting at the specified
         // 'start2' and ending immediately before the specified 'end2'.
-        // Optionally specify both the length of each range in 'length1' and
-        // 'length2'.  Return -1 if the first range compares lexicographically
-        // less than the second range, 0 if they are the same length and
-        // compare equal, and 1 if the first range compares larger.  The
-        // behavior is undefined unless 'length1' is either unspecified or
-        // equals the length of the range '[start1, end1)', and 'length2' is
+        // Optionally specify both the length of each range, 'length1' and
+        // 'length2'.  Return a negative value if the first range compares
+        // lexicographically less than the second range, 0 if they are the same
+        // length and compare equal, and a positive value if the first range
+        // compares larger.  The behavior is undefined unless 'length1' is
         // either unspecified or equals the length of the range
-        // '[start2, end2)'.  Note that this implementation uses 'std::memcmp'
-        // for unsigned character comparisons, 'std::wmemcmp' for wide
-        // character comparisons, and 'operator<' for all other types.
+        // '[start1, end1)', and 'length2' is either unspecified or equals the
+        // length of the range '[start2, end2)'.  Note that this implementation
+        // uses 'std::memcmp' for unsigned character comparisons,
+        // 'std::wmemcmp' for wide character comparisons, and 'operator<' for
+        // all other types.
 };
 
                        // =======================
@@ -383,6 +420,11 @@ struct RangeCompare {
                        // =======================
 
 struct RangeCompare_Imp {
+    // This utility 'struct' provides the implementations for
+    // 'blsalg::RangeCompare'.  Multiple implementations are provided for each
+    // method in 'blsalg::RangeCompare', and the most efficient version is
+    // found by disambiguating based on the iterator type, the value type, or
+    // the presence of nested traits;
 
     // CLASS METHODS
     template <typename VALUE_TYPE>
@@ -409,8 +451,8 @@ struct RangeCompare_Imp {
         // immediately before the specified 'end1' with the range starting at
         // the specified 'start2' and ending immediately before the specified
         // 'end2', as if using 'operator==' element by element.  The unnamed
-        // 'VALUE_TYPE' argument is for automatic type deduction and is
-        // ignored.  The fifth argument is for overloading resolution and is
+        // 'VALUE_TYPE' argument is for automatic type deduction, and is
+        // ignored.  The fifth argument is for overloading resolution, and is
         // also ignored.
 
     template <typename INPUT_ITER, typename VALUE_TYPE>
@@ -434,8 +476,8 @@ struct RangeCompare_Imp {
         // immediately before the specified 'end1' with the range starting at
         // the specified 'start2' of the same length (namely, 'end1 - start1'),
         // as if using 'operator==' element by element.  The unnamed
-        // 'VALUE_TYPE' argument is for automatic type deduction and is
-        // ignored.  The fifth argument is for overloading resolution and is
+        // 'VALUE_TYPE' argument is for automatic type deduction, and is
+        // ignored.  The fifth argument is for overloading resolution, and is
         // also ignored.
 
     template <typename VALUE_TYPE>
@@ -450,7 +492,7 @@ struct RangeCompare_Imp {
                                                bslmf::MetaInt<0>);
         // These functions follow the 'equal' contract, using bit-wise
         // comparison when the parameterized 'VALUE_TYPE' is bitwise-equality
-        // comparable.  The last argument is for removing overload ambiguities
+        // comparable.  The last argument is for removing overload ambiguities,
         // and is not used.
 
     template <typename VALUE_TYPE>
@@ -869,7 +911,7 @@ typedef bslalg::RangeCompare bslalg_RangeCompare;
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
