@@ -587,11 +587,11 @@ class bcec_SkipListPair {
     // which pass 'this' to static methods of 'bcec_SkipList'.
 
     // Note these data elements are never accessed.  A pointer to this type
-    // will be cast to a pointer to bcec_SkipList_Node so make sure we are
+    // will be cast to a pointer to 'bcec_SkipList_Node' so make sure we are
     // adequately aligned to avoid compiler warnings.
 
     // DATA
-    bcec_SkipList_Node<KEY, DATA> d_node;    // Never directly accessed.
+    bcec_SkipList_Node<KEY, DATA> d_node;    // never directly accessed
 
   private:
     // NOT IMPLEMENTED
