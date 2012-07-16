@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide an allocator with leak detection coupled with stack trace
+//@PURPOSE: Provide an allocator with leak detection coupled with stack trace.
 //
 //@CLASSES:
 //   baesu_StackTraceTestAllocator: allocation w/ leak detection / stack trace
@@ -68,7 +68,7 @@ BDES_IDENT("$Id: $")
 //  {
 //      if (!*depth) {
 //          for (int i = 0; i < 1000; ++i) {
-//              (void) alloc->allocate(100);    // memory leaked here 1000 times
+//              (void) alloc->allocate(100);   // memory leaked here 1000 times
 //          }
 //      }
 //  }
@@ -86,7 +86,8 @@ BDES_IDENT("$Id: $")
 //          usageTop(depth, alloc);
 //      }
 //
-//      ++*depth;   // Prevent compiler from optimizing tail recursion as a loop
+//      ++*depth;   // Prevent compiler from optimizing tail recursion as a
+//                  // loop
 //  }
 //..
 // Then, in our 'main' routine, we create our stack trace test allocator.  Note
@@ -101,7 +102,7 @@ BDES_IDENT("$Id: $")
 //..
 // Then, we verify that we have allocated 1001 blocks.
 //..
-//  ASSERT(1001 == ta.numBlocksInUse());
+//  assert(1001 == ta.numBlocksInUse());
 //..
 // Next, if 'verbose' but not 'veryVerbose' was selected, we do a dump of all
 // currently outstanding allocated segments:
@@ -117,7 +118,7 @@ BDES_IDENT("$Id: $")
 //..
 //  if (!veryVerbose) {
 //      ta.release();
-//      ASSERT(0 == ta.numBlocksInUse());
+//      assert(0 == ta.numBlocksInUse());
 //..
 // Now that there are no segments leaked, we confirm this by doing a report of
 // outstanding segments to a stringstream and verifying that no output was
@@ -125,7 +126,7 @@ BDES_IDENT("$Id: $")
 //..
 //      bsl::stringstream ss;
 //      ta.reportBlocksInUse(&ss);
-//      ASSERT(ss.str().empty());
+//      assert(ss.str().empty());
 //  }
 //..
 // Finally, if 'veryVerbose' was set and we didn't call 'ta.release()', when
@@ -134,11 +135,11 @@ BDES_IDENT("$Id: $")
 // construction (it defaulted to 'cout') and 'abort()' will be called.  Output:
 // (long lines wrapped for aesthetics)
 //..
-//  ============================================================================
+//  ===========================================================================
 //  Error: memory leaked:
 //  1001 segment(s) in allocator 'myTestAllocator' in use.
 //  Segment(s) allocated in 2 place(s).
-//  ----------------------------------------------------------------------------
+//  ---------------------------------------------------------------------------
 //  Allocation place 1, 1 segment(s) in use.
 //  Stack trace at allocation time:
 //  (0): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0x84 at 0x1001b80c
@@ -149,7 +150,7 @@ BDES_IDENT("$Id: $")
 //        baesu_stacktracetestallocator.t.
 //  (2): .__start+0x6c at 0x1000020c source:crt0main.s in
 //        baesu_stacktracetestallocator.t.
-//  ----------------------------------------------------------------------------
+//  ---------------------------------------------------------------------------
 //  Allocation place 2, 1000 segment(s) in use.
 //  Stack trace at allocation time:
 //  (0): .usageTop(int*,BloombergLP::bslma::Allocator*)+0x70 at 0x1001b8e0
@@ -221,6 +222,8 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
                    SegmentHdr                    *next,
                    SegmentHdr                    *prev,
                    void                          *magic);
+            // Create a segment hear, populating the fields with the specified
+            // 'alloc', 'next', 'prev', and 'magic' arguments.
     };
 
     // DATA
