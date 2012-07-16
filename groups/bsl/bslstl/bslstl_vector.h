@@ -86,8 +86,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLSEQUENCE
-#include <bslalg_typetraitsgroupstlsequence.h>
+#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLSEQUENCECONTAINER
+#include <bslstl_traitsgroupstlsequencecontainer.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEFAULT
@@ -461,8 +461,9 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
   public:
     // TRAITS
     typedef BloombergLP::
-            bslalg::TypeTraitsGroupStlSequence<VALUE_TYPE,
-                                              ALLOCATOR>  VectorTypeTraits;
+
+    bslstl::TraitsGroupStlSequenceContainer<VALUE_TYPE,
+                                            ALLOCATOR> VectorTypeTraits;
 
     BSLALG_DECLARE_NESTED_TRAITS(Vector_Imp, VectorTypeTraits);
         // Declare nested type traits for this class.

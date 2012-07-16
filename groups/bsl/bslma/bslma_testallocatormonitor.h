@@ -495,6 +495,18 @@ class TestAllocatorMonitor {
         // Return 'true' if the 'numBlocksTotal' statistic of the tracked test
         // allocator has increased since construction of this monitor, and
         // 'false' otherwise.
+
+    bsls::Types::Int64 numBlocksInUseChange() const;
+        // Return the change in the 'numBlocksInUse' statistic of the tracked
+        // test allocator since construction of this monitor.
+
+    bsls::Types::Int64 numBlocksMaxChange() const;
+        // Return the change in the 'numBlocksMax' statistic of the tracked
+        // test allocator since construction of this monitor.
+
+    bsls::Types::Int64 numBlocksTotalChange() const;
+        // Return the change in the 'numBlocksTotal' statistic of the tracked
+        // test allocator since construction of this monitor.
 };
 
 // ============================================================================
@@ -586,6 +598,24 @@ inline
 bool TestAllocatorMonitor::isTotalUp() const
 {
     return d_testAllocator_p->numBlocksTotal() != d_initialTotal;
+}
+
+inline
+bsls::Types::Int64 TestAllocatorMonitor::numBlocksInUseChange() const
+{
+    return d_testAllocator_p->numBlocksInUse() - d_initialInUse;
+}
+
+inline
+bsls::Types::Int64 TestAllocatorMonitor::numBlocksMaxChange() const
+{
+    return d_testAllocator_p->numBlocksMax() - d_initialMax;
+}
+
+inline
+bsls::Types::Int64 TestAllocatorMonitor::numBlocksTotalChange() const
+{
+    return d_testAllocator_p->numBlocksTotal() - d_initialTotal;
 }
 
 }  // close package namespace

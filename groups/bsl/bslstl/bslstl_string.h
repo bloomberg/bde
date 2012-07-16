@@ -91,8 +91,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLSEQUENCE
-#include <bslalg_typetraitsgroupstlsequence.h>
+#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLSEQUENCECONTAINER
+#include <bslstl_traitsgroupstlsequencecontainer.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ANYTYPE
@@ -729,8 +729,9 @@ class basic_string
 
   public:
     // TRAITS
-    typedef BloombergLP::bslalg::
-            TypeTraitsGroupStlSequence<CHAR_TYPE, ALLOCATOR> StringTypeTraits;
+    typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<
+                                                   CHAR_TYPE,
+                                                   ALLOCATOR> StringTypeTraits;
 
     BSLALG_DECLARE_NESTED_TRAITS(basic_string, StringTypeTraits);
         // Declare nested type traits for this class.  This class is bitwise

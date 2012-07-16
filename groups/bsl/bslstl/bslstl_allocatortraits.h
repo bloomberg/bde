@@ -95,7 +95,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  #include <bslstl_allocatortraits.h>
 //  #include <bslstl_allocator.h>
-//  #include <bslalg_typetraitsgroupstlsequence.h>
+//  #include <bslstl_traitsgroupstlsequencecontainer.h>
 //
 //  using namespace BloombergLP;
 //
@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TRAITS
-//      typedef bslalg::TypeTraitsGroupStlSequence<TYPE,ALLOC> TypeTraits;
+//      typedef bslstl::TraitsGroupStlSequenceContainer<TYPE,ALLOC> TypeTraits;
 //      BSLALG_DECLARE_NESTED_TRAITS(MyContainer, TypeTraits);
 //          // Declare nested type traits for this class.
 //
@@ -399,6 +399,17 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
+
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+
+#ifndef INCLUDED_UTILITY
+#include <utility>         // 'std::forward'
+#define INCLUDED_UTILITY
+#endif
+
+
 namespace bsl {
 
                         // ======================
@@ -511,6 +522,17 @@ struct allocator_traits {
         // a 'deallocate' call of such an allocator object.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+    template <class ELEMENT_TYPE>
+    static void construct(ALLOCATOR_TYPE&  allocator,
+                          ELEMENT_TYPE    *elementAddr);
+        // Default construct an object of the parameterized 'ELEMENT_TYPE' at
+        // the specified 'elementAddr'.  If the parameterized 'ALLOCATOR_TYPE'
+        // is bslma-compatible and 'ELEMENT_TYPE' has the
+        // 'bslalg::TypeTraitUsesBslmaAllocator' trait, then pass the mechanism
+        // from the specified 'allocator' as an additional constructor argument
+        // (at the end of the argument list).  The behavior is undefined unless
+        // 'elementAddr' refers to valid, uninitialized storage.
+
 #  ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class ELEMENT_TYPE, class... CTOR_ARGS>
     static void construct(ALLOCATOR_TYPE&  allocator,
@@ -759,28 +781,40 @@ allocator_traits<ALLOCATOR_TYPE>::deallocate(ALLOCATOR_TYPE& allocator,
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+template <class ALLOCATOR_TYPE>
+template <class ELEMENT_TYPE>
+inline
+void
+allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  allocator,
+                                            ELEMENT_TYPE    *elementAddr)
+{
+    BloombergLP::bslalg::ScalarPrimitives::defaultConstruct(
+                                              elementAddr,
+                                              mechanism(allocator, IsBslma()));
+}
+
 #  ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class... CTOR_ARGS>
 inline
 void
 allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  allocator,
-                                   ELEMENT_TYPE             *elementAddr,
-                                   CTOR_ARGS&&...            ctorArgs)
+                                            ELEMENT_TYPE    *elementAddr,
+                                            CTOR_ARGS&&...   ctorArgs)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                          elementAddr,
-                                          std::forward<CTOR_ARGS>(ctorArgs)...,
-                                          mechanism(allocator, IsBslma()));
+                                   elementAddr,
+                                   native_std::forward<CTOR_ARGS>(ctorArgs)...,
+                                   mechanism(allocator, IsBslma()));
 }
 #  else
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class... CTOR_ARGS>
 inline
 void
-allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  allocator,
-                                   ELEMENT_TYPE             *elementAddr,
-                                   const CTOR_ARGS&...       ctorArgs)
+allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&      allocator,
+                                            ELEMENT_TYPE        *elementAddr,
+                                            const CTOR_ARGS&...  ctorArgs)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
                                               elementAddr,
@@ -902,7 +936,7 @@ template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE>
 inline
 void
-allocator_traits<ALLOCATOR_TYPE>::destroy(ALLOCATOR_TYPE&  allocator,
+allocator_traits<ALLOCATOR_TYPE>::destroy(ALLOCATOR_TYPE&  /*allocator*/,
                                           ELEMENT_TYPE    *elementAddr)
 {
 //  For full C++11 compatibility, this should check for the well-formedness of
