@@ -693,7 +693,7 @@ BSLS_IDENT("$Id: $")
 
 #   if defined(BSLS_PLATFORM__CMP_GNU)
 #       include <bsls_atomicoperations_x86_all_gcc.h>
-#   elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#   elif defined(BSLS_PLATFORM__CMP_MSVC)
 #       include <bsls_atomicoperations_x86_win_msvc.h>
 #   else
 #       define BSLS_ATOMICOPERATIONS_ERROR
@@ -703,7 +703,7 @@ BSLS_IDENT("$Id: $")
 
 #   if defined(BSLS_PLATFORM__CMP_GNU)
 #       include <bsls_atomicoperations_x64_all_gcc.h>
-#   elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#   elif defined(BSLS_PLATFORM__CMP_MSVC)
 #       include <bsls_atomicoperations_x64_win_msvc.h>
 #   else
 #       define BSLS_ATOMICOPERATIONS_ERROR
