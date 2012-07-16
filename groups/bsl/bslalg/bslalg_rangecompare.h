@@ -350,8 +350,8 @@ struct RangeCompare {
     // CLASS METHODS
     template <typename INPUT_ITER>
     static bool equal(INPUT_ITER start1,
-                      INPUT_ITER start2,
-                      INPUT_ITER end1);
+                      INPUT_ITER end1,
+                      INPUT_ITER start2);
         // Compare each element in the range starting at the specified 'start1'
         // and ending immediately before the specified 'end1' with the
         // corresponding element in the range of the same length starting at
