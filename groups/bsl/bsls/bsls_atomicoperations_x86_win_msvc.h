@@ -5,8 +5,7 @@
 //@PURPOSE: Provide implentations of atomic operations for X86/MSVC/Windows.
 //
 //@CLASSES:
-//  bsls::AtomicOperations_X86_WIN_MSVC: implementation of atomics for
-//                                       X86/MSVC/Windows
+//  bsls::AtomicOperations_X86_WIN_MSVC: atomics for X86/MSVC/Windows
 //
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
