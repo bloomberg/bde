@@ -1,8 +1,9 @@
-// bslma_testallocatormonitor.t.cpp
+// bslma_testallocatormonitor.t.cpp                                   -*-C++-*-
 #include <bslma_testallocatormonitor.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
@@ -248,6 +249,140 @@ typedef bslma::TestAllocatorMonitor Tam;
         return d_description_p ? d_description_p : "";
     }
 //..
+///Example 2: 'reset' method:
+/// - - - - - - - - - - - - -
+// First, define a class that stores a singly-linked list of ints:
+//..
+class IntList {
+    // This is a list of ints whole public methods will suitably emulate
+    // the behavior of 'bsl::list' for Usage Example 2.
+
+    // PRIVATE TYPES
+    struct ListNode {
+        ListNode *d_next_p;
+        int       d_data;
+    };
+
+    // DATA
+    ListNode        *d_sentinel_p;      // sentinel node, not part of list
+    ListNode        *d_last_p;          // last element of list
+    bslma_Allocator *d_allocator_p;     // held, not owned
+
+  private:
+    // PRIVATE MANIPULATORS
+    void deleteListNodeAfter(ListNode *node)
+    {
+        ListNode *condemned = node->d_next_p;
+        if (0 == condemned->d_next_p) {
+            d_last_p = node;
+        }
+        node->d_next_p = condemned->d_next_p;
+        d_allocator_p->deallocate(condemned);
+    }
+
+  public:
+    // CREATORS
+    explicit
+    IntList(bslma_Allocator *basicAllocator)
+    : d_allocator_p(bslma_Default::allocator(basicAllocator))
+        // Create a list object and its sentinel node.
+    {
+        d_sentinel_p = static_cast<ListNode *>(
+                                d_allocator_p->allocate(sizeof(ListNode)));
+        d_sentinel_p->d_next_p = 0;
+        d_last_p = d_sentinel_p;
+    }
+
+    ~IntList()
+        // Destroy this list object.
+    {
+        while (d_sentinel_p->d_next_p) {
+            deleteListNodeAfter(d_sentinel_p);
+        }
+        d_allocator_p->deallocate(d_sentinel_p);
+    }
+
+    // MANIPULATORS
+    void push_back(int i)
+        // Push a value to the back of the list.
+    {
+        ListNode *p =
+                    (ListNode *) d_allocator_p->allocate(sizeof(ListNode));
+        p->d_next_p = 0;
+        p->d_data = i;
+        d_last_p->d_next_p = p;
+        d_last_p = p;
+    }
+
+    void push_front(int i)
+        // Push a value to the front of the list.
+    {
+        ListNode *p =
+                    (ListNode *) d_allocator_p->allocate(sizeof(ListNode));
+        p->d_next_p = d_sentinel_p->d_next_p;
+        p->d_data = i;
+        d_sentinel_p->d_next_p = p;
+        if (d_sentinel_p == d_last_p) {
+            d_last_p = p;
+        }
+    }
+
+    void reverse()
+        // Reverse the order of the elements of this list object.
+    {
+        ListNode *push = 0;
+        ListNode *pull = d_sentinel_p->d_next_p;
+        if (pull) {
+            d_last_p = pull;
+        }
+        while (pull) {
+            ListNode *inTransit = pull;
+            pull = pull->d_next_p;
+            inTransit->d_next_p = push;
+            push = inTransit;
+        }
+        d_sentinel_p->d_next_p = push;
+    }
+
+    void unique()
+        // Eliminate any nodes in the list whose value is identical to that
+        // of the node before them.
+    {
+        ListNode *node = d_sentinel_p->d_next_p;
+        if (0 == node || 0 == node->d_next_p) {
+            return;                                                   // RETURN
+        }
+        for (; node->d_next_p; node = node->d_next_p) {
+            while (node->d_data == node->d_next_p->d_data) {
+                deleteListNodeAfter(node);
+            }
+        }
+    }
+
+    // ACCESSORS
+    int back() { return d_last_p->d_data; }
+        // Return the value stored in the element at the back of this list.
+        // The behavior is undefined if the list is empty.
+
+    int front() { return d_sentinel_p->d_next_p->d_data; }
+        // Return the value stored in the element at the front of this
+        // list.  The behavior is undefined if the list is empty.
+
+    int empty() { return 0 == d_sentinel_p->d_next_p; }
+        // Return 'true' if this list contains no elements and 'false'
+        // otherwise.
+
+    int size()
+        // Return the number of elements in this list.
+    {
+        int ret = 0;
+        for (ListNode *node = d_sentinel_p->d_next_p; node;
+                                                   node = node->d_next_p) {
+            ++ret;
+        }
+        return ret;
+    }
+};
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -273,6 +408,121 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
+      case 6: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 2
+        //
+        // Concerns:
+        //   Demonstrate the usefulness of the 'reset' method.
+        //
+        // Plan:
+        //   Manipulate a memory-consuming data structure, observing multiple
+        //   changes in memory usage
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Example 2\n"
+                             "=========\n";
+
+//      typedef bsl::list<int> IntList;
+
+        // In this example, we observe how some of the manipulators and
+        // accessors of 'bsl::list' use memory.
+
+        // First, we declare 3 allocators, Test Object Allocator ('toa'), Test
+        // Default Allocator ('tda'), and Test Global Allocator ('tga'):
+
+        bslma::TestAllocator toa;
+        bslma::TestAllocator tda;
+        bslma::TestAllocator tga;
+
+        // Since neither the default nor the global allocators should ever be
+        // have used for anything in this exercise, we only need check their
+        // monitors 'dam' and 'gam' at the end of the example.
+
+        // Then, we install our default and global allocators:
+
+        bslma::DefaultAllocatorGuard defaultGuard(&tda);
+        bslma::Default::setGlobalAllocator(&tga);
+
+        // Next, we set up our monitors of the 3 allocators:
+
+        bslma::TestAllocatorMonitor oam(&toa);
+        bslma::TestAllocatorMonitor dam(&tda);
+        bslma::TestAllocatorMonitor gam(&tga);
+
+        // Then, we observe that creating an empty list allocates memory:
+
+        IntList myList(&toa);
+
+        ASSERT(oam.isTotalUp());
+
+        // Next, we observe that 'push_back' also allocates memory:
+
+        oam.reset();
+
+        myList.push_back(57);
+
+        ASSERT(oam.isTotalUp());
+
+        myList.push_back(57);
+
+        // Then, we observe that accessors 'back', 'front', and 'size' don't
+        // cause any allocation.
+
+        oam.reset();
+
+        ASSERT(57 == myList.back());
+        ASSERT(57 == myList.front());
+        ASSERT(2  == myList.size());
+
+        ASSERT(oam.isTotalSame());
+
+        // Next, we observe that manipulator 'push_front' causes memory
+        // allocation:
+
+        myList.push_front(23);
+
+        ASSERT(oam.isTotalUp());
+
+        ASSERT(57 == myList.back());
+        ASSERT(23 == myList.front());
+        ASSERT(3  == myList.size());
+
+        // Then, we observe that 'reverse', though it's a manipulator, does no
+        // memory allocation:
+
+        oam.reset();
+
+        myList.reverse();
+
+        ASSERT(oam.isInUseSame());
+        ASSERT(oam.isTotalSame());
+
+        ASSERT(23 == myList.back());
+        ASSERT(57 == myList.front());
+        ASSERT(3  == myList.size());
+
+        // Next, we observe that 'unique', in this case, will do no new memory
+        // allocation and will in fact free some memory in this case.
+
+        oam.reset();
+
+        myList.unique();
+
+        ASSERT(oam.isInUseDown());
+        ASSERT(oam.isTotalSame());
+
+        // Now, we observe the state of the list after 'unique'.
+
+        ASSERT(23 == myList.back());
+        ASSERT(57 == myList.front());
+        ASSERT(2  == myList.size());
+
+        // Finally, we check the default and global allocator monitors.
+
+        ASSERT(dam.isTotalSame());
+        ASSERT(gam.isTotalSame());
+      }  break;
       case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
