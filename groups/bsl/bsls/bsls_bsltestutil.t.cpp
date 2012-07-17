@@ -142,21 +142,6 @@ void executeUsageExample(bool verbose, bool veryVerbose, bool veryVeryVerbose);
 //                             HELPER FUNCTIONS
 //-----------------------------------------------------------------------------
 
-// fileName has to be visible to cleanTempFile and to redirectOutputs
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-static char fileName[MAX_PATH];
-#elif defined(BSLS_PLATFORM__OS_HPUX)
-static char fileName[L_tmpnam];
-#else
-//TODO: replace PATH_MAX with something portable
-static char fileName[PATH_MAX];
-#endif
-
-void cleanTempFile() {
-    fclose(stdout);
-    unlink(fileName);
-}
-
 bool tempFileName(char *result, bool verboseFlag)
 {
     ASSERT(result);
@@ -186,79 +171,137 @@ bool tempFileName(char *result, bool verboseFlag)
 
     if (verboseFlag) printf("\tUse '%s' as a base filename.\n", result);
 
-    ASSERT(0 == atexit(cleanTempFile));
-        // Warn but do not fail, since failing will only leave behind the temp
-        // file we cannot clean up
-
     // Test Invariant:
     ASSERT('\0' != result[0]); // result not empty
 
     return true;
 }
 
-bool redirectOutputs(bool verboseFlag)
-{
-    bool success = false;
+class OutputRedirector {
+  private:
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    char fileName[MAX_PATH];
+#elif defined(BSLS_PLATFORM__OS_HPUX)
+    char fileName[L_tmpnam];
+#else
+    //TODO: replace PATH_MAX with something portable
+    char fileName[PATH_MAX];
+#endif
 
+    char outputBuffer[OUTPUT_BUFFER_SIZE];
+
+    bool isRedirectedFlag;
+    bool isFileCreatedFlag;
+    long outputSize;
+    bool outputReadyFlag;
+
+  public:
+    // CREATORS
+    explicit OutputRedirector(bool verboseFlag);
+    ~OutputRedirector();
+
+    // MANIPULATORS
+    void reset();
+    bool load(bool verboseFlag = false);
+
+    // ACCESSORS
+    bool isRedirected();
+    int strcmp(const char *expected);
+};
+
+OutputRedirector::OutputRedirector(bool verboseFlag)
+    : isRedirectedFlag(false)
+    , isFileCreatedFlag(false)
+    , outputSize(0L)
+    , outputReadyFlag(false)
+{
     if (! freopen("/dev/stdout", "w+", stderr)) {
             // Redirect stderr
-        // Use aSsErT instead of realaSsErT, because stderr has not been
-        // redirected
-        aSsErT(1, "Failed to redirect stdout", __LINE__);
-        // Fix values of realTestStatus and testStatus to account for using
-        // aSsErT above
-        realTestStatus = testStatus;
-        testStatus = 0;
+        if (verboseFlag) {
+            fprintf(stdout, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Failed to redirect stderr");
+        }
     } else if (! tempFileName(fileName, verboseFlag)) {
             // Get temp file name
-        realaSsErT(1, "Failed to get temp file name for stdout capture", __LINE__);
+        if (verboseFlag) {
+            fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Failed to get temp file name for stdout capture");
+        }
     } else if (! freopen(fileName, "w+", stdout)) {
             // Redirect stdout
-        fprintf(stderr, "fileName: %s\n", fileName);
-        realaSsErT(1, "Failed to redirect stdout", __LINE__);
-    } else if (EOF == fflush(stdout)) {
-        realaSsErT(1, "Error flushing stdout", __LINE__);
+        if (verboseFlag) {
+            fprintf(stderr, "fileName: %s\n", fileName);
+            fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Failed to redirect stdout");
+        }
     } else {
-        success = true;
-    }
+        isFileCreatedFlag = true;
+        isRedirectedFlag = true;
 
-    return success;
+        if (EOF == fflush(stdout)) {
+            if (verboseFlag) {
+                fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Error flushing stdout");
+            }
+        }
+    }
 }
 
-bool checkCapture(const char *referenceString, FILE *captureFile, int lineNum) {
-    static char outputBuffer[OUTPUT_BUFFER_SIZE];
+OutputRedirector::~OutputRedirector()
+{
+    if (isRedirectedFlag) {
+        fclose(stdout);
+    }
 
-    size_t stringLength = strlen(referenceString);                     
-    long outputSize = ftell(captureFile);                  
+    if (isFileCreatedFlag) {
+        unlink(fileName);
+    }
+}
+
+void OutputRedirector::reset()
+{
+    outputSize = 0L;
+    outputReadyFlag = false;
+    rewind(stdout);
+}
+
+bool OutputRedirector::load(bool verboseFlag)
+{
+    outputSize = ftell(stdout);                  
 
     if (outputSize > OUTPUT_BUFFER_SIZE) {
-        fprintf(stderr, "ftell(captureFile): %ld\n", outputSize);
-        realaSsErT(1, "captured output exceeds read buffer size", lineNum);
-        return false;
-    } else if (stringLength != outputSize) {
-        rewind(captureFile);                                   
-        long charsRead = fread(outputBuffer, sizeof(char), outputSize, captureFile);
-        fprintf(stderr, "outputSize: %ld\toutputBuffer: %s\treferenceString: %s\n", outputSize, outputBuffer, referenceString);
-        realaSsErT(1, "captured output size mismatch", lineNum);
+        if (verboseFlag) {
+            fprintf(stderr, "outputSize: %ld\ncaptured output exceeds read buffer size\n", outputSize,  __LINE__);
+        }
+        outputSize = 0L;
         return false;
     }
 
-    rewind(captureFile);                                   
+    rewind(stdout);                                   
 
-    long charsRead = fread(outputBuffer, sizeof(char), outputSize, captureFile);
+    long charsRead = fread(outputBuffer, sizeof(char), outputSize, stdout);
     if (outputSize != charsRead) {
-        fprintf(stderr, "outputSize: %ld\tcharsRead: %ld\n", outputSize, charsRead);
-        realaSsErT(1, "could not read all captured output", lineNum);
-        return false;
-    } else if (0 != strncmp(referenceString, outputBuffer, stringLength)) {
-        fprintf(stderr, "outputBuffer: %s\treferenceString: %s\n", 
-                outputBuffer,
-                referenceString);
-        realaSsErT(1, "captured output does not match reference string", lineNum);
+        if (verboseFlag) {
+            fprintf(stderr, "outputSize: %ld\tcharsRead: %ld\ncould not read all captured output\n", outputSize, charsRead, __LINE__);
+        }
         return false;
     }
+
+    outputReadyFlag = true;
 
     return true;
+}
+
+bool OutputRedirector::isRedirected()
+{
+    return isRedirectedFlag;
+}
+
+int OutputRedirector::strcmp(const char *expected)
+{
+    if (!outputReadyFlag) {
+        return -1;
+    }
+
+    size_t len = strlen(expected);
+    len = len < outputSize ? len : outputSize;
+    return strncmp(outputBuffer, expected, len);
 }
 
 //=============================================================================
@@ -277,9 +320,10 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "TEST " __FILE__ " CASE %d\n", test);
 
-    if (! redirectOutputs(verbose)) {
-            // Capture stdout, and send stderr to stdout
-        return realTestStatus;
+    // Capture stdout, and send stderr to stdout
+    OutputRedirector output(verbose);
+    if (!output.isRedirected()) {
+        return 1;
     }
 
     switch (test) { case 0:
@@ -310,17 +354,20 @@ int main(int argc, char *argv[])
         // PRINT OPERATIONS TEST
 
         {
-            CAPTURE_RESET;
+            output.reset();
             BSLS_BSLTESTUTIL_Q(42);
-            CAPTURE_ASSERT("<| 42 |>\n");
+            ASSERT(output.load());
+            ASSERT(0 == output.strcmp("<| 42 |>\n"));
 
-            CAPTURE_RESET;
+            output.reset();
             BSLS_BSLTESTUTIL_Q(0);
-            CAPTURE_ASSERT("<| 0 |>\n");
+            ASSERT(output.load());
+            ASSERT(0 == output.strcmp("<| 0 |>\n"));
 
-            CAPTURE_RESET;
+            output.reset();
             BSLS_BSLTESTUTIL_Q(-42);
-            CAPTURE_ASSERT("<| -42 |>\n");
+            ASSERT(output.load());
+            ASSERT(0 == output.strcmp("<| -42 |>\n"));
 
         }
       } break;
@@ -342,7 +389,7 @@ int main(int argc, char *argv[])
             const char *testString = "This is output";
             size_t testStringLength = strlen(testString);
 
-            CAPTURE_RESET;
+            output.reset();
             ASSERT(0 == ftell(stdout));
             printf("%s", testString);
             ASSERT(testStringLength == ftell(stdout));
@@ -352,10 +399,10 @@ int main(int argc, char *argv[])
             // 2 Captured output is accurate
             const char *testString = "This is more output";
 
-            CAPTURE_RESET;
+            output.reset();
             printf("%s", testString);
-            CAPTURE_ASSERT(testString);
-            ASSERT(0 == realTestStatus);
+            ASSERT(output.load());
+            ASSERT(0 == output.strcmp(testString));
         }
 
         {
@@ -365,54 +412,51 @@ int main(int argc, char *argv[])
             const char *wrongLengthString =  "This is too short";
             const char *wrongContentString = "This is not correct";
 
-            CAPTURE_RESET;
+            output.reset();
             printf("%s", testString);
-            CAPTURE_ASSERT(wrongLengthString);
-            ASSERT(1 == realTestStatus);
-            realTestStatus -= 1;
+            ASSERT(output.load());
+            ASSERT(0 != output.strcmp(wrongLengthString));
 
-            CAPTURE_RESET;
+            output.reset();
             printf("%s", testString);
-            CAPTURE_ASSERT(wrongContentString);
-            ASSERT(1 == realTestStatus);
-            realTestStatus -= 1;
+            ASSERT(output.load());
+            ASSERT(0 != output.strcmp(wrongContentString));
  
-            CAPTURE_RESET;
+            output.reset();
             int stringLength = strlen(testString);
             for (int idx = 0; idx * stringLength < OUTPUT_BUFFER_SIZE; ++idx) {
                 printf("%s", testString);
             }
             printf("%s", testString);
-            CAPTURE_ASSERT(testString);
-            ASSERT(1 == realTestStatus);
-            realTestStatus -= 1;
+            ASSERT(!output.load());
+            ASSERT(-1 == output.strcmp(testString));
         }
 
         {
             // 4 Embedded newlines work
             const char *testString = "This has an\nembedded newline";
 
-            CAPTURE_RESET;
+            output.reset();
             printf("%s", testString);
-            CAPTURE_ASSERT(testString);
-            ASSERT(0 == realTestStatus);
+            ASSERT(output.load());
+            ASSERT(0 == output.strcmp(testString));
             
             const char *twoNewlineTestString = "This has two\nembedded newlines\n";
 
-            CAPTURE_RESET;
+            output.reset();
             printf("%s", twoNewlineTestString);
-            CAPTURE_ASSERT(twoNewlineTestString);
-            ASSERT(0 == realTestStatus);
+            ASSERT(output.load());
+            ASSERT(0 == output.strcmp(twoNewlineTestString));
         }
 
         {
             // 5 Empty output works
             const char *testString = "";
 
-            CAPTURE_RESET;
+            output.reset();
             printf("%s", testString);
-            CAPTURE_ASSERT(testString);
-            ASSERT(0 == realTestStatus);
+            ASSERT(output.load());
+            ASSERT(0 == output.strcmp(testString));
         }
       } break;
       case 1: {
