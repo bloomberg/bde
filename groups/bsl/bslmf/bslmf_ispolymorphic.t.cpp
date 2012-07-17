@@ -121,18 +121,23 @@ class PolyVirtuallyDerived : public Base1, public Base2 {
 };
 
 class Poly1 : public virtual Poly {
+    ~Poly1();
 };
 
 class Poly2 : public virtual Poly {
+    ~Poly2();
 };
 
 class VirtuallyDerivedFromPoly : public Poly1, public Poly2 {
+    ~VirtuallyDerivedFromPoly();
 };
 
 class VirtuallyDerivedMixed1 : public Base1, public Poly2 {
+    ~VirtuallyDerivedMixed1();
 };
 
 class VirtuallyDerivedMixed2 : public Poly1, public Base2 {
+    ~VirtuallyDerivedMixed2();
 };
 
 
