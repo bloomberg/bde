@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Standard Usage
 ///- - - - - - - - - - - - -
-// Classes taking 'bslma_allocator' objects have many requirements (and thus,
+// Classes taking 'bslma::allocator' objects have many requirements (and thus,
 // many testing concerns) that other classes do not.  Here we illustrate how
 // 'bslma::TestAllocatorMonitor' objects (in conjunction with
 // 'bslma::TestAllocator' objects) can be used in a test driver to succinctly
@@ -428,9 +428,9 @@ BSLS_IDENT("$Id: $")
 // First, we declare 3 allocators, Test Object Allocator ('toa'), Test
 // Default Allocator ('tda'), and Test Global Allocator ('tga'):
 //..
-//  bslma_TestAllocator toa;
-//  bslma_TestAllocator tda;
-//  bslma_TestAllocator tga;
+//  bslma::TestAllocator toa;
+//  bslma::TestAllocator tda;
+//  bslma::TestAllocator tga;
 //..
 // Since neither the default nor the global allocators should ever be
 // have used for anything in this exercise, we only need check their
@@ -443,9 +443,9 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, we set up our monitors of the 3 allocators:
 //..
-//  bslma_TestAllocatorMonitor oam(&toa);
-//  bslma_TestAllocatorMonitor dam(&tda);
-//  bslma_TestAllocatorMonitor gam(&tga);
+//  bslma::TestAllocatorMonitor oam(&toa);
+//  bslma::TestAllocatorMonitor dam(&tda);
+//  bslma::TestAllocatorMonitor gam(&tga);
 //..
 // Then, we observe that creating an empty list allocates memory:
 //..
@@ -540,10 +540,10 @@ class TestAllocatorMonitor {
     // the Statistics section of @DESCRIPTION for the statics tracked.
 
     // DATA
-    const bsls::Types::Int64          d_initialInUse;    // 'numBlocksInUse'
-    const bsls::Types::Int64          d_initialMax;      // 'numBlocksMax'
-    const bsls::Types::Int64          d_initialTotal;    // 'numBlocksTotal'
-    const TestAllocator *const d_testAllocator_p; // held, not owned
+    bsls::Types::Int64   d_initialInUse;    // 'numBlocksInUse'
+    bsls::Types::Int64   d_initialMax;      // 'numBlocksMax'
+    bsls::Types::Int64   d_initialTotal;    // 'numBlocksTotal'
+    const TestAllocator *d_testAllocator_p; // held, not owned
 
     static const TestAllocator *validateArgument(
                                                const TestAllocator *allocator);
@@ -566,6 +566,15 @@ class TestAllocatorMonitor {
     ~TestAllocatorMonitor();
         // Destroy this object.
 #endif
+
+    // MANIPULATOR
+    void reset(const bslma::TestAllocator *testAllocator = 0);
+        // Change the allocator monitored by this object to the specified
+        // 'testAllocator' and initialize the other state of this object to the
+        // current state of 'testAllocator'.  If no 'testAllocator' is passed,
+        // do not modify the allocator held by this object and re-initialize
+        // the other state of this object to the current state of that
+        // allocator.
 
     // ACCESSORS
     bool isInUseDown() const;
@@ -634,14 +643,32 @@ TestAllocatorMonitor::validateArgument(const TestAllocator *allocator)
     return allocator;
 }
 
+// MANIPULATOR
+inline
+void TestAllocatorMonitor::reset(const TestAllocator *testAllocator)
+{
+    // called inline by c'tor, hence should precede it
+
+    if (testAllocator) {
+        d_testAllocator_p = testAllocator;
+    }
+
+    d_initialInUse = d_testAllocator_p->numBlocksInUse();
+    d_initialMax   = d_testAllocator_p->numBlocksMax();
+    d_initialTotal = d_testAllocator_p->numBlocksTotal();
+
+    BSLS_ASSERT_SAFE(0 <= d_initialMax);
+    BSLS_ASSERT_SAFE(0 <= d_initialTotal);
+}
+
 // CREATORS
 inline
 TestAllocatorMonitor::TestAllocatorMonitor(const TestAllocator *testAllocator)
-: d_initialInUse((validateArgument(testAllocator))->numBlocksInUse())
-, d_initialMax(testAllocator->numBlocksMax())
-, d_initialTotal(testAllocator->numBlocksTotal())
-, d_testAllocator_p(testAllocator)
+: d_testAllocator_p(testAllocator)
 {
+    BSLS_ASSERT_SAFE(d_testAllocator_p);
+
+    reset();
 }
 
 }  // close package namespace
