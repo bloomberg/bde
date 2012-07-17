@@ -232,6 +232,8 @@ void aSsErT(bool b, const char *s, int i)
 
 #define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
+#define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
+
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -326,36 +328,111 @@ static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //-----------------------------------------------------------------------------
 
 // Fundamental-type-specific print functions.
-inline void dbg_print(bool b) { printf(b ? "true" : "false"); fflush(stdout); }
-inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(short val) { printf("%d", (int)val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {
+inline static
+void dbg_print(bool b)
+{
+    printf(b ? "true" : "false"); fflush(stdout);
+}
+
+inline static
+void dbg_print(char c)
+{
+    printf("%c", c); fflush(stdout);
+}
+
+inline static
+void dbg_print(unsigned char c)
+{
+    printf("%c", c); fflush(stdout);
+}
+
+inline static
+void dbg_print(signed char c)
+{
+    printf("%c", c); fflush(stdout);
+}
+
+inline static
+void dbg_print(short val)
+{
     printf("%d", (int)val); fflush(stdout);
 }
-inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(long val) { printf("%ld", val); fflush(stdout); }
-inline void dbg_print(unsigned long val) {
+
+inline static
+void dbg_print(unsigned short val)
+{
+    printf("%d", (int)val); fflush(stdout);
+}
+
+inline static
+void dbg_print(int val)
+{
+    printf("%d", val); fflush(stdout);
+}
+
+inline static
+void dbg_print(unsigned int val)
+{
+    printf("%u", val); fflush(stdout);
+}
+
+inline static
+void dbg_print(long val)
+{
+    printf("%ld", val); fflush(stdout);
+}
+
+inline static
+void dbg_print(unsigned long val)
+{
     printf("%lu", val); fflush(stdout);
 }
-inline void dbg_print(long long val) { printf("%lld", val); fflush(stdout); }
-inline void dbg_print(unsigned long long val) {
+inline static
+void dbg_print(long long val)
+{
+    printf("%lld", val); fflush(stdout);
+}
+
+inline static
+void dbg_print(unsigned long long val)
+{
     printf("%llu", val); fflush(stdout);
 }
-inline void dbg_print(float val) {
+inline static
+void dbg_print(float val)
+{
     printf("'%f'", (double)val); fflush(stdout);
 }
-inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(long double val) {
+inline static
+void dbg_print(double val)
+{
+    printf("'%f'", val); fflush(stdout);
+}
+
+inline static
+void dbg_print(long double val)
+{
     printf("'%Lf'", val); fflush(stdout);
 }
-inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
+inline static
+void dbg_print(const char* s)
+{
+    printf("\"%s\"", s); fflush(stdout);
+}
 
-BSLTF_TEST_TYPES_DEFINE_DBG_PRINTS();
+inline static
+void dbg_print(char* s)
+{
+    printf("\"%s\"", s); fflush(stdout);
+}
+
+inline static
+void dbg_print(void* p)
+{
+    printf("%p", p); fflush(stdout);
+}
+
+BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINTS();
 
 
 // Generic debug print function (3-arguments).
@@ -484,7 +561,7 @@ struct ContainerName<vector<VALUE> > {
         return buf;
     }
 };
-    
+
 
 
 bool expectToAllocate(int n)
@@ -537,7 +614,7 @@ void verifyStack(const stack<typename CONTAINER::value_type,
                                 copyX(X, bslma::Default::allocator(allocator));
     emptyNVerifyStack(&copyX, expectedValues, expectedSize, LINE);
 }
-                                   
+
 
                             // ====================
                             // class ExceptionGuard
@@ -604,7 +681,7 @@ class TestComparator {
     // operator that compares two objects of the parameterized 'TYPE'.  The
     // function-call operator is implemented with integer comparison using
     // integers converted from objects of 'TYPE' by the class method
-    // 'TemplateTestFacility::getValue'.  The function-call operator also
+    // 'TemplateTestFacility::getIdentifier'.  The function-call operator also
     // increments a global counter used to keep track the method call count.
     // Object of this class can be identified by an id passed on construction.
 
@@ -656,12 +733,14 @@ class TestComparator {
         ++d_count;
 
         if (d_compareLess) {
-            return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
-                 < bsltf::TemplateTestFacility::getValue<TYPE>(rhs);  // RETURN
+            return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+                 < bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+                                                                      // RETURN
         }
         else {
-            return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
-                 > bsltf::TemplateTestFacility::getValue<TYPE>(rhs);  // RETURN
+            return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+                 > bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+                                                                      // RETURN
         }
     }
 
@@ -689,7 +768,7 @@ class GreaterThanFunctor {
     // operator that compares two objects of the parameterized 'TYPE'.  The
     // function-call operator is implemented with integer comparison using
     // integers converted from objects of 'TYPE' by the class method
-    // 'TemplateTestFacility::getValue'.
+    // 'TemplateTestFacility::getIdentifier'.
 
   public:
     // ACCESSORS
@@ -697,8 +776,8 @@ class GreaterThanFunctor {
         // Return 'true' if the integer representation of the specified 'lhs'
         // is less than integer representation of the specified 'rhs'.
     {
-        return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
-             > bsltf::TemplateTestFacility::getValue<TYPE>(rhs);
+        return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+             > bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
     }
 };
 
@@ -708,8 +787,8 @@ bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
     // Return 'true' if the integer representation of the specified 'lhs' is
     // less than integer representation of the specified 'rhs'.
 {
-    return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
-         < bsltf::TemplateTestFacility::getValue<TYPE>(rhs);
+    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+         < bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
 }
 
 }  // close unnamed namespace
@@ -810,7 +889,8 @@ class TestDriver {
     }
 
   public:
-    // TEST CASES
+                                  // test cases
+
     static void testCase12();
         // Test inequality operators
 
@@ -2598,7 +2678,7 @@ void TestDriver<CONTAINER>::testCase2()
 
                 // insert the last element with an exception guard
 
-                bslma::TestAllocator_EXCEPTION_TEST_BEGIN(oa) {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     ExceptionGuard<Obj> guard(&X, L_, &scratch);
 
                     mX.push(VALUES[LENGTH - 1]);
@@ -3077,11 +3157,11 @@ int main(int argc, char *argv[])
                             "\n============================\n");
 
         if (verbose) printf("deque ---------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase12,
+        RUN_EACH_TYPE(TestDriver, testCase12,
                                         TEST_TYPES_INEQUAL_COMPARABLE(deque));
 
         if (verbose) printf("vector --------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase12,
+        RUN_EACH_TYPE(TestDriver, testCase12,
                                         TEST_TYPES_INEQUAL_COMPARABLE(vector));
       } break;
       case 11: {
@@ -3108,8 +3188,8 @@ int main(int argc, char *argv[])
                                   bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
         BSLMF_ASSERT((0 == bslalg_HasTrait<WeirdAllocDequeStack,
                                   bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-//      BSLTF_RUN_EACH_TYPE(TestDriver, testCase11,TEST_TYPES_REGULAR(deque));
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase11, deque<void *>);
+//      RUN_EACH_TYPE(TestDriver, testCase11,TEST_TYPES_REGULAR(deque));
+        RUN_EACH_TYPE(TestDriver, testCase11, deque<void *>);
 
         if (verbose) printf("vector --------------------------------------\n");
         BSLMF_ASSERT((0 == bslalg_HasTrait<vector<bsltf::AllocTestType,
@@ -3117,8 +3197,8 @@ int main(int argc, char *argv[])
                                   bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
         BSLMF_ASSERT((0 == bslalg_HasTrait<WeirdAllocVectorStack,
                                   bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-//      BSLTF_RUN_EACH_TYPE(TestDriver, testCase11,TEST_TYPES_REGULAR(vector));
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase11, vector<void *>);
+//      RUN_EACH_TYPE(TestDriver, testCase11,TEST_TYPES_REGULAR(vector));
+        RUN_EACH_TYPE(TestDriver, testCase11, vector<void *>);
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -3129,9 +3209,9 @@ int main(int argc, char *argv[])
                             "\n====================\n");
 
         if (verbose) printf("deque ---------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase10,TEST_TYPES_REGULAR(deque));
+        RUN_EACH_TYPE(TestDriver, testCase10,TEST_TYPES_REGULAR(deque));
         if (verbose) printf("vector --------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase10,TEST_TYPES_REGULAR(vector));
+        RUN_EACH_TYPE(TestDriver, testCase10,TEST_TYPES_REGULAR(vector));
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -3142,9 +3222,9 @@ int main(int argc, char *argv[])
                             "\n===========================\n");
 
         if (verbose) printf("deque ---------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase9, TEST_TYPES_REGULAR(deque));
+        RUN_EACH_TYPE(TestDriver, testCase9, TEST_TYPES_REGULAR(deque));
         if (verbose) printf("vector --------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase9, TEST_TYPES_REGULAR(vector));
+        RUN_EACH_TYPE(TestDriver, testCase9, TEST_TYPES_REGULAR(vector));
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -3155,9 +3235,9 @@ int main(int argc, char *argv[])
                             "\n====================================\n");
 
         if (verbose) printf("deque ---------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase8, TEST_TYPES_REGULAR(deque));
+        RUN_EACH_TYPE(TestDriver, testCase8, TEST_TYPES_REGULAR(deque));
         if (verbose) printf("vector --------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase8, TEST_TYPES_REGULAR(vector));
+        RUN_EACH_TYPE(TestDriver, testCase8, TEST_TYPES_REGULAR(vector));
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -3168,9 +3248,9 @@ int main(int argc, char *argv[])
                             "\n=========================\n");
 
         if (verbose) printf("deque ---------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase7, TEST_TYPES_REGULAR(deque));
+        RUN_EACH_TYPE(TestDriver, testCase7, TEST_TYPES_REGULAR(deque));
         if (verbose) printf("vector --------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase7, TEST_TYPES_REGULAR(vector));
+        RUN_EACH_TYPE(TestDriver, testCase7, TEST_TYPES_REGULAR(vector));
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -3181,9 +3261,9 @@ int main(int argc, char *argv[])
                             "\n==========================\n");
 
         if (verbose) printf("deque ---------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase6, TEST_TYPES_REGULAR(deque));
+        RUN_EACH_TYPE(TestDriver, testCase6, TEST_TYPES_REGULAR(deque));
         if (verbose) printf("vector --------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase6, TEST_TYPES_REGULAR(vector));
+        RUN_EACH_TYPE(TestDriver, testCase6, TEST_TYPES_REGULAR(vector));
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -3205,9 +3285,9 @@ int main(int argc, char *argv[])
                             "\n=======================\n");
 
         if (verbose) printf("deque ---------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase4, TEST_TYPES_REGULAR(deque));
+        RUN_EACH_TYPE(TestDriver, testCase4, TEST_TYPES_REGULAR(deque));
         if (verbose) printf("vector --------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase4, TEST_TYPES_REGULAR(vector));
+        RUN_EACH_TYPE(TestDriver, testCase4, TEST_TYPES_REGULAR(vector));
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -3218,9 +3298,9 @@ int main(int argc, char *argv[])
                             "\n============\n");
 
         if (verbose) printf("deque ---------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase3, TEST_TYPES_REGULAR(deque));
+        RUN_EACH_TYPE(TestDriver, testCase3, TEST_TYPES_REGULAR(deque));
         if (verbose) printf("vector --------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase3, TEST_TYPES_REGULAR(vector));
+        RUN_EACH_TYPE(TestDriver, testCase3, TEST_TYPES_REGULAR(vector));
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -3231,9 +3311,9 @@ int main(int argc, char *argv[])
                               "=======================================\n");
 
         if (verbose) printf("deque ---------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase2, TEST_TYPES_REGULAR(deque));
+        RUN_EACH_TYPE(TestDriver, testCase2, TEST_TYPES_REGULAR(deque));
         if (verbose) printf("vector --------------------------------------\n");
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase2, TEST_TYPES_REGULAR(vector));
+        RUN_EACH_TYPE(TestDriver, testCase2, TEST_TYPES_REGULAR(vector));
       } break;
       case 1: {
         // --------------------------------------------------------------------
