@@ -1801,40 +1801,6 @@ struct baexml_Decoder_decodeImpProxy {
     }
 };
 
-         // ============================================================
-         // struct baexml_Decoder_PrepareSequenceContext_executeImpProxy
-         // ============================================================
-
-struct baexml_Decoder_PrepareSequenceContext_executeImpProxy {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-
-    // DATA
-    baexml_Decoder_PrepareSequenceContext *d_instance_p;
-    int                                    d_formattingMode;
-    int                                    d_id;
-
-    // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
-
-    // FUNCTIONS
-    template <typename TYPE>
-    inline
-    int operator()(const TYPE&, bslmf_Nil)
-    {
-        BSLS_ASSERT_SAFE(0);
-        return -1;
-    }
-
-    template <typename TYPE, typename ANY_CATEGORY>
-    inline
-    int operator()(const TYPE& object, ANY_CATEGORY category)
-    {
-        d_instance_p->executeImp(object, d_formattingMode, d_id, category);
-        return 0;
-    }
-};
-
                // =================================================
                // struct baexml_Decoder_ParseAttribute_executeProxy
                // =================================================
