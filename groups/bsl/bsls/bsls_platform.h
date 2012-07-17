@@ -709,6 +709,17 @@ struct bsls_Platform_Assert;
 #endif
 // ----------------------------------------------------------------------------
 
+                        // Miscellaneous Platform Macros
+
+#if defined(BSLS_PLATFORM__CMP_GNU)
+    #define BSLS_PLATFORM__NO_64_BIT_LITERALS 1
+#endif
+
+#if defined(BSLS_PLATFORM__CMP_IBM) && !defined(BSLS_PLATFORM__CPU_64_BIT)
+    #define BSLS_PLATFORM__NO_64_BIT_LITERALS 1
+#endif
+// ----------------------------------------------------------------------------
+
                                  // Validation
 
 // Unix flag must be set by the compiler if Unix detected (except for AIX).
