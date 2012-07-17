@@ -111,24 +111,10 @@ static void realaSsErT(int c, const char *s, int i)
 #endif
 
 #define OUTPUT_BUFFER_SIZE 4096
-#define CAPTURE_RESET rewind(bslsOut)
 
-#define CAPTURE_RETRIEVE(B, SZ) do {            \
-        rewind(bslsOut);                        \
-        fread((B), sizeof (*B), (SZ), bslsOut); \
-    } while(0)
+#define CAPTURE_RESET rewind(stdout)
 
-#define CAPTURE_ASSERT(O) checkCapture((O), bslsOut, __LINE__)
-
-#define CAPTURE_ASSERTXXX(O) do {                             \
-        size_t outputSize = strlen(O);                     \
-        long bufferSize = ftell(bslsOut);                  \
-        LOOP_ASSERT_LONG(ftell(bslsOut), outputSize == ftell(bslsOut));      \
-        LOOP_ASSERT_LONG(bufferSize, bufferSize <= OUTPUT_BUFFER_SIZE);      \
-        rewind(bslsOut);                                   \
-        ASSERT(outputSize == fread(outputBuffer, sizeof(char), outputSize, bslsOut)); \
-        LOOP_ASSERT_STRING(outputBuffer, 0 == strncmp(O, outputBuffer, outputSize));                    \
-    } while (0)
+#define CAPTURE_ASSERT(expected) checkCapture((expected), stdout, __LINE__)
 
 //=============================================================================
 //                      HELPER FUNCTION FOR USAGE EXAMPLE
@@ -156,6 +142,7 @@ void executeUsageExample(bool verbose, bool veryVerbose, bool veryVeryVerbose);
 //                             HELPER FUNCTIONS
 //-----------------------------------------------------------------------------
 
+// fileName has to be visible to cleanTempFile and to redirectOutputs
 #ifdef BSLS_PLATFORM__OS_WINDOWS
 static char fileName[MAX_PATH];
 #elif defined(BSLS_PLATFORM__OS_HPUX)
@@ -166,6 +153,7 @@ static char fileName[PATH_MAX];
 #endif
 
 void cleanTempFile() {
+    fclose(stdout);
     unlink(fileName);
 }
 
@@ -176,8 +164,9 @@ bool tempFileName(char *result, bool verboseFlag)
 #ifdef BSLS_PLATFORM__OS_WINDOWS
     const size_t maxSize = MAX_PATH;
     char tmpPathBuf[MAX_PATH];
-    GetTempPath(MAX_PATH, tmpPathBuf);
-    GetTempFileName(tmpPathBuf, "bsls", 0, result);
+    if (! GetTempPath(MAX_PATH, tmpPathBuf) || ! GetTempFileName(tmpPathBuf, "bsls", 0, result)) {
+        return false;
+    }
 #elif defined(BSLS_PLATFORM__OS_HPUX)
     const size_t maxSize = L_tmpnam;
     if(! tempnam(result, "bsls")) {
@@ -197,7 +186,9 @@ bool tempFileName(char *result, bool verboseFlag)
 
     if (verboseFlag) printf("\tUse '%s' as a base filename.\n", result);
 
-    atexit(cleanTempFile);
+    ASSERT(0 == atexit(cleanTempFile));
+        // Warn but do not fail, since failing will only leave behind the temp
+        // file we cannot clean up
 
     // Test Invariant:
     ASSERT('\0' != result[0]); // result not empty
@@ -205,51 +196,69 @@ bool tempFileName(char *result, bool verboseFlag)
     return true;
 }
 
-FILE *redirectOutputs(bool verboseFlag)
+bool redirectOutputs(bool verboseFlag)
 {
-    ASSERT(tempFileName(fileName, verboseFlag));
+    bool success = false;
 
-    FILE *out = stdout;
-    ASSERT(out == freopen(fileName, "w+", stdout));
-    fflush(stdout);
+    if (! freopen("/dev/stdout", "w+", stderr)) {
+            // Redirect stderr
+        // Use aSsErT instead of realaSsErT, because stderr has not been
+        // redirected
+        aSsErT(1, "Failed to redirect stdout", __LINE__);
+        // Fix values of realTestStatus and testStatus to account for using
+        // aSsErT above
+        realTestStatus = testStatus;
+        testStatus = 0;
+    } else if (! tempFileName(fileName, verboseFlag)) {
+            // Get temp file name
+        realaSsErT(1, "Failed to get temp file name for stdout capture", __LINE__);
+    } else if (! freopen(fileName, "w+", stdout)) {
+            // Redirect stdout
+        fprintf(stderr, "fileName: %s\n", fileName);
+        realaSsErT(1, "Failed to redirect stdout", __LINE__);
+    } else if (EOF == fflush(stdout)) {
+        realaSsErT(1, "Error flushing stdout", __LINE__);
+    } else {
+        success = true;
+    }
 
-    return out;
+    return success;
 }
 
 bool checkCapture(const char *referenceString, FILE *captureFile, int lineNum) {
     static char outputBuffer[OUTPUT_BUFFER_SIZE];
 
-        size_t stringLength = strlen(referenceString);                     
-        long outputSize = ftell(captureFile);                  
+    size_t stringLength = strlen(referenceString);                     
+    long outputSize = ftell(captureFile);                  
 
-        if (outputSize > OUTPUT_BUFFER_SIZE) {
-            fprintf(stderr, "ftell(captureFile): %ld\n", outputSize);
-            realaSsErT(1, "captured output exceeds read buffer size", lineNum);
-            return false;
-        } else if (stringLength != outputSize) {
-            rewind(captureFile);                                   
-            long charsRead = fread(outputBuffer, sizeof(char), outputSize, captureFile);
-            fprintf(stderr, "outputSize: %ld\toutputBuffer: %s\treferenceString: %s\n", outputSize, outputBuffer, referenceString);
-            realaSsErT(1, "captured output size mismatch", lineNum);
-            return false;
-        }
-
+    if (outputSize > OUTPUT_BUFFER_SIZE) {
+        fprintf(stderr, "ftell(captureFile): %ld\n", outputSize);
+        realaSsErT(1, "captured output exceeds read buffer size", lineNum);
+        return false;
+    } else if (stringLength != outputSize) {
         rewind(captureFile);                                   
-
         long charsRead = fread(outputBuffer, sizeof(char), outputSize, captureFile);
-        if (outputSize != charsRead) {
-            fprintf(stderr, "outputSize: %ld\tcharsRead: %ld\n", outputSize, charsRead);
-            realaSsErT(1, "could not read all captured output", lineNum);
-            return false;
-        } else if (0 != strncmp(referenceString, outputBuffer, stringLength)) {
-            fprintf(stderr, "outputBuffer: %s\treferenceString: %s\n", 
-                    outputBuffer,
-                    referenceString);
-            realaSsErT(1, "captured output does not match reference string", lineNum);
-            return false;
-        }
+        fprintf(stderr, "outputSize: %ld\toutputBuffer: %s\treferenceString: %s\n", outputSize, outputBuffer, referenceString);
+        realaSsErT(1, "captured output size mismatch", lineNum);
+        return false;
+    }
 
-        return true;
+    rewind(captureFile);                                   
+
+    long charsRead = fread(outputBuffer, sizeof(char), outputSize, captureFile);
+    if (outputSize != charsRead) {
+        fprintf(stderr, "outputSize: %ld\tcharsRead: %ld\n", outputSize, charsRead);
+        realaSsErT(1, "could not read all captured output", lineNum);
+        return false;
+    } else if (0 != strncmp(referenceString, outputBuffer, stringLength)) {
+        fprintf(stderr, "outputBuffer: %s\treferenceString: %s\n", 
+                outputBuffer,
+                referenceString);
+        realaSsErT(1, "captured output does not match reference string", lineNum);
+        return false;
+    }
+
+    return true;
 }
 
 //=============================================================================
@@ -263,11 +272,15 @@ int main(int argc, char *argv[])
     bool veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
-    setbuf(stdout, 0);    // Use unbuffered output on stdout
+    //setbuf(stdout, 0);    // Use unbuffered output on stdout
 
-    FILE *bslsOut = redirectOutputs(verbose);  // Capture stdout, and send stderr to stdout
 
     fprintf(stderr, "TEST " __FILE__ " CASE %d\n", test);
+
+    if (! redirectOutputs(verbose)) {
+            // Capture stdout, and send stderr to stdout
+        return realTestStatus;
+    }
 
     switch (test) { case 0:
       case 4: {
@@ -330,9 +343,9 @@ int main(int argc, char *argv[])
             size_t testStringLength = strlen(testString);
 
             CAPTURE_RESET;
-            ASSERT(0 == ftell(bslsOut));
+            ASSERT(0 == ftell(stdout));
             printf("%s", testString);
-            ASSERT(testStringLength == ftell(bslsOut));
+            ASSERT(testStringLength == ftell(stdout));
         }
 
         {
