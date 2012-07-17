@@ -16,8 +16,9 @@ BDES_IDENT_RCSID(bdecs_packedcalendar_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-// STATIC HELPER FUNCTIONS
-static
+namespace {
+
+// HELPER FUNCTIONS
 void addDayImp(bdet_Date        *firstDate,
                bdet_Date        *endDate,
                bsl::vector<int> *holidayOffsets,
@@ -43,6 +44,56 @@ void addDayImp(bdet_Date        *firstDate,
         *endDate = date;
     }
 }
+
+int numWeekendDaysInRangeImp(const bdet_Date& firstDate,
+                             const bdet_Date& endDate,
+                             const bdec_DayOfWeekSet& weekendDays)
+// Return the number of days considered to be weekend days in the range
+// starting from the specified 'firstDate' to the date immediately before
+// 'endDate' if the days of the week in the specified 'weekendDays' are weekend
+// days.  Note that this function returns 0 if 'endDate < firstDate'.
+{
+    const int len = firstDate < endDate ? endDate - firstDate : 0;
+
+    // Assume that there is a partial week of 0-6 days followed by some number
+    // of full weeks.  First calculate the full weeks then test every day in
+    // the partial week.
+
+    int numWeekendDays = (len / 7) * weekendDays.length();
+    int dayOfWeek      = (int) firstDate.dayOfWeek();
+
+    switch (len % 7) {
+      case 6:
+        numWeekendDays += weekendDays.isMember(
+                                  static_cast<bdet_DayOfWeek::Day>(dayOfWeek));
+        dayOfWeek = dayOfWeek % 7 + 1;
+      case 5:
+        numWeekendDays += weekendDays.isMember(
+                                  static_cast<bdet_DayOfWeek::Day>(dayOfWeek));
+        dayOfWeek = dayOfWeek % 7 + 1;
+      case 4:
+        numWeekendDays += weekendDays.isMember(
+                                  static_cast<bdet_DayOfWeek::Day>(dayOfWeek));
+        dayOfWeek = dayOfWeek % 7 + 1;
+      case 3:
+        numWeekendDays += weekendDays.isMember(
+                                  static_cast<bdet_DayOfWeek::Day>(dayOfWeek));
+        dayOfWeek = dayOfWeek % 7 + 1;
+      case 2:
+        numWeekendDays += weekendDays.isMember(
+                                  static_cast<bdet_DayOfWeek::Day>(dayOfWeek));
+        dayOfWeek = dayOfWeek % 7 + 1;
+      case 1:
+        numWeekendDays += weekendDays.isMember(
+                                  static_cast<bdet_DayOfWeek::Day>(dayOfWeek));
+        dayOfWeek = dayOfWeek % 7 + 1;
+    }
+
+    return numWeekendDays;
+}
+
+
+}  // close unnamed namespace
 
                         // --------------------------
                         // class bdecs_PackedCalendar
@@ -986,41 +1037,46 @@ bsl::ostream& bdecs_PackedCalendar::print(bsl::ostream& stream,
 
 int bdecs_PackedCalendar::numWeekendDaysInRange() const
 {
-    const int len = length();
-
-    // Assume that there is a partial week of 0-6 days followed by some number
-    // of full weeks.  First calculate the full weeks then test every day in
-    // the partial week.
-
-    int numWeekendDays = (len / 7) * numWeekendDaysInWeek();
-    int dayOfWeek      = (int)d_firstDate.dayOfWeek();
-
-    switch (len % 7) {
-      case 6:
-        numWeekendDays += d_weekendDays.isMember(
-                                               (bdet_DayOfWeek::Day)dayOfWeek);
-        dayOfWeek = dayOfWeek % 7 + 1;
-      case 5:
-        numWeekendDays += d_weekendDays.isMember(
-                                               (bdet_DayOfWeek::Day)dayOfWeek);
-        dayOfWeek = dayOfWeek % 7 + 1;
-      case 4:
-        numWeekendDays += d_weekendDays.isMember(
-                                               (bdet_DayOfWeek::Day)dayOfWeek);
-        dayOfWeek = dayOfWeek % 7 + 1;
-      case 3:
-        numWeekendDays += d_weekendDays.isMember(
-                                               (bdet_DayOfWeek::Day)dayOfWeek);
-        dayOfWeek = dayOfWeek % 7 + 1;
-      case 2:
-        numWeekendDays += d_weekendDays.isMember(
-                                               (bdet_DayOfWeek::Day)dayOfWeek);
-        dayOfWeek = dayOfWeek % 7 + 1;
-      case 1:
-        numWeekendDays += d_weekendDays.isMember(
-                                               (bdet_DayOfWeek::Day)dayOfWeek);
-        dayOfWeek = dayOfWeek % 7 + 1;
+    if (d_weekendDaysTransitions.empty()) {
+        return 0;
     }
+
+    BSLS_ASSERT_SAFE(d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
+
+    // Find the first transition that has a date less than or equal to the
+    // first date of calendar.
+    bdec_DayOfWeekSet dummySet;
+    WeekendDaysTransitionConstIterator itr =
+                            bsl::upper_bound(d_weekendDaysTransitions.begin(),
+                                             d_weekendDaysTransitions.end(),
+                                             WeekendDaysTransition(d_firstDate,
+                                                                   dummySet),
+                                             WeekendDaysTransitionLess());
+    --itr;
+
+    int numWeekendDays = 0;
+
+
+    bdet_Date firstDate = d_firstDate;
+    do {
+        const bdec_DayOfWeekSet& weekendDays = itr->second;
+        bdet_Date endDate;
+
+        ++itr;
+        if (itr != d_weekendDaysTransitions.end() &&
+                                                    itr->first <= d_lastDate) {
+            endDate = itr->first;
+        }
+        else {
+            endDate = d_lastDate + 1;
+        }
+
+        numWeekendDays +=
+                     numWeekendDaysInRangeImp(firstDate, endDate, weekendDays);
+
+        firstDate = itr->first;
+    } while (itr != d_weekendDaysTransitions.end() &&
+                                                     itr->first <= d_lastDate);
 
     return numWeekendDays;
 }

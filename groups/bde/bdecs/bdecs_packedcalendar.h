@@ -1230,10 +1230,6 @@ class bdecs_PackedCalendar {
         // weekend day in this calendar.  If this calendar has no weekend days,
         // the returned iterator has the same value as that returned by
         // 'rbeginWeekendDays'.
-
-    const bdec_DayOfWeekSet& weekendDays() const;
-        // Return a reference to the non-modifiable set of weekend days
-        // associated with this calendar.
 };
 
 // FREE OPERATORS
@@ -1565,11 +1561,8 @@ class bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator {
     // transition of the weekend days added by the two methods at the date
     // '1/1/1'.
 
-
     // DATA
-    WeekendDaysTransition
-
-
+    // WeekendDaysTransition
 };
 
                 // ===================================================
@@ -2180,17 +2173,37 @@ bdecs_PackedCalendar::endHolidayCodes(const OffsetsConstIterator& iter) const
 inline
 void bdecs_PackedCalendar::addWeekendDay(bdet_DayOfWeek::Day weekendDay)
 {
-    BSLS_ASSERT_SAFE(d_weekendDaysTransitions.empty());
+    BSLS_ASSERT_SAFE(d_weekendDaysTransitions.size() <= 1);
 
-    d_weekendDays.add(weekendDay);
+    if (d_weekendDaysTransitions.empty()) {
+        bdec_DayOfWeekSet weekendDays;
+        weekendDays.add(weekendDay);
+        WeekendDaysTransition newTransition(bdet_Date(1,1,1), weekendDays);
+        d_weekendDaysTransitions.push_back(newTransition);
+    }
+    else {
+        BSLS_ASSERT_SAFE(
+                        d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
+
+        d_weekendDaysTransitions[0].second.add(weekendDay);
+    }
 }
 
 inline
 void bdecs_PackedCalendar::addWeekendDays(const bdec_DayOfWeekSet& weekendDays)
 {
-    BSLS_ASSERT_SAFE(d_weekendDaysTransitions.empty());
+    BSLS_ASSERT_SAFE(d_weekendDaysTransitions.size() <= 1);
 
-    d_weekendDays |= weekendDays;
+    if (d_weekendDaysTransitions.empty()) {
+        WeekendDaysTransition newTransition(bdet_Date(1,1,1), weekendDays);
+        d_weekendDaysTransitions.push_back(newTransition);
+    }
+    else {
+        BSLS_ASSERT_SAFE(
+                        d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
+
+        d_weekendDaysTransitions[0].second |= weekendDays;
+    }
 }
 
 inline
@@ -2198,13 +2211,13 @@ void bdecs_PackedCalendar::addWeekendDaysTransition(
                                           const bdet_Date& date,
                                           const bdec_DayOfWeekSet& weekendDays)
 {
-    BSLS_ASSERT(d_weekendDays.length() == 0);
+    if (d_weekendDaysTransitions.empty()) {
+        d_weekendDaysTransitions.push_back(
+                                   WeekendDaysTransition(bdet_Date(1,1,1),
+                                                         bdec_DayOfWeekSet()));
+    }
 
     WeekendDaysTransition newTransition(date, weekendDays);
-
-    if (0 == d_weekendDaysTransitions.size()) {
-        d_weekendDaysTransitions.push_back(newTransition);
-    }
 
     WeekendDaysTransitionIterator it =
                              bsl::lower_bound(d_weekendDaysTransitions.begin(),
@@ -2554,17 +2567,24 @@ bool bdecs_PackedCalendar::isNonBusinessDay(const bdet_Date& date) const
 inline
 bool bdecs_PackedCalendar::isWeekendDay(bdet_DayOfWeek::Day dayOfWeek) const
 {
-    return d_weekendDays.isMember(dayOfWeek);
+    BSLS_ASSERT_SAFE(d_weekendDaysTransitions.size() <= 1);
+
+    if (d_weekendDaysTransitions.empty()) {
+        return false;
+    }
+    else {
+        BSLS_ASSERT_SAFE(
+                        d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
+
+        return d_weekendDaysTransitions[0].second.isMember(dayOfWeek);
+    }
 }
 
 inline
 bool bdecs_PackedCalendar::isWeekendDay(const bdet_Date& date) const
 {
-    BSLS_ASSERT_SAFE(d_weekendDaysTransitions.empty() ||
-                     d_weekendDays.length() == 0);
-
     if (d_weekendDaysTransitions.empty()) {
-        return isWeekendDay(date.dayOfWeek());
+        return false;
     }
 
     bdec_DayOfWeekSet dummySet;
@@ -2618,7 +2638,17 @@ int bdecs_PackedCalendar::numHolidays() const
 inline
 int bdecs_PackedCalendar::numWeekendDaysInWeek() const
 {
-    return d_weekendDays.length();
+    BSLS_ASSERT_SAFE(d_weekendDaysTransitions.size() <= 1);
+
+    if (d_weekendDaysTransitions.empty()) {
+        return 0;
+    }
+    else {
+        BSLS_ASSERT_SAFE(
+            d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
+        return d_weekendDaysTransitions[0].second.length();
+
+    }
 }
 
 inline
@@ -2730,12 +2760,6 @@ bdecs_PackedCalendar::WeekendDayConstReverseIterator
 bdecs_PackedCalendar::rendWeekendDays() const
 {
     return d_weekendDays.rend();
-}
-
-inline
-const bdec_DayOfWeekSet& bdecs_PackedCalendar::weekendDays() const
-{
-    return d_weekendDays;
 }
 
 // FREE FUNCTIONS
