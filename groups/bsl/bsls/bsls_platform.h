@@ -64,8 +64,9 @@ BSLS_IDENT("$Id: $")
 //  -------------------------------------------------------------
 //     Vendor                Version
 //  -----------------   -------------------
-//   @__CMP_EDG          @__CMP_VER_MAJOR
-//   @__CMP_GNU          @__CMP_VER_MINOR
+//   @__CMP_CLANG        @__CMP_VER_MAJOR
+//   @__CMP_EDG          @__CMP_VER_MINOR
+//   @__CMP_GNU
 //   @__CMP_HP
 //   @__CMP_IBM
 //   @__CMP_MSVC
@@ -172,7 +173,7 @@ struct bsls_Platform_Assert;
 // ---------------------------------------------------------------------------
 #if defined(__xlC__) || defined(__IBMC__) || defined(__IBMCPP__)
     #define BSLS_PLATFORM__CMP_IBM 1
-    #define BSLS_PLATFORM__CMP_VER_MAJOR __xlC__
+    #define BSLS_PLATFORM__CMP_VERSION __xlC__
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
     #define BSLS_PLATFORM__CMP_AIX 1
@@ -216,7 +217,7 @@ struct bsls_Platform_Assert;
 // ---------------------------------------------------------------------------
 #elif defined(__HP_aCC)
     #define BSLS_PLATFORM__CMP_HP 1
-    #define BSLS_PLATFORM__CMP_VER_MAJOR __HP_aCC
+    #define BSLS_PLATFORM__CMP_VERSION __HP_aCC
 
     // which OS -- should always be HPUX
     #if defined(hpux) || defined(__hpux) || defined(_HPUX_SOURCE)
@@ -245,7 +246,7 @@ struct bsls_Platform_Assert;
 // ---------------------------------------------------------------------------
 #elif defined(_MSC_VER)
     #define BSLS_PLATFORM__CMP_MSVC 1
-    #define BSLS_PLATFORM__CMP_VER_MAJOR _MSC_VER
+    #define BSLS_PLATFORM__CMP_VERSION _MSC_VER
 
     // which OS -- should be some flavor of Windows
     // there is currently no support for:
@@ -473,25 +474,25 @@ struct bsls_Platform_Assert;
             // Clang is GCC compatible, but sometimes we need to know about it
             #define BSLS_PLATFORM__CMP_CLANG 1
 
-            #if defined(__CLANG_GNU_PATCHLEVEL__)
-                #define BSLS_PLATFORM__CMP_VER_MAJOR (__CLANG_GNUC__ * 10000 \
-                       + __CLANG_GNUC_MINOR__ * 100 + __CLANG_GNUC_PATCHLEVEL__)
+            #if defined(__CLANG_GNUC_PATCHLEVEL__)
+                #define BSLS_PLATFORM__CMP_VERSION (__CLANG_GNUC__ * 10000 \
+                      + __CLANG_GNUC_MINOR__ * 100 + __CLANG_GNUC_PATCHLEVEL__)
             #else
-                #define BSLS_PLATFORM__CMP_VER_MAJOR (__CLANG_GNUC__ * 10000 \
+                #define BSLS_PLATFORM__CMP_VERSION (__CLANG_GNUC__ * 10000 \
                             + __CLANG_GNUC_MINOR__ * 100)
             #endif
         #else
-            #if defined(__GNU_PATCHLEVEL__)
-                #define BSLS_PLATFORM__CMP_VER_MAJOR (__GNUC__ * 10000 \
+            #if defined(__GNUC_PATCHLEVEL__)
+                #define BSLS_PLATFORM__CMP_VERSION (__GNUC__ * 10000 \
                             + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
             #else
-                #define BSLS_PLATFORM__CMP_VER_MAJOR (__GNUC__ * 10000 \
+                #define BSLS_PLATFORM__CMP_VERSION (__GNUC__ * 10000 \
                             + __GNUC_MINOR__ * 100)
             #endif
         #endif
     #else
         #define BSLS_PLATFORM__CMP_EDG 1
-        #define BSLS_PLATFORM__CMP_VER_MAJOR __EDG_VERSION__
+        #define BSLS_PLATFORM__CMP_VERSION __EDG_VERSION__
     #endif
 
     // which OS -- GNU and EDG/Como are implemented almost everywhere
@@ -582,9 +583,9 @@ struct bsls_Platform_Assert;
 
     #define BSLS_PLATFORM__CMP_SUN 1
     #if defined(__cplusplus)
-        #define BSLS_PLATFORM__CMP_VER_MAJOR __SUNPRO_CC
+        #define BSLS_PLATFORM__CMP_VERSION __SUNPRO_CC
     #else
-        #define BSLS_PLATFORM__CMP_VER_MAJOR __SUNPRO_C
+        #define BSLS_PLATFORM__CMP_VERSION __SUNPRO_C
     #endif
 
     // which OS
@@ -666,20 +667,45 @@ struct bsls_Platform_Assert;
 #endif
 // ----------------------------------------------------------------------------
 
-                        // Miscellaneous Platform Macros
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
-    #if BSLS_PLATFORM__CMP_VER_MAJOR <= 1200
-        #define BSLS_PLATFORM__NO_LONG_HEADER_NAMES 1
-    #endif
+                         // Detect Supported Platform
+
+#if !defined(BDE_BUILD_TARGET_ARCHAIC)
+
+#if defined(BSLS_PLATFORM__CMP_CLANG)
+    // No minimum supported compiler version has been identified yet.
+#elif defined(BSLS_PLATFORM__CMP_EDG)
+    // No minimum supported compiler version has been identified yet.
+#elif defined(BSLS_PLATFORM__CMP_HP)
+#  if BSLS_PLATFORM__CMP_VERSION < 62500
+#    error This early compiler is not supported by BDE
+#  endif
+#elif defined(BSLS_PLATFORM__CMP_IBM)
+    // No minimum supported compiler version has been identified yet.
+#elif defined(BSLS_PLATFORM__CMP_SUN)
+#  if BSLS_PLATFORM__CMP_VERSION < 580
+#    error This early compiler is not supported by BDE
+#  endif
+#elif defined(BSLS_PLATFORM__CMP_GNU)
+    // Test GNU late, as so many compilers offer a GNU compatibility mode.
+#  if BSLS_PLATFORM__CMP_VERSION < 40102
+#    error This early compiler is not supported by BDE
+#  endif
+#elif defined(BSLS_PLATFORM__CMP_MSVC)
+    // Test MSVC last, as many compilers targeting windows offer a Microsoft
+    // compatibility mode.
+#  if BSLS_PLATFORM__CMP_VERSION < 1500
+#    error This early compiler is not supported by BDE
+#  endif
+#else
+#  error This compiler is not recognized by BDE
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_GNU)
-    #define BSLS_PLATFORM__NO_64_BIT_CONSTANTS 1
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_IBM) && !defined(BSLS_PLATFORM__CPU_64_BIT)
-    #define BSLS_PLATFORM__NO_64_BIT_CONSTANTS 1
+#ifdef BSLS_PLATFORM__CMP_VERSION
+#define BSLS_PLATFORM__CMP_VER_MAJOR  BSLS_PLATFORM__CMP_VERSION
+    // This deprecated macro is defined for backwards compatibility only.
 #endif
 // ----------------------------------------------------------------------------
 
@@ -760,13 +786,6 @@ struct bsls_Platform_Assert;
 #endif
 
 #undef BSLS_PLATFORM__OS_SUBTYPE_COUNT
-
-#if defined(BSLS_PLATFORM__CMP_VER_MINOR) && \
-   !defined(BSLS_PLATFORM__CMP_VER_MAJOR)
-        // For each category, MINOR VERSION implies MAJOR VERSION
-    #error "Compiler minor but not major version defined."
-    char die[sizeof(bsls_Platform_Assert)];          // if '#error' unsupported
-#endif
 
 #if defined(BSLS_PLATFORM__OS_VER_MINOR) && \
    !defined(BSLS_PLATFORM__OS_VER_MAJOR)
@@ -984,11 +1003,7 @@ struct Platform {
 #endif
 
 #ifdef BSLS_PLATFORM__CMP_VER_MAJOR
-#define BDES_PLATFORM__CMP_VER_MAJOR  BSLS_PLATFORM__CMP_VER_MAJOR
-#endif
-
-#ifdef BSLS_PLATFORM__CMP_VER_MINOR
-#define BDES_PLATFORM__CMP_VER_MINOR  BSLS_PLATFORM__CMP_VER_MINOR
+#define BDES_PLATFORM__CMP_VER_MAJOR  BSLS_PLATFORM__CMP_VERSION
 #endif
 
 #ifdef BSLS_PLATFORM__CMP_IBM
