@@ -324,25 +324,22 @@ namespace bslalg {
                           // ==================
 
 struct RangeCompare {
-    // This utility 'struct' provides two methods, 'equal' and
-    // 'lexicographical', for comparing two ranges each specified by a set of
-    // input iterators.  Ranges are identified by specifying their starting and
-    // ending points, though variants are provided to allow the lengths of the
-    // ranges to be specified, or to allow the endpoint of one range to be
-    // omitted by the caller.
-    //
-    // 'equal' requires that the elements in the ranges can be compared either
-    // with 'operator==' or through bitwise comparison (as defined by
-    // association with the nested trait
-    // 'bslalg::TypeTraitBitwiseEqualityComparable'.  'equal' returns 'true' if
+    // This utility 'struct' provides two static class methods, 'equal' and
+    // 'lexicographical', for comparing two ranges.  'equal' returns 'true' if
     // each element in one range has the same value as the corresponding
-    // element in the other range.
-    //
-    // 'lexicographical' requires that the elements in the ranges can be
-    // compared with 'operator<'.  'lexicographical' returns 0 if the two
+    // element in the other range.  'lexicographical' returns 0 if the two
     // ranges are equal, a positive value if the first range is greater than
     // the second, and a negative value if the second range is greater than the
-    // first.
+    // first.  A range is specified by a pair of starting and ending iterators,
+    // with an optional length parameter.  Additionally, an overload is
+    // provided for the 'equal' class method that allows the end iterator for
+    // one range to be omitted.
+    //
+    // 'equal' requires that the elements in the ranges can be compared with
+    // 'operator=='.
+    //
+    // 'lexicographical' requires that the elements in the ranges can be
+    // compared with 'operator<'.
 
     // PUBLIC TYPES
     typedef std::size_t  size_type;
@@ -424,7 +421,7 @@ struct RangeCompare_Imp {
     // 'blsalg::RangeCompare'.  Multiple implementations are provided for each
     // method in 'blsalg::RangeCompare', and the most efficient version is
     // found by disambiguating based on the iterator type, the value type, or
-    // the presence of nested traits;
+    // the presence of nested traits.
 
     // CLASS METHODS
     template <typename VALUE_TYPE>
@@ -563,7 +560,7 @@ bool RangeCompare::equal(INPUT_ITER start1,
                          INPUT_ITER start2)
 {
     if (start1 == end1) {
-        return true;
+        return true;                                                  // RETURN
     }
     return RangeCompare_Imp::equal(start1, end1, start2, *start1);
 }
@@ -576,7 +573,7 @@ bool RangeCompare::equal(INPUT_ITER start1,
                          INPUT_ITER end2)
 {
     if (start1 == end1) {
-        return start2 == end2;
+        return start2 == end2;                                        // RETURN
     }
     return RangeCompare_Imp::equal(start1, end1, start2, end2, *start1);
 }
@@ -591,10 +588,10 @@ bool RangeCompare::equal(INPUT_ITER start1,
                          size_type  length2)
 {
     if (length1 != length2) {
-        return false;
+        return false;                                                 // RETURN
     }
     if (start1 == end1) {
-        return true;
+        return true;                                                  // RETURN
     }
     return RangeCompare_Imp::equal(start1, end1, start2, *start1);
 }
@@ -606,7 +603,7 @@ int RangeCompare::lexicographical(INPUT_ITER start1,
                                   INPUT_ITER end2)
 {
     if (start1 == end1) {
-        return start2 != end2 ? -1 : 0;
+        return start2 != end2 ? -1 : 0;                               // RETURN
     }
     return RangeCompare_Imp::lexicographical(start1,
                                              end1,
@@ -628,16 +625,16 @@ int RangeCompare::lexicographical(INPUT_ITER start1,
             :   RangeCompare_Imp::lexicographical(start1, end1, start2);
 
     if (result < 0) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     if (0 < result) {
-        return 1;
+        return 1;                                                     // RETURN
     }
     if (length1 < length2) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     if (length2 < length1) {
-        return 1;
+        return 1;                                                     // RETURN
     }
     return 0;
 }
@@ -677,7 +674,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
 {
     for ( ; start1 != end1 && start2 != end2; ++start1, ++start2) {
         if (! (*start1 == *start2)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return (start1 == end1) && (start2 == end2);
@@ -731,7 +728,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER         start1,
 {
     for ( ; start1 != end1; ++start1, ++start2) {
         if (! (*start1 == *start2)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -810,17 +807,17 @@ int RangeCompare_Imp::lexicographical(INPUT_ITER        start1,
 {
     for ( ; start1 != end1 && start2 != end2; ++start1, ++start2) {
         if (*start1 < *start2) {
-            return -1;
+            return -1;                                                // RETURN
         }
         else if (*start2 < *start1) {
-            return 1;
+            return 1;                                                 // RETURN
         }
     }
     if (start1 != end1) {
-        return 1;
+        return 1;                                                     // RETURN
     }
     if (start2 != end2) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     return 0;
 }
@@ -875,10 +872,10 @@ int RangeCompare_Imp::lexicographical(INPUT_ITER start1,
 {
     for ( ; start1 != end1; ++start1, ++start2) {
         if (*start1 < *start2) {
-            return -1;
+            return -1;                                                // RETURN
         }
         else if (*start2 < *start1) {
-            return 1;
+            return 1;                                                 // RETURN
         }
     }
     return 0;
@@ -891,7 +888,7 @@ int RangeCompare_Imp::lexicographical(INPUT_ITER start1,
                                       INPUT_ITER start2)
 {
     if (start1 != end1) {
-        return lexicographical(start1, end1, start2, *start1);
+        return lexicographical(start1, end1, start2, *start1);        // RETURN
     }
     return 0;
 }
