@@ -1490,29 +1490,6 @@ class baexml_Decoder_PrepareSequenceContext {
                                  const baexml_Decoder_PrepareSequenceContext&);
 
   public:
-    // IMPLEMENTATION MANIPULATORS
-    void executeImp(const bsl::vector<char>& object,
-                    int                      formattingMode,
-                    int                      id,
-                    bdeat_TypeCategory::Array);
-
-    template <typename TYPE>
-    void executeImp(const TYPE& object, int formattingMode, int id,
-                    bdeat_TypeCategory::Array);
-
-    template <typename TYPE>
-    void executeImp(const TYPE& object, int formattingMode, int id,
-                    bdeat_TypeCategory::NullableValue);
-
-    template <typename TYPE>
-    void executeImp(const TYPE& object, int formattingMode, int id,
-                    bdeat_TypeCategory::DynamicType);
-
-    template <typename TYPE, typename ANY_CATEGORY>
-    void executeImp(const TYPE& object, int formattingMode, int id,
-                    ANY_CATEGORY);
-
-  public:
     // CREATORS
     baexml_Decoder_PrepareSequenceContext(
                                     bdeut_NullableValue<int> *simpleContentId);
@@ -2845,61 +2822,6 @@ int baexml_Decoder_UTF8Context<TYPE>::parseSubElement(
                   // -------------------------------------------
                   // class baexml_Decoder_PrepareSequenceContext
                   // -------------------------------------------
-
-// PRIVATE MANIPULATORS
-inline
-void baexml_Decoder_PrepareSequenceContext::executeImp(
-                                       const bsl::vector<char>& ,
-                                       int                      ,
-                                       int                      ,
-                                       bdeat_TypeCategory::Array)
-{
-}
-
-template <typename TYPE>
-inline
-void baexml_Decoder_PrepareSequenceContext::executeImp(
-                                                    const TYPE& ,
-                                                    int         ,
-                                                    int         ,
-                                                    bdeat_TypeCategory::Array)
-{
-}
-
-template <typename TYPE>
-inline
-void baexml_Decoder_PrepareSequenceContext::executeImp(
-                                             const TYPE& ,
-                                             int         ,
-                                             int         ,
-                                             bdeat_TypeCategory::NullableValue)
-{
-}
-
-template <typename TYPE>
-inline
-void baexml_Decoder_PrepareSequenceContext::executeImp(
-                                             const TYPE& object,
-                                             int         formattingMode,
-                                             int         id,
-                                             bdeat_TypeCategory::DynamicType)
-{
-    baexml_Decoder_PrepareSequenceContext_executeImpProxy proxy = {
-                                                                this,
-                                                                formattingMode,
-                                                                id };
-    bdeat_TypeCategoryUtil::accessByCategory(object, proxy);
-}
-
-template <typename TYPE, typename ANY_CATEGORY>
-inline
-void baexml_Decoder_PrepareSequenceContext::executeImp(
-                                                    const TYPE& ,
-                                                    int         ,
-                                                    int         ,
-                                                    ANY_CATEGORY)
-{
-}
 
 // CREATORS
 inline
