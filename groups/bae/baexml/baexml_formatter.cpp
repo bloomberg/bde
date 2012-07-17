@@ -18,7 +18,7 @@ namespace BloombergLP {
                         // class baexml_Formatter::ElemContext
                         // ===================================
 
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BDE_BUILD_TARGET_SAFE2
 baexml_Formatter::ElemContext::ElemContext(const bdeut_StringRef& tag,
                                            WhitespaceType         ws)
 : d_ws(ws), d_tagLen(bsl::min(tag.length(), 255))
@@ -206,7 +206,7 @@ void baexml_Formatter::closeElement(const bdeut_StringRef& name)
 {
     BSLS_ASSERT(BAEXML_IN_TAG == d_state || BAEXML_BETWEEN_TAGS == d_state);
     BSLS_ASSERT(d_wrapColumn < 0 || ! d_elementNesting.empty());
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BDE_BUILD_TARGET_SAFE2
     BSLS_ASSERT(d_wrapColumn < 0 || d_elementNesting.back().matchTag(name));
 #endif
 
