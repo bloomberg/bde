@@ -58,7 +58,7 @@ using namespace bsl;
 // as assign and insert).  This container is implemented in the form of a class
 // template, and thus its proper instantiation for several types is a concern.
 // Regarding the allocator template argument, we use mostly a 'bsl::allocator'
-// together with a 'bslma_TestAllocator' mechanism, but we also verify the C++
+// together with a 'bslma::TestAllocator' mechanism, but we also verify the C++
 // standard.
 //
 // The Primary Manipulators and Basic Accessors are decided to be:
@@ -78,7 +78,7 @@ using namespace bsl;
 // 'insert' and 'clear' methods to be used by the generator functions 'g' and
 // 'gg'.  Note that some manipulators must support aliasing, and those that
 // perform memory allocation must be tested for exception neutrality via the
-// 'bslma_testallocator' component.  After the mandatory sequence of cases
+// 'bslma::TestAllocator' component.  After the mandatory sequence of cases
 // (1--10) for value-semantic types (cases 5 and 10 are not implemented, as
 // there is not output or streaming below bslstl), we test each individual
 // constructor, manipulator, and accessor in subsequent cases.
@@ -373,7 +373,7 @@ void dbg_print(const char* s, const T& val, const char* nl)
         containerArg<bsltf::TemplateTestFacility::ObjectPtr>,                 \
         containerArg<bsltf::TemplateTestFacility::FunctionPtr>,               \
         containerArg<bsltf::TemplateTestFacility::MethodPtr>,                 \
-        containerArg<bsltf::EnumerationTestType::Enum>,                       \
+        containerArg<bsltf::EnumeratedTestType::Enum>,                        \
         containerArg<bsltf::UnionTestType>,                                   \
         containerArg<bsltf::SimpleTestType>,                                  \
         containerArg<bsltf::AllocTestType>,                                   \
@@ -385,7 +385,7 @@ void dbg_print(const char* s, const T& val, const char* nl)
         containerArg<signed char>,                                            \
         containerArg<size_t>,                                                 \
         containerArg<bsltf::TemplateTestFacility::ObjectPtr>,                 \
-        containerArg<bsltf::EnumerationTestType::Enum>
+        containerArg<bsltf::EnumeratedTestType::Enum>
 
 template <class VALUE>
 struct ValueName {
@@ -422,8 +422,8 @@ struct ValueName<bsltf::TemplateTestFacility::MethodPtr> {
 };
 
 template <>
-struct ValueName<bsltf::EnumerationTestType::Enum> {
-    static const char *name() { return "EnumerationTestType::Enum"; }
+struct ValueName<bsltf::EnumeratedTestType::Enum> {
+    static const char *name() { return "EnumeratedTestType::Enum"; }
 };
 
 template <>
@@ -533,9 +533,8 @@ void verifyStack(const stack<typename CONTAINER::value_type,
                  const int                LINE,
                  bslma_Allocator         *allocator = 0)
 {
-    stack<typename CONTAINER::value_type, CONTAINER> copyX(
-                                          X,
-                                          bslma_Default::allocator(allocator));
+    stack<typename CONTAINER::value_type, CONTAINER>
+                                copyX(X, bslma::Default::allocator(allocator));
     emptyNVerifyStack(&copyX, expectedValues, expectedSize, LINE);
 }
                                    
@@ -860,7 +859,7 @@ int TestDriver<CONTAINER>::ggg(Obj        *object,
                                const char *spec,
                                int         verbose)
 {
-    bslma_DefaultAllocatorGuard guard(&bslma_NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(&bslma_NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -938,10 +937,10 @@ void TestDriver<CONTAINER>::testCase12()
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-    bslma_TestAllocator ta("test", veryVeryVeryVerbose);
+    bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-    bslma_TestAllocator         da("default", veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard dag(&da);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
 
     if (veryVerbose) printf("    %s ---------------------------", cont);
 
@@ -1074,7 +1073,7 @@ void TestDriver<CONTAINER>::testCase10()
     const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-    bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
@@ -1084,13 +1083,13 @@ void TestDriver<CONTAINER>::testCase10()
 
         TestValues values(SPEC, &scratch);
 
-        bslma_TestAllocator ta("test",    veryVeryVeryVerbose);
-        bslma_TestAllocatorMonitor  tam(&ta);
+        bslma::TestAllocator ta("test",    veryVeryVeryVerbose);
+        bslma::TestAllocatorMonitor  tam(&ta);
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
 
-        bslma_DefaultAllocatorGuard dag(&da);
-        bslma_TestAllocatorMonitor  dam(&da);
+        bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocatorMonitor  dam(&da);
 
         {
             container_type tmpCont(&ta);
@@ -1219,7 +1218,7 @@ void TestDriver<CONTAINER>::testCase9()
     //:   pointer having the appropriate signature and return type for the
     //:   copy-assignment operator defined in this component.  (C-4)
     //:
-    //: 2 Create a 'bslma_TestAllocator' object, and install it as the default
+    //: 2 Create a 'bslma::TestAllocator' object, and install it as the default
     //:   allocator (note that a ubiquitous test allocator is already installed
     //:   as the global allocator).
     //:
@@ -1239,13 +1238,13 @@ void TestDriver<CONTAINER>::testCase9()
     //:
     //:   3 For each of the iterations (P-4.2): (C-1..2, 5..8, 11)
     //:
-    //:     1 Create a 'bslma_TestAllocator' object, 'oa'.
+    //:     1 Create a 'bslma::TestAllocator' object, 'oa'.
     //:
     //:     2 Use the value constructor and 'oa' to create a modifiable 'Obj',
     //:       'mX', having the value 'W'.
     //:
     //:     3 Assign 'mX' from 'Z' in the presence of injected exceptions
-    //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
+    //:       (using the 'bslma::TestAllocator_EXCEPTION_TEST_*' macros).
     //:
     //:     4 Verify that the address of the return value is the same as that
     //:       of 'mX'.  (C-5)
@@ -1287,7 +1286,7 @@ void TestDriver<CONTAINER>::testCase9()
     //:   (representing a distinct object value, 'V') in the table described in
     //:   P-3: (C-9)
     //:
-    //:   1 Create a 'bslma_TestAllocator' object, 'oa'.
+    //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
     //:
     //:   2 Use the value constructor and 'oa' to create a modifiable 'Obj'
     //:     'mX'; also use the value constructor and a distinct "scratch"
@@ -1296,7 +1295,7 @@ void TestDriver<CONTAINER>::testCase9()
     //:   3 Let 'Z' be a reference providing only 'const' access to 'mX'.
     //:
     //:   4 Assign 'mX' from 'Z' in the presence of injected exceptions (using
-    //:     the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).  (C-9)
+    //:     the 'bslma::TestAllocator_EXCEPTION_TEST_*' macros).  (C-9)
     //:
     //:   5 Verify that the address of the return value is the same as that of
     //:     'mX'.
@@ -1327,8 +1326,8 @@ void TestDriver<CONTAINER>::testCase9()
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-    bslma_TestAllocator         da("default", veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard dag(&da);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
 
     if (verbose) printf("\nCompare each pair of similar and different"
                         " values (u, ua, v, va) in S X A X S X A"
@@ -1339,7 +1338,7 @@ void TestDriver<CONTAINER>::testCase9()
             const int         LINE1   = DATA[ti].d_line;
             const char *const SPEC1   = DATA[ti].d_spec;
 
-            bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             Obj mZ(&scratch);  const Obj& Z  = gg(&mZ,  SPEC1);
             Obj mZZ(&scratch); const Obj& ZZ = gg(&mZZ, SPEC1);
@@ -1358,14 +1357,14 @@ void TestDriver<CONTAINER>::testCase9()
                 const int         LINE2   = DATA[tj].d_line;
                 const char *const SPEC2   = DATA[tj].d_spec;
 
-                bslma_TestAllocator oa("object", veryVeryVeryVerbose);
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
                 {
                     Obj mX(&oa);  const Obj& X  = gg(&mX,  SPEC2);
 
                     ASSERTV(LINE1, LINE2, (Z == X) == (LINE1 == LINE2));
 
-                    bslma_TestAllocatorMonitor oam(&oa), sam(&scratch);
+                    bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -1393,10 +1392,10 @@ void TestDriver<CONTAINER>::testCase9()
 
             // self-assignment
 
-            bslma_TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
             {
-                bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
                 Obj mX(&oa);        const Obj&  X  = gg(&mX,  SPEC1);
                 Obj mZZ(&scratch);  const Obj& ZZ  = gg(&mZZ, SPEC1);
@@ -1405,7 +1404,7 @@ void TestDriver<CONTAINER>::testCase9()
 
                 ASSERTV(LINE1, ZZ == Z);
 
-                bslma_TestAllocatorMonitor oam(&oa), sam(&scratch);
+                bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -1467,7 +1466,7 @@ void TestDriver<CONTAINER>::testCase8()
     //:   and free-function pointers having the appropriate signatures and
     //:   return types.  (C-4)
     //:
-    //: 2 Create a 'bslma_TestAllocator' object, and install it as the
+    //: 2 Create a 'bslma::TestAllocator' object, and install it as the
     //:   default allocator (note that a ubiquitous test allocator is
     //:   already installed as the global allocator).
     //:
@@ -1487,7 +1486,7 @@ void TestDriver<CONTAINER>::testCase8()
     //:
     //: 4 For each row 'R1' in the table of P-3:  (C-1..2, 6)
     //:
-    //:   1 Create a 'bslma_TestAllocator' object, 'oa'.
+    //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
     //:
     //:   2 Use the value constructor and 'oa' to create a modifiable
     //:     'Obj', 'mW', having the value described by 'R1'; also use the
@@ -1535,7 +1534,7 @@ void TestDriver<CONTAINER>::testCase8()
     //:     corresponding to the default-constructed object, choosing
     //:     values that allocate memory if possible.
     //:
-    //:   2 Create a 'bslma_TestAllocator' object, 'oa'.
+    //:   2 Create a 'bslma::TestAllocator' object, 'oa'.
     //:
     //:   3 Use the default constructor and 'oa' to create a modifiable
     //:     'Obj' 'mX' (having default attribute values); also use the copy
@@ -1589,8 +1588,8 @@ void TestDriver<CONTAINER>::testCase8()
     if (verbose) printf(
                  "\nCreate a test allocator and install it as the default.\n");
 
-    bslma_TestAllocator         da("default", veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard dag(&da);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
 
     if (verbose) printf(
        "\nUse a table of distinct object values and expected memory usage.\n");
@@ -1602,8 +1601,8 @@ void TestDriver<CONTAINER>::testCase8()
         const int         LINE1   = DATA[ti].d_line;
         const char *const SPEC1   = DATA[ti].d_spec;
 
-        bslma_TestAllocator      oa("object",  veryVeryVeryVerbose);
-        bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+        bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
         Obj mW(&oa);  const Obj& W = gg(&mW,  SPEC1);
         const Obj XX(W, &scratch);
@@ -1619,7 +1618,7 @@ void TestDriver<CONTAINER>::testCase8()
 
         // member 'swap'
         {
-            bslma_TestAllocatorMonitor oam(&oa);
+            bslma::TestAllocatorMonitor oam(&oa);
 
             mW.swap(mW);
 
@@ -1630,7 +1629,7 @@ void TestDriver<CONTAINER>::testCase8()
 
         // free function 'swap'
         {
-            bslma_TestAllocatorMonitor oam(&oa);
+            bslma::TestAllocatorMonitor oam(&oa);
 
             swap(mW, mW);
 
@@ -1650,7 +1649,7 @@ void TestDriver<CONTAINER>::testCase8()
 
             // member 'swap'
             {
-                bslma_TestAllocatorMonitor oam(&oa);
+                bslma::TestAllocatorMonitor oam(&oa);
 
                 mX.swap(mY);
 
@@ -1663,7 +1662,7 @@ void TestDriver<CONTAINER>::testCase8()
 
             // free function 'swap'
             {
-                bslma_TestAllocatorMonitor oam(&oa);
+                bslma::TestAllocatorMonitor oam(&oa);
 
                 swap(mX, mY);
 
@@ -1674,15 +1673,15 @@ void TestDriver<CONTAINER>::testCase8()
                 ASSERTV(LINE1, LINE2, oam.isTotalSame());
             }
 
-            bslma_TestAllocator oaz("z_object", veryVeryVeryVerbose);
+            bslma::TestAllocator oaz("z_object", veryVeryVeryVerbose);
 
             Obj mZ(&oaz);  const Obj& Z = gg(&mZ, SPEC2);
             const Obj ZZ(Z, &scratch);
 
             // member 'swap'
             {
-                bslma_TestAllocatorMonitor oam(&oa);
-                bslma_TestAllocatorMonitor oazm(&oaz);
+                bslma::TestAllocatorMonitor oam(&oa);
+                bslma::TestAllocatorMonitor oazm(&oaz);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     ExceptionGuard<Obj> guardX(&X, L_, &scratch);
@@ -1718,8 +1717,8 @@ void TestDriver<CONTAINER>::testCase8()
 
             // free function 'swap'
             {
-                bslma_TestAllocatorMonitor oam(&oa);
-                bslma_TestAllocatorMonitor oazm(&oaz);
+                bslma::TestAllocatorMonitor oam(&oa);
+                bslma::TestAllocatorMonitor oazm(&oaz);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     ExceptionGuard<Obj> guardX(&X, L_, &scratch);
@@ -1760,8 +1759,8 @@ void TestDriver<CONTAINER>::testCase8()
     {
         // 'A' values: Should cause memory allocation if possible.
 
-        bslma_TestAllocator      oa("object",  veryVeryVeryVerbose);
-        bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+        bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
         Obj mX(&oa);  const Obj& X = mX;
         const Obj XX(X, &scratch);
@@ -1769,7 +1768,7 @@ void TestDriver<CONTAINER>::testCase8()
         Obj mY(&oa);  const Obj& Y = gg(&mY, "ABC");
         const Obj YY(Y, &scratch);
 
-        bslma_TestAllocatorMonitor oam(&oa);
+        bslma::TestAllocatorMonitor oam(&oa);
 
         invokeAdlSwap(mX, mY);
 
@@ -1826,7 +1825,7 @@ void TestDriver<CONTAINER>::testCase7()
     //:     memory.  (C-6)
     //:
     //: 5 Perform tests as P-2 in the presence of exceptions during memory
-    //:   allocations using a 'bslma_TestAllocator' and varying its
+    //:   allocations using a 'bslma::TestAllocator' and varying its
     //:   *allocation* *limit*.  (C-7)
     //
     // Testing:
@@ -1841,9 +1840,9 @@ void TestDriver<CONTAINER>::testCase7()
 
     const TestValues VALUES;  // contains 52 distinct increasing values
 
-    bslma_TestAllocator da(veryVeryVerbose);
-    bslma_DefaultAllocatorGuard dag(&da);
-    bslma_TestAllocator oa(veryVeryVerbose);
+    bslma::TestAllocator da(veryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+    bslma::TestAllocator oa(veryVeryVerbose);
 
     {
         static const char *SPECS[] = {
@@ -1891,7 +1890,7 @@ void TestDriver<CONTAINER>::testCase7()
                 ASSERTV(SPEC, W == Y0);
                 ASSERTV(SPEC, W == X);
                 ASSERTV(SPEC, Y0.get_allocator() ==
-                                            bslma_Default::defaultAllocator());
+                                           bslma::Default::defaultAllocator());
 
                 delete pX;
                 ASSERTV(SPEC, W == Y0);
@@ -1916,8 +1915,8 @@ void TestDriver<CONTAINER>::testCase7()
                     printf("\t\t\tInsert into created obj, "
                            "with test allocator:\n");
 
-                bslma_TestAllocatorMonitor dam(&da);
-                bslma_TestAllocatorMonitor oam(&oa);
+                bslma::TestAllocatorMonitor dam(&da);
+                bslma::TestAllocatorMonitor oam(&oa);
 
                 Obj mY11(X, &oa);    const Obj& Y11 = mY11;
 
@@ -1937,8 +1936,8 @@ void TestDriver<CONTAINER>::testCase7()
             {   // Exception checking.
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    bslma_TestAllocatorMonitor dam(&da);
-                    bslma_TestAllocatorMonitor oam(&oa);
+                    bslma::TestAllocatorMonitor dam(&da);
+                    bslma::TestAllocatorMonitor oam(&oa);
 
                     const Obj Y2(X, &oa);
                     if (veryVerbose) {
@@ -1985,7 +1984,7 @@ void TestDriver<CONTAINER>::testCase6()
     //:   return types for the two homogeneous, free equality- comparison
     //:   operators defined in this component.  (C-8..9, 12..13)
     //:
-    //: 2 Create a 'bslma_TestAllocator' object, and install it as the default
+    //: 2 Create a 'bslma::TestAllocator' object, and install it as the default
     //:   allocator (note that a ubiquitous test allocator is already installed
     //:   as the global allocator).
     //:
@@ -2049,9 +2048,9 @@ void TestDriver<CONTAINER>::testCase6()
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-    bslma_TestAllocator         da("default", veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard dag(&da);
-    bslma_TestAllocatorMonitor  dam(&da);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+    bslma::TestAllocatorMonitor  dam(&da);
 
     if (verbose) printf("\nCompare every value with every value.\n");
     {
@@ -2065,7 +2064,7 @@ void TestDriver<CONTAINER>::testCase6()
 
             // Ensure an object compares correctly with itself (alias test).
             {
-                bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
                 Obj mX(&scratch); const Obj& X = gg(&mX, SPEC1);
 
@@ -2087,13 +2086,13 @@ void TestDriver<CONTAINER>::testCase6()
 
                     // Create two distinct test allocators, 'oax' and 'oay'.
 
-                    bslma_TestAllocator oax("objectx", veryVeryVeryVerbose);
-                    bslma_TestAllocator oay("objecty", veryVeryVeryVerbose);
+                    bslma::TestAllocator oax("objectx", veryVeryVeryVerbose);
+                    bslma::TestAllocator oay("objecty", veryVeryVeryVerbose);
 
                     // Map allocators above to objects 'X' and 'Y' below.
 
-                    bslma_TestAllocator& xa = oax;
-                    bslma_TestAllocator& ya = 'a' == CONFIG ? oax : oay;
+                    bslma::TestAllocator& xa = oax;
+                    bslma::TestAllocator& ya = 'a' == CONFIG ? oax : oay;
 
                     Obj mX(&xa); const Obj& X = gg(&mX, SPEC1);
                     Obj mY(&ya); const Obj& Y = gg(&mY, SPEC2);
@@ -2103,8 +2102,8 @@ void TestDriver<CONTAINER>::testCase6()
 
                     // Verify value, commutativity, and no memory allocation.
 
-                    bslma_TestAllocatorMonitor oaxm(&xa);
-                    bslma_TestAllocatorMonitor oaym(&ya);
+                    bslma::TestAllocatorMonitor oaxm(&xa);
+                    bslma::TestAllocatorMonitor oaym(&ya);
 
                     ASSERTV(CONFIG,  EXP == (X == Y));
                     ASSERTV(CONFIG,  EXP == (Y == X));
@@ -2195,22 +2194,22 @@ void TestDriver<CONTAINER>::testCase4()
             for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
                 const char CONFIG = cfg;
 
-                bslma_TestAllocator da("default",   veryVeryVeryVerbose);
-                bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
-                bslma_TestAllocator sa1("supplied1",  veryVeryVeryVerbose);
-                bslma_TestAllocator sa2("supplied2",  veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                bslma::TestAllocator sa1("supplied1",  veryVeryVeryVerbose);
+                bslma::TestAllocator sa2("supplied2",  veryVeryVeryVerbose);
 
-                bslma_DefaultAllocatorGuard dag(&da);
+                bslma::DefaultAllocatorGuard dag(&da);
 
-                bslma_TestAllocator& oa = 'a' == CONFIG || 'b' == CONFIG
-                                          ? da
-                                          : 'c' == CONFIG
-                                            ? sa1
-                                            : sa2;
-                bslma_TestAllocator& noa = &oa != &da ? da : sa1;
+                bslma::TestAllocator& oa = 'a' == CONFIG || 'b' == CONFIG
+                                           ? da
+                                           : 'c' == CONFIG
+                                             ? sa1
+                                             : sa2;
+                bslma::TestAllocator& noa = &oa != &da ? da : sa1;
 
-                bslma_TestAllocatorMonitor  oam(&oa);
-                bslma_TestAllocatorMonitor noam(&noa);
+                bslma::TestAllocatorMonitor  oam(&oa);
+                bslma::TestAllocatorMonitor noam(&noa);
 
                 Obj& mX = 'a' == CONFIG
                           ? * new (fa) Obj()
@@ -2290,9 +2289,9 @@ void TestDriver<CONTAINER>::testCase3()
 
     if (verbose) { P_(cont);  P(val); }
 
-    bslma_TestAllocator oa(veryVeryVerbose);
-    bslma_TestAllocator da(veryVeryVerbose);
-    bslma_DefaultAllocatorGuard dag(&da);
+    bslma::TestAllocator oa(veryVeryVerbose);
+    bslma::TestAllocator da(veryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
 
     if (verbose) printf("\nTesting generator on valid specs.\n");
     {
@@ -2323,8 +2322,8 @@ void TestDriver<CONTAINER>::testCase3()
             const TestValues  EXP(DATA[ti].d_results);
             const int         curLen = (int)strlen(SPEC);
 
-            bslma_TestAllocatorMonitor oam(&oa);
-            bslma_TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor oam(&oa);
+            bslma::TestAllocatorMonitor dam(&da);
 
             Obj mX(&oa);
             const Obj& X = gg(&mX, SPEC);
@@ -2474,12 +2473,12 @@ void TestDriver<CONTAINER>::testCase2()
     //:
     //:   2 Using a loop-based approach, default-construct three distinct
     //:     objects, in turn, but configured differently: (a) without passing
-    //:     an allocator, (b) passing a null allocator address explicitly,
-    //:     and (c) passing the address of a test allocator distinct from the
-    //:     default.  For each of these three iterations:  (C-1..14)
+    //:     an allocator, (b) passing a null allocator address explicitly, and
+    //:     (c) passing the address of a test allocator distinct from the
+    //:     default.  For each of these three iterations: (C-1..14)
     //:
-    //:     1 Create three 'bslma_TestAllocator' objects, and install one as as
-    //:       the current default allocator (note that a ubiquitous test
+    //:     1 Create three 'bslma::TestAllocator' objects, and install one as
+    //:       as the current default allocator (note that a ubiquitous test
     //:       allocator is already installed as the global allocator).
     //:
     //:     2 Use the default constructor to dynamically create an object
@@ -2535,11 +2534,11 @@ void TestDriver<CONTAINER>::testCase2()
         for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
             const char CONFIG = cfg;  // how we specify the allocator
 
-            bslma_TestAllocator da("default",   veryVeryVeryVerbose);
-            bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
-            bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            bslma_DefaultAllocatorGuard dag(&da);
+            bslma::DefaultAllocatorGuard dag(&da);
 
             // ----------------------------------------------------------------
 
@@ -2565,7 +2564,7 @@ void TestDriver<CONTAINER>::testCase2()
             }
 
             Obj&                  mX = *objPtr;  const Obj& X = mX;
-            bslma_TestAllocator&  oa = 'c' == CONFIG ? sa : da;
+            bslma::TestAllocator&  oa = 'c' == CONFIG ? sa : da;
 
             // Verify any attribute allocators are installed properly.
 
@@ -2595,11 +2594,11 @@ void TestDriver<CONTAINER>::testCase2()
             if (0 < LENGTH) {
                 ASSERTV(LENGTH, CONFIG, LENGTH - 1 == X.size());
 
-                bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
                 // insert the last element with an exception guard
 
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                bslma::TestAllocator_EXCEPTION_TEST_BEGIN(oa) {
                     ExceptionGuard<Obj> guard(&X, L_, &scratch);
 
                     mX.push(VALUES[LENGTH - 1]);
@@ -2626,7 +2625,7 @@ void TestDriver<CONTAINER>::testCase2()
 
             // Test copy c'tors
             {
-                bslma_TestAllocatorMonitor oaMonitor(&oa);
+                bslma::TestAllocatorMonitor oaMonitor(&oa);
 
                 Obj *copyPtr;
                 switch (CONFIG) {
@@ -2655,8 +2654,8 @@ void TestDriver<CONTAINER>::testCase2()
 
             // Test container c'tors
             {
-                bslma_TestAllocatorMonitor oaMonitor(&oa);
-                bslma_TestAllocator ca;
+                bslma::TestAllocatorMonitor oaMonitor(&oa);
+                bslma::TestAllocator ca;
 
 
                 CONTAINER c(&ca);    const CONTAINER& C = c;
@@ -2730,10 +2729,10 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
     //   BREATHING TEST
     // ------------------------------------------------------------------------
 
-    bslma_TestAllocator defaultAllocator("defaultAllocator");
-    bslma_DefaultAllocatorGuard defaultGuard(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator("defaultAllocator");
+    bslma::DefaultAllocatorGuard defaultGuard(&defaultAllocator);
 
-    bslma_TestAllocator objectAllocator("objectAllocator");
+    bslma::TestAllocator objectAllocator("objectAllocator");
 
     // Sanity check.
 
@@ -2759,10 +2758,10 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
         printf("Test use of allocators.\n");
     }
     {
-        bslma_TestAllocatorMonitor defaultMonitor(&defaultAllocator);
+        bslma::TestAllocatorMonitor defaultMonitor(&defaultAllocator);
 
-        bslma_TestAllocator objectAllocator1("objectAllocator1");
-        bslma_TestAllocator objectAllocator2("objectAllocator2");
+        bslma::TestAllocator objectAllocator1("objectAllocator1");
+        bslma::TestAllocator objectAllocator2("objectAllocator2");
 
         Obj o1(&objectAllocator1); const Obj& O1 = o1;
         ASSERTV(&objectAllocator1 == O1.get_allocator().mechanism());
@@ -2785,7 +2784,7 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
         Obj o3(&objectAllocator1); const Obj& O3 = o3;
         ASSERTV(&objectAllocator1 == O3.get_allocator().mechanism());
 
-        bslma_TestAllocatorMonitor monitor1(&objectAllocator1);
+        bslma::TestAllocatorMonitor monitor1(&objectAllocator1);
 
         ASSERTV(numValues == O1.size());
         ASSERTV(numValues == O2.size());
@@ -2832,7 +2831,7 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
         // For each possible permutation of values, insert values, iterate over
         // the resulting container, find values, and then erase values.
 
-        bslma_TestAllocatorMonitor defaultMonitor(&defaultAllocator);
+        bslma::TestAllocatorMonitor defaultMonitor(&defaultAllocator);
         Obj x(&objectAllocator); const Obj& X = x;
         for (size_t i = 0; i < numValues; ++i) {
             Obj y(X, &objectAllocator); const Obj& Y = y;
@@ -2959,11 +2958,11 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    bslma_TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma_Default::setDefaultAllocator(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
       case 14: {
@@ -2983,9 +2982,9 @@ int main(int argc, char *argv[])
         // First, we create a couple of allocators, the test allocator 'ta'
         // and the default allocator 'da'.
 
-        bslma_TestAllocator ta;
-        bslma_TestAllocator da;                    // Default Allocator
-        bslma_DefaultAllocatorGuard guard(&da);
+        bslma::TestAllocator ta;
+        bslma::TestAllocator da;                    // Default Allocator
+        bslma::DefaultAllocatorGuard guard(&da);
 
         // Then, we create a stack of strings:
 
@@ -3028,8 +3027,8 @@ int main(int argc, char *argv[])
 
         // Then, we monitor both memory allocators:
 
-        bslma_TestAllocatorMonitor tam(&ta);
-        bslma_TestAllocatorMonitor dam(&da);
+        bslma::TestAllocatorMonitor tam(&ta);
+        bslma::TestAllocatorMonitor dam(&da);
 
         // Now, we push the large string onto the stack:
 
