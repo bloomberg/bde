@@ -279,6 +279,9 @@ int NUM_SPECIAL_INT_VALUES     =
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+#define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
+#define TEST_TYPES_REGULAR BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+
 // Fundamental-type-specific print functions.
 inline void dbg_print(bool b) { printf(b ? "true" : "false"); fflush(stdout); }
 inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
@@ -320,7 +323,7 @@ void dbg_print(const bsl::priority_queue<VALUE, CONTAINER, COMPARATOR>& pq)
     else {
         printf("size: %d, top: ", pq.size());
         dbg_print(static_cast<char>(
-                    bsltf::TemplateTestFacility::getValue(pq.top())));
+                        bsltf::TemplateTestFacility::getIdentifier(pq.top())));
     }
     fflush(stdout);
 }
@@ -352,7 +355,7 @@ class TestComparator {
     // operator that compares two objects of the parameterized 'TYPE'.  The
     // function-call operator is implemented with integer comparison using
     // integers converted from objects of 'TYPE' by the class method
-    // 'TemplateTestFacility::getValue'.  The function-call operator also
+    // 'TemplateTestFacility::getIdentifier'.  The function-call operator also
     // increments a global counter used to keep track the method call count.
     // Object of this class can be identified by an id passed on construction.
 
@@ -404,12 +407,12 @@ class TestComparator {
         ++d_count;
 
         if (d_compareLess) {
-            return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
-                 < bsltf::TemplateTestFacility::getValue<TYPE>(rhs);  // RETURN
+            return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+                 < bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
         }
         else {
-            return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
-                 > bsltf::TemplateTestFacility::getValue<TYPE>(rhs);  // RETURN
+            return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+                 > bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
         }
     }
 
@@ -437,7 +440,7 @@ class GreaterThanFunctor {
     // operator that compares two objects of the parameterized 'TYPE'.  The
     // function-call operator is implemented with integer comparison using
     // integers converted from objects of 'TYPE' by the class method
-    // 'TemplateTestFacility::getValue'.
+    // 'TemplateTestFacility::getIdentifier'.
 
   public:
     // ACCESSORS
@@ -445,8 +448,8 @@ class GreaterThanFunctor {
         // Return 'true' if the integer representation of the specified 'lhs'
         // is less than integer representation of the specified 'rhs'.
     {
-        return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
-             > bsltf::TemplateTestFacility::getValue<TYPE>(rhs);
+        return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+             > bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
     }
 };
 
@@ -456,8 +459,8 @@ bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
     // Return 'true' if the integer representation of the specified 'lhs' is
     // less than integer representation of the specified 'rhs'.
 {
-    return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
-         < bsltf::TemplateTestFacility::getValue<TYPE>(rhs);
+    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+         < bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
 }
 
 }  // close unnamed namespace
@@ -2282,10 +2285,6 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
                 if (0 < TYPE_ALLOC) {
                     ASSERTV(CONFIG, tam.isInUseUp());
                 }
-                else {
-                    ASSERTV(CONFIG, tam.isTotalSame());
-                    ASSERTV(CONFIG, tam.isInUseSame());
-                }
             }
 
             // ----------------------------------------------------------------
@@ -2629,9 +2628,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Accessors"
                             "\n=================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver,
-                            testCase13,
-                            BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase13, TEST_TYPES_REGULAR);
         TestDriver<TestValueType, vector<TestValueType> >::testCase13();
       } break;
       case 12: {
@@ -2642,9 +2639,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Value Constructor"
                             "\n=========================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver,
-                            testCase12,
-                            BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase12, TEST_TYPES_REGULAR);
         TestDriver<TestValueType, vector<TestValueType> >::testCase12();
       } break;
       case 11: {
@@ -2655,9 +2650,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting 'g'"
                             "\n===========\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver,
-                            testCase11,
-                            BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES_REGULAR);
         TestDriver<TestValueType, vector<TestValueType> >::testCase11();
       } break;
       case 10: {
@@ -2679,7 +2672,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Assignment Operator"
                             "\n===========================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase9, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase9, TEST_TYPES_REGULAR);
         TestDriver<TestValueType, vector<TestValueType> >::testCase9();
       } break;
       case 8: {
@@ -2690,7 +2683,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nMANIPULATOR AND FREE FUNCTION 'swap'"
                             "\n====================================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase8, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase8, TEST_TYPES_REGULAR);
         TestDriver<TestValueType, vector<TestValueType> >::testCase8();
       } break;
       case 7: {
@@ -2701,7 +2694,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Copy Constructors"
                             "\n=========================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase7, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase7, TEST_TYPES_REGULAR);
         TestDriver<TestValueType, vector<TestValueType> >::testCase7();
       } break;
       case 6: {
@@ -2736,7 +2729,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Basic Accessors"
                             "\n=======================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase4, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase4, TEST_TYPES_REGULAR);
         TestDriver<TestValueType, vector<TestValueType> >::testCase4();
       } break;
       case 3: {
@@ -2747,7 +2740,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting 'gg'"
                             "\n============\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase3, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase3, TEST_TYPES_REGULAR);
         TestDriver<TestValueType, vector<TestValueType> >::testCase3();
       } break;
       case 2: {
@@ -2758,7 +2751,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Primary Manipulators"
                             "\n============================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase2, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase2, TEST_TYPES_REGULAR);
         TestDriver<TestValueType, vector<TestValueType> >::testCase2();
       } break;
       case 1: {

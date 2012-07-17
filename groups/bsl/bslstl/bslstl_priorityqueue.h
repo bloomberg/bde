@@ -133,8 +133,8 @@ BSLS_IDENT("$Id: $")
 // 'Task::priority()', the higher the priority the task has.
 //
 // Next, we create a 'bsl::priority_queue' object via its default constructor
-// to adapt the 'bsl::vector<Task>' type, setting the parameterized 'COMPARATOR'
-// to 'TaskComparator':
+// to adapt the 'bsl::vector<Task>' type, setting the parameterized
+// 'COMPARATOR' to 'TaskComparator':
 //..
 //  bsl::priority_queue<Task, vector<Task>, TaskComparator> taskPrQueue;
 //..

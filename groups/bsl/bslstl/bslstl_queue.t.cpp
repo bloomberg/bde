@@ -274,6 +274,9 @@ int NUM_SPECIAL_INT_VALUES     =
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+#define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
+#define TEST_TYPES_REGULAR BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+
 // Fundamental-type-specific print functions.
 inline void dbg_print(bool b) { printf(b ? "true" : "false"); fflush(stdout); }
 inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
@@ -315,10 +318,10 @@ void dbg_print(const bsl::queue<VALUE, CONTAINER>& q)
     else {
         printf("size: %d, front: ", q.size());
         dbg_print(static_cast<char>(
-                    bsltf::TemplateTestFacility::getValue(q.front())));
+                       bsltf::TemplateTestFacility::getIdentifier(q.front())));
         printf(", back: ");
         dbg_print(static_cast<char>(
-                    bsltf::TemplateTestFacility::getValue(q.back())));
+                        bsltf::TemplateTestFacility::getIdentifier(q.back())));
     }
     fflush(stdout);
 }
@@ -2766,7 +2769,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Free Comparison Operators"
                             "\n=================================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase15, char, int);
+        RUN_EACH_TYPE(TestDriver, testCase15, char, int);
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -2776,7 +2779,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Other Accessors"
                             "\n=======================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase14, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase14, TEST_TYPES_REGULAR);
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -2786,7 +2789,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Other Manipulators"
                             "\n==========================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase13, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase13, TEST_TYPES_REGULAR);
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -2796,7 +2799,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Value Constructor"
                             "\n=========================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase12, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase12, TEST_TYPES_REGULAR);
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -2806,7 +2809,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting 'g'"
                             "\n===========\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase11, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES_REGULAR);
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -2827,7 +2830,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Assignment Operator"
                             "\n===========================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver,  testCase9, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver,  testCase9, TEST_TYPES_REGULAR);
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -2837,7 +2840,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nMANIPULATOR AND FREE FUNCTION 'swap'"
                             "\n====================================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver,  testCase8, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver,  testCase8, TEST_TYPES_REGULAR);
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -2847,7 +2850,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Copy Constructors"
                             "\n=========================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver,  testCase7, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver,  testCase7, TEST_TYPES_REGULAR);
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -2857,7 +2860,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Equality Operators"
                             "\n==========================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase6, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase6, TEST_TYPES_REGULAR);
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -2879,7 +2882,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Basic Accessors"
                             "\n=======================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver,  testCase4, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver,  testCase4, TEST_TYPES_REGULAR);
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -2889,7 +2892,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting 'gg'"
                             "\n============\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver,  testCase3, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver,  testCase3, TEST_TYPES_REGULAR);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2899,7 +2902,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Primary Manipulators"
                             "\n============================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver,  testCase2, BSLTF_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver,  testCase2, TEST_TYPES_REGULAR);
       } break;
       case 1: {
         // --------------------------------------------------------------------
