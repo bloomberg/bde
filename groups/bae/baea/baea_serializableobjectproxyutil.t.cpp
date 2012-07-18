@@ -122,8 +122,12 @@ typedef bdeat_TypeCategory                Category;
 
 const char LOG_CATEGORY[] = "BAEA_SERIALIZABLEOBJECTPROXYUTIL.TEST";
 
-static const char* TEST_MESSAGES[] = {
+// Disable test of gcc Sun because it is too slow that the nightly build has to
+// kill it, causing the build to fail.
 
+#if !(defined(BSLS_PLATFORM__CMP_GNU) && defined(BSLS_PLATFORM__CPU_SPARC))
+
+static const char* TEST_MESSAGES[] = {
 
 "<Obj xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'><selection1><eleme"
 "nt1><selection1><element1>0</element1><element2>custom</element2><element3>99"
@@ -1201,7 +1205,6 @@ void enlargeTestObjects(std::vector<baea::FeatureTestMessage>* objects,
 
 void constructTestObjects(std::vector<baea::FeatureTestMessage>* objects)
 {
-    /*
     baexml_MiniReader reader;
     baexml_DecoderOptions options;
     baexml_ErrorInfo e;
@@ -1229,8 +1232,9 @@ void constructTestObjects(std::vector<baea::FeatureTestMessage>* objects)
         BSLS_ASSERT(0 == rc); // test invariant
         objects->push_back(object);
     }
-    */
 }
+
+#endif
 
 //=============================================================================
 //                      TEST ACCESSORS AND MANIPULATORS
@@ -1564,7 +1568,11 @@ int main(int argc, char *argv[])
                                                       bael_Severity::BAEL_OFF);
 
     switch (test) { case 0: // Zero is always the leading case.
+#if !(defined(BSLS_PLATFORM__CMP_GNU) && defined(BSLS_PLATFORM__CPU_SPARC))
       case 15: {
+#else
+      case 11: {
+#endif
         // --------------------------------------------------------------------
         // Usage Example
         //
@@ -1675,7 +1683,7 @@ int main(int argc, char *argv[])
     ASSERT(13 == decodeMessage.simpleRequest().responseLength());
 //..
       } break;
-        /*
+#if !(defined(BSLS_PLATFORM__CMP_GNU) && defined(BSLS_PLATFORM__CPU_SPARC))
       case 14: {
         // --------------------------------------------------------------------
         // XML decoder feature test
@@ -1842,8 +1850,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == decoder.decode(&isb, &decoded));
             LOOP2_ASSERT(testObjects[i], decoded, testObjects[i] == decoded);
         }
-
       } break;
+#endif
       case 10: {
         // --------------------------------------------------------------------
         // XML breathing test
@@ -1920,7 +1928,6 @@ int main(int argc, char *argv[])
         ASSERT(request.simpleRequest().data() == "The quick brown fox");
 
       } break;
-      */
       case 8: {
         // --------------------------------------------------------------------
         // TESTING CUSTOMIZED
@@ -2568,7 +2575,7 @@ int main(int argc, char *argv[])
             ASSERTV(Category::BDEAT_SIMPLE_CATEGORY == X.category());
         }
       } break;
-          /*
+#if !(defined(BSLS_PLATFORM__CMP_GNU) && defined(BSLS_PLATFORM__CPU_SPARC))
       case -2: {
         // --------------------------------------------------------------------
         // Codec performance test: SERIALIZABLEOBJECTPROXY
@@ -2776,7 +2783,7 @@ int main(int argc, char *argv[])
                wallTime, userTime, systemTime);
 
       } break;
-    */
+#endif
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
