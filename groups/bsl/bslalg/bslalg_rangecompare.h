@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a utility 'struct',
 // 'bslalg::RangeCompare', that defines two class methods, 'equal' and
-// 'lexicographical', for comparing two ranges each specified by a pair of
+// 'lexicographical', for comparing two ranges, each specified by a pair of
 // input iterators that are compliant with the C++11 standard [24.2.3].  The
 // 'equal' method determines whether two specified ranges compare equal.  The
 // 'lexicographical' method determines whether the first specified range
@@ -482,15 +482,26 @@ struct RangeCompare_Imp {
                                                const VALUE_TYPE   *end1,
                                                const VALUE_TYPE   *start2,
                                                bslmf::MetaInt<1>);
+        // Compare the range starting at the specified 'start1' and ending
+        // immediately before the specified 'end1' with the range starting at
+        // the specified 'start2' of the same length (namely, 'end1 - start1'),
+        // using bit-wise comparison across the entire ranges.  The last
+        // argument is for removing overload ambiguities, and is not used.
+        // Return 'true' if the ranges are bit-wise equal, and 'false'
+        // otherwise.
+
     template <typename INPUT_ITER>
     static bool equalBitwiseEqualityComparable(INPUT_ITER          start1,
                                                INPUT_ITER          end1,
                                                INPUT_ITER          start2,
                                                bslmf::MetaInt<0>);
-        // These functions follow the 'equal' contract, using bit-wise
-        // comparison when the parameterized 'VALUE_TYPE' is bitwise-equality
-        // comparable.  The last argument is for removing overload ambiguities,
-        // and is not used.
+        // Compare the range starting at the specified 'start1' and ending
+        // immediately before the specified 'end1' with the range starting at
+        // the specified 'start2' of the same length (namely, 'end1 - start1'),
+        // using 'operator==' element by element.  The last argument is for
+        // removing overload ambiguities, and is not used.  Return 'true' if
+        // each element in the first range is equal to the corresponding
+        // element in the second range, and 'false' otherwise.
 
     template <typename VALUE_TYPE>
     static int lexicographical(const VALUE_TYPE   *start1,
@@ -499,6 +510,15 @@ struct RangeCompare_Imp {
                                const VALUE_TYPE   *end2,
                                const VALUE_TYPE&,
                                bslmf::MetaInt<1>);
+        // Compare the range starting at the specified 'start1' and ending
+        // immediately before the specified 'end1' with the range starting at
+        // the specified 'start2' and ending immediately before the specified
+        // 'end2'.  The last two arguments are for removing overload
+        // ambiguities and are not used.  Return a negative value if the first
+        // range compares lexicographically less than the second range, 0 if
+        // they compare equal, and a positive value if the first range
+        // compares larger.
+
     template <typename INPUT_ITER, typename VALUE_TYPE>
     static int lexicographical(INPUT_ITER          start1,
                                INPUT_ITER          end1,
@@ -506,26 +526,58 @@ struct RangeCompare_Imp {
                                INPUT_ITER          end2,
                                const VALUE_TYPE&,
                                bslmf::MetaInt<0>);
+        // Compare each element in the range starting at the specified 'start1'
+        // and ending immediately before the specified 'end1' with the
+        // corresponding element in the range starting at the specified
+        // 'start2' and ending immediately before the specified 'end2' using
+        // 'operator<'.  The last two arguments are for removing overload
+        // ambiguities and are not used.  Return a negative value if the first
+        // range compares lexicographically less than the second range, 0 if
+        // they compare equal, and a positive value if the first range compares
+        // larger.
+
     template <typename INPUT_ITER, typename VALUE_TYPE>
     static int lexicographical(INPUT_ITER start1,
                                INPUT_ITER end1,
                                INPUT_ITER start2,
                                INPUT_ITER end2,
                                const      VALUE_TYPE&);
-        // These functions follow the 'lexicographical' contract.  The first
-        // overload, where the input iterator is a pointer type, can be
-        // optimized.  The last argument is for removing overload ambiguities
-        // and is not used.
+        // Compare the range starting at the specified 'start1' and ending
+        // immediately before the specified 'end1' with the range starting at
+        // the specified 'start2' and ending immediately before the specified
+        // 'end2'.  The type of the last argument is considered in determining
+        // what optimizations, if any, can be applied to the comparison.  The
+        // last argument is not used in any other way.  Return a negative value
+        // if the first range compares lexicographically less than the second
+        // range, 0 if they compare equal, and a positive value if the first
+        // range compares larger.
 
     static int lexicographical(const char *start1,
                                const char *end1,
                                const char *start2);
+        // Compare the range starting at the specified 'start1' and ending
+        // immediately before the specified 'end1' with the range starting at
+        // the specified 'start2' of the same length (namely, 'end1 - start1'),
+        // using a bit-wise comparison across the entire range, if 'const
+        // char' is unsigned, and using 'operator<' otherwise.  Return a
+        // negative value if the first range compares lexicographically less
+        // than the second range, 0 if they compare equal, and a positive value
+        // if the first range compares larger.
+
     static int lexicographical(const unsigned char *start1,
                                const unsigned char *end1,
                                const unsigned char *start2);
     static int lexicographical(const wchar_t *start1,
                                const wchar_t *end1,
                                const wchar_t *start2);
+        // Compare the range starting at the specified 'start1' and ending
+        // immediately before the specified 'end1' with the range starting at
+        // the specified 'start2' of the same length (namely, 'end1 - start1'),
+        // using a bit-wise comparison across the entire range.  Return a
+        // negative value if the first range compares lexicographically less
+        // than the second range, 0 if they compare equal, and a positive value
+        // if the first range compares larger.
+
     template <typename INPUT_ITER>
     static int lexicographical(INPUT_ITER           start1,
                                INPUT_ITER           end1,
