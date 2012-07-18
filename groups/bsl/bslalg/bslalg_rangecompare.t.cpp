@@ -408,8 +408,8 @@ class MyString {
 
   public:
     explicit MyString(const char* s, bslma::Allocator *basicAllocator = 0);
-    MyString(const MyString& other, bslma::Allocator *basicAllocator = 0);
-    MyString& operator=(const MyString& other);
+    MyString(const MyString& original, bslma::Allocator *basicAllocator = 0);
+    MyString& operator=(const MyString& rhs);
     ~MyString();
 
     const char* c_str() const;
@@ -497,12 +497,12 @@ class MyPoint {
 
     // CREATORS
     MyPoint(int x, int y, bslma::Allocator *basicAllocator = 0);
-    MyPoint(const MyPoint& other, bslma::Allocator *basicAllocator = 0);
+    MyPoint(const MyPoint& original, bslma::Allocator *basicAllocator = 0);
 
     // ...
 
     // MANIPULATORS
-    MyPoint& operator=(const MyPoint& other);
+    MyPoint& operator=(const MyPoint& rhs);
 };
 
 MyPoint::MyPoint(int x, int y, bslma::Allocator *basicAllocator)
@@ -512,14 +512,14 @@ MyPoint::MyPoint(int x, int y, bslma::Allocator *basicAllocator)
     (void) basicAllocator;
 }
 
-MyPoint::MyPoint(const MyPoint& other, bslma::Allocator *basicAllocator)
+MyPoint::MyPoint(const MyPoint& original, bslma::Allocator *basicAllocator)
     : d_x(other.d_x)
     , d_y(other.d_y)
 {
     (void) basicAllocator;
 }
 
-MyPoint& MyPoint::operator=(const MyPoint& other)
+MyPoint& MyPoint::operator=(const MyPoint& rhs)
 {
     d_x = other.d_x;
     d_y = other.d_y;
