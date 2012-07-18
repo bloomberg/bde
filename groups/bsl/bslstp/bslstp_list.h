@@ -85,8 +85,8 @@
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLSEQUENCE
-#include <bslalg_typetraitsgroupstlsequence.h>
+#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLSEQUENCECONTAINER
+#include <bslstl_traitsgroupstlsequencecontainer.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
@@ -323,8 +323,8 @@ public:
   typedef bsl::reverse_iterator<iterator>       reverse_iterator;
   typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
 
-  typedef BloombergLP::bslalg::TypeTraitsGroupStlSequence<_Tp,_Alloc>
-      ListTypeTraits;
+  typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<_Tp,_Alloc>
+    ListTypeTraits;
   BSLALG_DECLARE_NESTED_TRAITS(list, ListTypeTraits);
       // Declare nested type traits for this class.
 

@@ -79,6 +79,30 @@ using namespace BloombergLP;
 // Finally, we write the test case for the 'static' 'fortyTwo' method, using
 // the (standard) abbreviated macro names we have just defined.
 //..
+
+///Example 2: Adding Support For A New User-Defined Type
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we define a new user-defined type, 'MyType':
+//..
+namespace MyNamespace {
+
+class MyType {
+    // This empty class provides a type intended to show how the macros in
+    // 'bsls_bsltestutil' can be extended to support a new user-defined type.
+};
+//..
+// Then, we define a function 'debugprint' that prints the value of an 'MyType'
+// object to the console in the same namespace in which 'MyType' is defined (in
+// this case, we will simply print a string literal for simplicity):
+//..
+void debugprint(const MyType&)
+{
+    printf("MyType Value");
+}
+
+}  // close 'MyNamespace'
+//..
+
 //=============================================================================
 //                                MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -118,6 +142,18 @@ int main(int argc, char *argv[])
         const int value = xyza_BslExampleUtil::fortyTwo();
         if (verbose) P(value);
         LOOP_ASSERT(value, 42 == value);
+
+// Now, we create a 'MyType' object and call the 'BSLS_BSLTESTUTIL_P'
+// specifying the object as the argument:
+//..
+        MyNamespace::MyType obj;
+        BSLS_BSLTESTUTIL_P(obj);
+//..
+// Finally, we observe the console output:
+//..
+// obj = MyType Value
+//..
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -177,7 +213,8 @@ int main(int argc, char *argv[])
         // Check verbose so that we do not unexpectedly write to the console
         if (verbose) {
             P(b)   P(c) P(sc) P(uc) P(ss) P(us) P(si) P(ui) P(sl) P(ul) P(sll)
-            P(ull) P(f) P(d)  P(ld) P(s)  P(cs) P(pv) P(pcv)
+            P(ull) P(f) P(d)  P(ld) P(s)  P(cs) P(pv)
+                P(pcv)
 
             P_(b)  P_(c)   P_(sc)  P_(uc) P_(ss) P_(us) P_(si) P_(ui) P_(sl)
             P_(ul) P_(sll) P_(ull) P_(f)  P_(d)  P_(ld) P_(s)  P_(cs) P_(pv)
