@@ -670,7 +670,7 @@ struct bsls_Platform_Assert;
 
                          // Detect Supported Platform
 
-#if !defined(BDE_BUILD_TARGET_ARCHAIC)
+#if !defined(BDE_DISABLE_MINIMUM_COMPILER_VERSION_CHECK)
 
 #if defined(BSLS_PLATFORM__CMP_CLANG)
     // No minimum supported compiler version has been identified yet.
@@ -683,7 +683,7 @@ struct bsls_Platform_Assert;
 #elif defined(BSLS_PLATFORM__CMP_IBM)
     // No minimum supported compiler version has been identified yet.
 #elif defined(BSLS_PLATFORM__CMP_SUN)
-#  if BSLS_PLATFORM__CMP_VERSION < 580
+#  if BSLS_PLATFORM__CMP_VERSION < 0x580
 #    error This early compiler is not supported by BDE
 #  endif
 #elif defined(BSLS_PLATFORM__CMP_GNU)
