@@ -16,13 +16,59 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
+// The component under test implements a single utility struct and 11 macros
+// that call methods of the utility struct.  All of the methods write output to
+// stdout and do nothing more.  Therefore, there are no Primary Manipulators or
+// Basic Accessors to test.  All of the tests fall under the category of Print
+// Operations.
+//
+// The main difficulty with writing the test driver is capturing the output of
+// the methods under test so that it can be checked for accuracy.  In addition,
+// error messages and other output produced by the test driver itself must
+// still appear on stdout for compatibility with the standard build and testing
+// scripts.
+//
+// Global Concerns:
+//: o The test driver can reliably capture stdout and play back captured output.
+//: o The test driver's own output is written to the calling environment's stdout.
+//
 //-----------------------------------------------------------------------------
-// [ ]
-// [ ]
-// [ ]
+// [ 7] BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
+// [ 7] BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X)
+// [ 7] BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X)
+// [ 7] BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
+// [ 7] BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
+// [ 7] BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
+// [ 6] BSLS_BSLTESTUTIL_Q(X)
+// [ 6] BSLS_BSLTESTUTIL_P(X)
+// [ 6] BSLS_BSLTESTUTIL_P_(X)
+// [ 5] BSLS_BSLTESTUTIL_L_
+// [ 5] BSLS_BSLTESTUTIL_T_
+// [ 3] static void debugPrint(const char *s, bool b, const char *t);
+// [ 3] static void debugPrint(const char *s, char c, const char *t);
+// [ 3] static void debugPrint(const char *s, signed char v, const char *t);
+// [ 3] static void debugPrint(const char *s, unsigned char v, const char *t);
+// [ 3] static void debugPrint(const char *s, short v, const char *t);
+// [ 3] static void debugPrint(const char *s, unsigned short v, const char *t);
+// [ 3] static void debugPrint(const char *s, int v, const char *t);
+// [ 3] static void debugPrint(const char *s, unsigned int v, const char *t);
+// [ 3] static void debugPrint(const char *s, long v, const char *t);
+// [ 3] static void debugPrint(const char *s, unsigned long v, const char *t);
+// [ 3] static void debugPrint(const char *s, long long v, const char *t);
+// [ 3] static void debugPrint(const char *s, unsigned long long v, const char *t);
+// [ 3] static void debugPrint(const char *s, float v, const char *t);
+// [ 3] static void debugPrint(const char *s, double v, const char *t);
+// [ 3] static void debugPrint(const char *s, long double v, const char *t);
+// [ 3] static void debugPrint(const char *s, char *str, const char *t);
+// [ 3] static void debugPrint(const char *s, const char *str, const char *t);
+// [ 3] static void debugPrint(const char *s, void *p, const char *t);
+// [ 3] static void debugPrint(const char *s, const void *p, const char *t);
+// [ 4] static void printStringNoFlush(const char *s);
+// [ 4] static void printTab();
 //-----------------------------------------------------------------------------
 // [ 1] Breathing test
-// [ 2] Usage example
+// [ 2] Test Apparatus test
+// [ 0] Usage example
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -112,10 +158,6 @@ static void realaSsErT(int c, const char *s, int i)
 
 #define OUTPUT_BUFFER_SIZE 4096
 
-#define CAPTURE_RESET rewind(stdout)
-
-#define CAPTURE_ASSERT(expected) checkCapture((expected), stdout, __LINE__)
-
 //=============================================================================
 //                      HELPER FUNCTION FOR USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -142,27 +184,34 @@ void executeUsageExample(bool verbose, bool veryVerbose, bool veryVeryVerbose);
 //                             HELPER FUNCTIONS
 //-----------------------------------------------------------------------------
 
+enum {
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    PATH_BUFFER_SIZE = MAX_PATH
+#elif defined(BSLS_PLATFORM__OS_HPUX)
+    PATH_BUFFER_SIZE = L_tmpnam
+#else
+    //TODO: replace PATH_MAX with something portable
+    PATH_BUFFER_SIZE = PATH_MAX
+#endif
+};
+
 bool tempFileName(char *result, bool verboseFlag)
 {
     ASSERT(result);
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-    const size_t maxSize = MAX_PATH;
     char tmpPathBuf[MAX_PATH];
     if (! GetTempPath(MAX_PATH, tmpPathBuf) || ! GetTempFileName(tmpPathBuf, "bsls", 0, result)) {
         return false;
     }
 #elif defined(BSLS_PLATFORM__OS_HPUX)
-    const size_t maxSize = L_tmpnam;
     if(! tempnam(result, "bsls")) {
         return false;
     }
 #else
-    //TODO: replace PATH_MAX with something portable
-    const size_t maxSize = PATH_MAX;
     char *fn = tempnam(0, "bsls");
     if (fn) {
-        strncpy(result, fn, maxSize);
+        strncpy(result, fn, PATH_BUFFER_SIZE);
         free(fn);
     } else {
         return false;
@@ -179,129 +228,158 @@ bool tempFileName(char *result, bool verboseFlag)
 
 class OutputRedirector {
   private:
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-    char fileName[MAX_PATH];
-#elif defined(BSLS_PLATFORM__OS_HPUX)
-    char fileName[L_tmpnam];
-#else
-    //TODO: replace PATH_MAX with something portable
-    char fileName[PATH_MAX];
-#endif
+    char d_fileName[PATH_BUFFER_SIZE];
+    char d_outputBuffer[OUTPUT_BUFFER_SIZE];
 
-    char outputBuffer[OUTPUT_BUFFER_SIZE];
-
-    bool isRedirectedFlag;
-    bool isFileCreatedFlag;
-    long outputSize;
-    bool outputReadyFlag;
+    bool d_isRedirectedFlag;
+    bool d_isFileCreatedFlag;
+    long d_outputSize;
+    bool d_isOutputReadyFlag;
+    bool d_isVerboseFlag;
 
   public:
     // CREATORS
-    explicit OutputRedirector(bool verboseFlag);
+    explicit OutputRedirector(bool isVerboseFlag);
     ~OutputRedirector();
 
     // MANIPULATORS
+    bool redirect();
     void reset();
-    bool load(bool verboseFlag = false);
+    bool load();
 
     // ACCESSORS
     bool isRedirected();
+    bool isOutputReady();
+    char *getOutput();
     int strcmp(const char *expected);
 };
 
-OutputRedirector::OutputRedirector(bool verboseFlag)
-    : isRedirectedFlag(false)
-    , isFileCreatedFlag(false)
-    , outputSize(0L)
-    , outputReadyFlag(false)
+OutputRedirector::OutputRedirector(bool isVerboseFlag)
+    : d_isRedirectedFlag(false)
+    , d_isFileCreatedFlag(false)
+    , d_outputSize(0L)
+    , d_isOutputReadyFlag(false)
+    , d_isVerboseFlag(isVerboseFlag)
 {
-    if (! freopen("/dev/stdout", "w+", stderr)) {
-            // Redirect stderr
-        if (verboseFlag) {
-            fprintf(stdout, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Failed to redirect stderr");
-        }
-    } else if (! tempFileName(fileName, verboseFlag)) {
-            // Get temp file name
-        if (verboseFlag) {
-            fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Failed to get temp file name for stdout capture");
-        }
-    } else if (! freopen(fileName, "w+", stdout)) {
-            // Redirect stdout
-        if (verboseFlag) {
-            fprintf(stderr, "fileName: %s\n", fileName);
-            fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Failed to redirect stdout");
-        }
-    } else {
-        isFileCreatedFlag = true;
-        isRedirectedFlag = true;
-
-        if (EOF == fflush(stdout)) {
-            if (verboseFlag) {
-                fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Error flushing stdout");
-            }
-        }
-    }
 }
 
 OutputRedirector::~OutputRedirector()
 {
-    if (isRedirectedFlag) {
+    if (d_isRedirectedFlag) {
         fclose(stdout);
     }
 
-    if (isFileCreatedFlag) {
-        unlink(fileName);
+    if (d_isFileCreatedFlag) {
+        unlink(d_fileName);
     }
+}
+
+bool OutputRedirector::redirect()
+{
+    bool success = false;
+
+    if (d_isRedirectedFlag) {
+        if (d_isVerboseFlag) {
+            fprintf(stderr, "Warning " __FILE__ "(%d): Output already redirected\n", __LINE__);
+        }
+        success = true;
+    } else if (! freopen("/dev/stdout", "w+", stderr)) {
+            // Redirect stderr
+        if (d_isVerboseFlag) {
+            fprintf(stdout, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Failed to redirect stderr");
+        }
+    } else if (! tempFileName(d_fileName, d_isVerboseFlag)) {
+            // Get temp file name
+        if (d_isVerboseFlag) {
+            fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Failed to get temp file name for stdout capture");
+        }
+    } else if (! freopen(d_fileName, "w+", stdout)) {
+            // Redirect stdout
+        if (d_isVerboseFlag) {
+            fprintf(stderr, "d_fileName: %s\n", d_fileName);
+            fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Failed to redirect stdout");
+        }
+    } else {
+        d_isFileCreatedFlag = true;
+        d_isRedirectedFlag = true;
+
+        if (EOF == fflush(stdout)) {
+            if (d_isVerboseFlag) {
+                fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Error flushing stdout");
+            }
+        }
+
+        success = true;
+    }
+
+    return success;
 }
 
 void OutputRedirector::reset()
 {
-    outputSize = 0L;
-    outputReadyFlag = false;
+    d_outputSize = 0L;
+    d_isOutputReadyFlag = false;
+    d_outputBuffer[0] = '\0';
     rewind(stdout);
 }
 
-bool OutputRedirector::load(bool verboseFlag)
+bool OutputRedirector::load()
 {
-    outputSize = ftell(stdout);                  
+    d_outputSize = ftell(stdout);                  
 
-    if (outputSize > OUTPUT_BUFFER_SIZE) {
-        if (verboseFlag) {
-            fprintf(stderr, "outputSize: %ld\ncaptured output exceeds read buffer size\n", outputSize,  __LINE__);
+    if (d_outputSize > OUTPUT_BUFFER_SIZE) {
+        if (d_isVerboseFlag) {
+            fprintf(stderr, "d_outputSize: %ld\n", d_outputSize);
+            fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Captured output exceeds read buffer size");
         }
-        outputSize = 0L;
+        d_outputSize = 0L;
         return false;
     }
 
     rewind(stdout);                                   
 
-    long charsRead = fread(outputBuffer, sizeof(char), outputSize, stdout);
-    if (outputSize != charsRead) {
-        if (verboseFlag) {
-            fprintf(stderr, "outputSize: %ld\tcharsRead: %ld\ncould not read all captured output\n", outputSize, charsRead, __LINE__);
+    long charsRead = fread(d_outputBuffer, sizeof(char), d_outputSize, stdout);
+    if (d_outputSize != charsRead) {
+        if (d_isVerboseFlag) {
+            fprintf(stderr, "d_outputSize: %ld\tcharsRead: %ld\n", d_outputSize, charsRead);
+            fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Could not read all captured output");
         }
         return false;
     }
 
-    outputReadyFlag = true;
+    d_isOutputReadyFlag = true;
 
     return true;
 }
 
 bool OutputRedirector::isRedirected()
 {
-    return isRedirectedFlag;
+    return d_isRedirectedFlag;
 }
 
-int OutputRedirector::strcmp(const char *expected)
+bool OutputRedirector::isOutputReady() {
+    return d_isOutputReadyFlag;
+}
+
+char *OutputRedirector::getOutput() {
+    return d_outputBuffer;
+}
+
+ int OutputRedirector::strcmp(const char *expected)
 {
-    if (!outputReadyFlag) {
+    if (!d_isOutputReadyFlag) {
+        if (d_isVerboseFlag) {
+            fprintf(stderr, "Error " __FILE__ "(%d): No captured output available for comparison with '%s'    (failed)\n", __LINE__, expected);
+        }
         return -1;
     }
 
     size_t len = strlen(expected);
-    len = len < outputSize ? len : outputSize;
-    return strncmp(outputBuffer, expected, len);
+    size_t limit = len < d_outputSize ? len : d_outputSize;
+
+    int result = strncmp(d_outputBuffer, expected, limit);
+    
+    return result ? result : d_outputSize - len;
 }
 
 //=============================================================================
@@ -321,8 +399,8 @@ int main(int argc, char *argv[])
     fprintf(stderr, "TEST " __FILE__ " CASE %d\n", test);
 
     // Capture stdout, and send stderr to stdout
-    OutputRedirector output(verbose);
-    if (!output.isRedirected()) {
+    OutputRedirector output(veryVerbose);
+    if (!output.redirect()) {
         return 1;
     }
 
@@ -337,15 +415,18 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Incorporate the usage example from the header into the test
-        //    driver, remove leading comment characters, and replace 'assert'
+        //    driver, remove leading comment characters,E  and replace 'assert'
         //    with 'ASSERT'.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) fprintf(stderr, "\nTESTING USAGE EXAMPLE"
-                            "\n---------------------\n");
+        if (verbose) {
+            fprintf(stderr, 
+                    "\nTESTING USAGE EXAMPLE"
+                    "\n---------------------\n");
+        }
         
         executeUsageExample(verbose, veryVerbose, veryVeryVerbose);
       } break;
@@ -353,7 +434,19 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PRINT OPERATIONS TEST
 
+        if (verbose) {
+            fprintf(stderr, 
+                    "\nTESTING PRINT OPERATIONS"
+                    "\n------------------------\n");
+        }
+
         {
+            if (verbose) {
+                fprintf(stderr, 
+                        "\nTESTING BSLS_BSLTESTUTIL_Q"
+                        "\n--------------------------\n");
+            }
+
             output.reset();
             BSLS_BSLTESTUTIL_Q(42);
             ASSERT(output.load());
@@ -384,12 +477,24 @@ int main(int argc, char *argv[])
         //: 6 Rewind works
         //: 7 Can distinguish between open and closed redirect targets
 
+        if (verbose) {
+            fprintf(stderr, 
+                    "\nTESTING TEST APPARATUS"
+                    "\n----------------------\n");
+        }
+
+        if (verbose) {
+            fprintf(stderr, 
+                    "\nTESTING OUTPUT CAPTURE"
+                    "\n----------------------\n");
+        }
+
         {
             // 1 Output is captured
             const char *testString = "This is output";
             size_t testStringLength = strlen(testString);
 
-            output.reset();
+            rewind(stdout);
             ASSERT(0 == ftell(stdout));
             printf("%s", testString);
             ASSERT(testStringLength == ftell(stdout));
@@ -397,16 +502,81 @@ int main(int argc, char *argv[])
 
         {
             // 2 Captured output is accurate
-            const char *testString = "This is more output";
+            enum { TEST_STRING_SIZE = 15 };
+            const char *testString = "This is output";
+            char buffer[TEST_STRING_SIZE];
+
+            ASSERT(TEST_STRING_SIZE == strlen(testString) + 1);
+
+            rewind(stdout);
+            ASSERT(0 == ftell(stdout));
+            printf("%s", testString);
+            long outputSize = ftell(stdout);
+            ASSERT(outputSize + 1 == TEST_STRING_SIZE);
+            rewind(stdout);
+            ASSERT(outputSize == fread(buffer, sizeof(char), outputSize, stdout));
+            buffer[TEST_STRING_SIZE - 1] = '\0';
+            ASSERT(0 == strcmp(testString, buffer));
+        }
+
+        {
+            // 3 reset works
+            const char *testString = "This is output";
+            size_t testStringLength = strlen(testString);
+
+            rewind(stdout);
+            printf("%s", testString);
+            ASSERT(testStringLength == ftell(stdout));
+            output.reset();
+            ASSERT(0 == ftell(stdout));
+        }
+
+        {
+            // 4 load works
+            const char *testString = "This is output";
+            size_t testStringLength = strlen(testString);
+
+            output.reset();
+            ASSERT(0 == ftell(stdout));
+            ASSERT(false == output.isOutputReady());
+            ASSERT(0 == strlen(output.getOutput()));
+            printf("%s", testString);
+            ASSERT(testStringLength == ftell(stdout));
+            ASSERT(false == output.isOutputReady());
+            ASSERT(0 == strlen(output.getOutput()));
+            ASSERT(output.load());
+            ASSERT(testStringLength == ftell(stdout));
+            ASSERT(true == output.isOutputReady());
+            ASSERT(testStringLength == strlen(output.getOutput()));
+        }
+
+        {
+            // 5 strcmp works
+            const char *testString = "This is output";
+            const char *longString = "This is outputA";
+            const char *shortString = "This is outpu";
+            const char *highValueString = "This is outpuu";
+            const char *lowValueString = "This is outpus";
+            size_t testStringLength = strlen(testString);
 
             output.reset();
             printf("%s", testString);
             ASSERT(output.load());
-            ASSERT(0 == output.strcmp(testString));
+            ASSERT(strcmp(testString, testString) == output.strcmp(testString));
+            ASSERT(strcmp(testString, longString) == output.strcmp(longString));
+            ASSERT(strcmp(testString, shortString) == output.strcmp(shortString));
+            ASSERT(strcmp(testString, highValueString) == output.strcmp(highValueString));
+            ASSERT(strcmp(testString, lowValueString) == output.strcmp(lowValueString));
+        }
+
+        if (verbose) {
+            fprintf(stderr, 
+                    "\nTESTING ERROR CONDITIONS"
+                    "\n------------------------\n");
         }
 
         {
-            // 3 Incorrect output is correctly diagnosed
+            // 6 Incorrect output is correctly diagnosed
 
             const char *testString =         "This is good output";
             const char *wrongLengthString =  "This is too short";
@@ -433,7 +603,22 @@ int main(int argc, char *argv[])
         }
 
         {
-            // 4 Embedded newlines work
+            // 7 strcmp before load produces error
+            const char *testString = "This is output";
+
+            output.reset();
+            printf("%s", testString);
+            ASSERT(0 != output.strcmp(testString));
+        }
+
+        if (verbose) {
+            fprintf(stderr, 
+                    "\nTESTING EMBEDDED NEWLINES"
+                    "\n-------------------------\n");
+        }
+
+        {
+            // 8 Embedded newlines work
             const char *testString = "This has an\nembedded newline";
 
             output.reset();
@@ -449,8 +634,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == output.strcmp(twoNewlineTestString));
         }
 
+        if (verbose) {
+            fprintf(stderr, 
+                    "\nTESTING EMPTY OUTPUT"
+                    "\n--------------------\n");
+        }
+
         {
-            // 5 Empty output works
+            // 9 Empty output works
             const char *testString = "";
 
             output.reset();
@@ -458,6 +649,7 @@ int main(int argc, char *argv[])
             ASSERT(output.load());
             ASSERT(0 == output.strcmp(testString));
         }
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
