@@ -17,21 +17,19 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Bill Chapman (bchapman)
 //
-//@DESCRIPTION: This component describes 'bslstl::stack', a container adapter
-// that takes an underlying container and provides a stack interface which the
-// user accesses primarily through 'push', 'pop', and 'top' operations.  A
-// 'deque' (the default), 'vector', or 'list' may be used, but in theory any
-// container which supports 'push_back', 'pop_back', 'back', 'size', and
-// 'get_allocator', plus a template specialization 'uses_allocator::type', may
-// be used.
-//
+//@DESCRIPTION: This component describes a single class template
+// 'bslstl::stack', a container adapter that takes an underlying container and
+// provides a stack interface which the user accesses primarily through 'push',
+// 'pop', and 'top' operations.  A 'deque' (the default), 'vector', or 'list'
+// may be used, but any container which supports 'push_back', 'pop_back',
+// 'back', 'size', and 'get_allocator', plus a template specialization
+// 'uses_allocator::type', may be used.
 //
 ///Requirements of Parametrized 'CONTAINER' Type
 ///---------------------------------------------
 // This class works with the container classes 'bsl::deque', 'bsl::vector', or
-// 'bsl::list' passed to the 'CONTAINER' template class.  In theory another
-// container class could be passed, but it must satisfy the following
-// requirements:
+// 'bsl::list' passed to the 'CONTAINER' template class.  Another container
+// class could be passed, but it must satisfy the following requirements:
 //: o It must have the following public types:
 //:   o value_type
 //:   o reference
@@ -40,13 +38,14 @@ BSLS_IDENT("$Id: $")
 //:   o allocator_type
 //: o It must support the following methods, depending on what method of
 //:   'stack' are used:
-//:   o used constructors must take a parameter of type 'allocator_type'
+//:   o constructors being used must take a parameter of type 'allocator_type'
 //:   o void push_back(const value_type&)
 //:   o void pop_back()
 //:   o value_type& back()
 //:   o size_type size()
 //:   o allocator_type get_allocator()
 //:   o '==', '!=', '<', '>', '<=', '>='
+//:   o 'operator='
 //:   o std::swap(CONTAINER&, CONTAINER&)
 //
 ///Note on Parameterized 'VALUE' Type
@@ -149,7 +148,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1:
 /// - - - - - - - - - - - - - - - -
-// In this example, we demonstrate the basic functionality of the 'staak'
+// In this example, we demonstrate the basic functionality of the 'stack'
 // container adapter.
 //
 // First, we create a couple of allocators, the test allocator 'ta' and the
@@ -215,6 +214,21 @@ BSLS_IDENT("$Id: $")
 //  assert(dam.isTotalSame());
 //..
 
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "include <bsl_stack.h> instead of <bslstl_stack.h> in \
+BSL_OVERRIDES_STD mode"
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>
 #endif
@@ -252,19 +266,19 @@ class stack {
     // PUBLIC TYPES
 
     // Note that we never use 'VALUE' in the imp except in the default value of
-    // 'CONTAINER'.  If 'CONTAINER' is specified, then 'CONTAINER::value_type'
-    // is used for everything and 'VALUE' is ignored.
+    // 'CONTAINER'.  We use 'CONTAINER::value_type' for everything, which means
+    // that if 'CONTAINER' is specified, then 'VALUE' is ignored.
 
     typedef typename CONTAINER::value_type      value_type;
     typedef typename CONTAINER::reference       reference;
     typedef typename CONTAINER::const_reference const_reference;
     typedef typename CONTAINER::size_type       size_type;
-    typedef CONTAINER                           container_type;
+    typedef          CONTAINER                  container_type;
     typedef typename CONTAINER::allocator_type  allocator_type;
 
   private:
     // PRIVATE DATA
-    container_type  d_container;
+    container_type  d_container;    // container in which objects are stored
 
   protected:
     // PROTECTED DATA
@@ -280,61 +294,60 @@ class stack {
 
   private:
     // FRIENDS
-    template <class V, class C>
-    friend bool operator==(const stack<V, C>&, const stack<V, C>&);
-    template <class V, class C>
-    friend bool operator!=(const stack<V, C>&, const stack<V, C>&);
-    template <class V, class C>
-    friend bool operator< (const stack<V, C>&, const stack<V, C>&);
-    template <class V, class C>
-    friend bool operator> (const stack<V, C>&, const stack<V, C>&);
-    template <class V, class C>
-    friend bool operator<=(const stack<V, C>&, const stack<V, C>&);
-    template <class V, class C>
-    friend bool operator>=(const stack<V, C>&, const stack<V, C>&);
+    template <class VAL, class CONT>
+    friend bool operator==(const stack<VAL, CONT>&, const stack<VAL, CONT>&);
+    template <class VAL, class CONT>
+    friend bool operator!=(const stack<VAL, CONT>&, const stack<VAL, CONT>&);
+    template <class VAL, class CONT>
+    friend bool operator< (const stack<VAL, CONT>&, const stack<VAL, CONT>&);
+    template <class VAL, class CONT>
+    friend bool operator> (const stack<VAL, CONT>&, const stack<VAL, CONT>&);
+    template <class VAL, class CONT>
+    friend bool operator<=(const stack<VAL, CONT>&, const stack<VAL, CONT>&);
+    template <class VAL, class CONT>
+    friend bool operator>=(const stack<VAL, CONT>&, const stack<VAL, CONT>&);
 
   public:
     // CREATORS
     explicit
     stack(const allocator_type& allocator = allocator_type());
-        // Constuct an empty stack.  If 'allocator' is not supplied, a
-        // default-constructed object of the parameterized 'allocator_type'
+        // Construct an empty stack.  If 'allocator' is not supplied, a
+        // default-constructed object of the parameter-derived 'allocator_type'
         // type is used.  If the template parameter 'CONTAINER::allocator_type'
         // is 'bsl::allocator' (the default) then 'allocator', if supplied, may
         // be of any type convertible to 'bslma_Allocator *', which is
-        // implicitly convertible to 'bsl::allocator'.  If the template
-        // parameter 'CONTAINER::allocator' is 'bsl::allocator' and 'allocator'
-        // is not supplied, the currently installed bslma default allocator
-        // will be used to supply memory.
+        // implicitly convertible to 'bsl::allocator'.  If 'allocator_type' is
+        // 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // installed bslma default allocator will be used to supply memory.
+
     explicit
     stack(const CONTAINER&      container,
           const allocator_type& allocator = allocator_type());
-        // Constuct an stack out of a copy of the specified 'container'.  If
+        // Construct an stack out of a copy of the specified 'container'.  If
         // 'allocator' is not supplied, a default-constructed object of the
-        // parameterized 'allocator_type' type is used.  If the template
-        // parameter 'CONTAINER::allocator_type' is 'bsl::allocator' (the
-        // default) then 'allocator', if supplied, may be of any type
-        // convertible to 'bslma_Allocator *', which is implicitly convertible
-        // to 'bsl::allocator'.  If the template parameter
-        // 'CONTAINER::allocator' is 'bsl::allocator' and 'allocator' is not
+        // parameter-derived 'allocator_type' type is used.  If
+        // 'allocator_type' is 'bsl::allocator' (the default) then 'allocator',
+        // if supplied, may be of any type convertible to 'bslma_Allocator *',
+        // which is implicitly convertible to 'bsl::allocator'.  If
+        // 'allocator_type' is 'bsl::allocator' and 'allocator' is not
         // supplied, the currently installed bslma default allocator will be
         // used to supply memory.  Copies of the objects in 'container', if
-        // any, will populate the the newly-formed stack, with the element
-        // accessed by 'container.back()' being the top of the stack.
+        // any, will populate the the created stack, with the element accessed
+        // by 'container.back()' being the top of the stack.
+
     stack(const stack&          original,
           const allocator_type& allocator = allocator_type());
         // Construct a copy of the specified stack 'original', using the
-        // speciffied 'allocator' to allocate memory.  If 'allocator' is not
-        // supplied, a default-constructed object of the parameterized
-        // 'allocator_type' type is used.  If the template parameter
-        // 'CONTAINER::allocator_type' is 'bsl::allocator' (the default) then
-        // 'allocator', if supplied, may be of any type convertible to
-        // 'bslma_Allocator *', which is implicitly convertible to
-        // 'bsl::allocator'.  If the template parameter 'CONTAINER::allocator'
-        // is 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // specified 'allocator' to allocate memory.  If 'allocator' is not
+        // supplied, a default-constructed object of the parameter-derived
+        // 'allocator_type' type is used.  If 'allocator_type' is
+        // 'bsl::allocator' (the default) then 'allocator', if supplied, may be
+        // of any type convertible to 'bslma_Allocator *', which is implicitly
+        // convertible to 'bsl::allocator'.  If 'allocator_type' is
+        // 'bsl::allocator' and 'allocator' is not supplied, the currently
         // installed bslma default allocator will be used to supply memory.
 
-#ifdef BSLSTL_STACK_DO_RVALUES
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     explicit
     stack(CONTAINER&&           container,
           const allocator_type& allocator = allocator_type());
@@ -347,25 +360,25 @@ class stack {
 #endif
     // MANIPULATORS
     stack& operator=(const stack& rhs);
-#ifdef BSLSTL_STACK_DO_RVALUES
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     stack& operator=(stack&& rhs);
         // TBD
-#endif
-#ifdef BSLSTL_STACK_DO_RVALUES
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
     template <class... Args>
     void emplace(Args&&... args);
         // TBD
+# endif
 #endif
 
     void pop();
         // Erase the top element from this stack.  The behavior is undefined if
         // the stack is empty.
 
-    void push(const value_type& x);
+    void push(const value_type& value);
         // Push a copy of 'x' to the top of the stack.
 
-#ifdef BSLSTL_STACK_DO_RVALUES
-    void push(value_type&& x);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    void push(value_type&& value);
         // TBD
 #endif
 
@@ -378,18 +391,19 @@ class stack {
 
     // ACCESSORS
     bool empty() const;
-        // Return 'true' if no objects are contained in this stack and 'false'
+        // Return 'true' if this stack contains no elements and 'false'
         // otherwise.
 
     allocator_type get_allocator() const;
-        // Return the allocator used by this vector to supply memory.
+        // Return the allocator used by this stack to supply memory.
 
     size_type size() const;
         // Return the number of elements contained in this stack.
 
     const_reference top() const;
-        // Return a non-modifiable reference to the element at the top of this
-        // stack.  The behavior is undefined if the stack is empty.
+        // Return a reference providing non-modifiable access to the element at
+        // the top of this stack.  The behavior is undefined if the stack is
+        // empty.
 };
 
 #if 0
@@ -451,18 +465,17 @@ bool operator>=(const stack<VALUE, CONTAINER>& lhs,
 template <class VALUE, class CONTAINER>
 void swap(stack<VALUE, CONTAINER>& lhs,
           stack<VALUE, CONTAINER>& rhs);
-    // Swap the contents of 'lhs' and 'rhs'.  The behavior is undefined if
-    // 'lhs' and 'rhs' use different memory allocators.
+    // Swap the contents of 'lhs' and 'rhs'.  The behavior is undefined unless
+    // 'lhs.get_allocator() == rhs.get_allocator()'.
 
 //=============================================================================
-//                          INLINE FUNCTION DEFNITIONS
+//                          INLINE FUNCTION DEFINITIONS
 //=============================================================================
 
 // CREATORS
 template <class VALUE, class CONTAINER>
 inline
 stack<VALUE, CONTAINER>::stack(const allocator_type& allocator)
-                            
 : d_container(allocator)
 , c(d_container)
 {}
@@ -483,7 +496,7 @@ stack<VALUE, CONTAINER>::stack(const stack&          original,
 , c(d_container)
 {}
 
-#ifdef BSLSTL_STACK_DO_RVALUES
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 template <class VALUE, class CONTAINER>
 inline
@@ -513,7 +526,7 @@ stack<VALUE, CONTAINER>& stack<VALUE, CONTAINER>::operator=(const stack& rhs)
     return *this;
 }
 
-#ifdef BSLSTL_STACK_DO_RVALUES
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 template <class VALUE, class CONTAINER>
 inline
@@ -529,6 +542,7 @@ stack& stack<VALUE, CONTAINER>::operator=(stack&& rhs)
     return *this;
 }
 
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 template <class... Args>
 inline
 void emplace(Args&&... args)
@@ -538,7 +552,7 @@ void emplace(Args&&... args)
 
     d_container.emplace_back(std::forward<Args>(args)...);
 }
-
+# endif
 
 #endif
 
@@ -551,18 +565,18 @@ void stack<VALUE, CONTAINER>::pop()
 
 template <class VALUE, class CONTAINER>
 inline
-void stack<VALUE, CONTAINER>::push(const value_type& x)
+void stack<VALUE, CONTAINER>::push(const value_type& value)
 {
-    d_container.push_back(x);
+    d_container.push_back(value);
 }
 
-#ifdef BSLSTL_STACK_DO_RVALUES
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 template <class VALUE, class CONTAINER>
 inline
-void stack<VALUE, CONTAINER>::push(value_type&& x)
+void stack<VALUE, CONTAINER>::push(value_type&& value)
 {
-    d_container.push_back(std::move(x));
+    d_container.push_back(std::move(value));
 }
 
 #endif
@@ -571,7 +585,7 @@ template <class VALUE, class CONTAINER>
 inline
 void stack<VALUE, CONTAINER>::swap(stack& other)
 {
-    using std::swap; swap(d_container, other.d_container);
+    BloombergLP::bslalg::SwapUtil::swap(&d_container, &other.d_container);
 }
 
 template <class VALUE, class CONTAINER>
