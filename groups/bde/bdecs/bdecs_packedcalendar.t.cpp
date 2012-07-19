@@ -23,6 +23,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
+#include <bsl_set.h>
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
 #include <crtdbg.h>  // '_CrtSetReportMode', to suppress popups
@@ -312,11 +313,20 @@ struct IsSame<U, U>
 //     int VA = 0, VB = 1, VC = 2, VD = 100, VE = 1000;
 //
 // In order to specify weekend days, the decimal digits 1-7 enumerate the days
-// of the week beginning with SUNDAY = 1.  The first two lowercase characters
-// of the spec, if present, will represent the boundary dates of the valid
-// range, any additional lowercase letters will represent holidays within that
-// range.  To aid readability, the lexicographic order of lowercase letters
-// will coincide with the chronological order of dates:
+// of the week beginning with SUNDAY = 1.  When digits are placed at the
+// beginning of the spec, then the days represented by the digits will be added
+// using the legacy 'addWeekendDay' method; otherwise, a new transition will be
+// added to this calendar using the 'addWeekendDayTransition' at the date
+// represented by the nearest symbol from the following list of symbols (with
+// their corresponding represented dates):
+//
+// ! = 2000/1/1, @ = 2000/1/5, # = 2000/5/5, % = 2000/8/7, ^ = 2001/1/2
+//
+// The first two lowercase characters of the spec, if present, will represent
+// the boundary dates of the valid range, any additional lowercase letters will
+// represent holidays within that range.  To aid readability, the lexicographic
+// order of lowercase letters will coincide with the chronological order of
+// dates:
 //
 //  a = 2000/1/1, b = 2000/1/2, c = 2000/1/3, d = 2000/2/29, e = 9999/12/31.
 //
@@ -454,28 +464,34 @@ bdecs_PackedCalendar& hh(bdecs_PackedCalendar *object, const char *spec)
 //=============================================================================
 //              FLEXIBLE GENERATOR FUNCTIONS 'g' and 'gg' FOR TESTING
 //-----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
-// right according to a complex custom language.
+// The function 'g' and 'gg' interpret a specified 'spec' in order from left to
+// right according to a complex custom language to bring the calendar to a
+// range of possible states relevant for testing.
 //
-// Let's now consider a different, somewhat more complex notation that enables
-// dates to be specified explicitly and, within a small range, concisely.  In
-// this alternate notation arbitrary holiday codes are again represented
-// symbolically as uppercase letter, but the roles of lowercase letters and
-// digits are reversed.  We will identify the days of the week to be considered
-// weekend days using the characters  { u, m, t, w, r, f, a }.  An absolute
-// date will be represented as @yyyy/mm/dd, (but leading 0's may be omitted).
-// A relative date will be represented as an unsigned integer offset from the
-// start of the current range.  Note that relative dates should not be used on
-// an empty calendar.
+// These functions enables the explict specification of dates representing the
+// first and last date in a calendar, holiday dates, and weekend-days
+// transition dates.  An absolute date will be represented as @yyyy/mm/dd, (but
+// leading 0's may be omitted).  A relative date will be represented as an
+// unsigned integer offset from the start of the current range.  Note that
+// relative dates should not be used on an empty calendar.
+//
+// Holiday codes are represented symbolically as uppercase letters.  Days of
+// the week to be considered weekend days are identifier by lowercase letters
+// {u, m, t, w, r, f, a}.
 //
 // The first date in a spec represents one end of the range and must be
-// absolute.  The second date, if present, represents the other end of the
-// range.  Any subsequent dates represent holidays within the range.  Holidays
-// must be unique.  An uppercase letter, will correspond to a holiday code for
-// the most recently added holiday.  Any associated holiday codes should be
-// unique for that holiday.  Whitespace is used to delimit integer fields with
-// no intervening holiday codes (notice that absolute dates and holiday codes
-// are self-delimiting).
+// absolute.  If the first date is embellished by weekend-day identifiers, use
+// the legacy 'addWeekendDay' method to add the corresponding weekend days to
+// the calendar.  The second date, if present, represents the other end of the
+// range.  A subsequent date represents either a holiday or a weekend-days
+// transition -- if the date is proceeded by holiday codes or is
+// unembellished, then the date represents a holiday; otherwise, if the date is
+// proceeded weekend-day identifiers, then the date represents the starting
+// date of a weekend-day transition.
+//
+// Any associated holiday codes should be unique for that holiday.  Whitespace
+// is used to delimit integer fields with no intervening holiday codes (notice
+// that absolute dates and holiday codes are self-delimiting).
 //
 // For example, let's again assume the following arbitrary assignments of
 // holiday codes:
@@ -500,6 +516,10 @@ bdecs_PackedCalendar& hh(bdecs_PackedCalendar *object, const char *spec)
 //   "u@2000/1/1a"        [ SUN SAT ]; range is 2001/1/1..2000/1/1.
 //
 //   "@2000/1/1sa"        Ill formed: unrecognized character 's' at position 9.
+//
+//   "u@2000/1/1 @2000/1/10 @2000/1/1mt"
+//                       Range: 2000/1/1...2000/1//10
+//                       W/e Trans: [ 1/1/1: [ SUN ], 2000/1/1: [ MON TUE ] ]
 //
 //   "rf@2000/1/1 @2000/1/3 @2000/1/1"
 //                        W/e Days: [ THU FRI ], Range: 2000/1/1..2000/1/3,
@@ -625,6 +645,40 @@ int loadWeekendDay(const char **endPosAddr,
     return SUCCESS;
 }
 
+int loadWeekendDaysTransition(const char **endPosAddr,
+                              bdecs_PackedCalendar *result,
+                              const bdet_Date& transitionDate)
+{
+    ASSERT(result);
+    bdec_DayOfWeekSet weekendDays;
+
+    while (islower(**endPosAddr))
+    {
+        bdet_DayOfWeek::Day dow;
+        switch (**endPosAddr) {
+          case 'u': dow = bdet_DayOfWeek::BDET_SUN; break;
+          case 'm': dow = bdet_DayOfWeek::BDET_MON; break;
+          case 't': dow = bdet_DayOfWeek::BDET_TUE; break;
+          case 'w': dow = bdet_DayOfWeek::BDET_WED; break;
+          case 'r': dow = bdet_DayOfWeek::BDET_THU; break;
+          case 'f': dow = bdet_DayOfWeek::BDET_FRI; break;
+          case 'a': dow = bdet_DayOfWeek::BDET_SAT; break;
+          default: return FAILURE;
+        };
+        int before = weekendDays.length();
+        weekendDays.add(dow);
+
+        // Check for duplicates.
+        if (before >= weekendDays.length()) {
+            return FAILURE;
+        }
+        ++*endPosAddr;
+    }
+
+    result->addWeekendDaysTransition(transitionDate, weekendDays);
+    return SUCCESS;
+}
+
 int loadHolidayCode(const char **endPosAddr,
                     bdecs_PackedCalendar *result,
                     const bdet_Date& holiday,
@@ -680,11 +734,22 @@ int ggg(bdecs_PackedCalendar *object, const char *spec, bool verboseFlag =true)
             skipOptionalWhiteSpace(&endPos, input);
         }
         else if (islower(*input)) {                // WEEKEND DAYS
-            if (loadWeekendDay(&endPos, object, *input) == FAILURE) {
-                if (verboseFlag) {
-                    cout << "Error: bad weekend day." << endl;
+            if (numDays <= 1) {
+                if (loadWeekendDay(&endPos, object, *input) == FAILURE) {
+                    if (verboseFlag) {
+                        cout << "Error: bad weekend day." << endl;
+                    }
+                    break;
                 }
-                break;
+            }
+            else {
+                if (loadWeekendDaysTransition(&endPos, object, lastDate)
+                                                                  == FAILURE) {
+                    if (verboseFlag) {
+                        cout << "Error: bad weekend-day transition." << endl;
+                    }
+                    break;
+                }
             }
         }
         else if (isupper(*input)) {               // HOLIDAY CODES
@@ -735,7 +800,11 @@ int ggg(bdecs_PackedCalendar *object, const char *spec, bool verboseFlag =true)
                 object->addDay(date);
             }
             else {
-                object->addHoliday(date);
+                // Look ahead to see the next character to see if this date
+                // represents a holiday or a weekend-days transition.
+                if (*endPos == 0 || isupper(*endPos) || isspace(*endPos)) {
+                    object->addHoliday(date);
+                }
             }
             ++numDays;                   // Keep track of dates parsed:
                                          // day/holiday.
@@ -791,6 +860,29 @@ bdecs_PackedCalendar g(const char *spec)
     bdecs_PackedCalendar object;
     return gg(&object, spec);
 }
+
+
+namespace {
+
+struct WeekendDaysTransitionLess {
+    // This 'struct' provides a comparator predicate for the type
+    // 'WeekendDaysTransition' to enable the use of standard algorithms
+    // (such as 'bsl::lower_bound') on ranges of objects of that type.
+
+    bool operator() (const Obj::WeekendDaysTransition& lhs,
+                     const Obj::WeekendDaysTransition& rhs) const
+    // Return 'true' if the value of the specified 'lhs' is less than
+    // (ordered before) the value of the specified 'rhs'.  The value of
+    // 'lhs' is less than the value of 'rhs' if the date represented by
+    // the data member 'first' of 'lhs' is earlier than the date
+    // represented by the data member 'first' of 'rhs'.
+    {
+
+        return lhs.first < rhs.first;
+    }
+};
+
+}  // close unnamed namespace
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -6432,6 +6524,7 @@ DEFINE_TEST_CASE(4) {
         }
       }
 
+    */
 DEFINE_TEST_CASE(3) {
         // --------------------------------------------------------------------
         // TESTING SIMPLE GENERATOR FUNCTION 'hh' AND PRIMITIVE GENERATOR
@@ -6483,6 +6576,10 @@ DEFINE_TEST_CASE(3) {
         // 10. Optional spaces have no consequences on the parsing
         // 11. All examples in the documentation for 'hh' with no syntax errors
         //     are parsed successfully
+        // 12. a. Weekend-days transition can be specified with absolute or
+        //        relative dates.
+        //     b. Weekend-days transtions only accepts the 7 accepted lower
+        //        case letters for days considered to be weekend days
         //
         // Plan:
         //
@@ -6528,6 +6625,12 @@ DEFINE_TEST_CASE(3) {
         // To address concern 11, generate an object using 'gg' which has the
         // same value as the object generated by 'hh' for each 'spec'.  Verify
         // these two objects are equal.
+        //
+        // To address concern 12, verify 'gg' with with a variety of (manually
+        // selected) specs containing weekend-day transitions.  Include specs
+        // that use relative and absolute dates for transition start dates, and
+        // ensure that the entire set of specs covers the use of all possible
+        // weekend day identifiers.
         //
         // Tactics:
         //      - Ad-Hoc Data Selection Method
@@ -6595,15 +6698,13 @@ DEFINE_TEST_CASE(3) {
 { L_, "utt"                                      ,  2,   0,   0, 2,  0, D1, 0},
 { L_, "utu"                                      ,  2,   0,   0, 2,  0, D1, 0},
 { L_, "a@2000/1/1a@2001/1/1 u"                   , 10,   1,   0, 1,  0, D1, 0},
-{ L_, "a@2000/1/1u@2001/1/1 a"                   , 21, 367, 261, 2,  0, D1, 0},
-{ L_, "u@2000/1/1a@2001/1/1 a"                   , 21, 367, 261, 2,  0, D1, 0},
 // *** concern 3c ***
 { L_, "zaf"                                      ,  0,   0,   0, 0,  0, D1, 0},
 { L_, "azf"                                      ,  1,   0,   0, 1,  0, D1, 0},
 { L_, "afz"                                      ,  2,   0,   0, 2,  0, D1, 0},
 { L_, "z@2000/1/1 af"                            ,  0,   0,   0, 0,  0, D1, 0},
 { L_, "a@2000/1/1  @2000/1/2zf"                  , 21,   2,   1, 1,  0, D1, 0},
-{ L_, "@2000/1/1@2000/1/2 afz"                   , 21,   2,   1, 2,  0, D1, 0},
+{ L_, "@2000/1/1@2000/1/2 afz"                   , 21,   2,   2, 0,  0, D1, 0},
 // *** concern 4 ***
 { L_, "1"                                        ,  0,   0,   0, 0,  0, D1, 0},
 { L_, "5"                                        ,  0,   0,   0, 0,  0, D1, 0},
@@ -6653,7 +6754,7 @@ DEFINE_TEST_CASE(3) {
 { L_, "au@2000/1/1 30 1AB 2DCE~au@2000/1/1 30 1A", -1,  31,  21, 2,  1, D1, 1},
 // *** concern 10 ***
 { L_, " @2000  /   1    /    1  30 1 A  B2  D CE", -1,  31,  29, 0,  2, D1, 2},
-{ L_, " a  @   2000 /1 / 1 30 u1 AB2D C E"       , -1,  31,  20, 2,  2, D2, 3},
+{ L_, " a  @   2000 /1 / 1 30 u1 AB2D C E"       , -1,  31,  24, 1,  2, D2, 3},
 };
 //----------v
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -6719,6 +6820,148 @@ DEFINE_TEST_CASE(3) {
             }
         }
         {
+            if (verbose)
+                cout <<
+                    endl << "\tTesting 'gg' for Weekend-Days Transitions" <<
+                    endl << "\t=========================================" <<
+                    endl;
+
+            {
+                const char* spec = "@2000/1/1 30 0rw @2000/1/10mt 20";
+                Obj mX; const Obj& X = mX;
+                int retCode = ggg(&mX, spec, false);
+                ASSERT(-1 == retCode);
+
+                bsl::set<Obj::WeekendDaysTransition, WeekendDaysTransitionLess>
+                                                                  eTransitions;
+
+                bdet_Date date(1, 1, 1);
+                bdec_DayOfWeekSet weekendDays;
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+
+                date.setYearMonthDay(2000, 1, 1);
+                weekendDays.removeAll();
+                weekendDays.add(bdet_DayOfWeek::BDET_THU);
+                weekendDays.add(bdet_DayOfWeek::BDET_WED);
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+
+                date.setYearMonthDay(2000, 1, 10);
+                weekendDays.removeAll();
+                weekendDays.add(bdet_DayOfWeek::BDET_MON);
+                weekendDays.add(bdet_DayOfWeek::BDET_TUE);
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+
+                ASSERT(bdet_Date(2000, 1, 1) == X.firstDate());
+                ASSERT(bdet_Date(2000, 1, 31) == X.lastDate());
+                ASSERT(1 == X.numHolidays());
+                ASSERT(3 == X.numWeekendDaysTransitions());
+                ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
+                              X.endWeekendDaysTransition(),
+                              eTransitions.begin()));
+            }
+
+            {
+                const char* spec = "w@2000/1/1 60 0wu 15mt 30rfa";
+                Obj mX; const Obj& X = mX;
+                int retCode = ggg(&mX, spec, false);
+                ASSERT(-1 == retCode);
+
+                bsl::set<Obj::WeekendDaysTransition, WeekendDaysTransitionLess>
+                                                                  eTransitions;
+
+                bdet_Date date(1, 1, 1);
+                bdec_DayOfWeekSet weekendDays;
+                weekendDays.add(bdet_DayOfWeek::BDET_WED);
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+
+                date.setYearMonthDay(2000, 1, 1);
+                weekendDays.removeAll();
+                weekendDays.add(bdet_DayOfWeek::BDET_SUN);
+                weekendDays.add(bdet_DayOfWeek::BDET_WED);
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+
+
+                date.setYearMonthDay(2000, 1, 16);
+                weekendDays.removeAll();
+                weekendDays.add(bdet_DayOfWeek::BDET_MON);
+                weekendDays.add(bdet_DayOfWeek::BDET_TUE);
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+
+                date.setYearMonthDay(2000, 1, 31);
+                weekendDays.removeAll();
+                weekendDays.add(bdet_DayOfWeek::BDET_THU);
+                weekendDays.add(bdet_DayOfWeek::BDET_FRI);
+                weekendDays.add(bdet_DayOfWeek::BDET_SAT);
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+
+                ASSERT(bdet_Date(2000, 1, 1) == X.firstDate());
+                ASSERT(bdet_Date(2000, 3, 1) == X.lastDate());
+                ASSERT(0 == X.numHolidays());
+                ASSERT(4 == X.numWeekendDaysTransitions());
+                ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
+                              X.endWeekendDaysTransition(),
+                              eTransitions.begin()));
+            }
+
+            {
+                const char* spec = "w@2000/1/1 @2000/3/1 @2000/1/1wu "
+                                   "@2000/1/16mt @2000/1/31rfa";
+                Obj mX; const Obj& X = mX;
+                int retCode = ggg(&mX, spec, false);
+                ASSERT(-1 == retCode);
+
+                bsl::set<Obj::WeekendDaysTransition, WeekendDaysTransitionLess>
+                                                                  eTransitions;
+
+                bdet_Date date(1, 1, 1);
+                bdec_DayOfWeekSet weekendDays;
+                weekendDays.add(bdet_DayOfWeek::BDET_WED);
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+
+                date.setYearMonthDay(2000, 1, 1);
+                weekendDays.removeAll();
+                weekendDays.add(bdet_DayOfWeek::BDET_SUN);
+                weekendDays.add(bdet_DayOfWeek::BDET_WED);
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+
+
+                date.setYearMonthDay(2000, 1, 16);
+                weekendDays.removeAll();
+                weekendDays.add(bdet_DayOfWeek::BDET_MON);
+                weekendDays.add(bdet_DayOfWeek::BDET_TUE);
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+
+                date.setYearMonthDay(2000, 1, 31);
+                weekendDays.removeAll();
+                weekendDays.add(bdet_DayOfWeek::BDET_THU);
+                weekendDays.add(bdet_DayOfWeek::BDET_FRI);
+                weekendDays.add(bdet_DayOfWeek::BDET_SAT);
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+
+                ASSERT(bdet_Date(2000, 1, 1) == X.firstDate());
+                ASSERT(bdet_Date(2000, 3, 1) == X.lastDate());
+                ASSERT(0 == X.numHolidays());
+                ASSERT(4 == X.numWeekendDaysTransitions());
+                ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
+                              X.endWeekendDaysTransition(),
+                              eTransitions.begin()));
+            }
+
+        }
+
+
+        {
             if (verbose) cout << endl
                               << "\tTesting SIMPLE GENERATOR 'hh'" << endl
                               << "\t=============================" << endl;
@@ -6759,7 +7002,7 @@ DEFINE_TEST_CASE(3) {
             }
         }
       }
-*/
+
 
 DEFINE_TEST_CASE(2) {
         // --------------------------------------------------------------------
@@ -6779,7 +7022,8 @@ DEFINE_TEST_CASE(2) {
         //      b. properly handles duplicates
         //
         //  3. That 'addWeekendDay'
-        //      a. properly sets the day as a weekend day
+        //      a. properly sets the day as a weekend day to the transition at
+        //         1/1/1
         //      b. properly handles duplicates
         //
         //  4. That 'addHoliday'
@@ -6797,6 +7041,10 @@ DEFINE_TEST_CASE(2) {
         //  6. That 'removeAll'
         //      a. produces the expected value (empty)
         //      b. leaves the object in a consistent state
+        //
+        //  6. That 'addWeekendDaysTransitions'
+        //      a. properly adds a weekend-days transition
+        //      b. properly handles duplicates
         //
         //  Note that there is no "stretching" in this object.  We are adopting
         //  a black-box attitude while testing this function with regard to the
@@ -6945,28 +7193,91 @@ DEFINE_TEST_CASE(2) {
         {
             Obj mX;
             const Obj& X = mX;
-            ASSERT(X.beginWeekendDays() == X.endWeekendDays());
+            bdec_DayOfWeekSet expected;
+            ASSERT(1 == X.numWeekendDaysTransitions());
+            ASSERT(X.beginWeekendDaysTransition()->second == expected);
 
             mX.addWeekendDay(bdet_DayOfWeek::BDET_SAT);
-            Obj::WeekendDayConstIterator i = X.beginWeekendDays();
-            ASSERT(bdet_DayOfWeek::BDET_SAT == *i);
-            ASSERT(X.endWeekendDays() == ++i);
+            expected.add(bdet_DayOfWeek::BDET_SAT);
+            ASSERT(1 == X.numWeekendDaysTransitions());
+            ASSERT(X.beginWeekendDaysTransition()->second == expected);
 
             mX.addWeekendDay(bdet_DayOfWeek::BDET_MON);
-            i = X.beginWeekendDays();
-            Obj::WeekendDayConstIterator j = i++;
-            ASSERT(
-           (bdet_DayOfWeek::BDET_SAT == *i && bdet_DayOfWeek::BDET_MON == *j)
-        || (bdet_DayOfWeek::BDET_MON == *i && bdet_DayOfWeek::BDET_SAT == *j));
-            ASSERT(X.endWeekendDays() == ++i);
+            expected.add(bdet_DayOfWeek::BDET_MON);
+            ASSERT(1 == X.numWeekendDaysTransitions());
+            ASSERT(X.beginWeekendDaysTransition()->second == expected);
 
             mX.addWeekendDay(bdet_DayOfWeek::BDET_SAT);
-            i = X.beginWeekendDays();
-            j = i++;
-            ASSERT(
-           (bdet_DayOfWeek::BDET_SAT == *i && bdet_DayOfWeek::BDET_MON == *j)
-        || (bdet_DayOfWeek::BDET_MON == *i && bdet_DayOfWeek::BDET_SAT == *j));
-            ASSERT(X.endWeekendDays() == ++i);
+            ASSERT(1 == X.numWeekendDaysTransitions());
+            ASSERT(X.beginWeekendDaysTransition()->second == expected);
+        }
+
+        if (verbose) cout << "\nTesting 'addWeekendDayTransition'." << endl;
+        {
+            Obj mX;
+            bsl::set<Obj::WeekendDaysTransition, WeekendDaysTransitionLess>
+                                                                  eTransitions;
+            bdet_Date date(1, 1, 1);
+            bdec_DayOfWeekSet weekendDays;
+            eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+
+            const Obj& X = mX;
+            ASSERT(1 == X.numWeekendDaysTransitions());
+            ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
+                              X.endWeekendDaysTransition(),
+                              eTransitions.begin()));
+
+            date.setYearMonthDay(2, 2, 2);
+            weekendDays.removeAll();
+            weekendDays.add(bdet_DayOfWeek::BDET_MON);
+            eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+            mX.addWeekendDaysTransition(date, weekendDays);
+            ASSERT(2 == X.numWeekendDaysTransitions());
+            ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
+                              X.endWeekendDaysTransition(),
+                              eTransitions.begin()));
+
+            date.setYearMonthDay(1, 1, 1);
+            weekendDays.removeAll();
+            weekendDays.add(bdet_DayOfWeek::BDET_TUE);
+            weekendDays.add(bdet_DayOfWeek::BDET_SUN);
+            Obj::WeekendDaysTransition newTransition =
+                                 Obj::WeekendDaysTransition(date, weekendDays);
+            eTransitions.erase(newTransition);
+            eTransitions.insert(newTransition);
+            mX.addWeekendDaysTransition(date, weekendDays);
+            ASSERT(2 == X.numWeekendDaysTransitions());
+            ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
+                              X.endWeekendDaysTransition(),
+                              eTransitions.begin()));
+
+            date.setYearMonthDay(1, 2, 1);
+            weekendDays.removeAll();
+            weekendDays.add(bdet_DayOfWeek::BDET_WED);
+            weekendDays.add(bdet_DayOfWeek::BDET_SUN);
+            eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+            mX.addWeekendDaysTransition(date, weekendDays);
+            ASSERT(3 == X.numWeekendDaysTransitions());
+            ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
+                              X.endWeekendDaysTransition(),
+                              eTransitions.begin()));
+
+            date.setYearMonthDay(1, 2, 1);
+            weekendDays.removeAll();
+            weekendDays.add(bdet_DayOfWeek::BDET_MON);
+            weekendDays.add(bdet_DayOfWeek::BDET_THU);
+            newTransition = Obj::WeekendDaysTransition(date, weekendDays);
+            eTransitions.erase(newTransition);
+            eTransitions.insert(newTransition);
+            mX.addWeekendDaysTransition(date, weekendDays);
+            ASSERT(3 == X.numWeekendDaysTransitions());
+            ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
+                              X.endWeekendDaysTransition(),
+                              eTransitions.begin()));
+
         }
 
         if (verbose) cout << "\nTesting 'addHoliday'." << endl;
@@ -8290,8 +8601,8 @@ int main(int argc, char *argv[])
         CASE(6);
         CASE(5);
         CASE(4);
-        CASE(3);
         */
+        CASE(3);
         CASE(2);
         CASE(1);
 #undef CASE

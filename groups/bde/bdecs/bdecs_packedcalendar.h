@@ -499,6 +499,8 @@ class bdecs_PackedCalendar {
     // part of an object as both source and destination) for the same
     // operation is supported in all cases.
 
+
+  private:
     // PRIVATE TYPES
     typedef bsl::vector<int>::const_iterator     OffsetsConstIterator;
     typedef bsl::vector<int>::const_iterator     CodesIndexConstIterator;
@@ -518,23 +520,24 @@ class bdecs_PackedCalendar {
     typedef bsl::vector<int>::size_type          CodesIndexSizeType;
     typedef bsl::vector<int>::size_type          CodesSizeType;
 
+
+  public:
+    // PUBLIC TYPES
     typedef bsl::pair<bdet_Date, bdec_DayOfWeekSet>
-                                                 WeekendDaysTransition;
-
+                                            WeekendDaysTransition;
     typedef bsl::vector<WeekendDaysTransition>::iterator
-                                                 WeekendDaysTransitionIterator;
-
+                                            WeekendDaysTransitionIterator;
     typedef bsl::vector<WeekendDaysTransition>::const_iterator
                                             WeekendDaysTransitionConstIterator;
 
-
+  private:
     struct WeekendDaysTransitionLess {
         // This 'struct' provides a comparator predicate for the type
         // 'WeekendDaysTransition' to enable the use of standard algorithms
         // (such as 'bsl::lower_bound') on ranges of objects of that type.
 
         bool operator() (const WeekendDaysTransition& lhs,
-                         const WeekendDaysTransition& rhs)
+                         const WeekendDaysTransition& rhs) const
             // Return 'true' if the value of the specified 'lhs' is less than
             // (ordered before) the value of the specified 'rhs'.  The value of
             // 'lhs' is less than the value of 'rhs' if the date represented by
@@ -580,10 +583,10 @@ class bdecs_PackedCalendar {
     bslma_Allocator  *d_allocator_p;        // memory allocator (held, not
                                             // owned)
 
-    bsl::vector<WeekendDaysTransition> d_weekendDaysTransitions;
-        // chronological list of weekend days transitions
-
-
+    mutable bsl::vector<WeekendDaysTransition>
+                      d_weekendDaysTransitions;
+                                            // chronological list of weekend
+                                            // days transitions
     // FRIENDS
     friend class bdecs_PackedCalendar_BusinessDayConstIterator;
     friend bool operator==(const bdecs_PackedCalendar&,
@@ -922,6 +925,20 @@ class bdecs_PackedCalendar {
         // unmodified.  Note that 'version' is not written to 'stream'.
         // See the 'bdex' package-level documentation for more information
         // on 'bdex' streaming of value-semantic types and containers.
+
+    WeekendDaysTransitionConstIterator beginWeekendDaysTransition() const;
+        // Return an iterator providing non-modifiable access to the first
+        // weekend-day transition in the chronological sequence of weekend-day
+        // transitions maintained by this calendar.
+
+    WeekendDaysTransitionConstIterator endWeekendDaysTransition() const;
+        // Return an iterator providing non-modifiable access to the
+        // past-the-end weekend-day transition in the chronological sequence of
+        // weekend-day transitions maintained by this calendar.
+
+    int numWeekendDaysTransitions() const;
+        // Return the number of weekend-days transitions maintained by this
+        // calendar.
 
     BusinessDayConstIterator beginBusinessDays() const;
         // Return an iterator that refers to the first business day in this
@@ -1549,6 +1566,7 @@ operator--(bdecs_PackedCalendar_HolidayCodeConstIterator& iterator, int);
             // class bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator
             // ==============================================================
 
+    /*
 class bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator {
     // This 'class' provides a read-only, 'const' iterator type to sequentially
     // access (in increasing chronological order) the weekend-days transitions
@@ -1562,8 +1580,79 @@ class bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator {
     // '1/1/1'.
 
     // DATA
-    // WeekendDaysTransition
+    bdecs_PackedCalendar::WeekendDaysTransition
+                                   d_currentTransition;  // current weekend-day
+                                                         // transition
+
+    const bdecs_PackedCalendar    *d_calendar_p;         // calendar refered by
+                                                         // this iterator
+
+    bdecs_PackedCalendar::                            d_currentOffset;      // offset from the
+                                                         // first transition
+
+    // FRIENDS
+    friend class bdecs_PackedCalendar;
+    friend bool operator==(
+              const bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator&,
+              const bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator&);
+
+    friend bool operator!=(
+              const bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator&,
+              const bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator&);
+
+  private:
+    // PRIVATE CREATORS
+    bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator(
+                                          const bdecs_PackedCalendar& calendar,
+                                          const int                   offset);
+
+        // Create a weekend-days iterator for the specified 'calendar',
+        // If the specified 'endIterFlag' is 'false', then this iterator
+        // references the first business day on or after the specified
+        // 'startDate'; otherwise, this iterator references one business day
+        // *past* the first business day on or after 'startDate'.  If no
+        // business day matching the above specification exists, then this
+        // iterator will reference one day past the end of its range.
+
+  public:
+    // CREATORS
+    bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator(
+     const bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& original);
+        // Create an iterator at the same position as the specified 'original'
+        // iterator.
+
+    // MANIPULATORS
+    // bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& operator=(
+    //   const bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& rhs) =
+    //                                                                 default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // a return a reference providing modifiable access to this object.
+
+    bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& operator++();
+        // Move this iterator to the next weekend-days transition in
+        // the calendar and return a reference providing modifiable access to
+        // this iterator.  The behavior is undefined unless the iterator refers
+        // to a weekend-days transition in the calendar.
+
+    bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& operator--();
+        // Move this iterator to the previous weekend-days transition in the
+        // calendar and return a reference providing modifiable access to this
+        // iterator.  The behavior is undefined unless the iterator refers to
+        // the past-the-end address or the non-leftmost weekend-days transition
+        // in the calendar.
+
+    // ACCESSORS
+    const bdecs_PackedCalendar::WeekendDaysTransition& operator*() const;
+        // Return a reference providing non-modifiable access to the
+        // weekend-days transition refered to by this iterator.
+
+    const bdecs_PackedCalendar::WeekendDaysTransition *operator->() const;
+        // Return the address of the non-modifiable weekend-days transition
+        // refered to by this iterator.
+
+
 };
+    */
 
                 // ===================================================
                 // class bdecs_PackedCalendar_BusinessDayConstIterator
@@ -2449,6 +2538,47 @@ bdecs_PackedCalendar::HolidayCodeConstIterator
 bdecs_PackedCalendar::beginHolidayCodes(const HolidayConstIterator& iter) const
 {
     return HolidayCodeConstIterator(beginHolidayCodes(iter.d_iterator));
+}
+
+inline
+bdecs_PackedCalendar::WeekendDaysTransitionConstIterator
+bdecs_PackedCalendar::beginWeekendDaysTransition() const
+{
+    if (d_weekendDaysTransitions.empty())
+    {
+        WeekendDaysTransition newTransition((bdet_Date(1,1,1)),
+                                            bdec_DayOfWeekSet());
+        d_weekendDaysTransitions.push_back(newTransition);
+    }
+
+    return d_weekendDaysTransitions.begin();
+}
+
+inline
+bdecs_PackedCalendar::WeekendDaysTransitionConstIterator
+bdecs_PackedCalendar::endWeekendDaysTransition() const
+{
+    if (d_weekendDaysTransitions.empty())
+    {
+        WeekendDaysTransition newTransition((bdet_Date(1,1,1)),
+                                            bdec_DayOfWeekSet());
+        d_weekendDaysTransitions.push_back(newTransition);
+    }
+
+    return d_weekendDaysTransitions.end();
+}
+
+inline
+int bdecs_PackedCalendar::numWeekendDaysTransitions() const
+{
+    if (d_weekendDaysTransitions.empty())
+    {
+        WeekendDaysTransition newTransition((bdet_Date(1,1,1)),
+                                            bdec_DayOfWeekSet());
+        d_weekendDaysTransitions.push_back(newTransition);
+    }
+
+    return d_weekendDaysTransitions.size();
 }
 
 inline

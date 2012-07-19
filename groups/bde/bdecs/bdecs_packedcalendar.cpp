@@ -799,6 +799,7 @@ void bdecs_PackedCalendar::removeAll()
     d_holidayOffsets.clear();
     d_holidayCodesIndex.clear();
     d_holidayCodes.clear();
+    d_weekendDaysTransitions.clear();
 }
 
 void bdecs_PackedCalendar::setValidRange(const bdet_Date& firstDate,
@@ -1085,23 +1086,38 @@ int bdecs_PackedCalendar::numWeekendDaysInRange() const
 bool operator==(const bdecs_PackedCalendar& lhs,
                 const bdecs_PackedCalendar& rhs)
 {
-    return lhs.d_firstDate         == rhs.d_firstDate
+    bool sameTransitionFlag = false;
+
+    if (lhs.d_weekendDaysTransitions.size() == 0) {
+        if (rhs.d_weekendDaysTransitions.size() == 1) {
+            sameTransitionFlag =
+                     rhs.d_weekendDaysTransitions.begin()->second.length() == 0;
+        }
+    }
+    else if (rhs.d_weekendDaysTransitions.size() == 0) {
+        if (lhs.d_weekendDaysTransitions.size() == 1) {
+            sameTransitionFlag =
+                     lhs.d_weekendDaysTransitions.begin()->second.length() == 0;
+        }
+    }
+    if (!sameTransitionFlag) {
+         sameTransitionFlag =
+                  lhs.d_weekendDaysTransitions == rhs.d_weekendDaysTransitions;
+    }
+
+    return sameTransitionFlag
+        && lhs.d_firstDate         == rhs.d_firstDate
         && lhs.d_lastDate          == rhs.d_lastDate
-        && lhs.d_weekendDays       == rhs.d_weekendDays
         && lhs.d_holidayOffsets    == rhs.d_holidayOffsets
         && lhs.d_holidayCodesIndex == rhs.d_holidayCodesIndex
         && lhs.d_holidayCodes      == rhs.d_holidayCodes;
+
 }
 
 bool operator!=(const bdecs_PackedCalendar& lhs,
                 const bdecs_PackedCalendar& rhs)
 {
-    return lhs.d_firstDate         != rhs.d_firstDate
-        || lhs.d_lastDate          != rhs.d_lastDate
-        || lhs.d_weekendDays       != rhs.d_weekendDays
-        || lhs.d_holidayOffsets    != rhs.d_holidayOffsets
-        || lhs.d_holidayCodesIndex != rhs.d_holidayCodesIndex
-        || lhs.d_holidayCodes      != rhs.d_holidayCodes;
+    return !(lhs == rhs);
 }
 
                 // ---------------------------------------------------
