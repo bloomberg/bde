@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide an overflowable output 'streambuf' using a client buffer.
 //
 //@CLASSES:
-//  bdesb_OverflowMemOutStreambuf: overflowable output 'bsl::streambuf'
+//  bdesb_OverflowMemOutStreamBuf: overflowable output 'bsl::streambuf'
 //
 //@AUTHOR: Guillaume Morin (gmorin1), Robert Day (rday7)
 //
@@ -218,16 +218,9 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-class bdesb_OverflowMemOutStreamBuf;
-
                    // ===================================
                    // class bdesb_OverflowMemOutStreamBuf
                    // ===================================
-
-typedef bdesb_OverflowMemOutStreamBuf bdesb_OverflowMemOutStreambuf;
-    // DEPRECATED: This was an incorrect spelling (lowercase 'b') and this
-    // typedef will be removed soon.  The correct spelling is
-    // 'bdesb_OverflowMemOutStreamBuf'.
 
 class bdesb_OverflowMemOutStreamBuf : public bsl::streambuf {
     // This class implements the output functionality of the
@@ -394,6 +387,9 @@ class bdesb_OverflowMemOutStreamBuf : public bsl::streambuf {
         // Return the size of the overflow buffer, or 0 if there is no overflow
         // buffer.
 };
+
+typedef bdesb_OverflowMemOutStreamBuf bdesb_OverflowMemOutStreambuf;
+    // DEPRECATED: Use 'bdesb_OverflowMemOutStreamBuf' instead.
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
