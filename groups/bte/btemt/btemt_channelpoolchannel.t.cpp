@@ -13,7 +13,9 @@
 #include <bcemt_barrier.h>
 
 #include <bdef_function.h>
+#include <bdef_placeholder.h>
 #include <bdef_memfn.h>
+#include <bdef_bind.h>
 
 #include <bdex_bytestreamimputil.h>
 
@@ -119,6 +121,7 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 typedef btemt_ChannelPoolChannel Obj;
+typedef btemt_AsyncChannel       AsyncChannel;
 
 static int verbose = 0;
 static int veryVerbose = 0;
@@ -160,6 +163,14 @@ static bcemt_Mutex coutMutex;
 
 #define MTLOOP2_ASSERT(I,J,X) { \
   if (!(X)) { MTCOUT; P_(I); P(J); aSsErT(1, #X, __LINE__); cout << MTFLUSH; }}
+
+void readCb(int         result,
+            int        *numNeeded,
+            bcema_Blob *blob,
+            int         channelId,
+            const string& s)
+{
+}
 
 namespace CASE1 {
 
@@ -855,7 +866,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -868,6 +879,73 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
       }break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING 'read' destroys the passed callback - DRQS 32546982
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        {
+            btemt_ChannelPoolConfiguration config;
+            config.setMaxThreads(1);
+            config.setMetricsInterval(10.0);
+
+            btemt_ChannelPool::ChannelStateChangeCallback channelCb;
+            btemt_ChannelPool::PoolStateChangeCallback    poolCb;
+            btemt_ChannelPool::DataReadCallback           dataCb;
+
+            bcema_PooledBlobBufferFactory pbbf(1024);
+            bcema_TestAllocator ca;
+            bcema_PoolAllocator pa(&ca);
+
+            btemt_ChannelPool cp(channelCb, dataCb, poolCb, config, &ca);
+
+            bcema_TestAllocator ta(veryVeryVerbose);
+            bslma_DefaultAllocatorGuard dag(&ta);
+
+            Obj mX(0, &cp, &pbbf, &pa, &ca);  const Obj& X = mX;
+
+            string logString(&ta);
+            logString = "12345678901234567890123456789012" \
+                        "123456789012345678901234567890123";
+
+            AsyncChannel::BlobBasedReadCallback cb1 =
+                bdef_BindUtil::bindA(&ta,
+                                     &readCb,
+                                     bdef_PlaceHolders::_1,
+                                     bdef_PlaceHolders::_2,
+                                     bdef_PlaceHolders::_3,
+                                     bdef_PlaceHolders::_4,
+                                     logString);
+
+            int rc = mX.read(5, cb1);
+            ASSERT(!rc);
+
+//             int rc = mX.start();
+//             ASSERT(!rc);
+
+//             const int BACKLOG   = 5;
+//             const int SERVER_ID = 1;
+
+//             rc = mX.listen(bteso_IPv4Address(), BACKLOG, SERVER_ID);
+//             ASSERT(!rc);
+
+//             const bteso_IPv4Address *address = mX.serverAddress(SERVER_ID);
+//             ASSERT(address);
+
+//             bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+//             bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
+
+//             rc = socket->connect(*address);
+//             ASSERT(!rc);
+
+//             rc = mX.stop();
+//             ASSERT(!rc);
+        }
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST:

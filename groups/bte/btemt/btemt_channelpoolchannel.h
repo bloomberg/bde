@@ -47,6 +47,10 @@ BDES_IDENT("$Id: $")
 #include <bcemt_thread.h>
 #endif
 
+#ifndef INCLUDED_BDEUT_VARIANT
+#include <bdeut_variant.h>
+#endif
+
 #ifndef INCLUDED_BSL_LIST
 #include <bsl_list.h>
 #endif
@@ -90,28 +94,23 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
     };
 
     struct ReadQueueEntry {
-        union ReadDataCallback {
-            bsls_ObjectBuffer<ReadCallback>
-                           d_pooledBufferChainBasedCb; // pooled buffer chain
-                                                       // based callback
-            bsls_ObjectBuffer<BlobBasedReadCallback>
-                           d_blobBasedCb;              // blob based callback
-        };
+        typedef bdeut_Variant2<ReadCallback, BlobBasedReadCallback> ReadCb;
 
-        CallbackType      d_callbackType;    // callback type
-        ReadDataCallback  d_readCallback;    // callback to invoke when data
-                                             // is available
+        ReadCb                d_readCallback;    // read callback
 
-        bdet_TimeInterval d_timeOut;         // optional read timeout
+        bdet_TimeInterval     d_timeOut;         // optional read timeout
 
-        int               d_timeOutTimerId;  // for timedRead requests
+        int                   d_timeOutTimerId;  // for timedRead requests
 
-        int               d_numBytesNeeded;  // number of bytes needed before
-                                             // to invoke the read callback
+        int                   d_numBytesNeeded;  // number of bytes needed
+                                                 // before to invoke the read
+                                                 // callback 
 
-        int               d_progress;        // status of read request, one of
-                                             // btemt_AsyncChannel::ReadResult
-                                             // (SUCCESS, TIMEOUT or CANCELED)
+        int                   d_progress;        // status of read request,
+                                                 // one of
+                                                 // AsyncChannel::ReadResult
+                                                 // (SUCCESS, TIMEOUT or 
+                                                 // CANCELED)
     };
 
     typedef bsl::list<ReadQueueEntry> ReadQueue;
@@ -177,25 +176,14 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
 
   private:
     // PRIVATE MANIPULATORS
-    template <typename CALLBCK, int CALLBACK_TYPE>
+    template <typename CALLBACK>
     int addReadQueueEntry(int                      numBytes,
-                          const CALLBCK&          callback,
+                          const CALLBACK&          callback,
                           const bdet_TimeInterval& timeOut);
         // Add a read queue entry with the specified 'callback' for the
         // specified 'numBytes' and the specified 'timeOut'.  Return 0 on
         // success, and a non-zero value otherwise.  Note that this function
-        // assumes that it is called after 'd_mutex' is locked.
-
-    template <typename CALLBCK>
-    void assignCallback(ReadQueueEntry::ReadDataCallback& object,
-                        const CALLBCK&                   callback,
-                        const bslmf_MetaInt<BTEMT_BLOB_BASED>&);
-    template <typename CALLBCK>
-    void assignCallback(ReadQueueEntry::ReadDataCallback& object,
-                        const CALLBCK&                   callback,
-                        const bslmf_MetaInt<BTEMT_DATAMSG_BASED>&);
-        // Assign the specified 'callback' to the specified 'object' using the
-        // specified hint object to decide the type of callback.
+        // assumes that 'd_mutex' is not locked when it is called.
 
     void assignData(bcema_Blob           *blob,
                     const btemt_DataMsg&  dataMsg,
