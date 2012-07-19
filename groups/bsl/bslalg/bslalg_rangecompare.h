@@ -1,3 +1,26 @@
+//CW We need to use consistent names for the end-points of an iterable range.
+//CW   Here, 'start' & 'end' are used.  bslstl_map uses 'first' & 'last'.
+//CW   There is probably some component out there that uses 'begin' & 'end'.
+//CW   (I least like 'start' & 'end'.)  This is a question for John/Mike V.
+
+//CW Another point about the function-level doc: I think it should be revised
+//CW   to say "iterator" all over the place.  E.g., change from:
+//CW    // Compare each element in the range starting at the specified 'start1'
+//CW    // and ending immediately before the specified 'end1' with the ...
+//CW   to:
+//CW    // Compare each element in the range starting at the specified 'start1'
+//CW    // iterator and ending immediately before the specified 'end1' iterator
+//CW    // with the ...
+//CW (or maybe "iterator position"?; look at the latest bslstl_map.h that
+//CW Chen is working on--the 'insert' that takes 'first' & 'last')
+
+//CW I also prefer "beginning" over "starting" (in the above), but I've used
+//CW   up my quota of quibles with this aspect of the doc.
+
+//CW s/bitwise/bit-wise/ throughout
+
+//CW Change all C-style casts to 'static_cast', etc.
+
 // bslalg_rangecompare.h                                              -*-C++-*-
 #ifndef INCLUDED_BSLALG_RANGECOMPARE
 #define INCLUDED_BSLALG_RANGECOMPARE
@@ -8,6 +31,7 @@
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Compare elements in an iterator range for equality or ordering.
+//CW Sounds like we are comparing elements in one range, not among two.
 //
 //@CLASSES:
 //  bslalg::RangeCompare: comparison algorithms for iterator ranges
@@ -50,6 +74,7 @@ BSLS_IDENT("$Id: $")
 // Note that this component is for use primarily by the 'bslstl' package.
 // Other clients should use the STL algorithms (in headers '<algorithm>'
 // and '<memory>').
+//CW Should we say 'bsl_algorithm.h' and 'bsl_memory.h' instead?
 //
 ///Usage
 ///-----
@@ -65,13 +90,16 @@ BSLS_IDENT("$Id: $")
 // Suppose that we have a new iterable container type that will be included in
 // the 'bslstl' package, and we wish to define comparison operators for the
 // container.  If the container has an iterator that returns the container's
-// elements in a consistent order, and the elements themselves are equality
+//CW how about "an iterator that provides access to"?  (it doesn't "return")
+// elements in a consistent order, and the elements themselves are equality-
 // comparable, we can implement the container's equality comparison operators
 // by pairwise comparing each of the elements over the entire range of elements
+//CW      ^-
 // in both containers.  Then the container can use the
 // 'bslalg::RangeCompare::equal' class method to equal-compare the container's
 // elements, taking advantage of the optimizations the class method provides
 // for bitwise equality comparable objects.
+//CW                   ^-
 //
 // First, we create an elided definition of a container class, 'MyContainer',
 // which provides read-only iterators of the type 'MyContainer::ConstIterator':
@@ -80,6 +108,7 @@ BSLS_IDENT("$Id: $")
 //  class MyContainer {
 //      // This class implements a container, semantically similar to
 //      // std::vector, holding objects of the parameterizing 'VALUE_TYPE'.
+//CW      'std::vector' (need ticks)
 //
 //    private:
 //      // DATA
@@ -116,7 +145,9 @@ BSLS_IDENT("$Id: $")
 // Then, we declare the equality comparison operators for 'MyContainer':
 //..
 //  template<class VALUE_TYPE>
+//CW s/template</template </  (here and elsewhere)
 //  inline bool operator==(const MyContainer<VALUE_TYPE>& lhs,
+//CW^^^^^^ remove 'inline' from declarations (only needed on definitions)
 //                         const MyContainer<VALUE_TYPE>& rhs);
 //      // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
 //      // value, and 'false' otherwise.  Two 'MyContainer' objects have the
@@ -129,6 +160,7 @@ BSLS_IDENT("$Id: $")
 //      // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
 //      // the same value, and 'false' otherwise.  Two 'MyContainer' objects
 //      // do not have the same value if they do not have the same lengths, or
+//CW s/lengths/length/
 //      // if any element in 'lhs' does not have the same value as the
 //      // corresponding element in 'rhs'.
 //..
@@ -137,6 +169,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  template<class VALUE_TYPE>
 //  inline bool operator==(const MyContainer<VALUE_TYPE>& lhs,
+//CW 'inline' belongs on its own line (here and elsewhere; e.g., see imp below)
 //                         const MyContainer<VALUE_TYPE>& rhs)
 //  {
 //      return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
@@ -160,13 +193,15 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Then, we create the elided definition of a value semantic class
+//CW                                               ^-             ^,
 // 'MyString', together with its definition of 'operator==':
 //..
 //  class MyString {
 //    private:
 //      // DATA
-//      char       *d_start_p;
-//      std::size_t d_length;
+//      char        *d_start_p;
+//      std::size_t  d_length;
+//CW note the additional space in the above two declarations
 //
 //      // ...
 //
@@ -185,7 +220,7 @@ BSLS_IDENT("$Id: $")
 //                                                     lhs.d_length);
 //  }
 //..
-// Notice that 'MyString' is not bitwise-comparable, because the address values
+// Notice that 'MyString' is not bitwise-comparable because the address values
 // of the 'd_start_p' pointer data members in two 'MyString' objects will be
 // different, even if the string values of the two objects are the same.
 //
@@ -205,9 +240,11 @@ BSLS_IDENT("$Id: $")
 //..
 // Here, the call to the 'bslalg::RangeCompare::equal' class method in
 // 'operator==' will perform an unoptimized pairwise comparison of the elements
+//CW                                            ^-
 // in 'c1' and 'c2'.
 //
 // Then, we create the elided definition of another value semantic class,
+//CW                                                     ^-
 // 'MyPoint', together with its definition of 'operator==':
 //..
 //  class MyPoint {
@@ -236,6 +273,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Notice that the value of 'MyPoint'  derives from the values of all of its
+//CW                                 ^^ (one ' ')
+//CW "derives from" sounds weird here (but I suspect this is from John)
 // data members, and that no padding is required for alignment.  Furthermore,
 // 'MyPoint' has no virtual methods.  Therefore, 'MyPoint' objects are
 // bitwise-comparable, and we can correctly declare the
@@ -247,6 +286,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  MyContainer<MyPoint> c1;
 //  MyContainer<MyPoint> c2;
+//CW 'c1' and 'c2' are already used (above).
 //
 //  c1.push_back(MyPoint(1, 2));
 //  c1.push_back(MyPoint(3, 4));
@@ -264,6 +304,7 @@ BSLS_IDENT("$Id: $")
 // 'MyContainer<MyPoint>' objects in which the nested
 // 'TypeTraitsBitwiseEqualityComparable' trait is not associated with the
 // MyPoint class.
+//CW 'MyPoint' (ticks)
 //
 // Finally, note that we can instantiate 'MyContainer' with 'int' or any other
 // primitive type as the 'VALUE_TYPE' and still benefit from the optimized
@@ -272,6 +313,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  MyContainer<int> c1;
 //  MyContainer<int> c2;
+//CW 'c5' and 'c6' ?
 //
 //  c1.push_back(1);
 //  c1.push_back(2);
@@ -292,12 +334,29 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_selecttrait.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEEQUALITYCOMPARABLE
+#include <bslalg_typetraitbitwiseequalitycomparable.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ANYTYPE
+#include <bslmf_anytype.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
+#endif
+
+#ifndef INCLUDED_CLIMITS
+#include <climits>
+#define INCLUDED_CLIMITS
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -326,8 +385,10 @@ namespace bslalg {
 struct RangeCompare {
     // This utility 'struct' provides two static class methods, 'equal' and
     // 'lexicographical', for comparing two ranges.  'equal' returns 'true' if
+//CW                                              ^ of values
     // each element in one range has the same value as the corresponding
     // element in the other range.  'lexicographical' returns 0 if the two
+//CW                             ^, and 'false' otherwise.
     // ranges are equal, a positive value if the first range is greater than
     // the second, and a negative value if the second range is greater than the
     // first.  A range is specified by a pair of starting and ending iterators,
@@ -341,8 +402,9 @@ struct RangeCompare {
     // 'lexicographical' requires that the elements in the ranges can be
     // compared with 'operator<'.
 
-    // PUBLIC TYPES
-    typedef std::size_t  size_type;
+    // TYPES
+    typedef std::size_t size_type;
+//CW    // doc needed
 
     // CLASS METHODS
     template <typename INPUT_ITER>
@@ -351,11 +413,13 @@ struct RangeCompare {
                       INPUT_ITER start2);
         // Compare each element in the range starting at the specified 'start1'
         // and ending immediately before the specified 'end1' with the
+//CW                                               see below  ^^^^^^^^
         // corresponding element in the range of the same length starting at
         // the specified 'start2', as if using 'operator==' element by element.
         // Return 'true' if every pair of corresponding elements compares
         // equal, and 'false' otherwise.  Note that this implementation uses
         // 'operator==' to perform the comparisons, or bitwise comparison if
+//CW                                 v                    ^-
         // the value type has the bit-wise equality comparable trait.
 
     template <typename INPUT_ITER>
@@ -368,9 +432,11 @@ struct RangeCompare {
                       INPUT_ITER start2, INPUT_ITER end2, size_type length2);
         // Compare each element in the range starting at the specified 'start1'
         // and ending immediately before the specified 'end1', to the
+//CW Why ", to the" here and "with the" above?               ^^^^^^^^
         // corresponding element in the range starting at 'start2' and ending
         // immediately before the specified 'end2', provided both elements
         // exist, as if by using 'operator==' element by element.  Optionally
+//CW "provided both elements exist"??
         // specify both the length of each range, 'length1' and 'length2'.
         // Return 'true' if the ranges have the same length and every element
         // in the first range compares equal with the corresponding element in
@@ -390,20 +456,24 @@ struct RangeCompare {
                                INPUT_ITER end2);
     template <typename INPUT_ITER>
     static int lexicographical(INPUT_ITER start1,
-                                INPUT_ITER end1,
+                               INPUT_ITER end1,
                                size_type  length1,
                                INPUT_ITER start2,
                                INPUT_ITER end2,
                                size_type  length2);
         // Compare each element in the range starting at the specified 'start1'
         // and ending immediately before the specified 'end1', to the
+//CW Why ", to the" here and "with the" above?               ^^^^^^^^
         // corresponding element in the range starting at the specified
         // 'start2' and ending immediately before the specified 'end2'.
         // Optionally specify both the length of each range, 'length1' and
         // 'length2'.  Return a negative value if the first range compares
         // lexicographically less than the second range, 0 if they are the same
         // length and compare equal, and a positive value if the first range
+//CW                         ^ lexicographically
         // compares larger.  The behavior is undefined unless 'length1' is
+//CW       ^^^^^^^^^^^^^^^?
+//CW compares lexicographically greater than the second range
         // either unspecified or equals the length of the range
         // '[start1, end1)', and 'length2' is either unspecified or equals the
         // length of the range '[start2, end2)'.  Note that this implementation
@@ -425,17 +495,17 @@ struct RangeCompare_Imp {
 
     // CLASS METHODS
     template <typename VALUE_TYPE>
-    static bool equal(const VALUE_TYPE   *start1,
-                      const VALUE_TYPE   *end1,
-                      const VALUE_TYPE   *start2,
-                      const VALUE_TYPE   *end2,
+    static bool equal(const VALUE_TYPE  *start1,
+                      const VALUE_TYPE  *end1,
+                      const VALUE_TYPE  *start2,
+                      const VALUE_TYPE  *end2,
                       const VALUE_TYPE&,
                       bslmf::MetaInt<1>);
     template <typename INPUT_ITER, typename VALUE_TYPE>
-    static bool equal(INPUT_ITER          start1,
-                      INPUT_ITER          end1,
-                      INPUT_ITER          start2,
-                      INPUT_ITER          end2,
+    static bool equal(INPUT_ITER         start1,
+                      INPUT_ITER         end1,
+                      INPUT_ITER         start2,
+                      INPUT_ITER         end2,
                       const VALUE_TYPE&,
                       bslmf::MetaInt<0>);
     template <typename INPUT_ITER, typename VALUE_TYPE>
@@ -465,10 +535,10 @@ struct RangeCompare_Imp {
                       const VALUE_TYPE&,
                       bslmf::AnyType);
     template <typename INPUT_ITER, typename VALUE_TYPE>
-    static bool equal(INPUT_ITER start1,
-                      INPUT_ITER end1,
-                      INPUT_ITER start2,
-                      const      VALUE_TYPE&);
+    static bool equal(INPUT_ITER        start1,
+                      INPUT_ITER        end1,
+                      INPUT_ITER        start2,
+                      const VALUE_TYPE&);
         // Compare the range starting at the specified 'start1' and ending
         // immediately before the specified 'end1' with the range starting at
         // the specified 'start2' of the same length (namely, 'end1 - start1'),
@@ -478,9 +548,9 @@ struct RangeCompare_Imp {
         // also ignored.
 
     template <typename VALUE_TYPE>
-    static bool equalBitwiseEqualityComparable(const VALUE_TYPE   *start1,
-                                               const VALUE_TYPE   *end1,
-                                               const VALUE_TYPE   *start2,
+    static bool equalBitwiseEqualityComparable(const VALUE_TYPE  *start1,
+                                               const VALUE_TYPE  *end1,
+                                               const VALUE_TYPE  *start2,
                                                bslmf::MetaInt<1>);
         // Compare the range starting at the specified 'start1' and ending
         // immediately before the specified 'end1' with the range starting at
@@ -491,9 +561,9 @@ struct RangeCompare_Imp {
         // otherwise.
 
     template <typename INPUT_ITER>
-    static bool equalBitwiseEqualityComparable(INPUT_ITER          start1,
-                                               INPUT_ITER          end1,
-                                               INPUT_ITER          start2,
+    static bool equalBitwiseEqualityComparable(INPUT_ITER        start1,
+                                               INPUT_ITER        end1,
+                                               INPUT_ITER        start2,
                                                bslmf::MetaInt<0>);
         // Compare the range starting at the specified 'start1' and ending
         // immediately before the specified 'end1' with the range starting at
@@ -504,10 +574,10 @@ struct RangeCompare_Imp {
         // element in the second range, and 'false' otherwise.
 
     template <typename VALUE_TYPE>
-    static int lexicographical(const VALUE_TYPE   *start1,
-                               const VALUE_TYPE   *end1,
-                               const VALUE_TYPE   *start2,
-                               const VALUE_TYPE   *end2,
+    static int lexicographical(const VALUE_TYPE  *start1,
+                               const VALUE_TYPE  *end1,
+                               const VALUE_TYPE  *start2,
+                               const VALUE_TYPE  *end2,
                                const VALUE_TYPE&,
                                bslmf::MetaInt<1>);
         // Compare the range starting at the specified 'start1' and ending
@@ -520,10 +590,10 @@ struct RangeCompare_Imp {
         // compares larger.
 
     template <typename INPUT_ITER, typename VALUE_TYPE>
-    static int lexicographical(INPUT_ITER          start1,
-                               INPUT_ITER          end1,
-                               INPUT_ITER          start2,
-                               INPUT_ITER          end2,
+    static int lexicographical(INPUT_ITER        start1,
+                               INPUT_ITER        end1,
+                               INPUT_ITER        start2,
+                               INPUT_ITER        end2,
                                const VALUE_TYPE&,
                                bslmf::MetaInt<0>);
         // Compare each element in the range starting at the specified 'start1'
@@ -537,11 +607,11 @@ struct RangeCompare_Imp {
         // larger.
 
     template <typename INPUT_ITER, typename VALUE_TYPE>
-    static int lexicographical(INPUT_ITER start1,
-                               INPUT_ITER end1,
-                               INPUT_ITER start2,
-                               INPUT_ITER end2,
-                               const      VALUE_TYPE&);
+    static int lexicographical(INPUT_ITER        start1,
+                               INPUT_ITER        end1,
+                               INPUT_ITER        start2,
+                               INPUT_ITER        end2,
+                               const VALUE_TYPE&);
         // Compare the range starting at the specified 'start1' and ending
         // immediately before the specified 'end1' with the range starting at
         // the specified 'start2' and ending immediately before the specified
@@ -560,6 +630,8 @@ struct RangeCompare_Imp {
         // the specified 'start2' of the same length (namely, 'end1 - start1'),
         // using a bit-wise comparison across the entire range, if 'const
         // char' is unsigned, and using 'operator<' otherwise.  Return a
+//CW Ticking should not span across two lines.  'char' is sufficient, in any
+//CW   case (no need to say 'const char').
         // negative value if the first range compares lexicographically less
         // than the second range, 0 if they compare equal, and a positive value
         // if the first range compares larger.
@@ -567,9 +639,9 @@ struct RangeCompare_Imp {
     static int lexicographical(const unsigned char *start1,
                                const unsigned char *end1,
                                const unsigned char *start2);
-    static int lexicographical(const wchar_t *start1,
-                               const wchar_t *end1,
-                               const wchar_t *start2);
+    static int lexicographical(const wchar_t       *start1,
+                               const wchar_t       *end1,
+                               const wchar_t       *start2);
         // Compare the range starting at the specified 'start1' and ending
         // immediately before the specified 'end1' with the range starting at
         // the specified 'start2' of the same length (namely, 'end1 - start1'),
@@ -579,14 +651,14 @@ struct RangeCompare_Imp {
         // if the first range compares larger.
 
     template <typename INPUT_ITER>
-    static int lexicographical(INPUT_ITER           start1,
-                               INPUT_ITER           end1,
-                               INPUT_ITER           start2,
+    static int lexicographical(INPUT_ITER     start1,
+                               INPUT_ITER     end1,
+                               INPUT_ITER     start2,
                                bslmf::AnyType);
     template <typename INPUT_ITER>
-    static int lexicographical(INPUT_ITER start1,
-                               INPUT_ITER end1,
-                               INPUT_ITER start2);
+    static int lexicographical(INPUT_ITER     start1,
+                               INPUT_ITER     end1,
+                               INPUT_ITER     start2);
         // Compare each element in the range starting at the specified 'start1'
         // and ending immediately before the specified 'end1' with the
         // corresponding element in the range of the same length starting at
@@ -672,9 +744,13 @@ int RangeCompare::lexicographical(INPUT_ITER start1,
                                   INPUT_ITER end2,
                                   size_type  length2)
 {
-    int result = (length2 < length1)
-            ? - RangeCompare_Imp::lexicographical(start2, end2, start1)
-            :   RangeCompare_Imp::lexicographical(start1, end1, start2);
+    const int result = length2 < length1
+                       ? - RangeCompare_Imp::lexicographical(start2,
+                                                             end2,
+                                                             start1)
+                       :   RangeCompare_Imp::lexicographical(start1,
+                                                             end1,
+                                                             start2);
 
     if (result < 0) {
         return -1;                                                    // RETURN
@@ -725,11 +801,11 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              bslmf::MetaInt<0>)
 {
     for ( ; start1 != end1 && start2 != end2; ++start1, ++start2) {
-        if (! (*start1 == *start2)) {
+        if (!(*start1 == *start2)) {
             return false;                                             // RETURN
         }
     }
-    return (start1 == end1) && (start2 == end2);
+    return start1 == end1 && start2 == end2;
 }
 
 template <typename INPUT_ITER, typename VALUE_TYPE>
@@ -739,8 +815,9 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        end2,
                              const VALUE_TYPE& value)
 {
-    typedef typename bslmf::IsConvertible<INPUT_ITER, const VALUE_TYPE*>::Type
+    typedef typename bslmf::IsConvertible<INPUT_ITER, const VALUE_TYPE *>::Type
                                                       CanUseLengthOptimization;
+
     return equal(start1,
                  end1,
                  start2,
@@ -763,8 +840,9 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
     // 'CanUseBitwiseCopyOptimization' is necessary to remove further
     // ambiguities on SunPro).
 
-    typedef typename bslmf::IsConvertible<INPUT_ITER, const VALUE_TYPE*>::Type
+    typedef typename bslmf::IsConvertible<INPUT_ITER, const VALUE_TYPE *>::Type
                                               CanUseBitwiseCompareOptimization;
+
     return equalBitwiseEqualityComparable(start1,
                                           end1,
                                           start2,
@@ -772,14 +850,14 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
 }
 
 template <typename INPUT_ITER, typename VALUE_TYPE>
-bool RangeCompare_Imp::equal(INPUT_ITER         start1,
-                             INPUT_ITER         end1,
-                             INPUT_ITER         start2,
+bool RangeCompare_Imp::equal(INPUT_ITER        start1,
+                             INPUT_ITER        end1,
+                             INPUT_ITER        start2,
                              const VALUE_TYPE&,
                              bslmf::AnyType)
 {
     for ( ; start1 != end1; ++start1, ++start2) {
-        if (! (*start1 == *start2)) {
+        if (!(*start1 == *start2)) {
             return false;                                             // RETURN
         }
     }
@@ -794,7 +872,8 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              const VALUE_TYPE& value)
 {
     typedef typename SelectTrait<VALUE_TYPE,
-                        TypeTraitBitwiseEqualityComparable>::Type Trait;
+                               TypeTraitBitwiseEqualityComparable>::Type Trait;
+
     return equal(start1, end1, start2, value, Trait());
 }
 
@@ -803,12 +882,13 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
 template <typename VALUE_TYPE>
 inline
 bool RangeCompare_Imp::equalBitwiseEqualityComparable(
-                                                    const VALUE_TYPE   *start1,
-                                                    const VALUE_TYPE   *end1,
-                                                    const VALUE_TYPE   *start2,
-                                                    bslmf::MetaInt<1>)
+                                                     const VALUE_TYPE  *start1,
+                                                     const VALUE_TYPE  *end1,
+                                                     const VALUE_TYPE  *start2,
+                                                     bslmf::MetaInt<1>)
 {
     std::size_t numBytes = (const char *)end1 - (const char *)start1;
+//CW s/std::size_t/size_type/  (but why even declare a 'numBytes' local?)
     return 0 == std::memcmp((const void *)start1,
                             (const void *)start2,
                             numBytes);
@@ -816,11 +896,10 @@ bool RangeCompare_Imp::equalBitwiseEqualityComparable(
 
 template <typename INPUT_ITER>
 inline
-bool RangeCompare_Imp::equalBitwiseEqualityComparable(
-                                                   INPUT_ITER           start1,
-                                                   INPUT_ITER           end1,
-                                                   INPUT_ITER           start2,
-                                                   bslmf::MetaInt<0>)
+bool RangeCompare_Imp::equalBitwiseEqualityComparable(INPUT_ITER        start1,
+                                                      INPUT_ITER        end1,
+                                                      INPUT_ITER        start2,
+                                                      bslmf::MetaInt<0>)
 {
     // We can't be as optimized as above.
 
@@ -831,10 +910,10 @@ bool RangeCompare_Imp::equalBitwiseEqualityComparable(
 
 template <typename VALUE_TYPE>
 inline
-int RangeCompare_Imp::lexicographical(const VALUE_TYPE   *start1,
-                                      const VALUE_TYPE   *end1,
-                                      const VALUE_TYPE   *start2,
-                                      const VALUE_TYPE   *end2,
+int RangeCompare_Imp::lexicographical(const VALUE_TYPE  *start1,
+                                      const VALUE_TYPE  *end1,
+                                      const VALUE_TYPE  *start2,
+                                      const VALUE_TYPE  *end2,
                                       const VALUE_TYPE&,
                                       bslmf::MetaInt<1>)
 {
@@ -882,8 +961,9 @@ int RangeCompare_Imp::lexicographical(INPUT_ITER        start1,
                                       INPUT_ITER        end2,
                                       const VALUE_TYPE& value)
 {
-    typedef typename bslmf::IsConvertible<INPUT_ITER, const VALUE_TYPE*>::Type
+    typedef typename bslmf::IsConvertible<INPUT_ITER, const VALUE_TYPE *>::Type
                                                       CanUseLengthOptimization;
+
     return lexicographical(start1, end1, start2, end2, value,
                            CanUseLengthOptimization());
 }
@@ -893,18 +973,19 @@ int RangeCompare_Imp::lexicographical(const unsigned char *start1,
                                       const unsigned char *end1,
                                       const unsigned char *start2)
 {
-    return std::memcmp(start1, start2, (end1 - start1));
+    return std::memcmp(start1, start2, end1 - start1);
 }
 
+TBD
 inline
 int RangeCompare_Imp::lexicographical(const char *start1,
                                       const char *end1,
                                       const char *start2)
 {
-#if (CHAR_MAX == SCHAR_MAX)
+#if CHAR_MAX == SCHAR_MAX
     return std::memcmp(start1, start2, (end1 - start1));
 #else
-    return lexicographical<const char*>(start1, end1, start2, 0);
+    return lexicographical<const char *>(start1, end1, start2, 0);
 #endif
 }
 
@@ -913,7 +994,7 @@ int RangeCompare_Imp::lexicographical(const wchar_t *start1,
                                       const wchar_t *end1,
                                       const wchar_t *start2)
 {
-    return std::wmemcmp(start1, start2, (end1 - start1));
+    return std::wmemcmp(start1, start2, end1 - start1);
 }
 
 template <typename INPUT_ITER>
@@ -956,7 +1037,7 @@ typedef bslalg::RangeCompare bslalg_RangeCompare;
 
 }  // close enterprise namespace
 
-#endif // ! defined(INCLUDED_BSLALG_RANGECOMPARE)
+#endif
 
 // ---------------------------------------------------------------------------
 // NOTICE:
