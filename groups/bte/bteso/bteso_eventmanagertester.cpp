@@ -1768,8 +1768,8 @@ bteso_EventManagerTestPair::bteso_EventManagerTestPair(int verboseFlag)
 #endif
 
     if (d_verboseFlag) {
-        bsl::printf("T%d: socketPair (%d, %d): %d\n",
-                    bcemt_ThreadUtil::selfIdAsUint64(), d_fds[0], d_fds[1], rc);
+        bsl::printf("T%llu: socketPair (%d, %d): %d\n",
+                   bcemt_ThreadUtil::selfIdAsUint64(), d_fds[0], d_fds[1], rc);
     }
     if (0 != rc ) {
         d_validFlag = -1;
@@ -1778,13 +1778,13 @@ bteso_EventManagerTestPair::bteso_EventManagerTestPair(int verboseFlag)
         bteso_IoUtil::BlockingMode option = bteso_IoUtil::BTESO_NONBLOCKING;
         rc |= bteso_IoUtil::setBlockingMode(d_fds[0], option);
         if (d_verboseFlag) {
-            bsl::printf("T%d: setBlockingMode (%d): %d\n",
+            bsl::printf("T%llu: setBlockingMode (%d): %d\n",
                         bcemt_ThreadUtil::selfIdAsUint64(), d_fds[0], rc);
         }
 
         rc |= bteso_IoUtil::setBlockingMode(d_fds[1], option);
         if (d_verboseFlag) {
-            bsl::printf("T%d: setBlockingMode (%d): %d\n",
+            bsl::printf("T%llu: setBlockingMode (%d): %d\n",
                         bcemt_ThreadUtil::selfIdAsUint64(), d_fds[1], rc);
         }
 #if !BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR
@@ -1792,7 +1792,7 @@ bteso_EventManagerTestPair::bteso_EventManagerTestPair(int verboseFlag)
                       bteso_SocketOptUtil::BTESO_TCPLEVEL,
                       bteso_SocketOptUtil::BTESO_TCPNODELAY, 1);
         if (d_verboseFlag) {
-            bsl::printf("T%d: setOption (TCPNODELAY) (%d): %d\n",
+            bsl::printf("T%llu: setOption (TCPNODELAY) (%d): %d\n",
                         bcemt_ThreadUtil::selfIdAsUint64(), d_fds[0], rc);
         }
 
@@ -1800,20 +1800,20 @@ bteso_EventManagerTestPair::bteso_EventManagerTestPair(int verboseFlag)
                       bteso_SocketOptUtil::BTESO_TCPLEVEL,
                       bteso_SocketOptUtil::BTESO_TCPNODELAY, 1);
         if (d_verboseFlag) {
-            bsl::printf("T%d: setOption (TCPNODELAY) (%d): %d\n",
+            bsl::printf("T%llu: setOption (TCPNODELAY) (%d): %d\n",
                         bcemt_ThreadUtil::selfIdAsUint64(), d_fds[1], rc);
         }
 #endif
 
         if (rc) {
             if (d_verboseFlag) {
-                bsl::printf("T%d: Closing %d\n", 
+                bsl::printf("T%llu: Closing %d\n", 
 			    bcemt_ThreadUtil::selfIdAsUint64(),
                             d_fds[1]);
                 bteso_SocketImpUtil::close(d_fds[1]);
             }
             if (d_verboseFlag) {
-                bsl::printf("T%d: Closing %d\n", 
+                bsl::printf("T%llu: Closing %d\n", 
 			    bcemt_ThreadUtil::selfIdAsUint64(),
                             d_fds[0]);
                 bteso_SocketImpUtil::close(d_fds[0]);
@@ -1829,12 +1829,12 @@ bteso_EventManagerTestPair::bteso_EventManagerTestPair(int verboseFlag)
 bteso_EventManagerTestPair::~bteso_EventManagerTestPair()
 {
     if (d_verboseFlag) {
-        bsl::printf("T%d: Closing %d\n", bcemt_ThreadUtil::selfIdAsUint64(),
+        bsl::printf("T%llu: Closing %d\n", bcemt_ThreadUtil::selfIdAsUint64(),
                     d_fds[1]);
         bteso_SocketImpUtil::close(d_fds[1]);
     }
     if (d_verboseFlag) {
-        bsl::printf("T%d: Closing %d\n", bcemt_ThreadUtil::selfIdAsUint64(),
+        bsl::printf("T%llu: Closing %d\n", bcemt_ThreadUtil::selfIdAsUint64(),
                     d_fds[0]);
         bteso_SocketImpUtil::close(d_fds[0]);
     }
