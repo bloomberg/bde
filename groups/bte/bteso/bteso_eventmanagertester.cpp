@@ -1808,13 +1808,13 @@ bteso_EventManagerTestPair::bteso_EventManagerTestPair(int verboseFlag)
         if (rc) {
             if (d_verboseFlag) {
                 bsl::printf("T%llu: Closing %d\n", 
-			    bcemt_ThreadUtil::selfIdAsUint64(),
+                            bcemt_ThreadUtil::selfIdAsUint64(),
                             d_fds[1]);
                 bteso_SocketImpUtil::close(d_fds[1]);
             }
             if (d_verboseFlag) {
                 bsl::printf("T%llu: Closing %d\n", 
-			    bcemt_ThreadUtil::selfIdAsUint64(),
+                            bcemt_ThreadUtil::selfIdAsUint64(),
                             d_fds[0]);
                 bteso_SocketImpUtil::close(d_fds[0]);
             }
