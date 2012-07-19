@@ -91,13 +91,13 @@ void printValue(unsigned long long val)
 inline
 void printValue(float val)
 {
-    printf("'%g'", (double)val);
+    printf("%f", (double)val);
 }
 
 inline
 void printValue(double val)
 {
-    printf("'%g'", val);
+    printf("%g", val);
 }
 
 inline
@@ -107,7 +107,7 @@ void printValue(long double val)
     // the format string below, while requiring lower case 'l' characters in
     // the format strings for integer values above.
 
-    printf("'%Lg'", val);
+    printf("%Lg", val);
 }
 
 inline
