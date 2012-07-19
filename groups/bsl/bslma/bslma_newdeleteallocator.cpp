@@ -52,8 +52,15 @@ initSingleton(bslma_NewDeleteAllocator_Singleton *address)
     bslma_NewDeleteAllocator_Singleton stackTemp;
     void *v = new(stackTemp.buffer()) bslma::NewDeleteAllocator();
 
-    // Note that 'bsls::ObjectBuffer<T>' assignment is a bit-wise copy.
-    *address = stackTemp;
+    // Note that 'bsls::ObjectBuffer<T>' copy-assignment is a bit-wise copy.
+    // Also, it's imperative to use 'v' here instead of the 'stackTemp' object
+    // itself even though they point to the same object in memory, because that
+    // creates a data dependency between the construction of the
+    // 'NewDeleteAllocator' and this copy-assignment.  Without this dependency
+    // the construction of the 'NewDeleteAllocator' can be reordered past the
+    // copy-assignment or optimized out (as observed for Solaris optimized
+    // builds)
+    *address = *(static_cast<bslma_NewDeleteAllocator_Singleton *>(v));
     return &address->object();
 }
 

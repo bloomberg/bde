@@ -63,8 +63,15 @@ bslma::MallocFreeAllocator *initSingleton(
     bslma_MallocFreeAllocator_Singleton stackTemp;
     void *v = new(stackTemp.buffer()) bslma::MallocFreeAllocator();
 
-    // Note that 'bsls::ObjectBuffer<T>' assignment is a bit-wise copy.
-    *p = stackTemp;
+    // Note that 'bsls::ObjectBuffer<T>' copy-assignment is a bit-wise copy.
+    // Also, it's imperative to use 'v' here instead of the 'stackTemp' object
+    // itself even though they point to the same object in memory, because that
+    // creates a data dependency between the construction of the
+    // 'MallocFreeAllocator' and this copy-assignment.  Without this dependency
+    // the construction of the 'MallocFreeAllocator' can be reordered past the
+    // copy-assignment or optimized out (as observed for Solaris optimized
+    // builds)
+    *p = *(static_cast<bslma_MallocFreeAllocator_Singleton *>(v));
     return &p->object();
 }
 
