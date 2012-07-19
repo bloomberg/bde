@@ -670,7 +670,7 @@ struct bsls_Platform_Assert;
 
                          // Detect Supported Platform
 
-#if !defined(BDE_DISABLE_MINIMUM_COMPILER_VERSION_CHECK)
+#if !defined(BDE_DISABLE_COMPILER_VERSION_CHECK)
 
 #if defined(BSLS_PLATFORM__CMP_CLANG)
     // No minimum supported compiler version has been identified yet.
