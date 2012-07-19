@@ -948,6 +948,7 @@ int main(int argc, char *argv[])
             rc = socket->write(data, strlen(data));
             ASSERT(!rc);
 
+            
             AsyncChannel::BlobBasedReadCallback cb2 =
                 bdef_BindUtil::bindA(&ta,
                                      &readCb,
