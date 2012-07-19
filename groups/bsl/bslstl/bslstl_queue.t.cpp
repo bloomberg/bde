@@ -385,6 +385,7 @@ struct ExceptionGuard {
     }
 };
 
+
 //=============================================================================
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
@@ -2716,6 +2717,115 @@ void TestDriver<VALUE, CONTAINER>::testCase1(const VALUE  *testValues,
     ASSERT(  X4 == X4 );          ASSERT(!(X4 != X4));
 }
 
+
+// ============================================================================
+//                                  USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+namespace UsageExample {
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Messages Queue
+///- - - - - - - - - - - - -
+// In this example, we will use the 'bsl::queue' container adapter to implement
+// a message processor in a server program that receives and displays messages
+// from clients.
+//
+// Suppose we want to write a server program that has two threads: one thread
+// (receiving thread) receives messages from clients, passing them to a message
+// processor; the other thread (processing thread) runs the message processor,
+// printing the messages to console in the same order as they were received.
+// To accomplish this task, we can use 'bsl::queue' in the message processor to
+// buffer received, but as yet unprinted messages.  The message processor
+// pushes newly received messages onto the queue in the receiving thread, and
+// pops them off the queue in the processing thread.
+//
+// First, we define a 'Message' type:
+//..
+struct Message {
+    int         d_msgId;  // message identifier given by client
+    const char *d_msg_p;  // message content (null terminated byte string,
+                          // not owned)
+};
+//..
+// Then, we define the class 'MessageProcessor', which provides methods to
+// receive and process messages:
+//..
+class MessageProcessor {
+    // This class receives and processes messages from clients.
+//..
+// Here, we define a private data member of 'bsl::queue<Message>' type, which
+// is an instantiation of 'bsl::queue' that uses 'Message' for its 'VALUE'
+// (template parameter) type and (by default) 'bsl::deque<Message>' for its
+// 'CONTAINER' (template parameter) type:
+//..
+    // DATA
+    bsl::queue<Message> d_msgQueue;  // queue holding received but
+                                     // unprocessed messages
+    // ...
+
+  public:
+    // CREATORS
+    explicit MessageProcessor(bslma::Allocator *basicAllocator = 0);
+        // Create a message processor object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+        // 0, the currently installed default allocator is used.
+
+    // MANIPULATORS
+    void receiveMessage(const Message &message);
+        // Enqueue the specified 'message' for processing.
+
+    void processMessages();
+        // Deque and print all messages currently in the processor.
+};
+//..
+// Next, we implement the 'MessageProcessor' constructor:
+//..
+MessageProcessor::MessageProcessor(bslma::Allocator *basicAllocator)
+: d_msgQueue(basicAllocator)
+{
+}
+//..
+// Notice that we pass to the contained 'd_msgQueue' object the
+// 'bslma::Allocator' supplied to the 'MessageProcessor' at construction.
+//
+// Now, we implement the 'receiveMessage' method, which pushes the given
+// message onto the queue object:
+//..
+void MessageProcessor::receiveMessage(const Message &message)
+{
+    // ... (some synchronization)
+
+    d_msgQueue.push(message);
+
+    // ...
+}
+//..
+// Finally, we implement the 'processMessages' method, which pops all messages
+// off the queue object:
+//..
+void MessageProcessor::processMessages()
+{
+    // ... (some synchronization)
+
+    while (!d_msgQueue.empty()) {
+        const Message& message = d_msgQueue.front();
+        printf("Msg %d: %s\n", message.d_msgId, message.d_msg_p);
+        d_msgQueue.pop();
+    }
+
+    // ...
+}
+//..
+// Notice that the sequence of messages popped out will be in exactly the same
+// order in which they are pushed, due to the first-in-first-out property of
+// the queue.
+
+}  // close namespace UsageExample
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -2746,20 +2856,32 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        const int intArray[] = {0, -2, INT_MAX, INT_MIN, -1, 1, 2};
-        const int numInt     = sizeof(intArray) / sizeof(*intArray);
+        if (verbose) printf("\nTesting Usage Example"
+                            "\n=====================\n");
 
-        bsl::queue<int> intQueue;
-        for (int i = 0; i < numInt; ++i) {
-            intQueue.push(intArray[i]);
-            ASSERT(intArray[i] == intQueue.back());
-        }
+        using namespace UsageExample;
 
-        for (int i = 0; !intQueue.empty(); ++i) {
-            ASSERT(intArray[i] == intQueue.front());
-            intQueue.pop();
+        const int TOTAL_MSGS = 20;
+        const int PROCESS_TIME[] = {1, 4, 9, 13, 19,};
+        const int numProcess = sizeof(PROCESS_TIME) / sizeof(PROCESS_TIME[0]);
+
+        int              k = 0;
+        char             buffer[256];
+        Message          msg;
+        MessageProcessor msgProcessor(&ta);
+
+        for (int i = 0;i < TOTAL_MSGS; ++i) {
+            sprintf(buffer, "This is message %d", i);
+            msg.d_msgId = i;
+            msg.d_msg_p = buffer;
+            msgProcessor.receiveMessage(msg);
+
+            if (k < numProcess && i == PROCESS_TIME[k]) {
+                msgProcessor.processMessages();
+                ++k;
+            }
+            msgProcessor.processMessages();
         }
-        ASSERT(intQueue.empty());
       } break;
       case 15: {
         // --------------------------------------------------------------------

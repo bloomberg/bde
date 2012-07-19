@@ -72,48 +72,101 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Pushing and Popping from a Queue
-///- - - - - - - - - - - - - - - - - - - - - -
-// In this example, we will define an array of integer, push them into a queue,
-// and then pop them out.  The parameterized type 'VALUE' is 'int' in this
-// example and the container to be adapted is 'bsl::deque<int>' type.
+///Example 1: Messages Queue
+///- - - - - - - - - - - - -
+// In this example, we will use the 'bsl::queue' container adapter to implement
+// a message processor in a server program that receives and displays messages
+// from clients.
 //
-// First, we define an array of integers:
+// Suppose we want to write a server program that has two threads: one thread
+// (receiving thread) receives messages from clients, passing them to a message
+// processor; the other thread (processing thread) runs the message processor,
+// printing the messages to the console in the same order as they were
+// received.  To accomplish this task, we can use 'bsl::queue' in the message
+// processor to buffer received, but as yet unprinted, messages.  The message
+// processor pushes newly received messages onto the queue in the receiving
+// thread, and pops them off the queue in the processing thread.
+//
+// First, we define a 'Message' type:
 //..
-//  const int intArray[] = {0, -2, INT_MAX, INT_MIN, -1, 1, 2};
-//  const int numInt     = sizeof(intArray) / sizeof(*intArray);
+//  struct Message {
+//      int         d_msgId;  // message identifier given by client
+//      const char *d_msg_p;  // message content (C-style string, not owned)
+//  };
 //..
-// Then, we create a 'bsl::queue' object to adapt the 'bsl::deque<int>' type,
-// using the default constructor of 'queue':
+// Then, we define the class 'MessageProcessor', which provides methods to
+// receive and process messages:
 //..
-//  bsl::queue<int> intQueue;
+//  class MessageProcessor {
+//      // This class receives and processes messages from clients.
 //..
-// Now, using a 'for' loop, we push the integers from the previously defined
-// array into the queue:
+// Here, we define a private data member of 'bsl::queue<Message>' type, which
+// is an instantiation of 'bsl::queue' that uses 'Message' for its 'VALUE'
+// (template parameter) type and (by default) 'bsl::deque<Message>' for its
+// 'CONTAINER' (template parameter) type:
 //..
-//  for (int i = 0; i < numInt; ++i) {
-//      intQueue.push(intArray[i]);
-//      assert(intArray[i] == intQueue.back());
+//      // DATA
+//      bsl::queue<Message> d_msgQueue;  // queue holding received but
+//                                       // unprocessed messages
+//      // ...
+//
+//    public:
+//      // CREATORS
+//      explicit MessageProcessor(bslma::Allocator *basicAllocator = 0);
+//          // Create a message processor object.  Optionally specify a
+//          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+//          // 0, the currently installed default allocator is used.
+//
+//      // MANIPULATORS
+//      void receiveMessage(const Message &message);
+//          // Enqueue the specified 'message' onto this message processor.
+//
+//      void processMessages();
+//          // Dequeue and print all messages currently contained by this
+//          // processor.
+//  };
+//..
+// Next, we implement the 'MessageProcessor' constructor:
+//..
+//  MessageProcessor::MessageProcessor(bslma::Allocator *basicAllocator)
+//  : d_msgQueue(basicAllocator)
+//  {
 //  }
 //..
-// Notice that every time a new integer is pushed into the queue, the integer
-// becomes the back element of the queue.  This is verified by invoking the
-// 'back' accessor.
+// Notice that we pass to the contained 'd_msgQueue' object the
+// 'bslma::Allocator*' supplied to the 'MessageProcessor' at construction.
 //
-// Finally, using a second 'for' loop, we pop integers from the queue one by
-// one:
+// Now, we implement the 'receiveMessage' method, which pushes the given
+// message onto the queue object:
 //..
-//  for (int i = 0; !intQueue.empty(); ++i) {
-//      assert(intArray[i] == intQueue.front());
-//      intQueue.pop();
+//  void MessageProcessor::receiveMessage(const Message &message)
+//  {
+//      // ... (some synchronization)
+//
+//      d_msgQueue.push(message);
+//
+//      // ...
 //  }
-//  assert(intQueue.empty());
 //..
-// Notice that every time an integer is popped out from the queue, the front
-// element of the queue becomes the previously next pushed integer.  This is
-// verified by invoking the 'front' accessor.  The sequence of integers popped
-// out is in the exact same order as they were pushed in, according to the
-// first-in-first-out property of the queue.
+// Finally, we implement the 'processMessages' method, which pops all messages
+// off the queue object:
+//..
+//  void MessageProcessor::processMessages()
+//  {
+//      // ... (some synchronization)
+//
+//      while (!d_msgQueue.empty()) {
+//          const Message& message = d_msgQueue.front();
+//          printf("Msg %d: %s\n", message.d_msgId, message.d_msg_p);
+//          d_msgQueue.pop();
+//      }
+//
+//      // ...
+//  }
+//..
+// Note that the sequence of messages popped from the queue will be in exactly
+// the same order in which they were pushed, due to the first-in-first-out
+// property of the queue.
 
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>

@@ -2493,9 +2493,9 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase1(
     ASSERT(testValues[maxIndex] == X4.top  ());
 }
 
-//=============================================================================
-//                                USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                  USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
 namespace UsageExample {
 
@@ -2503,64 +2503,224 @@ namespace UsageExample {
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Pushing and Popping Tasks from a Priority Queue
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we will define an element class 'Task', push a group of
-// 'Task' objects into a priority queue, and then pop them out according to
-// their priorities.  The parameterized type 'VALUE' is 'Task' in this example;
-// the parameterized type 'CONTAINER' to be adapted is 'bsl::vector<Task>'; the
-// parameterized type 'COMPARATOR' is a user-defined functor 'TaskComparator'.
+///Example 1: Task Scheduler
+///- - - - - - - - - - - - -
+// In this example, we will use the 'bsl::priority_queue' class to implement a
+// task scheduler that schedules a group of tasks based on their designated
+// priorities.
 //
-// First, we define a 'Task' class:
+// Suppose we want to write a background process that runs tasks needed by
+// foreground applications.  This background process has two threads: one
+// thread (receiving thread) receives tasks from other applications, passing
+// them to a task scheduler; the other thread (processing thread) runs the task
+// scheduler, executing the tasks one-by-one from higher to lower priorities.
+// To accomplish this job, we can use a 'bsl::priority_queue' object in the
+// task scheduler to buffer received, but as yet unprocessed tasks.  The task
+// scheduler pushes newly received tasks onto the priority queue in the
+// receiving thread, and pops tasks off the the priority queue for execution
+// according to their priorities in the processing thread.
+//
+// First, we define a 'Task' protocol:
 //..
-    class Task
-    {
-      private:
-        // DATA
-        int d_priority;  // priority of the task
-
-      public:
-        // CREATORS
-        explicit Task(int priority);
-            // Construct a 'Task' object having the specified 'priority'.
-
-        // ACCESSORS
-        int priority() const;
-    };
-
+class Task
+    // This class provides a protocol for executing tasks.
+{
+  public:
     // CREATORS
-    Task::Task(int priority)
-    : d_priority(priority)
+    virtual ~Task()
+        // Destroy this task.
+    {
+    }
+
+    // MANIPULATORS
+    virtual void execute() = 0;
+        // Run this task.
+};
+//..
+// Notice that a concrete task class derived from 'Task' protocol should
+// override 'exeucte' method to provide its own execution logics.
+//
+// Then, we define a 'TaskElement' class, each object of which contains a
+// task object and an associated task priority:
+//..
+class TaskElement
+    // This class associates a 'Task' object with an integer priority.
+{
+  private:
+    // DATA
+    Task *d_task;      // task object
+    int   d_priority;  // priority of the task
+
+  public:
+    // CREATORS
+    TaskElement(Task *task, int priority)
+        // Construct a 'TaskElement' object containing the specified
+        // 'task', having the specified 'priority'.
+    : d_task(task)
+    , d_priority(priority)
     {
     }
 
     // ACCESSORS
-    int Task::priority() const
+    int getPriority() const
+        // Return the priority of the contained task.
     {
         return d_priority;
     }
-//..
-// Then, we define a comparison functor for 'Task' objects:
-//..
-    struct TaskComparator {
-        // This 'struct' defines an ordering on 'Task' objects,
-        // allowing them to be included in sorted data structures such as
-        // 'bsl::priority_queue'.
 
-        bool operator()(const Task& lhs, const Task& rhs) const
-            // Return 'true' if the priority of the specified task 'lhs' is
-            // less than the priority of the specified 'rhs', and 'false'
-            // otherwise.  Notice that the smaller the value returned by the
-            // 'Task::priority' method, the higher the priority.
-        {
-            return lhs.priority() > rhs.priority();
-        }
-    };
+    Task* getTask() const
+        // Return the contained task object.
+    {
+        return d_task;
+    }
+};
 //..
-// Notice that we can not use the default 'std::less' as comparator here due to
-// two reasons: the 'Task' class does not explicitly define how two 'Task'
-// objects are compared; and the smaller the value returned by
-// 'Task::priority()', the higher the priority the task has.
+// Next, we define a functor to compare priorities of two 'TaskElement' objects
+//..
+struct TaskComparator {
+    // This 'struct' defines an ordering on 'TaskElement' objects,
+    // allowing them to be included in sorted data structures such as
+    // 'bsl::priority_queue'.
+
+    bool operator()(const TaskElement& lhs, const TaskElement& rhs) const
+        // Return 'true' if the priority of the specified 'lhs' is higher
+        // than that of the specified 'rhs', and 'false' otherwise.  Note
+        // that the smaller the value returned by the
+        // 'TaskElement::getPriority' method, the higher the priority is.
+    {
+        return lhs.getPriority() > rhs.getPriority();
+    }
+};
+//..
+// Then, we declare a 'TaskScheduler' class that provide methods to hold and
+// schedule unprocessed tasks:
+//..
+class TaskScheduler {
+    // This class holds and schedules tasks to execute.
+//..
+// Here, we define a private data member of
+// 'bsl::priority_queue<TaskElement, bsl::vector<TaskElement>, TaskComparator>'
+// type, which is an instantiation of 'bsl::priority_queue' that uses
+// 'TaskElement' for its 'VALUE' (template parameter) type, (by default)
+// 'bsl::vector<TestElement>' for its 'CONTAINER' (template parameter) type,
+// and 'TaskComparator' for its 'COMPARATOR' (template parameter) type:
+//..
+    // DATA
+    bsl::priority_queue<TaskElement,
+                        bsl::vector<TaskElement>,
+                        TaskComparator>
+                d_taskPrQueue;  // priority queue holding unprocessed tasks
+
+    // ...
+
+  public:
+    // CREATORS
+    TaskScheduler(bslma::Allocator *basicAllocator = 0);
+        // Create a task scheduler object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+        // 0, the currently installed default allocator is used.
+
+    // MANIPULATORS
+    void addTask(Task *task, int priority);
+        // Enqueue the specified 'task' having the specified 'priority' for
+        // scheduling.
+
+    void processTasks();
+        // Deque the task having the highest priority in the scheduler.
+};
+//..
+// Next, we implement the 'TaskScheduler' constructor:
+//..
+TaskScheduler::TaskScheduler(bslma::Allocator *basicAllocator)
+: d_taskPrQueue(basicAllocator)
+{
+}
+//..
+// Notice that we pass to the contained 'd_taskPrQueue' object the
+// 'bslma::Allocator' supplied to the 'TaskScheduler' at construction.
+//
+// Now, we implement the 'addTask' method, which constructs a 'TaskElement'
+// having the given task and priority, and pushes it onto the priority queue:
+//..
+void TaskScheduler::addTask(Task *task, int priority)
+{
+    // ... (some synchronization)
+
+    d_taskPrQueue.push(TaskElement(task, priority));
+
+    // ...
+}
+//..
+// Finally, we implement the 'processTasks' method, which pops tasks off the
+// priority queue from higher to lower priorities, and executes them:
+//..
+void TaskScheduler::processTasks()
+{
+    // ... (some synchronization)
+
+    while (!d_taskPrQueue.empty()) {
+        const TaskElement& taskElem = d_taskPrQueue.top();
+        taskElem.getTask()->execute();
+        d_taskPrQueue.pop();
+    }
+
+    // ...
+}
+//..
+// Note that the 'top' method always returns the task element having the
+// highest priority.
+
+class ConcreteTask1 : public Task {
+
+    // DATA
+    int d_id;
+
+  public:
+
+    // CREATORS
+    explicit ConcreteTask1(int id)
+    : d_id(id)
+    {
+    }
+
+    // MANIPULATORS
+    void execute()
+    {
+        printf("ConcreteTask1: id = %d\n", d_id);
+    }
+
+    // ACCESSORS
+    int getId() const
+    {
+        return d_id;
+    }
+};
+
+class ConcreteTask2 : public Task {
+
+    // DATA
+    int d_id;
+
+  public:
+
+    // CREATORS
+    explicit ConcreteTask2(int id)
+    : d_id(id)
+    {
+    }
+
+    // MANIPULATORS
+    void execute()
+    {
+        printf("ConcreteTask2: id = %d\n", d_id);
+    }
+
+    // ACCESSORS
+    int getId() const
+    {
+        return d_id;
+    }
+};
 
 }  // close namespace UsageExample
 
@@ -2591,7 +2751,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 14: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE
+        // TESTING USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Usage Example"
@@ -2599,26 +2759,33 @@ int main(int argc, char *argv[])
 
         using namespace UsageExample;
 
-        bsl::priority_queue<Task, vector<Task>, TaskComparator> taskPrQueue;
+        TaskScheduler taskScheduler(&ta);
 
-        taskPrQueue.push(Task(         1));
-        taskPrQueue.push(Task(     65535));
-        taskPrQueue.push(Task(       530));
-        taskPrQueue.push(Task(      -200));
-        taskPrQueue.push(Task(         0));
-        taskPrQueue.push(Task(   INT_MAX));
-        taskPrQueue.push(Task(     10005));
-        taskPrQueue.push(Task(      1366));
-        taskPrQueue.push(Task( 999999999));
-        taskPrQueue.push(Task(   INT_MIN));
-        taskPrQueue.push(Task(-123456789));
+        ConcreteTask1 task01(         1);
+        ConcreteTask2 task02(     65535);
+        ConcreteTask1 task03(       530);
+        ConcreteTask2 task04(      -200);
+        ConcreteTask1 task05(         0);
+        ConcreteTask2 task06(   INT_MAX);
+        ConcreteTask1 task07(     10005);
+        ConcreteTask2 task08(      1366);
+        ConcreteTask1 task09( 999999999);
+        ConcreteTask2 task10(   INT_MIN);
+        ConcreteTask1 task11(-123456789);
 
-        for (size_t i = 0; !taskPrQueue.empty(); ++i) {
-            if (veryVeryVerbose)
-                printf("    %d: %d\n", i, taskPrQueue.top().priority());
-            taskPrQueue.pop();
-        }
-        ASSERT(taskPrQueue.empty());
+        taskScheduler.addTask(&task01, task01.getId());
+        taskScheduler.addTask(&task02, task02.getId());
+        taskScheduler.addTask(&task03, task03.getId());
+        taskScheduler.addTask(&task04, task04.getId());
+        taskScheduler.addTask(&task05, task05.getId());
+        taskScheduler.processTasks();
+        taskScheduler.addTask(&task06, task06.getId());
+        taskScheduler.addTask(&task07, task07.getId());
+        taskScheduler.addTask(&task08, task08.getId());
+        taskScheduler.addTask(&task09, task09.getId());
+        taskScheduler.addTask(&task10, task10.getId());
+        taskScheduler.addTask(&task11, task11.getId());
+        taskScheduler.processTasks();
       } break;
       case 13: {
         // --------------------------------------------------------------------
