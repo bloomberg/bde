@@ -65,7 +65,7 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-typedef bsls_PlatformUtil bdes_PlatformUtil;
+typedef bsls::PlatformUtil bdes_PlatformUtil;
     // Provide a namespace for the interface to a suite of encapsulated,
     // platform-dependent types and operations.
 
@@ -79,16 +79,6 @@ typedef bsls_PlatformUtil bdes_PlatformUtil;
 #define BDES_PLATFORMUTIL__IS_BIG_ENDIAN    BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
 #endif
 
-
-#ifdef BSLS_PLATFORMUTIL__NO_LONG_HEADER_NAMES
-#define BDES_PLATFORMUTIL__NO_LONG_HEADER_NAMES \
-                                        BSLS_PLATFORMUTIL__NO_LONG_HEADER_NAMES
-#endif
-
-#ifdef BSLS_PLATFORMUTIL__NO_64_BIT_CONSTANTS
-#define BDES_PLATFORMUTIL__NO_64_BIT_CONSTANTS \
-                                         BSLS_PLATFORMUTIL__NO_64_BIT_CONSTANTS
-#endif
 
 #ifndef BDES_PLATFORMUTIL__HTONL
 #define BDES_PLATFORMUTIL__HTONL(X)         BSLS_BYTEORDER_HTONL(X)
