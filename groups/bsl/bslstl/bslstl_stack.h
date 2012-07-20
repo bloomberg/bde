@@ -22,8 +22,8 @@ BSLS_IDENT("$Id: $")
 // provides a stack interface which the user accesses primarily through 'push',
 // 'pop', and 'top' operations.  A 'deque' (the default), 'vector', or 'list'
 // may be used, but any container which supports 'push_back', 'pop_back',
-// 'back', 'size', and 'get_allocator', plus a template specialization
-// 'uses_allocator::type', may be used.
+// 'back', and 'size', plus a template specialization 'uses_allocator::type',
+// may be used.
 //
 ///Requirements of Parametrized 'CONTAINER' Type
 ///---------------------------------------------
@@ -35,15 +35,12 @@ BSLS_IDENT("$Id: $")
 //:   o reference
 //:   o const_reference
 //:   o size_type
-//:   o allocator_type
 //: o It must support the following methods, depending on what method of
 //:   'stack' are used:
-//:   o constructors being used must take a parameter of type 'allocator_type'
 //:   o void push_back(const value_type&)
 //:   o void pop_back()
 //:   o value_type& back()
 //:   o size_type size()
-//:   o allocator_type get_allocator()
 //:   o '==', '!=', '<', '>', '<=', '>='
 //:   o 'operator='
 //:   o std::swap(CONTAINER&, CONTAINER&)
@@ -58,9 +55,11 @@ BSLS_IDENT("$Id: $")
 ///Memory Allocation
 ///-----------------
 // No memory allocator template arg is directly supplied to this class, the
-// allocator type used is the allocator specified for the container class, and
-// its type is available as 'CONTAINER::allocator_type'.  The value of the
-// allocator used is available as 'stack.get_allocator()'.
+// allocator type used is the allocator specified for the container class.
+// Some functions of this template only exist if type
+// 'CONTAINER::allocator_type' exists, and if it does exist it is assumed to be
+// the allocator type used by 'CONTAINER', and that 'CONTAINER' supports
+// constructors of this type.
 //
 ///'bslma'-Style Allocators
 ///------------------------
@@ -137,8 +136,6 @@ BSLS_IDENT("$Id: $")
 //  |                                                    | deque or vector    |
 //  +----------------------------------------------------+--------------------+
 //  | s.empty()                                          | O(1)               |
-//  +----------------------------------------------------+--------------------+
-//  | get_allocator()                                    | O(1)               |
 //  +----------------------------------------------------+--------------------+
 //..
 //
@@ -249,6 +246,14 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ENABLEIF
+#include <bslmf_enableif.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
+#include <bslmf_isconvertible.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_DEQUE
 #include <bslstl_deque.h>
 #endif
@@ -274,7 +279,6 @@ class stack {
     typedef typename CONTAINER::const_reference const_reference;
     typedef typename CONTAINER::size_type       size_type;
     typedef          CONTAINER                  container_type;
-    typedef typename CONTAINER::allocator_type  allocator_type;
 
   private:
     // PRIVATE DATA
@@ -288,8 +292,9 @@ class stack {
 
   public:
     // TRAITS
-    typedef BloombergLP::bslalg_PassthroughTraitBslmaAllocator<
-                                                         allocator_type> Trait;
+    typedef typename BloombergLP::bslalg::PassthroughTrait<
+                 container_type,
+                 BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::Type Trait;
     BSLALG_DECLARE_NESTED_TRAITS(stack, Trait);
 
   private:
@@ -309,8 +314,15 @@ class stack {
 
   public:
     // CREATORS
-    explicit
-    stack(const allocator_type& allocator = allocator_type());
+    stack();
+
+    template <class ALLOCATOR>
+    explicit stack(const ALLOCATOR& allocator,
+                   typename BloombergLP::bslmf::EnableIf<
+                       BloombergLP::bslmf::IsConvertible<
+                           ALLOCATOR,
+                           typename CONTAINER::allocator_type>::VALUE>
+                       ::type * = 0);
         // Construct an empty stack.  If 'allocator' is not supplied, a
         // default-constructed object of the parameter-derived 'allocator_type'
         // type is used.  If the template parameter 'CONTAINER::allocator_type'
@@ -321,8 +333,16 @@ class stack {
         // installed bslma default allocator will be used to supply memory.
 
     explicit
-    stack(const CONTAINER&      container,
-          const allocator_type& allocator = allocator_type());
+    stack(const CONTAINER& container);
+
+    template <class ALLOCATOR>
+    stack(const CONTAINER& container,
+          const ALLOCATOR& allocator,
+          typename BloombergLP::bslmf::EnableIf<
+              BloombergLP::bslmf::IsConvertible<
+                  ALLOCATOR,
+                  typename CONTAINER::allocator_type>::VALUE>
+              ::type * = 0);
         // Construct an stack out of a copy of the specified 'container'.  If
         // 'allocator' is not supplied, a default-constructed object of the
         // parameter-derived 'allocator_type' type is used.  If
@@ -335,8 +355,16 @@ class stack {
         // any, will populate the the created stack, with the element accessed
         // by 'container.back()' being the top of the stack.
 
-    stack(const stack&          original,
-          const allocator_type& allocator = allocator_type());
+    stack(const stack&     original);
+
+    template <class ALLOCATOR>
+    stack(const stack&     original,
+          const ALLOCATOR& allocator,
+          typename BloombergLP::bslmf::EnableIf<
+              BloombergLP::bslmf::IsConvertible<
+                  ALLOCATOR,
+                  typename CONTAINER::allocator_type>::VALUE>
+              ::type * = 0);
         // Construct a copy of the specified stack 'original', using the
         // specified 'allocator' to allocate memory.  If 'allocator' is not
         // supplied, a default-constructed object of the parameter-derived
@@ -349,25 +377,38 @@ class stack {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     explicit
-    stack(CONTAINER&&           container,
-          const allocator_type& allocator = allocator_type());
+    stack(CONTAINER&&                               container);
+
+    template <class ALLOCATOR>
+    stack(CONTAINER&&      container,
+          const ALLOCATOR& allocator,
+          typename BloombergLP::bslmf::EnableIf<
+              BloombergLP::bslmf::IsConvertible<
+                  ALLOCATOR,
+                  typename CONTAINER::allocator_type>::VALUE>
+              ::type * = 0);
         // TBD
 
     explicit
-    stack(stack&&               original,
-          const allocator_type& allocator = allocator_type());
+    stack(stack&&          original);
+
+        // TBD
+    stack(stack&&          original,
+          const ALLOCATOR& allocator,
+          typename BloombergLP::bslmf::EnableIf<
+              BloombergLP::bslmf::IsConvertible<
+                  ALLOCATOR,
+                  typename CONTAINER::allocator_type>::VALUE>
+              ::type * = 0);
         // TBD
 #endif
     // MANIPULATORS
     stack& operator=(const stack& rhs);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    stack& operator=(stack&& rhs);
-        // TBD
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
     template <class... Args>
     void emplace(Args&&... args);
         // TBD
-# endif
 #endif
 
     void pop();
@@ -393,9 +434,6 @@ class stack {
     bool empty() const;
         // Return 'true' if this stack contains no elements and 'false'
         // otherwise.
-
-    allocator_type get_allocator() const;
-        // Return the allocator used by this stack to supply memory.
 
     size_type size() const;
         // Return the number of elements contained in this stack.
@@ -466,7 +504,7 @@ template <class VALUE, class CONTAINER>
 void swap(stack<VALUE, CONTAINER>& lhs,
           stack<VALUE, CONTAINER>& rhs);
     // Swap the contents of 'lhs' and 'rhs'.  The behavior is undefined unless
-    // 'lhs.get_allocator() == rhs.get_allocator()'.
+    // 'lhs' and 'rhs' use the same allocator.
 
 //=============================================================================
 //                          INLINE FUNCTION DEFINITIONS
@@ -475,23 +513,67 @@ void swap(stack<VALUE, CONTAINER>& lhs,
 // CREATORS
 template <class VALUE, class CONTAINER>
 inline
-stack<VALUE, CONTAINER>::stack(const allocator_type& allocator)
+stack<VALUE, CONTAINER>::stack()
+: d_container()
+, c(d_container)
+{}
+
+template <class VALUE, class CONTAINER>
+template <class ALLOCATOR>
+inline
+stack<VALUE, CONTAINER>::stack(const ALLOCATOR& allocator,
+                               typename BloombergLP::bslmf::EnableIf<
+                                   BloombergLP::bslmf::IsConvertible<
+                                       ALLOCATOR,
+                                       typename CONTAINER::allocator_type>
+                                       ::VALUE>
+                                   ::type *)
 : d_container(allocator)
 , c(d_container)
 {}
 
 template <class VALUE, class CONTAINER>
 inline
-stack<VALUE, CONTAINER>::stack(const CONTAINER&      container,
-                               const allocator_type& allocator)
+stack<VALUE, CONTAINER>::stack(const CONTAINER& container)
+: d_container(container)
+, c(d_container)
+{}
+
+template <class VALUE, class CONTAINER>
+template <class ALLOCATOR>
+inline
+stack<VALUE, CONTAINER>::stack(
+                           const CONTAINER& container,
+                           const ALLOCATOR& allocator,
+                               typename BloombergLP::bslmf::EnableIf<
+                                   BloombergLP::bslmf::IsConvertible<
+                                       ALLOCATOR,
+                                       typename CONTAINER::allocator_type>
+                                       ::VALUE>
+                                   ::type *)
 : d_container(container, allocator)
 , c(d_container)
 {}
 
 template <class VALUE, class CONTAINER>
 inline
-stack<VALUE, CONTAINER>::stack(const stack&          original,
-                               const allocator_type& allocator)
+stack<VALUE, CONTAINER>::stack(const stack& original)
+: d_container(original.d_container)
+, c(d_container)
+{}
+
+template <class VALUE, class CONTAINER>
+template <class ALLOCATOR>
+inline
+stack<VALUE, CONTAINER>::stack(
+                           const stack&     original,
+                           const ALLOCATOR& allocator,
+                           typename BloombergLP::bslmf::EnableIf<
+                               BloombergLP::bslmf::IsConvertible<
+                                   ALLOCATOR,
+                                   typename CONTAINER::allocator_type>
+                                   ::VALUE>
+                               ::type *)
 : d_container(original.d_container, allocator)
 , c(d_container)
 {}
@@ -500,16 +582,46 @@ stack<VALUE, CONTAINER>::stack(const stack&          original,
 
 template <class VALUE, class CONTAINER>
 inline
-stack<VALUE, CONTAINER>::stack(CONTAINER&&           container,
-                               const allocator_type& allocator)
+stack<VALUE, CONTAINER>::stack(CONTAINER&&           container)
+: d_container(bsl::move(container))
+, c(d_container)
+{}
+
+template <class VALUE, class CONTAINER>
+template <class ALLOCATOR>
+inline
+stack<VALUE, CONTAINER>::stack(
+                           CONTAINER&&                               container,
+                           const ALLOCATOR& allocator,
+                           typename BloombergLP::bslmf::EnableIf<
+                               BloombergLP::bslmf::IsConvertible<
+                                   ALLOCATOR,
+                                   typename CONTAINER::allocator_type>
+                                   ::VALUE>
+                               ::type *)
 : d_container(bsl::move(container), allocator)
 , c(d_container)
 {}
 
 template <class VALUE, class CONTAINER>
 inline
-stack<VALUE, CONTAINER>::stack(stack&&               original,
-                               const allocator_type& allocator)
+stack<VALUE, CONTAINER>::stack(stack&&               original)
+: d_container(bsl::move(original.d_container))
+, c(d_container)
+{}
+
+template <class VALUE, class CONTAINER>
+template <class ALLOCATOR>
+inline
+stack<VALUE, CONTAINER>::stack(
+                           stack&&          original,
+                           const ALLOCATOR& allocator,
+                           typename BloombergLP::bslmf::EnableIf<
+                               BloombergLP::bslmf::IsConvertible<
+                                   ALLOCATOR,
+                                   typename CONTAINER::allocator_type>
+                                   ::VALUE>
+                               ::type *)
 : d_container(bsl::move(original.d_container), allocator)
 , c(d_container)
 {}
@@ -526,23 +638,9 @@ stack<VALUE, CONTAINER>& stack<VALUE, CONTAINER>::operator=(const stack& rhs)
     return *this;
 }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 
-template <class VALUE, class CONTAINER>
-inline
-stack& stack<VALUE, CONTAINER>::operator=(stack&& rhs)
-{
-    if (get_allocator() == rhs.get_allocator()) {
-        d_container = bsl::move(rhs.d_container);
-    }
-    else {
-        d_container = static_cast<const stack>(rhs);
-    }
-
-    return *this;
-}
-
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 template <class... Args>
 inline
 void emplace(Args&&... args)
@@ -552,7 +650,6 @@ void emplace(Args&&... args)
 
     d_container.emplace_back(std::forward<Args>(args)...);
 }
-# endif
 
 #endif
 
@@ -600,15 +697,7 @@ template <class VALUE, class CONTAINER>
 inline
 bool stack<VALUE, CONTAINER>::empty() const
 {
-    return d_container.empty();
-}
-
-template <class VALUE, class CONTAINER>
-inline
-typename CONTAINER::allocator_type stack<VALUE,
-                                         CONTAINER>::get_allocator() const
-{
-    return d_container.get_allocator();
+    return 0 == d_container.size();
 }
 
 template <class VALUE, class CONTAINER>
