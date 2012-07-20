@@ -45,14 +45,13 @@ using namespace bsl;
 // [ 3] static int roundUpToMaximalAlignment(int size);
 // [ 1] BDES_PLATFORMUTIL__IS_LITTLE_ENDIAN
 // [ 1] BDES_PLATFORMUTIL__IS_BIG_ENDIAN
-// [ 5] BDES_PLATFORMUTIL__NO_64_BIT_CONSTANTS
-// [ 8] BDES_PLATFORMUTIL__HTONS
-// [ 8] BDES_PLATFORMUTIL__HTONL
-// [ 8] BDES_PLATFORMUTIL__NTOHS
-// [ 8] BDES_PLATFORMUTIL__NTOHL
+// [ 7] BDES_PLATFORMUTIL__HTONS
+// [ 7] BDES_PLATFORMUTIL__HTONL
+// [ 7] BDES_PLATFORMUTIL__NTOHS
+// [ 7] BDES_PLATFORMUTIL__NTOHL
 //-----------------------------------------------------------------------------
-// [ 7] operator<<(ostream&, const bdes_PlatformUtil::Uint64&);
-// [ 6] operator<<(ostream&, const bdes_PlatformUtil::Int64&);
+// [ 6] operator<<(ostream&, const bdes_PlatformUtil::Uint64&);
+// [ 5] operator<<(ostream&, const bdes_PlatformUtil::Int64&);
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -200,7 +199,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING BDES_PLATFORMUTIL_{H,S}TOH{L,S}
         //
@@ -326,7 +325,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR FOR UNSIGNED INT64 TYPE:
         //   The output operator is fully tested in 'bdes_int64'.  The test is
@@ -376,7 +375,7 @@ int main(int argc, char *argv[])
             { L_,   0x7FFFFFFF,         "2147483647"           },
             { L_,   0x80000000,         "2147483648"           },
             { L_,   0xFFFFFFFF,         "4294967295"           },
-#if !defined(BDES_PLATFORMUTIL__NO_64_BIT_CONSTANTS)
+#if !defined(BSLS_PLATFORM__NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
             { L_,   0x8000000000000000, "9223372036854775808"  },
@@ -500,7 +499,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR FOR SIGNED INT64 TYPE:
         //   The output operator is fully tested in 'bdes_int64'.  The test is
@@ -549,7 +548,7 @@ int main(int argc, char *argv[])
             { L_,   0x7FFFFFFF,         "2147483647"           },
             { L_,   0x80000000,         "2147483648"           },
             { L_,   0xFFFFFFFF,         "4294967295"           },
-#if !defined(BDES_PLATFORMUTIL__NO_64_BIT_CONSTANTS)
+#if !defined(BSLS_PLATFORM__NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
             { L_,   0x8000000000000000, "-9223372036854775808" },
@@ -665,67 +664,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, 0 == memcmp(buf2, FMT, SZ));
             LOOP_ASSERT(LINE, 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
         }
-      } break;
-      case 5: {
-        // --------------------------------------------------------------------
-        // TESTING 64-BIT CONSTANTS:
-        //   Concerns:
-        //     Since the actual flag indicates the lack of support for
-        //     64-bit integer constants, the only way to test the flag is
-        //     for the compiler to fail.  Therefore the test will check for
-        //     the absence of the flag and attempt to assign 64-bit constants
-        //     to a variable, ensuring the compile-time macro for support of
-        //     64-bit integer constants agrees with the capability of the
-        //     compiler.
-        // Plan:
-        //   - Assign both signed and unsigned 64-bit integer constants
-        //     to variables of each type.
-        //   - Verify that the compiler does not truncate the assignment or
-        //     the constant by splitting the constant into 2 32-bit constants
-        //     and combining them using logical operations into another
-        //     64-bit value.
-        //   - Verify the constructed value is equal to the 64-bit value
-        //     directly assigned.
-        //   - Verify no truncation is occurring by logically masking
-        //     and shifting the 64-bit value with the 32-bit lo and hi words.
-        // Testing:
-        //   BDES_PLATFORMUTIL__NO_64_BIT_CONSTANT
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-            << "Testing 64-bit integer constant support." << endl
-            << "========================================" << endl;
-
-#if defined(BDES_PLATFORMUTIL__NO_64_BIT_CONSTANTS)
-        if (veryVerbose) cout << "No 64-bit integer constants." << endl;
-#else
-        if (veryVerbose) cout << "64-bit integer constants supported." << endl;
-        typedef bdes_PlatformUtil::Int64 T;
-        typedef bdes_PlatformUtil::Uint64 U;
-
-        T  i, iHi, iLo, iTest;
-        U u, uHi, uLo, uTest;
-
-        // the following lines should compile
-        i = 9223372036854775807;        // 0x7FFFFFFFFFFFFFFF
-        u = 9223372036854775809;        // 0x8000000000000001
-
-        ASSERT(i == 0x7FFFFFFFFFFFFFFF);
-        ASSERT(u == 0x8000000000000001);
-
-        // generate test values in 32-bit parts
-        iHi = 0x7FFFFFFF; iLo = 0xFFFFFFFF;
-        iTest = iHi << 32 | iLo;
-        ASSERT(i == iTest);
-        ASSERT((i & 0xFFFFFFFF) == iLo);
-        ASSERT(i >> 32 == iHi);
-
-        uHi = 0x80000000; uLo = 0x00000001;
-        uTest = uHi << 32 | uLo;
-        ASSERT(u == uTest);
-        ASSERT((u & 0x0FFFFFFFF) == uLo);
-        ASSERT(u >> 32 == uHi);
-#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
