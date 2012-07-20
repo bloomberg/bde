@@ -386,7 +386,8 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
     bcec_TimeQueue<bdef_Function<void (*)()> >
                                d_timerQueue;      // queue of registered timers
 
-    mutable ControlChannel    *d_controlChannel;  // channel for sending
+    mutable ControlChannel    *d_controlChannel_p;
+                                                  // channel for sending
                                                   // control bytes from
                                                   // external threads operating
                                                   // on this manager to unlock
@@ -405,7 +406,7 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
                                                   // socket events registered
                                                   // (excluding registered
                                                   // events of
-                                                  // 'd_controlChannel')
+                                                  // 'd_controlChannel_p')
 
     bslma_Allocator           *d_allocator_p;     // memory allocator (held,
                                                   // not owned)
@@ -424,7 +425,7 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
 
     void controlCb();
         // Internal callback method to process control information received
-        // on 'd_controlChannel.serverFd()'.
+        // on 'd_controlChannel_p.serverFd()'.
 
   public:
     // CREATORS
