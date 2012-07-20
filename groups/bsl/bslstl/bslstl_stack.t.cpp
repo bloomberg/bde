@@ -2886,9 +2886,6 @@ void TestDriver<CONTAINER>::testCase1_NoAlloc(int    *testValues,
     //   BREATHING TEST
     // ------------------------------------------------------------------------
 
-    bslma::TestAllocator defaultAllocator("defaultAllocator");
-    bslma::DefaultAllocatorGuard defaultGuard(&defaultAllocator);
-
     // Sanity check.
 
     ASSERTV(0 < numValues);
@@ -2903,7 +2900,6 @@ void TestDriver<CONTAINER>::testCase1_NoAlloc(int    *testValues,
         Obj x; const Obj& X = x;
         ASSERTV(0    == X.size());
         ASSERTV(true == X.empty());
-        ASSERTV(0    == defaultAllocator.numBytesInUse());
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2912,8 +2908,6 @@ void TestDriver<CONTAINER>::testCase1_NoAlloc(int    *testValues,
         printf("Test use of allocators.\n");
     }
     {
-        bslma::TestAllocatorMonitor defaultMonitor(&defaultAllocator);
-
         Obj o1; const Obj& O1 = o1;
 
         for (size_t i = 0; i < numValues; ++i) {
@@ -2940,8 +2934,6 @@ void TestDriver<CONTAINER>::testCase1_NoAlloc(int    *testValues,
         ASSERTV(0         == O1.size());
         ASSERTV(numValues == O2.size());
         ASSERTV(numValues == O3.size());
-
-        ASSERTV(! defaultMonitor.isTotalUp());
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2955,7 +2947,6 @@ void TestDriver<CONTAINER>::testCase1_NoAlloc(int    *testValues,
         // For each possible permutation of values, insert values, iterate over
         // the resulting container, find values, and then erase values.
 
-        bslma::TestAllocatorMonitor defaultMonitor(&defaultAllocator);
         Obj x; const Obj& X = x;
         for (size_t i = 0; i < numValues; ++i) {
             Obj y(X); const Obj& Y = y;
@@ -2987,7 +2978,6 @@ void TestDriver<CONTAINER>::testCase1_NoAlloc(int    *testValues,
         }
 
         ASSERTV(X.size() == 0);
-        ASSERTV(! defaultMonitor.isTotalUp());
     } while (native_std::next_permutation(testValues,
                                           testValues + numValues));
 
@@ -3655,9 +3645,9 @@ int main(int argc, char *argv[])
             TestDriver<bsl::deque<double> >::testCase1(INT_VALUES,
                                                        NUM_INT_VALUES);
 
-//          if (verbose) printf("NonAllocCont<int>:\n");
-//          TestDriver<NonAllocCont<int> >::testCase1_NoAlloc(INT_VALUES,
-//                                                            NUM_INT_VALUES);
+            if (verbose) printf("NonAllocCont<int>:\n");
+            TestDriver<NonAllocCont<int> >::testCase1_NoAlloc(INT_VALUES,
+                                                              NUM_INT_VALUES);
 
 #if 0
             // add once 'list' is in bslstl, add it
