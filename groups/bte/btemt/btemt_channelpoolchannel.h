@@ -319,7 +319,16 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
     virtual int write(const btemt_BlobMsg& blob,
                       int                  highWaterMark = INT_MAX);
         // Enqueue the specified 'blob' message to be written to this channel.
-        // Return zero on success, and a non-zero value otherwise.
+        // Optionally provide 'highWaterMark' to specify the maximum data size
+        // that can be enqueued.  If 'highWaterMark' is not specified then
+        // 'INT_MAX' is used.  Return 0 on success, and a non-zero value if
+        // there is a write failure or if the enqueued data size exceeds the
+        // high watermark.  Note that success does not imply that the data has
+        // been written or will be successfully written to the underlying
+        // stream used by this channel.  Also note that in addition to
+        // 'highWatermark' the enqueued portion must also be less than a high
+        // watermark value supplied at the construction of this channel for the
+        // write to succeed.
 
     virtual int write(const btemt_DataMsg&  data,
                       btemt_BlobMsg        *msg = 0);
@@ -327,9 +336,17 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
                       int                   highWaterMark,
                       btemt_BlobMsg        *msg = 0);
         // Enqueue the specified 'data' message to be written to this channel.
-        // If the optionally specified 'msg' is not zero, load in 'msg' the
-        // message converted to a 'btemt_BlobMsg'.  Return zero on success, and
-        // a non-zero value otherwise.
+        // Optionally provide 'highWaterMark' to specify the maximum data size
+        // that can be enqueued.  If 'highWaterMark' is not specified then
+        // 'INT_MAX' is used.  Return 0 on success, and a non-zero value if
+        // there is a write failure or if the enqueued data size exceeds the
+        // high watermark.  Note that success does not imply that the data has
+        // been written or will be successfully written to the underlying
+        // stream used by this channel.  Also note that in addition to
+        // 'highWatermark' the enqueued portion must also be less than a high
+        // watermark value supplied at the construction of this channel for the
+        // write to succeed.  Also note that the specified blob 'msg' is
+        // ignored.
 
     virtual int setSocketOption(int option, int level, int value);
         // Set the specified 'option' (of the specified 'level') socket option
