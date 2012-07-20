@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::RangeCompare: comparison algorithms for iterator ranges
 //
-//@SEE_ALSO: bslalg_typetraitbit-wiseequalitycomparable
+//@SEE_ALSO: bslalg_typetraitbitwiseequalitycomparable
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnimann)
 //
@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 //    character type.
 //
 // Note that a class having the 'bslalg::TypeTraitBitwiseEqualityComparable'
-// trait can be described as bit-wise-comparable and should meet the following
+// trait can be described as bit-wise comparable and should meet the following
 // criteria:
 //: o The values represented by two objects belonging to the class are the same
 //:   if and only if each of the data members in the class has the same value
@@ -66,7 +66,7 @@ BSLS_IDENT("$Id: $")
 // the 'bslstl' package, and we wish to define comparison operators for the
 // container.  If the container has an iterator that provides access to the
 // container's elements in a consistent order, and the elements themselves are
-// equality- comparable, we can implement the container's equality comparison
+// equality-comparable, we can implement the container's equality comparison
 // operators by pair-wise comparing each of the elements over the entire range
 // of elements in both containers.  Then the container can use the
 // 'bslalg::RangeCompare::equal' class method to equal-compare the container's
@@ -187,7 +187,7 @@ BSLS_IDENT("$Id: $")
 //                                                     lhs.d_length);
 //  }
 //..
-// Notice that 'MyString' is not bit-wise-comparable because the address values
+// Notice that 'MyString' is not bit-wise comparable because the address values
 // of the 'd_start_p' pointer data members in two 'MyString' objects will be
 // different, even if the string values of the two objects are the same.
 //
@@ -240,7 +240,7 @@ BSLS_IDENT("$Id: $")
 // Notice that the value of 'MyPoint' derives from the values of all of its
 // data members, and that no padding is required for alignment.  Furthermore,
 // 'MyPoint' has no virtual methods.  Therefore, 'MyPoint' objects are
-// bit-wise-comparable, and we can correctly declare the
+// bit-wise comparable, and we can correctly declare the
 // 'bslalg::TypeTraitBitwiseEqualityComparable' trait for the class, as shown
 // above under the public 'TRAITS' section.
 //
@@ -259,7 +259,7 @@ BSLS_IDENT("$Id: $")
 //  assert(c3 == c4);  // potentially optimized
 //..
 // Here, the call to 'bslalg::RangeCompare::equal' in 'operator==' may take
-// advantage of the fact that 'MyPoint' is bit-wise-comparable and perform the
+// advantage of the fact that 'MyPoint' is bit-wise comparable and perform the
 // comparison by directly bit-wise comparing the entire range of elements
 // contained in the 'MyContainer<MyPoint>' objects.  This comparison can
 // provide a significant performance boost over the comparison between two
@@ -270,7 +270,7 @@ BSLS_IDENT("$Id: $")
 // Finally, note that we can instantiate 'MyContainer' with 'int' or any other
 // primitive type as the 'VALUE_TYPE' and still benefit from the optimized
 // comparison operators, because primitive (i.e.: fundamental, enumerated, and
-// pointer) types are implicitly bit-wise-comparable:
+// pointer) types are implicitly bit-wise comparable:
 //..
 //  MyContainer<int> c5;
 //  MyContainer<int> c6;

@@ -409,8 +409,7 @@ class MyString {
 
   public:
     explicit MyString(const char* s, bslma::Allocator *basicAllocator = 0);
-    explicit MyString(const MyString& original,
-                      bslma::Allocator *basicAllocator = 0);
+    MyString(const MyString& original, bslma::Allocator *basicAllocator = 0);
     MyString& operator=(const MyString& rhs);
     ~MyString();
 
@@ -499,8 +498,7 @@ class MyPoint {
 
     // CREATORS
     MyPoint(int x, int y, bslma::Allocator *basicAllocator = 0);
-    explicit MyPoint(const MyPoint& original,
-                     bslma::Allocator *basicAllocator = 0);
+    MyPoint(const MyPoint& original, bslma::Allocator *basicAllocator = 0);
 
     // ...
 
