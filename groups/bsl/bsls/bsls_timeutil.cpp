@@ -5,6 +5,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_platform.h>     // BSLS_PLATFORM__OS_UNIX, etc.
+#include <bsls_atomicoperations.h>
 
 #if defined BSLS_PLATFORM__OS_UNIX
     #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
@@ -29,8 +30,8 @@ struct UnixTimerUtil {
 
   private:
     // CLASS DATA
-    static bsls::Types::Int64       s_ticksPerSecond;
-    static const bsls::Types::Int64 s_nsecsPerSecond;
+    static bsls::AtomicOperations::AtomicTypes::Int64 s_ticksPerSecond;
+    static const bsls::Types::Int64                   s_nsecsPerSecond;
 
   private:
     // PRIVATE CLASS METHODS
@@ -59,7 +60,8 @@ struct UnixTimerUtil {
         // otherwise
 };
 
-      bsls::Types::Int64 UnixTimerUtil::s_ticksPerSecond = -1;
+bsls::AtomicOperations::AtomicTypes::Int64
+                                        UnixTimerUtil::s_ticksPerSecond = {-1};
 const bsls::Types::Int64 UnixTimerUtil::s_nsecsPerSecond = 1000 * 1000 * 1000;
 
 inline
@@ -80,13 +82,12 @@ void UnixTimerUtil::systemProcessTimers(clock_t *systemTimer,
 inline
 void UnixTimerUtil::initialize()
 {
-    if (-1 == s_ticksPerSecond) {
-        s_ticksPerSecond = ::sysconf(_SC_CLK_TCK);
+    if (-1 == bsls::AtomicOperations::getInt64Relaxed(&s_ticksPerSecond)) {
+        long ticksPerSecond = ::sysconf(_SC_CLK_TCK);
 
-        if (-1 == s_ticksPerSecond) {
-            s_ticksPerSecond = CLOCKS_PER_SEC;  // use compile-time value if
-                                                // failed to get at run-time
-        }
+        bsls::AtomicOperations::setInt64Relaxed(
+                &s_ticksPerSecond,
+                ticksPerSecond != -1 ? ticksPerSecond : CLOCKS_PER_SEC);
     }
 }
 
@@ -98,8 +99,8 @@ bsls::Types::Int64 UnixTimerUtil::systemTimer()
     clock_t sTimer, dummy;
     systemProcessTimers(&sTimer, &dummy);
 
-    return static_cast<bsls::Types::Int64>(sTimer)
-                                         * s_nsecsPerSecond / s_ticksPerSecond;
+    return static_cast<bsls::Types::Int64>(sTimer) * s_nsecsPerSecond
+        / bsls::AtomicOperations::getInt64Relaxed(&s_ticksPerSecond);
 }
 
 inline
@@ -110,8 +111,8 @@ bsls::Types::Int64 UnixTimerUtil::userTimer()
     clock_t dummy, uTimer;
     systemProcessTimers(&dummy, &uTimer);
 
-    return static_cast<bsls::Types::Int64>(uTimer)
-                                         * s_nsecsPerSecond / s_ticksPerSecond;
+    return static_cast<bsls::Types::Int64>(uTimer) * s_nsecsPerSecond
+        / bsls::AtomicOperations::getInt64Relaxed(&s_ticksPerSecond);
 }
 
 inline
@@ -123,10 +124,12 @@ void UnixTimerUtil::processTimers(bsls::Types::Int64 *systemTimer,
     clock_t sTimer, uTimer;
     systemProcessTimers(&sTimer, &uTimer);
 
+    bsls::Types::Int64 ticksPerSecond
+        = bsls::AtomicOperations::getInt64Relaxed(&s_ticksPerSecond);
     *systemTimer = static_cast<bsls::Types::Int64>(sTimer)
-                                         * s_nsecsPerSecond / s_ticksPerSecond;
+                   * s_nsecsPerSecond / ticksPerSecond;
     *userTimer   = static_cast<bsls::Types::Int64>(uTimer)
-                                         * s_nsecsPerSecond / s_ticksPerSecond;
+                   * s_nsecsPerSecond / ticksPerSecond;
 }
 #endif
 
@@ -136,18 +139,20 @@ struct WindowsTimerUtil {
 
   private:
     // CLASS DATA
-    static bool              s_initRequired;
+    static bsls::AtomicOperations::AtomicTypes::Int   s_initRequired;
 
-    static bsls::Types::Int64 s_initialTime;    // initial time for the
+    static bsls::AtomicOperations::AtomicTypes::Int64 s_initialTime;
+                                                // initial time for the
                                                 // Windows hardware
                                                 // timer
 
-    static bsls::Types::Int64 s_timerFrequency; // frequency of the
+    static bsls::AtomicOperations::AtomicTypes::Int64 s_timerFrequency;
+                                                // frequency of the
                                                 // Windows hardware
                                                 // timer
 
-    static const bsls::Types::Int64
-                             s_nsecsPerUnit;    // size in nanoseconds
+    static const bsls::Types::Int64 s_nsecsPerUnit;
+                                                // size in nanoseconds
                                                 // of one time unit used
                                                 // by GetProcessTimes()
 
@@ -185,10 +190,13 @@ struct WindowsTimerUtil {
         // Windows hardware timer, if available, uses ::ftime otherwise.
 };
 
-bool                     WindowsTimerUtil::s_initRequired   = true;
-bsls::Types::Int64       WindowsTimerUtil::s_initialTime    = -1;
-bsls::Types::Int64       WindowsTimerUtil::s_timerFrequency = -1;
-const bsls::Types::Int64 WindowsTimerUtil::s_nsecsPerUnit   = 100;
+bsls::AtomicOperations::AtomicTypes::Int
+                                     WindowsTimerUtil::s_initRequired   = {1};
+bsls::AtomicOperations::AtomicTypes::Int64
+                                     WindowsTimerUtil::s_initialTime    = {-1};
+bsls::AtomicOperations::AtomicTypes::Int64
+                                     WindowsTimerUtil::s_timerFrequency = {-1};
+const bsls::Types::Int64             WindowsTimerUtil::s_nsecsPerUnit   = 100;
 
 inline
 void WindowsTimerUtil::systemProcessTimers(PULARGE_INTEGER systemTimer,
@@ -215,24 +223,18 @@ void WindowsTimerUtil::systemProcessTimers(PULARGE_INTEGER systemTimer,
 inline
 void WindowsTimerUtil::initialize()
 {
-    if (s_initRequired) {
+    if (bsls::AtomicOperations::getIntRelaxed(&s_initRequired)) {
+        bsls::AtomicOperations::setIntRelaxed(&s_initRequired, 0);
+
         LARGE_INTEGER t;
-        if (::QueryPerformanceCounter(&t)) {
-            s_initialTime = t.QuadPart;
-        }
-        else {
-            s_initialTime = 0;
-        }
+        bsls::AtomicOperations::setInt64Relaxed(
+                &s_initialTime,
+                ::QueryPerformanceCounter(&t) ? t.QuadPart : 0);
 
         LARGE_INTEGER f;
-        if (::QueryPerformanceFrequency(&f)) {
-            s_timerFrequency = f.QuadPart;
-        }
-        else {
-            s_timerFrequency = 0;
-        }
-
-        s_initRequired = false;
+        bsls::AtomicOperations::setInt64Relaxed(
+                &s_timerFrequency,
+                ::QueryPerformanceFrequency(&f) ? f.QuadPart : 0);
     }
 }
 
@@ -274,19 +276,22 @@ bsls::Types::Int64 WindowsTimerUtil::wallTimer()
 
     const bsls::Types::Int64 K = 1000;
     const bsls::Types::Int64 M = 1000000;
+    bsls::Types::Int64 initialTime
+        = bsls::AtomicOperations::getInt64Relaxed(&s_initialTime);
+    bsls::Types::Int64 timerFrequency
+        = bsls::AtomicOperations::getInt64Relaxed(&s_timerFrequency);
 
-    if (0 != s_initialTime) {
+    if (0 != initialTime) {
         LARGE_INTEGER t;
         ::QueryPerformanceCounter(&t);
-        return (((t.QuadPart - s_initialTime) * M) / s_timerFrequency) * K;
+        return (((t.QuadPart - initialTime) * M) / timerFrequency) * K;
     }
     else {
         timeb t;
         ::ftime(&t);
 
         bsls::Types::Int64 t0;
-        t0 =
-           (static_cast<bsls::Types::Int64>(t.time) * K + t.millitm) * M;
+        t0 = (static_cast<bsls::Types::Int64>(t.time) * K + t.millitm) * M;
 
         return t0;
     }
