@@ -8,10 +8,11 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
-#include <bslma_default.h>
 #include <bslma_allocator.h>
-#include <bslma_testallocator.h>
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_mallocfreeallocator.h>
+#include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
 #include <bslalg_rangecompare.h>
@@ -35,8 +36,6 @@ void invokeAdlSwap(TYPE& a, TYPE& b)
     // 'swap' method found by ADL (Argument Dependent Lookup).  The behavior
     // is undefined unless 'a' and 'b' were created with the same allocator.
 {
-    BSLS_ASSERT_OPT(a.get_allocator() == b.get_allocator());
-
     using namespace bsl;
     swap(a, b);
 }
@@ -71,7 +70,6 @@ using namespace bsl;
 //: o 'cbegin'
 //: o 'cend'
 //: o 'size'
-//: o 'get_allocator'
 //
 // This test plan follows the standard approach for components implementing
 // value-semantic containers.  We have chosen as *primary* *manipulators* the
@@ -92,7 +90,6 @@ using namespace bsl;
 // [ 7] set(const set& original, const A& allocator);
 // [ 2] ~set();
 // [ 9] set& operator=(const set& rhs);
-// [ 4] allocator_type get_allocator() const;
 //
 // iterators:
 // [14] iterator begin();
@@ -465,6 +462,83 @@ void dbg_print(const char* s, const T& val, const char* nl)
         containerArg<bsltf::EnumeratedTestType::Enum>
 
 template <class VALUE>
+struct NonAllocCont {
+    // PUBLIC TYPES
+    typedef VALUE        value_type;
+    typedef VALUE&       reference;
+    typedef const VALUE& const_reference;
+    typedef std::size_t  size_type;
+
+  private:
+    // DATA
+    bsl::vector<VALUE> d_vector;
+
+  public:
+    // CREATORS
+    NonAllocCont() : d_vector(&bslma::MallocFreeAllocator::singleton()) {}
+
+    ~NonAllocCont() {}
+
+    // MANIPULATORS
+    NonAllocCont& operator=(const NonAllocCont& other)
+    {
+        d_vector = other.d_vector;
+        return *this;
+    }
+
+    reference back() { return d_vector.back(); }
+
+    void pop_back() { d_vector.pop_back(); }
+
+    void push_back(const value_type& value) { d_vector.push_back(value); }
+
+    bsl::vector<value_type>& contents() { return d_vector; }
+
+    // ACCESSORS
+    bool operator==(const NonAllocCont& rhs) const
+    {
+        return d_vector == rhs.d_vector;
+    }
+
+    bool operator!=(const NonAllocCont& rhs) const
+    {
+        return !operator==(rhs);
+    }
+
+    bool operator<(const NonAllocCont& rhs) const
+    {
+        return d_vector < rhs.d_vector;
+    }
+
+    bool operator>=(const NonAllocCont& rhs) const
+    {
+        return !operator<(rhs);
+    }
+
+    bool operator>(const NonAllocCont& rhs) const
+    {
+        return d_vector > rhs.d_vector;
+    }
+
+    bool operator<=(const NonAllocCont& rhs) const
+    {
+        return !operator>(rhs);
+    }
+
+    const_reference back() const { return d_vector.back(); }
+
+    size_type size() const { return d_vector.size(); }
+};
+
+namespace std {
+    template <typename VALUE>
+    void swap(NonAllocCont<VALUE>& lhs, NonAllocCont<VALUE>& rhs)
+    {
+        lhs.contents().swap(rhs.contents());
+    }
+}
+
+template <class VALUE>
 struct ValueName {
   private:
     // NOT IMPLEMENTED
@@ -816,7 +890,7 @@ class TestDriver {
     typedef typename Obj::const_reference const_reference;
     typedef typename Obj::size_type       size_type;
     typedef CONTAINER                     container_type;
-    typedef typename Obj::allocator_type  allocator_type;
+
         // Shorthands
 
     typedef bsltf::TestValuesArray<value_type> TestValues;
@@ -916,7 +990,7 @@ class TestDriver {
         // Reserved for (<<) operator.
 
     static void testCase4();
-        // Test basic accessors ('size', 'get_allocator', and 'top').
+        // Test basic accessors ('size' and 'top').
 
     static void testCase3();
         // Test generator functions 'ggg', and 'gg'.
@@ -928,6 +1002,11 @@ class TestDriver {
                           size_t  numValues);
         // Breathing test.  This test *exercises* basic functionality but
         // *test* nothing.
+
+    static void testCase1_NoAlloc(int    *testValues,
+                                  size_t  numValues);
+        // Breathing test, except on a non-allocator container.  This test
+        // *exercises* basic functionality but *test* nothing.
 };
 
                                // --------------
@@ -1456,8 +1535,8 @@ void TestDriver<CONTAINER>::testCase9()
 
                     ASSERTV(LINE1, LINE2, ZZ == Z);
 
-                    ASSERTV(LINE1, LINE2, &oa == X.get_allocator());
-                    ASSERTV(LINE1, LINE2, &scratch == Z.get_allocator());
+//                  ASSERTV(LINE1, LINE2, &oa == X.get_allocator());
+//                  ASSERTV(LINE1, LINE2, &scratch == Z.get_allocator());
 
                     ASSERTV(LINE1, LINE2, sam.isInUseSame());
 
@@ -1494,7 +1573,7 @@ void TestDriver<CONTAINER>::testCase9()
                     ASSERTV(LINE1, mR == &X);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                ASSERTV(LINE1, &oa == Z.get_allocator());
+//              ASSERTV(LINE1, &oa == Z.get_allocator());
 
                 ASSERTV(LINE1, sam.isTotalSame());
                 ASSERTV(LINE1, oam.isTotalSame());
@@ -1703,7 +1782,7 @@ void TestDriver<CONTAINER>::testCase8()
             mW.swap(mW);
 
             ASSERTV(LINE1, XX == W);
-            ASSERTV(LINE1, &oa == W.get_allocator());
+//          ASSERTV(LINE1, &oa == W.get_allocator());
             ASSERTV(LINE1, oam.isTotalSame());
         }
 
@@ -1714,7 +1793,7 @@ void TestDriver<CONTAINER>::testCase8()
             swap(mW, mW);
 
             ASSERTV(LINE1, XX == W);
-            ASSERTV(LINE1, &oa == W.get_allocator());
+//          ASSERTV(LINE1, &oa == W.get_allocator());
             ASSERTV(LINE1, oam.isTotalSame());
         }
 
@@ -1735,8 +1814,8 @@ void TestDriver<CONTAINER>::testCase8()
 
                 ASSERTV(LINE1, LINE2, YY == X);
                 ASSERTV(LINE1, LINE2, XX == Y);
-                ASSERTV(LINE1, LINE2, &oa == X.get_allocator());
-                ASSERTV(LINE1, LINE2, &oa == Y.get_allocator());
+//              ASSERTV(LINE1, LINE2, &oa == X.get_allocator());
+//              ASSERTV(LINE1, LINE2, &oa == Y.get_allocator());
                 ASSERTV(LINE1, LINE2, oam.isTotalSame());
             }
 
@@ -1748,8 +1827,8 @@ void TestDriver<CONTAINER>::testCase8()
 
                 ASSERTV(LINE1, LINE2, XX == X);
                 ASSERTV(LINE1, LINE2, YY == Y);
-                ASSERTV(LINE1, LINE2, &oa == X.get_allocator());
-                ASSERTV(LINE1, LINE2, &oa == Y.get_allocator());
+//              ASSERTV(LINE1, LINE2, &oa == X.get_allocator());
+//              ASSERTV(LINE1, LINE2, &oa == Y.get_allocator());
                 ASSERTV(LINE1, LINE2, oam.isTotalSame());
             }
 
@@ -1776,8 +1855,8 @@ void TestDriver<CONTAINER>::testCase8()
 
                 ASSERTV(LINE1, LINE2, ZZ == X);
                 ASSERTV(LINE1, LINE2, XX == Z);
-                ASSERTV(LINE1, LINE2, &oa == X.get_allocator());
-                ASSERTV(LINE1, LINE2, &oaz == Z.get_allocator());
+//              ASSERTV(LINE1, LINE2, &oa == X.get_allocator());
+//              ASSERTV(LINE1, LINE2, &oaz == Z.get_allocator());
 
                 if (0 == X.size()) {
                     ASSERTV(LINE1, LINE2, emptyWillAlloc()||oam.isTotalSame());
@@ -1812,8 +1891,8 @@ void TestDriver<CONTAINER>::testCase8()
 
                 ASSERTV(LINE1, LINE2, XX == X);
                 ASSERTV(LINE1, LINE2, ZZ == Z);
-                ASSERTV(LINE1, LINE2, &oa == X.get_allocator());
-                ASSERTV(LINE1, LINE2, &oaz == Z.get_allocator());
+//              ASSERTV(LINE1, LINE2, &oa == X.get_allocator());
+//              ASSERTV(LINE1, LINE2, &oaz == Z.get_allocator());
 
                 if (0 == X.size()) {
                     ASSERTV(LINE1, LINE2, emptyWillAlloc()||oam.isTotalSame());
@@ -1969,8 +2048,8 @@ void TestDriver<CONTAINER>::testCase7()
 
                 ASSERTV(SPEC, W == Y0);
                 ASSERTV(SPEC, W == X);
-                ASSERTV(SPEC, Y0.get_allocator() ==
-                                           bslma::Default::defaultAllocator());
+//              ASSERTV(SPEC, Y0.get_allocator() ==
+//                                         bslma::Default::defaultAllocator());
 
                 delete pX;
                 ASSERTV(SPEC, W == Y0);
@@ -2011,7 +2090,7 @@ void TestDriver<CONTAINER>::testCase7()
                 ASSERTV(SPEC, Y11.size() == LENGTH + 1);
                 ASSERTV(SPEC, W != Y11);
                 ASSERTV(SPEC, X != Y11);
-                ASSERTV(SPEC, Y11.get_allocator() == X.get_allocator());
+//              ASSERTV(SPEC, Y11.get_allocator() == X.get_allocator());
             }
             {   // Exception checking.
 
@@ -2030,7 +2109,7 @@ void TestDriver<CONTAINER>::testCase7()
 
                     ASSERTV(SPEC, W == Y2);
                     ASSERTV(SPEC, W == X);
-                    ASSERTV(SPEC, Y2.get_allocator() == X.get_allocator());
+//                  ASSERTV(SPEC, Y2.get_allocator() == X.get_allocator());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
@@ -2209,7 +2288,6 @@ void TestDriver<CONTAINER>::testCase4()
     //   Ensure each basic accessor:
     //     - top
     //     - size
-    //     - get_allocator
     //   properly interprets object state.
     //
     // Concerns:
@@ -2234,7 +2312,6 @@ void TestDriver<CONTAINER>::testCase4()
     //   const_iterator cbegin();
     //   const_iterator cend();
     //   size_type size() const;
-    //   allocator_type get_allocator() const;
     // ------------------------------------------------------------------------
 
     const char *cont = ContainerName<container_type>::name();
@@ -2294,7 +2371,7 @@ void TestDriver<CONTAINER>::testCase4()
                 Obj& mX = 'a' == CONFIG
                           ? * new (fa) Obj()
                           : 'b' == CONFIG
-                            ? * new (fa) Obj(0)
+                            ? * new (fa) Obj((bslma::Allocator *) 0)
                             : 'c' == CONFIG
                               ? * new (fa) Obj(&sa1)
                               : * new (fa) Obj(&sa2);
@@ -2310,7 +2387,7 @@ void TestDriver<CONTAINER>::testCase4()
                 // --------------------------------------------------------
                 // Verify basic accessors
 
-                ASSERTV(LINE, SPEC, CONFIG, &oa == X.get_allocator());
+//              ASSERTV(LINE, SPEC, CONFIG, &oa == X.get_allocator());
                 ASSERTV(LINE, SPEC, CONFIG, LENGTH == (int)X.size());
                 if (LENGTH > 0) {
                     ASSERTV(LINE, SPEC, CONFIG, EXP[LENGTH - 1] == mX.top());
@@ -2633,7 +2710,7 @@ void TestDriver<CONTAINER>::testCase2()
                 objPtr = new (fa) Obj();
               } break;
               case 'b': {
-                objPtr = new (fa) Obj(0);
+                objPtr = new (fa) Obj((bslma::Allocator *) 0);
               } break;
               case 'c': {
                 objPtr = new (fa) Obj(&sa);
@@ -2648,7 +2725,7 @@ void TestDriver<CONTAINER>::testCase2()
 
             // Verify any attribute allocators are installed properly.
 
-            ASSERTV(LENGTH, CONFIG, &oa == X.get_allocator());
+//          ASSERTV(LENGTH, CONFIG, &oa == X.get_allocator());
 
             // Verify no allocation from the object/non-object allocators.
 
@@ -2713,7 +2790,7 @@ void TestDriver<CONTAINER>::testCase2()
                     copyPtr = new (fa) Obj(X);
                   } break;
                   case 'b': {
-                    copyPtr = new (fa) Obj(X, 0);
+                    copyPtr = new (fa) Obj(X, (bslma::Allocator *) 0);
                   } break;
                   case 'c': {
                     copyPtr = new (fa) Obj(X, &sa);
@@ -2753,7 +2830,7 @@ void TestDriver<CONTAINER>::testCase2()
                     cCopyPtr = new (fa) Obj(C);
                   } break;
                   case 'b': {
-                    cCopyPtr = new (fa) Obj(C, 0);
+                    cCopyPtr = new (fa) Obj(C, (bslma::Allocator *) 0);
                   } break;
                   case 'c': {
                     cCopyPtr = new (fa) Obj(C, &sa);
@@ -2786,6 +2863,198 @@ void TestDriver<CONTAINER>::testCase2()
             // Reclaim dynamically allocated object under test.
 
             fa.deleteObject(objPtr);
+        }
+    }
+}
+
+template <class CONTAINER>
+void TestDriver<CONTAINER>::testCase1_NoAlloc(int    *testValues,
+                                              size_t  numValues)
+{
+    // ------------------------------------------------------------------------
+    // BREATHING TEST
+    //   This case exercises (but does not fully test) basic functionality.
+    //
+    // Concerns:
+    //: 1 The class is sufficiently functional to enable comprehensive
+    //:   testing in subsequent test cases.
+    //
+    // Plan:
+    //: 1 Execute each method to verify functionality for simple case.
+    //
+    // Testing:
+    //   BREATHING TEST
+    // ------------------------------------------------------------------------
+
+    bslma::TestAllocator defaultAllocator("defaultAllocator");
+    bslma::DefaultAllocatorGuard defaultGuard(&defaultAllocator);
+
+    // Sanity check.
+
+    ASSERTV(0 < numValues);
+    ASSERTV(8 > numValues);
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    if (veryVerbose) {
+        printf("Default construct an empty set.\n");
+    }
+    {
+        Obj x; const Obj& X = x;
+        ASSERTV(0    == X.size());
+        ASSERTV(true == X.empty());
+        ASSERTV(0    == defaultAllocator.numBytesInUse());
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    if (veryVerbose) {
+        printf("Test use of allocators.\n");
+    }
+    {
+        bslma::TestAllocatorMonitor defaultMonitor(&defaultAllocator);
+
+        Obj o1; const Obj& O1 = o1;
+
+        for (size_t i = 0; i < numValues; ++i) {
+            o1.push(value_type(testValues[i]));
+        }
+        ASSERTV(numValues == O1.size());
+
+        Obj o2(O1); const Obj& O2 = o2;
+
+        ASSERTV(numValues == O1.size());
+        ASSERTV(numValues == O2.size());
+
+        Obj o3; const Obj& O3 = o3;
+
+        ASSERTV(numValues == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(0         == O3.size());
+
+        o1.swap(o3);
+        ASSERTV(0         == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(numValues == O3.size());
+
+        ASSERTV(0         == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(numValues == O3.size());
+
+        ASSERTV(! defaultMonitor.isTotalUp());
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    if (veryVerbose) {
+        printf("Test primary manipulators/accessors on every permutation.\n");
+    }
+
+    native_std::sort(testValues, testValues + numValues);
+    do {
+        // For each possible permutation of values, insert values, iterate over
+        // the resulting container, find values, and then erase values.
+
+        bslma::TestAllocatorMonitor defaultMonitor(&defaultAllocator);
+        Obj x; const Obj& X = x;
+        for (size_t i = 0; i < numValues; ++i) {
+            Obj y(X); const Obj& Y = y;
+            ASSERTV(X == Y);
+            ASSERTV(!(X != Y));
+
+            // Test 'insert'.
+            value_type value(testValues[i]);
+            x.push(value);
+            ASSERTV(testValues[i] == x.top());
+
+            // Test size, empty.
+            ASSERTV(i + 1 == X.size());
+            ASSERTV(false == X.empty());
+
+            ASSERTV(X != Y);
+            ASSERTV(!(X == Y));
+
+            y = x;
+            ASSERTV(X == Y);
+            ASSERTV(!(X != Y));
+        }
+
+        ASSERTV(X.size() == numValues);
+
+        for (int i = numValues - 1; i >= 0; --i) {
+            testValues[i] = X.top();
+            x.pop();
+        }
+
+        ASSERTV(X.size() == 0);
+        ASSERTV(! defaultMonitor.isTotalUp());
+    } while (native_std::next_permutation(testValues,
+                                          testValues + numValues));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    if (veryVerbose) {
+        printf("Test class comparison operators.\n");
+    }
+    {
+        // Iterate over possible selections of elements to add to two
+        // containers, 'X' and 'Y' then compare the results of the comparison
+        // operators to the comparison between two containers equivalent to
+        // the underlying containers in the stack objects.
+
+        for (size_t i = 0; i < numValues; ++i) {
+            for (size_t j = 0; j < numValues; ++j) {
+                for (size_t length = 0; length < numValues; ++length) {
+                    for (size_t m = 0; m < j; ++m) {
+                        Obj x; const Obj& X = x;
+                        Obj y; const Obj& Y = y;
+                        CONTAINER xx;
+                        const CONTAINER& XX = xx;
+                        CONTAINER yy;
+                        const CONTAINER& YY = yy;
+                        for (size_t k = 0; k < j; ++k) {
+                            int xIndex = (i + length) % numValues;
+                            int yIndex = (j + length) % numValues;
+
+                            x.push(      testValues[xIndex]);
+                            xx.push_back(testValues[xIndex]);
+
+                            if (k < m) {
+                                y.push(      testValues[yIndex]);
+                                yy.push_back(testValues[yIndex]);
+                            }
+                        }
+
+                        ASSERTV((X == Y) == (XX == YY));
+                        ASSERTV((X != Y) == (XX != YY));
+                        ASSERTV((X <  Y) == (XX <  YY));
+                        ASSERTV((X >  Y) == (XX >  YY));
+                        ASSERTV((X <= Y) == (XX <= YY));
+                        ASSERTV((X >= Y) == (XX >= YY));
+
+                        ASSERTV((X == Y) == !(X != Y));
+                        ASSERTV((X != Y) == !(X == Y));
+                        ASSERTV((X <  Y) == !(X >= Y));
+                        ASSERTV((X >  Y) == !(X <= Y));
+                        ASSERTV((X <= Y) == !(X >  Y));
+                        ASSERTV((X >= Y) == !(X <  Y));
+
+                        ASSERTV((Y == X) == (YY == XX));
+                        ASSERTV((Y != X) == (YY != XX));
+                        ASSERTV((Y <  X) == (YY <  XX));
+                        ASSERTV((Y >  X) == (YY >  XX));
+                        ASSERTV((Y <= X) == (YY <= XX));
+                        ASSERTV((Y >= X) == (YY >= XX));
+
+                        ASSERTV((Y == X) == !(Y != X));
+                        ASSERTV((Y != X) == !(Y == X));
+                        ASSERTV((Y <  X) == !(Y >= X));
+                        ASSERTV((Y >  X) == !(Y <= X));
+                        ASSERTV((Y <= X) == !(Y >  X));
+                        ASSERTV((Y >= X) == !(Y <  X));
+                    }
+                }
+            }
         }
     }
 }
@@ -2844,7 +3113,7 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
         bslma::TestAllocator objectAllocator2("objectAllocator2");
 
         Obj o1(&objectAllocator1); const Obj& O1 = o1;
-        ASSERTV(&objectAllocator1 == O1.get_allocator().mechanism());
+//      ASSERTV(&objectAllocator1 == O1.get_allocator().mechanism());
 
         for (size_t i = 0; i < numValues; ++i) {
             o1.push(value_type(testValues[i]));
@@ -2854,7 +3123,7 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
         ASSERTV(0 == objectAllocator2.numBytesInUse());
 
         Obj o2(O1, &objectAllocator2); const Obj& O2 = o2;
-        ASSERTV(&objectAllocator2 == O2.get_allocator().mechanism());
+//      ASSERTV(&objectAllocator2 == O2.get_allocator().mechanism());
 
         ASSERTV(numValues == O1.size());
         ASSERTV(numValues == O2.size());
@@ -2862,7 +3131,7 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
         ASSERTV(0 < objectAllocator2.numBytesInUse());
 
         Obj o3(&objectAllocator1); const Obj& O3 = o3;
-        ASSERTV(&objectAllocator1 == O3.get_allocator().mechanism());
+//      ASSERTV(&objectAllocator1 == O3.get_allocator().mechanism());
 
         bslma::TestAllocatorMonitor monitor1(&objectAllocator1);
 
@@ -2893,9 +3162,9 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
         ASSERTV(0 <  objectAllocator1.numBytesInUse());
         ASSERTV(0 <  objectAllocator2.numBytesInUse());
 
-        ASSERTV(&objectAllocator1 == O1.get_allocator().mechanism());
-        ASSERTV(&objectAllocator2 == O2.get_allocator().mechanism());
-        ASSERTV(&objectAllocator1 == O3.get_allocator().mechanism());
+//      ASSERTV(&objectAllocator1 == O1.get_allocator().mechanism());
+//      ASSERTV(&objectAllocator2 == O2.get_allocator().mechanism());
+//      ASSERTV(&objectAllocator1 == O3.get_allocator().mechanism());
 
         ASSERTV(! defaultMonitor.isTotalUp());
     }
@@ -3045,7 +3314,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -3122,6 +3391,38 @@ int main(int argc, char *argv[])
         ASSERT(tam.isTotalUp());
         ASSERT(dam.isTotalSame());
       } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING NON ALLOCATOR SUPPORTING TYPE
+        // --------------------------------------------------------------------
+
+        typedef stack<int, NonAllocCont<int> > IStack;
+
+        IStack mX;    const IStack& X = mX;
+
+        ASSERT(X.empty());
+
+        mX.push(3);
+        mX.push(4);
+        mX.push(5);
+
+        ASSERT(! X.empty());
+        ASSERT(3 == X.size());
+        ASSERT(5 == X.top());
+
+        IStack mY(X);   const IStack& Y = mY;
+
+        ASSERT(X == Y);         ASSERT(!(X != Y));
+        ASSERT(X <= Y);         ASSERT(!(X >  Y));
+        ASSERT(X >= Y);         ASSERT(!(X <  Y));
+
+        mY.pop();
+        mY.push(6);
+
+        ASSERT(X != Y);         ASSERT(!(X == Y));
+        ASSERT(X <  Y);         ASSERT(!(X >= Y));
+        ASSERT(X <= Y);         ASSERT(!(X >  Y));
+      } break;
       case 13: {
         // --------------------------------------------------------------------
         // TESTING CONTAINER OVERRIDE
@@ -3179,26 +3480,29 @@ int main(int argc, char *argv[])
 
         typedef bsltf::AllocTestType ATT;
 
-        typedef bsl::stack<ATT, deque< ATT, StlAlloc> > WeirdAllocDequeStack;
-        typedef bsl::stack<ATT, vector<ATT, StlAlloc> > WeirdAllocVectorStack;
+        typedef deque< ATT, StlAlloc> WeirdAllocDeque;
+        typedef vector<ATT, StlAlloc> WeirdAllocVector;
+
+        typedef bsl::stack<ATT, WeirdAllocDeque > WeirdAllocDequeStack;
+        typedef bsl::stack<ATT, WeirdAllocVector> WeirdAllocVectorStack;
 
         if (verbose) printf("deque ---------------------------------------\n");
-        BSLMF_ASSERT((0 == bslalg_HasTrait<deque< bsltf::AllocTestType,
-                                                  StlAlloc>,
+        BSLMF_ASSERT((0 == bslalg_HasTrait<
+                                  WeirdAllocDeque,
                                   bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-        BSLMF_ASSERT((0 == bslalg_HasTrait<WeirdAllocDequeStack,
+        BSLMF_ASSERT((0 == bslalg_HasTrait<
+                                  WeirdAllocDequeStack,
                                   bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-//      RUN_EACH_TYPE(TestDriver, testCase11,TEST_TYPES_REGULAR(deque));
-        RUN_EACH_TYPE(TestDriver, testCase11, deque<void *>);
+        RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES_REGULAR(deque));
 
         if (verbose) printf("vector --------------------------------------\n");
-        BSLMF_ASSERT((0 == bslalg_HasTrait<vector<bsltf::AllocTestType,
-                                                  StlAlloc>,
+        BSLMF_ASSERT((0 == bslalg_HasTrait<
+                                  WeirdAllocVector,
                                   bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-        BSLMF_ASSERT((0 == bslalg_HasTrait<WeirdAllocVectorStack,
+        BSLMF_ASSERT((0 == bslalg_HasTrait<
+                                  WeirdAllocVectorStack,
                                   bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-//      RUN_EACH_TYPE(TestDriver, testCase11,TEST_TYPES_REGULAR(vector));
-        RUN_EACH_TYPE(TestDriver, testCase11, vector<void *>);
+        RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES_REGULAR(vector));
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -3314,6 +3618,8 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver, testCase2, TEST_TYPES_REGULAR(deque));
         if (verbose) printf("vector --------------------------------------\n");
         RUN_EACH_TYPE(TestDriver, testCase2, TEST_TYPES_REGULAR(vector));
+        if (verbose) printf("NonAllocCont --------------------------------\n");
+//      RUN_EACH_TYPE(TestDriver, testCase2, TEST_TYPES_REGULAR(NonAllocCont));
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -3348,6 +3654,11 @@ int main(int argc, char *argv[])
             if (verbose) printf("deque<double>:\n");
             TestDriver<bsl::deque<double> >::testCase1(INT_VALUES,
                                                        NUM_INT_VALUES);
+
+//          if (verbose) printf("NonAllocCont<int>:\n");
+//          TestDriver<NonAllocCont<int> >::testCase1_NoAlloc(INT_VALUES,
+//                                                            NUM_INT_VALUES);
+
 #if 0
             // add once 'list' is in bslstl, add it
 
