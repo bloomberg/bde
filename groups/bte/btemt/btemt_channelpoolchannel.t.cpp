@@ -913,7 +913,7 @@ int main(int argc, char *argv[])
             logString = "12345678901234567890123456789012" \
                         "123456789012345678901234567890123";
 
-            AsyncChannel::BlobBasedReadCallback cb1 =
+            AsyncChannel::BlobBasedReadCallback cb =
                 bdef_BindUtil::bindA(&ta,
                                      &readCb,
                                      bdef_PlaceHolders::_1,
@@ -922,43 +922,8 @@ int main(int argc, char *argv[])
                                      bdef_PlaceHolders::_4,
                                      logString);
 
-            int rc = mX.read(5, cb1);
+            int rc = mX.read(5, cb);
             ASSERT(!rc);
-
-//             rc = mX.start();
-//             ASSERT(!rc);
-
-//             const int BACKLOG   = 5;
-//             const int SERVER_ID = 1;
-
-//             rc = mX.listen(bteso_IPv4Address(), BACKLOG, SERVER_ID);
-//             ASSERT(!rc);
-
-//             const bteso_IPv4Address *address = mX.serverAddress(SERVER_ID);
-//             ASSERT(address);
-
-//             bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
-//             bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
-
-//             rc = socket->connect(*address);
-//             ASSERT(!rc);
-
-//             const char *data = "Hello World";
-
-//             rc = socket->write(data, strlen(data));
-//             ASSERT(!rc);
-
-//             AsyncChannel::BlobBasedReadCallback cb2 =
-//                 bdef_BindUtil::bindA(&ta,
-//                                      &readCb,
-//                                      bdef_PlaceHolders::_1,
-//                                      bdef_PlaceHolders::_2,
-//                                      bdef_PlaceHolders::_3,
-//                                      bdef_PlaceHolders::_4,
-//                                      logString);
-
-//             rc = mX.stop();
-//             ASSERT(!rc);
         }
       } break;
       case 1: {
