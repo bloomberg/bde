@@ -238,7 +238,8 @@ class MyContainer {
     explicit MyContainer(bslma::Allocator *basicAllocator = 0);
         // Initialize this object as an empty container with zero capacity.
 
-    MyContainer(std::size_t capacity, bslma::Allocator *basicAllocator = 0);
+    explicit MyContainer(std::size_t capacity,
+                         bslma::Allocator *basicAllocator = 0);
         // Initialize this object as an empty container
         // with the given capacity
 
@@ -408,7 +409,8 @@ class MyString {
 
   public:
     explicit MyString(const char* s, bslma::Allocator *basicAllocator = 0);
-    MyString(const MyString& original, bslma::Allocator *basicAllocator = 0);
+    explicit MyString(const MyString& original,
+                      bslma::Allocator *basicAllocator = 0);
     MyString& operator=(const MyString& rhs);
     ~MyString();
 
@@ -497,7 +499,8 @@ class MyPoint {
 
     // CREATORS
     MyPoint(int x, int y, bslma::Allocator *basicAllocator = 0);
-    MyPoint(const MyPoint& original, bslma::Allocator *basicAllocator = 0);
+    explicit MyPoint(const MyPoint& original,
+                     bslma::Allocator *basicAllocator = 0);
 
     // ...
 
@@ -513,16 +516,16 @@ MyPoint::MyPoint(int x, int y, bslma::Allocator *basicAllocator)
 }
 
 MyPoint::MyPoint(const MyPoint& original, bslma::Allocator *basicAllocator)
-    : d_x(other.d_x)
-    , d_y(other.d_y)
+    : d_x(original.d_x)
+    , d_y(original.d_y)
 {
     (void) basicAllocator;
 }
 
 MyPoint& MyPoint::operator=(const MyPoint& rhs)
 {
-    d_x = other.d_x;
-    d_y = other.d_y;
+    d_x = rhs.d_x;
+    d_y = rhs.d_y;
 }
 
 bool operator==(const MyPoint& lhs, const MyPoint& rhs)
