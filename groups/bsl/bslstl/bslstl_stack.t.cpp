@@ -21,6 +21,7 @@
 
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
 
 #include <algorithm>
 #include <functional>
@@ -177,68 +178,28 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
-// ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-
-# define LOOP_ASSERT(I,X) { \
-    if (!(X)) { P(I); aSsErT(!(X), #X, __LINE__); } }
-
-# define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { P_(I) P(J);   \
-                aSsErT(!(X), #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { P_(I) P_(J) P(K) \
-                aSsErT(!(X), #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { P_(I) P_(J) P_(K) P(L)\
-                aSsErT(!(X), #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-    if (!(X)) { P_(I) P_(J) P_(K) P_(L) P(M)\
-                aSsErT(!(X), #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-    if (!(X)) { P_(I) P_(J) P_(K) P_(L) P_(M) P(N)\
-                aSsErT(!(X), #X, __LINE__); } }
-
-#define LOOP7_ASSERT(I,J,K,L,M,N,R,X) { \
-    if (!(X)) { P_(I) P_(J) P_(K) P_(L) P_(M) P_(N) P(R)\
-                aSsErT(!(X), #X, __LINE__); } }
-
-#define LOOP8_ASSERT(I,J,K,L,M,N,R,S,X) { \
-    if (!(X)) { P_(I) P_(J) P_(K) P_(L) P_(M) P_(N) P_(R) P(S)\
-                aSsErT(!(X), #X, __LINE__); } }
-
-#define LOOP0_ASSERT ASSERT
-#define LOOP1_ASSERT LOOP_ASSERT
-
 //=============================================================================
-//                  STANDARD BDE VARIADIC ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define NUM_ARGS_IMPL(X8, X7, X6, X5, X4, X3, X2, X1, X0, N, ...)   N
-#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 8, 7, 6, 5, 4, 3, 2, 1, 0, "")
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOPN_ASSERT_IMPL(N, ...) LOOP ## N ## _ASSERT(__VA_ARGS__)
-#define LOOPN_ASSERT(N, ...)      LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");      // Quote identifier literally.
-#define P(X) dbg_print(#X " = ", X, "\n");  // Print identifier and value.
-#define P_(X) dbg_print(#X " = ", X, ", "); // P(X) without '\n'
-#define L_ __LINE__                         // current Line number
-#define T_ putchar('\t');                   // Print a tab (w/o newline)
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -323,123 +284,6 @@ static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-// Fundamental-type-specific print functions.
-inline static
-void dbg_print(bool b)
-{
-    printf(b ? "true" : "false"); fflush(stdout);
-}
-
-inline static
-void dbg_print(char c)
-{
-    printf("%c", c); fflush(stdout);
-}
-
-inline static
-void dbg_print(unsigned char c)
-{
-    printf("%c", c); fflush(stdout);
-}
-
-inline static
-void dbg_print(signed char c)
-{
-    printf("%c", c); fflush(stdout);
-}
-
-inline static
-void dbg_print(short val)
-{
-    printf("%d", (int)val); fflush(stdout);
-}
-
-inline static
-void dbg_print(unsigned short val)
-{
-    printf("%d", (int)val); fflush(stdout);
-}
-
-inline static
-void dbg_print(int val)
-{
-    printf("%d", val); fflush(stdout);
-}
-
-inline static
-void dbg_print(unsigned int val)
-{
-    printf("%u", val); fflush(stdout);
-}
-
-inline static
-void dbg_print(long val)
-{
-    printf("%ld", val); fflush(stdout);
-}
-
-inline static
-void dbg_print(unsigned long val)
-{
-    printf("%lu", val); fflush(stdout);
-}
-inline static
-void dbg_print(long long val)
-{
-    printf("%lld", val); fflush(stdout);
-}
-
-inline static
-void dbg_print(unsigned long long val)
-{
-    printf("%llu", val); fflush(stdout);
-}
-inline static
-void dbg_print(float val)
-{
-    printf("'%f'", (double)val); fflush(stdout);
-}
-inline static
-void dbg_print(double val)
-{
-    printf("'%f'", val); fflush(stdout);
-}
-
-inline static
-void dbg_print(long double val)
-{
-    printf("'%Lf'", val); fflush(stdout);
-}
-inline static
-void dbg_print(const char* s)
-{
-    printf("\"%s\"", s); fflush(stdout);
-}
-
-inline static
-void dbg_print(char* s)
-{
-    printf("\"%s\"", s); fflush(stdout);
-}
-
-inline static
-void dbg_print(void* p)
-{
-    printf("%p", p); fflush(stdout);
-}
-
-BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINTS();
-
-
-// Generic debug print function (3-arguments).
-template <typename T>
-void dbg_print(const char* s, const T& val, const char* nl)
-{
-    printf("%s", s); dbg_print(val);
-    printf("%s", nl);
-    fflush(stdout);
-}
 
 #define TEST_TYPES_REGULAR(containerArg)                                      \
         containerArg<signed char>,                                            \
@@ -670,7 +514,8 @@ void emptyNVerifyStack(stack<typename CONTAINER::value_type,
     }
 
     for (int i = expectedSize - 1; i >= 0; --i) {
-        ASSERTV(cont, val, i, LINE, expectedValues[i], pmX->top(),
+        if (expectedValues[i] != pmX->top()) P_(cont);
+        ASSERTV(val, i, LINE, expectedValues[i], pmX->top(),
                                               expectedValues[i] == pmX->top());
         pmX->pop();
     }
@@ -3200,7 +3045,7 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
         ASSERTV(0 == defaultAllocator.numBytesInUse());
 
         for (int i = numValues - 1; i >= 0; --i) {
-            testValues[i] = X.top();
+            testValues[i] = (int) X.top();
             x.pop();
         }
 
