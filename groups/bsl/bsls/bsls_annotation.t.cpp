@@ -11,10 +11,6 @@
 #error Include guard INCLUDED_BSLS_ANNOTATION misspelled.
 #endif
 
-#include <stdarg.h>     // va_start, va_end, vprintf, vscanf
-#include <stdlib.h>     // malloc, calloc
-#include <string.h>     // strcmp
-
 #include <cstdlib>
 #include <iostream>
 
@@ -27,9 +23,9 @@
 // failure.
 //#define BSLS_ANNOTATION_TRIGGER_ERRORS
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // There is no easy way to do runtime checks of this component.  Instead, we
 // will make declarations using every compiler annotation at compile time.
 // We will use these declared functions, objects, or types in ways that would
@@ -39,31 +35,35 @@
 //
 // For each annotation, 'BSLS_ANNOTATION_XXXXX', we will create up to 3 kinds
 // of functions, variables, and/or types.
-//   o A 'test_XXXXX' function, 'test_XXXXX_variable' variable, and/or
-//     'test_XXXXX_type' type.
-//      - This set of declarations uses the 'BSLS_ANNOTATION_XXXXX' macro, and
-//        should not trigger any diagnostics.
-//   o A function called 'use_without_diagnostic_message_XXXXX'.
-//      - As the name states, even on a conforming compiler this function uses
-//        the corresponding 'test_XXXXX_*' name in a way that should not cause
-//        diagnostics.
-//   o A function or variable called 'use_with_warning_message_XXXXX' (if
-//     'BSLS_ANNOTATION_TRIGGER_WARNINGS' is defined).
-//      - On a conforming compiler, this will cause a warning to be issued by
-//        the compiler, since the use violates the annotation.
-//   o A function or variable called 'use_with_error_message_XXXXX' (if
-//     'BSLS_ANNOTATION_TRIGGER_ERRORS' is defined).
-//      - On a conforming compiler, this will cause an error to be issued by
-//        the compiler, since the use violates the annotation.  This will also
-//        cause the compilation to fail (but, paradoxically, the test to
-//        succeed).
-//-----------------------------------------------------------------------------
+//
+//: o A 'test_XXXXX' function, 'test_XXXXX_variable' variable, and/or
+//:   'test_XXXXX_type' type.
+//:   o This set of declarations uses the 'BSLS_ANNOTATION_XXXXX' macro, and
+//:     should not trigger any diagnostics.
+//:
+//: o A function called 'use_without_diagnostic_message_XXXXX'.
+//:   o As the name states, even on a conforming compiler this function uses
+//:     the corresponding 'test_XXXXX_*' name in a way that should not cause
+//:     diagnostics.
+//:
+//: o A function or variable called 'use_with_warning_message_XXXXX' (if
+//:   'BSLS_ANNOTATION_TRIGGER_WARNINGS' is defined).
+//:   o On a conforming compiler, this will cause a warning to be issued by the
+//:     compiler, since the use violates the annotation.
+//:
+//: o A function or variable called 'use_with_error_message_XXXXX' (if
+//:   'BSLS_ANNOTATION_TRIGGER_ERRORS' is defined).
+//:   o On a conforming compiler, this will cause an error to be issued by the
+//:     compiler, since the use violates the annotation.  This will also cause
+//:     the compilation to fail (but, paradoxically, the test to succeed).
+// ----------------------------------------------------------------------------
 // [ 1] Breathing Test (nothing)
 //-----------------------------------------------------------------------------
 
 //==========================================================================
 //                  STANDARD BDE TEST STATUS APPARATUS
 //--------------------------------------------------------------------------
+
 static int testStatus = 0;
 
 //==========================================================================
@@ -114,8 +114,8 @@ void test_SCANF(const char *, ...)
 
 void use_without_diagnostic_message_SCANF()
 {
-    char buffer[20];
-    int i;
+    char   buffer[20];
+    int    i;
     double d;
 
     test_SCANF("%s", buffer);
@@ -269,12 +269,17 @@ int use_with_error_message_Error = test_ERROR();
 
 #endif
 
+using namespace BloombergLP;
+using namespace std;
+
+// ============================================================================
+//                            MAIN PROGRAM
+// ----------------------------------------------------------------------------
+
 int main(int argc, char **argv)
 {
-    int test = argc > 1 ? std::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-//    int veryVerbose = argc > 3;
-//    int veryVeryVerbose = argc > 4;
+    int            test = argc > 1 ? std::atoi(argv[1]) : 0;
+    int         verbose = argc > 2;
 
     std::cout << "TEST " << __FILE__ << " CASE " << test << std::endl;;
 
@@ -286,27 +291,26 @@ int main(int argc, char **argv)
         // Concerns: That there is no actual runtime test for this component.
         //
         // Plan:
-        //   Do nothing.
+        //   Do nothing at run-time.
         // --------------------------------------------------------------------
 
-        if (verbose) std::cout << "\nBREATHING TEST"
-                               << "\n==============" << std::endl;
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
 
         if (verbose) {
-            std::cout << "\nThere is no runtime test for this component"
-                      << std::endl;
+            cout << "\nThere is no run-time test for this component" << endl;
         }
 
       } break;
       default: {
-        std::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << std::endl;
+        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        std::cerr << "Error, non-zero test status = " << testStatus << "."
-                  << std::endl;
+        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
 
     return testStatus;
