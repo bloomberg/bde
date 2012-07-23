@@ -4,7 +4,7 @@
 
 #include <bslalg_typetraits.h>                          // for testing only
 #include <bslalg_typetraitbitwiseequalitycomparable.h>  // for testing only
-
+#include <bslalg_typetraitusesbslmaallocator.h>         // for testing only
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 #include <bsls_types.h>
@@ -143,12 +143,15 @@ inline void dbg_print(const void * p) {
 }
 
 //=============================================================================
-//                  GLOBAL TYPES/CONSTANTS FOR TESTING
+//                     TEST APPARATUS FOR USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-typedef bsls::Types::Uint64    Uint64;
-
-typedef bslalg::RangeCompare   Obj;
+// Define one container type, 'MyContainer', and two value-semantic
+// types, 'MyString' and 'MyPoint', suitable for implementing the
+// usage example.  These classes use the standard BDE allocator model,
+// however the bslalg_scalarprimitives package is not available to
+// bslalg_rangecompare, so we also implement an elided struct
+// 'ScalarPrimitives' to provide equivalent functionality.
 
                         // =======================
                         // struct ScalarPrimitives
@@ -156,6 +159,36 @@ typedef bslalg::RangeCompare   Obj;
 
 struct ScalarPrimitives
 {
+  // This 'struct' provides a namespace for an elided suite of utility
+  // functions that operate on elements of a parameterized type
+  // 'TARGET_TYPE'.  The functions provided allow us to call the copy
+  // constructor or destructor of 'TARGET_TYPE', correctly taking into account whether or not
+  // 'TARGET_TYPE' uses a 'bslma::Allocator'.
+
+  private:
+    template <typename TARGET_TYPE>
+    static void doCopyConstruct(TARGET_TYPE         *address,
+				const TARGET_TYPE&   original,
+				bslma::Allocator    *allocator,
+				bslmf::MetaInt<0>);
+        // Build an object of the (template parameter) type
+        // 'TARGET_TYPE', which does not use a 'bslma::Allocator',
+        // from the specified 'original' object of the same
+        // 'TARGET_TYPE' in the uninitialized memory at the specified
+        // 'address', as if by using the copy constructor of
+        // 'TARGET_TYPE'
+
+    template <typename TARGET_TYPE>
+    static void doCopyConstruct(TARGET_TYPE         *address,
+				const TARGET_TYPE&   original,
+				bslma::Allocator    *allocator,
+				bslmf::MetaInt<1>);
+        // Build an object of the (template parameter) type
+        // 'TARGET_TYPE', which uses a 'bslma::Allocator', from the
+        // specified 'original' object of the same 'TARGET_TYPE' in
+        // the uninitialized memory at the specified 'address', as if
+        // by using the copy constructor of 'TARGET_TYPE'
+
   public:
     template <typename TARGET_TYPE>
     static void copyConstruct(TARGET_TYPE        *address,
@@ -176,11 +209,34 @@ struct ScalarPrimitives
 };
 
 template <typename TARGET_TYPE>
+void ScalarPrimitives::doCopyConstruct(TARGET_TYPE         *address,
+				       const TARGET_TYPE&   original,
+				       bslma::Allocator    *allocator,
+				       bslmf::MetaInt<0>)
+{
+  new (address) TARGET_TYPE(original);
+}
+
+template <typename TARGET_TYPE>
+void ScalarPrimitives::doCopyConstruct(TARGET_TYPE         *address,
+				       const TARGET_TYPE&   original,
+				       bslma::Allocator    *allocator,
+				       bslmf::MetaInt<1>)
+{
+  new (address) TARGET_TYPE(original, allocator);
+}
+
+template <typename TARGET_TYPE>
 void ScalarPrimitives::copyConstruct(TARGET_TYPE               *address,
                                             const TARGET_TYPE&  original,
                                             bslma::Allocator   *allocator)
 {
-    new (address) TARGET_TYPE(original, allocator);
+    BSLS_ASSERT_SAFE(address);
+
+    typedef typename bslalg::HasTrait<TARGET_TYPE,
+				      bslalg::TypeTraitUsesBslmaAllocator>::Type Trait;
+
+    doCopyConstruct(address, original, allocator, Trait());
 }
 
 template <>
@@ -213,16 +269,21 @@ void ScalarPrimitives::destroy<int>(int *object)
 template <class VALUE_TYPE>
 class MyContainer {
     // This class implements a container, semantically similar to
-    // std::vector, holding objects of the given 'VALUE_TYPE',
-    // which must provide value semantics.
+    // std::vector, holding objects of the given 'VALUE_TYPE', which
+    // must provide value semantics.
 
   private:
     // DATA
-    std::size_t       d_size;
-    std::size_t       d_capacity;
-    VALUE_TYPE       *d_start_p;
-    bslma::Allocator *d_allocator_p;
+    std::size_t       d_size;         // number of elements currently stored
+                                      // in the container
 
+    std::size_t       d_capacity;     // capacity of the container
+
+    VALUE_TYPE       *d_start_p;      // allocated memory for the container
+
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
+
+  private:
     // NOT IMPLEMENTED
     MyContainer(const MyContainer&);
     MyContainer& operator=(const MyContainer&);
@@ -244,6 +305,7 @@ class MyContainer {
         // with the given capacity
 
     ~MyContainer();
+        // Destroy this object
 
     // MANIPULATORS
     void reserve(std::size_t newCapacity);
@@ -321,7 +383,7 @@ void MyContainer<VALUE_TYPE>::reserve(std::size_t newCapacity)
 
     if (newCapacity == d_capacity) {
         // No change in size, so nothing to do.
-        return;
+           return;                                                    // RETURN
     }
 
     // Build replacement container
@@ -390,39 +452,128 @@ std::size_t MyContainer<VALUE_TYPE>::size() const
     return d_size;
 }
 
+template<class VALUE_TYPE>
+inline
+bool operator==(const MyContainer<VALUE_TYPE>& lhs,
+                const MyContainer<VALUE_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' instances have the same
+    // value, and 'false' otherwise.  Two instances have the same value if the
+    // have the same length and each element in lhs has the same value as the
+    // corresponding element in rhs.
+
+template<class VALUE_TYPE>
+inline
+bool operator!=(const MyContainer<VALUE_TYPE>& lhs,
+                const MyContainer<VALUE_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' instances do not have the
+    // same value, and 'false' otherwise.  Two instances differ in value if
+    // they have differing lengths or if any element in lhs has differs in
+    // value from the corresponding element in rhs.
+
+template<class VALUE_TYPE>
+inline
+bool operator==(const MyContainer<VALUE_TYPE>& lhs,
+                const MyContainer<VALUE_TYPE>& rhs)
+{
+    return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
+                                                    lhs.end(),
+                                                    lhs.size(),
+                                                    rhs.begin(),
+                                                    rhs.end(),
+                                                    rhs.size());
+}
+
+template<class VALUE_TYPE>
+inline
+bool operator!=(const MyContainer<VALUE_TYPE>& lhs,
+                const MyContainer<VALUE_TYPE>& rhs)
+{
+    return ! BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
+                                                    lhs.end(),
+                                                    lhs.size(),
+                                                    rhs.begin(),
+                                                    rhs.end(),
+                                                    rhs.size());
+}
+
                               // ==============
                               // class MyString
                               // ==============
 
 class MyString {
+  // This class provides a simple, elided string class that conforms
+  // to the 'bslma::Allocator' model.
+
   private:
     // DATA
-    char *d_start_p;
-    std::size_t d_length;
-    bslma::Allocator *d_allocator_p;
+    char             *d_start_p;      // storage for the string
+    std::size_t       d_length;       // length of the string
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
-    void set(const char* s, std::size_t length);
+    // PRIVATE MANIPULATORS
+    void set(const char* sourceStr, std::size_t length);
+        // Assign the value of the specified 'sourceStr', of length
+        // 'length', to this 'MyString' object.
 
     // FRIENDS
     friend bool operator==(const MyString&, const MyString&);
     friend bool operator!=(const MyString&, const MyString&);
 
   public:
-    explicit MyString(const char* s, bslma::Allocator *basicAllocator = 0);
-    MyString(const MyString& original, bslma::Allocator *basicAllocator = 0);
-    MyString& operator=(const MyString& rhs);
-    ~MyString();
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(MyString,
+                     BloombergLP::bslalg::TypeTraitUsesBslmaAllocator);
 
+    // CREATORS
+    explicit MyString(const char* sourceStr, 
+		      bslma::Allocator *basicAllocator = 0);
+        // Create this object, initialized to the value of the
+        // specified 'sourceStr'.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
+
+    MyString(const MyString& original, bslma::Allocator *basicAllocator = 0);
+        // Create this object, initialized to the value of the
+        // specified 'original' 'MyString'.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
+
+    ~MyString();
+        // Destroy this object.
+
+    // MANIPULATORS
+    MyString& operator=(const MyString& rhs);
+        // Set the value of this object to that of the specified 'rhs'
+        // 'MyString' object.
+
+    // ACCESSORS
     const char* c_str() const;
+        // Return a NTBS representing the value of this 'MyString'.
+
     std::size_t length() const;
+        // Return the number of characters in this 'MyString'.
 };
 
-MyString::MyString(const char* s, bslma::Allocator *basicAllocator)
+bool operator==(const MyString& lhs, const MyString& rhs);
+    // Compare the string represented by the specified 'lhs' with the
+    // string represented by the specified 'rhs'.  Return 'true' if
+    // 'lhs' is lexicographically equal to 'rhs', and 'false'
+    // otherwise.
+
+bool operator!=(const MyString& lhs, const MyString& rhs);
+    // Compare the string represented by the specified 'lhs' with the
+    // string represented by the specified 'rhs'.  Return 'true' if
+    // 'lhs' is lexicographically not equal to 'rhs', and 'false'
+    // otherwise.
+
+MyString::MyString(const char* sourceStr, bslma::Allocator *basicAllocator)
     : d_start_p(0)
     , d_length(0)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    set(s, strlen(s));
+    set(sourceStr, strlen(sourceStr));
 }
 
 MyString::MyString(const MyString& rhs, bslma::Allocator *basicAllocator)
@@ -447,12 +598,12 @@ MyString& MyString::operator=(const MyString& rhs)
     return *this;
 }
 
-void MyString::set(const char* s, std::size_t length)
+void MyString::set(const char* sourceStr, std::size_t length)
 {
     d_length = length;
     d_start_p =
            (char *) d_allocator_p->allocate((length + 1) * sizeof *d_start_p);
-    memcpy(d_start_p, s, length);
+    memcpy(d_start_p, sourceStr, length);
     d_start_p[length] = '\0';
 }
 
@@ -482,10 +633,13 @@ bool operator!=(const MyString& lhs, const MyString& rhs)
                               // =============
 
 class MyPoint {
+  // This class provides a simple, elided point type that is bit-wise
+  // comparable with other objects of the same time.
+
   private:
     // DATA
-    int d_x;
-    int d_y;
+    int d_x;  // the x-coordinate of the point
+    int d_y;  // the y-coordinate of the point
 
     // FRIENDS
     friend bool operator==(const MyPoint&, const MyPoint&);
@@ -497,27 +651,44 @@ class MyPoint {
                      BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
 
     // CREATORS
-    MyPoint(int x, int y, bslma::Allocator *basicAllocator = 0);
-    MyPoint(const MyPoint& original, bslma::Allocator *basicAllocator = 0);
+    MyPoint(int x, int y);
+        // Create this object with its x-coordinate initialized to the
+        // specified 'x' and its y-coordinate initialized to the
+        // specified 'y'.
+
+    MyPoint(const MyPoint& original);
+        // Create this object, initialized to the same value as the
+        // specified 'original'.
 
     // ...
 
     // MANIPULATORS
     MyPoint& operator=(const MyPoint& rhs);
+        // Set the value of this object to value of the specified
+        // 'rhs'.
 };
 
-MyPoint::MyPoint(int x, int y, bslma::Allocator *basicAllocator)
+bool operator==(const MyPoint& lhs, const MyPoint& rhs);
+    // Compare the specified 'lhs' with the specified 'rhs'.  Return
+    // 'true' if the x-coordinates and y-coordinates of 'lhs' are the
+    // same as those of 'rhs', and 'false' otherwise.
+
+bool operator!=(const MyPoint& lhs, const MyPoint& rhs);
+    // Compare the specified 'lhs' with the specified 'rhs'.  Return
+    // 'true' if either the x-coordinate or the y-coordinate of
+    // 'lhs'is not the same as that of 'rhs', and 'false' otherwise.
+
+
+MyPoint::MyPoint(int x, int y)
     : d_x(x)
     , d_y(y)
 {
-    (void) basicAllocator;
 }
 
-MyPoint::MyPoint(const MyPoint& original, bslma::Allocator *basicAllocator)
+MyPoint::MyPoint(const MyPoint& original)
     : d_x(original.d_x)
     , d_y(original.d_y)
 {
-    (void) basicAllocator;
 }
 
 MyPoint& MyPoint::operator=(const MyPoint& rhs)
@@ -530,6 +701,23 @@ bool operator==(const MyPoint& lhs, const MyPoint& rhs)
 {
     return lhs.d_x == rhs.d_x && lhs.d_y == rhs.d_y;
 }
+
+bool operator!=(const MyPoint& lhs, const MyPoint& rhs)
+{
+    return ! (lhs == rhs);
+}
+
+//=============================================================================
+//                     TEST APPARATUS FOR CASES 1 - 3
+//-----------------------------------------------------------------------------
+ 
+//=============================================================================
+//                  GLOBAL TYPES/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
+typedef bsls::Types::Uint64    Uint64;
+
+typedef bslalg::RangeCompare   Obj;
 
                               // ===============
                               // class my_Class1
@@ -744,7 +932,8 @@ int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
                 printf("Error, bad character ('%c') in spec \"%s\""
                        " at position %d.\n", spec[i], spec, i);
             }
-            return i;  // Discontinue processing this spec.
+            return i;                                                 // RETURN
+                // Discontinue processing this spec.
         }
         *array = spec[i];
     }
@@ -759,54 +948,6 @@ TYPE& gg(TYPE *array, const char *spec)
 {
     ASSERT(ggg(array, spec) < 0);
     return *array;
-}
-
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-
-template<class VALUE_TYPE>
-inline
-bool operator==(const MyContainer<VALUE_TYPE>& lhs,
-                const MyContainer<VALUE_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' instances have the same
-    // value, and 'false' otherwise.  Two instances have the same value if the
-    // have the same length and each element in lhs has the same value as the
-    // corresponding element in rhs.
-
-template<class VALUE_TYPE>
-inline
-bool operator!=(const MyContainer<VALUE_TYPE>& lhs,
-                const MyContainer<VALUE_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' instances do not have the
-    // same value, and 'false' otherwise.  Two instances differ in value if
-    // they have differing lengths or if any element in lhs has differs in
-    // value from the corresponding element in rhs.
-
-template<class VALUE_TYPE>
-inline
-bool operator==(const MyContainer<VALUE_TYPE>& lhs,
-                const MyContainer<VALUE_TYPE>& rhs)
-{
-    return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
-                                                    lhs.end(),
-                                                    lhs.size(),
-                                                    rhs.begin(),
-                                                    rhs.end(),
-                                                    rhs.size());
-}
-
-template<class VALUE_TYPE>
-inline
-bool operator!=(const MyContainer<VALUE_TYPE>& lhs,
-                const MyContainer<VALUE_TYPE>& rhs)
-{
-    return ! BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
-                                                    lhs.end(),
-                                                    lhs.size(),
-                                                    rhs.begin(),
-                                                    rhs.end(),
-                                                    rhs.size());
 }
 
 //=============================================================================
@@ -1613,32 +1754,32 @@ int main(int argc, char *argv[])
 
         {
             // Compare bitwise-comparable elements
-            MyContainer<MyPoint> c1;
-            MyContainer<MyPoint> c2;
+            MyContainer<MyPoint> c3;
+            MyContainer<MyPoint> c4;
 
-            c1.push_back(MyPoint(1, 2));
-            c1.push_back(MyPoint(3, 4));
+            c3.push_back(MyPoint(1, 2));
+            c3.push_back(MyPoint(3, 4));
 
-            c2.push_back(MyPoint(1, 2));
-            c2.push_back(MyPoint(3, 4));
+            c4.push_back(MyPoint(1, 2));
+            c4.push_back(MyPoint(3, 4));
 
-            ASSERT(c1 == c2);
+            ASSERT(c3 == c4);
         }
 
         {
             // Compare (bitwise-comparable) primitive types
-            MyContainer<int> c1;
-            MyContainer<int> c2;
+            MyContainer<int> c5;
+            MyContainer<int> c6;
 
-            c1.push_back(1);
-            c1.push_back(2);
-            c1.push_back(3);
+            c5.push_back(1);
+            c5.push_back(2);
+            c5.push_back(3);
 
-            c2.push_back(1);
-            c2.push_back(2);
-            c2.push_back(3);
+            c6.push_back(1);
+            c6.push_back(2);
+            c6.push_back(3);
 
-            ASSERT(c1 == c2);
+            ASSERT(c5 == c6);
         }
      } break;
       case 3: {
