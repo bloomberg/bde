@@ -630,9 +630,7 @@ btemt_TcpTimerEventManager_ControlChannel::
 #ifdef BTESO_PLATFORM__WIN_SOCKETS
         d_fds[0] = d_fds[1] = INVALID_SOCKET;
 #else
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
         d_fds[0] = d_fds[1] = -1;
-#endif
 #endif
         bsl::printf("%s(%d): Failed to create control channel"
                     " (errno = %d, rc = %d).\n",
@@ -1158,9 +1156,7 @@ int btemt_TcpTimerEventManager::enable(const bcemt_Attribute& attr)
 #ifdef BTESO_PLATFORM__WIN_SOCKETS
         if (INVALID_SOCKET == d_controlChannel_p->serverFd())
 #else
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
         if (-1 == d_controlChannel_p->serverFd())
-#endif
 #endif
         {
             // Sockets were not successfully created.
@@ -1294,7 +1290,7 @@ int btemt_TcpTimerEventManager::registerSocketEvent(
          // and process request in this thread.
 
          int rc = d_manager_p->registerSocketEvent(handle, event, callback);
-         d_numTotalSocketEvents = d_manager_p->numEvents() - 1;
+         d_numTotalSocketEvents = d_manager_p->numEvents();
          return rc;
       }
     }
