@@ -267,7 +267,7 @@ namespace BloombergLP {
 
 namespace bslstl {
 
-template <class CONTAINER, class ALLOCATOR>
+template <class CONTAINER>
 struct Stack_HasAllocatorType {
     template <typename TYPE>
     static bslmf_MetaInt<1> match(const typename TYPE::allocator_type *);
@@ -338,8 +338,8 @@ class stack {
     explicit stack(const ALLOCATOR& allocator,
                    typename BloombergLP::bslmf::EnableIf<
                        BloombergLP::bslstl::Stack_HasAllocatorType<
-                                 CONTAINER,
-                                 ALLOCATOR>::VALUE>::type * = 0);
+                                 CONTAINER>::VALUE,
+                                 ALLOCATOR>::type * = 0);
         // Construct an empty stack.  If 'allocator' is not supplied, a
         // default-constructed object of the parameter-derived 'allocator_type'
         // type is used.  If the template parameter 'CONTAINER::allocator_type'
@@ -357,8 +357,8 @@ class stack {
           const ALLOCATOR& allocator,
           typename BloombergLP::bslmf::EnableIf<
               BloombergLP::bslstl::Stack_HasAllocatorType<
-                        CONTAINER,
-                        ALLOCATOR>::VALUE>::type * = 0);
+                        CONTAINER>::VALUE,
+                        ALLOCATOR>::type * = 0);
         // Construct an stack out of a copy of the specified 'container'.  If
         // 'allocator' is not supplied, a default-constructed object of the
         // parameter-derived 'allocator_type' type is used.  If
@@ -378,8 +378,8 @@ class stack {
           const ALLOCATOR& allocator,
           typename BloombergLP::bslmf::EnableIf<
               BloombergLP::bslstl::Stack_HasAllocatorType<
-                        CONTAINER,
-                        ALLOCATOR>::VALUE>::type * = 0);
+                        CONTAINER>::VALUE,
+                        ALLOCATOR>::type * = 0);
         // Construct a copy of the specified stack 'original', using the
         // specified 'allocator' to allocate memory.  If 'allocator' is not
         // supplied, a default-constructed object of the parameter-derived
@@ -399,8 +399,8 @@ class stack {
           const ALLOCATOR& allocator,
           typename BloombergLP::bslmf::EnableIf<
               BloombergLP::bslstl::Stack_HasAllocatorType<
-                        CONTAINER,
-                        ALLOCATOR>::VALUE>::type * = 0);
+                        CONTAINER>::VALUE,
+                        ALLOCATOR>::type * = 0);
         // TBD
 
     explicit
@@ -411,8 +411,8 @@ class stack {
           const ALLOCATOR& allocator,
           typename BloombergLP::bslmf::EnableIf<
               BloombergLP::bslstl::Stack_HasAllocatorType<
-                        CONTAINER,
-                        ALLOCATOR>::VALUE>::type * = 0);
+                        CONTAINER>::VALUE,
+                        ALLOCATOR>::type * = 0);
         // TBD
 #endif
     // MANIPULATORS
@@ -537,8 +537,8 @@ inline
 stack<VALUE, CONTAINER>::stack(const ALLOCATOR& allocator,
                                typename BloombergLP::bslmf::EnableIf<
                                    BloombergLP::bslstl::Stack_HasAllocatorType<
-                                             CONTAINER,
-                                             ALLOCATOR>::VALUE>::type *)
+                                             CONTAINER>::VALUE,
+                                             ALLOCATOR>::type *)
 : d_container(allocator)
 , c(d_container)
 {}
@@ -558,8 +558,8 @@ stack<VALUE, CONTAINER>::stack(
                            const ALLOCATOR& allocator,
                            typename BloombergLP::bslmf::EnableIf<
                                BloombergLP::bslstl::Stack_HasAllocatorType<
-                                         CONTAINER,
-                                         ALLOCATOR>::VALUE>::type *)
+                                         CONTAINER>::VALUE,
+                                         ALLOCATOR>::type *)
 : d_container(container, allocator)
 , c(d_container)
 {}
@@ -579,8 +579,8 @@ stack<VALUE, CONTAINER>::stack(
                            const ALLOCATOR& allocator,
                            typename BloombergLP::bslmf::EnableIf<
                                BloombergLP::bslstl::Stack_HasAllocatorType<
-                                         CONTAINER,
-                                         ALLOCATOR>::VALUE>::type *)
+                                         CONTAINER>::VALUE,
+                                         ALLOCATOR>::type *)
 : d_container(original.d_container, allocator)
 , c(d_container)
 {}
@@ -602,8 +602,8 @@ stack<VALUE, CONTAINER>::stack(
                            const ALLOCATOR& allocator,
                            typename BloombergLP::bslmf::EnableIf<
                                BloombergLP::bslstl::Stack_HasAllocatorType<
-                                         CONTAINER,
-                                         ALLOCATOR>::VALUE>::type *)
+                                         CONTAINER>::VALUE,
+                                         ALLOCATOR>::type *)
 : d_container(bsl::move(container), allocator)
 , c(d_container)
 {}
@@ -623,8 +623,8 @@ stack<VALUE, CONTAINER>::stack(
                            const ALLOCATOR& allocator,
                            typename BloombergLP::bslmf::EnableIf<
                                BloombergLP::bslstl::Stack_HasAllocatorType<
-                                         CONTAINER,
-                                         ALLOCATOR>::VALUE>::type *)
+                                         CONTAINER>::VALUE,
+                                         ALLOCATOR>::type *)
 : d_container(bsl::move(original.d_container), allocator)
 , c(d_container)
 {}
