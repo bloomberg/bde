@@ -848,6 +848,14 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                bool                          value,
                                const bdem_BerEncoderOptions *)
 {
+    // It is undefined behavior to examine the value of an uninitialized 'bool'
+    // and the value of such a 'bool' may be neither 'true' ('1') nor 'false'
+    // ('0').  We assert this behavior so that the user would get a more
+    // defined error rather than an encoding error because what was put on the
+    // 'streambuf' was not what was expected.
+
+    BSLS_ASSERT(0 == value || 1 == value);
+
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     typedef bsl::streambuf::char_type char_type;
