@@ -1170,7 +1170,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == rc);
     ASSERT(0 == bsl::strcmp("Asia/Riyadh", zoneinfoId));
 //..
-// Then, use the Windows 'GetSystemTime' function to load an 'SYTEMTIME'
+// Then, use the Windows 'GetSystemTime' function to load an 'SYSTEMTIME'
 // structure with UTC time information.  The returned information includes
 // year, month ('[1 .. 12]'), day-of-month ('[1 .. 31]'), and hour-of-day
 // ('[0 .. 23]').  Note 'bdet_date' and 'bdet_time' use the same numerical
