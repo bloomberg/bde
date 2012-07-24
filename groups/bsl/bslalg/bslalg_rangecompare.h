@@ -14,18 +14,19 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_typetraitbitwiseequalitycomparable
 //
-//@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnimann)
+//@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnimann),
+//         Alexander Beels (abeels)
 //
 //@DESCRIPTION: This component provides a utility 'struct',
 // 'bslalg::RangeCompare', that defines two class methods, 'equal' and
 // 'lexicographical', for comparing two ranges, each specified by a pair of
 // input iterators that are compliant with the C++11 standard [24.2.3].  The
 // 'equal' method determines whether two specified ranges compare equal.  The
-// 'lexicographical' method determines whether the first specified range
-// compares lexicographically less than, equal to, or greater than the second
-// specified range.  Under certain circumstances, 'bslalg::RangeCompare::equal'
-// and 'bslalg::RangeCompare::lexicographical' may perform optimized
-// comparisons, as described below.
+// 'lexicographical' method determines whether the first range compares
+// lexicographically less than, equal to, or greater than the second range.
+// Under certain circumstances, 'bslalg::RangeCompare::equal' and
+// 'bslalg::RangeCompare::lexicographical' may perform optimized comparisons,
+// as described below.
 //
 // 'bslalg::RangeCompare::equal' may perform a bit-wise comparison of the two
 // ranges when the following two criteria are met:
@@ -59,8 +60,8 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we will use the 'bslalg::RangeCompare::equal' class method
 // to implement the equality comparison operators for an iterable container
-// type residing in the 'bslstl' package, and we will show the circumstances
-// under which the optimization provided by the class method may be applied.
+// type residing in the 'bslstl' package, and highlight the circumstances under
+// which the optimization provided by the class method may be applied.
 //
 // Suppose that we have a new iterable container type that will be included in
 // the 'bslstl' package, and we wish to define comparison operators for the
@@ -68,7 +69,7 @@ BSLS_IDENT("$Id: $")
 // container's elements in a consistent order, and the elements themselves are
 // equality-comparable, we can implement the container's equality comparison
 // operators by pair-wise comparing each of the elements over the entire range
-// of elements in both containers.  Then the container can use the
+// of elements in both containers.  In such cases the container can use the
 // 'bslalg::RangeCompare::equal' class method to equal-compare the container's
 // elements, taking advantage of the optimizations the class method provides
 // for bit-wise equality-comparable objects.
@@ -79,7 +80,8 @@ BSLS_IDENT("$Id: $")
 //  template <class VALUE_TYPE>
 //  class MyContainer {
 //      // This class implements a container, semantically similar to
-//      // 'std::vector', holding objects of the parameterizing 'VALUE_TYPE'.
+//      // std::vector, holding objects of the (template parameter) type
+//      // 'VALUE_TYPE'.
 //
 //    private:
 //      // DATA
@@ -88,23 +90,36 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      // PUBLIC TYPES
 //      typedef VALUE_TYPE const *ConstIterator;
+//          // This 'typedef' provides an alias for the type of iterator
+//          // providing non-modifiable access to the elements in the
+//          // container.
 //
 //      // CREATORS
 //      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
+//          // Initialize this object as an empty container with zero capacity.
 //
 //      // ...
 //
 //      // MANIPULATORS
+//      // ...
+//
 //      void push_back(const VALUE_TYPE& value);
+//          // Add the specified value at the past-the-end position in this
+//          // container, increasing the container's capacity if needed.
 //
 //      // ...
 //
 //      // ACCESSORS
 //      ConstIterator begin() const;
+//          // Return an iterator providing non-modifiable access to the first
+//          // element in this container.
 //
 //      ConstIterator end() const;
+//          // Return an iterator providing non-modifiable access to the
+//          // past-the-end element in this container.
 //
-//      std::size_t length() const;
+//      std::size_t size() const;
+//          // Return the number of elements in this container.
 //
 //      // ...
 //  };
@@ -165,17 +180,27 @@ BSLS_IDENT("$Id: $")
 // 'MyString', together with its definition of 'operator==':
 //..
 //  class MyString {
+//      // This class provides a simple, elided string class that conforms to
+//      // the 'bslma::Allocator' model.
+//
 //    private:
 //      // DATA
-//      char        *d_start_p;
-//      std::size_t  d_length;
+//      char        *d_start_p;  // storage for the string
+//      std::size_t  d_length;   // length of the string
 //
 //      // ...
 //
 //      // FRIENDS
 //      friend bool operator==(const MyString& lhs, const MyString& rhs);
+//      // ...
 //
 //    public:
+//      explicit MyString(const char* sourceStr,
+//                        bslma::Allocator *basicAllocator = 0);
+//          // Create this object, initialized to the value of the specified
+//          // 'sourceStr'.  Optionally specify a 'basicAllocator' used to
+//          // supply memory.  If 'basicAllocator' is 0, the currently
+//          // installed default allocator is used.
 //
 //      // ...
 //  };
@@ -213,6 +238,9 @@ BSLS_IDENT("$Id: $")
 // 'MyPoint', together with its definition of 'operator==':
 //..
 //  class MyPoint {
+//    // This class provides a simple, elided point type that is bit-wise
+//    // comparable with other objects of the same time.
+//
 //    private:
 //      // DATA
 //      int d_x;
@@ -220,6 +248,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // FRIENDS
 //      friend bool operator==(const MyPoint& lhs, const MyPoint& rhs);
+//      // ...
 //
 //    public:
 //      // TRAITS
@@ -228,6 +257,9 @@ BSLS_IDENT("$Id: $")
 //
 //      // CREATORS
 //      MyPoint(int x, int y);
+//          // Create this object with its x-coordinate initialized to the
+//          // specified 'x' and its y-coordinate initialized to the specified
+//          // 'y'.
 //
 //      // ...
 //  };
