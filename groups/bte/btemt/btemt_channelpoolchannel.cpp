@@ -33,10 +33,10 @@ namespace BloombergLP {
                        // ------------------------------
 
 // PRIVATE MANIPULATORS
-template <typename CALLBACK>
+template <typename BTEMT_CALLBACK>
 int btemt_ChannelPoolChannel::addReadQueueEntry(
                                              int                      numBytes,
-                                             const CALLBACK&          callback,
+                                             const BTEMT_CALLBACK&    callback,
                                              const bdet_TimeInterval& timeOut)
 {
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);

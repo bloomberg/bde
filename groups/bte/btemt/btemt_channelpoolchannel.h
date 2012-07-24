@@ -176,9 +176,9 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
 
   private:
     // PRIVATE MANIPULATORS
-    template <typename CALLBACK>
+    template <typename BTEMT_CALLBACK>
     int addReadQueueEntry(int                      numBytes,
-                          const CALLBACK&          callback,
+                          const BTEMT_CALLBACK&    callback,
                           const bdet_TimeInterval& timeOut);
         // Add a read queue entry with the specified 'callback' for the
         // specified 'numBytes' and the specified 'timeOut'.  Return 0 on
