@@ -4090,6 +4090,8 @@ DEFINE_TEST_CASE(11) {
         }
       }
 
+
+    */
 DEFINE_TEST_CASE(10) {
         // --------------------------------------------------------------------
         // TESTING STREAMING FUNCTIONALITY:
@@ -4106,19 +4108,29 @@ DEFINE_TEST_CASE(10) {
         //      INVALID - may or may not be empty.
         //      INCOMPLETE - the stream is truncated, but otherwise valid.
         //      CORRUPTED - the data contains explicitly inconsistent fields.
+        //  4. both version 1 and version 2 of the streaming format are
+        //     available. Version 2 supports calendars with more than one
+        //     weekend-days transition,
+        //
         //
         // Plan:
         //  To address concern 1, perform a trivial direct (breathing) test of
         //  the 'bdexStreamOut' and 'bdexStreamIn' methods.  Note that the rest
         //  of the testing will use the stream operators.
         //
-        //  To address concern 2, use the macros 'BEGIN_EXCEPTION_SAFE_TEST'
-        //  and 'END_EXCEPTION_SAFE_TEST' to generate exceptions and verify
-        //  that the destination object is rolled back in the case of an
-        //  exception.  These macros first set the allocation limit of the test
-        //  allocator to 0 and gradually increase it while exercising the
-        //  streaming functionality.  When an exception occurred, the exception
-        //  handler verifies that the destination object is unchanged.
+        //  To address concerns 2 and 4, for a set of possible calendar values
+        //  with and without weekend-days transitions, verify that bdex
+        //  streaming works for both version 1 and version 2 of stream format
+        //  when a calendar has only one weekend-days transition.  Verify that
+        //  version 2 of the stream format supports calendars with more than
+        //  one weekend-days transition.  Surround the stream in function with
+        //  the macros 'BEGIN_EXCEPTION_SAFE_TEST' and
+        //  'END_EXCEPTION_SAFE_TEST' to generate exceptions and verify that
+        //  the destination object is rolled back in the case of an exception.
+        //  These macros first set the allocation limit of the test allocator
+        //  to 0 and gradually increase it while exercising the streaming
+        //  functionality.  When an exception occurred, the exception handler
+        //  verifies that the destination object is unchanged.
         //
         //  To address concern 3, specify a set S of unique object values with
         //  substantial and varied differences, ordered by increasing
@@ -4171,9 +4183,9 @@ DEFINE_TEST_CASE(10) {
         {
             if (verbose) cout << "\tusing object syntax:" << endl;
             const Obj X;
-            ASSERT(1 == X.maxSupportedBdexVersion());
+            ASSERT(2 == X.maxSupportedBdexVersion());
             if (verbose) cout << "\tusing class method syntax:" << endl;
-            ASSERT(1 == Obj::maxSupportedBdexVersion());
+            ASSERT(2 == Obj::maxSupportedBdexVersion());
         }
 
         const int VERSION = Obj::maxSupportedBdexVersion();
@@ -4181,82 +4193,121 @@ DEFINE_TEST_CASE(10) {
                              " (valid) 'bdexStreamIn' functionality." << endl;
 
         {
-            const int version = 1;
-            Obj mX(&testAllocator);  const Obj& X = gg(&mX, "au@2005/5/1 30");
-            if (veryVerbose) { cout << "\t   Value being streamed: "; P(X); }
+            for (int version = 1; version <= VERSION; ++version) {
+                if (veryVerbose) { P(version); }
 
-            bdex_TestOutStream out;  X.bdexStreamOut(out, version);
+                Obj mX(&testAllocator);
+                const Obj& X = gg(&mX, "au@2005/5/1 30");
 
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
+                if (veryVerbose) {
+                    cout << "\t   Value being streamed: "; P(X); }
 
-            bdex_TestInStream in(OD, LOD);  ASSERT(in);  ASSERT(!in.isEmpty());
-            in.setSuppressVersionCheck(1);
+                bdex_TestOutStream out;  X.bdexStreamOut(out, version);
 
-            Obj t(&testAllocator);  gg(&t, "u@2004/7/1 30 0");
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
 
-            if (veryVerbose) { cout << "\tValue being overwritten: "; P(t); }
-            ASSERT(X != t);
+                bdex_TestInStream in(OD, LOD);  ASSERT(in);
+                ASSERT(!in.isEmpty());
+                in.setSuppressVersionCheck(1);
 
-            t.bdexStreamIn(in, version);     ASSERT(in);  ASSERT(in.isEmpty());
+                Obj t(&testAllocator);  gg(&t, "u@2004/7/1 30 0");
 
-            if (veryVerbose) { cout << "\t  Value after overwrite: "; P(t); }
-            ASSERT(X == t);
+                if (veryVerbose) {
+                    cout << "\tValue being overwritten: "; P(t); }
+                ASSERT(X != t);
+
+                t.bdexStreamIn(in, version);
+                ASSERT(in);  ASSERT(in.isEmpty());
+
+                if (veryVerbose) {
+                    cout << "\t  Value after overwrite: "; P(t); }
+                ASSERT(X == t);
+            }
         }
 
-        static const char *SPECS[] = {
-            "", "a", "@2000/1/1", "@2000/1/1 a", "@2000/1/1 2",
-            "@2000/1/1 2au", "au@2000/1/1 59 3 4 5 6 7",
-            "au@2000/1/1 365 2 20A 30 40AB 50DE",
-        0};
+        static const struct {
+            int         d_line;     // source line number
+
+            int         d_version;  // mimum supported version of the streaming
+                                    // format
+
+            const char *d_spec;     // spec to generate the calendar
+        } DATA[] = {
+            //LINE  VER  SPEC
+            //----  ---  ----
+            { L_,     1, ""                                                 },
+            { L_,     1, "a"                                                },
+            { L_,     1, "@2000/1/1"                                        },
+            { L_,     1, "@2000/1/1 a"                                      },
+            { L_,     1, "@2000/1/1 2"                                      },
+            { L_,     1, "wt@2000/1/1 2"                                    },
+            { L_,     1, "au@2000/1/1 59 3 4 5 6 7"                         },
+            { L_,     1, "au@2000/1/1 365 2 20A 30 40AB 50DE"               },
+            { L_,     2, "@2000/1/1 100 0u 50au 200fau"                     },
+            { L_,     2, "u@2000/1/1 365 0au 50wr 200mt 2 20A 30 40AB 50DE" },
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
         {
-            for (int ui = 0; SPECS[ui]; ++ui) {
-                const char *const U_SPEC = SPECS[ui];
+            for (int ui = 0; ui < NUM_DATA; ++ui) {
+                const int         U_LINE = DATA[ui].d_line;
+                const int         U_VERS = DATA[ui].d_version;
+                const char *const U_SPEC = DATA[ui].d_spec;
                 const Obj UU = g(U_SPEC);
 
-                for (int vi = 0; SPECS[vi]; ++vi) {
-                    Obj mU; const Obj& U = mU; gg(&mU, U_SPEC);
-                    bdex_TestOutStream out;
-
-                    // Testing stream-out operator here.
-                    bdex_OutStreamFunctions::streamOut(out, U, VERSION);
-
-                    const char *const OD  = out.data();
-                    const int         LOD = out.length();
-
-                    bdex_TestInStream testInStream(OD, LOD);
-                    testInStream.setSuppressVersionCheck(1);
-                    LOOP_ASSERT(U_SPEC, testInStream);
-                    LOOP_ASSERT(U_SPEC, !testInStream.isEmpty());
-
-                    const char *const V_SPEC = SPECS[vi];
-
+                for (int vi = 0; vi < NUM_DATA; ++vi) {
+                    const int         V_LINE = DATA[vi].d_line;
+                    const int         V_VERS = DATA[vi].d_version;
+                    const char *const V_SPEC = DATA[vi].d_spec;
                     const Obj VV = g(V_SPEC);
 
-                    Obj mV; const Obj& V = mV;
-                    BEGIN_EXCEPTION_SAFE_TEST {
-                        testInStream.reset();
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, testInStream);
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, !testInStream.isEmpty());
-                        gg(&mV, V_SPEC);
 
-                        if (veryVerbose) { cout << "\t |"; P_(U); P(V); }
+                    for (int version = U_VERS; version <= VERSION; ++version) {
+                        if (veryVerbose) { P(version); }
+                        Obj mU; const Obj& U = mU; gg(&mU, U_SPEC);
+                        bdex_TestOutStream out;
 
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, UU == U);
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, VV == V);
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, (ui == vi) == (U == V));
+                        // Testing stream-out operator here.
+                        bdex_OutStreamFunctions::streamOut(out, U, version);
 
-                        // Test stream-in operator here.
-                        bdex_InStreamFunctions::streamIn(testInStream,
-                                                         mV,
-                                                         VERSION);
+                        const char *const OD  = out.data();
+                        const int         LOD = out.length();
 
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, UU == U);
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, UU == V);
-                        LOOP2_ASSERT(U_SPEC, V_SPEC,  U == V);
-                    } END_EXCEPTION_SAFE_TEST(VV == V);
+                        bdex_TestInStream testInStream(OD, LOD);
+                        testInStream.setSuppressVersionCheck(1);
+                        LOOP_ASSERT(U_SPEC, testInStream);
+                        LOOP_ASSERT(U_SPEC, !testInStream.isEmpty());
+
+                        Obj mV; const Obj& V = mV;
+                        BEGIN_EXCEPTION_SAFE_TEST {
+                            testInStream.reset();
+                            LOOP2_ASSERT(U_SPEC, V_SPEC, testInStream);
+                            LOOP2_ASSERT(U_SPEC,
+                                         V_SPEC,
+                                         !testInStream.isEmpty());
+                            gg(&mV, V_SPEC);
+
+                            if (veryVerbose) { cout << "\t |"; P_(U); P(V); }
+
+                            LOOP2_ASSERT(U_SPEC, V_SPEC, UU == U);
+                            LOOP2_ASSERT(U_SPEC, V_SPEC, VV == V);
+                            LOOP2_ASSERT(U_SPEC,
+                                         V_SPEC,
+                                         (ui == vi) == (U == V));
+
+                            // Test stream-in operator here.
+                            bdex_InStreamFunctions::streamIn(testInStream,
+                                                             mV,
+                                                             version);
+
+                            LOOP2_ASSERT(U_SPEC, V_SPEC, UU == U);
+                            LOOP4_ASSERT(U_SPEC, V_SPEC, UU, V, UU == V);
+                            LOOP2_ASSERT(U_SPEC, V_SPEC,  U == V);
+                        } END_EXCEPTION_SAFE_TEST(VV == V);
+                    }
                 }
             }
         }
@@ -4265,50 +4316,122 @@ DEFINE_TEST_CASE(10) {
         {
             bdex_TestInStream testInStream("", 0);
             testInStream.setSuppressVersionCheck(1);
-            for (int ti = 0; SPECS[ti]; ++ti) {
-                const char *const SPEC   = SPECS[ti];
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const char *const SPEC = DATA[ti].d_spec;
+                const int         VERS = DATA[ti].d_version;
 
-                if (veryVerbose) { cout << "\t\t\t"; P(SPEC); }
+                for (int version = VERS; version <= VERSION; ++version) {
+                    if (veryVerbose) { cout << "\t\t\t"; P_(version) P(SPEC); }
 
-                // Create control object X.
+                    // Create control object X.
 
-                Obj mX; gg(&mX, SPEC); const Obj& X = mX;
-                Obj t; const Obj EMPTYCAL(t);
-                BEGIN_EXCEPTION_SAFE_TEST {
-                    testInStream.reset();
-                    gg(&t, SPEC);
+                    Obj mX; gg(&mX, SPEC); const Obj& X = mX;
+                    Obj t; const Obj EMPTYCAL(t);
+                    BEGIN_EXCEPTION_SAFE_TEST {
+                        testInStream.reset();
+                        gg(&t, SPEC);
 
-                    // Ensure that reading from an empty or invalid input
-                    // stream leaves the stream invalid and the target object
-                    // unchanged.
+                        // Ensure that reading from an empty or invalid input
+                        // stream leaves the stream invalid and the target
+                        // object unchanged.
 
-                    LOOP_ASSERT(ti, testInStream);
-                    LOOP_ASSERT(ti, X == t);
+                        LOOP_ASSERT(ti, testInStream);
+                        LOOP_ASSERT(ti, X == t);
 
-                    bdex_InStreamFunctions::streamIn(testInStream, t, VERSION);
-                    LOOP_ASSERT(ti, !testInStream);
-                    LOOP_ASSERT(ti, X == t);
+                        bdex_InStreamFunctions::streamIn(testInStream,
+                                                         t,
+                                                         version);
+                        LOOP_ASSERT(ti, !testInStream);
+                        LOOP_ASSERT(ti, X == t);
 
-                    bdex_InStreamFunctions::streamIn(testInStream, t, VERSION);
-                    LOOP_ASSERT(ti, !testInStream);
-                    LOOP_ASSERT(ti, X == t);
+                        bdex_InStreamFunctions::streamIn(testInStream,
+                                                         t,
+                                                         version);
+                        LOOP_ASSERT(ti, !testInStream);
+                        LOOP_ASSERT(ti, X == t);
 
-                } END_EXCEPTION_SAFE_TEST(t == EMPTYCAL)
+                    } END_EXCEPTION_SAFE_TEST(t == EMPTYCAL);
+                }
             }
         }
 
         if (verbose) cout <<
             "\tOn incomplete (but otherwise valid) data." << endl;
         {
+            static const struct {
+                int         d_line;         // source line number
+
+                int         d_version;      // mimum supported version of the
+                                            // streaming format
+
+                const char *d_spec;         // spec to generate the calendar
+            } DATA[] = {
+                //LINE  VER  SPEC
+                //----  ---  ----
+                { L_,     1, "@2005/12/1 60 4A 9BC 60DE"    },
+                { L_,     1, "u@1949/10/1 30 0ABCDE"        },
+                { L_,     1, "m@1/1/1"                      },
+                { L_,     2, "@2000/1/1 100 0u 50au 200fau" },
+            };
+
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            Obj YYs[NUM_DATA];
+            int LODs[NUM_DATA];
+
+            bdex_TestOutStream out;
+            for (int di = 0; di < NUM_DATA; ++di) {
+                YYs[di] = g(DATA[di].d_spec);
+                if (DATA[di].d_version <= version) {
+                    bdex_OutStreamFunctions::streamOut(out, YYs[i], version);
+                    LODs[di] = out.length();
+                }
+            }
+
+            const char *const OD = out.data();
+            const char *const CONTROL_SPEC = "au@1/1/1 365";
+            const Obj XX = g(CONTROL_SPEC);
+
+            for (int i = 0; i < LOD; ++i) {
+                bdex_TestInStream testInStream(OD, i);
+                bdex_TestInStream& in = testInStream;
+                in.setSuppressVersionCheck(1);
+                LOOP_ASSERT(i, in);  LOOP_ASSERT(i, !i == in.isEmpty());
+
+                if (veryVerbose) { cout << "\t\t"; P(i); }
+
+                Obj Xs[NUM_DATA];
+                for (int di = 0; di < NUM_DATA; ++di) {
+                    Xs[i] = g(CONTROL_SPEC);
+                }
+
+                BEGIN_EXCEPTION_SAFE_TEST {
+                for (int di = 0; di < NUM_DATA; ++di) {
+
+                    bdex_InStreamFunctions::streamIn(in, Xs[di], VERSION);
+                    if (i < LODs[di]) {
+                        LOOP_ASSERT(i, !in); LOOP_ASSERT(i, Xs[di] == XX);
+                    }
+                    else {
+                        LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, Xs[di] == YY);
+                    }
+                }
+                END_EXCEPTION_SAFE_TEST(   (stage == 0 && (X1 == t1)
+                                                       && (X2 == t2)
+                                                       && (X3 == t3))
+                                        || (stage == 1 && (Y1 == t1)
+                                                       && (X2 == t2)
+                                                       && (X3 == t3))
+                                        || (stage == 2 && (Y1 == t1)
+                                                       && (Y2 == t2)
+                                                       && (X3 == t3)))
+
+
             const Obj X1 = g("au@1997/7/1 30 0A");
             const Obj X2 = g("w@2000/1/1 0 0ABCDE");
             const Obj X3 = g("fau@2004/1/1 365 0 30 60AB");
             const Obj Y1 = g("@2005/12/1 60 4A 9BC 60DE");
             const Obj Y2 = g("u@1949/10/1 30 0ABCDE");
             const Obj Y3 = g("m@1/1/1");
-            const Obj Z1 = g("mtw@2008/7/4 100 30 60 90");
-            const Obj Z2 = g("t");
-            const Obj Z3 = g("fau@2005/1/1 30 30");
 
             bdex_TestOutStream out;
             bdex_OutStreamFunctions::streamOut(out, Y1, VERSION);
@@ -4376,6 +4499,8 @@ DEFINE_TEST_CASE(10) {
             }
         }
 
+        /*
+
         if (verbose) cout << "\tOn corrupted data." << endl;
 
         const Obj W = g("");                 // default value
@@ -4417,11 +4542,11 @@ DEFINE_TEST_CASE(10) {
             ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
         }
         {
-            const char version = 2; // too large
+            const char version = 3; // too large
             bdex_TestOutStream out;
 
             Obj z(Y);
-            bdex_OutStreamFunctions::streamOut(out, z, VERSION);
+            bdex_OutStreamFunctions::streamOut(out, z, version);
 
             const char *const OD  = out.data();
             const int         LOD = out.length();
@@ -4623,6 +4748,7 @@ DEFINE_TEST_CASE(10) {
             bdex_InStreamFunctions::streamIn(in, t, VERSION); ASSERT(!in);
             ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
         }
+        */
       }
 
 DEFINE_TEST_CASE(9) {
@@ -4685,6 +4811,7 @@ DEFINE_TEST_CASE(9) {
             "@2000/1/1 2",    "@2000/1/1 2au",    "au@2000/1/1 2 1",
             "au@2000/1/1 1A", "au@2000/1/1 1A 2", "@2000/1/1 1 2A",
             "@2000/1/1 100",  "au@2000/1/1 365 2 20A 30 40AB 50DE",
+            "au@2000/1/1 0au",  "@2000/1/1 0au 30tw 100rf",
         0}; // Null string required as last element.
 
         for (int i = 0; SPECS[i]; ++i) {
@@ -4833,6 +4960,7 @@ DEFINE_TEST_CASE(8) {
             "w@1900/3/4 30", "au@1/1/1 30 2 4A 30B", "fau@9999/12/31 0 0A",
             "au@2005/5/1 30 1A 3B 11C 12D 13E 29",
             "au@2008/1/1 365 15 40A 120B 280C 300D 365E",
+            "au@2000/1/1 0au",  "@2000/1/1 0au 30tw 100rf",
         0}; // Null string required as last element.
 
         if (verbose) cout <<
@@ -4924,6 +5052,7 @@ DEFINE_TEST_CASE(7) {
             "@2000/1/1 2",    "@2000/1/1 2au",    "au@2000/1/1 2 1",
             "au@2000/1/1 1A", "au@2000/1/1 1A 2", "@2000/1/1 1 2A",
             "@2000/1/1 100",  "au@2000/1/1 365 2 20A 30 40AB 50DE",
+            "au@2000/1/1 0au",  "@2000/1/1 0au 30tw 100rf",
         0}; // Null string required as last element.
 
         for (int i = 0; SPECS[i]; ++i) {
@@ -4981,7 +5110,7 @@ DEFINE_TEST_CASE(6) {
         // Plan:
         //  To address concern 1, we will select a set S of unique object
         //  values having various differences.  These differences include:
-        //      - Same except different weekend days;
+        //      - Same except different weekend-days transitions;
         //      - Same except different holidays;
         //      - Same except different holiday codes;
         //      - same except different end day;
@@ -5032,6 +5161,7 @@ DEFINE_TEST_CASE(6) {
             "@2000/1/1 100",   "@1999/12/31 1",    "@0001/1/1 364",
             "@9999/01/01 364", "@9999/12/31",      "fau@2004/2/29 2",
             "fau@2004/2/28 3", "au@2000/1/1 365 2 20A 30 40AB 50DE",
+            "au@2000/1/1 0au",  "@2000/1/1 0au 30tw 100rf",
         0}; // Null string required as last element.
 
         Obj emptyCal(&testAllocator); const Obj& EMPTYCAL = emptyCal;
@@ -5149,23 +5279,26 @@ DEFINE_TEST_CASE(5) {
 
         bslma_TestAllocator testAllocator(veryVeryVerbose);
 
-        char R0[]="{ [ 31DEC9999, 01JAN0001 ] [ ] }";
-        char R1[]="{ [ 31DEC9999, 01JAN0001 ] [ SUN SAT ] }";
-        char R2[]="{ [ 01JAN0001, 01JAN0001 ] [ ] }";
-        char R3[]="{ [ 01JAN0001, 19MAY0001 ] [ SUN SAT ] }";
-        char R4[]="{ [ 01JAN0001, 19MAY0001 ] [ ] 02JAN0001 03JAN0001 { 0 1 } "
+        char R0[]="{ [ 31DEC9999, 01JAN0001 ] [ 01JAN0001 : [ ] ] }";
+        char R1[]="{ [ 31DEC9999, 01JAN0001 ] [ 01JAN0001 : [ SUN SAT ] ] }";
+        char R2[]="{ [ 01JAN0001, 01JAN0001 ] [ 01JAN0001 : [ ] ] }";
+        char R3[]="{ [ 01JAN0001, 19MAY0001 ] [ 01JAN0001 : [ SUN SAT ] ] }";
+        char R4[]="{ [ 01JAN0001, 19MAY0001 ] [ 01JAN0001 : [ ] ] "
+                  "02JAN0001 03JAN0001 { 0 1 } "
                   "}";
-        char R5[]="{ [ 01JAN0001, 13JAN0001 ] [ ] 13JAN0001 { 0 1 2 100 1000 }"
-                  " }";
-        char R6[]="{ [ 01JAN0001, 09FEB0001 ] [ SUN SAT ] 02JAN0001 03JAN0001 "
-                  "{ 0 } 04JAN0001 { 1 } 08JAN0001 { 0 1 2 100 } }";
-        char R7[]="  { [ 01JAN0001, 13JAN0001 ] [ ] 13JAN0001 { 0 1 2 100 1000"
-                  " } }";
-        char R8[]="      { [ 01JAN0001, 13JAN0001 ] [ ] 13JAN0001 { 0 1 2 100 "
-                  "1000 } }";
+        char R5[]="{ [ 01JAN0001, 13JAN0001 ] [ 01JAN0001 : [ ] ] "
+                  "13JAN0001 { 0 1 2 100 1000 } }";
+        char R6[]="{ [ 01JAN0001, 09FEB0001 ] [ 01JAN0001 : [ SUN SAT ] ] "
+                  "02JAN0001 03JAN0001 { 0 } 04JAN0001 { 1 } "
+                  "08JAN0001 { 0 1 2 100 } }";
+
+        char R7[]="  { [ 01JAN0001, 13JAN0001 ] [ 01JAN0001 : [ ] ] "
+                  "13JAN0001 { 0 1 2 100 1000 } }";
+        char R8[]="      { [ 01JAN0001, 13JAN0001 ] [ 01JAN0001 : [ ] ] "
+                  "13JAN0001 { 0 1 2 100 1000 } }";
         char R9[]="  {\n"
                   "    [ 01JAN0001, 13JAN0001 ]\n"
-                  "    [ SUN SAT ]\n"
+                  "    [ 01JAN0001 : [ SUN SAT ] ]\n"
                   "    13JAN0001 {\n"
                   "      0\n"
                   "      1\n"
@@ -5176,7 +5309,7 @@ DEFINE_TEST_CASE(5) {
                   "  }\n";
         char R10[]="{\n"
                    "    [ 01JAN0001, 13JAN0001 ]\n"
-                   "    [ SUN SAT ]\n"
+                   "    [ 01JAN0001 : [ SUN SAT ] ]\n"
                    "    13JAN0001 {\n"
                    "      0\n"
                    "      1\n"
@@ -5185,8 +5318,14 @@ DEFINE_TEST_CASE(5) {
                    "      1000\n"
                    "    }\n"
                    "  }\n";
-        char R11[]="{ [ 01JAN0001, 13JAN0001 ] [ SUN FRI SAT ] 13JAN0001 { 0 1"
-                   " 2 100 1000 } }";
+        char R11[]="{ [ 01JAN0001, 13JAN0001 ] "
+                   "[ 01JAN0001 : [ SUN FRI SAT ] ] "
+                   "13JAN0001 { 0 1 2 100 1000 } }";
+        char R12[]="{ [ 01JAN0001, 11JAN0001 ] "
+                   "[ 01JAN0001 : [ SUN FRI SAT ], "
+                   "11JAN0001 : [ TUE ], "
+                   "13JAN0001 : [ WED THU ] ] "
+                   "02JAN0001 { 0 } 03JAN0001 { 1 } }";
 
         static const struct {
             const char *d_spec;
@@ -5207,6 +5346,7 @@ DEFINE_TEST_CASE(5) {
             {"au@1/1/1 1 12ABCDE",        1,     2,               R9 },
             {"au@1/1/1 1 12ABCDE",       -1,     2,               R10},
             {"fau@1/1/1 1 12ABCDE",      -1,    -2,               R11},
+            {"fau@1/1/1 10t 1A 12wr 2B", -1,    -2,               R12},
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -5248,6 +5388,7 @@ DEFINE_TEST_CASE(5) {
             bsl::string cmp = printStream.str();
             LOOP3_ASSERT(ti, cmp.size(), RESULT.size(),
                                                   cmp.size() == RESULT.size());
+
             for (int i = 0; i < cmp.size(); ++i) {
                 LOOP4_ASSERT(ti, i, cmp[i], RESULT[i], cmp[i] == RESULT[i]);
             }
@@ -5410,7 +5551,8 @@ DEFINE_TEST_CASE(4) {
         //      const bdet_Date& lastDate()
         //      bool isHoliday(const bdet_Date&)
         //      bool isWeekendDay(bdet_DayOfWeek::Day)
-        //      const bdec_DayOfWeekSet& weekendDays() const
+        //      beginWeekendDaysTransition() const;
+        //      endWeekendDaysTransition() const;
         //  -------------------------------------------------------------------
 
         bslma_TestAllocator testAllocator(veryVeryVerbose);
@@ -6272,61 +6414,6 @@ DEFINE_TEST_CASE(4) {
             }
         }
         {
-            // TESTING 'beginWeekendDays' and 'endWeekendDays'.
-
-            if (verbose) {
-                cout << endl
-                     << "Testing 'beginWeekendDays' and 'endWeekendDays'"
-                     << endl
-                     << "==============================================="
-                     << endl;
-            }
-
-            static const struct {
-                int                 d_lineNumber;
-                bdet_DayOfWeek::Day d_day;
-                bdet_DayOfWeek::Day d_begin;
-                bdet_DayOfWeek::Day d_last;
-            } WKDATA[] = {
-        //------^
-        //LINE,     DAY,                 BEGIN,               LAST
-        { L_, bdet_DayOfWeek::BDET_TUE, bdet_DayOfWeek::BDET_TUE,
-                                        bdet_DayOfWeek::BDET_TUE},
-        { L_, bdet_DayOfWeek::BDET_SUN, bdet_DayOfWeek::BDET_SUN,
-                                        bdet_DayOfWeek::BDET_TUE},
-        { L_, bdet_DayOfWeek::BDET_SAT, bdet_DayOfWeek::BDET_SUN,
-                                        bdet_DayOfWeek::BDET_SAT},
-        { L_, bdet_DayOfWeek::BDET_FRI, bdet_DayOfWeek::BDET_SUN,
-                                        bdet_DayOfWeek::BDET_SAT},
-        //------v
-            };
-            const int NUM_WKDATA = sizeof WKDATA / sizeof *WKDATA;
-
-            Obj mX(&testAllocator);
-            const Obj& X = mX;
-            ASSERT(X.beginWeekendDays()  == X.endWeekendDays());
-            ASSERT(X.rbeginWeekendDays() == X.rendWeekendDays());
-            for (int nb = 0; nb < NUM_WKDATA; ++nb) {
-                const int LINE = WKDATA[nb].d_lineNumber;
-                const bdet_DayOfWeek::Day DAY   = WKDATA[nb].d_day;
-                const bdet_DayOfWeek::Day BEGIN = WKDATA[nb].d_begin;
-                const bdet_DayOfWeek::Day LAST  = WKDATA[nb].d_last;
-
-                mX.addWeekendDay(DAY);
-                LOOP3_ASSERT(nb, *X.beginWeekendDays(), BEGIN,
-                                 *X.beginWeekendDays() == BEGIN);
-                Obj::WeekendDayConstIterator it = X.endWeekendDays();
-                --it;
-                LOOP3_ASSERT(nb, *it, LAST, *it == LAST);
-
-                // REVERSE ITERATOR TEST
-
-                LOOP3_ASSERT(nb, *X.rbeginWeekendDays(), LAST,
-                                 *X.rbeginWeekendDays() == LAST);
-                Obj::WeekendDayConstReverseIterator rit = X.rendWeekendDays();
-                --rit;
-                LOOP3_ASSERT(nb, *rit, BEGIN, *rit == BEGIN);
-            }
             {
                 // Testing 'firstDate', 'lastDate', 'isInRange', 'length'
 
@@ -6503,28 +6590,88 @@ DEFINE_TEST_CASE(4) {
                 Obj mX(&testAllocator); const Obj& X = mX;
                 bdec_DayOfWeekSet set;
 
-                ASSERT(X.weekendDays() == set);
+                ASSERT(X.numWeekendDaysTransitions() == 1);
+                ASSERT(X.beginWeekendDaysTransition()->second == set);
 
                 set.add(bdet_DayOfWeek::BDET_SUN);
                 mX.addWeekendDay(bdet_DayOfWeek::BDET_SUN);
-                ASSERT(X.weekendDays() == set);
+                ASSERT(X.numWeekendDaysTransitions() == 1);
+                ASSERT(X.beginWeekendDaysTransition()->second == set);
 
                 set.add(bdet_DayOfWeek::BDET_MON);
                 mX.addWeekendDay(bdet_DayOfWeek::BDET_MON);
-                ASSERT(X.weekendDays() == set);
+                ASSERT(X.numWeekendDaysTransitions() == 1);
+                ASSERT(X.beginWeekendDaysTransition()->second == set);
 
                 set.add(bdet_DayOfWeek::BDET_WED);
                 mX.addWeekendDay(bdet_DayOfWeek::BDET_WED);
-                ASSERT(X.weekendDays() == set);
+                ASSERT(X.numWeekendDaysTransitions() == 1);
+                ASSERT(X.beginWeekendDaysTransition()->second == set);
 
                 set.removeAll();
                 mX.removeAll();
-                ASSERT(X.weekendDays() == set);
+                ASSERT(X.numWeekendDaysTransitions() == 1);
+                ASSERT(X.beginWeekendDaysTransition()->second == set);
+            }
+
+            {
+                // Test 'beginWeekendDaysTransition' and
+                // 'endWeekendDaysTransition' using std::equal
+                Obj mX;
+                bsl::set<Obj::WeekendDaysTransition, WeekendDaysTransitionLess>
+                    eTransitions;
+                bdet_Date date(1, 1, 1);
+                bdec_DayOfWeekSet weekendDays;
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                        date, weekendDays));
+
+                // Empty calendar contains a transition at 1/1/1 that has no
+                // weekend days
+                const Obj& X = mX;
+                ASSERT(1 == X.numWeekendDaysTransitions());
+                ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
+                                  X.endWeekendDaysTransition(),
+                                  eTransitions.begin()));
+
+                date.setYearMonthDay(2, 2, 2);
+                weekendDays.removeAll();
+                weekendDays.add(bdet_DayOfWeek::BDET_MON);
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                        date, weekendDays));
+                mX.addWeekendDaysTransition(date, weekendDays);
+                ASSERT(2 == X.numWeekendDaysTransitions());
+                ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
+                                  X.endWeekendDaysTransition(),
+                                  eTransitions.begin()));
+
+                date.setYearMonthDay(3, 3, 3);
+                weekendDays.removeAll();
+                weekendDays.add(bdet_DayOfWeek::BDET_WED);
+                weekendDays.add(bdet_DayOfWeek::BDET_SUN);
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                        date, weekendDays));
+                mX.addWeekendDaysTransition(date, weekendDays);
+                ASSERT(3 == X.numWeekendDaysTransitions());
+                ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
+                                  X.endWeekendDaysTransition(),
+                                  eTransitions.begin()));
+
+                date.setYearMonthDay(4, 4, 4);
+                weekendDays.removeAll();
+                weekendDays.add(bdet_DayOfWeek::BDET_MON);
+                weekendDays.add(bdet_DayOfWeek::BDET_THU);
+                eTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+                mX.addWeekendDaysTransition(date, weekendDays);
+                ASSERT(4 == X.numWeekendDaysTransitions());
+                ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
+                                  X.endWeekendDaysTransition(),
+                                  eTransitions.begin()));
+
             }
         }
       }
 
-    */
 DEFINE_TEST_CASE(3) {
         // --------------------------------------------------------------------
         // TESTING SIMPLE GENERATOR FUNCTION 'hh' AND PRIMITIVE GENERATOR
@@ -7917,7 +8064,6 @@ DEFINE_TEST_CASE(1) {
         //  - int numWeekendDaysInRange() const;
         //  - int numWeekendDaysInWeek() const;
         //  - ostream& print(ostream& stream, int lev = 0, int spl = 4) const;
-        //  - const bdec_DayOfWeekSet& weekendDays() const;
         //
         // Plan:
         //   This test case *exercises* basic functionality of a calendar in
@@ -8594,6 +8740,7 @@ int main(int argc, char *argv[])
         CASE(13);
         CASE(12);
         CASE(11);
+        */
         CASE(10);
         CASE(9);
         CASE(8);
@@ -8601,7 +8748,6 @@ int main(int argc, char *argv[])
         CASE(6);
         CASE(5);
         CASE(4);
-        */
         CASE(3);
         CASE(2);
         CASE(1);

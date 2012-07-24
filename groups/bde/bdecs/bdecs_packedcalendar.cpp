@@ -535,6 +535,7 @@ bdecs_PackedCalendar::bdecs_PackedCalendar(bslma_Allocator *basicAllocator)
 , d_holidayCodesIndex(basicAllocator)
 , d_holidayCodes(basicAllocator)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_weekendDaysTransitions(basicAllocator)
 {
 }
 
@@ -547,6 +548,7 @@ bdecs_PackedCalendar::bdecs_PackedCalendar(const bdet_Date&  firstDate,
 , d_holidayCodesIndex(basicAllocator)
 , d_holidayCodes(basicAllocator)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_weekendDaysTransitions(basicAllocator)
 {
 }
 
@@ -560,6 +562,7 @@ bdecs_PackedCalendar::bdecs_PackedCalendar(
 , d_holidayCodesIndex(original.d_holidayCodesIndex, basicAllocator)
 , d_holidayCodes(original.d_holidayCodes, basicAllocator)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_weekendDaysTransitions(original.d_weekendDaysTransitions, basicAllocator)
 {
 }
 
@@ -585,10 +588,12 @@ void bdecs_PackedCalendar::swap(bdecs_PackedCalendar& other)
 
     bslalg_SwapUtil::swap(&d_firstDate,         &other.d_firstDate);
     bslalg_SwapUtil::swap(&d_lastDate,          &other.d_lastDate);
-    bslalg_SwapUtil::swap(&d_weekendDays,       &other.d_weekendDays);
+    // bslalg_SwapUtil::swap(&d_weekendDays,       &other.d_weekendDays);
     bslalg_SwapUtil::swap(&d_holidayOffsets,    &other.d_holidayOffsets);
     bslalg_SwapUtil::swap(&d_holidayCodesIndex, &other.d_holidayCodesIndex);
     bslalg_SwapUtil::swap(&d_holidayCodes,      &other.d_holidayCodes);
+    bslalg_SwapUtil::swap(&d_weekendDaysTransitions,
+                          &other.d_weekendDaysTransitions);
 }
 
 void bdecs_PackedCalendar::addDay(const bdet_Date& date)
@@ -991,8 +996,19 @@ bsl::ostream& bdecs_PackedCalendar::print(bsl::ostream& stream,
     if (spacesPerLevel >= 0) {
         bdeu_Print::indent(stream, level + 1, spacesPerLevel);
     }
-    d_weekendDays.print(stream, -1, -1);
-    stream << NL;
+
+    stream << "[ ";
+    WeekendDaysTransitionConstIterator itr = beginWeekendDaysTransition();
+    while(itr != endWeekendDaysTransition())
+    {
+        stream << itr->first << " : ";
+        itr->second.print(stream, -1, -1);
+        if (++itr != endWeekendDaysTransition()) {
+            stream << ", ";
+        }
+    }
+    stream << " ]" << NL;  // extra space for we always have one transition at
+                           // 1/1/1
 
     for (OffsetsConstIterator i = d_holidayOffsets.begin();
                                             i != d_holidayOffsets.end(); ++i) {
@@ -1047,7 +1063,7 @@ int bdecs_PackedCalendar::numWeekendDaysInRange() const
     // Find the first transition that has a date less than or equal to the
     // first date of calendar.
     bdec_DayOfWeekSet dummySet;
-    WeekendDaysTransitionConstIterator itr =
+    WeekendDaysTransitionSequence::const_iterator itr =
                             bsl::upper_bound(d_weekendDaysTransitions.begin(),
                                              d_weekendDaysTransitions.end(),
                                              WeekendDaysTransition(d_firstDate,
@@ -1056,7 +1072,6 @@ int bdecs_PackedCalendar::numWeekendDaysInRange() const
     --itr;
 
     int numWeekendDays = 0;
-
 
     bdet_Date firstDate = d_firstDate;
     do {
@@ -1114,10 +1129,19 @@ bool operator==(const bdecs_PackedCalendar& lhs,
 
 }
 
+
+// FREE OPERATORS
 bool operator!=(const bdecs_PackedCalendar& lhs,
                 const bdecs_PackedCalendar& rhs)
 {
     return !(lhs == rhs);
+}
+
+bsl::ostream& operator<<(bsl::ostream&               stream,
+                         const bdecs_PackedCalendar& calendar)
+{
+    calendar.print(stream, 0, -1);
+    return stream;
 }
 
                 // ---------------------------------------------------
@@ -1269,13 +1293,121 @@ bdecs_PackedCalendar_BusinessDayConstIterator::operator=(
     return *this;
 }
 
-// FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream&               stream,
-                         const bdecs_PackedCalendar& calendar)
+            // --------------------------------------------------------------
+            // class bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator
+            // --------------------------------------------------------------
+
+// PRIVATE CREATORS
+bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::
+bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator(
+                                          const bdecs_PackedCalendar& calendar,
+                                          bool endFlag)
+: d_calendar_p(&calendar)
+, d_defaultTransition(bdet_Date(1, 1, 1), bdec_DayOfWeekSet())
+, d_endFlag(endFlag)
 {
-    calendar.print(stream, 0, -1);
-    return stream;
+    if (endFlag) {
+        d_position = d_calendar_p->d_weekendDaysTransitions.end();
+    }
+    else {
+        d_position = d_calendar_p->d_weekendDaysTransitions.begin();
+    }
 }
+
+// PRIVATE ACCESSORS
+bool
+bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::
+                                                     implicitTransition() const
+{
+    return d_calendar_p->d_weekendDaysTransitions.empty();
+}
+
+bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator&
+bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::operator++()
+{
+    if (implicitTransition() && !d_endFlag) {
+        d_endFlag = true;
+    }
+    else {
+        ++d_position;
+    }
+    return *this;
+}
+
+bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator&
+bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::operator--()
+{
+    if (implicitTransition() && d_endFlag) {
+        d_endFlag = false;
+    }
+    else {
+        --d_position;
+    }
+    return *this;
+}
+
+const bdecs_PackedCalendar::WeekendDaysTransition&
+bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::operator*() const
+{
+    if (implicitTransition() && !d_endFlag) {
+        return d_defaultTransition;
+    }
+    return *d_position;
+}
+
+const bdecs_PackedCalendar::WeekendDaysTransition*
+bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::operator->() const
+{
+    if (implicitTransition() && !d_endFlag) {
+        return &d_defaultTransition;
+    }
+    return &(*d_position);
+}
+
+// FREE OPERATORS
+
+bool operator==(
+           const bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& lhs,
+           const bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& rhs)
+{
+    if (lhs.d_calendar_p != rhs.d_calendar_p) {
+        return false;
+    }
+
+    if (lhs.implicitTransition())
+    {
+        return lhs.d_endFlag  == rhs.d_endFlag &&
+               lhs.d_position == rhs.d_position;
+    }
+
+    return lhs.d_position == rhs.d_position;
+}
+
+bool operator!=(
+           const bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& lhs,
+           const bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& rhs)
+{
+    return !(lhs == rhs);
+}
+
+bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator
+operator++(bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& iter,
+           int)
+{
+    bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator temp = iter;
+    ++iter;
+    return temp;
+}
+
+bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator
+operator--(bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& iter,
+           int)
+{
+    bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator temp = iter;
+    --iter;
+    return temp;
+}
+
 
 }  // close namespace BloombergLP
 
