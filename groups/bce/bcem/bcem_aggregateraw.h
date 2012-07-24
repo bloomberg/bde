@@ -1915,6 +1915,52 @@ int bcem_AggregateRaw::arrayItem(bcem_AggregateRaw   *item,
     return item->descendIntoArrayItem(errorDescription, index, false);
 }
 
+template <typename TOTYPE>
+inline
+TOTYPE bcem_AggregateRaw::convertScalar() const
+{
+    TOTYPE result;
+    int    status = -1;
+    const bdem_EnumerationDef *enumDef = enumerationConstraint();
+    if (enumDef) {
+        int enumId;
+        if (bdem_ElemType::BDEM_INT == d_dataType) {
+            enumId = *static_cast<int*>(d_value_p);
+            status = 0;
+        }
+        else if (bdem_ElemType::BDEM_STRING == d_dataType) {
+            const bsl::string& enumName =
+                                         *static_cast<bsl::string*>(d_value_p);
+            enumId = enumDef->lookupId(enumName.c_str());
+            if (bdetu_Unset<int>::unsetValue() != enumId
+             || bdetu_Unset<bsl::string>::isUnset(enumName)) {
+                status = 0;
+            }
+        }
+
+        if (0 == status) {
+            status = bdem_Convert::convert(&result, enumId);
+        }
+    }
+
+    if (0 != status) {
+        // If not an enumeration, or if enum-conversion failed, then do normal
+        // conversion.
+        status = bdem_Convert::fromBdemType(&result,
+                                            d_value_p,
+                                            d_dataType);
+    }
+
+    if (0 != status) {
+
+        // Conversion failed.
+
+        return bdetu_Unset<TOTYPE>::unsetValue();                     // RETURN
+    }
+
+    return result;
+}
+
 inline
 const void *bcem_AggregateRaw::data() const
 {
