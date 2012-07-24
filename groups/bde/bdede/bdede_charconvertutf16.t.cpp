@@ -5774,10 +5774,10 @@ int main(int argc, char**argv)
         {
             if (verbose) cout << "Disallowed Octets:\n";
 
-            const char DISALLOWED[] = {
+            const unsigned char DISALLOWED[] = {
                 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff, 0 };
 
-            for (const char *pc = DISALLOWED; *pc; ++pc) {
+            for (const unsigned char *pc = DISALLOWED; *pc; ++pc) {
                 char input[] = { "abcd" };
                 unsigned short output[10];
 
@@ -6101,7 +6101,7 @@ int main(int argc, char**argv)
         if (verbose) cout << "Missing continuation octets\n";
 
         {
-            char HEADERS[] = { 0, 0, 0xc3, 0xe1, 0xf1 };
+            unsigned char HEADERS[] = { 0, 0, 0xc3, 0xe1, 0xf1 };
 
             for (unsigned h = 2; h <= 4; ++h) {
                 for (unsigned c = 0; c < h-1; ++c) {
