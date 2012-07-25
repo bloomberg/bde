@@ -8244,7 +8244,7 @@ class TestDriver {
                                // TEST APPARATUS
                                // --------------
 
-static void TestDriver::testCase42() {
+void TestDriver::testCase42() {
         // --------------------------------------------------------------------
         // Testing LOWAT called when 'enqueueWatermark' exceeded
         //
@@ -8361,7 +8361,7 @@ static void TestDriver::testCase42() {
         LOOP_ASSERT(numTimesLowWatCalled, 2 == numTimesLowWatCalled);
 }
 
-static void TestDriver::testCase41() {
+void TestDriver::testCase41() {
         // --------------------------------------------------------------------
         // ADDING WRITE STATISTICS - DRQS 30994480
         //
@@ -8473,7 +8473,7 @@ static void TestDriver::testCase41() {
         ASSERT(0 == bcemt_ThreadUtil::join(handles[NUM_THREADS]));
 }
 
-static void TestDriver::testCase38() {
+void TestDriver::testCase38() {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 28934644
         //
@@ -8573,7 +8573,7 @@ static void TestDriver::testCase38() {
         }
 }
 
-static void TestDriver::testCase37() {
+void TestDriver::testCase37() {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
         //   Send and receive various messages conforming to the vlm_EchoServer
@@ -8661,7 +8661,7 @@ static void TestDriver::testCase37() {
 
 }
 
-static void TestDriver::testCase36() {
+void TestDriver::testCase36() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST: my_QueueProcessor
         //
@@ -8749,7 +8749,7 @@ static void TestDriver::testCase36() {
 
 }
 
-static void TestDriver::testCase35() {
+void TestDriver::testCase35() {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -8785,7 +8785,7 @@ static void TestDriver::testCase35() {
         monitorPool(&coutMutex, echoServer.pool(), NUM_MONITOR, verbose);
 }
 
-static void TestDriver::testCase34() {
+void TestDriver::testCase34() {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 25245489
         //   Reproducing that even when numNeeded is specified as 0 channel
@@ -8936,7 +8936,7 @@ static void TestDriver::testCase34() {
         }
 }
 
-static void TestDriver::testCase33() {
+void TestDriver::testCase33() {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 20199908
         //   Reproducing that even when numNeeded is specified as 0 channel
@@ -9047,7 +9047,7 @@ static void TestDriver::testCase33() {
         }
 }
 
-static void TestDriver::testCase32() {
+void TestDriver::testCase32() {
         // --------------------------------------------------------------------
         // TESTING 'connect' & 'listen' with SocketOpts and clientAddress
         //   Ensure that the 'connect' and 'listen' functions have the
@@ -9854,7 +9854,7 @@ static void TestDriver::testCase32() {
         }
 }
 
-static void TestDriver::testCase31() {
+void TestDriver::testCase31() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 22256519
         //
@@ -9929,7 +9929,7 @@ static void TestDriver::testCase31() {
         LOOP_ASSERT(DATA, DATA == string(TEXT));
 }
 
-static void TestDriver::testCase30() {
+void TestDriver::testCase30() {
         // --------------------------------------------------------------------
         // READ TEST
         //
@@ -10036,7 +10036,7 @@ static void TestDriver::testCase30() {
         }
 }
 
-static void TestDriver::testCase29() {
+void TestDriver::testCase29() {
         // --------------------------------------------------------------------
         // CONCERN: Event Manager Allocation
         //
@@ -10376,7 +10376,7 @@ static void TestDriver::testCase29() {
         }
 }
 
-static void TestDriver::testCase28() {
+void TestDriver::testCase28() {
         // --------------------------------------------------------------------
         // TESTING: 'busyMetrics' and time metrics collection.
         //
@@ -10538,7 +10538,7 @@ static void TestDriver::testCase28() {
         }
 }
 
-static void TestDriver::testCase27() {
+void TestDriver::testCase27() {
         // --------------------------------------------------------------------
         // TESTING: readTimeout configuration
         //
@@ -10692,7 +10692,7 @@ static void TestDriver::testCase27() {
 
 }
 
-static void TestDriver::testCase26() {
+void TestDriver::testCase26() {
         // --------------------------------------------------------------------
         // TESTING: struct 'btemt_ChannelPool_MessageUtil' and
         //          'btemt_ChannelPool_IovecArray'.
@@ -11083,7 +11083,7 @@ static void TestDriver::testCase26() {
         }
 }
 
-static void TestDriver::testCase25() {
+void TestDriver::testCase25() {
         // --------------------------------------------------------------------
         // TESTING: 'setWriteCacheHigh/LowWatermark()'
         //
@@ -11350,7 +11350,7 @@ static void TestDriver::testCase25() {
 
 }
 
-static void TestDriver::testCase24() {
+void TestDriver::testCase24() {
         // --------------------------------------------------------------------
         // TESTING 'enableRead' FIX
         //
@@ -11393,7 +11393,7 @@ static void TestDriver::testCase24() {
 
 }
 
-static void TestDriver::testCase23() {
+void TestDriver::testCase23() {
         // --------------------------------------------------------------------
         // TESTING HALF-OPEN CONNECTIONS
         //
@@ -11628,7 +11628,7 @@ static void TestDriver::testCase23() {
 
 }
 
-static void TestDriver::testCase22() {
+void TestDriver::testCase22() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: Stress test
         //
@@ -11825,7 +11825,7 @@ static void TestDriver::testCase22() {
 
 }
 
-static void TestDriver::testCase21() {
+void TestDriver::testCase21() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: OpenSSL-like sockets
         //
@@ -11881,7 +11881,7 @@ static void TestDriver::testCase21() {
 
 }
 
-static void TestDriver::testCase20() {
+void TestDriver::testCase20() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 8397003
         //
@@ -12058,7 +12058,7 @@ static void TestDriver::testCase20() {
 
 }
 
-static void TestDriver::testCase19() {
+void TestDriver::testCase19() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 5425522
         //
@@ -12247,7 +12247,7 @@ static void TestDriver::testCase19() {
 
 }
 
-static void TestDriver::testCase18() {
+void TestDriver::testCase18() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 4430835
         //
@@ -12487,7 +12487,7 @@ static void TestDriver::testCase18() {
 
 }
 
-static void TestDriver::testCase17() {
+void TestDriver::testCase17() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 4340683
         //
@@ -12581,7 +12581,7 @@ static void TestDriver::testCase17() {
 
 }
 
-static void TestDriver::testCase16() {
+void TestDriver::testCase16() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: SHUTDOWN INSIDE CHANNEL STATE CALLBACK
         //
@@ -12677,7 +12677,7 @@ static void TestDriver::testCase16() {
 
 }
 
-static void TestDriver::testCase15() {
+void TestDriver::testCase15() {
         // --------------------------------------------------------------------
         // Testing getHandleStatistics facility
         //
@@ -12972,7 +12972,7 @@ static void TestDriver::testCase15() {
 
 }
 
-static void TestDriver::testCase14() {
+void TestDriver::testCase14() {
         // --------------------------------------------------------------------
         // Testing numBytes*(), totalBytes*() and getChannelStatistics*()
         // facility
@@ -13475,7 +13475,7 @@ static void TestDriver::testCase14() {
 
 }
 
-static void TestDriver::testCase13() {
+void TestDriver::testCase13() {
         // --------------------------------------------------------------------
         // TESTING 'reportWeightedAverageReset()'
         //
@@ -13653,7 +13653,7 @@ static void TestDriver::testCase13() {
 
 }
 
-static void TestDriver::testCase12() {
+void TestDriver::testCase12() {
         // --------------------------------------------------------------------
         // TESTING FLOW CONTROL
         //
@@ -13786,7 +13786,7 @@ static void TestDriver::testCase12() {
 
 }
 
-static void TestDriver::testCase11() {
+void TestDriver::testCase11() {
         // --------------------------------------------------------------------
         // TESTING 'disableRead' and 'enableRead' METHODS
         //
@@ -13828,7 +13828,7 @@ static void TestDriver::testCase11() {
 
 }
 
-static void TestDriver::testCase10() {
+void TestDriver::testCase10() {
         // --------------------------------------------------------------------
         // TESTING 'registerClock' AND 'deregisterClock' METHODS
         //
@@ -14364,7 +14364,7 @@ static void TestDriver::testCase10() {
 
 }
 
-static void TestDriver::testCase9() {
+void TestDriver::testCase9() {
         // --------------------------------------------------------------------
         // Testing 'writeMessage'
         //
@@ -14416,7 +14416,7 @@ static void TestDriver::testCase9() {
 
 }
 
-static void TestDriver::testCase8() {
+void TestDriver::testCase8() {
         // --------------------------------------------------------------------
         // TESTING 'shutdown'
         //
@@ -14645,7 +14645,7 @@ static void TestDriver::testCase8() {
 
 }
 
-static void TestDriver::testCase7() {
+void TestDriver::testCase7() {
         // --------------------------------------------------------------------
         // TESTING CONCERN: IMPORT HALF-CLOSED SOCKET PAIR
         //
@@ -14739,7 +14739,7 @@ static void TestDriver::testCase7() {
 
 }
 
-static void TestDriver::testCase6() {
+void TestDriver::testCase6() {
         // --------------------------------------------------------------------
         // TESTING 'import' METHOD
         //
@@ -14937,7 +14937,7 @@ static void TestDriver::testCase6() {
 
 }
 
-static void TestDriver::testCase5() {
+void TestDriver::testCase5() {
         // --------------------------------------------------------------------
         // TESTING ESTABLISHING LISTENING SOCKET - BASIC TEST
         //
@@ -15078,7 +15078,7 @@ static void TestDriver::testCase5() {
 
 }
 
-static void TestDriver::testCase4() {
+void TestDriver::testCase4() {
         // --------------------------------------------------------------------
         // TESTING 'connect' METHOD
         //
@@ -15565,7 +15565,7 @@ static void TestDriver::testCase4() {
 
 }
 
-static void TestDriver::testCase3() {
+void TestDriver::testCase3() {
         // --------------------------------------------------------------------
         // TESTING 'start' AND 'stop' METHODS
         //
@@ -15612,7 +15612,7 @@ static void TestDriver::testCase3() {
 
 }
 
-static void TestDriver::testCase2() {
+void TestDriver::testCase2() {
         // --------------------------------------------------------------------
         // TESTING CREATORS
         //
@@ -15626,7 +15626,7 @@ static void TestDriver::testCase2() {
 
 }
 
-static void TestDriver::testCase1() {
+void TestDriver::testCase1() {
         // --------------------------------------------------------------------
         // BREATHING TEST:
         //   Developer's sandbox.
@@ -15902,7 +15902,7 @@ int main(int argc, char **argv)
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
-#define CASE(NUMBER) case NUMBER: testCase##NUMBER(); break
+#define CASE(NUMBER) case NUMBER: TestDriver::testCase##NUMBER(); break
       CASE(42);
       CASE(41);
 //         CASE(40);
