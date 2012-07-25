@@ -8115,6 +8115,12 @@ class TestDriver {
     static void testCase41();
         // Test that additional write statistics are reported as expected.
 
+    static void testCase40();
+        // TBD: Doc
+
+    static void testCase39();
+        // TBD: Doc
+
     static void testCase38();
         // Test that 'disableRead' when called from dispatcher thread stops
         // reading from the socket. 
@@ -8244,7 +8250,8 @@ class TestDriver {
                                // TEST APPARATUS
                                // --------------
 
-void TestDriver::testCase42() {
+void TestDriver::testCase42()
+{
         // --------------------------------------------------------------------
         // Testing LOWAT called when 'enqueueWatermark' exceeded
         //
@@ -8361,7 +8368,8 @@ void TestDriver::testCase42() {
         LOOP_ASSERT(numTimesLowWatCalled, 2 == numTimesLowWatCalled);
 }
 
-void TestDriver::testCase41() {
+void TestDriver::testCase41()
+{
         // --------------------------------------------------------------------
         // ADDING WRITE STATISTICS - DRQS 30994480
         //
@@ -8473,7 +8481,18 @@ void TestDriver::testCase41() {
         ASSERT(0 == bcemt_ThreadUtil::join(handles[NUM_THREADS]));
 }
 
-void TestDriver::testCase38() {
+void TestDriver::testCase40()
+{
+    // TBD: Update when test cases are merged.
+}
+
+void TestDriver::testCase39()
+{
+    // TBD: Update when test cases are merged.
+}
+
+void TestDriver::testCase38()
+{
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 28934644
         //
@@ -8573,7 +8592,8 @@ void TestDriver::testCase38() {
         }
 }
 
-void TestDriver::testCase37() {
+void TestDriver::testCase37()
+{
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
         //   Send and receive various messages conforming to the vlm_EchoServer
@@ -8661,7 +8681,8 @@ void TestDriver::testCase37() {
 
 }
 
-void TestDriver::testCase36() {
+void TestDriver::testCase36()
+{
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST: my_QueueProcessor
         //
@@ -8749,7 +8770,8 @@ void TestDriver::testCase36() {
 
 }
 
-void TestDriver::testCase35() {
+void TestDriver::testCase35()
+{
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -8785,7 +8807,8 @@ void TestDriver::testCase35() {
         monitorPool(&coutMutex, echoServer.pool(), NUM_MONITOR, verbose);
 }
 
-void TestDriver::testCase34() {
+void TestDriver::testCase34()
+{
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 25245489
         //   Reproducing that even when numNeeded is specified as 0 channel
@@ -8936,7 +8959,8 @@ void TestDriver::testCase34() {
         }
 }
 
-void TestDriver::testCase33() {
+void TestDriver::testCase33()
+{
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 20199908
         //   Reproducing that even when numNeeded is specified as 0 channel
@@ -9047,7 +9071,8 @@ void TestDriver::testCase33() {
         }
 }
 
-void TestDriver::testCase32() {
+void TestDriver::testCase32()
+{
         // --------------------------------------------------------------------
         // TESTING 'connect' & 'listen' with SocketOpts and clientAddress
         //   Ensure that the 'connect' and 'listen' functions have the
@@ -9854,7 +9879,8 @@ void TestDriver::testCase32() {
         }
 }
 
-void TestDriver::testCase31() {
+void TestDriver::testCase31()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 22256519
         //
@@ -9929,7 +9955,8 @@ void TestDriver::testCase31() {
         LOOP_ASSERT(DATA, DATA == string(TEXT));
 }
 
-void TestDriver::testCase30() {
+void TestDriver::testCase30()
+{
         // --------------------------------------------------------------------
         // READ TEST
         //
@@ -10036,7 +10063,8 @@ void TestDriver::testCase30() {
         }
 }
 
-void TestDriver::testCase29() {
+void TestDriver::testCase29()
+{
         // --------------------------------------------------------------------
         // CONCERN: Event Manager Allocation
         //
@@ -10376,7 +10404,8 @@ void TestDriver::testCase29() {
         }
 }
 
-void TestDriver::testCase28() {
+void TestDriver::testCase28()
+{
         // --------------------------------------------------------------------
         // TESTING: 'busyMetrics' and time metrics collection.
         //
@@ -10538,7 +10567,8 @@ void TestDriver::testCase28() {
         }
 }
 
-void TestDriver::testCase27() {
+void TestDriver::testCase27()
+{
         // --------------------------------------------------------------------
         // TESTING: readTimeout configuration
         //
@@ -10692,7 +10722,8 @@ void TestDriver::testCase27() {
 
 }
 
-void TestDriver::testCase26() {
+void TestDriver::testCase26()
+{
         // --------------------------------------------------------------------
         // TESTING: struct 'btemt_ChannelPool_MessageUtil' and
         //          'btemt_ChannelPool_IovecArray'.
@@ -11083,7 +11114,8 @@ void TestDriver::testCase26() {
         }
 }
 
-void TestDriver::testCase25() {
+void TestDriver::testCase25()
+{
         // --------------------------------------------------------------------
         // TESTING: 'setWriteCacheHigh/LowWatermark()'
         //
@@ -11350,7 +11382,8 @@ void TestDriver::testCase25() {
 
 }
 
-void TestDriver::testCase24() {
+void TestDriver::testCase24()
+{
         // --------------------------------------------------------------------
         // TESTING 'enableRead' FIX
         //
@@ -11393,7 +11426,8 @@ void TestDriver::testCase24() {
 
 }
 
-void TestDriver::testCase23() {
+void TestDriver::testCase23()
+{
         // --------------------------------------------------------------------
         // TESTING HALF-OPEN CONNECTIONS
         //
@@ -11628,7 +11662,8 @@ void TestDriver::testCase23() {
 
 }
 
-void TestDriver::testCase22() {
+void TestDriver::testCase22()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: Stress test
         //
@@ -11825,7 +11860,8 @@ void TestDriver::testCase22() {
 
 }
 
-void TestDriver::testCase21() {
+void TestDriver::testCase21()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: OpenSSL-like sockets
         //
@@ -11881,7 +11917,8 @@ void TestDriver::testCase21() {
 
 }
 
-void TestDriver::testCase20() {
+void TestDriver::testCase20()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 8397003
         //
@@ -12058,7 +12095,8 @@ void TestDriver::testCase20() {
 
 }
 
-void TestDriver::testCase19() {
+void TestDriver::testCase19()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 5425522
         //
@@ -12247,7 +12285,8 @@ void TestDriver::testCase19() {
 
 }
 
-void TestDriver::testCase18() {
+void TestDriver::testCase18()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 4430835
         //
@@ -12487,7 +12526,8 @@ void TestDriver::testCase18() {
 
 }
 
-void TestDriver::testCase17() {
+void TestDriver::testCase17()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 4340683
         //
@@ -12581,7 +12621,8 @@ void TestDriver::testCase17() {
 
 }
 
-void TestDriver::testCase16() {
+void TestDriver::testCase16()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: SHUTDOWN INSIDE CHANNEL STATE CALLBACK
         //
@@ -12677,7 +12718,8 @@ void TestDriver::testCase16() {
 
 }
 
-void TestDriver::testCase15() {
+void TestDriver::testCase15()
+{
         // --------------------------------------------------------------------
         // Testing getHandleStatistics facility
         //
@@ -12972,7 +13014,8 @@ void TestDriver::testCase15() {
 
 }
 
-void TestDriver::testCase14() {
+void TestDriver::testCase14()
+{
         // --------------------------------------------------------------------
         // Testing numBytes*(), totalBytes*() and getChannelStatistics*()
         // facility
@@ -13475,7 +13518,8 @@ void TestDriver::testCase14() {
 
 }
 
-void TestDriver::testCase13() {
+void TestDriver::testCase13()
+{
         // --------------------------------------------------------------------
         // TESTING 'reportWeightedAverageReset()'
         //
@@ -13653,7 +13697,8 @@ void TestDriver::testCase13() {
 
 }
 
-void TestDriver::testCase12() {
+void TestDriver::testCase12()
+{
         // --------------------------------------------------------------------
         // TESTING FLOW CONTROL
         //
@@ -13786,7 +13831,8 @@ void TestDriver::testCase12() {
 
 }
 
-void TestDriver::testCase11() {
+void TestDriver::testCase11()
+{
         // --------------------------------------------------------------------
         // TESTING 'disableRead' and 'enableRead' METHODS
         //
@@ -13828,7 +13874,8 @@ void TestDriver::testCase11() {
 
 }
 
-void TestDriver::testCase10() {
+void TestDriver::testCase10()
+{
         // --------------------------------------------------------------------
         // TESTING 'registerClock' AND 'deregisterClock' METHODS
         //
@@ -14364,7 +14411,8 @@ void TestDriver::testCase10() {
 
 }
 
-void TestDriver::testCase9() {
+void TestDriver::testCase9()
+{
         // --------------------------------------------------------------------
         // Testing 'writeMessage'
         //
@@ -14416,7 +14464,8 @@ void TestDriver::testCase9() {
 
 }
 
-void TestDriver::testCase8() {
+void TestDriver::testCase8()
+{
         // --------------------------------------------------------------------
         // TESTING 'shutdown'
         //
@@ -14645,7 +14694,8 @@ void TestDriver::testCase8() {
 
 }
 
-void TestDriver::testCase7() {
+void TestDriver::testCase7()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: IMPORT HALF-CLOSED SOCKET PAIR
         //
@@ -14739,7 +14789,8 @@ void TestDriver::testCase7() {
 
 }
 
-void TestDriver::testCase6() {
+void TestDriver::testCase6()
+{
         // --------------------------------------------------------------------
         // TESTING 'import' METHOD
         //
@@ -14937,7 +14988,8 @@ void TestDriver::testCase6() {
 
 }
 
-void TestDriver::testCase5() {
+void TestDriver::testCase5()
+{
         // --------------------------------------------------------------------
         // TESTING ESTABLISHING LISTENING SOCKET - BASIC TEST
         //
@@ -15078,7 +15130,8 @@ void TestDriver::testCase5() {
 
 }
 
-void TestDriver::testCase4() {
+void TestDriver::testCase4()
+{
         // --------------------------------------------------------------------
         // TESTING 'connect' METHOD
         //
@@ -15565,7 +15618,8 @@ void TestDriver::testCase4() {
 
 }
 
-void TestDriver::testCase3() {
+void TestDriver::testCase3()
+{
         // --------------------------------------------------------------------
         // TESTING 'start' AND 'stop' METHODS
         //
@@ -15612,7 +15666,8 @@ void TestDriver::testCase3() {
 
 }
 
-void TestDriver::testCase2() {
+void TestDriver::testCase2()
+{
         // --------------------------------------------------------------------
         // TESTING CREATORS
         //
@@ -15626,7 +15681,8 @@ void TestDriver::testCase2() {
 
 }
 
-void TestDriver::testCase1() {
+void TestDriver::testCase1()
+{
         // --------------------------------------------------------------------
         // BREATHING TEST:
         //   Developer's sandbox.
@@ -15697,7 +15753,8 @@ void TestDriver::testCase1() {
         ASSERT(0 == ta.numBytesInUse());
 }
 
-static void negativeCase1() {
+static void negativeCase1()
+{
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST:  my_QueueClient
         //
@@ -15755,7 +15812,8 @@ static void negativeCase1() {
 
 }
 
-static void negativeCase2() {
+static void negativeCase2()
+{
         // --------------------------------------------------------------------
         // TESTING CONNECTION MEM USAGE:
         //
@@ -15905,8 +15963,8 @@ int main(int argc, char **argv)
 #define CASE(NUMBER) case NUMBER: TestDriver::testCase##NUMBER(); break
       CASE(42);
       CASE(41);
-//         CASE(40);
-//         CASE(39);
+      CASE(40);
+      CASE(39);
       CASE(38);
       CASE(37);
       CASE(36);
