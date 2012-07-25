@@ -163,7 +163,7 @@ BDES_IDENT("$Id: $")
 // of syntactic sugar, both facilitating ease of use and reducing
 // error-checking clutter.
 //
-// See 'bcem_AggregateError' for a list of error codes and the conditions that
+// See 'bcem_ErrorCode' for a list of error codes and the conditions that
 // cause them.  Unless explicitly stated otherwise in the function-level
 // documentation, any method that returns a 'bcem_Aggregate' will detect these
 // conditions and return the appropriate error aggregate.
@@ -267,7 +267,7 @@ BDES_IDENT("$Id: $")
 // through anonymous fields (if any) until it finds a choice object (if any),
 // then it will apply the operation to that choice object.  If a choice object
 // cannot be found by traversing anonymous fields, then a
-// 'BCEM_ERR_NOT_A_CHOICE' error is returned.  Thus, in our example, the
+// 'BCEM_NOT_A_CHOICE' error is returned.  Thus, in our example, the
 // following expression will return the value "y":
 //..
 //  const char *s = a.selector();
@@ -291,7 +291,7 @@ BDES_IDENT("$Id: $")
 //      }
 //  }
 //..
-// Then the following expression will return a 'BCEM_ERR_AMBIGUOUS' error:
+// Then the following expression will return a 'BCEM_AMBIGUOUS' error:
 //..
 //  b.selection();
 //..
@@ -568,7 +568,7 @@ BDES_IDENT("$Id: $")
 //..
 //  bcem_Aggregate result = mike.setValue(michael["FirstName"]);
 //  assert(result.isError());
-//  assert(result.errorCode() == bcem_AggregateError::BCEM_ERR_NON_CONFORMING);
+//  assert(result.errorCode() == bcem_ErrorCode::BCEM_NON_CONFORMING);
 //  bsl::cout << result.errorMessage();
 //..
 // Modify the data that 'mike' references using 'setValue' with data having
@@ -590,7 +590,7 @@ BDES_IDENT("$Id: $")
 //..
 //  result = addr1["Entities"][40]["Human"]["FirstName"];
 //  assert(result.isError());
-//  assert(result.errorCode() == bcem_AggregateError::BCEM_ERR_BAD_ARRAYINDEX);
+//  assert(result.errorCode() == bcem_ErrorCode::BCEM_BAD_ARRAYINDEX);
 //  bsl::cout << result.errorMessage();
 //..
 
@@ -804,7 +804,7 @@ class bcem_Aggregate {
     // PRIVATE ACCESSORS
     const bcem_Aggregate makeError(
                             const bcem_AggregateError& errorDescription) const;
-    const bcem_Aggregate makeError(bcem_AggregateError::Code  errorCode, 
+    const bcem_Aggregate makeError(bcem_ErrorCode::Code  errorCode, 
                                    const char                *msg, ...) const
 #ifdef BSLS_PLATFORM__CMP_GNU
         // Declare this function as printf-like in gcc.
@@ -865,26 +865,29 @@ class bcem_Aggregate {
         // constructors do take an allocator, the pointer-like semantics do not
         // fully allow the use of the allocator idioms.
 
-    // PUBLIC TYPES
+    // TYPES
     enum {
         // Navigation status codes when descending into a field or array item.
         // Values are large negative integers not equal to 'INT_MIN' so as not
         // to be confused with valid return values such as -1 or
         // 'bdet_Null<int>::unsetValue()'.
-        BCEM_ERR_UNKNOWN_ERROR = INT_MIN + 1,
-        BCEM_ERR_NOT_A_RECORD,    // Aggregate is not a sequence or choice.
-        BCEM_ERR_NOT_A_SEQUENCE,  // Aggregate is not a sequence.
-        BCEM_ERR_NOT_A_CHOICE,    // Aggregate is not a choice.
-        BCEM_ERR_NOT_AN_ARRAY,    // Aggregate is not an array.
-        BCEM_ERR_BAD_FIELDNAME,   // Field name does not exist in record.
-        BCEM_ERR_BAD_FIELDID,     // Field ID does not exist in record.
-        BCEM_ERR_BAD_FIELDINDEX,  // Field index does not exist in record.
-        BCEM_ERR_BAD_ARRAYINDEX,  // Array index is out of bounds.
-        BCEM_ERR_NOT_SELECTED,    // Field does not match current selection.
-        BCEM_ERR_BAD_CONVERSION,  // Cannot convert value.
-        BCEM_ERR_BAD_ENUMVALUE,   // Invalid enumerator value
-        BCEM_ERR_NON_CONFORMANT,  // Value does not conform to the schema.
-        BCEM_ERR_AMBIGUOUS_ANON   // Anonymous field reference is ambiguous.
+
+        // DEPRECATED: Use 'bcem_ErrorCode' instead.
+
+        BCEM_ERR_UNKNOWN_ERROR  = bcem_ErrorCode::BCEM_UNKNOWN_ERROR,
+        BCEM_ERR_NOT_A_RECORD   = bcem_ErrorCode::BCEM_NOT_A_RECORD,Code,
+        BCEM_ERR_NOT_A_SEQUENCE = bcem_ErrorCode::BCEM_NOT_A_SEQUENCE,
+        BCEM_ERR_NOT_A_CHOICE   = bcem_ErrorCode::BCEM_NOT_A_CHOICE,
+        BCEM_ERR_NOT_AN_ARRAY   = bcem_ErrorCode::BCEM_NOT_AN_ARRAY,
+        BCEM_ERR_BAD_FIELDNAME  = bcem_ErrorCode::BCEM_BAD_FIELDNAME,
+        BCEM_ERR_BAD_FIELDID    = bcem_ErrorCode::BCEM_BAD_FIELDID,
+        BCEM_ERR_BAD_FIELDINDEX = bcem_ErrorCode::BCEM_BAD_FIELDINDEX,
+        BCEM_ERR_BAD_ARRAYINDEX = bcem_ErrorCode::BCEM_BAD_ARRAYINDEX,
+        BCEM_ERR_NOT_SELECTED   = bcem_ErrorCode::BCEM_NOT_SELECTED,
+        BCEM_ERR_BAD_CONVERSION = bcem_ErrorCode::BCEM_BAD_CONVERSION,
+        BCEM_ERR_BAD_ENUMVALUE  = bcem_ErrorCode::BCEM_BAD_ENUMVALUE,
+        BCEM_ERR_NON_CONFORMANT = bcem_ErrorCode::BCEM_NON_CONFORMANT,
+        BCEM_ERR_AMBIGUOUS_ANON = bcem_ErrorCode::BCEM_AMBIGUOUS_ANON
     };
 
     // CLASS METHODS
@@ -1688,9 +1691,8 @@ class bcem_Aggregate {
     int errorCode() const;
         // Return a negative error code describing the the status of this
         // object if 'isError()' is 'true', or zero if 'isError()' is 'false'.
-        // A set of error code constants with names beginning with 'BCEM_ERR_'
-        // are described in the 'bcem_aggregateerror' component-level
-        // documentation.
+        // A set of error code constants with names beginning with 'BCEM_' are
+        // described in the 'bcem_errorcode' component-level documentation.
 
     bsl::string errorMessage() const;
         // Return a string describing the error state of this object of
@@ -1953,7 +1955,7 @@ class bcem_Aggregate {
     int length() const;
         // Return the fields or items in the scalar array, list, table, or
         // choice array referenced by this aggregate or
-        // 'BCEM_ERR_NOT_AN_ARRAY' for other data types.  Note that a null
+        // 'BCEM_NOT_AN_ARRAY' for other data types.  Note that a null
         // array will return 0.
 
     int size() const;
@@ -2247,7 +2249,7 @@ bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
                                           dataType,
                                           valueRef(value));
     if (status) {
-        *this = makeError(bcem_AggregateError::BCEM_ERR_BAD_CONVERSION,
+        *this = makeError(bcem_ErrorCode::BCEM_BAD_CONVERSION,
                           "Invalid conversion to %s from %s",
                           bdem_ElemType::toAscii(dataType),
                           bdem_ElemType::toAscii(

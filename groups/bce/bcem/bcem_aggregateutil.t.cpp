@@ -2428,7 +2428,7 @@ int Entity::fromAggregate(const bcem_Aggregate& aggregate)
                                                selectorId);
       } break;
       default: {
-        rc = bcem_AggregateError::BCEM_ERR_BAD_CONVERSION;
+        rc = bcem_ErrorCode::BCEM_BAD_CONVERSION;
       }
     }
 

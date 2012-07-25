@@ -109,6 +109,10 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
+#ifndef INCLUDED_BCEM_ERRORCODE
+#include <bcem_errorcode.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -132,47 +136,14 @@ class bcem_AggregateError {
     // and a human-readable message to describe errors arising from the
     // the usage of dynamically-typed objects.
 
-  public:
-    // PUBLIC TYPES
-    enum Code {
-        // Navigation status codes when descending into a field or array item.
-        // Values are large negative integers not equal to 'INT_MIN' so as not
-        // to be confused with valid return values such as -1 or
-        // 'bdet_Null<int>::unsetValue()'.
-
-        BCEM_SUCCESS = 0,
-        BCEM_ERR_UNKNOWN_ERROR = INT_MIN + 1,
-        BCEM_ERR_NOT_A_RECORD,    // Aggregate is not a sequence or choice.
-        BCEM_ERR_NOT_A_SEQUENCE,  // Aggregate is not a sequence.
-        BCEM_ERR_NOT_A_CHOICE,    // Aggregate is not a choice.
-        BCEM_ERR_NOT_AN_ARRAY,    // Aggregate is not an array.
-        BCEM_ERR_BAD_FIELDNAME,   // Field name does not exist in record.
-        BCEM_ERR_BAD_FIELDID,     // Field ID does not exist in record.
-        BCEM_ERR_BAD_FIELDINDEX,  // Field index does not exist in record.
-        BCEM_ERR_BAD_ARRAYINDEX,  // Array index is out of bounds.
-        BCEM_ERR_NOT_SELECTED,    // Field does not match current selection.
-        BCEM_ERR_BAD_CONVERSION,  // Cannot convert value.
-        BCEM_ERR_BAD_ENUMVALUE,   // Invalid enumerator value
-        BCEM_ERR_NON_CONFORMANT,  // Value does not conform to the schema.
-        BCEM_ERR_AMBIGUOUS_ANON   // Anonymous field reference is ambiguous.
-    };
-
-  private:
-    // INSTANCE DATA
-    bsl::string d_description;
-    Code        d_code;
+    // DATA
+    bsl::string          d_description;                // description of error
+    bcem_ErrorCode::Code d_code;                       // error code
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcem_AggregateError,
                                  bslalg_TypeTraitUsesBslmaAllocator);
-
-    // CLASS METHODS
-    static int fromInt(Code *result, int value);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'value'.  Return 0 on success, and a non-zero value with
-        // no effect on 'result' otherwise (i.e., 'value' does not match any
-        // enumerator).
 
     // CREATORS
     explicit bcem_AggregateError(bslma_Allocator *basicAllocator = 0);
@@ -181,9 +152,9 @@ class bcem_AggregateError {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    bcem_AggregateError(Code             code,
-                        const char      *description,
-                        bslma_Allocator *basicAllocator = 0);
+    bcem_AggregateError(bcem_ErrorCode::Code  code,
+                        const char           *description,
+                        bslma_Allocator      *basicAllocator = 0);
         // Create an AggregateError object having the specified 'code' and
         // 'description'.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -205,7 +176,7 @@ class bcem_AggregateError {
         // Assign to this object the value of the specified 'rhs' object.
         // Note that the compiler generated default is used.
 
-    Code& code();
+    bcem_ErrorCode::Code& code();
         // Return a modifiable reference to the "code" attribute of this
         // object.
 
@@ -214,7 +185,7 @@ class bcem_AggregateError {
         // object.
 
     // ACCESSORS
-    Code code() const;
+    bcem_ErrorCode::Code code() const;
         // Return a non-modifiable reference to the "code" attribute of this
         // object.
 
@@ -259,7 +230,7 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
 inline
 bcem_AggregateError::bcem_AggregateError(bslma_Allocator *basicAllocator)
 : d_description(basicAllocator)
-, d_code(BCEM_SUCCESS)
+, d_code(bcem_ErrorCode::BCEM_SUCCESS)
 {
 }
 
@@ -273,9 +244,9 @@ bcem_AggregateError::bcem_AggregateError(
 }
 
 inline
-bcem_AggregateError::bcem_AggregateError(Code             code,
-                                         const char      *description,
-                                         bslma_Allocator *basicAllocator)
+bcem_AggregateError::bcem_AggregateError(bcem_ErrorCode::Code  code,
+                                         const char           *description,
+                                         bslma_Allocator      *basicAllocator)
 : d_description(description, basicAllocator)
 , d_code(code)
 {
@@ -283,7 +254,7 @@ bcem_AggregateError::bcem_AggregateError(Code             code,
 
 // MANIPULATORS
 inline
-bcem_AggregateError::Code& bcem_AggregateError::code()
+bcem_ErrorCode::Code& bcem_AggregateError::code()
 {
     return d_code;
 }
@@ -296,7 +267,7 @@ bsl::string& bcem_AggregateError::description()
 
 // ACCESSORS
 inline
-bcem_AggregateError::Code bcem_AggregateError::code() const
+bcem_ErrorCode::Code bcem_AggregateError::code() const
 {
     return d_code;
 }

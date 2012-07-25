@@ -247,6 +247,7 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef bcem_AggregateRaw   Obj;
 typedef bcem_AggregateError Error;
+typedef bcem_ErrorCode      ErrorCode;
 typedef bdem_ElemType       ET;
 typedef bdem_ElemType       EType;
 typedef bdem_ElemAttrLookup  EAL;
@@ -320,9 +321,9 @@ const char *errorNm(int errorCode) {
     else if (BCEM_ERR_TBD == errorCode) {
         return "BCEM_ERR_TBD";
     }
-    else if (Error::BCEM_ERR_UNKNOWN_ERROR <= errorCode &&
-             errorCode <= Error::BCEM_ERR_AMBIGUOUS_ANON) {
-        return ERROR_NAMES[errorCode - Error::BCEM_ERR_UNKNOWN_ERROR];
+    else if (ErrorCode::BCEM_UNKNOWN_ERROR <= errorCode &&
+             errorCode <= ErrorCode::BCEM_AMBIGUOUS_ANON) {
+        return ERROR_NAMES[errorCode - ErrorCode::BCEM_UNKNOWN_ERROR];
     }
     else {
         return "<unexpected error code>";
@@ -3495,12 +3496,12 @@ int AggManipulator::operator()(T* value, const INFO& info) {
 //-----------------------------------------------------------------------------
 
 enum {
-    NOT_CHOICE = Error::BCEM_ERR_NOT_A_CHOICE,
-    BAD_FLDNM  = Error::BCEM_ERR_BAD_FIELDNAME,
-    BAD_FLDIDX = Error::BCEM_ERR_BAD_FIELDINDEX,
-    NOT_SELECT = Error::BCEM_ERR_NOT_SELECTED,
-    NON_RECORD = Error::BCEM_ERR_NOT_A_RECORD,
-    AMBIGUOUS  = Error::BCEM_ERR_AMBIGUOUS_ANON
+    NOT_CHOICE = ErrorCode::BCEM_NOT_A_CHOICE,
+    BAD_FLDNM  = ErrorCode::BCEM_BAD_FIELDNAME,
+    BAD_FLDIDX = ErrorCode::BCEM_BAD_FIELDINDEX,
+    NOT_SELECT = ErrorCode::BCEM_NOT_SELECTED,
+    NON_RECORD = ErrorCode::BCEM_NOT_A_RECORD,
+    AMBIGUOUS  = ErrorCode::BCEM_AMBIGUOUS_ANON
 };
 
 
@@ -3964,7 +3965,7 @@ void testCase27() {
 
                 Error err;
                 X.setValue(&err, BB);
-                ASSERT(Error::BCEM_ERR_BAD_CONVERSION == err.code());
+                ASSERT(ErrorCode::BCEM_BAD_CONVERSION == err.code());
                 LOOP_ASSERT(err.description(), S1 == err.description());
             }
         }
@@ -13136,61 +13137,61 @@ void testCase4() {
                                      f4, f3, f2, f1, VA);
                     ASSERT(rc);
                     LOOP_ASSERT(err.code(),
-                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
+                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
 
                     rc = mX.setField(&mZ, &err, f10, errFld, f8, f7, f6, f5,
                                      f4, f3, f2, f1, VA);
                     ASSERT(rc);
                     LOOP_ASSERT(err.code(),
-                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
+                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
 
                     rc = mX.setField(&mZ, &err, f10, f9, errFld, f7, f6, f5,
                                      f4, f3, f2, f1, VA);
                     ASSERT(rc);
                     LOOP_ASSERT(err.code(),
-                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
+                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
 
                     rc = mX.setField(&mZ, &err, f10, f9, f8, errFld, f6, f5,
                                      f4, f3, f2, f1, VA);
                     ASSERT(rc);
                     LOOP_ASSERT(err.code(),
-                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
+                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
 
                     rc = mX.setField(&mZ, &err, f10, f9, f8, f7, errFld, f5,
                                      f4, f3, f2, f1, VA);
                     ASSERT(rc);
                     LOOP_ASSERT(err.code(),
-                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
+                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
 
                     rc = mX.setField(&mZ, &err, f10, f9, f8, f7, f6, errFld,
                                      f4, f3, f2, f1, VA);
                     ASSERT(rc);
                     LOOP_ASSERT(err.code(),
-                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
+                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
 
                     rc = mX.setField(&mZ, &err, f10, f9, f8, f7, f6, f5,
                                      errFld, f3, f2, f1, VA);
                     ASSERT(rc);
                     LOOP_ASSERT(err.code(),
-                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
+                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
 
                     rc = mX.setField(&mZ, &err, f10, f9, f8, f7, f6, f5,
                                      f4, errFld, f2, f1, VA);
                     ASSERT(rc);
                     LOOP_ASSERT(err.code(),
-                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
+                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
 
                     rc = mX.setField(&mZ, &err, f10, f9, f8, f7, f6, f5,
                                      f4, f3, errFld, f1, VA);
                     ASSERT(rc);
                     LOOP_ASSERT(err.code(),
-                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
+                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
 
                     rc =  mX.setField(&mZ, &err, f10, f9, f8, f7, f6, f5,
                                       f4, f3, f2, errFld, VA);
                     ASSERT(rc);
                     LOOP_ASSERT(err.code(),
-                                Error::BCEM_ERR_BAD_FIELDNAME == err.code());
+                                ErrorCode::BCEM_BAD_FIELDNAME == err.code());
                 }
               } break;
 
@@ -13279,19 +13280,19 @@ void testCase3() {
             Error error1 ,error2, error3;
             int rc = mX.setValue(&error1, 1);
             ASSERT(rc);
-            LOOP_ASSERT(error1.code(), Error::BCEM_SUCCESS != error1.code());
+            LOOP_ASSERT(error1.code(), ErrorCode::BCEM_SUCCESS != error1.code());
             ASSERT(Obj::areEquivalent(X, Y));
 
             rc = mX.setValue(&error2, Z);
             // This succeeds as conversion from VOID to VOID is valid
             ASSERT(!rc);
-            LOOP_ASSERT(error2.code(), Error::BCEM_SUCCESS == error2.code());
+            LOOP_ASSERT(error2.code(), ErrorCode::BCEM_SUCCESS == error2.code());
             ASSERT(Obj::areEquivalent(X, Y));
 
             rc = mX.setValue(&error3, Z.asElemRef());
             // This succeeds as conversion from VOID to VOID is valid
             ASSERT(!rc);
-            LOOP_ASSERT(error3.code(), Error::BCEM_SUCCESS == error3.code());
+            LOOP_ASSERT(error3.code(), ErrorCode::BCEM_SUCCESS == error3.code());
             ASSERT(Obj::areEquivalent(X, Y));
         }
 
@@ -13921,14 +13922,14 @@ void testCase3() {
                 rc = mX.setField(&err1, &error, 0, CEA);
                 ASSERT(rc);
                 LOOP_ASSERT(error.code(),
-                            Error::BCEM_ERR_NOT_AN_ARRAY == error.code());
+                            ErrorCode::BCEM_NOT_AN_ARRAY == error.code());
 
                 // Test with invalid field name
                 const char *errFldName = "ErrorField";
                 rc = mX.setField(&err2, &error, errFldName, CEA);
                 ASSERT(rc);
                 LOOP_ASSERT(error.code(),
-                            Error::BCEM_ERR_BAD_FIELDNAME == error.code());
+                            ErrorCode::BCEM_BAD_FIELDNAME == error.code());
 
                 // Test that calling a field on an empty aggregate fails
                 Obj mV(X);
@@ -13936,7 +13937,7 @@ void testCase3() {
                 rc = mV.setField(&err3, &error, fldName, CEA);
                 ASSERT(rc);
                 LOOP_ASSERT(error.code(),
-                            Error::BCEM_ERR_NOT_A_RECORD == error.code());
+                            ErrorCode::BCEM_NOT_A_RECORD == error.code());
 
                 destroyAggData(&mZ, &t);
                 destroyAggData(&mY, &t);

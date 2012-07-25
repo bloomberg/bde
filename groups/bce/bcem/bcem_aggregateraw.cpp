@@ -463,8 +463,7 @@ int bcem_AggregateRaw::descendIntoArrayItem(
             itemPtr  = indexer.data();
         }
         else {
-            errorDescription->code() =
-                bcem_AggregateError::BCEM_ERR_NOT_AN_ARRAY;
+            errorDescription->code() = bcem_ErrorCode::BCEM_NOT_AN_ARRAY;
             errorDescription->description() =
                 "Attempt to index a non-array object of type ";
             errorDescription->description() +=
@@ -480,8 +479,7 @@ int bcem_AggregateRaw::descendIntoArrayItem(
         oss << "Invalid array index " << index
             << " used for " << bdem_ElemType::toAscii(d_dataType);
         errorDescription->description() = oss.str();
-        errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_BAD_ARRAYINDEX;
+        errorDescription->code() = bcem_ErrorCode::BCEM_BAD_ARRAYINDEX;
         return -1;                                                    // RETURN
     }
 
@@ -562,8 +560,7 @@ bcem_AggregateRaw::descendIntoFieldByIndex(
                 << " \"" << bcem_AggregateRaw_Util::recordName(d_recordDef_p)
                 << '"';
             errorDescription->description() = oss.str();
-            errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_BAD_FIELDINDEX;
+            errorDescription->code() = bcem_ErrorCode::BCEM_BAD_FIELDINDEX;
             return -1;                                                // RETURN
         }
 
@@ -599,8 +596,7 @@ bcem_AggregateRaw::descendIntoFieldByIndex(
                 << "\" but field " << selectorIndex
                 << " is currently selected";
             errorDescription->description() = oss.str();
-            errorDescription->code() =
-                                    bcem_AggregateError::BCEM_ERR_NOT_SELECTED;
+            errorDescription->code() = bcem_ErrorCode::BCEM_NOT_SELECTED;
             return -1;                                                // RETURN
         }
         else if (-1 == selectorIndex) {
@@ -629,8 +625,7 @@ bcem_AggregateRaw::descendIntoFieldByIndex(
               << fieldIndex << " on non-record type "
               << bdem_ElemType::toAscii(d_dataType);
           errorDescription->description() = oss.str();
-          errorDescription->code() =
-                                    bcem_AggregateError::BCEM_ERR_NOT_A_RECORD;
+          errorDescription->code() = bcem_ErrorCode::BCEM_NOT_A_RECORD;
           return -1;                                                  // RETURN
       }
     }
@@ -700,7 +695,7 @@ int bcem_AggregateRaw::getFieldIndex(int                 *index,
             << " with field name \"" << fieldName
             << "\" on array type: " << bdem_ElemType::toAscii(d_dataType);
         errorResult->description() = oss.str();
-        errorResult->code() = bcem_AggregateError::BCEM_ERR_NOT_A_RECORD;
+        errorResult->code() = bcem_ErrorCode::BCEM_NOT_A_RECORD;
         return -1;                                                    // RETURN
     }
     else if (! d_recordDef_p) {
@@ -709,7 +704,7 @@ int bcem_AggregateRaw::getFieldIndex(int                 *index,
             << " with field name \"" << fieldName
             << "\" on unconstrained " << bdem_ElemType::toAscii(d_dataType);
         errorResult->description() = oss.str();
-        errorResult->code() = bcem_AggregateError::BCEM_ERR_NOT_A_RECORD;
+        errorResult->code() = bcem_ErrorCode::BCEM_NOT_A_RECORD;
         return -1;                                                    // RETURN
     }
     else if (bdem_RecordDef::BDEM_CHOICE_RECORD == d_recordDef_p->recordType()
@@ -726,7 +721,7 @@ int bcem_AggregateRaw::getFieldIndex(int                 *index,
             << " \"" << bcem_AggregateRaw_Util::recordName(d_recordDef_p)
             << "\" passed to " << caller;
         errorResult->description() = oss.str();
-        errorResult->code() = bcem_AggregateError::BCEM_ERR_BAD_FIELDNAME;
+        errorResult->code() = bcem_ErrorCode::BCEM_BAD_FIELDNAME;
         return -1;                                                    // RETURN
     }
 
@@ -748,7 +743,7 @@ int bcem_AggregateRaw::getFieldIndex(int                 *index,
             << " with field id " << fieldId
             << " on array type: " << bdem_ElemType::toAscii(d_dataType);
         errorResult->description() = oss.str();
-        errorResult->code() = bcem_AggregateError::BCEM_ERR_NOT_A_RECORD;
+        errorResult->code() = bcem_ErrorCode::BCEM_NOT_A_RECORD;
         return -1;                                                    // RETURN
     }
     else if (! d_recordDef_p) {
@@ -757,7 +752,7 @@ int bcem_AggregateRaw::getFieldIndex(int                 *index,
             << " with field id " << fieldId
             << " on unconstrained " << bdem_ElemType::toAscii(d_dataType);
         errorResult->description() = oss.str();
-        errorResult->code() = bcem_AggregateError::BCEM_ERR_NOT_A_RECORD;
+        errorResult->code() = bcem_ErrorCode::BCEM_NOT_A_RECORD;
         return -1;                                                    // RETURN
     }
     else if (bdem_RecordDef::BDEM_CHOICE_RECORD == d_recordDef_p->recordType()
@@ -775,7 +770,7 @@ int bcem_AggregateRaw::getFieldIndex(int                 *index,
             << " \"" << bcem_AggregateRaw_Util::recordName(d_recordDef_p)
             << "\" passed to " << caller;
         errorResult->description() = oss.str();
-        errorResult->code() = bcem_AggregateError::BCEM_ERR_BAD_FIELDID;
+        errorResult->code() = bcem_ErrorCode::BCEM_BAD_FIELDID;
         return -1;                                                    // RETURN
     }
 
@@ -804,7 +799,7 @@ int bcem_AggregateRaw::makeSelectionByIndexRaw(
         errorDescription->description() =
                                   "makeSelection called on aggregate of type ";
         errorDescription->description() += bdem_ElemType::toAscii(d_dataType);
-        errorDescription->code() = bcem_AggregateError::BCEM_ERR_NOT_A_CHOICE;
+        errorDescription->code() = bcem_ErrorCode::BCEM_NOT_A_CHOICE;
         return -1;                                                  // RETURN
       }
     }
@@ -817,8 +812,7 @@ int bcem_AggregateRaw::makeSelectionByIndexRaw(
             << bcem_AggregateRaw_Util::recordName(d_recordDef_p)
             << "\" passed to makeSelectionByIndex";
         errorDescription->description() = oss.str();
-        errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_BAD_FIELDINDEX;
+        errorDescription->code() = bcem_ErrorCode::BCEM_BAD_FIELDINDEX;
         return -1;                                                    // RETURN
     }
 
@@ -844,7 +838,7 @@ int bcem_AggregateRaw::toEnum(bcem_AggregateError *errorDescription,
             << "\" in enumeration \""
             << bcem_AggregateRaw_Util::enumerationName(enumDef) << '\"';
         errorDescription->description() = oss.str();
-        errorDescription->code() = bcem_AggregateError::BCEM_ERR_BAD_ENUMVALUE;
+        errorDescription->code() = bcem_ErrorCode::BCEM_BAD_ENUMVALUE;
         return -1;                                                    // RETURN
     }
 
@@ -908,8 +902,7 @@ int bcem_AggregateRaw::toEnum(bcem_AggregateError      *errorDescription,
             << bcem_AggregateRaw_Util::enumerationName(enumerationConstraint())
             << '\"';
         errorDescription->description() = oss.str();
-        errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_BAD_CONVERSION;
+        errorDescription->code() = bcem_ErrorCode::BCEM_BAD_CONVERSION;
         return -1;                                                    // RETURN
       }
     }
@@ -942,7 +935,7 @@ int bcem_AggregateRaw::toEnum(bcem_AggregateError *errorDescription,
             << " in enumeration \""
             << bcem_AggregateRaw_Util::enumerationName(enumDef);
         errorDescription->description().assign(oss.str());
-        errorDescription->code() = bcem_AggregateError::BCEM_ERR_BAD_ENUMVALUE;
+        errorDescription->code() = bcem_ErrorCode::BCEM_BAD_ENUMVALUE;
         return -1;                                                    // RETURN
     }
 
@@ -1128,8 +1121,7 @@ int bcem_AggregateRaw::anonymousField(
             << " \"" << bcem_AggregateRaw_Util::recordName(d_recordDef_p)
             << "\" that contains ambiguous anonymous fields";
         errorDescription->description() = oss.str();
-        errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_AMBIGUOUS_ANON;
+        errorDescription->code() = bcem_ErrorCode::BCEM_AMBIGUOUS_ANON;
         return -1;                                                    // RETURN
     }
 
@@ -1149,7 +1141,7 @@ int bcem_AggregateRaw::anonymousField(bcem_AggregateRaw   *object,
             << bdem_ElemType::toAscii(d_dataType)
             << " object";
         errorDescription->description() = oss.str();
-        errorDescription->code() = bcem_AggregateError::BCEM_ERR_NOT_A_RECORD;
+        errorDescription->code() = bcem_ErrorCode::BCEM_NOT_A_RECORD;
         return -1;                                                    // RETURN
     }
 
@@ -1161,8 +1153,7 @@ int bcem_AggregateRaw::anonymousField(bcem_AggregateRaw   *object,
             << " \"" << bcem_AggregateRaw_Util::recordName(d_recordDef_p)
             << "\" that contains no anonymous fields";
         errorDescription->description() = oss.str();
-        errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_BAD_FIELDINDEX;
+        errorDescription->code() = bcem_ErrorCode::BCEM_BAD_FIELDINDEX;
         return -1;                                                    // RETURN
     }
     else if ((unsigned)index >= (unsigned)numAnonFields) {
@@ -1171,8 +1162,7 @@ int bcem_AggregateRaw::anonymousField(bcem_AggregateRaw   *object,
             << bdem_ElemType::toAscii(d_dataType) << " \""
             << bcem_AggregateRaw_Util::recordName(d_recordDef_p) << '"';
         errorDescription->description() = oss.str();
-        errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_BAD_FIELDINDEX;
+        errorDescription->code() = bcem_ErrorCode::BCEM_BAD_FIELDINDEX;
         return -1;                                                    // RETURN
     }
 
@@ -1437,7 +1427,7 @@ bcem_AggregateRaw::findUnambiguousChoice(bcem_AggregateRaw   *choiceObject,
     }
 
     switch (errorDescription->code()) {
-      case bcem_AggregateError::BCEM_ERR_AMBIGUOUS_ANON: {
+      case bcem_ErrorCode::BCEM_AMBIGUOUS_ANON: {
         bsl::ostringstream oss;
         oss << caller
             << " called for object with multiple anonymous fields.  "
@@ -1449,7 +1439,7 @@ bcem_AggregateRaw::findUnambiguousChoice(bcem_AggregateRaw   *choiceObject,
         oss << caller <<  " called on aggregate of type"
             << bdem_ElemType::toAscii(d_dataType);
         errorDescription->description() = oss.str();
-        errorDescription->code() = bcem_AggregateError::BCEM_ERR_NOT_A_CHOICE;
+        errorDescription->code() = bcem_ErrorCode::BCEM_NOT_A_CHOICE;
       } break;
     }
     return -1;
@@ -1676,7 +1666,7 @@ int bcem_AggregateRaw::numSelections() const
         retValue = ((bdem_ChoiceArray *)choiceObj.d_value_p)->numSelections();
       } break;
       default: {
-        retValue = bcem_AggregateError::BCEM_ERR_NOT_A_CHOICE;
+        retValue = bcem_ErrorCode::BCEM_NOT_A_CHOICE;
       } break;
     }
     return retValue;
@@ -1742,7 +1732,7 @@ int bcem_AggregateRaw::selectorIndex() const
             index = errorCode();
         }
         else {
-            index = bcem_AggregateError::BCEM_ERR_NOT_A_CHOICE;
+            index = bcem_ErrorCode::BCEM_NOT_A_CHOICE;
         }
       } break;
     }
@@ -1796,20 +1786,20 @@ int bcem_AggregateRaw::insertItems(bcem_AggregateError* errorDescription,
         errorDescription->description() =
                    "Attempt to insert items into non-array aggregate of type ";
         errorDescription->description() += bdem_ElemType::toAscii(d_dataType);
-        errorDescription->code() = bcem_AggregateError::BCEM_ERR_NOT_AN_ARRAY;
+        errorDescription->code() = bcem_ErrorCode::BCEM_NOT_AN_ARRAY;
         return -1;                                                    // RETURN
     }
 
     bool isAggNull = isNull();
 
-    bcem_AggregateError::Code status = bcem_AggregateError::BCEM_SUCCESS;
+    bcem_ErrorCode::Code status = bcem_ErrorCode::BCEM_SUCCESS;
     int arrayLen;
     switch (d_dataType) {
       case bdem_ElemType::BDEM_TABLE: {
         bdem_Table& theTable = *(bdem_Table *)d_value_p;
         arrayLen = theTable.numRows();
         if (index > arrayLen) {
-            status = bcem_AggregateError::BCEM_ERR_BAD_ARRAYINDEX;
+            status = bcem_ErrorCode::BCEM_BAD_ARRAYINDEX;
             break;
         }
 
@@ -1833,7 +1823,7 @@ int bcem_AggregateRaw::insertItems(bcem_AggregateError* errorDescription,
         bdem_ChoiceArray& theChoiceArray = *(bdem_ChoiceArray*)d_value_p;
         arrayLen = theChoiceArray.length();
         if (index > arrayLen) {
-            status = bcem_AggregateError::BCEM_ERR_BAD_ARRAYINDEX;
+            status = bcem_ErrorCode::BCEM_BAD_ARRAYINDEX;
             break;
         }
 
@@ -1857,14 +1847,14 @@ int bcem_AggregateRaw::insertItems(bcem_AggregateError* errorDescription,
                 if (isAggNull) {
                     makeNull();
                 }
-                status = bcem_AggregateError::BCEM_ERR_BAD_ARRAYINDEX;
+                status = bcem_ErrorCode::BCEM_BAD_ARRAYINDEX;
             }
             arrayLen = inserter.length();
         }
       } break;
     }
 
-    if (bcem_AggregateError::BCEM_SUCCESS != status) {
+    if (bcem_ErrorCode::BCEM_SUCCESS != status) {
         bsl::ostringstream oss;
         oss << "Attempt to insert items at index " << index
             << " into " << bdem_ElemType::toAscii(d_dataType)
@@ -1889,7 +1879,7 @@ int bcem_AggregateRaw::insertNullItem(bcem_AggregateRaw   *newItem,
         errorDescription->description() =
                          "Attempt to insert into non-array aggregate of type ";
         errorDescription->description() += bdem_ElemType::toAscii(d_dataType);
-        errorDescription->code() = bcem_AggregateError::BCEM_ERR_NOT_AN_ARRAY;
+        errorDescription->code() = bcem_ErrorCode::BCEM_NOT_AN_ARRAY;
         return -1;                                                    // RETURN
     }
 
@@ -1903,8 +1893,7 @@ int bcem_AggregateRaw::insertNullItem(bcem_AggregateRaw   *newItem,
             oss << "Attempt to insert at index " << index
                 << " into TABLE of length " << theTable.numRows();
             errorDescription->description() = oss.str();
-            errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_BAD_ARRAYINDEX;
+            errorDescription->code() = bcem_ErrorCode::BCEM_BAD_ARRAYINDEX;
             return -1;                                                // RETURN
         }
 
@@ -1921,8 +1910,7 @@ int bcem_AggregateRaw::insertNullItem(bcem_AggregateRaw   *newItem,
             oss << "Attempt to insert at index " << index
                 << " into CHOICE_ARRAY of length " << theChoiceArray.length();
             errorDescription->description() = oss.str();
-            errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_BAD_ARRAYINDEX;
+            errorDescription->code() = bcem_ErrorCode::BCEM_BAD_ARRAYINDEX;
             return -1;                                                // RETURN
         }
 
@@ -1947,8 +1935,7 @@ int bcem_AggregateRaw::insertNullItem(bcem_AggregateRaw   *newItem,
                 << " into " << bdem_ElemType::toAscii(d_dataType)
                 << " of length " << inserter.length();
             errorDescription->description() = oss.str();
-            errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_BAD_ARRAYINDEX;
+            errorDescription->code() = bcem_ErrorCode::BCEM_BAD_ARRAYINDEX;
             return -1;                                                // RETURN
         }
       }
@@ -1969,20 +1956,20 @@ int bcem_AggregateRaw::insertNullItems(bcem_AggregateError* errorDescription,
         errorDescription->description() =
                    "Attempt to insert items into non-array aggregate of type ";
         errorDescription->description() += bdem_ElemType::toAscii(d_dataType);
-        errorDescription->code() = bcem_AggregateError::BCEM_ERR_NOT_AN_ARRAY;
+        errorDescription->code() = bcem_ErrorCode::BCEM_NOT_AN_ARRAY;
         return -1;                                                    // RETURN
     }
 
     bool isAggNull = isNull();
 
-    bcem_AggregateError::Code status = bcem_AggregateError::BCEM_SUCCESS;
+    bcem_ErrorCode::Code status = bcem_ErrorCode::BCEM_SUCCESS;
     int arrayLen;
     switch (d_dataType) {
       case bdem_ElemType::BDEM_TABLE: {
         bdem_Table& theTable = *(bdem_Table *)d_value_p;
         arrayLen = theTable.numRows();
         if (index > arrayLen) {
-            status = bcem_AggregateError::BCEM_ERR_BAD_ARRAYINDEX;
+            status = bcem_ErrorCode::BCEM_BAD_ARRAYINDEX;
             break;
         }
 
@@ -1996,7 +1983,7 @@ int bcem_AggregateRaw::insertNullItems(bcem_AggregateError* errorDescription,
         bdem_ChoiceArray& theChoiceArray = *(bdem_ChoiceArray*)d_value_p;
         arrayLen = theChoiceArray.length();
         if (index > arrayLen) {
-            status = bcem_AggregateError::BCEM_ERR_BAD_ARRAYINDEX;
+            status = bcem_ErrorCode::BCEM_BAD_ARRAYINDEX;
             break;
         }
 
@@ -2020,14 +2007,14 @@ int bcem_AggregateRaw::insertNullItems(bcem_AggregateError* errorDescription,
                 if (isAggNull) {
                     makeNull();
                 }
-                status = bcem_AggregateError::BCEM_ERR_BAD_ARRAYINDEX;
+                status = bcem_ErrorCode::BCEM_BAD_ARRAYINDEX;
             }
             arrayLen = inserter.length();
         }
       } break;
     }
 
-    if (bcem_AggregateError::BCEM_SUCCESS != status) {
+    if (bcem_ErrorCode::BCEM_SUCCESS != status) {
         bsl::ostringstream oss;
         oss << "Attempt to insert items at index " << index
             << " into " << bdem_ElemType::toAscii(d_dataType)
@@ -2134,7 +2121,7 @@ bcem_AggregateRaw::makeSelection(bcem_AggregateRaw   *selection,
                                           "on non-choice object of type ";
         errorDescription->description() +=
                                       bdem_ElemType::toAscii(this->d_dataType);
-        errorDescription->code() = bcem_AggregateError::BCEM_ERR_NOT_A_CHOICE;
+        errorDescription->code() = bcem_ErrorCode::BCEM_NOT_A_CHOICE;
         return -1;                                                    // RETURN
     }
 
@@ -2248,7 +2235,7 @@ int bcem_AggregateRaw::removeItems(bcem_AggregateError *errorDescription,
         errorDescription->description() =
                    "Attempt to remove items from non-array aggregate of type ";
         errorDescription->description() += bdem_ElemType::toAscii(d_dataType);
-        errorDescription->code() = bcem_AggregateError::BCEM_ERR_NOT_AN_ARRAY;
+        errorDescription->code() = bcem_ErrorCode::BCEM_NOT_AN_ARRAY;
         return -1;                                                    // RETURN
     }
     else if (index + numItems > length()) {
@@ -2257,8 +2244,7 @@ int bcem_AggregateRaw::removeItems(bcem_AggregateError *errorDescription,
             << " in " << bdem_ElemType::toAscii(d_dataType)
             << " of length " << length();
         errorDescription->description() = oss.str();
-        errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_BAD_ARRAYINDEX;
+        errorDescription->code() = bcem_ErrorCode::BCEM_BAD_ARRAYINDEX;
         return -1;                                                    // RETURN
     }
 
@@ -2290,7 +2276,7 @@ int bcem_AggregateRaw::reserveRaw(bcem_AggregateError *errorDescription,
     if (!bdem_ElemType::isArrayType(d_dataType)) {
         errorDescription->description() = bdem_ElemType::toAscii(d_dataType);
         errorDescription->description() += " is not an array type";
-        errorDescription->code() = bcem_AggregateError::BCEM_ERR_NOT_AN_ARRAY;
+        errorDescription->code() = bcem_ErrorCode::BCEM_NOT_AN_ARRAY;
         return -1;                                                    // RETURN
     }
 
@@ -2326,7 +2312,7 @@ int bcem_AggregateRaw::resize(bcem_AggregateError *errorDescription,
         errorDescription->description() =
                               "Attempt to resize non-array aggregate of type ";
         errorDescription->description() += bdem_ElemType::toAscii(dataType());
-        errorDescription->code() = bcem_AggregateError::BCEM_ERR_NOT_AN_ARRAY;
+        errorDescription->code() = bcem_ErrorCode::BCEM_NOT_AN_ARRAY;
         return -1;                                                    // RETURN
     }
 
@@ -2355,7 +2341,7 @@ int bcem_AggregateRaw::capacityRaw(bcem_AggregateError *errorDescription,
     if (!bdem_ElemType::isArrayType(d_dataType)) {
         errorDescription->description() = bdem_ElemType::toAscii(d_dataType);
         errorDescription->description() += " is not an array type";
-        errorDescription->code() = bcem_AggregateError::BCEM_ERR_NOT_AN_ARRAY;
+        errorDescription->code() = bcem_ErrorCode::BCEM_NOT_AN_ARRAY;
         return -1;                                                    // RETURN
     }
 

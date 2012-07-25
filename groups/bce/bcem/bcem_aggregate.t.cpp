@@ -469,6 +469,7 @@ const int BDEM_NULL_FIELD_ID = bdem_RecordDef::BDEM_NULL_FIELD_ID;
 
 typedef bcem_Aggregate        Obj;
 typedef bcem_AggregateError   Err;
+typedef bcem_ErrorCode        ErrorCode;
 
 const char *errorNm(int errorCode) {
 
@@ -495,9 +496,9 @@ const char *errorNm(int errorCode) {
     else if (BCEM_ERR_TBD == errorCode) {
         return "BCEM_ERR_TBD";
     }
-    else if (Err::BCEM_ERR_UNKNOWN_ERROR <= errorCode &&
-             errorCode <= Err::BCEM_ERR_AMBIGUOUS_ANON) {
-        return ERROR_NAMES[errorCode - Err::BCEM_ERR_UNKNOWN_ERROR];
+    else if (ErrorCode::BCEM_UNKNOWN_ERROR <= errorCode &&
+             errorCode <= ErrorCode::BCEM_AMBIGUOUS_ANON) {
+        return ERROR_NAMES[errorCode - ErrorCode::BCEM_UNKNOWN_ERROR];
     }
     else {
         return "<unexpected error code>";
@@ -3555,12 +3556,12 @@ int AggManipulator::operator()(T* value, const INFO& info) {
 //-----------------------------------------------------------------------------
 
 enum {
-    NOT_CHOICE = Err::BCEM_ERR_NOT_A_CHOICE,
-    BAD_FLDNM  = Err::BCEM_ERR_BAD_FIELDNAME,
-    BAD_FLDIDX = Err::BCEM_ERR_BAD_FIELDINDEX,
-    NOT_SELECT = Err::BCEM_ERR_NOT_SELECTED,
-    NON_RECORD = Err::BCEM_ERR_NOT_A_RECORD,
-    AMBIGUOUS  = Err::BCEM_ERR_AMBIGUOUS_ANON
+    NOT_CHOICE = ErrorCode::BCEM_NOT_A_CHOICE,
+    BAD_FLDNM  = ErrorCode::BCEM_BAD_FIELDNAME,
+    BAD_FLDIDX = ErrorCode::BCEM_BAD_FIELDINDEX,
+    NOT_SELECT = ErrorCode::BCEM_NOT_SELECTED,
+    NON_RECORD = ErrorCode::BCEM_NOT_A_RECORD,
+    AMBIGUOUS  = ErrorCode::BCEM_AMBIGUOUS_ANON
 };
 
 
@@ -4719,7 +4720,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
             Obj mX(ET::BDEM_CHAR, BB);  const Obj& X = mX;
 
             ASSERT(X.isError());
-            ASSERT(Err::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == X.errorCode());
             ASSERT(S1 == X.errorMessage());
 
             Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
@@ -4727,7 +4728,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
             ASSERT(!Y.isError());
             ASSERT(ERR.isError());
-            ASSERT(Err::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == ERR.errorCode());
             ASSERT(S2 == ERR.errorMessage());
         }
 
@@ -4736,7 +4737,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
             Obj mX(ET::BDEM_CHAR, CER);  const Obj& X = mX;
 
             ASSERT(X.isError());
-            ASSERT(Err::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == X.errorCode());
             ASSERT(S1 == X.errorMessage());
 
             Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
@@ -4744,7 +4745,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
             ASSERT(!Y.isError());
             ASSERT(ERR.isError());
-            ASSERT(Err::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == ERR.errorCode());
             ASSERT(S2 == ERR.errorMessage());
         }
 
@@ -4753,7 +4754,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
             Obj mX(ET::BDEM_CHAR, ER);  const Obj& X = mX;
 
             ASSERT(X.isError());
-            ASSERT(Err::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == X.errorCode());
             LOOP_ASSERT(X.errorMessage(), S1 == X.errorMessage());
 
             Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
@@ -4761,7 +4762,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
             ASSERT(!Y.isError());
             ASSERT(ERR.isError());
-            ASSERT(Err::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == ERR.errorCode());
             ASSERT(S2 == ERR.errorMessage());
         }
 
@@ -4770,7 +4771,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
             Obj mX(ET::BDEM_CHAR, mZ);  const Obj& X = mX;
 
             ASSERT(X.isError());
-            ASSERT(Err::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == X.errorCode());
             LOOP2_ASSERT(S1, X.errorMessage(), 
                          S1 == X.errorMessage());
 
@@ -4779,7 +4780,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
             ASSERT(!Y.isError());
             ASSERT(ERR.isError());
-            ASSERT(Err::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == ERR.errorCode());
             ASSERT(S2 == ERR.errorMessage());
         }
     }
@@ -5056,7 +5057,7 @@ static void testCase31(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 //..
     bcem_Aggregate result = mike.setValue(michael["FirstName"]);
     ASSERT(result.isError());
-    ASSERT(result.errorCode() == Err::BCEM_ERR_NON_CONFORMANT);
+    ASSERT(result.errorCode() == ErrorCode::BCEM_NON_CONFORMANT);
     if (verbose) tst::cout << result.errorMessage();
 //..
 // Modify the data that 'mike' references using 'setValue' with data having
@@ -5078,7 +5079,7 @@ static void testCase31(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 //..
     result = addr1["Entities"][40]["uHman"]["FirstName"];
     ASSERT(result.isError());
-    ASSERT(result.errorCode() == Err::BCEM_ERR_BAD_ARRAYINDEX);
+    ASSERT(result.errorCode() == ErrorCode::BCEM_BAD_ARRAYINDEX);
     if (verbose) tst::cout << result.errorMessage();
 //..
 }
@@ -6257,7 +6258,7 @@ static void testCase25(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             { L_,        0,     'a',    0 },
             { L_,        1,     'u',    0 },
             { L_,        2,     'v',    0 },
-            { L_,        3,     'w',    Err::BCEM_ERR_BAD_ENUMVALUE }
+            { L_,        3,     'w',    ErrorCode::BCEM_BAD_ENUMVALUE }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -6297,7 +6298,7 @@ static void testCase25(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (verbose) tst::cout << "Testing bad conversions" << bsl::endl;
         const bdet_Date DATE_VAL(2006, 9, 20);
         enumTest(AGG, "isjtbc", DATE_VAL, 0,
-                 "", Err::BCEM_ERR_BAD_CONVERSION);
+                 "", ErrorCode::BCEM_BAD_CONVERSION);
 
         // Conversion to date fails
         bdet_Date dateRet = AGG["i"].asDate();
@@ -9920,7 +9921,7 @@ static void testCase14(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 bsl::string sa; const bsl::string& SA = sa;
 
                 Obj mX(ET::BDEM_DOUBLE, CEA);
-                ASSERT(Err::BCEM_ERR_NOT_A_CHOICE == mX.numSelections());
+                ASSERT(ErrorCode::BCEM_NOT_A_CHOICE == mX.numSelections());
             }
         }
 

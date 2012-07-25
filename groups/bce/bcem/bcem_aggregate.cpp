@@ -263,7 +263,7 @@ void bcem_Aggregate::init(
       case bdem_ElemType::BDEM_LIST: {
         if (recordDefPtr->recordType() !=
                                         bdem_RecordDef::BDEM_SEQUENCE_RECORD) {
-            *this = makeError(bcem_AggregateError::BCEM_ERR_NOT_A_SEQUENCE,
+            *this = makeError(bcem_ErrorCode::BCEM_NOT_A_SEQUENCE,
                               "Attempt to create a LIST aggregate from "
                               "non-SEQUENCE record def \"%s\"",
                               recordName(recordDefPtr));
@@ -277,7 +277,7 @@ void bcem_Aggregate::init(
       case bdem_ElemType::BDEM_TABLE: {
         if (recordDefPtr->recordType() !=
                                         bdem_RecordDef::BDEM_SEQUENCE_RECORD) {
-            *this = makeError(bcem_AggregateError::BCEM_ERR_NOT_A_SEQUENCE,
+            *this = makeError(bcem_ErrorCode::BCEM_NOT_A_SEQUENCE,
                               "Attempt to create a TABLE aggregate from "
                               "non-SEQUENCE record def \"%s\"",
                               recordName(recordDefPtr));
@@ -290,7 +290,7 @@ void bcem_Aggregate::init(
       } break;
       case bdem_ElemType::BDEM_CHOICE: {
         if (recordDefPtr->recordType() != bdem_RecordDef::BDEM_CHOICE_RECORD) {
-            *this = makeError(bcem_AggregateError::BCEM_ERR_NOT_A_CHOICE,
+            *this = makeError(bcem_ErrorCode::BCEM_NOT_A_CHOICE,
                               "Attempt to create a CHOICE aggregate from "
                               "non-CHOICE record def \"%s\"",
                               recordName(recordDefPtr));
@@ -303,7 +303,7 @@ void bcem_Aggregate::init(
       } break;
       case bdem_ElemType::BDEM_CHOICE_ARRAY: {
         if (recordDefPtr->recordType() != bdem_RecordDef::BDEM_CHOICE_RECORD) {
-            *this = makeError(bcem_AggregateError::BCEM_ERR_NOT_A_CHOICE,
+            *this = makeError(bcem_ErrorCode::BCEM_NOT_A_CHOICE,
                               "Attempt to create a CHOICE_ARRAY aggregate "
                               "from non-CHOICE record def \"%s\"",
                               recordName(recordDefPtr));
@@ -316,7 +316,7 @@ void bcem_Aggregate::init(
         valuePtr = choiceArrayPtr;
       } break;
       default: {
-          *this = makeError(bcem_AggregateError::BCEM_ERR_NOT_A_RECORD,
+          *this = makeError(bcem_ErrorCode::BCEM_NOT_A_RECORD,
                           "Attempt to specify a record definition when "
                           "constructing an object of non-aggregate type %s",
                           bdem_ElemType::toAscii(elemType));
@@ -371,7 +371,7 @@ void bcem_Aggregate::init(
 {
     const bdem_RecordDef *record = schemaPtr->lookupRecord(recName);
     if (! record) {
-        *this = makeError(bcem_AggregateError::BCEM_ERR_NOT_A_RECORD,
+        *this = makeError(bcem_ErrorCode::BCEM_NOT_A_RECORD,
                           "Unable to find record \"%s\" in schema",
                           recName);
         return;                                                       // RETURN
@@ -383,7 +383,7 @@ void bcem_Aggregate::init(
 // PRIVATE ACCESSORS
 
 const bcem_Aggregate
-bcem_Aggregate::makeError(bcem_AggregateError::Code  errorCode,
+bcem_Aggregate::makeError(bcem_ErrorCode::Code  errorCode,
                           const char                *msg, ...) const
 {
     if (0 == errorCode || isError()) {
@@ -789,7 +789,7 @@ const bcem_Aggregate bcem_Aggregate::anonymousField() const
         // case where there are zero anonymous fields is already handled by
         // the single-argument call to 'anonymousField', below.
 
-        return makeError(bcem_AggregateError::BCEM_ERR_AMBIGUOUS_ANON,
+        return makeError(bcem_ErrorCode::BCEM_AMBIGUOUS_ANON,
                          "anonymousField() called for object with multiple "
                          "anonymous fields.  Cannot pick one.");      // RETURN
     }

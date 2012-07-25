@@ -63,6 +63,7 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 typedef bcem_AggregateError Obj;
+typedef bcem_ErrorCode      Error;
 
 void doSomething(Obj* error)
 {
@@ -82,7 +83,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING usage example
         //
@@ -98,30 +99,6 @@ int main(int argc, char *argv[])
         if (0 != error.code()) {
             bsl::cout << "Error: " << error << bsl::endl;
         }
-      } break;
-      case 4: {
-        // --------------------------------------------------------------------
-        // TESTING fromInt
-        //
-        // Test AggregateError::fromInt()
-        // --------------------------------------------------------------------
-
-        if (verbose) bsl::cout << bsl::endl << "TESTING fromInt"
-                               << bsl::endl << "==============="
-                               << bsl::endl;
-
-        Obj::Code mX;
-
-        ASSERT(0 != Obj::fromInt(&mX, 1));
-        ASSERT(0 == Obj::fromInt(&mX, 0));
-        ASSERT(Obj::BCEM_SUCCESS == mX);
-
-        int i;
-        for (i = INT_MIN+2; i <= Obj::BCEM_ERR_AMBIGUOUS_ANON; ++i) {
-            ASSERT(0 == Obj::fromInt(&mX, i));
-            ASSERT((Obj::Code)i == mX);
-        }
-        ASSERT(0 != Obj::fromInt(&mX, i));
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -140,9 +117,9 @@ int main(int argc, char *argv[])
         ss << mX;
 
         LOOP_ASSERT(ss.str(),
-                    "[ description = \"\" code = 0 ]" == ss.str());
+                    "[ description = \"\" code = SUCCESS ]" == ss.str());
 
-        mX.code() = Obj::BCEM_ERR_BAD_ARRAYINDEX;
+        mX.code() = Error::BCEM_BAD_ARRAYINDEX;
         mX.description() = "Out of bounds";
 
         ss.str("");
@@ -150,7 +127,7 @@ int main(int argc, char *argv[])
 
         LOOP_ASSERT(ss.str(),
                     "[ description = \"Out of bounds\" "
-                    "code = -2147483639 ]" == ss.str());
+                    "code = BAD_ARRAYINDEX ]" == ss.str());
 
       } break;
       case 2: {
@@ -171,13 +148,13 @@ int main(int argc, char *argv[])
           const Obj& X = mX;
 
           ASSERT(Y.description().empty());
-          ASSERT(Obj::BCEM_SUCCESS == X.code());
+          ASSERT(Error::BCEM_SUCCESS == X.code());
 
-          mX.code() = Obj::BCEM_ERR_NON_CONFORMANT;
-          ASSERT(Obj::BCEM_ERR_NON_CONFORMANT == mX.code());
-          ASSERT(Obj::BCEM_ERR_NON_CONFORMANT == X.code());
+          mX.code() = Error::BCEM_NON_CONFORMANT;
+          ASSERT(Error::BCEM_NON_CONFORMANT == mX.code());
+          ASSERT(Error::BCEM_NON_CONFORMANT == X.code());
           mY = mX;
-          ASSERT(Obj::BCEM_ERR_NON_CONFORMANT == Y.code());
+          ASSERT(Error::BCEM_NON_CONFORMANT == Y.code());
 
           mX.description() = "plugh";
           ASSERT("plugh" == mX.description());
@@ -197,13 +174,13 @@ int main(int argc, char *argv[])
 
           Obj mX; const Obj& X = mX;
           ASSERT(X.description().empty());
-          ASSERT(Obj::BCEM_SUCCESS == X.code());
+          ASSERT(Error::BCEM_SUCCESS == X.code());
 
           const string expDesc = "Pick one field";
-          Obj mY(Obj::BCEM_ERR_AMBIGUOUS_ANON, expDesc.c_str());
+          Obj mY(Error::BCEM_AMBIGUOUS_ANON, expDesc.c_str());
           const Obj& Y = mY;
           ASSERT(expDesc == Y.description());
-          ASSERT(Obj::BCEM_ERR_AMBIGUOUS_ANON == Y.code());
+          ASSERT(Error::BCEM_AMBIGUOUS_ANON == Y.code());
 
       } break;
       default: {

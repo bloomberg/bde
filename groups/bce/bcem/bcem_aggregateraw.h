@@ -56,7 +56,7 @@ BDES_IDENT("$Id: $")
 ///Error Handling
 ///--------------
 // 'bcem_AggregateRaw' returns descriptive errors when possible.  These consist
-// of an enumerated value of 'bcem_AggregateError::Code', combined with a
+// of an enumerated value of 'bcem_ErrorCode::Code', combined with a
 // human-readable 'string' value.  In general, most methods of
 // 'bcem_AggregateRaw' will return an arbitrary non-zero value on failure and
 // populate a 'bcem_AggregateError' (passed by pointer as an output parameter)
@@ -735,7 +735,7 @@ class bcem_AggregateRaw {
     int errorCode() const;
         // Return a negative error code describing the status of this object if
         // 'isError()' is 'true', or zero if 'isError()' is 'false'.  A set of
-        // error code constants with names beginning with 'BCEM_ERR_' are
+        // error code constants with names beginning with 'BCEM_' are
         // described in the 'bcem_aggregate' component-level documentation.
 
     bsl::string errorMessage() const;
@@ -851,7 +851,7 @@ class bcem_AggregateRaw {
     int length() const;
         // Return the number of fields or items in the scalar array, list,
         // table, or choice array referred to by this aggregate or
-        // 'BCEM_ERR_NOT_AN_ARRAY' for other data types.  Note that 0 will be
+        // 'BCEM_NOT_AN_ARRAY' for other data types.  Note that 0 will be
         // returned if this aggregate refers to a null array.
 
     void loadAsString(bsl::string *result) const;
@@ -1368,7 +1368,7 @@ struct bcem_AggregateRaw_Util {
         // overloaded for each array 'TYPE' that may be passed to this
         // function.  The '*visitorPtr' object may store state and, if
         // non-'const', that state may be modified by the visitor.  Return 0
-        // on success, or 'bcem_AggregateError::BCEM_ERR_NOT_AN_ARRAY' if
+        // on success, or 'bcem_ErrorCode::BCEM_NOT_AN_ARRAY' if
         // 'arrayType' is not an array of scalar 'bdem' type.  The behavior
         // is undefined unless 'array' is of 'arrayType'.
 };
@@ -1611,7 +1611,7 @@ int bcem_AggregateRaw::assignToNillableScalarArrayImp(const TYPE& value) const
     bdem_ElemType::Type baseType = bdem_ElemType::fromArrayType(srcType);
     if (!bdem_ElemType::isScalarType(baseType)
       || baseType != recordConstraint()->field(0).elemType()) {
-        return bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;          // RETURN
+        return bcem_ErrorCode::BCEM_NON_CONFORMANT;                   // RETURN
     }
 
     if (value.isNull()) {
@@ -1658,7 +1658,7 @@ int bcem_AggregateRaw::assignToNillableScalarArray(
                                                  const bdem_Table& value) const
 {
     if (!bcem_AggregateRaw_Util::isConformant(&value, recordConstraint())) {
-        return bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;          // RETURN
+        return bcem_ErrorCode::BCEM_NON_CONFORMANT;                   // RETURN
     }
 
     *(bdem_Table *)data() = value;
@@ -1689,7 +1689,7 @@ int bcem_AggregateRaw::assignToNillableScalarArray(
                         (bdem_ElemType::Type) bdem_SelectBdemType<TYPE>::VALUE;
 
     if (baseType != recordConstraint()->field(0).elemType()) {
-        return bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;          // RETURN
+        return bcem_ErrorCode::BCEM_NON_CONFORMANT;                   // RETURN
     }
 
     const int length = static_cast<int>(value.size());
@@ -1739,8 +1739,7 @@ int bcem_AggregateRaw::toEnum(bcem_AggregateError *errorDescription,
             << bcem_AggregateRaw_Util::enumerationName(enumerationConstraint())
             << '\"';
         errorDescription->description() = oss.str();
-        errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_BAD_CONVERSION;
+        errorDescription->code() = bcem_ErrorCode::BCEM_BAD_CONVERSION;
         return -1;                                                    // RETURN
     }
     return toEnum(errorDescription, intVal, direct);
@@ -2421,8 +2420,7 @@ int bcem_AggregateRaw::setValue(bcem_AggregateError *errorDescription,
                 << bcem_AggregateRaw_Util::recordName(recordConstraint())
                 << "\" in schema";
             errorDescription->description() = oss.str();
-            errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;
+            errorDescription->code() = bcem_ErrorCode::BCEM_NON_CONFORMANT;
             return -1;                                                // RETURN
         }
         return 0;                                                     // RETURN
@@ -2434,8 +2432,7 @@ int bcem_AggregateRaw::setValue(bcem_AggregateError *errorDescription,
             << bcem_AggregateRaw_Util::recordName(recordConstraint())
             << "\" in schema";
         errorDescription->description() = oss.str();
-        errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;
+        errorDescription->code() = bcem_ErrorCode::BCEM_NON_CONFORMANT;
         return -1;                                                    // RETURN
     }
 
@@ -2452,8 +2449,7 @@ int bcem_AggregateRaw::setValue(bcem_AggregateError *errorDescription,
                 << bdem_ElemType::toAscii(getBdemType(value))
                 << " value";
             errorDescription->description() = oss.str();
-            errorDescription->code() =
-                                  bcem_AggregateError::BCEM_ERR_BAD_CONVERSION;
+            errorDescription->code() = bcem_ErrorCode::BCEM_BAD_CONVERSION;
             return -1;                                                // RETURN
         }
     }
@@ -2665,7 +2661,7 @@ bcem_AggregateRaw_Util::visitArray(void                *array,
       case bdem_ElemType::BDEM_TIMETZ_ARRAY:
         return visitorObj((bsl::vector<bdet_TimeTz> *) array);
       default:
-        return bcem_AggregateError::BCEM_ERR_NOT_AN_ARRAY;
+        return bcem_ErrorCode::BCEM_NOT_AN_ARRAY;
     }
 }
 
