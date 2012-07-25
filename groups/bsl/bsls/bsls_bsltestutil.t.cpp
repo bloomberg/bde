@@ -1,4 +1,4 @@
-/// bsls_bsltestutil.t.cpp                                             -*-C++-*-
+/// bsls_bsltestutil.t.cpp                                            -*-C++-*-
 
 #include <bsls_bsltestutil.h>
 
@@ -17,30 +17,68 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
+//
 // The component under test implements a single utility struct and 11 macros
 // that call methods of the utility struct.  All of the methods write output to
 // stdout and do nothing more.  Therefore, there are no Primary Manipulators or
 // Basic Accessors to test.  All of the tests fall under the category of Print
 // Operations.
 //
+// The macros provided by the component under test mirror the standard test
+// macros normally used in test drivers.  The intention is that the standard
+// test macros should be implemented as aliases of the BSLS_BSLTESTUTIL_*
+// macros, as illustrated in the usage example.  As a result, the identifiers
+// normally used in a test driver conflict with the identifiers used in the
+// usage example.  Therefore, this test driver avoids the standard test macros
+// (and support functions), and uses the following instead:
+//
+// STANDARD            BSLS_BSLTESTUTIL.T.CPP
+// --------            ----------------------
+// LOOP_ASSERT         ANNOTATED_ASSERT
+// LOOP2_ASSERT        ANNOTATED2_ASSERT
+// LOOP3_ASSERT        not used
+// LOOP4_ASSERT        ANNOTATED4_ASSERT
+// LOOP5_ASSERT        not used
+// LOOP6_ASSERT        not used
+// Q                   not used
+// P                   not used
+// P_                  not used
+// T_                  not used
+// L_                  not used
+// void aSsErT()       void realaSsErT()
+// int testStatus      int realTestStatus
+//
+// Note that the ANNOTATED*_ASSERT macros are only rough equivalents of the
+// standard LOOP*_ASSERT macros.  Because std::cout is not available in this
+// test driver, there is no way to automatically format values based on type,
+// at least not without re-implementing the component under test in the test
+// driver.  Therefore the ANNOTATED*_ASSERT macros take as arguments pairs of
+// identifiers and printf-style format strings.  This is the reason why they
+// have been given completely different names from the standard macros.
+//
 // The main difficulty with writing the test driver is capturing the output of
 // the methods under test so that it can be checked for accuracy.  In addition,
 // error messages and other output produced by the test driver itself must
 // still appear on stdout for compatibility with the standard build and testing
-// scripts.
+// scripts.  For this purpose, a support class name 'OutputRedirector' is
+// provided.  'OutputRedirector' will redirect stdout to a temporary file and
+// check the contents of the temporary file to character buffers provided by
+// the user.
 //
 // Global Concerns:
-//: o The test driver can reliably capture stdout and play back captured output.
-//: o The test driver's own output is written to the calling environment's stdout.
+//: o The test driver can reliably capture stdout and play back captured
+//:   output.
+//: o The test driver's own output is written to the calling environment's
+//:   stdout.
 //
 //-----------------------------------------------------------------------------
-// [ 7] BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
-// [ 7] BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X)
-// [ 7] BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X)
-// [ 7] BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
-// [ 7] BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
-// [ 7] BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
-// [ 6] BSLS_BSLTESTUTIL_Q(X)
+// [ 8] BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
+// [ 8] BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X)
+// [ 8] BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X)
+// [ 8] BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
+// [ 8] BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
+// [ 8] BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
+// [ 7] BSLS_BSLTESTUTIL_Q(X)
 // [ 6] BSLS_BSLTESTUTIL_P(X)
 // [ 6] BSLS_BSLTESTUTIL_P_(X)
 // [ 5] BSLS_BSLTESTUTIL_L_
@@ -56,7 +94,8 @@ using namespace BloombergLP;
 // [ 3] static void debugPrint(const char *s, long v, const char *t);
 // [ 3] static void debugPrint(const char *s, unsigned long v, const char *t);
 // [ 3] static void debugPrint(const char *s, long long v, const char *t);
-// [ 3] static void debugPrint(const char *s, unsigned long long v, const char *t);
+// [ 3] static void debugPrint(const char *s, unsigned long long v,
+//                             const char *t);
 // [ 3] static void debugPrint(const char *s, float v, const char *t);
 // [ 3] static void debugPrint(const char *s, double v, const char *t);
 // [ 3] static void debugPrint(const char *s, long double v, const char *t);
@@ -67,9 +106,9 @@ using namespace BloombergLP;
 // [ 4] static void printStringNoFlush(const char *s);
 // [ 4] static void printTab();
 //-----------------------------------------------------------------------------
-// [ 1] Breathing test
-// [ 2] Test Apparatus test
-// [ 0] Usage example
+// [ 1] BREATHING TEST
+// [ 2] TEST APPARATUS: class 'OutputRedirector'
+// [ 9] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -104,33 +143,42 @@ static void realaSsErT(int c, const char *s, int i)
 //
 // The standard BDE LOOP-ASSERT test macros rely on overloads of 'operator<<'
 // ostream to provide a uniform interface for all types.  The purpose of
-// bsls_testutil is precisely to provide a similar overloading mechanism for
+// bsls_bsltestutil is precisely to provide a similar overloading mechanism for
 // printf-based output.  In order to use the standard macros in this test
 // driver, we would have to define a test appartus of equivalent complexity to
 // the class we are testing.  Therefore, instead of the standard test macros we
 // define a limited number of type-specific macros in their place.
 
-#define ANNOTATED_ASSERT(I,IF,X) {                                           \
-    if (!(X)) { fprintf(stderr, "%s: " IF "\n", #I, I);                      \
-        realaSsErT(1, #X, __LINE__);}}
+#define SHOW_DATA(OUT, I, IF) do {                                            \
+        ErrorReporter::showData(OUT,(IF),#I,(I));                             \
+    } while(0)
 
-#define ANNOTATED2_ASSERT(I,IF,J,JF,X) {                                     \
-    if (!(X)) { fprintf(stderr, "%s: " IF "\t%s: " JF "\n", #I, I, #J, J);   \
-        realaSsErT(1, #X, __LINE__); } }
+#define SHOW_DATA2(OUT, I, IF, J, JF) do {                                    \
+        ErrorReporter::showData(OUT,(IF),(JF),#I,#J,(I),(J));                 \
+    } while (0)
 
-#define ANNOTATED3_ASSERT(I,IF,J,JF,K,KF,X) {                                     \
-    if (!(X)) { fprintf(stderr, "%s: " IF "\t%s: " JF "\t%s: " KF "\n", #I, I, #J, J, #K, K);   \
-        realaSsErT(1, #X, __LINE__); } }
+#define ANNOTATED_ASSERT(I,IF,X) do {                                         \
+        if (!(X)) { ErrorReporter::showData(stderr, (IF),#I,(I));             \
+                    realaSsErT(1, #X, __LINE__);}                             \
+    } while (0)
 
-#define ANNOTATED4_ASSERT(I,IF,J,JF,K,KF,L,LF,X) {                                     \
-    if (!(X)) { fprintf(stderr, "%s: " IF "\t%s: " JF "\t%s: " KF "\t%s: " LF "\n", #I, I, #J, J, #K, K, #L, L);   \
-        realaSsErT(1, #X, __LINE__); } }
+#define ANNOTATED2_ASSERT(I,IF,J,JF,X) do {                                   \
+        if (!(X)) { ErrorReporter::showData(stderr, (IF),(JF),#I,#J,(I),(J)); \
+                    realaSsErT(1, #X, __LINE__); }                            \
+    } while (0)
 
-#define ANNOTATED5_ASSERT(I,IF,J,JF,K,KF,L,LF,M,MF,X) {                                     \
-    if (!(X)) { fprintf(stderr, "%s: " IF "\t%s: " JF "\t%s: " KF "\t%s: " LF "\t%s: " MF "\n", #I, I, #J, J, #K, K, #L, L, #M, M);   \
-        realaSsErT(1, #X, __LINE__); } }
+#define ANNOTATED3_ASSERT(I,IF,J,JF,K,KF,X) do {                              \
+        if (!(X)) { ErrorReporter::showData(stderr, (IF),(JF),(KF),#I,#J,#K,  \
+                                            (I),(J),(K));                     \
+                    realaSsErT(1, #X, __LINE__); }                            \
+    } while (0)
 
-#define OUTPUT_BUFFER_SIZE 4096
+#define ANNOTATED4_ASSERT(I,IF,J,JF,K,KF,L,LF,X) do {                         \
+        if (!(X)) { ErrorReporter::showData(stderr, (IF),(JF),(KF),(LF),      \
+                                            #I,#J,#K,#L,                      \
+                                            (I),(J),(K),(L));                 \
+                    realaSsErT(1, #X, __LINE__); }                            \
+    } while (0)
 
 //=============================================================================
 //                             USAGE EXAMPLE CODE
@@ -167,7 +215,7 @@ static void realaSsErT(int c, const char *s, int i)
     //                       STANDARD BDE ASSERT TEST MACRO
     //-------------------------------------------------------------------------
     static int testStatus = 0;
-    
+
     static void aSsErT(bool b, const char *s, int i)
     {
         if (b) {
@@ -200,7 +248,9 @@ static void realaSsErT(int c, const char *s, int i)
 // Finally, we write the test case for the 'static' 'fortyTwo' method, using
 // the (standard) abbreviated macro names we have just defined.
 //..
-    void executeUsageExample(bool verbose, bool veryVerbose, bool veryVeryVerbose)
+    void executeUsageExample(bool verbose,
+                             bool veryVerbose,
+                             bool veryVeryVerbose)
     {
         (void) veryVerbose;
         (void) veryVeryVerbose;
@@ -213,35 +263,324 @@ static void realaSsErT(int c, const char *s, int i)
 //=============================================================================
 //                    CLEANUP STANDARD TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
+
 #undef ASSERT
+
+#undef LOOP_ASSERT
+#undef LOOP2_ASSERT
+#undef LOOP3_ASSERT
+#undef LOOP4_ASSERT
+#undef LOOP5_ASSERT
+#undef LOOP6_ASSERT
+
+#undef Q
+#undef P
+#undef P_
+#undef T_
+#undef L_
+
 #define ASSERT(X) { realaSsErT(!(X), #X, __LINE__); }
 
-#undef L_
-#define L_ __LINE__                           // current Line number
-
 //=============================================================================
-//                             HELPER FUNCTIONS
+//                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+//=============================================================================
+//                       GLOBAL HELPER CLASSES FOR TESTING
+//-----------------------------------------------------------------------------
+
+// STATIC DATA
+static int verbose, veryVerbose, veryVeryVerbose;
+
+enum { FORMAT_STRING_SIZE = 256 };
+static char tempFormatString[FORMAT_STRING_SIZE];
+
+struct ErrorReporter {
+    template <typename ITYPE>
+    static int showData(FILE        *outStream,
+                        const char  *formatI,
+                        const char  *identifierI,
+                        const ITYPE  valueI);
+
+    template <typename ITYPE, typename JTYPE>
+    static int showData(FILE        *outStream,
+                        const char  *formatI,
+                        const char  *formatJ,
+                        const char  *identifierI,
+                        const char  *identifierJ,
+                        const ITYPE  valueI,
+                        const JTYPE  valueJ);
+
+    template <typename ITYPE, typename JTYPE, typename KTYPE>
+    static int showData(FILE        *outStream,
+                        const char  *formatI,
+                        const char  *formatJ,
+                        const char  *formatK,
+                        const char  *identifierI,
+                        const char  *identifierJ,
+                        const char  *identifierK,
+                        const ITYPE  valueI,
+                        const JTYPE  valueJ,
+                        const KTYPE  valueK);
+
+    template <typename ITYPE, typename JTYPE, typename KTYPE, typename LTYPE>
+    static int showData(FILE        *outStream,
+                        const char  *formatI,
+                        const char  *formatJ,
+                        const char  *formatK,
+                        const char  *formatL,
+                        const char  *identifierI,
+                        const char  *identifierJ,
+                        const char  *identifierK,
+                        const char  *identifierL,
+                        const ITYPE  valueI,
+                        const JTYPE  valueJ,
+                        const KTYPE  valueK,
+                        const LTYPE  valueL);
+
+    static int showWarning(FILE       *outStream,
+                           const int   lineNum,
+                           const char *message);
+
+    static int showError(FILE       *outStream,
+                         const int   lineNum,
+                         const char *message);
+};
+
+template <typename ITYPE>
+int ErrorReporter::showData(FILE        *outStream,
+                            const char  *formatI,
+                            const char  *identifierI,
+                            const ITYPE  valueI)
+{
+    int charsWritten = snprintf(tempFormatString,
+                                FORMAT_STRING_SIZE,
+                                "%%s: %s\n",
+                                formatI);
+    ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
+    return fprintf(outStream,
+                   tempFormatString,
+                   identifierI,
+                   valueI);
+}
+
+template <typename ITYPE, typename JTYPE>
+int ErrorReporter::showData(FILE         *outStream,
+                             const char  *formatI,
+                             const char  *formatJ,
+                             const char  *identifierI,
+                             const char  *identifierJ,
+                             const ITYPE  valueI,
+                             const JTYPE  valueJ)
+{
+    int charsWritten = snprintf(tempFormatString,
+                                FORMAT_STRING_SIZE,
+                                "%%s: %s\t%%s: %s\n",
+                                formatI,
+                                formatJ);
+    ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
+    return fprintf(outStream,
+                   tempFormatString,
+                   identifierI,
+                   valueI,
+                   identifierJ,
+                   valueJ);
+}
+
+template <typename ITYPE, typename JTYPE, typename KTYPE>
+int ErrorReporter::showData(FILE         *outStream,
+                             const char  *formatI,
+                             const char  *formatJ,
+                             const char  *formatK,
+                             const char  *identifierI,
+                             const char  *identifierJ,
+                             const char  *identifierK,
+                             const ITYPE  valueI,
+                             const JTYPE  valueJ,
+                             const KTYPE  valueK)
+{
+    int charsWritten = snprintf(tempFormatString,
+                                FORMAT_STRING_SIZE,
+                                "%%s: %s\t%%s: %s\t%%s: %s\n",
+                                formatI,
+                                formatJ,
+                                formatK);
+    ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
+    return fprintf(outStream,
+                   tempFormatString,
+                   identifierI,
+                   valueI,
+                   identifierJ,
+                   valueJ,
+                   identifierK,
+                   valueK);
+}
+
+template <typename ITYPE, typename JTYPE, typename KTYPE, typename LTYPE>
+int ErrorReporter::showData(FILE         *outStream,
+                             const char  *formatI,
+                             const char  *formatJ,
+                             const char  *formatK,
+                             const char  *formatL,
+                             const char  *identifierI,
+                             const char  *identifierJ,
+                             const char  *identifierK,
+                             const char  *identifierL,
+                             const ITYPE  valueI,
+                             const JTYPE  valueJ,
+                             const KTYPE  valueK,
+                             const LTYPE  valueL)
+{
+    int charsWritten = snprintf(tempFormatString,
+                                FORMAT_STRING_SIZE,
+                                "%%s: %s\t%%s: %s\t%%s: %s\t%%s: %s\n",
+                                formatI,
+                                formatJ,
+                                formatK,
+                                formatL);
+    ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
+    return fprintf(outStream,
+                   tempFormatString,
+                   identifierI,
+                   valueI,
+                   identifierJ,
+                   valueJ,
+                   identifierK,
+                   valueK,
+                   identifierL,
+                   valueL);
+}
+
+int ErrorReporter::showWarning(FILE       *outStream,
+                               const int   lineNum,
+                               const char *message)
+{
+    return fprintf(outStream,
+                   "Warning " __FILE__ "(%d): %s\n",
+                   lineNum,
+                   message);
+}
+
+int ErrorReporter::showError(FILE       *outStream,
+                             const int   lineNum,
+                             const char *message)
+{
+    return fprintf(outStream,
+                   "Error " __FILE__ "(%d): %s    (failed)\n",
+                   lineNum,
+                   message);
+}
+
 enum {
+    // Enumeration used to store sizes for the buffers used by the output
+    // redirection apparatus.
+
+    OUTPUT_BUFFER_SIZE = 4096,
+
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-    PATH_BUFFER_SIZE = MAX_PATH
+    PATH_BUFFER_SIZE   = MAX_PATH
 #elif defined(BSLS_PLATFORM__OS_HPUX)
-    PATH_BUFFER_SIZE = L_tmpnam
+    PATH_BUFFER_SIZE   = L_tmpnam
 #else
-    //TODO: replace PATH_MAX with something portable
-    PATH_BUFFER_SIZE = PATH_MAX
+    PATH_BUFFER_SIZE   = PATH_MAX
 #endif
 };
 
-bool tempFileName(char *result, bool verboseFlag)
+bool tempFileName(char *result);
+    // Store an available temp file name in the user-supplied buffer at the
+    // address pointed to by the specified 'result'.  Return 'true' if
+    // successful, and 'false' otherwise.  The buffer pointed to by the
+    // specified 'result' must be at least 'PATH_BUFFER_SIZE' bytes long.
+
+class OutputRedirector {
+    // This class redirects 'stdout' to a temporary file and provides
+    // facilities for retrieving output from the temporary file and comparing
+    // it to user-supplied character buffers.
+
+  private:
+    // DATA
+    char d_fileName[PATH_BUFFER_SIZE];        // Name of temporary capture file
+
+    char d_outputBuffer[OUTPUT_BUFFER_SIZE];  // Scratch buffer for holding
+                                              // captured output
+
+    bool d_isRedirectedFlag;                  // Has 'stdout' been redirected
+
+    bool d_isFileCreatedFlag;                 // Has a temp file been created
+
+    long d_outputSize;                        // Size of output loaded into
+                                              // 'd_outputBuffer'
+
+    bool d_isOutputReadyFlag;                 // Has output been read from
+                                              // temp file
+
+  private:
+    // NOT IMPLEMENTED
+    OutputRedirector(const OutputRedirector&);
+    OutputRedirector& operator=(const OutputRedirector&);
+
+  public:
+    // CREATORS
+    explicit OutputRedirector();
+        // Create this object.
+
+    ~OutputRedirector();
+        // Destroy this object.
+
+    // MANIPULATORS
+    bool redirect();
+        // Redirect stdout to a temp file, and stderr to the original stdout.
+        // Return 'true' if successful, and 'false' otherwise.
+
+    void reset();
+        // Reset the scratch buffer to empty.
+
+    bool load();
+        // Read captured output into the scratch buffer.  Return 'true' if
+        // there was output to be read and it was successfully loaded, and
+        // 'false' otherwise.
+
+    // ACCESSORS
+    bool isRedirected();
+        // Return 'true' if 'stdout' and 'stderr' have been successfully
+        // redirected, and 'false' otherwise.
+
+    bool isOutputReady();
+        // Return 'true' if captured output been loaded into the scratch
+        // buffer, and 'false' otherwise.
+
+    char *getOutput();
+        // Return the address of the scratch buffer.  This method is only used
+        // for error reporting and to test the correctness of
+        // 'OutputRedirector'.
+
+    int compare(const char *expected, size_t expectedLength);
+        // Compare the character buffer pointed to by the specified pointer
+        // 'expected' with any output that has been loaded into the scratch
+        // buffer.  The length of the 'expected' buffer is supplied in the
+        // specified 'expectedLength'.  Return 0 if the 'expected' buffer has
+        // the same length and contents as the scratch buffer, and non-zero
+        // otherwise.  Note that the 'expected' buffer is allowed to contain
+        // embedded nulls.
+
+    int compare(const char *expected);
+        // Compare the character buffer pointed to by the specified pointer
+        // 'expected' with any output that has been loaded into the scratch
+        // buffer.  The 'expected' buffer is assumed to be a NTBS, and and its
+        // length is taken to be the string length of the NTBS.  Return 0 if
+        // the 'expected' buffer has the same length and contents as the
+        // scratch buffer, and non-zero otherwise.
+};
+
+bool tempFileName(char *result)
 {
     ASSERT(result);
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
     char tmpPathBuf[MAX_PATH];
-    if (! GetTempPath(MAX_PATH, tmpPathBuf) || ! GetTempFileName(tmpPathBuf, "bsls", 0, result)) {
-        return false;
+    if (! GetTempPath(MAX_PATH, tmpPathBuf) ||
+        ! GetTempFileName(tmpPathBuf, "bsls", 0, result)) {
+        return false;                                                 // RETURN
     }
 #elif defined(BSLS_PLATFORM__OS_HPUX)
     if(! tempnam(result, "bsls")) {
@@ -251,56 +590,27 @@ bool tempFileName(char *result, bool verboseFlag)
     char *fn = tempnam(0, "bsls");
     if (fn) {
         strncpy(result, fn, PATH_BUFFER_SIZE);
+        result[PATH_BUFFER_SIZE - 1] = '\0';
         free(fn);
     } else {
         return false;
     }
 #endif
 
-    if (verboseFlag) printf("\tUse '%s' as a base filename.\n", result);
+    if (veryVerbose) printf("\tUse '%s' as a base filename.\n", result);
 
-    // Test Invariant:
     ASSERT('\0' != result[0]); // result not empty
 
     return true;
 }
 
-class OutputRedirector {
-  private:
-    char d_fileName[PATH_BUFFER_SIZE];
-    char d_outputBuffer[OUTPUT_BUFFER_SIZE];
-
-    bool d_isRedirectedFlag;
-    bool d_isFileCreatedFlag;
-    long d_outputSize;
-    bool d_isOutputReadyFlag;
-    bool d_isVerboseFlag;
-
-  public:
-    // CREATORS
-    explicit OutputRedirector(bool isVerboseFlag);
-    ~OutputRedirector();
-
-    // MANIPULATORS
-    bool redirect();
-    void reset();
-    bool load();
-
-    // ACCESSORS
-    bool isRedirected();
-    bool isOutputReady();
-    char *getOutput();
-    int strcmp(const char *expected);
-    int strcmp(const char *expected, size_t expectedLength);
-};
-
-OutputRedirector::OutputRedirector(bool isVerboseFlag)
+OutputRedirector::OutputRedirector()
     : d_isRedirectedFlag(false)
     , d_isFileCreatedFlag(false)
     , d_outputSize(0L)
     , d_isOutputReadyFlag(false)
-    , d_isVerboseFlag(isVerboseFlag)
 {
+    d_fileName[0] = '\0';
 }
 
 OutputRedirector::~OutputRedirector()
@@ -319,33 +629,77 @@ bool OutputRedirector::redirect()
     bool success = false;
 
     if (d_isRedirectedFlag) {
-        if (d_isVerboseFlag) {
-            fprintf(stderr, "Warning " __FILE__ "(%d): Output already redirected\n", __LINE__);
+
+        // Do not redirect anything if we have already redirected.
+
+        if (veryVerbose) {
+            ErrorReporter::showWarning(stderr,
+                                       __LINE__,
+                                       "Output already redirected");
         }
         success = true;
-    } else if (! freopen("/dev/stdout", "w+", stderr)) {
-            // Redirect stderr
-        if (d_isVerboseFlag) {
-            fprintf(stdout, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Failed to redirect stderr");
+    } else if (! freopen("/dev/stdout", "w", stderr)) {
+
+        // Redirect stderr first.
+
+        // We will not be able to redirect 'stderr' after we have redirected
+        // 'stdout'.
+
+        if (veryVerbose) {
+
+            // Note that we print this error message on 'stdout' instead of
+            // 'stderr', because stdout has not been redirected.
+
+            ErrorReporter::showError(stdout,
+                                     __LINE__,
+                                     "Failed to redirect stderr");
         }
-    } else if (! tempFileName(d_fileName, d_isVerboseFlag)) {
-            // Get temp file name
-        if (d_isVerboseFlag) {
-            fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Failed to get temp file name for stdout capture");
+    } else if (! tempFileName(d_fileName)) {
+
+        // Get temp file name
+
+        if (veryVerbose) {
+
+            // Note that we print this error message on 'stdout' instead of
+            // 'stderr', because stdout has not been redirected.
+
+            ErrorReporter::showError(stdout,
+                                     __LINE__,
+                            "Failed to get temp file name for stdout capture");
         }
     } else if (! freopen(d_fileName, "w+", stdout)) {
-            // Redirect stdout
-        if (d_isVerboseFlag) {
-            fprintf(stderr, "d_fileName: %s\n", d_fileName);
-            fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Failed to redirect stdout");
+
+        // Redirect 'stdout'
+
+        if (veryVerbose) {
+
+            // Note that we print this error message on 'stderr', because we
+            // have just redirected 'stdout' to the capture file.
+
+            //ErrorReporter::showData(stderr, "%s", "d_fileName", d_fileName);
+            SHOW_DATA(stderr, d_fileName, "%s");
+            ErrorReporter::showError(stderr,
+                                     __LINE__,
+                                     "Failed to redirect stdout");
         }
     } else {
+
+        // 'stderr' and 'stdout' have been successfully redirected.
+
         d_isFileCreatedFlag = true;
         d_isRedirectedFlag = true;
 
         if (EOF == fflush(stdout)) {
-            if (d_isVerboseFlag) {
-                fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Error flushing stdout");
+            if (veryVerbose) {
+
+                // Note that we print this error message on 'stderr', because
+                // we have just redirected 'stdout' to the capture file.
+
+                perror("Error message: ");
+
+                ErrorReporter::showError(stderr,
+                                         __LINE__,
+                                         "Error flushing stdout");
             }
         }
 
@@ -365,28 +719,54 @@ void OutputRedirector::reset()
 
 bool OutputRedirector::load()
 {
-    d_outputSize = ftell(stdout);                  
+    ASSERT(d_isRedirectedFlag);
+    ASSERT(!ferror(stdout));
+
+    d_outputSize = ftell(stdout);
 
     if (d_outputSize + 1 > OUTPUT_BUFFER_SIZE) {
-        if (d_isVerboseFlag) {
-            fprintf(stderr, "d_outputSize: %ld\n", d_outputSize);
-            fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Captured output exceeds read buffer size");
+
+        // Refuse to load output if it will not all fit in the scratch buffer.
+
+        if (veryVerbose) {
+            SHOW_DATA(stderr, d_outputSize, "%ld");
+            ErrorReporter::showError(stderr,
+                                     __LINE__,
+                                   "Captured output exceeds read buffer size");
         }
         d_outputSize = 0L;
-        return false;
+        return false;                                                 // RETURN
     }
 
-    rewind(stdout);                                   
+    rewind(stdout);
 
     long charsRead = fread(d_outputBuffer, sizeof(char), d_outputSize, stdout);
+
     if (d_outputSize != charsRead) {
-        if (d_isVerboseFlag) {
-            fprintf(stderr, "d_outputSize: %ld\tcharsRead: %ld\n", d_outputSize, charsRead);
-            fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", __LINE__, "Could not read all captured output");
+
+        // We failed to read all output from the capture file.
+
+        if (veryVerbose) {
+            SHOW_DATA2(stderr, d_outputSize, "%ld", charsRead, "%ld");
+            if (ferror(stdout)) {
+
+                // We encountered an error.
+
+                perror("\tError message: ");
+                clearerr(stdout);
+            }
+            ErrorReporter::showError(stderr,
+                                     __LINE__,
+                                     "Could not read all captured output");
         }
-        return false;
+        return false;                                                 // RETURN
     } else {
-        d_outputBuffer[d_outputSize] = '\0'; // To ensure that direct inspection of buffer does not overflow
+
+        // We have read all output from the capture file.
+
+        d_outputBuffer[d_outputSize] = '\0';
+
+            // ...to ensure that direct inspection of buffer does not overflow
     }
 
     d_isOutputReadyFlag = true;
@@ -399,103 +779,609 @@ bool OutputRedirector::isRedirected()
     return d_isRedirectedFlag;
 }
 
-bool OutputRedirector::isOutputReady() {
+bool OutputRedirector::isOutputReady()
+{
     return d_isOutputReadyFlag;
 }
 
-char *OutputRedirector::getOutput() {
+char *OutputRedirector::getOutput()
+{
     return d_outputBuffer;
 }
 
-int OutputRedirector::strcmp(const char *expected)
+int OutputRedirector::compare(const char *expected)
 {
-    return strcmp(expected, strlen(expected));
+    return compare(expected, strlen(expected));
 }
 
-int OutputRedirector::strcmp(const char *expected, size_t expectedLength)
+int OutputRedirector::compare(const char *expected, size_t expectedLength)
 {
+    ASSERT(d_isRedirectedFlag);
+
     if (!d_isOutputReadyFlag) {
-        if (d_isVerboseFlag) {
-            fprintf(stderr, "Error " __FILE__ "(%d): No captured output available for comparison with '%s'    (failed)\n", __LINE__, expected);
+        if (veryVerbose) {
+            SHOW_DATA(stderr, expected, "'%s'");
+            ErrorReporter::showError(stderr,
+                                     __LINE__,
+                                     "No captured output available");
         }
-        return -1;
+        return -1;                                                    // RETURN
     }
 
-    size_t len = strlen(expected);
-    size_t limit = expectedLength < d_outputSize ? expectedLength : d_outputSize;
+    // Use 'memcmp' instead of 'strncmp' to compare 'd_outputBuffer' to
+    // 'expected', because 'expected' is allowed to contain embedded nulls.
 
-    int result = strncmp(d_outputBuffer, expected, limit);
-    
-    return result ? result : d_outputSize - expectedLength;
+    return d_outputSize != static_cast<long>(expectedLength) ||
+           memcmp(d_outputBuffer, expected, expectedLength);
+}
+
+template <typename TEST_TYPE>
+struct DataRow {
+    int         d_line;              // line number
+
+    TEST_TYPE   d_input;             // value that was printed to 'stdout'
+
+    const char *d_expectedOutput_p;  // expected output string, or '0' if
+                                     // expected output should be generated
+                                     // with 'printf'
+
+    const char *d_description_p;     // description of this test case
+};
+
+//=============================================================================
+//                       TEST DRIVER TEMPLATE
+//-----------------------------------------------------------------------------
+
+#define PREFIX "<"
+#define SUFFIX ">"
+
+struct TestDriver {
+    enum {
+        EXPECTED_OUTPUT_BUFFER_SIZE = 1024,
+        LOOP_ITERATIONS             = 10
+    };
+
+    static char expectedOutput[EXPECTED_OUTPUT_BUFFER_SIZE];
+
+    // TEST APPARATUS
+
+    template <typename TEST_TYPE>
+    static int generateExpectedOutput(const char      *formatString,
+                                      const TEST_TYPE  input);
+        // Populate expectedOutput with the result of calling printf with the
+        // specified 'formatString' and 'input'.
+
+    // TEST CASES
+
+    static void testCase8(OutputRedirector *output);
+        // Test BSLS_BSLTESTUTIL_LOOP*_ASSERT macros.
+
+    template <typename TEST_TYPE>
+    static void testCase3(OutputRedirector         *output,
+                          const DataRow<TEST_TYPE> *DATA,
+                          const int                 NUM_DATA,
+                          const char               *formatString);
+        // Test 'debugPrint'.
+};
+
+char TestDriver::expectedOutput[EXPECTED_OUTPUT_BUFFER_SIZE];
+
+                               // --------------
+                               // TEST APPARATUS
+                               // --------------
+
+template <typename TEST_TYPE>
+int TestDriver::generateExpectedOutput(const char      *formatString,
+                                       const TEST_TYPE  input)
+{
+    int charsWritten = snprintf(tempFormatString,
+                                FORMAT_STRING_SIZE,
+                                "%%s%s%%s",
+                                formatString);
+    ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
+    charsWritten = snprintf(expectedOutput,
+                            EXPECTED_OUTPUT_BUFFER_SIZE,
+                            tempFormatString,
+                            PREFIX,
+                            input,
+                            SUFFIX);
+    ASSERT(charsWritten >= 0 &&
+           charsWritten < EXPECTED_OUTPUT_BUFFER_SIZE);
+
+    return charsWritten;
+}
+
+                                 // ----------
+                                 // TEST CASES
+                                 // ----------
+
+void TestDriver::testCase8(OutputRedirector *output)
+{
+    // ------------------------------------------------------------------------
+    // TESTING BSLS_BSLTESTUTIL_LOOP*_ASSERT MACROS
+    //
+    // Concerns:
+    //: 1 Macros do not call 'aSsErT' and emit no output when the assertion is
+    //:   'true'.
+    //: 2 Macros call 'aSsErT' and emit output each time the assertion is
+    //:   'false'.
+    //: 3 Macros emit properly formatted output for each loop variable
+    //:   supplied.
+    //
+    // Plan:
+    //: 1 Loop through an arbitrary number of iterations, calling one of the
+    //:   loop assert macros with distinct values for each loop variable and an
+    //:   assertion that evaluates to 'true'.  Confirm that the value of
+    //:   'testStatus' does not change, and that no output is captured by the
+    //:   output redirection apparatus.  (C-1)
+    //: 2 Loop through an arbitrary number of iterations, calling one of the
+    //:   loop assert macros with distinct values for each loop variable and an
+    //:   assertion that evaluates to 'false'.  Confirm that 'testStatus'
+    //:   increments each time the loop assert macro is called, and that the
+    //:   expected error output is captured by the output redirection
+    //:   apparatus.  Note that using distinct values for each loop variable
+    //:   allows us to detect omissions, repititions or mis-ordering of the
+    //:   loop assert macro's arguments.  Also note that we only need to test
+    //:   the loop assert macro with one set of variable types, since we test
+    //:   separately in test case 3 the ability of the underlying apparatus to
+    //:   identify and correctly format each primitive type. (C-2,3)
+    //
+    // Testing:
+    //     BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
+    //     BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X)
+    //     BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X)
+    //     BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
+    //     BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
+    //     BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
+    // ------------------------------------------------------------------------
+
+    // [ 8] BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
+    {
+        if (verbose) {
+            fprintf(stderr,
+                    "\nTESTING BSLS_BSLTESTUTIL_LOOP_ASSERT"
+                    "\n--------------------------\n");
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+
+            if (veryVerbose) {
+                SHOW_DATA(stderr, idx, "%d");
+            }
+
+            output->reset();
+            BSLS_BSLTESTUTIL_LOOP_ASSERT(I, idx < LOOP_ITERATIONS);
+            ANNOTATED_ASSERT(testStatus, "%d", testStatus == 0);
+            ASSERT(output->load());
+            ANNOTATED_ASSERT(output->getOutput(),
+                             "%s",
+                             0 == output->compare(""));
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+
+            if (veryVerbose) {
+                SHOW_DATA(stderr, idx, "%d");
+            }
+
+            output->reset();
+            const int LINE = __LINE__ + 1;
+            BSLS_BSLTESTUTIL_LOOP_ASSERT(I, idx > LOOP_ITERATIONS);
+            ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d",
+                              testStatus == idx + 1);
+            ASSERT(output->load());
+            snprintf(expectedOutput,
+                     EXPECTED_OUTPUT_BUFFER_SIZE,
+                     "I: %d,\tError %s(%d):"
+                         " idx > LOOP_ITERATIONS    (failed)\n",
+                     I,
+                     __FILE__,
+                     LINE);
+            ANNOTATED2_ASSERT(expectedOutput,
+                    "%s",
+                    output->getOutput(),
+                    "%s",
+                    0 == output->compare(expectedOutput));
+        }
+        testStatus = 0;
+    }
+
+    // [ 8] BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X)
+    {
+        if (verbose) {
+            fprintf(stderr,
+                    "\nTESTING BSLS_BSLTESTUTIL_LOOP2_ASSERT"
+                    "\n--------------------------\n");
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+            const int J = idx + 1;
+
+            if (veryVerbose) {
+                SHOW_DATA(stderr, idx, "%d");
+            }
+
+            output->reset();
+            BSLS_BSLTESTUTIL_LOOP2_ASSERT(I, J, idx < LOOP_ITERATIONS);
+            ANNOTATED_ASSERT(testStatus, "%d", testStatus == 0);
+            ASSERT(output->load());
+            ANNOTATED_ASSERT(output->getOutput(), "%s",
+                             0 == output->compare(""));
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+            const int J = idx + 1;
+
+            if (veryVerbose) {
+                SHOW_DATA(stderr, idx, "%d");
+            }
+
+            output->reset();
+            const int LINE = __LINE__ + 1;
+            BSLS_BSLTESTUTIL_LOOP2_ASSERT(I, J, idx > LOOP_ITERATIONS);
+            ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d",
+                              testStatus == idx + 1);
+            ASSERT(output->load());
+            snprintf(expectedOutput,
+                     EXPECTED_OUTPUT_BUFFER_SIZE,
+                     "I: %d\tJ: %d,\tError %s(%d): idx > LOOP_ITERATIONS"
+                         "    (failed)\n",
+                     I,
+                     J,
+                     __FILE__,
+                     LINE);
+            ANNOTATED2_ASSERT(expectedOutput, "%s",
+                              output->getOutput(), "%s",
+                              0 == output->compare(expectedOutput));
+        }
+        testStatus = 0;
+    }
+
+    // [ 8] BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X)
+    {
+        if (verbose) {
+            fprintf(stderr,
+                    "\nTESTING BSLS_BSLTESTUTIL_LOOP3_ASSERT"
+                    "\n--------------------------\n");
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+            const int J = idx + 1;
+            const int K = idx + 2;
+
+            if (veryVerbose) {
+                SHOW_DATA(stderr, idx, "%d");
+            }
+
+            output->reset();
+            BSLS_BSLTESTUTIL_LOOP3_ASSERT(I, J, K, idx < LOOP_ITERATIONS);
+            ANNOTATED_ASSERT(testStatus, "%d", testStatus == 0);
+            ASSERT(output->load());
+            ANNOTATED_ASSERT(output->getOutput(), "%s",
+                             0 == output->compare(""));
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+            const int J = idx + 1;
+            const int K = idx + 2;
+
+            if (veryVerbose) {
+                SHOW_DATA(stderr, idx, "%d");
+            }
+
+            output->reset();
+            const int LINE = __LINE__ + 1;
+            BSLS_BSLTESTUTIL_LOOP3_ASSERT(I, J, K, idx > LOOP_ITERATIONS);
+            ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d",
+                              testStatus == idx + 1);
+            ASSERT(output->load());
+            snprintf(expectedOutput,
+                     EXPECTED_OUTPUT_BUFFER_SIZE,
+                     "I: %d\tJ: %d\tK: %d,\tError %s(%d):"
+                         " idx > LOOP_ITERATIONS    (failed)\n",
+                     I,
+                     J,
+                     K,
+                     __FILE__,
+                     LINE);
+            ANNOTATED2_ASSERT(expectedOutput, "%s", output->getOutput(), "%s",
+                              0 == output->compare(expectedOutput));
+        }
+        testStatus = 0;
+    }
+
+    // [ 8] BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
+    {
+        if (verbose) {
+            fprintf(stderr,
+                    "\nTESTING BSLS_BSLTESTUTIL_LOOP4_ASSERT"
+                    "\n--------------------------\n");
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+            const int J = idx + 1;
+            const int K = idx + 2;
+            const int L = idx + 3;
+
+            if (veryVerbose) {
+                SHOW_DATA(stderr, idx, "%d");
+            }
+
+            output->reset();
+            BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, idx < LOOP_ITERATIONS);
+            ANNOTATED_ASSERT(testStatus, "%d", testStatus == 0);
+            ASSERT(output->load());
+            ANNOTATED_ASSERT(output->getOutput(), "%s",
+                             0 == output->compare(""));
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+            const int J = idx + 1;
+            const int K = idx + 2;
+            const int L = idx + 3;
+
+            if (veryVerbose) {
+                SHOW_DATA(stderr, idx, "%d");
+            }
+
+            output->reset();
+            const int LINE = __LINE__ + 1;
+            BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, idx > LOOP_ITERATIONS);
+            ANNOTATED2_ASSERT(testStatus, "%d",
+                              idx, "%d",
+                              testStatus == idx + 1);
+            ASSERT(output->load());
+            snprintf(expectedOutput,
+                     EXPECTED_OUTPUT_BUFFER_SIZE,
+                     "I: %d\tJ: %d\tK: %d\tL: %d,\tError %s(%d):"
+                         " idx > LOOP_ITERATIONS    (failed)\n",
+                     I,
+                     J,
+                     K,
+                     L,
+                     __FILE__,
+                     LINE);
+            ANNOTATED2_ASSERT(expectedOutput, "%s", output->getOutput(), "%s",
+                              0 == output->compare(expectedOutput));
+        }
+        testStatus = 0;
+    }
+
+    // [ 8] BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
+    {
+        if (verbose) {
+            fprintf(stderr,
+                    "\nTESTING BSLS_BSLTESTUTIL_LOOP5_ASSERT"
+                    "\n--------------------------\n");
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+            const int J = idx + 1;
+            const int K = idx + 2;
+            const int L = idx + 3;
+            const int M = idx + 3;
+
+            if (veryVerbose) {
+                SHOW_DATA(stderr, idx, "%d");
+            }
+
+            output->reset();
+            BSLS_BSLTESTUTIL_LOOP5_ASSERT(I, J, K, L, M,
+                                          idx < LOOP_ITERATIONS);
+            ANNOTATED_ASSERT(testStatus, "%d", testStatus == 0);
+            ASSERT(output->load());
+            ANNOTATED_ASSERT(output->getOutput(), "%s",
+                             0 == output->compare(""));
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+            const int J = idx + 1;
+            const int K = idx + 2;
+            const int L = idx + 3;
+            const int M = idx + 3;
+
+            if (veryVerbose) {
+                SHOW_DATA(stderr, idx, "%d");
+            }
+
+            output->reset();
+            const int LINE = __LINE__ + 1;
+            BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M, idx > LOOP_ITERATIONS);
+            ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d",
+                              testStatus == idx + 1);
+            ASSERT(output->load());
+            snprintf(expectedOutput,
+                     EXPECTED_OUTPUT_BUFFER_SIZE,
+                     "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d,\tError %s(%d):"
+                         " idx > LOOP_ITERATIONS    (failed)\n",
+                     I,
+                     J,
+                     K,
+                     L,
+                     M,
+                     __FILE__,
+                     LINE);
+            ANNOTATED2_ASSERT(expectedOutput, "%s",
+                              output->getOutput(), "%s",
+                              0 == output->compare(expectedOutput));
+        }
+        testStatus = 0;
+    }
+
+    // [ 8] BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
+    {
+        if (verbose) {
+            fprintf(stderr,
+                    "\nTESTING BSLS_BSLTESTUTIL_LOOP6_ASSERT"
+                    "\n--------------------------\n");
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+            const int J = idx + 1;
+            const int K = idx + 2;
+            const int L = idx + 3;
+            const int M = idx + 3;
+            const int N = idx + 3;
+
+            if (veryVerbose) {
+                SHOW_DATA(stderr, idx, "%d");
+            }
+
+            output->reset();
+            BSLS_BSLTESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N,
+                                          idx < LOOP_ITERATIONS);
+            ANNOTATED_ASSERT(testStatus, "%d", testStatus == 0);
+            ASSERT(output->load());
+            ANNOTATED_ASSERT(output->getOutput(), "%s",
+                             0 == output->compare(""));
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+            const int J = idx + 1;
+            const int K = idx + 2;
+            const int L = idx + 3;
+            const int M = idx + 3;
+            const int N = idx + 3;
+
+            if (veryVerbose) {
+                SHOW_DATA(stderr, idx, "%d");
+            }
+
+            output->reset();
+            const int LINE = __LINE__ + 1;
+            BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N, idx > LOOP_ITERATIONS);
+            ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d",
+                              testStatus == idx + 1);
+            ASSERT(output->load());
+            snprintf(expectedOutput,
+                     EXPECTED_OUTPUT_BUFFER_SIZE,
+                     "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d,\tError %s(%d):"
+                         " idx > LOOP_ITERATIONS    (failed)\n",
+                     I,
+                     J,
+                     K,
+                     L,
+                     M,
+                     N,
+                     __FILE__,
+                     LINE);
+            ANNOTATED2_ASSERT(expectedOutput, "%s",
+                              output->getOutput(), "%s",
+                              0 == output->compare(expectedOutput));
+        }
+        testStatus = 0;
+    }
+}
+
+template <typename TEST_TYPE>
+void TestDriver::testCase3(OutputRedirector                    *output,
+                                      const DataRow<TEST_TYPE> *DATA,
+                                      const int                 NUM_DATA,
+                                      const char               *formatString)
+{
+    // ------------------------------------------------------------------------
+    // FORMATTED OUTPUT TEST
+    //   Ensure that the 'debugPrint' formatted output methods write values to
+    //   stdout in the expected form
+    //
+    // Concerns:
+    //: 1 The 'debugPrint' method writes the value to stdout.
+    //:
+    //: 2 The 'debugPrint' method writes the value in the intended format.
+    //
+    // Plan:
+    //: 1 Using the table-driven technique:  (C-1, 2)
+    //:
+    //:   For each overload of debugPrint, choose a number of significant
+    //:   values for the second parameter, and check that each is written to
+    //:   stdout in the intended format as follows:
+    //:
+    //:   Reset the output redirector, invoke the method under test with the
+    //:   appropriate value for the second parameter, then compare the contents
+    //:   of the redirector with the expected form.
+    //
+    // Testing:
+    //   static void debugPrint(const char *s, bool b, const char *t);
+    //   static void debugPrint(const char *s, char c, const char *t);
+    //   static void debugPrint(const char *s, signed char v, const char *t);
+    //   static void debugPrint(const char *s, unsigned char v, const char *t);
+    //   static void debugPrint(const char *s, short v, const char *t);
+    //   static void debugPrint(const char *s, unsigned short v,
+    //                          const char *t);
+    //   static void debugPrint(const char *s, int v, const char *t);
+    //   static void debugPrint(const char *s, unsigned int v, const char *t);
+    //   static void debugPrint(const char *s, long v, const char *t);
+    //   static void debugPrint(const char *s, unsigned long v, const char *t);
+    //   static void debugPrint(const char *s, long long v, const char *t);
+    //   static void debugPrint(const char *s, unsigned long long v,
+    //                          const char *t);
+    //   static void debugPrint(const char *s, float v, const char *t);
+    //   static void debugPrint(const char *s, double v, const char *t);
+    //   static void debugPrint(const char *s, long double v, const char *t);
+    //   static void debugPrint(const char *s, char *str, const char *t);
+    //   static void debugPrint(const char *s, const char *str, const char *t);
+    //   static void debugPrint(const char *s, void *p, const char *t);
+    //   static void debugPrint(const char *s, const void *p, const char *t);
+    // ------------------------------------------------------------------------
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int LINE =       DATA[ti].d_line;
+        //ARB: Should INPUT not be capitalized, because it is not necessarily
+        // constant?
+        TEST_TYPE INPUT =      DATA[ti].d_input;
+        const char *EXPECTED = DATA[ti].d_expectedOutput_p;
+
+        if (veryVerbose) {
+            SHOW_DATA2(stderr, ti, "%d", INPUT, formatString);
+        }
+
+        int expectedSize = 0;
+
+        if (!EXPECTED) {
+            expectedSize = generateExpectedOutput(formatString, INPUT);
+            EXPECTED = expectedOutput;
+        } else {
+            expectedSize = strlen(EXPECTED);
+        }
+
+        output->reset();
+        bsls::BslTestUtil::debugPrint(PREFIX, INPUT, SUFFIX);
+
+        ANNOTATED2_ASSERT(LINE, "%d", INPUT, formatString, output->load());
+        ANNOTATED3_ASSERT(LINE, "%d",
+                          INPUT, formatString,
+                          EXPECTED, "%s",
+                          output->getOutput());
+    }
 }
 
 // ============================================================================
 //                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
-
-template <typename TEST_TYPE>
-struct DataRow {
-    int d_line;
-    TEST_TYPE d_input;
-    const char *d_expectedOutput_p;
-    const char *d_description_p;
-};
-
-#define PREFIX "<"
-#define SUFFIX ">"
-static const char prefixString[] = PREFIX;
-static const char suffixString[] = SUFFIX;
-
-template <typename TEST_TYPE>
-struct TestDriver {
-    static void testCase3(OutputRedirector *output, const DataRow<TEST_TYPE> *DATA, const int NUM_DATA, const char *formatString);
-};
-
-#define EXPECTED_OUTPUT_BUFFER_SIZE 1024
-#define FORMAT_STRING_SIZE 256
-
-template <typename TEST_TYPE>
-void TestDriver<TEST_TYPE>::testCase3(OutputRedirector *output, const DataRow<TEST_TYPE> *DATA, const int NUM_DATA, const char *formatString)
-{
-    static char expectedOutputBuffer[EXPECTED_OUTPUT_BUFFER_SIZE];
-    static char tempFormatString[FORMAT_STRING_SIZE];
-
-    for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const int LINE =       DATA[ti].d_line;
-        TEST_TYPE INPUT =      DATA[ti].d_input;
-        const char *EXPECTED = DATA[ti].d_expectedOutput_p;
-
-        int expectedSize = 0;
-    
-        if (!EXPECTED) {
-            int charsWritten = snprintf(tempFormatString, FORMAT_STRING_SIZE, "%%s%s%%s", formatString);
-            ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
-            charsWritten = snprintf(expectedOutputBuffer, EXPECTED_OUTPUT_BUFFER_SIZE, tempFormatString, PREFIX, INPUT, SUFFIX);
-            ASSERT(charsWritten >= 0 && charsWritten < EXPECTED_OUTPUT_BUFFER_SIZE); 
-            EXPECTED = expectedOutputBuffer;
-            expectedSize = charsWritten;
-        } else {
-            expectedSize = strlen(EXPECTED);
-        }
-        
-        output->reset();
-        bsls::BslTestUtil::debugPrint(PREFIX, INPUT, SUFFIX);
-
-        if (!(output->load())) {
-            int charsWritten = snprintf(tempFormatString, FORMAT_STRING_SIZE,  "%%s: " "%%d" "\t%%s: " "%s" "\n", formatString);
-            ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
-            fprintf(stderr, tempFormatString, "LINE", LINE, "INPUT", INPUT);
-            realaSsErT(1, "output->load()", __LINE__);
-        }
-
-        if(!(0 == output->strcmp(EXPECTED, expectedSize))) {
-            int charsWritten = snprintf(tempFormatString, FORMAT_STRING_SIZE,  "%%s: " "%%d" "\t%%s: " "%s" "\t%%s: " "%%s" "\t%%s: " "%%s" "\n", formatString);
-            ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
-            fprintf(stderr, tempFormatString, "LINE", LINE, "INPUT", INPUT, "EXPECTED", EXPECTED, "output->getOutput()", output->getOutput());
-            realaSsErT(1, "0 == output->strcmp(EXPECTED, expectedSize)", __LINE__);
-        }
-    } 
-}
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -504,23 +1390,30 @@ void TestDriver<TEST_TYPE>::testCase3(OutputRedirector *output, const DataRow<TE
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
-    bool veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
-
-    //setbuf(stdout, 0);    // Use unbuffered output on stdout
-
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
 
     fprintf(stderr, "TEST " __FILE__ " CASE %d\n", test);
 
+    // Retain information about original stdout file descriptor for
+    // use in later tests.
+    struct stat originalStdoutStat;
+    {
+        int originalStdoutFD = fileno(stdout);
+        ASSERT(-1 != originalStdoutFD);
+        ASSERT(0 == fstat(originalStdoutFD, &originalStdoutStat));
+    }
+
     // Capture stdout, and send stderr to stdout
-    OutputRedirector output(veryVerbose);
+    OutputRedirector output;
     if (!output.redirect()) {
-        return 1;
+        ASSERT(output.isRedirected());
+        return 1;                                                     // RETURN
     }
 
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -538,255 +1431,61 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            fprintf(stderr, 
+            fprintf(stderr,
                     "\nTESTING USAGE EXAMPLE"
                     "\n---------------------\n");
         }
-        
+
+        // The actual usage example code is encapsulated in a free function,
+        // 'executeUsageExample', so that it can be relocated to the section of
+        // the source file where the standard test macros have been defined in
+        // terms of the macros supplied by the component under test.
+
         executeUsageExample(verbose, veryVerbose, veryVeryVerbose);
+      } break;
+      case 8: {
+          // ------------------------------------------------------------------
+          // TESTING BSLS_BSLTESTUTIL_LOOP*_ASSERT MACROS
+          //
+          // Testing:
+          //     BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
+          //     BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X)
+          //     BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X)
+          //     BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
+          //     BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
+          //     BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
+          // ------------------------------------------------------------------
+
+        if (verbose) {
+            fprintf(stderr,
+                    "\nTESTING LOOP ASSERT MACROS"
+                    "\n--------------------------\n");
+        }
+
+        TestDriver::testCase8(&output);
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // LOOP ASSERT MACRO TEST
-        
-        static char expectedOutput[EXPECTED_OUTPUT_BUFFER_SIZE];
-        const int LIMIT = 10;
+        // IDENTIFIER OUTPUT MACRO TEST
+        //
+        // Concerns:
+        //: 1 Identifier output macro emits output.
+        //: 2 Output emitted is in correct format
+        //
+        // Plan:
+        //: 1 Call BSLS_BSLTESTUTIL_Q with a series of arbitrary identifiers
+        //:   containing single, and multiple tokens, with an without initial,
+        //:   final, and repeated whitespace and compare the captured output to
+        //:   a model string. (C-1,2)
 
-        // [ 7] BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
-        {
-            ASSERT(testStatus == 0);
-            for (int idx = 0; idx < LIMIT; ++idx) {
-                const int I = idx;
-                output.reset();
-                BSLS_BSLTESTUTIL_LOOP_ASSERT(I, idx < LIMIT);
-                ANNOTATED_ASSERT(testStatus, "%d", testStatus == 0);
-                ASSERT(output.load());
-                ANNOTATED_ASSERT(output.getOutput(), "%s", 0 == output.strcmp(""));
-            }
-
-            ASSERT(testStatus == 0);
-            for (int idx = 0; idx < LIMIT; ++idx) {
-                const int I = idx;
-                output.reset();
-                const int LINE = __LINE__; BSLS_BSLTESTUTIL_LOOP_ASSERT(I, idx > LIMIT);
-                ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d", testStatus == idx + 1);
-                ASSERT(output.load());
-                snprintf(expectedOutput, 
-                         EXPECTED_OUTPUT_BUFFER_SIZE,
-                         "I: %d,\tError %s(%d): idx > LIMIT    (failed)\n", 
-                         I,
-                         __FILE__, 
-                         LINE);
-                ANNOTATED2_ASSERT(expectedOutput, "%s", output.getOutput(), "%s", 0 == output.strcmp(expectedOutput));
-            }
-            testStatus = 0;
-        }
-
-        // [ 7] BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X)
-        {
-            ASSERT(testStatus == 0);
-            for (int idx = 0; idx < LIMIT; ++idx) {
-                const int I = idx;
-                const int J = idx + 1;
-                output.reset();
-                const int LINE = __LINE__; BSLS_BSLTESTUTIL_LOOP2_ASSERT(I, J, idx < LIMIT);
-                ANNOTATED_ASSERT(testStatus, "%d", testStatus == 0);
-                ASSERT(output.load());
-                ANNOTATED_ASSERT(output.getOutput(), "%s", 0 == output.strcmp(""));
-            }
-
-            ASSERT(testStatus == 0);
-            for (int idx = 0; idx < LIMIT; ++idx) {
-                const int I = idx;
-                const int J = idx + 1;
-                output.reset();
-                const int LINE = __LINE__; BSLS_BSLTESTUTIL_LOOP2_ASSERT(I, J, idx > LIMIT);
-                ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d", testStatus == idx + 1);
-                ASSERT(output.load());
-                snprintf(expectedOutput, 
-                         EXPECTED_OUTPUT_BUFFER_SIZE,
-                         "I: %d\tJ: %d,\tError %s(%d): idx > LIMIT    (failed)\n", 
-                         I,
-                         J,
-                         __FILE__, 
-                         LINE);
-                ANNOTATED2_ASSERT(expectedOutput, "%s", output.getOutput(), "%s", 0 == output.strcmp(expectedOutput));
-            }
-            testStatus = 0;
-        }
-
-        // [ 7] BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X)
-        {
-            ASSERT(testStatus == 0);
-            for (int idx = 0; idx < LIMIT; ++idx) {
-                const int I = idx;
-                const int J = idx + 1;
-                const int K = idx + 2;
-                output.reset();
-                const int LINE = __LINE__; BSLS_BSLTESTUTIL_LOOP3_ASSERT(I, J, K, idx < LIMIT);
-                ANNOTATED_ASSERT(testStatus, "%d", testStatus == 0);
-                ASSERT(output.load());
-                ANNOTATED_ASSERT(output.getOutput(), "%s", 0 == output.strcmp(""));
-            }
-
-            ASSERT(testStatus == 0);
-            for (int idx = 0; idx < LIMIT; ++idx) {
-                const int I = idx;
-                const int J = idx + 1;
-                const int K = idx + 2;
-                output.reset();
-                const int LINE = __LINE__; BSLS_BSLTESTUTIL_LOOP3_ASSERT(I, J, K, idx > LIMIT);
-                ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d", testStatus == idx + 1);
-                ASSERT(output.load());
-                snprintf(expectedOutput, 
-                         EXPECTED_OUTPUT_BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d,\tError %s(%d): idx > LIMIT    (failed)\n", 
-                         I,
-                         J,
-                         K,
-                         __FILE__, 
-                         LINE);
-                ANNOTATED2_ASSERT(expectedOutput, "%s", output.getOutput(), "%s", 0 == output.strcmp(expectedOutput));
-            }
-            testStatus = 0;
-        }
-
-        // [ 7] BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
-        {
-            ASSERT(testStatus == 0);
-            for (int idx = 0; idx < LIMIT; ++idx) {
-                const int I = idx;
-                const int J = idx + 1;
-                const int K = idx + 2;
-                const int L = idx + 3;
-                output.reset();
-                const int LINE = __LINE__; BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, idx < LIMIT);
-                ANNOTATED_ASSERT(testStatus, "%d", testStatus == 0);
-                ASSERT(output.load());
-                ANNOTATED_ASSERT(output.getOutput(), "%s", 0 == output.strcmp(""));
-            }
-
-            ASSERT(testStatus == 0);
-            for (int idx = 0; idx < LIMIT; ++idx) {
-                const int I = idx;
-                const int J = idx + 1;
-                const int K = idx + 2;
-                const int L = idx + 3;
-                output.reset();
-                const int LINE = __LINE__; BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, idx > LIMIT);
-                ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d", testStatus == idx + 1);
-                ASSERT(output.load());
-                snprintf(expectedOutput, 
-                         EXPECTED_OUTPUT_BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d,\tError %s(%d): idx > LIMIT    (failed)\n", 
-                         I,
-                         J,
-                         K,
-                         L,
-                         __FILE__, 
-                         LINE);
-                ANNOTATED2_ASSERT(expectedOutput, "%s", output.getOutput(), "%s", 0 == output.strcmp(expectedOutput));
-            }
-            testStatus = 0;
-        }
-
-        // [ 7] BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
-        {
-            ASSERT(testStatus == 0);
-            for (int idx = 0; idx < LIMIT; ++idx) {
-                const int I = idx;
-                const int J = idx + 1;
-                const int K = idx + 2;
-                const int L = idx + 3;
-                const int M = idx + 3;
-                output.reset();
-                const int LINE = __LINE__; BSLS_BSLTESTUTIL_LOOP5_ASSERT(I, J, K, L, M, idx < LIMIT);
-                ANNOTATED_ASSERT(testStatus, "%d", testStatus == 0);
-                ASSERT(output.load());
-                ANNOTATED_ASSERT(output.getOutput(), "%s", 0 == output.strcmp(""));
-            }
-
-            ASSERT(testStatus == 0);
-            for (int idx = 0; idx < LIMIT; ++idx) {
-                const int I = idx;
-                const int J = idx + 1;
-                const int K = idx + 2;
-                const int L = idx + 3;
-                const int M = idx + 3;
-                output.reset();
-                const int LINE = __LINE__; BSLS_BSLTESTUTIL_LOOP5_ASSERT(I, J, K, L, M, idx > LIMIT);
-                ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d", testStatus == idx + 1);
-                ASSERT(output.load());
-                snprintf(expectedOutput, 
-                         EXPECTED_OUTPUT_BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d,\tError %s(%d): idx > LIMIT    (failed)\n", 
-                         I,
-                         J,
-                         K,
-                         L,
-                         M,
-                         __FILE__, 
-                         LINE);
-                ANNOTATED2_ASSERT(expectedOutput, "%s", output.getOutput(), "%s", 0 == output.strcmp(expectedOutput));
-            }
-            testStatus = 0;
-        }
-
-        // [ 7] BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
-        {
-            ASSERT(testStatus == 0);
-            for (int idx = 0; idx < LIMIT; ++idx) {
-                const int I = idx;
-                const int J = idx + 1;
-                const int K = idx + 2;
-                const int L = idx + 3;
-                const int M = idx + 3;
-                const int N = idx + 3;
-                output.reset();
-                const int LINE = __LINE__; BSLS_BSLTESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, idx < LIMIT);
-                ANNOTATED_ASSERT(testStatus, "%d", testStatus == 0);
-                ASSERT(output.load());
-                ANNOTATED_ASSERT(output.getOutput(), "%s", 0 == output.strcmp(""));
-            }
-
-            ASSERT(testStatus == 0);
-            for (int idx = 0; idx < LIMIT; ++idx) {
-                const int I = idx;
-                const int J = idx + 1;
-                const int K = idx + 2;
-                const int L = idx + 3;
-                const int M = idx + 3;
-                const int N = idx + 3;
-                output.reset();
-                const int LINE = __LINE__; BSLS_BSLTESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, idx > LIMIT);
-                ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d", testStatus == idx + 1);
-                ASSERT(output.load());
-                snprintf(expectedOutput, 
-                         EXPECTED_OUTPUT_BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d,\tError %s(%d): idx > LIMIT    (failed)\n", 
-                         I,
-                         J,
-                         K,
-                         L,
-                         M,
-                         N,
-                         __FILE__, 
-                         LINE);
-                ANNOTATED2_ASSERT(expectedOutput, "%s", output.getOutput(), "%s", 0 == output.strcmp(expectedOutput));
-            }
-            testStatus = 0;
-        }
-
-      } break;
-      case 6: {
+        //
+        // Testing:
+        //    BSLS_BSLTESTUTIL_Q(X)
         // --------------------------------------------------------------------
-        // VALUE OUTPUT MACRO TEST
 
-
-        // [ 6] BSLS_BSLTESTUTIL_Q(X)
         {
             if (verbose) {
-                fprintf(stderr, 
+                fprintf(stderr,
                         "\nTESTING BSLS_BSLTESTUTIL_Q"
                         "\n--------------------------\n");
             }
@@ -795,102 +1494,190 @@ int main(int argc, char *argv[])
                 output.reset();
                 BSLS_BSLTESTUTIL_Q(sample);
                 ASSERT(output.load());
-                ASSERT(0 == output.strcmp("<| sample |>\n"));
-
-                output.reset();
-                BSLS_BSLTESTUTIL_Q(42);
-                ASSERT(output.load());
-                ASSERT(0 == output.strcmp("<| 42 |>\n"));
+                ASSERT(0 == output.compare("<| sample |>\n"));
             }
+
+            {
+                output.reset();
+                BSLS_BSLTESTUTIL_Q(embedded white   space);
+                ASSERT(output.load());
+                ASSERT(0 == output.compare("<| embedded white space |>\n"));
+            }
+
+            {
+                output.reset();
+                BSLS_BSLTESTUTIL_Q(   initial whitespace);
+                ASSERT(output.load());
+                ASSERT(0 == output.compare("<| initial whitespace |>\n"));
+            }
+
+            {
+                output.reset();
+                BSLS_BSLTESTUTIL_Q(final whitespace   );
+                ASSERT(output.load());
+                ASSERT(0 == output.compare("<| final whitespace |>\n"));
+            }
+        }
+
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // VALUE OUTPUT MACRO TEST
+        //
+        // Concerns:
+        //: 1 Value output macros emit output.
+        //: 2 Output emitted is in correct format
+        //
+        // Plan
+        //: 1 Call the value output macros on a variable of known value, and
+        //:   confirm that the captured output is in the correct format.  Note
+        //:   that it is only necessary to conduct this test once with a single
+        //:   variable type, because the underlying type-differentiation and
+        //:   formatting mechanisms are tested in test case 3. (C-1,2)
+        //
+        // Testing:
+        //    BSLS_BSLTESTUTIL_P(X)
+        //    BSLS_BSLTESTUTIL_P_(X)
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            fprintf(stderr,
+                    "\nTESTING VALUE OUTPUT MACROS"
+                    "\n---------------------------\n");
         }
 
         // [ 6] BSLS_BSLTESTUTIL_P(X)
         {
-            static const DataRow<int> DATA[] =
-            {
-                //LINE INPUT OUTPUT           DESC
-                //---- ----- ------           ----
-            
-                { L_,    42, "input = 42\n",  "Positive Integer" },
-                { L_,     0, "input = 0\n",   "Zero"             },
-                { L_,   -42, "input = -42\n", "Negative Integer" },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE =       DATA[ti].d_line;
-                int input =            DATA[ti].d_input;
-                const char *EXPECTED = DATA[ti].d_expectedOutput_p;
-
-                output.reset();
-                BSLS_BSLTESTUTIL_P(input);
-                ANNOTATED2_ASSERT(LINE, "%d", input, "%d", output.load());
-                ANNOTATED4_ASSERT(LINE, "%d", input, "%d", EXPECTED, "%s", output.getOutput(), "%s", 0 == output.strcmp(EXPECTED));
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING BSLS_BSLTESTUTIL_P"
+                        "\n--------------------------\n");
             }
+
+            const int INPUT = 42;
+
+            output.reset();
+            BSLS_BSLTESTUTIL_P(INPUT);
+            ASSERT(output.load());
+            ANNOTATED_ASSERT(output.getOutput(), "%s",
+                             0 == output.compare("INPUT = 42\n"));
         }
 
         // [ 6] BSLS_BSLTESTUTIL_P_(X)
         {
-            static const DataRow<int> DATA[] =
-            {
-                //LINE INPUT OUTPUT           DESC
-                //---- ----- ------           ----
-            
-                { L_,    42, "input = 42, ",  "Positive Integer" },
-                { L_,     0, "input = 0, ",   "Zero"             },
-                { L_,   -42, "input = -42, ", "Negative Integer" },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE =       DATA[ti].d_line;
-                int input =            DATA[ti].d_input;
-                const char *EXPECTED = DATA[ti].d_expectedOutput_p;
-
-                output.reset();
-                BSLS_BSLTESTUTIL_P_(input);
-                ANNOTATED2_ASSERT(LINE, "%d", input, "%d", output.load());
-                ANNOTATED4_ASSERT(LINE, "%d", input, "%d", EXPECTED, "%s", output.getOutput(), "%s", 0 == output.strcmp(EXPECTED));
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING BSLS_BSLTESTUTIL_P_"
+                        "\n---------------------------\n");
             }
+
+            const int INPUT = 42;
+
+            output.reset();
+            BSLS_BSLTESTUTIL_P_(INPUT);
+            ASSERT(output.load());
+            ANNOTATED_ASSERT(output.getOutput(), "%s",
+                             0 == output.compare("INPUT = 42, "));
         }
 
      } break;
       case 5: {
         // --------------------------------------------------------------------
-        // STATIC OUTPUT MACRO TEST
+        // STATIC MACRO TEST
+        //
+        // Concerns:
+        //: 1 Line number macro has the correct value.
+        //: 2 Tab output macro emits output.
+        //: 3 Tab output macro output emitted is in correct format
+        //
+        // Plan
+        //: 1 Compare the value of the line number macro to __LINE__. (C-1)
+        //: 2 Call the tab output macro, and confirm that the captured output
+        //:   is in the correct format.  (C-2,3)
+        //
+        // Testing:
+        //    BSLS_BSLTESTUTIL_L_
+        //    BSLS_BSLTESTUTIL_T_
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            fprintf(stderr,
+                    "\nTESTING STATIC MACROS"
+                    "\n---------------------\n");
+        }
 
         // [ 5] BSLS_BSLTESTUTIL_L_
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING BSLS_BSLTESTUTIL_L_"
+                        "\n---------------------------\n");
+            }
+
             ASSERT(__LINE__ == BSLS_BSLTESTUTIL_L_);
         }
 
         // [ 5] BSLS_BSLTESTUTIL_T_
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING BSLS_BSLTESTUTIL_T_"
+                        "\n---------------------------\n");
+            }
+
             output.reset();
             BSLS_BSLTESTUTIL_T_
             ASSERT(output.load());
-            ASSERT(0 == output.strcmp("\t"));
+            ASSERT(0 == output.compare("\t"));
         }
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // STATIC OUTPUT TEST
+        // UNFORMATTED OUTPUT TEST
+        //
+        // Concerns:
+        //: 1 Unformatted output methods emit output.
+        //: 2 Output emitted is in correct format
+        //: 3 'printStringNoFlush' does not flush output between calls
+        //
+        // Plan
+        //: 1 Using the table-driven technique, call 'printStringNoFlush' with
+        //:   a variety of arguments, and check that the captured output is
+        //:   correct.  (C-1,2)
+        //: 2 Call 'printStringNoFlush' twice in succession, and check that the
+        //:   captured output matches the concatenation of the input strings,
+        //:   with no embedded nulls or newlines.  (C-3)
+        //: 3 Call 'printTab' and check that the captrued output is correct.
+        //:   (C-1,2)
+        //
+        // Testing:
+        //    static void printStringNoFlush(const char *s);
+        //    static void printTab();
+        // --------------------------------------------------------------------
 
         if (verbose) {
-            fprintf(stderr, 
-                    "\nTESTING PRINT OPERATIONS"
-                    "\n------------------------\n");
+            fprintf(stderr,
+                    "\nTESTING UNFORMATTED OUPUT METHODS"
+                    "\n---------------------------------\n");
         }
 
         // [ 4] static void printStringNoFlush(const char *s);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING printStringNoFlush"
+                        "\n--------------------------\n");
+            }
+
             static const DataRow<const char *> DATA[] =
             {
-                //LINE INPUT    OUTPUT    DESC
-                //---- -----    ------    ----
-            
-                { L_, "",       "",       "empty string" },
-                { L_, "a",      "a",      "non-empty string" },
-                { L_, "a\nb",   "a\nb",   "string with embedded newline" },
-                { L_, "a\r\nb", "a\r\nb", "string with embedded <CRLF>" },
+                //LINE       INPUT    OUTPUT    DESC
+                //---------- -----    ------    ----
+
+                { __LINE__, "",       "",       "empty string" },
+                { __LINE__, "a",      "a",      "non-empty string" },
+                { __LINE__, "a\nb",   "a\nb",   "embedded newline" },
+                { __LINE__, "a\r\nb", "a\r\nb", "embedded <CRLF>" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
             for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -898,379 +1685,543 @@ int main(int argc, char *argv[])
                 const char *INPUT =    DATA[ti].d_input;
                 const char *EXPECTED = DATA[ti].d_expectedOutput_p;
 
+                if (veryVerbose) {
+                    SHOW_DATA2(stderr, ti, "%d", INPUT, "'%s'");
+                }
+
                 output.reset();
                 bsls::BslTestUtil::printStringNoFlush(INPUT);
                 ANNOTATED2_ASSERT(LINE, "%d", INPUT, "%s", output.load());
-                ANNOTATED4_ASSERT(LINE, "%d", INPUT, "%s", EXPECTED, "%s", output.getOutput(), "%s", 0 == output.strcmp(EXPECTED));
+                ANNOTATED4_ASSERT(LINE, "%d",
+                                  INPUT, "%s",
+                                  EXPECTED, "%s",
+                                  output.getOutput(), "%s",
+                                  0 == output.compare(EXPECTED));
             }
+
+            output.reset();
+            bsls::BslTestUtil::printStringNoFlush("abc");
+            bsls::BslTestUtil::printStringNoFlush("def");
+            ASSERT(output.load());
+            ASSERT(0 == output.compare("abcdef"));
         }
 
         // [ 4] static void printTab();
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING printTab"
+                        "\n----------------\n");
+            }
+
             output.reset();
             bsls::BslTestUtil::printTab();
             ASSERT(output.load());
-            ASSERT(0 == output.strcmp("\t"));
+            ASSERT(0 == output.compare("\t"));
         }
       } break;
       case 3: {
         // --------------------------------------------------------------------
         // FORMATTED OUTPUT TEST
-        //   Ensure that the 'debugPrint' formatted output methods write values
-        //   to stdout in the expected form
-        //
-        // Concerns:
-        //: 1 The 'debugPrint' method writes the value to stdout.
-        //:
-        //: 2 The 'debugPrint' method writes the value in the intended format.
-        //
-        // Plan:
-        //: 1 Using the table-driven technique:  (C-1, 2)
-        //:
-        //:   For each overload of debugPrint, choose a number of significant
-        //:   values for the second parameter, and check that each is written
-        //:   to stdout in the intended format as follows:
-        //:
-        //:   Reset the output redirector, invoke the method under test with
-        //:   the appropriate value for the second parameter, then compare the
-        //:   contents of the redirector with the expected form.
         //
         // Testing:
         //   static void debugPrint(const char *s, bool b, const char *t);
         //   static void debugPrint(const char *s, char c, const char *t);
-        //   static void debugPrint(const char *s, signed char v, const char *t);
-        //   static void debugPrint(const char *s, unsigned char v, const char *t);
+        //   static void debugPrint(const char *s, signed char v,
+        //                          const char *t);
+        //   static void debugPrint(const char *s, unsigned char v,
+        //                          const char *t);
         //   static void debugPrint(const char *s, short v, const char *t);
-        //   static void debugPrint(const char *s, unsigned short v, const char *t);
+        //   static void debugPrint(const char *s, unsigned short v,
+        //                          const char *t);
         //   static void debugPrint(const char *s, int v, const char *t);
-        //   static void debugPrint(const char *s, unsigned int v, const char *t);
+        //   static void debugPrint(const char *s, unsigned int v,
+        //                          const char *t);
         //   static void debugPrint(const char *s, long v, const char *t);
-        //   static void debugPrint(const char *s, unsigned long v, const char *t);
+        //   static void debugPrint(const char *s, unsigned long v,
+        //                          const char *t);
         //   static void debugPrint(const char *s, long long v, const char *t);
-        //   static void debugPrint(const char *s, unsigned long long v, const char *t);
+        //   static void debugPrint(const char *s, unsigned long long v,
+        //                          const char *t);
         //   static void debugPrint(const char *s, float v, const char *t);
         //   static void debugPrint(const char *s, double v, const char *t);
-        //   static void debugPrint(const char *s, long double v, const char *t);
+        //   static void debugPrint(const char *s, long double v,
+        //                          const char *t);
         //   static void debugPrint(const char *s, char *str, const char *t);
-        //   static void debugPrint(const char *s, const char *str, const char *t);
+        //   static void debugPrint(const char *s, const char *str,
+        //                          const char *t);
         //   static void debugPrint(const char *s, void *p, const char *t);
-        //   static void debugPrint(const char *s, const void *p, const char *t);
+        //   static void debugPrint(const char *s, const void *p,
+        //                          const char *t);
         // --------------------------------------------------------------------
+
+        if (verbose) {
+            fprintf(stderr,
+                    "\nTESTING FORMATTED OUTPUT METHODS"
+                    "\n--------------------------------\n");
+        }
 
         // [ 3] static void debugPrint(const char *s, bool b, const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR bool"
+                        "\n--------------------------\n");
+            }
+
             static const DataRow<bool> DATA[] =
             {
-                //LINE INPUT  OUTPUT     DESC
-                //---- -----  ------     ----
-            
-                { L_,  true,  "<true>",  "true" },
-                { L_,  false, "<false>", "false" },
+                //LINE       INPUT  OUTPUT                 DESC
+                //---------- -----  ------                 ----
+
+                { __LINE__,  true,  PREFIX "true" SUFFIX,  "true" },
+                { __LINE__,  false, PREFIX "false" SUFFIX, "false" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<bool>::testCase3(&output, DATA, NUM_DATA, "%d");
+            TestDriver::testCase3<bool>(&output, DATA, NUM_DATA, "%d");
         }
 
         // [ 3] static void debugPrint(const char *s, char c, const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR char"
+                        "\n---------------------------\n");
+            }
+
             static const DataRow<char> DATA[] =
             {
-                //LINE INPUT     OUTPUT            DESC
-                //---- -----     ------            ----
-            
-                { L_,  '\0',     (const char *) 0, "\\0" },
-                { L_,  CHAR_MIN, (const char *) 0, "CHAR_MIN" },
-                { L_,  CHAR_MAX, (const char *) 0, "CHAR_MAX" },
-                { L_,  '\x01',   (const char *) 0, "\\x01" },
-                { L_,  '\t',     (const char *) 0, "tab character" },
-                { L_,  '\n',     (const char *) 0, "newline character" },
-                { L_,  '\r',     (const char *) 0, "carriage return character" },
-                { L_,  'A',      (const char *) 0, "positive signed character" },
-                { L_,  '\xcc',   (const char *) 0, "negative signed character" },
+                //LINE       INPUT     OUTPUT DESC
+                //---------- -----     ------ ----
+
+                { __LINE__,  '\0',     0,     "\\0" },
+                { __LINE__,  CHAR_MIN, 0,     "CHAR_MIN" },
+                { __LINE__,  CHAR_MAX, 0,     "CHAR_MAX" },
+                { __LINE__,  '\x01',   0,     "\\x01" },
+                { __LINE__,  '\t',     0,     "tab character" },
+                { __LINE__,  '\n',     0,     "newline character" },
+                { __LINE__,  '\r',     0,     "carriage return character" },
+                { __LINE__,  'A',      0,     "positive signed character" },
+                { __LINE__,  '\xcc',   0,     "negative signed character" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<char>::testCase3(&output, DATA, NUM_DATA, "'%c'");
+            TestDriver::testCase3<char>(&output, DATA, NUM_DATA, "'%c'");
         }
 
-        // [ 3] static void debugPrint(const char *s, signed char v, const char *t);
+        // [ 3] static void debugPrint(const char *s, signed char v,
+        //                             const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR signed char"
+                        "\n----------------------------------\n");
+            }
+
             static const DataRow<signed char> DATA[] =
             {
-                //LINE INPUT      OUTPUT            DESC
-                //---- -----      ------            ----
-            
-                { L_,  '\0',      (const char *) 0, "null character" },
-                { L_,  '\x01',    (const char *) 0, "\\x01" },
-                { L_,  SCHAR_MAX, (const char *) 0, "SCHAR_MAX" },
-                { L_,  SCHAR_MIN, (const char *) 0, "SCHAR_MIN" },
-                { L_,  '\x50',    (const char *) 0, "positive signed character" },
-                { L_,  '\xcc',    (const char *) 0, "negative signed character" },
+                //LINE       INPUT      OUTPUT DESC
+                //---------- -----      ------ ----
+
+                { __LINE__,  '\0',      0,     "null character" },
+                { __LINE__,  '\x01',    0,     "\\x01" },
+                { __LINE__,  SCHAR_MAX, 0,     "SCHAR_MAX" },
+                { __LINE__,  SCHAR_MIN, 0,     "SCHAR_MIN" },
+                { __LINE__,  '\x50',    0,     "positive signed character" },
+                { __LINE__,  '\xcc',    0,     "negative signed character" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<signed char>::testCase3(&output, DATA, NUM_DATA, "%hhd");
+            TestDriver::testCase3<signed char>(&output,
+                                               DATA,
+                                               NUM_DATA,
+                                               "%hhd");
         }
 
-        // [ 3] static void debugPrint(const char *s, unsigned char v, const char *t);
+        // [ 3] static void debugPrint(const char *s, unsigned char v,
+        //                             const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR unsigned char"
+                        "\n------------------------------------\n");
+            }
+
             static const DataRow<unsigned char> DATA[] =
             {
-                //LINE INPUT      OUTPUT            DESC
-                //---- -----      ------            ----
-            
-                { L_,  '\0',      (const char *) 0, "null character" },
-                { L_,  '\x01',    (const char *) 0, "\\x01" },
-                { L_,  UCHAR_MAX, (const char *) 0, "UCHAR_MAX" },
-                { L_,  '\x50',    (const char *) 0, "positive signed character" },
-                { L_,  '\xcc',    (const char *) 0, "negative signed character" },
+                //LINE       INPUT      OUTPUT DESC
+                //---------- -----      ------ ----
+
+                { __LINE__,  '\0',      0,     "null character" },
+                { __LINE__,  '\x01',    0,     "\\x01" },
+                { __LINE__,  UCHAR_MAX, 0,     "UCHAR_MAX" },
+                { __LINE__,  '\x50',    0,     "positive signed character" },
+                { __LINE__,  '\xcc',    0,     "negative signed character" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<unsigned char>::testCase3(&output, DATA, NUM_DATA, "%hhu");
+            TestDriver::testCase3<unsigned char>(&output,
+                                                 DATA,
+                                                 NUM_DATA,
+                                                 "%hhu");
         }
 
         // [ 3] static void debugPrint(const char *s, short v, const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR short"
+                        "\n----------------------------\n");
+            }
+
             static const DataRow<short> DATA[] =
             {
-                //LINE INPUT     OUTPUT            DESC
-                //---- -----     ------            ----
-            
-                { L_,  0,        (const char *) 0, "0" },
-                { L_,  1,        (const char *) 0, "1" },
-                { L_,  -1,       (const char *) 0, "-1" },
-                { L_,  SHRT_MAX, (const char *) 0, "SHRT_MAX" },
-                { L_,  SHRT_MIN, (const char *) 0, "SHRT_MIN" },
+                //LINE       INPUT     OUTPUT DESC
+                //---------- -----     ------ ----
+
+                { __LINE__,  0,        0,     "0" },
+                { __LINE__,  1,        0,     "1" },
+                { __LINE__,  -1,       0,     "-1" },
+                { __LINE__,  SHRT_MAX, 0,     "SHRT_MAX" },
+                { __LINE__,  SHRT_MIN, 0,     "SHRT_MIN" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<short>::testCase3(&output, DATA, NUM_DATA, "%hd");
+            TestDriver::testCase3<short>(&output, DATA, NUM_DATA, "%hd");
         }
 
-        // [ 3] static void debugPrint(const char *s, unsigned short v, const char *t);
+        // [ 3] static void debugPrint(const char *s, unsigned short v,
+        //                             const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR unsigned short"
+                        "\n-------------------------------------\n");
+            }
+
             static const DataRow<unsigned short> DATA[] =
             {
-                //LINE INPUT      OUTPUT            DESC
-                //---- -----      ------            ----
-            
-                { L_,  0,         (const char *) 0, "0" },
-                { L_,  1,         (const char *) 0, "1" },
-                { L_,  USHRT_MAX, (const char *) 0, "USHRT_MAX" },
+                //LINE       INPUT      OUTPUT DESC
+                //---------- -----      ------ ----
+
+                { __LINE__,  0,         0,     "0" },
+                { __LINE__,  1,         0,     "1" },
+                { __LINE__,  USHRT_MAX, 0,     "USHRT_MAX" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<unsigned short>::testCase3(&output, DATA, NUM_DATA, "%hu");
+            TestDriver::testCase3<unsigned short>(&output,
+                                                  DATA,
+                                                  NUM_DATA,
+                                                  "%hu");
         }
 
         // [ 3] static void debugPrint(const char *s, int v, const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR int"
+                        "\n--------------------------\n");
+            }
+
             static const DataRow<int> DATA[] =
             {
-                //LINE INPUT    OUTPUT            DESC
-                //---- -----    ------            ----
-            
-                { L_,  0,       (const char *) 0, "0" },
-                { L_,  1,       (const char *) 0, "1" },
-                { L_,  -1,      (const char *) 0, "-1" },
-                { L_,  INT_MAX, (const char *) 0, "INT_MAX" },
-                { L_,  INT_MIN, (const char *) 0, "INT_MIN" },
+                //LINE       INPUT    OUTPUT DESC
+                //---------- -----    ------ ----
+
+                { __LINE__,  0,       0,     "0" },
+                { __LINE__,  1,       0,     "1" },
+                { __LINE__,  -1,      0,     "-1" },
+                { __LINE__,  INT_MAX, 0,     "INT_MAX" },
+                { __LINE__,  INT_MIN, 0,     "INT_MIN" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<int>::testCase3(&output, DATA, NUM_DATA, "%d");
+            TestDriver::testCase3<int>(&output, DATA, NUM_DATA, "%d");
         }
 
-        // [ 3] static void debugPrint(const char *s, unsigned int v, const char *t);
+        // [ 3] static void debugPrint(const char *s, unsigned int v,
+        //                             const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR unsigned int"
+                        "\n-----------------------------------\n");
+            }
+
             static const DataRow<unsigned int> DATA[] =
             {
-                //LINE INPUT     OUTPUT            DESC
-                //---- -----     ------            ----
-            
-                { L_,  0,        (const char *) 0, "0" },
-                { L_,  1,        (const char *) 0, "1" },
-                { L_,  UINT_MAX, (const char *) 0, "UINT_MAX" },
+                //LINE       INPUT     OUTPUT DESC
+                //---------- -----     ------ ----
+
+                { __LINE__,  0,        0,     "0" },
+                { __LINE__,  1,        0,     "1" },
+                { __LINE__,  UINT_MAX, 0,     "UINT_MAX" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<unsigned int>::testCase3(&output, DATA, NUM_DATA, "%u");
+            TestDriver::testCase3<unsigned int>(&output, DATA, NUM_DATA, "%u");
         }
 
         // [ 3] static void debugPrint(const char *s, long v, const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR long"
+                        "\n---------------------------\n");
+            }
+
             static const DataRow<long> DATA[] =
             {
-                //LINE INPUT     OUTPUT            DESC
-                //---- -----     ------            ----
-            
-                { L_,  0L,       (const char *) 0, "0L" },
-                { L_,  1L,       (const char *) 0, "1L" },
-                { L_,  -1L,      (const char *) 0, "-1L" },
-                { L_,  LONG_MAX, (const char *) 0, "LONG_MAX" },
-                { L_,  LONG_MIN, (const char *) 0, "LONG_MIN" },
+                //LINE       INPUT     OUTPUT DESC
+                //---------- -----     ------ ----
+
+                { __LINE__,  0L,       0,     "0L" },
+                { __LINE__,  1L,       0,     "1L" },
+                { __LINE__,  -1L,      0,     "-1L" },
+                { __LINE__,  LONG_MAX, 0,     "LONG_MAX" },
+                { __LINE__,  LONG_MIN, 0,     "LONG_MIN" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<long>::testCase3(&output, DATA, NUM_DATA, "%ld");
+            TestDriver::testCase3<long>(&output, DATA, NUM_DATA, "%ld");
         }
 
-        // [ 3] static void debugPrint(const char *s, unsigned long v, const char *t);
+        // [ 3] static void debugPrint(const char *s, unsigned long v,
+        //                             const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR unsigned long"
+                        "\n------------------------------------\n");
+            }
+
             static const DataRow<unsigned long> DATA[] =
             {
-                //LINE INPUT      OUTPUT            DESC
-                //---- -----      ------            ----
-            
-                { L_,  0UL,       (const char *) 0, "0UL" },
-                { L_,  1UL,       (const char *) 0, "1UL" },
-                { L_,  ULONG_MAX, (const char *) 0, "ULONG_MAX" },
+                //LINE       INPUT      OUTPUT DESC
+                //---------- -----      ------ ----
+
+                { __LINE__,  0UL,       0,     "0UL" },
+                { __LINE__,  1UL,       0,     "1UL" },
+                { __LINE__,  ULONG_MAX, 0,     "ULONG_MAX" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<unsigned long>::testCase3(&output, DATA, NUM_DATA, "%lu");
+            TestDriver::testCase3<unsigned long>(&output,
+                                                 DATA,
+                                                 NUM_DATA,
+                                                 "%lu");
         }
 
-        // [ 3] static void debugPrint(const char *s, long long v, const char *t);
+        // [ 3] static void debugPrint(const char *s, long long v,
+        //                             const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR long long"
+                        "\n--------------------------------\n");
+            }
+
             static const DataRow<long long> DATA[] =
             {
-                //LINE INPUT      OUTPUT            DESC
-                //---- -----      ------            ----
-            
-                { L_,  0LL,       (const char *) 0, "0LL" },
-                { L_,  1LL,       (const char *) 0, "1LL" },
-                { L_,  -1LL,      (const char *) 0, "-1LL" },
-                { L_,  LLONG_MAX, (const char *) 0, "LLONG_MAX" },
-                { L_,  LLONG_MIN, (const char *) 0, "LLONG_MIN" },
+                //LINE       INPUT      OUTPUT DESC
+                //---------- -----      ------ ----
+
+                { __LINE__,  0LL,       0,     "0LL" },
+                { __LINE__,  1LL,       0,     "1LL" },
+                { __LINE__,  -1LL,      0,     "-1LL" },
+                { __LINE__,  LLONG_MAX, 0,     "LLONG_MAX" },
+                { __LINE__,  LLONG_MIN, 0,     "LLONG_MIN" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<long long>::testCase3(&output, DATA, NUM_DATA, "%lld");
+            TestDriver::testCase3<long long>(&output, DATA, NUM_DATA, "%lld");
         }
 
-        // [ 3] static void debugPrint(const char *s, unsigned long long v, const char *t);
+        // [ 3] static void debugPrint(const char *s, unsigned long long v,
+        //                             const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR unsigned long long"
+                        "\n-----------------------------------------\n");
+            }
+
             static const DataRow<unsigned long long> DATA[] =
             {
-                //LINE INPUT       OUTPUT            DESC
-                //---- -----       ------            ----
-            
-                { L_,  0ULL,       (const char *) 0, "0ULL" },
-                { L_,  1ULL,       (const char *) 0, "1ULL" },
-                { L_,  ULLONG_MAX, (const char *) 0, "ULLONG_MAX" },
+                //LINE       INPUT       OUTPUT DESC
+                //---------- -----       ------ ----
+
+                { __LINE__,  0ULL,       0,     "0ULL" },
+                { __LINE__,  1ULL,       0,     "1ULL" },
+                { __LINE__,  ULLONG_MAX, 0,     "ULLONG_MAX" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<unsigned long long>::testCase3(&output, DATA, NUM_DATA, "%llu");
+            TestDriver::testCase3<unsigned long long>(&output,
+                                                      DATA,
+                                                      NUM_DATA,
+                                                      "%llu");
         }
 
         // [ 3] static void debugPrint(const char *s, float v, const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR float"
+                        "\n----------------------------\n");
+            }
+
             static const DataRow<float> DATA[] =
             {
-                //LINE INPUT        OUTPUT            DESC
-                //---- -----        ------            ----
-            
-                { L_,  0.0F,        (const char *) 0, "0.0F" },
-                { L_,  1.0F,        (const char *) 0, "1.0F" },
-                { L_,  -1.0F,       (const char *) 0, "-1.0F" },
-                { L_,  1.0F / 3.0F, (const char *) 0, "(float) 1/3" },
-                { L_,  FLT_MAX,     (const char *) 0, "FLT_MAX" },
-                { L_,  FLT_MIN,     (const char *) 0, "FLT_MIN" },
+                //LINE       INPUT        OUTPUT DESC
+                //---------- -----        ------ ----
+
+                { __LINE__,  0.0F,        0,     "0.0F" },
+                { __LINE__,  1.0F,        0,     "1.0F" },
+                { __LINE__,  -1.0F,       0,     "-1.0F" },
+                { __LINE__,  1.0F / 3.0F, 0,     "(float) 1/3" },
+                { __LINE__,  FLT_MAX,     0,     "FLT_MAX" },
+                { __LINE__,  FLT_MIN,     0,     "FLT_MIN" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<float>::testCase3(&output, DATA, NUM_DATA, "%f");
+            TestDriver::testCase3<float>(&output, DATA, NUM_DATA, "%f");
         }
 
         // [ 3] static void debugPrint(const char *s, double v, const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR double"
+                        "\n-----------------------------\n");
+            }
+
             static const DataRow<double> DATA[] =
             {
-                //LINE INPUT      OUTPUT            DESC
-                //---- -----      ------            ----
-            
-                { L_,  0.0,       (const char *) 0, "0.0" },
-                { L_,  1.0,       (const char *) 0, "1.0" },
-                { L_,  -1.0,      (const char *) 0, "-1.0" },
-                { L_,  1.0 / 3.0, (const char *) 0, "(double) 1/3" },
-                { L_,  DBL_MAX,   (const char *) 0, "DBL_MAX" },
-                { L_,  DBL_MIN,   (const char *) 0, "DBL_MIN" },
+                //LINE       INPUT      OUTPUT DESC
+                //---------- -----      ------ ----
+
+                { __LINE__,  0.0,       0,     "0.0" },
+                { __LINE__,  1.0,       0,     "1.0" },
+                { __LINE__,  -1.0,      0,     "-1.0" },
+                { __LINE__,  1.0 / 3.0, 0,     "(double) 1/3" },
+                { __LINE__,  DBL_MAX,   0,     "DBL_MAX" },
+                { __LINE__,  DBL_MIN,   0,     "DBL_MIN" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<double>::testCase3(&output, DATA, NUM_DATA, "%g");
+            TestDriver::testCase3<double>(&output, DATA, NUM_DATA, "%g");
         }
 
-        // [ 3] static void debugPrint(const char *s, long double v, const char *t);
+        // [ 3] static void debugPrint(const char *s, long double v,
+        //                             const char *t);
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR long double"
+                        "\n----------------------------------\n");
+            }
+
             static const DataRow<long double> DATA[] =
             {
-                //LINE INPUT        OUTPUT            DESC
-                //---- -----        ------            ----
-            
-                { L_,  0.0L,        (const char *) 0, "0.0L" },
-                { L_,  1.0L,        (const char *) 0, "1.0L" },
-                { L_,  -1.0L,       (const char *) 0, "-1.0L" },
-                { L_,  1.0L / 3.0L, (const char *) 0, "(long double) 1/3" },
-                { L_,  LDBL_MAX,    (const char *) 0, "LDBL_MAX" },
-                { L_,  LDBL_MIN,    (const char *) 0, "LDBL_MIN" },
+                //LINE       INPUT        OUTPUT DESC
+                //---------- -----        ------ ----
+
+                { __LINE__,  0.0L,        0,     "0.0L" },
+                { __LINE__,  1.0L,        0,     "1.0L" },
+                { __LINE__,  -1.0L,       0,     "-1.0L" },
+                { __LINE__,  1.0L / 3.0L, 0,     "(long double) 1/3" },
+                { __LINE__,  LDBL_MAX,    0,     "LDBL_MAX" },
+                { __LINE__,  LDBL_MIN,    0,     "LDBL_MIN" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver<long double>::testCase3(&output, DATA, NUM_DATA, "%Lg");
+            TestDriver::testCase3<long double>(&output, DATA, NUM_DATA, "%Lg");
         }
 
-        // [ 3] static void debugPrint(const char *s, char *str, const char *t);
-    {
+        // [ 3] static void debugPrint(const char *s, char *str,
+        //                             const char *t);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR char *"
+                        "\n-----------------------------\n");
+            }
+
             static const DataRow<char *> DATA[] =
             {
-                //LINE INPUT     OUTPUT            DESC
-                //---- -----     ------            ----
-            
-                { L_,  "",       (const char *) 0, "empty string" },
-                { L_,  "a",      (const char *) 0, "non-empty string" },
-                { L_,  "a\nb",   (const char *) 0, "string with embedded newline" },
-                { L_,  "a\r\nb", (const char *) 0, "string with embedded <CRLF>" },
+                //LINE       INPUT                         OUTPUT          DESC
+                //---------- -----                         ------          ----
+
+                { __LINE__,  const_cast<char *>(""),       0,
+                                                              "empty string" },
+                { __LINE__,  const_cast<char *>("a"),      0,
+                                                          "non-empty string" },
+                { __LINE__,  const_cast<char *>("a\nb"),   0,
+                                              "string with embedded newline" },
+                { __LINE__,  const_cast<char *>("a\r\nb"), 0,
+                                               "string with embedded <CRLF>" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            TestDriver<char *>::testCase3(&output, DATA, NUM_DATA, "\"%s\"");
-    }
+            TestDriver::testCase3<char *>(&output, DATA, NUM_DATA, "\"%s\"");
+        }
 
-        // [ 3] static void debugPrint(const char *s, const char *str, const char *t);
-    {
+        // [ 3] static void debugPrint(const char *s, const char *str,
+        //                             const char *t);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR const char *"
+                        "\n-----------------------------------\n");
+            }
+
             static const DataRow<const char *> DATA[] =
             {
-                //LINE INPUT     OUTPUT            DESC
-                //---- -----     ------            ----
-            
-                { L_,  "",       (const char *) 0, "empty string" },
-                { L_,  "a",      (const char *) 0, "non-empty string" },
-                { L_,  "a\nb",   (const char *) 0, "string with embedded newline" },
-                { L_,  "a\r\nb", (const char *) 0, "string with embedded <CRLF>" },
+                //LINE       INPUT     OUTPUT DESC
+                //---------- -----     ------ ----
+
+                { __LINE__,  "",       0,     "empty string" },
+                { __LINE__,  "a",      0,     "non-empty string" },
+                { __LINE__,  "a\nb",   0,     "string with embedded newline" },
+                { __LINE__,  "a\r\nb", 0,     "string with embedded <CRLF>" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            TestDriver<const char *>::testCase3(&output, DATA, NUM_DATA, "\"%s\"");
-    }
+            TestDriver::testCase3<const char *>(&output,
+                                                DATA,
+                                                NUM_DATA,
+                                                "\"%s\"");
+        }
 
         // [ 3] static void debugPrint(const char *s, void *p, const char *t);
-    {
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR void *"
+                        "\n-----------------------------\n");
+            }
+
             static const DataRow<void *> DATA[] =
             {
-                //LINE INPUT             OUTPUT            DESC
-                //---- -----             ------            ----
-            
-                { L_,  (void *) 0,       (const char *) 0, "NULL pointer" },
-                { L_,  (void *) &output, (const char *) 0, "valid address" },
+                //LINE       INPUT             OUTPUT DESC
+                //---------- -----             ------ ----
+
+                { __LINE__,  (void *) 0,       0,     "NULL pointer" },
+                { __LINE__,  (void *) &output, 0,     "valid address" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            TestDriver<void *>::testCase3(&output, DATA, NUM_DATA, "%p");
-    }
-        // [ 3] static void debugPrint(const char *s, const void *p, const char *t);
-    {
+            TestDriver::testCase3<void *>(&output, DATA, NUM_DATA, "%p");
+        }
+        // [ 3] static void debugPrint(const char *s, const void *p,
+        //                             const char *t);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugPrint FOR const void *"
+                        "\n-----------------------------------\n");
+            }
+
             static const DataRow<const void *> DATA[] =
             {
-                //LINE INPUT                   OUTPUT            DESC
-                //---- -----                   ------            ----
-            
-                { L_,  (const void *) 0,       (const char *) 0, "NULL pointer" },
-                { L_,  (const void *) &output, (const char *) 0, "valid address" },
+                //LINE       INPUT                   OUTPUT DESC
+                //---------- -----                   ------ ----
+
+                { __LINE__,  (const void *) 0,       0,     "NULL pointer" },
+                { __LINE__,  (const void *) &output, 0,     "valid address" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            TestDriver<const void *>::testCase3(&output, DATA, NUM_DATA, "%p");
-    }
+            TestDriver::testCase3<const void *>(&output, DATA, NUM_DATA, "%p");
+        }
 
       } break;
       case 2: {
@@ -1278,27 +2229,32 @@ int main(int argc, char *argv[])
         // TEST APPARATUS TEST
         //
         // Concerns:
-        //: 1 Output is captured
-        //: 2 Captured output is accurate
-        //: 3 Non-captured output is on stdout
-        //: 4 No-newline works
-        //: 5 Empty output works
-        //: 6 Rewind works
-        //: 7 Can distinguish between open and closed redirect targets
+        //:  1 Output is captured
+        //:  2 Captured output is accurate
+        //:  3 reset works
+        //:  4 load works
+        //:  5 compare works
+        //:  6 Incorrect output is correctly diagnosed
+        //:  7 Embedded newlines work
+        //:  8 Empty output works
+        //:  9 Embedded nulls work
+        //: 10 Filesystem-dependent control sequences work
+        //: 11 stderr points to original target of stdout
+        // --------------------------------------------------------------------
 
         if (verbose) {
-            fprintf(stderr, 
+            fprintf(stderr,
                     "\nTESTING TEST APPARATUS"
                     "\n----------------------\n");
         }
 
-        if (verbose) {
-            fprintf(stderr, 
-                    "\nTESTING OUTPUT CAPTURE"
-                    "\n----------------------\n");
-        }
-
         {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING OUTPUT CAPTURE"
+                        "\n----------------------\n");
+            }
+
             // 1 Output is captured
             const char *testString = "This is output";
             size_t testStringLength = strlen(testString);
@@ -1306,11 +2262,17 @@ int main(int argc, char *argv[])
             rewind(stdout);
             ASSERT(0 == ftell(stdout));
             printf("%s", testString);
-            ASSERT(testStringLength == ftell(stdout));
+            ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
         }
 
         {
             // 2 Captured output is accurate
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING OUTPUT CAPTURE ACCURACY"
+                        "\n-------------------------------\n");
+            }
+
             enum { TEST_STRING_SIZE = 15 };
             const char *testString = "This is output";
             char buffer[TEST_STRING_SIZE];
@@ -1323,25 +2285,39 @@ int main(int argc, char *argv[])
             long outputSize = ftell(stdout);
             ASSERT(outputSize + 1 == TEST_STRING_SIZE);
             rewind(stdout);
-            ASSERT(outputSize == fread(buffer, sizeof(char), outputSize, stdout));
+            size_t bytesWritten =
+                fread(buffer, sizeof(char), outputSize, stdout);
+            ASSERT(static_cast<long>(bytesWritten) == outputSize);
             buffer[TEST_STRING_SIZE - 1] = '\0';
             ASSERT(0 == strcmp(testString, buffer));
         }
 
         {
             // 3 reset works
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING OUTPUT CAPTURE RESET"
+                        "\n----------------------------\n");
+            }
+
             const char *testString = "This is output";
             size_t testStringLength = strlen(testString);
 
             rewind(stdout);
             printf("%s", testString);
-            ASSERT(testStringLength == ftell(stdout));
+            ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
             output.reset();
             ASSERT(0 == ftell(stdout));
         }
 
         {
             // 4 load works
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING OUTPUT CAPTURE LOAD"
+                        "\n---------------------------\n");
+            }
+
             const char *testString = "This is output";
             size_t testStringLength = strlen(testString);
 
@@ -1350,59 +2326,59 @@ int main(int argc, char *argv[])
             ASSERT(false == output.isOutputReady());
             ASSERT(0 == strlen(output.getOutput()));
             printf("%s", testString);
-            ASSERT(testStringLength == ftell(stdout));
+            ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
             ASSERT(false == output.isOutputReady());
             ASSERT(0 == strlen(output.getOutput()));
             ASSERT(output.load());
-            ASSERT(testStringLength == ftell(stdout));
+            ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
             ASSERT(true == output.isOutputReady());
             ASSERT(testStringLength == strlen(output.getOutput()));
         }
 
         {
-            // 5 strcmp works
+            // 5 compare works
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING OUTPUT CAPTURE VERIFICATION"
+                        "\n-----------------------------------\n");
+            }
+
             const char *testString = "This is output";
             const char *longString = "This is outputA";
             const char *shortString = "This is outpu";
-            const char *highValueString = "This is outpuu";
-            const char *lowValueString = "This is outpus";
-            size_t testStringLength = strlen(testString);
+            const char *differentStartString = "Xhis is output";
+            const char *differentEndString = "This is outpuy";
+            const char *differentMiddleString = "This iz output";
 
             output.reset();
             printf("%s", testString);
             ASSERT(output.load());
-            ASSERT(strcmp(testString, testString) == output.strcmp(testString));
-            ASSERT((strcmp(testString, shortString) > 0) == (output.strcmp(shortString) > 0));
-            ASSERT((strcmp(testString, shortString) < 0) == (output.strcmp(shortString) < 0));
-            ASSERT((strcmp(testString, longString) > 0) == (output.strcmp(longString) > 0));
-            ASSERT((strcmp(testString, longString) < 0) == (output.strcmp(longString) < 0));
-            ASSERT(strcmp(testString, highValueString) == output.strcmp(highValueString));
-            ASSERT(strcmp(testString, lowValueString) == output.strcmp(lowValueString));
-        }
+            ASSERT(!!strcmp(testString, testString) ==
+                       !!output.compare(testString));
 
-        if (verbose) {
-            fprintf(stderr, 
-                    "\nTESTING ERROR CONDITIONS"
-                    "\n------------------------\n");
+            ASSERT(!!strcmp(testString, shortString) ==
+                       !!output.compare(shortString));
+            ASSERT(!!strcmp(testString, longString) ==
+                       !!output.compare(longString));
+            ASSERT(!!strcmp(testString, differentStartString) ==
+                       !!output.compare(differentStartString));
+            ASSERT(!!strcmp(testString, differentEndString) ==
+                       !!output.compare(differentEndString));
+            ASSERT(!!strcmp(testString, differentMiddleString) ==
+                       !!output.compare(differentMiddleString));
         }
 
         {
             // 6 Incorrect output is correctly diagnosed
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING OUTPUT CAPTURE ERROR"
+                        "\n----------------------------\n");
+            }
 
-            const char *testString =         "This is good output";
-            const char *wrongLengthString =  "This is too short";
-            const char *wrongContentString = "This is not correct";
 
-            output.reset();
-            printf("%s", testString);
-            ASSERT(output.load());
-            ASSERT(0 != output.strcmp(wrongLengthString));
+            const char *testString = "This is good output";
 
-            output.reset();
-            printf("%s", testString);
-            ASSERT(output.load());
-            ASSERT(0 != output.strcmp(wrongContentString));
- 
             output.reset();
             int stringLength = strlen(testString);
             for (int idx = 0; idx * stringLength < OUTPUT_BUFFER_SIZE; ++idx) {
@@ -1410,59 +2386,60 @@ int main(int argc, char *argv[])
             }
             printf("%s", testString);
             ASSERT(!output.load());
-            ASSERT(-1 == output.strcmp(testString));
-        }
-
-        {
-            // 7 strcmp before load produces error
-            const char *testString = "This is output";
 
             output.reset();
             printf("%s", testString);
-            ASSERT(0 != output.strcmp(testString));
-        }
-
-        if (verbose) {
-            fprintf(stderr, 
-                    "\nTESTING EMBEDDED NEWLINES"
-                    "\n-------------------------\n");
+            ASSERT(0 != output.compare(testString));
         }
 
         {
-            // 8 Embedded newlines work
+            // 7 Embedded newlines work
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING EMBEDDED NEWLINES"
+                        "\n-------------------------\n");
+            }
+
             const char *testString = "This has an\nembedded newline";
 
             output.reset();
             printf("%s", testString);
             ASSERT(output.load());
-            ASSERT(0 == output.strcmp(testString));
-            
-            const char *twoNewlineTestString = "This has two\nembedded newlines\n";
+            ASSERT(0 == output.compare(testString));
+
+            const char *twoNewlineTestString =
+                "This has two\nembedded newlines\n";
 
             output.reset();
             printf("%s", twoNewlineTestString);
             ASSERT(output.load());
-            ASSERT(0 == output.strcmp(twoNewlineTestString));
-        }
-
-        if (verbose) {
-            fprintf(stderr, 
-                    "\nTESTING EMPTY OUTPUT"
-                    "\n--------------------\n");
+            ASSERT(0 == output.compare(twoNewlineTestString));
         }
 
         {
-            // 9 Empty output works
+            // 8 Empty output works
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING EMPTY OUTPUT"
+                        "\n--------------------\n");
+            }
+
             const char *testString = "";
 
             output.reset();
             printf("%s", testString);
             ASSERT(output.load());
-            ASSERT(0 == output.strcmp(testString));
+            ASSERT(0 == output.compare(testString));
         }
 
         {
-            // 10 Embedded nulls work
+            // 9 Embedded nulls work
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING EMBEDDED NULLS"
+                        "\n----------------------\n");
+            }
+
             const char *testString1 = "abc\0def";
             const char *testString2 = "\0def";
             const char *testString3 = "abc\0";
@@ -1470,33 +2447,50 @@ int main(int argc, char *argv[])
             output.reset();
             printf("%s", testString1);
             ASSERT(output.load());
-            ASSERT(0 == output.strcmp(testString1));
+            ASSERT(0 == output.compare(testString1));
 
             output.reset();
             printf("%s", testString2);
             ASSERT(output.load());
-            ASSERT(0 == output.strcmp(testString2));
+            ASSERT(0 == output.compare(testString2));
 
             output.reset();
             printf("%s", testString3);
             ASSERT(output.load());
-            ASSERT(0 == output.strcmp(testString3));
+            ASSERT(0 == output.compare(testString3));
         }
 
         {
-            // 11 Filesystem-dependent control sequences work
+            // 10 Filesystem-dependent control sequences work
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING CONTROL SEQUENCES"
+                        "\n-------------------------\n");
+            }
+
             const char *crnlTestString = "ab\r\ncd";
             const char *ctrlDTestString = "ab" "\x04" "cd";
 
             output.reset();
             printf("%s", crnlTestString);
             ASSERT(output.load());
-            ASSERT(0 == output.strcmp(crnlTestString));
+            ASSERT(0 == output.compare(crnlTestString));
 
             output.reset();
             printf("%s", ctrlDTestString);
             ASSERT(output.load());
-            ASSERT(0 == output.strcmp(ctrlDTestString));
+            ASSERT(0 == output.compare(ctrlDTestString));
+        }
+
+        {
+            //: 11 stderr points to original target of stdout
+            int newStderrFD = fileno(stderr);
+            ASSERT(-1 != newStderrFD);
+            struct stat stderrStat;
+            ASSERT(-1 != fstat(newStderrFD, &stderrStat));
+            ASSERT(stderrStat.st_dev == originalStdoutStat.st_dev);
+            ASSERT(stderrStat.st_ino == originalStdoutStat.st_ino);
+            ASSERT(stderrStat.st_rdev == originalStdoutStat.st_rdev);
         }
 
       } break;
@@ -1568,7 +2562,7 @@ int main(int argc, char *argv[])
             BSLS_BSLTESTUTIL_P(sl)
             BSLS_BSLTESTUTIL_P(ul)
             BSLS_BSLTESTUTIL_P(sll)
-            
+
             BSLS_BSLTESTUTIL_P(ull)
             BSLS_BSLTESTUTIL_P(f)
             BSLS_BSLTESTUTIL_P(d)
@@ -1577,7 +2571,7 @@ int main(int argc, char *argv[])
             BSLS_BSLTESTUTIL_P(cs)
             BSLS_BSLTESTUTIL_P(pv)
             BSLS_BSLTESTUTIL_P(pcv)
-            
+
             BSLS_BSLTESTUTIL_P_(b)
             BSLS_BSLTESTUTIL_P_(c)
             BSLS_BSLTESTUTIL_P_(sc)
@@ -1587,7 +2581,7 @@ int main(int argc, char *argv[])
             BSLS_BSLTESTUTIL_P_(si)
             BSLS_BSLTESTUTIL_P_(ui)
             BSLS_BSLTESTUTIL_P_(sl)
-            
+
             BSLS_BSLTESTUTIL_P_(ul)
             BSLS_BSLTESTUTIL_P_(sll)
             BSLS_BSLTESTUTIL_P_(ull)
@@ -1597,9 +2591,9 @@ int main(int argc, char *argv[])
             BSLS_BSLTESTUTIL_P_(s)
             BSLS_BSLTESTUTIL_P_(cs)
             BSLS_BSLTESTUTIL_P_(pv)
-            
+
             BSLS_BSLTESTUTIL_P_(pcv)
-            
+
             BSLS_BSLTESTUTIL_Q(BSLS_BSLTESTUTIL_L_)
             BSLS_BSLTESTUTIL_T_
             BSLS_BSLTESTUTIL_P(BSLS_BSLTESTUTIL_L_)
@@ -1638,7 +2632,13 @@ int main(int argc, char *argv[])
             BSLS_BSLTESTUTIL_LOOP3_ASSERT(verbose, uc, sc, !verbose);
             BSLS_BSLTESTUTIL_LOOP4_ASSERT(verbose, f, d, ld, !verbose);
             BSLS_BSLTESTUTIL_LOOP5_ASSERT(verbose, s, cs, pv, pcv, !verbose);
-            BSLS_BSLTESTUTIL_LOOP6_ASSERT(verbose, ss, us, sll, ull, si, !verbose);
+            BSLS_BSLTESTUTIL_LOOP6_ASSERT(verbose,
+                                          ss,
+                                          us,
+                                          sll,
+                                          ull,
+                                          si,
+                                          !verbose);
 
             ASSERT(testStatus == 6);
         }
