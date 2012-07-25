@@ -848,11 +848,12 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                bool                          value,
                                const bdem_BerEncoderOptions *)
 {
-    // It is undefined behavior to examine the value of an uninitialized 'bool'
-    // and the value of such a 'bool' may be neither 'true' ('1') nor 'false'
-    // ('0').  We assert this behavior so that the user would get a more
-    // defined error rather than an encoding error because what was put on the
-    // 'streambuf' was not what was expected.
+    // It has been observed in practice that 'value' may refer to
+    // uninitialized or overwritten memory, in which case its value may
+    // neither be 'true' ('1') nor 'false' ('0').  We assert here to ensure
+    // that users get a useful error message.  Note that we assert 
+    // (rather than returning an error code), as it is undefined behavior to
+    // examine the value of such an uninitialized 'bool'.
 
     BSLS_ASSERT(0 == value || 1 == value);
 
