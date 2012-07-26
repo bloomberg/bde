@@ -62,32 +62,54 @@
 // The table below classifies each of the annotations provided by this
 // component by the entities to which it can be applied (i.e., function,
 // variable, and type) and the expected result (optimization, error, warning,
-// conditional warning, absence of warning).  The tag(s) found in the right-most
-// column appear as comments throughout this test driver.  They can be used
-// as an aid to navigation to the test code for each annotation, and an aid
-// to assuring test coverage.
+// conditional warning, absence of warning).  The tag(s) found in the
+// right-most column appear as comments throughout this test driver.  They can
+// be used as an aid to navigation to the test code for each annotation, and an
+// aid to assuring test coverage.
 //..
 //  No  Annotation                            E Result     Tag
 //  --  ------------------------------------  - --------   ----------
 //   1  BSLS_ANNOTATION_ALLOC_SIZE(x)         F optim.      1fo
 //   2  BSLS_ANNOTATION_ALLOC_SIZE_MUL(x, y)  F optim.      2fo
-//   3  BSLS_ANNOTATION_ERROR("msg")          F error       3e
-//   4  BSLS_ANNOTATION_WARNING("msg")        F warn        4w
+//   3  BSLS_ANNOTATION_ERROR("msg")          F error       3fe
+//   4  BSLS_ANNOTATION_WARNING("msg")        F warn        4fw
 //   5  BSLS_ANNOTATION_PRINTF(s, n)          F warn cond.  5fwy, 5fwn
 //   6  BSLS_ANNOTATION_SCANF(s, n)           F warn cond.  6fwy, 6fwn
 //   7  BSLS_ANNOTATION_FORMAT(n)             F warn cond.  7fwy, 7fwn
 //   8  BSLS_ANNOTATION_ARG_NON_NULL(...)     F warn cond.  8fwy, 8fwn
 //   9  BSLS_ANNOTATION_ARGS_NON_NULL         F warn cond.  9fwy, 9fwn
-//  10  BSLS_ANNOTATION_NULL_TERMINATED       F warn cond. 10fwy,10fwn  TBD
-//  11  BSLS_ANNOTATION_NULL_TERMINATED_AT(x) F warn cond. 11fwy,11fwn  TBD
+//  10  BSLS_ANNOTATION_NULL_TERMINATED       F warn cond. 10fwy,10fwn
+//  11  BSLS_ANNOTATION_NULL_TERMINATED_AT(x) F warn cond. 11fwy,11fwn
 //  12  BSLS_ANNOTATION_WARN_UNUSED_RESULT    F warn cond. 12fwy,12fwn
 //  13  BSLS_ANNOTATION_DEPRECATED            F warn       13fw
 //                                            V warn       13vw
 //                                            T warn       13tw
-//  14 BSLS_ANNOTATION_UNUSED                 F warn not   14fwn  TBD
-//                                            T warn not   14vwn
+//  14 BSLS_ANNOTATION_UNUSED                 F warn not   14fwn
+//                                            V warn not   14vwn
 //                                            T warn not   14twn
 //..
+//
+// Note that all annotations are defined as empty unless one is on a conforming
+// compiler (e.g., 'BSLS_PLATFORM__CMP_GNU' is defined).  Also note that
+// several annotations are defined only for certain versions:
+//
+//: o 'BSLS_PLATFORM__CMP_VER_MAJOR >= 30100'
+//:   o 'BSLS_ANNOTATION_DEPRECATED'
+//:
+//: o 'BSLS_PLATFORM__CMP_VER_MAJOR >= 30300'
+//:   o 'BSLS_ANNOTATION_ARG_NON_NULL'
+//:   o 'BSLS_ANNOTATION_ARGS_NON_NULL'
+//:
+//: o 'BSLS_PLATFORM__CMP_VER_MAJOR >= 30400'
+//:   o 'BSLS_ANNOTATION_WARN_UNUSED_RESULT'
+//:
+//: o 'BSLS_PLATFORM__CMP_VER_MAJOR >= 40000'
+//:   o 'BSLS_ANNOTATION_NULL_TERMINATED'
+//:   o 'BSLS_ANNOTATION_NULL_TERMINATED_AT'
+//:
+//: o 'BSLS_PLATFORM__CMP_VER_MAJOR >= 40300'
+//:   o 'BSLS_ANNOTATION_ALLOC_SIZE'
+//:   o 'BSLS_ANNOTATION_ALLOC_SIZE_MUL'
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -102,14 +124,14 @@ static int testStatus = 0;
 // ----------------------------------------------------------------------------
 
 void *test_ALLOC_SIZE(void *ptr, size_t size) BSLS_ANNOTATION_ALLOC_SIZE(2);
-void *test_ALLOC_SIZE(void *ptr, size_t size)                         // { 1fo}
+void *test_ALLOC_SIZE(void *ptr, size_t size)                        // { 1fo }
 {
     return realloc(ptr, size);
 }
 
 void *test_ALLOC_SIZE_MUL(size_t count, size_t size)
                                           BSLS_ANNOTATION_ALLOC_SIZE_MUL(1, 2);
-void *test_ALLOC_SIZE_MUL(size_t count, size_t size)                  // { 2fo}
+void *test_ALLOC_SIZE_MUL(size_t count, size_t size)                 // { 2fo }
 {
     return calloc(count, size);
 }
@@ -129,7 +151,7 @@ int test_WARNING()
 }
 
 void test_PRINTF(const char *pattern, ...) BSLS_ANNOTATION_PRINTF(1, 2);
-void test_PRINTF(const char * /*pattern*/, ...)
+void test_PRINTF(const char *pattern, ...)
 {
 }
 
@@ -143,7 +165,7 @@ const char *test_FORMAT(const char *locale, const char *format)
 const char *test_FORMAT(const char *locale, const char *format)
 {
     if (0 == strcmp(locale, "FR") && 0 == strcmp(format, "Name: %s")) {
-        return "Nom: %s";
+        return "Nom: %s";                                             // RETURN
     }
 
     return "translateFormat: bad locale or format argument - no translation";
@@ -185,7 +207,7 @@ void test_DEPRECATED_function()
 }
 
 static
-void test_UNUSED_function() BSLS_ANNOTATION_UNUSED;
+void test_UNUSED_function() BSLS_ANNOTATION_UNUSED;                  // {14fwn}
 void test_UNUSED_function()
 {
 }
@@ -197,17 +219,17 @@ void test_UNUSED_function()
 int test_DEPRECATED_variable BSLS_ANNOTATION_DEPRECATED;
 
 static
-int test_UNUSED_variable     BSLS_ANNOTATION_UNUSED;
+int test_UNUSED_variable     BSLS_ANNOTATION_UNUSED;                 // {14vwn}
 
 // ============================================================================
 //                  DEFINITION OF ANNOTATED TYPES
 // ----------------------------------------------------------------------------
 
-struct test_DEPRECATED_type {
+struct Test_DEPRECATED_type {
     int d_d;
 } BSLS_ANNOTATION_DEPRECATED;
 
-struct test_UNUSED_type {
+struct Test_UNUSED_type {
     int d_d;
 } BSLS_ANNOTATION_UNUSED;
 
@@ -215,7 +237,7 @@ struct test_UNUSED_type {
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
-void use_without_diagnostic_message_PRINTF()                          // {5fwn}
+void use_without_diagnostic_message_PRINTF()                         // { 5fwn}
 {
     test_PRINTF("%s", "string");
     test_PRINTF("%d", 1);
@@ -252,6 +274,24 @@ void use_without_diagnostic_message_ARGS_NON_NULL()                  // { 9fwn}
     test_ARGS_NON_NULL(buffer1, buffer2);
 }
 
+void use_without_diagnostic_message_NULL_TERMINATED()                // {10fwn}
+{
+    char buffer1[2];
+    char buffer2[2];
+    char buffer3[2];
+    char buffer4[2];
+    test_NULL_TERMINATED(buffer1, buffer2, buffer3, buffer4, NULL);
+}
+
+void use_without_diagnostic_message_NULL_TERMINATED_AT()             // {11fwn}
+{
+    char buffer1[2];
+    char buffer2[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED_AT(buffer1, buffer2, NULL, buffer4, buffer5);
+}
+
 int use_without_diagnostic_message_WARN_UNUSED_RESULT()              // {12fwn}
 {
     return test_WARN_UNUSED_RESULT();
@@ -263,16 +303,16 @@ int use_without_diagnostic_message_WARN_UNUSED_RESULT()              // {12fwn}
 
 #ifdef BSLS_ANNOTATION_TRIGGER_OTHER
 
-int use_with_warning_message_Warning = test_WARNING();                  // {4w}
+int use_with_warning_message_Warning = test_WARNING();               // { 4fw }
 
-void use_with_warning_message_PRINTF()                                // {5fwy}
+void use_with_warning_message_PRINTF()                               // { 5fwy}
 {
     test_PRINTF("%s", 3.14159);
     test_PRINTF("%d", "string");
     test_PRINTF("%f", "other string");
 }
 
-void use_with_warning_message_SCANF()                                 // {6fwy}
+void use_with_warning_message_SCANF()                                // { 6fwy}
 {
     char   buffer[20];
     int    i;
@@ -283,17 +323,17 @@ void use_with_warning_message_SCANF()                                 // {6fwy}
     test_SCANF("%f", buffer);
 }
 
-void use_with_warning_message_FORMAT()                                // {7fwy}
+void use_with_warning_message_FORMAT()                               // { 7fwy}
 {
     test_PRINTF(test_FORMAT("FR", "Name: %s"), 3);
 }
 
-void use_with_warning_message_ARG_NON_NULL()                          // {8fwy}
+void use_with_warning_message_ARG_NON_NULL()                         // { 8fwy}
 {
     test_ARG_NON_NULL(NULL);
 }
 
-void use_with_warning_message_ARGS_NON_NULL()                         // {9fwy}
+void use_with_warning_message_ARGS_NON_NULL()                        // { 9fwy}
 {
     char buffer1[2];
     char buffer2[2];
@@ -303,22 +343,47 @@ void use_with_warning_message_ARGS_NON_NULL()                         // {9fwy}
     test_ARGS_NON_NULL(NULL, NULL);
 }
 
+void use_with_warning_message_NULL_TERMINATED()                      // {10fwy}
+{
+    char buffer1[2];
+    char buffer2[2];
+    char buffer3[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED(buffer1, buffer2, buffer3, buffer4, buffer5);
+}
+
+void use_with_warning_message_NULL_TERMINATED_AT()                   // {11fwy}
+{
+    char buffer1[2];
+    char buffer2[2];
+    char buffer3[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED_AT(buffer1, buffer2, buffer3, buffer4, buffer5);
+}
+
 void use_with_warning_message_WARN_UNUSED_RESULT()                   // {12fwy}
 {
     test_WARN_UNUSED_RESULT();
 }
 
-void use_with_warning_message_DEPRECATED_function()                  // {13fw}
+void use_with_warning_message_DEPRECATED_function()                  // {13fw }
 {
     test_DEPRECATED_function();
 }
 
-void use_with_warning_message_DEPRECATED_variable()                // {13v }
+void use_with_warning_message_DEPRECATED_variable()                  // {13vw }
 {
     test_DEPRECATED_variable;
 }
 
-test_DEPRECATED_type use_with_warning_message_DEPRECATED_type;      // {13t }
+int use_with_warning_message_DEPRECATED_type()                       // {13tw }
+{
+    Test_DEPRECATED_type instance_of_DEPRECATED_TYPE;
+    instance_of_DEPRECATED_TYPE.d_d = 0;
+    return instance_of_DEPRECATED_TYPE.d_d;
+}
 
 
 #endif
@@ -329,7 +394,7 @@ test_DEPRECATED_type use_with_warning_message_DEPRECATED_type;      // {13t }
 
 #ifdef BSLS_ANNOTATION_TRIGGER_ERROR
 
-int use_with_error_message_Error = test_ERROR();                       // { 3e}
+int use_with_error_message_Error = test_ERROR();                     // { 3fe }
 
 #endif
 
