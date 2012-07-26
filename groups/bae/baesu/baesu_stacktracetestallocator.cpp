@@ -19,8 +19,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsl_vector.h>
 #include <bsl_utility.h>
 
-#include <cstdlib>  // abort
-
 namespace BloombergLP {
 
 namespace {
@@ -262,7 +260,8 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 baesu_StackTraceTestAllocator::~baesu_StackTraceTestAllocator()
 {
     if (checkHeadNode() && !d_noAbortFlag) {
-        abort();
+        BSLS_ASSERT_OPT(0 &&
+           "baesu_StackTraceTestAllocator: defective head node in destructor");
     }
 
     if (numBlocksInUse() > 0) {
@@ -272,7 +271,8 @@ baesu_StackTraceTestAllocator::~baesu_StackTraceTestAllocator()
         reportBlocksInUse();
 
         if (!d_noAbortFlag) {
-            abort();
+            BSLS_ASSERT_OPT(0 && "baesu_StackTraceTestAllocator:"
+                                        " Memory leak detected by destructor");
         }
 
         release();
@@ -288,7 +288,8 @@ void *baesu_StackTraceTestAllocator::allocate(size_type size)
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
 
     if (checkHeadNode() && !d_noAbortFlag) {
-        abort();
+        BSLS_ASSERT_OPT(0 && "baesu_StackTraceTestAllocator:"
+                                 " defective headnode detected by 'allocate'");
     }
 
     // The underlying allocator might align the segment differently depending
@@ -348,15 +349,37 @@ void baesu_StackTraceTestAllocator::deallocate(void *address)
     if (!address) {
         return;                                                       // RETURN
     }
-    BSLS_ASSERT(0 == ((UintPtr) address & (sizeof(void **) - 1)));
+
+    if (0 != ((UintPtr) address & (sizeof(void *) - 1))) {
+        // Badly aligned, can't be a segment we allocated.
+
+        *d_ostream << "Badly aligned segment passed to allocator '"
+                   << d_name << "' must have been allocated by another type"
+                   << " of allocator\n";
+        if (d_noAbortFlag) {
+            BSLS_ASSERT_OPT(0 && "baesu_StackTraceTestAllocator:"
+                                " badly align segment passed to 'deallocate'");
+        }
+
+        return;                                                       // RETURN
+    }
 
     SegmentHeader *segmentHdr = (SegmentHeader *) address - 1;
 
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
 
-    if (checkHeadNode() || preDeallocateCheckSegmentHeader(segmentHdr)) {
+    if (checkHeadNode()) {
         if (!d_noAbortFlag) {
-            abort();
+            BSLS_ASSERT_OPT(0 && "baesu_StackTraceTestAllocator:"
+                               " defective headnode detected by 'deallocate'");
+        }
+
+        return;                                                       // RETURN
+    }
+    if (preDeallocateCheckSegmentHeader(segmentHdr)) {
+        if (!d_noAbortFlag) {
+            BSLS_ASSERT_OPT(0 && "baesu_StackTraceTestAllocator:"
+                         " defective segment header detected by 'deallocate'");
         }
 
         return;                                                       // RETURN
@@ -378,7 +401,8 @@ void baesu_StackTraceTestAllocator::release()
 
     if (checkHeadNode()) {
         if (!d_noAbortFlag) {
-            abort();
+            BSLS_ASSERT_OPT(0 && "baesu_StackTraceTestAllocator:"
+                                  " defective headnode detected by 'release'");
         }
 
         return;                                                       // RETURN
@@ -388,7 +412,8 @@ void baesu_StackTraceTestAllocator::release()
                 &d_headNode != segmentHdr; segmentHdr = segmentHdr->d_next_p) {
         if (preDeallocateCheckSegmentHeader(segmentHdr)) {
             if (!d_noAbortFlag) {
-                abort();
+                BSLS_ASSERT_OPT(0 && "baesu_StackTraceTestAllocator:"
+                            " defective segment header detected by 'release'");
             }
 
             return;                                                   // RETURN
