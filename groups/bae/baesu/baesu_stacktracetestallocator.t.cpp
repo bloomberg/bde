@@ -7,6 +7,9 @@
 #include <bcemt_barrier.h>
 #include <bcemt_threadutil.h>
 
+#include <bdesu_fileutil.h>
+#include <bdeu_string.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_newdeleteallocator.h>
@@ -16,6 +19,8 @@
 #include <bsl_algorithm.h>
 #include <bsl_cmath.h>
 #include <bsl_cstdlib.h>
+#include <bsl_fstream.h>
+#include <bsl_set.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
@@ -38,6 +43,151 @@ using bsl::flush;
 //=============================================================================
 // TEST PLAN
 //-----------------------------------------------------------------------------
+//                                 Overview
+//                                 --------
+// The component under test is a thread-safe mechanism non value type.
+//
+// Manipulators:
+//: o allocate
+//: o deallocate
+//: o release
+//: o setNoAbort
+//
+// Accessors
+//: o isNoAbort
+//: o numBlocksInUse
+//: o reportBlocksInUse
+//
+// Things to test:
+//
+// Already tested:
+//: o That a stack trace can be done which and prints out the names of the
+//:   expected routines (note that we observe that mangled names on all
+//:   platforms include relevant namespace names and actual function names
+//:   as substrings, though the '::' are not represented as such).
+//: o That the expected names come out in the expected order.
+//: o That the stack traces go to at least the depth specified to the
+//:   allocator c'tor
+//: o That if no memory is leaked, the destructor will finish without writing
+//:   anything to the 'ostream' associated with it at construction.
+//: o That all combinations of args / optional args passed to c'tors work
+//: o That if a stream is specified to 'reportBlocksInUse', its output goes
+//:   to that stream.
+//: o That the value of 'isNoAbort' is false at construction, and after that
+//:   reflects the latest value passed to 'setNoAbort'.
+//: o That if 'noAbort' is set, destruction of the alloctor will not cause
+//:   an abort.
+//: o That the allocator will cope with multiple outstanding segments being
+//:   allocated / deallocated in random order, rather than just having the
+//:   most recently allocated segment freed, or having segments freed in the
+//:   order in which they were allocated.
+//: o That 'numBlocksInUse' accurately reflects the number of outstanding
+//:   segments.
+//: o That reports of segments in use properly reflect the number of segments.
+//: o That the allocator is thread-safe.
+//: o That 'release', if called, releases all allocated segments.
+//: o That multiple frees of the same segment are correctly reported, and don't
+//:   result in an abort if 'noAbort' is set.
+//: o That freeing a segment allocated by one stack trace test allocator by
+//:   another stack trace test allocator is correctly reported, and will not
+//:   result in an abort if 'noAbort' is set.
+//: o That the default allocator is not used by this class (it defaults to
+//:   using the malloc free allocator singleton if no allocator is specified).
+//-----------------------------------------------------------------------------
+// Already Semi Tested:
+//: o That if no stream is specified to 'reportBlocksInUse', its output goes to
+//:   the stream specified to the allocator's c'tor (already indirectly tested
+//:   if you know the d'tor calls 'reportBlocksInUse this way).
+//: o At least configured stack trace depth is respected (already tested in
+//:   breathing test, test again somewhere else).
+//-----------------------------------------------------------------------------
+// Testing not done yet.
+//: o That multiple frees of the same segment result in an abort if 'noAbort'
+//:   is not set.
+//: o That freeing a segment allocated by one stack trace test allocator by
+//:   another stack trace test allocator will result in an abort if 'noAbort'
+//:   is not set.
+//: o That attempting to free a segment allocated with 'bslma::TestAllocator'
+//:   will be detected, reported, and result in aborts appropriately depending
+//:   on 'isNoAbort()'.
+//: o ???? Should we do a test where we attempt to free segments created by
+//:   'malloc' and 'NewDeleteAllocator' with the stack trace test allocator?
+//:   Such an action would offend purify, and we can't guarantee the result,
+//:   though the odds against failure are astronomical.
+//: o That a slight buffer (by up to the size of 4 pointers) underrun is
+//:   correctly detected, and will result in an abort (but only if 'isNoAbort'
+//:   is 'false').  Test should be run for all lengths of overwrite from 1
+//:   byte to the size of 4 ptrs.
+//: o That 'demanglingPreferredFlag' is respected.  Have to #ifdef, demangling
+//:   always happens on Windows and never on Solaris.
+//: o That allocated segments are properly aligned.
+//: o That attempting to deallocate a pointer that doesn't meet the minimum
+//:   alignment requirements of this allocator (and therefore known not to have
+//:   been allocated by this allocator) is properly reported and results in
+//:   abort depending on 'isNoAbort'.
+//: o That segments returned really are of at least the requested size.
+//: o Is exception-safe if the underlying allocator throws exceptions.
+//-----------------------------------------------------------------------------
+// [20] * usage example
+//      * name the allocator in the usage example
+// [19] * stack depth testing
+//      * verify that the stack depth reported is at least as great as what
+//        was specified at construction.
+//      * verify that the stack depth reported is not greater than
+//        (MAX_ALIGNMENT - 1) / sizeof(void *) more frames than were requested
+//        by the constructor.
+//      * do this test by having a recursive call stack, and then counting
+//        the number of occurrences of the name of the recursing routine in
+//        the report.
+// [18] * exception safety
+//      * Pass the allocator a bslma::TestAllocator rigged to throw exceptions
+//        and verify that the allocator handles this properly.
+// [17] * alignment & min size test
+//      * allocate segments from 1 byte to 100 bytes long, several segments for
+//        each size.  Calculate alignment
+//        via 'bsls::AlignmentUtil::calculateAlignmentFromSize', and verify
+//        that the segment return always satisfies the alignment requirement.
+//        Write over the full length of the segment. Use 'bslma::TestAllocator'
+//        as the underlying allocator as it will detect overruns if the any of
+//        the segments were smaller than requested.
+// [16] * demanglingPreferredFlag
+//      * #ifdef appropriate for platform, do reports with & without
+//        'demanglingPreferredFlag' by searching for
+//        'BloombergLP::baesu_StackTraceTestAllocator::' in the report -- it
+//        will be present if demangling is done, it won't if not
+// [15] * Underrun detection
+//      * Verify that writing before the beginning of the buffer from 1 byte
+//        to the size of 4 pointers (a) is always detected, and (b) does not
+//        result in segfaults, and (c) results in abort appropriate for
+//        'isNoAbort'
+// [14] Deallocation errors test
+//      * attempt to deallocate segments allocated with 'malloc' and
+//        global 'new'
+//      * verify that all errors encountered in this test will result in
+//        failure of assert unless 'noAbort' is set -- repeat all tests with &
+//        without 'noAbort'
+//      * Attempt to free segments created by 'bslma::TestAllocator' and
+//        'bcema_TestAllocator'
+//      * Pass a pointer that is not pointer-aligned, triggering alignment
+//        error detection
+// [13] Calling 'release' successfully frees all allocated segments
+//      * add test to verify that calling it when no segments are outstanding
+//        does no harm
+// [12] Thread-safety test
+// [11] Successful freeing of all allocated segments results in no report
+//      being written at destruction
+// [10] Bslx streaming (N/A)
+// [ 9] Assignment (N/A)
+// [ 8] Swap (N/A)
+// [ 7] Copy c'tor (N/A)
+// [ 6] Equality comparisons (N/A)
+// [ 5] Print and output operator (N/A)
+// [ 4] All accessors
+//      * verify that if 'reportBlocksInUse' is called with no args, it writes
+//        its report to the stream specified at construction of the allocator.
+// [ 3] Value c'tor (N/A)
+// [ 2] All constructors, destructor, all manipulators
+// [ 1] Breathing test
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -125,6 +275,178 @@ static int verbose;
 static int veryVerbose;
 
 static const bsl::size_t npos = bsl::string::npos;
+
+                                // -----
+                                // Usage
+                                // -----
+
+struct ShipsCrew {
+    // This struct will, at construction, read and parse a file describing
+    // the names of the crew of a ship.
+
+  private:
+    // PRIVATE TYPES
+    struct Less {
+        // Functor to compare two 'const char *'s
+
+        bool operator()(const char *a, const char *b) const
+        {
+            return bsl::strcmp(a, b) < 0;
+        }
+    };
+
+    typedef bsl::set<const char *, Less> NameSet;
+
+  public:
+    // PUBLIC DATA
+    const char       *d_captain;
+    const char       *d_firstMate;
+    const char       *d_cook;
+    NameSet           d_sailors;
+
+  private:
+    // PRIVATE MANIPULATORS
+    void addSailor(const bsl::string& name);
+        // Add the specified 'name' to the set of sailor's names.  Check for
+        // redundancy.
+
+    const char *copy(const bsl::string& str);
+        // Allocate memory for a copy of the specified 'str' as a char array,
+        // copy the contents of 'str' into it, and return a pointer to the
+        // array.
+
+    void setCaptain(const bsl::string& name);
+        // Set the name of the ship's captain to the specified 'name', but only
+        // if the captain's name was not already set.
+
+    void setCook(const bsl::string& name);
+        // Set the name of the ship's cook to the specified 'name', but only if
+        // the captain's name was not already set.
+
+    void setFirstMate(const bsl::string& name);
+        // Set the name of the ship's first mate to the specified 'name', but
+        // only if the captain's name was not already set.
+
+  public:
+    // CREATORS
+    explicit
+    ShipsCrew(const char *crewFileName);
+        // Read the names of the ship's crew in from the file with the
+        // specified name 'crewFileName'.
+
+    ~ShipsCrew();
+        // Destroy this object and free memory.
+};
+
+// PRIVATE MANIPULATORS
+void ShipsCrew::addSailor(const bsl::string& name)
+{
+    if (d_sailors.count(name.c_str())) {
+        cerr << "Error, duplicate sailor's name " << name << bsl::endl;
+        return;                                                       // RETURN
+    }
+    d_sailors.insert(copy(name));
+}
+
+const char *ShipsCrew::copy(const bsl::string& str)
+{
+    return BloombergLP::bdeu_String::copy(str,
+                                          bslma::Default::defaultAllocator());
+}
+
+void ShipsCrew::setCaptain(const bsl::string& name)
+{
+    if (d_captain) {
+        cerr << "Error, duplicate captain\n";
+        return;                                                       // RETURN
+    }
+    d_captain = copy(name);
+}
+
+void ShipsCrew::setCook(const bsl::string& name)
+{
+    if (d_cook) {
+        cerr << "Error, duplicate cook\n";
+        return;                                                       // RETURN
+    }
+    d_cook = copy(name);   // This was line 231 when this test case was written
+}
+
+void ShipsCrew::setFirstMate(const bsl::string& name)
+{
+    if (d_firstMate) {
+        cerr << "Error, duplicate first mate\n";
+        return;                                                       // RETURN
+    }
+    d_firstMate = copy(name);
+}
+
+// CREATORS
+ShipsCrew::ShipsCrew(const char *crewFileName)
+: d_captain(0)
+, d_firstMate(0)
+, d_cook(0)
+, d_sailors()
+{
+    typedef BloombergLP::bdeu_String String;
+
+    bsl::ifstream input(crewFileName);
+    BSLS_ASSERT(!input.eof() && !input.bad());
+
+    while (!input.bad() && !input.eof()) {
+        bsl::string line;
+        bsl::getline(input, line);
+
+        bsl::size_t colon = line.find(':');
+        if (bsl::string::npos != colon) {
+            bsl::string field = line.substr(0, colon);
+            bsl::string name  = line.substr(colon + 1);
+
+            if (0 == String::lowerCaseCmp(field, "captain")) {
+                setCaptain(name);
+            }
+            else if (0 == String::lowerCaseCmp(field, "first mate")) {
+                setFirstMate(name);
+            }
+            else if (0 == String::lowerCaseCmp(field, "cook")) {
+                setCook(name);
+            }
+            else if (0 == String::lowerCaseCmp(field, "sailor")) {
+                addSailor(name);
+            }
+            else {
+                cerr << "Unrecognized field '" << field << "'\n";
+            }
+        }
+        else if (!line.empty()) {
+            cerr << "Garbled line '" << line << "'\n";
+        }
+    }
+}
+
+ShipsCrew::~ShipsCrew()
+{
+    bslma::Allocator *da = bslma::Default::defaultAllocator();
+
+    da->deallocate(const_cast<char *>(d_captain));
+    da->deallocate(const_cast<char *>(d_firstMate));
+
+    // Note that deallocating the strings will invalidate 'd_sailors' -- any
+    // manipulation other than destruction after this would lead to undefined
+    // behavior.
+
+    const NameSet::iterator end = d_sailors.end();
+    for (NameSet::iterator it = d_sailors.begin(); end != it; ++it) {
+        da->deallocate(const_cast<char *>(*it));
+    }
+}
+
+bsl::string getCaptain(const char *fileName)
+{
+    ShipsCrew crew(fileName);
+
+    return crew.d_captain ? crew.d_captain : "";
+}
 
                                 // -----
                                 // Usage
@@ -505,6 +827,102 @@ int main(int argc, char *argv[])
     int expectedDefaultAllocations = 0;
 
     switch (test) { case 0:
+      case 16: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        // Pre usage example: prepare the file 'shipscrew.txt' in the local
+        // directory for use by the usage example.
+
+        {
+            bsl::ofstream outFile("shipscrew.txt");
+
+            outFile << "captain:Steve Miller\n"
+                    << "first mate:Sally Chandler\n"
+                    << "cook:Bob Jones\n"
+                    << "sailor:Mitch Sandler\n"
+                    << "sailor:Ben Lampert\n"
+                    << "sailor:Daniel Smith\n"
+                    << "sailor:Joe Owens\n";
+        }
+
+        {
+            baesu_StackTraceTestAllocator ta;
+            ta.setNoAbort(true);
+            bslma::DefaultAllocatorGuard guard(&ta);
+
+            bsl::string captain = getCaptain("shipscrew.txt");
+
+            cout << "The captain is: " << captain << bsl::endl;
+        }
+
+        // When 'ta' is destroyed, the following message is written to stdout.
+        //
+        // ====================================================================
+        // Error: memory leaked:
+        // 1 segment(s) in allocator '<unnamed>' in use.
+        // Segment(s) allocated from 1 trace(s).
+        // --------------------------------------------------------------------
+        // Allocation trace 1, 1 segment(s) in use.
+        // Stack trace at allocation time:
+        // (0): BloombergLP::baesu_StackTraceTestAllocator::.allocate(long)+
+        //      0x2fc at 0x100007b64 source:baesu_stacktracetestallocator.cpp:
+        //      335 in baesu_stacktracetestallocator.t.d
+        // (1): BloombergLP::bdeu_String::.copy(const char*,int,BloombergLP::
+        //      bslma::Allocator*)+0xbc at 0x10001893c source:bdeu_string.cpp:
+        //      96 in baesu_stacktracetestallocator.t.d
+        // (2): ShipsCrew::.copy(const bsl::basic_string<char,std::char_traits<
+        //      char>,bsl::allocator<char> >&)+0x8c at 0x1000232c4 source:
+        //      baesu_stacktracetestallocator.t.cpp:610 in
+        //      baesu_stacktracetestallocator.t.d
+        // (3): ShipsCrew::.setCook(const bsl::basic_string<char,std::
+        //      char_traits<char>,bsl::allocator<char> >&)+0x54 at 0x1000233e4
+        //      source:baesu_stacktracetestallocator.t.cpp:232 in
+        //      baesu_stacktracetestallocator.t.d
+        // (4): ShipsCrew::.__ct(const char*)+0x430 at 0x1000214c8
+        //      source:baesu_stacktracetestallocator.t.cpp:272 in
+        //      baesu_stacktracetestallocator.t.d
+        // (5): .getCaptain(const char*)+0x44 at 0x100020704 source:
+        //      baesu_stacktracetestallocator.t.cpp:306 in
+        //      baesu_stacktracetestallocator.t.d
+        // (6): .main+0x278 at 0x100000ab0 source:
+        //      baesu_stacktracetestallocator.t.cpp:727 in
+        //      baesu_stacktracetestallocator.t.d
+        // (7): .__start+0x74 at 0x1000002fc source:crt0_64.s in
+        //      baesu_stacktracetestallocator.t.d
+
+        // Finally, we see that the leaked memory was in the 'setCook' method
+        // line 232 (line numbers are generally the line after the subroutine
+        // call in question -- the call to 'copy' was on line 231).  The
+        // destructor neglected to deallocate the cook's name.
+
+        // Note the following:
+        //: o If we hadn't called 'setNoAbort(true)', the above report would
+        //:   have been followed by a core dump. Since 'isNoAbort' was set,
+        //:   'ta's destructor instead frees all leaked memory after giving
+        //:   the report and returns.
+        //: o Output will vary by platform.  Not all platforms support line
+        //:   number information and demangling.  This report was generated on
+        //:   AIX, and a couple of AIX quirks are visible -- identifiers have a
+        //:   '.' prepended, and the constructor name got converted to '__ct'.
+
+        // Post usage example: clean up 'shipscrew.txt'
+
+        bdesu_FileUtil::remove("shipscrew.txt");
+      }  break;
       case 15: {
         //---------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -1086,7 +1504,6 @@ int main(int argc, char *argv[])
                 if (CLEAN_DESTROY) {
                     ta.deallocate(segment);
                 }
-
 
                 // If 'CLEAN_DESTROY' there will be no blocks in use and the
                 // d'tor will not write a report.  Otherwise, 'segment' will
