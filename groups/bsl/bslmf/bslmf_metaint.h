@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 // This section illustates intended usage of this component
 //
 ///Example 1: Compile-Time Function Dispatching
-/// - - - - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - - - - -
 // The most common use of this structure is to perform static function
 // dispatching based on a compile-time calculation.  Often the calculation is
 // nothing more than a simple predicate, allowing us to select one of two
@@ -79,7 +79,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 ///Example 2: Reading the 'VALUE' member
-/// - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - -
 // In addition to forming new types, the value of the integral paramameter to
 // 'MetaInt' is "saved" in the enum member 'VALUE', and is accessible for use
 // in compile-time or run-time operations.

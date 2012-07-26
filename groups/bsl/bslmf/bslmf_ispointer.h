@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::IsPointer: meta-function for determining pointer types
 //
-//@AUTHOR: Shawn Edwards (sedwards)
-//
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component defines a simple template structure used to
@@ -38,9 +36,42 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
+#include <bslmf_integerconstant.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
 #endif
+
+namespace bsl {
+
+template <typename TYPE>
+struct is_pointer : false_type
+{
+};
+
+template <typename TYPE>
+struct is_pointer<TYPE *> : true_type
+{
+};
+
+template <typename TYPE>
+struct is_pointer<TYPE * const> : true_type
+{
+};
+
+template <typename TYPE>
+struct is_pointer<TYPE * volatile> : true_type
+{
+};
+
+template <typename TYPE>
+struct is_pointer<TYPE * const volatile> : true_type
+{
+};
+
+}  // close namespace bsl
 
 namespace BloombergLP {
 
@@ -51,24 +82,11 @@ namespace bslmf {
                          // ================
 
 template <typename T>
-struct IsPointer : MetaInt<0>
+struct IsPointer : MetaInt<bsl::is_pointer<T>::value>
 {
     // This class implements a meta-function for checking if a type is a
     // pointer.
 };
-
-// Specializations for pointer types
-template <typename T>
-struct IsPointer<T*> : MetaInt<1> { };
-
-template <typename T>
-struct IsPointer<T* const> : MetaInt<1> { };
-
-template <typename T>
-struct IsPointer<T* volatile> : MetaInt<1> { };
-
-template <typename T>
-struct IsPointer<T* const volatile> : MetaInt<1> { };
 
 }  // close package namespace
 
@@ -88,7 +106,7 @@ struct IsPointer<T* const volatile> : MetaInt<1> { };
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
