@@ -1133,215 +1133,6 @@ struct WeekendDaysTransitionLess {
 //-----------------------------------------------------------------------------
 #define DEFINE_TEST_CASE(NUMBER)                                              \
 void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
-    /*
-DEFINE_TEST_CASE(24) {
-        // --------------------------------------------------------------------
-        // TESTING 'addWeekendDaysTransition'
-        //
-        // Concerns:
-        //: 1 The 'addWeekendDaysTransition' method adds a transition to a
-        //:   specified set of weekend days on a specified date.
-        //:
-        //: 2 'isWeekendDay(bdet_Date&)' properly identifies weekend days.
-        //:
-        //: 3 'BusinessDayConstIterator' objects properly skip weekend days.
-        //:
-        //: 4 Assert precondition violation are detected when enabled.
-        //
-        // Plan:
-        //: 1 Using a table-driven approach, specify a list of weekend-days
-        //:   transitions each comprising a transition date and a
-        //:   set of weekend days in ascending transition date order.
-        //:
-        //: 2 For each row in the table described in P-1:
-        //:
-        //:   1 Create a calendar having a range that encompases all the
-        //:     transition dates in the table.  Using the
-        //:     'addWeekendDaysTransition' method, add all transitions
-        //:     represented from the first row in the table up to the current
-        //:     row.  (C-1)
-        //:
-        //:   2 Verify by calling the 'isWeekendDay(bdet_Date&)' method that
-        //:     the correct value is return for all dates in the calendar.
-        //:     (C-2)
-        //:
-        //:   3 Add a hard coded list of holiday dates to the calendar.
-        //:     Iterate using a 'BusinessDayConstIterator' object from
-        //:     'beginBusinessDays()' up to 'endBusinessDays()' and ensure that
-        //:     both the holiday dates and weekend days are properly skipped by
-        //:     the iterator.  (C-3)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to add a weekend-days
-        //:   transition when one more more days have been added to using the
-        //:   'addWeekendDays' method or the 'addWeekenDay' method (using the
-        //:   'BSLS_ASSERTTEST_*' macros).  (C-4)
-        //
-        // Testing:
-        //    void addWeekendDaysTransition(bdet_Date&, bdec_DayOfWeekSet&);
-        //    bool isWeekendDay(const bdet_Date& date) const;
-        //    BusinessDayConstIterator beginBusinessDays() const;
-        //    BusinessDayConstIterator endBusinessDays() const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "Testing 'addWeekendDaysTransition'" << endl
-                          << "and     'isWeekendDay(bdet_Date&)'" << endl
-                          << "==================================" << endl;
-
-        static const struct {
-            int d_line;
-            int d_year;
-            int d_month;
-            int d_day;
-            const char *d_weekendDays;
-        } DATA[] = {
-            //LINE  YYYY  MM  DD   SMTWTFS
-            //----  ----  --  --   -------
-            { L_,   2000,  1, 10, "0000001" },
-            { L_,   2000,  2, 10, "0000010" },
-            { L_,   2000,  3, 10, "0000100" },
-            { L_,   2000,  4, 10, "0001000" },
-            { L_,   2000,  5, 10, "0010000" },
-            { L_,   2000,  6, 10, "0100000" },
-            { L_,   2000,  7, 10, "1000000" },
-            { L_,   2000,  8, 10, "1000001" },
-            { L_,   2000,  9, 10, "1100000" },
-            { L_,   2000, 10, 10, "0110000" },
-            { L_,   2000, 11, 10, "0011000" },
-            { L_,   2001,  1, 10, "0001100" },
-            { L_,   2001,  2, 10, "0000110" },
-            { L_,   2001,  3, 10, "0000011" },
-        };
-
-        const int NUM_DATA = sizeof DATA/sizeof *DATA;
-
-        const bdet_Date FIRST_DATE(DATA[0].d_year,
-                                   DATA[0].d_month,
-                                   DATA[0].d_day);
-
-        const bdet_Date LAST_DATE(DATA[NUM_DATA - 1].d_year,
-                                  DATA[NUM_DATA - 1].d_month,
-                                  DATA[NUM_DATA - 1].d_day + 10);
-
-        bslma_TestAllocator oa("oa", veryVeryVerbose);
-
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-
-            Obj mX(FIRST_DATE, LAST_DATE, &oa); const Obj& X = mX;
-
-            typedef bsl::vector<bsl::pair<bdet_Date, bdec_DayOfWeekSet> >
-                                                              TransitionVector;
-            TransitionVector transitions;
-
-            for (int tj = 0; tj <= ti; ++tj)
-            {
-                bdet_Date date(DATA[tj].d_year,
-                               DATA[tj].d_month,
-                               DATA[tj].d_day);
-                bdec_DayOfWeekSet weekendDays;
-                int wdIndex = 1;
-                for(const char *wkStr = DATA[tj].d_weekendDays;
-                    *wkStr; ++wkStr, ++wdIndex) {
-                    if (*wkStr == '1') {
-                        if (veryVeryVerbose) {
-                            P(wdIndex)
-                        }
-                        weekendDays.add(
-                                    static_cast<bdet_DayOfWeek::Day>(wdIndex));
-                    }
-                }
-
-                if (veryVerbose) {
-                    P_(date) P(weekendDays)
-                }
-                mX.addWeekendDaysTransition(date, weekendDays);
-                transitions.push_back(bsl::make_pair(date, weekendDays));
-            }
-
-            int curTransI = 0;
-
-            for (bdet_Date date = FIRST_DATE; date < LAST_DATE; ++date) {
-                if (curTransI < transitions.size() - 1 &&
-                    date >= transitions[curTransI + 1].first) {
-                    ++curTransI;
-                }
-                bool isWeekend =
-                      transitions[curTransI].second.isMember(date.dayOfWeek());
-
-                LOOP2_ASSERT(isWeekend,
-                             date,
-                             isWeekend == X.isWeekendDay(date));
-            }
-
-            bsl::vector<bdet_Date> holidays(&oa);
-            holidays.push_back(bdet_Date(2000, 1,17));
-            holidays.push_back(bdet_Date(2000, 2,21));
-            holidays.push_back(bdet_Date(2000, 2,22));
-            holidays.push_back(bdet_Date(2000, 4,21));
-            holidays.push_back(bdet_Date(2000, 5,14));
-            holidays.push_back(bdet_Date(2000, 7, 4));
-            holidays.push_back(bdet_Date(2000, 9, 4));
-            holidays.push_back(bdet_Date(2000,11,23));
-            holidays.push_back(bdet_Date(2000,12,25));
-
-            for (bsl::vector<bdet_Date>::const_iterator itr = holidays.begin();
-                 itr != holidays.end();
-                 ++itr) {
-                mX.addHoliday(*itr);
-            }
-
-            Obj::BusinessDayConstIterator itr = X.beginBusinessDays();
-            bdet_Date prevDate = *itr - 1;
-
-            while (itr != X.endBusinessDays()) {
-
-                bdet_Date curDate = *itr;
-                if ((prevDate + 1) != curDate) {
-                    // ensure that the skipped days are weekend days or
-                    // holidays
-                    for (bdet_Date d = prevDate + 1; d < curDate; ++d) {
-                        LOOP_ASSERT(d,
-                                    X.isWeekendDay(d) ||
-                                    0 < std::count(holidays.begin(),
-                                                   holidays.end(),
-                                                   d));
-                    }
-                }
-
-                // ensure that current date is not a weekend day or a holiday
-                LOOP_ASSERT(curDate,
-                            !(X.isWeekendDay(curDate) ||
-                              0 < std::count(holidays.begin(),
-                                             holidays.end(),
-                                             curDate)));
-
-                prevDate = curDate;
-                ++itr;
-            }
-
-            if (prevDate != LAST_DATE) {
-                // ensure that the skipped days are weekend days or holidays
-                for (bdet_Date d = prevDate + 1; d <= LAST_DATE; ++d) {
-                    LOOP_ASSERT(d,
-                                X.isWeekendDay(d) ||
-                                0 < std::count(holidays.begin(),
-                                               holidays.end(),
-                                               d));
-                }
-            }
-        }
-
-        {
-            Obj Y(&oa);
-            Y.addWeekendDay(bdet_DayOfWeek::BDET_SUN);
-            bdec_DayOfWeekSet weekendDays;
-            weekendDays.add(bdet_DayOfWeek::BDET_SUN);
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
-            ASSERT_FAIL(Y.addWeekendDaysTransition(bdet_Date(2012, 1, 1),
-                                                   weekendDays));
-        }
-}
 
 DEFINE_TEST_CASE(23) {
         // --------------------------------------------------------------------
@@ -1541,6 +1332,9 @@ DEFINE_TEST_CASE(22) {
             "@2004/1/2 20 1 2A 3 4B 5 10",
             "au@2004/7/1 30 1 3 5 10",
             "mtwfau@2005/1/1 800 11 23B 38C 406A",
+            "u@2000/1/1 200 10A 5mt 100wr 150f",
+            "m@1990/3/1 100 20tr 50rf 100f",
+            "m@1990/3/1 100 0mf 20mt 60rf",
         0};
 
         for (int i = 0; SPECS[i]; ++i) {
@@ -1625,18 +1419,18 @@ DEFINE_TEST_CASE(21) {
 
         static const char *SPECS[] = {
             "", "a", "um", "@1/1/1", "@9999/12/31 0 0B",
-
             "@1/1/1 100",
             "m@1/1/1 100 0      1      2C 3D    4AB 5B     50DE 100A",
             "w@1/1/1 100 0ABCDE 1ABCDE    3ABCE     5ABCDE      100ABCDE",
-
             "a@1999/1/3 1000     23     36  232AB        414",
             "mtwfau@1999/1/1 800    23B 38C        406A",
             "u@2000/1/1 100",
             "@2000/2/1 200                         10D   20AE 190",
-
             "u@2004/1/2 10 1B    2A 3 4B 5ABCDE   10",
             "f@2004/1/1 10 2ABCD 3B 4 5B 6      10",
+            "u@2000/1/1 200 10A 5mt 100wr 150f",
+            "m@1990/3/1 100 20tr 50rf 100f",
+            "m@1990/3/1 100 0mf 20mt 60rf",
         0};
 
         // Test 'intersectNonBusinessDays' Method.
@@ -1652,6 +1446,8 @@ DEFINE_TEST_CASE(21) {
                 BEGIN_EXCEPTION_SAFE_TEST {
                     mZ.intersectNonBusinessDays(Y);
                 } END_EXCEPTION_SAFE_TEST(Z == X);
+
+                if (verbose) { P(X) P(Y) P(Z); cout << endl;}
 
                 LOOP4_ASSERT(i, j, X, Z, (i != j) || (Y == Z));
 
@@ -1674,13 +1470,16 @@ DEFINE_TEST_CASE(21) {
                 }
 
                 // Verifying the new weekend days in 'Z'.
-
-                LOOP2_ASSERT(i, j, Z.weekendDays() == (Z.weekendDays() &
-                            X.weekendDays()));
-                LOOP2_ASSERT(i, j, Z.weekendDays() == (Y.weekendDays() &
-                            X.weekendDays()));
-                LOOP2_ASSERT(i, j, Z.weekendDays() == (Y.weekendDays() &
-                            Z.weekendDays()));
+                for (bdet_Date d = Z.firstDate(); d <= Z.lastDate(); ++d) {
+                    bool xWeekendDayFlag = X.isWeekendDay(d);
+                    bool yWeekendDayFlag = Y.isWeekendDay(d);
+                    bool zWeekendDayFlag = Z.isWeekendDay(d);
+                    LOOP3_ASSERT(zWeekendDayFlag,
+                                 xWeekendDayFlag,
+                                 yWeekendDayFlag,
+                                 zWeekendDayFlag ==
+                                         (xWeekendDayFlag && yWeekendDayFlag));
+                }
 
                 // Verifying the new holidays in 'Z'.
 
@@ -1827,10 +1626,16 @@ DEFINE_TEST_CASE(21) {
 
                     LOOP2_ASSERT(i, j, it != itEnd || jt != jtEnd);
 
-                    if (jt == jtEnd || *it < *jt) {
+                    if (it != itEnd && jt != jtEnd) {
+                        if (*it < *jt)
+                            ++it;
+                        else
+                            ++jt;
+                    }
+                    else if (it != itEnd) {
                         ++it;
                     }
-                    else {
+                    else if (jt != jtEnd) {
                         ++jt;
                     }
 
@@ -1863,6 +1668,8 @@ DEFINE_TEST_CASE(21) {
                     mZ.unionBusinessDays(Y);
                 } END_EXCEPTION_SAFE_TEST(Z == X);
 
+                if (verbose) { P(X) P(Y) P(Z); cout << endl;}
+
                 LOOP4_ASSERT(i, j, X, Z, (i != j) || (Y == Z));
 
                 // Verifying the new range of 'Z'.
@@ -1877,13 +1684,27 @@ DEFINE_TEST_CASE(21) {
                 }
 
                 // Verifying the new weekend days in 'Z'.
+                for (bdet_Date d = X.firstDate(); d <= X.lastDate(); ++d) {
+                    bool xWeekendDayFlag = X.isWeekendDay(d);
+                    bool yWeekendDayFlag = Y.isWeekendDay(d);
+                    bool zWeekendDayFlag = Z.isWeekendDay(d);
+                    LOOP3_ASSERT(zWeekendDayFlag,
+                                 xWeekendDayFlag,
+                                 yWeekendDayFlag,
+                                 zWeekendDayFlag ==
+                                         (xWeekendDayFlag && yWeekendDayFlag));
+                }
 
-                LOOP2_ASSERT(i, j, Z.weekendDays() == (Z.weekendDays() &
-                                                       X.weekendDays()));
-                LOOP2_ASSERT(i, j, Z.weekendDays() == (Y.weekendDays() &
-                                                       X.weekendDays()));
-                LOOP2_ASSERT(i, j, Z.weekendDays() == (Y.weekendDays() &
-                                                       Z.weekendDays()));
+                for (bdet_Date d = Y.firstDate(); d <= Y.lastDate(); ++d) {
+                    bool xWeekendDayFlag = X.isWeekendDay(d);
+                    bool yWeekendDayFlag = Y.isWeekendDay(d);
+                    bool zWeekendDayFlag = Z.isWeekendDay(d);
+                    LOOP3_ASSERT(zWeekendDayFlag,
+                                 xWeekendDayFlag,
+                                 yWeekendDayFlag,
+                                 zWeekendDayFlag ==
+                                         (xWeekendDayFlag && yWeekendDayFlag));
+                }
 
                 // Verifying the new holidays in 'Z'.
 
@@ -2030,13 +1851,18 @@ DEFINE_TEST_CASE(21) {
 
                     LOOP2_ASSERT(i, j, it != itEnd || jt != jtEnd);
 
-                    if (jt == jtEnd || *it < *jt) {
+                    if (it != itEnd && jt != jtEnd) {
+                        if (*it < *jt)
+                            ++it;
+                        else
+                            ++jt;
+                    }
+                    else if (it != itEnd) {
                         ++it;
                     }
-                    else {
+                    else if (jt != jtEnd) {
                         ++jt;
                     }
-
                 }
 
                 // Verify that 'X' and 'Y' has no more common holiday after
@@ -2105,6 +1931,9 @@ DEFINE_TEST_CASE(20) {
 
             "u@2004/1/2 10 1B    2A 3 4B 5ABCDE   10",
             "f@2004/1/1 10 2ABCD 3B 4 5B 6      10",
+            "u@2000/1/1 200 10A 5mt 100wr 150f",
+            "m@1990/3/1 100 20tr 50rf 100f",
+            "m@1990/3/1 100 0mf 20mt 60rf",
         0};
 
         // Test 'intersectBusinessDays'.
@@ -2143,12 +1972,16 @@ DEFINE_TEST_CASE(20) {
 
                 // Verifying the new weekend days in 'Z'.
 
-                LOOP2_ASSERT(i, j, Z.weekendDays() == (Z.weekendDays() |
-                                                       X.weekendDays()));
-                LOOP2_ASSERT(i, j, Z.weekendDays() == (Y.weekendDays() |
-                                                       X.weekendDays()));
-                LOOP2_ASSERT(i, j, Z.weekendDays() == (Y.weekendDays() |
-                                                       Z.weekendDays()));
+                for (bdet_Date d = Z.firstDate(); d <= Z.lastDate(); ++d) {
+                    bool xWeekendDayFlag = X.isWeekendDay(d);
+                    bool yWeekendDayFlag = Y.isWeekendDay(d);
+                    bool zWeekendDayFlag = Z.isWeekendDay(d);
+                    LOOP3_ASSERT(zWeekendDayFlag,
+                                 xWeekendDayFlag,
+                                 yWeekendDayFlag,
+                                 zWeekendDayFlag ==
+                                         (xWeekendDayFlag || yWeekendDayFlag));
+                }
 
                 // Verifying the new holidays in 'Z'.
 
@@ -2330,12 +2163,27 @@ DEFINE_TEST_CASE(20) {
 
                 // Verifying the new weekend days in 'Z'.
 
-                LOOP2_ASSERT(i, j, Z.weekendDays() == (Z.weekendDays() |
-                                                       X.weekendDays()));
-                LOOP2_ASSERT(i, j, Z.weekendDays() == (Y.weekendDays() |
-                                                       X.weekendDays()));
-                LOOP2_ASSERT(i, j, Z.weekendDays() == (Y.weekendDays() |
-                                                       Z.weekendDays()));
+                for (bdet_Date d = X.firstDate(); d <= X.lastDate(); ++d) {
+                    bool xWeekendDayFlag = X.isWeekendDay(d);
+                    bool yWeekendDayFlag = Y.isWeekendDay(d);
+                    bool zWeekendDayFlag = Z.isWeekendDay(d);
+                    LOOP3_ASSERT(zWeekendDayFlag,
+                                 xWeekendDayFlag,
+                                 yWeekendDayFlag,
+                                 zWeekendDayFlag ==
+                                         (xWeekendDayFlag || yWeekendDayFlag));
+                }
+
+                for (bdet_Date d = Y.firstDate(); d <= Y.lastDate(); ++d) {
+                    bool xWeekendDayFlag = X.isWeekendDay(d);
+                    bool yWeekendDayFlag = Y.isWeekendDay(d);
+                    bool zWeekendDayFlag = Z.isWeekendDay(d);
+                    LOOP6_ASSERT(X, Y, Z, zWeekendDayFlag,
+                                 xWeekendDayFlag,
+                                 yWeekendDayFlag,
+                                 zWeekendDayFlag ==
+                                         (xWeekendDayFlag || yWeekendDayFlag));
+                }
 
                 // Verifying the new holidays in 'Z'.
 
@@ -2465,7 +2313,6 @@ DEFINE_TEST_CASE(20) {
                 LOOP3_ASSERT(i, j, *jt, jt == jtEnd);
             }
         }
-
       }
 
 DEFINE_TEST_CASE(19) {
@@ -2515,6 +2362,8 @@ DEFINE_TEST_CASE(19) {
             "@2005/6/7 365 180B",
             "au@2008/1/1 34124 1 2AB 3C 234C 2323 9786ADE",
             "a@9999/12/1 30 15A 30BC",
+            "a@2005/6/7 30 10w 15A 30BC",
+            "a@9999/12/1 30 10fu 15mt 15A 30BC",
             0
         };
 
@@ -2603,7 +2452,14 @@ DEFINE_TEST_CASE(19) {
                 mZ = X;
                 mZ.removeAll();
                 mZ.setValidRange(X.firstDate(), X.lastDate());
-                mZ.addWeekendDays(X.weekendDays());
+
+                for (Obj::WeekendDaysTransitionConstIterator itr =
+                                                X.beginWeekendDaysTransition();
+                     itr != X.endWeekendDaysTransition();
+                     ++itr) {
+                    mZ.addWeekendDaysTransition(itr->first, itr->second);
+                }
+
                 LOOP2_ASSERT(i, j, Y == Z);
             }
         }
@@ -2757,106 +2613,6 @@ DEFINE_TEST_CASE(18) {
 
 DEFINE_TEST_CASE(17) {
         // --------------------------------------------------------------------
-        // TESTING 'addWeekendDays' and 'isWeekendDay(bdet_Date&)':
-        //
-        // Concerns:
-        //  1. 'addWeekendDays' properly adds the weekend days in the
-        //     'bdec_DayOfWeekSet' to the calendar object.  If the calendar
-        //     object already had weekend days before, it should now have the
-        //     union of its original weekend days and the new weekend days
-        //     after this method is invoked.
-        //  2. 'isWeekendDay(bdet_Date&)' properly identifies weekend days.
-        //
-        // Plan:
-        //  To address concern 1, we use the first 7 bits of two integers to
-        //  represent all possible combinations of the weekend days that exist
-        //  in the calendar and the weekend days that are being added,
-        //  respectively.  For each of the 128x128 cases, we generate the
-        //  weekend days set, add it to the calendar object, and verify the
-        //  resulting weekend days are the combined set of old and new weekend
-        //  days.
-        //
-        //  To address concern 2, we use the tested
-        //  'isWeekendDay(bdet_DayOfWeek::Day)' method to verify the results of
-        //  'isWeekendDay(bdet_Date&)' by invoking both methods on all the days
-        //  of an arbitrarily-selected month and compare their results.
-        //
-        // Tactics:
-        //      - Ad-Hoc/Enumeration Data Selection Methods
-        //      - Loop-Based Implementation Technique
-        //
-        // Testing:
-        //      void addWeekendDays(const bdec_DayOfWeekSet& weekendDays)
-        //      bool isWeekendDay(const bdet_Date& date) const
-        // --------------------------------------------------------------------
-
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
-
-        if (verbose) cout << endl
-                          << "Testing 'addWeekendDays' and"       << endl
-                          << "        'isWeekendDay(bdet_Date&)'" << endl
-                          << "==================================" << endl;
-
-        static const bdet_DayOfWeek::Day DAYS[] = {
-            bdet_DayOfWeek::BDET_SUN,
-            bdet_DayOfWeek::BDET_MON,
-            bdet_DayOfWeek::BDET_TUE,
-            bdet_DayOfWeek::BDET_WED,
-            bdet_DayOfWeek::BDET_THU,
-            bdet_DayOfWeek::BDET_FRI,
-            bdet_DayOfWeek::BDET_SAT,
-        };
-
-        for (int i = 0; i <= 0x7F; ++i) {
-            bdec_DayOfWeekSet set;
-
-            // Generating the weekend days set
-
-            for (int d = 0; d < 7; ++d) {
-                if (i & (1 << d)) {
-                    set.add(DAYS[d]);
-                }
-            }
-
-            for (int j = 0; j <= 0x7F; ++j) {
-                Obj mX(&testAllocator); const Obj& X = mX;
-
-                // Set up the current weekend days before adding new weekend
-                // days
-
-                for (int d = 0; d < 7; ++d) {
-                    if (j & (1 << d)) {
-                        mX.addWeekendDay(DAYS[d]);
-                    }
-                }
-
-                mX.addWeekendDays(set);
-
-                // Verify the weekend days are properly added.
-
-                int ij = i | j;
-                for (int d = 0; d < 7; ++d) {
-                    LOOP3_ASSERT(i, j, d, X.isWeekendDay(DAYS[d]) ==
-                                             ((ij & (1 << d)) ? true : false));
-                }
-
-                mX.addDay(bdet_Date(2004, 1,  1));
-                mX.addDay(bdet_Date(2004, 1, 31));
-                for (int d = 1; d <= 31; ++d) {
-                    bdet_Date date(2004, 1, d);
-
-                    // Verify the result of 'isWeekendDay(bdet_Date&)' using
-                    // 'isWeekendDay(bdet_DayOfWeek::Day)'.
-
-                    LOOP3_ASSERT(i, j, d,
-                     X.isWeekendDay(date) == X.isWeekendDay(date.dayOfWeek()));
-                }
-            }
-        }
-      }
-
-DEFINE_TEST_CASE(16) {
-        // --------------------------------------------------------------------
         // TESTING 'setValidRange':
         //
         // Concerns:
@@ -2933,14 +2689,40 @@ DEFINE_TEST_CASE(16) {
             bdet_DayOfWeek::BDET_WED,
             bdet_DayOfWeek::BDET_SAT,
         };
-        const int NUM_WEEKENDDAYS = sizeof WEEKENDDAYS / sizeof *WEEKENDDAYS;
-        bdec_DayOfWeekSet weekendSet;
-        for(int i = 0; i < NUM_WEEKENDDAYS; ++i) {
-            weekendSet.add(WEEKENDDAYS[i]);
+
+        bsl::set<Obj::WeekendDaysTransition, WeekendDaysTransitionLess>
+                                                        weekendDaysTransitions;
+        {
+            bdet_Date date(1, 1, 1);
+            bdec_DayOfWeekSet weekendDays;
+            weekendDays.add(bdet_DayOfWeek::BDET_SUN);
+            weekendDaysTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+
+            date.setYearMonthDay(1000, 1, 1);
+            weekendDays.removeAll();
+            weekendDays.add(bdet_DayOfWeek::BDET_SAT);
+            weekendDays.add(bdet_DayOfWeek::BDET_MON);
+            weekendDaysTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
+
+            date.setYearMonthDay(2000, 1, 1);
+            weekendDays.removeAll();
+            weekendDays.add(bdet_DayOfWeek::BDET_WED);
+            weekendDays.add(bdet_DayOfWeek::BDET_THU);
+            weekendDaysTransitions.insert(Obj::WeekendDaysTransition(
+                                                           date, weekendDays));
         }
 
         Obj mX(&testAllocator); const Obj& X = mX;
-        mX.addWeekendDays(weekendSet);
+
+        for (bsl::set<Obj::WeekendDaysTransition,
+                 WeekendDaysTransitionLess>::const_iterator itr =
+                                                weekendDaysTransitions.begin();
+             itr != weekendDaysTransitions.end();
+             ++itr) {
+            mX.addWeekendDaysTransition(itr->first, itr->second);
+        }
 
         for (int i = 0; i <= NUM_RANGES; ++i) {
             // Vary the end date to expand/shrink the range.
@@ -3000,7 +2782,15 @@ DEFINE_TEST_CASE(16) {
                                                                  X.lastDate());
                 }
 
-                LOOP2_ASSERT(startDateIndex, j, X.weekendDays() == weekendSet);
+                // LOOP2_ASSERT(startDateIndex, j, X.weekendDays() == weekendSet);
+                // Verify that weekend-days transitions have not been modified
+                LOOP2_ASSERT(weekendDaysTransitions.size(),
+                             X.numWeekendDaysTransitions(),
+                             weekendDaysTransitions.size() ==
+                                                X.numWeekendDaysTransitions());
+                ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
+                                  X.endWeekendDaysTransition(),
+                                  weekendDaysTransitions.begin()));
 
                 // Verify at least all the expected holidays are present.
 
@@ -3051,7 +2841,7 @@ DEFINE_TEST_CASE(16) {
         }
       }
 
-DEFINE_TEST_CASE(15) {
+DEFINE_TEST_CASE(16) {
         // --------------------------------------------------------------------
         // TESTING BUSINESS DAY ITERATORS
         //
@@ -3191,6 +2981,11 @@ DEFINE_TEST_CASE(15) {
                     {L_,    "au@2005/1/1 30 0 17 30",  20050103, 20050128},
                     {L_,    "au@2005/4/1 29 26 27 28", 20050401, 20050426},
                     {L_,    "fau@2005/6/3 7 3 4 5 6",         0,        0},
+                    {L_,    "au@2005/8/1 30 0m 30w",   20050802, 20050830},
+                    {L_,    "au@2005/8/1 30 0mt 29tw", 20050803, 20050828},
+                    {L_,    "m@2005/8/1 30 1t 29tw",   20050803, 20050829},
+                    {L_,    "@2005/8/1 10 0mtwrfau",          0,        0},
+
                 };
                 const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3445,6 +3240,11 @@ DEFINE_TEST_CASE(15) {
 
                     "mtwfau@1997/7/1 60 5 6A 19B 20 21 34 35C 36 37D 40 58E",
                         // a calendar with only one week day in a week
+
+                    // some calendars with more than one weekend-days
+                    // transition
+                    "mu@2005/1/1 30 2t 15wr 30fa",
+                    "au@2005/1/1 20 2wt 5f 9u",
                 0};
 
                 for (int i = 0; SPECS[i]; ++i) {
@@ -3643,102 +3443,300 @@ DEFINE_TEST_CASE(15) {
         }
       }
 
-DEFINE_TEST_CASE(14) {
+DEFINE_TEST_CASE(15) {
         // --------------------------------------------------------------------
-        // TESTING 'numBusinessDays', 'numNonBusinessDays',
-        //         'isBusinessDay', and 'isNonBusinessDay':
+        // TESTING  'isWeekendDay(bdet_Date&)', 'isBusinessDay',
+        //          'isNonBusinessDay', 'numWeekendDaysInRange',
+        //          'numBusinessDays', and 'numNonBusinessDays'
         //
         // Concerns:
-        //  1. 'numBusinessDays' and 'numNonBusinessDays' correctly reports the
-        //     number of business/non-business days in the calendar.
-        //  2. 'isBusinessDay' and 'isNonBusinessDay' correctly identifies
-        //     business/non-business days in the calendar.
+        //: 1 'isWeekendDay' properly identifies weekend days.
+        //:
+        //: 2 'isBusinessDay' properly identifies business days.
+        //:
+        //: 3 'isNonBusinessDay' properly identifies non-business days.
+        //:
+        //: 4 'numWeekendDaysInRange' returns the total number of weekend days
+        //:   in the entire range of the calendar.
+        //:
+        //: 5 'numBusinessDays' returns the total number of business days in
+        //:   the entire range of the calendar.
+        //:
+        //: 6 'numNonBusinessDays' returns the total number of non-business
+        //:   days in the entire range of the calendar.
         //
         // Plan:
-        //  To address concerns 1 and 2, we add from 0 to 7 weekend days and
-        //  from 0 to 31 holidays to the calendar.  While adding the holidays,
-        //  we invoke 'isBusinessDay' and 'isNonBusinessDay' on all 31 days to
-        //  make sure they return the expected results.  Then we calculate the
-        //  number of non-weekend holidays and weekend days and use these two
-        //  values to verify the results of 'numBusinessDays' and
-        //  'numNonBusinessDays'.
-        //
-        // Tactics:
-        //      - Ad-Hoc Data Selection Method
-        //      - Loop-Based Implementation Technique
+        //: 1 Using a table-driven approach, specify a list of weekend-days
+        //:   transitions each comprising a transition date and a (varied and
+        //:   substantially different) set of weekend days in ascending
+        //:   transition date order.
+        //:
+        //: 2 For each row in the table described in P-1:
+        //:
+        //:   1 Create a calendar having a range that encompases all the
+        //:     transition dates in the table.  Using the
+        //:     'addWeekendDaysTransition' method, add all transitions
+        //:     represented from the first row in the table up to the current
+        //:     row.
+        //:
+        //:   2 Call 'isWeekendDay', 'isBusinessDay', and 'isNonBusinessDay'
+        //:     for each date in the calendar and verify the correct values are
+        //:     returned.  (C-1..3)
+        //:
+        //:   3 Verify that 'numWeekendDaysInRange', 'numBusinessDays', and
+        //:     'numNonBusinessDays' returns the correct values for the
+        //:     calendar.  (C-4..6)
+        //:
+        //:   4 Add a hard coded list of holiday dates to the calendar.
+        //:
+        //:   5 Repeat P-2 and P-3.  (C-1..6)
+        //:
+        //:   6 Iterate using a 'BusinessDayConstIterator' object from
+        //:     'beginBusinessDays()' up to 'endBusinessDays()' and ensure that
+        //:     both the holiday dates and weekend days are properly skipped by
+        //:     the iterator.
         //
         // Testing:
-        //      int numBusinessDays() const
-        //      int numNonBusinessDays() const
-        //      bool isBusinessDay(const bdet_Date& date) const
-        //      bool isNonBusinessDay(const bdet_Date& date) const
+        //    int isWeekendDay(bdet_Date&) const
+        //    int numBusinessDays() const
+        //    int numNonBusinessDays() const
+        //    bool isBusinessDay(const bdet_Date& date) const
+        //    bool isNonBusinessDay(const bdet_Date& date) const
+        //    bool isWeekendDay(const bdet_Date& date) const
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
-
         if (verbose) cout << endl
-                          << "Testing 'numBusinessDays', 'numNonBusinessDays'"
-                          << endl
-                          << "        'isBusinessDay', and 'isNonBusinessDay'"
-                          << endl
-                          << "==============================================="
-                          << endl;
+            << "TESTING  'isWeekendDay(bdet_Date&)', 'isBusinessDay'," << endl
+            << "         'isNonBusinessDay', 'numWeekendDaysInRange'," << endl
+            << "         'numBusinessDays', and 'numNonBusinessDays'," << endl;
 
-        static const bdet_DayOfWeek::Day DAYS[] = {
-            bdet_DayOfWeek::BDET_SUN,
-            bdet_DayOfWeek::BDET_MON,
-            bdet_DayOfWeek::BDET_TUE,
-            bdet_DayOfWeek::BDET_WED,
-            bdet_DayOfWeek::BDET_THU,
-            bdet_DayOfWeek::BDET_FRI,
-            bdet_DayOfWeek::BDET_SAT,
+
+        static const struct {
+            int d_line;
+            int d_year;
+            int d_month;
+            int d_day;
+            const char *d_weekendDays;
+        } DATA[] = {
+            //LINE  YYYY  MM  DD   SMTWTFS
+            //----  ----  --  --   -------
+            // default transition at 1/1/1 (not included in the calendar range)
+            { L_,      1,  1,  1, "1000001" },
+
+            { L_,   2000,  1,  1, "0000000" },
+            { L_,   2000,  1, 10, "0000001" },
+            { L_,   2000,  2, 10, "0000010" },
+            { L_,   2000,  3, 10, "0000100" },
+            { L_,   2000,  4, 10, "0001000" },
+            { L_,   2000,  5, 10, "0010000" },
+            { L_,   2000,  6, 10, "0100000" },
+            { L_,   2000,  7, 10, "1000000" },
+            { L_,   2000,  8, 10, "1000001" },
+            { L_,   2000,  9, 10, "1100000" },
+            { L_,   2000, 10, 10, "0110000" },
+            { L_,   2000, 11, 10, "0011000" },
+            { L_,   2001,  1, 10, "0001100" },
+            { L_,   2001,  2, 10, "0000110" },
+            { L_,   2001,  3, 10, "0000011" },
+            { L_,   2001,  4, 10, "1111111" },
         };
 
-        for (int numWEDay = 0; numWEDay <= 7; ++numWEDay) {
-            Obj mX(&testAllocator); const Obj& X = mX;
-            mX.addDay(bdet_Date(2004, 1,  1));
-            mX.addDay(bdet_Date(2004, 1, 31));
-            int len = X.length();
+        const int NUM_DATA = sizeof DATA/sizeof *DATA;
 
-            for (int i = 0; i < numWEDay; ++i) {
-                mX.addWeekendDay(DAYS[i]);
-            }
+        const bdet_Date FIRST_DATE(bdet_Date(DATA[1].d_year,
+                                             DATA[1].d_month,
+                                             DATA[1].d_day) - 20);
+        const bdet_Date LAST_DATE(
+                                bdet_Date(DATA[NUM_DATA - 1].d_year,
+                                          DATA[NUM_DATA - 1].d_month,
+                                          DATA[NUM_DATA - 1].d_day + 10) + 20);
 
-            LOOP_ASSERT(numWEDay, X.numWeekendDaysInWeek() == numWEDay);
+        bslma_TestAllocator oa("oa", veryVeryVerbose);
 
-            int weekendDayCount = X.numWeekendDaysInRange();
-            int holidayCount = 0;
-            for (int lastHoliday = 0; lastHoliday <= 31; ++lastHoliday) {
-                if (lastHoliday) {
-                    bdet_Date holiday(2004, 1, lastHoliday);
-                    mX.addHoliday(holiday);
-                    if (mX.isWeekendDay(holiday.dayOfWeek()) == false) {
-                        ++holidayCount;
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+
+            Obj mX(FIRST_DATE, LAST_DATE, &oa); const Obj& X = mX;
+
+            typedef bsl::vector<bsl::pair<bdet_Date, bdec_DayOfWeekSet> >
+                                                              TransitionVector;
+            TransitionVector transitions;
+
+            for (int tj = 0; tj <= ti; ++tj)
+            {
+                bdet_Date date(DATA[tj].d_year,
+                               DATA[tj].d_month,
+                               DATA[tj].d_day);
+                bdec_DayOfWeekSet weekendDays;
+                int wdIndex = 1;
+                for(const char *wkStr = DATA[tj].d_weekendDays;
+                    *wkStr; ++wkStr, ++wdIndex) {
+                    if (*wkStr == '1') {
+                        if (veryVeryVerbose) {
+                            P(wdIndex)
+                        }
+                        weekendDays.add(
+                                    static_cast<bdet_DayOfWeek::Day>(wdIndex));
                     }
                 }
 
-                LOOP2_ASSERT(numWEDay, lastHoliday, mX.numNonBusinessDays() ==
-                                               holidayCount + weekendDayCount);
-                LOOP2_ASSERT(numWEDay, lastHoliday, mX.numBusinessDays() ==
-                                         len - holidayCount - weekendDayCount);
+                if (veryVerbose) {
+                    P_(date) P(weekendDays)
+                }
+                mX.addWeekendDaysTransition(date, weekendDays);
+                transitions.push_back(bsl::make_pair(date, weekendDays));
+            }
 
-                // Verify the result of 'isNonBusinessDay' and 'isBusinessDay'
-                // by checking each day of the month.
+            // verify methods
+            {
+                int curTransI = 0;
+                int numWeekendDays = 0;
+                for (bdet_Date date = FIRST_DATE; date <= LAST_DATE; ++date) {
+                    if (curTransI < transitions.size() - 1 &&
+                        date >= transitions[curTransI + 1].first) {
+                        ++curTransI;
+                    }
+                    bool isWeekend =
+                        transitions[curTransI].second.isMember(
+                                                             date.dayOfWeek());
 
-                for (int i = 1; i <= 31; ++i) {
-                    bdet_Date date(2004, 1, i);
-                    bool businessDayFlag =   !mX.isWeekendDay(date.dayOfWeek())
-                                          && i > lastHoliday;
-                    LOOP3_ASSERT(numWEDay, lastHoliday, i,
-                                mX.isNonBusinessDay(date) == !businessDayFlag);
-                    LOOP3_ASSERT(numWEDay, lastHoliday, i,
-                                   mX.isBusinessDay(date) ==  businessDayFlag);
+                    if (isWeekend) {
+                        ++numWeekendDays;
+                    }
+
+                    LOOP2_ASSERT(isWeekend,
+                                 date,
+                                 isWeekend == X.isWeekendDay(date));
+                    LOOP2_ASSERT(isWeekend,
+                                 date,
+                                 isWeekend == X.isNonBusinessDay(date));
+                    LOOP2_ASSERT(isWeekend,
+                                 date,
+                                 isWeekend != X.isBusinessDay(date));
+                }
+
+                LOOP_ASSERT(numWeekendDays,
+                            numWeekendDays == X.numWeekendDaysInRange());
+                LOOP_ASSERT(numWeekendDays,
+                            numWeekendDays == X.numNonBusinessDays());
+
+                LOOP_ASSERT(numWeekendDays,
+                            X.length() - numWeekendDays ==
+                                                          X.numBusinessDays());
+            }
+
+            bsl::vector<bdet_Date> holidays(&oa);
+            holidays.push_back(bdet_Date(2000, 1,17));
+            holidays.push_back(bdet_Date(2000, 2,21));
+            holidays.push_back(bdet_Date(2000, 2,22));
+            holidays.push_back(bdet_Date(2000, 4,21));
+            holidays.push_back(bdet_Date(2000, 5,14));
+            holidays.push_back(bdet_Date(2000, 7, 4));
+            holidays.push_back(bdet_Date(2000, 9, 4));
+            holidays.push_back(bdet_Date(2000,11,23));
+            holidays.push_back(bdet_Date(2000,12,25));
+
+            for (bsl::vector<bdet_Date>::const_iterator itr = holidays.begin();
+                 itr != holidays.end();
+                 ++itr) {
+                mX.addHoliday(*itr);
+            }
+
+            // verify methods
+            {
+                int curTransI = 0;
+                int numWeekendDays = 0;
+                int numNonBusinessDays = 0;
+                for (bdet_Date date = FIRST_DATE; date <= LAST_DATE; ++date) {
+                    if (curTransI < transitions.size() - 1 &&
+                        date >= transitions[curTransI + 1].first) {
+                        ++curTransI;
+                    }
+                    bool isWeekend =
+                        transitions[curTransI].second.isMember(
+                                                             date.dayOfWeek());
+
+                    bool isHoliday = 0 < std::count(holidays.begin(),
+                                                    holidays.end(),
+                                                    date);
+                    bool isNonBusinessDay = isWeekend || isHoliday;
+
+                    if (isWeekend) {
+                        ++numWeekendDays;
+                    }
+                    if (isNonBusinessDay) {
+                        ++numNonBusinessDays;
+                    }
+
+                    LOOP2_ASSERT(isWeekend,
+                                 date,
+                                 isWeekend == X.isWeekendDay(date));
+                    LOOP2_ASSERT(isWeekend,
+                                 date,
+                                 isNonBusinessDay == X.isNonBusinessDay(date));
+                    LOOP2_ASSERT(isWeekend,
+                                 date,
+                                 isNonBusinessDay != X.isBusinessDay(date));
+                }
+
+                LOOP2_ASSERT(numWeekendDays, numNonBusinessDays,
+                             numWeekendDays != numNonBusinessDays);
+                LOOP_ASSERT(numWeekendDays,
+                            numWeekendDays == X.numWeekendDaysInRange());
+                LOOP_ASSERT(numNonBusinessDays,
+                            numNonBusinessDays == X.numNonBusinessDays());
+
+                LOOP_ASSERT(numWeekendDays,
+                            X.length() - numNonBusinessDays ==
+                                                          X.numBusinessDays());
+            }
+
+            // verify business day iterator skips holidays and weekend days
+            {
+                Obj::BusinessDayConstIterator itr = X.beginBusinessDays();
+                bdet_Date prevDate = X.firstDate();
+
+                while (itr != X.endBusinessDays()) {
+
+                    bdet_Date curDate = *itr;
+                    if ((prevDate + 1) != curDate) {
+                        // ensure that the skipped days are weekend days or
+                        // holidays
+                        for (bdet_Date d = prevDate + 1; d < curDate; ++d) {
+                            LOOP_ASSERT(d,
+                                        X.isWeekendDay(d) ||
+                                        0 < std::count(holidays.begin(),
+                                                       holidays.end(),
+                                                       d));
+                        }
+                    }
+
+                    // ensure that current date is not a weekend day or a
+                    // holiday
+                    LOOP_ASSERT(curDate,
+                                !(X.isWeekendDay(curDate) ||
+                                  0 < std::count(holidays.begin(),
+                                                 holidays.end(),
+                                                 curDate)));
+
+                    prevDate = curDate;
+                    ++itr;
+                }
+
+                if (prevDate != LAST_DATE) {
+                // ensure that the skipped days are weekend days or holidays
+                    for (bdet_Date d = prevDate + 1; d <= LAST_DATE; ++d) {
+                        LOOP_ASSERT(d,
+                                    X.isWeekendDay(d) ||
+                                    0 < std::count(holidays.begin(),
+                                                   holidays.end(),
+                                                   d));
+                    }
                 }
             }
         }
-      }
+}
 
-DEFINE_TEST_CASE(13) {
+DEFINE_TEST_CASE(14) {
         // --------------------------------------------------------------------
         // TESTING 'numHolidays' and 'numHolidayCodes':
         //
@@ -3790,7 +3788,7 @@ DEFINE_TEST_CASE(13) {
         }
       }
 
-DEFINE_TEST_CASE(12) {
+DEFINE_TEST_CASE(13) {
         // --------------------------------------------------------------------
         // TESTING 'numWeekendDaysInWeek' and 'numWeekendDaysInRange':
         //
@@ -3894,6 +3892,145 @@ DEFINE_TEST_CASE(12) {
             }
         }
       }
+
+DEFINE_TEST_CASE(12) {
+        // --------------------------------------------------------------------
+        // TESTING 'addWeekendDays' and 'addWeekendDay':
+        //
+        // Concerns:
+        //  1. 'addWeekendDays' properly adds the weekend days in the
+        //     'bdec_DayOfWeekSet' to the calendar object.  If the calendar
+        //     object already had weekend days before, it should now have the
+        //     union of its original weekend days and the new weekend days
+        //     after this method is invoked.
+        //
+        //  2. 'isWeekendDay(bdet_Date&)' properly identifies weekend days.
+        //
+        //  3.  Assert precondition violation are detected when enabled.
+        //
+        //  4. 'addWeekendDays' and 'addWeekendDay' logically adds to the
+        //     default weekend-days transition at 1/1/1.
+        //
+        // Plan:
+        //  To address concern 1 and 4, we use the first 7 bits of two integers
+        //  to represent all possible combinations of the weekend days that
+        //  exist in the calendar and the weekend days that are being added,
+        //  respectively.  For each of the 128x128 cases, we generate the
+        //  weekend days set, add it to the calendar object, and verify the
+        //  resulting weekend days are the combined set of old and new weekend
+        //  days and the weekend days been added is in the first weekend-days
+        //  transition.
+        //
+        //  To address concern 2, we use the tested
+        //  'isWeekendDay(bdet_DayOfWeek::Day)' method to verify the results of
+        //  'isWeekendDay(bdet_Date&)' by invoking both methods on all the days
+        //  of an arbitrarily-selected month and compare their results.
+        //
+        //  To address concern 3, we use the 'BSLS_ASSERTTEST_*' macros to
+        //  verify defensive checks are triggered when an attempt is made to
+        //  call 'addWeekendDays' when a weekend-days transition at a start
+        //  date that is not 1/1/1 have already been added to this calendar.
+        //
+        // Tactics:
+        //      - Ad-Hoc/Enumeration Data Selection Methods
+        //      - Loop-Based Implementation Technique
+        //
+        // Testing:
+        //      void addWeekendDays(const bdec_DayOfWeekSet& weekendDays)
+        //      bool isWeekendDay(const bdet_Date& date) const
+        // --------------------------------------------------------------------
+
+        bslma_TestAllocator testAllocator(veryVeryVerbose);
+
+        if (verbose) cout << endl
+                          << "Testing 'addWeekendDays' and"       << endl
+                          << "        'isWeekendDay(bdet_Date&)'" << endl
+                          << "==================================" << endl;
+
+        static const bdet_DayOfWeek::Day DAYS[] = {
+            bdet_DayOfWeek::BDET_SUN,
+            bdet_DayOfWeek::BDET_MON,
+            bdet_DayOfWeek::BDET_TUE,
+            bdet_DayOfWeek::BDET_WED,
+            bdet_DayOfWeek::BDET_THU,
+            bdet_DayOfWeek::BDET_FRI,
+            bdet_DayOfWeek::BDET_SAT,
+        };
+
+        for (int i = 0; i <= 0x7F; ++i) {
+            bdec_DayOfWeekSet set;
+
+            // Generating the weekend days set
+
+            for (int d = 0; d < 7; ++d) {
+                if (i & (1 << d)) {
+                    set.add(DAYS[d]);
+                }
+            }
+
+            for (int j = 0; j <= 0x7F; ++j) {
+                Obj mX(&testAllocator); const Obj& X = mX;
+
+                // Set up the current weekend days before adding new weekend
+                // days
+
+                ASSERT(X.numWeekendDaysTransitions() == 1);
+                ASSERT(X.beginWeekendDaysTransition()->first ==
+                                                           bdet_Date(1, 1, 1));
+                ASSERT(X.beginWeekendDaysTransition()->second.length() == 0);
+
+                bdec_DayOfWeekSet compareSet(set);
+
+                for (int d = 0; d < 7; ++d) {
+                    if (j & (1 << d)) {
+                        mX.addWeekendDay(DAYS[d]);
+                        compareSet.add(DAYS[d]);
+                    }
+                }
+
+                mX.addWeekendDays(set);
+
+                // Verify that the first transition at 1/1/1 has been modified
+                ASSERT(X.numWeekendDaysTransitions() == 1);
+                ASSERT(X.beginWeekendDaysTransition()->first ==
+                                                           bdet_Date(1, 1, 1));
+                ASSERT(X.beginWeekendDaysTransition()->second == compareSet);
+
+
+                // Verify the weekend days are properly added.
+
+                int ij = i | j;
+                for (int d = 0; d < 7; ++d) {
+                    LOOP3_ASSERT(i, j, d, X.isWeekendDay(DAYS[d]) ==
+                                             ((ij & (1 << d)) ? true : false));
+                }
+
+                mX.addDay(bdet_Date(2004, 1,  1));
+                mX.addDay(bdet_Date(2004, 1, 31));
+                for (int d = 1; d <= 31; ++d) {
+                    bdet_Date date(2004, 1, d);
+
+                    // Verify the result of 'isWeekendDay(bdet_Date&)' using
+                    // 'isWeekendDay(bdet_DayOfWeek::Day)'.
+
+                    LOOP3_ASSERT(i, j, d,
+                     X.isWeekendDay(date) == X.isWeekendDay(date.dayOfWeek()));
+                }
+            }
+        }
+        {
+            bslma_TestAllocator oa("oa", veryVeryVerbose);
+            Obj Y(bdet_Date(2012, 1, 1), bdet_Date(2012, 12, 31), &oa);
+            bdec_DayOfWeekSet weekendDays;
+            weekendDays.add(bdet_DayOfWeek::BDET_SUN);
+            Y.addWeekendDaysTransition(bdet_Date(2012, 1, 1),
+                                       weekendDays);
+
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            ASSERT_SAFE_FAIL(Y.addWeekendDay(bdet_DayOfWeek::BDET_SUN));
+        }
+      }
+
 
 DEFINE_TEST_CASE(11) {
         // --------------------------------------------------------------------
@@ -4091,7 +4228,26 @@ DEFINE_TEST_CASE(11) {
       }
 
 
-    */
+namespace {
+
+bool testCase10VerifyInvalidDataTest(const Obj Xs[], const Obj YYs[],
+                                     const int LODs[],
+                                     const int NUM_DATA,
+                                     const Obj& XX, const int i)
+{
+    for (int di = 0; di < NUM_DATA; ++di) {
+        if (i < LODs[di]) {
+            if (Xs[di] != XX) return false;
+        }
+        else {
+            if (Xs[di] != YYs[di]) return false;
+        }
+    }
+    return true;
+}
+
+}  // close unnamed namespace
+
 DEFINE_TEST_CASE(10) {
         // --------------------------------------------------------------------
         // TESTING STREAMING FUNCTIONALITY:
@@ -4114,9 +4270,10 @@ DEFINE_TEST_CASE(10) {
         //
         //
         // Plan:
-        //  To address concern 1, perform a trivial direct (breathing) test of
-        //  the 'bdexStreamOut' and 'bdexStreamIn' methods.  Note that the rest
-        //  of the testing will use the stream operators.
+        //  To address concern 1 and 4, perform a trivial direct (breathing)
+        //  test of the 'bdexStreamOut' and 'bdexStreamIn' methods for both
+        //  version streaming format version.  Note that the rest of the
+        //  testing will use the stream operators.
         //
         //  To address concerns 2 and 4, for a set of possible calendar values
         //  with and without weekend-days transitions, verify that bdex
@@ -4132,9 +4289,10 @@ DEFINE_TEST_CASE(10) {
         //  functionality.  When an exception occurred, the exception handler
         //  verifies that the destination object is unchanged.
         //
-        //  To address concern 3, specify a set S of unique object values with
-        //  substantial and varied differences, ordered by increasing
-        //  complexity.
+        //  To address concern 3 and 4, specify a set S of unique object values
+        //  with substantial and varied differences (with some only fully
+        //  representable with version 2 of the streaming format), ordered by
+        //  increasing complexity.
         //
         //  VALID STREAMS (and exceptions)
         //    Using all combinations of (u, v) in S X S, stream-out the value
@@ -4358,148 +4516,93 @@ DEFINE_TEST_CASE(10) {
         if (verbose) cout <<
             "\tOn incomplete (but otherwise valid) data." << endl;
         {
-            static const struct {
-                int         d_line;         // source line number
 
-                int         d_version;      // mimum supported version of the
-                                            // streaming format
+            for (int version = 1; version <= VERSION; ++version) {
+                static const struct {
+                    int         d_line;         // source line number
 
-                const char *d_spec;         // spec to generate the calendar
-            } DATA[] = {
-                //LINE  VER  SPEC
-                //----  ---  ----
-                { L_,     1, "@2005/12/1 60 4A 9BC 60DE"    },
-                { L_,     1, "u@1949/10/1 30 0ABCDE"        },
-                { L_,     1, "m@1/1/1"                      },
-                { L_,     2, "@2000/1/1 100 0u 50au 200fau" },
-            };
+                    int         d_version;      // mimum supported version of
+                                                // the streaming format
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            Obj YYs[NUM_DATA];
-            int LODs[NUM_DATA];
+                    const char *d_spec;         // spec to generate the
+                                                // calendar
+                } DATA[] = {
+                    //LINE  VER  SPEC
+                    //----  ---  ----
+                    { L_,     1, "@2005/12/1 60 4A 9BC 60DE"    },
+                    { L_,     1, "u@1949/10/1 30 0ABCDE"        },
+                    { L_,     1, "m@1/1/1"                      },
+                    { L_,     2, "@2000/1/1 100 0u 50au 200fau" },
+                };
 
-            bdex_TestOutStream out;
-            for (int di = 0; di < NUM_DATA; ++di) {
-                YYs[di] = g(DATA[di].d_spec);
-                if (DATA[di].d_version <= version) {
-                    bdex_OutStreamFunctions::streamOut(out, YYs[i], version);
+                const int NUM_DATA = sizeof DATA / sizeof *DATA;
+                Obj YYs[NUM_DATA];
+                int LODs[NUM_DATA];
+
+                bdex_TestOutStream out;
+                for (int di = 0; di < NUM_DATA; ++di) {
+                    if (DATA[di].d_version > version) {
+                        continue;
+                    }
+
+                    YYs[di] = g(DATA[di].d_spec);
+
+                    bdex_OutStreamFunctions::streamOut(out,
+                                                       YYs[di],
+                                                       version);
                     LODs[di] = out.length();
                 }
-            }
 
-            const char *const OD = out.data();
-            const char *const CONTROL_SPEC = "au@1/1/1 365";
-            const Obj XX = g(CONTROL_SPEC);
+                const char *const OD = out.data();
+                const int LOD = out.length();
+                const char *const CONTROL_SPEC = "au@1/1/1 365";
+                const Obj XX = g(CONTROL_SPEC);
 
-            for (int i = 0; i < LOD; ++i) {
-                bdex_TestInStream testInStream(OD, i);
-                bdex_TestInStream& in = testInStream;
-                in.setSuppressVersionCheck(1);
-                LOOP_ASSERT(i, in);  LOOP_ASSERT(i, !i == in.isEmpty());
 
-                if (veryVerbose) { cout << "\t\t"; P(i); }
+                for (int i = 1; i < LOD; ++i) {
+                    bdex_TestInStream testInStream(OD, i);
+                    bdex_TestInStream& in = testInStream;
+                    in.setSuppressVersionCheck(1);
+                    LOOP_ASSERT(i, in);  LOOP_ASSERT(i, !i == in.isEmpty());
 
-                Obj Xs[NUM_DATA];
-                for (int di = 0; di < NUM_DATA; ++di) {
-                    Xs[i] = g(CONTROL_SPEC);
+
+                    if (veryVerbose) { cout << "\t\t"; P(i); }
+
+                    Obj Xs[NUM_DATA];
+                    BEGIN_EXCEPTION_SAFE_TEST {
+                        in.reset();
+
+                        LOOP_ASSERT(i, in);
+                        LOOP_ASSERT(i, !i == in.isEmpty());
+
+                        for (int di = 0; di < NUM_DATA; ++di) {
+                            Xs[di] = g(CONTROL_SPEC);
+                        }
+
+                        for (int di = 0; di < NUM_DATA; ++di) {
+                            if (DATA[di].d_version > version) {
+                                continue;
+                            }
+
+                            bdex_InStreamFunctions::streamIn(in,
+                                                             Xs[di],
+                                                             version);
+                            if (i < LODs[di]) {
+                                LOOP2_ASSERT(i, di, !in);
+                                LOOP4_ASSERT(i, di, Xs[di], XX, Xs[di] == XX);
+                            }
+                            else {
+                                LOOP2_ASSERT(i, di, in);
+                                LOOP4_ASSERT(i, di, Xs[di], YYs[di],
+                                             Xs[di] == YYs[di]);
+                            }
+                        }
+                    } END_EXCEPTION_SAFE_TEST(
+                        (testCase10VerifyInvalidDataTest(Xs, YYs, LODs,
+                                                         NUM_DATA, XX, i)));
                 }
-
-                BEGIN_EXCEPTION_SAFE_TEST {
-                for (int di = 0; di < NUM_DATA; ++di) {
-
-                    bdex_InStreamFunctions::streamIn(in, Xs[di], VERSION);
-                    if (i < LODs[di]) {
-                        LOOP_ASSERT(i, !in); LOOP_ASSERT(i, Xs[di] == XX);
-                    }
-                    else {
-                        LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, Xs[di] == YY);
-                    }
-                }
-                END_EXCEPTION_SAFE_TEST(   (stage == 0 && (X1 == t1)
-                                                       && (X2 == t2)
-                                                       && (X3 == t3))
-                                        || (stage == 1 && (Y1 == t1)
-                                                       && (X2 == t2)
-                                                       && (X3 == t3))
-                                        || (stage == 2 && (Y1 == t1)
-                                                       && (Y2 == t2)
-                                                       && (X3 == t3)))
-
-
-            const Obj X1 = g("au@1997/7/1 30 0A");
-            const Obj X2 = g("w@2000/1/1 0 0ABCDE");
-            const Obj X3 = g("fau@2004/1/1 365 0 30 60AB");
-            const Obj Y1 = g("@2005/12/1 60 4A 9BC 60DE");
-            const Obj Y2 = g("u@1949/10/1 30 0ABCDE");
-            const Obj Y3 = g("m@1/1/1");
-
-            bdex_TestOutStream out;
-            bdex_OutStreamFunctions::streamOut(out, Y1, VERSION);
-            const int LOD1 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, Y2, VERSION);
-            const int LOD2 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, Y3, VERSION);
-            const int LOD  = out.length();
-            const char *const OD = out.data();
-
-            for (int i = 0; i < LOD; ++i) {
-                bdex_TestInStream testInStream(OD, i);
-                bdex_TestInStream& in = testInStream;
-                in.setSuppressVersionCheck(1);
-                LOOP_ASSERT(i, in);  LOOP_ASSERT(i, !i == in.isEmpty());
-
-                if (veryVerbose) { cout << "\t\t"; P(i); }
-
-                Obj t1(X1), t2(X2), t3(X3);
-                int stage = 0;
-                BEGIN_EXCEPTION_SAFE_TEST {
-                    in.reset();
-                    LOOP_ASSERT(i, in); LOOP_ASSERT(i, !i == in.isEmpty());
-
-                    t1 = X1; t2 = X2; t3 = X3;
-                    stage = 0;
-
-                    if (i < LOD1) {
-                        bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                        LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, X1 == t1);
-                        bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                        LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, X2 == t2);
-                        bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                        LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, X3 == t3);
-                    }
-                    else if (i < LOD2) {
-                        bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                        LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, Y1 == t1);
-                        stage = 1;
-                        bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                        LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, X2 == t2);
-                        bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                        LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, X3 == t3);
-                    }
-                    else {
-                        bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                        LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, Y1 == t1);
-                        stage = 1;
-                        bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                        LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, Y2 == t2);
-                        stage = 2;
-                        bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                        LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, X3 == t3);
-                    }
-                }
-                END_EXCEPTION_SAFE_TEST(   (stage == 0 && (X1 == t1)
-                                                       && (X2 == t2)
-                                                       && (X3 == t3))
-                                        || (stage == 1 && (Y1 == t1)
-                                                       && (X2 == t2)
-                                                       && (X3 == t3))
-                                        || (stage == 2 && (Y1 == t1)
-                                                       && (Y2 == t2)
-                                                       && (X3 == t3)))
             }
         }
-
-        /*
 
         if (verbose) cout << "\tOn corrupted data." << endl;
 
@@ -4509,246 +4612,528 @@ DEFINE_TEST_CASE(10) {
 
         if (verbose) cout << "\t\tGood stream (for control)." << endl;
         {
-            bdex_TestOutStream out;
+            for (int version = 1; version <= VERSION; ++version) {
+                bdex_TestOutStream out;
 
-            Obj z(Y);
-            bdex_OutStreamFunctions::streamOut(out, z, VERSION);
+                Obj z(Y);
+                bdex_OutStreamFunctions::streamOut(out, z, version);
 
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
 
-            Obj t(X);   ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
-            bdex_TestInStream in(OD, LOD); ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION); ASSERT(in);
-            ASSERT(W != t);    ASSERT(X != t);      ASSERT(Y == t);
+                Obj t(X);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+                bdex_TestInStream in(OD, LOD); ASSERT(in);
+                in.setSuppressVersionCheck(1);
+                bdex_InStreamFunctions::streamIn(in, t, version); ASSERT(in);
+                ASSERT(W != t);    ASSERT(X != t);      ASSERT(Y == t);
+            }
         }
+
         if (verbose) cout << "\t\tBad version." << endl;
         {
-            const char version = 0; // too small
-            bdex_TestOutStream out;
+            for (int version = 0; version <= VERSION; ++version) {
+                const char streamInVersion = 0; // too small
+                bdex_TestOutStream out;
 
-            Obj z(Y);
-            bdex_OutStreamFunctions::streamOut(out, z, VERSION);
+                Obj z(Y);
+                bdex_OutStreamFunctions::streamOut(out, z, version);
 
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
 
-            Obj t(X);   ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
-            bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
-            in.setSuppressVersionCheck(1);
-            ASSERT(in);
-            bdex_InStreamFunctions::streamIn(in, t, version); ASSERT(!in);
-            ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+                Obj t(X);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+                bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
+                in.setSuppressVersionCheck(1);
+                ASSERT(in);
+                bdex_InStreamFunctions::streamIn(in, t, streamInVersion);
+                ASSERT(!in);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+            }
         }
+
         {
-            const char version = 3; // too large
-            bdex_TestOutStream out;
+            for (int version = 0; version <= VERSION; ++version) {
+                const char streamInVersion = 3; // too large
+                bdex_TestOutStream out;
 
-            Obj z(Y);
-            bdex_OutStreamFunctions::streamOut(out, z, version);
+                Obj z(Y);
+                bdex_OutStreamFunctions::streamOut(out, z, version);
 
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
 
-            Obj t(X);   ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
-            bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
-            in.setSuppressVersionCheck(1);
-            ASSERT(in);
-            bdex_InStreamFunctions::streamIn(in, t, version); ASSERT(!in);
-            ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+                Obj t(X);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+
+                bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
+                in.setSuppressVersionCheck(1);
+                ASSERT(in);
+                bdex_InStreamFunctions::streamIn(in, t, streamInVersion);
+                ASSERT(!in);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+            }
         }
+
         if (verbose) cout << "\t\tBad offsets length'." << endl;
         {
-            bdex_TestOutStream out;
 
-            // Writing first date, last date, and weekend days into the stream.
+            for (int version = 1; version <= VERSION; ++version) {
+                bdex_TestOutStream out;
 
-            bdet_Date tempFirstDate(2005, 1,  1);
-            bdet_Date tempLastDate (2005, 1, 31);
-            bdec_DayOfWeekSet days;
-            days.add(bdet_DayOfWeek::BDET_SUN);
-            tempFirstDate.bdexStreamOut(out, VERSION);
-            tempLastDate.bdexStreamOut(out, VERSION);
-            days.bdexStreamOut(out, VERSION);
+                // Writing first date, last date, and weekend days into the
+                // stream.
 
-            // Writing offsets length and codes length into the stream.
+                bdet_Date tempFirstDate(2005, 1,  1);
+                bdet_Date tempLastDate (2005, 1, 31);
 
-            int OffsetsLength = 5;
-            int codesLength   = 0;
+                tempFirstDate.bdexStreamOut(out, 1);
+                tempLastDate.bdexStreamOut(out, 1);
 
-            out.putLength(OffsetsLength);
-            out.putLength(codesLength);
-
-            // Writing less offsets into the stream than 'OffsetsLength'.
-
-            for (int i = 0; i < OffsetsLength - 1; ++i) {
-                out.putInt32(i);
-            }
-
-            // Writing holiday code indices into the stream.
-
-            for (int i = 0; i < OffsetsLength - 1; ++i) {
-                out.putInt32(0);
-            }
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);   ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
-            bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
-            in.setSuppressVersionCheck(1);
-            ASSERT(in);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION); ASSERT(!in);
-            ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
-        }
-        if (verbose) cout << "\t\tBad offset values." << endl;
-        {
-            bdex_TestOutStream out;
-
-            // Writing first date, last date, and weekend days into the stream.
-
-            bdet_Date tempFirstDate(2005, 1,  1);
-            bdet_Date tempLastDate (2005, 1, 31);
-            bdec_DayOfWeekSet days;
-            days.add(bdet_DayOfWeek::BDET_SUN);
-            tempFirstDate.bdexStreamOut(out, VERSION);
-            tempLastDate.bdexStreamOut(out, VERSION);
-            days.bdexStreamOut(out, VERSION);
-
-            // Writing offsets length and codes length into the stream.
-
-            int OffsetsLength = 5;
-            int codesLength   = 0;
-
-            out.putLength(OffsetsLength);
-            out.putLength(codesLength);
-
-            // Writing offsets into the stream.  Note that we purposely
-            // "corrupt" the second to the last offset to make it greater than
-            // the last offset.
-
-            for (int i = 0; i < OffsetsLength; ++i) {
-                if (i == OffsetsLength - 2) {
-                    out.putInt32(i * 10);
+                if (version == 1) {
+                    bdec_DayOfWeekSet days;
+                    days.add(bdet_DayOfWeek::BDET_SUN);
+                    days.bdexStreamOut(out, 1);
                 }
-                else {
+                else if (version == 2) {
+                    int weekendDaysTransitionsLength = 0;
+                    out.putLength(weekendDaysTransitionsLength);
+                }
+
+                // Writing offsets length and codes length into the stream.
+
+                int OffsetsLength = 5;
+                int codesLength   = 0;
+
+                out.putLength(OffsetsLength);
+                out.putLength(codesLength);
+
+                // Writing less offsets into the stream than 'OffsetsLength'.
+
+                for (int i = 0; i < OffsetsLength - 1; ++i) {
                     out.putInt32(i);
                 }
+
+                // Writing holiday code indices into the stream.
+
+                for (int i = 0; i < OffsetsLength - 1; ++i) {
+                    out.putInt32(0);
+                }
+
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
+
+                Obj t(X);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+
+                bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
+                in.setSuppressVersionCheck(1);
+                ASSERT(in);
+                bdex_InStreamFunctions::streamIn(in, t, version); ASSERT(!in);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
             }
-
-            // Writing holiday code indices into the stream.
-
-            for (int i = 0; i < OffsetsLength; ++i) {
-                out.putInt32(0);
-            }
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);   ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
-            bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
-            in.setSuppressVersionCheck(1);
-            ASSERT(in);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION); ASSERT(!in);
-            ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
         }
+
+
+        if (verbose) cout << "\t\tBad offset values." << endl;
+        {
+
+            for (int version = 1; version <= VERSION; ++version) {
+                bdex_TestOutStream out;
+
+                // Writing first date, last date, and weekend days into the
+                // stream.
+
+                bdet_Date tempFirstDate(2005, 1,  1);
+                bdet_Date tempLastDate (2005, 1, 31);
+
+                tempFirstDate.bdexStreamOut(out, 1);
+                tempLastDate.bdexStreamOut(out, 1);
+
+                if (version == 1) {
+                    bdec_DayOfWeekSet days;
+                    days.add(bdet_DayOfWeek::BDET_SUN);
+                    days.bdexStreamOut(out, 1);
+                }
+                else if (version == 2) {
+                    int weekendDaysTransitionsLength = 0;
+                    out.putLength(weekendDaysTransitionsLength);
+                }
+
+                // Writing offsets length and codes length into the stream.
+
+                int OffsetsLength = 5;
+                int codesLength   = 0;
+
+                out.putLength(OffsetsLength);
+                out.putLength(codesLength);
+
+                // Writing offsets into the stream.  Note that we purposely
+                // "corrupt" the second to the last offset to make it greater
+                // than the last offset.
+
+                for (int i = 0; i < OffsetsLength; ++i) {
+                    if (i == OffsetsLength - 2) {
+                        out.putInt32(i * 10);
+                    }
+                    else {
+                        out.putInt32(i);
+                    }
+                }
+
+                // Writing holiday code indices into the stream.
+
+                for (int i = 0; i < OffsetsLength; ++i) {
+                    out.putInt32(0);
+                }
+
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
+
+                Obj t(X);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+
+                bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
+                in.setSuppressVersionCheck(1);
+                ASSERT(in);
+                bdex_InStreamFunctions::streamIn(in, t, version); ASSERT(!in);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+            }
+        }
+
         if (verbose) cout << "\t\tOffsets and code indices mismatch." << endl;
         {
-            bdex_TestOutStream out;
 
-            // Writing first date, last date, and weekend days into the stream.
+            for (int version = 1; version <= VERSION; ++version) {
+                bdex_TestOutStream out;
 
-            bdet_Date tempFirstDate(2005, 1,  1);
-            bdet_Date tempLastDate (2005, 1, 31);
-            bdec_DayOfWeekSet days;
-            days.add(bdet_DayOfWeek::BDET_SUN);
-            tempFirstDate.bdexStreamOut(out, VERSION);
-            tempLastDate.bdexStreamOut(out, VERSION);
-            days.bdexStreamOut(out, VERSION);
+                // Writing first date, last date, and weekend days into the
+                // stream.
 
-            // Writing offsets length and codes length into the stream.
+                bdet_Date tempFirstDate(2005, 1,  1);
+                bdet_Date tempLastDate (2005, 1, 31);
 
-            int OffsetsLength = 5;
-            int codesLength   = 0;
+                tempFirstDate.bdexStreamOut(out, 1);
+                tempLastDate.bdexStreamOut(out, 1);
 
-            out.putLength(OffsetsLength);
-            out.putLength(codesLength);
+                if (version == 1) {
+                    bdec_DayOfWeekSet days;
+                    days.add(bdet_DayOfWeek::BDET_SUN);
+                    days.bdexStreamOut(out, 1);
+                }
+                else if (version == 2) {
+                    int weekendDaysTransitionsLength = 0;
+                    out.putLength(weekendDaysTransitionsLength);
+                }
 
-            // Writing offsets into the stream.
+                // Writing offsets length and codes length into the stream.
 
-            for (int i = 0; i < OffsetsLength; ++i) {
-                out.putInt32(i);
+                int OffsetsLength = 5;
+                int codesLength   = 0;
+
+                out.putLength(OffsetsLength);
+                out.putLength(codesLength);
+
+                // Writing offsets into the stream.
+
+                for (int i = 0; i < OffsetsLength; ++i) {
+                    out.putInt32(i);
+                }
+
+                // Writing less holiday code indices into the stream.
+
+                for (int i = 0; i < OffsetsLength - 1; ++i) {
+                    out.putInt32(0);
+                }
+
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
+
+                Obj t(X);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+
+                bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
+                in.setSuppressVersionCheck(1);
+                ASSERT(in);
+                bdex_InStreamFunctions::streamIn(in, t, version); ASSERT(!in);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
             }
-
-            // Writing less holiday code indices into the stream.
-
-            for (int i = 0; i < OffsetsLength - 1; ++i) {
-                out.putInt32(0);
-            }
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);   ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
-            bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
-            in.setSuppressVersionCheck(1);
-            ASSERT(in);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION); ASSERT(!in);
-            ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
         }
+
         if (verbose) cout << "\t\tBad holiday code length." << endl;
         {
-            bdex_TestOutStream out;
 
-            // Writing first date, last date, and weekend days into the stream.
+            for (int version = 1; version <= VERSION; ++version) {
+                bdex_TestOutStream out;
 
-            bdet_Date tempFirstDate(2005, 1,  1);
-            bdet_Date tempLastDate (2005, 1, 31);
-            bdec_DayOfWeekSet days;
-            days.add(bdet_DayOfWeek::BDET_SUN);
-            tempFirstDate.bdexStreamOut(out, VERSION);
-            tempLastDate.bdexStreamOut(out, VERSION);
-            days.bdexStreamOut(out, VERSION);
+                // Writing first date, last date, and weekend days into the
+                // stream.
 
-            // Writing offsets length and codes length into the stream.
+                bdet_Date tempFirstDate(2005, 1,  1);
+                bdet_Date tempLastDate (2005, 1, 31);
 
-            int OffsetsLength = 5;
-            int codesLength   = 3;
+                tempFirstDate.bdexStreamOut(out, 1);
+                tempLastDate.bdexStreamOut(out, 1);
 
-            out.putLength(OffsetsLength);
-            out.putLength(codesLength);
+                if (version == 1) {
+                    bdec_DayOfWeekSet days;
+                    days.add(bdet_DayOfWeek::BDET_SUN);
+                    days.bdexStreamOut(out, 1);
+                }
+                else if (version == 2) {
+                    int weekendDaysTransitionsLength = 0;
+                    out.putLength(weekendDaysTransitionsLength);
+                }
 
-            // Writing offsets length into the stream.
+                // Writing offsets length and codes length into the stream.
 
-            for (int i = 0; i < OffsetsLength; ++i) {
-                out.putInt32(i);
+                int OffsetsLength = 5;
+                int codesLength   = 3;
+
+                out.putLength(OffsetsLength);
+                out.putLength(codesLength);
+
+                // Writing offsets length into the stream.
+
+                for (int i = 0; i < OffsetsLength; ++i) {
+                    out.putInt32(i);
+                }
+
+                // Writing holiday code indices into the stream.  Note that the
+                // last code index is greater than 'codesLength'.
+
+                for (int i = 0; i < OffsetsLength; ++i) {
+                    out.putInt32(i);
+                }
+
+                // Writing holiday codes into the stream.
+
+                for (int i = 0; i < codesLength; ++i) {
+                    out.putInt32(1);
+                }
+
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
+
+                Obj t(X);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+
+                bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
+                in.setSuppressVersionCheck(1);
+                ASSERT(in);
+                bdex_InStreamFunctions::streamIn(in, t, version); ASSERT(!in);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
             }
-
-            // Writing holiday code indices into the stream.  Note that the
-            // last code index is greater than 'codesLength'.
-
-            for (int i = 0; i < OffsetsLength; ++i) {
-                out.putInt32(i);
-            }
-
-            // Writing holiday codes into the stream.
-
-            for (int i = 0; i < codesLength; ++i) {
-                out.putInt32(1);
-            }
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);   ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
-            bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
-            in.setSuppressVersionCheck(1);
-            ASSERT(in);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION); ASSERT(!in);
-            ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
         }
-        */
+
+        if (verbose) cout << "\t\tBad weekend-days transitions length." << endl;
+        {
+            // only version 2 of the streaming format supports weekend-days
+            // transitions
+            for (int version = 2; version <= VERSION; ++version) {
+                bdex_TestOutStream out;
+
+                // Writing first date, last date, and weekend days into the
+                // stream.
+
+                bdet_Date tempFirstDate(2005, 1,  1);
+                bdet_Date tempLastDate (2005, 1, 31);
+
+                tempFirstDate.bdexStreamOut(out, 1);
+                tempLastDate.bdexStreamOut(out, 1);
+
+                int weekendDaysTransitionsLength = 1;
+                out.putLength(weekendDaysTransitionsLength);
+
+                // Writing offsets length and codes length into the stream.
+
+                int OffsetsLength = 5;
+                int codesLength   = 0;
+
+                out.putLength(OffsetsLength);
+                out.putLength(codesLength);
+
+
+                // Write more weekend-days transitions than the specified
+                // length
+                {
+                    bdet_Date date(1, 1, 1);
+                    date.bdexStreamOut(out, 1);
+                    bdec_DayOfWeekSet days;
+                    days.add(bdet_DayOfWeek::BDET_SUN);
+                    days.bdexStreamOut(out, 1);
+                }
+                {
+                    bdet_Date date(1, 1, 2);
+                    date.bdexStreamOut(out, 1);
+                    bdec_DayOfWeekSet days;
+                    days.add(bdet_DayOfWeek::BDET_MON);
+                    days.bdexStreamOut(out, 1);
+                }
+
+                // Writing offsets into the stream.
+
+                for (int i = 0; i < OffsetsLength; ++i) {
+                    out.putInt32(i);
+                }
+
+                for (int i = 0; i < OffsetsLength; ++i) {
+                    out.putInt32(0);
+                }
+
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
+
+                Obj t(X);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+
+                bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
+                in.setSuppressVersionCheck(1);
+                ASSERT(in);
+                bdex_InStreamFunctions::streamIn(in, t, version); ASSERT(!in);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+            }
+        }
+        if (verbose) cout << "\t\tInvalid weekend-days transition order."
+                          << endl;
+        {
+            // only version 2 of the streaming format supports weekend-days
+            // transitions
+            for (int version = 2; version <= VERSION; ++version) {
+                bdex_TestOutStream out;
+
+                // Writing first date, last date, and weekend days into the
+                // stream.
+
+                bdet_Date tempFirstDate(2005, 1,  1);
+                bdet_Date tempLastDate (2005, 1, 31);
+
+                tempFirstDate.bdexStreamOut(out, 1);
+                tempLastDate.bdexStreamOut(out, 1);
+
+                int weekendDaysTransitionsLength = 3;
+                out.putLength(weekendDaysTransitionsLength);
+
+                // Writing offsets length and codes length into the stream.
+
+                int OffsetsLength = 5;
+                int codesLength   = 0;
+
+                out.putLength(OffsetsLength);
+                out.putLength(codesLength);
+
+
+                // Write more weekend-days transitions in some random
+                // (non-ascending) time order
+                {
+                    bdet_Date date(1, 1, 1);
+                    date.bdexStreamOut(out, 1);
+                    bdec_DayOfWeekSet days;
+                    days.add(bdet_DayOfWeek::BDET_MON);
+                    days.bdexStreamOut(out, 1);
+                }
+                {
+                    bdet_Date date(1, 1, 10);
+                    date.bdexStreamOut(out, 1);
+                    bdec_DayOfWeekSet days;
+                    days.add(bdet_DayOfWeek::BDET_SUN);
+                    days.bdexStreamOut(out, 1);
+                }
+                {
+                    bdet_Date date(1, 1, 2);
+                    date.bdexStreamOut(out, 1);
+                    bdec_DayOfWeekSet days;
+                    days.add(bdet_DayOfWeek::BDET_SUN);
+                    days.bdexStreamOut(out, 1);
+                }
+
+                // Writing offsets into the stream.
+
+                for (int i = 0; i < OffsetsLength; ++i) {
+                    out.putInt32(i);
+                }
+
+                for (int i = 0; i < OffsetsLength; ++i) {
+                    out.putInt32(0);
+                }
+
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
+
+                Obj t(X);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+
+                bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
+                in.setSuppressVersionCheck(1);
+                ASSERT(in);
+                bdex_InStreamFunctions::streamIn(in, t, version); ASSERT(!in);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+            }
+        }
+        if (verbose)
+            cout << "\t\tFirst weekend-days transition not at 1/1/1."
+                 << endl;
+        {
+            // only version 2 of the streaming format supports weekend-days
+            // transitions
+            for (int version = 2; version <= VERSION; ++version) {
+                bdex_TestOutStream out;
+
+                // Writing first date, last date, and weekend days into the
+                // stream.
+
+                bdet_Date tempFirstDate(2005, 1,  1);
+                bdet_Date tempLastDate (2005, 1, 31);
+
+                tempFirstDate.bdexStreamOut(out, 1);
+                tempLastDate.bdexStreamOut(out, 1);
+
+                int weekendDaysTransitionsLength = 1;
+                out.putLength(weekendDaysTransitionsLength);
+
+                // Writing offsets length and codes length into the stream.
+
+                int OffsetsLength = 5;
+                int codesLength   = 0;
+
+                out.putLength(OffsetsLength);
+                out.putLength(codesLength);
+
+
+                // Write more weekend-days transitions in some random
+                // (non-ascending) time order
+                {
+                    bdet_Date date(1, 1, 2);
+                    date.bdexStreamOut(out, 1);
+                    bdec_DayOfWeekSet days;
+                    days.add(bdet_DayOfWeek::BDET_MON);
+                    days.bdexStreamOut(out, 1);
+                }
+
+                // Writing offsets into the stream.
+
+                for (int i = 0; i < OffsetsLength; ++i) {
+                    out.putInt32(i);
+                }
+
+                for (int i = 0; i < OffsetsLength; ++i) {
+                    out.putInt32(0);
+                }
+
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
+
+                Obj t(X);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+
+                bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
+                in.setSuppressVersionCheck(1);
+                ASSERT(in);
+                bdex_InStreamFunctions::streamIn(in, t, version); ASSERT(!in);
+                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
+            }
+        }
       }
 
 DEFINE_TEST_CASE(9) {
@@ -7189,7 +7574,7 @@ DEFINE_TEST_CASE(2) {
         //      a. produces the expected value (empty)
         //      b. leaves the object in a consistent state
         //
-        //  6. That 'addWeekendDaysTransitions'
+        //  6. That 'addWeekendDaysTransition'
         //      a. properly adds a weekend-days transition
         //      b. properly handles duplicates
         //
@@ -8726,7 +9111,7 @@ int main(int argc, char *argv[])
 #define CASE(NUMBER)                                                          \
   case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
         /*
-        CASE(24);
+        */
         CASE(23);
         CASE(22);
         CASE(21);
@@ -8740,7 +9125,6 @@ int main(int argc, char *argv[])
         CASE(13);
         CASE(12);
         CASE(11);
-        */
         CASE(10);
         CASE(9);
         CASE(8);

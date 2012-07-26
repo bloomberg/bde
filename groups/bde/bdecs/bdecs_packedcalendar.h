@@ -557,8 +557,6 @@ class bdecs_PackedCalendar {
                                             // or (0001,01,01) if this calendar
                                             // is empty
 
-    bdec_DayOfWeekSet d_weekendDays;        // representation of weekend days
-
     bsl::vector<int>  d_holidayOffsets;     // ordered list of all holidays
                                             // in this calendar stored as
                                             // offsets from 'd_firstDate'
@@ -582,7 +580,8 @@ class bdecs_PackedCalendar {
     bslma_Allocator  *d_allocator_p;        // memory allocator (held, not
                                             // owned)
 
-    mutable bsl::vector<WeekendDaysTransition>
+    bdec_DayOfWeekSet d_weekendDays;
+    bsl::vector<WeekendDaysTransition>
                       d_weekendDaysTransitions;
                                             // chronological list of weekend
                                             // days transitions
@@ -2565,17 +2564,28 @@ STREAM& bdecs_PackedCalendar::bdexStreamIn(STREAM& stream, int version)
 
 
             bdet_Date previousTransitionDate;
+            bool firstTransitionDate = true;
             for (WeekendDaysTransitionSequence::iterator it =
                      inCal.d_weekendDaysTransitions.begin();
-                 it < inCal.d_weekendDaysTransitions.end();
+                 it != inCal.d_weekendDaysTransitions.end();
                  ++it) {
                 it->first.bdexStreamIn(stream, 1);
-                if (!stream || (
-                        it->first <= previousTransitionDate &&
-                        it->first != bdet_Date(1, 1, 1))) {
+                if (!stream) {
+                    return stream;
+                }
+
+                if (firstTransitionDate) {
+                    if (it->first != bdet_Date(1, 1, 1)) {
+                        stream.invalidate();
+                        return stream;
+                    }
+                    firstTransitionDate = false;
+                }
+                else if (it->first <= previousTransitionDate) {
                     stream.invalidate();
                     return stream;
                 }
+                previousTransitionDate = it->first;
 
                 it->second.bdexStreamIn(stream, 1);
                 if (!stream) {
@@ -2779,14 +2789,6 @@ inline
 bdecs_PackedCalendar::WeekendDaysTransitionConstIterator
 bdecs_PackedCalendar::beginWeekendDaysTransition() const
 {
-    // if (d_weekendDaysTransitions.empty())
-    // {
-    //     WeekendDaysTransition newTransition((bdet_Date(1,1,1)),
-    //                                         bdec_DayOfWeekSet());
-    //     d_weekendDaysTransitions.push_back(newTransition);
-    // }
-
-    // return d_weekendDaysTransitions.begin();
     return bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator(*this,
                                                                     false);
 }
@@ -2795,14 +2797,6 @@ inline
 bdecs_PackedCalendar::WeekendDaysTransitionConstIterator
 bdecs_PackedCalendar::endWeekendDaysTransition() const
 {
-    // if (d_weekendDaysTransitions.empty())
-    // {
-    //     WeekendDaysTransition newTransition((bdet_Date(1,1,1)),
-    //                                         bdec_DayOfWeekSet());
-    //     d_weekendDaysTransitions.push_back(newTransition);
-    // }
-
-    // return d_weekendDaysTransitions.end();
     return bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator(*this,
                                                                     true);
 }
@@ -2812,9 +2806,8 @@ int bdecs_PackedCalendar::numWeekendDaysTransitions() const
 {
     if (d_weekendDaysTransitions.empty())
     {
-        WeekendDaysTransition newTransition((bdet_Date(1,1,1)),
-                                            bdec_DayOfWeekSet());
-        d_weekendDaysTransitions.push_back(newTransition);
+        // implicit transition at 1/1/1
+        return 1;
     }
 
     return d_weekendDaysTransitions.size();
