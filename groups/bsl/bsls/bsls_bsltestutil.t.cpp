@@ -26,50 +26,51 @@ using namespace BloombergLP;
 //
 // The macros provided by the component under test mirror the standard test
 // macros normally used in test drivers.  The intention is that the standard
-// test macros should be implemented as aliases of the BSLS_BSLTESTUTIL_*
+// test macros should be implemented as aliases of the 'BSLS_BSLTESTUTIL_*'
 // macros, as illustrated in the usage example.  As a result, the identifiers
 // normally used in a test driver conflict with the identifiers used in the
 // usage example.  Therefore, this test driver avoids the standard test macros
 // (and support functions), and uses the following instead:
 //
-// STANDARD            BSLS_BSLTESTUTIL.T.CPP
-// --------            ----------------------
-// LOOP_ASSERT         ANNOTATED_ASSERT
-// LOOP2_ASSERT        ANNOTATED2_ASSERT
-// LOOP3_ASSERT        not used
-// LOOP4_ASSERT        ANNOTATED4_ASSERT
-// LOOP5_ASSERT        not used
-// LOOP6_ASSERT        not used
-// Q                   not used
-// P                   not used
-// P_                  not used
-// T_                  not used
-// L_                  not used
-// void aSsErT()       void realaSsErT()
-// int testStatus      int realTestStatus
+// STANDARD              BSLS_BSLTESTUTIL.T.CPP
+// --------              ----------------------
+// 'LOOP_ASSERT'         'ANNOTATED_ASSERT'
+// 'LOOP2_ASSERT'        'ANNOTATED2_ASSERT'
+// 'LOOP3_ASSERT'        'ANNOTATED3_ASSERT'
+// 'LOOP4_ASSERT'        'ANNOTATED4_ASSERT'
+// 'LOOP5_ASSERT'        not used
+// 'LOOP6_ASSERT'        not used
+// 'Q'                   not used
+// 'P'                   'PRINT'
+// 'P_'                  'PRINT_'
+// 'T_'                  'TAB_'
+// 'L_'                  not used
+// 'void aSsErT()'       'void realaSsErT()'
+// 'int testStatus'      'int realTestStatus'
 //
-// Note that the ANNOTATED*_ASSERT macros are only rough equivalents of the
-// standard LOOP*_ASSERT macros.  Because std::cout is not available in this
-// test driver, there is no way to automatically format values based on type,
-// at least not without re-implementing the component under test in the test
-// driver.  Therefore the ANNOTATED*_ASSERT macros take as arguments pairs of
-// identifiers and printf-style format strings.  This is the reason why they
-// have been given completely different names from the standard macros.
+// Note that the 'ANNOTATED*_ASSERT' macros are only rough equivalents of the
+// standard 'LOOP*_ASSERT' macros.  Because 'std::cout' is not available in
+// this test driver, there is no way to automatically format values based on
+// type, at least not without re-implementing the component under test in the
+// test driver.  Therefore the 'ANNOTATED*_ASSERT' macros take as arguments
+// pairs of identifiers and 'printf'-style format strings.  This is the reason
+// why they have been given completely different names from the standard
+// macros.
 //
 // The main difficulty with writing the test driver is capturing the output of
 // the methods under test so that it can be checked for accuracy.  In addition,
 // error messages and other output produced by the test driver itself must
-// still appear on stdout for compatibility with the standard build and testing
-// scripts.  For this purpose, a support class name 'OutputRedirector' is
-// provided.  'OutputRedirector' will redirect stdout to a temporary file and
-// check the contents of the temporary file to character buffers provided by
-// the user.
+// still appear on 'stdout' for compatibility with the standard build and
+// testing scripts.  For this purpose, a support class name 'OutputRedirector'
+// is provided.  'OutputRedirector' will redirect 'stdout' to a temporary file
+// and check the contents of the temporary file to character buffers provided
+// by the user.
 //
 // Global Concerns:
-//: o The test driver can reliably capture stdout and play back captured
+//: o The test driver can reliably capture 'stdout' and play back captured
 //:   output.
 //: o The test driver's own output is written to the calling environment's
-//:   stdout.
+//:   'stdout'.
 //
 //-----------------------------------------------------------------------------
 // [ 8] BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
@@ -120,8 +121,8 @@ using namespace BloombergLP;
 // 'realTestStatus' and 'realaSsErT' instead.
 //
 // Additionally, in order to allow capturing the output of the
-// BSLS_BSLTESTUTIL_* macros, the standard macros output to stderr instead of
-// stdout.
+// 'BSLS_BSLTESTUTIL_*' macros, the standard macros output to 'stderr' instead
+// of 'stdout'.
 
 static int realTestStatus = 0;
 
@@ -133,62 +134,72 @@ static void realaSsErT(int c, const char *s, int i)
     }
 }
 
-// The standard ASSERT macro definition is deferred until after the usage
+// The standard 'ASSERT' macro definition is deferred until after the usage
 // example code
 // #define ASSERT(X) { realaSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//               VARIATIONS ON STANDARD BDE LOOP-ASSERT TEST MACROS
+//               VARIATIONS ON STANDARD BDE LOOP_ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 //
-// The standard BDE LOOP-ASSERT test macros rely on overloads of 'operator<<'
+// The standard BDE 'LOOP_ASSERT' test macros rely on overloads of 'operator<<'
 // ostream to provide a uniform interface for all types.  The purpose of
-// bsls_bsltestutil is precisely to provide a similar overloading mechanism for
-// printf-based output.  In order to use the standard macros in this test
+// 'bsls_bsltestutil' is precisely to provide a similar overloading mechanism
+// for 'printf'-based output.  In order to use the standard macros in this test
 // driver, we would have to define a test appartus of equivalent complexity to
 // the class we are testing.  Therefore, instead of the standard test macros we
-// define a limited number of type-specific macros in their place.
-
-#define SHOW_DATA(OUT, I, IF) do {                                            \
-        ErrorReporter::showData(OUT,(IF),#I,(I));                             \
-    } while(0)
-
-#define SHOW_DATA2(OUT, I, IF, J, JF) do {                                    \
-        ErrorReporter::showData(OUT,(IF),(JF),#I,#J,(I),(J));                 \
-    } while (0)
+// define alternate macros that take pairs of variables and 'printf'-style
+// format strings instead of just variables alone.  For convenience, all of the
+// macros are defined in terms of a free function named 'printDatum' that
+// prints a single variable's identifier and value separated by a user-supplied
+// string.
 
 #define ANNOTATED_ASSERT(I,IF,X) do {                                         \
-        if (!(X)) { ErrorReporter::showData(stderr, (IF),#I,(I));             \
+        if (!(X)) { printDatum(stderr, #I,": ",(IF),"\n",(I));      \
                     realaSsErT(1, #X, __LINE__);}                             \
     } while (0)
 
 #define ANNOTATED2_ASSERT(I,IF,J,JF,X) do {                                   \
-        if (!(X)) { ErrorReporter::showData(stderr, (IF),(JF),#I,#J,(I),(J)); \
+        if (!(X)) { printDatum(stderr, #I,": ",(IF),"\t",(I));      \
+                    printDatum(stderr, #J,": ",(JF),"\n",(J));      \
                     realaSsErT(1, #X, __LINE__); }                            \
     } while (0)
 
 #define ANNOTATED3_ASSERT(I,IF,J,JF,K,KF,X) do {                              \
-        if (!(X)) { ErrorReporter::showData(stderr, (IF),(JF),(KF),#I,#J,#K,  \
-                                            (I),(J),(K));                     \
+        if (!(X)) { printDatum(stderr, #I,": ",(IF),"\t",(I));      \
+                    printDatum(stderr, #J,": ",(JF),"\t",(J));      \
+                    printDatum(stderr, #K,": ",(KF),"\n",(K));      \
                     realaSsErT(1, #X, __LINE__); }                            \
     } while (0)
 
 #define ANNOTATED4_ASSERT(I,IF,J,JF,K,KF,L,LF,X) do {                         \
-        if (!(X)) { ErrorReporter::showData(stderr, (IF),(JF),(KF),(LF),      \
-                                            #I,#J,#K,#L,                      \
-                                            (I),(J),(K),(L));                 \
+        if (!(X)) { printDatum(stderr, #I,": ",(IF),"\t",(I));      \
+                    printDatum(stderr, #J,": ",(JF),"\t",(J));      \
+                    printDatum(stderr, #K,": ",(KF),"\t",(K));      \
+                    printDatum(stderr, #L,": ",(LF),"\n",(L));      \
                     realaSsErT(1, #X, __LINE__); }                            \
     } while (0)
+
+#define PRINT(X,XF) do {                                                      \
+        printDatum(stderr,#X," = ",(XF),"\n",(X));                  \
+    } while(0)
+
+#define PRINT_(X,XF) do {                                                     \
+        printDatum(stderr,#X," = ",(XF),", ",(X));                  \
+    } while(0)
+
+#define TAB_ do {                                                             \
+        fprintf(stderr, "\t");                                                \
+    } while(0)
 
 //=============================================================================
 //                             USAGE EXAMPLE CODE
 //-----------------------------------------------------------------------------
 //
-// Usage example code assumes that BSLS_BSLTESTUTIL_* macros have been renamed
-// to replace the standard test macros.  In order to simplify the rest of the
-// test driver, the standard macros are redefined after 'main', and the usage
-// example case just calls a funtion, 'executeUsageExample', which is defined
-// at the very end of the file.
+// Usage example code assumes that 'BSLS_BSLTESTUTIL_*' macros have been
+// renamed to replace the standard test macros.  In order to simplify the rest
+// of the test driver, the standard macros are redefined after 'main', and the
+// usage example case just calls a funtion, 'executeUsageExample'.
 //
 ///Example 1: Writing a test driver
 /// - - - - - - - - - - - - - - - -
@@ -226,8 +237,8 @@ static void realaSsErT(int c, const char *s, int i)
 
     # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //..
-// Next, we define the standard print and LOOP_ASSERT macros, as aliases to the
-// macros defined by this component:
+// Next, we define the standard print and 'LOOP_ASSERT' macros, as aliases to
+// the macros defined by this component:
 //..
     //=========================================================================
     //                       STANDARD BDE TEST DRIVER MACROS
@@ -241,7 +252,7 @@ static void realaSsErT(int c, const char *s, int i)
 
     #define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
     #define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-    #define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+    #define P_  BSLS_BSLTESTUTIL_P_  // 'P(X)' without '\n'.
     #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
     #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 //..
@@ -282,194 +293,11 @@ static void realaSsErT(int c, const char *s, int i)
 #define ASSERT(X) { realaSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                      GLOBAL HELPER FUNCTIONS FOR TESTING
+//                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                       GLOBAL HELPER CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
-
-// STATIC DATA
-static int verbose, veryVerbose, veryVeryVerbose;
-
-enum { FORMAT_STRING_SIZE = 256 };
-static char tempFormatString[FORMAT_STRING_SIZE];
-
-struct ErrorReporter {
-    template <typename ITYPE>
-    static int showData(FILE        *outStream,
-                        const char  *formatI,
-                        const char  *identifierI,
-                        const ITYPE  valueI);
-
-    template <typename ITYPE, typename JTYPE>
-    static int showData(FILE        *outStream,
-                        const char  *formatI,
-                        const char  *formatJ,
-                        const char  *identifierI,
-                        const char  *identifierJ,
-                        const ITYPE  valueI,
-                        const JTYPE  valueJ);
-
-    template <typename ITYPE, typename JTYPE, typename KTYPE>
-    static int showData(FILE        *outStream,
-                        const char  *formatI,
-                        const char  *formatJ,
-                        const char  *formatK,
-                        const char  *identifierI,
-                        const char  *identifierJ,
-                        const char  *identifierK,
-                        const ITYPE  valueI,
-                        const JTYPE  valueJ,
-                        const KTYPE  valueK);
-
-    template <typename ITYPE, typename JTYPE, typename KTYPE, typename LTYPE>
-    static int showData(FILE        *outStream,
-                        const char  *formatI,
-                        const char  *formatJ,
-                        const char  *formatK,
-                        const char  *formatL,
-                        const char  *identifierI,
-                        const char  *identifierJ,
-                        const char  *identifierK,
-                        const char  *identifierL,
-                        const ITYPE  valueI,
-                        const JTYPE  valueJ,
-                        const KTYPE  valueK,
-                        const LTYPE  valueL);
-
-    static int showWarning(FILE       *outStream,
-                           const int   lineNum,
-                           const char *message);
-
-    static int showError(FILE       *outStream,
-                         const int   lineNum,
-                         const char *message);
-};
-
-template <typename ITYPE>
-int ErrorReporter::showData(FILE        *outStream,
-                            const char  *formatI,
-                            const char  *identifierI,
-                            const ITYPE  valueI)
-{
-    int charsWritten = snprintf(tempFormatString,
-                                FORMAT_STRING_SIZE,
-                                "%%s: %s\n",
-                                formatI);
-    ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
-    return fprintf(outStream,
-                   tempFormatString,
-                   identifierI,
-                   valueI);
-}
-
-template <typename ITYPE, typename JTYPE>
-int ErrorReporter::showData(FILE         *outStream,
-                             const char  *formatI,
-                             const char  *formatJ,
-                             const char  *identifierI,
-                             const char  *identifierJ,
-                             const ITYPE  valueI,
-                             const JTYPE  valueJ)
-{
-    int charsWritten = snprintf(tempFormatString,
-                                FORMAT_STRING_SIZE,
-                                "%%s: %s\t%%s: %s\n",
-                                formatI,
-                                formatJ);
-    ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
-    return fprintf(outStream,
-                   tempFormatString,
-                   identifierI,
-                   valueI,
-                   identifierJ,
-                   valueJ);
-}
-
-template <typename ITYPE, typename JTYPE, typename KTYPE>
-int ErrorReporter::showData(FILE         *outStream,
-                             const char  *formatI,
-                             const char  *formatJ,
-                             const char  *formatK,
-                             const char  *identifierI,
-                             const char  *identifierJ,
-                             const char  *identifierK,
-                             const ITYPE  valueI,
-                             const JTYPE  valueJ,
-                             const KTYPE  valueK)
-{
-    int charsWritten = snprintf(tempFormatString,
-                                FORMAT_STRING_SIZE,
-                                "%%s: %s\t%%s: %s\t%%s: %s\n",
-                                formatI,
-                                formatJ,
-                                formatK);
-    ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
-    return fprintf(outStream,
-                   tempFormatString,
-                   identifierI,
-                   valueI,
-                   identifierJ,
-                   valueJ,
-                   identifierK,
-                   valueK);
-}
-
-template <typename ITYPE, typename JTYPE, typename KTYPE, typename LTYPE>
-int ErrorReporter::showData(FILE         *outStream,
-                             const char  *formatI,
-                             const char  *formatJ,
-                             const char  *formatK,
-                             const char  *formatL,
-                             const char  *identifierI,
-                             const char  *identifierJ,
-                             const char  *identifierK,
-                             const char  *identifierL,
-                             const ITYPE  valueI,
-                             const JTYPE  valueJ,
-                             const KTYPE  valueK,
-                             const LTYPE  valueL)
-{
-    int charsWritten = snprintf(tempFormatString,
-                                FORMAT_STRING_SIZE,
-                                "%%s: %s\t%%s: %s\t%%s: %s\t%%s: %s\n",
-                                formatI,
-                                formatJ,
-                                formatK,
-                                formatL);
-    ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
-    return fprintf(outStream,
-                   tempFormatString,
-                   identifierI,
-                   valueI,
-                   identifierJ,
-                   valueJ,
-                   identifierK,
-                   valueK,
-                   identifierL,
-                   valueL);
-}
-
-int ErrorReporter::showWarning(FILE       *outStream,
-                               const int   lineNum,
-                               const char *message)
-{
-    return fprintf(outStream,
-                   "Warning " __FILE__ "(%d): %s\n",
-                   lineNum,
-                   message);
-}
-
-int ErrorReporter::showError(FILE       *outStream,
-                             const int   lineNum,
-                             const char *message)
-{
-    return fprintf(outStream,
-                   "Error " __FILE__ "(%d): %s    (failed)\n",
-                   lineNum,
-                   message);
-}
+enum { FORMAT_STRING_SIZE = 256 }; // Size of temporary format string buffers
+                                   // used for output formatting
 
 enum {
     // Enumeration used to store sizes for the buffers used by the output
@@ -486,91 +314,62 @@ enum {
 #endif
 };
 
+// The constants 'PREFIX' and 'SUFFIX' are defined as macros because they are
+// used in the initialization lists for the 'DataRow<>' arrays in test case 3.
+
+#define PREFIX "<"
+    // Standard prefix for use as 's' in 'debugPrint' tests
+#define SUFFIX ">"
+    // Standard suffix for use as 't' in 'debugPrint' tests
+
+// STATIC DATA
+static int verbose, veryVerbose, veryVeryVerbose;
+
+//=============================================================================
+//                      GLOBAL HELPER FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+template <typename ITYPE>
+int printDatum(FILE        *outStream,
+               const char  *identifierI,
+               const char  *connector,
+               const char  *formatI,
+               const char  *suffix,
+               const ITYPE  valueI);
+    // Print the specified 'identifierI' identifier name and specified value
+    // 'valueI' of (parameter template) type 'ITYPE' to the specified
+    // 'outStream', and separated by the specified 'connector' string and
+    // followed by the specified 'suffix' string, using the specified 'formatI'
+    // format string to format 'valueI' according to the rules of 'printf'.
+
+template <typename ITYPE>
+int printDatum(FILE        *outStream,
+               const char  *identifierI,
+               const char  *connector,
+               const char  *formatI,
+               const char  *suffix,
+               const ITYPE  valueI)
+{
+    char tempFormatString[FORMAT_STRING_SIZE];
+
+    int charsWritten = snprintf(tempFormatString,
+                                FORMAT_STRING_SIZE,
+                                "%%s%%s%s%%s",
+                                formatI);
+    ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
+    return fprintf(outStream,
+                   tempFormatString,
+                   identifierI,
+                   connector,
+                   valueI,
+                   suffix);
+}
+
 bool tempFileName(char *result);
     // Store an available temp file name in the user-supplied buffer at the
     // address pointed to by the specified 'result'.  Return 'true' if
     // successful, and 'false' otherwise.  The buffer pointed to by the
     // specified 'result' must be at least 'PATH_BUFFER_SIZE' bytes long.
-
-class OutputRedirector {
-    // This class redirects 'stdout' to a temporary file and provides
-    // facilities for retrieving output from the temporary file and comparing
-    // it to user-supplied character buffers.
-
-  private:
-    // DATA
-    char d_fileName[PATH_BUFFER_SIZE];        // Name of temporary capture file
-
-    char d_outputBuffer[OUTPUT_BUFFER_SIZE];  // Scratch buffer for holding
-                                              // captured output
-
-    bool d_isRedirectedFlag;                  // Has 'stdout' been redirected
-
-    bool d_isFileCreatedFlag;                 // Has a temp file been created
-
-    long d_outputSize;                        // Size of output loaded into
-                                              // 'd_outputBuffer'
-
-    bool d_isOutputReadyFlag;                 // Has output been read from
-                                              // temp file
-
-  private:
-    // NOT IMPLEMENTED
-    OutputRedirector(const OutputRedirector&);
-    OutputRedirector& operator=(const OutputRedirector&);
-
-  public:
-    // CREATORS
-    explicit OutputRedirector();
-        // Create this object.
-
-    ~OutputRedirector();
-        // Destroy this object.
-
-    // MANIPULATORS
-    bool redirect();
-        // Redirect stdout to a temp file, and stderr to the original stdout.
-        // Return 'true' if successful, and 'false' otherwise.
-
-    void reset();
-        // Reset the scratch buffer to empty.
-
-    bool load();
-        // Read captured output into the scratch buffer.  Return 'true' if
-        // there was output to be read and it was successfully loaded, and
-        // 'false' otherwise.
-
-    // ACCESSORS
-    bool isRedirected();
-        // Return 'true' if 'stdout' and 'stderr' have been successfully
-        // redirected, and 'false' otherwise.
-
-    bool isOutputReady();
-        // Return 'true' if captured output been loaded into the scratch
-        // buffer, and 'false' otherwise.
-
-    char *getOutput();
-        // Return the address of the scratch buffer.  This method is only used
-        // for error reporting and to test the correctness of
-        // 'OutputRedirector'.
-
-    int compare(const char *expected, size_t expectedLength);
-        // Compare the character buffer pointed to by the specified pointer
-        // 'expected' with any output that has been loaded into the scratch
-        // buffer.  The length of the 'expected' buffer is supplied in the
-        // specified 'expectedLength'.  Return 0 if the 'expected' buffer has
-        // the same length and contents as the scratch buffer, and non-zero
-        // otherwise.  Note that the 'expected' buffer is allowed to contain
-        // embedded nulls.
-
-    int compare(const char *expected);
-        // Compare the character buffer pointed to by the specified pointer
-        // 'expected' with any output that has been loaded into the scratch
-        // buffer.  The 'expected' buffer is assumed to be a NTBS, and and its
-        // length is taken to be the string length of the NTBS.  Return 0 if
-        // the 'expected' buffer has the same length and contents as the
-        // scratch buffer, and non-zero otherwise.
-};
 
 bool tempFileName(char *result)
 {
@@ -604,6 +403,102 @@ bool tempFileName(char *result)
     return true;
 }
 
+//=============================================================================
+//                       GLOBAL HELPER CLASSES FOR TESTING
+//-----------------------------------------------------------------------------
+
+class OutputRedirector {
+    // This class redirects 'stdout' to a temporary file and provides
+    // facilities for retrieving output from the temporary file and comparing
+    // it to user-supplied character buffers.
+
+  private:
+    // DATA
+    char d_fileName[PATH_BUFFER_SIZE];        // Name of temporary capture file
+
+    char d_outputBuffer[OUTPUT_BUFFER_SIZE];  // Scratch buffer for holding
+                                              // captured output
+
+    bool d_isRedirectedFlag;                  // Has 'stdout' been redirected
+
+    bool d_isFileCreatedFlag;                 // Has a temp file been created
+
+    long d_outputSize;                        // Size of output loaded into
+                                              // 'd_outputBuffer'
+
+    bool d_isOutputReadyFlag;                 // Has output been read from
+                                              // temp file
+
+    struct stat d_originalStdoutStat;         // Status information for
+                                              // 'stdout' just before
+                                              // redirection.
+
+  private:
+    // NOT IMPLEMENTED
+    OutputRedirector(const OutputRedirector&);
+    OutputRedirector& operator=(const OutputRedirector&);
+
+  public:
+    // CREATORS
+    explicit OutputRedirector();
+        // Create this object.
+
+    ~OutputRedirector();
+        // Destroy this object.
+
+    // MANIPULATORS
+    bool redirect();
+        // Redirect 'stdout' to a temp file, and stderr to the original
+        // 'stdout'.  Return 'true' if successful, and 'false' otherwise.
+
+    void reset();
+        // Reset the scratch buffer to empty.
+
+    bool load();
+        // Read captured output into the scratch buffer.  Return 'true' if
+        // there was output to be read and it was successfully loaded, and
+        // 'false' otherwise.
+
+    // ACCESSORS
+    bool isRedirected();
+        // Return 'true' if 'stdout' and 'stderr' have been successfully
+        // redirected, and 'false' otherwise.
+
+    bool isOutputReady();
+        // Return 'true' if captured output been loaded into the scratch
+        // buffer, and 'false' otherwise.
+
+    char *getOutput();
+        // Return the address of the scratch buffer.  This method is only used
+        // for error reporting and to test the correctness of
+        // 'OutputRedirector'.
+
+    size_t outputSize();
+        // Return the number of bytes currently loaded into the scratch buffer.
+
+    int compare(const char *expected, size_t expectedLength);
+        // Compare the character buffer pointed to by the specified pointer
+        // 'expected' with any output that has been loaded into the scratch
+        // buffer.  The length of the 'expected' buffer is supplied in the
+        // specified 'expectedLength'.  Return 0 if the 'expected' buffer has
+        // the same length and contents as the scratch buffer, and non-zero
+        // otherwise.  Note that the 'expected' buffer is allowed to contain
+        // embedded nulls.
+
+    int compare(const char *expected);
+        // Compare the character buffer pointed to by the specified pointer
+        // 'expected' with any output that has been loaded into the scratch
+        // buffer.  The 'expected' buffer is assumed to be a NTBS, and and its
+        // length is taken to be the string length of the NTBS.  Return 0 if
+        // the 'expected' buffer has the same length and contents as the
+        // scratch buffer, and non-zero otherwise.
+
+    const struct stat& originalStdoutStat();
+        // Return a reference to the status information for 'stdout' collected
+        // just before redirection.  This method is only used to test the
+        // correctness of 'OutputRedirector'.
+};
+
 OutputRedirector::OutputRedirector()
     : d_isRedirectedFlag(false)
     , d_isFileCreatedFlag(false)
@@ -611,6 +506,7 @@ OutputRedirector::OutputRedirector()
     , d_isOutputReadyFlag(false)
 {
     d_fileName[0] = '\0';
+    memset(&d_originalStdoutStat, 0, sizeof(struct stat));
 }
 
 OutputRedirector::~OutputRedirector()
@@ -633,77 +529,90 @@ bool OutputRedirector::redirect()
         // Do not redirect anything if we have already redirected.
 
         if (veryVerbose) {
-            ErrorReporter::showWarning(stderr,
-                                       __LINE__,
-                                       "Output already redirected");
+            fprintf(stdout,
+                    "Warning " __FILE__ "(%d): Output already redirected\n",
+                    __LINE__);
         }
         success = true;
-    } else if (! freopen("/dev/stdout", "w", stderr)) {
-
-        // Redirect stderr first.
-
-        // We will not be able to redirect 'stderr' after we have redirected
-        // 'stdout'.
-
-        if (veryVerbose) {
-
-            // Note that we print this error message on 'stdout' instead of
-            // 'stderr', because stdout has not been redirected.
-
-            ErrorReporter::showError(stdout,
-                                     __LINE__,
-                                     "Failed to redirect stderr");
-        }
-    } else if (! tempFileName(d_fileName)) {
-
-        // Get temp file name
-
-        if (veryVerbose) {
-
-            // Note that we print this error message on 'stdout' instead of
-            // 'stderr', because stdout has not been redirected.
-
-            ErrorReporter::showError(stdout,
-                                     __LINE__,
-                            "Failed to get temp file name for stdout capture");
-        }
-    } else if (! freopen(d_fileName, "w+", stdout)) {
-
-        // Redirect 'stdout'
-
-        if (veryVerbose) {
-
-            // Note that we print this error message on 'stderr', because we
-            // have just redirected 'stdout' to the capture file.
-
-            //ErrorReporter::showData(stderr, "%s", "d_fileName", d_fileName);
-            SHOW_DATA(stderr, d_fileName, "%s");
-            ErrorReporter::showError(stderr,
-                                     __LINE__,
-                                     "Failed to redirect stdout");
-        }
     } else {
 
-        // 'stderr' and 'stdout' have been successfully redirected.
+        // Retain information about original 'stdout' file descriptor for
+        // use in later tests.
+        {
+            int originalStdoutFD = fileno(stdout);
+            ASSERT(-1 != originalStdoutFD);
+            ASSERT(0 == fstat(originalStdoutFD, &d_originalStdoutStat));
+        }
 
-        d_isFileCreatedFlag = true;
-        d_isRedirectedFlag = true;
 
-        if (EOF == fflush(stdout)) {
+        if (! freopen("/dev/stdout", "w", stderr)) {
+
+            // Redirect 'stderr' first.
+
+            // We will not be able to redirect 'stderr' after we have
+            // redirected 'stdout'.
+
+            if (veryVerbose) {
+
+                // Note that we print this error message on 'stdout' instead of
+                // 'stderr', because 'stdout' has not been redirected.
+
+                fprintf(stdout,
+                        "Error " __FILE__ "(%d): Failed to redirect stderr\n",
+                        __LINE__);
+            }
+        } else if (! tempFileName(d_fileName)) {
+
+            // Get temp file name
+
+            if (veryVerbose) {
+
+                // Note that we print this error message on 'stdout' instead of
+                // 'stderr', because 'stdout' has not been redirected.
+
+                fprintf(stdout,
+                    "Error "
+                    __FILE__
+                    "(%d): Failed to get temp file name for stdout capture\n",
+                    __LINE__);
+            }
+        } else if (! freopen(d_fileName, "w+", stdout)) {
+
+            // Redirect 'stdout'
+
             if (veryVerbose) {
 
                 // Note that we print this error message on 'stderr', because
                 // we have just redirected 'stdout' to the capture file.
 
-                perror("Error message: ");
-
-                ErrorReporter::showError(stderr,
-                                         __LINE__,
-                                         "Error flushing stdout");
+                PRINT(d_fileName, "%s");
+                fprintf(stderr,
+                        "Error " __FILE__ "(%d): Failed to redirect stdout\n",
+                        __LINE__);
             }
-        }
+        } else {
 
-        success = true;
+            // 'stderr' and 'stdout' have been successfully redirected.
+
+            d_isFileCreatedFlag = true;
+            d_isRedirectedFlag = true;
+
+            if (EOF == fflush(stdout)) {
+                if (veryVerbose) {
+
+                    // Note that we print this error message on 'stderr',
+                    // because we have just redirected 'stdout' to the capture
+                    // file.
+
+                    perror("Error message: ");
+                    fprintf(stderr,
+                            "Error " __FILE__ "(%d): Error flushing stdout\n",
+                            __LINE__);
+                }
+            }
+
+            success = true;
+        }
     }
 
     return success;
@@ -729,10 +638,12 @@ bool OutputRedirector::load()
         // Refuse to load output if it will not all fit in the scratch buffer.
 
         if (veryVerbose) {
-            SHOW_DATA(stderr, d_outputSize, "%ld");
-            ErrorReporter::showError(stderr,
-                                     __LINE__,
-                                   "Captured output exceeds read buffer size");
+            PRINT(d_outputSize, "%ld");
+            fprintf(stderr,
+                    "Error "
+                        __FILE__
+                        "(%d): Captured output exceeds read buffer size\n",
+                    __LINE__);
         }
         d_outputSize = 0L;
         return false;                                                 // RETURN
@@ -747,17 +658,19 @@ bool OutputRedirector::load()
         // We failed to read all output from the capture file.
 
         if (veryVerbose) {
-            SHOW_DATA2(stderr, d_outputSize, "%ld", charsRead, "%ld");
+            PRINT_(d_outputSize, "%ld"); PRINT(charsRead, "%ld");
             if (ferror(stdout)) {
 
-                // We encountered an error.
+                // We encountered a file error, not 'EOF'.
 
                 perror("\tError message: ");
                 clearerr(stdout);
             }
-            ErrorReporter::showError(stderr,
-                                     __LINE__,
-                                     "Could not read all captured output");
+            fprintf(stderr,
+                    "Error "
+                        __FILE__
+                        "(%d): Could not read all captured output\n",
+                    __LINE__);
         }
         return false;                                                 // RETURN
     } else {
@@ -789,6 +702,11 @@ char *OutputRedirector::getOutput()
     return d_outputBuffer;
 }
 
+size_t OutputRedirector::outputSize()
+{
+    return static_cast<size_t>(d_outputSize);
+}
+
 int OutputRedirector::compare(const char *expected)
 {
     return compare(expected, strlen(expected));
@@ -800,10 +718,10 @@ int OutputRedirector::compare(const char *expected, size_t expectedLength)
 
     if (!d_isOutputReadyFlag) {
         if (veryVerbose) {
-            SHOW_DATA(stderr, expected, "'%s'");
-            ErrorReporter::showError(stderr,
-                                     __LINE__,
-                                     "No captured output available");
+            PRINT(expected, "'%s'");
+            fprintf(stderr,
+                    "Error " __FILE__ "(%d): No captured output available\n",
+                    __LINE__);
         }
         return -1;                                                    // RETURN
     }
@@ -813,6 +731,11 @@ int OutputRedirector::compare(const char *expected, size_t expectedLength)
 
     return d_outputSize != static_cast<long>(expectedLength) ||
            memcmp(d_outputBuffer, expected, expectedLength);
+}
+
+const struct stat& OutputRedirector::originalStdoutStat()
+{
+    return d_originalStdoutStat;
 }
 
 template <typename TEST_TYPE>
@@ -832,13 +755,13 @@ struct DataRow {
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
 
-#define PREFIX "<"
-#define SUFFIX ">"
-
 struct TestDriver {
     enum {
-        EXPECTED_OUTPUT_BUFFER_SIZE = 1024,
-        LOOP_ITERATIONS             = 10
+        EXPECTED_OUTPUT_BUFFER_SIZE = 1024, // Size of the buffer used to store
+                                            // captured output
+
+        LOOP_ITERATIONS             = 10    // Number of iterations to use when
+                                            // testing loop assert macros
     };
 
     static char expectedOutput[EXPECTED_OUTPUT_BUFFER_SIZE];
@@ -848,13 +771,13 @@ struct TestDriver {
     template <typename TEST_TYPE>
     static int generateExpectedOutput(const char      *formatString,
                                       const TEST_TYPE  input);
-        // Populate expectedOutput with the result of calling printf with the
-        // specified 'formatString' and 'input'.
+        // Populate 'expectedOutput' with the result of calling 'printf' with
+        // the specified 'formatString' and 'input'.
 
     // TEST CASES
 
     static void testCase8(OutputRedirector *output);
-        // Test BSLS_BSLTESTUTIL_LOOP*_ASSERT macros.
+        // Test 'BSLS_BSLTESTUTIL_LOOP*_ASSERT' macros.
 
     template <typename TEST_TYPE>
     static void testCase3(OutputRedirector         *output,
@@ -864,16 +787,18 @@ struct TestDriver {
         // Test 'debugPrint'.
 };
 
-char TestDriver::expectedOutput[EXPECTED_OUTPUT_BUFFER_SIZE];
-
                                // --------------
                                // TEST APPARATUS
                                // --------------
+
+char TestDriver::expectedOutput[EXPECTED_OUTPUT_BUFFER_SIZE];
 
 template <typename TEST_TYPE>
 int TestDriver::generateExpectedOutput(const char      *formatString,
                                        const TEST_TYPE  input)
 {
+    char tempFormatString[FORMAT_STRING_SIZE];
+
     int charsWritten = snprintf(tempFormatString,
                                 FORMAT_STRING_SIZE,
                                 "%%s%s%%s",
@@ -940,7 +865,7 @@ void TestDriver::testCase8(OutputRedirector *output)
         if (verbose) {
             fprintf(stderr,
                     "\nTESTING BSLS_BSLTESTUTIL_LOOP_ASSERT"
-                    "\n--------------------------\n");
+                    "\n------------------------------------\n");
         }
 
         ASSERT(testStatus == 0);
@@ -948,7 +873,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int I = idx;
 
             if (veryVerbose) {
-                SHOW_DATA(stderr, idx, "%d");
+                PRINT(idx, "%d");
             }
 
             output->reset();
@@ -965,7 +890,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int I = idx;
 
             if (veryVerbose) {
-                SHOW_DATA(stderr, idx, "%d");
+                PRINT(idx, "%d");
             }
 
             output->reset();
@@ -995,7 +920,7 @@ void TestDriver::testCase8(OutputRedirector *output)
         if (verbose) {
             fprintf(stderr,
                     "\nTESTING BSLS_BSLTESTUTIL_LOOP2_ASSERT"
-                    "\n--------------------------\n");
+                    "\n-------------------------------------\n");
         }
 
         ASSERT(testStatus == 0);
@@ -1004,7 +929,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int J = idx + 1;
 
             if (veryVerbose) {
-                SHOW_DATA(stderr, idx, "%d");
+                PRINT(idx, "%d");
             }
 
             output->reset();
@@ -1021,7 +946,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int J = idx + 1;
 
             if (veryVerbose) {
-                SHOW_DATA(stderr, idx, "%d");
+                PRINT(idx, "%d");
             }
 
             output->reset();
@@ -1050,7 +975,7 @@ void TestDriver::testCase8(OutputRedirector *output)
         if (verbose) {
             fprintf(stderr,
                     "\nTESTING BSLS_BSLTESTUTIL_LOOP3_ASSERT"
-                    "\n--------------------------\n");
+                    "\n-------------------------------------\n");
         }
 
         ASSERT(testStatus == 0);
@@ -1060,7 +985,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int K = idx + 2;
 
             if (veryVerbose) {
-                SHOW_DATA(stderr, idx, "%d");
+                PRINT(idx, "%d");
             }
 
             output->reset();
@@ -1078,7 +1003,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int K = idx + 2;
 
             if (veryVerbose) {
-                SHOW_DATA(stderr, idx, "%d");
+                PRINT(idx, "%d");
             }
 
             output->reset();
@@ -1107,7 +1032,7 @@ void TestDriver::testCase8(OutputRedirector *output)
         if (verbose) {
             fprintf(stderr,
                     "\nTESTING BSLS_BSLTESTUTIL_LOOP4_ASSERT"
-                    "\n--------------------------\n");
+                    "\n-------------------------------------\n");
         }
 
         ASSERT(testStatus == 0);
@@ -1118,7 +1043,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int L = idx + 3;
 
             if (veryVerbose) {
-                SHOW_DATA(stderr, idx, "%d");
+                PRINT(idx, "%d");
             }
 
             output->reset();
@@ -1137,7 +1062,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int L = idx + 3;
 
             if (veryVerbose) {
-                SHOW_DATA(stderr, idx, "%d");
+                PRINT(idx, "%d");
             }
 
             output->reset();
@@ -1168,7 +1093,7 @@ void TestDriver::testCase8(OutputRedirector *output)
         if (verbose) {
             fprintf(stderr,
                     "\nTESTING BSLS_BSLTESTUTIL_LOOP5_ASSERT"
-                    "\n--------------------------\n");
+                    "\n-------------------------------------\n");
         }
 
         ASSERT(testStatus == 0);
@@ -1180,7 +1105,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int M = idx + 3;
 
             if (veryVerbose) {
-                SHOW_DATA(stderr, idx, "%d");
+                PRINT(idx, "%d");
             }
 
             output->reset();
@@ -1201,7 +1126,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int M = idx + 3;
 
             if (veryVerbose) {
-                SHOW_DATA(stderr, idx, "%d");
+                PRINT(idx, "%d");
             }
 
             output->reset();
@@ -1233,7 +1158,7 @@ void TestDriver::testCase8(OutputRedirector *output)
         if (verbose) {
             fprintf(stderr,
                     "\nTESTING BSLS_BSLTESTUTIL_LOOP6_ASSERT"
-                    "\n--------------------------\n");
+                    "\n-------------------------------------\n");
         }
 
         ASSERT(testStatus == 0);
@@ -1246,7 +1171,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int N = idx + 3;
 
             if (veryVerbose) {
-                SHOW_DATA(stderr, idx, "%d");
+                PRINT(idx, "%d");
             }
 
             output->reset();
@@ -1268,7 +1193,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int N = idx + 3;
 
             if (veryVerbose) {
-                SHOW_DATA(stderr, idx, "%d");
+                PRINT(idx, "%d");
             }
 
             output->reset();
@@ -1306,10 +1231,10 @@ void TestDriver::testCase3(OutputRedirector                    *output,
     // ------------------------------------------------------------------------
     // FORMATTED OUTPUT TEST
     //   Ensure that the 'debugPrint' formatted output methods write values to
-    //   stdout in the expected form
+    //   'stdout' in the expected form
     //
     // Concerns:
-    //: 1 The 'debugPrint' method writes the value to stdout.
+    //: 1 The 'debugPrint' method writes the value to 'stdout'.
     //:
     //: 2 The 'debugPrint' method writes the value in the intended format.
     //
@@ -1318,7 +1243,7 @@ void TestDriver::testCase3(OutputRedirector                    *output,
     //:
     //:   For each overload of debugPrint, choose a number of significant
     //:   values for the second parameter, and check that each is written to
-    //:   stdout in the intended format as follows:
+    //:   'stdout' in the intended format as follows:
     //:
     //:   Reset the output redirector, invoke the method under test with the
     //:   appropriate value for the second parameter, then compare the contents
@@ -1355,10 +1280,6 @@ void TestDriver::testCase3(OutputRedirector                    *output,
         TEST_TYPE INPUT =      DATA[ti].d_input;
         const char *EXPECTED = DATA[ti].d_expectedOutput_p;
 
-        if (veryVerbose) {
-            SHOW_DATA2(stderr, ti, "%d", INPUT, formatString);
-        }
-
         int expectedSize = 0;
 
         if (!EXPECTED) {
@@ -1368,20 +1289,23 @@ void TestDriver::testCase3(OutputRedirector                    *output,
             expectedSize = strlen(EXPECTED);
         }
 
+        if (veryVerbose) {
+            PRINT_(ti, "%d");
+            PRINT_(INPUT, formatString);
+            PRINT(EXPECTED, "%s");
+        }
+
         output->reset();
         bsls::BslTestUtil::debugPrint(PREFIX, INPUT, SUFFIX);
 
         ANNOTATED2_ASSERT(LINE, "%d", INPUT, formatString, output->load());
-        ANNOTATED3_ASSERT(LINE, "%d",
+        ANNOTATED4_ASSERT(LINE, "%d",
                           INPUT, formatString,
                           EXPECTED, "%s",
-                          output->getOutput());
+                          output->getOutput(), "%s",
+                          0 == output->compare(EXPECTED, expectedSize));
     }
 }
-
-// ============================================================================
-//                             GLOBAL TEST DATA
-// ----------------------------------------------------------------------------
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -1396,16 +1320,7 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "TEST " __FILE__ " CASE %d\n", test);
 
-    // Retain information about original stdout file descriptor for
-    // use in later tests.
-    struct stat originalStdoutStat;
-    {
-        int originalStdoutFD = fileno(stdout);
-        ASSERT(-1 != originalStdoutFD);
-        ASSERT(0 == fstat(originalStdoutFD, &originalStdoutStat));
-    }
-
-    // Capture stdout, and send stderr to stdout
+    // Capture 'stdout', and send 'stderr' to 'stdout'
     OutputRedirector output;
     if (!output.redirect()) {
         ASSERT(output.isRedirected());
@@ -1473,7 +1388,7 @@ int main(int argc, char *argv[])
         //: 2 Output emitted is in correct format
         //
         // Plan:
-        //: 1 Call BSLS_BSLTESTUTIL_Q with a series of arbitrary identifiers
+        //: 1 Call 'BSLS_BSLTESTUTIL_Q' with a series of arbitrary identifiers
         //:   containing single, and multiple tokens, with an without initial,
         //:   final, and repeated whitespace and compare the captured output to
         //:   a model string. (C-1,2)
@@ -1591,7 +1506,7 @@ int main(int argc, char *argv[])
         //: 3 Tab output macro output emitted is in correct format
         //
         // Plan
-        //: 1 Compare the value of the line number macro to __LINE__. (C-1)
+        //: 1 Compare the value of the line number macro to '__LINE__'. (C-1)
         //: 2 Call the tab output macro, and confirm that the captured output
         //:   is in the correct format.  (C-2,3)
         //
@@ -1647,7 +1562,7 @@ int main(int argc, char *argv[])
         //: 2 Call 'printStringNoFlush' twice in succession, and check that the
         //:   captured output matches the concatenation of the input strings,
         //:   with no embedded nulls or newlines.  (C-3)
-        //: 3 Call 'printTab' and check that the captrued output is correct.
+        //: 3 Call 'printTab' and check that the captured output is correct.
         //:   (C-1,2)
         //
         // Testing:
@@ -1686,7 +1601,7 @@ int main(int argc, char *argv[])
                 const char *EXPECTED = DATA[ti].d_expectedOutput_p;
 
                 if (veryVerbose) {
-                    SHOW_DATA2(stderr, ti, "%d", INPUT, "'%s'");
+                    PRINT_(ti, "%d"); PRINT(INPUT, "'%s'");
                 }
 
                 output.reset();
@@ -1766,7 +1681,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugPrint FOR bool"
-                        "\n--------------------------\n");
+                        "\n---------------------------\n");
             }
 
             static const DataRow<bool> DATA[] =
@@ -2229,17 +2144,68 @@ int main(int argc, char *argv[])
         // TEST APPARATUS TEST
         //
         // Concerns:
-        //:  1 Output is captured
-        //:  2 Captured output is accurate
-        //:  3 reset works
-        //:  4 load works
-        //:  5 compare works
+        //:  1 Output is redirected
+        //:  2 Captured output is readable
+        //:  3 'load' works
+        //:  4 'reset' works
+        //:  5 'compare' works
         //:  6 Incorrect output is correctly diagnosed
         //:  7 Embedded newlines work
         //:  8 Empty output works
         //:  9 Embedded nulls work
         //: 10 Filesystem-dependent control sequences work
-        //: 11 stderr points to original target of stdout
+        //: 11 stderr points to original target of 'stdout'
+        //
+        // Plan:
+        //:  1 Confirm that 'ftell(stdout)' succeeds.  This demonstrates that
+        //:    'stdout' is a seekable file. (C-1)
+        //:  2 Write a string to 'stdout', confirm that 'stdout's seek position
+        //:    has changed, read back the contents of 'stdout' and compare them
+        //:    to the original string.  (C-2)
+        //:  3 Write a string to 'stdout'.  Confirm that
+        //:    'OutputRedirector::load' changes the contents of the output
+        //:    buffer and that it changes the result of
+        //:    'OutputRedirector::isOutputReady' from 'false' to 'true'.
+        //:    Confirm that the contents of the output buffer match the
+        //:    original string.  (C-3)
+        //:  4 Write a string to 'stdout' and load it with
+        //:    'OutputRedirector::load'.  Confirm that
+        //:    'OutputRedirector::reset' rewinds 'stdout', changes the output
+        //:    of 'OutputRedirector::isOutputReady' from 'true' to 'false' and
+        //:    sets the length of the output buffer to 0.  (C-4)
+        //:  5 Write a string to 'stdout' and read it back with
+        //:    'OutputRedirector::load'.  Confirm that
+        //:    'OutputRedirector::compare' gives the correct results when the
+        //:    captured output is compared with the following data:  (C-5)
+        //:
+        //:        Data                           Comparison Result
+        //:    ------------                   -------------------------
+        //:    input string                           true
+        //:    input string with appended data        false
+        //:    input string truncated                 false
+        //:    string different from input:
+        //:    at beginning                           false
+        //:    at end                                 false
+        //:    elsewhere                              false
+        //:
+        //:  6 Confirm that 'load' fails when there is more data in 'stdout'
+        //:    than can be fit in the capture buffer.  Confirm that 'compare'
+        //:    fails if 'load' has not been first called to read data into the
+        //:    capture buffer.  (C-6)
+        //:  7 Confirm that strings containing embedded newlines are correctly
+        //:    captured and correctly identified by 'compare'.  (C-7)
+        //:  8 Write an empty string to 'stdout'.  Confirm that it can be
+        //:    correctly loaded and compared with the original.  (C-8)
+        //:  9 Write a series of strings to 'stdout', containing '\0' at the
+        //:    beginning, end or interior of the string.  Confirm that the
+        //:    captured output can be correctly loaded and compared with the
+        //:    original input.  (C-9)
+        //: 10 Write a series of strings to 'stdout' containing '^D' and
+        //:    '<CRLF>' and confirm that these strings are correctly captured
+        //:    and loaded.  (C-10)
+        //: 11 Use 'fstat' to find out the device and inode of the current
+        //:    (post-redirection) 'stderr'.  Compare these values to the device
+        //:    and inode of 'stdout' before redirection.  (C-11)
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -2251,26 +2217,20 @@ int main(int argc, char *argv[])
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING OUTPUT CAPTURE"
-                        "\n----------------------\n");
+                        "\nTESTING OUTPUT REDIRECTION"
+                        "\n--------------------------\n");
             }
 
-            // 1 Output is captured
-            const char *testString = "This is output";
-            size_t testStringLength = strlen(testString);
-
-            rewind(stdout);
-            ASSERT(0 == ftell(stdout));
-            printf("%s", testString);
-            ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
+            // 1 Output is redirected
+            ASSERT(-1 != ftell(stdout));
         }
 
         {
-            // 2 Captured output is accurate
+            // 2 Captured output is readable
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING OUTPUT CAPTURE ACCURACY"
-                        "\n-------------------------------\n");
+                        "\nTESTING OUTPUT CAPTURE"
+                        "\n----------------------\n");
             }
 
             enum { TEST_STRING_SIZE = 15 };
@@ -2280,9 +2240,13 @@ int main(int argc, char *argv[])
             ASSERT(TEST_STRING_SIZE == strlen(testString) + 1);
 
             rewind(stdout);
-            ASSERT(0 == ftell(stdout));
+            long initialStdoutPosition = ftell(stdout);
+            ASSERT(0 == initialStdoutPosition);
             printf("%s", testString);
-            long outputSize = ftell(stdout);
+            long finalStdoutPosition = ftell(stdout);
+            ASSERT(-1 != finalStdoutPosition);
+            ASSERT(finalStdoutPosition > initialStdoutPosition);
+            long outputSize = finalStdoutPosition - initialStdoutPosition;
             ASSERT(outputSize + 1 == TEST_STRING_SIZE);
             rewind(stdout);
             size_t bytesWritten =
@@ -2293,7 +2257,32 @@ int main(int argc, char *argv[])
         }
 
         {
-            // 3 reset works
+            // 3 'load' works
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING OUTPUT CAPTURE LOAD"
+                        "\n---------------------------\n");
+            }
+
+            const char *testString = "This is output";
+            size_t testStringLength = strlen(testString);
+
+            rewind(stdout);
+            printf("%s", testString);
+            ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
+            ASSERT(false == output.isOutputReady());
+            ASSERT(0 == output.outputSize());
+            ASSERT(output.load());
+            ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
+            ASSERT(true == output.isOutputReady());
+            ASSERT(testStringLength == output.outputSize());
+            ASSERT(0 == memcmp(testString,
+                               output.getOutput(),
+                               output.outputSize()));
+        }
+
+        {
+            // 4 'reset' works
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING OUTPUT CAPTURE RESET"
@@ -2305,38 +2294,18 @@ int main(int argc, char *argv[])
 
             rewind(stdout);
             printf("%s", testString);
-            ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
-            output.reset();
-            ASSERT(0 == ftell(stdout));
-        }
-
-        {
-            // 4 load works
-            if (verbose) {
-                fprintf(stderr,
-                        "\nTESTING OUTPUT CAPTURE LOAD"
-                        "\n---------------------------\n");
-            }
-
-            const char *testString = "This is output";
-            size_t testStringLength = strlen(testString);
-
-            output.reset();
-            ASSERT(0 == ftell(stdout));
-            ASSERT(false == output.isOutputReady());
-            ASSERT(0 == strlen(output.getOutput()));
-            printf("%s", testString);
-            ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
-            ASSERT(false == output.isOutputReady());
-            ASSERT(0 == strlen(output.getOutput()));
-            ASSERT(output.load());
+            output.load();
             ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
             ASSERT(true == output.isOutputReady());
-            ASSERT(testStringLength == strlen(output.getOutput()));
+            ASSERT(testStringLength == output.outputSize());
+            output.reset();
+            ASSERT(0 == ftell(stdout));
+            ASSERT(true != output.isOutputReady());
+            ASSERT(0 == output.outputSize());
         }
 
         {
-            // 5 compare works
+            // 5 'compare' works
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING OUTPUT CAPTURE VERIFICATION"
@@ -2376,6 +2345,11 @@ int main(int argc, char *argv[])
                         "\n----------------------------\n");
             }
 
+            // Reset verbosity levels to suppress expected error output
+            const bool tempVeryVerbose = veryVerbose;
+            const bool tempVeryVeryVerbose = veryVeryVerbose;
+            veryVerbose = false;
+            veryVeryVerbose = false;
 
             const char *testString = "This is good output";
 
@@ -2390,6 +2364,12 @@ int main(int argc, char *argv[])
             output.reset();
             printf("%s", testString);
             ASSERT(0 != output.compare(testString));
+
+            output.reset();
+            ASSERT(0 != output.compare("", 0));
+
+            veryVerbose = tempVeryVerbose;
+            veryVeryVerbose = tempVeryVeryVerbose;
         }
 
         {
@@ -2445,19 +2425,19 @@ int main(int argc, char *argv[])
             const char *testString3 = "abc\0";
 
             output.reset();
-            printf("%s", testString1);
+            fwrite(testString1, sizeof(char), 7, stdout);
             ASSERT(output.load());
-            ASSERT(0 == output.compare(testString1));
+            ASSERT(0 == output.compare(testString1, 7));
 
             output.reset();
-            printf("%s", testString2);
+            fwrite(testString2, sizeof(char), 4, stdout);
             ASSERT(output.load());
-            ASSERT(0 == output.compare(testString2));
+            ASSERT(0 == output.compare(testString2, 4));
 
             output.reset();
-            printf("%s", testString3);
+            fwrite(testString3, sizeof(char), 4, stdout);
             ASSERT(output.load());
-            ASSERT(0 == output.compare(testString3));
+            ASSERT(0 == output.compare(testString3, 4));
         }
 
         {
@@ -2484,13 +2464,19 @@ int main(int argc, char *argv[])
 
         {
             //: 11 stderr points to original target of stdout
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING STDERR REDIRECTION"
+                        "\n--------------------------\n");
+            }
+
             int newStderrFD = fileno(stderr);
             ASSERT(-1 != newStderrFD);
             struct stat stderrStat;
             ASSERT(-1 != fstat(newStderrFD, &stderrStat));
-            ASSERT(stderrStat.st_dev == originalStdoutStat.st_dev);
-            ASSERT(stderrStat.st_ino == originalStdoutStat.st_ino);
-            ASSERT(stderrStat.st_rdev == originalStdoutStat.st_rdev);
+            ASSERT(stderrStat.st_dev == output.originalStdoutStat().st_dev);
+            ASSERT(stderrStat.st_ino == output.originalStdoutStat().st_ino);
+            ASSERT(stderrStat.st_rdev == output.originalStdoutStat().st_rdev);
         }
 
       } break;
@@ -2525,29 +2511,29 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) fprintf(stderr, "\nBREATHING TEST"
-                            "\n==============\n");
+                                     "\n==============\n");
 
-        const bool b = true;
-        const char c = 'c';
-        const signed char sc = -42;
-        const unsigned char uc = 142;
-        const short ss = -1234;
-        const unsigned short us = 1234;
-        const int si = -123456;
-        const unsigned int ui = 123456;
-        const long sl = -7654321l;
-        const unsigned long ul = 7654321ul;
-        const long long sll = -5123467890ll;
-        const unsigned long long ull = 9876543210ull;
-        const float f = 2.78f;
-        const double d = 3.14159268;
-        const long double ld = 1.608e300L;
-        char hello[] = { 'h', 'e', 'l', 'l', 'o', '\0' };
-        char *s = hello;
-        const char world[] = { 'w', 'o', 'r', 'l', 'd', '\0' };
-        const char *cs = world;
-        void *pv = hello;
-        const void *pcv = &si;
+        const bool                b       = true;
+        const char                c       = 'c';
+        const signed char         sc      = -42;
+        const unsigned char       uc      = 142;
+        const short               ss      = -1234;
+        const unsigned short      us      = 1234;
+        const int                 si      = -123456;
+        const unsigned int        ui      = 123456;
+        const long                sl      = -7654321l;
+        const unsigned long       ul      = 7654321ul;
+        const long long           sll     = -5123467890ll;
+        const unsigned long long  ull     = 9876543210ull;
+        const float               f       = 2.78f;
+        const double              d       = 3.14159268;
+        const long double         ld      = 1.608e300L;
+        char                      hello[] = { 'h', 'e', 'l', 'l', 'o', '\0' };
+        char                     *s       = hello;
+        const char                world[] = { 'w', 'o', 'r', 'l', 'd', '\0' };
+        const char               *cs      = world;
+        void                     *pv      = hello;
+        const void               *pcv     = &si;
 
         // Check verbose so that we do not unexpectedly write to the console
         if (verbose) {
