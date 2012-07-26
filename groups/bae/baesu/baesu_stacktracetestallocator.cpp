@@ -28,21 +28,25 @@ namespace {
 typedef baesu_StackAddressUtil AddressUtil;
 
 enum {
-    IGNORE_FRAMES = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES + 1,
+    IGNORE_FRAMES = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES,
         // On some platforms, gathering the stack pointers wastes one frame
         // gathering the address of 'AddressUtil::getStackAddresses', which is
-        // reflected in 'AddressUtil::BAESU_IGNORE_FRAMES' is 0 or 1.  Also, we
-        // will always waste one frame gathering the address of 'allocate'.
-        // Rather than waste one or two pointers of space in each segment
-        // storing these useless pointers, we save the raw pointers into
-        // 'd_rawTraceBuffer' and then copy only those pointers that are of
-        // interest to the segments.
+        // reflected in whether 'AddressUtil::BAESU_IGNORE_FRAMES' is 0 or 1.
+        // This constant allows us to adjust for this and not display that
+        // frame as it is of no interest to the user.
 
     MAX_ALIGNMENT = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
 };
 
 typedef bsls::Types::UintPtr UintPtr;
 typedef bslma::Allocator::size_type size_type;
+
+template <int A, int B>
+struct Max {
+    // Calculate, at compile time, the maximum of two ints
+
+    enum { VALUE = A > B ? A : B };
+};
 
 }  // close unnamed namespace
 
@@ -52,14 +56,22 @@ typedef bslma::Allocator::size_type size_type;
 
 static
 int getMaxRecordedFrames(int specifiedMaxRecordedFrames)
-    // round the section for segment pointers up to the nearest multiple of
-    // MAX_ALIGNMENT.
+    // Specify 'specifiedMaxRecordedFrames', the value passed to the
+    // 'baesu_StackTraceTestAllocator' constructor.  Return the necessary size
+    // of the buffer area needed, per segment, in pointers, to achieve the
+    // depth of stack trace requested by the client in the constructor.  Extra
+    // space needs to be added for ignored frames (if any), and it is necessary
+    // that the buffer length in bytes be a multiple of 'MAX_ALIGNMENT'.
 {
-    int minRecordedFramesBytes = specifiedMaxRecordedFrames * sizeof(void *);
-    int roundedUpBytes = (((minRecordedFramesBytes + MAX_ALIGNMENT - 1) /
-                                               MAX_ALIGNMENT) * MAX_ALIGNMENT);
+    enum { PTRS_PER_MAX = MAX_ALIGNMENT / sizeof(void *) };
 
-    return roundedUpBytes / sizeof(void *);
+    BSLMF_ASSERT(0 == MAX_ALIGNMENT % sizeof(void *));
+
+    int ret = ((specifiedMaxRecordedFrames + IGNORE_FRAMES + PTRS_PER_MAX - 1)
+                                                / PTRS_PER_MAX) * PTRS_PER_MAX;
+    BSLS_ASSERT(ret >= specifiedMaxRecordedFrames);
+
+    return ret;
 }
 
                    // --------------------------------------------
@@ -102,28 +114,30 @@ int baesu_StackTraceTestAllocator::checkHeadNode() const
                                              "' corrupted: null list ptr(s)\n";
         rc = -1;
     }
-    else for (SegmentHeader *adjacent = d_headNode.d_next_p; true;
-                                                adjacent = d_headNode.d_prev_p) {
-        if (UNFREED_SEGMENT_MAGIC != adjacent->d_next_p->d_magic &&
-                                             &d_headNode != adjacent->d_next_p) {
-            if (FREED_SEGMENT_MAGIC == adjacent->d_next_p->d_magic) {
-                *d_ostream << "Error: freed object on unfreed segment list"
-                                      " of allocator '" << d_name << "' at " <<
-                                                 adjacent->d_next_p << bsl::endl;
+    else {
+        for (SegmentHeader *adjacent = d_headNode.d_next_p; true;
+                                              adjacent = d_headNode.d_prev_p) {
+            if (UNFREED_SEGMENT_MAGIC != adjacent->d_next_p->d_magic &&
+                                           &d_headNode != adjacent->d_next_p) {
+                if (FREED_SEGMENT_MAGIC == adjacent->d_next_p->d_magic) {
+                    *d_ostream << "Error: freed object on unfreed segment list"
+                               << " of allocator '" << d_name << "' at "
+                               << adjacent->d_next_p << bsl::endl;
 
-                // don't set rc, allow to proceed
+                    // don't set rc, allow to proceed
+                }
+                else {
+                    *d_ostream << "Error: segment list of allocator '"
+                               << d_name << "' corrupted, bad magic number: "
+                               << adjacent->d_next_p->d_magic << bsl::endl;
+
+                    rc = -1;
+                }
             }
-            else {
-                *d_ostream << "Error: segment list of allocator '" << d_name <<
-                                           "' corrupted, bad magic number: " <<
-                                        adjacent->d_next_p->d_magic << bsl::endl;
 
-                rc = -1;
+            if (d_headNode.d_prev_p == adjacent) {
+                break;
             }
-        }
-
-        if (d_headNode.d_prev_p == adjacent) {
-            break;
         }
     }
 
@@ -140,13 +154,14 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckSegmentHeader(
             // Note: this write may allocate the freed segment, trashing
             // '*segmentHdr'.
 
-            *d_ostream << "Error: segment at " << &segmentHdr[1] <<
-                        " freed second time by allocator '" << d_name << "'\n";
+            *d_ostream << "Error: segment at " << &segmentHdr[1]
+                       << " freed second time by allocator '" << d_name
+                       << "'\n";
         }
         else {
-            *d_ostream << "Error: corrupted segment at " <<
-                   &segmentHdr[1] << " attempted to be freed by allocator '" <<
-                                                               d_name << "'\n";
+            *d_ostream << "Error: corrupted segment at "
+                       << &segmentHdr[1] << " attempted to be freed by"
+                       << " allocator '" << d_name << "'\n";
         }
 
         return -1;                                                    // RETURN
@@ -156,11 +171,11 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckSegmentHeader(
         baesu_StackTraceTestAllocator *otherAlloc = segmentHdr->d_allocator_p;
         bool notOurs = HEAD_NODE_MAGIC != otherAlloc->d_headNode.d_magic;
         *d_ostream << "Error: attempt to free segment by wrong"
-                           " allocator.\n    Segment belongs to allocator '" <<
-                          (notOurs ? "<<Not a baesu_StackTraceTestAllocator>>"
-                                   : otherAlloc->d_name) <<
-                                   "'\n    Attempted to free by allocator '" <<
-                                                               d_name << "'\n";
+                   << " allocator.\n    Segment belongs to allocator '"
+                   << (notOurs ? "<<Not a baesu_StackTraceTestAllocator>>"
+                               : otherAlloc->d_name)
+                   << "'\n    Attempted to free by allocator '"
+                   << d_name << "'\n";
 
         if (notOurs) {
             return -1;                                                // RETURN
@@ -170,25 +185,25 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckSegmentHeader(
     }
 
     if (0 == segmentHdr->d_next_p || 0 == segmentHdr->d_prev_p) {
-        *d_ostream << "Error: segment at " << &segmentHdr[1] <<
-                                              " corrupted: null list ptr(s)\n";
+        *d_ostream << "Error: segment at " << &segmentHdr[1]
+                   << " corrupted: null list ptr(s)\n";
 
         return -1;                                                    // RETURN
     }
 
     for (SegmentHeader *adjacent = segmentHdr->d_next_p; true;
-                                               adjacent = segmentHdr->d_prev_p) {
+                                             adjacent = segmentHdr->d_prev_p) {
         if (UNFREED_SEGMENT_MAGIC != adjacent->d_next_p->d_magic &&
-                                             &d_headNode != adjacent->d_next_p) {
+                                           &d_headNode != adjacent->d_next_p) {
             if (FREED_SEGMENT_MAGIC == adjacent->d_next_p->d_magic) {
                 *d_ostream << "Error: freed object on unfreed segment list"
-                                      " of allocator '" << d_name << "' at " <<
-                                                 adjacent->d_next_p << bsl::endl;
+                           << " of allocator '" << d_name << "' at "
+                           << adjacent->d_next_p << bsl::endl;
             }
             else {
-                *d_ostream << "Error: segment list of allocator '" <<
-                                 d_name << "' corrupted, bad magic number: " <<
-                                        adjacent->d_next_p->d_magic << bsl::endl;
+                *d_ostream << "Error: segment list of allocator '"
+                           << d_name << "' corrupted, bad magic number: "
+                           << adjacent->d_next_p->d_magic << bsl::endl;
             }
 
             rc = -1;
@@ -205,16 +220,15 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckSegmentHeader(
 // CREATORS
 baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
                                      bsl::ostream     *ostream,
-                                     int               segFrames,
+                                     int               numRecordedFrames,
                                      bool              demanglingPreferredFlag,
                                      bslma::Allocator *basicAllocator)
 : d_headNode(&d_headNode, &d_headNode, this, HEAD_NODE_MAGIC)
 , d_mutex()
 , d_name("<unnamed>")
-, d_maxRecordedFrames(getMaxRecordedFrames(segFrames))
-, d_topFrame(0)
+, d_maxRecordedFrames(getMaxRecordedFrames(numRecordedFrames))
 , d_ostream(ostream)
-, d_demangle(demanglingPreferredFlag)
+, d_demangleFlag(demanglingPreferredFlag)
 , d_noAbortFlag(false)
 , d_numBlocksInUse(0)
 , d_allocator_p(basicAllocator ? basicAllocator
@@ -222,26 +236,20 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 {
     BSLMF_ASSERT(0 == sizeof(SegmentHeader) % MAX_ALIGNMENT);
     BSLS_ASSERT(0 == d_maxRecordedFrames * sizeof(void **) % MAX_ALIGNMENT);
-
-    d_rawTraceFrames = d_maxRecordedFrames + IGNORE_FRAMES;
-
-    d_rawTraceBuffer = (void **) d_allocator_p->allocate(sizeof(void **) *
-                                                             d_rawTraceFrames);
 }
 
 baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
                                      const char       *name,
                                      bsl::ostream     *ostream,
-                                     int               segFrames,
+                                     int               numRecordedFrames,
                                      bool              demanglingPreferredFlag,
                                      bslma::Allocator *basicAllocator)
 : d_headNode(&d_headNode, &d_headNode, this, HEAD_NODE_MAGIC)
 , d_mutex()
 , d_name(name ? name : "<unnamed>")
-, d_maxRecordedFrames(getMaxRecordedFrames(segFrames))
-, d_topFrame(0)
+, d_maxRecordedFrames(getMaxRecordedFrames(numRecordedFrames))
 , d_ostream(ostream)
-, d_demangle(demanglingPreferredFlag)
+, d_demangleFlag(demanglingPreferredFlag)
 , d_noAbortFlag(false)
 , d_numBlocksInUse(0)
 , d_allocator_p(basicAllocator ? basicAllocator
@@ -249,27 +257,25 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 {
     BSLMF_ASSERT(0 == sizeof(SegmentHeader) % MAX_ALIGNMENT);
     BSLS_ASSERT(0 == d_maxRecordedFrames * sizeof(void **) % MAX_ALIGNMENT);
-
-    d_rawTraceFrames = d_maxRecordedFrames + IGNORE_FRAMES;
-
-    d_rawTraceBuffer = (void **) d_allocator_p->allocate(sizeof(void **) *
-                                                             d_rawTraceFrames);
 }
 
 baesu_StackTraceTestAllocator::~baesu_StackTraceTestAllocator()
 {
-    d_allocator_p->deallocate(d_rawTraceBuffer);
+    if (checkHeadNode() && !d_noAbortFlag) {
+        abort();
+    }
 
     if (numBlocksInUse() > 0) {
         *d_ostream << "======================================================="
-                      "========================\nError: memory leaked:\n";
+                   << "========================\nError: memory leaked:\n";
 
         reportBlocksInUse();
-        release();
 
         if (!d_noAbortFlag) {
             abort();
         }
+
+        release();
     }
 }
 
@@ -281,30 +287,40 @@ void *baesu_StackTraceTestAllocator::allocate(size_type size)
 
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
 
-    if (checkHeadNode()) {
-        if (!d_noAbortFlag) {
-            abort();
-        }
-
-        return 0;                                                     // RETURN
+    if (checkHeadNode() && !d_noAbortFlag) {
+        abort();
     }
 
     // The underlying allocator might align the segment differently depending
-    // on the size passed.  Since we will be storing 'void *'s at the front,
-    // we need it aligned to accomodate 'void *'s.
+    // on the size passed.  The alignment must be large enough to accomodate
+    // the stack addresses (type 'void *') in the buffer, it must be large
+    // enough to accomodate the 'SegmentHeader's alignment requirements, and it
+    // must be large enough to accomodate whatever the alignment requirements
+    // of whatever the client intends to store in their portion of the segment.
+    // We can infer the requirements of our pointers and segment header at
+    // compile time in 'FIXED_ALIGN', then we infer the alignment requirement
+    // of the client's section from the size passed, and take the maximum of
+    // the two to get the alignment required.  We then round the size we will
+    // pass to the underlying allocator up to a multiple of 'align', so that
+    // the underlying allocator cannot infer a lower value of the alignment
+    // requirement.
 
-    BSLMF_ASSERT((int) bsls::AlignmentFromType<SegmentHeader>::VALUE ==
-                                      bsls::AlignmentFromType<void **>::VALUE);
+    enum { FIXED_ALIGN =
+                   Max<bsls::AlignmentFromType<void *>::VALUE,
+                       bsls::AlignmentFromType<SegmentHeader>::VALUE>::VALUE };
     const int align = bsl::max<int>(
-                        bsls::AlignmentFromType<SegmentHeader>::VALUE,
+                        FIXED_ALIGN,
                         bsls::AlignmentUtil::calculateAlignmentFromSize(size));
-    BSLS_ASSERT(0 == (align & (align - 1)));            // one bit set
-    size = (size + align - 1) & ~(align - 1);
+    const int lowBits = align - 1;
+    BSLS_ASSERT(0 == (align & lowBits));    // verify 'align' is power of 2
+    size = (size + lowBits) & ~lowBits;     // round 'size' up to multiple of
+                                            // 'align'
 
-    void **to = (void **) d_allocator_p->allocate(
-         d_maxRecordedFrames * sizeof(void **) + sizeof(SegmentHeader) + size);
+    void **framesBegin = (void **) d_allocator_p->allocate(
+          d_maxRecordedFrames * sizeof(void *) + sizeof(SegmentHeader) + size);
 
-    SegmentHeader *segmentHdr = (SegmentHeader *) (to + d_maxRecordedFrames);
+    void **framesEnd = framesBegin + d_maxRecordedFrames;
+    SegmentHeader *segmentHdr = (SegmentHeader *) framesEnd;
 
     new (segmentHdr) SegmentHeader(d_headNode.d_next_p,
                                    &d_headNode,
@@ -312,45 +328,15 @@ void *baesu_StackTraceTestAllocator::allocate(size_type size)
                                    UNFREED_SEGMENT_MAGIC);
 
     d_headNode.d_next_p->d_prev_p = segmentHdr;
-    d_headNode.d_next_p         = segmentHdr;
+    d_headNode.d_next_p           = segmentHdr;
 
-    int depth = AddressUtil::getStackAddresses(
-                                           d_rawTraceBuffer, d_rawTraceFrames);
-    if (0 == d_topFrame && depth >= IGNORE_FRAMES) {
-        BSLMF_ASSERT(IGNORE_FRAMES > 0);
-
-        d_topFrame = d_rawTraceBuffer[IGNORE_FRAMES - 1];
-    }
-    depth = bsl::max(depth - IGNORE_FRAMES, 0);
-
-    // The stack trace may have screwed up and put '0's into the stack trace.
-    // omit them, since we can't resolve them anyway, and if
-    // 'depth < d_maxRecordedFrames', we'll want to 0 terminate the buffer of
-    // stack addresses.
-
-    {
-        void **from    = d_rawTraceBuffer + IGNORE_FRAMES;
-        void **endFrom = from + depth;
-
-        while (from < endFrom) {
-            if ((*to = *from++)) {
-                ++to;
-            }
-        }
-
-        if (to < (void **) segmentHdr) {
-            *to = 0;
-        }
-        else {
-            BSLS_ASSERT((void **) segmentHdr == to);
-            BSLS_ASSERT(d_maxRecordedFrames == depth);
-        }
-    }
+    bsl::fill(framesBegin, framesEnd, (void *) 0);
+    AddressUtil::getStackAddresses(framesBegin,
+                                   d_maxRecordedFrames);
 
     void *ret = segmentHdr + 1;
 
-    BSLS_ASSERT(0 == ((UintPtr) ret & (sizeof(void **) - 1)));
-    BSLS_ASSERT(0 == ((UintPtr) ret & (align - 1)));
+    BSLS_ASSERT(0 == ((UintPtr) ret & ((sizeof(void *) - 1) | (align - 1))));
 
     ++d_numBlocksInUse;
 
@@ -363,7 +349,6 @@ void baesu_StackTraceTestAllocator::deallocate(void *address)
         return;                                                       // RETURN
     }
     BSLS_ASSERT(0 == ((UintPtr) address & (sizeof(void **) - 1)));
-    BSLS_ASSERT(0 == ((UintPtr) address & (MAX_ALIGNMENT   - 1)));
 
     SegmentHeader *segmentHdr = (SegmentHeader *) address - 1;
 
@@ -399,9 +384,8 @@ void baesu_StackTraceTestAllocator::release()
         return;                                                       // RETURN
     }
 
-    int numSegments = 0;
     for (SegmentHeader *segmentHdr = d_headNode.d_next_p;
-                                                 &d_headNode != segmentHdr; ) {
+                &d_headNode != segmentHdr; segmentHdr = segmentHdr->d_next_p) {
         if (preDeallocateCheckSegmentHeader(segmentHdr)) {
             if (!d_noAbortFlag) {
                 abort();
@@ -409,18 +393,21 @@ void baesu_StackTraceTestAllocator::release()
 
             return;                                                   // RETURN
         }
+    }
 
+    int numSegments = 0;
+    for (SegmentHeader *segmentHdr = d_headNode.d_next_p;
+                                                 &d_headNode != segmentHdr; ) {
         ++numSegments;
 
         SegmentHeader *condemned = segmentHdr;
         segmentHdr = segmentHdr->d_next_p;
 
-        BSLS_ASSERT(&d_headNode == condemned->d_prev_p);
-        condemned->d_next_p->d_prev_p = &d_headNode;
-        d_headNode.d_next_p           = condemned->d_next_p;
-
         d_allocator_p->deallocate((void **) condemned - d_maxRecordedFrames);
     }
+
+    d_headNode.d_next_p = &d_headNode;
+    d_headNode.d_prev_p = &d_headNode;
 
     BSLS_ASSERT(&d_headNode == d_headNode.d_next_p);
     BSLS_ASSERT(&d_headNode == d_headNode.d_prev_p);
@@ -439,11 +426,15 @@ void baesu_StackTraceTestAllocator::setNoAbort(bool flagValue)
 // ACCESSORS
 bool baesu_StackTraceTestAllocator::isNoAbort() const
 {
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
+
     return d_noAbortFlag;
 }
 
 bsl::size_t baesu_StackTraceTestAllocator::numBlocksInUse() const
 {
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
+
     return d_numBlocksInUse;
 }
 
@@ -463,27 +454,26 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
         return;                                                       // RETURN
     }
 
-    *ostream << d_numBlocksInUse << " segment(s) in allocator '" <<
-                                                       d_name << "' in use.\n";
+    *ostream << d_numBlocksInUse << " segment(s) in allocator '"
+             << d_name << "' in use.\n";
 
     StackTraceVecMap stackTraceVecMap(d_allocator_p);
-    StackTraceVec v(d_allocator_p);
+    StackTraceVec traceVec(d_allocator_p);
 
     int numBlocksInUse = 0;
     for (SegmentHeader *segmentHdr = d_headNode.d_next_p;
                                       !segmentHdr || &d_headNode != segmentHdr;
-                                             segmentHdr = segmentHdr->d_next_p) {
+                                           segmentHdr = segmentHdr->d_next_p) {
         if (!segmentHdr || UNFREED_SEGMENT_MAGIC != segmentHdr->d_magic) {
             if (segmentHdr && FREED_SEGMENT_MAGIC != segmentHdr->d_magic) {
                 *ostream << "baesu_StackTraceTestAllocator: freed segment at "
-                                   << (segmentHdr + 1) << " in alloced list\n";
+                         << (segmentHdr + 1) << " in alloced list\n";
             }
             else {
                 *ostream << "baesu_StackTraceTestAllocator: memory corruption"
-                                       " detected, possible buffer underrun\n";
+                         << " detected, possible buffer underrun\n";
 
-                // if we're in the destructor, more detailed info will be given
-                // when we call 'release'.  We don't want to go on traversing
+                // We don't want to go on traversing
                 // the list because we don't even know that 'segmentHdr' points
                 // at a 'segmentHdr', so we can't trust 'segmentHdr->d_next_p'.
 
@@ -492,13 +482,16 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
         }
 
         void **endTrace   = (void **) segmentHdr;
-        void **startTrace = endTrace - d_maxRecordedFrames;
-        endTrace = bsl::find(startTrace, endTrace, (void *) 0);
-        v.clear();
-        if (0 != d_topFrame) {
-            v.push_back(d_topFrame);
+        void **startTrace = endTrace - d_maxRecordedFrames + IGNORE_FRAMES;
+
+        // trim off the zeroes at the end of the trace
+
+        while (endTrace > startTrace && 0 == endTrace[-1]) {
+            --endTrace;
         }
-        v.insert(v.end(), startTrace, endTrace);
+
+        traceVec.clear();
+        traceVec.insert(traceVec.end(), startTrace, endTrace);
 #if 0
         // This would be a better way to do it, but 'bsl::map' uses the
         // default allocator to implement 'operator[]'.  We want to avoid using
@@ -506,11 +499,11 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
         // debugging memory issues, and may want to closely monitor traffic on
         // the default allocator.
 
-        ++stackTraceVecMap[v];
+        ++stackTraceVecMap[traceVec];
 #else
-        StackTraceVecMap::iterator stmit = stackTraceVecMap.find(v);
+        StackTraceVecMap::iterator stmit = stackTraceVecMap.find(traceVec);
         if (stackTraceVecMap.end() == stmit) {
-            StackTraceVecMap::value_type pr(v, 1, d_allocator_p);
+            StackTraceVecMap::value_type pr(traceVec, 1, d_allocator_p);
             stackTraceVecMap.insert(pr);
         }
         else {
@@ -522,8 +515,8 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
     }
     BSLS_ASSERT(d_numBlocksInUse == numBlocksInUse);
 
-    *ostream << "Segment(s) allocated from " <<
-                                     stackTraceVecMap.size() << " trace(s).\n";
+    *ostream << "Segment(s) allocated from "
+             << stackTraceVecMap.size() << " trace(s).\n";
 
     int place = 0;
     baesu_StackTrace st(d_allocator_p);
@@ -531,16 +524,16 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
     for (StackTraceVecMap::iterator it = stackTraceVecMap.begin();
                                                       mapend != it; ++it) {
         *ostream << "------------------------------------------"
-                              "-------------------------------------\n"
-                                   << "Allocation trace " << ++place << ", " <<
-                                         it->second << " segment(s) in use.\n";
-        *ostream << "Stack trace at allocation time:\n";
+                 << "-------------------------------------\n"
+                 << "Allocation trace " << ++place << ", "
+                 << it->second << " segment(s) in use.\n"
+                 << "Stack trace at allocation time:\n";
 
         int rc = baesu_StackTraceUtil::loadStackTraceFromAddressArray(
-                                                             &st,
-                                                             it->first.begin(),
-                                                             it->first.size(),
-                                                             d_demangle);
+                                                       &st,
+                                                       it->first.begin(),
+                                                       (int) it->first.size(),
+                                                       d_demangleFlag);
         if (rc || 0 == st.length()) {
             *ostream << "... stack trace failed ...\n";
         }

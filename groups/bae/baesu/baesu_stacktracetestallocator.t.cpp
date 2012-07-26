@@ -15,6 +15,7 @@
 
 #include <bsl_algorithm.h>
 #include <bsl_cmath.h>
+#include <bsl_cstdlib.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
@@ -287,7 +288,7 @@ struct Functor {
     static bcemt_Barrier           s_finishBarrier;
 
     bsl::vector<int *>             d_alloced;
-    bsl::size_t                    d_randNum;
+    unsigned                       d_randNum;
     int                            d_64;
     baesu_StackTraceTestAllocator *d_allocator;
 
@@ -335,7 +336,7 @@ struct Functor {
         mod = bsl::max(mod, 0);
         for (int numToFree = mod > 1 ? rand() % mod : 0; numToFree;
                                                                  --numToFree) {
-            int index = rand() % d_alloced.size();
+            int index = rand() % (unsigned) d_alloced.size();
             freeOne(index);
         }
     }
@@ -414,14 +415,14 @@ void Functor::operator()()
         freeSome();
     }
 
-    s_numUnfreedSegments += d_alloced.size();
+    s_numUnfreedSegments += (int) d_alloced.size();
 
     s_finishBarrier.wait();
 
     // Main thread will now gather a report on unfreed segments
 
     s_finishBarrier.wait();
-    for (int i = d_alloced.size() - 1; i >= 0; --i) {
+    for (int i = (int) d_alloced.size() - 1; i >= 0; --i) {
         freeOne(i);
     }
 }
@@ -458,7 +459,7 @@ void caseOne_c(bslma::Allocator *alloc, int *depth)
 
 void caseOne_b(bslma::Allocator *alloc, int *depth)
 {
-    int incCount = bsl::log(1.0);
+    int incCount = (int) bsl::log(1.01);
     for (int i = 1; i < 1024 && (i & 1); i += (caseOneDelta * 2)) {
         ++*depth;
         ++incCount;
@@ -504,7 +505,7 @@ int main(int argc, char *argv[])
     int expectedDefaultAllocations = 0;
 
     switch (test) { case 0:
-      case 6: {
+      case 15: {
         //---------------------------------------------------------------------
         // USAGE EXAMPLE
         //---------------------------------------------------------------------
@@ -514,7 +515,7 @@ int main(int argc, char *argv[])
 
         usageBottom();
       }  break;
-      case 5: {
+      case 14: {
         //---------------------------------------------------------------------
         // ERROR TEST
         //
@@ -556,7 +557,7 @@ int main(int argc, char *argv[])
         ta2.deallocate(ptr);
         ASSERT(oss2.str().empty());
       }  break;
-      case 4: {
+      case 13: {
         //---------------------------------------------------------------------
         // RELEASE TEST
         //
@@ -609,7 +610,7 @@ int main(int argc, char *argv[])
             ASSERT(ss.str().empty());
         }
       }  break;
-      case 3: {
+      case 12: {
         //---------------------------------------------------------------------
         // MULTITHREADED TEST
         //
@@ -687,6 +688,8 @@ int main(int argc, char *argv[])
         }
 
         const char *expectedStrings[] = { " from 1 trace",
+                                          "StackTraceTestAllocator",
+                                          "allocate",
                                           "MultiThreadedTest",
                                           "Functor",
                                           "top",
@@ -728,7 +731,7 @@ int main(int argc, char *argv[])
 
         ASSERT(ss.str().empty());     // nothing written to 'ss' by d'tor of ta
       }  break;
-      case 2: {
+      case 11: {
         //---------------------------------------------------------------------
         // SUCCESSFUL FREEING TEST
         //
@@ -828,6 +831,287 @@ int main(int argc, char *argv[])
 
         // Upon destruction, 'sta' will verify that 'ta' didn't leak anything.
       }  break;
+      case 10: {
+        //---------------------------------------------------------------------
+        // BSLS STREAMING
+        //
+        // This component does not support bslx streaming.
+        //---------------------------------------------------------------------
+      }  break;
+      case 9: {
+        //---------------------------------------------------------------------
+        // ASSINGMENT OPERATOR
+        //
+        // This component has no assignment operator.
+        //---------------------------------------------------------------------
+      }  break;
+      case 8: {
+        //---------------------------------------------------------------------
+        // SWAP FUNCTION
+        //
+        // This component has no swap function.
+        //---------------------------------------------------------------------
+      }  break;
+      case 7: {
+        //---------------------------------------------------------------------
+        // COPY C'TOR
+        //
+        // This component has no copy c'tor
+        //---------------------------------------------------------------------
+      }  break;
+      case 6: {
+        //---------------------------------------------------------------------
+        // EQUALITY COMPARATOR
+        //
+        // This component has no equality comparator
+        //---------------------------------------------------------------------
+      }  break;
+      case 5: {
+        //---------------------------------------------------------------------
+        // PRINT AND OUTPUT OPERATOR
+        //
+        // This component has no print or output operator
+        //---------------------------------------------------------------------
+      }  break;
+      case 4: {
+        //---------------------------------------------------------------------
+        // BASIC ACCESSORS
+        //
+        // Concern:
+        //   That 'isNoAbort', 'numBlocksInUse', and 'reportBlocksInUse'
+        //   function properly.
+        //
+        // Plan:
+        //   Manipulate the 'no abort' flag and observe it with the 'isNoAbort'
+        //   accessor.  Allocate and free some segments and observe that
+        //   'numBlocksInUse' tracks the number of allocations correctly.
+        //   Call 'reportBlocksInUse' and observe that it gives a report
+        //   appropriate to the number of blocks that are in use.
+        //---------------------------------------------------------------------
+
+        expectedDefaultAllocations = -1;    // turn off default allocator
+                                            // monitoring
+        Obj ta("my_allocator");
+
+        enum {
+            MAX_ALLOC_LENGTH     = 100,
+
+            // The following 3 numbers should all be relatively prime
+
+            SEGMENT_ARRAY_LENGTH = 10,
+            ALLOC_INC            = 3,
+            FREE_INC             = 7
+        };
+
+        ASSERT(! ta.isNoAbort());
+        ta.setNoAbort(true);
+        ASSERT(  ta.isNoAbort());
+        ta.setNoAbort(false);
+        ASSERT(! ta.isNoAbort());
+
+        bsl::ostringstream oss;
+        ta.reportBlocksInUse(&oss);
+        ASSERT(oss.str().empty());    // no blocks in use
+
+        void *segments[SEGMENT_ARRAY_LENGTH] = { 0 };
+
+        unsigned numSegments = 0;
+
+        // do a lot of allocating and freeing, not just freeing the segment
+        // most recently allocated, but rather choosing the segment to free in
+        // a somewhat random fashion.
+
+        for (int i = 0; i < 100; ++i) {
+            unsigned allocIdx = (unsigned) rand() % SEGMENT_ARRAY_LENGTH;
+            while (segments[allocIdx]) {
+                allocIdx = (allocIdx + ALLOC_INC) % SEGMENT_ARRAY_LENGTH;
+            }
+            segments[allocIdx] = ta.allocate(
+                       bsl::max<int>(1, (unsigned) rand() % MAX_ALLOC_LENGTH));
+            ++numSegments;
+            LOOP3_ASSERT(i, ta.numBlocksInUse(), numSegments,
+                                           ta.numBlocksInUse() == numSegments);
+
+            if (numSegments >= 4) {
+                unsigned freeIdx = (unsigned) rand() % SEGMENT_ARRAY_LENGTH;
+                while (! segments[freeIdx]) {
+                    freeIdx = (freeIdx+ FREE_INC) % SEGMENT_ARRAY_LENGTH;
+                }
+                ta.deallocate(segments[freeIdx]);
+                segments[freeIdx] = 0;
+                --numSegments;
+                ASSERT(ta.numBlocksInUse() == numSegments);
+            }
+        }
+
+        ASSERT(3 == numSegments);
+        ASSERT(3 == ta.numBlocksInUse());
+
+        ASSERT(oss.str().empty());
+        ta.reportBlocksInUse(&oss);
+        const bsl::string& report = oss.str();
+
+        ASSERT(!report.empty());
+        LOOP_ASSERT(report,
+                npos != report.find("3 segment(s) in allocator 'my_allocator'"
+                                    " in use"));
+        ASSERT(npos != report.find("main"));
+
+        for (int i = 0; i < SEGMENT_ARRAY_LENGTH; ++i) {
+            if (segments[i]) {
+                ta.deallocate(segments[i]);
+                --numSegments;
+            }
+            ASSERT(ta.numBlocksInUse() == numSegments);
+        }
+
+        ASSERT(0 == ta.numBlocksInUse());
+        ASSERT(0 == numSegments);
+      }  break;
+      case 3: {
+        //---------------------------------------------------------------------
+        // VALUE C'TOR
+        //
+        // This component has no value c'tor
+        //---------------------------------------------------------------------
+      }  break;
+      case 2: {
+        //---------------------------------------------------------------------
+        // DEFAULT C'TOR, PRIMARY MANIPULATORS, D'TOR
+        //
+        // Concern:
+        //   Need to test creators and all manipulators
+        //
+        // Plan:
+        //   Loop, using a different creator / combination of optional args
+        //   every time.  Allocate segments, then free them in one of three
+        //   ways:
+        //:   o by calling 'deallocate'
+        //:   o by calling 'release'
+        //:   o by calling the d'tor
+        //   use a 'bslma::TestAllocator' when possible so that if the test
+        //   fails to free some memory, the bslma test allocator will detect
+        //   the leak and the test will fail.
+        //   When a memory leak is expected to be caught at destruction and
+        //   reported to a stringstream, verify the report is reasonable.
+        //---------------------------------------------------------------------
+
+        if (verbose) cout << "DEFAULT C'TOR, PRIMARY MANIPULATORS, D'TOR\n"
+                             "==========================================\n";
+
+        bslma::TestAllocator ota;
+
+        for (int i = 0; i < 2; ++i) {
+            const bool CLEAN_DESTROY = i;
+
+            for (char c = 'a'; c <= 'j' ; ++c) {
+                Obj *pta = 0;
+
+                bsl::stringstream oss(&ota);
+
+                // Note that 'Obj's that are constructed without an allocator
+                // arg use the gmalloc allocator singleton, not 'da'
+
+                switch (c) {
+                  case 'a': {
+                    pta = new (ota) Obj();
+                  } break;
+                  case 'b': {
+                    pta = new (ota) Obj(&oss);
+                  } break;
+                  case 'c': {
+                    pta = new (ota) Obj(&oss,
+                                        10);
+                  } break;
+                  case 'd': {
+                    pta = new (ota) Obj(&oss,
+                                        10,
+                                        false);
+                  } break;
+                  case 'e': {
+                    pta = new (ota) Obj(&oss,
+                                        10,
+                                        false,
+                                        &ota);
+                  } break;
+                  case 'f': {
+                    pta = new (ota) Obj("my_allocator");
+                  } break;
+                  case 'g': {
+                    pta = new (ota) Obj("my_allocator",
+                                        &oss);
+                  } break;
+                  case 'h': {
+                    pta = new (ota) Obj("my_allocator",
+                                        &oss,
+                                        10);
+                  } break;
+                  case 'i': {
+                    pta = new (ota) Obj("my_allocator",
+                                        &oss,
+                                        10,
+                                        false);
+                  } break;
+                  case 'j': {
+                    pta = new (ota) Obj("my_allocator",
+                                        &oss,
+                                        10,
+                                        false,
+                                        &ota);
+                  } break;
+                }
+
+                ASSERT(0 != pta);
+                Obj& ta = *pta;
+
+                ASSERT(! ta.isNoAbort());
+                ta.setNoAbort(true);
+                ASSERT(  ta.isNoAbort());
+                ta.setNoAbort(false);
+                ASSERT(! ta.isNoAbort());
+                ta.setNoAbort(true);
+                ASSERT(  ta.isNoAbort());
+
+                void *segment = ta.allocate(100);
+                ASSERT(1 == ta.numBlocksInUse());
+                ta.deallocate(segment);
+                ASSERT(0 == ta.numBlocksInUse());
+
+                segment = ta.allocate(50);
+                ASSERT(1 == ta.numBlocksInUse());
+                ta.release();
+                ASSERT(0 == ta.numBlocksInUse());
+
+                segment = ta.allocate(200);
+                if (CLEAN_DESTROY) {
+                    ta.deallocate(segment);
+                }
+
+
+                // If 'CLEAN_DESTROY' there will be no blocks in use and the
+                // d'tor will not write a report.  Otherwise, 'segment' will
+                // still be unfreed and a report will be written.
+
+                ASSERT(! CLEAN_DESTROY == ta.numBlocksInUse());
+                ota.deleteObject(pta);
+
+                const bool OSS_REPORT = 'a' != c && 'f' != c && !CLEAN_DESTROY;
+
+                const bsl::string& report = oss.str();
+                expectedDefaultAllocations += OSS_REPORT;
+
+                ASSERT(report.empty() == !OSS_REPORT);
+                if (OSS_REPORT) {
+                    ASSERT(npos != report.find("main"));
+                    ASSERT(npos != report.find("1 segment(s) in use"));
+                    ASSERT(npos != report.find("Error: memory leaked"));
+                    ASSERT(npos != report.find("allocate"));
+                    ASSERT((c >= 'f') ==
+                                        (npos != report.find("my_allocator")));
+                }
+            }
+        }
+      }  break;
       case 1: {
         //---------------------------------------------------------------------
         // BREATHING TEST
@@ -836,12 +1120,12 @@ int main(int argc, char *argv[])
         // is destructed.
         //---------------------------------------------------------------------
 
-        if (verbose) cout << "BREATING TEST\n"
-                             "=============\n";
+        if (verbose) cout << "BREATHING TEST\n"
+                             "==============\n";
 
         bslma::NewDeleteAllocator otherTa;
 
-        int maxDepths[] = { 100, 10, 4, 3 };
+        int maxDepths[] = { 100, 10, 5, 4, 3 };
         enum { NUM_MAX_DEPTHS = sizeof maxDepths / sizeof *maxDepths };
 
         for (int d = 0; d < NUM_MAX_DEPTHS; ++d) {
@@ -873,13 +1157,20 @@ int main(int argc, char *argv[])
 
             if (!PLAT_WIN || DEBUG_ON) {
                 bsl::size_t pos = 0;
+                ASSERT(npos != (pos = outStr.find("StackTraceTestAllocator",
+                                                               pos)));
+                ASSERT(npos != (pos = outStr.find("allocate",  pos)));
                 ASSERT(npos != (pos = outStr.find("caseOne_c", pos)));
                 ASSERT(npos != (pos = outStr.find("caseOne_b", pos)));
-                ASSERT(npos != (pos = outStr.find("caseOne_a", pos)));
-                pos = 0;
-                ASSERT(npos != (pos = outStr.find("main",      pos)));
                 if (maxDepths[d] >= 4) {
-                    ASSERT(npos != (pos = outStr.find("main",  pos + 4)));
+                    ASSERT(npos != (pos = outStr.find("caseOne_a", pos)));
+                }
+                pos = 0;
+                LOOP_ASSERT(outStr,
+                                npos != (pos = outStr.find("main",      pos)));
+                if (maxDepths[d] > 4) {
+                    LOOP2_ASSERT(outStr, maxDepths[d],
+                                npos != (pos = outStr.find("main",  pos + 4)));
                 }
             }
 

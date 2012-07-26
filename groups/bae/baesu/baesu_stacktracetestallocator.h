@@ -10,17 +10,18 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide an allocator that reports the call stack for leaks.
 //
 //@CLASSES:
-//   baesu_StackTraceTestAllocator: reports the call stack for leaded allocations.
+//   baesu_StackTraceTestAllocator: reports the call stack for memory leaks.
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component provides an allocator,
+//@DESCRIPTION: This component provides an instrumented allocator,
 // 'baesu_StackTraceTestAllocator' that implements the
-// 'bslma::ManagedAllocator' protocol, which records the call stack for each
-// allocation performed, and can report, using 'reportBlocksInUse' and always
-// at destruction, the call stack associated with every allocated block that
-// has not (yet) been freed.  It is supplied a 'bslma::Allocator' at
-// construction that it uses to allocator memory.
+// 'bslma::ManagedAllocator' protocol.  An object of this type records the call
+// stack for each allocation performed, and can report, either using the
+// 'reportBlocksInUse' method or implicitly at destruction, the call stack
+// associated with every allocated block that has not (yet) been freed.  It is
+// optionally supplied a 'bslma::Allocator' at construction that it uses to
+// allocator memory.
 //..
 //                    ,------------------------------.
 //                   ( baesu_StackTraceTestAllocator  )
@@ -41,14 +42,15 @@ BDES_IDENT("$Id: $")
 //                                         allocate
 //                                         deallocate
 //..
-// Note that allocation using this component is deliberately incompatible with
-// the default global 'new' ('malloc') and 'delete' ('free').  Using 'delete'
-// to free memory supplied by this allocator will corrupt the dynamic memory
-// manager and also cause a memory leak (and will be reported by purify as
-// freeing mismatched memory, freeing unallocated memory, and as a memory
-// leak).  Using 'deallocate' to free memory supplied by global 'new' will
-// immediately cause an error to be reported to the associated 'ostream' and,
-// unless the 'noAbort' flag is set, an abort.
+// Note that allocation using a 'baesu_StackTraceTestAllocator' is deliberately
+// incompatible with the default global 'new', 'malloc', 'delete', and 'free'.
+// Using 'delete' or 'free' to free memory supplied by this allocator will
+// corrupt the dynamic memory manager and also cause a memory leak (and will be
+// reported by purify as freeing mismatched memory, freeing unallocated memory,
+// and as a memory leak).  Using 'deallocate' to free memory supplied by global
+// 'new' or 'malloc' will immediately cause an error to be reported to the
+// associated 'ostream' and, unless the 'noAbort' flag is set, an abort (core
+// dump).
 //
 ///No-Abort Mode
 ///-------------
@@ -58,8 +60,11 @@ BDES_IDENT("$Id: $")
 // its own code.  The 'noAbort' flag is 'false' at construction, and can be set
 // afterward with the 'setNoAbort' manipulator.
 //
-///USAGE
+///Usage
 ///-----
+// In this section we show the intended usage of this component.
+//
+///Example 1:
 // First, we create a call stack where memory is allocated, and leaked, in 2
 // places:
 //..
@@ -229,19 +234,24 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
     // supplying (at construction) any other allocator implementing the
     // 'Allocator' protocol.
 
+    typedef bsls::Types::UintPtr UintPtr;
+
     enum SegmentHeaderMagic {
-        // values for 'd_magic' in 'SegmentHeader'
+        // Magic number stored in every 'SegmentHeader', reflecting 3 possible
+        // states.
 
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-        UNFREED_SEGMENT_MAGIC = 0xbab1face,
-        FREED_SEGMENT_MAGIC   = 0xdecea5ed,
-        HEAD_NODE_MAGIC       = 0xb055cafe
+        HIGH_ONES = 0,
 #else
-        UNFREED_SEGMENT_MAGIC = 0xbab1facebab1face,
-        FREED_SEGMENT_MAGIC   = 0xdecea5eddecea5ed,
-        HEAD_NODE_MAGIC       = 0xb055cafeb055cafe
+        HIGH_ONES = (UintPtr) 111111111 * 10 * 1000 * 1000 * 1000,
 #endif
+
+        UNFREED_SEGMENT_MAGIC = (UintPtr) 1222222221 + HIGH_ONES,
+        FREED_SEGMENT_MAGIC   = (UintPtr) 1333333331 + HIGH_ONES,
+        HEAD_NODE_MAGIC       = (UintPtr) 1555555551 + HIGH_ONES
     };
+
+    BSLMF_ASSERT(sizeof(SegmentHeaderMagic) == sizeof(void *));
 
     // PRIVATE TYPES
     struct SegmentHeader {
@@ -298,34 +308,15 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
                                                    // frames to store in each
                                                    // segment.
 
-    int                       d_rawTraceFrames; // total number of frames
-                                                // traced, including ignored
-                                                // frames.  Of these frames,
-                                                // 'd_maxRecordedFrames' frames
-                                                // will be copied to the
-                                                // allocated segments.
-
-    void                     *d_topFrame;       // pointer to '&allocate'
-                                                // method saved from top of
-                                                // stack; reviewer wanted that
-                                                // added to the trace, want to
-                                                // avoid wasting one pointer of
-                                                // space per segment for no
-                                                // gain, compiler won't allow
-                                                // '(void *) &allocate' so
-                                                // saving it once globallly
-
     bsl::ostream             *d_ostream;        // stream to which reports are
                                                 // to be written.  Held, not
                                                 // owned.
 
-    bool                      d_demangle;       // is demangling requested?
+    bool                      d_demangleFlag;   // if 'true' demangling of
+                                                // symbol names is attempted
 
-    volatile bool             d_noAbortFlag;    // do we abort after delivering
-                                                // a report on error?
-
-    void                    **d_rawTraceBuffer; // buffer for doing stack
-                                                // traces
+    volatile bool             d_noAbortFlag;    // 'true' if we are not to
+                                                // abort on errors
 
     volatile int              d_numBlocksInUse; // number of allocated blocks
                                                 // currently unfreed
@@ -341,61 +332,66 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
   private:
     // PRIVATE ACCESSORS
     int checkHeadNode() const;
-        // Check sanity of headnode.
+        // Perform sanity checks on head node, reporting any irregularities to
+        // '*d_ostream'.  Return 0 if no irregularities are found, and a
+        // non-zero value otherwise.
 
     int preDeallocateCheckSegmentHeader(
                                      const SegmentHeader *segmentHdr) const;
-        // Check sanity of segment header 'segmentHdr'.
+        // Perform sanity checks on segment header, reporting any
+        // irregularities to '*d_ostream' Return 0 if no irregularities are
+        // found, and a non-zero value otherwise.
 
   public:
     // CREATORS
     explicit
     baesu_StackTraceTestAllocator(
-                        bsl::ostream    *ostream                 = &bsl::cout,
-                        int              recordedFrames          = 8,
-                        bool             demanglingPreferredFlag = true,
-                        bslma_Allocator *basicAllocator          = 0);
+                         bsl::ostream    *ostream                 = &bsl::cout,
+                         int              numRecordedFrames       = 12,
+                         bool             demanglingPreferredFlag = true,
+                         bslma_Allocator *basicAllocator          = 0);
     explicit
     baesu_StackTraceTestAllocator(
-                        const char      *name,
-                        bsl::ostream    *ostream                 = &bsl::cout,
-                        int              recordedFrames          = 8,
-                        bool             demanglingPreferredFlag = true,
-                        bslma_Allocator *basicAllocator          = 0);
+                         const char      *name,
+                         bsl::ostream    *ostream                 = &bsl::cout,
+                         int              numRecordedFrames       = 12,
+                         bool             demanglingPreferredFlag = true,
+                         bslma_Allocator *basicAllocator          = 0);
         // Create a test allocator.  Optionally specify 'name' as the name of
         // the allocator, to be used in reports and error messages.  Optionally
         // specify 'ostream', the stream to which error messages are to be
         // reported.  If 'ostream' is not specified, 'bsl::cout' is used.
-        // Optionally specify 'recordedFrames', the number of stack trace frame
-        // pointers to be saved for every allocation, which, if not specified,
-        // is '8'.  Specifying a larger number can give a more complete stack
-        // trace, but will consume both more cpu time and more memory per
-        // allocation.  Optionally specify 'demanglingPreferredFlag' to
-        // indicate whether demangling is desired.  Demangling defaults to
-        // enabled.  'demanglingPreferredFlag' signals a preference only, on
+        // Optionally specify 'numRecordedFrames', the number of stack trace
+        // frame pointers to be saved for every allocation.  Specifying a
+        // larger value of 'numRecordedFrames' means that stack traces, when
+        // given, will be more complete, but will also mean that both more cpu
+        // time and more memory per allocation will be consumed.  Optionally
+        // specify 'demanglingPreferredFlag' to indicate whether demangling is
+        // desired.  'demanglingPreferredFlag' signals a preference only, on
         // some platforms demangling is not implemented or not optional, and on
         // those platforms the flag is ignored.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the 'bslma::MallocFreeAllocator' singleton is used, since the client
         // may be trying to avoid using the default allocator.  The behavior is
-        // undefined unless the lifetimes of 'name', 'ostream', and
-        // 'basicAllocator' are all longer than the lifetime of this object.
+        // undefined unless 'name', 'ostream', and 'basicAllocator' remain
+        // valid for the lifetime of the object.
 
     virtual ~baesu_StackTraceTestAllocator();
         // Destroy this allocator.  Report any memory leaks to the 'ostream'
-        // that was supplied at construction.  If no leaking occurred, nothing
-        // is written to the output 'ostream'.  Abort if 'numBlocksInUse() > 0'
-        // unless the 'noAbort' flag is set.  Note that if the 'noAbort' flag
-        // is set, all outstanding memory blocks will be released, but the
-        // report will still be written to 'ostream'.
+        // that was supplied at construction.  If no memory leaks are observed,
+        // nothing is written to the output 'ostream'.  Abort if
+        // 'numBlocksInUse() > 0' unless the 'noAbort' flag is set.  Note that
+        // if the 'noAbort' flag is set, all outstanding memory blocks will be
+        // released, but the report will still be written to 'ostream'.
 
     // MANIPULATORS
     virtual void *allocate(size_type size);
         // Return a newly allocated block of memory of the specified positive
         // 'size' (in bytes).  If 'size' is 0, a null pointer is returned with
         // no other other effect.  Otherwise, invoke the 'allocate' method of
-        // the allocator supplied at construction and keep track of the
-        // allocated segment so we know whether it has been freed.
+        // the allocator supplied at construction and record the returned
+        // segment in order to be able to report leaked segments upon
+        // destruction.
 
     virtual void deallocate(void *address);
         // Return the memory block at the specified 'address' back to this
@@ -431,9 +427,8 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
 
     void reportBlocksInUse(bsl::ostream *ostream = 0) const;
         // Write a report to the output stream associated with this test
-        // allocator, giving stack traces for segments that have been allocated
-        // and are not yet freed.  If the destructor finds that any segments
-        // have been leaked, this method is called.
+        // allocator, reporting the unique call-stacks for each segment that
+        // has been allocated and has not yet been freed.
 };
 
 }  // close namespace BloombergLP
