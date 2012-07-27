@@ -232,6 +232,8 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 , d_allocator_p(basicAllocator ? basicAllocator
                                : &bslma::MallocFreeAllocator::singleton())
 {
+    BSLS_ASSERT(numRecordedFrames >= 2);
+
     BSLMF_ASSERT(0 == sizeof(SegmentHeader) % MAX_ALIGNMENT);
     BSLS_ASSERT(0 == d_maxRecordedFrames * sizeof(void **) % MAX_ALIGNMENT);
 }
@@ -253,6 +255,8 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 , d_allocator_p(basicAllocator ? basicAllocator
                                : &bslma::MallocFreeAllocator::singleton())
 {
+    BSLS_ASSERT(numRecordedFrames >= 2);
+
     BSLMF_ASSERT(0 == sizeof(SegmentHeader) % MAX_ALIGNMENT);
     BSLS_ASSERT(0 == d_maxRecordedFrames * sizeof(void **) % MAX_ALIGNMENT);
 }

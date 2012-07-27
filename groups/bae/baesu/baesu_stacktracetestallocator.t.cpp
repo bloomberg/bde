@@ -102,6 +102,7 @@ using bsl::flush;
 //:   breathing test, test again somewhere else).
 //-----------------------------------------------------------------------------
 // Testing not done yet.
+//: o Test check for 'numRecordedFrames >= 2'.
 //: o That multiple frees of the same segment result in an abort if 'noAbort'
 //:   is not set.
 //: o That freeing a segment allocated by one stack trace test allocator by
@@ -128,8 +129,10 @@ using bsl::flush;
 //: o That segments returned really are of at least the requested size.
 //: o Is exception-safe if the underlying allocator throws exceptions.
 //-----------------------------------------------------------------------------
-// [20] * usage example
+// [21] * usage example
 //      * name the allocator in the usage example
+// [20] * testing for undefined behavior
+//        'numRecordedFrames >= 2'
 // [19] * stack depth testing
 //      * verify that the stack depth reported is at least as great as what
 //        was specified at construction.

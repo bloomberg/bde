@@ -374,7 +374,8 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
         // the 'bslma::MallocFreeAllocator' singleton is used, since the client
         // may be trying to avoid using the default allocator.  The behavior is
         // undefined unless 'name', 'ostream', and 'basicAllocator' remain
-        // valid for the lifetime of the object.
+        // valid for the lifetime of the object, and unless
+        // 'numRecordedFrames >= 2'.
 
     virtual ~baesu_StackTraceTestAllocator();
         // Destroy this allocator.  Report any memory leaks to the 'ostream'
