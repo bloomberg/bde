@@ -1,8 +1,8 @@
-bde-core (2.13.0.RS201206v01.0) unstable; urgency=low
+bde-core (2.14.0.RS201208v01.0) unstable; urgency=low
 
-  * Rebase to BSL 2.13.0
+  * Rebase to BSL 2.14.0
 
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 16 May 2012 17:21:41 -0500
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 27 Jul 2012 17:21:41 -0500
 
 bde-core (2.13.0.RS201205v01.0) unstable; urgency=low
 
