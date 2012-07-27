@@ -2548,7 +2548,7 @@ class TaskElement
 {
   private:
     // DATA
-    Task *d_task;      // task object
+    Task *d_task_p;    // task object
     int   d_priority;  // priority of the task
 
   public:
@@ -2556,7 +2556,7 @@ class TaskElement
     TaskElement(Task *task, int priority)
         // Construct a 'TaskElement' object containing the specified
         // 'task', having the specified 'priority'.
-    : d_task(task)
+    : d_task_p(task)
     , d_priority(priority)
     {
     }
@@ -2571,7 +2571,7 @@ class TaskElement
     Task* getTask() const
         // Return the contained task object.
     {
-        return d_task;
+        return d_task_p;
     }
 };
 //..

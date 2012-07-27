@@ -84,8 +84,8 @@ BSLS_IDENT("$Id: $")
 // thread (receiving thread) receives tasks from other applications, passing
 // them to a task scheduler; the other thread (processing thread) runs the task
 // scheduler, executing the tasks one-by-one from higher to lower priorities.
-// To accomplish this job, we can use 'bsl::priority_queue' in the task
-// scheduler to buffer received, but as yet unprocessed, tasks.  The task
+// To accomplish this functionality, we can use 'bsl::priority_queue' in the
+// task scheduler to buffer received, but as yet unprocessed, tasks.  The task
 // scheduler pushes newly received tasks onto the priority queue in the
 // receiving thread, and pops tasks off the the priority queue for execution
 // according to their priorities in the processing thread.
@@ -108,17 +108,17 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // Notice that a concrete task class derived from 'Task' protocol should
-// override 'exeucte' method to provide its own execution logics.
+// override the 'execute' method to provide its own execution logics.
 //
-// Then, we define a 'TaskElement' class, each object of which contains a
-// task object and an associated task priority:
+// Then, we define a 'TaskElement' class, which contains a task object and its
+// associated task priority:
 //..
 //  class TaskElement
 //      // This class associates a 'Task' object with an integer priority.
 //  {
 //    private:
 //      // DATA
-//      Task *d_task;      // task object (not owned)
+//      Task *d_task_p;    // task object (not owned)
 //      int   d_priority;  // priority of the task
 //
 //    public:
@@ -126,7 +126,7 @@ BSLS_IDENT("$Id: $")
 //      TaskElement(Task *task, int priority)
 //          // Construct a 'TaskElement' object containing the specified
 //          // 'task', having the specified 'priority'.
-//      : d_task(task)
+//      : d_task_p(task)
 //      , d_priority(priority)
 //      {
 //      }
@@ -141,7 +141,7 @@ BSLS_IDENT("$Id: $")
 //      Task* getTask() const
 //          // Return the contained task object.
 //      {
-//          return d_task;
+//          return d_task_p;
 //      }
 //  };
 //..
@@ -168,12 +168,11 @@ BSLS_IDENT("$Id: $")
 //  class TaskScheduler {
 //      // This class holds and schedules tasks to execute.
 //..
-// Here, we define a private data member of
-// 'bsl::priority_queue<TaskElement, bsl::vector<TaskElement>, TaskComparator>'
-// type, which is an instantiation of 'bsl::priority_queue' that uses
-// 'TaskElement' for its 'VALUE' (template parameter) type, (by default)
-// 'bsl::vector<TestElement>' for its 'CONTAINER' (template parameter) type,
-// and 'TaskComparator' for its 'COMPARATOR' (template parameter) type:
+// Here, we define a private data member that is an instantiation of
+// 'bsl::priority_queue', which uses 'TaskElement' for its 'VALUE' (template
+// parameter) type, (the default) 'bsl::vector<TestElement>' for its
+// 'CONTAINER' (template parameter) type, and 'TaskComparator' for its
+// 'COMPARATOR' (template parameter) type:
 //..
 //      // DATA
 //      bsl::priority_queue<TaskElement,
@@ -222,7 +221,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Finally, we implement the 'processTasks' method, which pops tasks off the
-// priority queue from highest to lowest priorities, and executes them:
+// priority queue in order of descending priorities, and executes them:
 //..
 //  void TaskScheduler::processTasks()
 //  {
