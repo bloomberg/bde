@@ -1462,19 +1462,16 @@ bdecs_PackedCalendar_BusinessDayConstIterator::operator=(
     d_currentOffset = rhs.d_currentOffset;
     d_endFlag       = rhs.d_endFlag;
 
-    // BSLS_ASSERT_SAFE(
-    //  (d_calendar_p->firstDate() + d_currentOffset).dayOfWeek() == d_dayOfWeek);
-
     return *this;
 }
 
             // --------------------------------------------------------------
-            // class bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator
+            // class bdecs_PackedCalendar_WeekendDaysTransitionConstIterator
             // --------------------------------------------------------------
 
 // PRIVATE CREATORS
-bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::
-bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator(
+bdecs_PackedCalendar_WeekendDaysTransitionConstIterator::
+bdecs_PackedCalendar_WeekendDaysTransitionConstIterator(
                                           const bdecs_PackedCalendar& calendar,
                                           bool endFlag)
 : d_calendar_p(&calendar)
@@ -1491,14 +1488,14 @@ bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator(
 
 // PRIVATE ACCESSORS
 bool
-bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::
+bdecs_PackedCalendar_WeekendDaysTransitionConstIterator::
                                                      implicitTransition() const
 {
     return d_calendar_p->d_weekendDaysTransitions.empty();
 }
 
-bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator&
-bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::operator++()
+bdecs_PackedCalendar_WeekendDaysTransitionConstIterator&
+bdecs_PackedCalendar_WeekendDaysTransitionConstIterator::operator++()
 {
     if (implicitTransition() && !d_endFlag) {
         d_endFlag = true;
@@ -1509,8 +1506,8 @@ bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::operator++()
     return *this;
 }
 
-bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator&
-bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::operator--()
+bdecs_PackedCalendar_WeekendDaysTransitionConstIterator&
+bdecs_PackedCalendar_WeekendDaysTransitionConstIterator::operator--()
 {
     if (implicitTransition() && d_endFlag) {
         d_endFlag = false;
@@ -1522,7 +1519,7 @@ bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::operator--()
 }
 
 const bdecs_PackedCalendar::WeekendDaysTransition&
-bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::operator*() const
+bdecs_PackedCalendar_WeekendDaysTransitionConstIterator::operator*() const
 {
     if (implicitTransition() && !d_endFlag) {
         return d_defaultTransition;
@@ -1531,7 +1528,7 @@ bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::operator*() const
 }
 
 const bdecs_PackedCalendar::WeekendDaysTransition*
-bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::operator->() const
+bdecs_PackedCalendar_WeekendDaysTransitionConstIterator::operator->() const
 {
     if (implicitTransition() && !d_endFlag) {
         return &d_defaultTransition;
@@ -1542,8 +1539,8 @@ bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator::operator->() const
 // FREE OPERATORS
 
 bool operator==(
-           const bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& lhs,
-           const bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& rhs)
+            const bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& lhs,
+            const bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& rhs)
 {
     if (lhs.d_calendar_p != rhs.d_calendar_p) {
         return false;
@@ -1559,26 +1556,26 @@ bool operator==(
 }
 
 bool operator!=(
-           const bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& lhs,
-           const bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& rhs)
+            const bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& lhs,
+            const bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& rhs)
 {
     return !(lhs == rhs);
 }
 
-bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator
-operator++(bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& iter,
+bdecs_PackedCalendar_WeekendDaysTransitionConstIterator
+operator++(bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& iter,
            int)
 {
-    bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator temp = iter;
+    bdecs_PackedCalendar_WeekendDaysTransitionConstIterator temp = iter;
     ++iter;
     return temp;
 }
 
-bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator
-operator--(bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator& iter,
+bdecs_PackedCalendar_WeekendDaysTransitionConstIterator
+operator--(bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& iter,
            int)
 {
-    bdecs_PackedCalendar_WeekendDaysTransitionsConstIterator temp = iter;
+    bdecs_PackedCalendar_WeekendDaysTransitionConstIterator temp = iter;
     --iter;
     return temp;
 }
