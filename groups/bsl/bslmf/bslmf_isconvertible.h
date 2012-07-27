@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::IsConvertible: compile-time type conversion checker
 //
-//@AUTHOR: Paul Staniforth (pstaniforth)
-//
 //@SEE_ALSO: bslmf_metaint
 //
 //@DESCRIPTION: This component defines a meta-function (i.e., a compile-time

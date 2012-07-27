@@ -44,6 +44,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLTT_INTEGERCONSTANT
+#include <bslmf_integerconstant.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
 #endif
@@ -93,6 +97,24 @@ struct IsEnum_AnyArithmeticType {
         // over a conversion from 'long double' to 'int' and, therefore, would
         // be ambiguous.
 };
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+namespace bsl {
+
+template <typename TYPE>
+struct is_enum : !is_fundamental<TYPE>
+                 && is_convertible<TYPE, IsEnum_AnyArithmeticType>
+{
+};
+
+}
+
+namespace BloombergLP {
+
+namespace bslmf {
 
                         // ============
                         // class IsEnum

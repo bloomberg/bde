@@ -88,7 +88,7 @@ namespace bslmf {
                          // ========================
 
 template <typename T>
-struct IsFundamental_Imp : MetaInt<0>
+struct IsFundamental_Imp : bsl::false_type
 {
     // This class is an implementation detail.  Do not use directly.  The
     // general case for type 'T' is that it is assumed not to be fundamental.
@@ -101,59 +101,78 @@ struct IsFundamental_Imp : MetaInt<0>
 };
 
 template <> struct IsFundamental_Imp<bool>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<char>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<signed char>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<unsigned char>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<wchar_t>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<short>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<unsigned short>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<int>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<unsigned int>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<long>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<unsigned long>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<long long>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<unsigned long long>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<float>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<double>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<long double>
-    : MetaInt<1> { };
+    : bsl::true_type { };
 template <> struct IsFundamental_Imp<void>
-    : MetaInt<1> { };
+    : bsl::true_type { };
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+namespace bsl {
+
+template <typename TYPE>
+struct is_fundamental
+    : BloombergLP::bslmf::IsFundamental_Imp<typename remove_cv<TYPE>::type>
+{
+    // This class implements a meta-function for checking if a type is
+    // fundamental.
+};
+
+template <typename TYPE>
+struct is_fundamental<TYPE&>
+    : BloombergLP::bslmf::IsFundamental_Imp<typename remove_cv<TYPE>::type>
+{
+    // This specialization of 'is_fundamental' causes references to be treated
+    // as their underlying (non-reference) types.
+};
+
+}
+
+namespace BloombergLP {
+
+namespace bslmf {
 
                          // ====================
                          // struct IsFundamental
                          // ====================
 
 template <typename TYPE>
-struct IsFundamental
-               : IsFundamental_Imp<typename RemoveCvq<TYPE>::Type >
+struct IsFundamental : MetaInt<bsl::is_fundamental<TYPE>::value>
 {
     // This class implements a meta-function for checking if a type is
     // fundamental.  The static constant 'VALUE' member will be 1 if 'TYPE' is
     // fundamental and 0 otherwise.
-};
-
-template <typename TYPE>
-struct IsFundamental<TYPE&>
-               : IsFundamental_Imp<typename RemoveCvq<TYPE>::Type >
-{
-    // This specialization of 'IsFundamental' causes references to be treated
-    // as their underlying (non-reference) types.
 };
 
 }  // close package namespace
