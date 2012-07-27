@@ -234,69 +234,18 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
     // supplying (at construction) any other allocator implementing the
     // 'Allocator' protocol.
 
-    typedef bsls::Types::UintPtr UintPtr;
-
-    enum SegmentHeaderMagic {
-        // Magic number stored in every 'SegmentHeader', reflecting 3 possible
-        // states.
-
-#ifdef BSLS_PLATFORM__CPU_32_BIT
-        HIGH_ONES = 0,
-#else
-        HIGH_ONES = (UintPtr) 111111111 * 10 * 1000 * 1000 * 1000,
-#endif
-
-        UNFREED_SEGMENT_MAGIC = (UintPtr) 1222222221 + HIGH_ONES,
-        FREED_SEGMENT_MAGIC   = (UintPtr) 1333333331 + HIGH_ONES,
-        HEAD_NODE_MAGIC       = (UintPtr) 1555555551 + HIGH_ONES
-    };
-
-    BSLMF_ASSERT(sizeof(SegmentHeaderMagic) == sizeof(void *));
-
     // PRIVATE TYPES
-    struct SegmentHeader {
-        // A record of this type is stored in each segment, after the stack
-        // pointers and immediate before the user area of memory in the
-        // segment.  These 'SegmentHeader' objects form a circular linked list
-        // consisting of all segments which are unfreed plus one
-        // 'SegmentHeader' object within the 'baesu_StackTraceTestAllocator'
-        // record, which serves as the head node for the list.
-        //
-        // Note that the 'd_magic' and 'd_allocator_p' fields are at
-        // the end of the 'SegmentHeader', putting them adjacent to the
-        // client's area of memory, making them the most likely fields to be
-        // corrupted.  A corrupted 'd_allocator_p' or especially a corrupted
-        // 'd_magic' are much more likely to be properly diagnosed by the
-        // allocator with a meaningful error message and no segfault than a
-        // corrupted 'd_next_p' or 'd_prev_p'.
+    enum AllocatorMagic { STACK_TRACE_TEST_ALLOCATOR_MAGIC = 1335775331 };
 
-        // DATA
-        SegmentHeader                 *d_next_p;      // next object in the
-                                                      // doubly-linked list
-
-        SegmentHeader                 *d_prev_p;      // previous object in
-                                                      // doubly-linked list.
-
-        baesu_StackTraceTestAllocator *d_allocator_p; // creator of segment
-
-        SegmentHeaderMagic             d_magic;       // Magic number -- has
-                                                      // different values for
-                                                      // an unfreed segment, a
-                                                      // freed segment, or the
-                                                      // head node.
-
-        // CREATOR
-        SegmentHeader(SegmentHeader                 *next,
-                      SegmentHeader                 *prev,
-                      baesu_StackTraceTestAllocator *stackTraceTestAllocator,
-                      SegmentHeaderMagic             magic);
-            // Create a segment hear, populating the fields with the specified
-            // 'alloc', 'next', 'prev', and 'magic' arguments.
-    };
+    struct SegmentHeader;                       // information stored in each
+                                                // segment
 
     // DATA
-    SegmentHeader             d_headNode;       // Headnode of segment headers
-                                                // list.
+    AllocatorMagic            d_magic;          // magic # to identify type of
+                                                // memory allocator
+
+    SegmentHeader            *d_segments;       // list of allocated, unfreed
+                                                // segments
 
     mutable bcemt_Mutex       d_mutex;          // mutex used to synchronize
                                                 // access to this object
@@ -306,7 +255,17 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
 
     const int                 d_maxRecordedFrames; // max number of stack trace
                                                    // frames to store in each
-                                                   // segment.
+                                                   // segment.  May be larger
+                                                   // than the number of frames
+                                                   // requested to the c'tor
+                                                   // due to ignored frames.
+
+    const int                 d_traceBufferLength; // length of area for
+                                                   // storing stack traces.
+                                                   // May be larger than
+                                                   // 'd_maxRecordedFrames' due
+                                                   // to alignment
+                                                   // considerations.
 
     bsl::ostream             *d_ostream;        // stream to which reports are
                                                 // to be written.  Held, not
