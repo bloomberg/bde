@@ -68,32 +68,53 @@ BDES_IDENT("$Id: $")
 // can be significantly more efficient for certain repeated
 // "is-common-business-day" determinations among two or more calendars.
 //
+///Weekend-Days Transitions
+///------------------------
+// A calendar maintains a sequence of weekend-days transitions, each of which
+// comprises a start date and a set of days of the week considered to be the
+// weekend (weekend days).  The start date of a weekend-days transition
+// determines the date at which the transition's associated set of weekend days
+// starts to takes effect -- the calendar determines a date is a weekend day if
+// the date's day of the week is contained in the set of weekend days of the
+// weekend-days transition having the nearest start date on or prior to the
+// date in question.
+//
+// On construction, a calendar contains a single default weekend-day transition
+// at a start date of 1/1/1.  The 'addWeekendDay' and 'addWeekendDays' method
+// adds days of the weeks to the default weekend-day transition.  The
+// 'addWeekendDaysTransition' method can be used to add a new weekend-day
+// tranisition.  Note that, 'addWeekendDay' and 'addWeekendDays' methods are
+// convenient ways to define the weekend days of a calendar for which the day
+// of the week considered to be weekend days always stays the same.
+//
 ///Nested Iterators
 ///----------------
 // Also provided are several STL-style 'const' bidirectional iterators
 // accessible as nested 'typedef's.  'HolidayConstIterator',
-// 'HolidayCodeConstIterator', and 'WeekendDayConstIterator', respectively,
-// iterate over a chronologically ordered sequence of holidays, a numerically
-// ordered sequence of holiday codes, and a sequence of weekend days, ordered
-// from Sunday to Saturday.  As a general rule, calling a 'const' method will
-// not invalidate any iterators, and calling a non-'const' method might
-// invalidate any of them; it is, however, guaranteed that attempting to add
-// *duplicate* holidays or holiday codes will have no effect, and therefore
+// 'HolidayCodeConstIterator', and 'WeekendDaysTransitionConstIterator',
+// respectively, iterate over a chronologically ordered sequence of holidays, a
+// numerically ordered sequence of holiday codes, and a sequence of weekend
+// days, ordered from Sunday to Saturday.  As a general rule, calling a 'const'
+// method will not invalidate any iterators, and calling a non-'const' method
+// might invalidate any of them; it is, however, guaranteed that attempting to
+// add *duplicate* holidays or holiday codes will have no effect, and therefore
 // will not invalidate any iterators.  It is also guaranteed that adding a new
 // code for an existing holiday will not invalidate any 'HolidayConstIterator'.
 //
 ///Performance and Exception-Safety Guarantees
 ///-------------------------------------------
 // The asymptotic worst-case performance of representative operations is
-// characterized using big-O notation, 'O[f(N,M)]', where 'N' and 'M' each
-// refer to the combined number ('H + C') of holidays 'H' (i.e., method
-// 'numHolidays') and holiday codes 'C' (i.e., 'numHolidayCodesTotal') in
-// the respective packed calendars.  Here, *Best* *Case* complexity,
-// denoted by 'B[f(N)]', is loosely defined (for manipulators) as the
-// worst-case cost, provided that (1) no additional internal capacity is
-// required, (2) the bottom of the valid range does not change, and (3) that if
-// a holiday (or holiday code) is being added, it is being appended *to* *the*
-// *end* of the current sequence (of the latest holiday).
+// characterized using big-O notation, 'O[f(N,M,W,V)]'.  'N' and 'M' each refer
+// to the combined number ('H + C') of holidays 'H' (i.e., method
+// 'numHolidays') and holiday codes 'C' (i.e., 'numHolidayCodesTotal') in the
+// respective packed calendars.  'W' and 'V' each refer to the (likely small)
+// number of weekend-days transition in the respective packed calendars.  Here,
+// *Best* *Case* complexity, denoted by 'B[f(N)]', is loosely defined (for
+// manipulators) as the worst-case cost, provided that (1) no additional
+// internal capacity is required, (2) the bottom of the valid range does not
+// change, and (3) that if a holiday (or holiday code) is being added, it is
+// being appended *to* *the* *end* of the current sequence (of the latest
+// holiday).
 //..
 //                                    Worst       Best   Exception-Safety
 //  Operation                          Case       Case      Guarantee
@@ -112,11 +133,12 @@ BDES_IDENT("$Id: $")
 //  N.addHolidayCode(d,c)             O[N]        O[1]    Basic <*>
 //
 //  N.addWeekendDay(w)                O[1]                No-Throw
+//  N.addWeekendDaysTransition(d,w)   O[W]
 //
-//  N.intersectBusinessDays(M)        O[N+M]              Basic <*>
-//  N.intersectNonBusinessDays(M)     O[N+M]              Basic <*>
-//  N.unionBusinessDays(M)            O[N+M]              Basic <*>
-//  N.unionNonBusinessDays(M)         O[N+M]              Basic <*>
+//  N.intersectBusinessDays(M)        O[N+M+W+V]          Basic <*>
+//  N.intersectNonBusinessDays(M)     O[N+M+W+V]          Basic <*>
+//  N.unionBusinessDays(M)            O[N+M+W+V]          Basic <*>
+//  N.unionNonBusinessDays(M)         O[N+M+W+V]          Basic <*>
 //
 //  N.removeHoliday(d)                O[N]                No-Throw
 //  N.removeHolidayCode(d, c)         O[N]                No-Throw
@@ -469,23 +491,22 @@ class bdecs_PackedCalendar_WeekendDaysTransitionConstIterator;
                         // ==========================
 
 class bdecs_PackedCalendar {
-    // This class implements a space-efficient, fully value-semantic
-    // repository of weekend and holiday information over a *valid* *range*
-    // of dates.  This valid range, '[ firstDate() .. lastDate() ]', spans
-    // the first and last dates of a calendar's accessible contents.  A
-    // calendar can be "populated" with weekend and holiday information via a
-    // suite of 'add' methods.  Any subset of days of the week may be
-    // specified as weekend (i.e., recurring non-business) days for each
-    // occurrence of that day-of-the-week within the valid range; holidays
-    // within the valid range are specified individually.  When adding a
-    // holiday, an arbitrary integer "holiday code" may be associated with
-    // that date.  Additional holiday codes for that date may subsequently be
-    // added.  Both the holidays and the set of unique holiday codes
-    // associated with each holiday date are maintained (internally) in order
-    // of increasing value.  Note that the behavior of requesting *any*
-    // calendar information for a supplied date whose value is outside the
-    // current *valid* *range* for that calendar (unless otherwise noted,
-    // e.g., 'isWeekendDay') is undefined.
+    // This class implements a space-efficient, fully value-semantic repository
+    // of weekend and holiday information over a *valid* *range* of dates.
+    // This valid range, '[ firstDate() .. lastDate() ]', spans the first and
+    // last dates of a calendar's accessible contents.  A calendar can be
+    // "populated" with weekend and holiday information via a suite of 'add'
+    // methods.  Any subset of days of the week may be specified as weekend
+    // (i.e., recurring non-business) days for each occurrence of that
+    // day-of-the-week in a specified range; holidays within the valid range
+    // are specified individually.  When adding a holiday, an arbitrary integer
+    // "holiday code" may be associated with that date.  Additional holiday
+    // codes for that date may subsequently be added.  Both the holidays and
+    // the set of unique holiday codes associated with each holiday date are
+    // maintained (internally) in order of increasing value.  Note that the
+    // behavior of requesting *any* calendar information for a supplied date
+    // whose value is outside the current *valid* *range* for that calendar
+    // (unless otherwise noted, e.g., 'isWeekendDay') is undefined.
     //
     // More generally, this class supports a complete set of *value* *semantic*
     // operations, including copy construction, assignment, equality
@@ -771,24 +792,26 @@ class bdecs_PackedCalendar {
         // build up a set of holiday codes for that date.
 
     void addWeekendDay(bdet_DayOfWeek::Day weekendDay);
-        // Add to this calendar the specified 'weekendDay' (i.e., a recurring
-        // non-business day).  All dates within the valid range '[ firstDate()
-        // .. lastDate() ]' that fall on this day of the week will cease to be
-        // business days.  Note that every occurrence of 'weekendDay' will
-        // continue be a non-business day, even if the valid range of this
-        // calendar is subsequently increased.  The behavior is undefined if
-        // weekend-days transitions (added via the 'addWeekendDaysTransition'
-        // method) exist in this calendar.
+        // Add the specified 'weekendDays' to the set of weekend days associated
+        // with the default weekend-days transition at 1/1/1.  All dates within
+        // the valid range '[ firstDate() .. lastDate() ]' that fall on this
+        // day of the week will cease to be business days.  Note that every
+        // occurrence of 'weekendDay' will continue be a non-business day, even
+        // if the valid range of this calendar is subsequently increased.  The
+        // behavior is undefined if the sequence of weekend-days transitions
+        // maintained by this calendar comprises more than the default
+        // transition.
 
     void addWeekendDays(const bdec_DayOfWeekSet& weekendDays);
-        // Add to this calendar the specified 'weekendDays' (i.e., recurring
-        // non-business days).  All dates within the valid range '[ firstDate()
-        // .. lastDate() ]' that fall on any day in 'weekendDays' cease to be
-        // business days.  Note that every occurrence of every day of the week
-        // in 'weekendDays' will continue to be a non-business day, even if the
-        // valid range of this calendar is subsequently increased.  The
-        // behavior is undefined if weekend-days transitions (added via the
-        // 'addWeekendDaysTransition' method) exist in this calendar.
+        // Add the specified 'weekendDay' to the set of weekend days associated
+        // with the default weekend-days transition at 1/1/1.  All dates within
+        // the valid range '[ firstDate() .. lastDate() ]' that fall on this
+        // day of the week will cease to be business days.  Note that every
+        // occurrence of 'weekendDay' will continue be a non-business day, even
+        // if the valid range of this calendar is subsequently increased.  The
+        // behavior is undefined if the sequence of weekend-days transitions
+        // maintained by this calendar comprises more than the default
+        // transition.
 
     void addWeekendDaysTransition(const bdet_Date& date,
                                   const bdec_DayOfWeekSet& weekendDays);
@@ -1539,14 +1562,9 @@ operator--(bdecs_PackedCalendar_HolidayCodeConstIterator& iterator, int);
 class bdecs_PackedCalendar_WeekendDaysTransitionConstIterator {
     // This 'class' provides a read-only, 'const' iterator type to sequentially
     // access (in increasing chronological order) the weekend-days transitions
-    // in a 'bdecs_PackedCalendar' object.  Note that, if no weekend-days
-    // transitions have been added to the calendar and some (universally
-    // applicable) weekend days have been added to the calendar using the
-    // 'bdecs_PackedCalendar::addWeekendDays' method or the
-    // 'bdecs_PackedCalendar::addWeekendDay' method, the set of weekend-days
-    // transitions observed using a iterator of this type comprises a single
-    // transition of the weekend days added by the two methods at the date
-    // '1/1/1'.
+    // in a 'bdecs_PackedCalendar' object.  Note that, on construction, a
+    // packed calendar has a default weekend-day transition with no weekend
+    // days at a start date of 1/1/1.
 
     // DATA
     const bdecs_PackedCalendar    *d_calendar_p;         // calendar refered by
