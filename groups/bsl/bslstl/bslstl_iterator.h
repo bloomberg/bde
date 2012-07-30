@@ -21,7 +21,171 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_iterator.h>' directly.  This component provides the facilities of the
-// iterators library from the C++ Standard.
+// iterators library from the C++ Standard, including iterator primitives
+// (24.4), iterator adaptors (24.5), and stream iterators (24.6).
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Using Iterators to Traverse a Container
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we will use the 'bsl::iterator' and 'bsl::reverse_iterator'
+// to traverse an iterable container type.
+//
+// Suppose that we have an iterable container template type 'MyFixedSizeArray'.
+// An instantiation of 'MyFixedSizeArray' represents an array having fixed
+// number of elements, which is a parameter passed to the class constructor
+// during construction.  A traversal of 'MyFixedSizeArray' can be accomplished
+// using basic iterators (pointers) as well as reverse iterators.
+//
+// First, we create a elided definition of the template container class,
+// 'MyFixedSizeArray', which provides mutable and constant iterators of
+// template type 'bsl::iterator' and 'reverse_iteraotr':
+//..
+//  template <class T, class ALLOC>
+//  class MyFixedSizeArray
+//      // This is a container that contains a fixed number of elements.  The
+//      // number of elements is specified upon construction and can not be
+//      // changed afterwards.
+//  {
+//      ALLOC  d_allocator;  // the allocator to supply memory
+//
+//      int    d_length;     // fixed size of this container
+//
+//      T     *d_array;      // head pointer to the elements
+//
+//    public:
+//      // PUBLIC TYPES
+//      typedef ALLOC  allocator_type;
+//      typedef T      value_type;
+//..
+// Here, we define mutable and constant iterators and reverse iterators:
+//..
+//      typedef T                                      *iterator;
+//      typedef T const                                *const_iterator;
+//      typedef bsl::reverse_iterator<iterator>         reverse_iterator;
+//      typedef bsl::reverse_iterator<const_iterator>   const_reverse_iterator;
+//
+//      // CREATORS
+//      MyFixedSizeArray(int length, const ALLOC& alloc = ALLOC());
+//          // Create a 'MyFixedSizeArray' object having the specified 'length'
+//          // elements, and using the specified 'alloc' to supply memory.
+//
+//      MyFixedSizeArray(const MyFixedSizeArray& rhs,
+//                       const ALLOC&            alloc = ALLOC());
+//          // Create a 'MyFixedSizeArray' object having same number of
+//          // elements as that of the specified 'rhs', the same value of each
+//          // element as that of corresponding element in 'rhs', and using
+//          // the specified 'alloc' to supply memory.
+//
+//      ~MyFixedSizeArray();
+//          // Destroy this object.
+//..
+// Here, we define the 'begin' and 'end' methods to return basic iterators
+// ('T*' and 'const T*'), and the 'rbegin' and 'rend' methods to return reverse
+// iterators ('bsl::reverse_iterator<T*>' and 'bsl::reverse_iterator<const T*>)
+// type:
+//..
+//      // MANIPULATORS: None.
+//
+//      // ACCESSORS
+//      const_iterator begin() const;
+//            iterator begin();
+//          // Return the basic iterator referring to the first valid element
+//          // of this object.
+//
+//      const_iterator end() const;
+//            iterator end();
+//          // Return the basic iterator referring to the position one after
+//          // the last valid element of this object.
+//
+//      const_reverse_iterator rbegin() const;
+//            reverse_iterator rbegin();
+//          // Return the reverse iterator referring to the last valid element
+//          // of this object.
+//
+//      const_reverse_iterator rend() const;
+//            reverse_iterator rend();
+//          // Return the reverse iterator referring to the position one before
+//          // the first valid element of this object.
+//
+//      const T& operator[](int i) const;
+//            T& operator[](int i);
+//          // Return the reference of the specified 'i'th element of this
+//          // object.
+//
+//      int length() const;
+//          // Return the number of elements contained in this object.
+//
+//      const ALLOC& allocator() const;
+//          // Return the allocator used to supply memory for this object.
+//          // Notice that this is here for illustrative purposes.  We should
+//          // not generally have an accessor to return the allocator.
+//  };
+//
+//  // ...
+//..
+// Then, we create a 'MyFixedSizeArray' and initialize its elements:
+//..
+//  // Create a fixed array having five elements.
+//
+//  MyFixedSizeArray<int, bsl::allocator<int> > fixedArray(5);
+//
+//  // Initialize the values of each element in the fixed array.
+//
+//  for (int i = 0; i < fixedArray.length(); ++i) {
+//      fixedArray[i] = i + 1;
+//  }
+//..
+// Next, we generate basic iterators using the 'begin' and 'end' methods of the
+// fixed array object:
+//..
+//  MyFixedSizeArray<int, bsl::allocator<int> >::iterator start
+//                                                        = fixedArray.begin();
+//  MyFixedSizeArray<int, bsl::allocator<int> >::iterator finish
+//                                                        = fixedArray.end();
+//..
+// Then, we traverse the fixed array from beginning to end using the two
+// generated basic iterators:
+//..
+//  printf("Traverse array using basic iterator:\n");
+//  while (start != finish) {
+//      printf("\tElement: %d\n", *start);
+//      ++start;
+//  }
+//..
+// Now, we generate reverse iterators using the 'rbegin' and 'rend' methods of
+// the fixed array object:
+//..
+//  MyFixedSizeArray<int, bsl::allocator<int> >::reverse_iterator rstart
+//                                                       = fixedArray.rbegin();
+//  MyFixedSizeArray<int, bsl::allocator<int> >::reverse_iterator rfinish
+//                                                       = fixedArray.rend();
+//..
+// Finally, we traverse the fixed array again in reverse order using the two
+// generated reverse iterators:
+//..
+//  printf("Traverse array using reverse iterator:\n");
+//  while (rstart != rfinish) {
+//      printf("\tElement: %d\n", *rstart);
+//      ++rstart;
+//  }
+//..
+// The console output will be like following after running this usage example:
+//
+// Traverse array using basic iterator:
+//      Element: 1
+//      Element: 2
+//      Element: 3
+//      Element: 4
+//      Element: 5
+// Traverse array using reverse iterator:
+//      Element: 5
+//      Element: 4
+//      Element: 3
+//      Element: 2
+//      Element: 1
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
