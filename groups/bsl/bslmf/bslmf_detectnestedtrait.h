@@ -67,11 +67,15 @@ class DetectNestedTrait_Imp {
     enum { VALUE = (1 == sizeof(check(TypeRep<TYPE>::rep(), 0))) };
         // Non-zero if 'TRAIT' is associated with 'TYPE' using the nested type
         // trait mechanism; otherwise zero.
+
+    typedef integer_constant<bool, VALUE> Type;
+        // Type representing the result of this metafunction.  Equivalent to
+        // 'true_type' if 'TRAIT' is associated with 'TYPE' using the nested
+        // type trait mechanism; otherwise 'false_type'.
 };
 
 template <class TYPE, template <class T> class TRAIT>
-struct DetectNestedTrait :
-    bslmf::integer_constant<bool, DetectNestedTrait_Imp<TYPE, TRAIT>::VALUE> {
+struct DetectNestedTrait : DetectNestedTrait_Imp<TYPE, TRAIT>::Type {
     // Metafunction to detect whether the specified 'TRAIT' parameter is
     // associated with the specified 'TYPE' parameter using the nested type
     // trait mechanism.  Inherits from 'true_type' iff 'TYPE' is convertible
