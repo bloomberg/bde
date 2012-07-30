@@ -105,8 +105,13 @@ struct IsEnum_AnyArithmeticType {
 namespace bsl {
 
 template <typename TYPE>
-struct is_enum : !is_fundamental<TYPE>
-                 && is_convertible<TYPE, IsEnum_AnyArithmeticType>
+struct is_enum
+    : integer_constant<
+        bool,
+        !is_fundamental<TYPE>::value
+           && is_convertible<
+                        TYPE,
+                        BloombergLP::bslmf::IsEnum_AnyArithmeticType>::value>
 {
 };
 
@@ -122,8 +127,7 @@ namespace bslmf {
 
 template <class TYPE>
 struct IsEnum
-: MetaInt<!IsFundamental<TYPE>::VALUE
-         && IsConvertible<TYPE, IsEnum_AnyArithmeticType>::VALUE> {
+    : MetaInt<bsl::is_enum<TYPE>::value>
     // This struct provides a meta-function that computes, at compile time,
     // whether 'TYPE' is of enumeration type.  It derives from 'MetaInt<1>' if
     // 'TYPE' is an enumeration type, or from 'MetaInt<0>' otherwise.
@@ -133,6 +137,7 @@ struct IsEnum
     // to 'int' without invoking user-defined conversions).  This class takes
     // advantage if this property to distinguish 'enum' types from class types
     // that are convertible to 'int'.
+{
 };
 
 }  // close package namespace
@@ -152,8 +157,7 @@ struct IsEnum
 #endif
 
 // ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+// NOTICE: //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

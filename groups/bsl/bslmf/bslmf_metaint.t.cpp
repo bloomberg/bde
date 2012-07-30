@@ -17,7 +17,7 @@ using namespace bslmf;
 //                                Overview
 //                                --------
 //-----------------------------------------------------------------------------
-// [ 1] VALUE 
+// [ 1] VALUE
 // [ 2] operator int() const;
 // [ 2] operator bool() const;
 // [ 3] implicit upcast to bslmf::integer_constant<int, INT_VALUE>
@@ -167,7 +167,7 @@ int dispatchOnBoolConstant(float, bslmf::true_type)
 //-----------------------------------------------------------------------------
 
 ///Example 1: Compile-Time Function Dispatching
-/// - - - - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - - - - -
 // The most common use of this structure is to perform static function
 // dispatching based on a compile-time calculation.  Often the calculation is
 // nothing more than a simple predicate, allowing us to select one of two
@@ -183,7 +183,7 @@ int dispatchOnBoolConstant(float, bslmf::true_type)
         (void) t;
         // ...
     }
-  
+
     template <class T>
     void doSomethingImp(T *t, bslmf::MetaInt<1>)
     {
@@ -191,7 +191,7 @@ int dispatchOnBoolConstant(float, bslmf::true_type)
         (void) t;
         // ...
     }
-  
+
     template <class T, bool IsFast>
     void doSomething(T *t)
     {
@@ -208,15 +208,15 @@ int dispatchOnBoolConstant(float, bslmf::true_type)
     {
         int i;
         doSomething<int, true>(&i); // fast version selected for int
-  
+
         double m;
         doSomething<double, false>(&m); // slow version selected for double
-  
+
         return 0;
     }
 //..
 ///Example 2: Reading the 'VALUE' member
-/// - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - -
 // In addition to forming new types, the value of the integral paramameter to
 // 'MetaInt' is "saved" in the enum member 'VALUE', and is accessible for use
 // in compile-time or run-time operations.
@@ -229,7 +229,7 @@ int dispatchOnBoolConstant(float, bslmf::true_type)
         ASSERT(V == bslmf::MetaInt<V>::VALUE);
         return bslmf::MetaInt<V>::VALUE;
     }
-  
+
     int usageExample2()
     {
         int v = g<1>();
@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
         //:   second.
         //
         // Plan:
-==>        //: 1 Create a function template, 'matchIntConstant<V>' having two
+        //: 1 Create a function template, 'matchIntConstant<V>' having two
         //:   overloads: one that takes an argument of type
         //:   'integer_constant<int, V>' and returns 'true', and another which
         //:   takes an argument of a type convertible from *any*
@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
 
         bool g = MetaInt<1>();
         ASSERT(g);
-        
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
