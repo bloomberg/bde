@@ -124,32 +124,62 @@ template <> struct IsLong<long>     : bslmf::true_type { };
 template <class TYPE> struct IsFloat : bslmf::false_type { };
 template <> struct IsFloat<float>    : bslmf::true_type { };
 
+int whichTrait(bslmf::false_type)                   { return 0; }
+template <class TYPE> int whichTrait(IsBool<TYPE>)  { return 1; }
+template <class TYPE> int whichTrait(IsChar<TYPE>)  { return 2; }
+template <class TYPE> int whichTrait(IsShort<TYPE>) { return 3; }
+template <class TYPE> int whichTrait(IsLong<TYPE>)  { return 4; }
+template <class TYPE> int whichTrait(IsFloat<TYPE>) { return 5; }
+
 template <class TYPE>
 int breathingTest()
 {
     // Use enum to ensure that evaluation is at compile time
     enum {
         RESULT = bslmf::SelectTrait<TYPE
-                                  , IsBool,  1
-                                  , IsChar,  2
-                                  , IsShort, 3
-                                  , IsLong,  4
-                                  , IsFloat, 5>::value,
+                                  , IsBool
+                                  , IsChar
+                                  , IsShort
+                                  , IsLong
+                                  , IsFloat>::ORDINAL,
 
         RESULT_A = bslmf::SelectTrait<TYPE
-                                    , IsBool, 1
-                                    , IsChar, 2
-                                    , bslmf::SelectTraitDefault, 0>::value,
+                                    , IsBool
+                                    , IsChar>::ORDINAL,
 
         RESULT_B = bslmf::SelectTrait<TYPE
-                                    , IsShort, 3
-                                    , IsLong,  4
-                                    , IsFloat, 5
-                                    , bslmf::SelectTraitDefault, 0>::value,
+                                    , IsShort
+                                    , IsLong
+                                    , IsFloat>::ORDINAL
     };
 
+    typedef bslmf::SelectTrait<TYPE
+                             , IsBool
+                             , IsChar
+                             , IsShort
+                             , IsLong
+                             , IsFloat> Selection;
+
+    typedef bslmf::SelectTrait<TYPE
+                             , IsBool
+                             , IsChar> Selection_A;
+
+    typedef bslmf::SelectTrait<TYPE
+                             , IsShort
+                             , IsLong
+                             , IsFloat> Selection_B;
+
     ASSERT(! (RESULT_A && RESULT_B));
-    ASSERT(RESULT == RESULT_A + RESULT_B);
+    ASSERT(RESULT == RESULT_A ? RESULT_A : 2 + RESULT_B);
+
+    ASSERT(RESULT   == whichTrait(Selection()));
+    ASSERT(RESULT_A == whichTrait(Selection_A()));
+    if (RESULT_B) {
+        ASSERT(2 + RESULT_B == whichTrait(Selection_B()));
+    }
+    else {
+        ASSERT(0 == whichTrait(Selection_B()));
+    }
 
     return RESULT;
 }
@@ -238,40 +268,37 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
                                   bslma::Allocator   *allocator);
     };
 //..
-// Next, we implement four overloads of 'Imp::copyConstruct', each taking a
-// different 'integer_constant' specialization.  For testing purposes, in
-// addition to copying the data member, each overload also increments a
-// separate counter.  These implemenations are slightly simplified for
-// readability:
+// Next, we implement three overloads of 'Imp::copyConstruct', each taking a
+// different trait specialization. A fourth overload takes 'false_type'
+// instead of a trait specialization, for those types that don't match any
+// traits.  For testing purposes, in addition to copying the data member, each
+// overload also increments a separate counter.  These implemenations are
+// slightly simplified for readability:
 //..
     struct Imp {
 
-        enum {
-            // These constants are used in the overloads below, when the last
-            // argument is of type 'bslmf::MetaInt<N> *', indicating that
-            // 'TARGET_TYPE' has the traits for which the enumerator equal to
-            // 'N' is named.
+        // Counters for counting overload calls
+        static int d_noTraitsCounter;
+        static int d_usesBslmaAllocatorCounter;
+        static int d_isPairCounter;
+        static int d_isBitwiseCopyableCounter;
 
-            USES_BSLMA_ALLOCATOR_TRAITS     = 5,
-            PAIR_TRAITS                     = 4,
-            BITWISE_COPYABLE_TRAITS         = 2,
-            NIL_TRAITS                      = 0
-        };
-
-        static int d_counters[USES_BSLMA_ALLOCATOR_TRAITS + 1];
-
-        static void clearCounters()
-            { std::memset(d_counters, 0, sizeof(d_counters)); }
+        static void clearCounters() {
+            d_noTraitsCounter = 0;
+            d_usesBslmaAllocatorCounter = 0;
+            d_isPairCounter = 0;
+            d_isBitwiseCopyableCounter = 0;
+        }
 
         template <typename TARGET_TYPE>
         static void
         copyConstruct(TARGET_TYPE                                 *address,
                       const TARGET_TYPE&                           original,
                       bslma::Allocator                            *allocator,
-                      integer_constant<int, USES_BSLMA_ALLOCATOR_TRAITS>)
+                      UsesBslmaAllocator<TARGET_TYPE>)
         {
             new (address) TARGET_TYPE(original, allocator);
-            ++d_counters[USES_BSLMA_ALLOCATOR_TRAITS];
+            ++d_usesBslmaAllocatorCounter;
         }
 
         template <typename TARGET_TYPE>
@@ -279,13 +306,13 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         copyConstruct(TARGET_TYPE                 *address,
                       const TARGET_TYPE&           original,
                       bslma::Allocator            *allocator,
-                      integer_constant<int, PAIR_TRAITS>)
+                      IsPair<TARGET_TYPE>)
         {
             ScalarPrimitives::copyConstruct(&address->first, original.first,
                                             allocator);
             ScalarPrimitives::copyConstruct(&address->second, original.second,
                                             allocator);
-            ++d_counters[PAIR_TRAITS];
+            ++d_isPairCounter;
         }
 
         template <typename TARGET_TYPE>
@@ -293,10 +320,10 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         copyConstruct(TARGET_TYPE                             *address,
                       const TARGET_TYPE&                       original,
                       bslma::Allocator                        *,
-                      integer_constant<int, BITWISE_COPYABLE_TRAITS>)
+                      IsBitwiseCopyable<TARGET_TYPE>)
         {
             std::memcpy(address, &original, sizeof(original));
-            ++d_counters[BITWISE_COPYABLE_TRAITS];
+            ++d_isBitwiseCopyableCounter;
         }
 
         template <typename TARGET_TYPE>
@@ -304,14 +331,17 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         copyConstruct(TARGET_TYPE                *address,
                       const TARGET_TYPE&          original,
                       bslma::Allocator           *,
-                      integer_constant<int, NIL_TRAITS>)
+                      false_type)
         {
             new (address) TARGET_TYPE(original);
-            ++d_counters[NIL_TRAITS];
+            ++d_noTraitsCounter;
         }
     };
 
-    int bslalg::Imp::d_counters[USES_BSLMA_ALLOCATOR_TRAITS + 1] = { 0 };
+    int Imp::d_noTraitsCounter = 0;
+    int Imp::d_usesBslmaAllocatorCounter = 0;
+    int Imp::d_isPairCounter = 0;
+    int Imp::d_isBitwiseCopyableCounter = 0;
 //..
 // Then, we implement 'ScalarPrimitives::copyConstruct':
 //..
@@ -322,21 +352,20 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
                                     bslma::Allocator   *allocator)
     {
 //..
-// We use 'bslmf::SelectTrait' to declare 'Selection' as an instantiation of
-// 'integer_constant' corresponding to the first match of the specified
-// traits:
+// We use 'bslmf::SelectTrait' to declare 'Selection' as a specialization
+// of the first match of the specified traits:
 //..
-        typedef bslmf::SelectTrait<TARGET_TYPE,
-            UsesBslmaAllocator,        Imp::USES_BSLMA_ALLOCATOR_TRAITS,
-            IsBitwiseCopyable,         Imp::BITWISE_COPYABLE_TRAITS,
-            IsPair,                    Imp::PAIR_TRAITS,
-            bslmf::SelectTraitDefault, Imp::NIL_TRAITS> Selection;
+        typedef typename bslmf::SelectTrait<TARGET_TYPE,
+                                            UsesBslmaAllocator,
+                                            IsBitwiseCopyable, 
+                                            IsPair>::Type Selection;
 //..
-// Now, we use 'Selection' to choose (at compiler time), one of the
+// Now, we use 'Selection' to choose (at compile time), one of the
 // 'Imp::copyConstruct' overloads defined above:
 //..
         Imp::copyConstruct(address, original, allocator, Selection());
-    }
+    } // end copyConstruct()
+
     } // Close namespace bslalg
 //..
 // Finally, we define three classes, associated with each of the three traits
@@ -408,7 +437,6 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         TypeWithNoTraits(int v = 0) : d_value(v) { }
         int value() const { return d_value; }
     };
-
 //..
 // We use these classes to instantiate 'ScalarPrimitives::copyConstruct' and
 // verify that the most efficient copy operation that is valid for each type
@@ -429,42 +457,42 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // When we call 'ScalarPrimitives::copyConstruct' for an object of
 // 'TypeWithAllocator', we expect that the copy will have the same value but a
 // different allocator than the original and that the
-// 'USES_BSLMA_ALLOCATOR_TRAITS' copy implementation will be called once:
+// 'UsesBslmaAllocator' copy implementation will be called once:
 //..
         Imp::clearCounters();
         TypeWithAllocator  twa(1, a1);
         TypeWithAllocator *twaptr = (TypeWithAllocator*) buffer;
         bslalg::ScalarPrimitives::copyConstruct(twaptr, twa, a2);
-        ASSERT(1 == Imp::d_counters[Imp::USES_BSLMA_ALLOCATOR_TRAITS]);
+        ASSERT(1 == Imp::d_usesBslmaAllocatorCounter);
         ASSERT(1 == twaptr->value());
         ASSERT(a2 == twaptr->allocator());
         twaptr->~TypeWithAllocator();
 //..
 // When we call 'ScalarPrimitives::copyConstruct' for an object of
-// 'BitwiseCopyableType', we expect that the 'BITWISE_COPYABLE_TRAITS' copy
+// 'BitwiseCopyableType', we expect that the 'IsBitwiseCopyable' copy
 // implementation will be called once:
 //..
         Imp::clearCounters();
         BitwiseCopyableType  bct(2);
         BitwiseCopyableType *bctptr = (BitwiseCopyableType*) buffer;
         bslalg::ScalarPrimitives::copyConstruct(bctptr, bct, a2);
-        ASSERT(1 == Imp::d_counters[Imp::BITWISE_COPYABLE_TRAITS]);
+        ASSERT(1 == Imp::d_isBitwiseCopyableCounter);
         ASSERT(2 == bctptr->value());
         bctptr->~BitwiseCopyableType();
 //..
 // When we call 'ScalarPrimitives::copyConstruct' for an object of
-// 'PairType', we expect that the 'PAIR_TRAITS' copy implementation will be
+// 'PairType', we expect that the 'IsPair' copy implementation will be
 // called once for the pair as whole and that the
-// 'USES_BSLMA_ALLOCATOR_TRAITS' and 'BITWISE_COPYABLE_TRAITS' implementations
+// 'UsesBslmaAllocator' and 'IsBitwiseCopyable' implementations
 // will be called for the 'first' and 'second' members, respectively:
 //..
         Imp::clearCounters();
         PairType  pt(3, 4);
         PairType *ptptr = (PairType*) buffer;
         bslalg::ScalarPrimitives::copyConstruct(ptptr, pt, a2);
-        ASSERT(1 == Imp::d_counters[Imp::PAIR_TRAITS]);
-        ASSERT(1 == Imp::d_counters[Imp::USES_BSLMA_ALLOCATOR_TRAITS]);
-        ASSERT(1 == Imp::d_counters[Imp::BITWISE_COPYABLE_TRAITS]);
+        ASSERT(1 == Imp::d_isPairCounter);
+        ASSERT(1 == Imp::d_usesBslmaAllocatorCounter);
+        ASSERT(1 == Imp::d_usesBslmaAllocatorCounter);
         ASSERT(3 == ptptr->first.value());
         ASSERT(a2 == ptptr->first.allocator());
         ASSERT(4 == ptptr->second.value());
@@ -474,29 +502,29 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // 'BitwiseCopyablePairType', the 'IsBitwiseCopyable' trait takes precedence
 // over the 'IsPair' trait (because it appears first in the list of traits
 // used to instantiate 'SelectTrait').  Therefore, we expect to see the
-// 'BITWISE_COPYABLE_TRAITS' copy implementation called once for the whole
-// pair and the 'PAIR_TRAITS' copy implementation not called at all:
+// 'IsBitwiseCopyable' copy implementation called once for the whole
+// pair and the 'IsPair' copy implementation not called at all:
 //..
         Imp::clearCounters();
         BitwiseCopyablePairType  bcpt(5, 6);
         BitwiseCopyablePairType *bcptbcptr = (BitwiseCopyablePairType*) buffer;
         bslalg::ScalarPrimitives::copyConstruct(bcptbcptr, bcpt, a2);
         // Prefer IsBitwiseCopyable over IsPair trait
-        ASSERT(1 == Imp::d_counters[Imp::BITWISE_COPYABLE_TRAITS]);
-        ASSERT(0 == Imp::d_counters[Imp::PAIR_TRAITS]);
+        ASSERT(1 == Imp::d_isBitwiseCopyableCounter);
+        ASSERT(0 == Imp::d_isPairCounter);
         ASSERT(5 == bcptbcptr->first.value());
         ASSERT(6 == bcptbcptr->second.value());
         bcptbcptr->~BitwiseCopyablePairType();
 //..
 // When we call 'ScalarPrimitives::copyConstruct' for an object of
 // 'TypeWithNoTraits', we expect none of the specialized copy implementations
-// to be called, thus defaulting to the 'NIL_TRAITS' copy implementation:
+// to be called, thus defaulting to the 'false_type' copy implementation:
 //..
         Imp::clearCounters();
         TypeWithNoTraits  twnt(7);
         TypeWithNoTraits *twntptr = (TypeWithNoTraits*) buffer;
         bslalg::ScalarPrimitives::copyConstruct(twntptr, twnt, a2);
-        ASSERT(1 == Imp::d_counters[Imp::NIL_TRAITS]);
+        ASSERT(1 == Imp::d_noTraitsCounter);
         ASSERT(7 == twntptr->value());
         twntptr->~TypeWithNoTraits();
 
@@ -505,7 +533,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //..
 // Note that using 'SelectTraits' for dispatching using overloading imposes
 // little or no overhead, since the compiler typically generates no code for
-// the constructor or copy constructor of the 'integer_constant' argument to
+// the constructor or copy constructor of the trait argument to
 // the overloaded functions.  When inlining is in effect, the result is very
 // efficient.
 

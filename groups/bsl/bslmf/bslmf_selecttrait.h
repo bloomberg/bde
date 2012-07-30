@@ -368,8 +368,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integerconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
-#include <bslmf_assert.h>
+#ifndef INCLUDED_BSLMF_SWITCH
+#include <bslmf_switch.h>
 #endif
 
 namespace BloombergLP {
@@ -386,43 +386,63 @@ struct SelectTrait_False : false_type
     // Metafunction that always returns false.
 };
 
+                        // ======================
+                        // struct SelectTrait_Imp
+                        // ======================
+
+template <class TRAIT_EVAL1, class TRAIT_EVAL2, class TRAIT_EVAL3,
+          class TRAIT_EVAL4, class TRAIT_EVAL5, class TRAIT_EVAL6,
+          class TRAIT_EVAL7, class TRAIT_EVAL8, class TRAIT_EVAL9>
+struct SelectTrait_Imp
+{
+    enum { ORDINAL = (TRAIT_EVAL1::value ? 1 :
+                      TRAIT_EVAL2::value ? 2 :
+                      TRAIT_EVAL3::value ? 3 :
+                      TRAIT_EVAL4::value ? 4 :
+                      TRAIT_EVAL5::value ? 5 :
+                      TRAIT_EVAL6::value ? 6 :
+                      TRAIT_EVAL7::value ? 7 :
+                      TRAIT_EVAL8::value ? 8 :
+                      TRAIT_EVAL9::value ? 9 : 0) };
+
+    typedef typename Switch<ORDINAL, false_type,
+                            TRAIT_EVAL1, TRAIT_EVAL2, TRAIT_EVAL3, TRAIT_EVAL4,
+                            TRAIT_EVAL5, TRAIT_EVAL6, TRAIT_EVAL7, TRAIT_EVAL8,
+                            TRAIT_EVAL9>::Type Type;
+
+};
+
                         // ==================
                         // struct SelectTrait
                         // ==================
 
 template <class TYPE, 
-          template <class t> class TRAIT1, int VAL1,
-          template <class t> class TRAIT2 = SelectTrait_False, int VAL2 = -99,
-          template <class t> class TRAIT3 = SelectTrait_False, int VAL3 = -99,
-          template <class t> class TRAIT4 = SelectTrait_False, int VAL4 = -99,
-          template <class t> class TRAIT5 = SelectTrait_False, int VAL5 = -99>
-struct SelectTrait :
-        integer_constant<int, (TRAIT1<TYPE>::value ? VAL1 :
-                               TRAIT2<TYPE>::value ? VAL2 :
-                               TRAIT3<TYPE>::value ? VAL3 :
-                               TRAIT4<TYPE>::value ? VAL4 :
-                               TRAIT5<TYPE>::value ? VAL5 : -99)>
+          template <class T> class TRAIT1,
+          template <class T> class TRAIT2 = SelectTrait_False,
+          template <class T> class TRAIT3 = SelectTrait_False,
+          template <class T> class TRAIT4 = SelectTrait_False,
+          template <class T> class TRAIT5 = SelectTrait_False,
+          template <class T> class TRAIT6 = SelectTrait_False,
+          template <class T> class TRAIT7 = SelectTrait_False,
+          template <class T> class TRAIT8 = SelectTrait_False,
+          template <class T> class TRAIT9 = SelectTrait_False>
+struct SelectTrait : SelectTrait_Imp<TRAIT1<TYPE>, TRAIT2<TYPE>, TRAIT3<TYPE>,
+                                     TRAIT4<TYPE>, TRAIT5<TYPE>, TRAIT6<TYPE>,
+                                     TRAIT7<TYPE>, TRAIT8<TYPE>, TRAIT9<TYPE>
+                                    >::Type
 {
+private:
+    typedef SelectTrait_Imp<TRAIT1<TYPE>, TRAIT2<TYPE>, TRAIT3<TYPE>,
+                            TRAIT4<TYPE>, TRAIT5<TYPE>, TRAIT6<TYPE>,
+                            TRAIT7<TYPE>, TRAIT8<TYPE>, TRAIT9<TYPE> > Imp;
+
+public:
+    typedef typename Imp::Type Type;
+
+    static const int ORDINAL = Imp::ORDINAL;
+
     // Class description
-
-    // At least one trait must fire.  Use 'SelectTraitDefault' to avoid falling
-    // off the end.
-    BSLMF_ASSERT(TRAIT1<TYPE>::value  ||
-                 TRAIT2<TYPE>::value  ||
-                 TRAIT3<TYPE>::value  ||
-                 TRAIT4<TYPE>::value  ||
-                 TRAIT5<TYPE>::value);
-};
-
-                        // =========================
-                        // struct SelectTraitDefault
-                        // =========================
-
-template <class TYPE>
-struct SelectTraitDefault : true_type
-{
-    // Metafunction that always returns true.  This metafunction is useful for
-    // choosing a "default" value for 'SelectTrait'.
+    typedef integer_constant<int, ORDINAL> OrdinalType;
 };
 
 }  // close package namespace
