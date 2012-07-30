@@ -2,11 +2,11 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_X64_WIN_MSVC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_X64_WIN_MSVC
 
-//@PURPOSE: Provide implentations of atomic operations for X86_64/Windows.
+//@PURPOSE: Provide implentations of atomic operations for X86_64/MSVC/Windows.
 //
 //@CLASSES:
 //  bsls::AtomicOperations_X64_WIN_MSVC: implementation of atomics for
-//                                       X86_64/Windows
+//                                       X86_64/MSVC/Windows
 //
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations_default.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_X86_64) && defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM__CPU_X86_64) && defined(BSLS_PLATFORM__CMP_MSVC)
 
 #include <intrin.h>
 
@@ -270,7 +270,7 @@ Types::Int64 AtomicOperations_X64_WIN_MSVC::
 
 }  // close enterprise namespace
 
-#endif  // X86_64 && WINDOWS
+#endif  // X86_64 && MSVC
 
 #endif
 

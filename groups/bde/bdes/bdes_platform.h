@@ -70,7 +70,7 @@ BDES_IDENT("$Id: $")
 //      Vendor                    Version
 //      -----------------   -------------------
 //      *__CMP_AIX          *__CMP_VER_MAJOR
-//      *__CMP_EDG          *__CMP_VER_MINOR
+//      *__CMP_EDG
 //      *__CMP_EPC
 //      *__CMP_GNU
 //      *__CMP_HP
@@ -206,18 +206,11 @@ BDES_IDENT("$Id: $")
 #if defined(BDES_PLATFORM__OS_VER_MAJOR) \
          && BDES_PLATFORM__OS_SUBTYPE_COUNT != 1
         // For OS, MAJOR VERSION implies SUBTYPE.
-    #error "Operating system major version by not subtype defined."
+    #error "Operating system major version but not subtype defined."
     char assertion[0];                         // stop non-compliant compilers
 #endif
 
 #undef BDES_PLATFORM__OS_SUBTYPE_COUNT
-
-#if defined(BDES_PLATFORM__CMP_VER_MINOR) && \
-   !defined(BDES_PLATFORM__CMP_VER_MAJOR)
-        // For each category, MINOR VERSION implies MAJOR VERSION
-    #error "Compiler minor but not major version defined."
-    char assertion[0];                         // stop non-compliant compilers
-#endif
 
 #if defined(BDES_PLATFORM__OS_VER_MINOR) && \
    !defined(BDES_PLATFORM__OS_VER_MAJOR)

@@ -25,9 +25,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstddef>
-#include <typeinfo>
+#include <iomanip>
 #include <sstream>
 #include <stdexcept>
+#include <typeinfo>
 
 #if defined(std)
 // This is a workaround for the way test drivers are built in an IDE-friendly
@@ -14234,6 +14235,11 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(ostrm.str().c_str(),
                     0 == std::strcmp(ostrm.str().c_str(), "hello world"));
 
+        // can operator<< handle negative width?
+        ostrm.str("");
+        ostrm << std::setw(-10) << myStr;
+        ASSERT(ostrm.str() == myStr);
+
         char inbuf[] = " goodbye world\n";
         std::istringstream istrm(inbuf);
         istrm >> myStr;
@@ -14247,6 +14253,12 @@ int main(int argc, char *argv[])
         myStr = "done";
         getline(istrm, myStr);
         LOOP_ASSERT(myStr.c_str(), "done" == myStr);
+
+        // can operator>> handle negative width?
+        istrm.str("setw");
+        istrm.clear();
+        istrm >> setw(-10) >> myStr;
+        LOOP_ASSERT(myStr.c_str(), myStr == "setw");
 
       } break;
       case -1: {

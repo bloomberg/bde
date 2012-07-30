@@ -16,6 +16,8 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Ilougino Rocha (irocha), Pablo Halpern (phalpern),
 //         Alisdair Meredith (ameredith1@bloomberg.net)
 //
+//@SEE_ALSO: bslmf_ispolymporphic
+//
 //@DESCRIPTION: This component provides a proctor, similar to 'bsl::auto_ptr',
 // that supports user-specified deleters.  The proctor is responsible for the
 // automatic destruction of the object referenced by the managed pointer.  As
@@ -25,7 +27,10 @@ BDES_IDENT("$Id: $")
 // has unusual "copy-semantics" that transfer ownership of the managed object,
 // rather than making a copy.  It should be noted that this signature does not
 // satisfy the requirements for an element-type stored in any of the standard
-// library containers.
+// library containers.  Note that this component will fail to compile when
+// instantiated for a class that gives a false-positive for the type trait
+// 'bslmf::IsPolymorphic'.  See the 'bslmf_ispolymporphic' component for more
+// details.
 //
 ///Deleters
 ///--------

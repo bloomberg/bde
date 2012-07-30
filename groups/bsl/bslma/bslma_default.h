@@ -644,6 +644,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_NEWDELETEALLOCATOR
 #include <bslma_newdeleteallocator.h>
 #endif
@@ -664,10 +668,13 @@ struct Default {
 
   private:
     // CLASS DATA
-    static Allocator       *s_allocator_p;        // the default allocator
-    static int              s_locked;             // lock to disable non-Raw
+    static bsls::AtomicOperations::AtomicTypes::Pointer s_allocator;
+                                                  // the default allocator
+    static bsls::AtomicOperations::AtomicTypes::Int     s_locked;
+                                                  // lock to disable non-Raw
                                                   // 'set' of default allocator
-    static Allocator       *s_globalAllocator_p;  // the global allocator
+    static bsls::AtomicOperations::AtomicTypes::Pointer s_globalAllocator;
+                                                  // the global allocator
 
   public:
     // CLASS METHODS
@@ -762,18 +769,21 @@ struct Default {
 inline
 void Default::lockDefaultAllocator()
 {
-    s_locked = 1;
+    bsls::AtomicOperations::setIntRelaxed(&s_locked, 1);
 }
 
 inline
 Allocator *Default::defaultAllocator()
 {
-    if (!s_allocator_p) {
+    if (!bsls::AtomicOperations::getPtrAcquire(&s_allocator)) {
         setDefaultAllocatorRaw(&NewDeleteAllocator::singleton());
     }
 
-    s_locked = 1;  // unconditionally lock
-    return s_allocator_p;
+    if (!bsls::AtomicOperations::getIntRelaxed(&s_locked)) {
+        bsls::AtomicOperations::setIntRelaxed(&s_locked, 1);
+    }
+
+    return (Allocator *) bsls::AtomicOperations::getPtrRelaxed(&s_allocator);
 }
 
 inline
@@ -787,9 +797,12 @@ Allocator *Default::allocator(Allocator *basicAllocator)
 inline
 Allocator *Default::globalAllocator(Allocator *basicAllocator)
 {
+    Allocator *globalAllocator = (Allocator *)
+                     bsls::AtomicOperations::getPtrAcquire(&s_globalAllocator);
+
     return basicAllocator ? basicAllocator
-                          : s_globalAllocator_p
-                                      ? s_globalAllocator_p
+                          : globalAllocator
+                                      ? globalAllocator
                                       : &NewDeleteAllocator::singleton();
 }
 
