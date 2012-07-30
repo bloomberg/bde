@@ -46,6 +46,39 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
+#include <bslmf_integerconstant.h>
+#endif
+
+namespace bsl {
+
+template <typename TYPE>
+struct is_void : false_type
+{
+};
+
+template <>
+struct is_void<void> : true_type
+{
+};
+
+template <>
+struct is_void<const void> : true_type
+{
+};
+
+template <>
+struct is_void<volatile void> : true_type
+{
+};
+
+template <>
+struct is_void<const volatile void> : true_type
+{
+};
+
+}  // close namespace bsl
+
 namespace BloombergLP {
 
 namespace bslmf
@@ -55,48 +88,17 @@ namespace bslmf
              // struct bslmf_IsVoid
              // ===================
 
-template<class BSLMF_TYPE>
-struct IsVoid;
+template<class TYPE>
+struct IsVoid : MetaInt<bsl::is_void<TYPE>::value>
     // This metafunction struct contains a nested 'VALUE' which converts to
     // 'true' if 'BSLMF_TYPE' is type 'void' and to 'false' otherwise, and
     // a nested type alias 'TYPE' corresponding to 'bslmf::MetaInt<VALUE>'.
+{
+};
 
-// ===========================================================================
-//                      TEMPLATE SPECIALIZATIONS
-// ===========================================================================
+}  // close package namespace
 
-             // -------------------
-             // struct bslmf_IsVoid
-             // -------------------
-
-template <class BSLMF_TYPE>
-struct IsVoid : MetaInt<0> { };
-    // This metafunction struct contains a nested 'VALUE' which converts to
-    // 'true' if 'BSLMF_TYPE' is type 'void' and to 'false' otherwise.
-
-
-template <>
-struct IsVoid<void>  : MetaInt<1> { };
-    // This specialization implements the metafunction when 'BSLMF_TYPE' is
-    // 'void'.
-
-template <>
-struct IsVoid<const void>  : MetaInt<1> { };
-    // This specialization implements the metafunction when 'BSLMF_TYPE' is
-    // 'const void'.
-
-template <>
-struct IsVoid<volatile void>  : MetaInt<1> { };
-    // This specialization implements the metafunction when 'BSLMF_TYPE' is
-    // 'volatile void'.
-
-template <>
-struct IsVoid<const volatile void>  : MetaInt<1> { };
-    // This specialization implements the metafunction when 'BSLMF_TYPE' is
-    // 'const volatile void'.
-
-}  // close namespace bslmf
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
