@@ -2510,217 +2510,229 @@ namespace UsageExample {
 // priorities.
 //
 // Suppose we want to write a background process that runs tasks needed by
-// foreground applications.  This background process has two threads: one
-// thread (receiving thread) receives tasks from other applications, passing
-// them to a task scheduler; the other thread (processing thread) runs the task
-// scheduler, executing the tasks one-by-one from higher to lower priorities.
-// To accomplish this job, we can use a 'bsl::priority_queue' object in the
-// task scheduler to buffer received, but as yet unprocessed tasks.  The task
-// scheduler pushes newly received tasks onto the priority queue in the
-// receiving thread, and pops tasks off the the priority queue for execution
+// foreground applications.  Each task has a task id, a priority, and a
+// function pointer that can be invoked by the background process.  This
+// background process has two threads: one thread (receiving thread) receives
+// requests from other applications, passing required tasks to a task
+// scheduler; the other thread (processing thread) runs the task scheduler,
+// executing the tasks one-by-one from higher to lower priorities.  To
+// implement this functionality, we can use 'bsl::priority_queue' in the task
+// scheduler to buffer received, but as yet unprocessed, tasks.  The task
+// scheduler adds newly received tasks into the priority queue in the receiving
+// thread, and extracts tasks from the the priority queue for execution
 // according to their priorities in the processing thread.
 //
-// First, we define a 'Task' protocol:
+// First, we define a 'TaskFunction' type:
+//..
+typedef void (*TaskFunction)(int, int);
+//..
+// Then, we define a 'Task' class, which contains a task id, a 'TaskFunction'
+// object and an associated task priority:
 //..
 class Task
-    // This class provides a protocol for executing tasks.
-{
-  public:
-    // CREATORS
-    virtual ~Task()
-        // Destroy this task.
-    {
-    }
-
-    // MANIPULATORS
-    virtual void execute() = 0;
-        // Run this task.
-};
-//..
-// Notice that a concrete task class derived from 'Task' protocol should
-// override 'exeucte' method to provide its own execution logics.
-//
-// Then, we define a 'TaskElement' class, each object of which contains a
-// task object and an associated task priority:
-//..
-class TaskElement
-    // This class associates a 'Task' object with an integer priority.
+    // This class represents a task that has an integer task id, a task
+    // function, and an integer priority.  The smaller the numerical value
+    // of a priority, the higher the priority.
 {
   private:
     // DATA
-    Task *d_task_p;    // task object
-    int   d_priority;  // priority of the task
+    int          d_taskId;          // task id
+
+    TaskFunction d_taskFunction_p;  // task function
+
+    int          d_priority;        // priority of the task
 
   public:
     // CREATORS
-    TaskElement(Task *task, int priority)
-        // Construct a 'TaskElement' object containing the specified
-        // 'task', having the specified 'priority'.
-    : d_task_p(task)
-    , d_priority(priority)
-    {
-    }
+    explicit Task(int taskId, TaskFunction taskFunction, int priority);
+        // Construct a 'Task' object having the specified 'taskId', the
+        // specified 'd_taskFunction_p', and the specified 'priority'.
 
     // ACCESSORS
-    int getPriority() const
-        // Return the priority of the contained task.
-    {
-        return d_priority;
-    }
+    int getId() const;
+        // Return the contained task id.
 
-    Task* getTask() const
-        // Return the contained task object.
-    {
-        return d_task_p;
-    }
+    int getPriority() const;
+        // Return the priority of the task.
+
+    TaskFunction getFunction() const;
+        // Return the contained task function object.
 };
+
+// CREATORS
+Task::Task(int taskId, TaskFunction taskFunction, int priority)
+: d_taskId(taskId)
+, d_taskFunction_p(taskFunction)
+, d_priority(priority)
+{
+}
+
+// ACCESSORS
+inline
+int Task::getId() const
+{
+    return d_taskId;
+}
+
+inline
+int Task::getPriority() const
+{
+    return d_priority;
+}
+
+inline
+TaskFunction Task::getFunction() const
+{
+    return d_taskFunction_p;
+}
 //..
-// Next, we define a functor to compare priorities of two 'TaskElement' objects
+// Next, we define a functor to compare the priorities of two 'Task' objects:
 //..
 struct TaskComparator {
-    // This 'struct' defines an ordering on 'TaskElement' objects,
-    // allowing them to be included in sorted data structures such as
+    // This 'struct' defines an ordering on 'Task' objects, allowing them
+    // to be included in sorted data structures such as
     // 'bsl::priority_queue'.
 
-    bool operator()(const TaskElement& lhs, const TaskElement& rhs) const
-        // Return 'true' if the priority of the specified 'lhs' is higher
-        // than that of the specified 'rhs', and 'false' otherwise.  Note
-        // that the smaller the value returned by the
-        // 'TaskElement::getPriority' method, the higher the priority is.
+    bool operator()(const Task& lhs, const Task& rhs) const
+        // Return 'true' if the priority of the specified 'lhs' is
+        // numerically less than that of the specified 'rhs', and 'false'
+        // otherwise.  Note that the smaller the value returned by the
+        // 'Task::getPriority' method, the higher the priority.
     {
         return lhs.getPriority() > rhs.getPriority();
     }
 };
 //..
-// Then, we declare a 'TaskScheduler' class that provide methods to hold and
+// Then, we define a 'TaskScheduler' class that provides methods to hold and
 // schedule unprocessed tasks:
 //..
 class TaskScheduler {
     // This class holds and schedules tasks to execute.
 //..
-// Here, we define a private data member of
-// 'bsl::priority_queue<TaskElement, bsl::vector<TaskElement>, TaskComparator>'
-// type, which is an instantiation of 'bsl::priority_queue' that uses
-// 'TaskElement' for its 'VALUE' (template parameter) type, (by default)
-// 'bsl::vector<TestElement>' for its 'CONTAINER' (template parameter) type,
-// and 'TaskComparator' for its 'COMPARATOR' (template parameter) type:
+// Here, we define a private data member that is an instantiation of
+// 'bsl::priority_queue', which uses 'Task' for its 'VALUE' (template
+// parameter) type, 'bsl::vector<Task>' for its 'CONTAINER' (template
+// parameter) type, and 'TaskComparator' for its 'COMPARATOR' (template
+// parameter) type:
 //..
     // DATA
-    bsl::priority_queue<TaskElement,
-                        bsl::vector<TaskElement>,
+    bsl::priority_queue<Task,
+                        bsl::vector<Task>,
                         TaskComparator>
-                d_taskPrQueue;  // priority queue holding unprocessed tasks
+          d_taskPriorityQueue;  // priority queue holding unprocessed tasks
 
     // ...
 
   public:
     // CREATORS
-    TaskScheduler(bslma::Allocator *basicAllocator = 0);
-        // Create a task scheduler object.  Optionally specify a
+    explicit TaskScheduler(bslma::Allocator *basicAllocator = 0);
+        // Create a 'TaskScheduler' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
         // 0, the currently installed default allocator is used.
 
     // MANIPULATORS
-    void addTask(Task *task, int priority);
-        // Enqueue the specified 'task' having the specified 'priority' for
-        // scheduling.
+    void addTask(int taskId, TaskFunction taskFunction, int priority);
+        // Enqueue the specified 'task' having the specified 'priority'
+        // onto this scheduler.
 
     void processTasks();
-        // Deque the task having the highest priority in the scheduler.
+        // Dequeue the task having the highest priority in this scheduler.
 };
 //..
 // Next, we implement the 'TaskScheduler' constructor:
 //..
 TaskScheduler::TaskScheduler(bslma::Allocator *basicAllocator)
-: d_taskPrQueue(basicAllocator)
+: d_taskPriorityQueue(basicAllocator)
 {
 }
 //..
-// Notice that we pass to the contained 'd_taskPrQueue' object the
+// Notice that we pass to the contained 'd_taskPriorityQueue' object the
 // 'bslma::Allocator' supplied to the 'TaskScheduler' at construction.
 //
-// Now, we implement the 'addTask' method, which constructs a 'TaskElement'
-// having the given task and priority, and pushes it onto the priority queue:
+// Then, we implement the 'addTask' method, which constructs a 'Task' object
+// and adds it into the priority queue:
 //..
-void TaskScheduler::addTask(Task *task, int priority)
+void TaskScheduler::addTask(int taskId,
+                            TaskFunction taskFunction,
+                            int priority)
 {
     // ... (some synchronization)
 
-    d_taskPrQueue.push(TaskElement(task, priority));
+    d_taskPriorityQueue.push(Task(taskId, taskFunction, priority));
 
     // ...
 }
 //..
-// Finally, we implement the 'processTasks' method, which pops tasks off the
-// priority queue from higher to lower priorities, and executes them:
+// Next, we implement the 'processTasks' method, which extracts tasks from the
+// priority queue in order of descending priorities, and executes them:
 //..
 void TaskScheduler::processTasks()
 {
     // ... (some synchronization)
 
-    while (!d_taskPrQueue.empty()) {
-        const TaskElement& taskElem = d_taskPrQueue.top();
-        taskElem.getTask()->execute();
-        d_taskPrQueue.pop();
+    while (!d_taskPriorityQueue.empty()) {
+        const Task& task = d_taskPriorityQueue.top();
+        TaskFunction taskFunction = task.getFunction();
+        if (taskFunction) {
+            taskFunction(task.getId(), task.getPriority());
+        }
+        d_taskPriorityQueue.pop();
     }
 
     // ...
 }
 //..
-// Note that the 'top' method always returns the task element having the
-// highest priority.
+// Note that the 'top' method always returns the 'Task' object having the
+// highest priority in the priority queue.
+//
+// Then, we define two task functions:
+//..
+void taskFunction1(int taskId, int priority)
+{
+    printf("Executing task %d (priority = %d) in 'taskFunction1'.\n",
+           taskId,
+           priority);
+}
 
-class ConcreteTask1 : public Task {
-
-    // DATA
-    int d_id;
-
-  public:
-
-    // CREATORS
-    explicit ConcreteTask1(int id)
-    : d_id(id)
-    {
-    }
-
-    // MANIPULATORS
-    void execute()
-    {
-        printf("ConcreteTask1: id = %d\n", d_id);
-    }
-
-    // ACCESSORS
-    int getId() const
-    {
-        return d_id;
-    }
-};
-
-class ConcreteTask2 : public Task {
-
-    // DATA
-    int d_id;
-
-  public:
-
-    // CREATORS
-    explicit ConcreteTask2(int id)
-    : d_id(id)
-    {
-    }
-
-    // MANIPULATORS
-    void execute()
-    {
-        printf("ConcreteTask2: id = %d\n", d_id);
-    }
-
-    // ACCESSORS
-    int getId() const
-    {
-        return d_id;
-    }
-};
+void taskFunction2(int taskId, int priority)
+{
+    printf("Executing task %d (priority = %d) in 'taskFunction2'.\n",
+           taskId,
+           priority);
+}
+//..
+// Next, we create a global 'TaskScheduler' object:
+//..
+//  TaskScheduler taskScheduler;
+//..
+// Now, we call the 'addTask' method of 'taskScheduler' in the receiving
+// thread:
+//..
+//  // (in receiving thread)
+//  // ...
+//
+//  taskScheduler.addTask(1, taskFunction1, 50);
+//
+//  // ...
+//
+//  taskScheduler.addTask(2, taskFunction1, 99);
+//
+//  // ...
+//
+//  taskScheduler.addTask(3, taskFunction2, 4);
+//
+//  // ...
+//..
+// Finally, we call the 'processTasks' method of 'taskScheduler' in the
+// processing thread:
+//..
+//  // (in processing thread)
+//  // ...
+//
+//  taskScheduler.processTasks();
+//
+//  // ...
+//..
 
 }  // close namespace UsageExample
 
@@ -2761,30 +2773,30 @@ int main(int argc, char *argv[])
 
         TaskScheduler taskScheduler(&ta);
 
-        ConcreteTask1 task01(         1);
-        ConcreteTask2 task02(     65535);
-        ConcreteTask1 task03(       530);
-        ConcreteTask2 task04(      -200);
-        ConcreteTask1 task05(         0);
-        ConcreteTask2 task06(   INT_MAX);
-        ConcreteTask1 task07(     10005);
-        ConcreteTask2 task08(      1366);
-        ConcreteTask1 task09( 999999999);
-        ConcreteTask2 task10(   INT_MIN);
-        ConcreteTask1 task11(-123456789);
+        int priorities[] = {1,
+                            65535,
+                            530,
+                            -200,
+                            0,
+                            INT_MAX,
+                            10005,
+                            1366,
+                            999999999,
+                            INT_MIN,
+                            -123456789};
+        const int numTasks = sizeof(priorities) / sizeof(priorities[0]);
 
-        taskScheduler.addTask(&task01, task01.getId());
-        taskScheduler.addTask(&task02, task02.getId());
-        taskScheduler.addTask(&task03, task03.getId());
-        taskScheduler.addTask(&task04, task04.getId());
-        taskScheduler.addTask(&task05, task05.getId());
+        for (int i = 0;i < 5; ++i) {
+            taskScheduler.addTask(i + 1,
+                                  (i % 2) ? taskFunction1 : taskFunction2,
+                                  priorities[i]);
+        }
         taskScheduler.processTasks();
-        taskScheduler.addTask(&task06, task06.getId());
-        taskScheduler.addTask(&task07, task07.getId());
-        taskScheduler.addTask(&task08, task08.getId());
-        taskScheduler.addTask(&task09, task09.getId());
-        taskScheduler.addTask(&task10, task10.getId());
-        taskScheduler.addTask(&task11, task11.getId());
+        for (int i = 5;i < numTasks; ++i) {
+            taskScheduler.addTask(i + 1,
+                                  (i % 2) ? taskFunction1 : taskFunction2,
+                                  priorities[i]);
+        }
         taskScheduler.processTasks();
       } break;
       case 13: {
