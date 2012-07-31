@@ -125,20 +125,7 @@ struct ConvertAlignmentToType {
         // the value 'ALIGNMENT' for both its alignment and it's size.
 };
 
-// Then, we define a template 'IsSame' whose 'VALUE' enum returns 'true' if
-// two matching types are passed to it:
-
-template <class A, class B>
-struct IsSame {
-    enum { VALUE = 0 };
-};
-
-template <class A>
-struct IsSame<A, A> {
-    enum { VALUE = 1 };
-};
-
-// Next, we define a couple of types we might want to evaluate:
+// Then, we define a couple of types we might want to evaluate:
 
 struct ThisStruct {
     short  d_s;
@@ -221,58 +208,33 @@ int main(int argc, char *argv[])
         // We will use the facilities in this component to evaluate a few
         // types: 'int', and 'ThisStruct' & 'ThatStruct' defined above.
         //
-        // Then, we calculate alignments for our 3 types with
+        // Next, we calculate alignments for our 3 types with
         // 'AlignmentImpCalc'.
 
-        enum {
-            INT_ALIGNMENT  = bsls::AlignmentImpCalc<int       >::VALUE,
-            THIS_ALIGNMENT = bsls::AlignmentImpCalc<ThisStruct>::VALUE,
-            THAT_ALIGNMENT = bsls::AlignmentImpCalc<ThatStruct>::VALUE };
+        const int INT_ALIGNMENT  = bsls::AlignmentImpCalc<int       >::VALUE;
+        const int THIS_ALIGNMENT = bsls::AlignmentImpCalc<ThisStruct>::VALUE;
+        const int THAT_ALIGNMENT = bsls::AlignmentImpCalc<ThatStruct>::VALUE;
 
-        // Next, we use the 'ConvertAlignmentToType' we defined above to
+        // Then, we use the 'ConvertAlignmentToType' we defined above to
         // convert those alignments to actual types.
 
         typedef ConvertAlignmentToType<INT_ALIGNMENT >::Type IntAlignType;
         typedef ConvertAlignmentToType<THIS_ALIGNMENT>::Type ThisAlignType;
         typedef ConvertAlignmentToType<THAT_ALIGNMENT>::Type ThatAlignType;
 
-        // Then, we calculate alignments for these new '*AlignType's:
-
-        enum {
-            INT_TYPE_ALIGNMENT  =
-                                bsls::AlignmentImpCalc<IntAlignType >::VALUE,
-            THIS_TYPE_ALIGNMENT =
-                                bsls::AlignmentImpCalc<ThisAlignType>::VALUE,
-            THAT_TYPE_ALIGNMENT =
-                                bsls::AlignmentImpCalc<ThatAlignType>::VALUE };
-
-        // Next, we observe that the alignments of the '*AlignType's are the
+        // Now, we observe that the alignments of the '*AlignType's are the
         // same as the alignments of the types they are derived from:
 
-        ASSERT((int) INT_ALIGNMENT  == INT_TYPE_ALIGNMENT);
-        ASSERT((int) THIS_ALIGNMENT == THIS_TYPE_ALIGNMENT);
-        ASSERT((int) THAT_ALIGNMENT == THAT_TYPE_ALIGNMENT);
+        ASSERT(INT_ALIGNMENT  == bsls::AlignmentImpCalc<IntAlignType >::VALUE);
+        ASSERT(THIS_ALIGNMENT == bsls::AlignmentImpCalc<ThisAlignType>::VALUE);
+        ASSERT(THAT_ALIGNMENT == bsls::AlignmentImpCalc<ThatAlignType>::VALUE);
 
-        // Then, we observe that the sizes of the '*AlignType's are the same as
-        // their alignments:
+        // Finally, we observe that the sizes of the '*AlignType's are the same
+        // as their alignments:
 
-        ASSERT(INT_TYPE_ALIGNMENT  == sizeof(IntAlignType));
-        ASSERT(THIS_TYPE_ALIGNMENT == sizeof(ThisAlignType));
-        ASSERT(THAT_TYPE_ALIGNMENT == sizeof(ThatAlignType));
-
-        // Now, we use our 'IsSame' template defined above to verify that
-        // the '*AlignType's are not in all cases just the same as the original
-        // types:
-
-        ASSERT(! (IsSame<ThisStruct, ThisAlignType >::VALUE));
-        ASSERT(! (IsSame<ThatStruct, ThatAlignType >::VALUE));
-
-        // Finally, we observe that the size of the original type is always a
-        // multiple of the size of the '*AlignType':
-
-        ASSERT(0 == sizeof(int)        % sizeof(IntAlignType));
-        ASSERT(0 == sizeof(ThisStruct) % sizeof(ThisAlignType));
-        ASSERT(0 == sizeof(ThatStruct) % sizeof(ThatAlignType));
+        ASSERT(INT_ALIGNMENT  == sizeof(IntAlignType));
+        ASSERT(THIS_ALIGNMENT == sizeof(ThisAlignType));
+        ASSERT(THAT_ALIGNMENT == sizeof(ThatAlignType));
       } break;
       case 2: {
         // --------------------------------------------------------------------
