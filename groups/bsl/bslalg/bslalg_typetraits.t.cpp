@@ -6,6 +6,7 @@
 #include <bslmf_isconvertible.h>
 #include <bslmf_metaint.h>
 #include <bslmf_removecvq.h>
+#include <bslmf_if.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 
@@ -102,17 +103,15 @@ const unsigned TRAIT_EQPOD = (TRAIT_POD |
 
 // Traits detection
 template <typename TYPE, typename TRAIT>
-class HasTrait {
-    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
-    typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
-
-  public:
+struct HasTrait {
     enum {
-        VALUE = bslmf::IsConvertible<NoCvqTraits, TRAIT>::VALUE
+        VALUE = TRAIT::template Metafunction<TYPE>::value
     };
 
     typedef bslmf::MetaInt<VALUE> Type;
 };
+
+#if 0 // implied traits
 
 template <typename TYPE>
 class HasTrait<TYPE, bslalg::TypeTraitBitwiseMoveable> {
@@ -149,6 +148,8 @@ struct HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable> {
     typedef bslmf::MetaInt<VALUE> Type;
 };
 
+#endif // implied traits
+
 // Traits bit vector
 template <typename TYPE>
 unsigned traitBits()
@@ -158,25 +159,25 @@ unsigned traitBits()
     result |= HasTrait<TYPE, bslalg::TypeTraitBitwiseMoveable>::VALUE
             ? TRAIT_BITWISEMOVEABLE
             : 0;
-    result |= HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable>::VALUE
-            ? TRAIT_BITWISECOPYABLE
-            : 0;
-    result |= HasTrait<TYPE,
-                       bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
-            ? TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR
-            : 0;
-    result |= HasTrait<TYPE, bslalg::TypeTraitBitwiseEqualityComparable>::VALUE
-            ? TRAIT_BITWISEEQUALITYCOMPARABLE
-            : 0;
-    result |= HasTrait<TYPE, bslalg::TypeTraitPair>::VALUE
-            ? TRAIT_PAIR
-            : 0;
+    // result |= HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable>::VALUE
+    //         ? TRAIT_BITWISECOPYABLE
+    //         : 0;
+    // result |= HasTrait<TYPE,
+    //                    bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
+    //         ? TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR
+    //         : 0;
+    // result |= HasTrait<TYPE, bslalg::TypeTraitBitwiseEqualityComparable>::VALUE
+    //         ? TRAIT_BITWISEEQUALITYCOMPARABLE
+    //         : 0;
+    // result |= HasTrait<TYPE, bslalg::TypeTraitPair>::VALUE
+    //         ? TRAIT_PAIR
+    //         : 0;
     result |= HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE
             ? TRAIT_USESBSLMAALLOCATOR
             : 0;
-    result |= HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
-            ? TRAIT_HASSTLITERATORS
-            : 0;
+    // result |= HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
+    //         ? TRAIT_HASSTLITERATORS
+    //         : 0;
     return result;
 }
 
@@ -220,9 +221,12 @@ struct my_Class1
 
 namespace BloombergLP {
 
+namespace bslma {
+ 
     template <>
-        struct bslalg_TypeTraits<my_Class1>
-        : bslalg::TypeTraitUsesBslmaAllocator {};
+        struct UsesBslmaAllocator<my_Class1> : bslmf::true_type { };
+
+} // close bslma namespace
 
 }  // close enterprise namespace
 
@@ -388,7 +392,7 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
         template <class TYPE>
         static void copyConstruct(TYPE             *location,
                                   const TYPE&       value,
-                                  bslma::Allocator *allocator,
+                                  bslma::Allocator */* allocator */,
                                   bslalg::TypeTraitNil)
             // Create a copy of the specified 'value' at the specified
             // 'location'.  Note that the specified 'allocator' is ignored.
@@ -409,7 +413,10 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
             // 'bslalg::TypeTraitUsesBslmaAllocator'.
         {
             copyConstruct(location, value, allocator,
-                          bslalg_TypeTraits<TYPE>());
+                typename bslmf::If<HasTrait<TYPE,
+                              bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
+                          bslalg::TypeTraitUsesBslmaAllocator,
+                          bslalg::TypeTraitNil>::Type());
         }
 
     };

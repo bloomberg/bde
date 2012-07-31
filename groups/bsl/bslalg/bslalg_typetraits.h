@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide facilities for associating types with compile-time traits.
 //
+//@DEPRECATED: See bslmf_nestedtraitdeclaration.
+//
 //@CLASSES:
 //  bslalg::TypeTraitNil: nil type trait (no traits)
 //  bslalg::TypeTraitBitwiseMoveable: bitwise-moveable trait
@@ -370,6 +372,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
 #include <bslalg_typetraitbitwisecopyable.h>
 #endif
@@ -454,6 +460,8 @@ namespace BloombergLP {
 
 // FORWARD DECLARATIONS
 
+#if 0 // implied traits
+
 namespace bslalg {
 
 struct TypeTraits_NestedYes;
@@ -495,98 +503,51 @@ struct bslalg_TypeTraits : bslalg::TypeTraits_AutoDetect<
     // 'BloombergLP::bslalg_TypeTraits'.
 };
 
-                    // ====================================
-                    // macros BSLALG_DECLARE_NESTED_TRAITS*
-                    // ====================================
+#endif // implied traits
 
-#define BSLALG_DECLARE_NESTED_TRAITS(T, TRAITS)                   \
-    typedef TRAITS NestedTypeTraits;                              \
-    BloombergLP::bslalg::TypeTraits_NestedYes&                    \
-        operator,(BloombergLP::bslalg::TypeTraits_NestedProbe<T>)
-    // Declare the traits of the class as a nested type ('NestedTypeTraits').
-    // The 'T' argument should be the name of the class being defined and the
-    // 'TRAITS' argument should be the name of its corresponding traits class.
-    // Note that this macro should be expanded only within the 'public' section
-    // of a class.  Also note that the 'TRAITS' class may be a user-defined
-    // class that inherits from several primitive traits and/or traits groups.
-    // This macro is deliberately constructed so that the nested traits are not
-    // inherited.
-    //
-    // CAVEAT: This macro defines a comma (,) member operator.  If 'T' inherits
-    // from a class with a public comma operator, then it will be necessary to
-    // declare 'using Base::operator,;' in order to make the base class
-    // operator visible in the derived class.
+
+                    // ========================================
+                    // macros BSLALG_DECLARE_NESTED_TRAITS[1-5]
+                    // ========================================
+
+#define BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT)            \
+    operator TRAIT::NestedTraitDeclaration<T>() const {   \
+        return TRAIT::NestedTraitDeclaration<T>();        \
+    }
+    // Associate the specified 'TRAIT' tag with the specified 'T' class.  This
+    // macro must be invoked only within the public part of the definition of
+    // class 'T'.  'TRAIT' must name a class such that
+    // 'TRAIT::NestedTraitDeclaration<T>' designates a class derived from
+    // 'bslmf::DetectNestedTrait'.
 
 #define BSLALG_DECLARE_NESTED_TRAITS2(T, TRAIT1, TRAIT2)                      \
-    typedef bslalg::TypeTraits_MakeGroup2<TRAIT1, TRAIT2> NestedTypeTraits;   \
-    BloombergLP::bslalg::TypeTraits_NestedYes&                                \
-        operator,(BloombergLP::bslalg::TypeTraits_NestedProbe<T>)
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT1);                                  \
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT2)
     // Like 'BSLALG_DECLARE_NESTED_TRAITS', but for two traits.
 
 #define BSLALG_DECLARE_NESTED_TRAITS3(T, TRAIT1, TRAIT2, TRAIT3)              \
-    typedef bslalg::TypeTraits_MakeGroup3<TRAIT1, TRAIT2, TRAIT3>             \
-                                                         NestedTypeTraits;    \
-    BloombergLP::bslalg::TypeTraits_NestedYes&                                \
-        operator,(BloombergLP::bslalg::TypeTraits_NestedProbe<T>)
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT1);                                  \
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT2);                                  \
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT3)
     // Like 'BSLALG_DECLARE_NESTED_TRAITS', but for three traits.
 
 #define BSLALG_DECLARE_NESTED_TRAITS4(T, TRAIT1, TRAIT2, TRAIT3, TRAIT4)      \
-    typedef bslalg::TypeTraits_MakeGroup4<TRAIT1, TRAIT2, TRAIT3, TRAIT4>     \
-                                                         NestedTypeTraits;    \
-    BloombergLP::bslalg::TypeTraits_NestedYes&                                \
-        operator,(BloombergLP::bslalg::TypeTraits_NestedProbe<T>)
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT1);                                  \
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT2);                                  \
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT3);                                  \
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT4)
     // Like 'BSLALG_DECLARE_NESTED_TRAITS', but for four traits.
 
 #define BSLALG_DECLARE_NESTED_TRAITS5(T, TRAIT1,TRAIT2,TRAIT3,TRAIT4,TRAIT5)  \
-    typedef bslalg::TypeTraits_MakeGroup5<TRAIT1,TRAIT2,TRAIT3,TRAIT4,TRAIT5> \
-                                                         NestedTypeTraits;    \
-    BloombergLP::bslalg::TypeTraits_NestedYes&                                \
-        operator,(BloombergLP::bslalg::TypeTraits_NestedProbe<T>)
-
-namespace bslalg {
-
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT1);                                  \
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT2);                                  \
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT3);                                  \
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT4);                                  \
+    BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT5)
     // Like 'BSLALG_DECLARE_NESTED_TRAITS', but for five traits.
 
-// ---- Anything below this line is implementation specific.  Do not use.  ----
-
-                        //=============================
-                        // classes TypeTraits_MakeGroup
-                        //=============================
-
-template <typename TRAIT1, typename TRAIT2>
-struct TypeTraits_MakeGroup2 : TRAIT1, TRAIT2 {
-    // Combine two traits into a group.  This is needed to work-around an IBM
-    // bug whereby a nested 'struct' is seen as private even if it is public.
-};
-
-template <typename TRAIT1, typename TRAIT2, typename TRAIT3>
-struct TypeTraits_MakeGroup3 : TRAIT1, TRAIT2, TRAIT3 {
-    // Combine three traits into a group.  This is needed to work-around an IBM
-    // bug whereby a nested 'struct' is seen as private even if it is public.
-};
-
-template <typename TRAIT1, typename TRAIT2, typename TRAIT3, typename TRAIT4>
-struct TypeTraits_MakeGroup4 : TRAIT1, TRAIT2, TRAIT3, TRAIT4 {
-    // Combine four traits into a group.  This is needed to work-around an IBM
-    // bug whereby a nested 'struct' is seen as private even if it is public.
-};
-
-template <typename TRAIT1, typename TRAIT2, typename TRAIT3, typename TRAIT4,
-          typename TRAIT5>
-struct TypeTraits_MakeGroup5 : TRAIT1, TRAIT2, TRAIT3, TRAIT4, TRAIT5 {
-    // Combine five traits into a group.  This is needed to work-around an IBM
-    // bug whereby a nested 'struct' is seen as private even if it is public.
-};
-
-                        //=============================
-                        // class TypeTraits_NestedProbe
-                        //=============================
-
-template <typename T>
-struct TypeTraits_NestedProbe {
-    // Private type used to probe for nested type traits.
-};
-
+namespace bslalg {
+#if 0 // autodetect
                          //===========================
                          // class TypeTraits_NestedYes
                          //===========================
@@ -599,34 +560,6 @@ struct TypeTraits_NestedYes {
     template <typename T> static bslmf::MetaInt<0> match(const volatile T&);
         // Return 'bslmf::MetaInt<1>' if called on an argument of type
         // 'TypeTraits_NestedYes' and 'bslmf::MetaInt<0>' otherwise.
-};
-
-                         //============================
-                         // class TypeTraits_NestedTest
-                         //============================
-
-template <typename TYPE>
-class TypeTraits_NestedTest {
-    // This private meta-function tests for nested traits, and sets its 'VALUE'
-    // member to non-zero if there is a nested traits declaration within the
-    // parameterized 'TYPE'.
-
-    typedef typename bslmf::RemoveCvq<TYPE>::Type NoCvqType;
-        // The probe must be instantiated with no cv-qualifier or it won't be
-        // an exact match.
-  public:
-    // PUBLIC TYPES
-    enum {
-        // This anonymous enumerated type declares a single member, 'VALUE',
-        // which is true if 'TYPE' has nested traits and false otherwise.
-
-        VALUE = BSLMF_METAINT_TO_BOOL(
-            TypeTraits_NestedYes::match(
-                (BloombergLP::bslmf::TypeRep<NoCvqType>::rep(),
-                 BloombergLP::bslalg::TypeTraits_NestedProbe<NoCvqType>()) ))
-    };
-
-    typedef bslmf::MetaInt<VALUE> Type;
 };
 
                      // ==========================
@@ -771,6 +704,7 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
 
     enum { VALUE = 4 };
 };
+#endif // autodetect
 
 }  // close package namespace
 

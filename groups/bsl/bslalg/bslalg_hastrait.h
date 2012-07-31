@@ -74,17 +74,15 @@ struct HasTrait {
     // 'bslalg_TypeTraits<TYPE>' directly includes 'TRAIT' or else includes a
     // trait that implies 'TRAIT'.
 
-  private:
-    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
-    typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
-
   public:
     enum {
-        VALUE = bslmf::IsConvertible<NoCvqTraits, TRAIT>::VALUE
+        VALUE = TRAIT::template Metafunction<TYPE>::value
     };
 
     typedef bslmf::MetaInt<VALUE> Type;
 };
+
+#if 0 // implied traits
 
 template <typename TYPE>
 struct HasTrait<TYPE, TypeTraitBitwiseMoveable> {
@@ -126,6 +124,8 @@ struct HasTrait<TYPE, TypeTraitBitwiseCopyable> {
 
     typedef bslmf::MetaInt<VALUE> Type;
 };
+
+#endif // implied traits
 
 }  // close package namespace
 

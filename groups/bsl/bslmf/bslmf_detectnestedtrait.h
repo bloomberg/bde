@@ -24,8 +24,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_anytype.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_DECLARENESTEDTRAIT
-#include <bslmf_declarenestedtrait.h>
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_INTEGERCONSTANT
@@ -36,25 +36,25 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-                        // ===================
+                        // =======================
                         // class DetectNestedTrait
-                        // ===================
+                        // =======================
 
 template <class TYPE, template <class T> class TRAIT>
 class DetectNestedTrait_Imp {
     // Implementation of class to detect whether the specified 'TRAIT'
     // parameter is associated with the specified 'TYPE' parameter using the
     // nested type trait mechanism.  The 'VALUE' constant will be true iff
-    // 'TYPE' is convertible to 'NestedTrait<TYPE, TRAIT>'.
+    // 'TYPE' is convertible to 'NestedTraitDeclaration<TYPE, TRAIT>'.
 
   private:
-    static char check(NestedTrait<TYPE, TRAIT>, int);
+    static char check(NestedTraitDeclaration<TYPE, TRAIT>, int);
         // Declared but not defined.  This overload is selected if called with
-        // a type convertible to 'NestedTrait<TYPE, TRAIT>'
+        // a type convertible to 'NestedTraitDeclaration<TYPE, TRAIT>'
 
     static int check(AnyType, ...);
         // Declared but not defined.  This overload is selected if called with
-        // a type not convertible to 'NestedTrait<TYPE, TRAIT>'
+        // a type not convertible to 'NestedTraitDeclaration<TYPE, TRAIT>'
 
     // Not constructible
     DetectNestedTrait_Imp();
@@ -67,36 +67,25 @@ class DetectNestedTrait_Imp {
     enum { VALUE = (1 == sizeof(check(TypeRep<TYPE>::rep(), 0))) };
         // Non-zero if 'TRAIT' is associated with 'TYPE' using the nested type
         // trait mechanism; otherwise zero.
+
+    typedef integer_constant<bool, VALUE> Type;
+        // Type representing the result of this metafunction.  Equivalent to
+        // 'true_type' if 'TRAIT' is associated with 'TYPE' using the nested
+        // type trait mechanism; otherwise 'false_type'.
 };
 
 template <class TYPE, template <class T> class TRAIT>
-struct DetectNestedTrait :
-    bslmf::integer_constant<bool, DetectNestedTrait_Imp<TYPE, TRAIT>::VALUE> {
+struct DetectNestedTrait : DetectNestedTrait_Imp<TYPE, TRAIT>::Type {
     // Metafunction to detect whether the specified 'TRAIT' parameter is
     // associated with the specified 'TYPE' parameter using the nested type
     // trait mechanism.  Inherits from 'true_type' iff 'TYPE' is convertible
-    // to 'NestedTrait<TYPE, TRAIT>' and from 'false_type' otherwise.
+    // to 'NestedTraitDeclaration<TYPE, TRAIT>' and from 'false_type'
+    // otherwise.
 };
-
-// FREE OPERATORS
 
 }  // close package namespace
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
-
-// CLASS METHODS
-
-// CREATORS
-
-// MANIPULATORS
-
-// ACCESSORS
-
-// FREE OPERATORS
-
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif // ! defined(INCLUDED_BSLMF_DETECTNESTEDTRAIT)
 

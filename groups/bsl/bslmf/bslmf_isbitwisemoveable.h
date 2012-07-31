@@ -116,6 +116,27 @@ struct IsBitwiseMoveable :
 };
 
 template <class TYPE>
+struct IsBitwiseMoveable<const TYPE> : IsBitwiseMoveable<TYPE>::type
+{
+    // Specialization that associates the same trait with 'const TYPE' as with
+    // unqualified 'TYPE'.
+};
+
+template <class TYPE>
+struct IsBitwiseMoveable<volatile TYPE> : IsBitwiseMoveable<TYPE>::type
+{
+    // Specialization that associates the same trait with 'volatile TYPE' as
+    // with unqualified 'TYPE'.
+};
+
+template <class TYPE>
+struct IsBitwiseMoveable<const volatile TYPE> : IsBitwiseMoveable<TYPE>::type
+{
+    // Specialization that associates the same trait with 'const volatile
+    // TYPE' as with unqualified 'TYPE'.
+};
+
+template <class TYPE>
 struct IsBitwiseMoveable<TYPE*> : true_type
 {
     // Specialization of that associates the 'IsBitwiseMoveable' trait with

@@ -1184,6 +1184,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
+#endif
+
                     // =================================
                     // (BSLS) "ASSERT" Macro Definitions
                     // =================================
@@ -1337,12 +1341,19 @@ class Assert {
         //..
 
   private:
-    // CLASS DATA
-    static Handler s_handler;     // assertion-failure handler function
-    static bool    s_lockedFlag;  // lock to disable 'setFailureHandler'
-
     // FRIENDS
     friend class AssertFailureHandlerGuard;
+
+    // CLASS DATA
+    static bsls::AtomicOperations::AtomicTypes::Pointer
+                        s_handler;     // assertion-failure handler function
+    static bsls::AtomicOperations::AtomicTypes::Int
+                        s_lockedFlag;  // lock to disable 'setFailureHandler'
+
+    // PRIVATE CLASS METHODS
+    static void setFailureHandlerRaw(Assert::Handler function);
+        // Make the specified handler 'function' the current assertion-failure
+        // handler.
 
   public:
     // CLASS METHODS
@@ -1352,9 +1363,7 @@ class Assert {
     static void setFailureHandler(Assert::Handler function);
         // Make the specified handler 'function' the current assertion-failure
         // handler.  This method has no effect if the
-        // 'lockAssertAdministration' method has been called.  The behavior is
-        // undefined if this method is called from within a multi-threaded
-        // program after multiple threads have been started.
+        // 'lockAssertAdministration' method has been called.
 
     static void lockAssertAdministration();
         // Disable all subsequent calls to 'setFailureHandler'.  Note that this

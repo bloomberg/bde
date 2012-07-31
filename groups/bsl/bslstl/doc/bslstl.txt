@@ -32,9 +32,17 @@
   Level 2:  allocatorproxy     forwarditerator     bidirectionaliterator
             randomaccessiterator
 
-  Level 1:  allocator          iterator            pair
-            util               bitset              hash
-            exfunctional       exalgorithm
+  Level 1:  allocator
+            bitset
+            exfunctional
+            exalgorithm
+            hash
+            iterator
+            pair
+            traitsgroupstlassociativecontainer
+            traitsgroupstlsequencecontainer
+            traitsgroupstlunorderedcontainer
+            util
 ..
 
 /Component Synopsis
@@ -79,6 +87,18 @@
                             iterator interface
 
   'bslstl_string'         - conforming 'std::string' implementation
+
+  'bslstl_traitsgroupstlassociativecontainer'
+                          - traits group attached to STL ordered containers
+                            ('set', 'map', etc.).
+
+  'bslstl_traitsgroupstlsequencecontainer'
+                          - traits group attached to STL sequence containers
+                            ('deque', 'list', 'vector', etc.).
+
+  'bslstl_traitsgroupstlunorderedcontainer'
+                          - traits group attached to STL unordered containers
+                            ('hash_set', 'hash_map', etc.).
 
   'bslstl_vector'         - conforming 'std::vector' implementation
 

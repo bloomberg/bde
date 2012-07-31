@@ -21,9 +21,6 @@ BDES_IDENT("$Id: $")
 //                          bdealg_TypeTraitPair: for 'bsl::pair'-like classes
 //            bdealg_TypeTraitUsesBdemaAllocator: uses 'bdema' allocators
 //                     bdealg_TypeTraitsGroupPod: POD trait
-//             bdealg_TypeTraitsGroupStlSequence: for STL sequence containers
-//              bdealg_TypeTraitsGroupStlOrdered: for STL ordered containers
-//            bdealg_TypeTraitsGroupStlUnordered: for STL unordered containers
 //
 //                             bdealg_TypeTraits: default trait computation
 //
@@ -387,18 +384,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLALG_TYPETRAITSGROUPPOD
 #include <bslalg_typetraitsgrouppod.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLSEQUENCE
-#include <bslalg_typetraitsgroupstlsequence.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLORDERED
-#include <bslalg_typetraitsgroupstlordered.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLUNORDERED
-#include <bslalg_typetraitsgroupstlunordered.h>
 #endif
 
 // The following were formerly guarded by 'BDE_DONT_ALLOW_TRANSITIVE_INCLUDES'.

@@ -52,15 +52,14 @@ struct bteso_Platform {
 
         struct POLL {};       // 'poll' syscall is available
         struct SIGNAL {};
+        struct DEVPOLL {};
 
         #if defined(BSLS_PLATFORM__OS_AIX)
             struct POLLSET {};
             typedef POLLSET DEFAULT_POLLING_MECHANISM;
         #endif
 
-        #if defined(BSLS_PLATFORM__OS_SOLARIS) || \
-            defined(BSLS_PLATFORM__OS_HPUX)
-            struct DEVPOLL {};
+        #if defined(BSLS_PLATFORM__OS_SOLARIS)
             typedef DEVPOLL DEFAULT_POLLING_MECHANISM;
         #endif
 
@@ -70,7 +69,9 @@ struct bteso_Platform {
         #endif
 
         #if defined(BSLS_PLATFORM__OS_CYGWIN)  \
-         || defined(BSLS_PLATFORM__OS_FREEBSD)
+         || defined(BSLS_PLATFORM__OS_FREEBSD) \
+         || defined(BSLS_PLATFORM__OS_DARWIN)  \
+         || defined(BSLS_PLATFORM__OS_HPUX)
             typedef POLL    DEFAULT_POLLING_MECHANISM;
         #endif
 

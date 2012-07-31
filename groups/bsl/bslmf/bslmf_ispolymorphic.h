@@ -27,8 +27,17 @@ BSLS_IDENT("$Id: $")
 // such a type), and to 0 otherwise.
 //
 // Note that if 'bslmf::IsPolymorphic' is applied to a 'union' type, then the
-// compilation will fail.  To date, it is not possible to detect 'union' types
-// in C++.
+// compilation will fail, unless the complier provides an intrinsic operation
+// to detect this specific trait.  The compilers known to support this trait
+// natively are:
+//: o gcc 4.3 or later
+//: o Visual C++ 2008 or later
+//
+// Further note that for some compilers this trait will yield a false positive,
+// claiming that a non-polymorphic type *is* polymorphic, if using virtual
+// inheritance.  This case is known to be handled *correctly* only for:
+//: o Compilers with intrinsic support, listed above
+//: o IBM XLC
 //
 ///Usage
 ///-----
@@ -110,6 +119,11 @@ BSLS_IDENT("$Id: $")
 #define BSLMF_ISPOLYMORPHIC_NOTHROW
 #endif
 
+#if (defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)\
+ || (defined(BSLS_PLATFORM__CMP_MSVC) && BSLS_PLATFORM__CMP_VER_MAJOR >= 1500)
+#define BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
@@ -118,6 +132,13 @@ namespace bslmf {
                        // struct IsPolymorphic_Imp
                        // ========================
 
+#if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC)
+// Use type traits intrinsics, where avaialble, to give the correct answer for
+// the tricky cases where existing ABIs prevent programatic detection.
+template <typename TYPE>
+struct IsPolymorphic_Imp : MetaInt<__is_polymorphic(TYPE)>::Type {
+};
+#else
 template <typename TYPE, int IS_CLASS = IsClass<TYPE>::VALUE>
 struct IsPolymorphic_Imp {
     typedef MetaInt<0> Type;
@@ -130,6 +151,7 @@ struct IsPolymorphic_Imp<TYPE, 1> {
     struct IsPoly : public NONCV_TYPE {
         IsPoly();
         virtual ~IsPoly() BSLMF_ISPOLYMORPHIC_NOTHROW;
+
         char dummy[256];
     };
     struct MaybePoly : public NONCV_TYPE {
@@ -140,6 +162,7 @@ struct IsPolymorphic_Imp<TYPE, 1> {
 
     typedef MetaInt<sizeof(IsPoly) == sizeof(MaybePoly)> Type;
 };
+#endif
 
                          // ====================
                          // struct IsPolymorphic

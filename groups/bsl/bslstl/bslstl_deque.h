@@ -107,8 +107,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLSEQUENCE
-#include <bslalg_typetraitsgroupstlsequence.h>
+#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLSEQUENCECONTAINER
+#include <bslstl_traitsgroupstlsequencecontainer.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ANYTYPE
@@ -584,9 +584,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
   public:
     // TRAITS
-    typedef BloombergLP::bslalg::TypeTraitsGroupStlSequence<VALUE_TYPE,
-                                                           ALLOCATOR>
-                                                               DequeTypeTraits;
+    typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<
+                                                    VALUE_TYPE,
+                                                    ALLOCATOR> DequeTypeTraits;
     BSLALG_DECLARE_NESTED_TRAITS(deque, DequeTypeTraits);
         // Declare nested type traits for this class.
 

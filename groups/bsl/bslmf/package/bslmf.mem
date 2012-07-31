@@ -2,7 +2,6 @@ bslmf_addreference
 bslmf_anytype
 bslmf_arraytopointer
 bslmf_assert
-bslmf_declarenestedtrait
 bslmf_detectnestedtrait
 bslmf_enableif
 bslmf_forwardingtype
@@ -22,9 +21,11 @@ bslmf_issame
 bslmf_isvoid
 bslmf_memberfunctionpointertraits
 bslmf_metaint
+bslmf_nestedtraitdeclaration
 bslmf_nil
 bslmf_removecvq
 bslmf_removereference
 bslmf_switch
+bslmf_selecttrait
 bslmf_tag
 bslmf_typelist

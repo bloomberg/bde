@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a primitive type trait for bit-wise copyable classes.
+//@PURPOSE: Provide a primitive type trait for classes that have no other traits
 //
 //@CLASSES:
 //  bslalg::TypeTraitBitwiseCopyable: bit-wise copyable trait
@@ -40,8 +40,17 @@ namespace bslalg {
                             // TypeTraitNil
                             //=============
 
-typedef bslmf::Nil TypeTraitNil;
-    // The nil trait.  Types with no other traits have the nil trait.
+struct TypeTraitNil
+{
+    // Nil trait -- every type has this trait.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration : bslmf::true_type
+    {
+        // This metafunction returns 'true_type' for any class that is queried
+        // for the nil trait.
+    };
+};
 
 }  // close package namespace
 

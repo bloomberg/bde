@@ -120,9 +120,9 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //-----------------------------------------------------------------------------
 
 // Used to test detection of legacy traits
-#define BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT)  \
-    operator TRAIT::NestedTrait<T>() const {    \
-        return TRAIT::NestedTrait<T>();         \
+#define BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT)            \
+    operator TRAIT::NestedTraitDeclaration<T>() const {   \
+        return TRAIT::NestedTraitDeclaration<T>();        \
     }
 
 //..
@@ -221,7 +221,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     }
 //..
 // The third class is also declared to be bitwise moveable, but this time we
-// do it using the 'BSLMF_DECLARE_NESTED_TRAIT' macro:
+// do it using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro:
 //..
     class MoveableClass2
     {
@@ -232,7 +232,8 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         static int d_dtorCount;
 
     public:
-        BSLMF_DECLARE_NESTED_TRAIT(MoveableClass2, bslmf::IsBitwiseMoveable);
+        BSLMF_NESTED_TRAIT_DECLARATION(MoveableClass2,
+                                       bslmf::IsBitwiseMoveable);
 
         static int ctorCount() { return d_ctorCount; }
         static int dtorCount() { return d_dtorCount; }
@@ -400,19 +401,19 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     }
 //..
 // Third, we define 'MoveableTemplate2', which uses the
-// 'BSLMF_DECLARE_NESTED_TRAITS' macro to associate the 'IsBitwiseMoveable'
+// 'BSLMF_NESTED_TRAIT_DECLARATION' macro to associate the 'IsBitwiseMoveable'
 // trait with each instantiation:
 //..
     template <class TYPE>
     struct MoveableTemplate2
     {
-        BSLMF_DECLARE_NESTED_TRAIT(MoveableTemplate2,
-                                   bslmf::IsBitwiseMoveable);
+        BSLMF_NESTED_TRAIT_DECLARATION(MoveableTemplate2,
+                                       bslmf::IsBitwiseMoveable);
     };
 //..
 // Fourth, we define 'MoveableTemplate3', which is bit-wise moveable iff its
 // 'TYPE' template parameter is bit-wise moveable.  There is no way to get
-// this affect using 'BSLMF_DECLARE_NESTED_TRAITS', so we use partial
+// this effect using 'BSLMF_NESTED_TRAITS_DECLARATION', so we use partial
 // specialization combined with inheritence to "inherit" the trait from
 // 'TYPE':
 //..
@@ -485,7 +486,8 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         // data structures.
 
         template <class TYPE>
-        struct NestedTrait : bslmf::NestedTrait<TYPE, bslmf::IsBitwiseMoveable>
+        struct NestedTraitDeclaration :
+            bslmf::NestedTraitDeclaration<TYPE, bslmf::IsBitwiseMoveable>
         {
             // Ties this trait to the 'bslmf::IsBitwiseMoveable' trait.
         };

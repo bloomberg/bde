@@ -14,7 +14,4 @@ bdealg_typetraitnil
 bdealg_typetraitpair
 bdealg_typetraits
 bdealg_typetraitsgrouppod
-bdealg_typetraitsgroupstlordered
-bdealg_typetraitsgroupstlsequence
-bdealg_typetraitsgroupstlunordered
 bdealg_typetraitusesbdemaallocator

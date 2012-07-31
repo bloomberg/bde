@@ -72,6 +72,7 @@ class ConvertibleTo {
     T d_value;
 
   public:
+    ConvertibleTo();  // Declared but not defined
     operator T const&() const { return d_value; }
     operator T&() { return d_value; }
     operator T() const { return d_value; }

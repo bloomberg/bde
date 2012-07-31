@@ -126,7 +126,7 @@ struct IsInflatable :
 
 struct InflatableType
 {
-    BSLMF_DECLARE_NESTED_TRAIT(InflatableType, IsInflatable);
+    BSLMF_NESTED_TRAIT_DECLARATION(InflatableType, IsInflatable);
 };
 
 struct NonInflatableType
