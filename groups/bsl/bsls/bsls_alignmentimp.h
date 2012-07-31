@@ -74,12 +74,18 @@ BSLS_IDENT("$Id: $")
 // 'match' function.  The return value is mapped to a priority, which is, in
 // turn, mapped to an appropriate primitive type.
 //
-///Usage Example 1
-///---------------
-// First, we define a type we will want to take the alignment of.  'int's have
-// an alignment requirement of 4 bytes on all platforms we port to, and the
-// most alignment-demanding object in the class is an 'int', so we expect this
-// 'struct' to have an alignment requirement of 4 bytes.
+///Usage
+///-----
+//
+///Example 1: AlignmentImpCalc Template
+/// - - - - - - - - - - - - - - - - - -
+// In this example, we demonstrate the use of the 'AlignmentImpCalc' template,
+// which will calculate the alignment requirement on any type.
+//
+// First, we define a type we will want to take the alignment of.  Suppose we
+// are on a platform where the alignment requirement of an 'int' is 4 bytes.
+// The most alignment-demanding object in the class is an 'int', so we expect
+// this 'struct' to have an alignment requirement of 4 bytes.
 //..
 //  struct MyStruct {
 //      char  d_c;
@@ -111,8 +117,13 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(sizeof(MyStruct) > MY_STRUCT_ALIGNMENT);
 //..
-///Usage Example 2
-///---------------
+///Example 2: Types Supporting 'AlignmentToType'
+///- - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we demonstrate the use of all types in this component other
+// than 'AlignmentImpCalc', which all support the conversion of a given
+// alignment requirement, in bytes, to a type which has that alignment
+// requirement and whose size is equal to its alignment requirement.
+//
 // First, we define 'ConvertAlignmentToType' a template class that will, given
 // an alignment, yield a type 'Type' that has both that alignment and a size
 // equal to that alignment.
@@ -145,86 +156,47 @@ BSLS_IDENT("$Id: $")
 //          // has the value 'ALIGNMENT' for both its alignment and it's size.
 //  };
 //..
-// Then, we define a template 'IsSame' whose 'VALUE' enum returns 'true' if
-// two matching types are passed to it:
+// Then, we define a couple of types we might want to evaluate:
 //..
-//  template <class A, class B>
-//  struct IsSame {
-//      enum { VALUE = 0 };
-//  };
-//..
-//  template <class A>
-//  struct IsSame<A, A> {
-//      enum { VALUE = 1 };
-//  };
-//..
-// Next, we define a couple of types we might want to evaluate:
-//..
-//  struct ThisStruct {
-//      short  d_s;
-//      double d_d;
-//      int    d_i;
-//  };
-//..
-//  struct ThatStruct {
-//      double d_d[20];
-//  };
-//..
-// We will use the facilities in this component to evaluate a few
-// types: 'int', and 'ThisStruct' & 'ThatStruct' defined above.
+// struct ThisStruct {
+//     short  d_s;
+//     double d_d;
+//     int    d_i;
+// };
 //
-// Then, we calculate alignments for our 3 types with
-// 'AlignmentImpCalc'.
+// struct ThatStruct {
+//     double d_d[20];
+// };
 //..
-//  enum {
-//      INT_ALIGNMENT  = bsls::AlignmentImpCalc<int       >::VALUE,
-//      THIS_ALIGNMENT = bsls::AlignmentImpCalc<ThisStruct>::VALUE,
-//      THAT_ALIGNMENT = bsls::AlignmentImpCalc<ThatStruct>::VALUE };
+// We will use the facilities in this component to evaluate a few types: 'int',
+// and 'ThisStruct' & 'ThatStruct' defined above.
+//
+// Next, we calculate alignments for our 3 types with 'AlignmentImpCalc'.
 //..
-// Next, we use the 'ConvertAlignmentToType' we defined above to
-// convert those alignments to actual types.
+// const int INT_ALIGNMENT  = bsls::AlignmentImpCalc<int       >::VALUE;
+// const int THIS_ALIGNMENT = bsls::AlignmentImpCalc<ThisStruct>::VALUE;
+// const int THAT_ALIGNMENT = bsls::AlignmentImpCalc<ThatStruct>::VALUE;
 //..
-//  typedef ConvertAlignmentToType<INT_ALIGNMENT >::Type IntAlignType;
-//  typedef ConvertAlignmentToType<THIS_ALIGNMENT>::Type ThisAlignType;
-//  typedef ConvertAlignmentToType<THAT_ALIGNMENT>::Type ThatAlignType;
+// Then, we use the 'ConvertAlignmentToType' we defined above to convert those
+// alignments to actual types.
 //..
-// Then, we calculate alignments for these new '*AlignType's:
+// typedef ConvertAlignmentToType<INT_ALIGNMENT >::Type IntAlignType;
+// typedef ConvertAlignmentToType<THIS_ALIGNMENT>::Type ThisAlignType;
+// typedef ConvertAlignmentToType<THAT_ALIGNMENT>::Type ThatAlignType;
 //..
-//  enum {
-//      INT_TYPE_ALIGNMENT  =
-//                          bsls::AlignmentImpCalc<IntAlignType >::VALUE,
-//      THIS_TYPE_ALIGNMENT =
-//                          bsls::AlignmentImpCalc<ThisAlignType>::VALUE,
-//      THAT_TYPE_ALIGNMENT =
-//                          bsls::AlignmentImpCalc<ThatAlignType>::VALUE };
+// Now, we observe that the alignments of the '*AlignType's are the same as the
+// alignments of the types they are derived from:
 //..
-// Next, we observe that the alignments of the '*AlignType's are the
-// same as the alignments of the types they are derived from:
+// ASSERT(INT_ALIGNMENT  == bsls::AlignmentImpCalc<IntAlignType >::VALUE);
+// ASSERT(THIS_ALIGNMENT == bsls::AlignmentImpCalc<ThisAlignType>::VALUE);
+// ASSERT(THAT_ALIGNMENT == bsls::AlignmentImpCalc<ThatAlignType>::VALUE);
 //..
-//  assert((int) INT_ALIGNMENT  == INT_TYPE_ALIGNMENT);
-//  assert((int) THIS_ALIGNMENT == THIS_TYPE_ALIGNMENT);
-//  assert((int) THAT_ALIGNMENT == THAT_TYPE_ALIGNMENT);
-//..
-// Then, we observe that the sizes of the '*AlignType's are the same as
+// Finally, we observe that the sizes of the '*AlignType's are the same as
 // their alignments:
 //..
-//  assert(INT_TYPE_ALIGNMENT  == sizeof(IntAlignType));
-//  assert(THIS_TYPE_ALIGNMENT == sizeof(ThisAlignType));
-//  assert(THAT_TYPE_ALIGNMENT == sizeof(ThatAlignType));
-//..
-// Now, we use our 'IsSame' template defined above to verify that
-// the '*AlignType's are not in all cases just the same as the original
-// types:
-//..
-//  assert(! (IsSame<ThisStruct, ThisAlignType >::VALUE));
-//  assert(! (IsSame<ThatStruct, ThatAlignType >::VALUE));
-//..
-// Finally, we observe that the size of the original type is always a
-// multiple of the size of the '*AlignType':
-//..
-//  assert(0 == sizeof(int)        % sizeof(IntAlignType));
-//  assert(0 == sizeof(ThisStruct) % sizeof(ThisAlignType));
-//  assert(0 == sizeof(ThatStruct) % sizeof(ThatAlignType));
+// ASSERT(INT_ALIGNMENT  == sizeof(IntAlignType));
+// ASSERT(THIS_ALIGNMENT == sizeof(ThisAlignType));
+// ASSERT(THAT_ALIGNMENT == sizeof(ThatAlignType));
 //..
 
 #ifndef INCLUDED_BSLS_PLATFORM
