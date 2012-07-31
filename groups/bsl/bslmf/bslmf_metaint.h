@@ -127,7 +127,7 @@ struct MetaInt : public bslmf::integer_constant<int, INT_VALUE> {
     // non-negative integer value.  This template has been deprecated in favor
     // of the standard 'integer_constant' template.
 
-#if BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
     static_assert(INT_VALUE >= 0, "INT_VALUE must be non-negative");
 #endif
 

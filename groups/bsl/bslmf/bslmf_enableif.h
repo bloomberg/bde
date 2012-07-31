@@ -414,13 +414,33 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+namespace bsl {
+
+template <bool COND, typename TYPE = void>
+struct enable_if
+    // This metafunction class defines a type alias, 'type', to the specified
+    // type-parameter 'TYPE' if, and only if, 'COND' parameter is 'true'.
+{
+    typedef TYPE type;
+};
+
+template <typename TYPE>
+struct enable_if<false, TYPE>
+    // This partial specialization of the meta-function class guarantees that
+    // no type alias 'type' is supplied when the specified boolean value is
+    // 'false'.  Note that this class definition is intentionally empty.
+{
+};
+
+}  // close namespace bsl
+
 namespace BloombergLP {
 
 namespace bslmf {
 
-                         // =========
-                         // struct If
-                         // =========
+                               // ===============
+                               // struct EnableIf
+                               // ===============
 
 
 template<bool BSLMA_CONDITION, class BSLMA_TYPE = void>
