@@ -381,6 +381,7 @@ void baesu_StackTraceTestAllocator::deallocate(void *address)
 
     if (preDeallocateCheckSegmentHeader(segmentHdr)) {
         if (!d_noAbortFlag) {
+            guard.release();
             BSLS_ASSERT_OPT(0 && "baesu_StackTraceTestAllocator:"
                          " defective segment header detected by 'deallocate'");
         }
@@ -408,6 +409,7 @@ void baesu_StackTraceTestAllocator::release()
                                segmentHdr; segmentHdr = segmentHdr->d_next_p) {
         if (preDeallocateCheckSegmentHeader(segmentHdr)) {
             if (!d_noAbortFlag) {
+                guard.release();
                 BSLS_ASSERT_OPT(0 && "baesu_StackTraceTestAllocator:"
                             " defective segment header detected by 'release'");
             }
