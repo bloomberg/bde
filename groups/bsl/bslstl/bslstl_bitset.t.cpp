@@ -241,7 +241,7 @@ void negateString(char *result, size_t resultSize, const char* a)
 //-----------------------------------------------------------------------------
 
 // When implementing the classic 'Sieve of Eratosthenes' algorithm to enumerate
-// prime numbers, we want as efficient a way of representing a flag for each
+// prime numbers, we want an efficient way of representing a flag for each
 // potential prime number.  The following code illustrates how we can use
 // 'bsl::bitset' to accomplish this result.
 //
