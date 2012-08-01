@@ -88,28 +88,31 @@
 //                                            V warn not   14vwn
 //                                            T warn not   14twn
 //..
-//
 // Note that all annotations are defined as empty unless one is on a conforming
-// compiler (e.g., 'BSLS_PLATFORM__CMP_GNU' is defined).  Also note that
-// several annotations are defined only for certain versions:
-//
-//: o 'BSLS_PLATFORM__CMP_VER_MAJOR >= 30100'
-//:   o 'BSLS_ANNOTATION_DEPRECATED'
-//:
-//: o 'BSLS_PLATFORM__CMP_VER_MAJOR >= 30300'
-//:   o 'BSLS_ANNOTATION_ARG_NON_NULL'
-//:   o 'BSLS_ANNOTATION_ARGS_NON_NULL'
-//:
-//: o 'BSLS_PLATFORM__CMP_VER_MAJOR >= 30400'
-//:   o 'BSLS_ANNOTATION_WARN_UNUSED_RESULT'
-//:
-//: o 'BSLS_PLATFORM__CMP_VER_MAJOR >= 40000'
-//:   o 'BSLS_ANNOTATION_NULL_TERMINATED'
-//:   o 'BSLS_ANNOTATION_NULL_TERMINATED_AT'
-//:
-//: o 'BSLS_PLATFORM__CMP_VER_MAJOR >= 40300'
-//:   o 'BSLS_ANNOTATION_ALLOC_SIZE'
-//:   o 'BSLS_ANNOTATION_ALLOC_SIZE_MUL'
+// compiler (e.g., 'BSLS_PLATFORM__CMP_GNU' is defined).  Also note that there
+// are minimum version requirements for several annotations; otherwise they are
+// undefined.  Finally note that, if defined, the values for
+// 'BSLS_PLATFORM__CMP_GNU' and 'BSLS_PLATFORM__CMP_VER_MAJOR' are output when
+// the BREATHING TEST is run in verbose mode.
+//..
+//  +--------------------------------+------------------------------------+
+//  | Minimum                        |                                    |
+//  | 'BSLS_PLATFORM__CMP_VER_MAJOR' | Annotations                        |
+//  +--------------------------------+------------------------------------+
+//  |                         30100  |'BSLS_ANNOTATION_DEPRECATED'        |
+//  +--------------------------------+------------------------------------+
+//  |                         30300  |'BSLS_ANNOTATION_ARG_NON_NULL'      |
+//  |                                |'BSLS_ANNOTATION_ARGS_NON_NULL'     |
+//  +--------------------------------+------------------------------------+
+//  |                         30400  |'BSLS_ANNOTATION_WARN_UNUSED_RESULT'|
+//  +--------------------------------+------------------------------------+
+//  |                         40000  |'BSLS_ANNOTATION_NULL_TERMINATED'   |
+//  |                                |'BSLS_ANNOTATION_NULL_TERMINATED_AT'|
+//  +--------------------------------+------------------------------------+
+//  |                         40300  |'BSLS_ANNOTATION_ALLOC_SIZE'        |
+//  |                                |'BSLS_ANNOTATION_ALLOC_SIZE_MUL'    |
+//  +--------------------------------+------------------------------------+
+//..
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -118,6 +121,15 @@
 // ----------------------------------------------------------------------------
 
 static int testStatus = 0;
+
+//=============================================================================
+//                  SEMI-STANDARD TEST OUTPUT MACROS
+//-----------------------------------------------------------------------------
+#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
+#define Q(X) printf("<| " #X " |>\n");        // Quote identifier literally.
+#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
+#define L_ __LINE__                           // current Line number
+#define T_ printf("\t");                      // Print a tab (w/o newline)
 
 // ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
@@ -153,6 +165,7 @@ int test_WARNING()
 void test_PRINTF(const char *pattern, ...) BSLS_ANNOTATION_PRINTF(1, 2);
 void test_PRINTF(const char *pattern, ...)
 {
+    (void)pattern;
 }
 
 void test_SCANF(const char *, ...) BSLS_ANNOTATION_SCANF(1, 2);
@@ -446,9 +459,16 @@ int main(int argc, char **argv)
                           << "==============" << endl;
 
         if (verbose) {
-            cout << "\nThere are no run-time tests for this component."
-                    "\nRun build-time tests manually."
-                    << endl;
+            cout
+              << "\nThere are no run-time tests for this component."
+              << "\nManually run build-time tests using a conforming compiler."
+              << endl;
+#ifdef BSLS_PLATFORM__CMP_GNU
+            P(BSLS_PLATFORM__CMP_GNU);
+#endif
+#ifdef BSLS_PLATFORM__CMP_VER_MAJOR
+           P(BSLS_PLATFORM__CMP_VER_MAJOR);
+#endif
         }
 
       } break;
