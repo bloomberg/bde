@@ -31,7 +31,53 @@ void bdecs_Calendar::synchronizeCache()
                                   it != d_packedCalendar.endHolidays(); ++it) {
         d_nonBusinessDays.set1(*it - d_packedCalendar.firstDate());
     }
-    addWeekendDays(d_packedCalendar.weekendDays());
+
+    // add weekend days
+    bdecs_PackedCalendar::WeekendDaysTransitionConstIterator nextTransIt
+                              = d_packedCalendar.beginWeekendDaysTransitions();
+
+    while (nextTransIt != d_packedCalendar.endWeekendDaysTransitions()) {
+        bdecs_PackedCalendar::WeekendDaysTransitionConstIterator
+                                                  currentTransIt = nextTransIt;
+
+        if (currentTransIt->first > d_packedCalendar.lastDate()) {
+            break;
+        }
+        ++nextTransIt;
+
+        bdet_Date firstDate =
+                        currentTransIt->first < d_packedCalendar.firstDate() ?
+                        d_packedCalendar.firstDate() : currentTransIt->first;
+        int firstDateIndex = firstDate - d_packedCalendar.firstDate();
+
+        bdet_Date endDate;
+        if (nextTransIt == d_packedCalendar.endWeekendDaysTransitions() ||
+            nextTransIt->first > d_packedCalendar.lastDate()) {
+            endDate = d_packedCalendar.lastDate() + 1;
+        }
+        else {
+            endDate = nextTransIt->first;
+        }
+        int endDateIndex = endDate - d_packedCalendar.firstDate();
+
+        int firstDayOfWeek = static_cast<int>(firstDate.dayOfWeek());
+
+        for (bdec_DayOfWeekSet::const_iterator wdIt =
+                                                currentTransIt->second.begin();
+             wdIt != currentTransIt->second.end();
+             ++wdIt) {
+
+            int weekendDay = static_cast<int>(*wdIt);
+            int weekendDateIndex =
+                        firstDateIndex + (weekendDay - firstDayOfWeek + 7) % 7;
+
+            while (weekendDateIndex < endDateIndex) {
+                d_nonBusinessDays.set1(weekendDateIndex);
+                weekendDateIndex += 7;
+            }
+        }
+    }
+
     BSLS_ASSERT(d_packedCalendar.numNonBusinessDays() ==
                                                   d_nonBusinessDays.numSet1());
 }
@@ -140,14 +186,39 @@ void bdecs_Calendar::addDay(const bdet_Date& date)
 
 void bdecs_Calendar::addHoliday(const bdet_Date& date)
 {
+    bool synchronizeFlag = false;
+    if (date < d_packedCalendar.firstDate() ||
+        date > d_packedCalendar.lastDate()) {
+        synchronizeFlag = true;
+    }
+
     d_packedCalendar.addHoliday(date);
-    d_nonBusinessDays.set1(date - d_packedCalendar.firstDate());
+
+
+    if (synchronizeFlag) {
+        synchronizeCache();
+    }
+    else {
+        d_nonBusinessDays.set1(date - d_packedCalendar.firstDate());
+    }
 }
 
 void bdecs_Calendar::addHolidayCode(const bdet_Date& date, int holidayCode)
 {
+    bool synchronizeFlag = false;
+    if (date < d_packedCalendar.firstDate() ||
+        date > d_packedCalendar.lastDate()) {
+        synchronizeFlag = true;
+    }
+
     d_packedCalendar.addHolidayCode(date, holidayCode);
-    d_nonBusinessDays.set1(date - d_packedCalendar.firstDate());
+
+    if (synchronizeFlag) {
+        synchronizeCache();
+    }
+    else {
+        d_nonBusinessDays.set1(date - d_packedCalendar.firstDate());
+    }
 }
 
 void bdecs_Calendar::addWeekendDay(bdet_DayOfWeek::Day weekendDay)
@@ -168,6 +239,14 @@ void bdecs_Calendar::addWeekendDays(const bdec_DayOfWeekSet& weekendDays)
          it != weekendDays.end(); ++it) {
         addWeekendDay(*it);
     }
+}
+
+void bdecs_Calendar::addWeekendDaysTransition(
+                                          const bdet_Date& date,
+                                          const bdec_DayOfWeekSet& weekendDays)
+{
+    d_packedCalendar.addWeekendDaysTransition(date, weekendDays);
+    synchronizeCache();
 }
 
 void bdecs_Calendar::setValidRange(const bdet_Date& firstDate,
@@ -241,7 +320,7 @@ bdecs_Calendar::beginBusinessDays() const
 bdet_Date
 bdecs_Calendar::getNextBusinessDay(const bdet_Date& initialDate) const
 {
-    BSLS_ASSERT(d_packedCalendar.weekendDays().length() != 7);
+    // BSLS_ASSERT(d_packedCalendar.weekendDays().length() != 7);
 
     bdet_Date calendarFirstDate = firstDate();
     bdet_Date currentDate = initialDate;
@@ -295,7 +374,7 @@ bdet_Date
 bdecs_Calendar::getNextBusinessDay(const bdet_Date& initialDate, int nth) const
 {
     BSLS_ASSERT(nth > 1);
-    BSLS_ASSERT(d_packedCalendar.weekendDays().length() != 7);
+    // BSLS_ASSERT(d_packedCalendar.weekendDays().length() != 7);
 
     bdet_Date calendarFirstDate = firstDate();
     bdet_Date currentDate = initialDate;

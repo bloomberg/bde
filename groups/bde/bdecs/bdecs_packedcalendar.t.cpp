@@ -133,8 +133,8 @@ using bsl::flush;
 // [14] int numHolidayCodes(const bdet_Date& date) const;
 // [13] int numWeekendDaysInRange() const;
 // [13] int numWeekendDaysInWeek() const;
-// [ 4] WeekendDaysTransitionConstIterator beginWeekendDaysTransition() const;
-// [ 4] WeekendDaysTransitionConstIterator endWeekendDaysTransition() const;
+// [ 4] WeekendDaysTransitionConstIterator beginWeekendDaysTransitions() const;
+// [ 4] WeekendDaysTransitionConstIterator endWeekendDaysTransitions() const;
 // [ 4] int numWeekendDaysTransitions() const;
 // [10] template <class STREAM> STREAM& bdexStreamOut(STREAM&, int) const;
 // [ 5] ostream& print(ostream& stream, int level = 0, int spl = 4) const;
@@ -2434,8 +2434,8 @@ DEFINE_TEST_CASE(19) {
                 mZ.setValidRange(X.firstDate(), X.lastDate());
 
                 for (Obj::WeekendDaysTransitionConstIterator itr =
-                                                X.beginWeekendDaysTransition();
-                     itr != X.endWeekendDaysTransition();
+                                               X.beginWeekendDaysTransitions();
+                     itr != X.endWeekendDaysTransitions();
                      ++itr) {
                     mZ.addWeekendDaysTransition(itr->first, itr->second);
                 }
@@ -2767,8 +2767,8 @@ DEFINE_TEST_CASE(17) {
                              X.numWeekendDaysTransitions(),
                              weekendDaysTransitions.size() ==
                                                 X.numWeekendDaysTransitions());
-                ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
-                                  X.endWeekendDaysTransition(),
+                ASSERT(bsl::equal(X.beginWeekendDaysTransitions(),
+                                  X.endWeekendDaysTransitions(),
                                   weekendDaysTransitions.begin()));
 
                 // Verify at least all the expected holidays are present.
@@ -3954,9 +3954,9 @@ DEFINE_TEST_CASE(12) {
                 // days
 
                 ASSERT(X.numWeekendDaysTransitions() == 1);
-                ASSERT(X.beginWeekendDaysTransition()->first ==
+                ASSERT(X.beginWeekendDaysTransitions()->first ==
                                                            bdet_Date(1, 1, 1));
-                ASSERT(X.beginWeekendDaysTransition()->second.length() == 0);
+                ASSERT(X.beginWeekendDaysTransitions()->second.length() == 0);
 
                 bdec_DayOfWeekSet compareSet(set);
 
@@ -3971,9 +3971,9 @@ DEFINE_TEST_CASE(12) {
 
                 // Verify that the first transition at 1/1/1 has been modified
                 ASSERT(X.numWeekendDaysTransitions() == 1);
-                ASSERT(X.beginWeekendDaysTransition()->first ==
+                ASSERT(X.beginWeekendDaysTransitions()->first ==
                                                            bdet_Date(1, 1, 1));
-                ASSERT(X.beginWeekendDaysTransition()->second == compareSet);
+                ASSERT(X.beginWeekendDaysTransitions()->second == compareSet);
 
 
                 // Verify the weekend days are properly added.
@@ -4103,9 +4103,9 @@ DEFINE_TEST_CASE(11) {
                 }
                 LOOP_ASSERT(i, X.beginHolidays() == X.endHolidays());
                 LOOP_ASSERT(i, X.numWeekendDaysTransitions() == 1);
-                LOOP_ASSERT(i, X.beginWeekendDaysTransition()->first
+                LOOP_ASSERT(i, X.beginWeekendDaysTransitions()->first
                                                         == bdet_Date(1, 1, 1));
-                LOOP_ASSERT(i,X.beginWeekendDaysTransition()->second.length()
+                LOOP_ASSERT(i,X.beginWeekendDaysTransitions()->second.length()
                                                                          == 0);
             }
         }
@@ -4147,9 +4147,9 @@ DEFINE_TEST_CASE(11) {
                 }
                 LOOP_ASSERT(i, X.beginHolidays() == X.endHolidays());
                 LOOP_ASSERT(i, X.numWeekendDaysTransitions() == 1);
-                LOOP_ASSERT(i, X.beginWeekendDaysTransition()->first
+                LOOP_ASSERT(i, X.beginWeekendDaysTransitions()->first
                                                         == bdet_Date(1, 1, 1));
-                LOOP_ASSERT(i,X.beginWeekendDaysTransition()->second.length()
+                LOOP_ASSERT(i,X.beginWeekendDaysTransitions()->second.length()
                                                                          == 0);
             }
         }
@@ -4178,9 +4178,9 @@ DEFINE_TEST_CASE(11) {
                 }
                 LOOP_ASSERT(i, X.beginHolidays() == X.endHolidays());
                 LOOP_ASSERT(i, X.numWeekendDaysTransitions() == 1);
-                LOOP_ASSERT(i, X.beginWeekendDaysTransition()->first
+                LOOP_ASSERT(i, X.beginWeekendDaysTransitions()->first
                                                         == bdet_Date(1, 1, 1));
-                LOOP_ASSERT(i,X.beginWeekendDaysTransition()->second.length()
+                LOOP_ASSERT(i,X.beginWeekendDaysTransitions()->second.length()
                                                                          == 0);
               } END_BSLMA_EXCEPTION_TEST
             }
@@ -4211,9 +4211,9 @@ DEFINE_TEST_CASE(11) {
                 }
                 LOOP_ASSERT(i, X.beginHolidays() == X.endHolidays());
                 LOOP_ASSERT(i, X.numWeekendDaysTransitions() == 1);
-                LOOP_ASSERT(i, X.beginWeekendDaysTransition()->first
+                LOOP_ASSERT(i, X.beginWeekendDaysTransitions()->first
                                                         == bdet_Date(1, 1, 1));
-                LOOP_ASSERT(i,X.beginWeekendDaysTransition()->second.length()
+                LOOP_ASSERT(i,X.beginWeekendDaysTransitions()->second.length()
                                                                          == 0);
             }
 
@@ -4922,7 +4922,8 @@ DEFINE_TEST_CASE(10) {
             }
         }
 
-        if (verbose) cout << "\t\tBad weekend-days transitions length." << endl;
+        if (verbose)
+            cout << "\t\tBad weekend-days transitions length." << endl;
         {
             // only version 2 of the streaming format supports weekend-days
             // transitions
@@ -5432,7 +5433,7 @@ DEFINE_TEST_CASE(7) {
             "@2000/1/1 2",    "@2000/1/1 2au",    "au@2000/1/1 2 1",
             "au@2000/1/1 1A", "au@2000/1/1 1A 2", "@2000/1/1 1 2A",
             "@2000/1/1 100",  "au@2000/1/1 365 2 20A 30 40AB 50DE",
-            "au@2000/1/1 0au",  "@2000/1/1 0au 30tw 100rf",
+            "au@2000/1/1 2 0au",  "@2000/1/1 150 0au 30tw 100rf",
         0}; // Null string required as last element.
 
         for (int i = 0; SPECS[i]; ++i) {
@@ -6981,27 +6982,27 @@ DEFINE_TEST_CASE(4) {
                 bdec_DayOfWeekSet set;
 
                 ASSERT(X.numWeekendDaysTransitions() == 1);
-                ASSERT(X.beginWeekendDaysTransition()->second == set);
+                ASSERT(X.beginWeekendDaysTransitions()->second == set);
 
                 set.add(bdet_DayOfWeek::BDET_SUN);
                 mX.addWeekendDay(bdet_DayOfWeek::BDET_SUN);
                 ASSERT(X.numWeekendDaysTransitions() == 1);
-                ASSERT(X.beginWeekendDaysTransition()->second == set);
+                ASSERT(X.beginWeekendDaysTransitions()->second == set);
 
                 set.add(bdet_DayOfWeek::BDET_MON);
                 mX.addWeekendDay(bdet_DayOfWeek::BDET_MON);
                 ASSERT(X.numWeekendDaysTransitions() == 1);
-                ASSERT(X.beginWeekendDaysTransition()->second == set);
+                ASSERT(X.beginWeekendDaysTransitions()->second == set);
 
                 set.add(bdet_DayOfWeek::BDET_WED);
                 mX.addWeekendDay(bdet_DayOfWeek::BDET_WED);
                 ASSERT(X.numWeekendDaysTransitions() == 1);
-                ASSERT(X.beginWeekendDaysTransition()->second == set);
+                ASSERT(X.beginWeekendDaysTransitions()->second == set);
 
                 set.removeAll();
                 mX.removeAll();
                 ASSERT(X.numWeekendDaysTransitions() == 1);
-                ASSERT(X.beginWeekendDaysTransition()->second == set);
+                ASSERT(X.beginWeekendDaysTransitions()->second == set);
             }
         }
 
@@ -7103,23 +7104,23 @@ DEFINE_TEST_CASE(4) {
 
                 // operator++, operator*(), and operator->();
                 {
-                    Iterator iter = X.beginWeekendDaysTransition();
+                    Iterator iter = X.beginWeekendDaysTransitions();
                     for (int tt = 0; tt < transitions.size(); ++tt) {
                         ASSERT(*iter == transitions[tt]);
                         ASSERT(*(iter.operator->()) == transitions[tt]);
                         ++iter;
                     }
 
-                    ASSERT(iter == X.endWeekendDaysTransition());
+                    ASSERT(iter == X.endWeekendDaysTransitions());
                 }
 
                 // operator== and operator!=
                 {
-                    Iterator iter1 = X.beginWeekendDaysTransition();
+                    Iterator iter1 = X.beginWeekendDaysTransitions();
 
                     // loop from begin() up to and including end()
                     for (int ii = 0; ii <= transitions.size(); ++ii) {
-                        Iterator iter2 = X.beginWeekendDaysTransition();
+                        Iterator iter2 = X.beginWeekendDaysTransitions();
                         for (int jj = 0; jj <= transitions.size(); ++jj) {
 
                             bool sameFlag = ii == jj;
@@ -7141,10 +7142,8 @@ DEFINE_TEST_CASE(4) {
 
                 // copy constructor
                 {
-                    Iterator Z =
-                                                X.beginWeekendDaysTransition();
-                    Iterator ZZ =
-                                                X.beginWeekendDaysTransition();
+                    Iterator Z = X.beginWeekendDaysTransitions();
+                    Iterator ZZ = X.beginWeekendDaysTransitions();
 
                     for (int ii = 0; ii <= transitions.size(); ++ii) {
 
@@ -7162,13 +7161,13 @@ DEFINE_TEST_CASE(4) {
 
                 // copy-assignment operator
                 {
-                    Iterator Z = X.beginWeekendDaysTransition();
-                    Iterator ZZ = X.beginWeekendDaysTransition();
+                    Iterator Z = X.beginWeekendDaysTransitions();
+                    Iterator ZZ = X.beginWeekendDaysTransitions();
 
                     Obj temp;
                     for (int ii = 0; ii <= transitions.size(); ++ii) {
 
-                        Iterator mY = temp.endWeekendDaysTransition();
+                        Iterator mY = temp.endWeekendDaysTransitions();
                         const Iterator& Y = mY;
 
                         ASSERT(Y != ZZ);
@@ -7187,7 +7186,7 @@ DEFINE_TEST_CASE(4) {
 
                 // operator++()
                 {
-                    Iterator mZZ = X.beginWeekendDaysTransition();
+                    Iterator mZZ = X.beginWeekendDaysTransitions();
                     const Iterator& ZZ = mZZ;
 
                     for (int ii = 0; ii < transitions.size(); ++ii) {
@@ -7197,7 +7196,7 @@ DEFINE_TEST_CASE(4) {
                         ASSERT(mR == &Y);
 
                         if (ii == transitions.size() - 1) {
-                            ASSERT(Y == X.endWeekendDaysTransition());
+                            ASSERT(Y == X.endWeekendDaysTransitions());
                             break;
                         }
 
@@ -7208,7 +7207,7 @@ DEFINE_TEST_CASE(4) {
 
                 // operator++(int)
                 {
-                    Iterator mZZ = X.beginWeekendDaysTransition();
+                    Iterator mZZ = X.beginWeekendDaysTransitions();
                     const Iterator& ZZ = mZZ;
 
                     for (int ii = 0; ii < transitions.size(); ++ii) {
@@ -7218,7 +7217,7 @@ DEFINE_TEST_CASE(4) {
                         ASSERT(mR == ZZ);
 
                         if (ii == transitions.size() - 1) {
-                            ASSERT(Y == X.endWeekendDaysTransition());
+                            ASSERT(Y == X.endWeekendDaysTransitions());
                             break;
                         }
 
@@ -7229,7 +7228,7 @@ DEFINE_TEST_CASE(4) {
 
                 // operator--()
                 {
-                    Iterator mZZ = X.beginWeekendDaysTransition();
+                    Iterator mZZ = X.beginWeekendDaysTransitions();
                     const Iterator& ZZ = mZZ;
                     ++mZZ;
 
@@ -7240,7 +7239,7 @@ DEFINE_TEST_CASE(4) {
                         ASSERT(mR == &Y);
 
                         if (ii == 1) {
-                            ASSERT(Y == X.beginWeekendDaysTransition());
+                            ASSERT(Y == X.beginWeekendDaysTransitions());
                             break;
                         }
 
@@ -7251,7 +7250,7 @@ DEFINE_TEST_CASE(4) {
 
                 // operator--(int)
                 {
-                    Iterator mZZ = X.beginWeekendDaysTransition();
+                    Iterator mZZ = X.beginWeekendDaysTransitions();
                     const Iterator& ZZ = mZZ;
                     ++mZZ;
 
@@ -7262,7 +7261,7 @@ DEFINE_TEST_CASE(4) {
                         ASSERT(mR == ZZ);
 
                         if (ii == 1) {
-                            ASSERT(Y == X.beginWeekendDaysTransition());
+                            ASSERT(Y == X.beginWeekendDaysTransitions());
                             break;
                         }
 
@@ -7539,6 +7538,8 @@ DEFINE_TEST_CASE(3) {
             Obj mX; const Obj& X = mX;
 
             int retCode = ggg(&mX, INPUT, false);
+            if (veryVerbose) { T_ P(ti) P(INPUT) P(X) }
+            cout << endl;
 
             LOOP3_ASSERT(LINE, RC, retCode, RC == retCode);
             LOOP3_ASSERT(LINE, LEN, X.length(), LEN == X.length());
@@ -7608,8 +7609,8 @@ DEFINE_TEST_CASE(3) {
                 ASSERT(bdet_Date(2000, 1, 31) == X.lastDate());
                 ASSERT(1 == X.numHolidays());
                 ASSERT(3 == X.numWeekendDaysTransitions());
-                ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
-                              X.endWeekendDaysTransition(),
+                ASSERT(bsl::equal(X.beginWeekendDaysTransitions(),
+                              X.endWeekendDaysTransitions(),
                               eTransitions.begin()));
             }
 
@@ -7655,8 +7656,8 @@ DEFINE_TEST_CASE(3) {
                 ASSERT(bdet_Date(2000, 3, 1) == X.lastDate());
                 ASSERT(0 == X.numHolidays());
                 ASSERT(4 == X.numWeekendDaysTransitions());
-                ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
-                              X.endWeekendDaysTransition(),
+                ASSERT(bsl::equal(X.beginWeekendDaysTransitions(),
+                              X.endWeekendDaysTransitions(),
                               eTransitions.begin()));
             }
 
@@ -7703,8 +7704,8 @@ DEFINE_TEST_CASE(3) {
                 ASSERT(bdet_Date(2000, 3, 1) == X.lastDate());
                 ASSERT(0 == X.numHolidays());
                 ASSERT(4 == X.numWeekendDaysTransitions());
-                ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
-                              X.endWeekendDaysTransition(),
+                ASSERT(bsl::equal(X.beginWeekendDaysTransitions(),
+                              X.endWeekendDaysTransitions(),
                               eTransitions.begin()));
             }
 
@@ -7792,7 +7793,7 @@ DEFINE_TEST_CASE(2) {
         //      a. produces the expected value (empty)
         //      b. leaves the object in a consistent state
         //
-        //  6. That 'addWeekendDaysTransition'
+        //  7. That 'addWeekendDaysTransition'
         //      a. properly adds a weekend-days transition
         //      b. properly handles duplicates
         //
@@ -7833,6 +7834,12 @@ DEFINE_TEST_CASE(2) {
         //  'addHoliday', 'addHolidayCode' at will, then call 'removeAll',
         //  check the value and then exercise 'addDay', 'addHoliday' and
         //  'addHolidayCode' to check consistency.
+        //
+        //   To address concerns for 7, create an object, add a set of
+        //   weekend-days transitions using the 'addWeekendDayTransition'
+        //   method.  Verify using the 'numWeekendDaysTransitions',
+        //   'beginWeekendDaysTransitions', 'endWeekendDaysTransitions' methods
+        //   that the transitions have been added correctly.
         //
         //  Tactics:
         //      - Ad-Hoc Data Selection Method
@@ -7947,21 +7954,21 @@ DEFINE_TEST_CASE(2) {
             const Obj& X = mX;
             bdec_DayOfWeekSet expected;
             ASSERT(1 == X.numWeekendDaysTransitions());
-            ASSERT(X.beginWeekendDaysTransition()->second == expected);
+            ASSERT(X.beginWeekendDaysTransitions()->second == expected);
 
             mX.addWeekendDay(bdet_DayOfWeek::BDET_SAT);
             expected.add(bdet_DayOfWeek::BDET_SAT);
             ASSERT(1 == X.numWeekendDaysTransitions());
-            ASSERT(X.beginWeekendDaysTransition()->second == expected);
+            ASSERT(X.beginWeekendDaysTransitions()->second == expected);
 
             mX.addWeekendDay(bdet_DayOfWeek::BDET_MON);
             expected.add(bdet_DayOfWeek::BDET_MON);
             ASSERT(1 == X.numWeekendDaysTransitions());
-            ASSERT(X.beginWeekendDaysTransition()->second == expected);
+            ASSERT(X.beginWeekendDaysTransitions()->second == expected);
 
             mX.addWeekendDay(bdet_DayOfWeek::BDET_SAT);
             ASSERT(1 == X.numWeekendDaysTransitions());
-            ASSERT(X.beginWeekendDaysTransition()->second == expected);
+            ASSERT(X.beginWeekendDaysTransitions()->second == expected);
         }
 
         if (verbose) cout << "\nTesting 'addWeekendDayTransition'." << endl;
@@ -7976,8 +7983,8 @@ DEFINE_TEST_CASE(2) {
 
             const Obj& X = mX;
             ASSERT(1 == X.numWeekendDaysTransitions());
-            ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
-                              X.endWeekendDaysTransition(),
+            ASSERT(bsl::equal(X.beginWeekendDaysTransitions(),
+                              X.endWeekendDaysTransitions(),
                               eTransitions.begin()));
 
             date.setYearMonthDay(2, 2, 2);
@@ -7987,8 +7994,8 @@ DEFINE_TEST_CASE(2) {
                                                            date, weekendDays));
             mX.addWeekendDaysTransition(date, weekendDays);
             ASSERT(2 == X.numWeekendDaysTransitions());
-            ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
-                              X.endWeekendDaysTransition(),
+            ASSERT(bsl::equal(X.beginWeekendDaysTransitions(),
+                              X.endWeekendDaysTransitions(),
                               eTransitions.begin()));
 
             date.setYearMonthDay(1, 1, 1);
@@ -8001,8 +8008,8 @@ DEFINE_TEST_CASE(2) {
             eTransitions.insert(newTransition);
             mX.addWeekendDaysTransition(date, weekendDays);
             ASSERT(2 == X.numWeekendDaysTransitions());
-            ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
-                              X.endWeekendDaysTransition(),
+            ASSERT(bsl::equal(X.beginWeekendDaysTransitions(),
+                              X.endWeekendDaysTransitions(),
                               eTransitions.begin()));
 
             date.setYearMonthDay(1, 2, 1);
@@ -8013,8 +8020,8 @@ DEFINE_TEST_CASE(2) {
                                                            date, weekendDays));
             mX.addWeekendDaysTransition(date, weekendDays);
             ASSERT(3 == X.numWeekendDaysTransitions());
-            ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
-                              X.endWeekendDaysTransition(),
+            ASSERT(bsl::equal(X.beginWeekendDaysTransitions(),
+                              X.endWeekendDaysTransitions(),
                               eTransitions.begin()));
 
             date.setYearMonthDay(1, 2, 1);
@@ -8026,8 +8033,8 @@ DEFINE_TEST_CASE(2) {
             eTransitions.insert(newTransition);
             mX.addWeekendDaysTransition(date, weekendDays);
             ASSERT(3 == X.numWeekendDaysTransitions());
-            ASSERT(bsl::equal(X.beginWeekendDaysTransition(),
-                              X.endWeekendDaysTransition(),
+            ASSERT(bsl::equal(X.beginWeekendDaysTransitions(),
+                              X.endWeekendDaysTransitions(),
                               eTransitions.begin()));
 
         }

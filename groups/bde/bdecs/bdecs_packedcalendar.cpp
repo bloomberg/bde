@@ -1173,12 +1173,12 @@ bsl::ostream& bdecs_PackedCalendar::print(bsl::ostream& stream,
     }
 
     stream << "[ ";
-    WeekendDaysTransitionConstIterator itr = beginWeekendDaysTransition();
-    while(itr != endWeekendDaysTransition())
+    WeekendDaysTransitionConstIterator itr = beginWeekendDaysTransitions();
+    while(itr != endWeekendDaysTransitions())
     {
         stream << itr->first << " : ";
         itr->second.print(stream, -1, -1);
-        if (++itr != endWeekendDaysTransition()) {
+        if (++itr != endWeekendDaysTransitions()) {
             stream << ", ";
         }
     }

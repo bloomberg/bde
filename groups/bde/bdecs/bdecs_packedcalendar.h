@@ -116,9 +116,9 @@ BDES_IDENT("$Id: $")
 // being appended *to* *the* *end* of the current sequence (of the latest
 // holiday).
 //..
-//                                    Worst       Best   Exception-Safety
+//                                    Worst       Best    Exception-Safety
 //  Operation                          Case       Case      Guarantee
-//  ---------                         -----       ----   ---------------
+//  ---------                         -----       ----    --------------
 //  DEFAULT CTOR                      O[1]                No-Throw
 //  COPY CTOR(N)                      O[N]                Exception Safe
 //  N.DTOR()                          O[1]                No-Throw
@@ -133,7 +133,7 @@ BDES_IDENT("$Id: $")
 //  N.addHolidayCode(d,c)             O[N]        O[1]    Basic <*>
 //
 //  N.addWeekendDay(w)                O[1]                No-Throw
-//  N.addWeekendDaysTransition(d,w)   O[W]
+//  N.addWeekendDaysTransition(d,w)   O[W]                Basic <*>
 //
 //  N.intersectBusinessDays(M)        O[N+M+W+V]          Basic <*>
 //  N.intersectNonBusinessDays(M)     O[N+M+W+V]          Basic <*>
@@ -158,7 +158,7 @@ BDES_IDENT("$Id: $")
 //
 //  N.isInRange(d);                   O[1]                No-Throw
 //  N.isWeekendDay(w);                O[1]                No-Throw
-//  N.isWeekendDay(d)                 O[1]                No-Throw
+//  N.isWeekendDay(d)                 O[log(W)]           No-Throw
 //
 //  N.isHoliday(d);                   O[log(N)]           No_Throw
 //  N.isBusinessDay(d);               O[log(N)]           No_Throw
@@ -172,8 +172,8 @@ BDES_IDENT("$Id: $")
 //  other const methods               O[1] .. O[N]        No-Throw
 //
 //
-//  OP==(N,M)                         O[min(N,M)]         No-Throw
-//  OP!=(N,M)                         O[min(N,M)]         No-Throw
+//  OP==(N,M)                         O[min(N,M)+min(W+V) No-Throw
+//  OP!=(N,M)                         O[min(N,M)+min(W+V) No-Throw
 //
 //                                    <*> No-Throw guarantee when
 //                                                      capacity is sufficient.
@@ -792,26 +792,26 @@ class bdecs_PackedCalendar {
         // build up a set of holiday codes for that date.
 
     void addWeekendDay(bdet_DayOfWeek::Day weekendDay);
-        // Add the specified 'weekendDays' to the set of weekend days associated
-        // with the default weekend-days transition at 1/1/1.  All dates within
-        // the valid range '[ firstDate() .. lastDate() ]' that fall on this
-        // day of the week will cease to be business days.  Note that every
-        // occurrence of 'weekendDay' will continue be a non-business day, even
-        // if the valid range of this calendar is subsequently increased.  The
-        // behavior is undefined if the sequence of weekend-days transitions
-        // maintained by this calendar comprises more than the default
-        // transition.
+        // Add the specified 'weekendDay' to the set of weekend days associated
+        // with the default weekend-days transition at 1/1/1 maintained by this
+        // calendar.  All dates within the valid range '[ firstDate()
+        // .. lastDate() ]' that fall on this day of the week will cease to be
+        // business days.  Note that every occurrence of 'weekendDay' will
+        // continue be a non-business day, even if the valid range of this
+        // calendar is subsequently increased.  The behavior is undefined if
+        // the sequence of weekend-days transitions maintained by this calendar
+        // comprises more than the default transition.
 
     void addWeekendDays(const bdec_DayOfWeekSet& weekendDays);
-        // Add the specified 'weekendDay' to the set of weekend days associated
-        // with the default weekend-days transition at 1/1/1.  All dates within
-        // the valid range '[ firstDate() .. lastDate() ]' that fall on this
-        // day of the week will cease to be business days.  Note that every
-        // occurrence of 'weekendDay' will continue be a non-business day, even
-        // if the valid range of this calendar is subsequently increased.  The
-        // behavior is undefined if the sequence of weekend-days transitions
-        // maintained by this calendar comprises more than the default
-        // transition.
+        // Add the specified 'weekendDays' to the set of weekend days
+        // associated with the default weekend-days transition at 1/1/1
+        // maintained by this calendar.  All dates within the valid range '[
+        // firstDate() .. lastDate() ]' that fall on this day of the week will
+        // cease to be business days.  Note that every occurrence of
+        // 'weekendDay' will continue be a non-business day, even if the valid
+        // range of this calendar is subsequently increased.  The behavior is
+        // undefined if the sequence of weekend-days transitions maintained by
+        // this calendar comprises more than the default transition.
 
     void addWeekendDaysTransition(const bdet_Date& date,
                                   const bdec_DayOfWeekSet& weekendDays);
@@ -941,12 +941,12 @@ class bdecs_PackedCalendar {
         // See the 'bdex' package-level documentation for more information
         // on 'bdex' streaming of value-semantic types and containers.
 
-    WeekendDaysTransitionConstIterator beginWeekendDaysTransition() const;
+    WeekendDaysTransitionConstIterator beginWeekendDaysTransitions() const;
         // Return an iterator providing non-modifiable access to the first
         // weekend-day transition in the chronological sequence of weekend-day
         // transitions maintained by this calendar.
 
-    WeekendDaysTransitionConstIterator endWeekendDaysTransition() const;
+    WeekendDaysTransitionConstIterator endWeekendDaysTransitions() const;
         // Return an iterator providing non-modifiable access to the
         // past-the-end weekend-day transition in the chronological sequence of
         // weekend-day transitions maintained by this calendar.
@@ -2702,7 +2702,7 @@ STREAM& bdecs_PackedCalendar::bdexStreamOut(STREAM& stream, int version) const
       case 1: {
         d_firstDate.bdexStreamOut(stream, 1);
         d_lastDate.bdexStreamOut(stream, 1);
-        beginWeekendDaysTransition()->second.bdexStreamOut(stream, 1);
+        beginWeekendDaysTransitions()->second.bdexStreamOut(stream, 1);
 
         stream.putLength(static_cast<int>(d_holidayOffsets.size()));
         stream.putLength(static_cast<int>(d_holidayCodes.size()));
@@ -2752,6 +2752,20 @@ STREAM& bdecs_PackedCalendar::bdexStreamOut(STREAM& stream, int version) const
 }
 
 inline
+bdecs_PackedCalendar::WeekendDaysTransitionConstIterator
+bdecs_PackedCalendar::beginWeekendDaysTransitions() const
+{
+    return WeekendDaysTransitionConstIterator(*this, false);
+}
+
+inline
+bdecs_PackedCalendar::WeekendDaysTransitionConstIterator
+bdecs_PackedCalendar::endWeekendDaysTransitions() const
+{
+    return WeekendDaysTransitionConstIterator(*this, true);
+}
+
+inline
 bdecs_PackedCalendar::BusinessDayConstIterator
 bdecs_PackedCalendar::beginBusinessDays() const
 {
@@ -2772,20 +2786,6 @@ bdecs_PackedCalendar::HolidayCodeConstIterator
 bdecs_PackedCalendar::beginHolidayCodes(const HolidayConstIterator& iter) const
 {
     return HolidayCodeConstIterator(beginHolidayCodes(iter.d_iterator));
-}
-
-inline
-bdecs_PackedCalendar::WeekendDaysTransitionConstIterator
-bdecs_PackedCalendar::beginWeekendDaysTransition() const
-{
-    return WeekendDaysTransitionConstIterator(*this, false);
-}
-
-inline
-bdecs_PackedCalendar::WeekendDaysTransitionConstIterator
-bdecs_PackedCalendar::endWeekendDaysTransition() const
-{
-    return WeekendDaysTransitionConstIterator(*this, true);
 }
 
 inline
