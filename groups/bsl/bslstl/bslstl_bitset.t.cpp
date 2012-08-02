@@ -241,58 +241,79 @@ void negateString(char *result, size_t resultSize, const char* a)
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// When implementing the classic 'Sieve of Eratosthenes' algorithm to enumerate
-// prime numbers, we need an efficient way of representing a flag for each
-// potential prime number.  The following code illustrates how we can use
-// 'bsl::bitset' to accomplish this result.
+///Example 1: Determining if a number is prime (Sieve of Eratosthenes)
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to write a function to determine whether or not a given
+// number is prime.  One way to implement this function is by using what's
+// called the Sieve of Erathosthenes.  The basic idea of this algorithm is to
+// repeatedly walk the sequence of integer values and mark any numbers up to
+// and including the particular value of interest that are integer multiples of
+// first 2, then 3, then 5 etc., (skipping 4 because it was previously marked
+// when we walked the sequence by 2's).  Once we have walked the sequence
+// with all primes up to and including the square root of the number of
+// interest, we check to see if that number has been marked: If it has, it's
+// composite; otherwise it's prime.
 //
-// Then, we begin to define a function template that will check whether a given
-// number is prime or not:
+// When implementing this classic algorithm, we need an efficient way of
+// representing a flag for each potential prime number.  The following
+// illustrates how we can use 'bsl::bitset' to accomplish this result, provided
+// we know an upper bound on supplied candidate values at compile time.
+//
+// First, we begin to define a function template that will determine whether or
+// not a given candidate value is prime:
 //..
-template <std::size_t CANDIDATE>
-bool isPrime()
-    // Return 'true' if the specified 'CANDIDATE' value is a prime number
+template <unsigned int MAX_VALUE>
+bool isPrime(int candidate)
+    // Return 'true' if the specified 'candidate' value is a prime number,
     // and 'false' otherwise.  The behavior is undefined unless
-    // '2 <= CANDIDATE'.
+    // '2 <= candidate <= MAX_VALUE'
 {
-    BSLMF_ASSERT(2 <= CANDIDATE);
+    BSLMF_ASSERT(2 <= MAX_VALUE);
+    BSLS_ASSERT(2 <= candidate); BSLS_ASSERT(candidate <= MAX_VALUE);
 //..
-// Next, we declare the bitset that will contain flags indicating whether each
-// element is potentially prime or not, and compute 'sqrt(CANDIDATE)', which is
-// as far as we need to compute:
+// Then, we declare a 'bsl::bitset', 'potentialPrimes', that will contain flags
+// indicating whether or not each value is potentially prime, up to and
+// including some compile-time constant template parameter, 'MAX_VALUE'.
 //..
-    // Candidate primes in the '[2, PRIME_NUMBER_LIMIT]' range.
+    // Candidate primes in the '[2, MAX_VALUE]' range.
 
-    bsl::bitset<CANDIDATE + 1> potentialPrimes;
-    const int sqrtOfCandidate = std::sqrt(double(CANDIDATE));
+    bsl::bitset<MAX_VALUE + 1> potentialPrimes;
 //..
-// Now, we loop from 2 to 'CANDIDATE', and use the sieve algorithm to
-// eliminate non-primes.
-//
+// Next, we compute 'sqrt(candidate)', which is as far as we need to look:
 //..
-    // As an optimization, we'll treat 'false' values as potential primes,
+    // We need to cast the 'sqrt' argument to avoid an overload ambiguity.
+    const int sqrtOfCandidate = std::sqrt(static_cast<double>(candidate))
+                                + 0.01;  // fudge factor
+//..
+// Now, we loop from 2 to 'sqrtOfCandidate', and use the sieve algorithm to
+// eliminate non-primes:
+//..
+    // Note that we treat 'false' values as potential primes,
     // since that is how 'bsl::bitset' is default-initialized.
+
     for (int i = 2; i <= sqrtOfCandidate; ++i) {
         if (potentialPrimes[i]) {
-            continue; // Skip this value - it is already flagged as
-                      // composite.
+            continue;  // Skip this value: it's flagged as composite, so all
+                       // of its multiples are already flagged as composite as
+                       // well.
         }
 
-        for (int flagValue = i; flagValue <= CANDIDATE; flagValue += i) {
-            if (flagValue == CANDIDATE) {
-                return false;                                      // RETURN
-            }
-
+        for (int flagValue = i; flagValue <= candidate; flagValue += i) {
             potentialPrimes[flagValue] = true;
+        }
+
+        if (true == potentialPrimes[candidate]) {
+            return false;                                          // RETURN
         }
     }
 
-    return !potentialPrimes[CANDIDATE];                            // RETURN
+    BSLS_ASSERT(false == potentialPrimes[candidate]);
+
+    return true;
 }
 //..
-// Notice that the last line above is where we check whether our candidate
-// value is a prime number.
-//..
+// Notice that if we don't return 'false' from the loop, none of the lower
+// numbers evenly divided the candidate value; hence, it is a prime number.
 
 
 //=============================================================================
@@ -316,28 +337,26 @@ int main(int argc, char *argv[])
         // Finally, we can exercise our 'isPrime' function:
         // --------------------------------------------------------------------
 
-        ASSERT(   isPrime<2>());
-        ASSERT(   isPrime<3>());
-        ASSERT( ! isPrime<4>());
-        ASSERT(   isPrime<5>());
-        ASSERT( ! isPrime<6>());
-        ASSERT(   isPrime<7>());
-        ASSERT( ! isPrime<8>());
-        ASSERT( ! isPrime<9>());
-        ASSERT( ! isPrime<10>());
-        ASSERT(   isPrime<11>());
-        ASSERT( ! isPrime<12>());
-        ASSERT(   isPrime<13>());
-        ASSERT( ! isPrime<14>());
-        ASSERT( ! isPrime<15>());
-        ASSERT( ! isPrime<16>());
-        ASSERT(   isPrime<17>());
-        ASSERT( ! isPrime<18>());
-        ASSERT(   isPrime<19>());
-        ASSERT( ! isPrime<20>());
-        ASSERT(   isPrime<9973>());
-        ASSERT( ! isPrime<9975>());
-        ASSERT( ! isPrime<10000>());
+        // Finally, we can exercise our 'isPrime' function with an upper bound
+        // of 10,000:
+        //..
+        enum { UPPER_BOUND = 10000 };
+
+        ASSERT(1 == isPrime<UPPER_BOUND>(2));
+        ASSERT(1 == isPrime<UPPER_BOUND>(3));
+        ASSERT(0 == isPrime<UPPER_BOUND>(4));
+        ASSERT(1 == isPrime<UPPER_BOUND>(5));
+        ASSERT(0 == isPrime<UPPER_BOUND>(6));
+        ASSERT(1 == isPrime<UPPER_BOUND>(7));
+        ASSERT(0 == isPrime<UPPER_BOUND>(8));
+        ASSERT(0 == isPrime<UPPER_BOUND>(9));
+        ASSERT(0 == isPrime<UPPER_BOUND>(10));
+        // ...
+        ASSERT(1 == isPrime<UPPER_BOUND>(9973));
+        ASSERT(0 == isPrime<UPPER_BOUND>(9975));
+        ASSERT(0 == isPrime<UPPER_BOUND>(10000));
+        //..
+
 
     } break;
     case 4: {
