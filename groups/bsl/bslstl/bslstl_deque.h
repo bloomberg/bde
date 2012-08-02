@@ -460,7 +460,7 @@ class Deque_Base {
     // important that this class has the same layout as the deque class
     // implementation.  It is parameterized by 'VALUE_TYPE' only and implements
     // the portion of 'bsl::deque' that does not need to know about its
-    // parameterized 'ALLCOATOR' (in order to generate shorter debug strings).
+    // parameterized 'ALLOCATOR' (in order to generate shorter debug strings).
     // Note that this class must have the same layout as 'Deque_Imp' (see
     // implementation file).
 
@@ -1518,7 +1518,8 @@ Deque_Base<VALUE_TYPE>::back() const
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 deque<VALUE_TYPE,ALLOCATOR>::deque(RawInit, const ALLOCATOR& allocator)
-: ContainerBase(allocator)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(allocator)
 {
     this->d_blocks = 0;
 }
@@ -2136,7 +2137,8 @@ deque<VALUE_TYPE,ALLOCATOR>::privatePrepend(
 // CREATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(const ALLOCATOR& allocator)
-: ContainerBase(allocator)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(allocator)
 {
     deque temp(RAW_INIT, this->get_allocator());
     temp.privateInit(0);
@@ -2146,7 +2148,8 @@ deque<VALUE_TYPE,ALLOCATOR>::deque(const ALLOCATOR& allocator)
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(size_type         numElements,
                                    const ALLOCATOR&  allocator)
-: ContainerBase(allocator)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(allocator)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numElements > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -2163,7 +2166,8 @@ template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(size_type         numElements,
                                    const VALUE_TYPE& value,
                                    const ALLOCATOR&  allocator)
-: ContainerBase(allocator)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(allocator)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numElements > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -2181,7 +2185,8 @@ template <class INPUT_ITER>
 deque<VALUE_TYPE,ALLOCATOR>::deque(INPUT_ITER       first,
                                    INPUT_ITER       last,
                                    const ALLOCATOR& allocator)
-: ContainerBase(allocator)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(allocator)
 {
     deque temp(RAW_INIT, this->get_allocator());
     temp.privateInit(0);
@@ -2191,7 +2196,8 @@ deque<VALUE_TYPE,ALLOCATOR>::deque(INPUT_ITER       first,
 
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(const deque<VALUE_TYPE,ALLOCATOR>& rhs)
-: ContainerBase(rhs)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(rhs)
 {
     deque temp(RAW_INIT, this->get_allocator());
     temp.privateInit(rhs.size());
@@ -2205,7 +2211,8 @@ template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(
                                   const deque<VALUE_TYPE,ALLOCATOR>& rhs,
                                   const ALLOCATOR&                   allocator)
-: ContainerBase(allocator)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(allocator)
 {
     deque temp(RAW_INIT, this->get_allocator());
     temp.privateInit(rhs.size());
