@@ -601,13 +601,17 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BCEM_AGGREGATERAW
 #include <bcem_aggregateraw.h>
 #endif
+#ifndef INCLUDED_BCEM_ERRORATTRIBUTES
+
+#include <bcem_errorattributes.h>
+#endif
+
+#ifndef INCLUDED_BCEM_FIELDSELECTOR
+#include <bcem_fieldselector.h>
+#endif
 
 #ifndef INCLUDED_BCEMA_SHAREDPTR
 #include <bcema_sharedptr.h>
-#endif
-
-#ifndef INCLUDED_BDEF_FUNCTION
-#include <bdef_function.h>
 #endif
 
 #ifndef INCLUDED_BDEAT_TYPECATEGORY
@@ -708,8 +712,6 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-class  bdem_ChoiceArrayItem;
-
 class bcem_Aggregate {
     // This class provides a reference to a fully-introspective data
     // structure capable of representing any of the following types of bdem
@@ -724,34 +726,8 @@ class bcem_Aggregate {
     //  - An array of homogeneous choice values (choice array items)
     //..
 
-  private:
-    // PRIVATE TYPES
-    typedef bcem_AggregateRawNameOrIndex NameOrIndex;  // short hand
-
-    // Data invariants:
-    // - If 'd_dataType' is 'bdem_ElemType::BDEM_VOID', then 'd_value' will be
-    //   null or point to an error record.  The remaining invariants need not
-    //   hold.
-    // - If 'd_schema' is null, then both 'd_recordDef' and 'd_fieldDef' are
-    //   null.
-    // - If 'd_schema' is non-null, then 'd_recordDef' and/or 'd_fieldDef'
-    //   are non-null.
-    // - 'd_recordDef' is either null or points to a record within 'd_schema.'
-    //   Its memory is not managed separately from the schema's.
-    // - 'd_fieldDef' is either null or points to a field definition within
-    //   'd_schema'.  Its memory is not managed separately from the schema's.
-    // - If 'd_fieldDef' is not null, then 'd_fieldDef->elemType()' is equal
-    //   to either 'd_dataType' or to 'bdem_ElemType::toArrayType(d_dataType)'.
-    //   The code in this class always uses 'd_dataType', not
-    //   'd_fieldDef->elemType()'.
-    // - If this is the root object, then 'd_fieldDef' will be null, but
-    //   'd_recordDef' may still have a value.  Otherwise,
-    //   'd_fieldDef->recordConstraint()' will always be equal to
-    //   'd_recordDef'.  The code in this class always uses 'd_recordDef', not
-    //   'd_fieldDef->recordConstraint()'.
-
     // DATA
-    bcem_AggregateRaw   d_rawData;
+    bcem_AggregateRaw   d_aggregateRaw;
     bcema_SharedPtrRep *d_schemaRep_p;                  // shared schema
     bcema_SharedPtrRep *d_valueRep_p;                   // pointer to data
     bcema_SharedPtrRep *d_isTopLevelAggregateNullRep_p; // nullness indicator
@@ -760,29 +736,29 @@ class bcem_Aggregate {
 
     // PRIVATE MANIPULATORS
     const bcem_Aggregate fieldImp(
-                               bool        makeNonNullFlag,
-                               NameOrIndex fieldOrIdx1,
-                               NameOrIndex fieldOrIdx2 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx3 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx4 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx5 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx6 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx7 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx8 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx9 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx10 = NameOrIndex()) const;
+              bool               makeNonNullFlag,
+              bcem_FieldSelector fieldSelector1,
+              bcem_FieldSelector fieldSelector2  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector3  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector4  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector5  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector6  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector7  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector8  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector9  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector10 = bcem_FieldSelector()) const;
         // Navigate to the field within this aggregate reached through the
-        // specified chain of two to ten 'fieldOrIdx' arguments, each of which
-        // specifies a field name or array index.  If this aggregate references
-        // a nillable array, the specified field is null, and the specified 
-        // 'makeNonNullFlag' is 'true', assign that field its default value; 
-        // otherwise leave the field unmodified.  Return a sub-aggregate 
-        // referring to the modifiable field on success or an error object on 
-        // failure (as described in the "Error Handling" section of the 
-        // 'bcem_aggregate' component-level documentation).  An empty string 
-        // can be used for any of the 'fieldOrIdx' arguments to specify the
-        // current selection within a choice object.  An unused argument 
-        // results in the construction of a null 'NameOrIndex', which is 
+        // specified chain of two to ten 'fieldSelector' arguments, each of
+        // which specifies a field name or array index.  If this aggregate
+        // references a nillable array, the specified field is null, and the
+        // specified 'makeNonNullFlag' is 'true', assign that field its default
+        // value; otherwise leave the field unmodified.  Return a sub-aggregate
+        // referring to the modifiable field on success or an error object on
+        // failure (as described in the "Error Handling" section of the
+        // 'bcem_aggregate' component-level documentation).  An empty string
+        // can be used for any of the 'fieldSelector' arguments to specify the
+        // current selection within a choice object.  An unused argument
+        // results in the construction of a null 'bcem_FieldSelector', which is
         // treated as the end of the argument list.
 
     void init(const bcema_SharedPtr<const bdem_Schema>&     schemaPtr,
@@ -803,9 +779,9 @@ class bcem_Aggregate {
 
     // PRIVATE ACCESSORS
     const bcem_Aggregate makeError(
-                            const bcem_AggregateError& errorDescription) const;
+                           const bcem_ErrorAttributes& errorDescription) const;
     const bcem_Aggregate makeError(bcem_ErrorCode::Code  errorCode, 
-                                   const char                *msg, ...) const
+                                   const char           *msg, ...) const
 #ifdef BSLS_PLATFORM__CMP_GNU
         // Declare this function as printf-like in gcc.
         // The 'msg' arg is the 3rd arg, including the implicit 'this'.
@@ -844,16 +820,16 @@ class bcem_Aggregate {
         // methods for assignment.
 
     // PRIVATE CREATORS
-    bcem_Aggregate(const bcem_AggregateRaw&  rawData,
+    bcem_Aggregate(const bcem_AggregateRaw&  aggregateRaw,
                    bcema_SharedPtrRep       *schemaRep,
                    bcema_SharedPtrRep       *valueRep,
                    bcema_SharedPtrRep       *isTopLevelAggregateNullRep);
        // Create a bcem_Aggregate holding a counted reference to the same
-       // schema and data as the specified 'rawData' object.  Increment and
-       // maintain the refererence count using the specified 'schemaRep' for
-       // the shared schema reference, the specified 'valueRep' for the shared
-       // data reference, and the specified 'isTopLevelAggregateNullRep' for
-       // the top-level nullness bit.
+       // schema and data as the specified 'aggregateRaw' object.  Increment
+       // and maintain the refererence count using the specified 'schemaRep'
+       // for the shared schema reference, the specified 'valueRep' for the
+       // shared data reference, and the specified 'isTopLevelAggregateNullRep'
+       // for the top-level nullness bit.
     
   public:
     // TRAITS
@@ -1076,7 +1052,7 @@ class bcem_Aggregate {
         // error aggregate, then this aggregate will be assigned the same
         // error state.
 
-    bcem_AggregateRaw& rawData();
+    bcem_AggregateRaw& aggregateRaw();
         // Return a reference to the modifiable non-reference-counted portion
         // of this aggregate.
 
@@ -1133,160 +1109,161 @@ class bcem_Aggregate {
         // calling 'setValue'.
 
     template <typename VALTYPE>
-    const bcem_Aggregate setField(NameOrIndex    fieldOrIdx1,
-                                  const VALTYPE& value) const;
+    const bcem_Aggregate setField(bcem_FieldSelector fieldSelector1,
+                                  const VALTYPE&     value) const;
     template <typename VALTYPE>
-    const bcem_Aggregate setField(NameOrIndex    fieldOrIdx1,
-                                  NameOrIndex    fieldOrIdx2,
-                                  const VALTYPE& value) const;
+    const bcem_Aggregate setField(bcem_FieldSelector fieldSelector1,
+                                  bcem_FieldSelector fieldSelector2,
+                                  const VALTYPE&     value) const;
     template <typename VALTYPE>
-    const bcem_Aggregate setField(NameOrIndex    fieldOrIdx1,
-                                  NameOrIndex    fieldOrIdx2,
-                                  NameOrIndex    fieldOrIdx3,
-                                  const VALTYPE& value) const;
+    const bcem_Aggregate setField(bcem_FieldSelector fieldSelector1,
+                                  bcem_FieldSelector fieldSelector2,
+                                  bcem_FieldSelector fieldSelector3,
+                                  const VALTYPE&     value) const;
     template <typename VALTYPE>
-    const bcem_Aggregate setField(NameOrIndex    fieldOrIdx1,
-                                  NameOrIndex    fieldOrIdx2,
-                                  NameOrIndex    fieldOrIdx3,
-                                  NameOrIndex    fieldOrIdx4,
-                                  const VALTYPE& value) const;
+    const bcem_Aggregate setField(bcem_FieldSelector fieldSelector1,
+                                  bcem_FieldSelector fieldSelector2,
+                                  bcem_FieldSelector fieldSelector3,
+                                  bcem_FieldSelector fieldSelector4,
+                                  const VALTYPE&     value) const;
     template <typename VALTYPE>
-    const bcem_Aggregate setField(NameOrIndex    fieldOrIdx1,
-                                  NameOrIndex    fieldOrIdx2,
-                                  NameOrIndex    fieldOrIdx3,
-                                  NameOrIndex    fieldOrIdx4,
-                                  NameOrIndex    fieldOrIdx5,
-                                  const VALTYPE& value) const;
+    const bcem_Aggregate setField(bcem_FieldSelector fieldSelector1,
+                                  bcem_FieldSelector fieldSelector2,
+                                  bcem_FieldSelector fieldSelector3,
+                                  bcem_FieldSelector fieldSelector4,
+                                  bcem_FieldSelector fieldSelector5,
+                                  const VALTYPE&     value) const;
     template <typename VALTYPE>
-    const bcem_Aggregate setField(NameOrIndex    fieldOrIdx1,
-                                  NameOrIndex    fieldOrIdx2,
-                                  NameOrIndex    fieldOrIdx3,
-                                  NameOrIndex    fieldOrIdx4,
-                                  NameOrIndex    fieldOrIdx5,
-                                  NameOrIndex    fieldOrIdx6,
-                                  const VALTYPE& value) const;
+    const bcem_Aggregate setField(bcem_FieldSelector fieldSelector1,
+                                  bcem_FieldSelector fieldSelector2,
+                                  bcem_FieldSelector fieldSelector3,
+                                  bcem_FieldSelector fieldSelector4,
+                                  bcem_FieldSelector fieldSelector5,
+                                  bcem_FieldSelector fieldSelector6,
+                                  const VALTYPE&     value) const;
     template <typename VALTYPE>
-    const bcem_Aggregate setField(NameOrIndex    fieldOrIdx1,
-                                  NameOrIndex    fieldOrIdx2,
-                                  NameOrIndex    fieldOrIdx3,
-                                  NameOrIndex    fieldOrIdx4,
-                                  NameOrIndex    fieldOrIdx5,
-                                  NameOrIndex    fieldOrIdx6,
-                                  NameOrIndex    fieldOrIdx7,
-                                  const VALTYPE& value) const;
+    const bcem_Aggregate setField(bcem_FieldSelector fieldSelector1,
+                                  bcem_FieldSelector fieldSelector2,
+                                  bcem_FieldSelector fieldSelector3,
+                                  bcem_FieldSelector fieldSelector4,
+                                  bcem_FieldSelector fieldSelector5,
+                                  bcem_FieldSelector fieldSelector6,
+                                  bcem_FieldSelector fieldSelector7,
+                                  const VALTYPE&     value) const;
     template <typename VALTYPE>
-    const bcem_Aggregate setField(NameOrIndex    fieldOrIdx1,
-                                  NameOrIndex    fieldOrIdx2,
-                                  NameOrIndex    fieldOrIdx3,
-                                  NameOrIndex    fieldOrIdx4,
-                                  NameOrIndex    fieldOrIdx5,
-                                  NameOrIndex    fieldOrIdx6,
-                                  NameOrIndex    fieldOrIdx7,
-                                  NameOrIndex    fieldOrIdx8,
-                                  const VALTYPE& value) const;
+    const bcem_Aggregate setField(bcem_FieldSelector fieldSelector1,
+                                  bcem_FieldSelector fieldSelector2,
+                                  bcem_FieldSelector fieldSelector3,
+                                  bcem_FieldSelector fieldSelector4,
+                                  bcem_FieldSelector fieldSelector5,
+                                  bcem_FieldSelector fieldSelector6,
+                                  bcem_FieldSelector fieldSelector7,
+                                  bcem_FieldSelector fieldSelector8,
+                                  const VALTYPE&     value) const;
     template <typename VALTYPE>
-    const bcem_Aggregate setField(NameOrIndex    fieldOrIdx1,
-                                  NameOrIndex    fieldOrIdx2,
-                                  NameOrIndex    fieldOrIdx3,
-                                  NameOrIndex    fieldOrIdx4,
-                                  NameOrIndex    fieldOrIdx5,
-                                  NameOrIndex    fieldOrIdx6,
-                                  NameOrIndex    fieldOrIdx7,
-                                  NameOrIndex    fieldOrIdx8,
-                                  NameOrIndex    fieldOrIdx9,
-                                  const VALTYPE& value) const;
+    const bcem_Aggregate setField(bcem_FieldSelector fieldSelector1,
+                                  bcem_FieldSelector fieldSelector2,
+                                  bcem_FieldSelector fieldSelector3,
+                                  bcem_FieldSelector fieldSelector4,
+                                  bcem_FieldSelector fieldSelector5,
+                                  bcem_FieldSelector fieldSelector6,
+                                  bcem_FieldSelector fieldSelector7,
+                                  bcem_FieldSelector fieldSelector8,
+                                  bcem_FieldSelector fieldSelector9,
+                                  const VALTYPE&     value) const;
     template <typename VALTYPE>
-    const bcem_Aggregate setField(NameOrIndex    fieldOrIdx1,
-                                  NameOrIndex    fieldOrIdx2,
-                                  NameOrIndex    fieldOrIdx3,
-                                  NameOrIndex    fieldOrIdx4,
-                                  NameOrIndex    fieldOrIdx5,
-                                  NameOrIndex    fieldOrIdx6,
-                                  NameOrIndex    fieldOrIdx7,
-                                  NameOrIndex    fieldOrIdx8,
-                                  NameOrIndex    fieldOrIdx9,
-                                  NameOrIndex    fieldOrIdx10,
-                                  const VALTYPE& value) const;
+    const bcem_Aggregate setField(bcem_FieldSelector fieldSelector1,
+                                  bcem_FieldSelector fieldSelector2,
+                                  bcem_FieldSelector fieldSelector3,
+                                  bcem_FieldSelector fieldSelector4,
+                                  bcem_FieldSelector fieldSelector5,
+                                  bcem_FieldSelector fieldSelector6,
+                                  bcem_FieldSelector fieldSelector7,
+                                  bcem_FieldSelector fieldSelector8,
+                                  bcem_FieldSelector fieldSelector9,
+                                  bcem_FieldSelector fieldSelector10,
+                                  const VALTYPE&     value) const;
         // Navigate to the field within this aggregate reached through the
-        // specified chain of one to ten 'fieldOrIdx' arguments, each of which
-        // specifies a field name or array index, then set that field to the
-        // specified 'value', resetting its nullness flag if 'field.isNul2()'
-        // is 'true', after appropriate conversions (see "Extended Type
-        // Conversions" in the 'bcem_Aggregate' component-level
+        // specified chain of one to ten 'fieldSelector' arguments, each of
+        // which specifies a field name or array index, then set that field to
+        // the specified 'value', resetting its nullness flag if
+        // 'field.isNul2()' is 'true', after appropriate conversions (see
+        // "Extended Type Conversions" in the 'bcem_Aggregate' component-level
         // documentation).  Return a sub-aggregate referring to the modified
         // field on success or an error object on failure (as described in the
         // "Error Handling" section of the 'bcem_aggregate' component-level
         // documentation).  An empty string can be used for any of the
-        // 'fieldOrIdx' arguments to specify the current selection within a
+        // 'fieldSelector' arguments to specify the current selection within a
         // choice object.  If value is null then make the field null.  Note
         // that if any field in the chain of fields is null then an error is
         // returned.  This aggregate is not modified if an error is detected.
 
-    const bcem_Aggregate setFieldNull(NameOrIndex fieldOrIdx1) const;
-    const bcem_Aggregate setFieldNull(NameOrIndex fieldOrIdx1,
-                                      NameOrIndex fieldOrIdx2) const;
-    const bcem_Aggregate setFieldNull(NameOrIndex fieldOrIdx1,
-                                      NameOrIndex fieldOrIdx2,
-                                      NameOrIndex fieldOrIdx3) const;
-    const bcem_Aggregate setFieldNull(NameOrIndex fieldOrIdx1,
-                                      NameOrIndex fieldOrIdx2,
-                                      NameOrIndex fieldOrIdx3,
-                                      NameOrIndex fieldOrIdx4) const;
-    const bcem_Aggregate setFieldNull(NameOrIndex fieldOrIdx1,
-                                      NameOrIndex fieldOrIdx2,
-                                      NameOrIndex fieldOrIdx3,
-                                      NameOrIndex fieldOrIdx4,
-                                      NameOrIndex fieldOrIdx5) const;
-    const bcem_Aggregate setFieldNull(NameOrIndex fieldOrIdx1,
-                                      NameOrIndex fieldOrIdx2,
-                                      NameOrIndex fieldOrIdx3,
-                                      NameOrIndex fieldOrIdx4,
-                                      NameOrIndex fieldOrIdx5,
-                                      NameOrIndex fieldOrIdx6) const;
-    const bcem_Aggregate setFieldNull(NameOrIndex fieldOrIdx1,
-                                      NameOrIndex fieldOrIdx2,
-                                      NameOrIndex fieldOrIdx3,
-                                      NameOrIndex fieldOrIdx4,
-                                      NameOrIndex fieldOrIdx5,
-                                      NameOrIndex fieldOrIdx6,
-                                      NameOrIndex fieldOrIdx7) const;
-    const bcem_Aggregate setFieldNull(NameOrIndex fieldOrIdx1,
-                                      NameOrIndex fieldOrIdx2,
-                                      NameOrIndex fieldOrIdx3,
-                                      NameOrIndex fieldOrIdx4,
-                                      NameOrIndex fieldOrIdx5,
-                                      NameOrIndex fieldOrIdx6,
-                                      NameOrIndex fieldOrIdx7,
-                                      NameOrIndex fieldOrIdx8) const;
-    const bcem_Aggregate setFieldNull(NameOrIndex fieldOrIdx1,
-                                      NameOrIndex fieldOrIdx2,
-                                      NameOrIndex fieldOrIdx3,
-                                      NameOrIndex fieldOrIdx4,
-                                      NameOrIndex fieldOrIdx5,
-                                      NameOrIndex fieldOrIdx6,
-                                      NameOrIndex fieldOrIdx7,
-                                      NameOrIndex fieldOrIdx8,
-                                      NameOrIndex fieldOrIdx9) const;
-    const bcem_Aggregate setFieldNull(NameOrIndex fieldOrIdx1,
-                                      NameOrIndex fieldOrIdx2,
-                                      NameOrIndex fieldOrIdx3,
-                                      NameOrIndex fieldOrIdx4,
-                                      NameOrIndex fieldOrIdx5,
-                                      NameOrIndex fieldOrIdx6,
-                                      NameOrIndex fieldOrIdx7,
-                                      NameOrIndex fieldOrIdx8,
-                                      NameOrIndex fieldOrIdx9,
-                                      NameOrIndex fieldOrIdx10) const;
+    const bcem_Aggregate setFieldNull(bcem_FieldSelector fieldSelector1) const;
+    const bcem_Aggregate setFieldNull(bcem_FieldSelector fieldSelector1,
+                                      bcem_FieldSelector fieldSelector2) const;
+    const bcem_Aggregate setFieldNull(bcem_FieldSelector fieldSelector1,
+                                      bcem_FieldSelector fieldSelector2,
+                                      bcem_FieldSelector fieldSelector3) const;
+    const bcem_Aggregate setFieldNull(bcem_FieldSelector fieldSelector1,
+                                      bcem_FieldSelector fieldSelector2,
+                                      bcem_FieldSelector fieldSelector3,
+                                      bcem_FieldSelector fieldSelector4) const;
+    const bcem_Aggregate setFieldNull(bcem_FieldSelector fieldSelector1,
+                                      bcem_FieldSelector fieldSelector2,
+                                      bcem_FieldSelector fieldSelector3,
+                                      bcem_FieldSelector fieldSelector4,
+                                      bcem_FieldSelector fieldSelector5) const;
+    const bcem_Aggregate setFieldNull(bcem_FieldSelector fieldSelector1,
+                                      bcem_FieldSelector fieldSelector2,
+                                      bcem_FieldSelector fieldSelector3,
+                                      bcem_FieldSelector fieldSelector4,
+                                      bcem_FieldSelector fieldSelector5,
+                                      bcem_FieldSelector fieldSelector6) const;
+    const bcem_Aggregate setFieldNull(bcem_FieldSelector fieldSelector1,
+                                      bcem_FieldSelector fieldSelector2,
+                                      bcem_FieldSelector fieldSelector3,
+                                      bcem_FieldSelector fieldSelector4,
+                                      bcem_FieldSelector fieldSelector5,
+                                      bcem_FieldSelector fieldSelector6,
+                                      bcem_FieldSelector fieldSelector7) const;
+    const bcem_Aggregate setFieldNull(bcem_FieldSelector fieldSelector1,
+                                      bcem_FieldSelector fieldSelector2,
+                                      bcem_FieldSelector fieldSelector3,
+                                      bcem_FieldSelector fieldSelector4,
+                                      bcem_FieldSelector fieldSelector5,
+                                      bcem_FieldSelector fieldSelector6,
+                                      bcem_FieldSelector fieldSelector7,
+                                      bcem_FieldSelector fieldSelector8) const;
+    const bcem_Aggregate setFieldNull(bcem_FieldSelector fieldSelector1,
+                                      bcem_FieldSelector fieldSelector2,
+                                      bcem_FieldSelector fieldSelector3,
+                                      bcem_FieldSelector fieldSelector4,
+                                      bcem_FieldSelector fieldSelector5,
+                                      bcem_FieldSelector fieldSelector6,
+                                      bcem_FieldSelector fieldSelector7,
+                                      bcem_FieldSelector fieldSelector8,
+                                      bcem_FieldSelector fieldSelector9) const;
+    const bcem_Aggregate setFieldNull(
+                                     bcem_FieldSelector fieldSelector1,
+                                     bcem_FieldSelector fieldSelector2,
+                                     bcem_FieldSelector fieldSelector3,
+                                     bcem_FieldSelector fieldSelector4,
+                                     bcem_FieldSelector fieldSelector5,
+                                     bcem_FieldSelector fieldSelector6,
+                                     bcem_FieldSelector fieldSelector7,
+                                     bcem_FieldSelector fieldSelector8,
+                                     bcem_FieldSelector fieldSelector9,
+                                     bcem_FieldSelector fieldSelector10) const;
         // Set the field within this aggregate reached through the specified
-        // chain of one to ten 'fieldOrIdx' arguments, each of which specifies
-        // a field name or array index, to null.  Return a sub-aggregate
-        // referring to the field on success or an error object on failure (as
-        // described in the "Error Handling" section of the 'bcem_aggregate'
-        // component-level documentation).  An empty string can be used for
-        // any of the 'fieldOrIdx' arguments to specify the current selection
-        // within a choice object.  Note that if any field in the chain of
-        // fields is null then an error is returned.  This aggregate is not
-        // modified if an error is detected.
+        // chain of one to ten 'fieldSelector' arguments, each of which
+        // specifies a field name or array index, to null.  Return a
+        // sub-aggregate referring to the field on success or an error object
+        // on failure (as described in the "Error Handling" section of the
+        // 'bcem_aggregate' component-level documentation).  An empty string
+        // can be used for any of the 'fieldSelector' arguments to specify the
+        // current selection within a choice object.  Note that if any field in
+        // the chain of fields is null then an error is returned.  This
+        // aggregate is not modified if an error is detected.
 
     template <typename VALTYPE>
     const bcem_Aggregate setFieldById(int fieldId, const VALTYPE& value) const;
@@ -1764,39 +1741,40 @@ class bcem_Aggregate {
         // Return 'true' if this aggregate contains a field having the
         // specified 'fieldIndex' and 'false' otherwise.
 
-    const bcem_Aggregate field(NameOrIndex fieldOrIdx) const;
-        // Get the field within this aggregate specified by the 'fieldOrIdx'
+    const bcem_Aggregate field(bcem_FieldSelector fieldSelector) const;
+        // Get the field within this aggregate specified by the 'fieldSelector'
         // argument, which specifies a field name or array index.  Return a
         // modifiable sub-aggregate referring to the field on success or an
         // error object on failure (as described in the "Error Handling"
         // section of the 'bcem_aggregate' component-level documentation).
         // Note that if 'true == isNul2()' then an error is returned.
 
-    const bcem_Aggregate field(NameOrIndex fieldOrIdx1,
-                               NameOrIndex fieldOrIdx2,
-                               NameOrIndex fieldOrIdx3 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx4 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx5 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx6 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx7 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx8 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx9 = NameOrIndex(),
-                               NameOrIndex fieldOrIdx10 = NameOrIndex()) const;
+    const bcem_Aggregate field(
+              bcem_FieldSelector fieldSelector1,
+              bcem_FieldSelector fieldSelector2,
+              bcem_FieldSelector fieldSelector3 = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector4 = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector5 = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector6 = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector7 = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector8 = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector9 = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector10 = bcem_FieldSelector()) const;
         // Navigate to the field within this aggregate reached through the
-        // specified chain of two to ten 'fieldOrIdx' arguments, each of which
-        // specifies a field name or array index.  Return a sub-aggregate
+        // specified chain of two to ten 'fieldSelector' arguments, each of
+        // which specifies a field name or array index.  Return a sub-aggregate
         // referring to the modifiable field on success or an error object on
         // failure (as described in the "Error Handling" section of the
         // 'bcem_aggregate' component-level documentation).  An empty string
-        // can be used for any of the 'fieldOrIdx' arguments to specify the
+        // can be used for any of the 'fieldSelector' arguments to specify the
         // current selection within a choice object.  An unused argument
-        // results in the construction of a null 'NameOrIndex', which is
+        // results in the construction of a null 'bcem_FieldSelector', which is
         // treated as the end of the argument list.  Note that if
         // 'true == isNul2()' for any field in the chain of fields then an
         // error is returned.
         //
         // This function is equivalent to iteratively calling the
-        // single-argument version of 'field', where each 'fieldOrIdx'
+        // single-argument version of 'field', where each 'fieldSelector'
         // argument indicates the name of successively deeper sub-aggregates.
         // For example:
         //..
@@ -1848,24 +1826,25 @@ class bcem_Aggregate {
         // 'anonymousField(0)', otherwise return an error object.
 
     bdem_ElemType::Type
-    fieldType(NameOrIndex fieldOrIdx1,
-              NameOrIndex fieldOrIdx2  = NameOrIndex(),
-              NameOrIndex fieldOrIdx3  = NameOrIndex(),
-              NameOrIndex fieldOrIdx4  = NameOrIndex(),
-              NameOrIndex fieldOrIdx5  = NameOrIndex(),
-              NameOrIndex fieldOrIdx6  = NameOrIndex(),
-              NameOrIndex fieldOrIdx7  = NameOrIndex(),
-              NameOrIndex fieldOrIdx8  = NameOrIndex(),
-              NameOrIndex fieldOrIdx9  = NameOrIndex(),
-              NameOrIndex fieldOrIdx10 = NameOrIndex()) const;
+    fieldType(bcem_FieldSelector fieldSelector1,
+              bcem_FieldSelector fieldSelector2  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector3  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector4  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector5  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector6  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector7  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector8  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector9  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector10 = bcem_FieldSelector()) const;
         // Navigate to the field within this aggregate reached through the
-        // specified chain of one to ten 'fieldOrIdx' arguments, each of which
-        // specifies a field name or array index.  Return the type of the
+        // specified chain of one to ten 'fieldSelector' arguments, each of
+        // which specifies a field name or array index.  Return the type of the
         // field on success, or 'bdem_ElemType::BDEM_VOID' on a navigation
-        // error.  An empty string can be used for any of the 'fieldOrIdx'
+        // error.  An empty string can be used for any of the 'fieldSelector'
         // arguments to specify the current selection within a choice object.
         // An unused argument results in the construction of a null
-        // 'NameOrIndex', which is treated as the end of the argument list.
+        // 'bcem_FieldSelector', which is treated as the end of the argument
+        // list.
 
     bdem_ElemType::Type fieldTypeById(int fieldId) const;
         // Return the type of field referenced by the specified 'fieldId' or
@@ -1877,29 +1856,30 @@ class bcem_Aggregate {
         // (zero-based) 'index' or 'bdem_ElemType::BDEM_VOID' if 'index' < 0 or
         // 'recordDef().length() <= index'.
 
-    bdem_ElemRef fieldRef(NameOrIndex fieldOrIdx1,
-                          NameOrIndex fieldOrIdx2  = NameOrIndex(),
-                          NameOrIndex fieldOrIdx3  = NameOrIndex(),
-                          NameOrIndex fieldOrIdx4  = NameOrIndex(),
-                          NameOrIndex fieldOrIdx5  = NameOrIndex(),
-                          NameOrIndex fieldOrIdx6  = NameOrIndex(),
-                          NameOrIndex fieldOrIdx7  = NameOrIndex(),
-                          NameOrIndex fieldOrIdx8  = NameOrIndex(),
-                          NameOrIndex fieldOrIdx9  = NameOrIndex(),
-                          NameOrIndex fieldOrIdx10 = NameOrIndex()) const;
+    bdem_ElemRef fieldRef(
+              bcem_FieldSelector fieldSelector1,
+              bcem_FieldSelector fieldSelector2  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector3  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector4  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector5  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector6  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector7  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector8  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector9  = bcem_FieldSelector(),
+              bcem_FieldSelector fieldSelector10 = bcem_FieldSelector()) const;
         // Navigate to the field within this aggregate reached through the
-        // specified chain of one to ten 'fieldOrIdx' arguments, each of which
-        // specifies a field name or array index.  Return an element reference
-        // to the specified modifiable field on success or a 'VOID' element
-        // reference on error.  An empty string can be used for any of the
-        // arguments to specify the current selection within a choice object.
-        // An unused argument results in the construction of a null
-        // 'NameOrIndex', which is treated as the end of the argument list.
-        // Note that if 'true == isNul2()' for any field in the chain of
-        // fields then an error is returned.  Modifying the element through
-        // the returned reference will modify the original aggregate.  The
-        // behavior is undefined if the resulting element ref is used to
-        // modify the data such that it no longer conforms to the schema.
+        // specified chain of one to ten 'fieldSelector' arguments, each of
+        // which specifies a field name or array index.  Return an element
+        // reference to the specified modifiable field on success or a 'VOID'
+        // element reference on error.  An empty string can be used for any of
+        // the arguments to specify the current selection within a choice
+        // object.  An unused argument results in the construction of a null
+        // 'bcem_FieldSelector', which is treated as the end of the argument
+        // list.  Note that if 'true == isNul2()' for any field in the chain of
+        // fields then an error is returned.  Modifying the element through the
+        // returned reference will modify the original aggregate.  The behavior
+        // is undefined if the resulting element ref is used to modify the data
+        // such that it no longer conforms to the schema.
 
     bdem_ElemRef fieldRefById(int fieldId) const;
         // Return an element reference to the modifiable field specified by
@@ -2053,7 +2033,7 @@ class bcem_Aggregate {
         // with this aggregate.  Return an empty pointer if this aggregate has
         // no associated schema (i.e., is unconstrained).
 
-    const bcem_AggregateRaw& rawData() const;
+    const bcem_AggregateRaw& aggregateRaw() const;
         // Return a reference to the non-reference-counted portion of 
         // this aggregate.
 
@@ -2209,14 +2189,14 @@ inline
 bool bcem_Aggregate::areIdentical(const bcem_Aggregate& lhs,
                                   const bcem_Aggregate& rhs)
 {
-    return bcem_AggregateRaw::areIdentical(lhs.rawData(), rhs.rawData());
+    return bcem_AggregateRaw::areIdentical(lhs.aggregateRaw(), rhs.aggregateRaw());
 }
 
 inline
 bool bcem_Aggregate::areEquivalent(const bcem_Aggregate& lhs,
                                    const bcem_Aggregate& rhs)
 {
-    return bcem_AggregateRaw::areEquivalent(lhs.rawData(), rhs.rawData());
+    return bcem_AggregateRaw::areEquivalent(lhs.aggregateRaw(), rhs.aggregateRaw());
 }
 
 inline
@@ -2230,16 +2210,16 @@ template <typename VALTYPE>
 bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
                                const VALTYPE&             value,
                                bslma_Allocator           *basicAllocator)
-: d_rawData()
+: d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
 , d_isTopLevelAggregateNullRep_p(0)
 {
-    d_rawData.setDataType(dataType);
+    d_aggregateRaw.setDataType(dataType);
 
     bcema_SharedPtr<void> value_sp = makeValuePtr(dataType, basicAllocator);
 
-    d_rawData.setDataPointer(value_sp.ptr());
+    d_aggregateRaw.setData(value_sp.ptr());
     d_valueRep_p = value_sp.rep();
     d_valueRep_p->acquireRef();
 
@@ -2258,7 +2238,7 @@ bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
     else {
         bcema_SharedPtr<int> null_sp;
         null_sp.createInplace(basicAllocator, 0);
-        d_rawData.setTopLevelAggregateNullnessPointer(null_sp.ptr());
+        d_aggregateRaw.setTopLevelAggregateNullnessPointer(null_sp.ptr());
         d_isTopLevelAggregateNullRep_p = null_sp.rep();
         d_isTopLevelAggregateNullRep_p->acquireRef();
     }
@@ -2269,7 +2249,7 @@ inline
 bcem_Aggregate::bcem_Aggregate(
                   const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
                   bslma_Allocator                              *basicAllocator)
-: d_rawData()
+: d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
 , d_isTopLevelAggregateNullRep_p(0)
@@ -2281,7 +2261,7 @@ inline
 bcem_Aggregate::bcem_Aggregate(
                         const bcema_SharedPtr<bdem_RecordDef>&  recordDefPtr,
                         bslma_Allocator                        *basicAllocator)
-: d_rawData()
+: d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
 , d_isTopLevelAggregateNullRep_p(0)
@@ -2294,7 +2274,7 @@ bcem_Aggregate::bcem_Aggregate(
                   const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
                   bdem_ElemType::Type                           elemType,
                   bslma_Allocator                              *basicAllocator)
-: d_rawData()
+: d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
 , d_isTopLevelAggregateNullRep_p(0)
@@ -2307,7 +2287,7 @@ bcem_Aggregate::bcem_Aggregate(
                         const bcema_SharedPtr<bdem_RecordDef>&  recordDefPtr,
                         bdem_ElemType::Type                     elemType,
                         bslma_Allocator                        *basicAllocator)
-: d_rawData()
+: d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
 , d_isTopLevelAggregateNullRep_p(0)
@@ -2321,7 +2301,7 @@ bcem_Aggregate::bcem_Aggregate(
                      const bsl::string&                         recordName,
                      bdem_ElemType::Type                        elemType,
                      bslma_Allocator                           *basicAllocator)
-: d_rawData()
+: d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
 , d_isTopLevelAggregateNullRep_p(0)
@@ -2335,7 +2315,7 @@ bcem_Aggregate::bcem_Aggregate(
                            const bsl::string&                   recordName,
                            bdem_ElemType::Type                  elemType,
                            bslma_Allocator                     *basicAllocator)
-: d_rawData()
+: d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
 , d_isTopLevelAggregateNullRep_p(0)
@@ -2345,23 +2325,23 @@ bcem_Aggregate::bcem_Aggregate(
 
 // MANIPULATORS
 inline
-bcem_AggregateRaw& bcem_Aggregate::rawData()
+bcem_AggregateRaw& bcem_Aggregate::aggregateRaw()
 {
-    return d_rawData;
+    return d_aggregateRaw;
 }
 
 // REFERENCED-VALUE MANIPULATORS
 inline
 const bcem_Aggregate& bcem_Aggregate::makeNull()  const
 {
-    d_rawData.makeNull();
+    d_aggregateRaw.makeNull();
     return *this;
 }
 
 inline
 const bcem_Aggregate bcem_Aggregate::makeValue() const
 {
-    d_rawData.makeValue();
+    d_aggregateRaw.makeValue();
     return *this;
 }
 
@@ -2372,8 +2352,8 @@ const bcem_Aggregate bcem_Aggregate::setValue(const VALTYPE& value) const
         return *this;                                                 // RETURN
     }
 
-    bcem_AggregateError errorDescription;
-    if (0 != d_rawData.setValue(&errorDescription, valueRef(value))) {
+    bcem_ErrorAttributes errorDescription;
+    if (0 != d_aggregateRaw.setValue(&errorDescription, valueRef(value))) {
         return makeError(errorDescription);                           // RETURN
     }
     return *this;
@@ -2381,348 +2361,358 @@ const bcem_Aggregate bcem_Aggregate::setValue(const VALTYPE& value) const
 
 template <typename VALTYPE>
 inline
-const bcem_Aggregate bcem_Aggregate::setField(NameOrIndex    fieldOrIdx1,
-                                              const VALTYPE& value) const
+const bcem_Aggregate bcem_Aggregate::setField(
+                                             bcem_FieldSelector fieldSelector1,
+                                             const VALTYPE&     value) const
 {
-    return fieldImp(true, fieldOrIdx1).setValue(value);
+    return fieldImp(true, fieldSelector1).setValue(value);
 }
 
 template <typename VALTYPE>
 inline
-const bcem_Aggregate bcem_Aggregate::setField(NameOrIndex    fieldOrIdx1,
-                                              NameOrIndex    fieldOrIdx2,
-                                              const VALTYPE& value) const
+const bcem_Aggregate bcem_Aggregate::setField(
+                                             bcem_FieldSelector fieldSelector1,
+                                             bcem_FieldSelector fieldSelector2,
+                                             const VALTYPE&     value) const
 {
-    return fieldImp(true, fieldOrIdx1, fieldOrIdx2).setValue(value);
+    return fieldImp(true, fieldSelector1, fieldSelector2).setValue(value);
 }
 
 template <typename VALTYPE>
 inline
-const bcem_Aggregate bcem_Aggregate::setField(NameOrIndex    fieldOrIdx1,
-                                              NameOrIndex    fieldOrIdx2,
-                                              NameOrIndex    fieldOrIdx3,
-                                              const VALTYPE& value) const
+const bcem_Aggregate bcem_Aggregate::setField(
+                                             bcem_FieldSelector fieldSelector1,
+                                             bcem_FieldSelector fieldSelector2,
+                                             bcem_FieldSelector fieldSelector3,
+                                             const VALTYPE&     value) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3).setValue(value);
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3).setValue(value);
 }
 
 template <typename VALTYPE>
 inline
-const bcem_Aggregate bcem_Aggregate::setField(NameOrIndex    fieldOrIdx1,
-                                              NameOrIndex    fieldOrIdx2,
-                                              NameOrIndex    fieldOrIdx3,
-                                              NameOrIndex    fieldOrIdx4,
-                                              const VALTYPE& value) const
+const bcem_Aggregate bcem_Aggregate::setField(
+                                             bcem_FieldSelector fieldSelector1,
+                                             bcem_FieldSelector fieldSelector2,
+                                             bcem_FieldSelector fieldSelector3,
+                                             bcem_FieldSelector fieldSelector4,
+                                             const VALTYPE&     value) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3,
-                    fieldOrIdx4).setValue(value);
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3,
+                    fieldSelector4).setValue(value);
 }
 
 template <typename VALTYPE>
 inline
-const bcem_Aggregate bcem_Aggregate::setField(NameOrIndex    fieldOrIdx1,
-                                              NameOrIndex    fieldOrIdx2,
-                                              NameOrIndex    fieldOrIdx3,
-                                              NameOrIndex    fieldOrIdx4,
-                                              NameOrIndex    fieldOrIdx5,
-                                              const VALTYPE& value) const
+const bcem_Aggregate bcem_Aggregate::setField(
+                                             bcem_FieldSelector fieldSelector1,
+                                             bcem_FieldSelector fieldSelector2,
+                                             bcem_FieldSelector fieldSelector3,
+                                             bcem_FieldSelector fieldSelector4,
+                                             bcem_FieldSelector fieldSelector5,
+                                             const VALTYPE&     value) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3,
-                    fieldOrIdx4,
-                    fieldOrIdx5).setValue(value);
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3,
+                    fieldSelector4,
+                    fieldSelector5).setValue(value);
 }
 
 template <typename VALTYPE>
 inline
-const bcem_Aggregate bcem_Aggregate::setField(NameOrIndex    fieldOrIdx1,
-                                              NameOrIndex    fieldOrIdx2,
-                                              NameOrIndex    fieldOrIdx3,
-                                              NameOrIndex    fieldOrIdx4,
-                                              NameOrIndex    fieldOrIdx5,
-                                              NameOrIndex    fieldOrIdx6,
-                                              const VALTYPE& value) const
+const bcem_Aggregate bcem_Aggregate::setField(
+                                             bcem_FieldSelector fieldSelector1,
+                                             bcem_FieldSelector fieldSelector2,
+                                             bcem_FieldSelector fieldSelector3,
+                                             bcem_FieldSelector fieldSelector4,
+                                             bcem_FieldSelector fieldSelector5,
+                                             bcem_FieldSelector fieldSelector6,
+                                             const VALTYPE&     value) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3,
-                    fieldOrIdx4,
-                    fieldOrIdx5,
-                    fieldOrIdx6).setValue(value);
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3,
+                    fieldSelector4,
+                    fieldSelector5,
+                    fieldSelector6).setValue(value);
 }
 
 template <typename VALTYPE>
 inline
-const bcem_Aggregate bcem_Aggregate::setField(NameOrIndex    fieldOrIdx1,
-                                              NameOrIndex    fieldOrIdx2,
-                                              NameOrIndex    fieldOrIdx3,
-                                              NameOrIndex    fieldOrIdx4,
-                                              NameOrIndex    fieldOrIdx5,
-                                              NameOrIndex    fieldOrIdx6,
-                                              NameOrIndex    fieldOrIdx7,
-                                              const VALTYPE& value) const
+const bcem_Aggregate bcem_Aggregate::setField(
+                                             bcem_FieldSelector fieldSelector1,
+                                             bcem_FieldSelector fieldSelector2,
+                                             bcem_FieldSelector fieldSelector3,
+                                             bcem_FieldSelector fieldSelector4,
+                                             bcem_FieldSelector fieldSelector5,
+                                             bcem_FieldSelector fieldSelector6,
+                                             bcem_FieldSelector fieldSelector7,
+                                             const VALTYPE&     value) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3,
-                    fieldOrIdx4,
-                    fieldOrIdx5,
-                    fieldOrIdx6,
-                    fieldOrIdx7).setValue(value);
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3,
+                    fieldSelector4,
+                    fieldSelector5,
+                    fieldSelector6,
+                    fieldSelector7).setValue(value);
 }
 
 template <typename VALTYPE>
 inline
-const bcem_Aggregate bcem_Aggregate::setField(NameOrIndex    fieldOrIdx1,
-                                              NameOrIndex    fieldOrIdx2,
-                                              NameOrIndex    fieldOrIdx3,
-                                              NameOrIndex    fieldOrIdx4,
-                                              NameOrIndex    fieldOrIdx5,
-                                              NameOrIndex    fieldOrIdx6,
-                                              NameOrIndex    fieldOrIdx7,
-                                              NameOrIndex    fieldOrIdx8,
-                                              const VALTYPE& value) const
+const bcem_Aggregate bcem_Aggregate::setField(
+                                             bcem_FieldSelector fieldSelector1,
+                                             bcem_FieldSelector fieldSelector2,
+                                             bcem_FieldSelector fieldSelector3,
+                                             bcem_FieldSelector fieldSelector4,
+                                             bcem_FieldSelector fieldSelector5,
+                                             bcem_FieldSelector fieldSelector6,
+                                             bcem_FieldSelector fieldSelector7,
+                                             bcem_FieldSelector fieldSelector8,
+                                             const VALTYPE&     value) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3,
-                    fieldOrIdx4,
-                    fieldOrIdx5,
-                    fieldOrIdx6,
-                    fieldOrIdx7,
-                    fieldOrIdx8).setValue(value);
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3,
+                    fieldSelector4,
+                    fieldSelector5,
+                    fieldSelector6,
+                    fieldSelector7,
+                    fieldSelector8).setValue(value);
 }
 
 template <typename VALTYPE>
 inline
-const bcem_Aggregate bcem_Aggregate::setField(NameOrIndex    fieldOrIdx1,
-                                              NameOrIndex    fieldOrIdx2,
-                                              NameOrIndex    fieldOrIdx3,
-                                              NameOrIndex    fieldOrIdx4,
-                                              NameOrIndex    fieldOrIdx5,
-                                              NameOrIndex    fieldOrIdx6,
-                                              NameOrIndex    fieldOrIdx7,
-                                              NameOrIndex    fieldOrIdx8,
-                                              NameOrIndex    fieldOrIdx9,
-                                              const VALTYPE& value) const
+const bcem_Aggregate bcem_Aggregate::setField(
+                                             bcem_FieldSelector fieldSelector1,
+                                             bcem_FieldSelector fieldSelector2,
+                                             bcem_FieldSelector fieldSelector3,
+                                             bcem_FieldSelector fieldSelector4,
+                                             bcem_FieldSelector fieldSelector5,
+                                             bcem_FieldSelector fieldSelector6,
+                                             bcem_FieldSelector fieldSelector7,
+                                             bcem_FieldSelector fieldSelector8,
+                                             bcem_FieldSelector fieldSelector9,
+                                             const VALTYPE&     value) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3,
-                    fieldOrIdx4,
-                    fieldOrIdx5,
-                    fieldOrIdx6,
-                    fieldOrIdx7,
-                    fieldOrIdx8,
-                    fieldOrIdx9).setValue(value);
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3,
+                    fieldSelector4,
+                    fieldSelector5,
+                    fieldSelector6,
+                    fieldSelector7,
+                    fieldSelector8,
+                    fieldSelector9).setValue(value);
 }
 
 template <typename VALTYPE>
 inline
-const bcem_Aggregate bcem_Aggregate::setField(NameOrIndex    fieldOrIdx1,
-                                              NameOrIndex    fieldOrIdx2,
-                                              NameOrIndex    fieldOrIdx3,
-                                              NameOrIndex    fieldOrIdx4,
-                                              NameOrIndex    fieldOrIdx5,
-                                              NameOrIndex    fieldOrIdx6,
-                                              NameOrIndex    fieldOrIdx7,
-                                              NameOrIndex    fieldOrIdx8,
-                                              NameOrIndex    fieldOrIdx9,
-                                              NameOrIndex    fieldOrIdx10,
-                                              const VALTYPE& value) const
+const bcem_Aggregate bcem_Aggregate::setField(
+                                            bcem_FieldSelector fieldSelector1,
+                                            bcem_FieldSelector fieldSelector2,
+                                            bcem_FieldSelector fieldSelector3,
+                                            bcem_FieldSelector fieldSelector4,
+                                            bcem_FieldSelector fieldSelector5,
+                                            bcem_FieldSelector fieldSelector6,
+                                            bcem_FieldSelector fieldSelector7,
+                                            bcem_FieldSelector fieldSelector8,
+                                            bcem_FieldSelector fieldSelector9,
+                                            bcem_FieldSelector fieldSelector10,
+                                            const VALTYPE&     value) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3,
-                    fieldOrIdx4,
-                    fieldOrIdx5,
-                    fieldOrIdx6,
-                    fieldOrIdx7,
-                    fieldOrIdx8,
-                    fieldOrIdx9,
-                    fieldOrIdx10).setValue(value);
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3,
+                    fieldSelector4,
+                    fieldSelector5,
+                    fieldSelector6,
+                    fieldSelector7,
+                    fieldSelector8,
+                    fieldSelector9,
+                    fieldSelector10).setValue(value);
 }
 
 inline
 const bcem_Aggregate
-bcem_Aggregate::setFieldNull(NameOrIndex fieldOrIdx1) const
+bcem_Aggregate::setFieldNull(bcem_FieldSelector fieldSelector1) const
 {
-    return fieldImp(true, fieldOrIdx1).makeNull();
+    return fieldImp(true, fieldSelector1).makeNull();
 }
 
 inline
 const bcem_Aggregate
-bcem_Aggregate::setFieldNull(NameOrIndex fieldOrIdx1,
-                             NameOrIndex fieldOrIdx2) const
+bcem_Aggregate::setFieldNull(bcem_FieldSelector fieldSelector1,
+                             bcem_FieldSelector fieldSelector2) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2).makeNull();
+                    fieldSelector1,
+                    fieldSelector2).makeNull();
 }
 
 inline
 const bcem_Aggregate
-bcem_Aggregate::setFieldNull(NameOrIndex fieldOrIdx1,
-                             NameOrIndex fieldOrIdx2,
-                             NameOrIndex fieldOrIdx3) const
+bcem_Aggregate::setFieldNull(bcem_FieldSelector fieldSelector1,
+                             bcem_FieldSelector fieldSelector2,
+                             bcem_FieldSelector fieldSelector3) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3).makeNull();
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3).makeNull();
 }
 
 inline
 const bcem_Aggregate
-bcem_Aggregate::setFieldNull(NameOrIndex fieldOrIdx1,
-                             NameOrIndex fieldOrIdx2,
-                             NameOrIndex fieldOrIdx3,
-                             NameOrIndex fieldOrIdx4) const
+bcem_Aggregate::setFieldNull(bcem_FieldSelector fieldSelector1,
+                             bcem_FieldSelector fieldSelector2,
+                             bcem_FieldSelector fieldSelector3,
+                             bcem_FieldSelector fieldSelector4) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3,
-                    fieldOrIdx4).makeNull();
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3,
+                    fieldSelector4).makeNull();
 }
 
 inline
 const bcem_Aggregate
-bcem_Aggregate::setFieldNull(NameOrIndex fieldOrIdx1,
-                             NameOrIndex fieldOrIdx2,
-                             NameOrIndex fieldOrIdx3,
-                             NameOrIndex fieldOrIdx4,
-                             NameOrIndex fieldOrIdx5) const
+bcem_Aggregate::setFieldNull(bcem_FieldSelector fieldSelector1,
+                             bcem_FieldSelector fieldSelector2,
+                             bcem_FieldSelector fieldSelector3,
+                             bcem_FieldSelector fieldSelector4,
+                             bcem_FieldSelector fieldSelector5) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3,
-                    fieldOrIdx4,
-                    fieldOrIdx5).makeNull();
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3,
+                    fieldSelector4,
+                    fieldSelector5).makeNull();
 }
 
 inline
 const bcem_Aggregate
-bcem_Aggregate::setFieldNull(NameOrIndex fieldOrIdx1,
-                             NameOrIndex fieldOrIdx2,
-                             NameOrIndex fieldOrIdx3,
-                             NameOrIndex fieldOrIdx4,
-                             NameOrIndex fieldOrIdx5,
-                             NameOrIndex fieldOrIdx6) const
+bcem_Aggregate::setFieldNull(bcem_FieldSelector fieldSelector1,
+                             bcem_FieldSelector fieldSelector2,
+                             bcem_FieldSelector fieldSelector3,
+                             bcem_FieldSelector fieldSelector4,
+                             bcem_FieldSelector fieldSelector5,
+                             bcem_FieldSelector fieldSelector6) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3,
-                    fieldOrIdx4,
-                    fieldOrIdx5,
-                    fieldOrIdx6).makeNull();
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3,
+                    fieldSelector4,
+                    fieldSelector5,
+                    fieldSelector6).makeNull();
 }
 
 inline
 const bcem_Aggregate
-bcem_Aggregate::setFieldNull(NameOrIndex fieldOrIdx1,
-                             NameOrIndex fieldOrIdx2,
-                             NameOrIndex fieldOrIdx3,
-                             NameOrIndex fieldOrIdx4,
-                             NameOrIndex fieldOrIdx5,
-                             NameOrIndex fieldOrIdx6,
-                             NameOrIndex fieldOrIdx7) const
+bcem_Aggregate::setFieldNull(bcem_FieldSelector fieldSelector1,
+                             bcem_FieldSelector fieldSelector2,
+                             bcem_FieldSelector fieldSelector3,
+                             bcem_FieldSelector fieldSelector4,
+                             bcem_FieldSelector fieldSelector5,
+                             bcem_FieldSelector fieldSelector6,
+                             bcem_FieldSelector fieldSelector7) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3,
-                    fieldOrIdx4,
-                    fieldOrIdx5,
-                    fieldOrIdx6,
-                    fieldOrIdx7).makeNull();
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3,
+                    fieldSelector4,
+                    fieldSelector5,
+                    fieldSelector6,
+                    fieldSelector7).makeNull();
 }
 
 inline
 const bcem_Aggregate
-bcem_Aggregate::setFieldNull(NameOrIndex fieldOrIdx1,
-                             NameOrIndex fieldOrIdx2,
-                             NameOrIndex fieldOrIdx3,
-                             NameOrIndex fieldOrIdx4,
-                             NameOrIndex fieldOrIdx5,
-                             NameOrIndex fieldOrIdx6,
-                             NameOrIndex fieldOrIdx7,
-                             NameOrIndex fieldOrIdx8) const
+bcem_Aggregate::setFieldNull(bcem_FieldSelector fieldSelector1,
+                             bcem_FieldSelector fieldSelector2,
+                             bcem_FieldSelector fieldSelector3,
+                             bcem_FieldSelector fieldSelector4,
+                             bcem_FieldSelector fieldSelector5,
+                             bcem_FieldSelector fieldSelector6,
+                             bcem_FieldSelector fieldSelector7,
+                             bcem_FieldSelector fieldSelector8) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3,
-                    fieldOrIdx4,
-                    fieldOrIdx5,
-                    fieldOrIdx6,
-                    fieldOrIdx7,
-                    fieldOrIdx8).makeNull();
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3,
+                    fieldSelector4,
+                    fieldSelector5,
+                    fieldSelector6,
+                    fieldSelector7,
+                    fieldSelector8).makeNull();
 }
 
 inline
 const bcem_Aggregate
-bcem_Aggregate::setFieldNull(NameOrIndex fieldOrIdx1,
-                             NameOrIndex fieldOrIdx2,
-                             NameOrIndex fieldOrIdx3,
-                             NameOrIndex fieldOrIdx4,
-                             NameOrIndex fieldOrIdx5,
-                             NameOrIndex fieldOrIdx6,
-                             NameOrIndex fieldOrIdx7,
-                             NameOrIndex fieldOrIdx8,
-                             NameOrIndex fieldOrIdx9) const
+bcem_Aggregate::setFieldNull(bcem_FieldSelector fieldSelector1,
+                             bcem_FieldSelector fieldSelector2,
+                             bcem_FieldSelector fieldSelector3,
+                             bcem_FieldSelector fieldSelector4,
+                             bcem_FieldSelector fieldSelector5,
+                             bcem_FieldSelector fieldSelector6,
+                             bcem_FieldSelector fieldSelector7,
+                             bcem_FieldSelector fieldSelector8,
+                             bcem_FieldSelector fieldSelector9) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3,
-                    fieldOrIdx4,
-                    fieldOrIdx5,
-                    fieldOrIdx6,
-                    fieldOrIdx7,
-                    fieldOrIdx8,
-                    fieldOrIdx9).makeNull();
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3,
+                    fieldSelector4,
+                    fieldSelector5,
+                    fieldSelector6,
+                    fieldSelector7,
+                    fieldSelector8,
+                    fieldSelector9).makeNull();
 }
 
 inline
 const bcem_Aggregate
-bcem_Aggregate::setFieldNull(NameOrIndex fieldOrIdx1,
-                             NameOrIndex fieldOrIdx2,
-                             NameOrIndex fieldOrIdx3,
-                             NameOrIndex fieldOrIdx4,
-                             NameOrIndex fieldOrIdx5,
-                             NameOrIndex fieldOrIdx6,
-                             NameOrIndex fieldOrIdx7,
-                             NameOrIndex fieldOrIdx8,
-                             NameOrIndex fieldOrIdx9,
-                             NameOrIndex fieldOrIdx10) const
+bcem_Aggregate::setFieldNull(bcem_FieldSelector fieldSelector1,
+                             bcem_FieldSelector fieldSelector2,
+                             bcem_FieldSelector fieldSelector3,
+                             bcem_FieldSelector fieldSelector4,
+                             bcem_FieldSelector fieldSelector5,
+                             bcem_FieldSelector fieldSelector6,
+                             bcem_FieldSelector fieldSelector7,
+                             bcem_FieldSelector fieldSelector8,
+                             bcem_FieldSelector fieldSelector9,
+                             bcem_FieldSelector fieldSelector10) const
 {
     return fieldImp(true,
-                    fieldOrIdx1,
-                    fieldOrIdx2,
-                    fieldOrIdx3,
-                    fieldOrIdx4,
-                    fieldOrIdx5,
-                    fieldOrIdx6,
-                    fieldOrIdx7,
-                    fieldOrIdx8,
-                    fieldOrIdx9,
-                    fieldOrIdx10).makeNull();
+                    fieldSelector1,
+                    fieldSelector2,
+                    fieldSelector3,
+                    fieldSelector4,
+                    fieldSelector5,
+                    fieldSelector6,
+                    fieldSelector7,
+                    fieldSelector8,
+                    fieldSelector9,
+                    fieldSelector10).makeNull();
 }
 
 template <typename VALTYPE>
@@ -2786,8 +2776,8 @@ const bcem_Aggregate bcem_Aggregate::insert(int            pos,
                                             const VALTYPE& newItem) const
 {
     bcem_AggregateRaw   field;
-    bcem_AggregateError errorDescription;
-    if (0 != d_rawData.insertItem(&field,
+    bcem_ErrorAttributes errorDescription;
+    if (0 != d_aggregateRaw.insertItem(&field,
                                   &errorDescription,
                                   pos,
                                   valueRef(newItem))) {
@@ -2821,115 +2811,115 @@ const bcem_Aggregate bcem_Aggregate::appendNullItems(int numItems) const
 inline
 bsl::string bcem_Aggregate::asString() const 
 {
-    return d_rawData.asString();
+    return d_aggregateRaw.asString();
 }
 
 inline
 void bcem_Aggregate::loadAsString(bsl::string *result) const 
 {
-    d_rawData.loadAsString(result);
+    d_aggregateRaw.loadAsString(result);
 }
 
 inline
 int bcem_Aggregate::selectorId() const
 {
-    return d_rawData.selectorId();
+    return d_aggregateRaw.selectorId();
 }
 
 inline
 int bcem_Aggregate::length() const
 {
-    return d_rawData.length();
+    return d_aggregateRaw.length();
 }
 
 inline
 int bcem_Aggregate::numSelections() const
 {
-    return d_rawData.numSelections();
+    return d_aggregateRaw.numSelections();
 }
 
 inline 
 const char *bcem_Aggregate::selector() const 
 {
-    return d_rawData.selector();
+    return d_aggregateRaw.selector();
 }
 
 inline
 bool bcem_Aggregate::asBool() const
 {
-    return d_rawData.asBool();
+    return d_aggregateRaw.asBool();
 }
 
 inline
 char bcem_Aggregate::asChar() const
 {
-    return d_rawData.asChar();
+    return d_aggregateRaw.asChar();
 }
 
 inline
 short bcem_Aggregate::asShort() const
 {
-    return d_rawData.asShort();
+    return d_aggregateRaw.asShort();
 }
 
 inline
 int bcem_Aggregate::asInt() const
 {
-    return d_rawData.asInt();
+    return d_aggregateRaw.asInt();
 }
 
 inline
 bsls_Types::Int64 bcem_Aggregate::asInt64() const
 {
-    return d_rawData.asInt64();
+    return d_aggregateRaw.asInt64();
 }
 
 inline
 float bcem_Aggregate::asFloat() const
 {
-    return d_rawData.asFloat();
+    return d_aggregateRaw.asFloat();
 }
 
 inline
 double bcem_Aggregate::asDouble() const
 {
-    return d_rawData.asDouble();
+    return d_aggregateRaw.asDouble();
 }
 
 inline
 bdet_Datetime bcem_Aggregate::asDatetime() const
 {
-    return d_rawData.asDatetime();
+    return d_aggregateRaw.asDatetime();
 }
 
 inline
 bdet_DatetimeTz bcem_Aggregate::asDatetimeTz() const
 {
-    return d_rawData.asDatetimeTz();
+    return d_aggregateRaw.asDatetimeTz();
 }
 
 inline
 bdet_Date bcem_Aggregate::asDate() const
 {
-    return d_rawData.asDate();
+    return d_aggregateRaw.asDate();
 }
 
 inline
 bdet_DateTz bcem_Aggregate::asDateTz() const
 {
-    return d_rawData.asDateTz();
+    return d_aggregateRaw.asDateTz();
 }
 
 inline
 bdet_Time bcem_Aggregate::asTime() const
 {
-    return d_rawData.asTime();
+    return d_aggregateRaw.asTime();
 }
 
 inline
 bdet_TimeTz bcem_Aggregate::asTimeTz() const
 {
-    return d_rawData.asTimeTz();
+    return d_aggregateRaw.asTimeTz();
 }
 
 inline
@@ -2963,9 +2953,9 @@ bcem_Aggregate::makeSelection(const char     *newSelector,
                               const VALTYPE&  value) const
 {
     bcem_AggregateRaw   field;
-    bcem_AggregateError errorDescription;
+    bcem_ErrorAttributes errorDescription;
 
-    if (0 == d_rawData.makeSelection(&field,
+    if (0 == d_aggregateRaw.makeSelection(&field,
                                      &errorDescription,
                                      newSelector,
                                      valueRef(value))) {
@@ -2994,9 +2984,9 @@ const bcem_Aggregate
 bcem_Aggregate::makeSelectionById(int id, const VALTYPE& value) const
 {
     bcem_AggregateRaw   field;
-    bcem_AggregateError errorDescription;
+    bcem_ErrorAttributes errorDescription;
 
-    if (0 == d_rawData.makeSelectionById(&field,
+    if (0 == d_aggregateRaw.makeSelectionById(&field,
                                          &errorDescription,
                                          id,
                                          valueRef(value))) {
@@ -3015,9 +3005,9 @@ const bcem_Aggregate
 bcem_Aggregate::makeSelectionByIndex(int index, const VALTYPE& value) const
 {
     bcem_AggregateRaw   field;
-    bcem_AggregateError errorDescription;
+    bcem_ErrorAttributes errorDescription;
 
-    if (0 == d_rawData.makeSelectionByIndex(&field,
+    if (0 == d_aggregateRaw.makeSelectionByIndex(&field,
                                             &errorDescription,
                                             index,
                                             valueRef(value))) {
@@ -3035,8 +3025,8 @@ inline
 const bcem_Aggregate
 bcem_Aggregate::reserveRaw(bsl::size_t numItems) 
 {
-    bcem_AggregateError errorDescription;
-    if (0 == d_rawData.reserveRaw(&errorDescription, numItems)) {
+    bcem_ErrorAttributes errorDescription;
+    if (0 == d_aggregateRaw.reserveRaw(&errorDescription, numItems)) {
         return *this;                                                 // RETURN
     }
     return makeError(errorDescription);
@@ -3046,7 +3036,7 @@ template <class STREAM>
 inline
 STREAM& bcem_Aggregate::bdexStreamIn(STREAM& stream, int version) const
 {
-    return d_rawData.bdexStreamIn(stream, version);
+    return d_aggregateRaw.bdexStreamIn(stream, version);
 }
 
 // ACCESSORS
@@ -3055,8 +3045,8 @@ const bcem_Aggregate bcem_Aggregate::capacityRaw(bsl::size_t *capacity) const
 {
     BSLS_ASSERT_SAFE(capacity);
 
-    bcem_AggregateError errorDescription;
-    if (0 == d_rawData.capacityRaw(&errorDescription, capacity)) {
+    bcem_ErrorAttributes errorDescription;
+    if (0 == d_aggregateRaw.capacityRaw(&errorDescription, capacity)) {
         return *this;                                                 // RETURN
     }
     return makeError(errorDescription);
@@ -3065,61 +3055,67 @@ const bcem_Aggregate bcem_Aggregate::capacityRaw(bsl::size_t *capacity) const
 inline
 int bcem_Aggregate::selectorIndex() const
 {
-    return d_rawData.selectorIndex();
+    return d_aggregateRaw.selectorIndex();
 }
 
 inline 
 const bdem_ElemRef bcem_Aggregate::asElemRef() const
 {
-    return d_rawData.asElemRef();
+    return d_aggregateRaw.asElemRef();
 }
 
 inline
 bool bcem_Aggregate::isError() const
 {
-    return d_rawData.isError();
+    return d_aggregateRaw.isError();
 }
 
 inline
 bool bcem_Aggregate::isNul2() const
 {
-    return d_rawData.isNull();
+    return d_aggregateRaw.isNull();
 }
 
 inline
 bool bcem_Aggregate::isNullable() const
 {
-    return d_rawData.isNullable();
+    return d_aggregateRaw.isNullable();
 }
 
 inline
 int bcem_Aggregate::errorCode() const
 {
-    return d_rawData.errorCode();
+    return d_aggregateRaw.errorCode();
+}
+
+inline
+bsl::string bcem_Aggregate::errorMessage() const
+{
+    return d_aggregateRaw.errorMessage();
 }
 
 inline
 bool bcem_Aggregate::isVoid() const
 {
-    return d_rawData.isVoid();
+    return d_aggregateRaw.isVoid();
 }
 
 inline
 bool bcem_Aggregate::hasField(const char *fieldName) const
 {
-    return d_rawData.hasField(fieldName);
+    return d_aggregateRaw.hasField(fieldName);
 }
 
 inline
 bool bcem_Aggregate::hasFieldById(int fieldId) const
 {
-    return d_rawData.hasFieldById(fieldId);
+    return d_aggregateRaw.hasFieldById(fieldId);
 }
 
 inline
 bool bcem_Aggregate::hasFieldByIndex(int fieldIndex) const
 {
-    return d_rawData.hasFieldByIndex(fieldIndex);
+    return d_aggregateRaw.hasFieldByIndex(fieldIndex);
 }
 
 inline
@@ -3138,7 +3134,7 @@ const bcem_Aggregate bcem_Aggregate::operator[](const char *fieldName) const
 inline
 bdem_ElemType::Type bcem_Aggregate::dataType() const
 {
-    return d_rawData.dataType();
+    return d_aggregateRaw.dataType();
 }
 
 inline
@@ -3150,19 +3146,19 @@ const bdem_RecordDef& bcem_Aggregate::recordDef() const
 inline
 const bdem_RecordDef *bcem_Aggregate::recordConstraint() const
 {
-    return d_rawData.recordConstraint();
+    return d_aggregateRaw.recordConstraint();
 }
 
 inline
 const bdem_EnumerationDef *bcem_Aggregate::enumerationConstraint() const
 {
-    return d_rawData.enumerationConstraint();
+    return d_aggregateRaw.enumerationConstraint();
 }
 
 inline
 const bdem_FieldDef *bcem_Aggregate::fieldDef() const
 {
-    return d_rawData.fieldDef();
+    return d_aggregateRaw.fieldDef();
 }
 
 inline
@@ -3174,14 +3170,14 @@ const bdem_FieldDef *bcem_Aggregate::fieldSpec() const
 inline
 const void *bcem_Aggregate::data() const
 {
-    return d_rawData.data();
+    return d_aggregateRaw.data();
 }
 
 template <class STREAM>
 inline
 STREAM& bcem_Aggregate::bdexStreamOut(STREAM& stream, int version) const
 {
-    return d_rawData.bdexStreamOut(stream, version);
+    return d_aggregateRaw.bdexStreamOut(stream, version);
 }
 
 inline
@@ -3189,13 +3185,13 @@ bsl::ostream& bcem_Aggregate::print(bsl::ostream& stream,
                                     int           level,
                                     int           spacesPerLevel) const
 {
-    return d_rawData.print(stream, level, spacesPerLevel);
+    return d_aggregateRaw.print(stream, level, spacesPerLevel);
 }
 
 inline
-const bcem_AggregateRaw& bcem_Aggregate::rawData() const
+const bcem_AggregateRaw& bcem_Aggregate::aggregateRaw() const
 {
-    return d_rawData;
+    return d_aggregateRaw;
 }
 
 // FREE OPERATORS
@@ -3248,7 +3244,7 @@ int bdeat_arrayManipulateElement(bcem_Aggregate *array,
                                  MANIPULATOR&    manipulator,
                                  int             index)
 {
-    return bdeat_arrayManipulateElement(&array->rawData(),
+    return bdeat_arrayManipulateElement(&array->aggregateRaw(),
                                         manipulator,
                                         index);
 }
@@ -3265,7 +3261,7 @@ int bdeat_arrayAccessElement(const bcem_Aggregate& array,
                              ACCESSOR&             accessor,
                              int                   index)
 {
-    return bdeat_arrayAccessElement(array.rawData(), accessor, index);
+    return bdeat_arrayAccessElement(array.aggregateRaw(), accessor, index);
 }
 
 inline
@@ -3299,7 +3295,7 @@ bool bdeat_choiceHasSelection(const bcem_Aggregate&  object,
                               const char            *selectionName,
                               int                    selectionNameLength)
 {
-    return bdeat_choiceHasSelection(object.rawData(), 
+    return bdeat_choiceHasSelection(object.aggregateRaw(), 
                                     selectionName, 
                                     selectionNameLength);
 }
@@ -3307,7 +3303,7 @@ bool bdeat_choiceHasSelection(const bcem_Aggregate&  object,
 inline
 int bdeat_choiceMakeSelection(bcem_Aggregate *object, int selectionId)
 {
-    return bdeat_choiceMakeSelection(&object->rawData(), selectionId);
+    return bdeat_choiceMakeSelection(&object->aggregateRaw(), selectionId);
 }
 
 inline
@@ -3315,10 +3311,9 @@ int bdeat_choiceMakeSelection(bcem_Aggregate *object,
                               const char     *selectionName,
                               int             selectionNameLength)
 { 
-    return bdeat_choiceMakeSelection(
-                            const_cast<bcem_AggregateRaw*>(&object->rawData()),
-                            selectionName,
-                            selectionNameLength);
+    return bdeat_choiceMakeSelection(&object->aggregateRaw(),
+                                     selectionName,
+                                     selectionNameLength);
 }
 
 template <typename MANIPULATOR>
@@ -3326,9 +3321,8 @@ inline
 int bdeat_choiceManipulateSelection(bcem_Aggregate *object,
                                     MANIPULATOR&    manipulator)
 {
-    return bdeat_choiceManipulateSelection(
-                            const_cast<bcem_AggregateRaw*>(&object->rawData()),
-                            manipulator);
+    return bdeat_choiceManipulateSelection(&object->aggregateRaw(),
+                                           manipulator);
 }
 
 template <typename ACCESSOR>
@@ -3336,19 +3330,19 @@ inline
 int bdeat_choiceAccessSelection(const bcem_Aggregate& object,
                                 ACCESSOR&             accessor)
 {
-    return bdeat_choiceAccessSelection(object.rawData(), accessor);
+    return bdeat_choiceAccessSelection(object.aggregateRaw(), accessor);
 }
 
 inline
 bool bdeat_choiceHasSelection(const bcem_Aggregate& object, int selectionId)
 {
-    return bdeat_choiceHasSelection(object.rawData(), selectionId);
+    return bdeat_choiceHasSelection(object.aggregateRaw(), selectionId);
 }
 
 inline
 int bdeat_choiceSelectionId(const bcem_Aggregate& object)
 {
-    return bdeat_choiceSelectionId(object.rawData());
+    return bdeat_choiceSelectionId(object.aggregateRaw());
 }
 
 // ============================================================================
@@ -3374,9 +3368,7 @@ namespace bdeat_EnumFunctions {
 inline
 int bdeat_enumFromInt(bcem_Aggregate *result, int enumId)
 { 
-    return bdeat_enumFromInt(
-                            const_cast<bcem_AggregateRaw*>(&result->rawData()),
-                            enumId);
+    return bdeat_enumFromInt(&result->aggregateRaw(), enumId);
 }
 
 inline
@@ -3384,22 +3376,21 @@ int bdeat_enumFromString(bcem_Aggregate *result,
                          const char     *string,
                          int             stringLength)
 {
-    return bdeat_enumFromString(
-                            const_cast<bcem_AggregateRaw*>(&result->rawData()),
-                            string,
-                            stringLength);
+    return bdeat_enumFromString(&result->aggregateRaw(),
+                                string,
+                                stringLength);
 }
 
 inline
 void bdeat_enumToInt(int *result, const bcem_Aggregate& value) 
 {
-    bdeat_enumToInt(result, value.rawData());
+    bdeat_enumToInt(result, value.aggregateRaw());
 }
 
 inline
 void bdeat_enumToString(bsl::string *result, const bcem_Aggregate& value)
 {
-    bdeat_enumToString(result, value.rawData());
+    bdeat_enumToString(result, value.aggregateRaw());
 }
  
 // ============================================================================
@@ -3487,7 +3478,7 @@ int bdeat_sequenceManipulateAttribute(bcem_Aggregate *object,
                                       const char     *attributeName,
                                       int             attributeNameLength)
 {
-    return bdeat_sequenceManipulateAttribute(&object->rawData(),
+    return bdeat_sequenceManipulateAttribute(&object->aggregateRaw(),
                                              manipulator,
                                              attributeName,
                                              attributeNameLength);
@@ -3499,7 +3490,7 @@ int bdeat_sequenceManipulateAttribute(bcem_Aggregate *object,
                                       MANIPULATOR&    manipulator,
                                       int             attributeId)
 {
-    return bdeat_sequenceManipulateAttribute(&object->rawData(),
+    return bdeat_sequenceManipulateAttribute(&object->aggregateRaw(),
                                              manipulator,
                                              attributeId);
 }
@@ -3509,7 +3500,8 @@ inline
 int bdeat_sequenceManipulateAttributes(bcem_Aggregate *object,
                                        MANIPULATOR&    manipulator)
 {
-    return bdeat_sequenceManipulateAttributes(&object->rawData(), manipulator);
+    return bdeat_sequenceManipulateAttributes(&object->aggregateRaw(),
+                                              manipulator);
 }
 
 template <typename ACCESSOR>
@@ -3519,7 +3511,7 @@ int bdeat_sequenceAccessAttribute(const bcem_Aggregate&  object,
                                   const char            *attributeName,
                                   int                    attributeNameLength)
 {
-    return bdeat_sequenceAccessAttribute(object.rawData(), 
+    return bdeat_sequenceAccessAttribute(object.aggregateRaw(), 
                                          accessor, 
                                          attributeName, 
                                          attributeNameLength);
@@ -3531,7 +3523,7 @@ int bdeat_sequenceAccessAttribute(const bcem_Aggregate& object,
                                   ACCESSOR&             accessor,
                                   int                   attributeId)
 {
-    return bdeat_sequenceAccessAttribute(object.rawData(),
+    return bdeat_sequenceAccessAttribute(object.aggregateRaw(),
                                          accessor, 
                                          attributeId);
 }
@@ -3541,7 +3533,7 @@ inline
 int bdeat_sequenceAccessAttributes(const bcem_Aggregate& object,
                                    ACCESSOR&             accessor)
 {
-    return bdeat_sequenceAccessAttributes(object.rawData(), accessor);
+    return bdeat_sequenceAccessAttributes(object.aggregateRaw(), accessor);
 }
 
 inline
@@ -3549,7 +3541,7 @@ bool bdeat_sequenceHasAttribute(const bcem_Aggregate&  object,
                                 const char            *attributeName,
                                 int                    attributeNameLength)
 {
-    return bdeat_sequenceHasAttribute(object.rawData(),
+    return bdeat_sequenceHasAttribute(object.aggregateRaw(),
                                       attributeName, 
                                       attributeNameLength);
 }
@@ -3557,7 +3549,7 @@ bool bdeat_sequenceHasAttribute(const bcem_Aggregate&  object,
 inline
 bool bdeat_sequenceHasAttribute(const bcem_Aggregate& object, int attributeId)
 {
-    return bdeat_sequenceHasAttribute(object.rawData(), attributeId);
+    return bdeat_sequenceHasAttribute(object.aggregateRaw(), attributeId);
 }
 
 // ============================================================================
@@ -3568,7 +3560,7 @@ bdeat_TypeCategory::Value
 inline
 bdeat_typeCategorySelect(const bcem_Aggregate& object)
 {
-    return bdeat_typeCategorySelect(object.rawData());
+    return bdeat_typeCategorySelect(object.aggregateRaw());
 }
 
 template <typename MANIPULATOR>
@@ -3576,7 +3568,8 @@ inline
 int bdeat_typeCategoryManipulateArray(bcem_Aggregate *object,
                                       MANIPULATOR&    manipulator)
 {
-    return bdeat_typeCategoryManipulateArray(&object->rawData(), manipulator);
+    return bdeat_typeCategoryManipulateArray(&object->aggregateRaw(),
+                                             manipulator);
 }
 
 template <typename MANIPULATOR>
@@ -3584,7 +3577,8 @@ inline
 int bdeat_typeCategoryManipulateSimple(bcem_Aggregate *object,
                                        MANIPULATOR&    manipulator)
 {
-    return bdeat_typeCategoryManipulateSimple(&object->rawData(), manipulator);
+    return bdeat_typeCategoryManipulateSimple(&object->aggregateRaw(),
+                                              manipulator);
 }
 
 template <typename ACCESSOR>
@@ -3592,7 +3586,7 @@ inline
 int bdeat_typeCategoryAccessArray(const bcem_Aggregate& object,
                                   ACCESSOR&             accessor)
 {
-    return bdeat_typeCategoryAccessArray(object.rawData(), accessor);
+    return bdeat_typeCategoryAccessArray(object.aggregateRaw(), accessor);
 }
 
 template <typename ACCESSOR>
@@ -3600,22 +3594,20 @@ inline
 int bdeat_typeCategoryAccessSimple(const bcem_Aggregate& object,
                                    ACCESSOR&             accessor)
 {
-    return bdeat_typeCategoryAccessSimple(object.rawData(), accessor);
+    return bdeat_typeCategoryAccessSimple(object.aggregateRaw(), accessor);
 }
 
 // ============================================================================
 //                       'bdeat_typename' overloads
 // ============================================================================
 
-const char *bdeat_TypeName_className(const bcem_Aggregate& object);
+inline
+const char *bdeat_TypeName_className(const bcem_Aggregate& object)
      // Return the name of the record or enumeration definition for the
      // specified 'object' aggregate or a null pointer of 'object' does not
      // have a named record or enumeration definition.
-
-inline
-const char *bdeat_TypeName_className(const bcem_Aggregate& object)
 {
-    return bdeat_TypeName_className(object.rawData());
+    return bdeat_TypeName_className(object.aggregateRaw());
 }
 
 // ============================================================================
@@ -3634,7 +3626,7 @@ int bdeat_valueTypeAssign(bcem_Aggregate *lhs, const bcem_Aggregate& rhs)
 inline
 void bdeat_valueTypeReset(bcem_Aggregate *object)
 {
-    bdeat_valueTypeReset(const_cast<bcem_AggregateRaw *>(&object->rawData()));
+    bdeat_valueTypeReset(&object->aggregateRaw());
 }
 
 }  // close namespace BloombergLP

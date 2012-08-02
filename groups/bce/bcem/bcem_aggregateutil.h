@@ -122,6 +122,10 @@ BDES_IDENT("$Id: $")
 #include <bcem_aggregate.h>
 #endif
 
+#ifndef INCLUDED_BCEM_ERRORATTRIBUTES
+#include <bcem_errorattributes.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -1695,8 +1699,8 @@ int bcem_AggregateUtil::toAggregateImp(bcem_Aggregate *destination,
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_AggregateRaw   data = destination->rawData(), field;
-    bcem_AggregateError error;
+    bcem_AggregateRaw   data = destination->aggregateRaw(), field;
+    bcem_ErrorAttributes error;
     if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
@@ -1746,8 +1750,8 @@ int bcem_AggregateUtil::toAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_AggregateRaw   data = destination->rawData(), field;
-    bcem_AggregateError error;
+    bcem_AggregateRaw   data = destination->aggregateRaw(), field;
+    bcem_ErrorAttributes error;
     if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
@@ -1803,8 +1807,8 @@ int bcem_AggregateUtil::toAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_AggregateRaw   data = destination->rawData(), field;
-    bcem_AggregateError error;
+    bcem_AggregateRaw   data = destination->aggregateRaw(), field;
+    bcem_ErrorAttributes error;
     if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
@@ -2068,8 +2072,8 @@ int bcem_AggregateUtil::fromAggregateImp(TYPE                  *destination,
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_AggregateRaw   data = destination->rawData(), field;
-    bcem_AggregateError error;
+    bcem_AggregateRaw   data = source.aggregateRaw(), field;
+    bcem_ErrorAttributes error;
     if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
@@ -2126,8 +2130,8 @@ int bcem_AggregateUtil::fromAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_AggregateRaw   data = destination->rawData(), field;
-    bcem_AggregateError error;
+    bcem_AggregateRaw   data = source.aggregateRaw(), field;
+    bcem_ErrorAttributes error;
     if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
@@ -2190,8 +2194,8 @@ int bcem_AggregateUtil::fromAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_AggregateRaw   data = destination->rawData(), field;
-    bcem_AggregateError error;
+    bcem_AggregateRaw   data = source.aggregateRaw(), field;
+    bcem_ErrorAttributes error;
     if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
@@ -2259,8 +2263,8 @@ int bcem_AggregateUtil::fromAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_AggregateRaw   data = destination->rawData(), field;
-    bcem_AggregateError error;
+    bcem_AggregateRaw   data = source.aggregateRaw(), field;
+    bcem_ErrorAttributes error;
     if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }

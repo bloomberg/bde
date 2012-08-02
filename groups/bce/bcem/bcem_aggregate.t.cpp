@@ -4,6 +4,9 @@
 
 #include <bcema_sharedptr.h>
 
+#include <bcem_errorattributes.h>
+#include <bcem_fieldselector.h>
+
 #include <bdem_berdecoder.h>
 #include <bdem_berencoder.h>
 #include <bdem_choice.h>
@@ -468,7 +471,7 @@ const int BCEM_ERR_TBD = -1;
 const int BDEM_NULL_FIELD_ID = bdem_RecordDef::BDEM_NULL_FIELD_ID;
 
 typedef bcem_Aggregate        Obj;
-typedef bcem_AggregateError   Err;
+typedef bcem_ErrorAttributes  Err;
 typedef bcem_ErrorCode        ErrorCode;
 
 const char *errorNm(int errorCode) {
@@ -3576,7 +3579,7 @@ struct Accumulator {
     int operator()(const bcem_Aggregate& value) {
         d_count += value.asInt();
         return 0;
-//         return (*this)(value.rawData());
+//         return (*this)(value.aggregateRaw());
     }
  
     template<typename TYPE>
@@ -3854,56 +3857,56 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) tst::cout << "Testing type name" << bsl::endl;
         ASSERT(streq("r", TN::className(A1))           );
-        ASSERT(      0 == TN::className(mA1.field("a").rawData()) );
-        ASSERT(      0 == TN::className(mA1.field("b").rawData()) );
-        ASSERT(      0 == TN::className(mA1.field("c").rawData()) );
-        ASSERT(      0 == TN::className(mA1.field("d").rawData()) );
-        ASSERT(streq("s", TN::className(mA1.field("f").rawData())));
-        ASSERT(streq("s", TN::className(mA1.field("g").rawData())));
-        ASSERT(streq("c", TN::className(mA1.field("h").rawData())));
-        ASSERT(      0 == TN::className(mA1.field("i").rawData()) );
-        ASSERT(streq("s", TN::className(mA1.field("j").rawData())));
-        ASSERT(streq("c", TN::className(mA1.field("k").rawData())));
-        ASSERT(streq("f", TN::className(mA1.field("m").rawData())));
-        ASSERT(streq("f", TN::className(mA1.field("n").rawData())));
-        ASSERT(      0 == TN::className(mA1.field("o").rawData()));
-        ASSERT(streq("s", TN::className(mA1.field("p").rawData())));
-        ASSERT(      0 == TN::className(mA1.field("q").rawData()));
+        ASSERT(      0 == TN::className(mA1.field("a").aggregateRaw()) );
+        ASSERT(      0 == TN::className(mA1.field("b").aggregateRaw()) );
+        ASSERT(      0 == TN::className(mA1.field("c").aggregateRaw()) );
+        ASSERT(      0 == TN::className(mA1.field("d").aggregateRaw()) );
+        ASSERT(streq("s", TN::className(mA1.field("f").aggregateRaw())));
+        ASSERT(streq("s", TN::className(mA1.field("g").aggregateRaw())));
+        ASSERT(streq("c", TN::className(mA1.field("h").aggregateRaw())));
+        ASSERT(      0 == TN::className(mA1.field("i").aggregateRaw()) );
+        ASSERT(streq("s", TN::className(mA1.field("j").aggregateRaw())));
+        ASSERT(streq("c", TN::className(mA1.field("k").aggregateRaw())));
+        ASSERT(streq("f", TN::className(mA1.field("m").aggregateRaw())));
+        ASSERT(streq("f", TN::className(mA1.field("n").aggregateRaw())));
+        ASSERT(      0 == TN::className(mA1.field("o").aggregateRaw()));
+        ASSERT(streq("s", TN::className(mA1.field("p").aggregateRaw())));
+        ASSERT(      0 == TN::className(mA1.field("q").aggregateRaw()));
 
         if (verbose) tst::cout << "Testing category selection" << bsl::endl;
         ASSERT(0 ==
                   bdeat_TypeCategory::Select<bcem_Aggregate>::BDEAT_SELECTION);
         ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    == TCF::select(A1));
         ASSERT(TC::BDEAT_SIMPLE_CATEGORY      == 
-               TCF::select(mA1.field("a").rawData()));
+               TCF::select(mA1.field("a").aggregateRaw()));
         ASSERT(TC::BDEAT_SIMPLE_CATEGORY      == 
-               TCF::select(mA1.field("b").rawData()));
+               TCF::select(mA1.field("b").aggregateRaw()));
         ASSERT(TC::BDEAT_SIMPLE_CATEGORY      == 
-               TCF::select(mA1.field("c").rawData()));
+               TCF::select(mA1.field("c").aggregateRaw()));
         ASSERT(TC::BDEAT_SIMPLE_CATEGORY      == 
-               TCF::select(mA1.field("d").rawData()));
+               TCF::select(mA1.field("d").aggregateRaw()));
         ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    == 
-               TCF::select(mA1.field("f").rawData()));
+               TCF::select(mA1.field("f").aggregateRaw()));
         ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    == 
-               TCF::select(mA1.field("g").rawData()));
+               TCF::select(mA1.field("g").aggregateRaw()));
         ASSERT(TC::BDEAT_CHOICE_CATEGORY      == 
-               TCF::select(mA1.field("h").rawData()));
+               TCF::select(mA1.field("h").aggregateRaw()));
         ASSERT(TC::BDEAT_ARRAY_CATEGORY       == 
-               TCF::select(mA1.field("i").rawData()));
+               TCF::select(mA1.field("i").aggregateRaw()));
         ASSERT(TC::BDEAT_ARRAY_CATEGORY       == 
-               TCF::select(mA1.field("j").rawData()));
+               TCF::select(mA1.field("j").aggregateRaw()));
         ASSERT(TC::BDEAT_ARRAY_CATEGORY       == 
-               TCF::select(mA1.field("k").rawData()));
+               TCF::select(mA1.field("k").aggregateRaw()));
         ASSERT(TC::BDEAT_ENUMERATION_CATEGORY == 
-               TCF::select(mA1.field("m").rawData()));
+               TCF::select(mA1.field("m").aggregateRaw()));
         ASSERT(TC::BDEAT_ENUMERATION_CATEGORY == 
-               TCF::select(mA1.field("n").rawData()));
+               TCF::select(mA1.field("n").aggregateRaw()));
         ASSERT(TC::BDEAT_ARRAY_CATEGORY       == 
-               TCF::select(mA1.field("o").rawData()));
+               TCF::select(mA1.field("o").aggregateRaw()));
         ASSERT(TC::BDEAT_ARRAY_CATEGORY       == 
-               TCF::select(mA1.field("p").rawData()));
+               TCF::select(mA1.field("p").aggregateRaw()));
         ASSERT(TC::BDEAT_ARRAY_CATEGORY       == 
-               TCF::select(mA1.field("q").rawData()));
+               TCF::select(mA1.field("q").aggregateRaw()));
 
         AggAccessor       theAccessor;
         AggManipulator    theManipulator;
@@ -4008,11 +4011,11 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         SF::accessAttribute(A1, theAccessor, "b", 1);
         ASSERT(theAccessor.matchValue(-5000));
-        SF::accessAttribute(mA1.field("f").rawData(), theAccessor, "c", 1);
+        SF::accessAttribute(mA1.field("f").aggregateRaw(), theAccessor, "c", 1);
         ASSERT(theAccessor.matchValue(99));
-        SF::accessAttribute(mA1.field("f").rawData(), theAccessor, 1);
+        SF::accessAttribute(mA1.field("f").aggregateRaw(), theAccessor, 1);
         ASSERT(theAccessor.matchValue(999));
-        SF::accessAttributes(mA1.field("f").rawData(), theAccessor);
+        SF::accessAttributes(mA1.field("f").aggregateRaw(), theAccessor);
         ASSERT(theAccessor.matchValues(99, 999));
 
         Obj mB(schema, "r"); const bcem_Aggregate& B = mB;
@@ -4234,15 +4237,15 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (verbose) tst::cout << "Testing bdeat_ChoiceFunctions" << bsl::endl;
         ASSERT(CF::IsChoice<bcem_Aggregate>::VALUE);
         int id = 99;
-        id = CF::selectionId(mA1.field("h").rawData());
+        id = CF::selectionId(mA1.field("h").aggregateRaw());
         ASSERT(0 == id);
-        ASSERT(CF::hasSelection(mA1.field("h").rawData(), 0));
-        ASSERT(CF::hasSelection(mA1.field("h").rawData(), 1));
-        ASSERT(! CF::hasSelection(mA1.field("h").rawData(), 2));
-        ASSERT(CF::hasSelection(mA1.field("h").rawData(), "a", 1));
-        ASSERT(CF::hasSelection(mA1.field("h").rawData(), "b", 1));
-        ASSERT(! CF::hasSelection(mA1.field("h").rawData(), "ab", 2));
-        CF::accessSelection(mA1.field("h").rawData(), theAccessor);
+        ASSERT(CF::hasSelection(mA1.field("h").aggregateRaw(), 0));
+        ASSERT(CF::hasSelection(mA1.field("h").aggregateRaw(), 1));
+        ASSERT(! CF::hasSelection(mA1.field("h").aggregateRaw(), 2));
+        ASSERT(CF::hasSelection(mA1.field("h").aggregateRaw(), "a", 1));
+        ASSERT(CF::hasSelection(mA1.field("h").aggregateRaw(), "b", 1));
+        ASSERT(! CF::hasSelection(mA1.field("h").aggregateRaw(), "ab", 2));
+        CF::accessSelection(mA1.field("h").aggregateRaw(), theAccessor);
         ASSERT(theAccessor.matchValue(77));
 
         bcem_Aggregate mA2h(mA2.field("h"));
@@ -4260,12 +4263,12 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) tst::cout << "Testing bdeat_ArrayFunctions" << bsl::endl;
         ASSERT(AF::IsArray<bcem_Aggregate>::VALUE);
-        ASSERT(3 == AF::size(mA1.field("i").rawData()));
-        AF::accessElement(mA1.field("i").rawData(), theAccessor, 0);
+        ASSERT(3 == AF::size(mA1.field("i").aggregateRaw()));
+        AF::accessElement(mA1.field("i").aggregateRaw(), theAccessor, 0);
         ASSERT(theAccessor.matchValue(6));
-        AF::accessElement(mA1.field("i").rawData(), theAccessor, 2);
+        AF::accessElement(mA1.field("i").aggregateRaw(), theAccessor, 2);
         ASSERT(theAccessor.matchValue(4));
-        AF::accessElement(mA1.field("i").rawData(), theAccessor, 1);
+        AF::accessElement(mA1.field("i").aggregateRaw(), theAccessor, 1);
         ASSERT(theAccessor.matchValue(5));
 
         mA2.setField("i", mA1.field("i"));
@@ -4282,10 +4285,10 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) tst::cout << "Testing bdeat_ArrayFunctions on TABLEs"
                                << bsl::endl;
-        ASSERT(2 == AF::size(mA1.field("j").rawData()));
-        AF::accessElement(mA1.field("j").rawData(), theAccessor, 0);
+        ASSERT(2 == AF::size(mA1.field("j").aggregateRaw()));
+        AF::accessElement(mA1.field("j").aggregateRaw(), theAccessor, 0);
         ASSERT(theAccessor.matchValues(66, 666));
-        AF::accessElement(mA1.field("j").rawData(), theAccessor, 1);
+        AF::accessElement(mA1.field("j").aggregateRaw(), theAccessor, 1);
         ASSERT(theAccessor.matchValues(55, 555));
 
         mA2.setField("j", mA1.field("j"));
@@ -4308,12 +4311,12 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) tst::cout << "Testing bdeat_ArrayFunctions on "
                                << "CHOICE_ARRAYs" << bsl::endl;
-        ASSERT(2 == AF::size(mA1.field("k").rawData()));
-        ASSERT(0 == CF::selectionId(mA1.field("k", 0).rawData()));
-        ASSERT(1 == CF::selectionId(mA1.field("k", 1).rawData()));
-        AF::accessElement(mA1.field("k").rawData(), theAccessor, 0);
+        ASSERT(2 == AF::size(mA1.field("k").aggregateRaw()));
+        ASSERT(0 == CF::selectionId(mA1.field("k", 0).aggregateRaw()));
+        ASSERT(1 == CF::selectionId(mA1.field("k", 1).aggregateRaw()));
+        AF::accessElement(mA1.field("k").aggregateRaw(), theAccessor, 0);
         ASSERT(theAccessor.matchValue(44));
-        AF::accessElement(mA1.field("k").rawData(), theAccessor, 1);
+        AF::accessElement(mA1.field("k").aggregateRaw(), theAccessor, 1);
         ASSERT(theAccessor.matchValue(333));
 
         mA2.setField("k", mA1.field("k"));
@@ -4396,13 +4399,13 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(EF::IsEnumeration<bcem_Aggregate>::VALUE);
         int intValue;
         bsl::string stringValue;
-        EF::toInt(&intValue, mA1.field("m").rawData());
+        EF::toInt(&intValue, mA1.field("m").aggregateRaw());
         ASSERT(1 == intValue);
-        EF::toString(&stringValue, mA1.field("m").rawData());
+        EF::toString(&stringValue, mA1.field("m").aggregateRaw());
         ASSERT("vee" == stringValue);
-        EF::toInt(&intValue, mA1.field("n").rawData());
+        EF::toInt(&intValue, mA1.field("n").aggregateRaw());
         ASSERT(2 == intValue);
-        EF::toString(&stringValue, mA1.field("n").rawData());
+        EF::toString(&stringValue, mA1.field("n").aggregateRaw());
         ASSERT("ex" == stringValue);
 
         bcem_Aggregate mA2magg(mA2.field("m")); 
@@ -4538,7 +4541,7 @@ static void testCase34(bool verbose, bool veryVerbose, bool veryVeryVerbose)
         bcem_Aggregate scalarArrayAggregate(bdem_ElemType::BDEM_INT_ARRAY, 
                                             scalarArray, &ta);
 
-        bcem_AggregateRaw data = scalarArrayAggregate.rawData();
+        bcem_AggregateRaw data = scalarArrayAggregate.aggregateRaw();
         
         Accumulator accumulator;
 

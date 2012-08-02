@@ -918,24 +918,6 @@ bool bdem_SchemaUtil::isSymbolicSuperset(const bdem_RecordDef& super,
     return isSymbolicSupersetImp(super, sub, attributeMask, recursionGuard);
 }
 
-bool bdem_SchemaUtil::isNillableScalarArrayRecordDef(
-                                              bdem_ElemType::Type   type,
-                                              const bdem_RecordDef *constraint)
-{
-    if (bdem_ElemType::BDEM_TABLE != type || !constraint) {
-        return false;                                                 // RETURN
-    }
-
-    if (1 == constraint->numFields()) {
-        if (!constraint->fieldName(0)
-         && bdem_ElemType::isScalarType(constraint->field(0).elemType())) {
-            return true;                                              // RETURN
-        }
-    }
-
-    return false;
-}
-
 }  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------

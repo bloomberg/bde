@@ -1,6 +1,6 @@
-// bcem_aggregateerror.t.cpp                                          -*-C++-*-
+// bcem_errorattributes.t.cpp                                         -*-C++-*-
 
-#include <bcem_aggregateerror.h>
+#include <bcem_errorattributes.h>
 
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
@@ -62,11 +62,12 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bcem_AggregateError Obj;
-typedef bcem_ErrorCode      Error;
+typedef bcem_ErrorAttributes Obj;
+typedef bcem_ErrorCode       Error;
 
 void doSomething(Obj* error)
 {
+    (void) error;
 }
 
 //=============================================================================
@@ -93,7 +94,7 @@ int main(int argc, char *argv[])
                                << bsl::endl << "====================="
                                << bsl::endl;
 
-        bcem_AggregateError error;
+        bcem_ErrorAttributes error;
         doSomething(&error);
 
         if (0 != error.code()) {
@@ -119,8 +120,8 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(ss.str(),
                     "[ description = \"\" code = SUCCESS ]" == ss.str());
 
-        mX.code() = Error::BCEM_BAD_ARRAYINDEX;
-        mX.description() = "Out of bounds";
+        mX.setCode(Error::BCEM_BAD_ARRAYINDEX);
+        mX.setDescription("Out of bounds");
 
         ss.str("");
         ss << mX;
@@ -150,13 +151,13 @@ int main(int argc, char *argv[])
           ASSERT(Y.description().empty());
           ASSERT(Error::BCEM_SUCCESS == X.code());
 
-          mX.code() = Error::BCEM_NON_CONFORMANT;
+          mX.setCode(Error::BCEM_NON_CONFORMANT);
           ASSERT(Error::BCEM_NON_CONFORMANT == mX.code());
           ASSERT(Error::BCEM_NON_CONFORMANT == X.code());
           mY = mX;
           ASSERT(Error::BCEM_NON_CONFORMANT == Y.code());
 
-          mX.description() = "plugh";
+          mX.setDescription("plugh");
           ASSERT("plugh" == mX.description());
           ASSERT("plugh" == X.description());
           mY = mX;

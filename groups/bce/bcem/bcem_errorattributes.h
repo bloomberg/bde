@@ -1,6 +1,6 @@
-// bcem_aggregateerror.h                                              -*-C++-*-
-#ifndef INCLUDED_BCEM_AGGREGATEERROR
-#define INCLUDED_BCEM_AGGREGATEERROR
+// bcem_errorattributes.h                                             -*-C++-*-
+#ifndef INCLUDED_BCEM_ERRORATTRIBUTES
+#define INCLUDED_BCEM_ERRORATTRIBUTES
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
@@ -10,15 +10,15 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a type to describe errors in dynamically-typed operations.
 //
 //@CLASSES:
-//   bcem_AggregateError: type for descriptive errors
+//   bcem_ErrorAttributes: type for descriptive errors
 //
 //@SEE_ALSO: bcem_aggregate, bcem_aggregateraw
 //
 //@AUTHOR: David Schumann (dschumann1)
 //
 //@DESCRIPTION: This component provides a simply-constrained value-semantic
-// class, 'bcem_AggregateError', combining an enumerated error condition with a
-// human-readable verbose description.
+// class, 'bcem_ErrorAttributes', combining an enumerated error code with
+// a human-readable verbose description.
 //
 // The error codes and the conditions that cause them are listed below.
 //..
@@ -78,23 +78,23 @@ BDES_IDENT("$Id: $")
 ///Attributes
 ///----------
 //..
-//  Name          Type               Default
-//  ----------    ---------------    ----------------
-//  code          int                BCEM_SUCCESS (0)
-//  description   bsl::string        ""
+//  Name          Type                   Default
+//  ----------    --------------------   ----------------
+//  code          bcem_ErrorCode::Code   BCEM_SUCCESS (0)
+//  description   bsl::string            ""
 //..
-//: o 'code': one of the enumerated values of 'bcem_AggregateError::Code'.
+//: o 'code': one of the enumerated values of 'bcem_ErrorCode::Code'.
 //:
 //: o 'description': a human-readable description of the error, if any.
 //
 ///Usage
 ///-----
-// 'bcem_AggregateError' is a vocabulary type for communicating errors from
+// 'bcem_ErrorAttributes' is a vocabulary type for communicating errors from
 // operations on a 'bcem_Aggregate' objects.  In this example, we elide the
 // actual function invocation and instead focus on handling the error
 // condition:
 //..
-//  bcem_AggregateError error;
+//  bcem_ErrorAttributes error;
 //
 //  // Manipulate 'object' in some way, passing the address of  'error'
 //  // ... snip ...
@@ -113,25 +113,39 @@ BDES_IDENT("$Id: $")
 #include <bcem_errorcode.h>
 #endif
 
+#ifndef INCLUDED_BDEUT_STRINGREF
+#include <bdeut_stringref.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
+#include <bslalg_typetraitusesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSL_CLIMITS
+#include <bsl_climits.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
 
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
+#endif
+
 namespace BloombergLP {
 
-                       // =========================
-                       // class bcem_AggregateError
-                       // =========================
+class bslma_Allocator;
 
-class bcem_AggregateError {
+                       // ==========================
+                       // class bcem_ErrorAttributes
+                       // ==========================
+
+class bcem_ErrorAttributes {
     // This value-semantic attribute class provides an enumerated error code
     // and a human-readable message to describe errors arising from the
     // the usage of dynamically-typed objects.
@@ -142,56 +156,55 @@ class bcem_AggregateError {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bcem_AggregateError,
+    BSLALG_DECLARE_NESTED_TRAITS(bcem_ErrorAttributes,
                                  bslalg_TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit bcem_AggregateError(bslma_Allocator *basicAllocator = 0);
-        // Create an object of type 'AggregateError' having the default value.
+    explicit bcem_ErrorAttributes(bslma_Allocator *basicAllocator = 0);
+        // Create a 'bcem_ErrorAttributes' object having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    bcem_AggregateError(bcem_ErrorCode::Code  code,
-                        const char           *description,
-                        bslma_Allocator      *basicAllocator = 0);
-        // Create an AggregateError object having the specified 'code' and
-        // 'description'.  Use the optionally specified 'basicAllocator' to
+    bcem_ErrorAttributes(bcem_ErrorCode::Code  code,
+                         const char           *description,
+                         bslma_Allocator      *basicAllocator = 0);
+        // Create a 'bcem_ErrorAttributes' object having the specified 'code'
+        // and 'description'.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    bcem_AggregateError(const bcem_AggregateError&  original,
-                        bslma_Allocator            *basicAllocator = 0);
-        // Create an object of type 'AggregateError' having the value of the
+    bcem_ErrorAttributes(const bcem_ErrorAttributes&  original,
+                         bslma_Allocator             *basicAllocator = 0);
+        // Create a 'bcem_ErrorAttributes' object having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
         // currently installed default allocator is used.
 
-    //! ~bcem_AggregateError() = default;
+    //! ~bcem_ErrorAttributes() = default;
         // Destroy this object.  Note that this trivial destructor is generated
         // by the compiler.
 
     // MANIPULATORS
-    // bcem_AggregateError& operator=(const bcem_AggregateError& rhs);
+    // bcem_ErrorAttributes& operator=(const bcem_ErrorAttributes& rhs);
         // Assign to this object the value of the specified 'rhs' object.
         // Note that the compiler generated default is used.
 
-    bcem_ErrorCode::Code& code();
-        // Return a modifiable reference to the "code" attribute of this
-        // object.
+    void setCode(bcem_ErrorCode::Code value);
+        // Set the 'code' attribute of this object to the specified 'value'.
 
-    bsl::string& description();
-        // Return a modifiable reference to the "description" attribute of this
-        // object.
+    void setDescription(const bdeut_StringRef& value);
+        // Set the 'description' attribute of this object to the specified
+        // 'value'.
 
     // ACCESSORS
     bcem_ErrorCode::Code code() const;
-        // Return a non-modifiable reference to the "code" attribute of this
-        // object.
+        // Return a reference providing non-modifiable access to the 'code'
+        // attribute of this object.
 
     const bsl::string& description() const;
-        // Return a non-modifiable reference to the "description" attribute of
-        // this object.
+        // Return a reference providing non-modifiable access to the
+        // 'description' attribute of this object.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -212,8 +225,22 @@ class bcem_AggregateError {
 };
 
 // FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream&              stream,
-                         const bcem_AggregateError& object);
+bool operator==(const bcem_ErrorAttributes& lhs,
+                const bcem_ErrorAttributes& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'bcem_ErrorAttributes' objects have
+    // the same value if all of the corresponding values of their 'code', and
+    // 'description' attributes are the same.
+
+bool operator!=(const bcem_ErrorAttributes& lhs,
+                const bcem_ErrorAttributes& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'bcem_ErrorAttributes' objects
+    // do not have the same value if any of the corresponding values of their
+    // 'code', or 'description' attributes are not the same.
+
+bsl::ostream& operator<<(bsl::ostream&               stream,
+                         const bcem_ErrorAttributes& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference providing
     // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
@@ -226,27 +253,32 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
 //                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+                     // --------------------------
+                     // class bcem_ErrorAttributes
+                     // --------------------------
+
 // CREATORS
 inline
-bcem_AggregateError::bcem_AggregateError(bslma_Allocator *basicAllocator)
+bcem_ErrorAttributes::bcem_ErrorAttributes(bslma_Allocator *basicAllocator)
 : d_description(basicAllocator)
 , d_code(bcem_ErrorCode::BCEM_SUCCESS)
 {
 }
 
 inline
-bcem_AggregateError::bcem_AggregateError(
-                                    const bcem_AggregateError&  original,
-                                    bslma_Allocator            *basicAllocator)
+bcem_ErrorAttributes::bcem_ErrorAttributes(
+                                   const bcem_ErrorAttributes&  original,
+                                   bslma_Allocator             *basicAllocator)
 : d_description(original.d_description, basicAllocator)
 , d_code(original.d_code)
 {
 }
 
 inline
-bcem_AggregateError::bcem_AggregateError(bcem_ErrorCode::Code  code,
-                                         const char           *description,
-                                         bslma_Allocator      *basicAllocator)
+bcem_ErrorAttributes::bcem_ErrorAttributes(
+                                          bcem_ErrorCode::Code  code,
+                                          const char           *description,
+                                          bslma_Allocator      *basicAllocator)
 : d_description(description, basicAllocator)
 , d_code(code)
 {
@@ -254,44 +286,60 @@ bcem_AggregateError::bcem_AggregateError(bcem_ErrorCode::Code  code,
 
 // MANIPULATORS
 inline
-bcem_ErrorCode::Code& bcem_AggregateError::code()
+void bcem_ErrorAttributes::setCode(bcem_ErrorCode::Code value)
 {
-    return d_code;
+    d_code = value;
 }
 
 inline
-bsl::string& bcem_AggregateError::description()
+void bcem_ErrorAttributes::setDescription(const bdeut_StringRef& value)
 {
-    return d_description;
+    d_description = value;
 }
 
 // ACCESSORS
 inline
-bcem_ErrorCode::Code bcem_AggregateError::code() const
+bcem_ErrorCode::Code bcem_ErrorAttributes::code() const
 {
     return d_code;
 }
 
 inline
-const bsl::string& bcem_AggregateError::description() const
+const bsl::string& bcem_ErrorAttributes::description() const
 {
     return d_description;
 }
 
 // FREE OPERATORS
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const bcem_AggregateError& rhs)
+bool operator==(const bcem_ErrorAttributes& lhs,
+                const bcem_ErrorAttributes& rhs)
+{
+    return lhs.code()        == rhs.code()
+        && lhs.description() == rhs.description();
+}
+
+inline
+bool operator!=(const bcem_ErrorAttributes& lhs,
+                const bcem_ErrorAttributes& rhs)
+{
+    return lhs.code()        != rhs.code()
+        || lhs.description() != rhs.description();
+}
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const bcem_ErrorAttributes& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 } //  close namespace BloombergLP
 
-#endif // INCLUDED_BCEM_AGGREGATEERROR
+#endif
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

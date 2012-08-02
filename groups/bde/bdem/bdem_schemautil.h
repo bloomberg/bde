@@ -987,14 +987,6 @@ struct bdem_SchemaUtil {
         //  bdem_SchemaUtil::areSymbolicallyEquivalent(r1, r2, 0);
         //..
 
-    static bool isNillableScalarArrayRecordDef(
-                                             bdem_ElemType::Type   type,
-                                             const bdem_RecordDef *constraint);
-        // Return 'true' if the specified 'constraint' of the specified 'type'
-        // refers to a nillable scalar array and false otherwise.  Note that a
-        // 'bdem_RecordDef' referring to a nillable scalar array has only one
-        // field of a scalar type and having no field name.
-
     static bool isSuperset(const bdem_EnumerationDef& super,
                            const bdem_EnumerationDef& sub);
         // Return 'true' if the specified 'super' is a *superset* of the

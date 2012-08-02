@@ -1,17 +1,22 @@
-// bcem_aggregateerror.cpp                                            -*-C++-*-
+// bcem_errorattributes.cpp                                           -*-C++-*-
 
-#include <bcem_aggregateerror.h>
+#include <bcem_errorattributes.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bcem_aggregateerror_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(bcem_errorattributes_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
 namespace BloombergLP {
 
-bsl::ostream& bcem_AggregateError::print(bsl::ostream& stream,
-                                         int           level,
-                                         int           spacesPerLevel) const
+                     // --------------------------
+                     // class bcem_ErrorAttributes
+                     // --------------------------
+
+// ACCESSORS
+bsl::ostream& bcem_ErrorAttributes::print(bsl::ostream& stream,
+                                          int           level,
+                                          int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -32,7 +37,7 @@ bsl::ostream& bcem_AggregateError::print(bsl::ostream& stream,
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

@@ -1,7 +1,9 @@
 // bcem_aggregateraw.t.cpp                                            -*-C++-*-
 
-
 #include <bcem_aggregateraw.h>
+
+#include <bcem_errorattributes.h>
+#include <bcem_fieldselector.h>
 
 #include <bcema_sharedptr.h>
 
@@ -89,10 +91,10 @@ using namespace bsl;
 // MANIPULATORS
 // [10] bcem_AggregateRaw& operator=(const bcem_AggregateRaw& rhs);
 // [11] void setDataType(bdem_ElemType::Type dataType);
-// [11] void setDataPointer(void *data);
-// [11] void setSchemaPointer(const bdem_Schema *schema);
-// [11] void setRecordDefPointer(const bdem_RecordDef *recordDef);
-// [11] void setFieldDefPointer(const bdem_FieldDef *fieldDef);
+// [11] void setData(void *data);
+// [11] void setSchema(const bdem_Schema *schema);
+// [11] void setRecordDef(const bdem_RecordDef *recordDef);
+// [11] void setFieldDef(const bdem_FieldDef *fieldDef);
 // [11] void setTopLevelAggregateNullnessPointer(int *nullnessFlag);
 // [  ] void clearParent();
 // [20] void reset();
@@ -131,7 +133,7 @@ using namespace bsl;
 // [29] int findUnambiguousChoice(Obj *obj, Error *error, caller) const;
 // [ 4] int fieldByIndex(Obj *obj, Error *error, int index) const;
 // [ 4] int fieldById(Obj *obj, Error *error, int id) const;
-// [13] int arrayItem(Obj *item, Error *error, int index) const;
+// [13] int getArrayItem(Obj *item, Error *error, int index) const;
 // [19] int length() const;
 // [20] int numSelections() const;
 // [15] const char *selector() const;
@@ -246,8 +248,9 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 typedef bcem_AggregateRaw   Obj;
-typedef bcem_AggregateError Error;
+typedef bcem_ErrorAttributes Error;
 typedef bcem_ErrorCode      ErrorCode;
+typedef bcem_FieldSelector  FieldSelector;
 typedef bdem_ElemType       ET;
 typedef bdem_ElemType       EType;
 typedef bdem_ElemAttrLookup  EAL;
@@ -1863,9 +1866,9 @@ int ggAggData(Obj *agg, const RecDef& record, bslma_Allocator *basicAllocator)
     }
 
     agg->setDataType(elemType);
-    agg->setSchemaPointer(&record.schema());
-    agg->setRecordDefPointer(&record);
-    agg->setDataPointer(data);
+    agg->setSchema(&record.schema());
+    agg->setRecordDef(&record);
+    agg->setData(data);
     agg->setTopLevelAggregateNullnessPointer(&TOP_LEVEL_NULLNESS_FLAG);
     return 0;
 }
@@ -2281,7 +2284,7 @@ static bool compareNillableTable(bcem_AggregateRaw agg, const CERef& elemRef)
     for (int i = 0; i < LEN; ++i) {
         Obj   tmp;
         Error err;
-        int rc = agg.arrayItem(&tmp, &err, i);
+        int rc = agg.getArrayItem(&tmp, &err, i);
         ASSERT(!rc);
         if (!compareNillableElement(tmp, elemRef, i)) {
             return false;
@@ -3549,7 +3552,7 @@ void testCase30() {
 
           for (int i = 0; i < object.length(); ++i) {
               bcem_AggregateRaw field;
-              bcem_AggregateError error;
+              bcem_ErrorAttributes error;
               if (0 == object.fieldByIndex(&field, &error, i)) {
                   field.print(bsl::cout, 0, -1);
               }
@@ -3650,7 +3653,7 @@ void testCase28() {
             CER.descriptor()->assign(data, CER.data());
 
             mX.setDataType(TYPE);
-            mX.setDataPointer(data);
+            mX.setData(data);
             ASSERT(!Obj::areEquivalent(X, Y));
             ASSERT(!Obj::areEquivalent(X, Z));
             ASSERT( Obj::areEquivalent(Y, Z));
@@ -3678,7 +3681,7 @@ void testCase28() {
                 int nf1 = 0;
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(TYPE1);
-                mX.setDataPointer(data1);
+                mX.setData(data1);
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
                 for (int j = 0; j < ET::BDEM_NUM_TYPES; ++j) {
@@ -3692,7 +3695,7 @@ void testCase28() {
                     int nf2 = 0;
                     Obj mY; const Obj& Y = mY;
                     mY.setDataType(TYPE2);
-                    mY.setDataPointer(data2);
+                    mY.setData(data2);
                     mY.setTopLevelAggregateNullnessPointer(&nf2);
 
                     if (veryVerbose) { P(TYPE1) P(TYPE2) P(X) P(Y) }
@@ -3957,7 +3960,7 @@ void testCase27() {
             {
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(ET::BDEM_CHAR);
-                mX.setDataPointer(&AA);
+                mX.setData(&AA);
                 mX.setTopLevelAggregateNullnessPointer(&nf);
 
                 ASSERT(!X.isError());
@@ -4002,7 +4005,7 @@ void testCase26() {
             bdem_Table table1, table2;
             Obj mX;
             mX.setDataType(bdem_ElemType::BDEM_TABLE);
-            mX.setDataPointer(&table1);
+            mX.setData(&table1);
 
             Error err;
             mX.reserveRaw(&err, i);
@@ -4024,7 +4027,7 @@ void testCase26() {
             bdem_ChoiceArray ca1, ca2;
             Obj mX;
             mX.setDataType(bdem_ElemType::BDEM_CHOICE_ARRAY);
-            mX.setDataPointer(&ca1);
+            mX.setData(&ca1);
 
             Error err;
             mX.reserveRaw(&err, i);
@@ -4046,7 +4049,7 @@ void testCase26() {
             bsl::vector<int> sa1, sa2;
             Obj mX;
             mX.setDataType(bdem_ElemType::BDEM_INT_ARRAY);
-            mX.setDataPointer(&sa1);
+            mX.setData(&sa1);
 
             Error err;
             mX.reserveRaw(&err, i);
@@ -4067,7 +4070,7 @@ void testCase26() {
             bdem_List list;
             Obj mX;
             mX.setDataType(bdem_ElemType::BDEM_LIST);
-            mX.setDataPointer(&list);
+            mX.setData(&list);
 
             Error err;
             size_t capacity = 1492;  // arbitrary flag value
@@ -4111,10 +4114,10 @@ void testCase25() {
                 bdem_Table table1(&ta), table2(&aa);
                 Obj mX, mY;
                 mX.setDataType(bdem_ElemType::BDEM_TABLE);
-                mX.setDataPointer(&table1);
+                mX.setData(&table1);
                 mX.setTopLevelAggregateNullnessPointer(&nf);
                 mY.setDataType(bdem_ElemType::BDEM_TABLE);
-                mY.setDataPointer(&table2);
+                mY.setData(&table2);
                 mY.setTopLevelAggregateNullnessPointer(&nf);
 
                 LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
@@ -4151,10 +4154,10 @@ void testCase25() {
                 bdem_ChoiceArray ca1(&ta), ca2(&aa);
                 Obj mX, mY;
                 mX.setDataType(bdem_ElemType::BDEM_CHOICE_ARRAY);
-                mX.setDataPointer(&ca1);
+                mX.setData(&ca1);
                 mX.setTopLevelAggregateNullnessPointer(&nf);
                 mY.setDataType(bdem_ElemType::BDEM_CHOICE_ARRAY);
-                mY.setDataPointer(&ca2);
+                mY.setData(&ca2);
                 mY.setTopLevelAggregateNullnessPointer(&nf);
 
                 LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
@@ -4190,10 +4193,10 @@ void testCase25() {
                 bsl::vector<int> sa1(&ta), sa2(&aa);
                 Obj mX, mY;
                 mX.setDataType(bdem_ElemType::BDEM_INT_ARRAY);
-                mX.setDataPointer(&sa1);
+                mX.setData(&sa1);
                 mX.setTopLevelAggregateNullnessPointer(&nf);
                 mY.setDataType(bdem_ElemType::BDEM_INT_ARRAY);
-                mY.setDataPointer(&sa2);
+                mY.setData(&sa2);
                 mY.setTopLevelAggregateNullnessPointer(&nf);
 
                 LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
@@ -4228,10 +4231,10 @@ void testCase25() {
             bdem_List list1(&la), list2(&aa);
             Obj mX, mY;
             mX.setDataType(bdem_ElemType::BDEM_LIST);
-            mX.setDataPointer(&list1);
+            mX.setData(&list1);
             mX.setTopLevelAggregateNullnessPointer(&nf);
             mY.setDataType(bdem_ElemType::BDEM_LIST);
-            mY.setDataPointer(&list2);
+            mY.setData(&list2);
             mY.setTopLevelAggregateNullnessPointer(&nf);
 
             const size_t NUM_BYTES_LIST      = la.numBytesTotal();
@@ -4494,7 +4497,7 @@ void testCase24() {
             int value = 5;
             Obj mX;
             mX.setDataType(ET::BDEM_INT);
-            mX.setDataPointer(&value);
+            mX.setData(&value);
             Error err;
             Obj result;
             int rc = mX.anonymousField(&result, &err);
@@ -5916,7 +5919,7 @@ void testCase21() {
                                                           CONSTRAINT));
                     mA.resize(&err, 1);
                     Obj mC;  const Obj& C = mC;
-                    mA.arrayItem(&mC, &err, 0);
+                    mA.getArrayItem(&mC, &err, 0);
                     mC.makeValue();
                     LOOP_ASSERT(LINE,
                     SchemaAggUtil::canSatisfyRecord(C.asElemRef().theRow(),
@@ -5935,7 +5938,7 @@ void testCase21() {
                                                     CONSTRAINT));
                     mA.resize(&err, 1);
                     Obj mC;  const Obj& C = mC;
-                    mA.arrayItem(&mC, &err, 0);
+                    mA.getArrayItem(&mC, &err, 0);
                     mC.makeValue();
                     LOOP_ASSERT(LINE,
                                 SchemaAggUtil::canSatisfyRecord(
@@ -6324,7 +6327,7 @@ void testCase20() {
 
                 Obj mX;
                 mX.setDataType(ET::BDEM_DOUBLE);
-                mX.setDataPointer((void *) CEA.data());
+                mX.setData((void *) CEA.data());
                 int rc = mX.numSelections();
                 ASSERT(rc);
             }
@@ -6723,7 +6726,7 @@ void testCase19() {
                 Obj mA; const Obj& A = mA;
                 mY.getField(&mA, &err, false, j);
                 Obj mB; const Obj& B = mB;
-                mY.arrayItem(&mB, &err, j);
+                mY.getArrayItem(&mB, &err, j);
 
                 if (veryVerbose) { P(X) P(Y) P(A) P(B) };
 
@@ -7980,7 +7983,7 @@ void testCase14() {
                 ASSERT(1 == A.length());
 
                 Obj mB;  const Obj& B = mB;
-                rc = A.arrayItem(&mB, &err, 0);
+                rc = A.getArrayItem(&mB, &err, 0);
                 ASSERT(!rc);
                 if (hasDefaultValue) {
                     ASSERT(compareCERefs(RECORD->field(0).defaultValue(),
@@ -8188,7 +8191,7 @@ void testCase14() {
 
 void testCase13() {
         // --------------------------------------------------------------------
-        // TESTING 'insertItem' and 'arrayItem' FUNCTIONS:
+        // TESTING 'insertItem' and 'getArrayItem' FUNCTIONS:
         //
         // Concerns:
         //   - That insert properly inserts a new element in the array at the
@@ -8217,7 +8220,7 @@ void testCase13() {
         //
         // Testing:
         //   int insertItem(Obj *item, Error *error, int index, value) const;
-        //   int arrayItem(Obj *item, Error *error, int index) const;
+        //   int getArrayItem(Obj *item, Error *error, int index) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING 'insertItem'"
@@ -8375,9 +8378,9 @@ void testCase13() {
                 ASSERT(2 == A.length());
                 ASSERT(compareCERefs(VB, D.asElemRef()));
 
-                rc = mA.arrayItem(&mC, &err, 0);
+                rc = mA.getArrayItem(&mC, &err, 0);
                 ASSERT(!rc);
-                rc = mA.arrayItem(&mD, &err, 1);
+                rc = mA.getArrayItem(&mD, &err, 1);
                 ASSERT(!rc);
                 ASSERT(compareCERefs(VB, C.asElemRef()));
                 ASSERT(compareCERefs(VA, D.asElemRef()));
@@ -8388,11 +8391,11 @@ void testCase13() {
                 ASSERT(3 == A.length());
                 ASSERT(compareCERefs(VB, E.asElemRef()));
 
-                rc = mA.arrayItem(&mC, &err, 0);
+                rc = mA.getArrayItem(&mC, &err, 0);
                 ASSERT(!rc);
-                rc = mA.arrayItem(&mD, &err, 1);
+                rc = mA.getArrayItem(&mD, &err, 1);
                 ASSERT(!rc);
-                rc = mA.arrayItem(&mE, &err, 2);
+                rc = mA.getArrayItem(&mE, &err, 2);
                 ASSERT(!rc);
                 ASSERT(compareCERefs(VB, C.asElemRef()));
                 ASSERT(compareCERefs(VA, D.asElemRef()));
@@ -8404,13 +8407,13 @@ void testCase13() {
                 ASSERT(4 == A.length());
                 ASSERT(compareCERefs(VA, F.asElemRef()));
 
-                rc = mA.arrayItem(&mC, &err, 0);
+                rc = mA.getArrayItem(&mC, &err, 0);
                 ASSERT(!rc);
-                rc = mA.arrayItem(&mD, &err, 1);
+                rc = mA.getArrayItem(&mD, &err, 1);
                 ASSERT(!rc);
-                rc = mA.arrayItem(&mE, &err, 2);
+                rc = mA.getArrayItem(&mE, &err, 2);
                 ASSERT(!rc);
-                rc = mA.arrayItem(&mF, &err, 3);
+                rc = mA.getArrayItem(&mF, &err, 3);
                 ASSERT(!rc);
                 ASSERT(compareCERefs(VB, C.asElemRef()));
                 ASSERT(compareCERefs(VA, D.asElemRef()));
@@ -8481,9 +8484,9 @@ void testCase13() {
                 ASSERT(LEN + 2 == A.length());
                 ASSERT(compareCERefs(VB, D.asElemRef()));
 
-                rc = mA.arrayItem(&mC, &err, 0);
+                rc = mA.getArrayItem(&mC, &err, 0);
                 ASSERT(!rc);
-                rc = mA.arrayItem(&mD, &err, 1);
+                rc = mA.getArrayItem(&mD, &err, 1);
                 ASSERT(!rc);
                 ASSERT(compareCERefs(VB, C.asElemRef()));
                 ASSERT(compareCERefs(VA, D.asElemRef()));
@@ -8493,11 +8496,11 @@ void testCase13() {
                 ASSERT(LEN + 3 == A.length());
                 ASSERT(compareCERefs(VB, E.asElemRef()));
 
-                rc = mA.arrayItem(&mC, &err, 0);
+                rc = mA.getArrayItem(&mC, &err, 0);
                 ASSERT(!rc);
-                rc = mA.arrayItem(&mD, &err, 1);
+                rc = mA.getArrayItem(&mD, &err, 1);
                 ASSERT(!rc);
-                rc = mA.arrayItem(&mE, &err, 2);
+                rc = mA.getArrayItem(&mE, &err, 2);
                 ASSERT(!rc);
                 ASSERT(compareCERefs(VB, C.asElemRef()));
                 ASSERT(compareCERefs(VA, D.asElemRef()));
@@ -8509,13 +8512,13 @@ void testCase13() {
                 ASSERT(LEN + 4 == A.length());
                 ASSERT(compareCERefs(VA, F.asElemRef()));
 
-                rc = mA.arrayItem(&mC, &err, 0);
+                rc = mA.getArrayItem(&mC, &err, 0);
                 ASSERT(!rc);
-                rc = mA.arrayItem(&mD, &err, 1);
+                rc = mA.getArrayItem(&mD, &err, 1);
                 ASSERT(!rc);
-                rc = mA.arrayItem(&mE, &err, 2);
+                rc = mA.getArrayItem(&mE, &err, 2);
                 ASSERT(!rc);
-                rc = mA.arrayItem(&mF, &err, 3);
+                rc = mA.getArrayItem(&mF, &err, 3);
                 ASSERT(!rc);
                 ASSERT(compareCERefs(VB, C.asElemRef()));
                 ASSERT(compareCERefs(VA, D.asElemRef()));
@@ -8681,7 +8684,7 @@ void testCase12() {
             ASSERT(1 == A.length());
             if (hasDefaultValue) {
                 Obj mZ;  const Obj& Z = mZ;
-                rc = A.arrayItem(&mZ, &err, 0);
+                rc = A.getArrayItem(&mZ, &err, 0);
                 ASSERT(!rc);
                 LOOP_ASSERT(LINE,
                             compareCERefs(Z.asElemRef(),
@@ -8693,7 +8696,7 @@ void testCase12() {
             ASSERT(1 == A.length());
             if (hasDefaultValue) {
                 Obj mZ;  const Obj& Z = mZ;
-                rc = A.arrayItem(&mZ, &err, 0);
+                rc = A.getArrayItem(&mZ, &err, 0);
                 ASSERT(!rc);
                 LOOP_ASSERT(LINE,
                             compareCERefs(Z.asElemRef(),
@@ -8706,9 +8709,9 @@ void testCase12() {
             if (hasDefaultValue) {
                 Obj mB;  const Obj& B = mB;
                 Obj mC;  const Obj& C = mC;
-                rc = A.arrayItem(&mB, &err, 0);
+                rc = A.getArrayItem(&mB, &err, 0);
                 ASSERT(!rc);
-                rc = A.arrayItem(&mC, &err, 1);
+                rc = A.getArrayItem(&mC, &err, 1);
                 ASSERT(!rc);
                 LOOP_ASSERT(LINE,
                             compareCERefs(B.asElemRef(),
@@ -8731,7 +8734,7 @@ void testCase12() {
             ASSERT(1 == A.length());
             if (hasDefaultValue) {
                 Obj mZ;  const Obj& Z = mZ;
-                rc = A.arrayItem(&mZ, &err, 0);
+                rc = A.getArrayItem(&mZ, &err, 0);
                 ASSERT(!rc);
                 LOOP_ASSERT(LINE,
                             compareCERefs(Z.asElemRef(),
@@ -8761,10 +8764,10 @@ void testCase11() {
         //
         // Testing:
         //   void setDataType(bdem_ElemType::Type dataType);
-        //   void setDataPointer(void *data);
-        //   void setSchemaPointer(const bdem_Schema *schema);
-        //   void setRecordDefPointer(const bdem_RecordDef *recordDef);
-        //   void setFieldDefPointer(const bdem_FieldDef *fieldDef);
+        //   void setData(void *data);
+        //   void setSchema(const bdem_Schema *schema);
+        //   void setRecordDef(const bdem_RecordDef *recordDef);
+        //   void setFieldDef(const bdem_FieldDef *fieldDef);
         //   void setTopLevelAggregateNullnessPointer(int *nullnessFlag);
         //   bdem_ElemType::Type dataType() const;
         //   const bdem_RecordDef& recordDef() const;
@@ -8980,18 +8983,18 @@ void testCase11() {
                 mX.setDataType(TYPE);
                 LOOP_ASSERT(LINE, TYPE == X.dataType());
 
-                mX.setDataPointer(d);
+                mX.setData(d);
                 LOOP_ASSERT(LINE, d    == X.data());
 
-                mX.setSchemaPointer(&s);
+                mX.setSchema(&s);
                 LOOP_ASSERT(LINE, &s   == X.schema());
 
                 mX.setTopLevelAggregateNullnessPointer(&n);
 
-                mX.setRecordDefPointer(&r);
+                mX.setRecordDef(&r);
                 LOOP_ASSERT(LINE, &r   == X.recordConstraint());
 
-                mX.setFieldDefPointer(&f);
+                mX.setFieldDef(&f);
                 LOOP_ASSERT(LINE, &f   == X.fieldDef());
 
                 mX.reset();
@@ -9348,12 +9351,12 @@ void testCase9() {
 
                 Obj mA; const Obj& A = mA;
                 mA.setDataType(TYPE);
-                mA.setDataPointer(data1);
+                mA.setData(data1);
                 mA.setTopLevelAggregateNullnessPointer(&nf1);
 
                 Obj mB; const Obj& B = mB;
                 mB.setDataType(TYPE);
-                mB.setDataPointer(data2);
+                mB.setData(data2);
                 mB.setTopLevelAggregateNullnessPointer(&nf2);
 
                 bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
@@ -9575,17 +9578,17 @@ void testCase9() {
                     aggList.appendList(list);
                     Obj mX; const Obj& X = mX;
                     mX.setDataType(ET::BDEM_LIST);
-                    mX.setDataPointer(&list);
+                    mX.setData(&list);
                     mX.setTopLevelAggregateNullnessPointer(&nf1);
-                    mX.setSchemaPointer(&s);
-                    mX.setRecordDefPointer(&r);
+                    mX.setSchema(&s);
+                    mX.setRecordDef(&r);
 
                     Obj mY; const Obj& Y = mY;
                     mY.setDataType(ET::BDEM_TABLE);
-                    mY.setDataPointer(&table);
+                    mY.setData(&table);
                     mY.setTopLevelAggregateNullnessPointer(&nf2);
-                    mY.setSchemaPointer(&s);
-                    mY.setRecordDefPointer(&r);
+                    mY.setSchema(&s);
+                    mY.setRecordDef(&r);
 
                     if (veryVerbose) { T_ P(X) P(Y) };
 
@@ -9650,17 +9653,17 @@ void testCase9() {
                     bslma_TestAllocator t(veryVeryVerbose);
                     Obj mX; const Obj& X = mX;
                     mX.setDataType(ET::BDEM_CHOICE);
-                    mX.setDataPointer(&choice);
+                    mX.setData(&choice);
                     mX.setTopLevelAggregateNullnessPointer(&nf1);
-                    mX.setSchemaPointer(&s);
-                    mX.setRecordDefPointer(&r);
+                    mX.setSchema(&s);
+                    mX.setRecordDef(&r);
 
                     Obj mY; const Obj& Y = mY;
                     mY.setDataType(ET::BDEM_CHOICE_ARRAY);
-                    mY.setDataPointer(&choiceArray);
+                    mY.setData(&choiceArray);
                     mY.setTopLevelAggregateNullnessPointer(&nf2);
-                    mY.setSchemaPointer(&s);
-                    mY.setRecordDefPointer(&r);
+                    mY.setSchema(&s);
+                    mY.setRecordDef(&r);
 
                     if (veryVerbose) { T_ P(X) P(Y) };
 
@@ -9873,14 +9876,14 @@ void testCase7() {
 
                     Obj mX; const Obj& X = mX;
                     mX.setDataType(TYPE1);
-                    mX.setDataPointer(data1);
+                    mX.setData(data1);
                     mX.setTopLevelAggregateNullnessPointer(&nf1);
                     LOOP_ASSERT(TYPE1, !X.isNull());
                     LOOP_ASSERT(TYPE1, TYPE1 == X.dataType());
 
                     Obj mY; const Obj& Y = mY;
                     mY.setDataType(TYPE2);
-                    mY.setDataPointer(data2);
+                    mY.setData(data2);
                     mY.setTopLevelAggregateNullnessPointer(&nf2);
                     LOOP_ASSERT(TYPE2, !Y.isNull());
                     LOOP_ASSERT(TYPE2, TYPE2 == Y.dataType());
@@ -10231,7 +10234,7 @@ void testCase6() {
                 int nf = 0;
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(TYPE);
-                mX.setDataPointer(data);
+                mX.setData(data);
                 mX.setTopLevelAggregateNullnessPointer(&nf);
                 LOOP_ASSERT(TYPE, !X.isNull());
                 LOOP_ASSERT(TYPE, TYPE == X.dataType());
@@ -10539,7 +10542,7 @@ void testCase5() {
 
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer(data);
+                mX.setData(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -10556,7 +10559,7 @@ void testCase5() {
 
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer(data);
+                mY.setData(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -10664,7 +10667,7 @@ void testCase5() {
 
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer(data);
+                mX.setData(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -10681,7 +10684,7 @@ void testCase5() {
 
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer(data);
+                mY.setData(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -10790,7 +10793,7 @@ void testCase5() {
 
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer(data);
+                mX.setData(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -10807,7 +10810,7 @@ void testCase5() {
 
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer(data);
+                mY.setData(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -10916,7 +10919,7 @@ void testCase5() {
 
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer(data);
+                mX.setData(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -10933,7 +10936,7 @@ void testCase5() {
 
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer(data);
+                mY.setData(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -11042,7 +11045,7 @@ void testCase5() {
 
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer(data);
+                mX.setData(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -11059,7 +11062,7 @@ void testCase5() {
 
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer(data);
+                mY.setData(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -11168,7 +11171,7 @@ void testCase5() {
 
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer(data);
+                mX.setData(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -11185,7 +11188,7 @@ void testCase5() {
 
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer(data);
+                mY.setData(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -11294,7 +11297,7 @@ void testCase5() {
 
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer(data);
+                mX.setData(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -11311,7 +11314,7 @@ void testCase5() {
 
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer(data);
+                mY.setData(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -11421,7 +11424,7 @@ void testCase5() {
 
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer(data);
+                mX.setData(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -11438,7 +11441,7 @@ void testCase5() {
 
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer(data);
+                mY.setData(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -11548,7 +11551,7 @@ void testCase5() {
 
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer(data);
+                mX.setData(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -11565,7 +11568,7 @@ void testCase5() {
 
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer(data);
+                mY.setData(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -11674,7 +11677,7 @@ void testCase5() {
 
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer(data);
+                mX.setData(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -11691,7 +11694,7 @@ void testCase5() {
 
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer(data);
+                mY.setData(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -11800,7 +11803,7 @@ void testCase5() {
 
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer(data);
+                mX.setData(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -11817,7 +11820,7 @@ void testCase5() {
 
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer(data);
+                mY.setData(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -11927,7 +11930,7 @@ void testCase5() {
 
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer(data);
+                mX.setData(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -11944,7 +11947,7 @@ void testCase5() {
 
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer(data);
+                mY.setData(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -12053,7 +12056,7 @@ void testCase5() {
 
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer(data);
+                mX.setData(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -12070,7 +12073,7 @@ void testCase5() {
 
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer(data);
+                mY.setData(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -12219,7 +12222,7 @@ void testCase4() {
         //   const bdem_Schema *schema() const;
         //
         // Private functions:
-        //   NavStatus descendIntoField(NameOrIndex fieldOrIdx1);
+        //   NavStatus descendIntoField(FieldSelector fieldOrIdx1);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING 'setField' MANIPULATOR"
@@ -13247,8 +13250,8 @@ void testCase3() {
         // Testing:
         //   template <typename VALTYPE>
         //   void setField(bcem_AggregateRaw   *field,
-        //                 bcem_AggregateError *errorDescription,
-        //                 NameOrIndex          fieldOrIdx1,
+        //                 bcem_ErrorAttributes *errorDescription,
+        //                 FieldSelector        fieldOrIdx1,
         //                 const VALTYPE&       value) const;
         //   template <typename VALTYPE>
         //   void setValue(const VALTYPE& value) const;
@@ -13260,9 +13263,9 @@ void testCase3() {
         //                        const bdem_RecordDef  *recordDef,
         //                        const VALUETYPE&       value);
         //   bool bcem_Aggregate::descendIntoField(
-        //                       bcem_AggregateError        *errorDescription,
-        //                       const NameOrIndex&          fieldOrIdx,
-        //                       bcem_Aggregate_NameOrIndex  fieldOrIdx);
+        //                       bcem_ErrorAttributes       *errorDescription,
+        //                       const FieldSelector&        fieldOrIdx,
+        //                       FieldSelector               fieldOrIdx);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING PRIMARY MANIPULATORS"
@@ -14555,7 +14558,7 @@ void testCase1() {
             int intData = 55;
             Obj agg2;
             agg2.setDataType(ET::BDEM_INT);
-            agg2.setDataPointer(&intData);
+            agg2.setData(&intData);
             agg2.setTopLevelAggregateNullnessPointer(&nf1);
             ASSERT(agg2.dataType() == ET::BDEM_INT);
             ASSERT(!agg2.isNull());
@@ -14566,7 +14569,7 @@ void testCase1() {
             string stringData = "";
             Obj agg3;
             agg3.setDataType(ET::BDEM_STRING);
-            agg3.setDataPointer(&stringData);
+            agg3.setData(&stringData);
             agg3.setTopLevelAggregateNullnessPointer(&nf1);
             ASSERT(agg3.dataType() == ET::BDEM_STRING);
             ASSERT(!agg3.isNull());
@@ -14641,10 +14644,10 @@ void testCase1() {
                               << bsl::endl;
             {
                 Obj agg1;
-                agg1.setSchemaPointer(schema.ptr());
-                agg1.setRecordDefPointer(schema->lookupRecord("Level1"));
+                agg1.setSchema(schema.ptr());
+                agg1.setRecordDef(schema->lookupRecord("Level1"));
                 agg1.setDataType(ET::BDEM_LIST);
-                agg1.setDataPointer(&list1);
+                agg1.setData(&list1);
                 agg1.setTopLevelAggregateNullnessPointer(&nf1);
                 ASSERT(!agg1.isNull());
 
@@ -14682,10 +14685,10 @@ void testCase1() {
             if (verbose) cout << "Testing list operations" << bsl::endl;
             {
                 Obj agg1;
-                agg1.setSchemaPointer(schema.ptr());
-                agg1.setRecordDefPointer(schema->lookupRecord("Level1"));
+                agg1.setSchema(schema.ptr());
+                agg1.setRecordDef(schema->lookupRecord("Level1"));
                 agg1.setDataType(ET::BDEM_LIST);
-                agg1.setDataPointer(&list1);
+                agg1.setData(&list1);
                 agg1.setTopLevelAggregateNullnessPointer(&nf1);
 
                 Obj   agg2, agg3, agg4;
@@ -14717,10 +14720,10 @@ void testCase1() {
                 bdem_List data1(list1, &sa);
                 bdem_List data2(list2, &sa);
                 Obj agg1;
-                agg1.setSchemaPointer(schema.ptr());
-                agg1.setRecordDefPointer(schema->lookupRecord("Level2"));
+                agg1.setSchema(schema.ptr());
+                agg1.setRecordDef(schema->lookupRecord("Level2"));
                 agg1.setDataType(ET::BDEM_LIST);
-                agg1.setDataPointer(&data2);
+                agg1.setData(&data2);
                 agg1.setTopLevelAggregateNullnessPointer(&nf1);
 
                 Obj   agg2, agg3, agg4;
@@ -14731,19 +14734,19 @@ void testCase1() {
                 rc = agg2.resize(&error, 2);
                 ASSERT(!rc);
                 ASSERT(2 == agg2.length());
-                rc = agg2.arrayItem(&agg3, &error, 0);
+                rc = agg2.getArrayItem(&agg3, &error, 0);
                 ASSERT(!rc);
                 rc = agg3.setValue(&error, "Hello World");
                 ASSERT(!rc);
-                rc = agg2.arrayItem(&agg4, &error, 0);
+                rc = agg2.getArrayItem(&agg4, &error, 0);
                 ASSERT(!rc);
                 LOOP_ASSERT(agg4.asString(), "Hello World" == agg4.asString());
 
                 Obj agg5;
-                agg5.setSchemaPointer(schema.ptr());
-                agg5.setRecordDefPointer(schema->lookupRecord("Level1"));
+                agg5.setSchema(schema.ptr());
+                agg5.setRecordDef(schema->lookupRecord("Level1"));
                 agg5.setDataType(ET::BDEM_LIST);
-                agg5.setDataPointer(&data1);
+                agg5.setData(&data1);
                 agg5.setTopLevelAggregateNullnessPointer(&nf1);
 
                 Obj agg6, agg7, agg8;
@@ -14781,10 +14784,10 @@ void testCase1() {
             if (verbose) cout << "Testing table operations" << bsl::endl;
 
             Obj agg1;
-            agg1.setSchemaPointer(schema.ptr());
-            agg1.setRecordDefPointer(schema->lookupRecord("Table1Row"));
+            agg1.setSchema(schema.ptr());
+            agg1.setRecordDef(schema->lookupRecord("Table1Row"));
             agg1.setDataType(ET::BDEM_TABLE);
-            agg1.setDataPointer(&table);
+            agg1.setData(&table);
             agg1.setTopLevelAggregateNullnessPointer(&nf1);
             ASSERT(1 == agg1.length());
 
@@ -14808,10 +14811,10 @@ void testCase1() {
             ASSERT(!rc);
 
             Obj tmpAgg;
-            tmpAgg.setSchemaPointer(schema.ptr());
-            tmpAgg.setRecordDefPointer(schema->lookupRecord("Table1Row"));
+            tmpAgg.setSchema(schema.ptr());
+            tmpAgg.setRecordDef(schema->lookupRecord("Table1Row"));
             tmpAgg.setDataType(ET::BDEM_LIST);
-            tmpAgg.setDataPointer(&list3);
+            tmpAgg.setData(&list3);
             tmpAgg.setTopLevelAggregateNullnessPointer(&nf1);
 
             rc = agg1.insertItem(&agg5, &error, 0, tmpAgg);
@@ -14839,10 +14842,10 @@ void testCase1() {
             if (verbose) cout << "Testing choice operations" << bsl::endl;
 
             Obj agg1;
-            agg1.setSchemaPointer(schema.ptr());
-            agg1.setRecordDefPointer(schema->lookupRecord("Choice1"));
+            agg1.setSchema(schema.ptr());
+            agg1.setRecordDef(schema->lookupRecord("Choice1"));
             agg1.setDataType(ET::BDEM_CHOICE);
-            agg1.setDataPointer(&choice);
+            agg1.setData(&choice);
             agg1.setTopLevelAggregateNullnessPointer(&nf1);
 
             Obj   agg2, agg3, agg4, agg5;
@@ -14871,10 +14874,10 @@ void testCase1() {
 
             bslma_DefaultAllocatorGuard allocGuard(&da);
             Obj agg1;
-            agg1.setSchemaPointer(schema.ptr());
-            agg1.setRecordDefPointer(schema->lookupRecord(recName.c_str()));
+            agg1.setSchema(schema.ptr());
+            agg1.setRecordDef(schema->lookupRecord(recName.c_str()));
             agg1.setDataType(ET::BDEM_LIST);
-            agg1.setDataPointer(&list1);
+            agg1.setData(&list1);
             agg1.setTopLevelAggregateNullnessPointer(&nf1);
 
             Obj   agg2, agg3, agg4, agg5;
