@@ -37,7 +37,7 @@ using namespace bsl;
 // FREE FUNCTIONS
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [  ] USAGE EXAMPLE
+// [ 2] USAGE EXAMPLE
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -127,6 +127,17 @@ const char *const LONG_STRING    = "a_"   SUFFICIENTLY_LONG_STRING;
 const char *const LONGER_STRING  = "ab_"  SUFFICIENTLY_LONG_STRING;
 const char *const LONGEST_STRING = "abc_" SUFFICIENTLY_LONG_STRING;
 
+//=============================================================================
+//                  FUNCTIONS FOR TESTING USAGE EXAMPLES
+//-----------------------------------------------------------------------------
+
+int processPayroll(const bcem_FieldSelector& employee)
+    // Process the payroll for the specified 'employee'.  Return 0 on success,
+    // and a non-zero value otherwise.  Note that an employee can be identified
+    // by either their full name or their employee identification number.
+{
+    return 0;
+}
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -166,6 +177,47 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+// First, consider the following interface that accepts either the name of an
+// employee or their employee identification number:
+//..
+//  int processPayroll(const bcem_FieldSelector& employee);
+//      // Process the payroll for the specified 'employee'.  Return 0 on
+//      // success, and a non-zero value otherwise.  Note that an employee can
+//      // be identified by either their full name or their employee
+//      // identification number.
+//..
+// Then, we define two 'bcem_FieldSelector' objects to represents two
+// employees in the firm.  The first employee is referred to by their name and
+// the second by their identification number:
+//..
+    const char *employeeName = "John Smith";
+    const int   employeeId   = 124356;
+//..
+// Next, we create two 'bcem_FieldSelector' objects to identify these
+// employees:
+//..
+    bcem_FieldSelector employee1(employeeName);
+    ASSERT(!employee1.isEmpty());
+    ASSERT( employee1.isName());
+    ASSERT(!employee1.isIndex());
+    ASSERT(!bsl::strcmp(employeeName, employee1.name()));
+//
+    bcem_FieldSelector employee2(employeeId);
+    ASSERT(!employee2.isEmpty());
+    ASSERT(!employee2.isName());
+    ASSERT( employee2.isIndex());
+    ASSERT( employeeId == employee2.index());
+//..
+// Now, we can pass these objects to the 'processPayroll' function to get
+// these employees their money.
+//..
+    ASSERT(!processPayroll(employee1));
+    ASSERT(!processPayroll(employee2));
+//..
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -194,6 +246,149 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
+
+        // String Values:
+
+        const char   *DN = "";              // default value
+        const string  A = "FIELD_NAME";
+
+        // Index Values:
+
+        const int DI = 0;                   // default value
+        const int B  = 6;
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
+                             "\t\t{ w:D             }" << endl;
+
+        Obj mW;  const Obj& W = mW;
+
+        if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
+        if (veryVeryVerbose) { T_ T_ P(W) }
+
+        ASSERT( W.isEmpty());
+        ASSERT(!W.isName());
+        ASSERT(!W.isIndex());
+
+        if (veryVerbose) cout <<
+                  "\tb. Try equality operators: 'w' <op> 'w'." << endl;
+
+        ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\n 2. Create an object 'x' (copy from 'w')."
+                             "\t\t{ w:D x:D         }" << endl;
+
+        Obj mX(W);  const Obj& X = mX;
+
+        if (veryVerbose) cout << "\ta. Check initial value of 'x'." << endl;
+        if (veryVeryVerbose) { T_ T_ P(X) }
+
+        ASSERT( X.isEmpty());
+        ASSERT(!X.isName());
+        ASSERT(!X.isIndex());
+
+        if (veryVerbose) cout <<
+                   "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+
+        ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
+        ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\n 3. Create an object 'y' (init. to 'A')."
+                             "\t\t{ w:D x:D y:A     }" << endl;
+
+        Obj mY(A);  const Obj& Y = mY;
+
+        if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
+        if (veryVeryVerbose) { T_ T_ P(Y) }
+
+        ASSERT(!Y.isEmpty());
+        ASSERT( Y.isName());
+        ASSERT(!strcmp(A.c_str(), Y.name()));
+        ASSERT(!Y.isIndex());
+
+        if (veryVerbose) cout <<
+             "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
+
+        ASSERT(0 == (Y == W));        ASSERT(1 == (Y != W));
+        ASSERT(0 == (Y == X));        ASSERT(1 == (Y != X));
+        ASSERT(1 == (Y == Y));        ASSERT(0 == (Y != Y));
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\n 5. Create an object 'z' (copy from 'y')."
+                             "\t\t{ w:D x:D y:A z:A }" << endl;
+
+        Obj mZ(Y);  const Obj& Z = mZ;
+
+        if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
+        if (veryVeryVerbose) { T_ T_ P(Z) }
+
+        ASSERT(!Z.isEmpty());
+        ASSERT( Z.isName());
+        ASSERT(!strcmp(A.c_str(), Z.name()));
+        ASSERT(!Z.isIndex());
+
+        if (veryVerbose) cout <<
+           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
+
+        ASSERT(0 == (Z == W));        ASSERT(1 == (Z != W));
+        ASSERT(0 == (Z == X));        ASSERT(1 == (Z != X));
+        ASSERT(1 == (Z == Y));        ASSERT(0 == (Z != Y));
+        ASSERT(1 == (Z == Z));        ASSERT(0 == (Z != Z));
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\n 6. Create an object 'N' (init. to 'B')."
+                             "\t\t{ w:D x:D y:A z:A n:B}" << endl;
+
+        Obj mN(B);  const Obj& N = mN;
+
+        if (veryVerbose) cout << "\ta. Check initial value of 'n'." << endl;
+        if (veryVeryVerbose) { T_ T_ P(N) }
+
+        ASSERT(!N.isEmpty());
+        ASSERT(!N.isName());
+        ASSERT( N.isIndex());
+        ASSERT( B == N.index());
+
+        if (veryVerbose) cout <<
+             "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z', 'n'"
+                              << endl;
+
+        ASSERT(0 == (N == W));        ASSERT(1 == (N != W));
+        ASSERT(0 == (N == X));        ASSERT(1 == (N != X));
+        ASSERT(0 == (N == Y));        ASSERT(1 == (N != Y));
+        ASSERT(0 == (N == Z));        ASSERT(1 == (N != Z));
+        ASSERT(1 == (N == N));        ASSERT(0 == (N != N));
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\n 7. Assign 'w' from 'x'."
+                             "\t\t\t\t{ w:A x:D y:A z:A n:B }" << endl;
+        mW = Y;
+
+        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (veryVeryVerbose) { T_ T_ P(W) }
+
+        ASSERT(!W.isEmpty());
+        ASSERT( W.isName());
+        ASSERT(!strcmp(A.c_str(), W.name()));
+        ASSERT(!W.isIndex());
+
+        if (veryVerbose) cout <<
+           "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z', 'n'"
+                              << endl;
+
+        ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
+        ASSERT(0 == (W == X));        ASSERT(1 == (W != X));
+        ASSERT(1 == (W == Y));        ASSERT(0 == (W != Y));
+        ASSERT(1 == (W == Z));        ASSERT(0 == (W != Z));
+        ASSERT(0 == (W == N));        ASSERT(1 == (W != N));
 
       } break;
       default: {

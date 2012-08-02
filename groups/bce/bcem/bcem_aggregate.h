@@ -1070,10 +1070,11 @@ class bcem_Aggregate {
 
     const bcem_Aggregate& reset();
         // Reset this object to the void aggregate ('BDEM_VOID' data type, no
-        // schema).  Decrement the reference counts of the previous schema and
-        // data (possibly causing them to be destroyed).  This aggregate will
-        // never be in an error state after a call to 'reset'.  After the
-        // function call, 'isNul2()' returns 'true'.
+        // schema) and release references to schema and data held.  Return a
+        // reference providing non-modifiable access to the changed object.
+        // Note that this aggregate will never be in an error state after a
+        // call to 'reset'.  Also note that after the function call, 'isNul2()'
+        // returns 'true'.
 
     // REFERENCED-VALUE MANIPULATORS
 
@@ -2037,6 +2038,12 @@ class bcem_Aggregate {
         // Return a reference to the non-reference-counted portion of 
         // this aggregate.
 
+    const bdem_RecordDef *recordConstraint() const;
+        // Return a pointer to the non-modifiable record definition that
+        // describes the structure of the object referenced by this aggregate,
+        // or a null pointer if this aggregate references a scalar, array of
+        // scalars, or unconstrained 'bdem' aggregate.
+
     const bdem_RecordDef& recordDef() const;
         // Return a reference to the non-modifiable record definition that
         // describes the structure of the object referenced by this aggregate.
@@ -2050,12 +2057,6 @@ class bcem_Aggregate {
         // that describes the structure of object referenced by this
         // aggregate.  Return an empty pointer if this aggregate references a
         // scalar, array of scalars, or unconstrained aggregate.
-
-    const bdem_RecordDef *recordConstraint() const;
-        // Return a pointer to the non-modifiable record definition that
-        // describes the structure of the object referenced by this aggregate,
-        // or a null pointer if this aggregate references a scalar, array of
-        // scalars, or unconstrained 'bdem' aggregate.
 
     const bdem_EnumerationDef *enumerationConstraint() const;
         // Return a pointer to the non-modifiable enumeration definition that
@@ -2133,35 +2134,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bcem_Aggregate& rhs);
     // 'rhs.print(stream, 0, -1)') and return a modifiable reference to
     // 'stream'.
 
-// ---  Anything below this line is implementation specific.  Do not use.  ----
-
-                    // =====================================
-                    // local class bcem_Aggregate_RepProctor
-                    // =====================================
-
-class bcem_Aggregate_RepProctor {
-    // This "component-private" class is a proctor for managing
-    // shared pointers with RAII.
-
-    bcema_SharedPtrRep *d_rep_p; 
-    
-public:
-    bcem_Aggregate_RepProctor(bcema_SharedPtrRep *rep)
-    : d_rep_p(rep)
-    {}
-
-    ~bcem_Aggregate_RepProctor()
-    {
-        if (d_rep_p) {
-            d_rep_p->releaseRef();
-        }
-    }
-
-    void release() {
-        d_rep_p = 0;
-    }
-};
-
 // ===========================================================================
 //                      INLINE AND TEMPLATE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -2215,15 +2187,7 @@ bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
 , d_valueRep_p(0)
 , d_isTopLevelAggregateNullRep_p(0)
 {
-    d_aggregateRaw.setDataType(dataType);
-
     bcema_SharedPtr<void> value_sp = makeValuePtr(dataType, basicAllocator);
-
-    d_aggregateRaw.setData(value_sp.ptr());
-    d_valueRep_p = value_sp.rep();
-    d_valueRep_p->acquireRef();
-
-    bcem_Aggregate_RepProctor valueRepProctor(d_valueRep_p);
 
     int status = bdem_Convert::toBdemType(value_sp.ptr(),
                                           dataType,
@@ -2238,11 +2202,16 @@ bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
     else {
         bcema_SharedPtr<int> null_sp;
         null_sp.createInplace(basicAllocator, 0);
-        d_aggregateRaw.setTopLevelAggregateNullnessPointer(null_sp.ptr());
         d_isTopLevelAggregateNullRep_p = null_sp.rep();
         d_isTopLevelAggregateNullRep_p->acquireRef();
+
+        d_valueRep_p = value_sp.rep();
+        d_valueRep_p->acquireRef();
+
+        d_aggregateRaw.setTopLevelAggregateNullnessPointer(null_sp.ptr());
+        d_aggregateRaw.setDataType(dataType);
+        d_aggregateRaw.setData(value_sp.ptr());
     }
-    valueRepProctor.release();
 }
 
 inline
@@ -3138,15 +3107,15 @@ bdem_ElemType::Type bcem_Aggregate::dataType() const
 }
 
 inline
-const bdem_RecordDef& bcem_Aggregate::recordDef() const
-{
-    return *recordConstraint();
-}
-
-inline
 const bdem_RecordDef *bcem_Aggregate::recordConstraint() const
 {
     return d_aggregateRaw.recordConstraint();
+}
+
+inline
+const bdem_RecordDef& bcem_Aggregate::recordDef() const
+{
+    return *recordConstraint();
 }
 
 inline

@@ -73,6 +73,40 @@ const char *recordName(const bdem_RecordDef *recordDef)
     return ret ? ret : "(anonymous)";
 }
 
+                    // =====================================
+                    // local class bcem_Aggregate_RepProctor
+                    // =====================================
+
+class bcem_Aggregate_RepProctor {
+    // This "component-private" class is a proctor for managing shared
+    // pointers and releasing the data from management on destruction.
+
+    // DATA
+    bcema_SharedPtrRep *d_rep_p;                     // shared ptr rep
+
+    // NOT IMPLEMENTED
+    bcem_Aggregate_RepProctor(const bcem_Aggregate_RepProctor& original);
+    bcem_Aggregate_RepProctor& operator=(const bcem_Aggregate_RepProctor& rhs);
+    
+  public:
+    // CREATORS
+    bcem_Aggregate_RepProctor(bcema_SharedPtrRep *rep)
+    : d_rep_p(rep)
+    {}
+
+    ~bcem_Aggregate_RepProctor()
+    {
+        if (d_rep_p) {
+            d_rep_p->releaseRef();
+        }
+    }
+
+    // MANIPULATORS
+    void release() {
+        d_rep_p = 0;
+    }
+};
+
 }  // close unnamed namespace
 
                         //---------------------

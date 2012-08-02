@@ -687,10 +687,10 @@ int bcem_AggregateRaw::descendIntoFieldByName(
 }
 
 // PRIVATE ACCESSORS
-int bcem_AggregateRaw::getFieldIndex(int                 *index,
+int bcem_AggregateRaw::getFieldIndex(int                  *index,
                                      bcem_ErrorAttributes *errorResult,
-                                     const char          *fieldName,
-                                     const char          *caller) const
+                                     const char           *fieldName,
+                                     const char           *caller) const
 {
     BSLS_ASSERT_SAFE(index);
     BSLS_ASSERT_SAFE(errorResult);
@@ -736,10 +736,10 @@ int bcem_AggregateRaw::getFieldIndex(int                 *index,
     return 0;
 }
 
-int bcem_AggregateRaw::getFieldIndex(int                 *index,
+int bcem_AggregateRaw::getFieldIndex(int                  *index,
                                      bcem_ErrorAttributes *errorResult,
-                                     int                  fieldId,
-                                     const char          *caller) const
+                                     int                   fieldId,
+                                     const char           *caller) const
 {
     BSLS_ASSERT_SAFE(index);
     BSLS_ASSERT_SAFE(errorResult);
@@ -1122,20 +1122,20 @@ void bcem_AggregateRaw::reset()
 void bcem_AggregateRaw::swap(bcem_AggregateRaw& rhs)
 {
     bsl::swap(d_dataType, rhs.d_dataType);
+    bsl::swap(d_schema_p, rhs.d_schema_p);
     bsl::swap(d_recordDef_p, rhs.d_recordDef_p);
     bsl::swap(d_fieldDef_p, rhs.d_fieldDef_p);
-    bsl::swap(d_schema_p, rhs.d_schema_p);
     bsl::swap(d_value_p, rhs.d_value_p);
-    bsl::swap(d_isTopLevelAggregateNull_p, rhs.d_isTopLevelAggregateNull_p);
     bsl::swap(d_parentType, rhs.d_parentType);
     bsl::swap(d_parentData_p, rhs.d_parentData_p);
     bsl::swap(d_indexInParent, rhs.d_indexInParent);
+    bsl::swap(d_isTopLevelAggregateNull_p, rhs.d_isTopLevelAggregateNull_p);
 }
 
 // ACCESSORS
 int bcem_AggregateRaw::anonymousField(
-                                   bcem_AggregateRaw   *object,
-                                   bcem_ErrorAttributes *errorDescription) const
+                                  bcem_AggregateRaw    *object,
+                                  bcem_ErrorAttributes *errorDescription) const
 {
     // initialize to error value
 
@@ -2188,9 +2188,10 @@ bcem_AggregateRaw::makeSelection(bcem_AggregateRaw   *selection,
     return 0;
 }
 
-int bcem_AggregateRaw::makeSelectionById(bcem_AggregateRaw   *field,
-                                         bcem_ErrorAttributes *errorDescription,
-                                         int                  id) const
+int bcem_AggregateRaw::makeSelectionById(
+                                        bcem_AggregateRaw    *field,
+                                        bcem_ErrorAttributes *errorDescription,
+                                        int                   id) const
 {
     BSLS_ASSERT_SAFE(field);
     BSLS_ASSERT_SAFE(errorDescription);
@@ -2207,9 +2208,9 @@ int bcem_AggregateRaw::makeSelectionById(bcem_AggregateRaw   *field,
 }
 
 int bcem_AggregateRaw::makeSelectionByIndex(
-                                         bcem_AggregateRaw   *field,
-                                         bcem_ErrorAttributes *errorDescription,
-                                         int                  index) const
+                                        bcem_AggregateRaw    *field,
+                                        bcem_ErrorAttributes *errorDescription,
+                                        int                   index) const
 {
     BSLS_ASSERT_SAFE(field);
     BSLS_ASSERT_SAFE(errorDescription);
@@ -2731,13 +2732,13 @@ bool bdeat_choiceHasSelection(const bcem_AggregateRaw&  object,
 int bdeat_choiceMakeSelection(bcem_AggregateRaw *object,
                               int                selectionId)
 {
-    bcem_AggregateRaw   dummyField;
+    bcem_AggregateRaw    dummyField;
     bcem_ErrorAttributes dummyError;
     if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID == selectionId) {
-        return object->makeSelectionById(&dummyField,
-                                         &dummyError,
-                                         bdem_RecordDef::BDEM_NULL_FIELD_ID);
-                                                                      // RETURN
+        object->makeSelectionById(&dummyField,
+                                  &dummyError,
+                                  bdem_RecordDef::BDEM_NULL_FIELD_ID);
+        return 0;                                                     // RETURN
     }
 
     if (! object->hasFieldById(selectionId)) {

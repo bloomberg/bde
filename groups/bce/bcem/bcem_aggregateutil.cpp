@@ -157,7 +157,7 @@ struct SignCast
 
     static inline
     typename bslmf_If<bslmf_IsSame<FROMTYPE, TOTYPE>::VALUE, 
-                      const FROMTYPE&, const TOTYPE&>::Type 
+                      const FROMTYPE&, TOTYPE>::Type 
     cast(const FROMTYPE& s) {
         return (const TOTYPE&)s;
     }
@@ -172,9 +172,8 @@ void assignArray(const bcem_AggregateRaw& result,
              getArray<typename s::make_signed<TYPE>::type>(result.asElemRef());
     array.clear();
 
-    array = value;
-//     bsl::transform(value.begin(), value.end(), bsl::back_inserter(array), 
-//                    SignCast<TYPE, typename s::make_signed<TYPE>::type>::cast);
+    bsl::transform(value.begin(), value.end(), bsl::back_inserter(array), 
+                   SignCast<TYPE, typename s::make_signed<TYPE>::type>::cast);
 }
 
 template <typename TYPE>
