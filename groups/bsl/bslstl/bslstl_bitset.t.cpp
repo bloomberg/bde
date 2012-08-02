@@ -3,6 +3,8 @@
 
 #include <bslstl_string.h>
 
+#include <bslmf_assert.h>
+
 #include <bsls_nativestd.h>
 
 #include <cstdlib>
@@ -239,61 +241,58 @@ void negateString(char *result, size_t resultSize, const char* a)
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-
 // When implementing the classic 'Sieve of Eratosthenes' algorithm to enumerate
-// prime numbers, we want an efficient way of representing a flag for each
+// prime numbers, we need an efficient way of representing a flag for each
 // potential prime number.  The following code illustrates how we can use
 // 'bsl::bitset' to accomplish this result.
 //
-// First, we need to set the limit for the domain we'll search for prime
-// numbers:
+// Then, we begin to define a function template that will check whether a given
+// number is prime or not:
 //..
-enum { PRIME_NUMBER_LIMIT = 10000 };
-//..
-// Then, we define a function which will check whether a given number is prime
-// or not:
-//..
-bool isPrime(int candidate)
-    // Return 'true' if the specified 'candidate' value is a prime number.
-    // The behavior is undefined unless
-    // '2 <= candidate && candidate <= PRIME_NUMBER_LIMIT'
+template <std::size_t CANDIDATE>
+bool isPrime()
+    // Return 'true' if the specified 'CANDIDATE' value is a prime number
+    // and 'false' otherwise.  The behavior is undefined unless
+    // '2 <= CANDIDATE'.
 {
-    ASSERT(2 <= candidate && candidate <= PRIME_NUMBER_LIMIT);
+    BSLMF_ASSERT(2 <= CANDIDATE);
 //..
-// Next, we declare the bitset which will contain flags indicating whether each
-// element is potentially prime or not, and compute 'sqrt(candidate)', which is
+// Next, we declare the bitset that will contain flags indicating whether each
+// element is potentially prime or not, and compute 'sqrt(CANDIDATE)', which is
 // as far as we need to compute:
 //..
     // Candidate primes in the '[2, PRIME_NUMBER_LIMIT]' range.
-    bsl::bitset<PRIME_NUMBER_LIMIT - 2> potentialPrimes;
-    const int sqrtOfCandidate = native_std::sqrt(double(candidate));
+
+    bsl::bitset<CANDIDATE + 1> potentialPrimes;
+    const int sqrtOfCandidate = std::sqrt(double(CANDIDATE));
 //..
-// As an optimization, we'll treat 0 values as potential primes, since that's
-// how 'bsl::bitset' is default-initialized.
-//
-// Now, we loop from 2 to 'candidate', and use the sieve algorithm to
+// Now, we loop from 2 to 'CANDIDATE', and use the sieve algorithm to
 // eliminate non-primes.
+//
 //..
+    // As an optimization, we'll treat 'false' values as potential primes,
+    // since that is how 'bsl::bitset' is default-initialized.
     for (int i = 2; i <= sqrtOfCandidate; ++i) {
-        if (potentialPrimes[i - 2]) {
+        if (potentialPrimes[i]) {
             continue; // Skip this value - it is already flagged as
                       // composite.
         }
 
-        for (int flagValue = i; flagValue <= candidate; flagValue += i) {
-            if (flagValue == candidate) {
-                return false;                                        // RETURN
+        for (int flagValue = i; flagValue <= CANDIDATE; flagValue += i) {
+            if (flagValue == CANDIDATE) {
+                return false;                                      // RETURN
             }
 
-            potentialPrimes[flagValue - 2] = true;
+            potentialPrimes[flagValue] = true;
         }
     }
-//..
-// Then, we can check potentialPrimes[candidate] to see whether our
-// candidate value is a prime number.
-//..
-    return !potentialPrimes[candidate - 2];
+
+    return !potentialPrimes[CANDIDATE];                            // RETURN
 }
+//..
+// Notice that the last line above is where we check whether our candidate
+// value is a prime number.
+//..
 
 
 //=============================================================================
@@ -317,28 +316,29 @@ int main(int argc, char *argv[])
         // Finally, we can exercise our 'isPrime' function:
         // --------------------------------------------------------------------
 
-        ASSERT(   isPrime(2));
-        ASSERT(   isPrime(3));
-        ASSERT( ! isPrime(4));
-        ASSERT(   isPrime(5));
-        ASSERT( ! isPrime(6));
-        ASSERT(   isPrime(7));
-        ASSERT( ! isPrime(8));
-        ASSERT( ! isPrime(9));
-        ASSERT( ! isPrime(10));
-        ASSERT(   isPrime(11));
-        ASSERT( ! isPrime(12));
-        ASSERT(   isPrime(13));
-        ASSERT( ! isPrime(14));
-        ASSERT( ! isPrime(15));
-        ASSERT( ! isPrime(16));
-        ASSERT(   isPrime(17));
-        ASSERT( ! isPrime(18));
-        ASSERT(   isPrime(19));
-        ASSERT( ! isPrime(20));
-        ASSERT(   isPrime(9973));
-        ASSERT( ! isPrime(9975));
-        ASSERT( ! isPrime(10000));
+        ASSERT(   isPrime<2>());
+        ASSERT(   isPrime<3>());
+        ASSERT( ! isPrime<4>());
+        ASSERT(   isPrime<5>());
+        ASSERT( ! isPrime<6>());
+        ASSERT(   isPrime<7>());
+        ASSERT( ! isPrime<8>());
+        ASSERT( ! isPrime<9>());
+        ASSERT( ! isPrime<10>());
+        ASSERT(   isPrime<11>());
+        ASSERT( ! isPrime<12>());
+        ASSERT(   isPrime<13>());
+        ASSERT( ! isPrime<14>());
+        ASSERT( ! isPrime<15>());
+        ASSERT( ! isPrime<16>());
+        ASSERT(   isPrime<17>());
+        ASSERT( ! isPrime<18>());
+        ASSERT(   isPrime<19>());
+        ASSERT( ! isPrime<20>());
+        ASSERT(   isPrime<9973>());
+        ASSERT( ! isPrime<9975>());
+        ASSERT( ! isPrime<10000>());
+
     } break;
     case 4: {
         // --------------------------------------------------------------------
