@@ -1,8 +1,9 @@
 // bsls_annotation.t.cpp                                              -*-C++-*-
 #include <bsls_annotation.h>
 
-#include <cstdlib>
 #include <iostream>
+#include <stdlib.h>  // 'calloc', 'realloc'
+#include <string.h>  // 'strcmp'
 
 // Uncomment next line to test annotations that can cause compiler warnings.
 //#define BSLS_ANNOTATION_TRIGGER_OTHER
