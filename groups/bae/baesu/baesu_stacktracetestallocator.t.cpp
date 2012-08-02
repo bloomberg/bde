@@ -279,6 +279,8 @@ static int veryVerbose;
 
 static const bsl::size_t npos = bsl::string::npos;
 
+static const double myPi      = 3.14159265358979323846;
+
                                 // -----
                                 // Usage
                                 // -----
@@ -775,11 +777,11 @@ void caseOne_c(bslma::Allocator *alloc, int *depth)
 
         *depth ^= i;
     }
-    ASSERT(*depth == depthIn + (int) (bsl::sin(M_PI) + 0.5));
+    ASSERT(*depth == depthIn + (int) (bsl::sin(myPi) + 0.5));
 
     (void) alloc->allocate(100);    // leak some more memory
 
-    *depth += (int) (bsl::cos(M_PI_2) + 0.5);
+    *depth += (int) (bsl::cos(myPi / 2) + 0.5);
 }
 
 void caseOne_b(bslma::Allocator *alloc, int *depth)
