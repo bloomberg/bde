@@ -970,7 +970,9 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
     if (rc) {
         return -1;                                                    // RETURN
     } else {
-        return buf.f_bavail * buf.f_frsize;                           // RETURN
+        // Cast arguments to Offset since the f_bavail and f_frsize fields
+        // can be 32-bits, leading to overflow on even small disks.
+        return Offset(buf.f_bavail) * Offset(buf.f_frsize);           // RETURN
     }
 }
 
@@ -986,7 +988,9 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
     if (rc) {
         return -1;                                                    // RETURN
     } else {
-        return buf.f_bavail * buf.f_frsize;                           // RETURN
+        // Cast arguments to Offset since the f_bavail and f_frsize fields
+        // can be 32-bits, leading to overflow on even small disks.
+        return Offset(buf.f_bavail) * Offset(buf.f_frsize);           // RETURN
     }
 }
 
