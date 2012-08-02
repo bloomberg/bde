@@ -586,6 +586,13 @@ class bcec_SkipListPair {
     // In addition, this class defines 'key' and 'data' member functions
     // which pass 'this' to static methods of 'bcec_SkipList'.
 
+    // Note these data elements are never accessed.  A pointer to this type
+    // will be cast to a pointer to 'bcec_SkipList_Node' so make sure we are
+    // adequately aligned to avoid compiler warnings.
+
+    // DATA
+    bcec_SkipList_Node<KEY, DATA> d_node;    // never directly accessed
+
   private:
     // NOT IMPLEMENTED
     bcec_SkipListPair();
@@ -2249,6 +2256,7 @@ bcec_SkipList<KEY, DATA>::~bcec_SkipList()
     while (p != d_tail_p) {
         const int count = p->decrementRefCount();
         BSLS_ASSERT(0 == count);
+        (void) count;    // suppress 'unused variable' warnings
 
         p->d_key.~KEY();
         p->d_data.~DATA();
