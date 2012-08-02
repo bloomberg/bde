@@ -32,6 +32,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nil.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
+#include <bslmf_integerconstant.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslalg {
@@ -45,11 +49,13 @@ struct TypeTraitNil
     // Nil trait -- every type has this trait.
 
     template <class TYPE>
-    struct NestedTraitDeclaration : bslmf::true_type
+    struct NestedTraitDeclaration
     {
         // This metafunction returns 'true_type' for any class that is queried
         // for the nil trait.
     };
+
+    template <class TYPE> struct Metafunction : bslmf::true_type { };
 };
 
 }  // close package namespace

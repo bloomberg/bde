@@ -505,6 +505,12 @@ struct bslalg_TypeTraits : bslalg::TypeTraits_AutoDetect<
 
 #endif // implied traits
 
+template <class T>
+struct bslalg_TypeTraits {
+    // TBD: Stub
+    template <class TYPE> struct NestedTraitDeclaration { };
+    template <class TYPE> struct Metafunction : bslmf::false_type { };
+};    
 
                     // ========================================
                     // macros BSLALG_DECLARE_NESTED_TRAITS[1-5]

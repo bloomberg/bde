@@ -159,25 +159,25 @@ unsigned traitBits()
     result |= HasTrait<TYPE, bslalg::TypeTraitBitwiseMoveable>::VALUE
             ? TRAIT_BITWISEMOVEABLE
             : 0;
-    // result |= HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable>::VALUE
-    //         ? TRAIT_BITWISECOPYABLE
-    //         : 0;
-    // result |= HasTrait<TYPE,
-    //                    bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
-    //         ? TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR
-    //         : 0;
-    // result |= HasTrait<TYPE, bslalg::TypeTraitBitwiseEqualityComparable>::VALUE
-    //         ? TRAIT_BITWISEEQUALITYCOMPARABLE
-    //         : 0;
-    // result |= HasTrait<TYPE, bslalg::TypeTraitPair>::VALUE
-    //         ? TRAIT_PAIR
-    //         : 0;
+    result |= HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable>::VALUE
+            ? TRAIT_BITWISECOPYABLE
+            : 0;
+    result |= HasTrait<TYPE,
+                       bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
+            ? TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR
+            : 0;
+    result |= HasTrait<TYPE, bslalg::TypeTraitBitwiseEqualityComparable>::VALUE
+            ? TRAIT_BITWISEEQUALITYCOMPARABLE
+            : 0;
+    result |= HasTrait<TYPE, bslalg::TypeTraitPair>::VALUE
+            ? TRAIT_PAIR
+            : 0;
     result |= HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE
             ? TRAIT_USESBSLMAALLOCATOR
             : 0;
-    // result |= HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
-    //         ? TRAIT_HASSTLITERATORS
-    //         : 0;
+    result |= HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
+            ? TRAIT_HASSTLITERATORS
+            : 0;
     return result;
 }
 

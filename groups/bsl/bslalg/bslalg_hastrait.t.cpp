@@ -174,11 +174,12 @@ struct my_Class1
 };
 
 namespace BloombergLP {
+namespace bslma {
 
     template <>
-        struct bslalg_TypeTraits<my_Class1>
-        : bslalg::TypeTraitUsesBslmaAllocator {};
+    struct UsesBslmaAllocator<my_Class1> : bslmf::true_type { };
 
+}  // close bslma namespace
 }  // close enterprise namespace
 
 template <class T>
