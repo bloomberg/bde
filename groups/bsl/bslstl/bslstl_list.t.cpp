@@ -1655,7 +1655,7 @@ struct TestDriver {
     };
 
     // Binary predicate returning true if b < a
-    class GreaterThan : binary_function<TYPE, TYPE, bool> {
+    class GreaterThan : private binary_function<TYPE, TYPE, bool> {
         int* d_countPtr;         // Pointer to count of times invoked
         int* d_invocationLimit;  // Number of invocations before throwing
 

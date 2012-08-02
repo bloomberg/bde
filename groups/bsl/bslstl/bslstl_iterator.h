@@ -79,7 +79,8 @@ using native_std::ostream_iterator;
 using native_std::istreambuf_iterator;
 using native_std::ostreambuf_iterator;
 
-#if defined(BSLS_PLATFORM__CMP_SUN) && !defined(BDE_BUILD_TARGET_STLPORT)
+#if (defined(BSLS_PLATFORM__CMP_SUN) || defined(BSLS_PLATFORM__CMP_AIX))      \
+    && !defined(BDE_BUILD_TARGET_STLPORT)
 
 // Sun does not provide 'std::iterator_traits' at all.  We will provide our own
 // in namespace 'bsl'.
@@ -147,6 +148,7 @@ struct iterator_traits<TYPE *> {
 
 template <class ITER>
 class reverse_iterator :
+#if defined(BSLS_PLATFORM__CMP_SUN)
     public native_std::reverse_iterator<
                              ITER,
                              typename iterator_traits<ITER>::iterator_category,
@@ -161,6 +163,12 @@ class reverse_iterator :
                  typename iterator_traits<ITER>::value_type,
                  typename iterator_traits<ITER>::reference,
                  typename iterator_traits<ITER>::pointer>                 Base;
+#else
+    public native_std::reverse_iterator<ITER> {
+
+    // PRIVATE TYPES
+    typedef native_std::reverse_iterator<ITER> Base;
+#endif
 
   public:
     // For convenience:
@@ -179,18 +187,18 @@ class reverse_iterator :
 
     reverse_iterator  operator++(int);
 
-    reverse_iterator& operator+=(typename difference_type n);
+    reverse_iterator& operator+=(difference_type n);
 
     reverse_iterator& operator--();
 
     reverse_iterator  operator--(int);
 
-    reverse_iterator& operator-=(typename difference_type n);
+    reverse_iterator& operator-=(difference_type n);
 
     // ACCESSORS
-    reverse_iterator operator+(typename difference_type n) const;
+    reverse_iterator operator+(difference_type n) const;
 
-    reverse_iterator operator-(typename difference_type n) const;
+    reverse_iterator operator-(difference_type n) const;
 };
 
 // FREE OPERATORS
@@ -198,25 +206,49 @@ template <class ITER> inline
 bool operator==(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs);
 
+template <class ITER1, class ITER2> inline
+bool operator==(const reverse_iterator<ITER1>& lhs,
+                const reverse_iterator<ITER2>& rhs);
+
 template <class ITER> inline
 bool operator!=(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs);
+
+template <class ITER1, class ITER2> inline
+bool operator!=(const reverse_iterator<ITER1>& lhs,
+                const reverse_iterator<ITER2>& rhs);
 
 template <class ITER> inline
 bool operator<(const reverse_iterator<ITER>& lhs,
                const reverse_iterator<ITER>& rhs);
 
+template <class ITER1, class ITER2> inline
+bool operator<(const reverse_iterator<ITER1>& lhs,
+               const reverse_iterator<ITER2>& rhs);
+
 template <class ITER> inline
 bool operator>(const reverse_iterator<ITER>& lhs,
                const reverse_iterator<ITER>& rhs);
+
+template <class ITER1, class ITER2> inline
+bool operator>(const reverse_iterator<ITER1>& lhs,
+               const reverse_iterator<ITER2>& rhs);
 
 template <class ITER> inline
 bool operator<=(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs);
 
+template <class ITER1, class ITER2> inline
+bool operator<=(const reverse_iterator<ITER1>& lhs,
+                const reverse_iterator<ITER2>& rhs);
+
 template <class ITER> inline
 bool operator>=(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs);
+
+template <class ITER1, class ITER2> inline
+bool operator>=(const reverse_iterator<ITER1>& lhs,
+                const reverse_iterator<ITER2>& rhs);
 
 template <class ITER> inline
 typename reverse_iterator<ITER>::difference_type
@@ -275,7 +307,8 @@ using native_std::distance;
                         // class bsl::reverse_iterator
                         // ---------------------------
 
-#if defined(BSLS_PLATFORM__CMP_SUN) && !defined(BDE_BUILD_TARGET_STLPORT)
+#if (defined(BSLS_PLATFORM__CMP_SUN) || defined(BSLS_PLATFORM__CMP_AIX))      \
+    && !defined(BDE_BUILD_TARGET_STLPORT)
 
 // CREATORS
 template <class ITER>
@@ -385,15 +418,28 @@ inline
 bool operator==(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs)
 {
+#if defined(BSLS_PLATFORM__CMP_SUN)
     typedef native_std::reverse_iterator<
                  ITER,
                  typename iterator_traits<ITER>::iterator_category,
                  typename iterator_traits<ITER>::value_type,
                  typename iterator_traits<ITER>::reference,
                  typename iterator_traits<ITER>::pointer>                 Base;
+#else
+    typedef native_std::reverse_iterator<ITER> Base;
+#endif
 
     return std::operator==(static_cast<const Base&>(lhs),
                            static_cast<const Base&>(rhs));
+}
+
+template <class ITER1, class ITER2>
+inline
+bool operator==(const reverse_iterator<ITER1>& lhs,
+                const reverse_iterator<ITER2>& rhs)
+{
+    // this is to compare reverse_iterator with const_reverse_iterator
+    return lhs.base() == rhs.base();
 }
 
 template <class ITER>
@@ -404,26 +450,56 @@ bool operator!=(const reverse_iterator<ITER>& lhs,
     return ! (lhs == rhs);
 }
 
+template <class ITER1, class ITER2>
+inline
+bool operator!=(const reverse_iterator<ITER1>& lhs,
+                const reverse_iterator<ITER2>& rhs)
+{
+    // this is to compare reverse_iterator with const_reverse_iterator
+    return ! (lhs == rhs);
+}
+
 template <class ITER>
 inline
 bool operator<(const reverse_iterator<ITER>& lhs,
                const reverse_iterator<ITER>& rhs)
 {
+#if defined(BSLS_PLATFORM__CMP_SUN)
     typedef native_std::reverse_iterator<
                  ITER,
                  typename iterator_traits<ITER>::iterator_category,
                  typename iterator_traits<ITER>::value_type,
                  typename iterator_traits<ITER>::reference,
                  typename iterator_traits<ITER>::pointer>                 Base;
+#else
+    typedef native_std::reverse_iterator<ITER> Base;
+#endif
 
     return std::operator<(static_cast<const Base&>(lhs),
                           static_cast<const Base&>(rhs));
+}
+
+template <class ITER1, class ITER2>
+inline
+bool operator<(const reverse_iterator<ITER1>& lhs,
+               const reverse_iterator<ITER2>& rhs)
+{
+    // this is to compare reverse_iterator with const_reverse_iterator
+    return lhs.base() < rhs.base();
 }
 
 template <class ITER>
 inline
 bool operator>(const reverse_iterator<ITER>& lhs,
                const reverse_iterator<ITER>& rhs)
+{
+    return rhs < lhs;
+}
+
+template <class ITER1, class ITER2>
+inline
+bool operator>(const reverse_iterator<ITER1>& lhs,
+               const reverse_iterator<ITER2>& rhs)
 {
     return rhs < lhs;
 }
@@ -436,10 +512,26 @@ bool operator<=(const reverse_iterator<ITER>& lhs,
     return !(rhs < lhs);
 }
 
+template <class ITER1, class ITER2>
+inline
+bool operator<=(const reverse_iterator<ITER1>& x,
+                const reverse_iterator<ITER2>& y)
+{
+    return !(rhs < lhs);
+}
+
 template <class ITER>
 inline
 bool operator>=(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs)
+{
+    return !(lhs < rhs);
+}
+
+template <class ITER1, class ITER2>
+inline
+bool operator>=(const reverse_iterator<ITER1>& x,
+                const reverse_iterator<ITER2>& y)
 {
     return !(lhs < rhs);
 }
@@ -450,12 +542,16 @@ typename reverse_iterator<ITER>::difference_type
 operator-(const reverse_iterator<ITER>& lhs,
           const reverse_iterator<ITER>& rhs)
 {
+#if defined(BSLS_PLATFORM__CMP_SUN)
     typedef native_std::reverse_iterator<
                  ITER,
                  typename iterator_traits<ITER>::iterator_category,
                  typename iterator_traits<ITER>::value_type,
                  typename iterator_traits<ITER>::reference,
                  typename iterator_traits<ITER>::pointer>                 Base;
+#else
+    typedef native_std::reverse_iterator<ITER> Base;
+#endif
 
     return std::operator-(static_cast<const Base&>(lhs),
                           static_cast<const Base&>(rhs));
