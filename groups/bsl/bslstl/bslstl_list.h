@@ -446,12 +446,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLSEQUENCE
-#include <bslalg_typetraitsgroupstlsequence.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
-#include <bslalg_typetraitusesbslmaallocator.h>
+#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
+#include <bslalg_passthroughtrait.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
@@ -474,8 +470,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_removecvq.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ADDRESSOF
-#include <bsls_addressof.h>
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -768,9 +764,18 @@ class list {
         // without checking the allocator.
 
   public:
-    typedef BloombergLP::bslalg_TypeTraitsGroupStlSequence<TYPE,ALLOC>
-        ListTypeTraits;
-    BSLALG_DECLARE_NESTED_TRAITS(list, ListTypeTraits);
+    //typedef BloombergLP::bslalg::TypeTraitsGroupStlSequence<TYPE,ALLOC>
+    //    ListTypeTraits;
+    //BSLALG_DECLARE_NESTED_TRAITS(list, ListTypeTraits<TYPE, ALLOC>);
+    typedef BloombergLP::bslalg::PassthroughTrait<
+                                 ALLOC,
+                                 BloombergLP::bslalg::TypeTraitBitwiseMoveable>
+            AllocatorBitwiseMoveableTrait;
+
+    BSLALG_DECLARE_NESTED_TRAITS3(list,
+          BloombergLP::bslalg::TypeTraitHasStlIterators,
+          AllocatorBitwiseMoveableTrait,
+          BloombergLP::bslalg::PassthroughTraitBslmaAllocator<ALLOC>);
         // Declare nested type traits for this class.
 
     // types:
@@ -1333,8 +1338,10 @@ inline void bsl::List_node<TYPE>::init()
     // will be responsible for constructing 'd_prev' and 'd_next', rather
     // than just setting them to null:
     //
-    //    new ((void*) addressof(d_prev)) NodePtr(nullptr);
-    //    new ((void*) addressof(d_next)) NodePtr(nullptr);
+    //    new ((void*) BloombergLP::bsls::Util::addressOf(d_prev))
+    //                                                        NodePtr(nullptr);
+    //    new ((void*) BloombergLP::bsls::Util::addressOf(d_next))
+    //                                                        NodePtr(nullptr);
     d_prev = d_next = 0;
 }
 
@@ -1387,7 +1394,7 @@ inline
 typename bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>::pointer
 bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>::operator->() const
 {
-    return addressof(this->d_nodeptr->d_value);
+    return BloombergLP::bsls::Util::addressOf(this->d_nodeptr->d_value);
 }
 
 template <class TYPE, class NODEPTR, class DIFFTYPE>
@@ -2079,7 +2086,8 @@ list<TYPE,ALLOC>::emplace(const_iterator position, Args&&... args)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(allocator(), p);
-    AllocTraits::construct(allocator(), addressof(p->d_value),
+    AllocTraits::construct(allocator(),
+                           BloombergLP::bsls::Util::addressOf(p->d_value),
                            std::forward<Args>(args)...);
     proctor.release();
     return insert_node(position, p);
@@ -2091,7 +2099,8 @@ list<TYPE,ALLOC>::emplace(const_iterator position)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
-    AllocTraits::construct(allocator(), addressof(p->d_value));
+    AllocTraits::construct(allocator(),
+                           BloombergLP::bsls::Util::addressOf(p->d_value));
     proctor.release();
     return insert_node(position, p);
 }
@@ -2103,7 +2112,9 @@ list<TYPE,ALLOC>::emplace(const_iterator position, const ARG1& a1)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
-    AllocTraits::construct(allocator(), addressof(p->d_value), a1);
+    AllocTraits::construct(allocator(),
+                           BloombergLP::bsls::Util::addressOf(p->d_value),
+                           a1);
     proctor.release();
     return insert_node(position, p);
 }
@@ -2116,7 +2127,8 @@ list<TYPE,ALLOC>::emplace(const_iterator position,
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
-    AllocTraits::construct(allocator(), addressof(p->d_value), a1, a2);
+    AllocTraits::construct(allocator(),
+                       BloombergLP::bsls::Util::addressOf(p->d_value), a1, a2);
     proctor.release();
     return insert_node(position, p);
 }
@@ -2129,7 +2141,11 @@ list<TYPE,ALLOC>::emplace(const_iterator position,
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
-    AllocTraits::construct(allocator(), addressof(p->d_value), a1, a2, a3);
+    AllocTraits::construct(allocator(),
+                           BloombergLP::bsls::Util::addressOf(p->d_value),
+                           a1,
+                           a2,
+                           a3);
     proctor.release();
     return insert_node(position, p);
 }
@@ -2143,8 +2159,12 @@ list<TYPE,ALLOC>::emplace(const_iterator position,
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
-    AllocTraits::construct(allocator(), addressof(p->d_value),
-                           a1, a2, a3, a4);
+    AllocTraits::construct(allocator(),
+                           BloombergLP::bsls::Util::addressOf(p->d_value),
+                           a1,
+                           a2,
+                           a3,
+                           a4);
     proctor.release();
     return insert_node(position, p);
 }
@@ -2158,8 +2178,13 @@ list<TYPE,ALLOC>::emplace(const_iterator position,
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
-    AllocTraits::construct(allocator(), addressof(p->d_value),
-                           a1, a2, a3, a4, a5);
+    AllocTraits::construct(allocator(), 
+                           BloombergLP::bsls::Util::addressOf(p->d_value),
+                           a1,
+                           a2,
+                           a3,
+                           a4,
+                           a5);
     proctor.release();
     return insert_node(position, p);
 }
@@ -2214,7 +2239,8 @@ list<TYPE,ALLOC>::erase(const_iterator position)
     iterator ret(p->d_next);
 
     link_nodes(p->d_prev, p->d_next);
-    AllocTraits::destroy(allocator(), addressof(p->d_value));
+    AllocTraits::destroy(allocator(),
+                         BloombergLP::bsls::Util::addressOf(p->d_value));
     free_node(p);
     --size_ref();
     return ret;
