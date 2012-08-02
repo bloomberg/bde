@@ -41,8 +41,259 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is for use by the 'bsl+stlport' package.  Prefer using
-// 'bsl::deque' directly.
+// In this section we show intended usage of this component.
+//
+///Example 1: Showing Properties of a Deque and its Iterators
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// A 'deque' (pronounced 'deck') is a *D*ouble *E*nded *QUE*ue.  One can
+// efficiently push or pop elements to the front or end of the queue.  It has
+// iterators and reverse iterators which are quite symmetrical.
+//
+// First, we define a function 'checkInvariants' which will check properties
+// that should always be true for any deque in a valid state.:
+//..
+//  template <typename TYPE>
+//  void checkInvariants(const deque<TYPE>& d)
+//  {
+//      const size_t SZ = d.size();
+//
+//      {
+//          // The following tests will be valid for any deque in a valid
+//          // state.
+//
+//          assert((0 == SZ) == d.empty());
+//
+//          assert(d.end() - d.begin() == d.rend() - d.rbegin());
+//          assert(d.end() - d.begin() >= 0);
+//          assert(SZ == (size_t) (d.end() - d.begin()));
+//
+//          for (size_t u = 0; u < SZ; ++u) {
+//              assert(&*(d.begin()    + u) == &d[         u]);
+//              assert(&*(d.end()  - 1 - u) == &d[SZ - 1 - u]);
+//              assert(&*(d.rbegin()   + u) == &d[SZ - 1 - u]);
+//              assert(&*(d.rend() - 1 - u) == &d[         u]);
+//          }
+//      }
+//
+//      if (d.empty()) {
+//          return;                                                   // RETURN
+//      }
+//
+//      {
+//          // The rest of the tests are only valid if the deque contains at
+//          // least one element, but are always valid in that case.
+//
+//          assert(&d[0]                   == &d.front());
+//          assert(&d[SZ - 1]              == &d.back());
+//
+//          assert(&*d.begin()             == &d.front());
+//          assert(&*d.rbegin()            == &d.back());
+//
+//          assert(&*(d.begin()  + SZ - 1) == &d.back());
+//          assert(&*(d.rbegin() + SZ - 1) == &d.front());
+//
+//          assert(&*(d.end()         - 1) == &d.back());
+//          assert(&*(d.rend()        - 1) == &d.front());
+//
+//          assert(&*(d.end()    - SZ)     == &d.front());
+//          assert(&*(d.rend()   - SZ)     == &d.back());
+//      }
+//  }
+//..
+// Then, we define a type 'MyDeque' which is a 'deque' containing 'int's, and
+// a forward iterator for it:
+//..
+//  typedef bsl::deque<int> MyDeque;
+//  typedef MyDeque::iterator It;
+//..
+// Next, we observe that an iterator to a 'deque', unlike an iterator to a
+// 'vector', is not a pointer:
+//..
+//  assert(! (bslmf::IsSame<int *, It>::VALUE));
+//  assert(! bslmf::IsPointer<It>::VALUE);
+//..
+// Then, we create an allocator to use for the 'deque', and some test data to
+// load into it:
+//..
+//  bslma::TestAllocator ta;
+//
+//  int DATA1[] = {   0,  2 , 4,  6,  8 };
+//  int DATA2[] = { -10, -8, -6, -4, -2 };
+//  enum { NUM_DATA =  sizeof DATA1 / sizeof *DATA1 };
+//  assert(NUM_DATA == sizeof DATA2 / sizeof *DATA2 );
+//..
+// Next, we create a 'deque' 'd' and initialize it at construction to have the
+// 5 elements of 'DATA1', and check our invariants for it.
+//..
+//  MyDeque d(DATA1 + 0, DATA1 + NUM_DATA, &ta);
+//
+//  checkInvariants(d);
+//..
+// Then, we verify that it has as many elements as we expect:
+//..
+//  assert(NUM_DATA == d.size());
+//  assert(NUM_DATA == d.end()  - d.begin());
+//  assert(NUM_DATA == d.rend() - d.rbegin());
+//..
+// Next, we examine the first and last elements in a number of ways:
+//..
+//  assert(0 == d.front());
+//  assert(0 == d[0]);
+//  assert(0 == *d.begin());
+//  assert(0 == *(d.rbegin() + NUM_DATA - 1));
+//
+//  assert(8 == d.back());
+//  assert(8 == d[NUM_DATA - 1]);
+//  assert(8 == *d.rbegin());
+//  assert(8 == *(d.begin()  + NUM_DATA - 1));
+//..
+// Then, we verify the expected value of all the elements:
+//..
+//  for (int i = 0; i < NUM_DATA; ++i) {
+//      assert(2 * i == d[i]);
+//      assert(2 * i == *(d.begin() + i));
+//  }
+//..
+// Next we create a second empty 'deque' and check invariants on it:
+//..
+//  MyDeque d2(&ta);
+//
+//  checkInvariants(d2);
+//..
+// Then, we assign the value of the first 'deque' to the second, check
+// invariants, and verify they are equal:
+//..
+//  d2 = d;
+//  checkInvariants(d2);
+//  assert(d == d2);
+//..
+// Next, we assert the elements of 'DATA2' at the beginning of the second
+// 'deque', and check invariants:
+//..
+//  d2.insert(d2.begin(), DATA2 + 0, DATA2 + NUM_DATA);
+//
+//  checkInvariants(d2);
+//..
+// Then, the two 'deque's should now be unequal.  Record whether 'd2' is now
+// less than 'd':
+//..
+//  assert(d != d2);
+//  const bool lesserFlag = d2 < d;
+//  assert((d2 >= d) != lesserFlag);
+//  assert((d2 >  d) != lesserFlag);
+//..
+// Next, we swap 'd2' and 'd', check invariants of both 'deque's after the
+// swap, and verify that the equality comparisons and size are as expected:
+//..
+//  d.swap(d2);
+//
+//  checkInvariants(d);
+//  checkInvariants(d2);
+//
+//  assert(d != d2);
+//  assert((d <  d2) == lesserFlag);
+//  assert((d >= d2) != lesserFlag);
+//  assert((d >  d2) != lesserFlag);
+//
+//  assert(2 * NUM_DATA == d.size());
+//..
+// Note that had we had any iterators to 'd2', both the 'insert' and the 'swap'
+// would have invalidated them.
+//
+// Then, we verify that 'front' and 'back' are as expected:
+//..
+//  assert(-10 == d.front());
+//  assert(-10 == d[0]);
+//
+//  assert(  8 == d.back());
+//  assert(  8 == d[2 * NUM_DATA - 1]);
+//..
+// Next, we verify all elements in the 'deque':
+//..
+//  for (int i = 0; i < (int) d.size(); ++i) {
+//      assert(-10 + 2 * i == d[i]);
+//      assert(-10 + 2 * i == *(d.begin() + i));
+//      assert(  8 - 2 * i == *(d.end() - 1 - i));
+//      assert(  8 - 2 * i == *(d.rbegin() + i));
+//  }
+//..
+// Then, we push more elements to the front & back:
+//
+// Note that if we had any iterators to 'd', these pushes would invalidate them
+//..
+//  d.push_back(10);
+//  d.push_front(-12);
+//..
+// Next, using iterators, we verify the sequence of all elements in 'd'
+//..
+//  const It endMinus1 = d.end() - 1;
+//  for (It it = d.begin(); it < endMinus1; ++it) {
+//      assert(*it + 2 == *(it + 1));
+//  }
+//..
+// Then, we create an iterator and set it to point to the element containing
+// '0', and take a reference to the same element:
+//..
+//  It zeroIt = d.begin();
+//  while (*zeroIt < 0) {
+//      ++zeroIt;
+//  }
+//  assert(0 == *zeroIt);
+//
+//  assert((bslmf::IsSame<int&, MyDeque::reference>::VALUE));
+//
+//  MyDeque::reference zeroRef = *zeroIt;
+//
+//  assert(0 == zeroRef);
+//..
+// Next, create an iterator and a reference pointing to 'd.back()':
+//..
+//  It backIt = d.begin() + d.size() - 1;
+//
+//  assert(10 == *backIt);
+//
+//  int& backRef = *backIt;
+//..
+// Then, we pop the front element off 'd'.  Note that 'pop_front' and
+// 'pop_back' do not invalidate iterators or references to surviving elements:
+//..
+//  d.pop_front();
+//
+//  checkInvariants(d);
+//..
+// Now, we 'erase' all elements before the element containing '0'.  Note that
+// 'erase' at either end of the deque does not invalidate iterators or
+// references to surviving elements
+//..
+//  d.erase(d.begin(), zeroIt);
+//
+//  checkInvariants(d);
+//..
+// Finally, we use our (still valid) iterators and references to verify that
+// the contents of 'd' are as expected:
+//..
+//  assert( 0 == *zeroIt);
+//  assert( 0 == zeroRef);
+//
+//  assert(10 == *backIt);
+//  assert(10 == backRef);
+//
+//  assert(&*zeroIt == &d.front());
+//  assert(&zeroRef == &d.front());
+//
+//  assert(&*backIt == &d.back());
+//  assert(&backRef == &d.back());
+//
+//  assert( 0 == d.front());
+//  assert( 0 == d[0]);
+//  assert(10 == d.back());
+//  assert(10 == d[5]);     
+//
+//  for (unsigned u = 0; u < d.size(); ++u) {
+//      assert(2 * (int) u == d[u]);
+//  }
+//..
+
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
