@@ -75,17 +75,36 @@ BDES_IDENT("$Id: $")
 // can be significantly more efficient for certain repeated
 // "is-common-business-day" determinations among two or more calendars.
 //
+///Weekend-Days Transitions
+///------------------------
+// A calendar maintains a sequence of weekend-days transitions, each of which
+// comprises a start date and a set of days of the week considered to be the
+// weekend (weekend days).  The start date of a weekend-days transition
+// determines the date at which the transition's associated set of weekend days
+// starts to takes effect -- the calendar determines a date is a weekend day if
+// the date's day of the week is contained in the set of weekend days of the
+// weekend-days transition having the nearest start date on or prior to the
+// date in question.
+//
+// On construction, a calendar contains a single default weekend-day transition
+// at a start date of 1/1/1.  The 'addWeekendDay' and 'addWeekendDays' method
+// adds days of the weeks to this default weekends-day transition.  The
+// 'addWeekendDaysTransition' method can be used to add a new weekend-day
+// transition.  Note that, 'addWeekendDay' and 'addWeekendDays' methods are
+// convenient ways to define the weekend days of a calendar for which the day
+// of the week considered to be weekend days always stays the same.
+//
 ///Nested Iterators
 ///----------------
 // Also provided are several STL-style 'const' bidirectional iterators
 // accessible as nested 'typedef's.  'HolidayConstIterator',
-// 'HolidayCodeConstIterator', and 'WeekendDayConstIterator', respectively,
-// iterate over a chronologically ordered sequence of holidays, a numerically
-// ordered sequence of holiday codes, and a sequence of weekend days, ordered
-// from Sunday to Saturday.  As a general rule, calling a 'const' method will
-// not invalidate any iterators, and calling a non-'const' method might
-// invalidate any of them; it is, however, guaranteed that attempting to add
-// *duplicate* holidays or holiday codes will have no effect, and therefore
+// 'HolidayCodeConstIterator', and 'WeekendDayTransitionConstIterator',
+// respectively, iterate over a chronologically ordered sequence of holidays, a
+// numerically ordered sequence of holiday codes, and a sequence of weekend
+// days, ordered from Sunday to Saturday.  As a general rule, calling a 'const'
+// method will not invalidate any iterators, and calling a non-'const' method
+// might invalidate any of them; it is, however, guaranteed that attempting to
+// add *duplicate* holidays or holiday codes will have no effect, and therefore
 // will not invalidate any iterators.  It is also guaranteed that adding a new
 // code for an existing holiday will not invalidate any 'HolidayConstIterator'.
 //
@@ -93,18 +112,19 @@ BDES_IDENT("$Id: $")
 ///-------------------------------------------
 // 'bdecs_Calendar' supports 'O[1]' (i.e., constant-time) determination of
 // whether a given 'bdet_Date' value is or is not a business day (or a
-// holiday), which is accomplished by augmenting the implementation of a
-// packed calendar with a supplementary cache.  The invariant that this cache
-// and the data represented in the underlying 'bdecs_PackedCalendar' be
-// maintained in a consistent state may add significantly to the cost of
-// performing many manipulator operations, especially those that affect the
-// calendar's valid range.  Moreover, the cost of many of these operations
-// will now be proportional to the length(s) of the valid range(s), as well
-// as their respective numbers of holidays and associated holiday codes.
-// Hence, when populating a calendar, it is recommended that the desired value
-// be captured first as a 'bdecs_PackedCalendar', which can then be used
-// efficiently to *value-construct* the desired 'bdecs_Calendar' object.
-// See the component-level doc for 'bdecs_packedcalendar' for its performance
+// holiday), which is accomplished by augmenting the implementation of a packed
+// calendar with a supplementary cache.  The invariant that this cache and the
+// data represented in the underlying 'bdecs_PackedCalendar' be maintained in a
+// consistent state may add significantly to the cost of performing many
+// manipulator operations, especially those that affect the calendar's valid
+// range and add a new weekend-days transition.  Moreover, the cost of many of
+// these operations will now be proportional to the length(s) of the valid
+// range(s), as well as their respective numbers of holidays and associated
+// holiday codes and weekend-days transitions.  Hence, when populating a
+// calendar, it is recommended that the desired value be captured first as a
+// 'bdecs_PackedCalendar', which can then be used efficiently to
+// *value-construct* the desired 'bdecs_Calendar' object.  See the
+// component-level doc for 'bdecs_packedcalendar' for its performance
 // guarantees.
 //
 // All methods of the 'bdecs_Calendar' are exception-safe, but in general

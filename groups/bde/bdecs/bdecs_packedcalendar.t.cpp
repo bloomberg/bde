@@ -3952,7 +3952,6 @@ DEFINE_TEST_CASE(12) {
 
                 // Set up the current weekend days before adding new weekend
                 // days
-
                 ASSERT(X.numWeekendDaysTransitions() == 1);
                 ASSERT(X.beginWeekendDaysTransitions()->first ==
                                                            bdet_Date(1, 1, 1));
@@ -5829,7 +5828,7 @@ DEFINE_TEST_CASE(4) {
         //     'HolidayConstIterator', 'rbeginHolidays(const bdet_Date&)' and
         //     'rendHolidays(const bdet_Date&)' are working properly.
         //
-        //  For 'WeekendDaysConstIterator',
+        //  For 'WeekendDaysTransitionConstIterator',
         //
         //  7. 'operator++' and 'operator--' move the iterator forward/backward
         //     by one element.  'operator=' assigns an iterator to another one

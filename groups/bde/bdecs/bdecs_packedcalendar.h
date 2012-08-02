@@ -81,9 +81,9 @@ BDES_IDENT("$Id: $")
 //
 // On construction, a calendar contains a single default weekend-day transition
 // at a start date of 1/1/1.  The 'addWeekendDay' and 'addWeekendDays' method
-// adds days of the weeks to the default weekend-day transition.  The
+// adds days of the weeks to this default weekends-day transition.  The
 // 'addWeekendDaysTransition' method can be used to add a new weekend-day
-// tranisition.  Note that, 'addWeekendDay' and 'addWeekendDays' methods are
+// transition.  Note that, 'addWeekendDay' and 'addWeekendDays' methods are
 // convenient ways to define the weekend days of a calendar for which the day
 // of the week considered to be weekend days always stays the same.
 //
@@ -497,9 +497,9 @@ class bdecs_PackedCalendar {
     // last dates of a calendar's accessible contents.  A calendar can be
     // "populated" with weekend and holiday information via a suite of 'add'
     // methods.  Any subset of days of the week may be specified as weekend
-    // (i.e., recurring non-business) days for each occurrence of that
-    // day-of-the-week in a specified range; holidays within the valid range
-    // are specified individually.  When adding a holiday, an arbitrary integer
+    // (i.e., recurring non-business) days starting from a specified date by
+    // adding a weekend-days transition; holidays within the valid range are
+    // specified individually.  When adding a holiday, an arbitrary integer
     // "holiday code" may be associated with that date.  Additional holiday
     // codes for that date may subsequently be added.  Both the holidays and
     // the set of unique holiday codes associated with each holiday date are
