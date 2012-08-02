@@ -1057,7 +1057,8 @@ class LimitAllocator : public ALLOC {
     typedef typename ALLOC::size_type         size_type;
     typedef typename ALLOC::difference_type   difference_type;
 
-    template <class OTHER_TYPE> struct rebind {
+    template <class OTHER_TYPE>
+    struct rebind {
         // It is better not to inherit the rebind template, or else
         // rebind<X>::other would be ALLOC::rebind<OTHER_TYPE>::other
         // instead of LimitAlloc<X>.
@@ -1082,9 +1083,11 @@ class LimitAllocator : public ALLOC {
     LimitAllocator()
     : d_limit(-1) {}
 
+    explicit
     LimitAllocator(bslma::Allocator *mechanism)
     : AllocBase(mechanism), d_limit(-1) { }
 
+    explicit
     LimitAllocator(const ALLOC& rhs)
     : AllocBase((const AllocBase&) rhs), d_limit(-1) { }
 
@@ -1180,6 +1183,7 @@ struct TestDriver {
         // Shorthand.
 
     // TEST APPARATUS
+
     static int getValues(const TYPE **values);
         // Load the specified 'values' with the address of an array containing
         // initialized values of the parameterized 'TYPE' and return the length
@@ -1228,6 +1232,7 @@ struct TestDriver {
         // '0 <= size'.
 
     // TEST CASES
+
     template <class CONTAINER>
     static void testCaseM1Range(const CONTAINER&);
         // Performance test for operators that take a range of inputs.
@@ -7757,7 +7762,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 23: {
+      case 25: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -7962,7 +7967,7 @@ int main(int argc, char *argv[])
         }
 //..
       } break;
-      case 22: {
+      case 24: {
         // --------------------------------------------------------------------
         // TESTING EXCEPTIONS
         //
@@ -7976,7 +7981,7 @@ int main(int argc, char *argv[])
         TestDriver<T>::testCase22();
 
       } break;
-      case 21: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING COMPARISON FREE OPERATORS
         //
@@ -7994,7 +7999,7 @@ int main(int argc, char *argv[])
         TestDriver<T>::testCase21();
 
       } break;
-      case 20: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING SWAP
         //
@@ -8011,7 +8016,7 @@ int main(int argc, char *argv[])
         TestDriver<T>::testCase20();
 
       } break;
-      case 19: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING ERASE
         //
@@ -8047,15 +8052,69 @@ int main(int argc, char *argv[])
         TestDriver<BCT>::testCase19();
 
       } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING RANGE ARRAY INSERTION
+        //
+        // Testing:
+        //   template <class InputIter>
+        //    void insert(const_iterator pos, InputIter first, InputIter last);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Range Array Insertion"
+                            "\n=============================\n");
+
+        if (verbose) printf("\n... with 'TestType' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<T>::testCase18Range(CharArray<T>());
+
+        if (verbose) printf("\n... with 'MediumTestType' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<M>::testCase18Range(CharArray<M>());
+
+        if (verbose) printf("\n... with 'BitwiseMoveableTestType' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<BMT>::testCase18Range(CharArray<BMT>());
+
+        if (verbose) printf("\n... with 'BitwiseCopyableTestType' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<BCT>::testCase18Range(CharArray<BCT>());
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING RANGE LIST INSERTION
+        //
+        // Testing:
+        //   template <class InputIter>
+        //    void insert(const_iterator pos, InputIter first, InputIter last);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Range List Insertion"
+                            "\n============================\n");
+
+        if (verbose) printf("\n... with 'TestType' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<T>::testCase18Range(CharList<T>());
+
+        if (verbose) printf("\n... with 'MediumTestType' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<M>::testCase18Range(CharList<M>());
+
+        if (verbose) printf("\n... with 'BitwiseMoveableTestType' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<BMT>::testCase18Range(CharList<BMT>());
+
+        if (verbose) printf("\n... with 'BitwiseCopyableTestType' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<BCT>::testCase18Range(CharList<BCT>());
+      } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING INSERTION
+        // TESTING RANGE INSERTION
         //
         // Testing:
         //   iterator insert(const_iterator position, const T& value);
         //   void insert(const_iterator pos, size_type n, const T& val);
-        //   template <class InputIter>
-        //    void insert(const_iterator pos, InputIter first, InputIter last);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Value Insertion"
@@ -8072,42 +8131,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase18();
-
-        if (verbose) printf("\nTesting Range Insertion"
-                            "\n=======================\n");
-
-        if (verbose) printf("\n... with 'TestType' "
-                            "and arbitrary input iterator.\n");
-        TestDriver<T>::testCase18Range(CharList<T>());
-
-        if (verbose) printf("\n... with 'TestType' "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<T>::testCase18Range(CharArray<T>());
-
-        if (verbose) printf("\n... with 'MediumTestType' "
-                            "and arbitrary input iterator.\n");
-        TestDriver<M>::testCase18Range(CharList<M>());
-
-        if (verbose) printf("\n... with 'MediumTestType' "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<M>::testCase18Range(CharArray<M>());
-
-        if (verbose) printf("\n... with 'BitwiseMoveableTestType' "
-                            "and arbitrary input iterator.\n");
-        TestDriver<BMT>::testCase18Range(CharList<BMT>());
-
-        if (verbose) printf("\n... with 'BitwiseMoveableTestType' "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<BMT>::testCase18Range(CharArray<BMT>());
-
-        if (verbose) printf("\n... with 'BitwiseCopyableTestType' "
-                            "and arbitrary input iterator.\n");
-        TestDriver<BCT>::testCase18Range(CharList<BCT>());
-
-        if (verbose) printf("\n... with 'BitwiseCopyableTestType' "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<BCT>::testCase18Range(CharArray<BCT>());
-
       } break;
       case 17: {
         // --------------------------------------------------------------------
