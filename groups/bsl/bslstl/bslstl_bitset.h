@@ -77,8 +77,9 @@ BSLS_IDENT("$Id: $")
 //      BSLS_ASSERT(2 <= candidate); BSLS_ASSERT(candidate <= MAX_VALUE);
 //..
 // Then, we declare a 'bsl::bitset', 'compositeFlags', that will contain flags
-// indicating whether or not each value is potentially prime, up to and
-// including some compile-time constant template parameter, 'MAX_VALUE'.
+// indicating whether a value corresponding to a given index is known to be
+// composite ('true') or is still potentially prime ('false') up to and
+// including the compile-time constant template parameter, 'MAX_VALUE'.
 //..
 //      // Candidate primes in the '[2, MAX_VALUE]' range.
 //

@@ -21,20 +21,85 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
+// The component under test implements a single (value-semantic) class.  The
+// Primary Manipulators are 'operator[]' and 'bitset(bsl::string), and the
+// Basic Accessors are 'operator[] const' and 'size'.
+//
+// Primary Manipulators:
+//: o 'operator[]'
+//
+// Basic Accessors:
+//: o 'operator[]'
+//: o 'size'
+//
+// This particular attribute class also provides a value constructor capable of
+// creating an object in any state relevant for thorough testing, obviating the
+// primitive generator function, 'gg', normally used for this purpose.  We will
+// therefore follow our standard 10-case approach to testing value-semantic
+// types except that we will test the value constructor in case 3 (in lieu of
+// the generator function), with the default constructor and primary
+// manipulators tested fully in case 2.
+//
+// Certain standard value-semantic-type test cases are omitted:
+//: o [10] -- BSLX streaming is not (yet) implemented for this class.
+//
+// Global Concerns:
+//: o The test driver is robust w.r.t. reuse in other, similar components.
+//: o ACCESSOR methods are declared 'const'.
+//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
+//: o No memory is ever allocated from the global allocator.
+//: o Precondition violations are detected in appropriate build modes.
+//
+// Global Assumptions:
+//: o ACCESSOR methods are 'const' thread-safe.
 //
 // ----------------------------------------------------------------------------
 // CREATORS:
 // [ 2] bitset()
-// [ 2] bitset(unsigned long)
-// [ 3] bitset(native_std::basic_string, size_type, size_type);
-// [ 3] bitset(bslstl::basic_string, size_type, size_type);
+// [ 3] bitset(unsigned long)
+// [ 4] bitset(native_std::basic_string, size_type, size_type)
+// [ 4] bitset(bslstl::basic_string, size_type, size_type)
+// [ 2] ~bitset()
 //
 // MANIPULATORS:
-// [ 4] bitset& operator<<=(std::size_t pos);
-// [ 4] bitset& operator>>=(std::size_t pos);
+// [ 3] reference operator[](std::size_t pos)
+// [  ] bitset& operator&=(const bitset &lhs)
+// [  ] bitset& operator|=(const bitset &lhs)
+// [  ] bitset& operator^=(const bitset &lhs)
+// [ 5] bitset& operator<<=(std::size_t pos)
+// [ 5] bitset& operator>>=(std::size_t pos)
+// [  ] bitset& flip()
+// [  ] bitset& flip(std::size_t pos)
+// [  ] bitset& reset()
+// [  ] bitset& reset(std::size_t pos)
+// [  ] bitset& set()
+// [  ] bitset& set(std::size_t pos, int val = true)
+//
+// ACCESSORS:
+// [  ] bitset operator<<(std::size_t pos) const
+// [  ] bitset operator>>(std::size_t pos) const
+// [  ] bitset operator~() const
+// [  ] bsl::string to_string() const
+// [  ] bool operator[](std::size_t pos) const
+// [  ] bool operator==(std::size_t pos) const
+// [  ] bool operator!=(std::size_t pos) const
+// [ 3] bool any() const
+// [ 3] bool none() const
+// [  ] std::size_t size() const
+// [  ] std::size_t count() const
+// [  ] bool test(std::size_t) const
+// [  ] unsigned long to_ulong() const
+//
+//
+// FREE OPERATORS:
+// [  ] bitset<N> operator|(const bitset<N> &lhs, const bitset<N> &rhs)
+// [  ] bitset<N> operator&(const bitset<N> &lhs, const bitset<N> &rhs)
+// [  ] bitset<N> operator^(const bitset<N> &lhs, const bitset<N> &rhs)
+// [  ] operator>>(std::istream &is, bitset<N>& x)
+// [  ] operator<<(std::ostream &os, const bitset<N>& x)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //==========================================================================
@@ -109,6 +174,116 @@ bool verifyBitset(const bsl::bitset<N> obj, const char *expected)
     return true;
 }
 
+template <size_t N>
+bool verifyBitset(const bsl::bitset<N> obj, unsigned long expected, int verbose)
+{
+    for (int bitIndex = 0; bitIndex < N; ++bitIndex) {
+        int expectedBit = 0;
+
+        if (bitIndex < sizeof(unsigned long) * CHAR_BIT) {
+            expectedBit = ((expected >> bitIndex) & 1);
+        }
+
+        if (expectedBit != obj[bitIndex]) {
+            ASSERT(expectedBit == obj[bitIndex]);
+
+            if (verbose) {
+                T_ P_(N) P_(bitIndex) P_(expectedBit) P(obj[bitIndex]);
+            }
+
+            return false;
+        }
+    }
+
+    return true;
+}
+
+//=============================================================================
+//                      TEST CASE SUPPORT FUNCTIONS
+//-----------------------------------------------------------------------------
+
+namespace {
+
+template <int TESTSIZE>
+void testCase2(int verbose, int veryVerbose, int veryVeryVerbose)
+{
+    if (verbose) cout << "\tCheck bitset<" << TESTSIZE << ">" << endl;
+
+    bsl::bitset<TESTSIZE> v;
+
+    ASSERT(TESTSIZE == v.size());
+    ASSERT(v.none());
+    ASSERT(!v.any());
+
+    v[0] = 1;
+
+    ASSERT(!v.none());
+    ASSERT(v.any());
+
+    v[0] = 0;
+
+    ASSERT(v.none());
+    ASSERT(!v.any());
+
+    v[TESTSIZE - 1] = 1;
+
+    ASSERT(!v.none());
+    ASSERT(v.any());
+
+    v[TESTSIZE - 1] = 0;
+
+    ASSERT(v.none());
+    ASSERT(!v.any());
+}
+
+template <int TESTSIZE>
+void testCase3(int verbose, int veryVerbose, int veryVeryVerbose)
+{
+    static const struct {
+        unsigned int  d_lineNum;  // source line number
+        unsigned long d_value;    // bitset value
+    } DATA[] = {
+        //LINE  VALUE
+        //----  -------------------
+        { L_,   0,                 },
+        { L_,   0x10101010         },
+        { L_,   0xabcdef01         },
+        { L_,   0x12345678         },
+        { L_,   0xffffffff         },
+        { L_,   0x87654321         },
+#if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+        { L_,   0x1010101010101010 },
+        { L_,   0xabcdef01abcdef01 },
+        { L_,   0x1234567812345678 },
+        { L_,   0xffffffffffffffff },
+        { L_,   0x8765432187654321 },
+#endif
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    typedef bsl::bitset<TESTSIZE> Obj;
+
+    if (verbose) cout << "Testing bitset<"
+                      << TESTSIZE
+                      << ">(unsigned long) constructor"
+                      << endl;
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const unsigned int  LINE      = DATA[ti].d_lineNum;
+        const unsigned long VALUE     = DATA[ti].d_value;
+
+        if (veryVerbose) {
+            T_ P_(TESTSIZE) P_(LINE) P(VALUE);
+        }
+
+        Obj mX(VALUE);
+
+        ASSERT(verifyBitset(mX, VALUE, verbose));
+    }
+}
+
+} // close unnamed namespace
+
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -143,13 +318,11 @@ bool isPrime(int candidate)
     BSLS_ASSERT(2 <= candidate); BSLS_ASSERT(candidate <= MAX_VALUE);
 //..
 // Then, we declare a 'bsl::bitset', 'compositeFlags', that will contain flags
-// indicating whether or not each value is potentially prime, up to and
-// including some compile-time constant template parameter, 'MAX_VALUE'.
+// indicating whether a value corresponding to a given index is known to be
+// composite ('true') or is still potentially prime ('false') up to and
+// including the compile-time constant template parameter, 'MAX_VALUE'.
 //..
-    // Potentially prime (indicated by 'false') or composite (indicated by
-    // 'true') values in the range '[ 2 .. MAX_VALUE ]'.  At the end of the
-    // sieve loop, any values in this set which remain 'false' indicate prime
-    // numbers.
+    // Candidate primes in the '[2 .. MAX_VALUE]' range.
 
     bsl::bitset<MAX_VALUE + 1> compositeFlags;
 //..
@@ -162,6 +335,9 @@ bool isPrime(int candidate)
 // Now, we loop from 2 to 'sqrtOfCandidate', and use the sieve algorithm to
 // eliminate non-primes:
 //..
+    // Note that we treat 'false' values as potential primes,
+    // since that is how 'bsl::bitset' is default-initialized.
+
     for (int i = 2; i <= sqrtOfCandidate; ++i) {
         if (compositeFlags[i]) {
             continue;  // Skip this value: it's flagged as composite, so all
@@ -201,7 +377,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // zero is always the leading case
-    case 5: {
+    case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST
         //
@@ -227,10 +403,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == isPrime<UPPER_BOUND>(9975));
         ASSERT(0 == isPrime<UPPER_BOUND>(10000));
         //..
-
-
     } break;
-    case 4: {
+
+    case 5: {
         // --------------------------------------------------------------------
         // SHIFT OPERATOR TEST
         //
@@ -320,15 +495,20 @@ int main(int argc, char *argv[])
             Obj mY(lexpected); const Obj& Y  = mY;
             Obj mZ(rexpected); const Obj& Z  = mZ;
 
+            Obj mX3 = mX1 << POS; const Obj& X3 = mX3;
             mX1 <<= POS;
+
+            Obj mX4 = mX2 >> POS; const Obj& X4 = mX4;
             mX2 >>= POS;
 
             if (veryVeryVerbose) {
-                T_ T_ P_(X1) P_(X2) P_(Y) P(Z);
+                T_ T_ P_(X1) P_(X2) P_(X3) P_(X4) P_(Y) P(Z);
             }
 
             LOOP_ASSERT(LINE, X1 == Y);
+            LOOP_ASSERT(LINE, X3 == Y);
             LOOP_ASSERT(LINE, X2 == Z);
+            LOOP_ASSERT(LINE, X4 == Z);
         }
 
         }
@@ -448,21 +628,27 @@ int main(int argc, char *argv[])
             Obj mY(lexpected); const Obj& Y  = mY;
             Obj mZ(rexpected); const Obj& Z  = mZ;
 
+            Obj mX3 = mX1 << POS; const Obj& X3 = mX3;
             mX1 <<= POS;
+
+            Obj mX4 = mX2 >> POS; const Obj& X4 = mX4;
             mX2 >>= POS;
 
             if (veryVeryVerbose) {
-                T_ T_ P_(X1) P_(X2) P_(Y) P(Z);
+                T_ T_ P_(X1) P_(X2) P_(X3) P_(X4) P_(Y) P(Z);
             }
 
             LOOP_ASSERT(LINE, X1 == Y);
+            LOOP_ASSERT(LINE, X3 == Y);
             LOOP_ASSERT(LINE, X2 == Z);
+            LOOP_ASSERT(LINE, X4 == Z);
         }
 
         }
 
       } break;
-      case 3: {
+
+      case 4: {
         // --------------------------------------------------------------------
         // STRING CONSTRUCTOR TEST
         //
@@ -549,6 +735,48 @@ int main(int argc, char *argv[])
 
       } break;
 
+      case 3: {
+        // --------------------------------------------------------------------
+        // UNSIGNED INT CONSTRUCTOR TEST
+        //   Ensure that the unsigned long constructor leaves the object in the
+        //   expected state for different initial sizes.
+        //
+        // Concerns:
+        //: 1 All 'N' bits in a 'bitset<N>(k)'-constructed bitset match the N
+        //:   low bits of 'k'.
+        //
+        // Plan:
+        //   Construct bitsets of different sizes with different unsigned long
+        //   arguments 'k', and check that all 'N' bits in the bitset match the
+        //   'N' lowest bits of 'k'.
+        //
+        // TESTING:
+        //  'unsigned long' construction.
+        //---------------------------------------------------------------------
+        if (verbose) cout << endl << "UNSIGNED LONG CONSTRUCTOR TEST"
+                          << endl << "==============================" << endl;
+
+        testCase3<1>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<2>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<3>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<4>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<7>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<8>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<9>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<15>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<16>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<17>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<23>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<24>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<25>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<31>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<32>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<33>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<63>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<64>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<65>(verbose, veryVerbose, veryVeryVerbose);
+      } break;
+
       case 2: {
         // --------------------------------------------------------------------
         // DEFAULT CONSTRUCTOR TEST
@@ -556,13 +784,15 @@ int main(int argc, char *argv[])
         //   expected state for different initial sizes.
         //
         // Concerns:
-        //: 1 All N bits in a default-constructed bitset<N> are initially 0.
+        //: 1 All 'N' bits in a default-constructed 'bitset<N>' are initially
+        //:   0.
         //:
-        //: 2 bitset<N> implies size()==N.
+        //: 2 'bitset<N>' implies 'size()==N'.
         //
         // Plan:
         //   Default construct bitsets of different sizes and check 'size',
-        //   'none', and 'any'.
+        //   'none', and 'any', then modify the first and last bits back and
+        //   forth and make sure 'none' and 'any' report the expected results.
         //
         // TESTING:
         //  Default construction, 'size', 'none', 'any'
@@ -571,181 +801,25 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "DEFAULT CONSTRUCTOR TEST"
                           << endl << "========================" << endl;
 
-        {
-            enum { SIZE = 1 };
-            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
-
-            bsl::bitset<SIZE> v;
-
-            ASSERT(SIZE == v.size());
-            ASSERT(v.none());
-            ASSERT(!v.any());
-
-            v[0] = 1;
-
-            ASSERT(!v.none());
-            ASSERT(v.any());
-        }
-
-        {
-            enum { SIZE = 2 };
-            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
-
-            bsl::bitset<SIZE> v;
-
-            ASSERT(SIZE == v.size());
-            ASSERT(v.none());
-            ASSERT(!v.any());
-
-            v[0] = 1;
-
-            ASSERT(!v.none());
-            ASSERT(v.any());
-        }
-
-        {
-            enum { SIZE = 7 };
-            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
-
-            bsl::bitset<SIZE> v;
-
-            ASSERT(SIZE == v.size());
-            ASSERT(v.none());
-            ASSERT(!v.any());
-
-            v[0] = 1;
-
-            ASSERT(!v.none());
-            ASSERT(v.any());
-        }
-
-        {
-            enum { SIZE = 8 };
-            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
-
-            bsl::bitset<SIZE> v;
-
-            ASSERT(SIZE == v.size());
-            ASSERT(v.none());
-            ASSERT(!v.any());
-
-            v[0] = 1;
-
-            ASSERT(!v.none());
-            ASSERT(v.any());
-        }
-
-        {
-            enum { SIZE = 9 };
-            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
-
-            bsl::bitset<SIZE> v;
-
-            ASSERT(SIZE == v.size());
-            ASSERT(v.none());
-            ASSERT(!v.any());
-
-            v[0] = 1;
-
-            ASSERT(!v.none());
-            ASSERT(v.any());
-        }
-
-        {
-            enum { SIZE = 31 };
-            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
-
-            bsl::bitset<SIZE> v;
-
-            ASSERT(SIZE == v.size());
-            ASSERT(v.none());
-            ASSERT(!v.any());
-
-            v[0] = 1;
-
-            ASSERT(!v.none());
-            ASSERT(v.any());
-        }
-
-        {
-            enum { SIZE = 32 };
-            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
-
-            bsl::bitset<SIZE> v;
-
-            ASSERT(SIZE == v.size());
-            ASSERT(v.none());
-            ASSERT(!v.any());
-
-            v[0] = 1;
-
-            ASSERT(!v.none());
-            ASSERT(v.any());
-        }
-
-        {
-            enum { SIZE = 33 };
-            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
-
-            bsl::bitset<SIZE> v;
-
-            ASSERT(SIZE == v.size());
-            ASSERT(v.none());
-            ASSERT(!v.any());
-
-            v[0] = 1;
-
-            ASSERT(!v.none());
-            ASSERT(v.any());
-        }
-
-        {
-            enum { SIZE = 63 };
-            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
-
-            bsl::bitset<SIZE> v;
-
-            ASSERT(SIZE == v.size());
-            ASSERT(v.none());
-            ASSERT(!v.any());
-
-            v[0] = 1;
-
-            ASSERT(!v.none());
-            ASSERT(v.any());
-        }
-
-        {
-            enum { SIZE = 64 };
-            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
-
-            bsl::bitset<SIZE> v;
-
-            ASSERT(SIZE == v.size());
-            ASSERT(v.none());
-            ASSERT(!v.any());
-
-            v[0] = 1;
-
-            ASSERT(!v.none());
-            ASSERT(v.any());
-        }
-
-        {
-            enum { SIZE = 65 };
-            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
-
-            bsl::bitset<SIZE> v;
-
-            ASSERT(SIZE == v.size());
-            ASSERT(v.none());
-            ASSERT(!v.any());
-
-            v[0] = 1;
-
-            ASSERT(!v.none());
-            ASSERT(v.any());
-        }
+        testCase2<1>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<2>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<3>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<4>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<7>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<8>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<9>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<15>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<16>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<17>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<23>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<24>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<25>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<31>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<32>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<33>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<63>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<64>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<65>(verbose, veryVerbose, veryVeryVerbose);
 
       } break;
 
@@ -884,6 +958,7 @@ int main(int argc, char *argv[])
 
 
       } break;
+
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
