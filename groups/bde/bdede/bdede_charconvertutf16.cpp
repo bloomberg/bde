@@ -208,11 +208,11 @@ struct Capacity {
     // an integer 'capacity', then thereafter support operators '--', '-=', and
     // '<' for that value.
 
-    int d_capacity;
+    bsl::size_t d_capacity;
 
     // CREATORS
     explicit
-    Capacity(int capacity) : d_capacity(capacity) {}
+    Capacity(bsl::size_t capacity) : d_capacity(capacity) {}
         // Create a 'Capacity' object with the specified 'capacity'.
 
     // MANIPULATORS
@@ -223,19 +223,20 @@ struct Capacity {
         // Decrement 'd_capacity' by 'delta'.
 
     // ACCESSORS
-    bool operator<(int rhs) const { return d_capacity < rhs; }
+    bool operator<(bsl::size_t rhs) const { return d_capacity < rhs; }
         // Return 'true' if 'd_capacity < rhs' and 'false' otherwise.
 };
 
-struct InfiniteCapacity {
+struct NoopCapacity {
     // Functor passed to 'localUtf8ToUtf16' and 'localUtf16ToUtf8' in cases
     // where we don't want to monitor capacity available in output, all
     // operations on this object are to become no-ops, all if-blocks controled
-    // by '<' are 'if '<capacity> < <value>' and will expand to not happening.
+    // by '<' are 'if '<capacity> < <value>' with no 'else' and will expand to
+    // not happening.
 
     // CREATORS
     explicit
-    InfiniteCapacity(int) {}
+    NoopCapacity(bsl::size_t) {}
         // Create empty object.
 
     // MANIPULATORS
@@ -246,7 +247,7 @@ struct InfiniteCapacity {
         // No-op.
 
     // ACCESSORS
-    bool operator<(int) const { return false; }
+    bool operator<(bsl::size_t) const { return false; }
         // Return 'false'.
 };
 
@@ -1154,12 +1155,12 @@ int localUtf16ToUtf8String(bsl::string      *dstString,
 
     bsl::size_t numBytesWritten;
 
-    int rc = localUtf16ToUtf8<UTF16_CHAR, InfiniteCapacity>(dstString->begin(),
-                                                            0,
-                                                            srcBuffer,
-                                                            numCharsWritten,
-                                                            &numBytesWritten,
-                                                            errorCharacter);
+    int rc = localUtf16ToUtf8<UTF16_CHAR, NoopCapacity>(dstString->begin(),
+                                                        0,
+                                                        srcBuffer,
+                                                        numCharsWritten,
+                                                        &numBytesWritten,
+                                                        errorCharacter);
     BSLS_ASSERT_SAFE(0 == (Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG & rc));
     if (numBytesWritten != estLength) {
         BSLS_ASSERT(numBytesWritten < estLength);
@@ -1193,12 +1194,12 @@ int localUtf16ToUtf8Vector(bsl::vector<char> *dstVector,
 
     bsl::size_t numBytesWritten;
 
-    int rc = localUtf16ToUtf8<UTF16_CHAR, InfiniteCapacity>(dstVector->begin(),
-                                                            0,
-                                                            srcBuffer,
-                                                            numCharsWritten,
-                                                            &numBytesWritten,
-                                                            errorCharacter);
+    int rc = localUtf16ToUtf8<UTF16_CHAR, NoopCapacity>(dstVector->begin(),
+                                                        0,
+                                                        srcBuffer,
+                                                        numCharsWritten,
+                                                        &numBytesWritten,
+                                                        errorCharacter);
     BSLS_ASSERT_SAFE(0 == (Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG & rc));
     if (numBytesWritten != estLength) {
         BSLS_ASSERT(numBytesWritten < estLength);
@@ -1254,8 +1255,7 @@ int bdede_CharConvertUtf16::utf8ToUtf16(
 
     bsl::size_t numWordsWritten;
 
-    int rc = localUtf8ToUtf16<unsigned short, InfiniteCapacity>(
-                                                            dstVector->begin(),
+    int rc = localUtf8ToUtf16<unsigned short, NoopCapacity>(dstVector->begin(),
                                                             0,
                                                             srcBuffer,
                                                             numCharsWritten,
@@ -1296,12 +1296,12 @@ int bdede_CharConvertUtf16::utf8ToUtf16(bsl::wstring   *dstWstring,
 
     bsl::size_t numWordsWritten;
 
-    int rc = localUtf8ToUtf16<wchar_t, InfiniteCapacity>(dstWstring->begin(),
-                                                         0,
-                                                         srcBuffer,
-                                                         numCharsWritten,
-                                                         &numWordsWritten,
-                                                         errorCharacter);
+    int rc = localUtf8ToUtf16<wchar_t, NoopCapacity>(dstWstring->begin(),
+                                                     0,
+                                                     srcBuffer,
+                                                     numCharsWritten,
+                                                     &numWordsWritten,
+                                                     errorCharacter);
     BSLS_ASSERT_SAFE(0 == (Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
