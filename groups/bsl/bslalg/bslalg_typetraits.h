@@ -408,10 +408,6 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraitpair.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPPOD
-#include <bslalg_typetraitsgrouppod.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif

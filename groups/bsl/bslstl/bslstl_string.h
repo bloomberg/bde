@@ -87,12 +87,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraitbitwisemoveable.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLSEQUENCECONTAINER
-#include <bslstl_traitsgroupstlsequencecontainer.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ANYTYPE
@@ -728,16 +732,6 @@ class basic_string
         // This is required by the C++ standard (23.1, clause 1).
 
   public:
-    // TRAITS
-    typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<
-                                                   CHAR_TYPE,
-                                                   ALLOCATOR> StringTypeTraits;
-
-    BSLALG_DECLARE_NESTED_TRAITS(basic_string, StringTypeTraits);
-        // Declare nested type traits for this class.  This class is bitwise
-        // movable if the allocator is bitwise movable.  It uses 'bslma'
-        // allocators if 'ALLOCATOR' is convertible from 'bslma::Allocator*'.
-
     // PUBLIC CLASS DATA
     static const size_type npos = ~size_type(0);
         // Value used to denote "not-a-position", guaranteed to be outside the
@@ -1826,6 +1820,34 @@ std::size_t hashBasicString(const string& str);
 
 std::size_t hashBasicString(const wstring& str);
     // Return a hash value for the specified 'str'.
+
+} // close namespace bsl
+
+namespace BloombergLP {
+
+// TYPE TRAITS
+namespace bslstl {
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+struct HasStlIterators<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
+    : bslmf::true_type { };
+} // close namespace bslstl
+
+namespace bslma {
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS,
+                                            ALLOCATOR> >
+    : bslmf::IsConvertible<Allocator*, ALLOCATOR>::type { };
+} // close namespace bslma
+
+namespace bslmf {
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+struct IsBitwiseMoveable<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
+    : IsBitwiseMoveable<ALLOCATOR>::type { };
+} // close namespace bslmf
+
+} // close enterprise namespace
+
+namespace bsl {
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 struct hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >

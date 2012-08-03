@@ -23,9 +23,6 @@ bslstl_stdexceptutil
 bslstl_string
 bslstl_stringref
 bslstl_stringrefdata
-bslstl_traitsgroupstlassociativecontainer
-bslstl_traitsgroupstlsequencecontainer
-bslstl_traitsgroupstlunorderedcontainer
 bslstl_treeiterator
 bslstl_treenode
 bslstl_treenodepool

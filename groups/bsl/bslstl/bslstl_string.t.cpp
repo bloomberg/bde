@@ -747,10 +747,6 @@ class LimitAllocator : public ALLOC {
     size_type d_limit;
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(LimitAllocator,
-                                 BloombergLP::bslalg_TypeTraits<AllocBase>);
-
     // CREATORS
     LimitAllocator()
     : d_limit(-1) {}
@@ -769,6 +765,15 @@ class LimitAllocator : public ALLOC {
     // ACCESSORS
     size_type max_size() const { return d_limit; }
 };
+
+// TRAITS
+namespace BloombergLP {
+    namespace bslmf {
+        template <class ALLOC>
+        struct IsBitwiseMoveable<LimitAllocator<ALLOC> >
+            : IsBitwiseMoveable<ALLOC>::type { };
+    }
+}
 
 template <class TYPE, class TRAITS, class ALLOC>
 inline

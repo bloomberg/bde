@@ -186,8 +186,10 @@ template <class T>
 struct my_Class2
 {
     // Class template that has nested type traits
-    BSLALG_DECLARE_NESTED_TRAITS(my_Class2,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+    BSLALG_DECLARE_NESTED_TRAITS3(my_Class2,
+                                bslalg::TypeTraitBitwiseCopyable,
+                                bslalg::TypeTraitBitwiseMoveable,
+                                bslalg::TypeTraitHasTrivialDefaultConstructor);
 };
 
 struct my_Class4
