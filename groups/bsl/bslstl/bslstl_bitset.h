@@ -76,13 +76,13 @@ BSLS_IDENT("$Id: $")
 //      BSLMF_ASSERT(2 <= MAX_VALUE);
 //      BSLS_ASSERT(2 <= candidate); BSLS_ASSERT(candidate <= MAX_VALUE);
 //..
-// Then, we declare a 'bsl::bitset', 'potentialPrimes', that will contain flags
+// Then, we declare a 'bsl::bitset', 'compositeFlags', that will contain flags
 // indicating whether or not each value is potentially prime, up to and
 // including some compile-time constant template parameter, 'MAX_VALUE'.
 //..
 //      // Candidate primes in the '[2, MAX_VALUE]' range.
 //
-//      bsl::bitset<MAX_VALUE + 1> potentialPrimes;
+//      bsl::bitset<MAX_VALUE + 1> compositeFlags;
 //..
 // Next, we compute 'sqrt(candidate)', which is as far as we need to look:
 //..
@@ -97,22 +97,22 @@ BSLS_IDENT("$Id: $")
 //      // since that is how 'bsl::bitset' is default-initialized.
 //
 //      for (int i = 2; i <= sqrtOfCandidate; ++i) {
-//          if (potentialPrimes[i]) {
+//          if (compositeFlags[i]) {
 //              continue; // Skip this value: it's flagged as composite, so all
 //                        // of its multiples are already flagged as composite
 //                        // as well.
 //          }
 //
 //          for (int flagValue = i; flagValue <= candidate; flagValue += i) {
-//              potentialPrimes[flagValue] = true;
+//              compositeFlags[flagValue] = true;
 //          }
 //
-//          if (true == potentialPrimes[candidate]) {
+//          if (true == compositeFlags[candidate]) {
 //              return false;                                         // RETURN
 //          }
 //      }
 //
-//      BSLS_ASSERT(false == potentialPrimes[candidate]);
+//      BSLS_ASSERT(false == compositeFlags[candidate]);
 //
 //      return true;
 //  }

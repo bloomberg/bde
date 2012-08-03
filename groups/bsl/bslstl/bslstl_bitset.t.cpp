@@ -109,135 +109,6 @@ bool verifyBitset(const bsl::bitset<N> obj, const char *expected)
     return true;
 }
 
-char notCharacter(char bit)
-    // Return '0' if the specified 'bit' is '1', and return '1' if the
-    // specified 'bit' is '0'.  The behavior is undefined unless 'bit'
-    // is '0' or '1'.
-{
-    if ('0' == bit) {
-        return '1';
-    }
-
-    return '0';
-}
-
-void orStrings(char *result, size_t resultSize,
-               const char* a, const char* b)
-    // Return in the specified 'result' a string of 0's and 1's which is the
-    // "bitwise" (characterwise) 'or' of the specified 'a' and 'b' strings.
-    // The behavior is undefined unless
-    // 'strlen(a) == strlen(b) && strlen(a) <= resultSize - 1'
-{
-    size_t length = strlen(a);
-
-    BSLS_ASSERT(strlen(b) == length);
-    BSLS_ASSERT(resultSize - 1 >= length);
-
-    for (size_t i = 0; i < length; ++i) {
-        // OR truth table
-        // a | b | result
-        // --+---+-------
-        // 0 | 0 | 0
-        // 0 | 1 | 1
-        // 1 | 0 | 1
-        // 1 | 1 | 1
-        // --+---+-------
-
-        // We can bitwise 'or' the characters '0' and '1' and get the expected
-        // results.
-        result[i] = a[i] | b[i];
-    }
-
-    result[length] = '\0';
-}
-
-void andStrings(char *result, size_t resultSize,
-                const char* a, const char* b)
-    // Return in the specified 'result' a string of 0's and 1's which is the
-    // "bitwise" (characterwise) 'and' of the specified 'a' and 'b' strings.
-    // The behavior is undefined unless
-    // 'strlen(a) == strlen(b) && strlen(a) <= resultSize - 1'
-{
-    size_t length = strlen(a);
-
-    BSLS_ASSERT(strlen(b) == length);
-    BSLS_ASSERT(resultSize - 1 >= length);
-
-    for (size_t i = 0; i < length; ++i) {
-        // OR truth table
-        // a | b | result
-        // --+---+-------
-        // 0 | 0 | 0
-        // 0 | 1 | 0
-        // 1 | 0 | 0
-        // 1 | 1 | 1
-        // --+---+-------
-
-        // We can bitwise 'and' the characters '0' and '1' and get the expected
-        // results.
-        result[i] = a[i] & b[i];
-    }
-
-    result[length] = '\0';
-}
-
-void xorStrings(char *result, size_t resultSize,
-                const char* a, const char* b)
-    // Return in the specified 'result' a string of 0's and 1's which is the
-    // "bitwise" (characterwise) 'xor' of the specified 'a' and 'b' strings.
-    // The behavior is undefined unless
-    // 'strlen(a) == strlen(b) && strlen(a) <= resultSize - 1'
-{
-    size_t length = strlen(a);
-
-    BSLS_ASSERT(strlen(b) == length);
-    BSLS_ASSERT(resultSize - 1 >= length);
-
-    for (size_t i = 0; i < length; ++i) {
-        // OR truth table
-        // a | b | result
-        // --+---+-------
-        // 0 | 0 | 0
-        // 0 | 1 | 1
-        // 1 | 0 | 1
-        // 1 | 1 | 0
-        // --+---+-------
-
-        // We can bitwise 'xor' the characters '0' and '1' and get the expected
-        // result for the lowest bit, and then 'or'-ing in '0' to provide the
-        // common bits which the 'xor' wipes out.
-        result[i] = (a[i] ^ b[i]) | '0';
-    }
-
-    result[length] = '\0';
-}
-
-void negateString(char *result, size_t resultSize, const char* a)
-    // Return in the specified 'result' a string of 0's and 1's which is the
-    // "bitwise" (characterwise) negation of the specified 'a' string.  The
-    // behavior is undefined unless 'strlen(a) <= resultSize - 1'
-
-{
-    size_t length = strlen(a);
-
-    BSLS_ASSERT(resultSize - 1 >= length);
-
-    for (size_t i = 0; i < length; ++i) {
-        // NEGATION truth table
-        // a |  result
-        // --+--------
-        // 0 |  1
-        // 0 |  1
-        // 1 |  0
-        // 1 |  0
-        // --+--------
-
-        result[i] = notCharacter(a[i]);
-    }
-
-    result[length] = '\0';
-}
-
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -271,13 +142,16 @@ bool isPrime(int candidate)
     BSLMF_ASSERT(2 <= MAX_VALUE);
     BSLS_ASSERT(2 <= candidate); BSLS_ASSERT(candidate <= MAX_VALUE);
 //..
-// Then, we declare a 'bsl::bitset', 'potentialPrimes', that will contain flags
+// Then, we declare a 'bsl::bitset', 'compositeFlags', that will contain flags
 // indicating whether or not each value is potentially prime, up to and
 // including some compile-time constant template parameter, 'MAX_VALUE'.
 //..
-    // Candidate primes in the '[2, MAX_VALUE]' range.
+    // Potentially prime (indicated by 'false') or composite (indicated by
+    // 'true') values in the range '[ 2 .. MAX_VALUE ]'.  At the end of the
+    // sieve loop, any values in this set which remain 'false' indicate prime
+    // numbers.
 
-    bsl::bitset<MAX_VALUE + 1> potentialPrimes;
+    bsl::bitset<MAX_VALUE + 1> compositeFlags;
 //..
 // Next, we compute 'sqrt(candidate)', which is as far as we need to look:
 //..
@@ -288,26 +162,23 @@ bool isPrime(int candidate)
 // Now, we loop from 2 to 'sqrtOfCandidate', and use the sieve algorithm to
 // eliminate non-primes:
 //..
-    // Note that we treat 'false' values as potential primes,
-    // since that is how 'bsl::bitset' is default-initialized.
-
     for (int i = 2; i <= sqrtOfCandidate; ++i) {
-        if (potentialPrimes[i]) {
+        if (compositeFlags[i]) {
             continue;  // Skip this value: it's flagged as composite, so all
                        // of its multiples are already flagged as composite as
                        // well.
         }
 
         for (int flagValue = i; flagValue <= candidate; flagValue += i) {
-            potentialPrimes[flagValue] = true;
+            compositeFlags[flagValue] = true;
         }
 
-        if (true == potentialPrimes[candidate]) {
+        if (true == compositeFlags[candidate]) {
             return false;                                          // RETURN
         }
     }
 
-    BSLS_ASSERT(false == potentialPrimes[candidate]);
+    BSLS_ASSERT(false == compositeFlags[candidate]);
 
     return true;
 }
@@ -688,13 +559,193 @@ int main(int argc, char *argv[])
         //: 1 All N bits in a default-constructed bitset<N> are initially 0.
         //:
         //: 2 bitset<N> implies size()==N.
-        //:
-        //: 3 All bits in a bitset(unsigned long)-constructed bitset are as
-        //:   expected.
         //
         // Plan:
+        //   Default construct bitsets of different sizes and check 'size',
+        //   'none', and 'any'.
         //
+        // TESTING:
+        //  Default construction, 'size', 'none', 'any'
         //---------------------------------------------------------------------
+
+        if (verbose) cout << endl << "DEFAULT CONSTRUCTOR TEST"
+                          << endl << "========================" << endl;
+
+        {
+            enum { SIZE = 1 };
+            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
+
+            bsl::bitset<SIZE> v;
+
+            ASSERT(SIZE == v.size());
+            ASSERT(v.none());
+            ASSERT(!v.any());
+
+            v[0] = 1;
+
+            ASSERT(!v.none());
+            ASSERT(v.any());
+        }
+
+        {
+            enum { SIZE = 2 };
+            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
+
+            bsl::bitset<SIZE> v;
+
+            ASSERT(SIZE == v.size());
+            ASSERT(v.none());
+            ASSERT(!v.any());
+
+            v[0] = 1;
+
+            ASSERT(!v.none());
+            ASSERT(v.any());
+        }
+
+        {
+            enum { SIZE = 7 };
+            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
+
+            bsl::bitset<SIZE> v;
+
+            ASSERT(SIZE == v.size());
+            ASSERT(v.none());
+            ASSERT(!v.any());
+
+            v[0] = 1;
+
+            ASSERT(!v.none());
+            ASSERT(v.any());
+        }
+
+        {
+            enum { SIZE = 8 };
+            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
+
+            bsl::bitset<SIZE> v;
+
+            ASSERT(SIZE == v.size());
+            ASSERT(v.none());
+            ASSERT(!v.any());
+
+            v[0] = 1;
+
+            ASSERT(!v.none());
+            ASSERT(v.any());
+        }
+
+        {
+            enum { SIZE = 9 };
+            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
+
+            bsl::bitset<SIZE> v;
+
+            ASSERT(SIZE == v.size());
+            ASSERT(v.none());
+            ASSERT(!v.any());
+
+            v[0] = 1;
+
+            ASSERT(!v.none());
+            ASSERT(v.any());
+        }
+
+        {
+            enum { SIZE = 31 };
+            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
+
+            bsl::bitset<SIZE> v;
+
+            ASSERT(SIZE == v.size());
+            ASSERT(v.none());
+            ASSERT(!v.any());
+
+            v[0] = 1;
+
+            ASSERT(!v.none());
+            ASSERT(v.any());
+        }
+
+        {
+            enum { SIZE = 32 };
+            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
+
+            bsl::bitset<SIZE> v;
+
+            ASSERT(SIZE == v.size());
+            ASSERT(v.none());
+            ASSERT(!v.any());
+
+            v[0] = 1;
+
+            ASSERT(!v.none());
+            ASSERT(v.any());
+        }
+
+        {
+            enum { SIZE = 33 };
+            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
+
+            bsl::bitset<SIZE> v;
+
+            ASSERT(SIZE == v.size());
+            ASSERT(v.none());
+            ASSERT(!v.any());
+
+            v[0] = 1;
+
+            ASSERT(!v.none());
+            ASSERT(v.any());
+        }
+
+        {
+            enum { SIZE = 63 };
+            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
+
+            bsl::bitset<SIZE> v;
+
+            ASSERT(SIZE == v.size());
+            ASSERT(v.none());
+            ASSERT(!v.any());
+
+            v[0] = 1;
+
+            ASSERT(!v.none());
+            ASSERT(v.any());
+        }
+
+        {
+            enum { SIZE = 64 };
+            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
+
+            bsl::bitset<SIZE> v;
+
+            ASSERT(SIZE == v.size());
+            ASSERT(v.none());
+            ASSERT(!v.any());
+
+            v[0] = 1;
+
+            ASSERT(!v.none());
+            ASSERT(v.any());
+        }
+
+        {
+            enum { SIZE = 65 };
+            if (verbose) cout << "\tCheck bitset<" << SIZE << ">" << endl;
+
+            bsl::bitset<SIZE> v;
+
+            ASSERT(SIZE == v.size());
+            ASSERT(v.none());
+            ASSERT(!v.any());
+
+            v[0] = 1;
+
+            ASSERT(!v.none());
+            ASSERT(v.any());
+        }
 
       } break;
 
