@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a set of portable utilities for file system access.
 //
 //@CLASSES:
-//  bdesu_FileUtil: struct which scopes file system utilities
+//  bdesu_FileUtil: struct that scopes file system utilities
 //
 //@SEE_ALSO: bdesu_pathutil
 //
