@@ -153,7 +153,6 @@ BDES_IDENT("$Id: $")
 //  N.numHolidays()                   O[1]                No-Throw
 //
 //  N.numHolidayCodesTotal()          O[1]                No-Throw
-//  N.numWeekendDaysInWeek()          O[1]                No-Throw
 //  N.numWeekendDaysInRange()         O[1]                No-Throw
 //
 //  N.isInRange(d);                   O[1]                No-Throw
@@ -1128,11 +1127,6 @@ class bdecs_PackedCalendar {
         // Return the number of days in the valid range of this calendar that
         // are considered weekend days, irrespective of any designated
         // holidays.
-
-    int numWeekendDaysInWeek() const;
-        // Return the number of days of the week that are designated as weekend
-        // days in this calendar.  Note that the value returned will be in the
-        // range '[ 0 .. 7 ]'.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -2968,22 +2962,6 @@ inline
 int bdecs_PackedCalendar::numHolidays() const
 {
     return static_cast<int>(d_holidayOffsets.size());
-}
-
-inline
-int bdecs_PackedCalendar::numWeekendDaysInWeek() const
-{
-    BSLS_ASSERT_SAFE(d_weekendDaysTransitions.size() <= 1);
-
-    if (d_weekendDaysTransitions.empty()) {
-        return 0;
-    }
-    else {
-        BSLS_ASSERT_SAFE(
-            d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
-        return d_weekendDaysTransitions[0].second.length();
-
-    }
 }
 
 inline

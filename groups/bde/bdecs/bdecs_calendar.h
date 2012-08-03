@@ -480,12 +480,10 @@ class bdecs_Calendar {
     typedef BusinessDayConstIterator        BusinessDayIterator;
     typedef HolidayConstIterator            HolidayIterator;
     typedef HolidayCodeConstIterator        HolidayCodeIterator;
-    typedef WeekendDayConstIterator         WeekendDayIterator;
 
     typedef BusinessDayConstReverseIterator BusinessDayReverseIterator;
     typedef HolidayConstReverseIterator     HolidayReverseIterator;
     typedef HolidayCodeConstReverseIterator HolidayCodeReverseIterator;
-    typedef WeekendDayConstReverseIterator  WeekendDayReverseIterator;
 #endif
 
     // CLASS METHODS
@@ -900,11 +898,6 @@ class bdecs_Calendar {
         // Return the number of days in the valid range of this calendar that
         // are considered weekend days, irrespective of any designated
         // holidays.
-
-    int numWeekendDaysInWeek() const;
-        // Return the number of days of the week that are designated as weekend
-        // days in this calendar.  Note that the value returned will be in the
-        // range '[ 0 .. 7 ]'.
 
     const bdecs_PackedCalendar& packedCalendar() const;
         // Return a reference to the underlying non-modifiable
@@ -1489,12 +1482,6 @@ inline
 int bdecs_Calendar::numWeekendDaysInRange() const
 {
     return d_packedCalendar.numWeekendDaysInRange();
-}
-
-inline
-int bdecs_Calendar::numWeekendDaysInWeek() const
-{
-    return d_packedCalendar.numWeekendDaysInWeek();
 }
 
 inline

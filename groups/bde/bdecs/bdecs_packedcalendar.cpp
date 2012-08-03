@@ -92,7 +92,7 @@ int numWeekendDaysInRangeImp(const bdet_Date& firstDate,
     return numWeekendDays;
 }
 
-typedef bsl::vector<bsl::pair<bdet_Date, bdec_DayOfWeekSet>> WTransitions;
+typedef bsl::vector<bsl::pair<bdet_Date, bdec_DayOfWeekSet> > WTransitions;
 
 void intersectWeekendDaysTransitions(WTransitions *result,
                                      const WTransitions& lhs,
