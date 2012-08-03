@@ -143,8 +143,6 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
                        // ==========================
                        // class bcem_ErrorAttributes
                        // ==========================
