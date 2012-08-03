@@ -1,371 +1,11 @@
-// bcem_aggregateutil.cpp                                             -*-C++-*-
+// bcem_aggregateutil.cpp   -*-C++-*-
 #include <bcem_aggregateutil.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcem_aggregateutil_cpp,"$Id$ $CSID$")
 
-#include <bcem_errorattributes.h>
-#include <bcem_fieldselector.h>
-
-#include <bdetu_unset.h>
-
 namespace BloombergLP {
 
-namespace s {
-    // the Sun compiler actually compiles AggregateRaw.cpp along with
-    // this file, and we've (temporarily) got make_signed defined there too.
-    // so here, we'll embed it inside another namespace to disambiguate them.
-
-    // TBD TBD TBD TBD TBD
-    // replace this custom type with bsl::make_signed<T> when that's available.
-template <typename TYPE>
-struct make_signed {
-    typedef TYPE type;
-};
-
-template <>
-struct make_signed<unsigned char> {
-    typedef char type;
-};
-
-template <>
-struct make_signed<unsigned short> {
-    typedef short type;
-};
-
-template <>
-struct make_signed<unsigned int> {
-    typedef int type;
-};
-
-template <>
-struct make_signed<bsls_Types::Uint64> {
-    typedef bsls_Types::Int64 type;
-};
-
-} // namespace s; please remove when make_signed is available
-    // TBD TBD TBD TBD
-    // TBD replace the code above with bsl::make_signed when available.
-
-namespace {
-
-template<typename T>
-bsl::vector<T>& getArray(const bdem_ElemRef& data)
-{
-    BSLS_ASSERT_OPT(!"Unreachable");
-    return *(bsl::vector<T>*)0;
-}
-
-template<>
-bsl::vector<bool>& getArray<bool>(const bdem_ElemRef& data)
-{
-    return data.theModifiableBoolArray();
-}
-
-template<>
-bsl::vector<char>& getArray<char>(const bdem_ElemRef& data)
-{
-    return data.theModifiableCharArray();
-}
-
-template<>
-bsl::vector<short>& getArray<short>(const bdem_ElemRef& data)
-{
-    return data.theModifiableShortArray();
-}
-
-template<>
-bsl::vector<int>& getArray<int>(const bdem_ElemRef& data)
-{
-    return data.theModifiableIntArray();
-}
-
-template<>
-bsl::vector<float>& getArray<float>(const bdem_ElemRef& data)
-{
-    return data.theModifiableFloatArray();
-}
-
-template<>
-bsl::vector<double>& getArray<double>(const bdem_ElemRef& data)
-{
-    return data.theModifiableDoubleArray();
-}
-
-template<>
-bsl::vector<bsl::string>& getArray<bsl::string>(
-                                                const bdem_ElemRef& data)
-{
-    return data.theModifiableStringArray();
-}
-
-template<>
-bsl::vector<bsls_Types::Int64>& getArray<bsls_Types::Int64>(
-                                                const bdem_ElemRef& data)
-{
-    return data.theModifiableInt64Array();
-}
-
-template<>
-bsl::vector<bdet_DateTz>& getArray<bdet_DateTz>(
-                                                const bdem_ElemRef& data)
-{
-    return data.theModifiableDateTzArray();
-}
-
-template<>
-bsl::vector<bdet_DatetimeTz>& getArray<bdet_DatetimeTz>(
-                                                const bdem_ElemRef& data)
-{
-    return data.theModifiableDatetimeTzArray();
-}
-
-template<>
-bsl::vector<bdet_TimeTz>& getArray<bdet_TimeTz>(
-                                                const bdem_ElemRef& data)
-{
-    return data.theModifiableTimeTzArray();
-}
-
-template<>
-bsl::vector<bdet_Date>& getArray<bdet_Date>(const bdem_ElemRef& data)
-{
-    return data.theModifiableDateArray();
-}
-
-template<>
-bsl::vector<bdet_Datetime>& getArray<bdet_Datetime>(
-                                                const bdem_ElemRef& data)
-{
-    return data.theModifiableDatetimeArray();
-}
-
-template<>
-bsl::vector<bdet_Time>& getArray<bdet_Time>(const bdem_ElemRef& data)
-{
-    return data.theModifiableTimeArray();
-}
-
-template<typename FROMTYPE, typename TOTYPE>
-struct SignCast
-{
-    // This struct facilitates efficient casting of unsigned to signed types
-    // when any generic type may be involved.  For types where TOTYPE
-    // is the same as FROMTYPE (e.g., double, string, Date, etc), the
-    // 'cast' function returns the passed-in const reference.  Otherwise,
-    // 'cast' returns the corresponding TOTYPE *by value*.
-
-    static inline
-    typename bslmf_If<bslmf_IsSame<FROMTYPE, TOTYPE>::VALUE,
-                      const FROMTYPE&, TOTYPE>::Type
-    cast(const FROMTYPE& s) {
-        return (const TOTYPE&)s;
-    }
-};
-
-template <typename TYPE>
-inline
-void assignArray(const bcem_AggregateRaw& result,
-                 const bsl::vector<TYPE>& value)
-{
-    bsl::vector<typename s::make_signed<TYPE>::type>& array =
-             getArray<typename s::make_signed<TYPE>::type>(result.asElemRef());
-    array.clear();
-
-    bsl::transform(value.begin(), value.end(), bsl::back_inserter(array),
-                   SignCast<TYPE, typename s::make_signed<TYPE>::type>::cast);
-}
-
-template <typename TYPE>
-inline
-void assignArray(bsl::vector<TYPE>         *result,
-                 const bcem_AggregateRaw&   value)
-{
-    const bsl::vector<typename s::make_signed<TYPE>::type>& array =
-              getArray<typename s::make_signed<TYPE>::type>(value.asElemRef());
-    result->clear();
-
-    bsl::transform(array.begin(), array.end(), bsl::back_inserter(*result),
-                   SignCast<typename s::make_signed<TYPE>::type, TYPE>::cast);
-}
-
-template <typename PRIMITIVE_TYPE>
-inline bool isPrimitiveArrayType(bdem_ElemType::Type)
-{
-    return false;
-}
-
-template <>
-inline bool isPrimitiveArrayType<bool>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_BOOL_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<char>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_CHAR_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<unsigned char>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_CHAR_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<short>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_SHORT_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<unsigned short>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_SHORT_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<int>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_INT_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<unsigned int>(bdem_ElemType::Type type) {
-    return type == bdem_ElemType::BDEM_INT_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<float>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_FLOAT_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<double>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_DOUBLE_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<bsl::string>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_STRING_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<bsls_Types::Int64>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_INT64_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<bsls_Types::Uint64>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_INT64_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<bdet_DateTz>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_DATETZ_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<bdet_DatetimeTz>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_DATETIMETZ_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<bdet_TimeTz>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_TIMETZ_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<bdet_Date>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_DATE_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<bdet_Time>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_TIME_ARRAY;
-}
-
-template <>
-inline bool isPrimitiveArrayType<bdet_Datetime>(bdem_ElemType::Type type)
-{
-    return type == bdem_ElemType::BDEM_DATETIME_ARRAY;
-}
-
-template <typename TYPE>
-inline
-void assignPrimitive(TYPE *result, const bcem_AggregateRaw& value)
-{
-    if (value.isNull()) {
-        *result = static_cast<TYPE>(
-               bdetu_Unset<typename s::make_signed<TYPE>::type>::unsetValue());
-    }
-    else {
-        *result = value.convertScalar<typename s::make_signed<TYPE>::type>();
-    }
-}
-
-template <typename TYPE>
-inline
-void assignPrimitive(bdeut_NullableValue<TYPE> *result,
-                     const bcem_AggregateRaw&   value)
-{
-    if (value.isNull()) {
-        result->reset();
-    }
-    else {
-        *result = value.convertScalar<typename s::make_signed<TYPE>::type>();
-    }
-}
-
-template <typename TYPE>
-inline
-void assignPrimitive(bdeut_NullableAllocatedValue<TYPE> *result,
-                     const bcem_AggregateRaw&            value)
-{
-    if (value.isNull()) {
-        result->reset();
-    }
-    else {
-        *result = value.convertScalar<typename s::make_signed<TYPE>::type>();
-    }
-}
-
-inline
-void assignPrimitive(bdeut_NullableValue<bsl::vector<char> >  *result,
-                     const bcem_AggregateRaw&                  value)
-{
-    if (value.isNull()) {
-        result->reset();
-    }
-    else {
-        *result = value.asElemRef().theCharArray();
-    }
-}
-
-inline
-void assignPrimitive(bdeut_NullableAllocatedValue<bsl::vector<char> > *result,
-                     const bcem_AggregateRaw&                          value)
-{
-    if (value.isNull()) {
-        result->reset();
-    }
-    else {
-        *result = value.asElemRef().theCharArray();
-    }
-}
-
-} // unnamed namespace
                           // ------------------------
                           // class bcem_AggregateUtil
                           // ------------------------
@@ -373,28 +13,22 @@ void assignPrimitive(bdeut_NullableAllocatedValue<bsl::vector<char> > *result,
 // PRIVATE CLASS METHODS
 
 // Conversion From Primitive Types
-template <typename PRIMITIVE_TYPE>
-inline
-int fromAggregatePrimitiveImp(
-        PRIMITIVE_TYPE                                 *result,
-        const bcem_Aggregate&                           aggregate,
-        int                                             fieldId)
-{
-    bcem_AggregateRaw   data = aggregate.aggregateRaw(), field;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
-    }
-    assignPrimitive(result, field);
-    return 0;
-}
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
                                       bool                       *result,
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = value.asBool();
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -402,7 +36,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = value.asChar();
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -410,7 +53,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = value.asShort();
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -418,7 +70,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = value.asInt();
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -426,7 +87,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = value.asFloat();
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -434,7 +104,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = value.asDouble();
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -442,7 +121,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = static_cast<unsigned char>(value.asChar());
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -450,7 +138,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = static_cast<unsigned short>(value.asShort());
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -458,7 +155,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = static_cast<unsigned int>(value.asInt());
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -466,7 +172,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = value.asString();
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -474,7 +189,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = value.asInt64();
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -482,7 +206,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = static_cast<bsls_PlatformUtil::Uint64>(value.asInt64());
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -490,7 +223,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-     return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = value.asDate();
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -498,7 +240,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = value.asDateTz();
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -506,7 +257,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = value.asDatetime();
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -514,7 +274,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = value.asDatetimeTz();
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -522,7 +291,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = value.asTime();
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -530,7 +308,16 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
                                       const bcem_Aggregate&       aggregate,
                                       int                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    int rc = 0;
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        rc = value.errorCode();
+    }
+    else {
+        *result = value.asTimeTz();
+    }
+
+    return rc;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -541,7 +328,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asBool());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -549,7 +352,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asChar());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -557,7 +376,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asShort());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -565,7 +400,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asInt());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -573,7 +424,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asFloat());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -581,7 +448,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asDouble());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -589,7 +472,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(static_cast<unsigned char>(value.asChar()));
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -597,7 +496,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(static_cast<unsigned short>(value.asShort()));
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -605,7 +520,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(static_cast<unsigned int>(value.asInt()));
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -613,7 +544,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asString());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -621,7 +568,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asInt64());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -629,7 +592,24 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        typedef bsls_PlatformUtil::Uint64 Uint64;
+        result->makeValue(static_cast<Uint64>(value.asInt64()));
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -637,7 +617,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asDateTz());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -645,7 +641,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asDatetimeTz());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -653,7 +665,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asTimeTz());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -661,7 +689,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asDate());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -669,7 +713,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asDatetime());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -677,7 +737,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                           aggregate,
         int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asTime());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -685,7 +761,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
             const bcem_Aggregate&                           aggregate,
             int                                             fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asElemRef().theCharArray());
+    }
+
+    return 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -696,7 +788,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asBool());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -704,7 +812,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asChar());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -712,7 +836,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asShort());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -720,7 +860,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asInt());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -728,7 +884,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asFloat());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -736,7 +908,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asDouble());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -744,7 +932,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(static_cast<unsigned char>(value.asChar()));
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -752,7 +956,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(static_cast<unsigned short>(value.asShort()));
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -760,7 +980,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(static_cast<unsigned int>(value.asInt()));
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -768,7 +1004,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asString());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -776,7 +1028,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asInt64());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -784,7 +1052,24 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        typedef bsls_PlatformUtil::Uint64 Uint64;
+        result->makeValue(static_cast<Uint64>(value.asInt64()));
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -792,7 +1077,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asDateTz());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -800,7 +1101,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asDatetimeTz());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -808,7 +1125,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asTimeTz());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -816,7 +1149,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asDate());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -824,7 +1173,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asDatetime());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -832,7 +1197,23 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                    aggregate,
         int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asTime());
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -840,54 +1221,44 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
             const bcem_Aggregate&                                    aggregate,
             int                                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate value = aggregate.fieldById(fieldId);
+    if (value.isError()) {
+        return value.errorCode();
+    }
+
+//     if (false == value.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
+    if (value.isNul2()) {
+        result->reset();
+    }
+    else {
+        result->makeValue(value.asElemRef().theCharArray());
+    }
+
+    return 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Conversion From Arrays Of Primitive Types
-template <typename TYPE>
-inline
-int fromAggregatePrimitiveImp(
-        bsl::vector<TYPE>                    *result,
-        const bcem_Aggregate&                 aggregate,
-        int                                   fieldId)
-{
-    bcem_AggregateRaw   data = aggregate.aggregateRaw(), field;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
-    }
-
-    if (isPrimitiveArrayType<TYPE>(field.dataType())) {
-        assignArray(result, field);
-        return 0;
-    }
-
-    const int length = field.length();
-    if (length < 0) {
-        // error code rather than length
-        return length;
-    }
-
-    result->clear();
-    result->reserve(length);
-    for (int i = 0; i < length; ++i) {
-        bcem_AggregateRaw element;
-        int rc = field.getField(&element, &error, false, i);
-        BSLS_ASSERT(0 == rc);
-
-        result->push_back(TYPE());
-        assignPrimitive(&result->back(), element);
-    }
-    return 0;
-}
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
         bsl::vector<bool>                      *result,
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_BOOL_ARRAY != array.dataType()) {
+        return -1;
+    }
+    *result = array.asElemRef().theBoolArray();
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -895,7 +1266,17 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_CHAR_ARRAY != array.dataType()) {
+        return -1;
+    }
+    *result = array.asElemRef().theCharArray();
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -903,7 +1284,17 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_SHORT_ARRAY != array.dataType()) {
+        return -1;
+    }
+    *result = array.asElemRef().theShortArray();
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -911,7 +1302,17 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_INT_ARRAY != array.dataType()) {
+        return -1;
+    }
+    *result = array.asElemRef().theIntArray();
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -919,7 +1320,17 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_FLOAT_ARRAY != array.dataType()) {
+        return -1;
+    }
+    *result = array.asElemRef().theFloatArray();
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -927,7 +1338,17 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_DOUBLE_ARRAY != array.dataType()) {
+        return -1;
+    }
+    *result = array.asElemRef().theDoubleArray();
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -935,7 +1356,34 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_CHAR_ARRAY == array.dataType()) {
+        typedef bsl::vector<unsigned char> Vector;
+
+        const Vector *vector =
+           reinterpret_cast<const Vector *>(&array.asElemRef().theCharArray());
+        *result = *vector;
+
+        return 0;                                                     // RETURN
+    }
+
+    const int length = array.length();
+    if (length < 0) {
+        // The 'length' method returned an error code instead of a length.
+        return length;                                                // RETURN
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        result->push_back(static_cast<unsigned char>(array[i].asChar()));
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -943,7 +1391,34 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_SHORT_ARRAY == array.dataType()) {
+        typedef bsl::vector<unsigned short> Vector;
+
+        const Vector *vector =
+          reinterpret_cast<const Vector *>(&array.asElemRef().theShortArray());
+        *result = *vector;
+
+        return 0;                                                     // RETURN
+    }
+
+    const int length = array.length();
+    if (length < 0) {
+        // The 'length' method returned an error code instead of a length.
+        return length;                                                // RETURN
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        result->push_back(static_cast<unsigned short>(array[i].asShort()));
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -951,7 +1426,34 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_INT_ARRAY == array.dataType()) {
+        typedef bsl::vector<unsigned int> Vector;
+
+        const Vector *vector =
+            reinterpret_cast<const Vector *>(&array.asElemRef().theIntArray());
+        *result = *vector;
+
+        return 0;                                                     // RETURN
+    }
+
+    const int length = array.length();
+    if (length < 0) {
+        // The 'length' method returned an error code instead of a length.
+        return length;                                                // RETURN
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        result->push_back(static_cast<unsigned int>(array[i].asInt()));
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -959,7 +1461,17 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_STRING_ARRAY != array.dataType()) {
+        return -1;
+    }
+    *result = array.asElemRef().theStringArray();
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -967,16 +1479,39 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
-}
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
 
+    if (bdem_ElemType::BDEM_INT64_ARRAY != array.dataType()) {
+        return -1;
+    }
+    *result = array.asElemRef().theInt64Array();
+
+    return 0;
+}
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
         bsl::vector<bsls_PlatformUtil::Uint64> *result,
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_INT64_ARRAY != array.dataType()) {
+        return -1;
+    }
+    typedef bsl::vector<bsls_PlatformUtil::Uint64> Vector;
+
+    const Vector *vector =
+          reinterpret_cast<const Vector *>(&array.asElemRef().theInt64Array());
+    *result = *vector;
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -984,7 +1519,17 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_DATETZ_ARRAY != array.dataType()) {
+        return -1;
+    }
+    *result = array.asElemRef().theDateTzArray();
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -992,7 +1537,17 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_DATETIMETZ_ARRAY != array.dataType()) {
+        return -1;
+    }
+    *result = array.asElemRef().theDatetimeTzArray();
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1000,7 +1555,17 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_TIMETZ_ARRAY != array.dataType()) {
+        return -1;
+    }
+    *result = array.asElemRef().theTimeTzArray();
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1008,7 +1573,17 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_DATE_ARRAY != array.dataType()) {
+        return -1;
+    }
+    *result = array.asElemRef().theDateArray();
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1016,7 +1591,17 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_DATETIME_ARRAY != array.dataType()) {
+        return -1;
+    }
+    *result = array.asElemRef().theDatetimeArray();
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1024,17 +1609,52 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                   aggregate,
         int                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    if (bdem_ElemType::BDEM_TIME_ARRAY != array.dataType()) {
+        return -1;
+    }
+
+    *result = array.asElemRef().theTimeArray();
+
+    return 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Conversion From Arrays Of Nullable Primitive Types
+
 int bcem_AggregateUtil::fromAggregatePrimitive(
         bsl::vector< bdeut_NullableValue<bool> > *result,
         const bcem_Aggregate&                     aggregate,
         int                                       fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<bool>());
+        }
+        else {
+            result->push_back(fieldElement.asBool());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1042,7 +1662,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                     aggregate,
         int                                       fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<char>());
+        }
+        else {
+            result->push_back(fieldElement.asChar());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1050,7 +1693,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                      aggregate,
         int                                        fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<short>());
+        }
+        else {
+            result->push_back(fieldElement.asShort());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1058,7 +1724,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                    aggregate,
         int                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<int>());
+        }
+        else {
+            result->push_back(fieldElement.asInt());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1066,7 +1755,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                      aggregate,
         int                                        fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<float>());
+        }
+        else {
+            result->push_back(fieldElement.asFloat());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1074,7 +1786,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                       aggregate,
         int                                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<double>());
+        }
+        else {
+            result->push_back(fieldElement.asDouble());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1082,7 +1817,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                              aggregate,
         int                                                fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<unsigned char>());
+        }
+        else {
+            result->push_back((unsigned char)fieldElement.asChar());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1090,7 +1848,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                               aggregate,
         int                                                 fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<unsigned short>());
+        }
+        else {
+            result->push_back((unsigned short)fieldElement.asShort());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1098,7 +1879,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                             aggregate,
         int                                               fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<unsigned int>());
+        }
+        else {
+            result->push_back((unsigned int)fieldElement.asInt());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1106,7 +1910,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                            aggregate,
         int                                              fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<bsl::string>());
+        }
+        else {
+            result->push_back(fieldElement.asString());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1114,7 +1941,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                        aggregate,
         int                                                          fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<bsls_PlatformUtil::Int64>());
+        }
+        else {
+            result->push_back(fieldElement.asInt64());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1122,7 +1972,31 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                       aggregate,
         int                                                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        typedef bsls_PlatformUtil::Uint64 Uint64;
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<Uint64>());
+        }
+        else {
+            result->push_back((Uint64)fieldElement.asInt64());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1130,7 +2004,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                            aggregate,
         int                                              fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<bdet_DateTz>());
+        }
+        else {
+            result->push_back(fieldElement.asDateTz());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1138,7 +2035,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                aggregate,
         int                                                  fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<bdet_DatetimeTz>());
+        }
+        else {
+            result->push_back(fieldElement.asDatetimeTz());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1146,7 +2066,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                            aggregate,
         int                                              fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<bdet_TimeTz>());
+        }
+        else {
+            result->push_back(fieldElement.asTimeTz());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1154,7 +2097,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                          aggregate,
         int                                            fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<bdet_Date>());
+        }
+        else {
+            result->push_back(fieldElement.asDate());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1162,7 +2128,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                              aggregate,
         int                                                fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<bdet_Datetime>());
+        }
+        else {
+            result->push_back(fieldElement.asDatetime());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1170,15 +2159,64 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                          aggregate,
         int                                            fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableValue<bdet_Time>());
+        }
+        else {
+            result->push_back(fieldElement.asTime());
+        }
+    }
+
+    return 0;
 }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Conversion From Arrays Of Nullable-Allocated Primitive Types
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
         bsl::vector< bdeut_NullableAllocatedValue<bool> > *result,
         const bcem_Aggregate&                              aggregate,
         int                                                fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<bool>());
+        }
+        else {
+            result->push_back(fieldElement.asBool());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1186,7 +2224,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                              aggregate,
         int                                                fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<char>());
+        }
+        else {
+            result->push_back(fieldElement.asChar());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1194,7 +2255,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                               aggregate,
         int                                                 fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<short>());
+        }
+        else {
+            result->push_back(fieldElement.asShort());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1202,7 +2286,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                    aggregate,
         int                                      fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<int>());
+        }
+        else {
+            result->push_back(fieldElement.asInt());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1210,7 +2317,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                               aggregate,
         int                                                 fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<float>());
+        }
+        else {
+            result->push_back(fieldElement.asFloat());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1218,7 +2348,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                aggregate,
         int                                                  fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<double>());
+        }
+        else {
+            result->push_back(fieldElement.asDouble());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1226,7 +2379,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                       aggregate,
         int                                                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<unsigned char>());
+        }
+        else {
+            result->push_back((unsigned char)fieldElement.asChar());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1234,7 +2410,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                        aggregate,
         int                                                          fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<unsigned short>());
+        }
+        else {
+            result->push_back((unsigned short)fieldElement.asShort());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1242,7 +2441,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                      aggregate,
         int                                                        fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<unsigned int>());
+        }
+        else {
+            result->push_back((unsigned int)fieldElement.asInt());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1250,7 +2472,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                     aggregate,
         int                                                       fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<bsl::string>());
+        }
+        else {
+            result->push_back(fieldElement.asString());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1259,7 +2504,31 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                        aggregate,
         int                                                          fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(
+                    bdeut_NullableAllocatedValue<bsls_PlatformUtil::Int64>());
+        }
+        else {
+            result->push_back(fieldElement.asInt64());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1268,7 +2537,31 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                       aggregate,
         int                                                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        typedef bsls_PlatformUtil::Uint64 Uint64;
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<Uint64>());
+        }
+        else {
+            result->push_back((Uint64)fieldElement.asInt64());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1276,7 +2569,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                     aggregate,
         int                                                       fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<bdet_DateTz>());
+        }
+        else {
+            result->push_back(fieldElement.asDateTz());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1284,7 +2600,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
        const bcem_Aggregate&                                         aggregate,
        int                                                           fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<bdet_DatetimeTz>());
+        }
+        else {
+            result->push_back(fieldElement.asDatetimeTz());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1292,7 +2631,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                     aggregate,
         int                                                       fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<bdet_TimeTz>());
+        }
+        else {
+            result->push_back(fieldElement.asTimeTz());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1300,7 +2662,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                   aggregate,
         int                                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<bdet_Date>());
+        }
+        else {
+            result->push_back(fieldElement.asDate());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1308,7 +2693,30 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                       aggregate,
         int                                                         fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<bdet_Datetime>());
+        }
+        else {
+            result->push_back(fieldElement.asDatetime());
+        }
+    }
+
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -1316,8 +2724,32 @@ int bcem_AggregateUtil::fromAggregatePrimitive(
         const bcem_Aggregate&                                   aggregate,
         int                                                     fieldId)
 {
-    return fromAggregatePrimitiveImp(result, aggregate, fieldId);
+    bcem_Aggregate array = aggregate.fieldById(fieldId);
+    if (array.isError()) {
+        return array.errorCode();
+    }
+
+    int length = array.length();
+    if (length < 0) {
+        // The 'length()' method returned an error code instead of a length
+        return length;
+    }
+
+    result->clear();
+    result->reserve(length);
+    for (int i = 0; i < length; ++i) {
+        bcem_Aggregate fieldElement = array[i];
+        if (fieldElement.isNul2()) {
+            result->push_back(bdeut_NullableAllocatedValue<bdet_Time>());
+        }
+        else {
+            result->push_back(fieldElement.asTime());
+        }
+    }
+
+    return 0;
 }
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Conversion To Primitive Types
 
@@ -1329,15 +2761,7 @@ int toAggregatePrimitiveImp(bcem_Aggregate        *result,
                             int                    fieldId,
                             const PRIMITIVE_TYPE&  value)
 {
-    bcem_AggregateRaw data = result->aggregateRaw(), field;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
-    }
-    if (0 != field.setValue(&error, value)) {
-        return error.code();
-    }
-    return 0;
+    return result->setFieldById(fieldId, value).errorCode();
 }
 
 }  // close unnamed namespace
@@ -1498,20 +2922,21 @@ int toAggregatePrimitiveImp(
         int                                         fieldId,
         const bdeut_NullableValue<PRIMITIVE_TYPE>&  value)
 {
-    bcem_AggregateRaw data = result->aggregateRaw(), field;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
     }
+
+//     if (false == aggregate.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
 
     if (value.isNull()) {
-        field.makeNull();
+        return aggregate.makeNull().errorCode();
     }
-    else if (0 != field.setValue(&error, value.value())) {
-        return error.code();
+    else {
+        return aggregate.makeValue().setValue(value.value()).errorCode();
     }
-
-    return 0;
 }
 
 int toAggregatePrimitiveImp(
@@ -1524,13 +2949,17 @@ int toAggregatePrimitiveImp(
         return aggregate.errorCode();
     }
 
+//     if (false == aggregate.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
+
     if (value.isNull()) {
         return aggregate.makeNull().errorCode();
     }
     else {
         const bdem_ElemRef& elemRef = aggregate.makeValue().asElemRef();
         if (bdem_ElemType::BDEM_CHAR_ARRAY != elemRef.type()) {
-            return bcem_ErrorCode::BCEM_BAD_CONVERSION;
+            return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
         }
 
         elemRef.theModifiableCharArray() = value.value();
@@ -1704,20 +3133,21 @@ int toAggregatePrimitiveImp(
         int                                                  fieldId,
         const bdeut_NullableAllocatedValue<PRIMITIVE_TYPE>&  value)
 {
-    bcem_AggregateRaw data = result->aggregateRaw(), field;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
     }
+
+//     if (false == aggregate.fieldSpec()->isNullable()) {
+//         return bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+//     }
 
     if (value.isNull()) {
-        field.makeNull();
+        return aggregate.makeNull().errorCode();
     }
-    else if (0 != field.setValue(&error, value.value())) {
-        return error.code();
+    else {
+        return aggregate.makeValue().setValue(value.value()).errorCode();
     }
-
-    return 0;
 }
 
 }  // close unnamed namespace
@@ -1883,35 +3313,15 @@ template <typename PRIMITIVE_TYPE>
 inline
 int toAggregatePrimitiveImp(
         bcem_Aggregate                     *result,
-        int                                 fieldId,
         const bsl::vector<PRIMITIVE_TYPE>&  value)
 {
     typedef typename bsl::vector<PRIMITIVE_TYPE>::const_iterator ConstIter;
 
-    bcem_AggregateRaw data = result->aggregateRaw(), field;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
-    }
-
-    if (isPrimitiveArrayType<PRIMITIVE_TYPE>(field.dataType())) {
-        assignArray(field, value);
-        return 0;
-    }
-
-    bcem_AggregateRaw item;
-    field.resize(&error, value.size());
-
-    int i = 0;
-    for (ConstIter it = value.begin(); it != value.end(); ++it, ++i) {
-        if (0 != field.getField(&item, &error, true, i))
-        {
-            return error.code();
-        }
-
-        if (0 != item.setValue(&error, *it))
-        {
-            return error.code();
+    result->removeAllItems();
+    for (ConstIter it = value.begin(); it != value.end(); ++it) {
+        bcem_Aggregate item = result->append(*it);
+        if (item.isError()) {
+            return item.errorCode();
         }
     }
 
@@ -1925,7 +3335,20 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<bool>&                      value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_BOOL_ARRAY == aggregate.dataType()) {
+        aggregate.asElemRef().theModifiableBoolArray() = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -1933,7 +3356,20 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<char>&                      value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_CHAR_ARRAY == aggregate.dataType()) {
+        aggregate.asElemRef().theModifiableCharArray() = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -1941,7 +3377,20 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<short>&                     value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_SHORT_ARRAY == aggregate.dataType()) {
+        aggregate.asElemRef().theModifiableShortArray() = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -1949,7 +3398,20 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<int>&                       value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_INT_ARRAY == aggregate.dataType()) {
+        aggregate.asElemRef().theModifiableIntArray() = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -1957,7 +3419,20 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<float>&                     value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_FLOAT_ARRAY == aggregate.dataType()) {
+        aggregate.asElemRef().theModifiableFloatArray() = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -1965,7 +3440,20 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<double>&                    value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_DOUBLE_ARRAY == aggregate.dataType()) {
+        aggregate.asElemRef().theModifiableDoubleArray() = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -1973,7 +3461,25 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<unsigned char>&             value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    typedef bsl::vector<unsigned char> Vector;
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_CHAR_ARRAY == aggregate.dataType()) {
+        Vector *vector =
+            reinterpret_cast<Vector *>(&aggregate.asElemRef()
+                                                .theModifiableCharArray());
+        *vector = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -1981,7 +3487,25 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<unsigned short>&            value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    typedef bsl::vector<unsigned short> Vector;
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_SHORT_ARRAY == aggregate.dataType()) {
+        Vector *vector =
+            reinterpret_cast<Vector *>(&aggregate.asElemRef()
+                                                .theModifiableShortArray());
+        *vector = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -1989,7 +3513,25 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<unsigned int>&              value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    typedef bsl::vector<unsigned int> Vector;
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_INT_ARRAY == aggregate.dataType()) {
+        Vector *vector =
+            reinterpret_cast<Vector *>(&aggregate.asElemRef()
+                                                .theModifiableIntArray());
+        *vector = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -1997,7 +3539,20 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<bsl::string>&               value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_STRING_ARRAY == aggregate.dataType()) {
+        aggregate.asElemRef().theModifiableStringArray() = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -2005,7 +3560,20 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<bsls_PlatformUtil::Int64>&  value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_INT64_ARRAY == aggregate.dataType()) {
+        aggregate.asElemRef().theModifiableInt64Array() = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -2013,7 +3581,25 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                            fieldId,
         const bsl::vector<bsls_PlatformUtil::Uint64>&  value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    typedef bsl::vector<bsls_PlatformUtil::Uint64> Vector;
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_INT64_ARRAY == aggregate.dataType()) {
+        Vector *vector =
+            reinterpret_cast<Vector *>(&aggregate.asElemRef()
+                                                .theModifiableInt64Array());
+        *vector = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -2021,7 +3607,20 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<bdet_DateTz>&               value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_DATETZ_ARRAY == aggregate.dataType()) {
+        aggregate.asElemRef().theModifiableDateTzArray() = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -2029,7 +3628,20 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<bdet_DatetimeTz>&           value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_DATETIMETZ_ARRAY == aggregate.dataType()) {
+        aggregate.asElemRef().theModifiableDatetimeTzArray() = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -2037,7 +3649,20 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<bdet_TimeTz>&               value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_TIMETZ_ARRAY == aggregate.dataType()) {
+        aggregate.asElemRef().theModifiableTimeTzArray() = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -2045,7 +3670,20 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<bdet_Date>&                 value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_DATE_ARRAY == aggregate.dataType()) {
+        aggregate.asElemRef().theModifiableDateArray() = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -2053,7 +3691,20 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<bdet_Datetime>&             value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_DATETIME_ARRAY == aggregate.dataType()) {
+        aggregate.asElemRef().theModifiableDatetimeArray() = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 int bcem_AggregateUtil::toAggregatePrimitive(
@@ -2061,7 +3712,20 @@ int bcem_AggregateUtil::toAggregatePrimitive(
         int                                           fieldId,
         const bsl::vector<bdet_Time>&                 value)
 {
-    return toAggregatePrimitiveImp(result, fieldId, value);
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
+    }
+
+    int rc = 0;
+    if (bdem_ElemType::BDEM_TIME_ARRAY == aggregate.dataType()) {
+        aggregate.asElemRef().theModifiableTimeArray() = value;
+    }
+    else {
+        rc = toAggregatePrimitiveImp(&aggregate, value);
+    }
+
+    return rc;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2076,32 +3740,31 @@ int toAggregatePrimitiveImp(
         int                                                        fieldId,
         const bsl::vector< bdeut_NullableValue<PRIMITIVE_TYPE> >&  value)
 {
-    bcem_AggregateRaw data = result->aggregateRaw(), field, item;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
     }
+
     typedef typename bsl::vector< bdeut_NullableValue<PRIMITIVE_TYPE>
                                 >::const_iterator ConstIter;
 
-    field.resize(&error, value.size());
+    aggregate.removeAllItems();
 
-    int i = 0;
-    for (ConstIter it = value.begin(); it != value.end(); ++it, ++i) {
-        if (0 != field.getField(&item, &error, true, i))
-        {
-            return error.code();
-        }
-
+    for (ConstIter it = value.begin(); it != value.end(); ++it) {
         if (it->isNull()) {
-            item.makeNull();
+            bcem_Aggregate item = aggregate.appendItems(1);
+            if (item.isError()) {
+                return item.errorCode();
+            }
         }
         else {
-            if (0 != item.setValue(&error, it->value())) {
-                return error.code();
+            bcem_Aggregate item = aggregate.append(it->value());
+            if (item.isError()) {
+                return item.errorCode();
             }
         }
     }
+
     return 0;
 }
 
@@ -2266,32 +3929,31 @@ int toAggregatePrimitiveImp(
         const bsl::vector<
             bdeut_NullableAllocatedValue<PRIMITIVE_TYPE> >&        value)
 {
-    bcem_AggregateRaw data = result->aggregateRaw(), field, item;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
+    bcem_Aggregate aggregate = result->fieldById(fieldId);
+    if (aggregate.isError()) {
+        return aggregate.errorCode();
     }
-    typedef typename bsl::vector< bdeut_NullableAllocatedValue<PRIMITIVE_TYPE>
+
+    typedef typename bsl::vector<bdeut_NullableAllocatedValue<PRIMITIVE_TYPE>
                                 >::const_iterator ConstIter;
 
-    field.resize(&error, value.size());
+    aggregate.removeAllItems();
 
-    int i = 0;
-    for (ConstIter it = value.begin(); it != value.end(); ++it, ++i) {
-        if (0 != field.getField(&item, &error, true, i))
-        {
-            return error.code();
-        }
-
+    for (ConstIter it = value.begin(); it != value.end(); ++it) {
         if (it->isNull()) {
-            item.makeNull();
+            bcem_Aggregate item = aggregate.appendItems(1);
+            if (item.isError()) {
+                return item.errorCode();
+            }
         }
         else {
-            if (0 != item.setValue(&error, it->value())) {
-                return error.code();
+            bcem_Aggregate item = aggregate.append(it->value());
+            if (item.isError()) {
+                return item.errorCode();
             }
         }
     }
+
     return 0;
 }
 
@@ -2453,63 +4115,59 @@ int bcem_AggregateUtil::toAggregatePrimitive(
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-int bcem_AggregateUtil::setValue(const bcem_AggregateRaw&   result,
-                                 const bsl::string&         value)
+int bcem_AggregateUtil::setValue(const bcem_Aggregate&   result,
+                                 const bsl::string&      value)
 {
-    bcem_ErrorAttributes errorDescription;
-    if (0 == result.setValue(&errorDescription, value)) {
-        return 0;
-    }
-    return errorDescription.code();
+    return result.setValue(value).errorCode();
 }
 
 const char *bcem_AggregateUtil::errorString(int errorCode)
 {
     switch (errorCode) {
-      case bcem_ErrorCode::BCEM_NOT_A_RECORD:
+      case bcem_Aggregate::BCEM_ERR_NOT_A_RECORD:
           return "Attempt to access a field (by name, ID, or "
                  "index) of an aggregate that does not reference a "
                  "list, row, choice, or choice array item.";
-      case bcem_ErrorCode::BCEM_NOT_A_SEQUENCE:
+      case bcem_Aggregate::BCEM_ERR_NOT_A_SEQUENCE:
           return "Attempt to perform a list or row operation on an "
                  "aggregate that does not refer to a list or row "
                  "(e.g., initialize from a non-sequence record def).";
-      case bcem_ErrorCode::BCEM_NOT_A_CHOICE:
+      case bcem_Aggregate::BCEM_ERR_NOT_A_CHOICE:
           return "Attempt to perform a choice or choice array item "
                  "operation (make selection, get selection, etc.) "
                  "on an aggregate that is not a choice or choice "
                  "array item.";
-      case bcem_ErrorCode::BCEM_NOT_AN_ARRAY:
+      case bcem_Aggregate::BCEM_ERR_NOT_AN_ARRAY:
           return "Attempt to perform an array operation (index, "
                  "insert, etc.) on an aggregate that is not an "
                  "array, table, or choice array.";
-      case bcem_ErrorCode::BCEM_BAD_FIELDNAME:
+      case bcem_Aggregate::BCEM_ERR_BAD_FIELDNAME:
           return "Field name does not exist in the record def.";
-      case bcem_ErrorCode::BCEM_BAD_FIELDID:
+      case bcem_Aggregate::BCEM_ERR_BAD_FIELDID:
           return "Field ID does not exist in record def.";
-      case bcem_ErrorCode::BCEM_BAD_FIELDINDEX:
+      case bcem_Aggregate::BCEM_ERR_BAD_FIELDINDEX:
           return "Field index is not a positive integer less than "
                  "the length of the field definition.";
-      case bcem_ErrorCode::BCEM_BAD_ARRAYINDEX:
+      case bcem_Aggregate::BCEM_ERR_BAD_ARRAYINDEX:
           return "Array (or table) index is out of bounds.";
-      case bcem_ErrorCode::BCEM_NOT_SELECTED:
+      case bcem_Aggregate::BCEM_ERR_NOT_SELECTED:
           return "Attempt to access a choice field that is not "
                  "the currently selected object.";
-      case bcem_ErrorCode::BCEM_BAD_CONVERSION:
+      case bcem_Aggregate::BCEM_ERR_BAD_CONVERSION:
           return "Attempt to set an aggregate using a value that "
                  "is not convertible to the aggregate's type.";
-      case bcem_ErrorCode::BCEM_BAD_ENUMVALUE:
+      case bcem_Aggregate::BCEM_ERR_BAD_ENUMVALUE:
           return "Attempt to set the value of an enumeration "
                  "aggregate to a string that is not an enumerator "
                  "name in the enumeration definition or to an "
                  "integer that is not an enumerator ID in the "
                  "enumeration definition. ";
-      case bcem_ErrorCode::BCEM_NON_CONFORMANT:
+      case bcem_Aggregate::BCEM_ERR_NON_CONFORMANT:
           return "Attempt to set a list, row, table, choice, "
                  "choice array item, or choice array aggregate to "
                  "a value of the correct type, but which doesn't "
                  "conform to the aggregate's record definition.";
-      case bcem_ErrorCode::BCEM_AMBIGUOUS_ANON:
+      case bcem_Aggregate::BCEM_ERR_AMBIGUOUS_ANON:
           return "A reference to an anonymous field is ambiguous, "
                  "typically because the aggregate contains more "
                  "than one anonymous field.";

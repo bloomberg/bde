@@ -122,10 +122,6 @@ BDES_IDENT("$Id: $")
 #include <bcem_aggregate.h>
 #endif
 
-#ifndef INCLUDED_BCEM_ERRORATTRIBUTES
-#include <bcem_errorattributes.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -375,8 +371,8 @@ class bcem_AggregateUtil {
         // and a non-zero value otherwise.  Note that any non-zero result can
         // by converted to an 'bsl::string' using the 'errorString' method.
 
-    static int setValue(const bcem_AggregateRaw&   result,
-                        const bsl::string&         value);
+    static int setValue(const bcem_Aggregate&   result,
+                        const bsl::string&      value);
         // Store the specified 'value' into the specified 'result' aggregate.
         // Return 0 on success, and a non-zero value otherwise.  Note that any
         // non-zero result can by converted to an 'bsl::string' using the
@@ -1699,10 +1695,9 @@ int bcem_AggregateUtil::toAggregateImp(bcem_Aggregate *destination,
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_AggregateRaw   data = destination->aggregateRaw(), field;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
+    bcem_Aggregate field = destination->fieldById(fieldId);
+    if (field.isError()) {
+        return field.errorCode();
     }
 
     return setValue(field, Wrapper::toString(source));
@@ -1750,15 +1745,14 @@ int bcem_AggregateUtil::toAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_AggregateRaw   data = destination->aggregateRaw(), field;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
+    bcem_Aggregate field = destination->fieldById(fieldId);
+    if (field.isError()) {
+        return field.errorCode();
     }
 
     if (source.isNull()) {
         field.makeNull();
-        return 0;
+        return field.errorCode();
     }
 
     return setValue(field, Wrapper::toString(source.value()));
@@ -1807,15 +1801,14 @@ int bcem_AggregateUtil::toAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_AggregateRaw   data = destination->aggregateRaw(), field;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
+    bcem_Aggregate field = destination->fieldById(fieldId);
+    if (field.isError()) {
+        return field.errorCode();
     }
 
     if (source.isNull()) {
         field.makeNull();
-        return 0;
+        return field.errorCode();
     }
 
     return setValue(field, Wrapper::toString(source.value()));
@@ -2072,14 +2065,13 @@ int bcem_AggregateUtil::fromAggregateImp(TYPE                  *destination,
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_AggregateRaw   data = source.aggregateRaw(), field;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
+    bcem_Aggregate field = source.fieldById(fieldId);
+    if (field.isError()) {
+        return field.errorCode();
     }
 
     if (0 != Wrapper::fromString(destination, field.asString())) {
-        return bcem_ErrorCode::BCEM_BAD_ENUMVALUE;
+        return bcem_Aggregate::BCEM_ERR_BAD_ENUMVALUE;
     }
 
     return 0;
@@ -2130,19 +2122,18 @@ int bcem_AggregateUtil::fromAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_AggregateRaw   data = source.aggregateRaw(), field;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
+    bcem_Aggregate field = source.fieldById(fieldId);
+    if (field.isError()) {
+        return field.errorCode();
     }
 
-    if (field.isNull()) {
+    if (field.isNul2()) {
         destination->reset();
     }
     else if (0 != (Wrapper::fromString(&destination->makeValue(),
                                        field.asString())))
     {
-        return bcem_ErrorCode::BCEM_BAD_ENUMVALUE;
+        return bcem_Aggregate::BCEM_ERR_BAD_ENUMVALUE;
     }
 
     return 0;
@@ -2194,19 +2185,18 @@ int bcem_AggregateUtil::fromAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_AggregateRaw   data = source.aggregateRaw(), field;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
+    bcem_Aggregate field = source.fieldById(fieldId);
+    if (field.isError()) {
+        return field.errorCode();
     }
 
-    if (field.isNull()) {
+    if (field.isNul2()) {
         destination->reset();
     }
     else if (0 != (Wrapper::fromString(&destination->makeValue(),
                                        field.asString())))
     {
-        return bcem_ErrorCode::BCEM_BAD_ENUMVALUE;
+        return bcem_Aggregate::BCEM_ERR_BAD_ENUMVALUE;
     }
 
     return 0;
@@ -2263,11 +2253,12 @@ int bcem_AggregateUtil::fromAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_AggregateRaw   data = source.aggregateRaw(), field;
-    bcem_ErrorAttributes error;
-    if (0 != data.fieldById(&field, &error, fieldId)) {
-        return error.code();
+    bcem_Aggregate field = source.fieldById(fieldId);
+
+    if (field.isError()) {
+        return field.errorCode();
     }
+
     int size = field.length();
 
     destination->clear();
@@ -2275,12 +2266,10 @@ int bcem_AggregateUtil::fromAggregateImp(
 
     for (int i = 0; i < size; ++i)
     {
-        bcem_AggregateRaw item;
-        field.getField(&item, &error, false, i);
-
-        if (0 != (Wrapper::fromString(&(*destination)[i], item.asString())))
+        if (0 != (Wrapper::fromString(&(*destination)[i],
+                                      field[i].asString())))
         {
-            return bcem_ErrorCode::BCEM_BAD_ENUMVALUE;
+            return bcem_Aggregate::BCEM_ERR_BAD_ENUMVALUE;
         }
     }
 
@@ -2364,7 +2353,7 @@ int bcem_AggregateUtil::fromAggregateImp(
         else if (0 != (Wrapper::fromString(&(*destination)[i].makeValue(),
                                            fieldElement.asString())))
         {
-            return bcem_ErrorCode::BCEM_BAD_ENUMVALUE;
+            return bcem_Aggregate::BCEM_ERR_BAD_ENUMVALUE;
         }
     }
 
@@ -2447,7 +2436,7 @@ int bcem_AggregateUtil::fromAggregateImp(
         else if (0 != (Wrapper::fromString(&(*destination)[i].makeValue(),
                                            fieldElement.asString())))
         {
-            return bcem_ErrorCode::BCEM_BAD_ENUMVALUE;
+            return bcem_Aggregate::BCEM_ERR_BAD_ENUMVALUE;
         }
     }
 
