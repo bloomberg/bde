@@ -3570,7 +3570,7 @@ enum {
 
 struct Accumulator {
     int d_count;
-    
+
     int operator()(const bcem_AggregateRaw& value) {
         d_count += value.asInt();
         return 0;
@@ -3581,12 +3581,12 @@ struct Accumulator {
         return 0;
 //         return (*this)(value.aggregateRaw());
     }
- 
+
     template<typename TYPE>
     int operator()(const TYPE& value) {
         return -1;
     }
-   
+
     Accumulator() : d_count(0) {}
 };
 
@@ -3594,10 +3594,10 @@ struct Accumulator {
 //                              TEST CASES
 //-----------------------------------------------------------------------------
 
-static void runBerBenchmark(bool verbose, bool veryVerbose, 
+static void runBerBenchmark(bool verbose, bool veryVerbose,
                             bool veryVeryVerbose) {
 
-    const char SPEC[] = 
+    const char SPEC[] =
         ":s Ca&NF Cb&NT Cf&NT Cg&NT Ch&NT Gc&NF Gd&NT"
         ":d? Ga&NF Bb&NF"
         ":r %fd Fa&NT Cb&NT Gc&NF #js "
@@ -3607,7 +3607,7 @@ static void runBerBenchmark(bool verbose, bool veryVerbose,
 
     SchemaShdPtr schema;
     schema.createInplace(0);
-    
+
     ggSchema(schema.ptr(), SPEC);
     if (veryVerbose) {
         bsl::cout << "Schema=";
@@ -3651,13 +3651,13 @@ static void runBerBenchmark(bool verbose, bool veryVerbose,
         NUM_ITER = 500,
         ENCODE_BUFFER_SIZE=512*1024*1024
     };
-    
+
     char* ENCODE_BUFFER = new char[ENCODE_BUFFER_SIZE];
 
     bsls_Stopwatch timer;
     bdem_BerEncoderOptions options;
     bdem_BerEncoder encoder(&options);
-    
+
     timer.start(true);
     int length;
     for (int i = 0; i < NUM_ITER; ++i) {
@@ -3673,7 +3673,7 @@ static void runBerBenchmark(bool verbose, bool veryVerbose,
     timer.reset();
     bdem_BerDecoderOptions berDecoderOptions;
     bdem_BerDecoder berDecoder(&berDecoderOptions);
-    
+
     timer.start(true);
     bcem_Aggregate testResponse(schema, "c");
 
@@ -3689,7 +3689,7 @@ static void runBerBenchmark(bool verbose, bool veryVerbose,
 
     delete[] ENCODE_BUFFER;
 }
-    
+
 
 static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // --------------------------------------------------------------------
@@ -3702,8 +3702,8 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         //     constrained by a record definition.
         //   - 'bdeat_TypeCategory::Select<bcem_Aggregate>::
         //      BDEAT_SELECTION' is '0'
-        //   - 'bdeat_TypeCategoryFunctions::select(bdem_AggregateRawPtr)' 
-        //     returns the category value appropriate to the value of the 
+        //   - 'bdeat_TypeCategoryFunctions::select(bdem_AggregateRawPtr)'
+        //     returns the category value appropriate to the value of the
         //     aggregate.
         //   - The following methods in 'bdeat_SequenceFunctions' produce the
         //     expected results on an AggregateRawPtr holding a list or row:
@@ -3760,7 +3760,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // - Check that
         //   'bdeat_TypeCategory::Select<bcem_Aggregate>::
         //    BDEAT_SELECTION' is '0'.
-        // - Call 'bdeat_TypeCategoryFunctions::select(bdem_AggregateRawPtr)' 
+        // - Call 'bdeat_TypeCategoryFunctions::select(bdem_AggregateRawPtr)'
         //   on each field and check for expected result.
         // - Apply the manipulator to the aggregate and confirm that the final
         //   state of the aggregate is as expected.
@@ -3877,35 +3877,35 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(0 ==
                   bdeat_TypeCategory::Select<bcem_Aggregate>::BDEAT_SELECTION);
         ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    == TCF::select(A1));
-        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      == 
+        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      ==
                TCF::select(mA1.field("a").aggregateRaw()));
-        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      == 
+        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      ==
                TCF::select(mA1.field("b").aggregateRaw()));
-        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      == 
+        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      ==
                TCF::select(mA1.field("c").aggregateRaw()));
-        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      == 
+        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      ==
                TCF::select(mA1.field("d").aggregateRaw()));
-        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    == 
+        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    ==
                TCF::select(mA1.field("f").aggregateRaw()));
-        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    == 
+        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    ==
                TCF::select(mA1.field("g").aggregateRaw()));
-        ASSERT(TC::BDEAT_CHOICE_CATEGORY      == 
+        ASSERT(TC::BDEAT_CHOICE_CATEGORY      ==
                TCF::select(mA1.field("h").aggregateRaw()));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       == 
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
                TCF::select(mA1.field("i").aggregateRaw()));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       == 
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
                TCF::select(mA1.field("j").aggregateRaw()));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       == 
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
                TCF::select(mA1.field("k").aggregateRaw()));
-        ASSERT(TC::BDEAT_ENUMERATION_CATEGORY == 
+        ASSERT(TC::BDEAT_ENUMERATION_CATEGORY ==
                TCF::select(mA1.field("m").aggregateRaw()));
-        ASSERT(TC::BDEAT_ENUMERATION_CATEGORY == 
+        ASSERT(TC::BDEAT_ENUMERATION_CATEGORY ==
                TCF::select(mA1.field("n").aggregateRaw()));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       == 
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
                TCF::select(mA1.field("o").aggregateRaw()));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       == 
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
                TCF::select(mA1.field("p").aggregateRaw()));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       == 
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
                TCF::select(mA1.field("q").aggregateRaw()));
 
         AggAccessor       theAccessor;
@@ -4011,7 +4011,8 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         SF::accessAttribute(A1, theAccessor, "b", 1);
         ASSERT(theAccessor.matchValue(-5000));
-        SF::accessAttribute(mA1.field("f").aggregateRaw(), theAccessor, "c", 1);
+        SF::accessAttribute(mA1.field("f").aggregateRaw(),
+                            theAccessor, "c", 1);
         ASSERT(theAccessor.matchValue(99));
         SF::accessAttribute(mA1.field("f").aggregateRaw(), theAccessor, 1);
         ASSERT(theAccessor.matchValue(999));
@@ -4126,12 +4127,12 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         ASSERT(s1 == RESA.selectorId());
         ASSERT(bsl::string("a") == RESA.selector());
-        LOOP_ASSERT(RefKA, compareCERefs(RefKA, 
+        LOOP_ASSERT(RefKA, compareCERefs(RefKA,
                                          resaAgg.selection().asElemRef()));
         ASSERT(s2 == RESB.selectorId());
         ASSERT(bsl::string("b") == RESB.selector());
         LOOP2_ASSERT(RefKB, resbAgg.selection().asElemRef(),
-                     compareCERefs(RefKB, 
+                     compareCERefs(RefKB,
                                    resbAgg.selection().asElemRef()));
 
         newManipulator.reset();
@@ -4408,7 +4409,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         EF::toString(&stringValue, mA1.field("n").aggregateRaw());
         ASSERT("ex" == stringValue);
 
-        bcem_Aggregate mA2magg(mA2.field("m")); 
+        bcem_Aggregate mA2magg(mA2.field("m"));
         const bcem_Aggregate &A2m = mA2magg;
         bcem_Aggregate mA2mr = mA2magg;
         int status;
@@ -4425,7 +4426,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(0 != status);
         ASSERT(2 == A2m.asInt());
 
-        bcem_Aggregate mA2n(mA2.field("n")); 
+        bcem_Aggregate mA2n(mA2.field("n"));
         const bcem_Aggregate &A2n = mA2n;
         bcem_Aggregate mA2nr = mA2n;
         status = EF::fromInt(&mA2nr, 1);
@@ -4466,7 +4467,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             bsl::cout << "A3d.recordDef()=";
             A3d.recordDef().print(bsl::cout) << bsl::endl;
         }
-        
+
         bdeat_ValueTypeFunctions::reset(&mA3d);
         ASSERT(ET::BDEM_STRING == A3d.dataType());
         LOOP_ASSERT(A3d.asString(), "vee" == A3d.asString());
@@ -4499,8 +4500,8 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         bsl::ostringstream A1str, A4str;
         A1str << A1;
         A4str << a4Ptr;
-        
-        LOOP2_ASSERT(A1, a4Ptr, 
+
+        LOOP2_ASSERT(A1, a4Ptr,
                      A1str.str() == A4str.str());
 
         if (veryVerbose) P(a4Ptr);
@@ -4512,9 +4513,9 @@ static void testCase34(bool verbose, bool veryVerbose, bool veryVeryVerbose)
     // TESTING 'accessArray(RawPtr)'
     //
     // Concerns:
-    //   - bdeat_arrayAccessElement() works properly when the argument is 
+    //   - bdeat_arrayAccessElement() works properly when the argument is
     //     bcem_AggregateRaw.
-    //     
+    //
     //
     // Plan:
     //
@@ -4525,7 +4526,7 @@ static void testCase34(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
     if (verbose) tst::cout << "\nTESTING 'accessArray(RawPtr)'"
                            << "\n=============================" << bsl::endl;
-    
+
     bslma_TestAllocator da("da", veryVeryVerbose);
     bslma_DefaultAllocatorGuard dag(&da);
     bslma_TestAllocator ta("ta", veryVeryVerbose);
@@ -4538,11 +4539,11 @@ static void testCase34(bool verbose, bool veryVerbose, bool veryVeryVerbose)
             scalarArray.push_back(i);
             expectedSum += i;
         }
-        bcem_Aggregate scalarArrayAggregate(bdem_ElemType::BDEM_INT_ARRAY, 
+        bcem_Aggregate scalarArrayAggregate(bdem_ElemType::BDEM_INT_ARRAY,
                                             scalarArray, &ta);
 
         bcem_AggregateRaw data = scalarArrayAggregate.aggregateRaw();
-        
+
         Accumulator accumulator;
 
         ASSERT(TC::BDEAT_ARRAY_CATEGORY == TCF::select(data));
@@ -4690,7 +4691,7 @@ static void testCase33(bool verbose, bool veryVerbose, bool veryVeryVerbose)
             ASSERT(compareCERefs(VN, A.asElemRef()));
         }
     }
-#else 
+#else
     if (verbose) tst::cout << "\n(nil test case)"
                            << "\n===============" << bsl::endl;
 #endif
@@ -4775,7 +4776,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
             ASSERT(X.isError());
             ASSERT(ErrorCode::BCEM_BAD_CONVERSION == X.errorCode());
-            LOOP2_ASSERT(S1, X.errorMessage(), 
+            LOOP2_ASSERT(S1, X.errorMessage(),
                          S1 == X.errorMessage());
 
             Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
@@ -5651,7 +5652,7 @@ static void testCase28(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             if (veryVerbose && expSelectorIndex != selectorIndex) {
                 tst::cout << "theAgg=" << theAgg << bsl::endl;
                 if (theAgg.schemaPtr()) {
-                    tst::cout << "schema=" << *theAgg.schemaPtr() 
+                    tst::cout << "schema=" << *theAgg.schemaPtr()
                               << bsl::endl;
                 }
             }
@@ -7105,8 +7106,8 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         bsl::ostringstream A1str, A4str;
         A1str << A1;
         A4str << A4;
-        
-        LOOP2_ASSERT(A1, A4, 
+
+        LOOP2_ASSERT(A1, A4,
                      A1str.str() == A4str.str());
 
         if (veryVerbose) P(A4);
@@ -17198,7 +17199,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             ASSERT(3 == agg1.length());
             ASSERT("Hello"    == agg1.field(0, "StringField").asString());
             ASSERT(1.2        == agg1.field(0, "DoubleField").asDouble());
-            LOOP_ASSERT(agg1.field(1, "StringField").asString(), 
+            LOOP_ASSERT(agg1.field(1, "StringField").asString(),
                         "New row" == agg1.field(1, "StringField").asString());
             ASSERT(99.99      == agg1.field(1, "DoubleField").asDouble());
             ASSERT("Goodbye"  == agg1.field(2, "StringField").asString());
@@ -17467,7 +17468,7 @@ int main(int argc, char *argv[])
         case -1:
           runBerBenchmark(verbose, veryVerbose, veryVeryVerbose); break;
         default: {
-          bsl::cerr << "WARNING: CASE `" << test 
+          bsl::cerr << "WARNING: CASE `" << test
                     << "' NOT FOUND." << bsl::endl;
           testStatus = -1;
         }

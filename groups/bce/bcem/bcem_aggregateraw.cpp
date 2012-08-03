@@ -504,7 +504,7 @@ int bcem_AggregateRaw::descendIntoArrayItem(
 }
 
 int bcem_AggregateRaw::descendIntoField(
-                                   bcem_ErrorAttributes       *errorDescription,
+                                   bcem_ErrorAttributes      *errorDescription,
                                    const bcem_FieldSelector&  fieldSelector,
                                    bool                       makeNonNullFlag)
 {
@@ -525,8 +525,8 @@ int bcem_AggregateRaw::descendIntoField(
 }
 
 int bcem_AggregateRaw::descendIntoFieldById(
-                                         bcem_ErrorAttributes *errorDescription,
-                                         int                  fieldId)
+                                        bcem_ErrorAttributes *errorDescription,
+                                        int                   fieldId)
 {
     BSLS_ASSERT_SAFE(errorDescription);
 
@@ -642,8 +642,8 @@ bcem_AggregateRaw::descendIntoFieldByIndex(
 }
 
 int bcem_AggregateRaw::descendIntoFieldByName(
-                                         bcem_ErrorAttributes *errorDescription,
-                                         const char          *fieldName)
+                                        bcem_ErrorAttributes *errorDescription,
+                                        const char           *fieldName)
 {
     BSLS_ASSERT_SAFE(errorDescription);
 
@@ -844,9 +844,9 @@ int bcem_AggregateRaw::makeSelectionByIndexRaw(
 
     return selection(field, errorDescription);
 }
-        
+
 int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes *errorDescription,
-                              const char          *value,
+                              const char           *value,
                               bslmf_MetaInt<1>) const
 {
     BSLS_ASSERT_SAFE(errorDescription);
@@ -880,7 +880,7 @@ int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes *errorDescription,
     return 0;
 }
 
-int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes      *errorDescription,
+int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes     *errorDescription,
                               const bdem_ConstElemRef&  value,
                               bslmf_MetaInt<1>) const
 {
@@ -942,7 +942,7 @@ int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes      *errorDescription,
 }
 
 int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes *errorDescription,
-                              const int&           value,
+                              const int&            value,
                               bslmf_MetaInt<0>) const
 {
     BSLS_ASSERT_SAFE(errorDescription);
@@ -987,7 +987,7 @@ bool bcem_AggregateRaw::areEquivalent(const bcem_AggregateRaw& lhs,
 
         return true;                                                  // RETURN
     }
-    else if (lhs.dataType() != rhs.dataType() 
+    else if (lhs.dataType() != rhs.dataType()
           || lhs.isNull()   != rhs.isNull()) {
 
         // different types or nullness mismatch
@@ -1007,7 +1007,7 @@ bool bcem_AggregateRaw::areEquivalent(const bcem_AggregateRaw& lhs,
     else if (lhs.recordConstraint() || rhs.recordConstraint()) {
 
         // one has record definition, other doesn't
- 
+
         return false;                                                 // RETURN
     }
 
@@ -1152,9 +1152,9 @@ int bcem_AggregateRaw::anonymousField(
     return anonymousField(object, errorDescription, 0);
 }
 
-int bcem_AggregateRaw::anonymousField(bcem_AggregateRaw   *object,
+int bcem_AggregateRaw::anonymousField(bcem_AggregateRaw    *object,
                                       bcem_ErrorAttributes *errorDescription,
-                                      int                  index) const
+                                      int                   index) const
 {
     BSLS_ASSERT_SAFE(object);
     BSLS_ASSERT_SAFE(errorDescription);
@@ -1396,7 +1396,7 @@ bsl::string bcem_AggregateRaw::errorMessage() const
 }
 
 int bcem_AggregateRaw::fieldById(bcem_AggregateRaw    *field,
-                                 bcem_ErrorAttributes  *errorDescription,
+                                 bcem_ErrorAttributes *errorDescription,
                                  int                   fieldId) const
 {
     BSLS_ASSERT_SAFE(field);
@@ -1407,7 +1407,7 @@ int bcem_AggregateRaw::fieldById(bcem_AggregateRaw    *field,
 }
 
 int bcem_AggregateRaw::fieldByIndex(bcem_AggregateRaw    *field,
-                                    bcem_ErrorAttributes  *errorDescription,
+                                    bcem_ErrorAttributes *errorDescription,
                                     int                   index) const
 {
     BSLS_ASSERT_SAFE(field);
@@ -1418,9 +1418,10 @@ int bcem_AggregateRaw::fieldByIndex(bcem_AggregateRaw    *field,
 }
 
 int
-bcem_AggregateRaw::findUnambiguousChoice(bcem_AggregateRaw   *choiceObject,
-                                         bcem_ErrorAttributes *errorDescription,
-                                         const char          *caller) const
+bcem_AggregateRaw::findUnambiguousChoice(
+                                        bcem_AggregateRaw    *choiceObject,
+                                        bcem_ErrorAttributes *errorDescription,
+                                        const char           *caller) const
 {
     BSLS_ASSERT_SAFE(choiceObject);
     BSLS_ASSERT_SAFE(errorDescription);
@@ -1701,7 +1702,7 @@ void bcem_AggregateRaw::loadAsString(bsl::string *result) const
 int bcem_AggregateRaw::numSelections() const
 {
     bcem_ErrorAttributes error;
-    bcem_AggregateRaw   choiceObj;
+    bcem_AggregateRaw    choiceObj;
 
     if (0 != findUnambiguousChoice(&choiceObj, &error, "numSelections")) {
         return error.code();                                          // RETURN
@@ -1729,7 +1730,7 @@ int bcem_AggregateRaw::numSelections() const
 const char *bcem_AggregateRaw::selector() const
 {
     bcem_ErrorAttributes error;
-    bcem_AggregateRaw   choiceObj;
+    bcem_AggregateRaw    choiceObj;
 
     if (0 != findUnambiguousChoice(&choiceObj, &error, "selector")) {
         return "";                                                    // RETURN
@@ -1741,7 +1742,7 @@ const char *bcem_AggregateRaw::selector() const
 
 int bcem_AggregateRaw::selectorId() const
 {
-    bcem_AggregateRaw   choiceObj;
+    bcem_AggregateRaw    choiceObj;
     bcem_ErrorAttributes dummy;
     if (0 != findUnambiguousChoice(&choiceObj, &dummy, "selectorId")) {
         return bdem_RecordDef::BDEM_NULL_FIELD_ID;                    // RETURN
@@ -1771,7 +1772,7 @@ int bcem_AggregateRaw::selectorIndex() const
         // the error code if there is no unambiguous anonymous choice.
 
         bcem_ErrorAttributes errorDescription;
-        bcem_AggregateRaw   choiceObject;
+        bcem_AggregateRaw    choiceObject;
         if (0 == findUnambiguousChoice(&choiceObject,
                                        &errorDescription,
                                        "selectorIndex")) {
@@ -1828,9 +1829,9 @@ bsl::ostream& bcem_AggregateRaw::print(bsl::ostream& stream,
 }
 
 // REFERENCED-VALUE MANIPULATORS
-int bcem_AggregateRaw::insertItems(bcem_ErrorAttributes* errorDescription,
-                                   int                  index,
-                                   int                  numItems) const
+int bcem_AggregateRaw::insertItems(bcem_ErrorAttributes *errorDescription,
+                                   int                   index,
+                                   int                   numItems) const
 {
     BSLS_ASSERT_SAFE(errorDescription);
     BSLS_ASSERT_SAFE(0 <= index);
@@ -1923,9 +1924,9 @@ int bcem_AggregateRaw::insertItems(bcem_ErrorAttributes* errorDescription,
     return 0;
 }
 
-int bcem_AggregateRaw::insertNullItem(bcem_AggregateRaw   *newItem,
+int bcem_AggregateRaw::insertNullItem(bcem_AggregateRaw    *newItem,
                                       bcem_ErrorAttributes *errorDescription,
-                                      int                  index) const
+                                      int                   index) const
 {
     BSLS_ASSERT_SAFE(newItem);
     BSLS_ASSERT_SAFE(errorDescription);
@@ -2001,9 +2002,9 @@ int bcem_AggregateRaw::insertNullItem(bcem_AggregateRaw   *newItem,
     return getField(newItem, errorDescription, false, index);
 }
 
-int bcem_AggregateRaw::insertNullItems(bcem_ErrorAttributes* errorDescription,
-                                       int                  index,
-                                       int                  numItems) const
+int bcem_AggregateRaw::insertNullItems(bcem_ErrorAttributes *errorDescription,
+                                       int                   index,
+                                       int                   numItems) const
 {
     BSLS_ASSERT_SAFE(errorDescription);
     BSLS_ASSERT_SAFE(0 <= index);
@@ -2112,9 +2113,9 @@ void bcem_AggregateRaw::makeNull() const
 }
 
 int
-bcem_AggregateRaw::makeSelection(bcem_AggregateRaw   *selection,
+bcem_AggregateRaw::makeSelection(bcem_AggregateRaw    *selection,
                                  bcem_ErrorAttributes *errorDescription,
-                                 const char          *newSelector) const
+                                 const char           *newSelector) const
 {
     BSLS_ASSERT_SAFE(selection);
     BSLS_ASSERT_SAFE(errorDescription);
@@ -2283,8 +2284,8 @@ void bcem_AggregateRaw::makeValue() const
 }
 
 int bcem_AggregateRaw::removeItems(bcem_ErrorAttributes *errorDescription,
-                                   int                  index,
-                                   int                  numItems) const
+                                   int                   index,
+                                   int                   numItems) const
 {
     BSLS_ASSERT_SAFE(errorDescription);
     BSLS_ASSERT_SAFE(0 <= index);
@@ -2329,7 +2330,7 @@ int bcem_AggregateRaw::removeItems(bcem_ErrorAttributes *errorDescription,
 }
 
 int bcem_AggregateRaw::reserveRaw(bcem_ErrorAttributes *errorDescription,
-                                  bsl::size_t          numItems) const
+                                  bsl::size_t           numItems) const
 {
     BSLS_ASSERT_SAFE(errorDescription);
 
@@ -2365,7 +2366,7 @@ int bcem_AggregateRaw::reserveRaw(bcem_ErrorAttributes *errorDescription,
 }
 
 int bcem_AggregateRaw::resize(bcem_ErrorAttributes *errorDescription,
-                              bsl::size_t          newSize) const
+                              bsl::size_t           newSize) const
 {
     BSLS_ASSERT_SAFE(errorDescription);
 
@@ -2395,7 +2396,7 @@ int bcem_AggregateRaw::resize(bcem_ErrorAttributes *errorDescription,
 
 // REFERENCED-VALUE ACCESSORS
 int bcem_AggregateRaw::capacityRaw(bcem_ErrorAttributes *errorDescription,
-                                   bsl::size_t         *capacity) const
+                                   bsl::size_t          *capacity) const
 {
     BSLS_ASSERT_SAFE(errorDescription);
     BSLS_ASSERT_SAFE(capacity);
@@ -2758,7 +2759,7 @@ int bdeat_choiceMakeSelection(bcem_AggregateRaw *object,
         return -1;                                                    // RETURN
     }
 
-    bcem_AggregateRaw   field;
+    bcem_AggregateRaw    field;
     bcem_ErrorAttributes dummy;
     return object->makeSelection(&field, &dummy, name);
 }

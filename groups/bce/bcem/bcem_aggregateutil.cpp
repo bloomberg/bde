@@ -12,11 +12,11 @@ BDES_IDENT_RCSID(bcem_aggregateutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace s {
-    // the Sun compiler actually compiles AggregateRaw.cpp along with 
+    // the Sun compiler actually compiles AggregateRaw.cpp along with
     // this file, and we've (temporarily) got make_signed defined there too.
-    // so here, we'll embed it inside another namespace to disambiguate them.  
-    
-    // TBD TBD TBD TBD TBD 
+    // so here, we'll embed it inside another namespace to disambiguate them.
+
+    // TBD TBD TBD TBD TBD
     // replace this custom type with bsl::make_signed<T> when that's available.
 template <typename TYPE>
 struct make_signed {
@@ -41,15 +41,15 @@ struct make_signed<unsigned int> {
 template <>
 struct make_signed<bsls_Types::Uint64> {
     typedef bsls_Types::Int64 type;
-};    
+};
 
 } // namespace s; please remove when make_signed is available
     // TBD TBD TBD TBD
-    // TBD replace the code above with bsl::make_signed when available. 
+    // TBD replace the code above with bsl::make_signed when available.
 
-namespace { 
+namespace {
 
-template<typename T> 
+template<typename T>
 bsl::vector<T>& getArray(const bdem_ElemRef& data)
 {
     BSLS_ASSERT_OPT(!"Unreachable");
@@ -67,13 +67,13 @@ bsl::vector<char>& getArray<char>(const bdem_ElemRef& data)
 {
     return data.theModifiableCharArray();
 }
-    
+
 template<>
 bsl::vector<short>& getArray<short>(const bdem_ElemRef& data)
 {
     return data.theModifiableShortArray();
 }
-    
+
 template<>
 bsl::vector<int>& getArray<int>(const bdem_ElemRef& data)
 {
@@ -151,13 +151,13 @@ struct SignCast
 {
     // This struct facilitates efficient casting of unsigned to signed types
     // when any generic type may be involved.  For types where TOTYPE
-    // is the same as FROMTYPE (e.g., double, string, Date, etc), the 
-    // 'cast' function returns the passed-in const reference.  Otherwise, 
-    // 'cast' returns the corresponding TOTYPE *by value*.  
+    // is the same as FROMTYPE (e.g., double, string, Date, etc), the
+    // 'cast' function returns the passed-in const reference.  Otherwise,
+    // 'cast' returns the corresponding TOTYPE *by value*.
 
     static inline
-    typename bslmf_If<bslmf_IsSame<FROMTYPE, TOTYPE>::VALUE, 
-                      const FROMTYPE&, TOTYPE>::Type 
+    typename bslmf_If<bslmf_IsSame<FROMTYPE, TOTYPE>::VALUE,
+                      const FROMTYPE&, TOTYPE>::Type
     cast(const FROMTYPE& s) {
         return (const TOTYPE&)s;
     }
@@ -165,27 +165,27 @@ struct SignCast
 
 template <typename TYPE>
 inline
-void assignArray(const bcem_AggregateRaw& result, 
+void assignArray(const bcem_AggregateRaw& result,
                  const bsl::vector<TYPE>& value)
 {
     bsl::vector<typename s::make_signed<TYPE>::type>& array =
              getArray<typename s::make_signed<TYPE>::type>(result.asElemRef());
     array.clear();
 
-    bsl::transform(value.begin(), value.end(), bsl::back_inserter(array), 
+    bsl::transform(value.begin(), value.end(), bsl::back_inserter(array),
                    SignCast<TYPE, typename s::make_signed<TYPE>::type>::cast);
 }
 
 template <typename TYPE>
 inline
-void assignArray(bsl::vector<TYPE>         *result, 
+void assignArray(bsl::vector<TYPE>         *result,
                  const bcem_AggregateRaw&   value)
 {
     const bsl::vector<typename s::make_signed<TYPE>::type>& array =
               getArray<typename s::make_signed<TYPE>::type>(value.asElemRef());
     result->clear();
-    
-    bsl::transform(array.begin(), array.end(), bsl::back_inserter(*result), 
+
+    bsl::transform(array.begin(), array.end(), bsl::back_inserter(*result),
                    SignCast<typename s::make_signed<TYPE>::type, TYPE>::cast);
 }
 
@@ -317,7 +317,7 @@ void assignPrimitive(TYPE *result, const bcem_AggregateRaw& value)
 
 template <typename TYPE>
 inline
-void assignPrimitive(bdeut_NullableValue<TYPE> *result, 
+void assignPrimitive(bdeut_NullableValue<TYPE> *result,
                      const bcem_AggregateRaw&   value)
 {
     if (value.isNull()) {
@@ -330,7 +330,7 @@ void assignPrimitive(bdeut_NullableValue<TYPE> *result,
 
 template <typename TYPE>
 inline
-void assignPrimitive(bdeut_NullableAllocatedValue<TYPE> *result, 
+void assignPrimitive(bdeut_NullableAllocatedValue<TYPE> *result,
                      const bcem_AggregateRaw&            value)
 {
     if (value.isNull()) {
@@ -342,7 +342,7 @@ void assignPrimitive(bdeut_NullableAllocatedValue<TYPE> *result,
 }
 
 inline
-void assignPrimitive(bdeut_NullableValue<bsl::vector<char> >  *result, 
+void assignPrimitive(bdeut_NullableValue<bsl::vector<char> >  *result,
                      const bcem_AggregateRaw&                  value)
 {
     if (value.isNull()) {
@@ -354,7 +354,7 @@ void assignPrimitive(bdeut_NullableValue<bsl::vector<char> >  *result,
 }
 
 inline
-void assignPrimitive(bdeut_NullableAllocatedValue<bsl::vector<char> > *result, 
+void assignPrimitive(bdeut_NullableAllocatedValue<bsl::vector<char> > *result,
                      const bcem_AggregateRaw&                          value)
 {
     if (value.isNull()) {
@@ -386,7 +386,7 @@ int fromAggregatePrimitiveImp(
         return error.code();
     }
     assignPrimitive(result, field);
-    return 0;    
+    return 0;
 }
 
 int bcem_AggregateUtil::fromAggregatePrimitive(
@@ -863,7 +863,7 @@ int fromAggregatePrimitiveImp(
         return 0;
     }
 
-    const int length = field.length(); 
+    const int length = field.length();
     if (length < 0) {
         // error code rather than length
         return length;
@@ -1883,7 +1883,7 @@ template <typename PRIMITIVE_TYPE>
 inline
 int toAggregatePrimitiveImp(
         bcem_Aggregate                     *result,
-        int                                 fieldId, 
+        int                                 fieldId,
         const bsl::vector<PRIMITIVE_TYPE>&  value)
 {
     typedef typename bsl::vector<PRIMITIVE_TYPE>::const_iterator ConstIter;
@@ -1893,7 +1893,7 @@ int toAggregatePrimitiveImp(
     if (0 != data.fieldById(&field, &error, fieldId)) {
         return error.code();
     }
-    
+
     if (isPrimitiveArrayType<PRIMITIVE_TYPE>(field.dataType())) {
         assignArray(field, value);
         return 0;

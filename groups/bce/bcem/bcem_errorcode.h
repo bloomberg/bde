@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Enumerate set of errors associated with accessing 'bcem' types. 
+//@PURPOSE: Enumerate set of errors associated with accessing 'bcem' types.
 //
 //@CLASSES:
 //  bcem_ErrorCode: namespace for errors associated with 'bcem' types

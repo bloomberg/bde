@@ -87,7 +87,7 @@ class bcem_Aggregate_RepProctor {
     // NOT IMPLEMENTED
     bcem_Aggregate_RepProctor(const bcem_Aggregate_RepProctor& original);
     bcem_Aggregate_RepProctor& operator=(const bcem_Aggregate_RepProctor& rhs);
-    
+
   public:
     // CREATORS
     bcem_Aggregate_RepProctor(bcema_SharedPtrRep *rep)
@@ -249,8 +249,9 @@ bcema_SharedPtr<const bdem_RecordDef> bcem_Aggregate::recordDefPtr() const
     d_schemaRep_p->acquireRef();
     bcema_SharedPtr<const bdem_Schema> schema_sp(d_aggregateRaw.schema(),
                                                  d_schemaRep_p);
-    return bcema_SharedPtr<const bdem_RecordDef>(schema_sp,
-                                                 d_aggregateRaw.recordConstraint());
+    return bcema_SharedPtr<const bdem_RecordDef>(
+                                            schema_sp,
+                                            d_aggregateRaw.recordConstraint());
 }
 
 bcema_SharedPtr<void> bcem_Aggregate::dataPtr() const
@@ -598,7 +599,9 @@ const bcem_Aggregate bcem_Aggregate::insertNullItems(int pos,
 {
     bcem_ErrorAttributes errorDescription;
 
-    if (0 == d_aggregateRaw.insertNullItems(&errorDescription, pos, numItems)) {
+    if (0 == d_aggregateRaw.insertNullItems(&errorDescription,
+                                            pos,
+                                            numItems)) {
         return *this;                                                 // RETURN
     }
     else {
@@ -609,7 +612,7 @@ const bcem_Aggregate bcem_Aggregate::insertNullItems(int pos,
 const bcem_Aggregate
 bcem_Aggregate::makeSelectionByIndex(int index) const
 {
-    bcem_AggregateRaw   field;
+    bcem_AggregateRaw    field;
     bcem_ErrorAttributes errorDescription;
 
     if (0 == d_aggregateRaw.makeSelectionByIndex(&field,
@@ -639,7 +642,7 @@ const bcem_Aggregate bcem_Aggregate::removeItems(int pos, int numItems) const
 
 const bcem_Aggregate bcem_Aggregate::selection() const
 {
-    bcem_AggregateRaw   field;
+    bcem_AggregateRaw    field;
     bcem_ErrorAttributes errorDescription;
     if (0 == d_aggregateRaw.selection(&field, &errorDescription)) {
         return bcem_Aggregate(field,
@@ -655,7 +658,7 @@ const bcem_Aggregate bcem_Aggregate::selection() const
 const bcem_Aggregate
 bcem_Aggregate::makeSelection(const char *newSelector) const
 {
-    bcem_AggregateRaw   field;
+    bcem_AggregateRaw    field;
     bcem_ErrorAttributes errorDescription;
 
     if (0 == d_aggregateRaw.makeSelection(&field,
@@ -701,7 +704,7 @@ bcem_Aggregate::fieldImp(bool               makeNonNullFlag,
                          bcem_FieldSelector fieldSelector9,
                          bcem_FieldSelector fieldSelector10) const
 {
-    bcem_AggregateRaw   field;
+    bcem_AggregateRaw    field;
     bcem_ErrorAttributes errorDescription;
 
     if (0 == d_aggregateRaw.getField(&field,
@@ -754,7 +757,7 @@ const bcem_Aggregate bcem_Aggregate::field(
 
 const bcem_Aggregate bcem_Aggregate::fieldById(int fieldId) const
 {
-    bcem_AggregateRaw   field;
+    bcem_AggregateRaw    field;
     bcem_ErrorAttributes errorDescription;
 
     if (0 == d_aggregateRaw.fieldById(&field, &errorDescription, fieldId)) {
@@ -770,7 +773,7 @@ const bcem_Aggregate bcem_Aggregate::fieldById(int fieldId) const
 
 const bcem_Aggregate bcem_Aggregate::fieldByIndex(int index) const
 {
-    bcem_AggregateRaw   field;
+    bcem_AggregateRaw    field;
     bcem_ErrorAttributes errorDescription;
     if (0 == d_aggregateRaw.fieldByIndex(&field, &errorDescription, index)) {
         return bcem_Aggregate(field,
@@ -786,7 +789,7 @@ const bcem_Aggregate bcem_Aggregate::fieldByIndex(int index) const
 
 const bcem_Aggregate bcem_Aggregate::anonymousField(int n) const
 {
-    bcem_AggregateRaw   field;
+    bcem_AggregateRaw    field;
     bcem_ErrorAttributes errorDescription;
     if (0 == d_aggregateRaw.anonymousField(&field, &errorDescription, n)) {
         return bcem_Aggregate(field,
@@ -892,7 +895,7 @@ const bcem_Aggregate bcem_Aggregate::operator[](int index) const
 
 const bcem_Aggregate bcem_Aggregate::makeSelectionById(int id) const
 {
-    bcem_AggregateRaw   field;
+    bcem_AggregateRaw    field;
     bcem_ErrorAttributes errorDescription;
 
     if (0 == d_aggregateRaw.makeSelectionById(&field,

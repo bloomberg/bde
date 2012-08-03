@@ -3510,7 +3510,7 @@ enum {
 
 struct Accumulator {
     int d_count;
-    
+
     int operator()(const bcem_AggregateRaw& value) {
         d_count += value.asInt();
         return 0;
@@ -3520,7 +3520,7 @@ struct Accumulator {
     int operator()(const TYPE& value) {
         return -1;
     }
-   
+
     Accumulator() : d_count(0) {}
 };
 
@@ -3575,7 +3575,7 @@ void testCase29() {
 
         if (verbose) cout << "\nTESTING 'findUnambiguousChoice'"
                           << "\n===============================" << bsl::endl;
-  
+
         Schema schema;
         ggSchema(&schema, ":*?Gc :a%*0&FU");
 
@@ -13283,19 +13283,22 @@ void testCase3() {
             Error error1 ,error2, error3;
             int rc = mX.setValue(&error1, 1);
             ASSERT(rc);
-            LOOP_ASSERT(error1.code(), ErrorCode::BCEM_SUCCESS != error1.code());
+            LOOP_ASSERT(error1.code(),
+                        ErrorCode::BCEM_SUCCESS != error1.code());
             ASSERT(Obj::areEquivalent(X, Y));
 
             rc = mX.setValue(&error2, Z);
             // This succeeds as conversion from VOID to VOID is valid
             ASSERT(!rc);
-            LOOP_ASSERT(error2.code(), ErrorCode::BCEM_SUCCESS == error2.code());
+            LOOP_ASSERT(error2.code(),
+                        ErrorCode::BCEM_SUCCESS == error2.code());
             ASSERT(Obj::areEquivalent(X, Y));
 
             rc = mX.setValue(&error3, Z.asElemRef());
             // This succeeds as conversion from VOID to VOID is valid
             ASSERT(!rc);
-            LOOP_ASSERT(error3.code(), ErrorCode::BCEM_SUCCESS == error3.code());
+            LOOP_ASSERT(error3.code(),
+                        ErrorCode::BCEM_SUCCESS == error3.code());
             ASSERT(Obj::areEquivalent(X, Y));
         }
 
@@ -14962,3 +14965,12 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ---------------------------- END-OF-FILE ---------------------------------

@@ -125,6 +125,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_CLIMITS
 #include <bsl_climits.h>
 #endif

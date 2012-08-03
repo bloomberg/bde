@@ -12,9 +12,9 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //  bcem_Aggregate: reference to fully-introspective, dynamically-typed data
 //
-//@SEE_ALSO: bcem_aggregateraw, bdem_elemtype, bdem_schema, bdem_list, 
+//@SEE_ALSO: bcem_aggregateraw, bdem_elemtype, bdem_schema, bdem_list,
 //           bdem_table, bdem_choice,
-//           bdem_choicearray, bdem_elemref, bdem_convert, 
+//           bdem_choicearray, bdem_elemref, bdem_convert,
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
@@ -196,7 +196,7 @@ BDES_IDENT("$Id: $")
 // appropriate enumerator name within the enumeration definition.
 //
 ///Null and Default Values
-///------------------------------
+///-----------------------
 // Every type described in 'bdem_ElemType' has a corresponding null value.
 // For scalar types, this null value comes from the 'bdetu_Unset' component.
 // For array types, the null value is the empty array.  For 'bdem' aggregate
@@ -318,7 +318,7 @@ BDES_IDENT("$Id: $")
 // objects refering to different data.  In addition, it is safe to destroy a
 // 'bcem_Aggregate' on one thread, while another thread is accessing or
 // modified the same shared data through another 'bcem_Aggregate' object.
-// 
+//
 ///Usage
 ///-----
 // In this example, we will create a schema for a postal-service address
@@ -780,7 +780,7 @@ class bcem_Aggregate {
     // PRIVATE ACCESSORS
     const bcem_Aggregate makeError(
                            const bcem_ErrorAttributes& errorDescription) const;
-    const bcem_Aggregate makeError(bcem_ErrorCode::Code  errorCode, 
+    const bcem_Aggregate makeError(bcem_ErrorCode::Code  errorCode,
                                    const char           *msg, ...) const
 #ifdef BSLS_PLATFORM__CMP_GNU
         // Declare this function as printf-like in gcc.
@@ -830,7 +830,7 @@ class bcem_Aggregate {
        // for the shared schema reference, the specified 'valueRep' for the
        // shared data reference, and the specified 'isTopLevelAggregateNullRep'
        // for the top-level nullness bit.
-    
+
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bcem_Aggregate,
@@ -1396,7 +1396,7 @@ class bcem_Aggregate {
         // in the schema (recursively for the fields within inserted table
         // rows).  If 'newSize < length()' shrink the array or table by
         // discarding excess items at the end.  Return this aggregate on
-        // success or an error object, with no effect on this aggregate, 
+        // success or an error object, with no effect on this aggregate,
         // if this is not an array.  Note that 'newSize' is interpreted as
         // an unsigned value.
 
@@ -1633,7 +1633,7 @@ class bcem_Aggregate {
         // additional allocations depending on the allocation mode, and whether
         // any row data element itself allocates memory (see the 'reserveRaw'
         // method).  Return the value of this aggregate on success or an error
-        // aggregate if this aggregate does not reference an array type.  
+        // aggregate if this aggregate does not reference an array type.
 
     bool isError() const;
         // Return 'true' if this object was returned from a function that
@@ -1968,15 +1968,14 @@ class bcem_Aggregate {
         // no current selection, if the current selector does not have a text
         // name, if this aggregate does not refer to a choice or choice array
         // item, or 'true == isNul2()'.  If this aggregate refers to a list or
-        // row, look for an  anonymous field within the list or row and
+        // row, look for an anonymous field within the list or row and
         // recursively look for a choice in the anonymous field (if any), as
         // per the "Anonymous Fields" section of the 'bcem_aggregate'
         // component-level documentation.  The returned pointer is valid until
         // the the choice object is modified or destroyed.  Note that an error
         // condition is indistinguishable from one of the valid reasons for
         // returning an empty string.  The 'selection' or 'selectorId' methods
-        // can be used to distinguish an error condition from a valid
-        // selector.
+        // can be used to distinguish an error condition from a valid selector.
 
     int selectorId() const;
         // Return the ID for selector of the choice or choice array item
@@ -2023,7 +2022,7 @@ class bcem_Aggregate {
         // (using 'areEquivalent') but will not compare identical to this
         // aggregate (using 'areIdentical').  If this aggregate is an error
         // object, then the clone will be an equivalent, but not identical,
-       // error object.  Note that the nullness information is also cloned.
+        // error object.  Note that the nullness information is also cloned.
 
     bdem_ElemType::Type dataType() const;
         // Return the type of data referenced by this aggregate.  Return
@@ -2035,7 +2034,7 @@ class bcem_Aggregate {
         // no associated schema (i.e., is unconstrained).
 
     const bcem_AggregateRaw& aggregateRaw() const;
-        // Return a reference to the non-reference-counted portion of 
+        // Return a reference to the non-reference-counted portion of
         // this aggregate.
 
     const bdem_RecordDef *recordConstraint() const;
@@ -2161,14 +2160,16 @@ inline
 bool bcem_Aggregate::areIdentical(const bcem_Aggregate& lhs,
                                   const bcem_Aggregate& rhs)
 {
-    return bcem_AggregateRaw::areIdentical(lhs.aggregateRaw(), rhs.aggregateRaw());
+    return bcem_AggregateRaw::areIdentical(lhs.aggregateRaw(),
+                                           rhs.aggregateRaw());
 }
 
 inline
 bool bcem_Aggregate::areEquivalent(const bcem_Aggregate& lhs,
                                    const bcem_Aggregate& rhs)
 {
-    return bcem_AggregateRaw::areEquivalent(lhs.aggregateRaw(), rhs.aggregateRaw());
+    return bcem_AggregateRaw::areEquivalent(lhs.aggregateRaw(),
+                                            rhs.aggregateRaw());
 }
 
 inline
@@ -2744,7 +2745,7 @@ inline
 const bcem_Aggregate bcem_Aggregate::insert(int            pos,
                                             const VALTYPE& newItem) const
 {
-    bcem_AggregateRaw   field;
+    bcem_AggregateRaw    field;
     bcem_ErrorAttributes errorDescription;
     if (0 != d_aggregateRaw.insertItem(&field,
                                   &errorDescription,
@@ -2754,7 +2755,7 @@ const bcem_Aggregate bcem_Aggregate::insert(int            pos,
     }
     return bcem_Aggregate(field,
                           d_schemaRep_p,
-                          d_valueRep_p, 
+                          d_valueRep_p,
                           d_isTopLevelAggregateNullRep_p);
 }
 
@@ -2778,13 +2779,13 @@ const bcem_Aggregate bcem_Aggregate::appendNullItems(int numItems) const
 }
 
 inline
-bsl::string bcem_Aggregate::asString() const 
+bsl::string bcem_Aggregate::asString() const
 {
     return d_aggregateRaw.asString();
 }
 
 inline
-void bcem_Aggregate::loadAsString(bsl::string *result) const 
+void bcem_Aggregate::loadAsString(bsl::string *result) const
 {
     d_aggregateRaw.loadAsString(result);
 }
@@ -2807,8 +2808,8 @@ int bcem_Aggregate::numSelections() const
     return d_aggregateRaw.numSelections();
 }
 
-inline 
-const char *bcem_Aggregate::selector() const 
+inline
+const char *bcem_Aggregate::selector() const
 {
     return d_aggregateRaw.selector();
 }
@@ -2921,7 +2922,7 @@ const bcem_Aggregate
 bcem_Aggregate::makeSelection(const char     *newSelector,
                               const VALTYPE&  value) const
 {
-    bcem_AggregateRaw   field;
+    bcem_AggregateRaw    field;
     bcem_ErrorAttributes errorDescription;
 
     if (0 == d_aggregateRaw.makeSelection(&field,
@@ -2952,7 +2953,7 @@ inline
 const bcem_Aggregate
 bcem_Aggregate::makeSelectionById(int id, const VALTYPE& value) const
 {
-    bcem_AggregateRaw   field;
+    bcem_AggregateRaw    field;
     bcem_ErrorAttributes errorDescription;
 
     if (0 == d_aggregateRaw.makeSelectionById(&field,
@@ -2973,7 +2974,7 @@ template <typename VALTYPE>
 const bcem_Aggregate
 bcem_Aggregate::makeSelectionByIndex(int index, const VALTYPE& value) const
 {
-    bcem_AggregateRaw   field;
+    bcem_AggregateRaw    field;
     bcem_ErrorAttributes errorDescription;
 
     if (0 == d_aggregateRaw.makeSelectionByIndex(&field,
@@ -2992,7 +2993,7 @@ bcem_Aggregate::makeSelectionByIndex(int index, const VALTYPE& value) const
 
 inline
 const bcem_Aggregate
-bcem_Aggregate::reserveRaw(bsl::size_t numItems) 
+bcem_Aggregate::reserveRaw(bsl::size_t numItems)
 {
     bcem_ErrorAttributes errorDescription;
     if (0 == d_aggregateRaw.reserveRaw(&errorDescription, numItems)) {
@@ -3027,7 +3028,7 @@ int bcem_Aggregate::selectorIndex() const
     return d_aggregateRaw.selectorIndex();
 }
 
-inline 
+inline
 const bdem_ElemRef bcem_Aggregate::asElemRef() const
 {
     return d_aggregateRaw.asElemRef();
@@ -3264,8 +3265,8 @@ bool bdeat_choiceHasSelection(const bcem_Aggregate&  object,
                               const char            *selectionName,
                               int                    selectionNameLength)
 {
-    return bdeat_choiceHasSelection(object.aggregateRaw(), 
-                                    selectionName, 
+    return bdeat_choiceHasSelection(object.aggregateRaw(),
+                                    selectionName,
                                     selectionNameLength);
 }
 
@@ -3279,7 +3280,7 @@ inline
 int bdeat_choiceMakeSelection(bcem_Aggregate *object,
                               const char     *selectionName,
                               int             selectionNameLength)
-{ 
+{
     return bdeat_choiceMakeSelection(&object->aggregateRaw(),
                                      selectionName,
                                      selectionNameLength);
@@ -3336,7 +3337,7 @@ namespace bdeat_EnumFunctions {
 
 inline
 int bdeat_enumFromInt(bcem_Aggregate *result, int enumId)
-{ 
+{
     return bdeat_enumFromInt(&result->aggregateRaw(), enumId);
 }
 
@@ -3351,7 +3352,7 @@ int bdeat_enumFromString(bcem_Aggregate *result,
 }
 
 inline
-void bdeat_enumToInt(int *result, const bcem_Aggregate& value) 
+void bdeat_enumToInt(int *result, const bcem_Aggregate& value)
 {
     bdeat_enumToInt(result, value.aggregateRaw());
 }
@@ -3361,7 +3362,7 @@ void bdeat_enumToString(bsl::string *result, const bcem_Aggregate& value)
 {
     bdeat_enumToString(result, value.aggregateRaw());
 }
- 
+
 // ============================================================================
 //           'bdeat_nullablevaluefunctions' overloads and specializations
 // ============================================================================
@@ -3480,9 +3481,9 @@ int bdeat_sequenceAccessAttribute(const bcem_Aggregate&  object,
                                   const char            *attributeName,
                                   int                    attributeNameLength)
 {
-    return bdeat_sequenceAccessAttribute(object.aggregateRaw(), 
-                                         accessor, 
-                                         attributeName, 
+    return bdeat_sequenceAccessAttribute(object.aggregateRaw(),
+                                         accessor,
+                                         attributeName,
                                          attributeNameLength);
 }
 
@@ -3493,7 +3494,7 @@ int bdeat_sequenceAccessAttribute(const bcem_Aggregate& object,
                                   int                   attributeId)
 {
     return bdeat_sequenceAccessAttribute(object.aggregateRaw(),
-                                         accessor, 
+                                         accessor,
                                          attributeId);
 }
 
@@ -3511,7 +3512,7 @@ bool bdeat_sequenceHasAttribute(const bcem_Aggregate&  object,
                                 int                    attributeNameLength)
 {
     return bdeat_sequenceHasAttribute(object.aggregateRaw(),
-                                      attributeName, 
+                                      attributeName,
                                       attributeNameLength);
 }
 

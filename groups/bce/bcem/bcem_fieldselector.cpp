@@ -47,4 +47,3 @@ bsl::ostream& bcem_FieldSelector::print(bsl::ostream& stream,
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
-
