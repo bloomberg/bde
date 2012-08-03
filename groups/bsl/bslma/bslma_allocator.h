@@ -591,10 +591,9 @@ void Allocator::deleteObjectRaw(const TYPE *object)
 typedef bslma::Allocator bslma_Allocator;
     // This alias is defined for backward compatibility.
 
-#ifdef bdema_Allocator
-#undef bdema_Allocator
-#endif
+#ifndef bdema_Allocator
 #define bdema_Allocator bslma::Allocator
+#endif
 
 }  // close enterprise namespace
 

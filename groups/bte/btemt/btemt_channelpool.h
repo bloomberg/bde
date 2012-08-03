@@ -66,7 +66,7 @@ BDES_IDENT("$Id: $")
 // attempts to establish a connection fail, then a pool state callback
 // (see configuration) is invoked.  Once initiated, a connect request can
 // lead to only two outcomes -- success or failure.  In particular, it can't
-// be cancelled.
+// be canceled.
 //
 ///Half-open connections
 ///---------------------
@@ -176,6 +176,32 @@ BDES_IDENT("$Id: $")
 // but not thread-enabled and requires explicit synchronization in the user
 // space.  A user-defined callback can be invoked from *any* (managed) thread
 // and the user must account for that.
+//
+///Invocation of high and low watermark callbacks
+///----------------------------------------------
+// When constructing a channel pool object, users can specify, via the
+// 'setWriteCacheWatermarks' function of 'btemt_ChannelPoolConfiguration', the
+// maximum data size (high-watermark) that can be enqueued for writing on a
+// channel.  If the write cache size exceeds this high-watermark value then
+// 'write' calls on that channel will fail.  This information is also
+// communicated by providing a 'BTEMT_WRITE_CACHE_HIWAT' alert to the client
+// via the channel state callback.  Note that 'write' calls can also fail if
+// the write cache size exceeds the optionally specified 'enqueueWatermark'
+// argument provided to 'write', but a 'BTEMT_WRITE_CACHE_HIWAT' alert is not
+// provided in this scenario.
+//
+// In addition to the high-watermark, users can also specify a low-watermark,
+// again via the 'setWriteCacheWatermarks' function of
+// 'btemt_ChannelPoolConfiguration'.  After a write fails because the write
+// cache size would be exceeded, the channel pool will later provide a
+// 'BTEMT_WRITE_CACHE_LOWWAT' alert to the client via the channel state
+// callback when the write cache size falls below the low-watermark.
+// Typically, clients will suspend writing to a channel if the write cache
+// exceeds the high-watermark or the optionally provided 'enqueueWaterk', and
+// then resume writing after they receive the low-watermark event.  Note that
+// a 'BTEMT_WRITE_CACHE_LOWWAT' alert is also provided if the write cache size
+// exceeds the optionally specified 'enqueueWatermark' argument provided to
+// 'write'.
 //
 ///Usage
 ///-----

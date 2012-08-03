@@ -540,8 +540,10 @@ class btemt_Channel {
         // Destroy this channel.
 
     // MANIPULATORS
-    void disableRead(ChannelHandle self);
-        // Disable automatic reading of data from this channel.
+    void disableRead(ChannelHandle self, bool enqueueStateChangeCb);
+        // Disable automatic reading of data from this channel enqueuing the
+        // change state callback if the specified 'enqueueStateChangeCb' is
+        // 'true', and invoking it inline otherwise.
 
     int initiateReadSequence(ChannelHandle self);
         // Schedule an asynchronous timed reading from this channel and also
@@ -627,7 +629,7 @@ class btemt_Channel {
 
     int recordedMaxWriteCacheSize() const;
         // Return a snapshot of the maximum recorded size, in bytes, of the
-        // cache of data to be written to this channeel.
+        // cache of data to be written to this channel.
 
     StreamSocket *socket() const;
         // Return a pointer to this channel's underlying socket.
@@ -1141,7 +1143,7 @@ void btemt_Channel::processReadData(int numBytes,
     // since the 'numBytesConsumed' returned would be zero anyway.
 
     if (numBytesAvailable >= d_currentMsg.userDataField2()) {
-        int minAdditional = -1;
+        int minAdditional    = -1;
         int numBytesConsumed = -1;
 
         // Invariant (must be verified prior to callback): this can shed
@@ -1178,6 +1180,7 @@ void btemt_Channel::processReadData(int numBytes,
         // need is the buffers for the next iovec read; see DRQS 12198484).
 
         const int newLength = chain->length() + minAdditional;
+
         d_currentMsg.setUserDataField2(newLength);
     }
     BSLS_ASSERT(0 < d_currentMsg.userDataField2());
@@ -1201,9 +1204,6 @@ void btemt_Channel::processReadData(int numBytes,
                           &d_blobReadData,
                           d_channelId,
                           d_userData);
-        // TBD: can minAdditional be 0 ? PooledBufferChain based reads don't
-        // allow it but why not ?
-        //         BSLS_ASSERT(0 <= minAdditional);
         BSLS_ASSERT(0 < minAdditional);
 
         d_minBytesBeforeNextCb = minAdditional;
@@ -1467,7 +1467,7 @@ void btemt_Channel::readCb(ChannelHandle self)
                                          isChannelDown(CLOSED_RECEIVE_MASK))) {
         // This readCb was invoked by a socket event after we executed
         // 'notifyChannelDown' in a different thread (from 'shutdown') and the
-        // socket hasn't yet been deregistered (in pending
+        // socket has not yet been deregistered (in pending
         // 'invokeChannelDown').  We abort.  The reason the test is performed
         // so late in 'readCb' is to allow picking up such events as late as
         // possible.  Note that this test is done again in the loop below.
@@ -1476,7 +1476,7 @@ void btemt_Channel::readCb(ChannelHandle self)
         return;
     }
 
-    // Note that 'lastRead' is only used to re-initialize the read timeout.
+    // Note that 'lastRead' is used only to re-initialize the read timeout.
     bdet_TimeInterval lastRead;
     if (d_useReadTimeout) {
         lastRead = bdetu_SystemTime::now();
@@ -1535,6 +1535,10 @@ void btemt_Channel::readCb(ChannelHandle self)
 
         processReadData(readRet, HINT_OBJ);
         allocateNextReadBuffers(readRet, totalBufferSize, HINT_OBJ);
+
+        if (!d_enableReadFlag) {
+            return;                                                   // RETURN
+        }
 
         if (readRet != totalBufferSize) {
             break;
@@ -1762,8 +1766,7 @@ void btemt_Channel::writeCb(ChannelHandle self)
             d_writeActiveCacheSize.relaxedAdd(-writeRet);
 
             if (d_hiWatermarkHitFlag
-             && (d_writeEnqueuedCacheSize
-               + d_writeActiveCacheSize.relaxedLoad() <= d_writeCacheLowWat)) {
+             && (currentWriteCacheSize() <= d_writeCacheLowWat)) {
                 d_hiWatermarkHitFlag = false;
                 oGuard.release()->unlock();
                 d_channelStateCb(d_channelId, d_sourceId,
@@ -1954,7 +1957,7 @@ btemt_Channel::~btemt_Channel()
 }
 
 // MANIPULATORS
-void btemt_Channel::disableRead(ChannelHandle self)
+void btemt_Channel::disableRead(ChannelHandle self, bool enqueueStateChangeCb)
 {
     BSLS_ASSERT(bcemt_ThreadUtil::isEqual(bcemt_ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
@@ -1967,10 +1970,24 @@ void btemt_Channel::disableRead(ChannelHandle self)
     }
     d_enableReadFlag = false;
 
-    d_channelStateCb(d_channelId,
-                     d_sourceId,
-                     btemt_ChannelPool::BTEMT_AUTO_READ_DISABLED,
-                     d_userData);
+    if (enqueueStateChangeCb) {
+        bdef_Function<void (*)()> stateCbFunctor(
+                    bdef_BindUtil::bindA(
+                                   d_allocator_p,
+                                   d_channelStateCb,
+                                   d_channelId,
+                                   d_sourceId,
+                                   btemt_ChannelPool::BTEMT_AUTO_READ_DISABLED,
+                                   d_userData));
+
+        d_eventManager_p->execute(stateCbFunctor);
+    }
+    else {
+        d_channelStateCb(d_channelId,
+                         d_sourceId,
+                         btemt_ChannelPool::BTEMT_AUTO_READ_DISABLED,
+                         d_userData);
+    }
 }
 
 int btemt_Channel::initiateReadSequence(ChannelHandle self)
@@ -2080,8 +2097,7 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
 
     d_numBytesRequestedToBeWritten += dataLength;
 
-    const int writeCacheSize =
-               d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
+    const int writeCacheSize = currentWriteCacheSize();
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                          writeCacheSize > d_writeCacheHiWat)) {
@@ -2092,6 +2108,7 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                           writeCacheSize > enqueueWatermark)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        d_hiWatermarkHitFlag = true;
         return ENQUEUE_WAT;
     }
 
@@ -2123,11 +2140,8 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
-    int currentWriteCacheSize = d_writeEnqueuedCacheSize
-                              + d_writeActiveCacheSize.relaxedLoad();
-
-    if (d_recordedMaxWriteCacheSize.relaxedLoad() < currentWriteCacheSize) {
-        d_recordedMaxWriteCacheSize.relaxedStore(currentWriteCacheSize);
+    if (d_recordedMaxWriteCacheSize.relaxedLoad() < writeCacheSize) {
+        d_recordedMaxWriteCacheSize.relaxedStore(writeCacheSize);
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
@@ -2264,8 +2278,7 @@ int btemt_Channel::setWriteCacheHiWatermark(int numBytes)
     // Generate a 'HIWAT' alert if the new cache size limit is smaller than the
     // existing cache size and a 'HIWAT' alert has not already been generated.
 
-    const int writeCacheSize =
-               d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
+    const int writeCacheSize = currentWriteCacheSize();
 
     if (!d_hiWatermarkHitFlag && writeCacheSize >= numBytes) {
         d_hiWatermarkHitFlag = true;
@@ -2304,8 +2317,7 @@ int btemt_Channel::setWriteCacheLowWatermark(int numBytes)
     d_writeCacheLowWat = numBytes;
 
     if (d_hiWatermarkHitFlag
-     && (d_writeEnqueuedCacheSize
-               + d_writeActiveCacheSize.relaxedLoad() <= d_writeCacheLowWat)) {
+     && (currentWriteCacheSize() <= d_writeCacheLowWat)) {
 
         d_hiWatermarkHitFlag = false;
         bdef_Function<void (*)()> functor(bdef_BindUtil::bindA(
@@ -3807,15 +3819,25 @@ int btemt_ChannelPool::disableRead(int channelId)
     if (0 != findChannelHandle(&channelHandle, channelId)) {
         return NOT_FOUND;
     }
+
     btemt_Channel *channel = channelHandle.ptr();
 
-    bdef_Function<void (*)()> disableReadCommand(bdef_BindUtil::bindA(
-                d_allocator_p
-              , &btemt_Channel::disableRead
-              , channel
-              , channelHandle));
+    if (bcemt_ThreadUtil::isEqual(
+                          bcemt_ThreadUtil::self(),
+                          channel->eventManager()->dispatcherThreadHandle())) {
 
-    channel->eventManager()->execute(disableReadCommand);
+        channel->disableRead(channelHandle, true);
+    }
+    else {
+        bdef_Function<void (*)()> disableReadCommand(bdef_BindUtil::bindA(
+                                                   d_allocator_p,
+                                                   &btemt_Channel::disableRead,
+                                                   channel,
+                                                   channelHandle,
+                                                   false));
+
+        channel->eventManager()->execute(disableReadCommand);
+    }
     return 0;
 }
 

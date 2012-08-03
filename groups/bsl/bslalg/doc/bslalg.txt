@@ -37,8 +37,6 @@
 
   Level 6:  autoarraydestructor          autoarraymovedestructor
             autoscalardestructor         rangecompare
-            typetraitsgroupstlordered    typetraitsgroupstlsequence
-            typetraitsgroupstlunordered
 
   Level 5:  arraydestructionprimitives   bitwiseeqpassthroughtrait
             passthroughtrait             scalardestructionprimitives
@@ -50,12 +48,12 @@
 
   Level 2:  typetraitsgrouppod
 
-  Level 1:  dequeimputil                           typetraitbitwisecopyable     
-            typetraitbitwiseequalitycomparable     typetraitbitwisemoveable     
-            typetraithaspointersemantics           typetraithasstliterators     
-            typetraithastrivialdefaultconstructor  typetraitnil                 
+  Level 1:  dequeimputil                           typetraitbitwisecopyable
+            typetraitbitwiseequalitycomparable     typetraitbitwisemoveable
+            typetraithaspointersemantics           typetraithasstliterators
+            typetraithastrivialdefaultconstructor  typetraitnil
             typetraitpair                          typetraitusesbslmaallocator
-            
+
 ..
 
 /Component Synopsis
@@ -115,14 +113,6 @@
                                           traits to type, sniff traits from
                                           types, deduce implied traits, etc.
   'bslalg_typetraitsgrouppod'           - traits group attached to POD types.
-  'bslalg_typetraitsgroupstlordered'    - traits group attached to STL ordered
-                                          containers ('set', 'map', etc.).
-  'bslalg_typetraitsgroupstlsequence'   - traits group attached to STL sequence
-                                          containers ('deque', 'list',
-                                          'vector', etc.).
-  'bslalg_typetraitsgroupstlunordered'  - traits group attached to STL
-                                          unordered containers ('hash_set',
-                                          'hash_map', etc.).
   'bslalg_typetraitusesbslmaallocator'  - trait attached to types taking memory
                                           allocator as the constructor last
                                           arguments.
