@@ -79,8 +79,7 @@ using native_std::ostream_iterator;
 using native_std::istreambuf_iterator;
 using native_std::ostreambuf_iterator;
 
-#if (defined(BSLS_PLATFORM__CMP_SUN) || defined(BSLS_PLATFORM__CMP_AIX))      \
-    && !defined(BDE_BUILD_TARGET_STLPORT)
+#if defined(BSLS_PLATFORM__CMP_SUN) && !defined(BDE_BUILD_TARGET_STLPORT)
 
 // Sun does not provide 'std::iterator_traits' at all.  We will provide our own
 // in namespace 'bsl'.
@@ -307,8 +306,7 @@ using native_std::distance;
                         // class bsl::reverse_iterator
                         // ---------------------------
 
-#if (defined(BSLS_PLATFORM__CMP_SUN) || defined(BSLS_PLATFORM__CMP_AIX))      \
-    && !defined(BDE_BUILD_TARGET_STLPORT)
+#if defined(BSLS_PLATFORM__CMP_SUN) && !defined(BDE_BUILD_TARGET_STLPORT)
 
 // CREATORS
 template <class ITER>

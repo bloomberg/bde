@@ -1952,7 +1952,7 @@ bool TestDriver<TYPE,ALLOC>::checkIntegrity(const Obj& object, int length)
 
     // If got here, then the only integrity test left is to verify that size()
     // returns the actual length of the list.
-    return length == object.size();
+    return length == (int) object.size();
 }
 
 template <class TYPE, class ALLOC>
