@@ -327,11 +327,6 @@ class bael_RecordAttributes {
         // Set the message attribute of this record attributes object to the
         // specified (non-null) 'message'.
 
-    void setMessage(const bslstl_StringRef& message);
-        // Set the message attribute of this record attributes object to the
-        // specified 'message'.  Note that 'message' need not be
-        // null-terminated, and may contain null ('\0') characters.
-
     void setProcessID(int processID);
         // Set the processID attribute of this record attributes object to the
         // specified 'processID'.
@@ -377,8 +372,8 @@ class bael_RecordAttributes {
     bslstl_StringRef messageRef() const;
         // Return a string reference providing non-modifiable access to the
         // message attribute of this record attributes object.  Note that the
-        // message need not be null-terminated, and may contain null ('\0')
-        // characters.
+        // returned string reference is not null-terminated, and may contain
+        // null ('\0') characters.
 
     int processID() const;
         // Return the processID attribute of this record attributes object.
@@ -503,13 +498,6 @@ void bael_RecordAttributes::setLineNumber(int lineNumber)
 }
 
 inline
-void bael_RecordAttributes::setMessage(const bslstl_StringRef& message)
-{
-    d_messageStreamBuf.pubseekpos(0);
-    d_messageStreamBuf.sputn(message.data(), message.length());
-}
-
-inline
 void bael_RecordAttributes::setProcessID(int processID)
 {
     d_processID = processID;
@@ -612,13 +600,6 @@ inline
 int bael_RecordAttributes::lineNumber() const
 {
     return d_lineNumber;
-}
-
-inline
-bslstl_StringRef bael_RecordAttributes::messageRef() const
-{
-    return bslstl_StringRef(d_messageStreamBuf.data(),
-                            d_messageStreamBuf.length());
 }
 
 inline

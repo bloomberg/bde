@@ -182,7 +182,7 @@ void bael_FileObserver::publish(const bael_Record&  record,
 
         // Use 'fwrite' to specify the length to write.
 
-        bsl::fwrite(oss.str().c_str(), oss.str().length(), 1, stdout);
+        bsl::fwrite(oss.str().c_str(), 1, oss.str().length(), stdout);
         bsl::fflush(stdout);
     }
 

@@ -245,15 +245,7 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
               } break;
               case 'm': {
                 bslstl_StringRef message = fixedFields.messageRef();
-                int length = message.length();
-                const char *str = message.data();
-
-                // The terminating '\0' of string reference is not written
-                // if it exists.
-
-                output.append(str, (!length || '\0' != str[length - 1])
-                                                                 ? length
-                                                                 : length - 1);
+                output.append(message.data(), message.length());
               } break;
               case 'x': {
                 bsl::stringstream ss;

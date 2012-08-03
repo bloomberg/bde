@@ -655,15 +655,7 @@ void bael_LoggerManager::logMessage(int severity, bael_Record *record)
                  "UNINITIALIZED_LOGGER_MANAGER");
 
     bslstl_StringRef message = record->fixedFields().messageRef();
-    int length = message.length();
-    const char *str = message.data();
-
-    // The terminating '\0' of string reference is not written if it exists.
-
-    bsl::fwrite(str,
-                (!length || '\0' != str[length - 1]) ? length : length - 1,
-                1,
-                stderr);
+    bsl::fwrite(message.data(), 1, message.length(), stderr);
 
     bsl::fprintf(stderr, "\n");
 

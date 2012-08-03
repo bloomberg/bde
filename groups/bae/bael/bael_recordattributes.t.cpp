@@ -65,7 +65,6 @@ using namespace bsl;  // automatically added by script
 // [ 2] void setFileName(const char *fileName);
 // [ 2] void setLineNumber(int lineNumber);
 // [ 2] void setMessage(const char *message);
-// [ 2] void setMessage(const bslstl_StringRef& strref);
 // [ 2] void setProcessID(int processID);
 // [ 2] void setSeverity(int severity);
 // [ 2] void setThreadID(bsls_PlatformUtil::Uint64 threadID);
@@ -941,7 +940,6 @@ int main(int argc, char *argv[])
         //   void setFileName(const char *fileName);
         //   void setLineNumber(int lineNumber);
         //   void setMessage(const char *message);
-        //   void setMessage(const bslstl_StringRef& strref);
         //   void setProcessID(int processID);
         //   void setSeverity(int severity);
         //   void setThreadID(bsls_PlatformUtil::Uint64 threadID);
@@ -1078,7 +1076,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) {
-             cout << "\tTesting 'setMessage' and 'messageRef'" << endl;
+             cout << "\tTesting 'messageRef'" << endl;
         }
         {
             bslstl_StringRef emptyMsgRef("", 0);
@@ -1086,16 +1084,17 @@ int main(int argc, char *argv[])
                 Obj mA;
                 bslstl_StringRef testMsgRef(testMsgs[i].msg, testMsgs[i].len2);
                 ASSERT(emptyMsgRef == mA.messageRef());
-                mA.setMessage(testMsgRef);
+                mA.messageStreamBuf().pubseekpos(0);
+                mA.messageStreamBuf().sputn(testMsgs[i].msg, testMsgs[i].len2);
 
-                bslstl_StringRef strref = mA.messageRef();
+                bslstl_StringRef message = mA.messageRef();
 
                 if (veryVeryVerbose) {
-                    P_(testMsgRef); P_(testMsgRef.length()); P_(strref);
-                    P(strref.length());
+                    P_(testMsgRef); P_(testMsgRef.length()); P_(message);
+                    P(message.length());
                 }
 
-                ASSERT(testMsgRef == strref);
+                ASSERT(testMsgRef == message);
             }
         }
 
@@ -1569,11 +1568,11 @@ int main(int argc, char *argv[])
             const char *CTRL_BUF2 = mCtrlBuf2;
 
             Obj mX;  const Obj& X = mX;
-            bslstl_StringRef testMsgRef("test-\0mess\0age", 14);
             mX.setCategory("category");
             mX.setFileName("bael_recordattributes.t.cpp");
             mX.setLineNumber(1066);
-            mX.setMessage(testMsgRef);
+            mX.messageStreamBuf().pubseekpos(0);
+            mX.messageStreamBuf().sputn("test-\0mess\0age", 14);
             mX.setProcessID(74372);
             mX.setSeverity(128);
             mX.setThreadID(19);

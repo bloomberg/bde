@@ -1633,14 +1633,17 @@ int main(int argc, char *argv[])
 
          // The next three messages are set to strings with embedded '\0'.
 
-         bslstl_StringRef msg4("No Logger\0 Manager\0 4!", 22);
-         record4->fixedFields().setMessage(msg4);
+         record4->fixedFields().messageStreamBuf().pubseekpos(0);
+         record4->fixedFields().messageStreamBuf().sputn(
+                                               "No Logger\0 Manager\0 4!", 22);
 
-         bslstl_StringRef msg5("No Logger\0 Manager\0 5!", 22);
-         record5->fixedFields().setMessage(msg5);
+         record4->fixedFields().messageStreamBuf().pubseekpos(0);
+         record4->fixedFields().messageStreamBuf().sputn(
+                                               "No Logger\0 Manager\0 5!", 22);
 
-         bslstl_StringRef msg6("No Logger\0 Manager\0 6!", 22);
-         record6->fixedFields().setMessage(msg6);
+         record4->fixedFields().messageStreamBuf().pubseekpos(0);
+         record4->fixedFields().messageStreamBuf().sputn(
+                                               "No Logger\0 Manager\0 6!", 22);
 
 #ifdef BSLS_PLATFORM__OS_UNIX
          fflush(stderr);

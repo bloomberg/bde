@@ -51,13 +51,8 @@ void bael_DefaultObserver::publish(const bael_Record&  record,
               << fixedFields.category()                << ' ';
 
     bslstl_StringRef message = fixedFields.messageRef();
-    int length = message.length();
-    const char *str = message.data();
+    d_stream->write(message.data(), message.length());
 
-    // The terminating '\0' of string reference is not written if it exists.
-
-    d_stream->write(str, (!length || '\0' != str[length - 1]) ? length
-                                                              : length - 1);
     *d_stream << ' ';
 
     const bdem_List& userFields = record.userFields();
