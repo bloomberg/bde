@@ -391,6 +391,7 @@ int main(int argc, char *argv[])
 #elif defined BSLS_PLATFORM__OS_LINUX  \
    || defined BSLS_PLATFORM__OS_AIX    \
    || defined BSLS_PLATFORM__OS_DARWIN \
+   || defined BSLS_PLATFORM__OS_CYGWIN \
    || defined BSLS_PLATFORM__OS_HPUX
         const Int64 timeQuantum = nsecsPerSec / sysconf(_SC_CLK_TCK);
                                         // On our local flavor of Linux, old

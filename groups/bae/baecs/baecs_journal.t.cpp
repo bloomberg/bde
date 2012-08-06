@@ -102,9 +102,10 @@ static void aSsErT(int c, const char *s, int i)
 
 #define MAX_TMPFILENAME (L_tmpnam+64)
 
-#if defined(BSLS_PLATFORM__OS_AIX) ||   \
-    defined(BSLS_PLATFORM__OS_HPUX) ||  \
-    defined(BSLS_PLATFORM__OS_DARWIN)
+#if defined(BSLS_PLATFORM__OS_AIX)    || \
+    defined(BSLS_PLATFORM__OS_HPUX)   || \
+    defined(BSLS_PLATFORM__OS_DARWIN) || \
+    defined(BSLS_PLATFORM__OS_CYGWIN)
 #define tmpnam_r tmpnam
 #endif
 

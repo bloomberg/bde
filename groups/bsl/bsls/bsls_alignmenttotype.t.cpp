@@ -5,8 +5,8 @@
 
 #include <bsls_platform.h>
 
-#include <cstddef>     // offsetof() macro
-#include <cstdlib>     // atoi()
+#include <cstddef>     // 'offsetof' macro
+#include <cstdlib>     // 'atoi'
 #include <cstring>
 #include <iostream>
 #include <string>
@@ -22,8 +22,8 @@ using namespace std;
 // Most of what this component implements are compile-time computations that
 // differ among platforms.  The tests do assume that alignment of 'char' is 1,
 // 'short' is 2, 'int' is 4, and 'double' is at least 4.  In addition, it is
-// tested that all alignment-to-type calculations result are reversible, so
-// that the alignment of the resulting type equals the original input.
+// tested that all alignment-to-type calculations are reversible, so that the
+// alignment of the resulting type equals the original input.
 //
 // For the few run-time functions provided in this component, we establish
 // post-conditions and test that the postconditions hold over a reasonable
@@ -108,7 +108,7 @@ static void aSsErT(int c, const char *s, int i) {
     union my_AlignedBuffer {
       private:
         // DATA
-        char                                           d_buffer[sizeof(TYPE)];
+        char                                            d_buffer[sizeof(TYPE)];
         typename bsls::AlignmentToType<ALIGNMENT>::Type d_align;  // force
                                                                   // alignment
 
@@ -393,11 +393,11 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING META-FUNCTIONS  bsls::AlignmentToType<N>::Type
+        // TESTING META-FUNCTIONS bsls::AlignmentToType<N>::Type
         //
         // PLAN
-        //   1. Compute alignment type using bsls::AlignmentToType<N>::Type and
-        //      confirm that the result is as expected.
+        //   1. Compute alignment type using 'bsls::AlignmentToType<N>::Type'
+        //      and confirm that the result is as expected.
         //
         // TACTICS
         //   Ad-hoc data selection
@@ -407,8 +407,8 @@ int main(int argc, char *argv[])
         //   bsls::AlignmentToType<N>::Type
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTest bsls::AlignmentToType<T>::Type"
-                          << "\n===================================" << endl;
+        if (verbose) cout << "\nTest 'bsls::AlignmentToType<N>::Type'"
+                          << "\n=====================================" << endl;
 
         // Test 'sameType' function.
         ASSERT( sameType(int(), int()));
@@ -433,6 +433,10 @@ int main(int argc, char *argv[])
 
         long double LD = 0.0;
         long long   LL = 0;
+
+#if defined(BSLS_PLATFORM__OS_CYGWIN)
+        bsls::AlignmentImp8ByteAlignedType _8BAT;
+#endif
 
         LOOP_ASSERT(CHAR_ALIGNMENT,
                     sameType(bsls::AlignmentToType<CHAR_ALIGNMENT>::Type(),
@@ -471,7 +475,7 @@ int main(int argc, char *argv[])
                              long()));
         LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           LD));
+                          LD));
     #else
         LOOP_ASSERT(INT64_ALIGNMENT,
                     sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
@@ -483,11 +487,11 @@ int main(int argc, char *argv[])
         #if defined(BSLS_PLATFORM__OS_LINUX)
         LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           int()));
+                          int()));
         #else
         LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           LD));
+                          LD));
         #endif
     #endif
 #elif defined(BSLS_PLATFORM__OS_AIX)
@@ -500,7 +504,7 @@ int main(int argc, char *argv[])
                              int()));
         LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           int()));
+                          int()));
     #else
         LOOP_ASSERT(INT64_ALIGNMENT,
                     sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
@@ -510,7 +514,7 @@ int main(int argc, char *argv[])
                              int()));
         LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           int()));
+                          int()));
     #endif
 #elif defined(BSLS_PLATFORM__OS_CYGWIN)
     #if defined(BSLS_PLATFORM__CPU_64_BIT)
@@ -518,13 +522,13 @@ int main(int argc, char *argv[])
     #else
         LOOP_ASSERT(INT64_ALIGNMENT,
                     sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
-                             LL));
+                             _8BAT));
         LOOP_ASSERT(DOUBLE_ALIGNMENT,
                     sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
-                             LL));
+                             _8BAT));
         LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           int()));
+                          int()));
     #endif
 #else // !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_LINUX)
 
@@ -532,23 +536,23 @@ int main(int argc, char *argv[])
         #if defined(BSLS_PLATFORM__OS_WINDOWS)
             LOOP_ASSERT(INT64_ALIGNMENT,
                        sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
-                                 LL));
+                                LL));
             LOOP_ASSERT(DOUBLE_ALIGNMENT,
                       sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
                                LL));
             LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           LL));
+                          LL));
         #else
             LOOP_ASSERT(INT64_ALIGNMENT,
                        sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
-                                 long()));
+                                long()));
             LOOP_ASSERT(DOUBLE_ALIGNMENT,
                       sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
                                long()));
             LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           LD));
+                          LD));
         #endif
     #else
         LOOP_ASSERT(INT64_ALIGNMENT,
@@ -559,7 +563,7 @@ int main(int argc, char *argv[])
                              LL));
         LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           LL));
+                          LL));
     #endif
 #endif // end defined(BSLS_PLATFORM__OS_AIX)
        //  || defined(BSLS_PLATFORM__OS_LINUX)

@@ -48,8 +48,12 @@ bsl::ostream& baesu_StackTracePrintUtil::printStackTrace(
 
     void **addresses = (void **) st.allocator()->allocate(
                                                    maxFrames * sizeof(void *));
+#if !defined(BSLS_PLATFORM__OS_CYGWIN)
     int numAddresses = baesu_StackAddressUtil::getStackAddresses(addresses,
                                                                  maxFrames);
+#else
+    int numAddresses = 0;
+#endif
     if (numAddresses <= 0 || numAddresses > maxFrames) {
         stream << "Stack Trace: Internal Error getting stack addresses\n";
         return stream;                                                // RETURN

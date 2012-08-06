@@ -197,9 +197,10 @@ struct bdesu_FileUtil {
 #else
     typedef int     FileDescriptor;
 #if defined(BSLS_PLATFORM__OS_FREEBSD) \
- || defined(BSLS_PLATFORM__OS_DARWIN)
-    // 'off_t' is 64-bit on Darwin/FreeBSD (even when running 32-bit) so they
-    // do not have a 'off64_t' type.
+ || defined(BSLS_PLATFORM__OS_DARWIN)  \
+ || defined(BSLS_PLATFORM__OS_CYGWIN)
+    // 'off_t' is 64-bit on Darwin/FreeBSD/cygwin (even when running 32-bit),
+    // so they do not have an 'off64_t' type.
 
     typedef off_t Offset;
 #else

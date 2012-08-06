@@ -24,7 +24,7 @@ BDES_IDENT_RCSID(bdesu_processutil_cpp,"$Id$ $CSID$")
 #elif defined(BSLS_PLATFORM__OS_AIX)
 #include <sys/procfs.h>
 #include <fcntl.h>
-#elif defined(BSLS_PLATFORM__OS_LINUX)
+#elif defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_CYGWIN)
 #include <fcntl.h>
 #elif defined(BSLS_PLATFORM__OS_HPUX)
 #include <sys/pstat.h>
@@ -78,7 +78,7 @@ int bdesu_ProcessUtil::getProcessName(bsl::string *result)
     if (bsl::string::npos != pos) {
         result->resize(pos);
     }
-# elif defined BSLS_PLATFORM__OS_LINUX
+# elif defined BSLS_PLATFORM__OS_LINUX || defined BSLS_PLATFORM__OS_CYGWIN
     enum { NUM_ELEMENTS = 14 + 16 };  // "/proc/<pid>/cmdline"
 
     bdesb_MemOutStreamBuf osb(NUM_ELEMENTS);

@@ -129,8 +129,12 @@ int baesu_StackTraceUtil::loadStackTraceFromStack(
     bslma_DeallocatorGuard<bslma_Allocator> guard(addresses,
                                                   result->allocator());
 
+#if !defined(BSLS_PLATFORM__OS_CYGWIN)
     int numAddresses = baesu_StackAddressUtil::getStackAddresses(addresses,
                                                                  maxFrames);
+#else
+    int numAddresses = 0;
+#endif
     if (numAddresses <= 0 || numAddresses > maxFrames) {
         return -1;                                                    // RETURN
     }

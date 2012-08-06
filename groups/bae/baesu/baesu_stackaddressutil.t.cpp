@@ -13,6 +13,8 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
+#ifndef BSLS_PLATFORM__OS_CYGWIN
+
 #ifdef BSLS_PLATFORM__OS_WINDOWS
 // 'getStackAddresses' will not be able to trace through our stack frames if
 // we're optimized on Windows
@@ -718,6 +720,15 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+#else
+
+int main()
+{
+    return -1;
+}
+
+#endif
 
 // ---------------------------------------------------------------------------
 // NOTICE:

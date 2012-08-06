@@ -67,7 +67,7 @@ BDES_IDENT("$Id: $")
 // Next, we define a 'typedef' for the 'struct' needed to set the linger
 // options:
 //..
-//  #if defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BSLS_PLATFORM__OS_CYGWIN)
+//  #if defined(BSLS_PLATFORM__OS_WINDOWS)
 //      typedef LINGER LingerData;
 //  #else
 //      typedef linger LingerData;

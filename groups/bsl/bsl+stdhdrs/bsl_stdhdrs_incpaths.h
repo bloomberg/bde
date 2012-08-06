@@ -148,16 +148,30 @@ BSLS_IDENT("$Id: $")
 
 #elif defined(BSLS_PLATFORM__CMP_GNU)
   // gcc 4.1 or above
-#   define BSL_NATIVE_CPP_LIB_HEADER(filename) \
+#   if defined(BSLS_PLATFORM__OS_CYGWIN)
+#       define BSL_NATIVE_CPP_LIB_HEADER(filename) \
+            <../../../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/include/c++/filename>
+#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) \
+            <../../../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/include/c++/filename>
+#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) \
+            <../../../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/include/c++/backward/filename>
+#       define BSL_NATIVE_CPP_C_HEADER(filename) \
+            <../../../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/include/c++/filename>
+#       define BSL_NATIVE_CISO646_HEADER(filename) \
+            <../../../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/include/c++/filename>
+#   else
+#       define BSL_NATIVE_CPP_LIB_HEADER(filename) \
             <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) \
+#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) \
             <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) \
+#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) \
             <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/backward/filename>
-#   define BSL_NATIVE_CPP_C_HEADER(filename) \
+#       define BSL_NATIVE_CPP_C_HEADER(filename) \
             <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_CISO646_HEADER(filename) \
+#       define BSL_NATIVE_CISO646_HEADER(filename) \
             <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
+#   endif
+
 #   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
 
 #   if defined(BSLS_PLATFORM__OS_HPUX)

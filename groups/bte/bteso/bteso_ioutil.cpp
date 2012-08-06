@@ -31,6 +31,7 @@ BDES_IDENT_RCSID(bteso_ioutil_cpp,"$Id$ $CSID$")
 #endif
 
 #ifdef BSLS_PLATFORM__OS_CYGWIN
+#include <asm/socket.h>
 #include <sys/ioctl.h>
 #endif
 
