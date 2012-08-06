@@ -53,9 +53,6 @@ using bsl::endl;
 //
 // NO-OP FUNCTIONS FOR INTEGRATION
 // [  ] void reset();
-// [  ] int maxSupportedBdexVersion() const;
-// [  ] STREAM& bdexStreamIn(STREAM& stream, int);
-// [  ] STREAM& bdexStreamOut(STREAM& stream, int) const;
 //
 // MANIPULATORS
 // [ 4] void resize(size_t newSize);
@@ -106,8 +103,6 @@ using bsl::endl;
 // [ 9] const void* object() const;
 // [ 4] bool isByteArrayValue() const;
 // [ 7] bool isNull() const;
-// [ 9] bool isValidForEncoding() const;
-// [ 9] bool isValidForDecoding() const;
 // [ 5] bool choiceHasSelection(const char *name, int len) const;
 // [ 5] bool choiceHasSelection(int selectionId) const;
 // [ 6] bool sequenceHasAttribute(const char *name, int len) const;
@@ -1276,8 +1271,6 @@ void executeSimpleCategoryTest(const char *typeName)
         ASSERTV(&obj == (TYPE*) X.object());
         ASSERTV(false == X.isByteArrayValue());
         ASSERTV(0     == X.className());
-        ASSERTV(true  == X.isValidForEncoding());
-        ASSERTV(true  == X.isValidForDecoding());
     }
 
     if (verbose) cout << "\naccessSimple" << endl;
@@ -1553,8 +1546,7 @@ int main(int argc, char *argv[])
         //: 6 'makeValue' invokes the 'ValueMaker' funciton supplied at the
         //:   'loadNullable' method.
         //:
-        //: 7 'object', 'isValidForEncoding' and 'isValidForDecoding'
-        //:   returns ths expected result.
+        //: 7 'object' returns ths expected result.
         //:
         //: 8 'bdeat' functions are correctly overloaded and can be found
         //:   through ADL.
@@ -1600,8 +1592,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 == bdeat_TypeName_Overloadable
                                                 ::bdeat_TypeName_className(X));
             ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(true  == X.isValidForEncoding());
-            ASSERTV(false == X.isValidForDecoding());
 
             ASSERTV(true == X.isNull());
         }
@@ -1622,8 +1612,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 == bdeat_TypeName_Overloadable
                                                 ::bdeat_TypeName_className(X));
             ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(true  == X.isValidForEncoding());
-            ASSERTV(false == X.isValidForDecoding());
 
             ASSERTV(false == X.isNull());
 
@@ -1706,8 +1694,7 @@ int main(int argc, char *argv[])
         //: 6 'sequenceHasAttribute' correctly returns whether the supplied
         //:   selection is valid.
         //:
-        //: 8 'object', 'isNull', 'isValidForEncoding' and 'isValidForDecoding'
-        //:   returns ths expected result.
+        //: 8 'object' and 'isNull' returns ths expected result.
         //:
         //: 9 'bdeat' functions are correctly overloaded and can be found
         //:   through ADL.
@@ -1775,8 +1762,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 == strcmp(CLASSNAME, bdeat_TypeName_Overloadable
                                                ::bdeat_TypeName_className(X)));
             ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(true  == X.isValidForEncoding());
-            ASSERTV(true  == X.isValidForDecoding());
 
             for (int ti = 0; ti < NUM_INFO; ++ti) {
                 const int   ID     = INFO[ti].d_id;
@@ -1954,8 +1939,7 @@ int main(int argc, char *argv[])
         //: 5 'choiceMakeSelection' invokes the chooser function supplied at
         //: 'loadChoice' and supply the correct argument.
         //:
-        //: 6 'object', 'isNull', 'isValidForEncoding' and 'isValidForDecoding'
-        //:   returns ths expected result.
+        //: 6 'object' and 'isNull' returns ths expected result.
         //:
         //: 7 'bdeat' functions are correctly overloaded and can be found
         //:   through ADL.
@@ -2030,8 +2014,6 @@ int main(int argc, char *argv[])
                                 bdeat_TypeName_Overloadable
                                                ::bdeat_TypeName_className(X)));
             ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(true  == X.isValidForEncoding());
-            ASSERTV(false == X.isValidForDecoding());
 
             ASSERTV(ID == X.selectionId());
             ASSERTV(ID == bdeat_choiceSelectionId(X));
@@ -2076,8 +2058,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
             ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(false == X.isValidForEncoding());
-            ASSERTV(true  == X.isValidForDecoding());
 
             ASSERTV(false == X.choiceHasSelection(-1));
             ASSERTV(false == X.choiceHasSelection(2));
@@ -2145,8 +2125,7 @@ int main(int argc, char *argv[])
         //:   'bdeat_typeCategoryManipulateArray' passed the correct reference
         //:   for both byte array and normal array.
         //:
-        //: 6 'object', 'isNull', 'isValidForEncoding' and 'isValidForDecoding'
-        //:   returns ths expected result.
+        //: 6 'object' and 'isNull' returns ths expected result.
         //:
         //: 7 'bdeat' functions are correctly overloaded and can be found
         //:   through ADL.
@@ -2205,8 +2184,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
             ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(true  == X.isValidForEncoding());
-            ASSERTV(false == X.isValidForDecoding());
 
             ASSERTV(SIZE  == (int)X.size());
             ASSERTV(SIZE  == (int)bdeat_arraySize(X));
@@ -2255,8 +2232,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
             ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(false == X.isValidForEncoding());
-            ASSERTV(true  == X.isValidForDecoding());
 
             ASSERTV(SIZE == (int)X.size());
             ASSERTV(SIZE == (int)bdeat_arraySize(X));
@@ -2346,8 +2321,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 == X.className());
             ASSERTV(0 ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(true == X.isValidForEncoding());
-            ASSERTV(true == X.isValidForDecoding());
 
             ASSERTV(true == X.isByteArrayValue());
 
@@ -2376,8 +2349,7 @@ int main(int argc, char *argv[])
         //: 4 'enumFromInt' and 'enumFromString' returns the value returned
         //:   by the suppliced functor.
         //:
-        //: 5 'object', 'isNull', 'isValidForEncoding' and 'isValidForDecoding'
-        //:   returns ths expected result.
+        //: 5 'object' and 'isNull' returns ths expected result.
         //:
         //: 6 'bdeat' functions are correctly overloaded and can be found
         //:   through ADL.
@@ -2436,9 +2408,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
             ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(true  == X.isValidForEncoding());
-            ASSERTV(false == X.isValidForDecoding());
-
 
             ASSERTV(VALUE == X.enumToInt());
             ASSERTV(0     == strcmp(NAME, X.enumToString()));
@@ -2471,8 +2440,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
             ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(false == X.isValidForEncoding());
-            ASSERTV(true  == X.isValidForDecoding());
 
             for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
                 for (int ti = 0; ti < INFO_SIZE; ++ti) {
@@ -2528,8 +2495,8 @@ int main(int argc, char *argv[])
         //: 3 'accessSimple' and 'manipulateSimple' returns the value returned
         //:   by the suppliced functor.
         //:
-        //: 4 'object', 'isByteArrayValue', 'className', 'isValidForEncoding'
-        //:   and 'isValidForDecoding' returns ths expected result.
+        //: 4 'object', 'isByteArrayValue', and 'className' returns ths
+        //:   expected result.
         //:
         //: 5 'bdeat' functions are correctly overloaded and can be found
         //:   through ADL.

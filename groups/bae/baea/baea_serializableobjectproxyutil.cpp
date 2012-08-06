@@ -37,6 +37,7 @@ void baea_SerializableObjectProxyUtil::makeEncodeProxy(
 }
 
 }  // close namespace BloombergLP
+
 // ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2011

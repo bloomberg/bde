@@ -12,7 +12,7 @@ namespace {
 
 bool areEqual(const char* string1, int length1,
               const char* string2, int length2)
-    // Return 'true' if the specified 'string1' and 'string2' contains the same
+    // Return 'true' if the specified 'string1' and 'string2' contain the same
     // characters and have the same lengths as indicated by the specified
     // 'length1' and 'length2', and 'false' otherwise.
 {
@@ -28,13 +28,14 @@ bool areEqual(const char* string1, int length1,
 //
 // Some decoders, in some situations, use instantiations of
 // bdef_Function<int(*)(TYPE*)> where TYPE is the ElementType of
-// 'baea_SerializableObjectProxy', which is baea_SerializableObjectProxy.  This
-// is in contrast to the usual approach of using an object with a function-call
-// (operator()) method with a templatized argument.  In these situations,
-// passing a baea_SerializableObjectProxy_NullableAdapter breaks compilation --
-// but is unnecessary, given that they are not attempting to detect anything
-// about the type via metaprogramming.  They can be passed the
-// 'baea_SerializableObjectProxy' directly.
+// 'baea_SerializableObjectProxy', which is 'baea_SerializableObjectProxy'.
+// This is in contrast to the usual approach of using a functor.  In these
+// situations, it is unnecessary to pass in a
+// 'baea_SerializableObjectProxy_NullableAdapter', but the
+// 'manipulateContainedElement' methods that takes in a functor
+// will still pass in a 'baea_SerializableObjectProxy_NullableAdapter'.  This
+// will break compilation, which is why an overload for 'bdef_Function' is
+// necessary.
 
 // PRIVATE CLASS METHODS
 int baea_SerializableObjectProxy::manipulateContainedElement(
@@ -70,7 +71,7 @@ void baea_SerializableObjectProxy::loadArrayElementEncodeProxy(
     BSLS_ASSERT(d_objectInfo.is<ArrayEncodeInfo>());
 
     const ArrayEncodeInfo& info = d_objectInfo.the<ArrayEncodeInfo>();
-    void* address = (char*)d_object_p + info.d_elementSize * index;
+    void *address = (char*)d_object_p + info.d_elementSize * index;
     info.d_loader(elementProxy, address);
 }
 
@@ -93,8 +94,7 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
     BSLS_ASSERT(d_objectInfo.is<SequenceInfo>());
 
     const SequenceInfo& info = d_objectInfo.the<SequenceInfo>();
-    for(int i = 0; i < info.d_numAttributes; ++i)
-    {
+    for(int i = 0; i < info.d_numAttributes; ++i) {
         if (info.d_attributeInfo_p[i].id() == elementId) {
             info.d_loader(proxy, *this, i);
             *attrInfo = info.d_attributeInfo_p + i;
@@ -114,13 +114,13 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
 
     const SequenceInfo& info = d_objectInfo.the<SequenceInfo>();
 
-    for(int i = 0; i < info.d_numAttributes; ++i)
-    {
+    for(int i = 0; i < info.d_numAttributes; ++i) {
         *attrInfo = info.d_attributeInfo_p + i;
 
-        if (areEqual(elementName, elementNameLength,
-                     (*attrInfo)->name(), (*attrInfo)->nameLength()))
-        {
+        if (areEqual(elementName,
+                     elementNameLength,
+                     (*attrInfo)->name(),
+                     (*attrInfo)->nameLength())) {
             info.d_loader(proxy, *this, i);
             return 0;                                                 // RETURN
         }
@@ -145,7 +145,7 @@ int baea_SerializableObjectProxy::choiceMakeSelection(int selectionId)
 
     ChoiceDecodeInfo& info = d_objectInfo.the<ChoiceDecodeInfo>();
 
-    // save the selectionId in d_objectInfo.  At this writing, this is only
+    // Save the selectionId in d_objectInfo.  At this writing, this is only
     // necessary in SAFE mode builds -- after invoking this function, some
     // decoders will then assert (in SAFE mode) that the selection ID matches
     // what they just set.  But it might be queried in this way in other
@@ -627,6 +627,8 @@ const char* baea_SerializableObjectProxy::enumToString() const
             return enumInfo->d_name_p;                                // RETURN
         }
     }
+
+    BSLS_ASSERT(!"invalid enumerator");
     return 0;
 }
 
