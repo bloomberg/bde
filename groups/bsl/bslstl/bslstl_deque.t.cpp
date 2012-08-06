@@ -8070,8 +8070,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         //
-	// Concern:
-	//   Demonsrate a context in which a 'deque' might be useful.
+        // Concern:
+        //   Demonsrate a context in which a 'deque' might be useful.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUsage Example 1\n"

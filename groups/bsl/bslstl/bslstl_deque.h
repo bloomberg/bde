@@ -43,33 +43,37 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: A Simple Example
-///- - - - - - - - - - - - - -
-// A 'deque' (pronounced 'deck') is a *D*ouble *E*nded *QUE*ue.  One can
-// efficiently push or pop elements to the front or end of the queue.
+///Example 1: Using a 'deque' to implement a laundry queue
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we are a drop-off laundry, and we want to keep track of the queue of
+// names of people whose laundry is to be done.
+//
+// The queue is to have two types of 'push' -- a normal push, representing a
+// normal customer whose laundry is done after all customers previously pushed
+// into the queue, and 'expeditedPush', a push for a customer who has bribed
+// the merchant to have their laundry done before any of the people already
+// enqueued.
+//
+// When the merchant is ready to do some laundry, they call 'next', which
+// returns the name of the customer whose laundry is to be done next.  Keeping
+// track of the customer after that is done by other data structures which are
+// beyond the scope of this project.
+//
+// There is also a 'find' function, which returns a 'bool' to indicate whether
+// a given customer is still in the queue.
+//
+// We use a 'deque', because a 'deque', unlike a 'vector', can do constant time
+// pushes or pops from either end of the queue.  In this example, we will push
+// to either end of the queue, and pop from the front of the queue, and
+// sometimes access all members of the queue.  We also take advantage of the
+// fact that elements of a 'deque' can be accessed randomly in constant time.
 //
 // First, we define a class 'LaundryQueue' based on a deque, to store names of
 // customers at a drop-off laundry:
 //..
 //  class LaundryQueue {
-//      // This class is designed to keep a queue of customers who have dropped
-//      // their laundry off to be done, where work has not yet begun for those
-//      // people in this queue.  Other data structures beyond the scope of
-//      // this example are used to keep track of laundry once work has begun,
-//      // and after it is finished.
-//      //
-//      // A customer's name is normally entered to the end of the queue with
-//      // the 'push' function.  Names are removed from the front of the queue
-//      // with the 'next' function, at which at which point that customer's
-//      // laundry is done.  If the queue is empty, 'next' returns '""'.  It is
-//      // illegal for a customer to be named '""'.
-//      //
-//      // If, however, the customer bribes the merchant $5, 'expeditedPush' is
-//      // called to push their name to the *front* of the queue, to be done
-//      // *before* all those who are already waiting.
-//      //
-//      // There is also a boolean 'find' function, used to determine if a
-//      // given customer is still in the queue.
+//      // This 'class' keeps track of customers enqueued to have their laundry
+//      // done by a laundromat.
 //
 //      // DATA
 //      bsl::deque<bsl::string>   d_queue;
@@ -77,9 +81,7 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      // MANIPULATORS
 //      void push(const bsl::string& customerName)
-//          // Add the specified 'customerName' to the laundry queue under
-//          // normal conditions, their laundry to be done after everyone
-//          // already in the queue.
+//          // Add the specified 'customerName' to back of the laundry queue.
 //      {
 //          if (! customerName.empty()) {
 //              // Note that 'push_back' is a constant-time operation.
@@ -90,8 +92,7 @@ BSLS_IDENT("$Id: $")
 //
 //      void expeditedPush(const bsl::string& customerName)
 //          // Add the specified 'customerName' to the laundry queue at the
-//          // front, their laundry to be done before everyone already in the
-//          // queue.
+//          // front.
 //      {
 //          if (! customerName.empty()) {
 //              // Note that 'push_front', like 'push_back', is a constant-time
@@ -111,11 +112,6 @@ BSLS_IDENT("$Id: $")
 //
 //          bsl::string ret = d_queue.front();
 //
-//          // Note that 'pop_front' is a constant-time operation.  Note also
-//          // that 'pop_front', if done many times, will free blocks of memory
-//          // used to store the front area of the queue, without affecting
-//          // memory for elements surviving in the queue.
-//
 //          d_queue.pop_front();
 //
 //          return ret;
@@ -128,11 +124,7 @@ BSLS_IDENT("$Id: $")
 //      {
 //          for (size_t i = 0; i < d_queue.size(); ++i) {
 //              // Note that random-access to a 'deque' via 'operator[]' is
-//              // constant-time.
-//
-//              // Note also that element 0 is always the front element of the
-//              // queue, even after there have been some 'push_front's.
-//              // 'deque's never have any elements with negative indices.
+//              // constant-time, and element '0' is always the front.
 //
 //              if (customerName == d_queue[i]) {
 //                  return true;
@@ -143,37 +135,39 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// Next, we declare (and default construct) our laundry queue:
+// Then, we declare (and default construct) our laundry queue:
 //..
 //  LaundryQueue q;
 //..
-// Then, we add a few customers:
+// Next, we add a few customers:
 //..
 //  q.push("Steve Firm");
 //  q.push("Sally Johnson");
 //  q.push("Joe Sampson");
 //..
-// Next, the following customer bribes the merchant and gets pushed
-// to the front of the queue.
+// Then, the following customer bribes the merchant and gets pushed
+// to the front of the queue:
 //..
 //  q.expeditedPush("Dirty Dan");
 //..
-// Then, a couple of more regular customers are pushed:
+// Next, a couple of more regular customers are pushed:
 //..
 //  q.push("Wally Walters");
 //  q.push("Fred Flintstone");
 //..
-// Next, we see who is now next up to have their laundry done, and
-// verify that it is "Dirty Dan".
+// Then, we see who is now next up to have their laundry done, and
+// verify that it is "Dirty Dan":
 //..
 //  bsl::string nxt = q.next();
-//  ASSERT("Dirty Dan" == nxt);
+//  assert("Dirty Dan" == nxt);
 //..
-// Then, we verify that "Dirty Dan" is no longer in the queue, and
-// "Sally Johnson" is still there.
+// Next, we verify that "Dirty Dan" is no longer in the queue:
 //..
-//  ASSERT(! q.find("Dirty Dan"));
-//  ASSERT(  q.find("Sally Johnson"));
+//  assert(! q.find("Dirty Dan"));
+//..
+// Then, we verify that "Sally Johnson" is still in the queue:
+//..
+//  assert(  q.find("Sally Johnson"));
 //..
 // Now, we iterate, printing out the names of people whose laundry
 // remains to be done:
@@ -189,13 +183,13 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we observe that the following names are printed, in the
 // following order:
-//
+//..
 // Next: Steve Firm
 // Next: Sally Johnson
 // Next: Joe Sampson
 // Next: Wally Walters
 // Next: Fred Flintstone
-//
+//..
 ///Example 2: Showing Further Properties of a Deque and its Iterators
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Our second example is entirely abstract -- it does not aim to illustrate a
