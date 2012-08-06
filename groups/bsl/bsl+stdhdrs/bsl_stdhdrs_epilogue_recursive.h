@@ -48,13 +48,6 @@
 // 'BSL_INCLUDE_*' macros are defined in the standard headers inside the
 // 'bsl+stdhdrs' package.
 
-#ifdef BSL_INCLUDE_BSL_LIST
-# ifndef INCLUDED_BSLSTP_LIST
-#   include <bslstp_list.h>
-#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
-# endif
-#endif
-
 #ifdef BSL_INCLUDE_BSL_QUEUE
 # ifndef INCLUDED_BSLSTP_QUEUE
 #   include <bslstp_queue.h>
@@ -156,6 +149,13 @@
 # endif
 # ifndef INCLUDED_BSLSTL_MULTISET
 #   include <bslstl_multiset.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
+#ifdef BSL_INCLUDE_BSL_LIST
+# ifndef INCLUDED_BSLSTL_LIST
+#   include <bslstl_list.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
