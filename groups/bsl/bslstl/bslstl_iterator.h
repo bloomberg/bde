@@ -147,7 +147,6 @@ struct iterator_traits<TYPE *> {
 
 template <class ITER>
 class reverse_iterator :
-#if defined(BSLS_PLATFORM__CMP_SUN)
     public native_std::reverse_iterator<
                              ITER,
                              typename iterator_traits<ITER>::iterator_category,
@@ -162,12 +161,6 @@ class reverse_iterator :
                  typename iterator_traits<ITER>::value_type,
                  typename iterator_traits<ITER>::reference,
                  typename iterator_traits<ITER>::pointer>                 Base;
-#else
-    public native_std::reverse_iterator<ITER> {
-
-    // PRIVATE TYPES
-    typedef native_std::reverse_iterator<ITER> Base;
-#endif
 
   public:
     // For convenience:
@@ -416,16 +409,12 @@ inline
 bool operator==(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs)
 {
-#if defined(BSLS_PLATFORM__CMP_SUN)
     typedef native_std::reverse_iterator<
                  ITER,
                  typename iterator_traits<ITER>::iterator_category,
                  typename iterator_traits<ITER>::value_type,
                  typename iterator_traits<ITER>::reference,
                  typename iterator_traits<ITER>::pointer>                 Base;
-#else
-    typedef native_std::reverse_iterator<ITER> Base;
-#endif
 
     return std::operator==(static_cast<const Base&>(lhs),
                            static_cast<const Base&>(rhs));
@@ -462,16 +451,12 @@ inline
 bool operator<(const reverse_iterator<ITER>& lhs,
                const reverse_iterator<ITER>& rhs)
 {
-#if defined(BSLS_PLATFORM__CMP_SUN)
     typedef native_std::reverse_iterator<
                  ITER,
                  typename iterator_traits<ITER>::iterator_category,
                  typename iterator_traits<ITER>::value_type,
                  typename iterator_traits<ITER>::reference,
                  typename iterator_traits<ITER>::pointer>                 Base;
-#else
-    typedef native_std::reverse_iterator<ITER> Base;
-#endif
 
     return std::operator<(static_cast<const Base&>(lhs),
                           static_cast<const Base&>(rhs));
@@ -540,16 +525,12 @@ typename reverse_iterator<ITER>::difference_type
 operator-(const reverse_iterator<ITER>& lhs,
           const reverse_iterator<ITER>& rhs)
 {
-#if defined(BSLS_PLATFORM__CMP_SUN)
     typedef native_std::reverse_iterator<
                  ITER,
                  typename iterator_traits<ITER>::iterator_category,
                  typename iterator_traits<ITER>::value_type,
                  typename iterator_traits<ITER>::reference,
                  typename iterator_traits<ITER>::pointer>                 Base;
-#else
-    typedef native_std::reverse_iterator<ITER> Base;
-#endif
 
     return std::operator-(static_cast<const Base&>(lhs),
                           static_cast<const Base&>(rhs));
