@@ -13253,6 +13253,39 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int NITER,
 }
 
 //=============================================================================
+//                                USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+namespace UsageExample {
+
+int parseInt(bsl::string *s, int value)
+    // Load into the specified 's' the ASCII representation of the
+    // specified 'value'.  Return 0 on success and a non-zero value
+    // otherwise.
+{
+    BSLS_ASSERT(s);
+
+    if (0 < value) {
+        for (; 0 != value; value /= 10) {
+            *--buffer = '0' + (int)(value % 10);
+        }
+        return buffer;
+    }
+    if (0 > value) {
+        UNSIGNED unsignedValue = -value;
+        for (; 0 != unsignedValue; unsignedValue /= 10) {
+            *--buffer = '0' + (int)(unsignedValue % 10);
+        }
+        *--buffer = '-';
+        return buffer;
+    }
+    *--buffer = '0';
+    return buffer;
+}
+
+} // close namespace 'UsageExample'
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 

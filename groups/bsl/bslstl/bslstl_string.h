@@ -35,6 +35,84 @@ BSLS_IDENT("$Id: $")
 // string is declared the smaller.  Lexicographical comparison returns equality
 // only when both strings have the same length and the same character value in
 // each respective position.
+//
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Basic Usage
+///- - - - - - - - - - -
+// In this example, we will show how to use the 'string' class:
+//
+// First, let us construct a 'string' object using a string literal:
+//..
+//  bsl::string s = "Hello World";
+//  assert(11 == s.length());
+//  assert(!s.empty());
+//..
+// Then, we will remove the contents of 's' and assign a different value to it:
+//..
+//  s.clear();
+//  assert(s.empty());
+//  s = "Good Morning";
+//  assert(!s.empty());
+//..
+// Next, we create two string objects, one representing a state, and the other
+// a street address:
+//..
+//  const bsl::string state         = "New York";
+//  const bsl::string streetAddress = "731 Lexington Avenue";
+//..
+// Then, we can concatenate the two string objects to form a single string
+// representing a full address using 'operator+' and print out its contents on
+// standard output:
+//..
+//  const bsl::string fullAddress = streetAddress + ", " + state;
+//
+//  bsl::cout << fullAddress << bsl::endl;
+//..
+// The above print statement should produce the following output:
+//..
+//  731 Lexington Avenue, New York
+//..
+// Next, we can search the contents of a 'string' using the 'find' function.
+// So if we want to find if a given street address lies on a specified street,
+// we can do:
+//..
+//  const bsl::string streetName = "Lexington";
+//
+//  if (bsl::string::npos != fullAddress.find(streetName, 0)) {
+//      bsl::cout << "The address " << fullAddress << " is located on "
+//                << streetName << "." << bsl::endl;
+//  }
+//..
+//  The 'string' class contains the 'c_str' function that returns a reference
+//  providing modifiable access to the null-terminated string literal:
+//..
+//  const char *cs = s.c_str();
+//..
+//  'cs' can then be passed to various standard functions expecting a
+//  null-terminated string literal:
+//..
+//  assert(bsl::strlen(cs) == s.length());
+//..
+// Next, we show how to construct a 'string' object using a user-specified
+// allocator.  Consider 'allocator' that refers to an object that implements
+// the 'bslma::Allocator' protocol and uses 'new' and 'delete' to allocate and
+// deallocate memory.
+//..
+//  bslma::Allocator *allocator = &bslma_NewDeleteAllocator::singleton();
+//..
+// Now, we construct a 'string' object, 't', that has the same value as 's',
+// and uses 'allocator' for supplying memory:
+//..
+//  const bsl::string t(s, allocator);
+//  assert(s == t);
+//..
+//
+///Example 2: Implementing a simplified 'grep' facility
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
