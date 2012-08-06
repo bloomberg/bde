@@ -361,6 +361,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -411,7 +415,7 @@ class bdesu_FdStreamBuf_FileHandler {
 
   private:
     // CLASS DATA
-    static bsls_Types::size_type
+    static bsls::AtomicOperations::AtomicTypes::Int
            s_pageSize;             // page size associated with this operating
                                    // system
 
@@ -1031,7 +1035,7 @@ class bdesu_FdStreamBuf : public bsl::streambuf {
 inline
 size_t bdesu_FdStreamBuf_FileHandler::pageSize()
 {
-    return s_pageSize;
+    return bsls::AtomicOperations::getIntRelaxed(&s_pageSize);
 }
 
 // MANIPULATORS

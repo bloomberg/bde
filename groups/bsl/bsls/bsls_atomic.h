@@ -475,7 +475,7 @@ BSLS_IDENT("$Id: $")
 //  template <class TYPE>
 //  class my_PtrStack {
 //      // TYPES
-//      typedef struct Node {
+//      struct Node {
 //          TYPE                 *d_item_p;
 //          Node                 *d_next_p;
 //          bsls::AtomicInt       d_inUseFlag; // used to lock this node
@@ -944,6 +944,16 @@ class AtomicPointer {
     // DATA
     AtomicOperations::AtomicTypes::Pointer d_value;
 
+    typedef char AtomicPointer_PointerSizeCheck[
+        sizeof(TYPE *) == sizeof(void *) ? 1 : -1];
+        // Static assert that a 'TYPE*' pointer is binary compatible with a
+        // 'void*' pointer.  The implementation of 'AtomicPointer' uses
+        // 'reinterpret_cast' to convert between 'TYPE*' and 'void*' because
+        // function pointers are not implicitly convertable to 'void*', and
+        // this assert makes sure that such a cast is safe.  Note that
+        // 'bslmf_Assert' can't be used here because of package dependency
+        // rules.
+
   private:
     // NOT IMPLEMENTED
     AtomicPointer(const AtomicPointer<TYPE>&);                  // = delete
@@ -1341,7 +1351,8 @@ template <class TYPE>
 inline
 AtomicPointer<TYPE>::AtomicPointer(TYPE *value)
 {
-    AtomicOperations_Imp::initPointer(&d_value, value);
+    AtomicOperations_Imp::initPointer(&d_value,
+                                      reinterpret_cast<const void *>(value));
 }
 
 // MANIPULATORS
@@ -1350,7 +1361,8 @@ inline
 AtomicPointer<TYPE>&
 AtomicPointer<TYPE>::operator=(TYPE *value)
 {
-    AtomicOperations_Imp::setPtr(&d_value, value);
+    AtomicOperations_Imp::setPtr(&d_value,
+                                 reinterpret_cast<const void *>(value));
     return *this;
 }
 
@@ -1358,39 +1370,48 @@ template <class TYPE>
 inline
 void AtomicPointer<TYPE>::storeRelaxed(TYPE *value)
 {
-    AtomicOperations_Imp::setPtrRelaxed(&d_value, value);
+    AtomicOperations_Imp::setPtrRelaxed(&d_value,
+                                        reinterpret_cast<const void *>(value));
 }
 
 template <class TYPE>
 inline
 void AtomicPointer<TYPE>::storeRelease(TYPE *value)
 {
-    AtomicOperations_Imp::setPtrRelease(&d_value, value);
+    AtomicOperations_Imp::setPtrRelease(&d_value,
+                                        reinterpret_cast<const void *>(value));
 }
 
 template <class TYPE>
 inline
 TYPE *AtomicPointer<TYPE>::swap(TYPE *swapValue)
 {
-    return (TYPE*)AtomicOperations_Imp::swapPtr(&d_value, swapValue);
+    return reinterpret_cast<TYPE *>(
+        AtomicOperations_Imp::swapPtr(
+            &d_value,
+            reinterpret_cast<const void *>(swapValue)));
 }
 
 template <class TYPE>
 inline
 TYPE *AtomicPointer<TYPE>::swapAcqRel(TYPE *swapValue)
 {
-    return (TYPE*)AtomicOperations_Imp::swapPtrAcqRel(&d_value,
-                                                      swapValue);
+    return reinterpret_cast<TYPE *>(
+        AtomicOperations_Imp::swapPtrAcqRel(
+            &d_value,
+            reinterpret_cast<const void *>(swapValue)));
 }
 
 template <class TYPE>
 inline
 TYPE *AtomicPointer<TYPE>::testAndSwap(const TYPE *compareValue,
-                                            TYPE       *swapValue)
+                                       TYPE       *swapValue)
 {
-    return (TYPE*)AtomicOperations_Imp::testAndSwapPtr(&d_value,
-                                                       compareValue,
-                                                       swapValue);
+    return reinterpret_cast<TYPE *>(
+        AtomicOperations_Imp::testAndSwapPtr(
+            &d_value,
+            reinterpret_cast<const void *>(compareValue),
+            reinterpret_cast<const void *>(swapValue)));
 }
 
 template <class TYPE>
@@ -1398,9 +1419,11 @@ inline
 TYPE *AtomicPointer<TYPE>::testAndSwapAcqRel(const TYPE *compareValue,
                                              TYPE       *swapValue)
 {
-    return (TYPE*)AtomicOperations_Imp::testAndSwapPtrAcqRel(&d_value,
-                                                             compareValue,
-                                                             swapValue);
+    return reinterpret_cast<TYPE *>(
+        AtomicOperations_Imp::testAndSwapPtrAcqRel(
+            &d_value,
+            reinterpret_cast<const void *>(compareValue),
+            reinterpret_cast<const void *>(swapValue)));
 }
 
 // ACCESSORS
@@ -1408,7 +1431,7 @@ template <class TYPE>
 inline
 AtomicPointer<TYPE>::operator TYPE*() const
 {
-    return (TYPE*) AtomicOperations_Imp::getPtr(&d_value);
+    return (TYPE *) AtomicOperations_Imp::getPtr(&d_value);
 }
 
 template <class TYPE>
@@ -1422,28 +1445,28 @@ template <class TYPE>
 inline
 TYPE& AtomicPointer<TYPE>::operator*() const
 {
-    return *((TYPE*)AtomicOperations_Imp::getPtr(&d_value));
+    return *((TYPE *) AtomicOperations_Imp::getPtr(&d_value));
 }
 
 template <class TYPE>
 inline
 TYPE *AtomicPointer<TYPE>::operator->() const
 {
-    return (TYPE*)AtomicOperations_Imp::getPtr(&d_value);
+    return (TYPE *) AtomicOperations_Imp::getPtr(&d_value);
 }
 
 template <class TYPE>
 inline
 TYPE *AtomicPointer<TYPE>::loadRelaxed() const
 {
-    return (TYPE*)AtomicOperations_Imp::getPtrRelaxed(&d_value);
+    return (TYPE *) AtomicOperations_Imp::getPtrRelaxed(&d_value);
 }
 
 template <class TYPE>
 inline
 TYPE *AtomicPointer<TYPE>::loadAcquire() const
 {
-    return (TYPE*)AtomicOperations_Imp::getPtrAcquire(&d_value);
+    return (TYPE *) AtomicOperations_Imp::getPtrAcquire(&d_value);
 }
 
 }  // close package namespace

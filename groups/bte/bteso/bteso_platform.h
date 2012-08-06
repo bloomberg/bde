@@ -70,6 +70,7 @@ struct bteso_Platform {
 
         #if defined(BSLS_PLATFORM__OS_CYGWIN)  \
          || defined(BSLS_PLATFORM__OS_FREEBSD) \
+         || defined(BSLS_PLATFORM__OS_DARWIN)  \
          || defined(BSLS_PLATFORM__OS_HPUX)
             typedef POLL    DEFAULT_POLLING_MECHANISM;
         #endif

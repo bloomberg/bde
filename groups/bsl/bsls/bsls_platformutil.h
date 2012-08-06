@@ -220,32 +220,6 @@ struct PlatformUtil {
        // defined in 'bsls_platform' instead.
 #endif
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
-    #if BSLS_PLATFORM__CMP_VER_MAJOR <= 1200
-        #define BSLS_PLATFORMUTIL__NO_LONG_HEADER_NAMES \
-                                            BSLS_PLATFORM__NO_LONG_HEADER_NAMES
-           // DEPRECATED: Use preprocessor macro
-           // 'BSLS_PLATFORM__NO_LONG_HEADER_NAMES' defined in 'bsls_platform'
-           // instead.
-    #endif
-#endif
-
-#if defined(BSLS_PLATFORM__CMP_GNU)
-    #define BSLS_PLATFORMUTIL__NO_64_BIT_CONSTANTS \
-                                             BSLS_PLATFORM__NO_64_BIT_CONSTANTS
-        // DEPRECATED: Use preprocessor macro
-        // 'BSLS_PLATFORM__NO_64_BIT_CONSTANTS' defined in 'bsls_platform'
-        // instead.
-#endif
-
-#if defined(BSLS_PLATFORM__CMP_IBM) && !defined(BSLS_PLATFORM__CPU_64_BIT)
-    #define BSLS_PLATFORMUTIL__NO_64_BIT_CONSTANTS \
-                                             BSLS_PLATFORM__NO_64_BIT_CONSTANTS
-        // DEPRECATED: Use preprocessor macro
-        // 'BSLS_PLATFORM__NO_64_BIT_CONSTANTS' defined in 'bsls_platform'
-        // instead.
-#endif
-
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
 #if defined(BSLS_PLATFORMUTIL__IS_BIG_ENDIAN)

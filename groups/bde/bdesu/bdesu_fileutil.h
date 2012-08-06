@@ -427,19 +427,21 @@ struct bdesu_FileUtil {
                    Offset           offset,
                    int              size,
                    int              mode);
-        // Map the region of 'size' bytes, starting 'offset' bytes into the
-        // file with the specified 'fd' descriptor to memory, and load into
-        // the specified 'addr' the address of the mapped area.  Return 0 on
-        // success, and a non-zero value otherwise.  The access permissions
-        // for mapping memory are defined by 'mode', which may be a combination
-        // of 'bdesu_MemoryUtil::ACCESS_READ', 'bdesu_MemoryUtil::ACCESS_WRITE'
-        // and 'bdesu_MemoryUtil::ACCESS_EXECUTE'.  Note that on failure, the
+        // Map the region of the specified 'size' bytes, starting at the
+        // specified 'offset' bytes into the file with the specified 'fd'
+        // descriptor to memory, and load into the specified 'addr' the address
+        // of the mapped area.  Return 0 on success, and a non-zero value
+        // otherwise.  The access permissions for mapping memory are defined by
+        // the specified 'mode', which may be a combination of
+        // 'bdesu_MemoryUtil::BDESU_ACCESS_READ',
+        // 'bdesu_MemoryUtil::BDESU_ACCESS_WRITE' and
+        // 'bdesu_MemoryUtil::BDESU_ACCESS_EXECUTE'.  Note that on failure, the
         // value of 'addr' is undefined.  Also note that mapping will succeed
         // even if there are fewer than 'offset + size' bytes in the specified
-        // file, and an attempt to access the mapped memory beyond the end
-        // of the file will result in undefined behavior (i.e., this
-        // function does not grow the file to guarantee it can accommodate
-        // the mapped region).
+        // file, and an attempt to access the mapped memory beyond the end of
+        // the file will result in undefined behavior (i.e., this function does
+        // not grow the file to guarantee it can accommodate the mapped
+        // region).
 
     static int unmap(void *addr, int size);
         // Unmap the memory mapping with the specified base address 'addr' and

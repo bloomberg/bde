@@ -97,25 +97,31 @@ namespace bsls {
                                 // ------------
 
 // CLASS DATA
-Assert::Handler Assert::s_handler    = Assert::failAbort;
-bool            Assert::s_lockedFlag = false;
+bsls::AtomicOperations::AtomicTypes::Pointer
+    Assert::s_handler = {(void *) &Assert::failAbort};
+bsls::AtomicOperations::AtomicTypes::Int Assert::s_lockedFlag = {0};
 
 // CLASS METHODS
+void Assert::setFailureHandlerRaw(Assert::Handler function)
+{
+    bsls::AtomicOperations::setPtrRelease(&s_handler, (void *) function);
+}
+
 void Assert::setFailureHandler(Assert::Handler function)
 {
-    if (!s_lockedFlag) {
-        s_handler = function;
+    if (!bsls::AtomicOperations::getIntRelaxed(&s_lockedFlag)) {
+        setFailureHandlerRaw(function);
     }
 }
 
 void Assert::lockAssertAdministration()
 {
-    s_lockedFlag = true;
+    bsls::AtomicOperations::setIntRelaxed(&s_lockedFlag, 1);
 }
 
 Assert::Handler Assert::failureHandler()
 {
-    return s_handler;
+    return (Handler) bsls::AtomicOperations::getPtrAcquire(&s_handler);
 }
 
                        // Macro Dispatcher Method
@@ -123,7 +129,7 @@ Assert::Handler Assert::failureHandler()
 BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 void Assert::invokeHandler(const char *text, const char *file, int line)
 {
-    s_handler(text, file, line);
+    failureHandler()(text, file, line);
 }
 
                      // Standard Assertion-Failure Handlers
@@ -215,14 +221,14 @@ namespace bsls {
                     // -------------------------------
 
 AssertFailureHandlerGuard::AssertFailureHandlerGuard(Assert::Handler temporary)
-: d_original(Assert::s_handler)
+: d_original(Assert::failureHandler())
 {
-    Assert::s_handler = temporary;
+    Assert::setFailureHandlerRaw(temporary);
 }
 
 AssertFailureHandlerGuard::~AssertFailureHandlerGuard()
 {
-    Assert::s_handler = d_original;
+    Assert::setFailureHandlerRaw(d_original);
 }
 
 }  // close package namespace
