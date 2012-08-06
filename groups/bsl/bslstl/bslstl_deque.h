@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Using a 'deque' to implement a laundry queue
+///Example 1: Using a 'deque' to Implement a Laundry Queue
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we are a drop-off laundry, and we want to keep track of the queue of
 // names of people whose laundry is to be done.
@@ -56,17 +56,11 @@ BSLS_IDENT("$Id: $")
 //
 // When the merchant is ready to do some laundry, they call 'next', which
 // returns the name of the customer whose laundry is to be done next.  Keeping
-// track of the customer after that is done by other data structures which are
-// beyond the scope of this project.
+// track of the customer after that is done by other data structures, which are
+// beyond the scope of this example.
 //
 // There is also a 'find' function, which returns a 'bool' to indicate whether
 // a given customer is still in the queue.
-//
-// We use a 'deque', because a 'deque', unlike a 'vector', can do constant time
-// pushes or pops from either end of the queue.  In this example, we will push
-// to either end of the queue, and pop from the front of the queue, and
-// sometimes access all members of the queue.  We also take advantage of the
-// fact that elements of a 'deque' can be accessed randomly in constant time.
 //
 // First, we define a class 'LaundryQueue' based on a deque, to store names of
 // customers at a drop-off laundry:
@@ -83,23 +77,14 @@ BSLS_IDENT("$Id: $")
 //      void push(const bsl::string& customerName)
 //          // Add the specified 'customerName' to back of the laundry queue.
 //      {
-//          if (! customerName.empty()) {
-//              // Note that 'push_back' is a constant-time operation.
-//
-//              d_queue.push_back(customerName);
-//          }
+//          d_queue.push_back(customerName);     // constant time
 //      }
 //
 //      void expeditedPush(const bsl::string& customerName)
 //          // Add the specified 'customerName' to the laundry queue at the
 //          // front.
 //      {
-//          if (! customerName.empty()) {
-//              // Note that 'push_front', like 'push_back', is a constant-time
-//              // operation.
-//
-//              d_queue.push_front(customerName);
-//          }
+//          d_queue.push_front(customerName);    // constant time
 //      }
 //
 //      bsl::string next()
@@ -107,12 +92,12 @@ BSLS_IDENT("$Id: $")
 //          // the queue.
 //      {
 //          if (d_queue.empty()) {
-//              return "";                                            // RETURN
+//              return "(empty)";
 //          }
 //
-//          bsl::string ret = d_queue.front();
+//          bsl::string ret = d_queue.front();   // constant time
 //
-//          d_queue.pop_front();
+//          d_queue.pop_front();                 // constant time
 //
 //          return ret;
 //      }
@@ -122,11 +107,10 @@ BSLS_IDENT("$Id: $")
 //          // Return 'true' if 'customerName' is in the queue and 'false'
 //          // otherwise.
 //      {
-//          for (size_t i = 0; i < d_queue.size(); ++i) {
-//              // Note that random-access to a 'deque' via 'operator[]' is
-//              // constant-time, and element '0' is always the front.
+//          // Note 'd_queue[0] == d_queue.front()' always
 //
-//              if (customerName == d_queue[i]) {
+//          for (size_t i = 0; i < d_queue.size(); ++i) {
+//              if (customerName == d_queue[i]) {    // '[]' is constant time
 //                  return true;
 //              }
 //          }

@@ -374,94 +374,82 @@ static int numCopyCtorCalls    = 0;
 static int numAssignmentCalls  = 0;
 static int numDestructorCalls  = 0;
 
-                                // =====
-                                // Usage
-                                // =====
+                              // ===============
+                              // Usage Example 1
+                              // ===============
+
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Using a 'deque' to Implement a Laundry Queue
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we are a drop-off laundry, and we want to keep track of the queue of
+// names of people whose laundry is to be done.
+//
+// The queue is to have two types of 'push' -- a normal push, representing a
+// normal customer whose laundry is done after all customers previously pushed
+// into the queue, and 'expeditedPush', a push for a customer who has bribed
+// the merchant to have their laundry done before any of the people already
+// enqueued.
+//
+// When the merchant is ready to do some laundry, they call 'next', which
+// returns the name of the customer whose laundry is to be done next.  Keeping
+// track of the customer after that is done by other data structures, which are
+// beyond the scope of this example.
+//
+// There is also a 'find' function, which returns a 'bool' to indicate whether
+// a given customer is still in the queue.
+//
+// First, we define a class 'LaundryQueue' based on a deque, to store names of
+// customers at a drop-off laundry:
 
 class LaundryQueue {
-    // This class is designed to keep a queue of customers who have dropped
-    // their laundry off to be done, where work has not yet begun for those
-    // people in this queue.  Other data structures beyond the scope of this
-    // example are used to keep track of laundry once work has begun, and after
-    // it is finished.
-    //
-    // A customer's name is normally entered to the end of the queue with the
-    // 'push' function.  Names are removed from the front of the queue with the
-    // 'next' function, at which at which point that customer's laundry is
-    // done.  If the queue is empty, 'next' returns '""'.  It is illegal for
-    // a customer to be named '""'.
-    //
-    // If, however, the customer bribes the merchant $5, 'expeditedPush' is
-    // called to push their name to the *front* of the queue, to be done
-    // *before* all those who are already waiting.
-    //
-    // There is also a boolean 'find' function, used to determine if a given
-    // customer is still in the queue.
+    // This 'class' keeps track of customers enqueued to have their laundry
+    // done by a laundromat.
 
     // DATA
-    bsl::deque<bsl::string>   d_queue;
+    bsl::deque<bsl::string> d_queue;
 
   public:
     // MANIPULATORS
     void push(const bsl::string& customerName)
-        // Add the specified 'customerName' to the laundry queue under normal
-        // conditions, their laundry to be done after everyone already in the
-        // queue.
+        // Add the specified 'customerName' to the back of the laundry queue.
     {
-        if (! customerName.empty()) {
-            // Note that 'push_back' is a constant-time operation.
-
-            d_queue.push_back(customerName);
-        }
+        d_queue.push_back(customerName);     // note constant time
     }
 
     void expeditedPush(const bsl::string& customerName)
-        // Add the specified 'customerName' to the laundry queue at the front,
-        // their laundry to be done before everyone already in the
-        // queue.
+        // Add the specified 'customerName' to the laundry queue at the
+        // front.
     {
-        if (! customerName.empty()) {
-            // Note that 'push_front', like 'push_back', is a constant-time
-            // operation.
-
-            d_queue.push_front(customerName);
-        }
+        d_queue.push_front(customerName);    // note constant time
     }
 
     bsl::string next()
-        // Return the name from the front of the queue, removing it from the
-        // queue.
+        // Return the name from the front of the queue, removing it from
+        // the queue.
     {
         if (d_queue.empty()) {
-            return "";                                                // RETURN
+            return "(* empty *)";
         }
 
-        bsl::string ret = d_queue.front();
+        bsl::string ret = d_queue.front();   // note constant time
 
-        // Note that 'pop_front' is a constant-time operation.  Note also that
-        // 'pop_front', if done many times, will free blocks of memory used to
-        // store the front area of the queue, without affecting memory for
-        // elements surviving in the queue.
-
-        d_queue.pop_front();
+        d_queue.pop_front();                 // note constant time
 
         return ret;
     }
 
     // ACCESSORS
     bool find(const bsl::string& customerName)
-        // Return 'true' if 'customerName' is in the queue and 'false'
+        // Return 'true' if 'customerName' is in the queue, and 'false'
         // otherwise.
     {
+        // Note 'd_queue.empty() || d_queue[0] == d_queue.front()'
+
         for (size_t i = 0; i < d_queue.size(); ++i) {
-            // Note that random-access to a 'deque' via 'operator[]' is
-            // constant-time.
-
-            // Note also that element 0 is always the front element of the
-            // queue, even after there have been some 'push_front's.  'deque's
-            // never have any elements with negative indices.
-
-            if (customerName == d_queue[i]) {
+            if (customerName == d_queue[i]) {    // note '[]' is constant time
                 return true;
             }
         }
@@ -470,16 +458,15 @@ class LaundryQueue {
     }
 };
 
-
-                                // =====
-                                // usage
-                                // =====
+                              // ===============
+                              // Usage Example 2
+                              // ===============
 
 ///Usage
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Showing Properties of a Deque and its Iterators
+///Example 2: Showing Properties of a Deque and its Iterators
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'deque' (pronounced 'deck') is a *D*ouble *E*nded *QUE*ue.  One can
 // efficiently push or pop elements to the front or end of the queue.  It has
@@ -8076,37 +8063,39 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nUsage Example 1\n"
                               "===============\n");
-
-        // Next, we declare (and default construct) our laundry queue:
+        
+        // Then, we define (and default construct) our laundry queue:
 
         LaundryQueue q;
 
-        // Then, we add a few customers:
+        // Next, we add a few customers:
 
         q.push("Steve Firm");
         q.push("Sally Johnson");
         q.push("Joe Sampson");
 
-        // Next, the following customer bribes the merchant and gets pushed
-        // to the front of the queue.
+        // Then, the following customer bribes the merchant and gets pushed
+        // to the front of the queue:
 
         q.expeditedPush("Dirty Dan");
 
-        // Then, a couple of more regular customers are pushed:
+        // Next, a couple of more regular customers are pushed:
 
         q.push("Wally Walters");
         q.push("Fred Flintstone");
 
-        // Next, we see who is now next up to have their laundry done, and
-        // verify that it is "Dirty Dan".
+        // Then, we see who is now next up to have their laundry done, and
+        // verify that it is "Dirty Dan":
 
         bsl::string nxt = q.next();
         ASSERT("Dirty Dan" == nxt);
 
-        // Then, we verify that "Dirty Dan" is no longer in the queue, and
-        // "Sally Johnson" is still there.
+        // Next, we verify that "Dirty Dan" is no longer in the queue:
 
         ASSERT(! q.find("Dirty Dan"));
+
+        // Then, we verify that "Sally Johnson" is still in the queue:
+
         ASSERT(  q.find("Sally Johnson"));
 
         // Now, we iterate, printing out the names of people whose laundry
@@ -8114,16 +8103,16 @@ int main(int argc, char *argv[])
 
         while (true) {
             bsl::string customerName = q.next();
-            if (customerName.empty()) {
+            if ("(* empty *)" == customerName) {
                 break;
             }
-
+        
             printf("Next: %s\n", customerName.c_str());
         }
 
-        // Finally, we observe that the following names are printed, in the
-        // following order:
-        //
+        // Finally, we observe that these names are printed, in the following
+        // order:
+
         // Next: Steve Firm
         // Next: Sally Johnson
         // Next: Joe Sampson
