@@ -5018,7 +5018,7 @@ void TestDriver<TYPE,ALLOC>::testIterators()
                 LOOP2_ASSERT(LINE, i, citer   == iter);
                 LOOP2_ASSERT(LINE, i, &*citer == &*iter);
                 // C++0x allows comparison of dissimilar reverse_iterators.
-                LOOP2_ASSERT(LINE, i, criter  == riter);
+                //LOOP2_ASSERT(LINE, i, criter  == riter);
 
                 // Decrement reverse iterator before dereferencing
                 --riter;
@@ -5069,7 +5069,7 @@ void TestDriver<TYPE,ALLOC>::testIterators()
                 LOOP2_ASSERT(LINE, i, riter    == riter2);
                 LOOP2_ASSERT(LINE, i, riter    == riter3);
                 // C++0x allows comparison of dissimilar reverse_iterators.
-                LOOP2_ASSERT(LINE, i, riter    == criter);
+                //LOOP2_ASSERT(LINE, i, riter    == criter);
 
                 LOOP2_ASSERT(LINE, i, criter   == criter2);
                 LOOP2_ASSERT(LINE, i, criter   == criter3);
@@ -5126,7 +5126,7 @@ void TestDriver<TYPE,ALLOC>::testIterators()
                 LOOP2_ASSERT(LINE, i, X.begin() == iback);
                 LOOP2_ASSERT(LINE, i, X.begin() == ciback);
                 // C++0x allows comparison of dissimilar reverse_iterators.
-                LOOP2_ASSERT(LINE, i, X.rend()  == riback);
+                //LOOP2_ASSERT(LINE, i, X.rend()  == riback);
                 LOOP2_ASSERT(LINE, i, X.rend()  == criback);
 
                 // Test result of pre and post-increment
@@ -5151,7 +5151,7 @@ void TestDriver<TYPE,ALLOC>::testIterators()
             LOOP_ASSERT(LINE, X.end()    == iter);
             LOOP_ASSERT(LINE, X.end()    == citer);
             // C++0x allows comparison of dissimilar reverse_iterators.
-            LOOP_ASSERT(LINE, X.rbegin() == riter);
+            //LOOP_ASSERT(LINE, X.rbegin() == riter);
             LOOP_ASSERT(LINE, X.rbegin() == criter);
         } // end for each spec
     } // end for 'begin', 'end', etc.
