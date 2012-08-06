@@ -2,7 +2,7 @@
 #include <bsls_annotation.h>
 
 #include <iostream>
-#include <stdlib.h>  // 'calloc', 'realloc'
+#include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
 #include <string.h>  // 'strcmp'
 
 // Uncomment next line to test annotations that can cause compiler warnings.
@@ -423,7 +423,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    int    test = argc > 1 ? std::atoi(argv[1]) : 0;
+    int    test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
