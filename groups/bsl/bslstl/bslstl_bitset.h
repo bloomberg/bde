@@ -97,14 +97,16 @@ BSLS_IDENT("$Id: $")
 //      // Note that we treat 'false' values as potential primes,
 //      // since that is how 'bsl::bitset' is default-initialized.
 //
-//      for (int i = 2; i <= sqrtOfCandidate; ++i) {
+//      for (std::size_t i = 2; i <= sqrtOfCandidate; ++i) {
 //          if (compositeFlags[i]) {
 //              continue; // Skip this value: it's flagged as composite, so all
 //                        // of its multiples are already flagged as composite
 //                        // as well.
 //          }
 //
-//          for (int flagValue = i; flagValue <= candidate; flagValue += i) {
+//          for (std::size_t flagValue = i;
+//               flagValue <= candidate;
+//               flagValue += i) {
 //              compositeFlags[flagValue] = true;
 //          }
 //
