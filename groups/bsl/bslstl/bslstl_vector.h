@@ -460,13 +460,13 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
   public:
     // TRAITS
-    typedef BloombergLP::
-
-    bslstl::TraitsGroupStlSequenceContainer<VALUE_TYPE,
+    /* TODO:
+    typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<VALUE_TYPE,
                                             ALLOCATOR> VectorTypeTraits;
 
     BSLALG_DECLARE_NESTED_TRAITS(Vector_Imp, VectorTypeTraits);
         // Declare nested type traits for this class.
+        */
 
     // CREATORS
 
@@ -756,8 +756,10 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
     typedef typename Base::size_type          size_type;
 
     // TRAITS
+    /* TODO:
     BSLALG_DECLARE_NESTED_TRAITS(vector,
                                  BloombergLP::bslalg_TypeTraits<Base>);
+                                 */
 
   public:
     // 23.2.4.1 construct/copy/destroy:
@@ -875,8 +877,10 @@ class vector< VALUE_TYPE *, ALLOCATOR >
     typedef bsl::reverse_iterator<iterator>       reverse_iterator;
     typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
 
+    /* TODO:
     BSLALG_DECLARE_NESTED_TRAITS(vector,
                                  BloombergLP::bslalg_TypeTraits<Base>);
+                                 */
 
     // 23.2.4.1 construct/copy/destroy:
 
@@ -1107,8 +1111,10 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
     typedef bsl::reverse_iterator<iterator>       reverse_iterator;
     typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
 
+    /* TODO:
     BSLALG_DECLARE_NESTED_TRAITS(vector,
                                  BloombergLP::bslalg_TypeTraits<Base>);
+                                 */
 
     // 23.2.4.1 construct/copy/destroy:
 

@@ -729,11 +729,14 @@ class basic_string
 
   public:
     // TRAITS
+    /*
+     * TODO:
     typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<
                                                    CHAR_TYPE,
                                                    ALLOCATOR> StringTypeTraits;
 
     BSLALG_DECLARE_NESTED_TRAITS(basic_string, StringTypeTraits);
+    */
         // Declare nested type traits for this class.  This class is bitwise
         // movable if the allocator is bitwise movable.  It uses 'bslma'
         // allocators if 'ALLOCATOR' is convertible from 'bslma::Allocator*'.

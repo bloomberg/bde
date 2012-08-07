@@ -447,50 +447,44 @@ const char *my_NoAllocString::c_str() const
     return d_data;
 }
 
-                             // =================
-                             // struct traits_...
-                             // =================
-struct traits_MoveAbandonBslma :
-    BitwiseMoveable,
-    UsesBslmaAllocator
-{
-};
-
-struct traits_CopyTrivial :
-    BitwiseCopyable,
-    TrivialConstructor
-{
-};
-
-struct traits_EqualityTrivial :
-    BitwiseCopyable,
-    TrivialConstructor,
-    BitwiseComparable
-{
-};
-
                            // =====================
                            // struct my_(Traits...)
                            // =====================
 
-struct my_MoveAbandonBslma
-{
-    BSLALG_DECLARE_NESTED_TRAITS(my_MoveAbandonBslma, traits_MoveAbandonBslma);
-};
+struct my_MoveAbandonBslma {};
 
-struct my_CopyTrivial
-{
-    BSLALG_DECLARE_NESTED_TRAITS(my_CopyTrivial, traits_CopyTrivial);
-};
+namespace BloombergLP {
+namespace bslmf {
+template <> struct IsBitwiseMoveable<my_MoveAbandonBslma> : bsl::true_type {};
+}
 
-struct my_EqualityTrivial
-{
-    BSLALG_DECLARE_NESTED_TRAITS(my_EqualityTrivial, traits_EqualityTrivial);
-};
+namespace bslma {
+template <> struct UsesBslmaAllocator<my_MoveAbandonBslma> : bsl::true_type {};
+}
+}
 
-struct my_NoTraits
-{
-};
+struct my_CopyTrivial {};
+
+namespace BloombergLP {
+namespace bslmf {
+template <> struct IsBitwiseCopyable<my_CopyTrivial> : bsl::true_type {};
+// TODO:
+// template <> struct HasTrivialDefaultConstructor<my_CopyTrivial> : bsl::true_type {};
+}
+}
+
+struct my_EqualityTrivial {};
+
+namespace BloombergLP {
+namespace bslmf {
+template <> struct IsBitwiseCopyable<my_EqualityTrivial> : bsl::true_type {};
+template <> struct IsBitwiseEqualityComparable<my_EqualityTrivial> : bsl::true_type {};
+// TODO:
+// template <> struct HasTrivialDefaultConstructor<my_EqualityTrivial> : bsl::true_type {};
+}
+}
+
+struct my_NoTraits {};
 
 //=============================================================================
 //                HELPER CLASSES AND FUNCTIONS FOR TESTING SWAP

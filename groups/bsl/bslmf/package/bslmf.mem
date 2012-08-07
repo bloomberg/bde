@@ -6,9 +6,12 @@ bslmf_detectnestedtrait
 bslmf_enableif
 bslmf_forwardingtype
 bslmf_functionpointertraits
+bslmf_hastrivialdefaultconstructor
 bslmf_if
 bslmf_integerconstant
 bslmf_isarray
+bslmf_isbitwisecopyable
+bslmf_isbitwiseequalitycomparable
 bslmf_isbitwisemoveable
 bslmf_isclass
 bslmf_isconvertible

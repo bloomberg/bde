@@ -319,12 +319,14 @@ public:
     _M_initialize_buckets(__n);
   }
 
+  /* TODO:
   typedef BloombergLP::bslstl::TraitsGroupStlUnorderedContainer<
     _Val,
     _HF,
     _EqK,
     _All> HashTableTypeTraits;
   BSLALG_DECLARE_NESTED_TRAITS(hashtable, HashTableTypeTraits);
+  */
 
   hashtable(const _Self& __ht)
     :

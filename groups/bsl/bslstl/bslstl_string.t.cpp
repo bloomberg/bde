@@ -748,8 +748,11 @@ class LimitAllocator : public ALLOC {
 
   public:
     // TRAITS
+    /*
+     * TODO:
     BSLALG_DECLARE_NESTED_TRAITS(LimitAllocator,
                                  BloombergLP::bslalg_TypeTraits<AllocBase>);
+    */
 
     // CREATORS
     LimitAllocator()

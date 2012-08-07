@@ -629,9 +629,11 @@ class set : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
 
   public:
     // TRAITS
+    /* TODO:
     typedef BloombergLP::bslstl::TraitsGroupStlAssociativeContainer<ALLOCATOR>
                                                                TreeTypeTraits;
     BSLALG_DECLARE_NESTED_TRAITS(set, TreeTypeTraits);
+    */
 
     // CREATORS
     explicit set(const COMPARATOR& comparator = COMPARATOR(),

@@ -323,10 +323,12 @@ public:
   typedef bsl::reverse_iterator<iterator>       reverse_iterator;
   typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
 
+  /* TODO:
   typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<_Tp,_Alloc>
     ListTypeTraits;
   BSLALG_DECLARE_NESTED_TRAITS(list, ListTypeTraits);
       // Declare nested type traits for this class.
+      */
 
 protected:
   _Node* _M_create_node(const _Tp& __x = _Tp())

@@ -126,9 +126,11 @@ public:                         // Typedefs.
   typedef basic_stringbuf<_CharT, _Traits, _Alloc>  _Self;
   typedef basic_string<_CharT, _Traits, _Alloc>     _String;
 
+  /* TODO:
   BSLALG_DECLARE_NESTED_TRAITS(
                   basic_stringbuf,
                   BloombergLP::bslalg::PassthroughTraitBslmaAllocator<_Alloc>);
+                  */
 
 public:                         // Constructors, destructor.
   explicit basic_stringbuf(::std::ios_base::openmode __mode
@@ -208,9 +210,11 @@ public:                         // Typedefs
   typedef basic_string<_CharT, _Traits, _Alloc>     _String;
   typedef basic_stringbuf<_CharT, _Traits, _Alloc>  _Buf;
 
+  /* TODO:
   BSLALG_DECLARE_NESTED_TRAITS(
                   basic_istringstream,
                   BloombergLP::bslalg::PassthroughTraitBslmaAllocator<_Alloc>);
+                  */
 
 public:                         // Constructors, destructor.
   basic_istringstream(std::ios_base::openmode __mode = std::ios_base::in);
@@ -261,9 +265,11 @@ public:                         // Typedefs
   typedef basic_string<_CharT, _Traits, _Alloc>     _String;
   typedef basic_stringbuf<_CharT, _Traits, _Alloc>  _Buf;
 
+  /* TODO:
   BSLALG_DECLARE_NESTED_TRAITS(
                   basic_ostringstream,
                   BloombergLP::bslalg::PassthroughTraitBslmaAllocator<_Alloc>);
+                  */
 
 public:                         // Constructors, destructor.
   basic_ostringstream(std::ios_base::openmode __mode = std::ios_base::out);
@@ -317,9 +323,11 @@ public:                         // Typedefs
 
   typedef std::ios_base::openmode openmode;
 
+  /* TODO:
   BSLALG_DECLARE_NESTED_TRAITS(
                   basic_stringstream,
                   BloombergLP::bslalg::PassthroughTraitBslmaAllocator<_Alloc>);
+                  */
 
 public:                         // Constructors, destructor.
   basic_stringstream(openmode __mod = std::ios_base::in | std::ios_base::out);

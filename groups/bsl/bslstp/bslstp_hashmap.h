@@ -109,8 +109,10 @@ public:
 
   typedef typename _Ht::allocator_type allocator_type;
 
+  /* TODO:
   BSLALG_DECLARE_NESTED_TRAITS(hash_map,
                                BloombergLP::bslalg_TypeTraits<_Ht>);
+                               */
 
   hasher hash_funct() const { return _M_ht.hash_funct(); }
   key_equal key_eq() const { return _M_ht.key_eq(); }
@@ -283,8 +285,10 @@ public:
 
   typedef typename _Ht::allocator_type allocator_type;
 
+  /* TODO:
   BSLALG_DECLARE_NESTED_TRAITS(hash_multimap,
                                BloombergLP::bslalg_TypeTraits<_Ht>);
+                               */
 
   hasher hash_funct() const { return _M_ht.hash_funct(); }
   key_equal key_eq() const { return _M_ht.key_eq(); }

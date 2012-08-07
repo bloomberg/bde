@@ -114,8 +114,10 @@ protected:
   const _Sequence& _Get_s() const { return _M_s.object(); }
 
 public:
+  /* TODO:
   BSLALG_DECLARE_NESTED_TRAITS(queue,
                                BloombergLP::bslalg_TypeTraits<_Sequence>);
+                               */
 
   queue() : _M_s(_STLP_BSLMA_DFLT) {}
   explicit queue(const _Sequence& __c) : _M_s(__c) {}
@@ -203,12 +205,14 @@ bool operator>=(const queue<_Tp, _Sequence>& __x,
                 const queue<_Tp, _Sequence>& __y) { return !(__x < __y);}
 
 
+/* TODO:
 template <class _Sequence, class _Compare>
 struct priority_queue_TypeTraits
   : BloombergLP::bslalg_TypeTraits<_Sequence>
   , BloombergLP::bslalg_TypeTraits<_Compare>
 {
 };
+*/
 
 template <class _Tp, class _Sequence = vector<_Tp>,
           class _Compare = std::less<typename _Sequence::value_type> >
@@ -234,9 +238,11 @@ protected:
   _Compare& _comp() { return comp.object(); }
   const _Compare& _comp() const { return comp.object(); }
 
+  /* TODO:
   typedef priority_queue_TypeTraits<_Sequence,_Compare> _Traits;
 public:
   BSLALG_DECLARE_NESTED_TRAITS(_Self, _Traits);
+  */
 
 public:
   priority_queue() : _M_s(_STLP_BSLMA_DFLT), comp(_STLP_BSLMA_DFLT) {}

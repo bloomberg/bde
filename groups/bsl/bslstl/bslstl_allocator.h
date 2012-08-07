@@ -390,22 +390,11 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_CSTDDEF
 #endif
 
+#include <bslalg_typetraitbitwisecopyable.h>
+#include <bslalg_typetraitbitwisemoveable.h>
+#include <bslalg_typetraitbitwiseequalitycomparable.h>
+
 namespace bsl {
-
-                      // ================================
-                      // class Allocator_BslalgTypeTraits
-                      // ================================
-
-struct Allocator_BslalgTypeTraits
-    : BloombergLP::bslalg::TypeTraitBitwiseCopyable
-    , BloombergLP::bslalg::TypeTraitBitwiseMoveable
-    , BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable
-{
-    // Type traits for 'bsl::allocator'.  This class cannot be nested within
-    // 'allocator' because doing so confuses the AIX xlC 6 compiler, which
-    // sometimes thinks that the nested struct is private even when it's in the
-    // private section of the enclosing class.
-};
 
                              // ===============
                              // class allocator
@@ -427,7 +416,10 @@ class allocator {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(allocator, Allocator_BslalgTypeTraits);
+    BSLALG_DECLARE_NESTED_TRAITS3(allocator
+                                , BloombergLP::bslalg::TypeTraitBitwiseCopyable
+                                , BloombergLP::bslalg::TypeTraitBitwiseMoveable
+                                , BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
         // Declare nested type traits for this class.
 
     // PUBLIC TYPES
@@ -552,7 +544,10 @@ class allocator<void> {
         typedef allocator<U> other;
     };
 
-    BSLALG_DECLARE_NESTED_TRAITS(allocator, Allocator_BslalgTypeTraits);
+    BSLALG_DECLARE_NESTED_TRAITS3(allocator
+                                , BloombergLP::bslalg::TypeTraitBitwiseCopyable
+                                , BloombergLP::bslalg::TypeTraitBitwiseMoveable
+                                , BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
         // Declare nested type traits for this class.
 
     // CREATORS

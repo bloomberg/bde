@@ -44,6 +44,7 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+/* TODO:
 namespace BloombergLP {
 namespace bslstl {
 
@@ -70,6 +71,7 @@ struct TraitsGroupStlUnorderedContainer :
 
 }  // close package namespace
 }  // close enterprise namespace
+*/
 
 #endif
 

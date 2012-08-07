@@ -692,9 +692,11 @@ class multimap : private BloombergLP::bslstl::TreeNodePool<
 
   public:
     // TRAITS
+    /* TODO:
     typedef BloombergLP::bslstl::TraitsGroupStlAssociativeContainer<ALLOCATOR>
                                                                TreeTypeTraits;
     BSLALG_DECLARE_NESTED_TRAITS(multimap, TreeTypeTraits);
+    */
 
     // CREATORS
     explicit multimap(const COMPARATOR& comparator = COMPARATOR(),

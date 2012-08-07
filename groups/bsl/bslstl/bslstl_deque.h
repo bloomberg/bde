@@ -584,10 +584,12 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
   public:
     // TRAITS
+    /* TODO:
     typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<
                                                     VALUE_TYPE,
                                                     ALLOCATOR> DequeTypeTraits;
     BSLALG_DECLARE_NESTED_TRAITS(deque, DequeTypeTraits);
+    */
         // Declare nested type traits for this class.
 
     // CREATORS

@@ -438,6 +438,8 @@ namespace bslstl {
 // 'BloombergLP::' for every trait and meta-function below would be too
 // cumbersome.  This struct should not be used outside of this component,
 // anyway.
+// TODO:
+/*
 template <class T1, class T2>
 struct TypeTraitsGroupPair : public
     bslalg::TypeTraitPair,
@@ -483,6 +485,7 @@ struct TypeTraitsGroupPair : public
     // 'T1' and 'T2' are both bitwise equality comparable and the size of the
     // pair equals the sum of the sizes of 'T1' and 'T2'.
 };
+*/
 
 }  // close package namespace
 
@@ -505,11 +508,13 @@ namespace bsl {
                         // ==========
 
 template <typename T1, typename T2>
-class pair : private Pair_Imp<T1, T2,
+class pair : private Pair_Imp<T1, T2, false, false>
+             /* TODO:
                    BloombergLP::bslalg::HasTrait<T1,
                       BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
                    BloombergLP::bslalg::HasTrait<T2,
                       BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE>
+                      */
 {
     // Provide a pair of public data members, 'first' and 'second', of type
     // 'T1' and 'T2' respectively.  If either 'T1' or 'T2' uses
@@ -520,16 +525,18 @@ class pair : private Pair_Imp<T1, T2,
     // for the addition of the allocators.
 
     // PRIVATE TYPES
-    typedef Pair_Imp<T1, T2,
+    typedef Pair_Imp<T1, T2, false, false>
+        /* TODO:
         BloombergLP::bslalg::HasTrait<T1,
             BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
         BloombergLP::bslalg::HasTrait<T2,
-            BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE>     Base;
-    typedef BloombergLP::bslstl::TypeTraitsGroupPair<T1, T2>        PairTraits;
+            BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE>
+            */     Base;
+    //typedef BloombergLP::bslstl::TypeTraitsGroupPair<T1, T2>        PairTraits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(pair, PairTraits);
+    //BSLALG_DECLARE_NESTED_TRAITS(pair, PairTraits);
 
     // PUBLIC TYPES
     typedef T1 first_type;

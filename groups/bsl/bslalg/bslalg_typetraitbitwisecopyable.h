@@ -47,6 +47,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#include <bslmf_isbitwisecopyable.h>
+
 namespace BloombergLP {
 
 namespace bslalg {
@@ -66,6 +68,17 @@ struct TypeTraitBitwiseCopyable {
     // objects of a type with this trait can be destroyed by a no-op, i.e., not
     // invoking the destructor, although it is safe to write zeros into the
     // memory footprint of the object.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bslmf::IsBitwiseCopyable>
+    {
+        // This class template ties the 'bslalg::TypeTaitBitwiseCopyable'
+        // trait tag to the 'bslmf::IsBitwiseCopyable' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bslmf::IsBitwiseCopyable<TYPE>::type { };
 };
 
 }  // close package namespace

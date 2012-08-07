@@ -576,9 +576,11 @@ class multiset : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
 
   public:
     // TRAITS
+    /* TODO:
     typedef BloombergLP::bslstl::TraitsGroupStlAssociativeContainer<ALLOCATOR>
                                                                TreeTypeTraits;
     BSLALG_DECLARE_NESTED_TRAITS(multiset, TreeTypeTraits);
+    */
 
     // CREATORS
     explicit multiset(const COMPARATOR&  comparator = COMPARATOR(),

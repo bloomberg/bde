@@ -667,9 +667,11 @@ class map : private BloombergLP::bslstl::TreeNodePool<
 
   public:
     // TRAITS
+    /* TODO:
     typedef BloombergLP::bslstl::TraitsGroupStlAssociativeContainer<ALLOCATOR>
                                                                TreeTypeTraits;
     BSLALG_DECLARE_NESTED_TRAITS(map, TreeTypeTraits);
+    */
 
     // CREATORS
     explicit map(const COMPARATOR& comparator = COMPARATOR(),
