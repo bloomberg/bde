@@ -38,13 +38,13 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// In this section we show intended use of this component.
 //
-///Example 1: Basic Usage
-///- - - - - - - - - - -
-// In this example, we will show how to use the 'string' class.
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// In this example, we will show how to create and use the 'string' class.
 //
-// First, we will create a default 'string' object:
+// First, we will create a default-constructed 'string' object:
 //..
 //  bsl::string s;
 //  assert(s.empty());
@@ -58,8 +58,8 @@ BSLS_IDENT("$Id: $")
 //  assert(11 == t.size());
 //  assert("Hello World" == t);
 //..
-// Next, we will clear the contents of 't' and assign it values from a string
-// literal and a string object:
+// Next, we will clear the contents of 't' and assign it a couple of values:
+// first from a string literal; second from another 'string' object:
 //..
 //  t.clear();
 //  assert(t.empty());
@@ -74,28 +74,28 @@ BSLS_IDENT("$Id: $")
 //  assert("" == t);
 //  assert(t == s);
 //..
-// Then, we will create three string objects, one representing a state, the
-// second a street address, and the third a zipcode:
+// Then, we will create three 'string' objects: the first representing a street
+// name, the second a state, and the third a zipcode:
 //..
 //  const bsl::string street  = "731 Lexington Avenue";
 //  const bsl::string state   = "NY";
 //  const bsl::string zipcode = "10022";
 //..
-// Next, we can concatenate the three string objects to form a single string
-// representing a full address using 'operator+' and print out its contents on
-// standard output:
+// Next, we can concatenate the three 'string' objects to form a single
+// 'string' representing a full address using 'operator+' and print out its
+// contents on standard output:
 //..
 //  const bsl::string fullAddress = street + " " + state + " " + zipcode;
 //
 //  bsl::cout << fullAddress << bsl::endl;
 //..
-// The above print statement should produce the following output:
+// The above print statement should produce a single line of output:
 //..
 //  731 Lexington Avenue NY 10022
 //..
 // Then, we can search the contents of a 'string' using the 'find' function,
-// that takes a search 'string' and a starting position as arguments.  So if we
-// want to find if a given address lies on a specified street, we can do:
+// which takes a search 'string' and a starting position as arguments, to
+// determine if a given address lies on a specified street:
 //..
 //  const bsl::string streetName = "Lexington";
 //
@@ -106,24 +106,42 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, we show how to get a reference providing modifiable access to the
 // null-terminated string literal stored by 's' using the 'c_str' function.
-// The returned string literal can be passed to various standard functions
-// expecting a null-terminated string literal:
 //..
 //  const char *cs = s.c_str();
 //  assert(bsl::strlen(cs) == s.size());
 //..
+// Note that the returned string literal can be passed to various standard
+// functions expecting a null-terminated string.
+//
 // Then, we show how to construct a 'string' object using a user-specified
-// allocator.  Consider 'allocator' that refers to an object that implements
-// the 'bslma::Allocator' protocol and uses 'new' and 'delete' to allocate and
-// deallocate memory:
+// allocator.
+//
+// We construct two 'bslma::TestAllocator' objects, 'allocator1' and
+// 'allocator2' that implement the 'bslma::Allocator' protocol and allow
+// tracking of memory usage):
 //..
-//  bslma::Allocator *allocator = &bslma_NewDeleteAllocator::singleton();
+//  bslma::TestAllocator allocator1, allocator2;
 //..
-// Now, we construct a 'string' object, 'v', that has the same value as 't',
-// and uses 'allocator' for supplying memory:
+// Now, we construct two 'string' objects, 'x' and 'y'.  'x' is constructed
+// with a short string value and uses 'allocator1' for supplying memory, and
+// 'y' is constructed with a long string value and uses 'allocator2' for
+// supplying memory:
 //..
-//  const bsl::string v(t, allocator);
-//  assert(v == t);
+//  const char *SHORT_STRING = "This string does not allocate memory";
+//  const char *LONG_STRING  = "This really long string definitely causes " \
+//                             "memory to be allocated on creation";
+//
+//  const bsl::string x(SHORT_STRING, allocator1);
+//  const bsl::string y(LONG_STRING,  allocator2);
+//
+//  assert(SHORT_STRING == x);
+//  assert(LONG_STRING  == y);
+//..
+// Finally, we can track memory usage of 'x' and 'y' using 'allocator1' and
+// 'allocator2' and checking that memory was allocated only by 'allocator2':
+//..
+//  assert(0 == allocator1.numBlocksInUse());
+//  assert(1 == allocator2.numBlocksInUse());
 //..
 //
 ///Example 2: 'string' as a data member
@@ -132,7 +150,7 @@ BSLS_IDENT("$Id: $")
 // classes.  In this example, we will show how 'string' objects can be used as
 // data members.
 //
-// First, we define a 'class', 'Employee' that represents the data
+// First, we begin to define a 'class', 'Employee', that represents the data
 // corresponding to the employee of a company:
 //..
 //  class Employee {
@@ -145,14 +163,9 @@ BSLS_IDENT("$Id: $")
 //      bsl::string d_firstName;       // first name
 //      bsl::string d_lastName;        // last name
 //      int         d_id;              // identification number
-//
 //..
-//  Note that all constructors of the 'Employee' class are optionally provided
-//  an allocator.  The provided allocator is then passed through to the
-//  'string' data members of 'Employee' and allows the user to control how
-//  memory is allocated by 'Employee' objects.
+//  Next, we define the creators for this class:
 //..
-//
 //    public:
 //      // CREATORS
 //      Employee(bslma::Allocator *basicAllocator = 0);
@@ -185,7 +198,14 @@ BSLS_IDENT("$Id: $")
 //
 //      //! ~Employee() = default;
 //          // Destroy this object.
+//..
+// Notice that all constructors of the 'Employee' class are optionally provided
+// an allocator.  The provided allocator is then passed through to the 'string'
+// data members of 'Employee', allowing the user to control how memory is
+// allocated by 'Employee' objects.
 //
+// Then, declare the remaining methods of the class:
+//..
 //      // MANIPULATORS
 //      Employee& operator=(const Employee& rhs);
 //          // Assign to this object the value of the specified 'rhs' object,
@@ -216,7 +236,7 @@ BSLS_IDENT("$Id: $")
 //          // Return the value of the 'id' attribute of this object.
 //  };
 //..
-// Then, we declare the free operators for 'Employee':
+// Next, we declare the free operators for 'Employee':
 //..
 //  inline
 //  bool operator==(const Employee& lhs, const Employee& rhs);
@@ -232,9 +252,7 @@ BSLS_IDENT("$Id: $")
 //      // not have the same value if any of the corresponding values of their
 //      // 'firstName', 'lastName', or 'id' attributes are not the same.
 //..
-// Now, we define the implementations methods of the 'Employee' class.  Note
-// that the provided 'basicAllocator' parameter can simply be passed as an
-// argument to the constructor of 'bsl::string':
+// Next, we define the implementations methods of the 'Employee' class:
 //..
 //  // CREATORS
 //  inline
@@ -264,10 +282,11 @@ BSLS_IDENT("$Id: $")
 //  , d_id(original.d_id)
 //  {
 //  }
-//
 //..
-//  The value of a 'string' can be changed to that of another 'string' by
-//  assigning the latter to the former.
+// Notice that the provided 'basicAllocator' parameter can simply be passed as
+// an argument to the constructor of 'bsl::string'.
+//
+// Now, we implement the remaining manipulators of the 'Employee' class:
 //..
 //  // MANIPULATORS
 //  inline
@@ -315,10 +334,8 @@ BSLS_IDENT("$Id: $")
 //  {
 //      return d_id;
 //  }
-//
 //..
-// Finally, we implement the free operators for 'Employee'.  Note that two
-// 'string' objects can be compared for equality by calling 'operator=='.
+// Finally, we implement the free operators for 'Employee' class:
 //..
 //  inline
 //  bool operator==(const Employee& lhs, const Employee& rhs)
