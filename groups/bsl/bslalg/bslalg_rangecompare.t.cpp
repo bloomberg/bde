@@ -209,6 +209,18 @@ class my_Class2 {
     char datum() const { return d_char; }
 };
 
+// TBD: Temporary hack
+namespace BloombergLP {
+namespace bslalg {
+    template <>
+    struct HasTrait<my_Class2, TypeTraitBitwiseEqualityComparable> :
+        bslmf::true_type
+    {
+        enum { VALUE = 1 };
+    };
+}
+}
+
 // FREE OPERATORS
 bool operator<(const my_Class2& lhs, const my_Class2& rhs)
 {
@@ -219,6 +231,7 @@ bool operator<(const my_Class2& lhs, const my_Class2& rhs)
 namespace BloombergLP {
 
 template <>
+
 struct bslalg_TypeTraits<my_Class2>
 : bslalg::TypeTraitBitwiseEqualityComparable { };
 

@@ -8,4 +8,3 @@
 
 # Force tests to run serially
 !! *               _       ALLTEST_PARALLEL = -s
-

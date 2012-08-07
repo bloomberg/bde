@@ -15,6 +15,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -188,10 +189,12 @@ class my_Class2 {
 
 // TRAITS
 namespace BloombergLP {
+namespace bslma {
+    
+    template <>
+    struct UsesBslmaAllocator<my_Class2> : bslmf::true_type { };
 
-template <>
-struct bslalg_TypeTraits<my_Class2> : bslalg::TypeTraitUsesBslmaAllocator { };
-
+}  // close namesace bslma
 }  // close enterprise namespace
 
                              // ===================
@@ -291,6 +294,8 @@ class my_Class4 {
     my_ClassDef d_def;
 
   public:
+    BSLMF_NESTED_TRAIT_DECLARATION(my_Class4, bslma::UsesBslmaAllocator);
+
     // CREATORS
     my_Class4(bslma::Allocator *a = 0) {
         d_def.d_allocator_p = bslma::Default::allocator(a);
@@ -364,9 +369,15 @@ class my_Class5 : public my_Class4 {
 // TRAITS
 namespace BloombergLP {
 
-template <> struct bslalg_TypeTraits<my_Class5>
-    : bslalg::TypeTraitUsesBslmaAllocator
-    , bslalg::TypeTraitBitwiseMoveable { };
+namespace bslma {
+    template <>
+    struct UsesBslmaAllocator<my_Class5> : bslmf::true_type { };
+}  // close namesace bslma
+
+namespace bslmf {
+    template <>
+    struct IsBitwiseMoveable<my_Class5> : bslmf::true_type { };
+}  // close namesace bslmf
 
 }  // close enterprise namespace
 
@@ -432,11 +443,10 @@ struct my_PairA {
 };
 
 namespace BloombergLP {
-
-template <typename T1, typename T2>
-struct  bslalg_TypeTraits<my_PairA<T1, T2> >
-    : bslalg::TypeTraitUsesBslmaAllocator { };
-
+namespace bslma {
+    template <typename T1, typename T2>
+    struct UsesBslmaAllocator<my_PairA<T1, T2> > : bslmf::true_type { };
+}  // close namespace bslma
 }  // close enterprise namespace
 
                               // ===============
