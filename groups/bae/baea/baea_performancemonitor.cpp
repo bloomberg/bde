@@ -157,9 +157,9 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux> {
         // wide integers.  Therefore we use 'Uint64' regardless of the build
         // configuration.
 
-        typedef bsls::Types::Int64  ld_type;
-        typedef bsls::Types::Uint64 lu_type;
-        typedef bsls::Types::Uint64 llu_type;
+        typedef bsls::Types::Int64  LdType;
+        typedef bsls::Types::Uint64 LuType;
+        typedef bsls::Types::Uint64 LluType;
 
         int           d_pid;             // process pid
         bsl::string   d_comm;            // filename of executable
@@ -170,21 +170,21 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux> {
         int           d_tty_nr;          // the tty used by the process
         int           d_tpgid;           // tty owner's group id
         unsigned int  d_flags;           // kernel flags
-        lu_type       d_minflt;          // num minor page faults
-        lu_type       d_cminflt;         // num minor page faults - children
-        lu_type       d_majflt;          // num major page faults
-        lu_type       d_cmajflt;         // num major page faults - children
-        lu_type       d_utime;           // num jiffies in user mode
-        lu_type       d_stime;           // num jiffies in kernel mode
-        ld_type       d_cutime;          // num jiffies, user mode, children
-        ld_type       d_cstime;          // num jiffies, kernel mode, children
-        ld_type       d_priority;        // standard nice value, plus fifteen
-        ld_type       d_nice;            // nice value
-        ld_type       d_num_threads;     // number of threads (since Linux 2.6)
-        ld_type       d_itrealvalue;     // num jiffies before next SIGALRM
-        llu_type      d_starttime;       // time in jiffies since system boot
-        lu_type       d_vsize;           // virtual memory size, in bytes
-        ld_type       d_rss;             // resident set size, in pages
+        LuType        d_minflt;          // num minor page faults
+        LuType        d_cminflt;         // num minor page faults - children
+        LuType        d_majflt;          // num major page faults
+        LuType        d_cmajflt;         // num major page faults - children
+        LuType        d_utime;           // num jiffies in user mode
+        LuType        d_stime;           // num jiffies in kernel mode
+        LdType        d_cutime;          // num jiffies, user mode, children
+        LdType        d_cstime;          // num jiffies, kernel mode, children
+        LdType        d_priority;        // standard nice value, plus fifteen
+        LdType        d_nice;            // nice value
+        LdType        d_numThreads;     // number of threads (since Linux 2.6)
+        LdType        d_itrealvalue;     // num jiffies before next SIGALRM
+        LluType       d_starttime;       // time in jiffies since system boot
+        LuType        d_vsize;           // virtual memory size, in bytes
+        LdType        d_rss;             // resident set size, in pages
 
         ProcStatistics()
         : d_pid()
@@ -206,7 +206,7 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux> {
         , d_cstime()
         , d_priority()
         , d_nice()
-        , d_num_threads()
+        , d_numThreads()
         , d_itrealvalue()
         , d_starttime()
         , d_vsize()
@@ -280,7 +280,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::readProcStat(
         >> stats->d_cstime
         >> stats->d_priority
         >> stats->d_nice
-        >> stats->d_num_threads
+        >> stats->d_numThreads
         >> stats->d_itrealvalue
         >> stats->d_starttime
         >> stats->d_vsize
