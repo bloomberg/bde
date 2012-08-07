@@ -2292,8 +2292,8 @@ void bdecs_PackedCalendar::addWeekendDay(bdet_DayOfWeek::Day weekendDay)
     if (d_weekendDaysTransitions.empty()) {
         bdec_DayOfWeekSet weekendDays;
         weekendDays.add(weekendDay);
-        WeekendDaysTransition newTransition(bdet_Date(1,1,1), weekendDays);
-        d_weekendDaysTransitions.push_back(newTransition);
+        d_weekendDaysTransitions.push_back(
+                         WeekendDaysTransition(bdet_Date(1,1,1), weekendDays));
     }
     else {
         BSLS_ASSERT_SAFE(
@@ -2309,8 +2309,8 @@ void bdecs_PackedCalendar::addWeekendDays(const bdec_DayOfWeekSet& weekendDays)
     BSLS_ASSERT_SAFE(d_weekendDaysTransitions.size() <= 1);
 
     if (d_weekendDaysTransitions.empty()) {
-        WeekendDaysTransition newTransition(bdet_Date(1,1,1), weekendDays);
-        d_weekendDaysTransitions.push_back(newTransition);
+        d_weekendDaysTransitions.push_back(
+                         WeekendDaysTransition(bdet_Date(1,1,1), weekendDays));
     }
     else {
         BSLS_ASSERT_SAFE(
