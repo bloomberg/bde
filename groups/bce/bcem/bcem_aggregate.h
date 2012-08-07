@@ -712,6 +712,11 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+typedef bcem_FieldSelector bcem_Aggregate_NameOrIndex;
+    // Alias for a field selector.
+    //
+    // DEPRECATED: Use 'bcem_FieldSelector' instead.
+
 class bcem_Aggregate {
     // This class provides a reference to a fully-introspective data
     // structure capable of representing any of the following types of bdem

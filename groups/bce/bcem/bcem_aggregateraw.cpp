@@ -1983,7 +1983,7 @@ int bcem_AggregateRaw::insertNullItem(bcem_AggregateRaw    *newItem,
             makeValue();
         }
 
-        ArrayInserter inserter(index, 1, d_fieldDef_p);
+        ArrayInserter inserter(index, 1, d_fieldDef_p, true);
         int status = bcem_AggregateRaw_Util::visitArray(d_value_p,
                                                         d_dataType,
                                                         &inserter);
