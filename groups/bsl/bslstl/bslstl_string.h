@@ -42,42 +42,60 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Usage
 ///- - - - - - - - - - -
-// In this example, we will show how to use the 'string' class:
+// In this example, we will show how to use the 'string' class.
 //
-// First, let us construct a 'string' object using a string literal:
+// First, we will create a default 'string' object:
 //..
-//  bsl::string s = "Hello World";
-//  assert(11 == s.length());
-//  assert(!s.empty());
-//..
-// Then, we will remove the contents of 's' and assign a different value to it:
-//..
-//  s.clear();
+//  bsl::string s;
 //  assert(s.empty());
-//  s = "Good Morning";
-//  assert(!s.empty());
+//  assert(0  == s.size());
+//  assert("" == s);
 //..
-// Next, we create two string objects, one representing a state, and the other
-// a street address:
+// Then, we will construct a 'string' object from a string literal:
 //..
-//  const bsl::string state         = "New York";
-//  const bsl::string streetAddress = "731 Lexington Avenue";
+//  bsl::string t = "Hello World";
+//  assert(!t.empty());
+//  assert(11 == t.size());
+//  assert("Hello World" == t);
 //..
-// Then, we can concatenate the two string objects to form a single string
+// Next, we will clear the contents of 't' and assign it values from a string
+// literal and a string object:
+//..
+//  t.clear();
+//  assert(t.empty());
+//  assert("" == t);
+//
+//  t = "Good Morning";
+//  assert(!t.empty());
+//  assert("Good Morning" == t);
+//
+//  t = s;
+//  assert(t.empty());
+//  assert("" == t);
+//  assert(t == s);
+//..
+// Then, we will create three string objects, one representing a state, the
+// second a street address, and the third a zipcode:
+//..
+//  const bsl::string street  = "731 Lexington Avenue";
+//  const bsl::string state   = "NY";
+//  const bsl::string zipcode = "10022";
+//..
+// Next, we can concatenate the three string objects to form a single string
 // representing a full address using 'operator+' and print out its contents on
 // standard output:
 //..
-//  const bsl::string fullAddress = streetAddress + ", " + state;
+//  const bsl::string fullAddress = street + " " + state + " " + zipcode;
 //
 //  bsl::cout << fullAddress << bsl::endl;
 //..
 // The above print statement should produce the following output:
 //..
-//  731 Lexington Avenue, New York
+//  731 Lexington Avenue NY 10022
 //..
-// Next, we can search the contents of a 'string' using the 'find' function.
-// So if we want to find if a given street address lies on a specified street,
-// we can do:
+// Then, we can search the contents of a 'string' using the 'find' function,
+// that takes a search 'string' and a starting position as arguments.  So if we
+// want to find if a given address lies on a specified street, we can do:
 //..
 //  const bsl::string streetName = "Lexington";
 //
@@ -86,32 +104,237 @@ BSLS_IDENT("$Id: $")
 //                << streetName << "." << bsl::endl;
 //  }
 //..
-//  The 'string' class contains the 'c_str' function that returns a reference
-//  providing modifiable access to the null-terminated string literal:
+// Next, we show how to get a reference providing modifiable access to the
+// null-terminated string literal stored by 's' using the 'c_str' function.
+// The returned string literal can be passed to various standard functions
+// expecting a null-terminated string literal:
 //..
 //  const char *cs = s.c_str();
+//  assert(bsl::strlen(cs) == s.size());
 //..
-//  'cs' can then be passed to various standard functions expecting a
-//  null-terminated string literal:
-//..
-//  assert(bsl::strlen(cs) == s.length());
-//..
-// Next, we show how to construct a 'string' object using a user-specified
+// Then, we show how to construct a 'string' object using a user-specified
 // allocator.  Consider 'allocator' that refers to an object that implements
 // the 'bslma::Allocator' protocol and uses 'new' and 'delete' to allocate and
-// deallocate memory.
+// deallocate memory:
 //..
 //  bslma::Allocator *allocator = &bslma_NewDeleteAllocator::singleton();
 //..
-// Now, we construct a 'string' object, 't', that has the same value as 's',
+// Now, we construct a 'string' object, 'v', that has the same value as 't',
 // and uses 'allocator' for supplying memory:
 //..
-//  const bsl::string t(s, allocator);
-//  assert(s == t);
+//  const bsl::string v(t, allocator);
+//  assert(v == t);
 //..
 //
-///Example 2: Implementing a simplified 'grep' facility
-///- - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: 'string' as a data member
+///- - - - - - - - - - - - - - - - - -
+// The most common use of 'string' objects are as data members in user-defined
+// classes.  In this example, we will show how 'string' objects can be used as
+// data members.
+//
+// First, we define a 'class', 'Employee' that represents the data
+// corresponding to the employee of a company:
+//..
+//  class Employee {
+//      // This unconstrained (value-semantic) attribute class represents the
+//      // information about an employee.  An employee's first and last name
+//      // are represented as 'string' objects and their employee
+//      // identification number is represented by an 'int'.
+//
+//      // DATA
+//      bsl::string d_firstName;       // first name
+//      bsl::string d_lastName;        // last name
+//      int         d_id;              // identification number
+//
+//..
+//  Note that all constructors of the 'Employee' class are optionally provided
+//  an allocator.  The provided allocator is then passed through to the
+//  'string' data members of 'Employee' and allows the user to control how
+//  memory is allocated by 'Employee' objects.
+//..
+//
+//    public:
+//      // CREATORS
+//      Employee(bslma::Allocator *basicAllocator = 0);
+//          // Create a 'Employee' object having the (default) attribute
+//          // values:
+//          //..
+//          //  firstName() == ""
+//          //  lastName()  == ""
+//          //  id()        == 0
+//          //..
+//          // Optionally specify a 'basicAllocator' used to supply memory.  If
+//          // 'basicAllocator' is 0, the currently installed default
+//          // allocator is used.
+//
+//      Employee(const bsl::string&  firstName,
+//               const bsl::string&  lastName,
+//               int                 id,
+//               bslma::Allocator   *basicAllocator = 0);
+//          // Create a 'Employee' object having the specified 'firstName',
+//          // 'lastName', and 'id'' attribute values.  Optionally specify a
+//          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+//          // 0, the currently installed default allocator is used.
+//
+//      Employee(const Employee&  original,
+//               bslma::Allocator  *basicAllocator = 0);
+//          // Create a 'Employee' object having the same value as the
+//          // specified 'original' object.  Optionally specify a
+//          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+//          // 0, the currently installed default allocator is used.
+//
+//      //! ~Employee() = default;
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      Employee& operator=(const Employee& rhs);
+//          // Assign to this object the value of the specified 'rhs' object,
+//          // and return a reference providing modifiable access to this
+//          // object.
+//
+//      void setFirstName(const bsl::string& value);
+//          // Set the 'firstName' attribute of this object to the specified
+//          // 'value'.
+//
+//      void setLastName(const bsl::string& value);
+//          // Set the 'lastName' attribute of this object to the specified
+//          // 'value'.
+//
+//      void setId(int value);
+//          // Set the 'id' attribute of this object to the specified 'value'.
+//
+//      // ACCESSORS
+//      const bsl::string& firstName() const;
+//          // Return a reference providing non-modifiable access to the
+//          // 'firstName' attribute of this object.
+//
+//      const bsl::string& lastName() const;
+//          // Return a reference providing non-modifiable access to the
+//          // 'lastName' attribute of this object.
+//
+//      int id() const;
+//          // Return the value of the 'id' attribute of this object.
+//  };
+//..
+// Then, we declare the free operators for 'Employee':
+//..
+//  inline
+//  bool operator==(const Employee& lhs, const Employee& rhs);
+//      // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+//      // value, and 'false' otherwise.  Two 'Employee' objects have the
+//      // same value if all of their corresponding values of their
+//      // 'firstName', 'lastName', and 'id' attributes are the same.
+//
+//  inline
+//  bool operator!=(const Employee& lhs, const Employee& rhs);
+//      // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
+//      // the same value, and 'false' otherwise.  Two 'Employee' objects do
+//      // not have the same value if any of the corresponding values of their
+//      // 'firstName', 'lastName', or 'id' attributes are not the same.
+//..
+// Now, we define the implementations methods of the 'Employee' class.  Note
+// that the provided 'basicAllocator' parameter can simply be passed as an
+// argument to the constructor of 'bsl::string':
+//..
+//  // CREATORS
+//  inline
+//  Employee::Employee(bslma::Allocator *basicAllocator)
+//  : d_firstName(basicAllocator)
+//  , d_lastName(basicAllocator)
+//  , d_id(0)
+//  {
+//  }
+//
+//  inline
+//  Employee::Employee(const bsl::string&  firstName,
+//                     const bsl::string&  lastName,
+//                     int                 id,
+//                     bslma::Allocator   *basicAllocator)
+//  : d_firstName(firstName, basicAllocator)
+//  , d_lastName(lastName, basicAllocator)
+//  , d_id(id)
+//  {
+//  }
+//
+//  inline
+//  Employee::Employee(const Employee&   original,
+//                     bslma::Allocator *basicAllocator)
+//  : d_firstName(original.d_firstName, basicAllocator)
+//  , d_lastName(original.d_lastName, basicAllocator)
+//  , d_id(original.d_id)
+//  {
+//  }
+//
+//..
+//  The value of a 'string' can be changed to that of another 'string' by
+//  assigning the latter to the former.
+//..
+//  // MANIPULATORS
+//  inline
+//  Employee& Employee::operator=(const Employee& rhs)
+//  {
+//      d_firstName = rhs.d_firstName;
+//      d_lastName  = rhs.d_lastName;
+//      d_id        = rhs.d_id;
+//      return *this;
+//  }
+//
+//  inline
+//  void Employee::setFirstName(const bsl::string& value)
+//  {
+//      d_firstName = value;
+//  }
+//
+//  inline
+//  void Employee::setLastName(const bsl::string& value)
+//  {
+//      d_lastName = value;
+//  }
+//
+//  inline
+//  void Employee::setId(int value)
+//  {
+//      d_id = value;
+//  }
+//
+//  // ACCESSORS
+//  inline
+//  const bsl::string& Employee::firstName() const
+//  {
+//      return d_firstName;
+//  }
+//
+//  inline
+//  const bsl::string& Employee::lastName() const
+//  {
+//      return d_lastName;
+//  }
+//
+//  inline
+//  int Employee::id() const
+//  {
+//      return d_id;
+//  }
+//
+//..
+// Finally, we implement the free operators for 'Employee'.  Note that two
+// 'string' objects can be compared for equality by calling 'operator=='.
+//..
+//  inline
+//  bool operator==(const Employee& lhs, const Employee& rhs)
+//  {
+//      return lhs.firstName() == rhs.firstName()
+//          && lhs.lastName()  == rhs.lastName()
+//          && lhs.id()        == rhs.id();
+//  }
+//
+//  inline
+//  bool operator!=(const Employee& lhs, const Employee& rhs)
+//  {
+//      return lhs.firstName() != rhs.firstName()
+//          || lhs.lastName()  != rhs.lastName()
+//          || lhs.id()        != rhs.id();
+//  }
 //..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
