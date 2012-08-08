@@ -384,24 +384,29 @@ static int numDestructorCalls  = 0;
 //
 ///Example 1: Using a 'deque' to Implement a Laundry Queue
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we are a drop-off laundry, and we want to keep track of the queue of
-// names of people whose laundry is to be done.
+// Suppose we want to define a class to maintain a process queue of names of
+// customers who are dropping off their laundry at a drop-off laundry service.
+// We can accomplish this by defining a new class characterizing a
+// laundry-process queue that uses 'bsl::deque' in its implementation.
 //
-// The queue is to have two types of 'push' -- a normal push, representing a
-// normal customer whose laundry is done after all customers previously pushed
-// into the queue, and 'expeditedPush', a push for a customer who has bribed
-// the merchant to have their laundry done before any of the people already
-// enqueued.
+// The process queue provides two methods, 'push' and 'expeditedPush', for
+// inserting names of customers onto the queue.  When calling the 'push'
+// method, the customer's name will be inserted at the end of the queue -- his
+// laundry will be done after the laundry of customers previously on the queue.
+// The 'expeditedPush' method is reserved for customers who have bribed the
+// merchant for expedited service.  When calling the 'expeditedPush' method,
+// the customer's name will be inserted onto the front of the queue -- his
+// laundry will be done before customers previously on the queue.
 //
-// When the merchant is ready to do some laundry, they call 'next', which
-// returns the name of the customer whose laundry is to be done next.  Keeping
-// track of the customer after that is done by other data structures, which are
-// beyond the scope of this example.
+// When the workers are ready to do some laundry, they call the 'next' method
+// of the queue, which returns the name of the customer whose laundry is to be
+// done next.  For brevity of the usage example, we do not show how customers
+// are track while or after their laundry is being done.
 //
-// There is also a 'find' function, which returns a 'bool' to indicate whether
-// a given customer is still in the queue.
+// In addtion, the laundry queue also provides the 'find' method, which returns
+// a 'bool' to indicate whether a given customer is still in the queue.
 //
-// First, we define a class 'LaundryQueue' based on a deque, to store names of
+// First, we declare a class 'LaundryQueue' based on a deque, to store names of
 // customers at a drop-off laundry:
 
 class LaundryQueue {
@@ -412,51 +417,77 @@ class LaundryQueue {
     bsl::deque<bsl::string> d_queue;
 
   public:
-    // MANIPULATORS
-    void push(const bsl::string& customerName)
-        // Add the specified 'customerName' to the back of the laundry queue.
-    {
-        d_queue.push_back(customerName);     // note constant time
-    }
+    // CREATORS
+    LaundryQueue(bslma::Allocator *basicAllocator = 0);
+        // Create a 'LaundryQueue' object using the specified 'basicAllocator'.
+        // If 'basicAllocator' is not provided, use the default allocator.
 
-    void expeditedPush(const bsl::string& customerName)
+    // MANIPULATORS
+    void push(const bsl::string& customerName);
+        // Add the specified 'customerName' to the back of the laundry queue.
+
+    void expeditedPush(const bsl::string& customerName);
         // Add the specified 'customerName' to the laundry queue at the
         // front.
-    {
-        d_queue.push_front(customerName);    // note constant time
-    }
 
-    bsl::string next()
+    bsl::string next();
         // Return the name from the front of the queue, removing it from
-        // the queue.
-    {
-        if (d_queue.empty()) {
-            return "(* empty *)";
-        }
-
-        bsl::string ret = d_queue.front();   // note constant time
-
-        d_queue.pop_front();                 // note constant time
-
-        return ret;
-    }
+        // the queue.  If the queue is empty, return '(* empty *)' which is not
+        // a valid name for a customer.
 
     // ACCESSORS
-    bool find(const bsl::string& customerName)
+    bool find(const bsl::string& customerName);
         // Return 'true' if 'customerName' is in the queue, and 'false'
         // otherwise.
-    {
-        // Note 'd_queue.empty() || d_queue[0] == d_queue.front()'
-
-        for (size_t i = 0; i < d_queue.size(); ++i) {
-            if (customerName == d_queue[i]) {    // note '[]' is constant time
-                return true;
-            }
-        }
-
-        return false;
-    }
 };
+
+// Then, we define the implementation of the methods of 'LaundryQueue'
+
+// CREATORS
+LaundryQueue::LaundryQueue(bslma::Allocator *basicAllocator)
+: d_queue(basicAllocator)
+{
+    // Note that the allocator is propagated to the underlying 'deque', which
+    // will use the default allocator is '0 == basicAllocator'.
+}
+
+// MANIPULATORS
+void LaundryQueue::push(const bsl::string& customerName)
+{
+    d_queue.push_back(customerName);     // note constant time
+}
+
+void LaundryQueue::expeditedPush(const bsl::string& customerName)
+{
+    d_queue.push_front(customerName);    // note constant time
+}
+
+bsl::string LaundryQueue::next()
+{
+    if (d_queue.empty()) {
+        return "(* empty *)";
+    }
+
+    bsl::string ret = d_queue.front();   // note constant time
+
+    d_queue.pop_front();                 // note constant time
+
+    return ret;
+}
+
+// ACCESSORS
+bool LaundryQueue::find(const bsl::string& customerName)
+{
+    // Note 'd_queue.empty() || d_queue[0] == d_queue.front()'
+
+    for (size_t i = 0; i < d_queue.size(); ++i) {
+        if (customerName == d_queue[i]) {    // note '[]' is constant time
+            return true;
+        }
+    }
+
+    return false;
+}
 
                               // ===============
                               // Usage Example 2
@@ -8066,7 +8097,8 @@ int main(int argc, char *argv[])
         
         // Then, we define (and default construct) our laundry queue:
 
-        LaundryQueue q;
+        bslma_TestAllocator ta;
+        LaundryQueue q(&ta);
 
         // Next, we add a few customers:
 
