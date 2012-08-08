@@ -198,11 +198,16 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_STRINGREF
+#include <bslstl_stringref.h>
+#endif
 #ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
 #include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
+
+class bslma_Allocator;
 
                         // ===========================
                         // class bael_RecordAttributes
@@ -366,6 +371,12 @@ class bael_RecordAttributes {
 
     const char *message() const;
         // Return the message attribute of this record attributes object.
+
+    bslstl_StringRef messageRef() const;
+        // Return a string reference providing non-modifiable access to the
+        // message attribute of this record attributes object.  Note that the
+        // returned string reference is not null-terminated, and may contain
+        // null ('\0') characters.
 
     int processID() const;
         // Return the processID attribute of this record attributes object.
