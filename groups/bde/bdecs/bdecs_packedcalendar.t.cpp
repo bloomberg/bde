@@ -1186,11 +1186,11 @@ DEFINE_TEST_CASE(23) {
               "2010 12  31     1   22\n";
 
         static struct {
-           int d_line;              // line number
-           int d_year;
-           int d_month;
-           int d_day;
-           int d_numHolidayCodes;
+            int d_line;              // line number
+            int d_year;
+            int d_month;
+            int d_day;
+            int d_numHolidayCodes;
         } DATA[] = {
             //LINE  YEAR   MONTH    DAY   NUMHCODE
             //----  ----   -----    ---   --------
@@ -7059,7 +7059,7 @@ DEFINE_TEST_CASE(4) {
             static const struct {
                 int d_line;
                 int d_year;
-                    int d_month;
+                int d_month;
                 int d_day;
                 const char *d_weekendDays;
             } DATA[] = {

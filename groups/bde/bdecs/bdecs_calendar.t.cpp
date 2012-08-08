@@ -813,17 +813,17 @@ bdecs_Calendar g(const char *spec)
         bsl::hash_map<bsl::string, bdecs_PackedCalendar *>  d_map;
         bslma_Allocator                                    *d_allocator_p;
 
-       public:
+      public:
          // CREATORS
-         MyPackedCalendarCache(bslma_Allocator *basicAllocator = 0);
+        MyPackedCalendarCache(bslma_Allocator *basicAllocator = 0);
             // Create an empty 'MyPackedCalendarCache'.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
 
-         // ...
+        // ...
 
          // ACCESSORS
-         const bdecs_PackedCalendar *lookup(const bsl::string& name) const;
+        const bdecs_PackedCalendar *lookup(const bsl::string& name) const;
             // Return the address of calendar data associated with the
             // specified 'name', or 0 if no such association exists.
     };
@@ -877,20 +877,20 @@ bdecs_Calendar g(const char *spec)
         // CREATORS
         MyCalendarCache(MyPackedCalendarCache *dataSource,
                         bslma_Allocator       *basicAllocator = 0);
-           // Create an empty 'MyCalendarCache' associated with the specified
-           // 'dataSource'.  Optionally specify a 'basicAllocator' used to
-           // supply memory.  If 'basicAllocator' is 0, the currently installed
-           // default allocator is used.
+            // Create an empty 'MyCalendarCache' associated with the specified
+            // 'dataSource'.  Optionally specify a 'basicAllocator' used to
+            // supply memory.  If 'basicAllocator' is 0, the currently installed
+            // default allocator is used.
 
         // ...
 
         // MANIPULATORS
         const bdecs_Calendar *lookup(const bsl::string& name);
-           // Return the address of calendar data associated with the
-           // specified name, or 0 if no such association exists in
-           // the data source whose address was supplied at construction.
-           // Note that this method may alter the physical state of this
-           // object (and is therefore deliberately declared non-'const').
+            // Return the address of calendar data associated with the
+            // specified name, or 0 if no such association exists in
+            // the data source whose address was supplied at construction.
+            // Note that this method may alter the physical state of this
+            // object (and is therefore deliberately declared non-'const').
 
         // ...
 
@@ -972,7 +972,7 @@ bdecs_Calendar g(const char *spec)
                 ++date;
             }
             if (month == date.month()) {
-                return date;                                      // RETURN
+                return date;                                          // RETURN
             }
             do {
                 --date2;
@@ -3281,7 +3281,7 @@ int main(int argc, char *argv[])
                             else {
                                 LOOP2_ASSERT(i, di, in);
                                 LOOP4_ASSERT(i, di, Xs[di], YYs[di],
-                                             isEqualWithCache(Xs[di], YYs[di]));
+                                            isEqualWithCache(Xs[di], YYs[di]));
                             }
                         }
                     } END_EXCEPTION_SAFE_TEST(
@@ -4510,7 +4510,8 @@ int main(int argc, char *argv[])
         weekendDays.removeAll();
         weekendDays.add(bdet_DayOfWeek::BDET_WED);
         weekendDays.add(bdet_DayOfWeek::BDET_THU);
-        packedCal.addWeekendDaysTransition(bdet_Date(2005, 6, 10), weekendDays);
+        packedCal.addWeekendDaysTransition(bdet_Date(2005, 6, 10),
+                                           weekendDays);
 
         packedCal.addHoliday(start + 0);
         packedCal.addHolidayCode(start + 0, VA);

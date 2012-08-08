@@ -32,7 +32,8 @@ void bdecs_Calendar::synchronizeCache()
         d_nonBusinessDays.set1(*it - d_packedCalendar.firstDate());
     }
 
-    // add weekend days
+    // Update 'd_nonBusinessDays' with weekend days info.
+
     bdecs_PackedCalendar::WeekendDaysTransitionConstIterator nextTransIt
                               = d_packedCalendar.beginWeekendDaysTransitions();
 
@@ -57,6 +58,9 @@ void bdecs_Calendar::synchronizeCache()
         }
         else {
             endDate = nextTransIt->first;
+            if (endDate <= d_packedCalendar.firstDate()) {
+                continue;
+            }
         }
         int endDateIndex = endDate - d_packedCalendar.firstDate();
 
@@ -155,6 +159,7 @@ bdecs_Calendar& bdecs_Calendar::operator=(const bdecs_PackedCalendar& rhs)
 void bdecs_Calendar::swap(bdecs_Calendar& other)
 {
     // 'swap' is undefined for objects with non-equal allocators.
+
     BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
 
     bslalg_SwapUtil::swap(&d_packedCalendar,  &other.d_packedCalendar);
@@ -320,8 +325,6 @@ bdecs_Calendar::beginBusinessDays() const
 bdet_Date
 bdecs_Calendar::getNextBusinessDay(const bdet_Date& initialDate) const
 {
-    // BSLS_ASSERT(d_packedCalendar.weekendDays().length() != 7);
-
     bdet_Date calendarFirstDate = firstDate();
     bdet_Date currentDate = initialDate;
     ++currentDate;

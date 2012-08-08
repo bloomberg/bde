@@ -70,18 +70,26 @@ BDES_IDENT("$Id: $")
 //
 ///Weekend-Days Transitions
 ///------------------------
-// A calendar maintains a sequence of weekend-days transitions, each of which
-// comprises a start date and a set of days of the week considered to be the
-// weekend (weekend days).  The start date of a weekend-days transition
-// determines the date at which the transition's associated set of weekend days
-// starts to takes effect -- the calendar determines a date is a weekend day if
-// the date's day of the week is contained in the set of weekend days of the
-// weekend-days transition having the nearest start date on or prior to the
-// date in question.
+// A calendar maintains a sequence of weekend-days transitions that allows it
+// to represent a calendar whoes weekend days have changed over time.  For
+// example, Bangladesh's weekend days was Friday until 1997/6/1 when the
+// weekend days was changed to Friday and Saturday.  The country's weekend days
+// was changed back to only Friday from 2001/10/1 and was changed again to
+// Friday and Saturday since 2005/9/9.  A calendar may represent this with a
+// sequence of four weekend-days transitions: (1) Friday with a start date of
+// 1/1/1 (default transition), (2) Friday and Saturday with a start date of
+// 1997/6/1, (3) Friday with start date of 2001/10/1, and (4) Friday and
+// Saturday with a start date of 2005/9/9.
+//
+// The start date of a weekend-days transition determines the date at which the
+// transition's associated set of weekend days starts to takes effect -- the
+// calendar determines a date is a weekend day if the date's day of the week is
+// contained in the set of weekend days of the weekend-days transition having
+// the nearest start date on or prior to the date in question.
 //
 // On construction, a calendar contains a single default weekend-day transition
-// at a start date of 1/1/1.  The 'addWeekendDay' and 'addWeekendDays' method
-// adds days of the weeks to this default weekends-day transition.  The
+// having a start date of 1/1/1.  The 'addWeekendDay' and 'addWeekendDays'
+// methods add days of the weeks to the weekend-days transition at 1/1/1.  The
 // 'addWeekendDaysTransition' method can be used to add a new weekend-day
 // transition.  Note that, 'addWeekendDay' and 'addWeekendDays' methods are
 // convenient ways to define the weekend days of a calendar for which the day
@@ -555,6 +563,7 @@ class bdecs_PackedCalendar {
         // 'WeekendDaysTransition' to enable the use of standard algorithms
         // (such as 'bsl::lower_bound') on ranges of objects of that type.
 
+        // ACCESSORS
         bool operator() (const WeekendDaysTransition& lhs,
                          const WeekendDaysTransition& rhs) const
             // Return 'true' if the value of the specified 'lhs' is less than
@@ -812,16 +821,15 @@ class bdecs_PackedCalendar {
         // undefined if the sequence of weekend-days transitions maintained by
         // this calendar comprises more than the default transition.
 
-    void addWeekendDaysTransition(const bdet_Date& date,
+    void addWeekendDaysTransition(const bdet_Date&         startDate,
                                   const bdec_DayOfWeekSet& weekendDays);
-        // Add to this calendar a new weekend-days transition comprising the
-        // specified 'weekendDays' as days considered to be the weekend for the
-        // following period of time: the period starting from the specified
-        // 'date' to the date before the starting date of the next weekend-days
-        // transition or the last date of this calendar, if no following
-        // weekend-days transitions exist.  The behavior is undefined if
-        // weekend days have been added to this calendar via the
-        // 'addWeekendDay' method or the 'addWeekendDays' method.
+        // Add to this calendar a weekend-days transition having the specified
+        // 'startDate' when the calendar adopts the specified 'weekendDays'.
+        // If a weekend-days transition having 'startDate' already exist,
+        // replace the weekend days of the transition with 'weekendDays'.  The
+        // behavior is undefined if weekend days have been added to this
+        // calendar via the 'addWeekendDay' method or the 'addWeekendDays'
+        // method.
 
     void intersectBusinessDays(const bdecs_PackedCalendar& other);
         // Merge the specified 'other' calendar into this calendar such that
@@ -1270,11 +1278,11 @@ void swap(bdecs_PackedCalendar& a, bdecs_PackedCalendar& b);
                  // ============================================
 
 class bdecs_PackedCalendar_IteratorDateProxy {
-   // This object is a proxy class for 'bdet_Date' for use by the arrow
-   // operator of 'bdecs_PackedCalendar_HolidayConstIterator',
-   // 'bdecs_Calendar_BusinessDayConstIter', and
-   // 'bdecs_PackedCalendar_BusinessDayConstIterator'.  An object of this class
-   // behaves as the 'bdet_Date' object with which it was constructed.
+    // This object is a proxy class for 'bdet_Date' for use by the arrow
+    // operator of 'bdecs_PackedCalendar_HolidayConstIterator',
+    // 'bdecs_Calendar_BusinessDayConstIter', and
+    // 'bdecs_PackedCalendar_BusinessDayConstIterator'.  An object of this
+    // class behaves as the 'bdet_Date' object with which it was constructed.
 
     // DATA
     bdet_Date d_date;  // proxied date
@@ -1289,7 +1297,7 @@ class bdecs_PackedCalendar_IteratorDateProxy {
     bdecs_PackedCalendar_IteratorDateProxy(const bdet_Date& date);
         // Create a proxy object for the specified 'date'.
 
-   ~bdecs_PackedCalendar_IteratorDateProxy();
+    ~bdecs_PackedCalendar_IteratorDateProxy();
         // Destroy this object.
 
     bdecs_PackedCalendar_IteratorDateProxy(
@@ -1563,9 +1571,6 @@ class bdecs_PackedCalendar_WeekendDaysTransitionConstIterator {
     // DATA
     const bdecs_PackedCalendar    *d_calendar_p;         // calendar refered by
                                                          // this iterator
-    bdecs_PackedCalendar::WeekendDaysTransition
-                                   d_defaultTransition;  // default transition
-                                                         // at 1/1/1
 
     bdecs_PackedCalendar::WeekendDaysTransitionSequence::const_iterator
                                    d_position;           // iterator position
@@ -1609,16 +1614,16 @@ class bdecs_PackedCalendar_WeekendDaysTransitionConstIterator {
     typedef bsl::bidirectional_iterator_tag              iterator_category;
 
     // CREATORS
-    // bdecs_PackedCalendar_WeekendDaysTransitionConstIterator(
-    //    const bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& orig)
-    //                                                              = default;
+    //! bdecs_PackedCalendar_WeekendDaysTransitionConstIterator(
+    //!    const bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& orig)
+    //!                                                              = default;
         // Create an iterator at the same position as the specified 'orig'
         // iterator.
 
     // MANIPULATORS
-    // bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& operator=(
-    //    const bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& rhs) =
-    //                                                                 default;
+    //! bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& operator=(
+    //!   const bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& rhs) =
+    //!                                                                default;
         // Assign to this object the value of the specified 'rhs' object, and
         // a return a reference providing modifiable access to this object.
 
@@ -1651,16 +1656,18 @@ bool operator==(
           const bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& rhs);
     // Return 'true' if the specified 'lhs' and the specified 'rhs' iterators
     // have the same value and 'false' otherwise.  Two iterators have the same
-    // value if they refer to the same weekend-day transtion in the calendar,
-    // or if both iterators are at the past-the-end position.
+    // value if they refer to the same weekend-day transtion in the same
+    // calendar, or if both iterators are at the past-the-end position.
 
 bool operator!=(
           const bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& lhs,
           const bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& rhs);
     // Return 'true' if the specified 'lhs' and the specified 'rhs' iterators
     // do not have the same value and 'false' otherwise.  Two iterators do not
-    // have the same value if they refer to different weekend-day transtions in
-    // the calendar, or if both iterators are not at the past-the-end position.
+    // have the same value if they refer to different weekend-days transtions
+    // in the same calendar, or if they refer to weekend-days transitions in
+    // different calendars, or if both iterators are not at the past-the-end
+    // position.
 
 bdecs_PackedCalendar_WeekendDaysTransitionConstIterator
 operator++(bdecs_PackedCalendar_WeekendDaysTransitionConstIterator& iter,
@@ -1692,11 +1699,6 @@ class bdecs_PackedCalendar_BusinessDayConstIterator {
                                                         // holiday offsets
     const bdecs_PackedCalendar       *d_calendar_p;     // pointer to the
                                                         // calendar
-
-    // bdet_DayOfWeek::Day               d_dayOfWeek;      // the day-of-week
-    //                                                     // value for the date
-    //                                                     // referenced by this
-    //                                                     // iterator
 
     int                               d_currentOffset;  // offset of the date
                                                         // referenced by this
@@ -2131,12 +2133,9 @@ bdecs_PackedCalendar_BusinessDayConstIterator(
                  const bdecs_PackedCalendar_BusinessDayConstIterator& original)
 : d_offsetIter(original.d_offsetIter)
 , d_calendar_p(original.d_calendar_p)
-// , d_dayOfWeek(original.d_dayOfWeek)
 , d_currentOffset(original.d_currentOffset)
 , d_endFlag(original.d_endFlag)
 {
-    // BSLS_ASSERT_SAFE(
-    //  (d_calendar_p->firstDate() + d_currentOffset).dayOfWeek() == d_dayOfWeek);
 }
 
 // MANIPULATORS
@@ -2284,215 +2283,11 @@ bdecs_PackedCalendar::endHolidayCodes(const OffsetsConstIterator& iter) const
 }
 
 // MANIPULATORS
-inline
-void bdecs_PackedCalendar::addWeekendDay(bdet_DayOfWeek::Day weekendDay)
-{
-    BSLS_ASSERT_SAFE(d_weekendDaysTransitions.size() <= 1);
-
-    if (d_weekendDaysTransitions.empty()) {
-        bdec_DayOfWeekSet weekendDays;
-        weekendDays.add(weekendDay);
-        d_weekendDaysTransitions.push_back(
-                         WeekendDaysTransition(bdet_Date(1,1,1), weekendDays));
-    }
-    else {
-        BSLS_ASSERT_SAFE(
-                        d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
-
-        d_weekendDaysTransitions[0].second.add(weekendDay);
-    }
-}
-
-inline
-void bdecs_PackedCalendar::addWeekendDays(const bdec_DayOfWeekSet& weekendDays)
-{
-    BSLS_ASSERT_SAFE(d_weekendDaysTransitions.size() <= 1);
-
-    if (d_weekendDaysTransitions.empty()) {
-        d_weekendDaysTransitions.push_back(
-                         WeekendDaysTransition(bdet_Date(1,1,1), weekendDays));
-    }
-    else {
-        BSLS_ASSERT_SAFE(
-                        d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
-
-        d_weekendDaysTransitions[0].second |= weekendDays;
-    }
-}
-
-inline
-void bdecs_PackedCalendar::addWeekendDaysTransition(
-                                          const bdet_Date& date,
-                                          const bdec_DayOfWeekSet& weekendDays)
-{
-    if (d_weekendDaysTransitions.empty()) {
-        d_weekendDaysTransitions.push_back(
-                                   WeekendDaysTransition(bdet_Date(1,1,1),
-                                                         bdec_DayOfWeekSet()));
-    }
-
-    WeekendDaysTransition newTransition(date, weekendDays);
-
-    WeekendDaysTransitionSequence::iterator it =
-                             bsl::lower_bound(d_weekendDaysTransitions.begin(),
-                                              d_weekendDaysTransitions.end(),
-                                              newTransition,
-                                              WeekendDaysTransitionLess());
-
-    if (it != d_weekendDaysTransitions.end() && it->first == date) {
-        it->second = weekendDays;
-    }
-    else {
-        d_weekendDaysTransitions.insert(it, newTransition);
-    }
-}
-
 template <class STREAM>
 STREAM& bdecs_PackedCalendar::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            bdecs_PackedCalendar inCal(d_allocator_p);
-            inCal.d_firstDate.bdexStreamIn(stream, 1);
-            if (!stream) {
-                return stream;
-            }
-
-            inCal.d_lastDate.bdexStreamIn(stream, 1);
-            if (!stream ||
-                   (inCal.d_firstDate > inCal.d_lastDate
-                 && (   inCal.d_firstDate != bdet_Date(9999,12,31)
-                     || inCal.d_lastDate  != bdet_Date(1,1,1)))) {
-                stream.invalidate();
-                return stream;
-            }
-            int length = inCal.d_lastDate - inCal.d_firstDate + 1;
-
-
-            bdec_DayOfWeekSet weekendDays;
-            weekendDays.bdexStreamIn(stream, 1);
-            if (!stream) {
-                return stream;
-            }
-            inCal.addWeekendDaysTransition(bdet_Date(1, 1, 1), weekendDays);
-
-            int offsetsLength;
-            stream.getLength(offsetsLength);
-            if (   !stream
-                ||    (inCal.d_firstDate >= inCal.d_lastDate
-                   && offsetsLength != 0)
-                ||    (inCal.d_firstDate <  inCal.d_lastDate
-                   && (offsetsLength < 0 || offsetsLength > length))) {
-                stream.invalidate();
-                return stream;
-            }
-            BSLS_ASSERT_SAFE(offsetsLength >= 0);
-
-            int codesLength;
-            stream.getLength(codesLength);
-            if (!stream || (0 == offsetsLength && codesLength != 0)) {
-                stream.invalidate();
-                return stream;
-            }
-
-            // 'd_holidayCodesIndex' and 'd_holidayOffsets' have the same size.
-
-            // inCal.d_holidayOffsets.reserve(offsetsLength);
-            // inCal.d_holidayCodesIndex.reserve(offsetsLength);
-
-            inCal.d_holidayOffsets.resize(offsetsLength);
-            inCal.d_holidayCodesIndex.resize(offsetsLength);
-            inCal.d_holidayCodes.resize(codesLength);
-
-            int previousValue = -1;
-            int i = 0;
-            for (OffsetsIterator it = inCal.d_holidayOffsets.begin();
-                    i < offsetsLength; ++i, ++it) {
-                stream.getInt32(*it);
-                if (   !stream || *it < 0 || *it >= length
-                    || *it <= previousValue) {
-                    stream.invalidate();
-                    return stream;
-                }
-                previousValue = *it;
-            }
-
-            previousValue = -1;
-            i = 0;
-            for (CodesIndexIterator it = inCal.d_holidayCodesIndex.begin();
-                    i < offsetsLength; ++i, ++it) {
-                stream.getInt32(*it);
-
-                // This vector is ordered but duplicates are allowed.  The
-                // first element must be 0.
-
-                if (!stream || *it < 0 || *it < previousValue
-                 || *it > codesLength  || (0 == i && 0 != *it)) {
-
-                    // If we get here, some of the code indices could
-                    // potentially be greater than 'codesLength'.  That would
-                    // trigger an assertion in the destructor.  So call
-                    // 'removeAll' to clean up.
-
-                    inCal.removeAll();
-                    stream.invalidate();
-                    return stream;
-                }
-                previousValue = *it;
-            }
-
-            CodesIndexIterator it = inCal.d_holidayCodesIndex.begin();
-            CodesIndexIterator end = inCal.d_holidayCodesIndex.end();
-
-            // Skip the holidays that have no codes.
-
-            while (it != end && *it == 0) {
-                ++it;
-            }
-
-            // 'it' is now positioned at the first holiday with one or more
-            // codes or at the end.
-
-            bool previousValueFlag = false; // This flag will be used
-                                            // to determine if we
-                                            // are inside an ordered
-                                            // sequence of codes
-                                            // (i.e 'previousValue'
-                                            // refers to a code
-                                            // for the same holiday
-                                            // as 'value').
-
-            i = 0;
-            for (CodesIterator jt = inCal.d_holidayCodes.begin();
-                    i < codesLength; ++i, ++jt) {
-                stream.getInt32(*jt);
-                if (   !stream
-                    || (previousValueFlag && *jt <= previousValue)) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                // Regardless of whether or not there is more data, advance the
-                // index iterator as needed and update 'previousValueFlag' if
-                // 'it' moves.
-
-                if (it != end && i == (*it - 1)) {
-                    previousValueFlag = false;
-
-                    while (it != end && i == (*it - 1)) {
-                        ++it; // Skip the holidays that have no codes.
-                    }
-                }
-                else {
-                    previousValueFlag = true;
-                }
-                previousValue = *jt;
-            }
-            BSLS_ASSERT_SAFE(it == end);
-
-            swap(inCal);  // This cannot throw.
-          } break;
           case 2: {
             bdecs_PackedCalendar inCal(d_allocator_p);
             inCal.d_firstDate.bdexStreamIn(stream, 1);
@@ -2537,17 +2332,14 @@ STREAM& bdecs_PackedCalendar::bdexStreamIn(STREAM& stream, int version)
                 return stream;
             }
 
-
             inCal.d_weekendDaysTransitions.resize(transitionsLength);
+
             // 'd_holidayCodesIndex' and 'd_holidayOffsets' have the same size.
+
             inCal.d_holidayOffsets.resize(offsetsLength);
             inCal.d_holidayCodesIndex.resize(offsetsLength);
             inCal.d_holidayCodes.resize(codesLength);
 
-
-
-            bdet_Date previousTransitionDate;
-            bool firstTransitionDate = true;
             for (WeekendDaysTransitionSequence::iterator it =
                      inCal.d_weekendDaysTransitions.begin();
                  it != inCal.d_weekendDaysTransitions.end();
@@ -2557,18 +2349,16 @@ STREAM& bdecs_PackedCalendar::bdexStreamIn(STREAM& stream, int version)
                     return stream;
                 }
 
-                if (firstTransitionDate) {
+                if (it == inCal.d_weekendDaysTransitions.begin()) {
                     if (it->first != bdet_Date(1, 1, 1)) {
                         stream.invalidate();
                         return stream;
                     }
-                    firstTransitionDate = false;
                 }
-                else if (it->first <= previousTransitionDate) {
+                else if (it->first <= (it - 1)->first) {
                     stream.invalidate();
                     return stream;
                 }
-                previousTransitionDate = it->first;
 
                 it->second.bdexStreamIn(stream, 1);
                 if (!stream) {
@@ -2664,6 +2454,144 @@ STREAM& bdecs_PackedCalendar::bdexStreamIn(STREAM& stream, int version)
 
             swap(inCal);  // This cannot throw.
           } break;
+          case 1: {
+            bdecs_PackedCalendar inCal(d_allocator_p);
+            inCal.d_firstDate.bdexStreamIn(stream, 1);
+            if (!stream) {
+                return stream;
+            }
+
+            inCal.d_lastDate.bdexStreamIn(stream, 1);
+            if (!stream ||
+                   (inCal.d_firstDate > inCal.d_lastDate
+                 && (   inCal.d_firstDate != bdet_Date(9999,12,31)
+                     || inCal.d_lastDate  != bdet_Date(1,1,1)))) {
+                stream.invalidate();
+                return stream;
+            }
+            int length = inCal.d_lastDate - inCal.d_firstDate + 1;
+
+
+            bdec_DayOfWeekSet weekendDays;
+            weekendDays.bdexStreamIn(stream, 1);
+            if (!stream) {
+                return stream;
+            }
+            inCal.addWeekendDaysTransition(bdet_Date(1, 1, 1), weekendDays);
+
+            int offsetsLength;
+            stream.getLength(offsetsLength);
+            if (   !stream
+                ||    (inCal.d_firstDate >= inCal.d_lastDate
+                   && offsetsLength != 0)
+                ||    (inCal.d_firstDate <  inCal.d_lastDate
+                   && (offsetsLength < 0 || offsetsLength > length))) {
+                stream.invalidate();
+                return stream;
+            }
+            BSLS_ASSERT_SAFE(offsetsLength >= 0);
+
+            int codesLength;
+            stream.getLength(codesLength);
+            if (!stream || (0 == offsetsLength && codesLength != 0)) {
+                stream.invalidate();
+                return stream;
+            }
+
+            // 'd_holidayCodesIndex' and 'd_holidayOffsets' have the same size.
+
+            inCal.d_holidayOffsets.resize(offsetsLength);
+            inCal.d_holidayCodesIndex.resize(offsetsLength);
+            inCal.d_holidayCodes.resize(codesLength);
+
+            int previousValue = -1;
+            int i = 0;
+            for (OffsetsIterator it = inCal.d_holidayOffsets.begin();
+                    i < offsetsLength; ++i, ++it) {
+                stream.getInt32(*it);
+                if (   !stream || *it < 0 || *it >= length
+                    || *it <= previousValue) {
+                    stream.invalidate();
+                    return stream;
+                }
+                previousValue = *it;
+            }
+
+            previousValue = -1;
+            i = 0;
+            for (CodesIndexIterator it = inCal.d_holidayCodesIndex.begin();
+                    i < offsetsLength; ++i, ++it) {
+                stream.getInt32(*it);
+
+                // This vector is ordered but duplicates are allowed.  The
+                // first element must be 0.
+
+                if (!stream || *it < 0 || *it < previousValue
+                 || *it > codesLength  || (0 == i && 0 != *it)) {
+
+                    // If we get here, some of the code indices could
+                    // potentially be greater than 'codesLength'.  That would
+                    // trigger an assertion in the destructor.  So call
+                    // 'removeAll' to clean up.
+
+                    inCal.removeAll();
+                    stream.invalidate();
+                    return stream;
+                }
+                previousValue = *it;
+            }
+
+            CodesIndexIterator it = inCal.d_holidayCodesIndex.begin();
+            CodesIndexIterator end = inCal.d_holidayCodesIndex.end();
+
+            // Skip the holidays that have no codes.
+
+            while (it != end && *it == 0) {
+                ++it;
+            }
+
+            // 'it' is now positioned at the first holiday with one or more
+            // codes or at the end.
+
+            bool previousValueFlag = false; // This flag will be used
+                                            // to determine if we
+                                            // are inside an ordered
+                                            // sequence of codes
+                                            // (i.e 'previousValue'
+                                            // refers to a code
+                                            // for the same holiday
+                                            // as 'value').
+
+            i = 0;
+            for (CodesIterator jt = inCal.d_holidayCodes.begin();
+                    i < codesLength; ++i, ++jt) {
+                stream.getInt32(*jt);
+                if (   !stream
+                    || (previousValueFlag && *jt <= previousValue)) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                // Regardless of whether or not there is more data, advance the
+                // index iterator as needed and update 'previousValueFlag' if
+                // 'it' moves.
+
+                if (it != end && i == (*it - 1)) {
+                    previousValueFlag = false;
+
+                    while (it != end && i == (*it - 1)) {
+                        ++it; // Skip the holidays that have no codes.
+                    }
+                }
+                else {
+                    previousValueFlag = true;
+                }
+                previousValue = *jt;
+            }
+            BSLS_ASSERT_SAFE(it == end);
+
+            swap(inCal);  // This cannot throw.
+          } break;
           default: {
             stream.invalidate();
           }
@@ -2693,25 +2621,6 @@ template <class STREAM>
 STREAM& bdecs_PackedCalendar::bdexStreamOut(STREAM& stream, int version) const
 {
     switch (version) {  // Switch on the schema version (starting with 1).
-      case 1: {
-        d_firstDate.bdexStreamOut(stream, 1);
-        d_lastDate.bdexStreamOut(stream, 1);
-        beginWeekendDaysTransitions()->second.bdexStreamOut(stream, 1);
-
-        stream.putLength(static_cast<int>(d_holidayOffsets.size()));
-        stream.putLength(static_cast<int>(d_holidayCodes.size()));
-
-        for (OffsetsSizeType i = 0; i < d_holidayOffsets.size(); ++i) {
-            stream.putInt32(d_holidayOffsets[i]);
-        }
-        for (CodesIndexSizeType i = 0; i < d_holidayCodesIndex.size(); ++i) {
-            stream.putInt32(d_holidayCodesIndex[i]);
-        }
-
-        for (CodesSizeType i = 0; i < d_holidayCodes.size(); ++i) {
-            stream.putInt32(d_holidayCodes[i]);
-        }
-      } break;
       case 2: {
         d_firstDate.bdexStreamOut(stream, 1);
         d_lastDate.bdexStreamOut(stream, 1);
@@ -2733,6 +2642,25 @@ STREAM& bdecs_PackedCalendar::bdexStreamOut(STREAM& stream, int version) const
         for (CodesIndexSizeType i = 0; i < d_holidayCodesIndex.size(); ++i) {
             stream.putInt32(d_holidayCodesIndex[i]);
         }
+        for (CodesSizeType i = 0; i < d_holidayCodes.size(); ++i) {
+            stream.putInt32(d_holidayCodes[i]);
+        }
+      } break;
+      case 1: {
+        d_firstDate.bdexStreamOut(stream, 1);
+        d_lastDate.bdexStreamOut(stream, 1);
+        beginWeekendDaysTransitions()->second.bdexStreamOut(stream, 1);
+
+        stream.putLength(static_cast<int>(d_holidayOffsets.size()));
+        stream.putLength(static_cast<int>(d_holidayCodes.size()));
+
+        for (OffsetsSizeType i = 0; i < d_holidayOffsets.size(); ++i) {
+            stream.putInt32(d_holidayOffsets[i]);
+        }
+        for (CodesIndexSizeType i = 0; i < d_holidayCodesIndex.size(); ++i) {
+            stream.putInt32(d_holidayCodesIndex[i]);
+        }
+
         for (CodesSizeType i = 0; i < d_holidayCodes.size(); ++i) {
             stream.putInt32(d_holidayCodes[i]);
         }
@@ -2787,7 +2715,8 @@ int bdecs_PackedCalendar::numWeekendDaysTransitions() const
 {
     if (d_weekendDaysTransitions.empty())
     {
-        // implicit transition at 1/1/1
+        // Return 1 for implicit transition at 1/1/1.
+
         return 1;
     }
 
@@ -2896,41 +2825,14 @@ bool bdecs_PackedCalendar::isNonBusinessDay(const bdet_Date& date) const
 inline
 bool bdecs_PackedCalendar::isWeekendDay(bdet_DayOfWeek::Day dayOfWeek) const
 {
-    BSLS_ASSERT_SAFE(d_weekendDaysTransitions.size() <= 1);
+    BSLS_ASSERT(d_weekendDaysTransitions.size() <= 1);
 
     if (d_weekendDaysTransitions.empty()) {
         return false;
     }
     else {
-        BSLS_ASSERT_SAFE(
-                        d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
-
+        BSLS_ASSERT(d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
         return d_weekendDaysTransitions[0].second.isMember(dayOfWeek);
-    }
-}
-
-inline
-bool bdecs_PackedCalendar::isWeekendDay(const bdet_Date& date) const
-{
-    if (d_weekendDaysTransitions.empty()) {
-        return false;
-    }
-
-    bdec_DayOfWeekSet dummySet;
-
-    WeekendDaysTransitionSequence::const_iterator it =
-                        bsl::upper_bound(d_weekendDaysTransitions.begin(),
-                                         d_weekendDaysTransitions.end(),
-                                         WeekendDaysTransition(date, dummySet),
-                                         WeekendDaysTransitionLess());
-
-    if (it == d_weekendDaysTransitions.begin()) {
-        // The specified 'date' is prior to the first weekend-days transition.
-        return false;
-    }
-    else {
-        --it;
-        return it->second.isMember(date.dayOfWeek());
     }
 }
 
