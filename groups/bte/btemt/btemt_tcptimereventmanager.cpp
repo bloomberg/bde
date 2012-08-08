@@ -907,7 +907,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
-, d_controlChannel_p(0, bslma_Default::allocator(threadSafeAllocator))
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
@@ -928,7 +927,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
-, d_controlChannel_p(0, bslma_Default::allocator(threadSafeAllocator))
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
@@ -950,7 +948,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(poolTimerMemory, threadSafeAllocator)
-, d_controlChannel_p(0, bslma_Default::allocator(threadSafeAllocator))
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
@@ -971,7 +968,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
-, d_controlChannel_p(0, bslma_Default::allocator(threadSafeAllocator))
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
@@ -993,7 +989,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
-, d_controlChannel_p(0, bslma_Default::allocator(threadSafeAllocator))
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
@@ -1016,7 +1011,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(poolTimerMemory, threadSafeAllocator)
-, d_controlChannel_p(0, bslma_Default::allocator(threadSafeAllocator))
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
@@ -1039,7 +1033,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_manager_p(rawEventManager)
 , d_isManagedFlag(0)
 , d_timerQueue(threadSafeAllocator)
-, d_controlChannel_p(0, bslma_Default::allocator(threadSafeAllocator))
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)

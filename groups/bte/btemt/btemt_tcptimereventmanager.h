@@ -390,7 +390,8 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
     bcec_TimeQueue<bdef_Function<void (*)()> >
                                d_timerQueue;      // queue of registered timers
 
-    mutable bdema_ManagedPtr<ControlChannel> d_controlChannel_p;
+    mutable bdema_ManagedPtr<ControlChannel>
+                               d_controlChannel_p;
                                                   // channel for sending
                                                   // control bytes from
                                                   // external threads operating
