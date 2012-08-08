@@ -31,55 +31,18 @@ BDES_IDENT("$Id: $")
 // string, and a length and parses the character string into the date or time
 // object, returning a non-zero status on error.
 //
-///Subsets of ISO8601 Format Not Accepted by These Parsers:
-///--------------------------------------------------------
+///Subset of ISO 8601 Supported 'bdepu_iso8601'
+///--------------------------------------------
+// This component provides support for a subset of the formats defined by the
+// ISO 8601 standard, particularly those dealing with the representation of
+// date, time, and date-time values.  The standard can be found at:
 //
-// The iso8601 standard allows for many different ways of representing most of
-// the types it supports -- since this component has only one routine each for
-// reading and writing each type, we necessarily fail to support many formats
-// within the standard.  The standard, which can be found at
+//: o http://dotat.at/tmp/ISO_8601-2004_E.pdf
 //
-//: o Internal: http://sundev3.dev.bloomberg.com/~bchapman/iso8601.pdf
-//: o Alternate: http://dotat.at/tmp/ISO_8601-2004_E.pdf
-//: o Alternate: http://bit.ly/xAyF9d
-//
-// allows for the following formats which this component does not support:
-//
-//: o Ordinal Dates: Dates represented by year and day of year: 2.1.10
-//: o Week Dates: Dates represented by year, ordinal week within the year, and
-//:   ordinal day within the week: 2.1.11, 4.1.3.2
-//: o Recurring Time Intervals: 2.1.17
-//: o Leap Seconds: 2.2.2
-//: o Calendar Week Numbeers: 2.2.10, 4.1.4.
-//: o Basic Formats, i.e.  Dates represented as 'YYYYMMDD', times represented
-//:   as 'hhmmss', etc: 2.3.3.  This component supports complete formats only,
-//:   that is, only formats with separators such as '-' in dates and ':' in
-//:   times, and only formats that where 'YYYY' is 4 digits and 'MM', 'DD',
-//:   'hh', 'mm', and 'ss' are always 2 digits.
-//: o Extended Formats: 2.3.4 Many of the 'Extended Formats' described in the
-//:   document are in fact complete, and are thus supported, but many extended
-//:   formats, that have an inappropriate number of digits representing their
-//:   fields, are not supported.
-//: o Representation with Reduced Accuracy: 2.3.7, 4.2.2.3, 4.2.4, 4.3.3.
-//:   Abbreviation of representations by omission of lower order components of
-//:   dates or years are not supported, except that fractions of a second are
-//:   optional.
-//: o Expanded Representation: 2.3.8, 4.1.3.3.  Years outside the range
-//:   '0000 - 9999'.  In fact, only the range '0001 - 9999' is supported.
-//: o Fractions are only permissible demarked by a '.', commas ',' are not
-//:   allowed 4.2.2.4.  Fractions of hours or minutes are not allowed; only
-//:   fractions of seconds are allowed.
-//: o The time designator 'T' is only allowed within 'Datetime's and
-//:   'DatetimeTz's to delimit the end of the date from the beginning of the
-//:   time.  4.2.2.5.
-//: o 4.3.2 says that the 'T' delimiting the end of date and beginning of time
-//:   in a 'Datetime' or 'DatetimeTz' is optional.  In this implementation the
-//:   'T' is mandatory.
-//: o We do not support Time Intervals, Durations: 4.4.
-//: o We do not support Recurring Time Intervals: 4.5.
-//
-///Formats we do accept in parsing:
-///-------------------------------
+///Supported Formats
+///- - - - - - - - -
+// The 'bdepu_iso8601' supports the the following formats defined in the
+// ISO 8601 standard:
 //
 //: o <FRAC> := .d+
 //: o <TZ>   := ((+|-)hh:mm|Z|z)
@@ -114,7 +77,7 @@ BDES_IDENT("$Id: $")
 //:     field, the timezone field is set to '+00:00' (UTC).
 //:   o In <TZ>, 'hh' is in the range '00 - 23', 'mm' is in the range
 //:     '00 - 59'.  A value of '24' for 'hh' is not allowed.
-//: o In types contianing '<Date>':
+//: o In types containing '<Date>':
 //:   o 'YYYY' is always 4 digits long, 'MM' and 'DD' are always 2 decimal
 //:     digits long.
 //:   o 'YYYY' is in the range '0001' - '9999'.
@@ -133,6 +96,44 @@ BDES_IDENT("$Id: $")
 //:     to 'bdet_Time'.
 //: o Where 'T' in '<Datetime>' literally is the uppercase letter 'T'.  It must
 //:   be present.
+//
+///Subsets of ISO8601 Format Not Accepted by These Parsers
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The ISO8601 standard allows for the following formats which this component
+// does not support:
+//
+//: o Ordinal Dates: Dates represented by year and day of year: 2.1.10
+//: o Week Dates: Dates represented by year, ordinal week within the year, and
+//:   ordinal day within the week: 2.1.11, 4.1.3.2
+//: o Recurring Time Intervals: 2.1.17
+//: o Leap Seconds: 2.2.2
+//: o Calendar Week Numbers: 2.2.10, 4.1.4.
+//: o Basic Formats, i.e.  Dates represented as 'YYYYMMDD', times represented
+//:   as 'hhmmss', etc: 2.3.3.  This component supports complete formats only,
+//:   that is, only formats with separators such as '-' in dates and ':' in
+//:   times, and only formats that where 'YYYY' is 4 digits and 'MM', 'DD',
+//:   'hh', 'mm', and 'ss' are always 2 digits.
+//: o Extended Formats: 2.3.4 Many of the 'Extended Formats' described in the
+//:   document are in fact complete, and are thus supported, but many extended
+//:   formats, that have an inappropriate number of digits representing their
+//:   fields, are not supported.
+//: o Representation with Reduced Accuracy: 2.3.7, 4.2.2.3, 4.2.4, 4.3.3.
+//:   Abbreviation of representations by omission of lower order components of
+//:   dates or years are not supported, except that fractions of a second are
+//:   optional.
+//: o Expanded Representation: 2.3.8, 4.1.3.3.  Years outside the range
+//:   '0000 - 9999'.  In fact, only the range '0001 - 9999' is supported.
+//: o Fractions are only permissible demarked by a '.', commas ',' are not
+//:   allowed 4.2.2.4.  Fractions of hours or minutes are not allowed; only
+//:   fractions of seconds are allowed.
+//: o The time designator 'T' is only allowed within 'Datetime's and
+//:   'DatetimeTz's to delimit the end of the date from the beginning of the
+//:   time.  4.2.2.5.
+//: o 4.3.2 says that the 'T' delimiting the end of date and beginning of time
+//:   in a 'Datetime' or 'DatetimeTz' is optional.  In this implementation the
+//:   'T' is mandatory.
+//: o We do not support Time Intervals, Durations: 4.4.
+//: o We do not support Recurring Time Intervals: 4.5.
 //
 ///Usage
 ///-----

@@ -87,7 +87,8 @@ bool getRegularFileInfo(FdType fd)
                     // class bdesu_FdStreamBuf_FileHandler
                     // ===================================
 
-bsls_Types::size_type bdesu_FdStreamBuf_FileHandler::s_pageSize = 0;
+bsls::AtomicOperations::AtomicTypes::Int
+                               bdesu_FdStreamBuf_FileHandler::s_pageSize = {0};
 
 // CREATORS
 bdesu_FdStreamBuf_FileHandler::bdesu_FdStreamBuf_FileHandler()
@@ -98,8 +99,9 @@ bdesu_FdStreamBuf_FileHandler::bdesu_FdStreamBuf_FileHandler()
 , d_willCloseOnResetFlag(false)
 , d_peekBufferFlag(false)
 {
-    if (s_pageSize <= 0) {
-        s_pageSize = bdesu_MemoryUtil::pageSize();
+    if (bsls::AtomicOperations::getIntRelaxed(&s_pageSize) <= 0) {
+        bsls::AtomicOperations::setIntRelaxed(&s_pageSize,
+                                              bdesu_MemoryUtil::pageSize());
     }
 }
 

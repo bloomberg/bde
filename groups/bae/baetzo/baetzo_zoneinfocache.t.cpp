@@ -272,7 +272,7 @@ class TestDriverTestLoader : public baetzo_Loader {
         // other error occurs.
 
     // ACCESSORS
-    const std::string& lastRequestedTimeZone() const;
+    const bsl::string& lastRequestedTimeZone() const;
         // Return the time zone identifier supplied on the most recent call to
         // 'loadTimeZone' or 'NO_REQUESTS' if 'loadTimeZone' has not been
         // called.
@@ -345,7 +345,7 @@ int TestDriverTestLoader::loadTimeZone(baetzo_Zoneinfo *result,
 }
 
 // ACCESSORS
-const std::string& TestDriverTestLoader::lastRequestedTimeZone() const
+const bsl::string& TestDriverTestLoader::lastRequestedTimeZone() const
 {
     return d_lastRequestedTimeZone;
 }
@@ -1385,7 +1385,7 @@ int main(int argc, char *argv[])
         //   void addTimeZone(const char *, int , bool, const char *);
         //   void addInvalidTimeZone(const char *);
         //   virtual int loadTimeZone(baetzo_Zoneinfo *, const bsl::string&);
-        //   const std::string& lastRequestedTimeZone() const;
+        //   const bsl::string& lastRequestedTimeZone() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING: TEST APARATUS" << endl

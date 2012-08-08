@@ -650,8 +650,7 @@ int bdepu_Iso8601::parse(bdet_Date  *result,
 
     if (end != begin) {
         int tzOffset;
-        if   (0 != parseTimezoneOffset(&tzOffset, &begin, end)
-           || end != begin) {
+        if (0 != parseTimezoneOffset(&tzOffset, &begin, end) || end != begin) {
             return -1;                                                // RETURN
         }
     }

@@ -1024,11 +1024,11 @@ unix-                   _   CC      = $(RETRY_ON_SIGNAL) cc -DUSE_REAL_MALLOC $(
 !! unix-HP_UX-*-*-gcc _   CC      = $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-$(GCC_VER)/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
 !! unix-Linux-*-*-gcc   _   CC      = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
 !! unix-FreeBSD-*-*-gcc   _   CC      = $(RETRY_ON_SIGNAL) /usr/bin/gcc $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-windows-        _   CC      = $(RETRY_ON_SIGNAL) cl /TC /nologo /W3 /D"WIN32" /D"_WINDOWS" /D"_MBCS" /D"NOMINMAX" /DNOGDI $(CC64FLAGS)
+windows-        _   CC      = $(RETRY_ON_SIGNAL) cl /TC /nologo /W4 /D"WIN32" /D"_WINDOWS" /D"_MBCS" /D"NOMINMAX" /DNOGDI $(CC64FLAGS)
 # For VS2008, all options have been moved to DEF_CFLAGS, where they belong,
 # and redundant options have been dropped.
-!! windows-*-*-*-cl-15.00        _   CC      = $(RETRY_ON_SIGNAL) cl /TC $(CC64FLAGS)
-!! windows-*-*-*-cl-16.00        _   CC      = $(RETRY_ON_SIGNAL) cl /TC $(CC64FLAGS)
+!! windows-*-*-*-cl-15.00        _   CC      = $(RETRY_ON_SIGNAL) cl /TC /W4 $(CC64FLAGS)
+!! windows-*-*-*-cl-16.00        _   CC      = $(RETRY_ON_SIGNAL) cl /TC /W4 $(CC64FLAGS)
 
 unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 !! unix-SunOS-*-*-cc-5.2   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/SUNWspro61/bin/CC $(CXX64FLAGS)
@@ -1093,11 +1093,11 @@ unix-SunOS-*-*-gcc  _   CXX     = -ftemplate-depth-150
 unix-AIX-*-*-gcc    _   CXX     = -ftemplate-depth-150
 
 # /RTC1 /Wp64
-windows-        _   CXX     = $(RETRY_ON_SIGNAL) cl /TP /nologo /W3 /D"WIN32" /D"_WINDOWS" /D"_MBCS" /D"NOMINMAX" /DNOGDI /Zc:wchar_t /Zc:forScope /Zm2000 /Zi /wd4099 /wd4800 $(CXX64FLAGS)
+windows-        _   CXX     = $(RETRY_ON_SIGNAL) cl /TP /nologo /W4 /D"WIN32" /D"_WINDOWS" /D"_MBCS" /D"NOMINMAX" /DNOGDI /Zc:wchar_t /Zc:forScope /Zm2000 /Zi /wd4099 /wd4800 $(CXX64FLAGS)
 # For VS2008, all options have been moved to DEF_CXXFLAGS, where they belong,
 # and redundant options have been dropped.
-!! windows-*-*-*-cl-15.00        _   CXX     = $(RETRY_ON_SIGNAL) cl /TP $(CXX64FLAGS)
-!! windows-*-*-*-cl-16.00        _   CXX     = $(RETRY_ON_SIGNAL) cl /TP $(CXX64FLAGS)
+!! windows-*-*-*-cl-15.00        _   CXX     = $(RETRY_ON_SIGNAL) cl /TP /W4 $(CXX64FLAGS)
+!! windows-*-*-*-cl-16.00        _   CXX     = $(RETRY_ON_SIGNAL) cl /TP /W4 $(CXX64FLAGS)
 
 unix-               _   CXXLINK     = $(CXX)
 unix-               _   CLINK   = $(CXXLINK)
