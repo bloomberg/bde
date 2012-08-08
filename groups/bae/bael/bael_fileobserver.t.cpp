@@ -188,7 +188,8 @@ bsl::string::size_type replaceSecondSpace(bsl::string *s, char value)
     return index;
 }
 
-bdet_Datetime getCurrentTimestamp() {
+bdet_Datetime getCurrentTimestamp()
+{
     time_t currentTime = time(0);
     struct tm localtm;
 #ifdef BSLS_PLATFORM__OS_WINDOWS
@@ -204,7 +205,46 @@ bdet_Datetime getCurrentTimestamp() {
 
 void removeFilesByPrefix(const char *prefix)
 {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    bsl::string filename = prefix;
+    filename += "*";
+    WIN32_FIND_DATA findFileData;
+
+    bsl::vector<bsl::string> fileNames;
+    HANDLE hFind = FindFirstFile(filename.c_str(), &findFileData);
+    if (hFind != INVALID_HANDLE_VALUE) {
+        fileNames.push_back(findFileData.cFileName);
+        while(FindNextFile(hFind, &findFileData)) {
+            fileNames.push_back(findFileData.cFileName);
+        }
+        FindClose(hFind);
+    }
+
+    char tmpPathBuf[MAX_PATH];
+    GetTempPath(MAX_PATH, tmpPathBuf);
+    bsl::string tmpPath(tmpPathBuf);
+
+    bsl::vector<bsl::string>::iterator itr;
+    for (itr = fileNames.begin(); itr != fileNames.end(); ++itr) {
+        bsl::string fn = tmpPath + (*itr);
+        if (!DeleteFile(fn.c_str()))
+        {
+            LPVOID lpMsgBuf;
+            FormatMessage(
+                FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                FORMAT_MESSAGE_FROM_SYSTEM |
+                FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL,
+                GetLastError(),
+                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+                (LPTSTR) &lpMsgBuf,
+                0,
+                NULL);
+            cerr << "Error, " << (char*)lpMsgBuf << endl;
+            LocalFree(lpMsgBuf);
+        }
+    }
+#else
     glob_t globbuf;
     bsl::string filename = prefix;
     filename += "*";
@@ -478,6 +518,7 @@ int main(int argc, char *argv[])
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
         }
+        mX.disableFileLogging();
         removeFilesByPrefix(BASENAME.c_str());
       } break;
       case 5: {
@@ -509,6 +550,7 @@ int main(int argc, char *argv[])
         mX.forceRotation();
 
         ASSERT(1 == cb.numInvocations());
+        mX.disableFileLogging();
         removeFilesByPrefix(filename.c_str());
       } break;
       case 4: {
@@ -1283,6 +1325,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            localMultiObserver.deregisterObserver(&defaultObserver);
+            localMultiObserver.deregisterObserver(&mX);
         }
 
         if (verbose) cerr << "Testing constructor threshold." << endl;
@@ -1346,6 +1390,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            localMultiObserver.deregisterObserver(&defaultObserver);
+            localMultiObserver.deregisterObserver(&mX);
         }
 
         if (verbose) cerr << "Testing short format." << endl;
@@ -1428,6 +1474,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            localMultiObserver.deregisterObserver(&defaultObserver);
+            localMultiObserver.deregisterObserver(&mX);
         }
 
         if (verbose) cerr << "Testing short format with local time "
@@ -1562,6 +1610,8 @@ int main(int argc, char *argv[])
 
                 bsl::cout.rdbuf(coutSbuf);
                 multiplexObserver.deregisterObserver(&localMultiObserver);
+                localMultiObserver.deregisterObserver(&defaultObserver);
+                localMultiObserver.deregisterObserver(&mX);
             }
         }
 
@@ -2154,6 +2204,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
             ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
         }
+        fclose(stdout);
         removeFilesByPrefix(fileName.c_str());
       } break;
       default: {
