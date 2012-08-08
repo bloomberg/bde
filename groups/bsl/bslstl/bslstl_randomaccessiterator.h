@@ -29,62 +29,177 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// Given the following "iterator-like" implementation class:
+// In this section we show intended use of this component.
+//
+///Example 1: Using Iterators to Traverse a Container
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to create a standard compliant random access iterator for a
+// fixed-size array.
+//
+// First, we define the minimal interface of the iterator required by
+// 'bslstl::RandomAccessIterator'.  The implementation is elided for brevity:
 //..
-//  template <class T>
-//  class my_IteratorImp {
+//  template <class VALUE>
+//  class MyArrayIterator {
+//      // DATA
+//      VALUE *d_value_p;  // address of an element in an array (held, not
+//                         // owned)
+//    private:
+//      // FRIENDS
+//      template <class OTHER_VALUE>
+//      friend bool operator==(const MyArrayIterator<OTHER_VALUE>&,
+//                             const MyArrayIterator<OTHER_VALUE>&);
+//      template <class OTHER_VALUE>
+//      friend bool operator<(const MyArrayIterator<OTHER_VALUE>&,
+//                            const MyArrayIterator<OTHER_VALUE>&);
+//      template <class OTHER_VALUE>
+//      friend std::ptrdiff_t operator-(const MyArrayIterator<OTHER_VALUE>&,
+//                                      const MyArrayIterator<OTHER_VALUE>&);
+//
 //    public:
 //      // CREATORS
-//      my_IteratorImp();
-//      my_IteratorImp(const my_IteratorImp&);
-//      ~my_IteratorImp();
+//      explicit MyArrayIterator(VALUE* address = 0);
+//          // Create a 'MyArrayIterator' object referring to the
+//          // element of type 'VALUE' at the specified 'address'.
 //
-//      // An additional value-constructor should be supplied that can be
-//      // called by the unspecified container type, providing access to the
-//      // container's internal data structure that is to be iterated over.
-//      // This would typically be called by 'begin' and 'end'.
+//      //! MyArrayIterator(const MyArrayIterator& original) = default;
+//          // Create a 'MyArrayIterator' object having the same value
+//          // as the specified 'original' object.
+//
+//      //! MyArrayIterator& operator=(const MyArrayIterator& rhs) = default;
+//          // Assign to this object the value of the specified 'rhs' object,
+//          // and return a reference providing modifiable access to this
+//          // object.
+//
+//      //! ~MyArrayIterator() = default;
+//          // Destroy this object;
 //
 //      // MANIPULATORS
-//      my_IteratorImp& operator=(const my_IteratorImp&);
-//
 //      void operator++();
-//      void operator--();
+//          // Increment this object to refer to the next element in an array.
 //
-//      void operator+=(int);
+//      void operator--();
+//          // Decrement this object to refer to the previous element in an
+//          // array.
+//
+//      void operator+=(std::ptrdiff_t n);
+//          // Move this object by the specified 'n' element in the array.
 //
 //      // ACCESSORS
-//      T& operator*() const;
+//      VALUE& operator*() const;
+//          // Return a reference providing modifiable access to the value (of
+//          // the parameterized 'VALUE' type) of the element referred to by
+//          // this object.
 //  };
-//
-//  template <class T>
-//  bool operator==(const my_IteratorImp<T>& lhs,
-//                  const my_IteratorImp<T>& rhs);
-//
-//  template <class T>
-//  std::ptrdiff_t operator-(const my_IteratorImp<T>& lhs,
-//                           const my_IteratorImp<T>& rhs);
-//
-//  template <class T>
-//  bool operator<(const my_IteratorImp<T>& lhs,
-//                 const my_IteratorImp<T>& rhs);
 //..
-// simply add the following two 'typedef's to any container class that provides
-// 'my_IteratorImp<T>' access, and the container will have STL-compliant random
-// access iterators:
+// Notice that 'MyArrayIterator' does not implements a complete standard
+// compliant random access iterator.  It is missing methods such as 'operator+'
+// and 'operator[]'.
+//
+// Then, we define the interface for our container class template,
+// 'MyFixedSizeArray':
 //..
-//  typedef bslstl::RandomAccessIterator<T, my_IteratorImp<T> > iterator;
-//  typedef bslstl::RandomAccessIterator<const T, my_IteratorImp<T> >
+//  template <class VALUE, int SIZE>
+//  class MyFixedSizeArray
+//      // This is a container that contains a fixed number of elements.  The
+//      // number of elements is specified upon construction and can not be
+//      // changed afterwards.
+//  {
+//      // DATA
+//      VALUE d_array[SIZE];   // storage of the container
+//
+//    public:
+//      // PUBLIC TYPES
+//      typedef VALUE      value_type;
+//
+//..
+// Now, we use the adaptor to create a standard compliant random access
+// iterator for this container from 'MyArrayIterator':
+//..
+//      typedef bslstl::RandomAccessIterator<VALUE,
+//                                           MyArrayIterator<VALUE> > iterator;
+//      typedef bslstl::RandomAccessIterator<const VALUE,
+//                                           MyArrayIterator<VALUE> >
 //                                                              const_iterator;
 //..
-// Note that the implementation for 'const_iterator' is 'my_IteratorImp<T>' and
-// *not* 'my_IteratorImp<const T>'; rather the 'const' is added to the return
-// value of 'operator*' by way of conversion to the first template argument.
+// Notice that the implementation for 'const_iterator' is
+// 'MyArrayIterator<VALUE>' and *not* 'MyArrayIterator<const VALUE>'; rather
+// the 'const' is added to the return value of 'operator*' by way of conversion
+// to the first template argument.
+//
+// Next, we continue defining the rest of the class:
+//..
+//      // CREATORS
+//      //! MyFixedSizeArray() = default;
+//          // Create a 'MyFixedSizeArray' object having the parameterized
+//          // 'SIZE' number of elements of the parameterized type 'VALUE'.
+//
+//      //! MyFixedSizeArray(const MyFixedSizeArray& original) = default;
+//          // Create a 'MyFixedSizeArray' object having same number of
+//          // elements as that of the specified 'rhs', the same value of each
+//          // element as that of corresponding element in 'rhs'.
+//
+//      //! ~MyFixedSizeArray() = default;
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      iterator begin();
+//          // Return a random access iterator providing modifiable access to
+//          // the first valid element of this object.
+//
+//      iterator end();
+//          // Return a random access iterator providing modifiable access to
+//          // the last valid element of this object.
+//
+//      VALUE& operator[](int position);
+//          // Return a reference providing modifiable access to the element at
+//          // the specified 'position'.
+//
+//      // ACCESSORS
+//      const_iterator begin() const;
+//          // Return a random access iterator providing non-modifiable access
+//          // to the first valid element of this object.
+//
+//      const_iterator end() const;
+//          // Return a random access iterator providing non-modifiable access
+//          // to the last valid element of this object.
+//
+//      int size() const;
+//          // Return the number of elements contained in this object.
+//
+//      const VALUE& operator[](int i) const;
+//          // Return a reference providing non-modifiable access to the
+//          // specified 'i'th element in this object.
+//  };
+//..
+// Then, to test our container, we create a 'MyFixedSizeArray' object and
+// initialize its elements:
+//..
+//  MyFixedSizeArray<int, 5> fixedArray;
+//  fixedArray[0] = 3;
+//  fixedArray[1] = 2;
+//  fixedArray[2] = 5;
+//  fixedArray[3] = 4;
+//  fixedArray[4] = 1;
+//..
+// Finally, to show that 'MyFixedSizeArray::iterator' can be used as a random
+// access iterator, we invoke 'std::sort' on the 'begin' and 'end' iterators
+// and verify the results:
+//..
+//  std::sort(fixedArray.begin(), fixedArray.end());
+//
+//  assert(fixedArray[0] == 1);
+//  assert(fixedArray[1] == 2);
+//  assert(fixedArray[2] == 3);
+//  assert(fixedArray[3] == 4);
+//  assert(fixedArray[4] == 5);
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
 #error "<bslstl_randomaccessiterator.h> header can't be included directly in \
-in BSL_OVERRIDES_STD mode"
+BSL_OVERRIDES_STD mode"
 #endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -167,7 +282,7 @@ class RandomAccessIterator
         // the template parameter 'ITER_IMP' has a singular value after
         // value-initialization.
 
-    RandomAccessIterator(const ITER_IMP& implementation);
+    RandomAccessIterator(const ITER_IMP& implementation);           // IMPLICIT
         // Construct a random access iterator having the specified
         // 'implementation' of the parameterized 'ITER_IMP' type.
 
