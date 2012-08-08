@@ -630,17 +630,21 @@ void my_Server::channelStateCb(int   channelId,
             channel = new (*d_allocator_p)
                              btemt_ChannelPoolChannel(channelId,
                                                       d_channelPool_p,
+                                                      0,
                                                       &d_blobBufferFactory,
                                                       &d_spAllocator,
-                                                      d_allocator_p);
+                                                      d_allocator_p,
+                                                      d_useBlobForDataReads);
         }
         else {
             channel = new (*d_allocator_p)
                             btemt_ChannelPoolChannel(channelId,
                                                      d_channelPool_p,
                                                      &d_bufferChainFactory,
+                                                     0,
                                                      &d_spAllocator,
-                                                     d_allocator_p);
+                                                     d_allocator_p,
+                                                     d_useBlobForDataReads);
         }
 
         d_channelMap[channelId] = channel;
