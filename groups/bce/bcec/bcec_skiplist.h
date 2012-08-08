@@ -168,7 +168,7 @@ BDES_IDENT("$Id: $")
 //                bdet_TimeInterval when;
 //                bdetu_TimeInterval::convertToTimeInterval(&when,
 //                               firstItem.key() -
-//                               bdetu_SystemTime::nowAsDatetimeGMT());
+//                               bdetu_SystemTime::nowAsDatetimeUtc());
 //                if (when.totalSecondsAsDouble() <= 0) {
 //                    // Execute now and remove from schedule, then iterate.
 //
@@ -275,7 +275,7 @@ BDES_IDENT("$Id: $")
 //
 // bsl::vector<int> values;
 //
-// bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeGMT();
+// bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeUtc();
 // bdet_Datetime scheduleTime = now;
 //
 // // Add events out of sequence and ensure they are executed
@@ -299,7 +299,7 @@ BDES_IDENT("$Id: $")
 //                         scheduleTime);
 // assert(values.isEmpty());
 // scheduleTime.addMilliseconds(250);
-// while (bdetu_SystemTime::nowAsDatetimeGMT() < scheduleTime) {
+// while (bdetu_SystemTime::nowAsDatetimeUtc() < scheduleTime) {
 //     bcemt_ThreadUtil::microSleep(10000);
 // }
 // scheduler.stop();
@@ -361,11 +361,13 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
 template <class KEY, class DATA> class bcec_SkipList;
-class bslma_Allocator;
-
 template <class KEY, class DATA>
 bool operator==(const bcec_SkipList<KEY, DATA>& lhs,
                 const bcec_SkipList<KEY, DATA>& rhs);
@@ -583,6 +585,13 @@ class bcec_SkipListPair {
     //
     // In addition, this class defines 'key' and 'data' member functions
     // which pass 'this' to static methods of 'bcec_SkipList'.
+
+    // Note these data elements are never accessed.  A pointer to this type
+    // will be cast to a pointer to 'bcec_SkipList_Node' so make sure we are
+    // adequately aligned to avoid compiler warnings.
+
+    // DATA
+    bcec_SkipList_Node<KEY, DATA> d_node;    // never directly accessed
 
   private:
     // NOT IMPLEMENTED
@@ -2247,6 +2256,7 @@ bcec_SkipList<KEY, DATA>::~bcec_SkipList()
     while (p != d_tail_p) {
         const int count = p->decrementRefCount();
         BSLS_ASSERT(0 == count);
+        (void) count;    // suppress 'unused variable' warnings
 
         p->d_key.~KEY();
         p->d_data.~DATA();

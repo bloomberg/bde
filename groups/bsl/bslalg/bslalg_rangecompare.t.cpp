@@ -61,6 +61,7 @@ void aSsErT(int c, const char *s, int i) {
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
+
 }  // close unnamed namespace
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
@@ -111,17 +112,17 @@ inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
 inline void dbg_print(unsigned val) { printf("%u", val); fflush(stdout); }
 
 #ifdef _MSC_VER
-inline void dbg_print(bsls_Types::Int64 val) {
+inline void dbg_print(bsls::Types::Int64 val) {
     printf("%I64d", val); fflush(stdout);
 }
-inline void dbg_print(bsls_Types::Uint64 val) {
+inline void dbg_print(bsls::Types::Uint64 val) {
     printf("%I64u", val); fflush(stdout);
 }
 #else
-inline void dbg_print(bsls_Types::Int64 val) {
+inline void dbg_print(bsls::Types::Int64 val) {
     printf("%lld", val); fflush(stdout);
 }
-inline void dbg_print(bsls_Types::Uint64 val) {
+inline void dbg_print(bsls::Types::Uint64 val) {
     printf("%llu", val); fflush(stdout);
 }
 #endif
@@ -142,9 +143,9 @@ inline void dbg_print(const void * p) {
 //                  GLOBAL TYPES/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_Types::Uint64  Uint64;
+typedef bsls::Types::Uint64    Uint64;
 
-typedef bslalg_RangeCompare   Obj;
+typedef bslalg::RangeCompare   Obj;
 
                               // ===============
                               // class my_Class1
@@ -219,9 +220,9 @@ namespace BloombergLP {
 
 template <>
 struct bslalg_TypeTraits<my_Class2>
-: bslalg_TypeTraitBitwiseEqualityComparable { };
+: bslalg::TypeTraitBitwiseEqualityComparable { };
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
                               // ===============
                               // class my_Class3
@@ -495,7 +496,7 @@ static const struct {
 const int NUM_DATA_3 = sizeof DATA_3 / sizeof *DATA_3;
 
 template <class TYPE>
-void testLexicographical(bool verboseFlag, bslma_TestAllocator& testAllocator)
+void testLexicographical(bool verboseFlag, bslma::TestAllocator& testAllocator)
     // Compare every pair of strings of the parameterized 'TYPE' from the
     // specifications in the 'DATA_2' array, and verify that they are equal if
     // and only if their specifications are equal.  Note that the range will be
@@ -590,9 +591,9 @@ void *ptrGenerator(int i, int j)
 }
 
 template <class TYPE>
-void testLexicographicalBuiltin(bool                   verboseFlag,
-                                TYPE                 (*generator)(int, int),
-                                bslma_TestAllocator&   testAllocator)
+void testLexicographicalBuiltin(bool                    verboseFlag,
+                                TYPE                  (*generator)(int, int),
+                                bslma::TestAllocator&   testAllocator)
     // Compare every pair of strings of the parameterized 'TYPE' from the
     // specifications in the 'DATA_2' array, and verify that they are equal if
     // and only if their specifications are equal.  Note that the range will be
@@ -686,8 +687,8 @@ void testLexicographicalBuiltin(bool                   verboseFlag,
 }
 
 template <class TYPE>
-void testLexicographicalNonBitwise(bool                 verboseFlag,
-                                   bslma_TestAllocator& testAllocator)
+void testLexicographicalNonBitwise(bool                  verboseFlag,
+                                   bslma::TestAllocator& testAllocator)
     // Compare every pair of ranges of the parameterized 'TYPE' from the
     // specifications in the 'DATA_2' array, and verify that they are equal if
     // and only if their specifications are equal.  Note that the range will be
@@ -778,7 +779,7 @@ static const struct {
 };
 const int NUM_DATA_2 = sizeof DATA_2 / sizeof *DATA_2;
 
-void testGenericEqual(bool verboseFlag, bslma_TestAllocator& testAllocator)
+void testGenericEqual(bool verboseFlag, bslma::TestAllocator& testAllocator)
     // Compare every pair of strings in the 'DATA_2' array, and verify that
     // they are equal according to the generic 'equal' implementation (using
     // four arguments) if and only if they are equal.
@@ -804,7 +805,7 @@ void testGenericEqual(bool verboseFlag, bslma_TestAllocator& testAllocator)
                 printf("EXP = %d, result = %d\n", EXP, result);
             }
             ASSERT(EXP == Obj::equal(STRING1, STRING1 + LEN1,
-                                           STRING2, STRING2 + LEN2));
+                                     STRING2, STRING2 + LEN2));
 
             typedef my_Iterator<char> Iter;
             ASSERT(EXP == Obj::equal(Iter(STRING1), Iter(STRING1 + LEN1),
@@ -814,7 +815,7 @@ void testGenericEqual(bool verboseFlag, bslma_TestAllocator& testAllocator)
 }
 
 template <class TYPE>
-void testEqual(bool verboseFlag, bslma_TestAllocator& testAllocator)
+void testEqual(bool verboseFlag, bslma::TestAllocator& testAllocator)
     // Compare every pair of strings of the parameterized 'TYPE' from the
     // specifications in the 'DATA_2' array, and verify that they are equal if
     // and only if their specifications are equal.  Note that the range will be
@@ -877,7 +878,7 @@ void testEqual(bool verboseFlag, bslma_TestAllocator& testAllocator)
 }
 
 template <class TYPE>
-void testEqualNonBitwise(bool verboseFlag, bslma_TestAllocator& testAllocator)
+void testEqualNonBitwise(bool verboseFlag, bslma::TestAllocator& testAllocator)
     // Compare every pair of strings of the parameterized 'TYPE' from the
     // specifications in the 'DATA_2' array, and verify that they are equal if
     // and only if their specifications are equal.  Note that the range will be
@@ -951,7 +952,7 @@ void testEqualNonBitwise(bool verboseFlag, bslma_TestAllocator& testAllocator)
 
 struct TestPairType {
     BSLALG_DECLARE_NESTED_TRAITS(TestPairType,
-                                 bslalg_TypeTraitBitwiseEqualityComparable);
+                                 bslalg::TypeTraitBitwiseEqualityComparable);
     int first, second;
 };
 
@@ -1002,7 +1003,7 @@ void timeEqualAlgorithm(const char *typeName,
             buffer1[j] = buffer2[j] = TYPE();
         }
 
-        bsls_Stopwatch timer;
+        bsls::Stopwatch timer;
         timer.start();
         for (int i = 0; i < numIter; ++i) {
             int j = 0;
@@ -1015,7 +1016,7 @@ void timeEqualAlgorithm(const char *typeName,
         }
         timer.stop();
         printf("equal<%s>(0) - single loop : %f\n", typeName,
-                                                    timer.elapsedTime());
+               timer.elapsedTime());
 
         timer.reset();
         timer.start();
@@ -1025,7 +1026,7 @@ void timeEqualAlgorithm(const char *typeName,
         }
         timer.stop();
         printf("equal<%s>(0) - bslalg      : %f\n", typeName,
-                                                    timer.elapsedTime());
+               timer.elapsedTime());
 
         for (int j = 0; j < bufferSize; ++j) {
             generateNonNullValue(buffer1 + j, j);
@@ -1045,7 +1046,7 @@ void timeEqualAlgorithm(const char *typeName,
         }
         timer.stop();
         printf("equal<%s>(!0) - single loop : %f\n", typeName,
-                                                     timer.elapsedTime());
+               timer.elapsedTime());
 
         timer.reset();
         timer.start();
@@ -1055,7 +1056,7 @@ void timeEqualAlgorithm(const char *typeName,
         }
         timer.stop();
         printf("equal<%s>(!0) - bslalg      : %f\n", typeName,
-                                                     timer.elapsedTime());
+               timer.elapsedTime());
     }
 }
 
@@ -1076,7 +1077,7 @@ void timeLexicographicalAlgorithm(const char *typeName,
             buffer1[j] = buffer2[j] = TYPE();
         }
 
-        bsls_Stopwatch timer;
+        bsls::Stopwatch timer;
         timer.start();
         for (int i = 0; i < numIter; ++i) {
             int j = 0;
@@ -1092,18 +1093,18 @@ void timeLexicographicalAlgorithm(const char *typeName,
         }
         timer.stop();
         printf("lexicographical<%s>(0) - single loop : %f\n", typeName,
-                                                          timer.elapsedTime());
+               timer.elapsedTime());
 
         timer.reset();
         timer.start();
         for (int i = 0; i < numIter; ++i) {
             ASSERT((0 == Obj::lexicographical(
-                               buffer1, buffer1 + bufferSize, bufferSize,
-                               buffer2, buffer2 + bufferSize, bufferSize)));
+                                  buffer1, buffer1 + bufferSize, bufferSize,
+                                  buffer2, buffer2 + bufferSize, bufferSize)));
         }
         timer.stop();
         printf("lexicographical<%s>(0) - bslalg      : %f\n", typeName,
-                                                          timer.elapsedTime());
+               timer.elapsedTime());
 
         for (int j = 0; j < bufferSize; ++j) {
             generateNonNullValue(buffer1 + j, j);
@@ -1126,18 +1127,18 @@ void timeLexicographicalAlgorithm(const char *typeName,
         }
         timer.stop();
         printf("lexicographical<%s>(!0) - single loop : %f\n", typeName,
-                                                          timer.elapsedTime());
+               timer.elapsedTime());
 
         timer.reset();
         timer.start();
         for (int i = 0; i < numIter; ++i) {
             ASSERT((0 == Obj::lexicographical(
-                               buffer1, buffer1 + bufferSize, bufferSize,
-                               buffer2, buffer2 + bufferSize, bufferSize)));
+                                  buffer1, buffer1 + bufferSize, bufferSize,
+                                  buffer2, buffer2 + bufferSize, bufferSize)));
         }
         timer.stop();
         printf("lexicographical<%s>(!0) - bslalg      : %f\n", typeName,
-                                                          timer.elapsedTime());
+               timer.elapsedTime());
     }
 }
 
@@ -1156,7 +1157,7 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
@@ -1203,7 +1204,7 @@ int main(int argc, char *argv[])
 
             if (verbose) printf("\t\tUsing forward iterator.\n");
             testLexicographicalNonBitwise<unsigned char>(veryVerbose,
-                                                     testAllocator);
+                                                         testAllocator);
         }
 
         if (verbose) printf("\t... with 'int'\n");
@@ -1334,7 +1335,7 @@ int main(int argc, char *argv[])
                 gg(string2, "abcde");  // use same value but different seeds
 
                 ASSERT(Obj::equal(STRING1, STRING1 + 5, 5,
-                                             STRING2, STRING2 + 5, 5));
+                                  STRING2, STRING2 + 5, 5));
             }
 
             if (verbose) printf("\t\tUsing forward iterator.\n");
@@ -1441,8 +1442,7 @@ int main(int argc, char *argv[])
             ASSERT((1  == Obj::lexicographical(Z, Z + Z_LEN, Z_LEN,
                                                Y, Y + Y_LEN, Y_LEN)));
 
-            ASSERT((0  == Obj::lexicographical(
-                                               Z, Z + Z_LEN, Z_LEN,
+            ASSERT((0  == Obj::lexicographical(Z, Z + Z_LEN, Z_LEN,
                                                Z, Z + Z_LEN, Z_LEN)));
         }
 
@@ -1470,7 +1470,7 @@ int main(int argc, char *argv[])
             NUM_ITER    = 4
         };
 
-        bslma_TestAllocator  testAllocator(veryVeryVerbose);
+        bslma::TestAllocator  testAllocator(veryVeryVerbose);
         const int rawBufferSize = (argc > 2) ? atoi(argv[2]) : BUFFER_SIZE;
         const int numIter = (argc > 3) ? atoi(argv[3]) : NUM_ITER;
         char *rawBuffer1 = (char *)testAllocator.allocate(rawBufferSize);

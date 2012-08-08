@@ -1,4 +1,4 @@
-// bslstl_throwstdexcept.t.cpp                                        -*-C++-*-
+// bslstl_stdexceptutil.t.cpp                                         -*-C++-*-
 #include <bslstl_stdexceptutil.h>
 
 #include <bsls_exceptionutil.h>
@@ -59,7 +59,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
-
+#if defined(BDE_BUILD_TARGET_EXC)
 ///Usage
 ///-----
 // First we declare a function template that wants to throw a standard
@@ -73,9 +73,9 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
       //  Throw a standard exception according to the specified 'selector'.
   {
     switch(selector) {
-      case 1: bslstl_StdExceptUtil::throwRuntimeError("sample message 1");
-      case 2: bslstl_StdExceptUtil::throwLogicError("sample message 2");
-      default : bslstl_StdExceptUtil::throwInvalidArgument("ERROR");
+      case 1: bslstl::StdExceptUtil::throwRuntimeError("sample message 1");
+      case 2: bslstl::StdExceptUtil::throwLogicError("sample message 2");
+      default : bslstl::StdExceptUtil::throwInvalidArgument("ERROR");
     }
   }
 //..
@@ -103,6 +103,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     }
   }
 //..
+#endif // defined BDE_BUILD_TARGET_EXC
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -131,8 +132,16 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============");
+
+#if !defined(BDE_BUILD_TARGET_EXC)
+        if (verbose) printf(
+                "\nThis case is not run as it relies on exception support.\n");
+#else
         callTestFunction();
-       } break;
+#endif // defined BDE_BUILD_TARGET_EXC
+     } break;
      case 1: {
         // --------------------------------------------------------------------
         // BREATHING/USAGE TEST
@@ -148,9 +157,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============");
 
-        try {
+#if !defined(BDE_BUILD_TARGET_EXC)
+        if (verbose) printf(
+                "\nThis case is not run as it relies on exception support.\n");
+#else
+    try {
             if(verbose) printf("\nThrowing a runtime_error exception");
-            bslstl_StdExceptUtil::throwRuntimeError("one");
+            bslstl::StdExceptUtil::throwRuntimeError("one");
             ASSERT( false ); // execution should jump to catch block
         }
         catch(const runtime_error& ex) {
@@ -158,7 +171,7 @@ int main(int argc, char *argv[])
         }
         try {
             if(verbose) printf("\nThrowing a logic_error exception");
-            bslstl_StdExceptUtil::throwLogicError("two");
+            bslstl::StdExceptUtil::throwLogicError("two");
             ASSERT( false ); // execution should jump to catch block
         }
         catch(const logic_error& ex) {
@@ -166,7 +179,7 @@ int main(int argc, char *argv[])
         }
         try {
             if(verbose) printf("\nThrowing a domain_error exception");
-            bslstl_StdExceptUtil::throwDomainError("three");
+            bslstl::StdExceptUtil::throwDomainError("three");
             ASSERT( false ); // execution should jump to catch block
         }
         catch(const domain_error& ex) {
@@ -174,7 +187,7 @@ int main(int argc, char *argv[])
         }
         try {
             if(verbose) printf("\nThrowing an invalid_argument exception");
-            bslstl_StdExceptUtil::throwInvalidArgument("four");
+            bslstl::StdExceptUtil::throwInvalidArgument("four");
             ASSERT( false ); // execution should jump to catch block
         }
         catch(const invalid_argument& ex) {
@@ -182,7 +195,7 @@ int main(int argc, char *argv[])
         }
         try {
             if(verbose) printf("\nThrowing a length_error exception");
-            bslstl_StdExceptUtil::throwLengthError("five");
+            bslstl::StdExceptUtil::throwLengthError("five");
             ASSERT( false ); // execution should jump to catch block
         }
         catch(const length_error& ex) {
@@ -190,7 +203,7 @@ int main(int argc, char *argv[])
         }
         try {
             if(verbose) printf("\nThrowing an out_of_range exception");
-            bslstl_StdExceptUtil::throwOutOfRange("six");
+            bslstl::StdExceptUtil::throwOutOfRange("six");
             ASSERT( false ); // execution should jump to catch block
         }
         catch(const out_of_range& ex) {
@@ -198,7 +211,7 @@ int main(int argc, char *argv[])
         }
         try {
             if(verbose) printf("\nThrowing a range_error exception");
-            bslstl_StdExceptUtil::throwRangeError("seven");
+            bslstl::StdExceptUtil::throwRangeError("seven");
             ASSERT( false ); // execution should jump to catch block
         }
         catch(const range_error& ex) {
@@ -206,7 +219,7 @@ int main(int argc, char *argv[])
         }
         try {
             if(verbose) printf("\nThrowing an overflow_error exception");
-            bslstl_StdExceptUtil::throwOverflowError("eight");
+            bslstl::StdExceptUtil::throwOverflowError("eight");
             ASSERT( false ); // execution should jump to catch block
         }
         catch(const overflow_error& ex) {
@@ -214,12 +227,13 @@ int main(int argc, char *argv[])
         }
         try {
             if(verbose) printf("\nThrowing an underflow_error exception");
-            bslstl_StdExceptUtil::throwUnderflowError("nine");
+            bslstl::StdExceptUtil::throwUnderflowError("nine");
             ASSERT( false ); // execution should jump to catch block
         }
         catch(const underflow_error& ex) {
             ASSERT(0 == strcmp(ex.what(), "nine"));
         }
+#endif // defined BDE_BUILD_TARGET_EXC
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

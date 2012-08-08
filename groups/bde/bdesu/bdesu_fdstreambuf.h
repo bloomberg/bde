@@ -80,8 +80,12 @@ BDES_IDENT("$Id: $")
 // ---------------------------------------------------------------------------
 //..
 //
-///Usage: stream
-///-------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: stream
+///- - - - - - - - -
 // The most common usage of this component is to initialize a stream.  In this
 // case, the 'bdesu_FdStreamBuf' will be used for either input or output, but
 // not both.
@@ -197,8 +201,9 @@ BDES_IDENT("$Id: $")
 //..
 //  bdesu_FileUtil::remove(fileNameBuffer);
 //..
-///Usage: streambuf
-///----------------
+//
+///Example 2: streambuf
+/// - - - - - - - - - - 
 // For our second example we will create a 'bdesu_FdStreamBuf' associated with
 // a temporary file, and then use the public methods of the base class
 // interface, including 'sputn', 'sgetn' and 'pubseekpos', to do some I/O and
@@ -356,6 +361,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -406,7 +415,7 @@ class bdesu_FdStreamBuf_FileHandler {
 
   private:
     // CLASS DATA
-    static bsls_Types::size_type
+    static bsls::AtomicOperations::AtomicTypes::Int
            s_pageSize;             // page size associated with this operating
                                    // system
 
@@ -1026,7 +1035,7 @@ class bdesu_FdStreamBuf : public bsl::streambuf {
 inline
 size_t bdesu_FdStreamBuf_FileHandler::pageSize()
 {
-    return s_pageSize;
+    return bsls::AtomicOperations::getIntRelaxed(&s_pageSize);
 }
 
 // MANIPULATORS

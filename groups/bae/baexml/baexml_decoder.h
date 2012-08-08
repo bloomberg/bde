@@ -103,7 +103,7 @@ BDES_IDENT("$Id: $")
 //
 //  using namespace BloombergLP;
 //
-//  void main()
+//  int main()
 //  {
 //      const char INPUT[] = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 //                           "<Employee>\n"
@@ -134,6 +134,8 @@ BDES_IDENT("$Id: $")
 //      assert("Some City"   == bob.homeAddress().city());
 //      assert("Some State"  == bob.homeAddress().state());
 //      assert(21            == bob.age());
+//
+//      return 0;
 //  }
 //..
 ///Usage Example 2
@@ -2919,11 +2921,6 @@ int baexml_Decoder_PrepareSequenceContext::operator()(const TYPE&      object,
         BSLS_ASSERT_SAFE(d_simpleContentId_p->isNull());
         d_simpleContentId_p->makeValue(info.id());
     }
-
-    typedef typename
-    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
-
-    executeImp(object, info.formattingMode(), info.id(), TypeCategory());
 
     return BAEXML_SUCCESS;
 }

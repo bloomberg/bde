@@ -5,34 +5,36 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
+#include <bsls_atomicoperations.h>
 #include <bsls_objectbuffer.h>
 
 #include <new>
 
 namespace BloombergLP {
 
-typedef bsls_ObjectBuffer<bslma_NewDeleteAllocator>
+typedef bsls::ObjectBuffer<bslma::NewDeleteAllocator>
                                         bslma_NewDeleteAllocator_Singleton;
     // A 'bslma_NewDeleteAllocator_Singleton' is a buffer with the right size
-    // and alignment to hold a 'bslma_NewDeleteAllocator' object.
+    // and alignment to hold a 'bslma::NewDeleteAllocator' object.
 
 static bslma_NewDeleteAllocator_Singleton g_newDeleteAllocatorSingleton;
     // 'g_newDeleteAllocatorSingleton' is a global static buffer to hold the
     // singleton.
 
-static bslma_NewDeleteAllocator *g_newDeleteAllocatorSingleton_p = 0;
+static bsls::AtomicOperations::AtomicTypes::Pointer
+                                         g_newDeleteAllocatorSingleton_p = {0};
     // 'g_newDeleteAllocatorSingleton_p' is a global static pointer to the
     // singleton, which is *statically* initialized to 0.
 
 static inline
-bslma_NewDeleteAllocator *
+bslma::NewDeleteAllocator *
 initSingleton(bslma_NewDeleteAllocator_Singleton *address)
-    // Construct a 'bslma_NewDeleteAllocator' at the specified 'address'
-    // in a thread-safe way, and return 'address'.
+    // Construct a 'bslma::NewDeleteAllocator' at the specified 'address' in a
+    // thread-safe way, and return 'address'.
 {
     // Thread-safe initialization of singleton:
     //
-    // A 'bslma_NewDeleteAllocator' contains no data members but does contain
+    // A 'bslma::NewDeleteAllocator' contains no data members but does contain
     // a vtbl pointer.  During construction, the vtbl pointer is first set the
     // base class's vtbl before it is set to its final, derived-class value.
     // If two threads try to initialize the same singleton, the one that
@@ -48,54 +50,59 @@ initSingleton(bslma_NewDeleteAllocator_Singleton *address)
     // thread's copy.
 
     bslma_NewDeleteAllocator_Singleton stackTemp;
+    void *v = new(stackTemp.buffer()) bslma::NewDeleteAllocator();
 
-    void *v = new(&stackTemp) bslma_NewDeleteAllocator;
-
-    // Note that 'bsls_ObjectBuffer<T>' assignment is a bit-wise copy.
-
+    // Note that 'bsls::ObjectBuffer<T>' copy-assignment is a bit-wise copy.
+    // Also, it's imperative to use 'v' here instead of the 'stackTemp' object
+    // itself even though they point to the same object in memory, because that
+    // creates a data dependency between the construction of the
+    // 'NewDeleteAllocator' and this copy-assignment.  Without this dependency
+    // the construction of the 'NewDeleteAllocator' can be reordered past the
+    // copy-assignment or optimized out (as observed for Solaris optimized
+    // builds)
     *address = *(static_cast<bslma_NewDeleteAllocator_Singleton *>(v));
-
     return &address->object();
 }
 
-                        // ------------------------------
-                        // class bslma_NewDeleteAllocator
-                        // ------------------------------
+namespace bslma {
+
+                        // ------------------------
+                        // class NewDeleteAllocator
+                        // ------------------------
 
 // CLASS METHODS
-bslma_NewDeleteAllocator& bslma_NewDeleteAllocator::singleton()
+NewDeleteAllocator& NewDeleteAllocator::singleton()
 {
     // This initialization is not guaranteed to happen once, but repeated
     // initialization will be safe (see the comment above).
 
-    if (!g_newDeleteAllocatorSingleton_p) {
-        g_newDeleteAllocatorSingleton_p =
-                                 initSingleton(&g_newDeleteAllocatorSingleton);
+    if (!bsls::AtomicOperations::getPtrAcquire(
+                                           &g_newDeleteAllocatorSingleton_p)) {
+        bsls::AtomicOperations::setPtrRelease(
+                &g_newDeleteAllocatorSingleton_p,
+                initSingleton(&g_newDeleteAllocatorSingleton));
     }
 
-    // In case the singleton has been previously initialized on another thread,
-    // the data dependency between 'g_newDeleteAllocator_p' and the singleton
-    // itself will guarantee visibility of singleton updates on most modern
-    // architectures.  This is the best we can do here in the absence of access
-    // to any kind of atomic operations.
-
-    return *g_newDeleteAllocatorSingleton_p;
+    return *(bslma::NewDeleteAllocator *)
+       bsls::AtomicOperations::getPtrRelaxed(&g_newDeleteAllocatorSingleton_p);
 }
 
 // CREATORS
-bslma_NewDeleteAllocator::~bslma_NewDeleteAllocator()
+NewDeleteAllocator::~NewDeleteAllocator()
 {
 }
 
 // MANIPULATORS
-void *bslma_NewDeleteAllocator::allocate(size_type size)
+void *NewDeleteAllocator::allocate(size_type size)
 {
     BSLS_ASSERT_SAFE(0 <= size);
 
     return 0 == size ? 0 : ::operator new(size);
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

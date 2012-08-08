@@ -30,15 +30,15 @@ struct bsls_AlignmentUtil_Assert<1> {
 enum {
 
     assertion1 = sizeof(bsls_AlignmentUtil_Assert<
-                                 1 <= bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT>),
+                                1 <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT>),
 
     assertion2 = sizeof(bsls_AlignmentUtil_Assert<
-                           0 <= (bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT
-                              & (bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1))>)
+                           0 <= (bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
+                             & (bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1))>)
 
 };
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

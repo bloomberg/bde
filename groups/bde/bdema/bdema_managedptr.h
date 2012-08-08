@@ -16,6 +16,8 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Ilougino Rocha (irocha), Pablo Halpern (phalpern),
 //         Alisdair Meredith (ameredith1@bloomberg.net)
 //
+//@SEE_ALSO: bslmf_ispolymporphic
+//
 //@DESCRIPTION: This component provides a proctor, similar to 'bsl::auto_ptr',
 // that supports user-specified deleters.  The proctor is responsible for the
 // automatic destruction of the object referenced by the managed pointer.  As
@@ -25,7 +27,10 @@ BDES_IDENT("$Id: $")
 // has unusual "copy-semantics" that transfer ownership of the managed object,
 // rather than making a copy.  It should be noted that this signature does not
 // satisfy the requirements for an element-type stored in any of the standard
-// library containers.
+// library containers.  Note that this component will fail to compile when
+// instantiated for a class that gives a false-positive for the type trait
+// 'bslmf::IsPolymorphic'.  See the 'bslmf_ispolymporphic' component for more
+// details.
 //
 ///Deleters
 ///--------
@@ -681,12 +686,16 @@ BDES_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISVOID
+#include <bslmf_isvoid.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
+#ifndef INCLUDED_BSLS_NULLPTR
+#include <bsls_nullptr.h>
 #endif
 
 #ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
@@ -695,6 +704,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
+#endif
+
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -709,75 +722,7 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-// The following two classes are intended to reside in the 'bsl'
-// package-group.  They are duplicated inside this component temporarily, and
-// will be migrated to public components in 'bsl' in a future BDE release.
-// These classes should *not* be used directly by clients.
-
-                       // ==================
-                       // class bsls_Nullptr
-                       // ==================
-
-struct bsls_Nullptr {
-    // This class should *not* be used directly by clients.
-    // It will be migrated to a public component in 'bsl' in a future release.
-    //
-    // This 'struct' provides an alias for a type that can match a null pointer
-    // literal, but is not a pointer itself.  It is a limited emulation of the
-    // C++11 'std::nullptr_t' type.
-
-  private:
-    struct Nullptr_ProxyType { int dummy; }; // private class to supply a
-                                             // unique pointer-to-member type.
-
-  public:
-    typedef int Nullptr_ProxyType::* Type;   // alias to an "unspecified" null
-                                             // pointer type.
-};
-
-             // =======================================
-             // private metafunction class bslmf_IsVoid
-             // =======================================
-
-template <class BDEMA_TYPE>
-struct bslmf_IsVoid : bslmf_MetaInt<0> { };
-    // This class should *not* be used directly by clients.
-    // It will be migrated to a public component in 'bsl' in a future release.
-    //
-    // This metafunction struct contains a nested 'VALUE' which converts to
-    // 'true' if 'BDEMA_TYPE' is type 'void' and to 'false' otherwise.
-
-
-template <>
-struct bslmf_IsVoid<void>  : bslmf_MetaInt<1> { };
-    // This specialization implements the metafunction when 'BDEMA_TYPE' is
-    // 'void'.
-
-template <>
-struct bslmf_IsVoid<const void>  : bslmf_MetaInt<1> { };
-    // This specialization implements the metafunction when 'BDEMA_TYPE' is
-    // 'const void'.
-
-template <>
-struct bslmf_IsVoid<volatile void>  : bslmf_MetaInt<1> { };
-    // This specialization implements the metafunction when 'BDEMA_TYPE' is
-    // 'volatile void'.
-
-template <>
-struct bslmf_IsVoid<const volatile void>  : bslmf_MetaInt<1> { };
-    // This specialization implements the metafunction when 'BDEMA_TYPE' is
-    // 'const volatile void'.
-
-}  // close namespace BloombergLP
-
-namespace bsl
-{
-    typedef BloombergLP::bsls_Nullptr::Type nullptr_t;
-}
-
-namespace BloombergLP {
-
-class bslma_Allocator;
+namespace bslma { class Allocator; }
 
                     // ==================================
                     // private class bdema_ManagedPtr_Ref
@@ -867,8 +812,8 @@ class bdema_ManagedPtr {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bdema_ManagedPtr,
-                                  bslalg_TypeTraitHasPointerSemantics,
-                                  bslalg_TypeTraitBitwiseMoveable);
+                                  bslalg::TypeTraitHasPointerSemantics,
+                                  bslalg::TypeTraitBitwiseMoveable);
 
     // INTERFACE TYPES
 
@@ -878,7 +823,8 @@ class bdema_ManagedPtr {
 
   private:
     // PRIVATE TYPES
-    typedef typename bsls_UnspecifiedBool<bdema_ManagedPtr>::BoolType BoolType;
+    typedef typename bsls::UnspecifiedBool<bdema_ManagedPtr>::BoolType
+                                                                      BoolType;
         // 'BoolType' is an alias for an unspecified type that is implicitly
         // convertible to 'bool', but will not promote to 'int'.  This (opaque)
         // type can be used as an "unspecified boolean type" for converting a
@@ -1328,7 +1274,7 @@ class bdema_ManagedPtr {
         // for a special boolean-like type and private equality comparison
         // operators.
 
-    typename bslmf_AddReference<TARGET_TYPE>::Type operator*() const;
+    typename bslmf::AddReference<TARGET_TYPE>::Type operator*() const;
         // Return a reference to the target object.  The behavior is undefined
         // if this managed pointer is empty, or if 'TARGET_TYPE' is 'void' or
         // 'const void'.
@@ -1387,8 +1333,8 @@ struct bdema_ManagedPtrNilDeleter {
 
 template <class TARGET_TYPE, class FACTORY_TYPE>
 struct bdema_ManagedPtr_FactoryDeleterType
-    : bslmf_If<bslmf_IsConvertible<FACTORY_TYPE*, bslma_Allocator*>::VALUE,
-               bdema_ManagedPtr_FactoryDeleter<TARGET_TYPE, bslma_Allocator>,
+    : bslmf_If<bslmf::IsConvertible<FACTORY_TYPE*, bslma::Allocator*>::VALUE,
+               bdema_ManagedPtr_FactoryDeleter<TARGET_TYPE, bslma::Allocator>,
                bdema_ManagedPtr_FactoryDeleter<TARGET_TYPE, FACTORY_TYPE> > {
     // This metafunction class-template provides a means to compute the
     // preferred deleter function for a factory class for those methods of
@@ -1498,12 +1444,12 @@ template <class MANAGED_TYPE>
 inline
 bdema_ManagedPtr<TARGET_TYPE>::bdema_ManagedPtr(MANAGED_TYPE *ptr)
 : d_members(stripCompletePointerType(ptr),
-            bslma_Default::allocator(),
-            &bdema_ManagedPtr_FactoryDeleter<MANAGED_TYPE,bslma_Allocator>
+            bslma::Default::allocator(),
+            &bdema_ManagedPtr_FactoryDeleter<MANAGED_TYPE, bslma::Allocator>
                                                                      ::deleter,
             stripBasePointerType(ptr))
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
 }
 
 template <class TARGET_TYPE>
@@ -1526,8 +1472,8 @@ template <class TARGET_TYPE>
 template <class ALIASED_TYPE>
 inline
 bdema_ManagedPtr<TARGET_TYPE>::bdema_ManagedPtr(
-                                         bdema_ManagedPtr<ALIASED_TYPE>& alias,
-                                         TARGET_TYPE                    *ptr)
+                                        bdema_ManagedPtr<ALIASED_TYPE>&  alias,
+                                        TARGET_TYPE                     *ptr)
 : d_members()
 {
     BSLS_ASSERT_SAFE(0 != alias.ptr() || 0 == ptr);
@@ -1549,7 +1495,7 @@ bdema_ManagedPtr<TARGET_TYPE>::bdema_ManagedPtr(MANAGED_TYPE *ptr,
                                                  FACTORY_TYPE>::Type::deleter,
             stripBasePointerType(ptr))
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
     BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
 }
 
@@ -1574,7 +1520,7 @@ bdema_ManagedPtr<TARGET_TYPE>::bdema_ManagedPtr(MANAGED_TYPE *ptr,
             deleter,
             stripBasePointerType(ptr))
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
 
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 }
@@ -1590,9 +1536,9 @@ bdema_ManagedPtr<TARGET_TYPE>::bdema_ManagedPtr(MANAGED_TYPE *ptr,
             reinterpret_cast<DeleterFunc>(deleter),
             stripBasePointerType(ptr))
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *,
-                                      const MANAGED_BASE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *,
+                                       const MANAGED_BASE *>::VALUE));
 
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 }
@@ -1612,10 +1558,10 @@ bdema_ManagedPtr<TARGET_TYPE>::bdema_ManagedPtr(
             reinterpret_cast<DeleterFunc>(deleter),
             stripBasePointerType(ptr))
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *,
-                                      const MANAGED_BASE *>::VALUE));
-    BSLMF_ASSERT((bslmf_IsConvertible<COOKIE_TYPE *, COOKIE_BASE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *,
+                                       const MANAGED_BASE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<COOKIE_TYPE *, COOKIE_BASE *>::VALUE));
 
     // Note that the undefined behavior embodied in the 'reinterpret_cast'
     // above could be removed by inserting an additional forwarding function
@@ -1675,7 +1621,7 @@ void bdema_ManagedPtr<TARGET_TYPE>::loadImp(MANAGED_TYPE *ptr,
                                             void         *cookie,
                                             DeleterFunc   deleter)
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
     d_members.runDeleter();
@@ -1690,7 +1636,7 @@ void bdema_ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
                                          COOKIE_TYPE  *cookie,
                                          DeleterFunc   deleter)
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
     this->loadImp(ptr, static_cast<void *>(cookie), deleter);
@@ -1701,11 +1647,11 @@ template <class MANAGED_TYPE>
 inline
 void bdema_ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr)
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
-    typedef bdema_ManagedPtr_FactoryDeleter<MANAGED_TYPE, bslma_Allocator>
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    typedef bdema_ManagedPtr_FactoryDeleter<MANAGED_TYPE, bslma::Allocator>
                                                                 DeleterFactory;
     this->loadImp(ptr,
-                  static_cast<void *>(bslma_Default::allocator()),
+                  static_cast<void *>(bslma::Default::allocator()),
                   &DeleterFactory::deleter);
 }
 
@@ -1715,7 +1661,7 @@ inline
 void
 bdema_ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr, FACTORY_TYPE *factory)
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
     BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
 
     typedef typename
@@ -1741,10 +1687,11 @@ void bdema_ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
                                         void          *cookie,
                                         void (*deleter)(MANAGED_BASE *, void*))
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
 #if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 40000
-    BSLMF_ASSERT((!bslmf_IsVoid<MANAGED_BASE>::VALUE));
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, MANAGED_BASE *>::VALUE));
+    BSLMF_ASSERT((!bslmf::IsVoid<MANAGED_BASE>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *,
+                                       MANAGED_BASE *>::VALUE));
 #endif
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
@@ -1761,9 +1708,10 @@ void bdema_ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
                                  COOKIE_TYPE          *cookie,
                                  void (*deleter)(MANAGED_BASE*, COOKIE_BASE *))
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
-    BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, MANAGED_BASE *>::VALUE));
-    BSLMF_ASSERT((bslmf_IsConvertible<COOKIE_TYPE *, COOKIE_BASE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *,
+                                       MANAGED_BASE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<COOKIE_TYPE *, COOKIE_BASE *>::VALUE));
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
     this->loadImp(ptr,
@@ -1806,7 +1754,7 @@ bdema_ManagedPtr<TARGET_TYPE>::release()
     if (!p) {
         // undefined behavior to call d_members.deleter() if 'p' is null.
 
-        return bsl::pair<TARGET_TYPE*,bdema_ManagedPtrDeleter>();     // RETURN
+        return bsl::pair<TARGET_TYPE*, bdema_ManagedPtrDeleter>();    // RETURN
     }
     bsl::pair<TARGET_TYPE *, bdema_ManagedPtrDeleter>
                                                 result(p, d_members.deleter());
@@ -1854,8 +1802,8 @@ template <class REFERENCED_TYPE>
 inline
 bdema_ManagedPtr<TARGET_TYPE>::operator bdema_ManagedPtr_Ref<REFERENCED_TYPE>()
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<TARGET_TYPE *,
-                                      REFERENCED_TYPE *>::VALUE));
+    BSLMF_ASSERT((bslmf::IsConvertible<TARGET_TYPE *,
+                                       REFERENCED_TYPE *>::VALUE));
 
     return bdema_ManagedPtr_Ref<REFERENCED_TYPE>(&d_members,
                              static_cast<REFERENCED_TYPE *>(
@@ -1873,13 +1821,13 @@ bdema_ManagedPtr<TARGET_TYPE>::operator BoolType() const
 #endif
 {
     return d_members.pointer()
-         ? bsls_UnspecifiedBool<bdema_ManagedPtr>::trueValue()
-         : bsls_UnspecifiedBool<bdema_ManagedPtr>::falseValue();
+         ? bsls::UnspecifiedBool<bdema_ManagedPtr>::trueValue()
+         : bsls::UnspecifiedBool<bdema_ManagedPtr>::falseValue();
 }
 
 template <class TARGET_TYPE>
 inline
-typename bslmf_AddReference<TARGET_TYPE>::Type
+typename bslmf::AddReference<TARGET_TYPE>::Type
 bdema_ManagedPtr<TARGET_TYPE>::operator*() const
 {
     BSLS_ASSERT_SAFE(d_members.pointer());

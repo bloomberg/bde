@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a set of portable utilities for file system access.
 //
 //@CLASSES:
-//  bdesu_FileUtil: struct which scopes file system utilities
+//  bdesu_FileUtil: struct that scopes file system utilities
 //
 //@SEE_ALSO: bdesu_pathutil
 //
@@ -18,6 +18,31 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a platform-independent interface to
 // filesystem utility methods.
+//
+///Platform-Specific File Locking Caveats
+///--------------------------------------
+// Locking has the following caveats for the following operating systems:
+//:
+//: o On Posix:
+//:
+//:   o Closing a file releases all locks on all file descriptors referring to
+//:     that file within the current process.
+//:
+//:   o The child of a 'fork' does not inherit the locks of the parent process.
+//:
+//:   o References:
+//:     o 'http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html'
+//:     o 'http://www.manpagez.com/man/2/fcntl'
+//:
+//: o On at least some flavors of Unix, a file descriptor opened in read-only
+//:   mode cannot be locked for writing.
+//
+///Platform-Specific Atomicity Caveats
+///-----------------------------------
+// The 'bdesu_FileUtil::read' and 'bdesu_FileUtil::write' methods add no
+// atomicity guarantees for reading and writing to those provided (if any) by
+// the underlying platform's methods for reading and writing (see
+// 'http://lwn.net/Articles/180387/').
 //
 ///Usage
 ///-----
@@ -243,6 +268,10 @@ struct bdesu_FileUtil {
         // otherwise.  Note that two calls are necessary to open a file which
         // may or may not exist.  Also note that if 'writableFlag' and
         // 'existFlag' are both 'false', this function will necessarily fail.
+        // Also note that when a file is opened in 'append' mode, all writes
+        // will go to the end of the file, even if there has been seeking on
+        // the file descriptor or another process has changed the length of
+        // the file, though append-mode writes are not guaranteed to be atomic.
 
     static int close(FileDescriptor descriptor);
         // Close the specified 'descriptor'.  Return 0 on success and a
@@ -391,11 +420,11 @@ struct bdesu_FileUtil {
         // 'BDESU_ERROR_LOCKING_CONFLICT' if the platform reports the lock
         // could not be acquired because another process holds a conflicting
         // lock, and a negative value for any other kind of error.  Note that
-        // this operation locks the indicated file for use by the current
-        // *process*, but the behavior is unspecified (and platform-dependent)
-        // when either attempting to lock 'fd' multiple times, or attempting
-        // to lock another descriptor referring to the same file, within a
-        // single process.
+        // this operation locks the indicated file for the current *process*,
+        // but the behavior is unspecified (and platform-dependent) when either
+        // attempting to lock 'fd' multiple times, or attempting to lock
+        // another descriptor referring to the same file, within a single
+        // process.
 
     static int unlock(FileDescriptor fd);
         // Release any lock this process holds on the file with the specified
@@ -406,19 +435,21 @@ struct bdesu_FileUtil {
                    Offset           offset,
                    int              size,
                    int              mode);
-        // Map the region of 'size' bytes, starting 'offset' bytes into the
-        // file with the specified 'fd' descriptor to memory, and load into
-        // the specified 'addr' the address of the mapped area.  Return 0 on
-        // success, and a non-zero value otherwise.  The access permissions
-        // for mapping memory are defined by 'mode', which may be a combination
-        // of 'bdesu_MemoryUtil::ACCESS_READ', 'bdesu_MemoryUtil::ACCESS_WRITE'
-        // and 'bdesu_MemoryUtil::ACCESS_EXECUTE'.  Note that on failure, the
+        // Map the region of the specified 'size' bytes, starting at the
+        // specified 'offset' bytes into the file with the specified 'fd'
+        // descriptor to memory, and load into the specified 'addr' the address
+        // of the mapped area.  Return 0 on success, and a non-zero value
+        // otherwise.  The access permissions for mapping memory are defined by
+        // the specified 'mode', which may be a combination of
+        // 'bdesu_MemoryUtil::BDESU_ACCESS_READ',
+        // 'bdesu_MemoryUtil::BDESU_ACCESS_WRITE' and
+        // 'bdesu_MemoryUtil::BDESU_ACCESS_EXECUTE'.  Note that on failure, the
         // value of 'addr' is undefined.  Also note that mapping will succeed
         // even if there are fewer than 'offset + size' bytes in the specified
-        // file, and an attempt to access the mapped memory beyond the end
-        // of the file will result in undefined behavior (i.e., this
-        // function does not grow the file to guarantee it can accommodate
-        // the mapped region).
+        // file, and an attempt to access the mapped memory beyond the end of
+        // the file will result in undefined behavior (i.e., this function does
+        // not grow the file to guarantee it can accommodate the mapped
+        // region).
 
     static int unmap(void *addr, int size);
         // Unmap the memory mapping with the specified base address 'addr' and

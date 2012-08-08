@@ -1,0 +1,23 @@
+ bbe.txt
+
+@PURPOSE: Provide basic "business"-related facilities.
+
+@MNEMONIC: Basic Business Environment (bbe)
+
+@AUTHOR: Bill Chapman (bchapman2)
+
+@DESCRIPTION: The 'bbe' package group is intended for basic "business"-related
+ facilities.  At this time, 'bbe' contains the 'bbedc' package, which supports
+ various common day-count conventions.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bbe' depends upon the 'bsl' and 'bde' package groups, and currently has two
+ packages forming two levels of physical dependency.  Note that one of these
+ packages is the required version control package ('bbescm').  The table below
+ shows the physical dependency hierarchy among the packages.
+..
+   Level 2: bbedc
+
+   Level 1: bbescm
+..

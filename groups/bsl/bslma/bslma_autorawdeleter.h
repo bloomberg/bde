@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a range proctor to manage a sequence objects.
 //
 //@CLASSES:
-//   bslma_AutoRawDeleter: range proctor to manage a sequence of objects
+//  bslma::AutoRawDeleter: range proctor to manage a sequence of objects
 //
 //@AUTHOR: Arthur Chiu (achiu21)
 //
@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirement
 ///-----------
-// The parameterized 'ALLOCATOR' type of the 'bslma_AutoRawDeleter' class
+// The parameterized 'ALLOCATOR' type of the 'bslma::AutoRawDeleter' class
 // template must provide a (possibly 'virtual') method:
 //..
 //  void deallocate(void *address);
@@ -48,33 +48,33 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The 'bslma_AutoRawDeleter' proctor object can be used to preserve exception
+// The 'bslma::AutoRawDeleter' proctor object can be used to preserve exception
 // neutrality during manipulation of out-of-place arrays of user-defined-type
 // objects.  The following illustrates the insertion operation for an
 // "out-of-place" string array.  Assume that a string array initially contains
 // the addresses of the following string objects as its elements:
 //..
-//                          0     1     2     3     4
-//                        _____ _____ _____ _____ _____
-//                       |  o  |  o  |  o  |  o  |  o  |
-//                       `==|==^==|==^==|==^==|==^==|=='
-//                         _V_   _V_   _V_   _V_   _V_
-//                        |"A"| |"B"| |"C"| |"D"| |"E"|
-//                        `===' `===' `===' `===' `==='
+//     0     1     2     3     4
+//   _____ _____ _____ _____ _____
+//  |  o  |  o  |  o  |  o  |  o  |
+//  `==|==^==|==^==|==^==|==^==|=='
+//    _V_   _V_   _V_   _V_   _V_
+//   |"A"| |"B"| |"C"| |"D"| |"E"|
+//   `===' `===' `===' `===' `==='
 //..
 // To insert two string objects with values "F" and "G" at index position 2,
 // the array is first reallocated if it is not big enough, and then the
 // existing elements at index positions 2, 3, and 4 are shifted:
 //..
-//                  0     1     2     3     4     5     6
-//                _____ _____ _____ _____ _____ _____ _____
-//               |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
-//               `==|==^==|==^=====^=====^==|==^==|==^==|=='
-//                 _V_   _V_               _V_   _V_   _V_
-//                |"A"| |"B"|             |"C"| |"D"| |"E"|
-//                `===' `==='             `===' `===' `==='
+//     0     1     2     3     4     5     6
+//   _____ _____ _____ _____ _____ _____ _____
+//  |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
+//  `==|==^==|==^=====^=====^==|==^==|==^==|=='
+//    _V_   _V_               _V_   _V_   _V_
+//   |"A"| |"B"|             |"C"| |"D"| |"E"|
+//   `===' `==='             `===' `===' `==='
 //
-//               Note: "xxxxx" denotes undefined value
+//  Note: "xxxxx" denotes undefined value
 //..
 // Next, two new string objects must be created and initialized with string
 // values "F" and "G", respectively.  If, during creation, an allocation fails
@@ -86,20 +86,20 @@ BSLS_IDENT("$Id: $")
 // still a problem: the string objects "C", "D", and "E" (at index positions
 // 3, 4, and 5) are "orphaned" and will never be deleted -- a memory leak.  To
 // prevent this potential memory leak, we can additionally create a
-// 'bslma_AutoRawDeleter' object to manage (temporarily) the elements at index
+// 'bslma::AutoRawDeleter' object to manage (temporarily) the elements at index
 // positions 4, 5, and 6 prior to creating the new objects:
 //..
-//                  0     1     2     3     4     5     6
-//                _____ _____ _____ _____ _____ _____ _____
-//               |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
-//               `==|==^==|==^=====^=====^==|==^==|==^==|=='
-//                 _V_   _V_               _V_   _V_   _V_
-//                |"A"| |"B"|             |"C"| |"D"| |"E"|
-//                `===' `==='             `===' `===' `==='
-//                my_StrArray2           ^-----------------bslma_AutoRawDeleter
-//                (length = 2)                             (length = 3)
+//      0     1     2     3     4     5     6
+//    _____ _____ _____ _____ _____ _____ _____
+//   |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
+//   `==|==^==|==^=====^=====^==|==^==|==^==|=='
+//     _V_   _V_               _V_   _V_   _V_
+//    |"A"| |"B"|             |"C"| |"D"| |"E"|
+//    `===' `==='             `===' `===' `==='
+//    my_StrArray2           ^-----------------bslma::AutoRawDeleter
+//    (length = 2)                             (length = 3)
 //
-//              Figure: Use of proctor for my_StrArray2::insert
+//  Figure: Use of proctor for my_StrArray2::insert
 //..
 // If an exception occurs, the array (now of length 2) is in a perfectly valid
 // state, while the second proctor is responsible for deleting the orphaned
@@ -109,8 +109,8 @@ BSLS_IDENT("$Id: $")
 // method is called, releasing its control over the temporarily managed
 // elements.
 //
-// The following example illustrates the use of 'bslma_AutoRawDeleter' in
-// conjunction with 'bslma_DeallocatorProctor' to manage temporarily a
+// The following example illustrates the use of 'bslma::AutoRawDeleter' in
+// conjunction with 'bslma::DeallocatorProctor' to manage temporarily a
 // templatized, "out-of-place" array of parameterized 'TYPE' objects during the
 // array's insertion operation.
 //
@@ -123,18 +123,18 @@ BSLS_IDENT("$Id: $")
 //      // parameterized 'TYPE'.
 //
 //      // DATA
-//      TYPE            **d_array_p;       // dynamically allocated array of
-//                                         // character sequence
+//      TYPE              **d_array_p;       // dynamically allocated array of
+//                                           // character sequence
 //
-//      int               d_length;        // logical length of this array
+//      int                 d_length;        // logical length of this array
 //
-//      int               d_size;          // physical capacity of this array
+//      int                 d_size;          // physical capacity of this array
 //
-//      bslma_Allocator   *d_allocator_p;  // allocator (held, not owned)
+//      bslma::Allocator   *d_allocator_p;   // allocator (held, not owned)
 //
 //    public:
 //      // CREATORS
-//      myArray(bslma_Allocator *basicAllocator = 0);
+//      myArray(bslma::Allocator *basicAllocator = 0);
 //          // Create a 'myArray' object.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //          // 0, the currently installed default allocator is used.
@@ -159,10 +159,10 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //  };
 //..
-// Note that a 'bslma_DeallocatorProctor' is used to manage a block of memory
+// Note that a 'bslma::DeallocatorProctor' is used to manage a block of memory
 // allocated before invoking the constructor of 'TYPE'.  If the constructor of
 // 'TYPE' throws, the (managed) memory is automatically deallocated by
-// 'bslma_DeallocatorProctor's destructor:
+// 'bslma::DeallocatorProctor's destructor:
 //..
 //  template <class TYPE>
 //  void myArray<TYPE>::insert(int dstIndex, const myArray<TYPE>& srcArray)
@@ -180,7 +180,7 @@ BSLS_IDENT("$Id: $")
 //              d_array_p + dstIndex,
 //              numShifted * sizeof *d_array_p);
 //
-//      // Shorten 'd_length' and use 'bslma_AutoDeleter' to proctor tail
+//      // Shorten 'd_length' and use 'bslma::AutoDeleter' to proctor tail
 //      // elements.
 //      d_length = dstIndex;
 //
@@ -188,7 +188,7 @@ BSLS_IDENT("$Id: $")
 //      // Note the use of auto raw deleter on tail elements (below). *
 //      //*************************************************************
 //
-//      bslma_AutoRawDeleter<TYPE, bslma_Allocator>
+//      bslma::AutoRawDeleter<TYPE, bslma::Allocator>
 //                                tailDeleter(d_array_p + dstIndex + srcLength,
 //                                            d_allocator_p,
 //                                            numShifted);
@@ -196,10 +196,10 @@ BSLS_IDENT("$Id: $")
 // Now, if any allocation, either allocating memory for new elements or the
 // constructor of the new element throws, the elements that had been moved to
 // the end of the array will be deleted automatically by the
-// 'bslma_AutoRawDeleter'.
+// 'bslma::AutoRawDeleter'.
 //..
 //      // Used to temporarily proctor each new element's memory.
-//      bslma_DeallocatorProctor<bslma_Allocator>
+//      bslma::DeallocatorProctor<bslma::Allocator>
 //                                        elementDeallocator(0, d_allocator_p);
 //
 //      if (this != &srcArray) {  // no self-alias
@@ -234,7 +234,7 @@ BSLS_IDENT("$Id: $")
 // The above method copies the source elements (visually) from left to right.
 // Another (functionally equivalent) implementation copies the source elements
 // from right to left, and makes use of the 'operator--()' of the
-// 'bslma_AutoRawDeleter' interface:
+// 'bslma::AutoRawDeleter' interface:
 //..
 //  template <class TYPE>
 //  void myArray<TYPE>::insert(int dstIndex, const myStrArray<TYPE>& srcArray)
@@ -252,7 +252,7 @@ BSLS_IDENT("$Id: $")
 //              d_array_p + dstIndex,
 //              numShifted * sizeof *d_array_p);
 //
-//      // Shorten 'd_length' and use 'bslma_AutoDeallocator' to proctor the
+//      // Shorten 'd_length' and use 'bslma::AutoDeallocator' to proctor the
 //      // memory shifted.
 //      d_length = dst_Index;
 //
@@ -261,17 +261,17 @@ BSLS_IDENT("$Id: $")
 //      //* memory with negative length (below).     *
 //      //********************************************
 //
-//      bslma_AutoRawDeleter<TYPE, bslma_Allocator> tailDeleter(newLength,
+//      bslma::AutoRawDeleter<TYPE, bslma::Allocator> tailDeleter(newLength,
 //                                                              d_allocator_p,
 //                                                              -numShifted);
 //..
 // Since we have decided to copy the source elements from right to left, we
-// set the origin of the 'bslma_AutoRawDeleter' to the end of the array, and
+// set the origin of the 'bslma::AutoRawDeleter' to the end of the array, and
 // decrement the (signed) length on each copy to extend the proctor range by
 // 1.
 //..
 //      // Used to temporarily proctor each new element's memory.
-//      bslma_DeallocatorProctor<bslma_Allocator>
+//      bslma::DeallocatorProctor<bslma::Allocator>
 //                                        elementDeallocator(0, d_allocator_p);
 //
 //      if (this != &srcArray) {  // no self-alias
@@ -326,12 +326,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ==========================
-                        // class bslma_AutoRawDeleter
-                        // ==========================
+namespace bslma {
+
+                        // ====================
+                        // class AutoRawDeleter
+                        // ====================
 
 template <class TYPE, class ALLOCATOR>
-class bslma_AutoRawDeleter {
+class AutoRawDeleter {
     // This class implements a range proctor that, unless its 'release' method
     // has previously been invoked, automatically deletes the contiguous
     // sequence of managed objects upon destruction by iterating on each
@@ -354,8 +356,8 @@ class bslma_AutoRawDeleter {
     ALLOCATOR  *d_allocator_p;  // allocator or pool (held, not owned)
 
     // NOT IMPLEMENTED
-    bslma_AutoRawDeleter(const bslma_AutoRawDeleter&);
-    bslma_AutoRawDeleter& operator=(const bslma_AutoRawDeleter&);
+    AutoRawDeleter(const AutoRawDeleter&);
+    AutoRawDeleter& operator=(const AutoRawDeleter&);
 
   private:
     // PRIVATE MANIPULATORS
@@ -372,9 +374,9 @@ class bslma_AutoRawDeleter {
 
   public:
     // CREATORS
-    bslma_AutoRawDeleter(TYPE      **origin,
-                         ALLOCATOR  *allocator,
-                         int         length = 0);
+    AutoRawDeleter(TYPE      **origin,
+                   ALLOCATOR  *allocator,
+                   int         length = 0);
         // Create an auto raw deleter to manage an array of objects at the
         // specified 'origin', and that uses the specified 'allocator' to
         // delete the sequence of objects managed by this range proctor (if not
@@ -406,7 +408,7 @@ class bslma_AutoRawDeleter {
         //             ^------------ origin           ^------------ origin
         //..
 
-    ~bslma_AutoRawDeleter();
+    ~AutoRawDeleter();
         // Destroy this range proctor and delete the contiguous sequence of
         // objects it manages (if any) by iterating over each (managed) object,
         // first invoking the object's destructor, and then freeing memory by
@@ -472,25 +474,25 @@ class bslma_AutoRawDeleter {
 //                      TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // --------------------------
-                        // class bslma_AutoRawDeleter
-                        // --------------------------
+                        // --------------------
+                        // class AutoRawDeleter
+                        // --------------------
 
 // PRIVATE MANIPULATORS
 template <class TYPE, class ALLOCATOR>
-void bslma_AutoRawDeleter<TYPE, ALLOCATOR>::rawDelete()
+void AutoRawDeleter<TYPE, ALLOCATOR>::rawDelete()
 {
     if (d_length > 0) {
         for (; d_length > 0; --d_length, ++d_origin_p) {
-            bslma_DeleterHelper::deleteObjectRaw(*d_origin_p,
-                                                 d_allocator_p);
+            DeleterHelper::deleteObjectRaw(*d_origin_p,
+                                           d_allocator_p);
         }
     }
     else {
         --d_origin_p;
         for (; d_length < 0; ++d_length, --d_origin_p) {
-            bslma_DeleterHelper::deleteObjectRaw(*d_origin_p,
-                                                 d_allocator_p);
+            DeleterHelper::deleteObjectRaw(*d_origin_p,
+                                           d_allocator_p);
         }
     }
 }
@@ -498,8 +500,8 @@ void bslma_AutoRawDeleter<TYPE, ALLOCATOR>::rawDelete()
 // CREATORS
 template <class TYPE, class ALLOCATOR>
 inline
-bslma_AutoRawDeleter<TYPE, ALLOCATOR>::
-bslma_AutoRawDeleter(TYPE **origin, ALLOCATOR *allocator, int length)
+AutoRawDeleter<TYPE, ALLOCATOR>::
+AutoRawDeleter(TYPE **origin, ALLOCATOR *allocator, int length)
 : d_origin_p(origin)
 , d_length(length)
 , d_allocator_p(allocator)
@@ -510,7 +512,7 @@ bslma_AutoRawDeleter(TYPE **origin, ALLOCATOR *allocator, int length)
 
 template <class TYPE, class ALLOCATOR>
 inline
-bslma_AutoRawDeleter<TYPE, ALLOCATOR>::~bslma_AutoRawDeleter()
+AutoRawDeleter<TYPE, ALLOCATOR>::~AutoRawDeleter()
 {
     BSLS_ASSERT_SAFE(d_origin_p || !d_length);
 
@@ -522,7 +524,7 @@ bslma_AutoRawDeleter<TYPE, ALLOCATOR>::~bslma_AutoRawDeleter()
 // MANIPULATORS
 template <class TYPE, class ALLOCATOR>
 inline
-void bslma_AutoRawDeleter<TYPE, ALLOCATOR>::operator++()
+void AutoRawDeleter<TYPE, ALLOCATOR>::operator++()
 {
     BSLS_ASSERT_SAFE(d_origin_p);
 
@@ -531,7 +533,7 @@ void bslma_AutoRawDeleter<TYPE, ALLOCATOR>::operator++()
 
 template <class TYPE, class ALLOCATOR>
 inline
-void bslma_AutoRawDeleter<TYPE, ALLOCATOR>::operator--()
+void AutoRawDeleter<TYPE, ALLOCATOR>::operator--()
 {
     BSLS_ASSERT_SAFE(d_origin_p);
 
@@ -540,14 +542,14 @@ void bslma_AutoRawDeleter<TYPE, ALLOCATOR>::operator--()
 
 template <class TYPE, class ALLOCATOR>
 inline
-void bslma_AutoRawDeleter<TYPE, ALLOCATOR>::release()
+void AutoRawDeleter<TYPE, ALLOCATOR>::release()
 {
     d_length = 0;
 }
 
 template <class TYPE, class ALLOCATOR>
 inline
-void bslma_AutoRawDeleter<TYPE, ALLOCATOR>::reset(TYPE **origin)
+void AutoRawDeleter<TYPE, ALLOCATOR>::reset(TYPE **origin)
 {
     BSLS_ASSERT_SAFE(origin);
 
@@ -556,7 +558,7 @@ void bslma_AutoRawDeleter<TYPE, ALLOCATOR>::reset(TYPE **origin)
 
 template <class TYPE, class ALLOCATOR>
 inline
-void bslma_AutoRawDeleter<TYPE, ALLOCATOR>::setLength(int length)
+void AutoRawDeleter<TYPE, ALLOCATOR>::setLength(int length)
 {
     BSLS_ASSERT_SAFE(d_origin_p);
 
@@ -566,12 +568,24 @@ void bslma_AutoRawDeleter<TYPE, ALLOCATOR>::setLength(int length)
 // ACCESSORS
 template <class TYPE, class ALLOCATOR>
 inline
-int bslma_AutoRawDeleter<TYPE, ALLOCATOR>::length() const
+int AutoRawDeleter<TYPE, ALLOCATOR>::length() const
 {
     return d_length;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslma_AutoRawDeleter
+#undef bslma_AutoRawDeleter
+#endif
+#define bslma_AutoRawDeleter bslma::AutoRawDeleter
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

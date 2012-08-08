@@ -27,11 +27,12 @@ BSLS_IDENT("$Id: $")
 
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included
-// by the Bloomberg supplied standard header file.
+// implementation, in which case the implementation file will be included by
+// the Bloomberg supplied standard header file.
 
 #ifndef BSL_OVERRIDES_STD
-#include <bslstp_map.h>
+#include <bslstl_map.h>
+#include <bslstl_multimap.h>
 #endif
 
 #endif

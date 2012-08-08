@@ -192,7 +192,7 @@ struct PublisherTest : bsls_ProtocolTestImp<baem_Publisher> {
             // Create this event manager using the specified 'messageSizeId'
             // to identify the event message size metric.
         : d_eventMessageSize(messageSizeId)
-        , d_lastPublish(bdetu_SystemTime::nowAsDatetimeGMT(), 0)
+        , d_lastPublish(bdetu_SystemTime::nowAsDatetimeUtc(), 0)
         {}
 
         // MANIPULATORS
@@ -215,9 +215,9 @@ struct PublisherTest : bsls_ProtocolTestImp<baem_Publisher> {
 //..
         void publishMetrics(baem_Publisher *publisher)
         {
-            bdet_DatetimeTz now(bdetu_SystemTime::nowAsDatetimeGMT(), 0);
-            bdet_DatetimeInterval dateInterval = now.gmtDatetime() -
-                                                 d_lastPublish.gmtDatetime();
+            bdet_DatetimeTz now(bdetu_SystemTime::nowAsDatetimeUtc(), 0);
+            bdet_DatetimeInterval dateInterval = now.utcDatetime() -
+                                                 d_lastPublish.utcDatetime();
             bdet_TimeInterval interval(dateInterval.totalSeconds(),
                                        dateInterval.milliseconds());
 

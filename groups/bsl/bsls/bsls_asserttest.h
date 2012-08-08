@@ -10,22 +10,22 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a test facility for assertion macros.
 //
 //@CLASSES:
-//              bsls_AssertTest: namespace for "assert" validating functions
-//  bsls_AssertTestHandlerGuard: guard for the negative testing assert-handler
+//  bsls::AssertTest: namespace for "assert" validating functions
+//  bsls::AssertTestHandlerGuard: guard for the negative testing assert-handler
 //
 //@MACROS:
-//   BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION)
-//   BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION)
-//   BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION)
-//   BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION)
-//   BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION)
-//   BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION)
-//   BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION)
-//   BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION)
-//   BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION)
-//   BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION)
-//   BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION)
-//   BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION)
+//  BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION)
+//  BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION)
+//  BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION)
+//  BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION)
+//  BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION)
+//  BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION)
+//  BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION)
+//  BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION)
+//  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION)
+//  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION)
+//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION)
+//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION)
 //
 //@SEE_ALSO: bsls_assert, bsls_asserttestexception
 //
@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a facility to test that 'BSLS_ASSERT_*'
 // macros are used as intended, in the appropriate build modes, and have the
-// expected effects.  The class 'bsls_AssertTest' provides a small set of
+// expected effects.  The class 'bsls::AssertTest' provides a small set of
 // static methods that can be used to support detailed test cases, especially
 // in table-driven test scenarios.  Additionally, a set of macros automate use
 // of these methods to support simple testing of single expressions.
@@ -64,16 +64,16 @@ BSLS_IDENT("$Id: $")
 //
 ///Installing the Assert-Failure Handler
 ///- - - - - - - - - - - - - - - - - - -
-// The function 'bsls_AssertTest::failTestDriver' is provided as the basis for
+// The function 'bsls::AssertTest::failTestDriver' is provided as the basis for
 // a negative testing facility.  It can act as an assertion-failure handler
-// function that throws an exception, of type 'bsls_AssertTestException',
+// function that throws an exception, of type 'bsls::AssertTestException',
 // containing the text of the failed assertion, the name of the file where it
 // triggered, and the relevant line number within that file.  The filename can
 // be tested to ensure that the assertion was raised by the component under
 // test, rather than by some deeper implementation detail as a consequence of
 // the expected assertion not being present in the function under test.
 //
-// Once the function 'bsls_AssertTest::failTestDriver' has been registered as
+// Once the function 'bsls::AssertTest::failTestDriver' has been registered as
 // the active assertion-failure handler, a set of testing macros automate much
 // of the boilerplate code involved in writing a negative test, so that a test
 // can be effectively written as a single line.  This is an important quality
@@ -122,17 +122,17 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - -
 // The supplied test macros are useful for testing a small set of boundary
 // conditions, but for more detailed contracts a table-driven approach works
-// best.  The 'bsls_AssertTest' class provides a pair of "test probe" functions
-// that can be hooked up as a pair in a 'try'/'catch' block to validate each
-// row of a supplied test table.  See the second usage example below for more
-// details.
+// best.  The 'bsls::AssertTest' class provides a pair of "test probe"
+// functions that can be hooked up as a pair in a 'try'/'catch' block to
+// validate each row of a supplied test table.  See the second usage example
+// below for more details.
 //
 ///Enabling Negative Testing
 ///- - - - - - - - - - - - -
 // In order to enable the negative testing facility, you must:
 //: o '#include' this component header, 'bsls_asserttest.h'.
 //: o Supply an implementation of an 'ASSERT' macro in your test driver.
-//: o Register 'bsls_AssertTest::failTestDriver' as the active
+//: o Register 'bsls::AssertTest::failTestDriver' as the active
 //:   assertion-failure handler.
 //
 ///Usage
@@ -225,7 +225,7 @@ BSLS_IDENT("$Id: $")
 //  void testVectorArrayAccess()
 //  {
 //  #ifdef BDE_BUILD_TARGET_EXC
-//      bsls_AssertFailureHandlerGuard g(bsls_AssertTest::failTestDriver);
+//      bsls::AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
 //
 //      AssertTestVector<void *> mA; const AssertTestVector<void *> &A = mA;
 //
@@ -276,8 +276,8 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // To illustrate the test facilities, we will validate the function arguments
-// 'a', 'b', 'c', and 'd' with some additional assumptions.  We assume the
-// cost of testing 'a' is significant compared to the unspecified body of 'f'.
+// 'a', 'b', 'c', and 'd' with some additional assumptions.  We assume the cost
+// of testing 'a' is significant compared to the unspecified body of 'f'.
 // Likewise, we assume that testing the validity of 'b' is relatively
 // efficient, while not only can 'c' be tested efficiently, but the unspecified
 // behavior of 'f' will have potentially catastrophic consequences if 'c' is
@@ -289,9 +289,9 @@ BSLS_IDENT("$Id: $")
 // maintain a list of known valid pointers that work with this facility.
 // Pointers will be registered and de-registered through calls to other methods
 // in the 'MyUtil' class, and a valid pointer can be detected by searching for
-// its value in this array.  Note that this artificial example is modeled
-// after the behavior of some libraries that provide a "safe" STL mode that
-// looks for invalid iterators in a similar way.
+// its value in this array.  Note that this artificial example is modeled after
+// the behavior of some libraries that provide a "safe" STL mode that looks for
+// invalid iterators in a similar way.
 //..
 //  #ifdef BDE_BUILD_TARGET_SAFE_2
 //  void *MyUtil::s_trustedPointers[10] = {};
@@ -326,12 +326,12 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Now that we have defined the contract for 'f' and the range of undefined
-// behavior we hope to catch with assertions, we are ready to write the
-// test case for this function.  In addition to verifying the (unspecified)
-// behavior of 'f' when called with valid function arguments, we also want
-// to verify that calling with invalid arguments triggers an assertion in the
-// appropriate build modes.  As this will involve many tests, a table-
-// driven approach is preferred.
+// behavior we hope to catch with assertions, we are ready to write the test
+// case for this function.  In addition to verifying the (unspecified) behavior
+// of 'f' when called with valid function arguments, we also want to verify
+// that calling with invalid arguments triggers an assertion in the appropriate
+// build modes.  As this will involve many tests, a table- driven approach is
+// preferred.
 //..
 //  void testMyUtilF()
 //  {
@@ -342,14 +342,15 @@ BSLS_IDENT("$Id: $")
 // First we announce that we are starting the negative testing portion of this
 // test case.
 //..
-//      if (globalVerbose) printf("\nNegative Testing\n");
+//  if (globalVerbose) printf("\nNegative Testing\n");
 //..
 // Next we check that exceptions are enabled in the current build mode, as the
 // assertion-testing mechanisms are built on top of exceptions.
 //..
 //  #ifdef BDE_BUILD_TARGET_EXC
 //      {
-//          bsls_AssertFailureHandlerGuard g(bsls_AssertTest::failTestDriver);
+//          bsls::AssertFailureHandlerGuard g(
+//                                           bsls::AssertTest::failTestDriver);
 //
 //..
 // Then we build the table of test values, listing the expected build mode for
@@ -359,80 +360,80 @@ BSLS_IDENT("$Id: $")
 // defined behavior, verifying that out-of-band values trigger the assertions
 // while the adjacent in-band values succeed.
 //..
-//          static const struct {
-//              int         d_lineNumber;       // line # of row in this table
-//              const char *d_assertBuildType;  // "S", "S2", "A", "A2", "O",
-//                                              // "O2"
-//              char        d_expectedResult;   // assertion: 'P'ass or 'F'ail
-//              int         d_a;                // function arg #1
-//              int         d_b;                // function arg #2
-//              int         d_c;                // function arg #3
-//              void       *d_d_p;              // function arg #4
-//          } DATA[] = {
-//              //LINE  TYPE  RESULT   A    B    C    D
-//              //----  ----  ------  ---  ---  ---  ---
+//  static const struct {
+//      int         d_lineNumber;       // line # of row in this table
+//      const char *d_assertBuildType;  // "S", "S2", "A", "A2", "O",
+//                                      // "O2"
+//      char        d_expectedResult;   // assertion: 'P'ass or 'F'ail
+//      int         d_a;                // function arg #1
+//      int         d_b;                // function arg #2
+//      int         d_c;                // function arg #3
+//      void       *d_d_p;              // function arg #4
+//  } DATA[] = {
+//      //LINE  TYPE  RESULT   A    B    C    D
+//      //----  ----  ------  ---  ---  ---  ---
 //
-//              // testing defensive checks for parameter 'a'
+//      // testing defensive checks for parameter 'a'
 //
-//              { L_,   "S",   'F',   -1,   0,   0,   0 },
-//              { L_,   "S",   'P',    0,   0,   0,   0 },
+//      { L_,   "S",   'F',   -1,   0,   0,   0 },
+//      { L_,   "S",   'P',    0,   0,   0,   0 },
 //
-//              { L_,   "S",   'P',    5,   0,   0,   0 },
-//              { L_,   "S",   'F',    6,   0,   0,   0 },
+//      { L_,   "S",   'P',    5,   0,   0,   0 },
+//      { L_,   "S",   'F',    6,   0,   0,   0 },
 //
-//              // testing defensive checks for parameter 'b'
+//      // testing defensive checks for parameter 'b'
 //
-//              { L_,   "A",   'F',    0,  -1,   0,   0 },
-//              { L_,   "A",   'P',    0,   0,   0,   0 },
+//      { L_,   "A",   'F',    0,  -1,   0,   0 },
+//      { L_,   "A",   'P',    0,   0,   0,   0 },
 //
-//              { L_,   "A",   'P',    0,   4,   0,   0 },
-//              { L_,   "A",   'F',    0,   5,   0,   0 },
+//      { L_,   "A",   'P',    0,   4,   0,   0 },
+//      { L_,   "A",   'F',    0,   5,   0,   0 },
 //
-//              // testing defensive checks for parameter 'c'
+//      // testing defensive checks for parameter 'c'
 //
-//              { L_,   "O",   'F',    0,   0,  -1,   0 },
-//              { L_,   "O",   'P',    0,   0,   0,   0 },
+//      { L_,   "O",   'F',    0,   0,  -1,   0 },
+//      { L_,   "O",   'P',    0,   0,   0,   0 },
 //
-//              { L_,   "O",   'P',    0,   0,   3,   0 },
-//              { L_,   "O",   'F',    0,   0,   4,   0 },
+//      { L_,   "O",   'P',    0,   0,   3,   0 },
+//      { L_,   "O",   'F',    0,   0,   4,   0 },
 //
-//              // testing defensive checks for parameter 'd'
+//      // testing defensive checks for parameter 'd'
 //
-//              { L_,   "A2",  'P',    0,   0,   0,   0             },
-//              { L_,   "A2",  'F',    0,   0,   0,   (void *)0xBAD },
+//      { L_,   "A2",  'P',    0,   0,   0,   0             },
+//      { L_,   "A2",  'F',    0,   0,   0,   (void *)0xBAD },
 //
-//          };
-//          const int NUM_DATA = sizeof DATA / sizeof *DATA;
+//  };
+//  const int NUM_DATA = sizeof DATA / sizeof *DATA;
 //
-//          for (int ti = 0; ti < NUM_DATA; ++ti) {
-//              const int         LINE   = DATA[ti].d_lineNumber;
-//              const char *const TYPE   = DATA[ti].d_assertBuildType;
-//              const char        RESULT = DATA[ti].d_expectedResult;
-//              const int         A      = DATA[ti].d_a;
-//              const int         B      = DATA[ti].d_b;
-//              const int         C      = DATA[ti].d_c;
-//              void       *const D      = DATA[ti].d_d_p;
+//  for (int ti = 0; ti < NUM_DATA; ++ti) {
+//      const int         LINE   = DATA[ti].d_lineNumber;
+//      const char *const TYPE   = DATA[ti].d_assertBuildType;
+//      const char        RESULT = DATA[ti].d_expectedResult;
+//      const int         A      = DATA[ti].d_a;
+//      const int         B      = DATA[ti].d_b;
+//      const int         C      = DATA[ti].d_c;
+//      void       *const D      = DATA[ti].d_d_p;
 //
-//              // Validate test description.
+//      // Validate test description.
 //..
 // We should verify that the assert-related parameters describe a valid test
 // configuration before running any tests.
 //..
-//              LOOP_ASSERT(LINE, bsls_AssertTest::isValidAssertBuild(TYPE));
-//              LOOP_ASSERT(LINE, bsls_AssertTest::isValidExpected(RESULT));
+//  LOOP_ASSERT(LINE, bsls::AssertTest::isValidAssertBuild(TYPE));
+//  LOOP_ASSERT(LINE, bsls::AssertTest::isValidExpected(RESULT));
 //..
 // Then, if we determine that there is no useful test to perform, continue with
 // the next iteration of the loop.  Note that when a 'F'ail is expected, there
 // is no meaningful test unless the build mode enables the relevant assertion.
 //..
-//              // Skip this test if the relevant assert is not active in this
-//              // build.
+//  // Skip this test if the relevant assert is not active in this
+//  // build.
 //
-//              if ('F' == RESULT && !BSLS_ASSERTTEST_IS_ACTIVE(TYPE)) {
-//                  continue;
-//              }
+//  if ('F' == RESULT && !BSLS_ASSERTTEST_IS_ACTIVE(TYPE)) {
+//      continue;
+//  }
 //
-//              // The relevant assert is active in this build.
+//  // The relevant assert is active in this build.
 //..
 // Finally, we verify that the assert fires (or not) as expected by hooking up
 // a pair of try/catch probes.  We use 'LOOP_ASSERT' to verify that we get the
@@ -445,13 +446,13 @@ BSLS_IDENT("$Id: $")
 //
 //                  MyUtil::f(A, B, C, D);
 //
-//                  LOOP_ASSERT(LINE, bsls_AssertTest::tryProbe(RESULT));
+//                  LOOP_ASSERT(LINE, bsls::AssertTest::tryProbe(RESULT));
 //              }
-//              catch (const bsls_AssertTestException& e) {
+//              catch (const bsls::AssertTestException& e) {
 //
-//                  LOOP_ASSERT(LINE, bsls_AssertTest::catchProbe(RESULT,
-//                                                                e,
-//                                                                __FILE__));
+//                  LOOP_ASSERT(LINE, bsls::AssertTest::catchProbe(RESULT,
+//                                                                 e,
+//                                                                 __FILE__));
 //              }
 //
 //          }  // table-driven 'for' loop
@@ -521,10 +522,10 @@ BSLS_IDENT("$Id: $")
     try {                                                                 \
         EXPRESSION_UNDER_TEST;                                            \
                                                                           \
-        ASSERT(bsls_AssertTest::tryProbe(RESULT));                        \
+        ASSERT(bsls::AssertTest::tryProbe(RESULT));                       \
     }                                                                     \
-    catch (const bsls_AssertTestException& e) {                           \
-        if (!bsls_AssertTest::catchProbe(RESULT, e, __FILE__)) {          \
+    catch (const bsls::AssertTestException& e) {                          \
+        if (!bsls::AssertTest::catchProbe(RESULT, e, __FILE__)) {         \
             if ('P' == RESULT) {                                          \
                ASSERT(false && "Unexpected assertion");                   \
             }                                                             \
@@ -536,13 +537,52 @@ BSLS_IDENT("$Id: $")
     }                                                                     \
 }
 
+#if !defined(BDE_BUILD_TARGET_EXC)
+// In non-exception enabled builds there is no way to safely use the
+// ASSERT_FAIL macros as they require installing an assert-handler that throws
+// a specific exception.  As ASSERT_FAIL negative tests require calling a
+// method under test with out-of-contract values, running those tests, without
+// a functioning assert-handler, would trigger undefined behavior with no
+// protection, so we choose to simple not execute the test calls that are
+// designed to fail by expanding the test macros to an empty statement, '{ }'.
+// All of the ASSERT_PASS macros are expanded however, as such tests call
+// methods with in-contract values, and they may still be needed to guarantee
+// stateful side-effects required by the test-driver.
+
+# define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION_UNDER_TEST) { }
+
+#else // defined BDE_BUILD_TARGET_EXC
+
 // The following macros are not expanded on the Microsoft compiler to avoid
 // internal compiler errors in optimized builds, which are the result of
-// attempts to optimize many try/catch blocks in large switch statements.
-// Note that the resulting test driver is just as thorough, but will crash on
-// failure rather than capturing and reporting the error.
-
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT)
+// attempts to optimize many try/catch blocks in large switch statements.  Note
+// that the resulting test driver is just as thorough, but will report failure
+// of a buggy library by simply crashing, rather than capturing and reporting
+// the specific error detected.
+#if (defined(BSLS_PLATFORM__CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT))
 # define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
          { EXPRESSION_UNDER_TEST; }
 
@@ -562,21 +602,21 @@ BSLS_IDENT("$Id: $")
          BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 #   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST) \
        BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
 #else
 #   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_IS_ACTIVE
+#if defined(BSLS_ASSERT_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
 #else
     #define BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
 #else
@@ -587,13 +627,26 @@ BSLS_IDENT("$Id: $")
     try {                                                                    \
         EXPRESSION_UNDER_TEST;                                               \
                                                                              \
-        ASSERT(bsls_AssertTest::tryProbe(RESULT));                           \
+        ASSERT(bsls::AssertTest::tryProbe(RESULT));                          \
     }                                                                        \
-    catch (const bsls_AssertTestException&) {                                \
-        ASSERT(bsls_AssertTest::catchProbeRaw(RESULT));                      \
+    catch (const bsls::AssertTestException&) {                               \
+        ASSERT(bsls::AssertTest::catchProbeRaw(RESULT));                     \
     }                                                                        \
 }
 
+#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT)
+// The following MSVC specific work-around avoids compilation issues with
+// MSVC optimized builds.
+
+# define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+#else
 #define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', EXPRESSION_UNDER_TEST)
 
@@ -602,27 +655,30 @@ BSLS_IDENT("$Id: $")
 
 #define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', EXPRESSION_UNDER_TEST)
+#endif
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', EXPRESSION_UNDER_TEST)
 #else
     #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_IS_ACTIVE
+#if defined(BSLS_ASSERT_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', EXPRESSION_UNDER_TEST)
 #else
     #define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', EXPRESSION_UNDER_TEST)
 #else
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION_UNDER_TEST)
 #endif
+
+#endif  // BDE_BUILD_TARGET_EXC
 
 // Note that a portable syntax for 'noreturn' will be available once we have
 // access to conforming C++0x compilers.
@@ -646,11 +702,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                    // =====================
-                    // class bsls_AssertTest
-                    // =====================
+namespace bsls {
 
-struct bsls_AssertTest {
+                    // ================
+                    // class AssertTest
+                    // ================
+
+struct AssertTest {
     // This utility 'struct' provides a suite of methods designed for use in
     // conjunction with preprocessor macros during the negative testing of
     // defensive checks using the facilities provided by the 'bsls_assert'
@@ -663,27 +721,26 @@ struct bsls_AssertTest {
     static bool isValidAssertBuild(const char *specString);
         // Return 'true' if the specified 'specString' represents a valid
         // textual description of an assertion build type, and 'false'
-        // otherwise.  'specString' is valid if it refers to a
-        // null-terminated character string of length either 1 or 2, where
-        // the first character is an (UPPERCASE) 'S', 'A', or 'O', and the
-        // second character, if present, is the numeral '2'.  Note that 'S',
-        // 'A', and 'O' are intended to represent the respective assertion
-        // types 'BSLS_ASSERT_SAFE', 'BSLS_ASSERT', and 'BSLS_ASSERT_OPT', and
-        // the optional '2' is intended to indicate that the component
-        // (and program as a whole) was built with 'BDE_BUILD_TARGET_SAFE_2'
-        // defined.
+        // otherwise.  'specString' is valid if it refers to a null-terminated
+        // character string of length either 1 or 2, where the first character
+        // is an (UPPERCASE) 'S', 'A', or 'O', and the second character, if
+        // present, is the numeral '2'.  Note that 'S', 'A', and 'O' are
+        // intended to represent the respective assertion types
+        // 'BSLS_ASSERT_SAFE', 'BSLS_ASSERT', and 'BSLS_ASSERT_OPT', and the
+        // optional '2' is intended to indicate that the component (and program
+        // as a whole) was built with 'BDE_BUILD_TARGET_SAFE_2' defined.
 
     static bool isValidExpected(char specChar);
         // Return 'true' if the specified 'specChar' represents a valid
         // description of the expected result, and 'false' otherwise.
-        // 'specChar' is valid if it is either an (UPPERCASE) 'P' (for
-        // Pass) or 'F' (for Fail).  Note that 'P' is intended to represent
-        // the expectation that the function under test will "pass" by
-        // satisfying all preconditions, including the specific one guarded
-        // by the assertion under test, while an 'F' is intended to
-        // indicate the expectation that the specific assertion under test
-        // will "fail" (thereby triggering a call to the
-        // currently-installed assertion-failure handler).
+        // 'specChar' is valid if it is either an (UPPERCASE) 'P' (for Pass) or
+        // 'F' (for Fail).  Note that 'P' is intended to represent the
+        // expectation that the function under test will "pass" by satisfying
+        // all preconditions, including the specific one guarded by the
+        // assertion under test, while an 'F' is intended to indicate the
+        // expectation that the specific assertion under test will "fail"
+        // (thereby triggering a call to the currently-installed
+        // assertion-failure handler).
 
                             // Testing Apparatus
 
@@ -693,9 +750,9 @@ struct bsls_AssertTest {
         // 'P' or 'F' (for Fail), this function reports the invalid
         // 'expectedResult' value to 'stdout' before returning 'false'.
 
-    static bool catchProbe(char                             expectedResult,
-                           const bsls_AssertTestException&  caughtException,
-                           const char                      *componentFileName);
+    static bool catchProbe(char                        expectedResult,
+                           const AssertTestException&  caughtException,
+                           const char                 *componentFileName);
         // Return 'true' if the specified 'expectedResult' is 'F' (for Fail),
         // the specified 'caughtException' contains valid fields, and the
         // specified 'componentFileName' is either null or refers to the same
@@ -724,35 +781,35 @@ struct bsls_AssertTest {
 
     BSLS_ASSERTTEST_NORETURN
     static void failTestDriver(const char *text, const char *file, int line);
-        // Throw a 'bsls_AssertTestException' having the specified pointer
-        // values 'text' and 'file' and the specified integer 'line' as its
-        // salient attributes, provided that 'BDE_BUILD_TARGET_EXC' is defined;
+        // Throw a 'AssertTestException' having the specified pointer values
+        // 'text' and 'file' and the specified integer 'line' as its salient
+        // attributes, provided that 'BDE_BUILD_TARGET_EXC' is defined;
         // otherwise, write an appropriate message to 'stderr' and abort the
-        // program (similar to 'bsls_Assert::failAbort').  Note that this
-        // function is intended to have a signature compatible with a
-        // registered assertion-failure handler function in 'bsls_assert'.
+        // program (similar to 'Assert::failAbort').  Note that this function
+        // is intended to have a signature compatible with a registered
+        // assertion-failure handler function in 'bsls_assert'.
 };
 
-                   // ====================================
-                   // class bsls_AssertFailureHandlerGuard
-                   // ====================================
+                   // ===============================
+                   // class AssertFailureHandlerGuard
+                   // ===============================
 
-class bsls_AssertTestHandlerGuard {
+class AssertTestHandlerGuard {
     // This class provides a guard that will install and uninstall the negative
-    // testing assertion handler, 'bsls_AssertTest::failTestDriver', within the
+    // testing assertion handler, 'AssertTest::failTestDriver', within the
     // protected scope.
 
     // DATA
-    bsls_AssertFailureHandlerGuard d_guard;
+    AssertFailureHandlerGuard d_guard;
 
   public:
-    bsls_AssertTestHandlerGuard();
-        // Create a 'bsls_AssertTestHandlerGuard' object, installing the
-        // 'bsls_AssertTest::failTestDriver' assertion handler.
+    AssertTestHandlerGuard();
+        // Create a 'AssertTestHandlerGuard' object, installing the
+        // 'AssertTest::failTestDriver' assertion handler.
 
-    //! ~bsls_AssertTestHandlerGuard() = default;
-        // Destroy this object and uninstall 'bsls_AssertTest::failTestDriver'
-        // as the current assertion handler.
+    //! ~AssertTestHandlerGuard() = default;
+        // Destroy this object and uninstall 'AssertTest::failTestDriver' as
+        // the current assertion handler.
 };
 
 // ===========================================================================
@@ -760,12 +817,24 @@ class bsls_AssertTestHandlerGuard {
 // ===========================================================================
 
 inline
-bsls_AssertTestHandlerGuard::bsls_AssertTestHandlerGuard()
-: d_guard(&bsls_AssertTest::failTestDriver)
+AssertTestHandlerGuard::AssertTestHandlerGuard()
+: d_guard(&AssertTest::failTestDriver)
 {
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bsls::AssertTestHandlerGuard bsls_AssertTestHandlerGuard;
+    // This alias is defined for backward compatibility.
+
+typedef bsls::AssertTest bsls_AssertTest;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif // test driver internal include guard
 

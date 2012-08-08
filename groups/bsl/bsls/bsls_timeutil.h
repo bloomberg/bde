@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a platform-neutral functional interface to system clocks.
 //
 //@CLASSES:
-//   bsls_TimeUtil: namespace for platform-neutral system-time pure procedures
+//  bsls::TimeUtil: namespace for platform-neutral system-time pure procedures
 //
 //@AUTHOR: Tom Marshall (tmarshal)
 //
@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Accuracy and Precision
 ///----------------------
-// 'bsls_TimeUtil' high-resolution functions return time values as absolute
+// 'bsls::TimeUtil' high-resolution functions return time values as absolute
 // nanoseconds from an arbitrary reference that will *in many cases* remain
 // fixed within a single process (and among running processes on a single
 // machine).  Absolute monotonic behavior is platform-dependent, however, as
@@ -33,15 +33,15 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following snippets of code illustrate how to use 'bsls_TimeUtil'
+// The following snippets of code illustrate how to use 'bsls::TimeUtil'
 // functions to implement a very simple timer.  Only the most primitive
-// functionality is illustrated.  See the 'bsls_Stopwatch' component for a
+// functionality is illustrated.  See the 'bsls::Stopwatch' component for a
 // better example of a timer interface.
 //..
 //  // my_timer.h
 //
 //  #ifndef INCLUDED_BSLS_TYPES
-//  #include <bsls_types.h>   // bsls_Types::Int64
+//  #include <bsls_types.h>   // bsls::Types::Int64
 //  #endif
 //
 //  #ifndef INCLUDED_BSLS_TIMEUTIL
@@ -53,16 +53,16 @@ BSLS_IDENT("$Id: $")
 //     // the "running" state, and may be queried for its cumulative
 //     // interval (as a 'double', in seconds) but never stopped or reset.
 //
-//     bsls_Types::Int64 d_startWallTime;   // time at creation (nsec)
-//     bsls_Types::Int64 d_startUserTime;   // time at creation (nsec)
-//     bsls_Types::Int64 d_startSystemTime; // time at creation (nsec)
+//     bsls::Types::Int64 d_startWallTime;   // time at creation (nsec)
+//     bsls::Types::Int64 d_startUserTime;   // time at creation (nsec)
+//     bsls::Types::Int64 d_startSystemTime; // time at creation (nsec)
 //
 //   public:
 //     // CREATORS
 //     my_Timer() {
-//         d_startWallTime = bsls_TimeUtil::getTimer();
-//         d_startUserTime = bsls_TimeUtil::getProcessUserTimer();
-//         d_startSystemTime = bsls_TimeUtil::getProcessSystemTimer();
+//         d_startWallTime = bsls::TimeUtil::getTimer();
+//         d_startUserTime = bsls::TimeUtil::getProcessUserTimer();
+//         d_startSystemTime = bsls::TimeUtil::getProcessSystemTimer();
 //     }
 //         // Create a timer object initialized with the times at creation.
 //         // All values returned by subsequent calls to 'elapsed<...>Time()'
@@ -85,26 +85,26 @@ BSLS_IDENT("$Id: $")
 // inline
 // double my_Timer::elapsedWallTime()
 // {
-//     return (double) (bsls_TimeUtil::getTimer() - d_startWallTime) * 1.0E-9;
+//     return (double) (bsls::TimeUtil::getTimer() - d_startWallTime) * 1.0E-9;
 // }
 //
 // inline
 // double my_Timer::elapsedUserTime()
 // {
-//     return (double) (bsls_TimeUtil::getProcessUserTimer() - d_startUserTime)
-//                                                                    * 1.0E-9;
+//     return (double) (bsls::TimeUtil::getProcessUserTimer()
+//                                                 - d_startUserTime) * 1.0E-9;
 // }
 //
 // inline
 // double my_Timer::elapsedSystemTime()
 // {
-//     return (double) (bsls_TimeUtil::getProcessSystemTimer()
+//     return (double) (bsls::TimeUtil::getProcessSystemTimer()
 //                                               - d_startSystemTime) * 1.0E-9;
 // }
 //  // ...
 //..
-// The 'my_Timer' object may be used to time some section of code at runtime
-// as follows:
+// The 'my_Timer' object may be used to time some section of code at runtime as
+// follows:
 //..
 //  // ...
 //  {
@@ -153,11 +153,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                            // ====================
-                            // struct bsls_TimeUtil
-                            // ====================
+namespace bsls {
 
-struct bsls_TimeUtil {
+                            // ===============
+                            // struct TimeUtil
+                            // ===============
+
+struct TimeUtil {
     // This 'struct' provides a namespace for a set of platform-neutral pure
     // procedures to access real-time system clock functionality.
     // High-resolution time functions intended for interval-timing return an
@@ -166,53 +168,53 @@ struct bsls_TimeUtil {
     //
     // For maximum performance on some platforms where fetching the native
     // clock is significantly faster than converting the fetched value to
-    // nanoseconds, this class also provides a "raw" method returning an
-    // opaque native time value and a conversion method returning a value in
+    // nanoseconds, this class also provides a "raw" method returning an opaque
+    // native time value and a conversion method returning a value in
     // nanoseconds.
 
     // TYPES
 #if   defined BSLS_PLATFORM__OS_SOLARIS
-        typedef struct { bsls_Types::Int64 d_opaque; } OpaqueNativeTime;
+        typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
 #elif defined BSLS_PLATFORM__OS_AIX
-        typedef timebasestruct_t                       OpaqueNativeTime;
+        typedef timebasestruct_t                  OpaqueNativeTime;
 #elif defined BSLS_PLATFORM__OS_HPUX
-        typedef struct { bsls_Types::Int64 d_opaque; } OpaqueNativeTime;
+        typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
 #elif defined BSLS_PLATFORM__OS_LINUX
-        typedef timespec                               OpaqueNativeTime;
+        typedef timespec                          OpaqueNativeTime;
 #elif defined BSLS_PLATFORM__OS_UNIX
-        typedef timeval                                OpaqueNativeTime;
+        typedef timeval                           OpaqueNativeTime;
 #elif defined BSLS_PLATFORM__OS_WINDOWS
-        typedef struct { bsls_Types::Int64 d_opaque; } OpaqueNativeTime;
+        typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
 #endif
 
     // CLASS METHODS
-    static bsls_Types::Int64 convertRawTime(OpaqueNativeTime rawTime);
+    static Types::Int64 convertRawTime(OpaqueNativeTime rawTime);
         // Convert the specified 'rawTime' to a value in nanoseconds,
         // referenced to an arbitrary but fixed origin, and return the result
         // of the conversion.  Note that this method is thread-safe only if
         // 'initialize' has been called before.
 
-    static bsls_Types::Int64 getProcessSystemTimer();
+    static Types::Int64 getProcessSystemTimer();
         // Return the instantaneous values of a platform-dependent timer for
         // the current process system time in absolute nanoseconds referenced
         // to an arbitrary but fixed origin.  Note that this method is thread-
         // safe only if 'initialize' has been called before.
 
-    static void getProcessTimers(bsls_Types::Int64 *systemTimer,
-                                 bsls_Types::Int64 *userTimer);
+    static void getProcessTimers(Types::Int64 *systemTimer,
+                                 Types::Int64 *userTimer);
         // Load into the specified 'systemTimer' and 'userTimer' the
         // instantaneous values of platform-dependent system timer and user
         // timer in absolute nanoseconds referenced to an arbitrary but fixed
         // origin.  Note that this method is thread-safe only if 'initialize'
         // has been called before.
 
-    static bsls_Types::Int64 getProcessUserTimer();
+    static Types::Int64 getProcessUserTimer();
         // Return the instantaneous values of a platform-dependent timer for
         // the current process user time in absolute nanoseconds referenced to
         // an arbitrary but fixed origin.  Note that this method is thread-safe
         // only if 'initialize' has been called before.
 
-    static bsls_Types::Int64 getTimer();
+    static Types::Int64 getTimer();
         // Return the instantaneous value of a platform-dependent system timer
         // in absolute nanoseconds referenced to an arbitrary but fixed origin.
         // Note that this method is thread-safe only if 'initialize' has been
@@ -233,7 +235,16 @@ struct bsls_TimeUtil {
         // guaranteed to be thread-safe.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bsls::TimeUtil bsls_TimeUtil;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

@@ -1,4 +1,4 @@
-// bslmf_ispointertomember.t.cpp            -*-C++-*-
+// bslmf_ispointertomember.t.cpp                                      -*-C++-*-
 
 #include <bslmf_ispointertomember.h>
 
@@ -15,7 +15,7 @@ using namespace std;
 //                                --------
 // TBD
 //-----------------------------------------------------------------------------
-// [ 1] bslmf_IsPointerToMember
+// [ 1] bslmf::IsPointerToMember
 // [ 2] USAGE EXAMPLE
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -119,27 +119,33 @@ typedef char (Base::* volatile PMF07v)
 typedef char (Base::* volatile PMF07cv)
   (int*, const char *, float, double, Union&, const int&, long) const volatile;
 
-typedef char (Base::* const volatile PMF08) (int*, const char *, float,
+typedef char (Base::* const volatile PMF08) (
+                                 int*, const char *, float,
                                  double, Union&, const int&, long, float*[54]);
-typedef char (Base::* const volatile PMF08c) (int*, const char *, float,
+typedef char (Base::* const volatile PMF08c) (
+                           int*, const char *, float,
                            double, Union&, const int&, long, float*[54]) const;
 typedef char (Base::* const volatile PMF08v) (int*, const char *, float,
                         double, Union&, const int&, long, float*[54]) volatile;
 typedef char (Base::* const volatile PMF08cv) (int*, const char *, float,
                   double, Union&, const int&, long, float*[54]) const volatile;
 
-typedef int (DerivedPoly::* volatile& PMF09)(int*, const char *, float,
+typedef int (DerivedPoly::* volatile& PMF09)(
+                           int*, const char *, float,
                            double, Union&, const int&, long, float*[54], Enum);
-typedef int (DerivedPoly::* volatile& PMF09c)(int*, const char *, float,
+typedef int (DerivedPoly::* volatile& PMF09c)(
+                     int*, const char *, float,
                      double, Union&, const int&, long, float*[54], Enum) const;
 typedef int (DerivedPoly::* volatile& PMF09v)(int*, const char *, float,
                   double, Union&, const int&, long, float*[54], Enum) volatile;
 typedef int (DerivedPoly::* volatile& PMF09cv)(int*, const char *, float,
             double, Union&, const int&, long, float*[54], Enum) const volatile;
 
-typedef int (DerivedPoly::* const volatile& PMF10)(int*, const char *, float,
+typedef int (DerivedPoly::* const volatile& PMF10)(
+                     int*, const char *, float,
                      double, Union&, const int&, long, float*[54], Enum, char);
-typedef int (DerivedPoly::* const volatile& PMF10c)(int*, const char *, float,
+typedef int (DerivedPoly::* const volatile& PMF10c)(
+               int*, const char *, float,
                double, Union&, const int&, long, float*[54], Enum, char) const;
 typedef int (DerivedPoly::* const volatile& PMF10v)(int*, const char *, float,
             double, Union&, const int&, long, float*[54], Enum, char) volatile;
@@ -179,7 +185,7 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bslmf_IsPointerToMember'.
+        //   Simple example illustrating use of 'bslmf::IsPointerToMember'.
         //
         // Concerns:
         //
@@ -198,319 +204,319 @@ int main(int argc, char *argv[])
 
 // continued from above ...
 //..
-     ASSERT(0 == bslmf_IsPointerToMember<int             *>::VALUE);
-     ASSERT(0 == bslmf_IsPointerToMember<    MyStruct    *>::VALUE);
-     ASSERT(1 == bslmf_IsPointerToMember<int MyStruct::*  >::VALUE);
-     ASSERT(0 == bslmf_IsPointerToMember<int MyStruct::*& >::VALUE);
-     ASSERT(0 == bslmf_IsPointerToMember<int MyStruct::* *>::VALUE);
+     ASSERT(0 == bslmf::IsPointerToMember<int             *>::VALUE);
+     ASSERT(0 == bslmf::IsPointerToMember<    MyStruct    *>::VALUE);
+     ASSERT(1 == bslmf::IsPointerToMember<int MyStruct::*  >::VALUE);
+     ASSERT(0 == bslmf::IsPointerToMember<int MyStruct::*& >::VALUE);
+     ASSERT(0 == bslmf::IsPointerToMember<int MyStruct::* *>::VALUE);
 
-     ASSERT(1 == bslmf_IsPointerToMemberData<int MyStruct::*>::VALUE);
-     ASSERT(0 == bslmf_IsPointerToMemberData<PMFdRi         >::VALUE);
+     ASSERT(1 == bslmf::IsPointerToMemberData<int MyStruct::*>::VALUE);
+     ASSERT(0 == bslmf::IsPointerToMemberData<PMFdRi         >::VALUE);
 
-     ASSERT(1 == bslmf_IsPointerToMember<PMFdRi >::VALUE);
-     ASSERT(0 == bslmf_IsPointerToMember<PMFdRi&>::VALUE);
-     ASSERT(1 == bslmf_IsPointerToMember<PMFCe  >::VALUE);
-     ASSERT(0 == bslmf_IsPointerToMember<PMFCe& >::VALUE);
+     ASSERT(1 == bslmf::IsPointerToMember<PMFdRi >::VALUE);
+     ASSERT(0 == bslmf::IsPointerToMember<PMFdRi&>::VALUE);
+     ASSERT(1 == bslmf::IsPointerToMember<PMFCe  >::VALUE);
+     ASSERT(0 == bslmf::IsPointerToMember<PMFCe& >::VALUE);
 
-     ASSERT(1 == bslmf_IsPointerToMemberFunction<PMFdRi        >::VALUE);
-     ASSERT(0 == bslmf_IsPointerToMemberFunction<int MyClass::*>::VALUE);
+     ASSERT(1 == bslmf::IsPointerToMemberFunction<PMFdRi        >::VALUE);
+     ASSERT(0 == bslmf::IsPointerToMemberFunction<int MyClass::*>::VALUE);
 //..
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // Test Plan:
-        //   Instantiate 'bslmf_IsPointerToMember' with various types and
+        //   Instantiate 'bslmf::IsPointerToMember' with various types and
         //   verify that their 'VALUE' member is initialized properly.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "bslmf_IsPointerToMember" << endl
-                          << "=======================" << endl;
+                          << "bslmf::IsPointerToMember" << endl
+                          << "========================" << endl;
 
-        ASSERT(0 == bslmf_IsPointerToMember<int               >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<int const         >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<int volatile      >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<int const volatile>::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<int               >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<int const         >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<int volatile      >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<int const volatile>::VALUE);
 
-        ASSERT(0 == bslmf_IsPointerToMember<int&               >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<int const&         >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<int volatile&      >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<int const volatile&>::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<int&               >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<int const&         >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<int volatile&      >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<int const volatile&>::VALUE);
 
-        ASSERT(0 == bslmf_IsPointerToMember<Enum               >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Enum const         >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Enum volatile      >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Enum const volatile>::VALUE);
-
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int *                             >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int *const                        >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int *volatile                     >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int *const volatile               >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int const *                       >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int const *const                  >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int const *volatile               >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int const *const volatile         >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int volatile *                    >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int volatile *const               >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int volatile *volatile            >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int volatile *const volatile      >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int const volatile *              >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int const volatile *const         >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int const volatile *volatile      >::VALUE);
-        ASSERT(0 ==
-           bslmf_IsPointerToMember<int const volatile *const volatile>::VALUE);
-
-        ASSERT(0 == bslmf_IsPointerToMember<Struct *              >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Struct *const         >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Struct *volatile      >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Struct *const volatile>::VALUE);
-
-        ASSERT(0 == bslmf_IsPointerToMember<Struct               >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Struct const         >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Struct volatile      >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Struct const volatile>::VALUE);
-
-        ASSERT(0 == bslmf_IsPointerToMember<Struct&               >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Struct const&         >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Struct volatile&      >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Struct const volatile&>::VALUE);
-
-        ASSERT(0 == bslmf_IsPointerToMember<Union               >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Union const         >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Union volatile      >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Union const volatile>::VALUE);
-
-        ASSERT(0 == bslmf_IsPointerToMember<Union&               >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Union const&         >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Union volatile&      >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Union const volatile&>::VALUE);
-
-        ASSERT(0 == bslmf_IsPointerToMember<Base               >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Base const         >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Base volatile      >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Base const volatile>::VALUE);
-
-        ASSERT(0 == bslmf_IsPointerToMember<Base&               >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Base const&         >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Base volatile&      >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Base const volatile&>::VALUE);
-
-        ASSERT(0 == bslmf_IsPointerToMember<Derived               >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Derived const         >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Derived volatile      >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Derived const volatile>::VALUE);
-
-        ASSERT(0 == bslmf_IsPointerToMember<Derived&               >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Derived const&         >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Derived volatile&      >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Derived const volatile&>::VALUE);
-
-        ASSERT(0 == bslmf_IsPointerToMember<Poly               >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Poly const         >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Poly volatile      >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Poly const volatile>::VALUE);
-
-        ASSERT(0 == bslmf_IsPointerToMember<Poly&               >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Poly const&         >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Poly volatile&      >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<Poly const volatile&>::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Enum               >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Enum const         >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Enum volatile      >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Enum const volatile>::VALUE);
 
         ASSERT(0 ==
-                   bslmf_IsPointerToMember<DerivedPoly               >::VALUE);
+          bslmf::IsPointerToMember<int *                             >::VALUE);
         ASSERT(0 ==
-                   bslmf_IsPointerToMember<DerivedPoly const         >::VALUE);
+          bslmf::IsPointerToMember<int *const                        >::VALUE);
         ASSERT(0 ==
-                   bslmf_IsPointerToMember<DerivedPoly volatile      >::VALUE);
+          bslmf::IsPointerToMember<int *volatile                     >::VALUE);
         ASSERT(0 ==
-                   bslmf_IsPointerToMember<DerivedPoly const volatile>::VALUE);
+          bslmf::IsPointerToMember<int *const volatile               >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int const *                       >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int const *const                  >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int const *volatile               >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int const *const volatile         >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int volatile *                    >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int volatile *const               >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int volatile *volatile            >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int volatile *const volatile      >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int const volatile *              >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int const volatile *const         >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int const volatile *volatile      >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int const volatile *const volatile>::VALUE);
+
+        ASSERT(0 == bslmf::IsPointerToMember<Struct *              >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Struct *const         >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Struct *volatile      >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Struct *const volatile>::VALUE);
+
+        ASSERT(0 == bslmf::IsPointerToMember<Struct               >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Struct const         >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Struct volatile      >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Struct const volatile>::VALUE);
+
+        ASSERT(0 == bslmf::IsPointerToMember<Struct&               >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Struct const&         >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Struct volatile&      >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Struct const volatile&>::VALUE);
+
+        ASSERT(0 == bslmf::IsPointerToMember<Union               >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Union const         >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Union volatile      >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Union const volatile>::VALUE);
+
+        ASSERT(0 == bslmf::IsPointerToMember<Union&               >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Union const&         >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Union volatile&      >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Union const volatile&>::VALUE);
+
+        ASSERT(0 == bslmf::IsPointerToMember<Base               >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Base const         >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Base volatile      >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Base const volatile>::VALUE);
+
+        ASSERT(0 == bslmf::IsPointerToMember<Base&               >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Base const&         >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Base volatile&      >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Base const volatile&>::VALUE);
+
+        ASSERT(0 == bslmf::IsPointerToMember<Derived               >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Derived const         >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Derived volatile      >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Derived const volatile>::VALUE);
+
+        ASSERT(0 == bslmf::IsPointerToMember<Derived&               >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Derived const&         >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Derived volatile&      >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Derived const volatile&>::VALUE);
+
+        ASSERT(0 == bslmf::IsPointerToMember<Poly               >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Poly const         >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Poly volatile      >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Poly const volatile>::VALUE);
+
+        ASSERT(0 == bslmf::IsPointerToMember<Poly&               >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Poly const&         >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Poly volatile&      >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<Poly const volatile&>::VALUE);
 
         ASSERT(0 ==
-                  bslmf_IsPointerToMember<DerivedPoly&               >::VALUE);
+                  bslmf::IsPointerToMember<DerivedPoly               >::VALUE);
         ASSERT(0 ==
-                  bslmf_IsPointerToMember<DerivedPoly const&         >::VALUE);
+                  bslmf::IsPointerToMember<DerivedPoly const         >::VALUE);
         ASSERT(0 ==
-                  bslmf_IsPointerToMember<DerivedPoly volatile&      >::VALUE);
+                  bslmf::IsPointerToMember<DerivedPoly volatile      >::VALUE);
         ASSERT(0 ==
-                  bslmf_IsPointerToMember<DerivedPoly const volatile&>::VALUE);
-
-        ASSERT(1 ==
-                 bslmf_IsPointerToMember<int Struct::*               >::VALUE);
-        ASSERT(1 ==
-                 bslmf_IsPointerToMember<int Struct::* const         >::VALUE);
-        ASSERT(1 ==
-                 bslmf_IsPointerToMember<int Struct::* volatile      >::VALUE);
-        ASSERT(1 ==
-                 bslmf_IsPointerToMember<int Struct::* const volatile>::VALUE);
+                  bslmf::IsPointerToMember<DerivedPoly const volatile>::VALUE);
 
         ASSERT(0 ==
-               bslmf_IsPointerToMember<int *Struct::*&               >::VALUE);
+                 bslmf::IsPointerToMember<DerivedPoly&               >::VALUE);
         ASSERT(0 ==
-               bslmf_IsPointerToMember<int *Struct::* const&         >::VALUE);
+                 bslmf::IsPointerToMember<DerivedPoly const&         >::VALUE);
         ASSERT(0 ==
-               bslmf_IsPointerToMember<int *Struct::* volatile&      >::VALUE);
+                 bslmf::IsPointerToMember<DerivedPoly volatile&      >::VALUE);
         ASSERT(0 ==
-               bslmf_IsPointerToMember<int *Struct::* const volatile&>::VALUE);
+                 bslmf::IsPointerToMember<DerivedPoly const volatile&>::VALUE);
 
         ASSERT(1 ==
-               bslmf_IsPointerToMember<Struct Union::*               >::VALUE);
+                bslmf::IsPointerToMember<int Struct::*               >::VALUE);
         ASSERT(1 ==
-               bslmf_IsPointerToMember<Struct Union::* const         >::VALUE);
+                bslmf::IsPointerToMember<int Struct::* const         >::VALUE);
         ASSERT(1 ==
-               bslmf_IsPointerToMember<Struct Union::* volatile      >::VALUE);
+                bslmf::IsPointerToMember<int Struct::* volatile      >::VALUE);
         ASSERT(1 ==
-               bslmf_IsPointerToMember<Struct Union::* const volatile>::VALUE);
+                bslmf::IsPointerToMember<int Struct::* const volatile>::VALUE);
 
         ASSERT(0 ==
-             bslmf_IsPointerToMember<Struct *Union::*&               >::VALUE);
+              bslmf::IsPointerToMember<int *Struct::*&               >::VALUE);
         ASSERT(0 ==
-             bslmf_IsPointerToMember<Struct *Union::* const&         >::VALUE);
+              bslmf::IsPointerToMember<int *Struct::* const&         >::VALUE);
         ASSERT(0 ==
-             bslmf_IsPointerToMember<Struct *Union::* volatile&      >::VALUE);
+              bslmf::IsPointerToMember<int *Struct::* volatile&      >::VALUE);
         ASSERT(0 ==
-             bslmf_IsPointerToMember<Struct *Union::* const volatile&>::VALUE);
-
-        ASSERT(1 ==
-                  bslmf_IsPointerToMember<char Base::*               >::VALUE);
-        ASSERT(1 ==
-                  bslmf_IsPointerToMember<char Base::* const         >::VALUE);
-        ASSERT(1 ==
-                  bslmf_IsPointerToMember<char Base::* volatile      >::VALUE);
-        ASSERT(1 ==
-                  bslmf_IsPointerToMember<char Base::* const volatile>::VALUE);
-
-        ASSERT(0 ==
-                 bslmf_IsPointerToMember<Enum Base::*&               >::VALUE);
-        ASSERT(0 ==
-                 bslmf_IsPointerToMember<Enum Base::* const&         >::VALUE);
-        ASSERT(0 ==
-                 bslmf_IsPointerToMember<Enum Base::* volatile&      >::VALUE);
-        ASSERT(0 ==
-                 bslmf_IsPointerToMember<Enum Base::* const volatile&>::VALUE);
+              bslmf::IsPointerToMember<int *Struct::* const volatile&>::VALUE);
 
         ASSERT(1 ==
-              bslmf_IsPointerToMember<Enum *Derived::*               >::VALUE);
+              bslmf::IsPointerToMember<Struct Union::*               >::VALUE);
         ASSERT(1 ==
-              bslmf_IsPointerToMember<Enum *Derived::* const         >::VALUE);
+              bslmf::IsPointerToMember<Struct Union::* const         >::VALUE);
         ASSERT(1 ==
-              bslmf_IsPointerToMember<Enum *Derived::* volatile      >::VALUE);
+              bslmf::IsPointerToMember<Struct Union::* volatile      >::VALUE);
         ASSERT(1 ==
-              bslmf_IsPointerToMember<Enum *Derived::* const volatile>::VALUE);
+              bslmf::IsPointerToMember<Struct Union::* const volatile>::VALUE);
 
         ASSERT(0 ==
-               bslmf_IsPointerToMember<int Derived::*&               >::VALUE);
+            bslmf::IsPointerToMember<Struct *Union::*&               >::VALUE);
         ASSERT(0 ==
-               bslmf_IsPointerToMember<int Derived::* const&         >::VALUE);
+            bslmf::IsPointerToMember<Struct *Union::* const&         >::VALUE);
         ASSERT(0 ==
-               bslmf_IsPointerToMember<int Derived::* volatile&      >::VALUE);
+            bslmf::IsPointerToMember<Struct *Union::* volatile&      >::VALUE);
         ASSERT(0 ==
-               bslmf_IsPointerToMember<int Derived::* const volatile&>::VALUE);
-
-        ASSERT(1 ==
-                   bslmf_IsPointerToMember<int Poly::*               >::VALUE);
-        ASSERT(1 ==
-                   bslmf_IsPointerToMember<int Poly::* const         >::VALUE);
-        ASSERT(1 ==
-                   bslmf_IsPointerToMember<int Poly::* volatile      >::VALUE);
-        ASSERT(1 ==
-                   bslmf_IsPointerToMember<int Poly::* const volatile>::VALUE);
-
-        ASSERT(0 ==
-                  bslmf_IsPointerToMember<int Poly::*&               >::VALUE);
-        ASSERT(0 ==
-                  bslmf_IsPointerToMember<int Poly::* const&         >::VALUE);
-        ASSERT(0 ==
-                  bslmf_IsPointerToMember<int Poly::* volatile&      >::VALUE);
-        ASSERT(0 ==
-                  bslmf_IsPointerToMember<int Poly::* const volatile&>::VALUE);
+            bslmf::IsPointerToMember<Struct *Union::* const volatile&>::VALUE);
 
         ASSERT(1 ==
-            bslmf_IsPointerToMember<int DerivedPoly::*               >::VALUE);
+                 bslmf::IsPointerToMember<char Base::*               >::VALUE);
         ASSERT(1 ==
-            bslmf_IsPointerToMember<int DerivedPoly::* const         >::VALUE);
+                 bslmf::IsPointerToMember<char Base::* const         >::VALUE);
         ASSERT(1 ==
-            bslmf_IsPointerToMember<int DerivedPoly::* volatile      >::VALUE);
+                 bslmf::IsPointerToMember<char Base::* volatile      >::VALUE);
         ASSERT(1 ==
-            bslmf_IsPointerToMember<int DerivedPoly::* const volatile>::VALUE);
+                 bslmf::IsPointerToMember<char Base::* const volatile>::VALUE);
 
         ASSERT(0 ==
-           bslmf_IsPointerToMember<int DerivedPoly::*&               >::VALUE);
+                bslmf::IsPointerToMember<Enum Base::*&               >::VALUE);
         ASSERT(0 ==
-           bslmf_IsPointerToMember<int DerivedPoly::* const&         >::VALUE);
+                bslmf::IsPointerToMember<Enum Base::* const&         >::VALUE);
         ASSERT(0 ==
-           bslmf_IsPointerToMember<int DerivedPoly::* volatile&      >::VALUE);
+                bslmf::IsPointerToMember<Enum Base::* volatile&      >::VALUE);
         ASSERT(0 ==
-           bslmf_IsPointerToMember<int DerivedPoly::* const volatile&>::VALUE);
+                bslmf::IsPointerToMember<Enum Base::* const volatile&>::VALUE);
 
-        ASSERT(1 == bslmf_IsPointerToMember<PMF00  >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF00c >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF00v >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF00cv>::VALUE);
+        ASSERT(1 ==
+             bslmf::IsPointerToMember<Enum *Derived::*               >::VALUE);
+        ASSERT(1 ==
+             bslmf::IsPointerToMember<Enum *Derived::* const         >::VALUE);
+        ASSERT(1 ==
+             bslmf::IsPointerToMember<Enum *Derived::* volatile      >::VALUE);
+        ASSERT(1 ==
+             bslmf::IsPointerToMember<Enum *Derived::* const volatile>::VALUE);
 
-        ASSERT(1 == bslmf_IsPointerToMember<PMF01  >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF01c >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF01v >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF01cv>::VALUE);
+        ASSERT(0 ==
+              bslmf::IsPointerToMember<int Derived::*&               >::VALUE);
+        ASSERT(0 ==
+              bslmf::IsPointerToMember<int Derived::* const&         >::VALUE);
+        ASSERT(0 ==
+              bslmf::IsPointerToMember<int Derived::* volatile&      >::VALUE);
+        ASSERT(0 ==
+              bslmf::IsPointerToMember<int Derived::* const volatile&>::VALUE);
 
-        ASSERT(1 == bslmf_IsPointerToMember<PMF02  >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF02c >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF02v >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF02cv>::VALUE);
+        ASSERT(1 ==
+                  bslmf::IsPointerToMember<int Poly::*               >::VALUE);
+        ASSERT(1 ==
+                  bslmf::IsPointerToMember<int Poly::* const         >::VALUE);
+        ASSERT(1 ==
+                  bslmf::IsPointerToMember<int Poly::* volatile      >::VALUE);
+        ASSERT(1 ==
+                  bslmf::IsPointerToMember<int Poly::* const volatile>::VALUE);
 
-        ASSERT(1 == bslmf_IsPointerToMember<PMF03  >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF03c >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF03v >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF03cv>::VALUE);
+        ASSERT(0 ==
+                 bslmf::IsPointerToMember<int Poly::*&               >::VALUE);
+        ASSERT(0 ==
+                 bslmf::IsPointerToMember<int Poly::* const&         >::VALUE);
+        ASSERT(0 ==
+                 bslmf::IsPointerToMember<int Poly::* volatile&      >::VALUE);
+        ASSERT(0 ==
+                 bslmf::IsPointerToMember<int Poly::* const volatile&>::VALUE);
 
-        ASSERT(1 == bslmf_IsPointerToMember<PMF04  >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF04c >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF04v >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF04cv>::VALUE);
+        ASSERT(1 ==
+           bslmf::IsPointerToMember<int DerivedPoly::*               >::VALUE);
+        ASSERT(1 ==
+           bslmf::IsPointerToMember<int DerivedPoly::* const         >::VALUE);
+        ASSERT(1 ==
+           bslmf::IsPointerToMember<int DerivedPoly::* volatile      >::VALUE);
+        ASSERT(1 ==
+           bslmf::IsPointerToMember<int DerivedPoly::* const volatile>::VALUE);
 
-        ASSERT(1 == bslmf_IsPointerToMember<PMF05  >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF05c >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF05v >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF05cv>::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int DerivedPoly::*&               >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int DerivedPoly::* const&         >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int DerivedPoly::* volatile&      >::VALUE);
+        ASSERT(0 ==
+          bslmf::IsPointerToMember<int DerivedPoly::* const volatile&>::VALUE);
 
-        ASSERT(1 == bslmf_IsPointerToMember<PMF06  >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF06c >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF06v >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF06cv>::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF00  >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF00c >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF00v >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF00cv>::VALUE);
 
-        ASSERT(1 == bslmf_IsPointerToMember<PMF07  >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF07c >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF07v >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF07cv>::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF01  >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF01c >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF01v >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF01cv>::VALUE);
 
-        ASSERT(1 == bslmf_IsPointerToMember<PMF08  >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF08c >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF08v >::VALUE);
-        ASSERT(1 == bslmf_IsPointerToMember<PMF08cv>::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF02  >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF02c >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF02v >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF02cv>::VALUE);
 
-        ASSERT(0 == bslmf_IsPointerToMember<PMF09  >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<PMF09c >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<PMF09v >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<PMF09cv>::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF03  >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF03c >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF03v >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF03cv>::VALUE);
 
-        ASSERT(0 == bslmf_IsPointerToMember<PMF10  >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<PMF10c >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<PMF10v >::VALUE);
-        ASSERT(0 == bslmf_IsPointerToMember<PMF10cv>::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF04  >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF04c >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF04v >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF04cv>::VALUE);
+
+        ASSERT(1 == bslmf::IsPointerToMember<PMF05  >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF05c >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF05v >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF05cv>::VALUE);
+
+        ASSERT(1 == bslmf::IsPointerToMember<PMF06  >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF06c >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF06v >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF06cv>::VALUE);
+
+        ASSERT(1 == bslmf::IsPointerToMember<PMF07  >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF07c >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF07v >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF07cv>::VALUE);
+
+        ASSERT(1 == bslmf::IsPointerToMember<PMF08  >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF08c >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF08v >::VALUE);
+        ASSERT(1 == bslmf::IsPointerToMember<PMF08cv>::VALUE);
+
+        ASSERT(0 == bslmf::IsPointerToMember<PMF09  >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<PMF09c >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<PMF09v >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<PMF09cv>::VALUE);
+
+        ASSERT(0 == bslmf::IsPointerToMember<PMF10  >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<PMF10c >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<PMF10v >::VALUE);
+        ASSERT(0 == bslmf::IsPointerToMember<PMF10cv>::VALUE);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

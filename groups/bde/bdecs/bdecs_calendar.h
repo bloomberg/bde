@@ -352,9 +352,12 @@ BDES_IDENT("$Id: $")
 #include <bsl_iterator.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
-class bslma_Allocator;
 class bdec_DayOfWeekSet;
 class bdecs_Calendar_BusinessDayConstIter;
 

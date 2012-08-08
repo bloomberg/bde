@@ -13,6 +13,7 @@ BDES_IDENT_RCSID(baetzo_zoneinfobinaryreader_cpp,"$Id$ $CSID$")
 
 #include <bdeut_bigendian.h>
 
+#include <bdeu_chartype.h>
 #include <bdeu_string.h>
 
 #include <bslmf_assert.h>
@@ -86,6 +87,44 @@ BSLMF_ASSERT(8 == sizeof(RawLeapInfo));
 
 }  // close unnamed namespace
 
+static
+bool areAllPrintable(const char *buffer, int length)
+    // Return 'true' if every character in the specified 'buffer' of the
+    // specified 'length' is printable, and 'false' otherwise.
+{
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= length);
+
+    for (int i = 0; i < length; ++i) {
+        if (!bdeu_CharType::isPrint(buffer[i])) {
+            return false;                                             // RETURN
+        }
+    }
+    return true;
+}
+
+static
+void formatHeaderId(bsl::string *formattedHeader,
+                    const char  *buffer,
+                    int          length)
+    // Load the specified 'formattedHeader' with characters from the specified
+    // 'buffer' of the specified 'length' if each of those characters is
+    // printable, and with the hexadecimal representation of those characters
+    // otherwise.
+{
+    BSLS_ASSERT(formattedHeader);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= length);
+
+    if (areAllPrintable(buffer, length)) {
+        formattedHeader->assign(buffer, length);
+    } else {
+        bsl::ostringstream oss;
+        oss << bdeu_PrintStringSingleLineHexDumper(buffer, length);
+        formattedHeader->assign(oss.str());
+    }
+}
+
 static const char *EXPECTED_HEADER_ID = "TZif";
     // The first 4 bytes of a valid Zoneinfo database file.
 
@@ -113,7 +152,7 @@ int readRawArray(bsl::vector<TYPE> *result,
 
 template <typename TYPE>
 static inline
-bool validIndex(const std::vector<TYPE>& vector, int index)
+bool validIndex(const bsl::vector<TYPE>& vector, int index)
     // Return 'true' if the specified 'index' is within the range of valid
     // indices of the specified 'vector', and 'false' otherwise.
 {
@@ -167,7 +206,8 @@ int readHeader(baetzo_ZoneinfoBinaryHeader *result,
     }
 
     if (0 != bsl::memcmp(EXPECTED_HEADER_ID, rawHeader.d_headerId, 4)) {
-        bsl::string headerId(rawHeader.d_headerId, 4);
+        bsl::string headerId;
+        formatHeaderId(&headerId, rawHeader.d_headerId, 4);
         BAEL_LOG_ERROR << "Did not find expected header id.  Expecting "
                        << "'TZif', found '" + headerId + "'"
                        << BAEL_LOG_END;
@@ -348,7 +388,7 @@ int baetzo_ZoneinfoBinaryReader::read(
     // 'zoneinfoResult->localTimeDescriptors()'.
 
     bsl::vector<baetzo_LocalTimeDescriptor> descriptors;
-    for (std::size_t i = 0; i < localTimeDescriptors.size(); ++i) {
+    for (bsl::size_t i = 0; i < localTimeDescriptors.size(); ++i) {
         if (!validIndex(abbreviationBuffer,
                         localTimeDescriptors[i].d_abbreviationIndex)) {
             BAEL_LOG_ERROR << "Invalid abbreviation buffer index "
@@ -403,7 +443,7 @@ int baetzo_ZoneinfoBinaryReader::read(
     // Convert the 'Raw' transitions information into
     // 'zoneinfoResult->transitions()'.
 
-    for (std::size_t i = 0; i < transitions.size(); ++i) {
+    for (bsl::size_t i = 0; i < transitions.size(); ++i) {
         if (!validIndex(descriptors, localTimeIndices[i])) {
             BAEL_LOG_ERROR << "Invalid local-type type index "
                            << (int)localTimeIndices[i]

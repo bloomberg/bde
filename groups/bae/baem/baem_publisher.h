@@ -123,7 +123,7 @@ BDES_IDENT("$Id: baem_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 //          // Create this event manager using the specified 'messageSizeId'
 //          // to identify the event message size metric.
 //      : d_eventMessageSize(messageSizeId)
-//      , d_lastPublish(bdetu_SystemTime::nowAsDatetimeGMT(), 0)
+//      , d_lastPublish(bdetu_SystemTime::nowAsDatetimeUTC(), 0)
 //      {}
 //
 //      // MANIPULATORS
@@ -146,9 +146,9 @@ BDES_IDENT("$Id: baem_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 //..
 //      void publishMetrics(baem_Publisher *publisher)
 //      {
-//          bdet_DatetimeTz now(bdetu_SystemTime::nowAsDatetimeGMT(), 0);
-//          bdet_DatetimeInterval dateInterval = now.gmtDatetime() -
-//                                               d_lastPublish.gmtDatetime();
+//          bdet_DatetimeTz now(bdetu_SystemTime::nowAsDatetimeUTC(), 0);
+//          bdet_DatetimeInterval dateInterval = now.utcDatetime() -
+//                                               d_lastPublish.utcDatetime();
 //          bdet_TimeInterval interval(dateInterval.totalSeconds(),
 //                                     dateInterval.milliseconds());
 //

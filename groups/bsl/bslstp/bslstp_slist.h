@@ -198,7 +198,7 @@ protected:
     _Node* __next = (_Node*) (__pos->_M_next);
     _Slist_node_base* __next_next = __next->_M_next;
     __pos->_M_next = __next_next;
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
                                          BSLS_UTIL_ADDRESSOF(__next->_M_data));
     _M_head.deallocate(__next,1);
     return __next_next;
@@ -232,7 +232,7 @@ private:
       {
           // MODIFIED BY ARTHUR
           //_STLP_STD::swap(v1._M_head._M_data, v2._M_head._M_data);
-          typedef BloombergLP::bslalg_ScalarPrimitives primitive;
+          typedef BloombergLP::bslalg::ScalarPrimitives primitive;
           primitive::swap(v1._M_head._M_data, v2._M_head._M_data);
       }
   };
@@ -261,7 +261,7 @@ private:
   _Node* _M_create_node(const value_type& __x = _Tp()) {
     _Node* __node = this->_M_head.allocate(1);
     BSLS_TRY {
-      typedef BloombergLP::bslalg_ScalarPrimitives primitive;
+      typedef BloombergLP::bslalg::ScalarPrimitives primitive;
       primitive::copyConstruct(BSLS_UTIL_ADDRESSOF(__node->_M_data),
                                __x,
                                this->get_allocator().mechanism());
@@ -294,7 +294,7 @@ public:
   { _M_insert_after_range(&this->_M_head._M_data, __first, __last); }
 
   slist(const _Self& __x)
-  : _Slist_base<_Tp, _Alloc>(BloombergLP::bslstl_Util::copyContainerAllocator(__x.get_allocator()))
+  : _Slist_base<_Tp, _Alloc>(BloombergLP::bslstl::Util::copyContainerAllocator(__x.get_allocator()))
     { insert(begin(), __x.begin(), __x.end()); }
 
   // Copy-construct with alternative allocator.
@@ -332,19 +332,19 @@ public:
     // MODIFIED BY ARTHUR
     // typedef typename _Is_integer<_InputIterator>::_Integral _Integral;
 
-    enum { VALUE = BloombergLP::bslmf_IsFundamental<_InputIterator>::VALUE };
-    _M_assign_dispatch(__first, __last, (BloombergLP::bslmf_MetaInt<VALUE> *)0);
+    enum { VALUE = BloombergLP::bslmf::IsFundamental<_InputIterator>::VALUE };
+    _M_assign_dispatch(__first, __last, (BloombergLP::bslmf::MetaInt<VALUE> *)0);
 
   }
 
   template <class _Integer>
-  void _M_assign_dispatch(_Integer __n, _Integer __val, BloombergLP::bslmf_MetaInt<1> *)
+  void _M_assign_dispatch(_Integer __n, _Integer __val, BloombergLP::bslmf::MetaInt<1> *)
     { _M_fill_assign((size_type) __n, (_Tp) __val); }
 
   template <class _InputIter>
   void
   _M_assign_dispatch(_InputIter __first, _InputIter __last,
-                     BloombergLP::bslmf_MetaInt<0> *) {
+                     BloombergLP::bslmf::MetaInt<0> *) {
     _Node_base* __prev = &this->_M_head._M_data;
     _Node* __node = (_Node*) this->_M_head._M_data._M_next;
     while (__node != 0 && __first != __last) {
@@ -386,7 +386,7 @@ public:
   bool empty() const { return this->_M_head._M_data._M_next == 0; }
 
   void swap(_Self& __x) {
-    BloombergLP::bslstl_Util::swapContainers(*this, __x, QuickSwap());
+    BloombergLP::bslstl::Util::swapContainers(*this, __x, QuickSwap());
   }
 
 public:
@@ -400,7 +400,7 @@ public:
   void pop_front() {
     _Node* __node = (_Node*) this->_M_head._M_data._M_next;
     this->_M_head._M_data._M_next = __node->_M_next;
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
                                          BSLS_UTIL_ADDRESSOF(__node->_M_data));
     this->_M_head.deallocate(__node, 1);
   }
@@ -418,7 +418,7 @@ private:
   }
 
 
-  void _M_insert_after_fill(_Node_base* __pos,
+  void _M_insert_after_fill(_Node_base *__pos,
                             size_type __n, const value_type& __x) {
     for (size_type __i = 0; __i < __n; ++__i)
       __pos = __slist_make_link(__pos, _M_create_node(__x));
@@ -426,24 +426,24 @@ private:
 
   // Check whether it's an integral type.  If so, it's not an iterator.
   template <class _InIter>
-  void _M_insert_after_range(_Node_base* __pos,
+  void _M_insert_after_range(_Node_base *__pos,
                              _InIter __first, _InIter __last) {
     // MODIFIED BY ARTHUR
     // typedef typename _Is_integer<_InIter>::_Integral _Integral;
-    enum { VALUE = BloombergLP::bslmf_IsFundamental<_InIter>::VALUE };
-    _M_insert_after_range(__pos, __first, __last, (BloombergLP::bslmf_MetaInt<VALUE> *) 0);
+    enum { VALUE = BloombergLP::bslmf::IsFundamental<_InIter>::VALUE };
+    _M_insert_after_range(__pos, __first, __last, (BloombergLP::bslmf::MetaInt<VALUE> *) 0);
   }
 
   template <class _Integer>
   void _M_insert_after_range(_Node_base* __pos, _Integer __n, _Integer __x,
-                             BloombergLP::bslmf_MetaInt<1> *) {
+                             BloombergLP::bslmf::MetaInt<1> *) {
     _M_insert_after_fill(__pos, __n, __x);
   }
 
   template <class _InIter>
-  void _M_insert_after_range(_Node_base* __pos,
+  void _M_insert_after_range(_Node_base *__pos,
                              _InIter __first, _InIter __last,
-                             BloombergLP::bslmf_MetaInt<0> *) {
+                             BloombergLP::bslmf::MetaInt<0> *) {
     while (__first != __last) {
       __pos = __slist_make_link(__pos, _M_create_node(*__first));
       ++__first;
@@ -471,8 +471,9 @@ public:
 
 
   iterator insert(iterator __pos, const value_type& __x = _Tp()) {
-    return iterator(_M_insert_after(_Sl_global_inst::__previous(&this->_M_head._M_data, __pos._M_node),
-                    __x));
+    return iterator(_M_insert_after(
+            _Sl_global_inst::__previous(&this->_M_head._M_data, __pos._M_node),
+            __x));
   }
 
 
@@ -484,8 +485,9 @@ public:
   // already does them.
   template <class _InIter>
   void insert(iterator __pos, _InIter __first, _InIter __last) {
-    _M_insert_after_range(_Sl_global_inst::__previous(&this->_M_head._M_data, __pos._M_node),
-                          __first, __last);
+    _M_insert_after_range(
+            _Sl_global_inst::__previous(&this->_M_head._M_data, __pos._M_node),
+            __first, __last);
   }
 
 
@@ -496,12 +498,13 @@ public:
   }
   iterator erase_after(iterator __before_first, iterator __last) {
     return iterator((_Node*) this->_M_erase_after(__before_first._M_node,
-                                            __last._M_node));
+                                                  __last._M_node));
   }
 
   iterator erase(iterator __pos) {
-    return iterator((_Node*) this->_M_erase_after(_Sl_global_inst::__previous(&this->_M_head._M_data,
-                                                    __pos._M_node)));
+    return iterator((_Node*) this->_M_erase_after(_Sl_global_inst::__previous(
+                                                        &this->_M_head._M_data,
+                                                        __pos._M_node)));
   }
   iterator erase(iterator __first, iterator __last) {
     return iterator((_Node*) this->_M_erase_after(
@@ -522,7 +525,7 @@ public:
   {
     if (__before_first != __before_last) {
       _Sl_global_inst::__splice_after(__pos._M_node, __before_first._M_node,
-                           __before_last._M_node);
+                                      __before_last._M_node);
     }
   }
 
@@ -531,7 +534,7 @@ public:
   void splice_after(iterator __pos, iterator __prev)
   {
     _Sl_global_inst::__splice_after(__pos._M_node,
-                         __prev._M_node, __prev._M_node->_M_next);
+                                    __prev._M_node, __prev._M_node->_M_next);
   }
 
   // Removes all of the elements from the list __x to *this, inserting
@@ -551,9 +554,10 @@ public:
 
   // Linear in distance(begin(), __pos), and in distance(__x.begin(), __i).
   void splice(iterator __pos, _Self& __x, iterator __i) {
-    _Sl_global_inst::__splice_after(_Sl_global_inst::__previous(&this->_M_head._M_data, __pos._M_node),
-                         _Sl_global_inst::__previous(&__x._M_head._M_data, __i._M_node),
-                         __i._M_node);
+    _Sl_global_inst::__splice_after(
+            _Sl_global_inst::__previous(&this->_M_head._M_data, __pos._M_node),
+            _Sl_global_inst::__previous(&__x._M_head._M_data, __i._M_node),
+            __i._M_node);
   }
 
   // Linear in distance(begin(), __pos), in distance(__x.begin(), __first),
@@ -562,8 +566,8 @@ public:
   {
     if (__first != __last)
       _Sl_global_inst::__splice_after(_Sl_global_inst::__previous(&this->_M_head._M_data, __pos._M_node),
-                           _Sl_global_inst::__previous(&__x._M_head._M_data, __first._M_node),
-                           _Sl_global_inst::__previous(__first._M_node, __last._M_node));
+            _Sl_global_inst::__previous(&__x._M_head._M_data, __first._M_node),
+                 _Sl_global_inst::__previous(__first._M_node, __last._M_node));
   }
 
 public:
@@ -625,16 +629,16 @@ public:
 
       // Create an array of 64 '_Self' objects.  Since we cannot pass
       // constructor arguments to array element constructors, we instead use
-      // an array of raw memory objects ('bsls_ObjectBuffer') and initialize
+      // an array of raw memory objects ('bsls::ObjectBuffer') and initialize
       // them with the desired allocator as a separate step.  After
       // initialization, we ensure that destructors are called by creating an
       // auto-destructor object.
-      BloombergLP::bsls_ObjectBuffer<_Self> __counterBuffers[64];
+      BloombergLP::bsls::ObjectBuffer<_Self> __counterBuffers[64];
       _Self* __counter = &__counterBuffers[0].object();
-      BloombergLP::bslalg_ArrayPrimitives::uninitializedFillN(
-          __counter, 64, __carry,
-          this->_M_head.bslmaAllocator());
-      BloombergLP::bslma_AutoDestructor<_Self> __counterGuard(__counter, 64);
+      BloombergLP::bslalg::ArrayPrimitives::uninitializedFillN(
+                                               __counter, 64, __carry,
+                                               this->_M_head.bslmaAllocator());
+      BloombergLP::bslma::AutoDestructor<_Self> __counterGuard(__counter, 64);
 
       int __fill = 0;
       while (!empty()) {
@@ -757,7 +761,7 @@ _Slist_base<_Tp,_Alloc>::_M_erase_after(_Slist_node_base* __before_first,
   while (__cur != __last_node) {
     _Slist_node<_Tp>* __tmp = __cur;
     __cur = (_Slist_node<_Tp>*) __cur->_M_next;
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
                                           BSLS_UTIL_ADDRESSOF(__tmp->_M_data));
     _M_head.deallocate(__tmp,1);
   }
@@ -782,7 +786,7 @@ slist<_Tp,_Alloc>& slist<_Tp,_Alloc>::operator=(const slist<_Tp,_Alloc>& __x)
       this->_M_erase_after(__p1, 0);
     else
       _M_insert_after_range(__p1, const_iterator(const_cast<_Node*>(__n2)),
-                                  const_iterator(0));
+                            const_iterator(0));
   }
   return *this;
 }
@@ -868,16 +872,16 @@ void slist<_Tp,_Alloc>::sort()
 
     // Create an array of 64 '_Self' objects.  Since we cannot pass
     // constructor arguments to array element constructors, we instead use
-    // an array of raw memory objects ('bsls_ObjectBuffer') and initialize
+    // an array of raw memory objects ('bsls::ObjectBuffer') and initialize
     // them with the desired allocator as a separate step.  After
     // initialization, we ensure that destructors are called by creating an
     // auto-destructor object.
-    BloombergLP::bsls_ObjectBuffer<_Self> __counterBuffers[64];
+    BloombergLP::bsls::ObjectBuffer<_Self> __counterBuffers[64];
     _Self* __counter = &__counterBuffers[0].object();
-    BloombergLP::bslalg_ArrayPrimitives::uninitializedFillN(
-        __counter, 64, __carry,
-        this->_M_head.bslmaAllocator());
-    BloombergLP::bslma_AutoDestructor<_Self> __counterGuard(__counter, 64);
+    BloombergLP::bslalg::ArrayPrimitives::uninitializedFillN(
+                                               __counter, 64, __carry,
+                                               this->_M_head.bslmaAllocator());
+    BloombergLP::bslma::AutoDestructor<_Self> __counterGuard(__counter, 64);
 
     int __fill = 0;
     while (!empty()) {
@@ -923,6 +927,7 @@ void slist<_Tp,_Alloc>::sort()
 #endif
 
 namespace std {
+
 // Specialization of insert_iterator so that insertions will be constant
 // time rather than linear time.
 

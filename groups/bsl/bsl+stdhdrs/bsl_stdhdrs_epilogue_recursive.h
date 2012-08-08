@@ -55,23 +55,9 @@
 # endif
 #endif
 
-#ifdef BSL_INCLUDE_BSL_MAP
-# ifndef INCLUDED_BSLSTP_MAP
-#   include <bslstp_map.h>
-#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
-# endif
-#endif
-
 #ifdef BSL_INCLUDE_BSL_QUEUE
 # ifndef INCLUDED_BSLSTP_QUEUE
 #   include <bslstp_queue.h>
-#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
-# endif
-#endif
-
-#ifdef BSL_INCLUDE_BSL_SET
-# ifndef INCLUDED_BSLSTP_SET
-#   include <bslstp_set.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
@@ -152,6 +138,28 @@
 # endif
 #endif
 
+#ifdef BSL_INCLUDE_BSL_MAP
+# ifndef INCLUDED_BSLSTL_MAP
+#   include <bslstl_map.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_MULTIMAP
+#   include <bslstl_multimap.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
+#ifdef BSL_INCLUDE_BSL_SET
+# ifndef INCLUDED_BSLSTL_SET
+#   include <bslstl_set.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_MULTISET
+#   include <bslstl_multiset.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
 // The following include provides backwards compatibility for Bloomberg-managed
 // code that requires 'stdexcept' to include 'string'.  It is placed here
 // because placing it directly in 'bsl_stdexcept.h' breaks the delicate include
@@ -210,6 +218,10 @@
 #ifdef INCLUDED_NATIVE_FUNCTIONAL
 # ifndef INCLUDED_BSLSTL_EXFUNCTIONAL
 #   include <bslstl_exfunctional.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_HASH
+#   include <bslstl_hash.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif

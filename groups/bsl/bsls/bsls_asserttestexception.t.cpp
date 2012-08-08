@@ -14,7 +14,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bsls_AssertTestException' is a simple mechanism that communicates a set of
+// 'bsls::AssertTestException' is a simple mechanism that communicates a set of
 // values from the point where is created to the place where it is consumed.
 // The intended use-case is for this CopyConstructible mechanism to be thrown
 // as an exception, so that the attributes can be queried in an exception-
@@ -26,9 +26,9 @@ using namespace std;
 // effect on the system.
 //
 //-----------------------------------------------------------------------------
-// [2] bsls_AssertTestException(const char *, const char *, int);
-// [3] bsls_AssertTestException(const bsls_AssertTestException& other);
-// [2] ~bsls_AssertTestException();
+// [2] bsls::AssertTestException(const char *, const char *, int);
+// [3] bsls::AssertTestException(const bsls::AssertTestException& other);
+// [2] ~bsls::AssertTestException();
 // [2] const char *expression() const;
 // [2] const char *filename() const;
 // [2] int lineNumber() const;
@@ -109,6 +109,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 4: {
+#if defined BDE_BUILD_TARGET_EXC
         // --------------------------------------------------------------------
         // Test usage example
         //
@@ -124,13 +125,13 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 // First we write a macro to act as an 'assert' facility which will throw an
-// exception of type 'bsls_AssertTestException' if the asserted expression
+// exception of type 'bsls::AssertTestException' if the asserted expression
 // fails.  The thrown exception will capture the source-code of the expression,
 // the filename and line number of the failing expression.
 //..
 #define TEST_ASSERT(EXPRESSION)                                               \
     if(!(EXPRESSION)) {                                                       \
-        throw bsls_AssertTestException( #EXPRESSION, __FILE__, __LINE__ ); \
+        throw bsls::AssertTestException( #EXPRESSION, __FILE__, __LINE__ );   \
     }
 //..
 // Next we use the macro inside a try-block, so that we can catch the exception
@@ -144,19 +145,24 @@ int main(int argc, char *argv[])
 // If the assertion fails, catch the exception and confirm that it correctly
 // recorded the context of where the assertion failed.
 //..
-    catch(const bsls_AssertTestException& ex) {
+    catch(const bsls::AssertTestException& ex) {
         ASSERT( 0 == strcmp("0 != p", ex.expression()));
         ASSERT( 0 == strcmp(__FILE__, ex.filename()));
         ASSERT( 9 == __LINE__ - ex.lineNumber());
     }
 //..
-        } break;
+#else
+        if (verbose)
+            cout << "\nUsage example disabled without exception support."
+                 << endl;
+#endif
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // Test copy constructor
         //
         // Concerns:
-        //   That a copy of a 'bsls_AssertTestException' object might not have
+        //   That a copy of a 'bsls::AssertTestException' object might not have
         //   the same value for each attribute as the original object.  That
         //   the source object might be altered by the act of making a copy.
         //
@@ -167,7 +173,7 @@ int main(int argc, char *argv[])
         //   attributes of 'x' still have the initially supplied values.
         //
         // Testing:
-        //   bsls_AssertTestException(const bsls_AssertTestException&);
+        //   bsls::AssertTestException(const bsls::AssertTestException&);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -176,20 +182,20 @@ int main(int argc, char *argv[])
         const char *filename = "filename string";
 
         if (verbose) cout << "\nCreate test object 'x'." << endl;
-        const bsls_AssertTestException x(expression, filename, 42);
+        const bsls::AssertTestException x(expression, filename, 42);
 
         if (verbose) cout << "\nCreate test object 'y', a copy of 'x'."
                           << endl;
-        const bsls_AssertTestException y = x;
+        const bsls::AssertTestException y = x;
 
         if (veryVerbose)
             cout << "\nConfirm 'y' has the same attribute values as 'x'."
                  << endl;
         LOOP2_ASSERT(x.expression(), y.expression(),
-                                             x.expression() == y.expression());
+                     x.expression() == y.expression());
         LOOP2_ASSERT(x.filename(), y.filename(), x.filename() == y.filename());
         LOOP2_ASSERT(x.lineNumber(), y.lineNumber(),
-                                             x.lineNumber() == y.lineNumber());
+                     x.lineNumber() == y.lineNumber());
 
         if (verbose) cout << "\nConfirm that 'x' has not changed." << endl;
         LOOP2_ASSERT(expression, x.expression(), expression == x.expression());
@@ -201,7 +207,7 @@ int main(int argc, char *argv[])
         // Test Value constructor and primary inspectors
         //
         // Concerns:
-        //   That a 'bsls_AssertTestException' object can be created with
+        //   That a 'bsls::AssertTestException' object can be created with
         //   attributes have in the same values passed to the constructor.
         //   That the object's attributes can be queried, whether the object
         //   is 'const' or not.  That the queried attributes have the values
@@ -209,7 +215,7 @@ int main(int argc, char *argv[])
         //   destroyed without affecting the strings referenced by pointer.
         //
         // Plan:
-        //   Construct an object 'x' of type 'bsls_AssertTestException', and
+        //   Construct an object 'x' of type 'bsls::AssertTestException', and
         //   confirm each attribute has the respective value passed to the
         //   constructor.  Allow 'x' to be destroyed, and confirm the strings
         //   passed to the constructor can still be reached and have the same
@@ -220,8 +226,8 @@ int main(int argc, char *argv[])
         //   constructing 'x'.
         //
         // Testing:
-        //   bsls_AssertTestException(const char *, const char *, int);
-        //   ~bsls_AssertTestException();
+        //   bsls::AssertTestException(const char *, const char *, int);
+        //   ~bsls::AssertTestException();
         //   const char *expression() const;
         //   const char *filename() const;
         //   int lineNumber() const;
@@ -237,7 +243,7 @@ int main(int argc, char *argv[])
 
         {
             if (verbose) cout << "\nCreate test object 'x'." << endl;
-            bsls_AssertTestException x(exprX, fileX, 13);
+            bsls::AssertTestException x(exprX, fileX, 13);
 
             if (verbose) cout << "\nVerify atttributes of 'x'." << endl;
             LOOP2_ASSERT(exprX, x.expression(), exprX == x.expression());
@@ -254,7 +260,7 @@ int main(int argc, char *argv[])
 
         {
             if (verbose) cout << "\nCreate second test object 'y'." << endl;
-            bsls_AssertTestException y(exprY, fileY, 8);
+            bsls::AssertTestException y(exprY, fileY, 8);
 
             if (verbose) cout << "\nVerify atttributes of 'y'." << endl;
             LOOP2_ASSERT(exprY, y.expression(), exprY == y.expression());
@@ -299,27 +305,31 @@ int main(int argc, char *argv[])
         const char *filename = "filename string";
 
         if (verbose) cout << "\nCreate test object x." << endl;
-        const bsls_AssertTestException x(expression, filename, 42);
+        const bsls::AssertTestException x(expression, filename, 42);
         // Note that the first two tests are intentionally pointer-value
         // comparisons and not string comparisons.
         LOOP2_ASSERT(expression, x.expression(), expression == x.expression());
         LOOP2_ASSERT(filename, x.filename(), filename == x.filename());
         LOOP_ASSERT(x.lineNumber(), 42 == x.lineNumber());
 
+#if defined(BDE_BUILD_TARGET_EXC)
+        // This class is created for the express purpose of throwing as an
+        // exception, but this cannot be tested unless exceptions are enabled.
         if (verbose) cout << "\nThrow and catch a copy of x." << endl;
         try {
             throw x;
         }
-        catch(bsls_AssertTestException y) {  // catch by value, worst case
-                                             // scenario
+        catch(bsls::AssertTestException y) {  // catch by value, worst case
+                                              // scenario
             if (veryVerbose) cout << "\n\tCaught y, a copy of x." << endl;
             LOOP2_ASSERT(x.expression(), y.expression(),
-                                             x.expression() == y.expression());
+                         x.expression() == y.expression());
             LOOP2_ASSERT(x.filename(), y.filename(),
-                                                 x.filename() == y.filename());
+                         x.filename() == y.filename());
             LOOP2_ASSERT(x.lineNumber(), y.lineNumber(),
-                                             x.lineNumber() == y.lineNumber());
+                         x.lineNumber() == y.lineNumber());
         }
+#endif
 
         if (verbose) cout << "\nConfirm that x has not changed." << endl;
         LOOP2_ASSERT(expression, x.expression(), expression == x.expression());

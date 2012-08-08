@@ -99,6 +99,7 @@ bool isLittleEndian()
 // [ 1] For the OS, type ensure MAJOR_NUMBER set -> SUBTYPE set.
 // [ 2] BSLS_PLATFORM__IS_LITTLE_ENDIAN
 // [ 2] BSLS_PLATFORM__IS_BIG_ENDIAN
+// [ 3] BSLS_PLATFORM__NO_64_BIT_LITERALS
 // ============================================================================
 
 int main(int argc, char *argv[])
@@ -113,19 +114,19 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 64-BIT CONSTANTS:
+        // TESTING 64-BIT LITERALS:
         //
         // Concerns:
         //   Since the actual flag indicates the lack of support for
-        //   64-bit integer constants, the only way to test the flag is
+        //   64-bit integer literals, the only way to test the flag is
         //   for the compiler to fail.  Therefore the test will check for
-        //   the absence of the flag and attempt to assign 64-bit constants
+        //   the absence of the flag and attempt to assign 64-bit literals
         //   to a variable, ensuring the compile-time macro for support of
-        //   64-bit integer constants agrees with the capability of the
+        //   64-bit integer literals agrees with the capability of the
         //   compiler.
         //
         // Plan:
-        //   - Assign both signed and unsigned 64-bit integer constants
+        //   - Assign both signed and unsigned 64-bit integer literals
         //     to variables of each type.
         //   - Verify that the compiler does not truncate the assignment or
         //     the constant by splitting the constant into 2 32-bit constants
@@ -137,14 +138,14 @@ int main(int argc, char *argv[])
         //     and shifting the 64-bit value with the 32-bit lo and hi words.
         //
         // Testing:
-        //   BSLS_PLATFORM__NO_64_BIT_CONSTANT
+        //   BSLS_PLATFORM__NO_64_BIT_LITERALS
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "Testing 64-Bit Integer Constant Support" << endl
                           << "=======================================" << endl;
 
-#if defined(BSLS_PLATFORM__NO_64_BIT_CONSTANTS)
+#if defined(BSLS_PLATFORM__NO_64_BIT_LITERALS)
         if (veryVerbose) cout << "No 64-bit integer constants."        << endl;
 #else
         if (veryVerbose) cout << "64-bit integer constants supported." << endl;
@@ -259,8 +260,8 @@ int main(int argc, char *argv[])
         // section of this component's header file.
 
         struct OsCpu {
-            bsls_Platform::Os  osType;
-            bsls_Platform::Cpu cpuType;
+            bsls::Platform::Os  osType;
+            bsls::Platform::Cpu cpuType;
         };
 
         if (veryVerbose) {

@@ -66,7 +66,7 @@ BDES_IDENT("$Id: $")
 // attempts to establish a connection fail, then a pool state callback
 // (see configuration) is invoked.  Once initiated, a connect request can
 // lead to only two outcomes -- success or failure.  In particular, it can't
-// be cancelled.
+// be canceled.
 //
 ///Half-open connections
 ///---------------------
@@ -176,6 +176,32 @@ BDES_IDENT("$Id: $")
 // but not thread-enabled and requires explicit synchronization in the user
 // space.  A user-defined callback can be invoked from *any* (managed) thread
 // and the user must account for that.
+//
+///Invocation of high and low watermark callbacks
+///----------------------------------------------
+// When constructing a channel pool object, users can specify, via the
+// 'setWriteCacheWatermarks' function of 'btemt_ChannelPoolConfiguration', the
+// maximum data size (high-watermark) that can be enqueued for writing on a
+// channel.  If the write cache size exceeds this high-watermark value then
+// 'write' calls on that channel will fail.  This information is also
+// communicated by providing a 'BTEMT_WRITE_CACHE_HIWAT' alert to the client
+// via the channel state callback.  Note that 'write' calls can also fail if
+// the write cache size exceeds the optionally specified 'enqueueWatermark'
+// argument provided to 'write', but a 'BTEMT_WRITE_CACHE_HIWAT' alert is not
+// provided in this scenario.
+//
+// In addition to the high-watermark, users can also specify a low-watermark,
+// again via the 'setWriteCacheWatermarks' function of
+// 'btemt_ChannelPoolConfiguration'.  After a write fails because the write
+// cache size would be exceeded, the channel pool will later provide a
+// 'BTEMT_WRITE_CACHE_LOWWAT' alert to the client via the channel state
+// callback when the write cache size falls below the low-watermark.
+// Typically, clients will suspend writing to a channel if the write cache
+// exceeds the high-watermark or the optionally provided 'enqueueWaterk', and
+// then resume writing after they receive the low-watermark event.  Note that
+// a 'BTEMT_WRITE_CACHE_LOWWAT' alert is also provided if the write cache size
+// exceeds the optionally specified 'enqueueWatermark' argument provided to
+// 'write'.
 //
 ///Usage
 ///-----
@@ -1514,6 +1540,31 @@ class btemt_ChannelPool {
         // configured (for all channels) by the
         // 'btemt_ChannelPoolConfiguration' supplied at construction.
 
+    int setWriteCacheLowWatermark(int channelId, int numBytes);
+        // Set the write-cache low-watermark for the specified 'channelId' to
+        // the specified 'numBytes'; return 0 on success, or a non-zero value
+        // if either 'channelId' does not exist or 'numBytes' is less than the
+        // low watermark for the write cache.  The behavior is undefined unless
+        // '0 <= numBytes'.  Note that this method overrides the default value
+        // configured (for all channels) by the
+        // 'btemt_ChannelPoolConfiguration' supplied at construction.  This
+        // channel pool maintains an internal cache of outgoing data for each
+        // channel, and data written to a channel is added to this cache until
+        // the associated socket can be written-to without blocking.  Once the
+        // write-cache high-watermark is reached, this channel pool will no
+        // longer accept messages for the channel until additional space
+        // becomes available.  After the data is written to the socket and the
+        // cache size falls below the low-watermark then a
+        // 'BTEMT_WRITE_CACHE_LOWWAT' alert is provided to the client via the
+        // channel state callback to suggest that further writing can resume.
+
+    int resetRecordedMaxWriteCacheSize(int channelId);
+        // Reset the recorded max write cache size for the specified
+        // 'channelId' to the current write cache size.  Return 0 on success,
+        // or a non-zero value if 'channelId' does not exist.  Note that this
+        // function resets the recorded max write cache size and does not
+        // change the write cache high watermark for 'channelId'.
+
                                   // *** Thread management ***
 
     int start();
@@ -1737,6 +1788,18 @@ class btemt_ChannelPool {
         // Load into the specified 'numRead', 'numRequestedToBeWritten' and
         // 'numWritten' respectively the number of bytes read, requested to
         // be written and written by the channel identified by the specified
+        // 'channelId' and return 0 if the specified 'channelId' is a valid
+        // channel id.  Otherwise, return a non-zero value.  Note that for
+        // performance reasons this *sequence* is not captured atomically: by
+        // the time one of the values is captured, another may already have
+        // changed.
+
+    int getChannelWriteCacheStatistics(int *recordedMaxWriteCacheSize,
+                                       int *currentWriteCacheSize,
+                                       int  channelId) const;
+        // Load into the specified 'recordedMaxWriteCacheSize' and
+        // 'currentWriteCacheSize' the maximum and current size respectively of
+        // the write cache of the channel identified by the specified
         // 'channelId' and return 0 if the specified 'channelId' is a valid
         // channel id.  Otherwise, return a non-zero value.  Note that for
         // performance reasons this *sequence* is not captured atomically: by

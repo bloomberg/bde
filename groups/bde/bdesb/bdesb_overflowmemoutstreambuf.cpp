@@ -5,6 +5,7 @@
 #include <bslma_default.h>
 #include <bsls_assert.h>
 
+#include <bsl_cstdio.h>
 #include <bsl_cstring.h>
 #include <bsl_locale.h>
 

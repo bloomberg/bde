@@ -1,4 +1,4 @@
-// bslma_destructorproctor.t.cpp  -*-C++-*-
+// bslma_destructorproctor.t.cpp                                      -*-C++-*-
 
 #include <bslma_destructorproctor.h>
 
@@ -23,14 +23,14 @@ using namespace std;
 // objects if release is not called before the proctor object goes out of
 // scope.  We achieve this goal by creating objects of a user-defined type that
 // are each initialized with the address of a unique counter, using a
-// 'bslma_TestAllocator'.  As each object is destroyed, its destructor
+// 'bslma::TestAllocator'.  As each object is destroyed, its destructor
 // increments the counter held by the object, indicating the number of times
 // the object's destructor is called.  After the proctor is destroyed, we
 // verify that the corresponding counters of the object managed by the proctor
 // are modified.
 //-----------------------------------------------------------------------------
-// [3] bslma_DestructorProctor<ALLOCATOR>(object);
-// [3] ~bslma_DestructorProctor<ALLOCATOR>();
+// [3] bslma::DestructorProctor<ALLOCATOR>(object);
+// [3] ~bslma::DestructorProctor<ALLOCATOR>();
 // [4] void release();
 // [5] void reset(object);
 //-----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ class my_Class {
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// The 'bslma_DestructorProctor' is normally used to manage objects that are
+// The 'bslma::DestructorProctor' is normally used to manage objects that are
 // constructed sequentially in a block of provided memory.  This is often the
 // case when memory management and primitive helpers are implemented in
 // different components.  An example would be the construction of a pair object
@@ -132,7 +132,7 @@ class my_Class {
 // bslalg_scalarprimitives).  After the first object is constructed in the
 // provided memory, it should be protected in case the constructor of the
 // second object throws.  The following example illustrates a typical use of
-// the 'bslma_DestructorProctor'.
+// the 'bslma::DestructorProctor'.
 //
 // First, suppose we have a pair class:
 //..
@@ -155,23 +155,23 @@ class my_Pair {
     TYPE2            second;         // second object
 
     // DATA
-    bslma_Allocator *d_allocator_p;  // allocator (held, not owned)
+    bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 
     // Declare trait 'my_PairTrait'.
     // ...
 
   public:
     // CREATORS
-    my_Pair(const TYPE1&     iFirst,
-            const TYPE2&     iSecond,
-            bslma_Allocator *basic_Allocator = 0)
+    my_Pair(const TYPE1&      iFirst,
+            const TYPE2&      iSecond,
+            bslma::Allocator *basic_Allocator = 0)
         // Create a 'my_Pair' object that holds a copy of the specified
         // 'iFirst' and 'iSecond'.  Optionally specify 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is zero,  the global default
         // allocator will be used to supply memory.
     : first(iFirst)
     , second(iSecond)
-    , d_allocator_p(bslma_Default::allocator(basic_Allocator))
+    , d_allocator_p(bslma::Default::allocator(basic_Allocator))
     {
     }
 
@@ -210,28 +210,28 @@ struct my_Primitives {
   public:
     // CLASS METHODS
     template <class TYPE>
-    static void copyConstruct(TYPE            *address,
-                              const TYPE&      original,
-                              bslma_Allocator *basicAllocator);
+    static void copyConstruct(TYPE             *address,
+                              const TYPE&       original,
+                              bslma::Allocator *basicAllocator);
         // Copy construct the specified 'original' into the specified
         // 'address' using the specified 'basicAllocator' (if the
         // copy constructor of 'TYPE' takes an allocator).
 
     template <class TYPE>
-    static void copyConstruct(TYPE            *address,
-                              const TYPE&      original,
-                              bslma_Allocator *basicAllocator,
-                              bslmf_MetaInt<PAIR_TRAIT> *);
+    static void copyConstruct(TYPE                       *address,
+                              const TYPE&                 original,
+                              bslma::Allocator           *basicAllocator,
+                              bslmf::MetaInt<PAIR_TRAIT> *);
         // Copy construct the specified 'original' into the specified
         // 'address' using the specified 'basicAllocator' (if the
         // copy constructor of 'TYPE' takes an allocator).  Note that
         // the last parameter is only used for overload resolution.
 
     template <class TYPE>
-    static void copyConstruct(TYPE            *address,
-                              const TYPE&      original,
-                              bslma_Allocator *basicAllocator,
-                              bslmf_MetaInt<NIL_TRAIT> *);
+    static void copyConstruct(TYPE                      *address,
+                              const TYPE&                original,
+                              bslma::Allocator          *basicAllocator,
+                              bslmf::MetaInt<NIL_TRAIT> *);
         // Copy construct the specified 'original' into the specified
         // 'address' using the specified 'basicAllocator' (if the
         // copy constructor of 'TYPE' takes an allocator).  Note that
@@ -240,22 +240,22 @@ struct my_Primitives {
 
 template <class TYPE>
 inline
-void my_Primitives::copyConstruct(TYPE            *address,
-                                  const TYPE&      original,
-                                  bslma_Allocator *basicAllocator)
+void my_Primitives::copyConstruct(TYPE             *address,
+                                  const TYPE&       original,
+                                  bslma::Allocator *basicAllocator)
 {
     copyConstruct(address,
                   original,
                   basicAllocator,
-                  (bslmf_MetaInt<my_HasPairTrait<TYPE>::VALUE> *)0);
+                  (bslmf::MetaInt<my_HasPairTrait<TYPE>::VALUE> *)0);
 }
 
 template <class TYPE>
 inline
-void my_Primitives::copyConstruct(TYPE            *address,
-                                  const TYPE&      original,
-                                  bslma_Allocator *basicAllocator,
-                                  bslmf_MetaInt<PAIR_TRAIT> *)
+void my_Primitives::copyConstruct(TYPE                       *address,
+                                  const TYPE&                 original,
+                                  bslma::Allocator           *basicAllocator,
+                                  bslmf::MetaInt<PAIR_TRAIT> *)
 {
     copyConstruct(&address->first, original.first, basicAllocator);
 
@@ -263,8 +263,8 @@ void my_Primitives::copyConstruct(TYPE            *address,
     // Note the use of the destructor proctor (below). *
     //**************************************************
 
-    bslma_DestructorProctor<typename TYPE::firstType> proctor(
-                                                          &address->first);
+    bslma::DestructorProctor<typename TYPE::firstType> proctor(
+                                                              &address->first);
 
     copyConstruct(&address->second, original.second, basicAllocator);
 
@@ -277,10 +277,10 @@ void my_Primitives::copyConstruct(TYPE            *address,
 
 template <class TYPE>
 inline
-void my_Primitives::copyConstruct(TYPE            *address,
-                                  const TYPE&      original,
-                                  bslma_Allocator *basicAllocator,
-                                  bslmf_MetaInt<NIL_TRAIT> *)
+void my_Primitives::copyConstruct(TYPE                      *address,
+                                  const TYPE&                original,
+                                  bslma::Allocator          *basicAllocator,
+                                  bslmf::MetaInt<NIL_TRAIT> *)
 {
     new(address)TYPE(original, basicAllocator);
 }
@@ -292,7 +292,7 @@ void my_Primitives::copyConstruct(TYPE            *address,
 // In the above implementation, if the copy construction of the second object
 // in the pair throws, all memory (and any other resources) acquired as a
 // result of copying the (not-yet-managed) object would be leaked.  Using the
-// 'bslma_DestructorProctor' prevents the leaks by invoking the destructor of
+// 'bslma::DestructorProctor' prevents the leaks by invoking the destructor of
 // the proctored object automatically should the proctor go out of scope
 // before the 'release' method of the proctor is called (such as when the
 // function exits prematurely due to an exception).
@@ -301,7 +301,7 @@ void my_Primitives::copyConstruct(TYPE            *address,
 // 'TYPE::firstType' and 'TYPE::secondType' takes an allocator as a second
 // argument.  In production code, a constructor proxy that checks the traits
 // of 'TYPE::firstType' and 'TYPE::secondType' (to determine whether they uses
-// 'bslma_Allocator') should be used (see bslalg_constructorproxy).
+// 'bslma::Allocator') should be used (see bslalg_constructorproxy).
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //           Additional Functionality Needed to Complete Usage Test Case
@@ -311,31 +311,31 @@ class my_AllocatingClass {
     // counter it *holds* (provided at construction) in the destructor.
 
     // DATA
-    int             *d_counter_p;   // counter to be incremented at destruction
-    void            *d_memory_p;    // dummy piece of memory
-    bslma_Allocator *d_allocator_p; // allocator (held, not owned)
+    int              *d_counter_p;   // counter to be incremented at destruction
+    void             *d_memory_p;    // dummy piece of memory
+    bslma::Allocator *d_allocator_p; // allocator (held, not owned)
 
   public:
     // CREATORS
-    my_AllocatingClass(int             *counter,
-                       bslma_Allocator *basicAllocator = 0)
+    my_AllocatingClass(int              *counter,
+                       bslma::Allocator *basicAllocator = 0)
         // Create a 'my_AllocatingClass' using the (global) 'counter'.
         // Optionally specified 'basicAllocator'.  If 'basicAllocator' is zero,
         // the global default allocator will be used to supply memory.  Create
         // this object and optionally specify 'allocator' used for 'counter' to
         // be held.
     : d_counter_p(counter)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_memory_p = d_allocator_p->allocate(1);
     }
 
     my_AllocatingClass(const my_AllocatingClass&  object,
-                       bslma_Allocator           *basicAllocator = 0)
+                       bslma::Allocator          *basicAllocator = 0)
         // Create a 'my_AllocatingClass' that as the same counter and allocator
         // as the specified 'object'.
     : d_counter_p(object.d_counter_p)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_memory_p = d_allocator_p->allocate(1);
     }
@@ -379,7 +379,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Run the usage example and exercise the creators and manipulators
-        //   of 'my_Pair' and 'my_Primitives' using a 'bslma_TestAllocator' to
+        //   of 'my_Pair' and 'my_Primitives' using a 'bslma::TestAllocator' to
         //   verify that memory is allocated and deallocated properly.
         //
         // Testing:
@@ -389,8 +389,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Usage Example Test" << endl
                           << "==================" << endl;
 
-        bslma_TestAllocator z(veryVeryVerbose);
-        const bslma_TestAllocator &Z = z;
+#if !defined(BDE_BUILD_TARGET_EXC)
+        if (verbose) cout << "Test not run without exception support." << endl;
+#else
+        bslma::TestAllocator z(veryVeryVerbose);
+        const bslma::TestAllocator &Z = z;
 
         int counter1 = 0;
         int counter2 = 0;
@@ -474,7 +477,7 @@ int main(int argc, char *argv[])
         ASSERT(3 == counter1);
         ASSERT(2 == counter2);
         ASSERT(0 == z.numBytesInUse());
-
+#endif
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -485,10 +488,10 @@ int main(int argc, char *argv[])
         //   object properly manages a different object.
         //
         // Plan:
-        //   Create a 'my_Class' object using a 'bslma_TestAllocator' and
+        //   Create a 'my_Class' object using a 'bslma::TestAllocator' and
         //   initialize it with a counter.  Next create another 'my_Class'
         //   object and initialize it with a different counter.  Finally
-        //   initialize a 'bslma_DestructorProctor' object with the first
+        //   initialize a 'bslma::DestructorProctor' object with the first
         //   object.  Call 'reset' on the proctor with the second object before
         //   it goes out of scope.  Once the proctor goes out of scope, verify
         //   that only the second counter is incremented, and no memory is
@@ -501,8 +504,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "'reset' TEST" << endl
                                   << "============" << endl;
 
-        bslma_TestAllocator z(veryVeryVerbose);
-        const bslma_TestAllocator& Z = z;
+        bslma::TestAllocator z(veryVeryVerbose);
+        const bslma::TestAllocator& Z = z;
 
         int counter1 = 0;  const int& COUNTER1 = counter1;
         int counter2 = 0;  const int& COUNTER2 = counter2;
@@ -518,7 +521,7 @@ int main(int argc, char *argv[])
             ASSERT(0                    == COUNTER2);
             ASSERT(2 * sizeof(my_Class) == Z.numBytesInUse());
 
-            bslma_DestructorProctor<my_Class> proctor(pC1);
+            bslma::DestructorProctor<my_Class> proctor(pC1);
             ASSERT(0                    == COUNTER1);
             ASSERT(0                    == COUNTER2);
             ASSERT(2 * sizeof(my_Class) == Z.numBytesInUse());
@@ -550,12 +553,12 @@ int main(int argc, char *argv[])
         //   managed by this proctor.
         //
         // Plan:
-        //   Create 'my_Class' objects using 'bslma_TestAllocator' and
+        //   Create 'my_Class' objects using 'bslma::TestAllocator' and
         //   initialize it with a counter.  Next initialize a
-        //   'bslma_DestructorProctor' object with the corresponding 'my_Class'
-        //   object.  Call 'release' on the proctor before it goes out of
-        //   scope.  Verify that the counter is not incremented, and the memory
-        //   allocated by the test allocator is not deallocated.
+        //   'bslma::DestructorProctor' object with the corresponding
+        //   'my_Class' object.  Call 'release' on the proctor before it goes
+        //   out of scope.  Verify that the counter is not incremented, and
+        //   the memory allocated by the test allocator is not deallocated.
         //
         // Testing:
         //   void release();
@@ -564,8 +567,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "'release' TEST" << endl
                                   << "==============" << endl;
 
-        bslma_TestAllocator z(veryVeryVerbose);
-        const bslma_TestAllocator& Z = z;
+        bslma::TestAllocator z(veryVeryVerbose);
+        const bslma::TestAllocator& Z = z;
 
         int counter = 0;  const int& COUNTER = counter;
         if (veryVerbose) {
@@ -577,7 +580,7 @@ int main(int argc, char *argv[])
             ASSERT(0                == COUNTER);
             ASSERT(sizeof(my_Class) == Z.numBytesInUse());
 
-            bslma_DestructorProctor<my_Class> proctor(pC);
+            bslma::DestructorProctor<my_Class> proctor(pC);
             ASSERT(0                == COUNTER);
             ASSERT(sizeof(my_Class) == Z.numBytesInUse());
 
@@ -598,26 +601,26 @@ int main(int argc, char *argv[])
         // CTOR / DTOR TEST
         //
         // Concerns:
-        //   1) Verify that when the 'bslma_DestructorProctor' properly invokes
-        //      the destructor of the proctored object when it goes out of
-        //      scope.
-        //   2) Verify that the 'bslma_DestructorProctor' can be constructed
+        //   1) Verify that when the 'bslma::DestructorProctor' properly
+        //      invokes the destructor of the proctored object when it goes
+        //      out of scope.
+        //   2) Verify that the 'bslma::DestructorProctor' can be constructed
         //      with a null pointer.
         //
         // Plan:
         //   For concern 1, create 'my_Class' objects using
-        //   'bslma_TestAllocator' and initialize it with a counter.  Next
-        //   initialize a 'bslma_DestructorProctor' object with the
+        //   'bslma::TestAllocator' and initialize it with a counter.  Next
+        //   initialize a 'bslma::DestructorProctor' object with the
         //   corresponding 'my_Class' object.  Verify that when the proctor
         //   goes out of scope, the counter is incremented, but memory is not
         //   deallocated.
         //
-        //   For concern 2, initialize a 'bslma_DestructorProctor' with a null
+        //   For concern 2, initialize a 'bslma::DestructorProctor' with a null
         //   pointer and let it go out of scope.
         //
         // Testing:
-        //   bslma_DestructorProctor<TYPE>(object);
-        //   ~bslma_DestructorProctor<TYPE>();
+        //   bslma::DestructorProctor<TYPE>(object);
+        //   ~bslma::DestructorProctor<TYPE>();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "CTOR / DOTR TEST" << endl
@@ -625,8 +628,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting CTOR and DTOR" << endl;
 
-        bslma_TestAllocator z(veryVeryVerbose);
-        const bslma_TestAllocator& Z = z;
+        bslma::TestAllocator z(veryVeryVerbose);
+        const bslma::TestAllocator& Z = z;
 
         int counter = 0;  const int& COUNTER = counter;
         my_Class *pMC;
@@ -636,7 +639,7 @@ int main(int argc, char *argv[])
             ASSERT(0           == COUNTER);
             ASSERT(sizeof *pMC == Z.numBytesInUse());
 
-            bslma_DestructorProctor<my_Class> proctor(pMC);
+            bslma::DestructorProctor<my_Class> proctor(pMC);
             ASSERT(0           == COUNTER);
             ASSERT(sizeof *pMC == Z.numBytesInUse());
         }
@@ -649,7 +652,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting CTOR with null pointer" << endl;
 
         {
-            bslma_DestructorProctor<my_Class> proctor((my_Class *)0);
+            bslma::DestructorProctor<my_Class> proctor((my_Class *)0);
         }
 
       } break;
@@ -694,13 +697,13 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   1) The 'bslma_DestructorProctor' can be constructed and destructed
-        //      gracefully.
+        //   1) The 'bslma::DestructorProctor' can be constructed and
+        //      destructed gracefully.
         //
         // Plan:
-        //   Allocate a block of memory with a 'bslma_TestAllocator' and
+        //   Allocate a block of memory with a 'bslma::TestAllocator' and
         //   construct a string object on it.  Guard the array with
-        //   'bslma_DestructorProctor'.
+        //   'bslma::DestructorProctor'.
         //
         // Testing:
         //   Breathing Test
@@ -709,8 +712,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        bslma_TestAllocator allocator(veryVeryVerbose);
-        const bslma_TestAllocator& Z = allocator;
+        bslma::TestAllocator allocator(veryVeryVerbose);
+        const bslma::TestAllocator& Z = allocator;
 
         enum { NUM_TEST = 10 };
 
@@ -719,7 +722,7 @@ int main(int argc, char *argv[])
         new(memory)string();
 
         {
-            bslma_DestructorProctor<string> proctor((string *)memory);
+            bslma::DestructorProctor<string> proctor((string *)memory);
         }
 
         allocator.deallocate(memory);

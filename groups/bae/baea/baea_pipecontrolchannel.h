@@ -71,7 +71,7 @@ BDES_IDENT("$Id: $")
 //
 //   public:
 //       // CREATORS
-//       explicit ControlServer(bslma_Allocator *basicAllocator)
+//       explicit ControlServer(bslma::Allocator *basicAllocator)
 //       : d_channel(bdef_BindUtil::bind(&ControlServer::onMessage,
 //                                       this,
 //                                       bdef_PlaceHolders::_1),
@@ -162,9 +162,13 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
+#endif
+
 namespace BloombergLP {
 
-class bslma_Allocator;
+namespace bslma { class Allocator; }
 
                        // =============================
                        // class baea_PipeControlChannel
@@ -239,7 +243,7 @@ class baea_PipeControlChannel {
     // CREATORS
     explicit
     baea_PipeControlChannel(const ControlCallback&  callback,
-                            bslma_Allocator        *basicAllocator = 0);
+                            bslma::Allocator       *basicAllocator = 0);
         // Create a pipe control mechanism that dispatches messages to the
         // specified 'callback'.  Use 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is zero, the currently installed default allocator

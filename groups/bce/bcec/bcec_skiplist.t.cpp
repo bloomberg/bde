@@ -174,7 +174,7 @@ class CountedDelete
 
 public:
     CountedDelete() : isTemp(true) {}
-    CountedDelete(const CountedDelete& rhs) : isTemp(false) {}
+    CountedDelete(const CountedDelete&) : isTemp(false) {}
 
     ~CountedDelete() {
         if (!isTemp) {
@@ -186,7 +186,7 @@ public:
         return deleteCount;
     }
 
-    CountedDelete& operator= (const CountedDelete& rhs) {
+    CountedDelete& operator= (const CountedDelete&) {
         isTemp = false;
         return *this;
     }
@@ -321,7 +321,7 @@ class SimpleScheduler
                 bdet_TimeInterval when;
                 bdetu_TimeInterval::convertToTimeInterval(&when,
                                firstItem.key() -
-                               bdetu_SystemTime::nowAsDatetimeGMT());
+                               bdetu_SystemTime::nowAsDatetimeUtc());
                 if (when.totalSecondsAsDouble() <= 0) {
                     // Execute now and remove from schedule, then iterate.
 
@@ -1775,19 +1775,19 @@ int main(int argc, char *argv[])
         // iteration test
         // --------------------------------------------------------------------
         DATA VALUES1[] = {
-            { L_ , 1, "1"},
-            { L_ , 3, "3"},
-            { L_ , 0, "0"},
-            { L_ , 2, "2"},
-            { L_ , 4, "4"},
+            { L_ , 1, "1", 0 },
+            { L_ , 3, "3", 0 },
+            { L_ , 0, "0", 0 },
+            { L_ , 2, "2", 0 },
+            { L_ , 4, "4", 0 },
         };
 
         DATA VALUES2[] = {
-            { L_ , 0, "0"},
-            { L_ , 1, "1"},
-            { L_ , 2, "2"},
-            { L_ , 3, "3"},
-            { L_ , 4, "4"},
+            { L_ , 0, "0", 0},
+            { L_ , 1, "1", 0},
+            { L_ , 2, "2", 0},
+            { L_ , 3, "3", 0},
+            { L_ , 4, "4", 0},
         };
 
         if (verbose) cout << endl
@@ -2082,7 +2082,7 @@ int main(int argc, char *argv[])
 
             SimpleScheduler scheduler;
 
-            bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeGMT(),
+            bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeUtc(),
                 scheduleTime;
 
             // Add events out of sequence and ensure they are executed
@@ -2120,7 +2120,7 @@ int main(int argc, char *argv[])
             ASSERT(values.empty());
 
             scheduleTime.addMilliseconds(250);
-            while (bdetu_SystemTime::nowAsDatetimeGMT() < scheduleTime) {
+            while (bdetu_SystemTime::nowAsDatetimeUtc() < scheduleTime) {
                 bcemt_ThreadUtil::microSleep(10000);
             }
             bsls_Stopwatch waitTimer;

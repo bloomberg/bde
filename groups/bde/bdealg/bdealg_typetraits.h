@@ -21,9 +21,6 @@ BDES_IDENT("$Id: $")
 //                          bdealg_TypeTraitPair: for 'bsl::pair'-like classes
 //            bdealg_TypeTraitUsesBdemaAllocator: uses 'bdema' allocators
 //                     bdealg_TypeTraitsGroupPod: POD trait
-//             bdealg_TypeTraitsGroupStlSequence: for STL sequence containers
-//              bdealg_TypeTraitsGroupStlOrdered: for STL ordered containers
-//            bdealg_TypeTraitsGroupStlUnordered: for STL unordered containers
 //
 //                             bdealg_TypeTraits: default trait computation
 //
@@ -331,7 +328,7 @@ BDES_IDENT("$Id: $")
 // templates with the two test types above, and checks that the allocator
 // slot is as expected:
 //..
-//  void main()
+//  int main()
 //  {
 //      bdema_TestAllocator ta0;
 //      bdema_TestAllocator ta1;
@@ -360,6 +357,8 @@ BDES_IDENT("$Id: $")
 //      allocSlot = &ta0;
 //      MyGenericContainer<MyTestTypeWithBdemaAllocatorTraits> y1(y, &ta1);
 //      ASSERT(&ta1 == allocSlot);
+//
+//      return 0;
 //  }
 //..
 
@@ -387,41 +386,13 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraitsgrouppod.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLSEQUENCE
-#include <bslalg_typetraitsgroupstlsequence.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLORDERED
-#include <bslalg_typetraitsgroupstlordered.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLUNORDERED
-#include <bslalg_typetraitsgroupstlunordered.h>
-#endif
-
 // The following were formerly guarded by 'BDE_DONT_ALLOW_TRANSITIVE_INCLUDES'.
 // However, it was deemed that one of the purposes of this header file is to
 // include these, and although 'bdealg' is DEPRECATED, unconditionally
 // providing these inclusions is the correct thing to do.
 
-#ifndef INCLUDED_BDEALG_TYPETRAITBITWISECOPYABLE
-#include <bdealg_typetraitbitwisecopyable.h>
-#endif
-
-#ifndef INCLUDED_BDEALG_TYPETRAITBITWISEEQUALITYCOMPARABLE
-#include <bdealg_typetraitbitwiseequalitycomparable.h>
-#endif
-
-#ifndef INCLUDED_BDEALG_TYPETRAITBITWISEMOVEABLE
-#include <bdealg_typetraitbitwisemoveable.h>
-#endif
-
 #ifndef INCLUDED_BDEALG_TYPETRAITHASPOINTERSEMANTICS
 #include <bdealg_typetraithaspointersemantics.h>
-#endif
-
-#ifndef INCLUDED_BDEALG_TYPETRAITHASSTLITERATORS
-#include <bdealg_typetraithasstliterators.h>
 #endif
 
 #ifndef INCLUDED_BDEALG_TYPETRAITHASTRIVIALDEFAULTCONSTRUCTOR
@@ -430,10 +401,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDEALG_TYPETRAITNIL
 #include <bdealg_typetraitnil.h>
-#endif
-
-#ifndef INCLUDED_BDEALG_TYPETRAITPAIR
-#include <bdealg_typetraitpair.h>
 #endif
 
 #ifndef INCLUDED_BDEALG_TYPETRAITUSESBDEMAALLOCATOR

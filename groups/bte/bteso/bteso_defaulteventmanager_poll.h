@@ -45,9 +45,9 @@ BDES_IDENT("$Id: $")
 // 'bteso_defaulteventmanager' component; the other components are shown
 // (schematically) on the following diagram:
 //..
-//                          _bteso_defaulteventmanager_
-//                 _______/          |         |        \______
-//                 *_poll        *_select  *_devpoll      *_wfmo
+//                           _bteso_defaulteventmanager_
+//                 _______/    |         |         |      \_________
+//                 *_poll  *_select  *_devpoll  *_epoll    *_pollset
 //
 //..
 ///Thread-safety
@@ -273,12 +273,17 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 #if defined(BSLS_PLATFORM__OS_SOLARIS)    \
     || defined(BSLS_PLATFORM__OS_LINUX)   \
     || defined(BDES_PLATFORM__OS_FREEBSD) \
     || defined(BSLS_PLATFORM__OS_AIX)     \
     || defined(BSLS_PLATFORM__OS_HPUX)    \
-    || defined(BSLS_PLATFORM__OS_CYGWIN)
+    || defined(BSLS_PLATFORM__OS_CYGWIN)  \
+    || defined(BSLS_PLATFORM__OS_DARWIN)
 
 #ifndef INCLUDED_SYS_POLL
 #include <sys/poll.h>
@@ -287,7 +292,6 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-class bslma_Allocator;
 class bdet_TimeInterval;
 class bteso_TimeMetrics;
 
@@ -361,7 +365,7 @@ class bteso_DefaultEventManager<bteso_Platform::POLL>
         // Note that all callbacks are invoked in the same thread that invokes
         // 'dispatch', and the order of invocation, relative to the order of
         // registration, is unspecified.  Also note that -1 is never returned
-        // if 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
+        // unless 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
 
     int dispatch(int flags);
         // For each pending socket event, invoke the corresponding callback
@@ -378,7 +382,7 @@ class bteso_DefaultEventManager<bteso_Platform::POLL>
         // identical system call).  Note that all callbacks are invoked in the
         // same thread that invokes 'dispatch', and the order of invocation,
         // relative to the order of registration, is unspecified.  Also note
-        // that -1 is never returned if 'flags' contains
+        // that -1 is never returned unless 'flags' contains
         // 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
 
     int registerSocketEvent(const bteso_SocketHandle::Handle&   handle,

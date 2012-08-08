@@ -4,261 +4,128 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <stdio.h>        // 'printf'
+#include <stdio.h>  // for 'printf'
 
-namespace
-{
+namespace BloombergLP {
+namespace bsls {
 
-inline
-void flush()
+                   // ------------------
+                   // struct BslTestUtil
+                   // ------------------
+// CLASS METHODS
+void BslTestUtil::flush()
 {
     fflush(stdout);
 }
 
-// Fundamental-type-specific print functions.
-inline
-void printValue(bool b)
-{
-    printf(b ? "true" : "false");
-}
-
-inline
-void printValue(char c)
-{
-    printf("'%c'", c);
-}
-
-inline
-void printValue(signed char c)
-{
-    printf("%hhd", c);
-}
-
-inline
-void printValue(unsigned char c)
-{
-    printf("%hhu", c);
-}
-
-inline
-void printValue(short val)
-{
-    printf("%hd", (int)val);
-}
-
-inline
-void printValue(unsigned short val)
-{
-    printf("%hu", (int)val);
-}
-
-inline
-void printValue(int val)
-{
-    printf("%d", val);
-}
-
-inline
-void printValue(unsigned int val)
-{
-    printf("%u", val);
-}
-
-inline
-void printValue(long val)
-{
-    printf("%ld", val);
-}
-
-inline
-void printValue(unsigned long val)
-{
-    printf("%lu", val);
-}
-
-inline
-void printValue(long long val)
-{
-    printf("%lld", val);
-}
-
-inline
-void printValue(unsigned long long val)
-{
-    printf("%llu", val);
-}
-
-inline
-void printValue(float val)
-{
-    printf("'%g'", (double)val);
-}
-
-inline
-void printValue(double val)
-{
-    printf("'%g'", val);
-}
-
-inline
-void printValue(long double val)
-{
-    // Note that the "C" standard requires the inconsistent upper case 'L' in
-    // the format string below, while requiring lower case 'l' characters in
-    // the format strings for integer values above.
-
-    printf("'%Lg'", val);
-}
-
-inline
-void printValue(const char *s)
-{
-    printf("\"%s\"", s);
-}
-
-inline
-void printValue(char *s)
-{
-    printf("\"%s\"", s);
-}
-
-inline
-void printValue(void *p)
-{
-    printf("%p", p);
-}
-
-inline
-void printValue(const void *p)
-{
-    printf("%p", p);
-}
-
-template <typename BSLS_TYPE>
-void doDebugPrint(const char *s, const BSLS_TYPE& v, const char *t)
-{
-    BloombergLP::bsls_BslTestUtil::printStringNoFlush(s);
-    printValue(v);
-    BloombergLP::bsls_BslTestUtil::printStringNoFlush(t);
-    flush();
-}
-
-}  // close unnamed namespace
-
-namespace BloombergLP
-{
-
-void bsls_BslTestUtil::debugPrint(const char *s, bool v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, char v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, signed char v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void
-bsls_BslTestUtil::debugPrint(const char *s, unsigned char v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, short v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void
-bsls_BslTestUtil::debugPrint(const char *s, unsigned short v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, int v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, unsigned int v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, long v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void
-bsls_BslTestUtil::debugPrint(const char *s, unsigned long v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, long long v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char         *s,
-                                  unsigned long long  v,
-                                  const char         *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, float v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, double v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, long double v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, char *v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, const char *v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, void *p, const char *t)
-{
-    doDebugPrint(s, p, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, const void *p, const char *t)
-{
-    doDebugPrint(s, p, t);
-}
-
-void bsls_BslTestUtil::printStringNoFlush(const char *s)
+void BslTestUtil::printStringNoFlush(const char *s)
 {
     printf("%s", s);
 }
 
-void bsls_BslTestUtil::printTab()
+void BslTestUtil::printTab()
 {
     putchar('\t');
     flush();
 }
 
+
+// FREE FUNCTIONS
+void debugprint(bool v)
+{
+    printf(v ? "true" : "false");
+}
+
+void debugprint(char v)
+{
+    printf("'%c'", v);
+}
+
+void debugprint(signed char v)
+{
+    printf("%hhd", v);
+}
+
+void debugprint(unsigned char v)
+{
+    printf("%hhd", v);
+}
+
+void debugprint(short v)
+{
+    printf("%hd", (int)v);
+}
+
+void debugprint(unsigned short v)
+{
+    printf("%hu", (int)v);
+}
+
+void debugprint(int v)
+{
+    printf("%d", v);
+}
+
+void debugprint(unsigned int v)
+{
+    printf("%u", v);
+}
+
+void debugprint(long v)
+{
+    printf("%ld", v);
+}
+
+void debugprint(unsigned long v)
+{
+    printf("%lu", v);
+}
+
+void debugprint(long long v)
+{
+    printf("%lld", v);
+}
+
+void debugprint(unsigned long long v)
+{
+    printf("%llu", v);
+}
+
+void debugprint(float v)
+{
+    printf("'%g'", (double)v);
+}
+
+void debugprint(double v)
+{
+    printf("'%g'", v);
+}
+
+void debugprint(long double v)
+{
+    // Note that the "C" standard requires the inconsistent upper case 'L' in
+    // the format string below, while requiring lower case 'l' characters in
+    // the format strings for integer values above.
+
+    printf("'%Lg'", v);
+}
+
+void debugprint(const char *v)
+{
+    printf("\"%s\"", v);
+}
+
+void debugprint(char *v)
+{
+    printf("\"%s\"", v);
+}
+
+void debugprint(const void *v)
+{
+    printf("%p", v);
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 // ---------------------------------------------------------------------------

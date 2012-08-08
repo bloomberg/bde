@@ -1,4 +1,4 @@
-// bslma_default.cpp                  -*-C++-*-
+// bslma_default.cpp                                                  -*-C++-*-
 #include <bslma_default.h>
 
 #include <bsls_ident.h>
@@ -9,60 +9,63 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-class bslma_Allocator;
+namespace bslma {
 
-                        // --------------------
-                        // struct bslma_Default
-                        // --------------------
+class Allocator;
+
+                               // --------------
+                               // struct Default
+                               // --------------
 
 // STATIC DATA MEMBERS
 
                         // *** default allocator ***
 
-bslma_Allocator *bslma_Default::s_allocator_p = 0;
-int              bslma_Default::s_locked      = 0;
+bsls::AtomicOperations::AtomicTypes::Pointer Default::s_allocator = {0};
+bsls::AtomicOperations::AtomicTypes::Int     Default::s_locked    = {0};
 
                         // *** global allocator ***
 
-bslma_Allocator *bslma_Default::s_globalAllocator_p = 0;
+bsls::AtomicOperations::AtomicTypes::Pointer Default::s_globalAllocator = {0};
 
 // CLASS METHODS
 
                         // *** default allocator ***
 
-int bslma_Default::setDefaultAllocator(bslma_Allocator *basicAllocator)
+int Default::setDefaultAllocator(Allocator *basicAllocator)
 {
     BSLS_ASSERT(0 != basicAllocator);
 
-    if (!s_locked) {
-        s_allocator_p = basicAllocator;
+    if (!bsls::AtomicOperations::getIntRelaxed(&s_locked)) {
+        bsls::AtomicOperations::setPtrRelease(&s_allocator, basicAllocator);
         return 0;  // success
     }
+
     return -1;     // locked -- 'set' fails
 }
 
-void bslma_Default::setDefaultAllocatorRaw(bslma_Allocator *basicAllocator)
+void Default::setDefaultAllocatorRaw(Allocator *basicAllocator)
 {
     BSLS_ASSERT(0 != basicAllocator);
 
-    s_allocator_p = basicAllocator;
+    bsls::AtomicOperations::setPtrRelease(&s_allocator, basicAllocator);
 }
 
                         // *** global allocator ***
 
-bslma_Allocator *bslma_Default::setGlobalAllocator(
-                                               bslma_Allocator *basicAllocator)
+Allocator *Default::setGlobalAllocator(Allocator *basicAllocator)
 {
-    bslma_Allocator *previous = s_globalAllocator_p
-                                      ? s_globalAllocator_p
-                                      : &bslma_NewDeleteAllocator::singleton();
+    Allocator *previous =
+        (Allocator *) bsls::AtomicOperations::swapPtrAcqRel(&s_globalAllocator,
+                                                            basicAllocator);
 
-    s_globalAllocator_p = basicAllocator;
-
-    return previous;
+    return previous ? previous
+                    : &NewDeleteAllocator::singleton();
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

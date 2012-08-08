@@ -18,21 +18,21 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides static methods for retrieving system
 // time.  The system time is expressed as a time interval between the current
-// time and a pre-determined historical time, 00:00 GMT, January 1, 1970.  This
+// time and a pre-determined historical time, 00:00 UTC, January 1, 1970.  This
 // component operates using a dynamically replaceable callback mechanism.  For
 // applications that choose to define there own mechanism for determining
 // system time, this component provides the ability to install a custom
 // callback function.  The behavior is undefined unless the callback provided
 // is epoch-based.  Note that if an application provides its own mechanism to
 // retrieve the system time, this mechanism will be used by all calls to 'now',
-// 'nowAsDatetimeGMT' and 'loadCurrentTime'.  Otherwise the default
+// 'nowAsDatetimeUtc' and 'loadCurrentTime'.  Otherwise the default
 // implementation will be used.  An application can always use the default
 // implementation by calling the 'loadSystemTimeDefault' method explicitly.
 //
 ///Usage 1
 ///-------
 // The following snippets of code illustrate how to use this utility component
-// to obtain the system time by calling 'now', 'nowAsDatetimeGMT', or
+// to obtain the system time by calling 'now', 'nowAsDatetimeUtc', or
 // 'loadCurrentTime'.
 //..
 //    bdet_TimeInterval i0;
@@ -43,10 +43,10 @@ BDES_IDENT("$Id: $")
 //    i0 = bdetu_SystemTime::now();
 //    assert(0 != i0);
 //..
-// Next call the utility function 'nowAsDatetimeGMT' to obtain the system time.
+// Next call the utility function 'nowAsDatetimeUtc' to obtain the system time.
 //..
 //    usleep(500);  // to prevent round-off error
-//    bdet_Datetime i1 = bdetu_SystemTime::nowAsDatetimeGMT();
+//    bdet_Datetime i1 = bdetu_SystemTime::nowAsDatetimeUtc();
 //    assert(bdetu_Datetime::epoch() < i1);
 //    assert(i0 <= i1);
 //..
@@ -174,7 +174,7 @@ class bdetu_SystemTime {
     // 'setSystemTimeCallback' in a multi-threaded environment after threads
     // have been started.  The behavior is also undefined if an application
     // attempts to retrieve the system time by calling either 'now',
-    // 'nowAsDatetimeGMT', or 'loadCurrentTime' methods while another thread
+    // 'nowAsDatetimeUtc', or 'loadCurrentTime' methods while another thread
     // attempts to setup a new callback mechanism.  To avoid runtime issues in
     // a multi-threaded environment, 'setSystemTimeCallback' should be called
     // at most once in 'main' before any threads have been started.
@@ -197,17 +197,24 @@ class bdetu_SystemTime {
         // return value is an absolute offset since the epoch, and has the same
         // value in all time zones.
 
+    static bdet_Datetime nowAsDatetimeUtc();
+        // Return a 'bdet_Datetime' value representing the current system time
+        // using the currently installed callback function consistent with
+        // 'now'.  Note that the returned value is in Utc.
+
     static bdet_Datetime nowAsDatetime();
         // Return a 'bdet_Datetime' value representing the current system time
         // using the currently installed callback function consistent with
-        // 'now'.  Note that the returned value is in GMT.
+        // 'now'.  Note that the returned value is in Utc.
         //
-        // DEPRECATED: replaced by 'nowAsDatetimeGMT'
+        // DEPRECATED: replaced by 'nowAsDatetimeUtc'
 
     static bdet_Datetime nowAsDatetimeGMT();
         // Return a 'bdet_Datetime' value representing the current system time
         // using the currently installed callback function consistent with
-        // 'now'.  Note that the returned value is in GMT.
+        // 'now'.  Note that the returned value is in Utc.
+        //
+        // DEPRECATED: replaced by 'nowAsDatetimeUtc'
 
     static bdet_Datetime nowAsDatetimeLocal();
         // Return a 'bdet_Datetime' value representing the current system time
@@ -215,7 +222,7 @@ class bdetu_SystemTime {
 
     static bdet_DatetimeInterval localTimeOffset();
         // Return a 'bdet_DatetimeInterval' value representing the current
-        // differential between the local time and the GMT time.
+        // differential between the local time and the UTC time.
 
     static void loadCurrentTime(bdet_TimeInterval *result);
         // Load into the specified 'result', the current system time using
@@ -227,7 +234,7 @@ class bdetu_SystemTime {
         //
         // Provides a default implementation for system time retrieval.
         // The obtained system time is expressed as a time interval between
-        // the current time and '00:00 GMT, January 1, 1970'.  On UNIX
+        // the current time and '00:00 UTC, January 1, 1970'.  On UNIX
         // (Solaris, LINUX and DG-UNIX) this function provides a microsecond
         // resolution.  On Windows (NT, WIN2000, 95, 98 etc) it provides a
         // resolution of 100 nanoseconds.
@@ -237,7 +244,7 @@ class bdetu_SystemTime {
         // Install the user-specified custom 'callback' function to retrieve
         // the system time.  The behavior of other methods in this component
         // will be corrupted unless 'callback' returns an absolute offset since
-        // the epoch time 00:00 GMT, January 1, 1970.
+        // the epoch time 00:00 UTC, January 1, 1970.
 
     static SystemTimeCallback currentCallback();
         // Return the currently installed 'SystemTimeCallback' function.
@@ -261,7 +268,7 @@ bdet_TimeInterval bdetu_SystemTime::now()
 }
 
 inline
-bdet_Datetime bdetu_SystemTime::nowAsDatetimeGMT()
+bdet_Datetime bdetu_SystemTime::nowAsDatetimeUtc()
 {
     bdet_DatetimeInterval datetimeInterval;
     bdetu_DatetimeInterval::convertToDatetimeInterval(&datetimeInterval,
@@ -269,13 +276,16 @@ bdet_Datetime bdetu_SystemTime::nowAsDatetimeGMT()
     return bdetu_Epoch::epoch() + datetimeInterval;
 }
 
-// Placed after 'bdetu_SystemTime::nowAsDatetimeGMT()' so the call can be
-// inlined.
-
 inline
 bdet_Datetime bdetu_SystemTime::nowAsDatetime()
 {
     return nowAsDatetimeGMT();
+}
+
+inline
+bdet_Datetime bdetu_SystemTime::nowAsDatetimeGMT()
+{
+    return nowAsDatetimeUtc();
 }
 
 inline

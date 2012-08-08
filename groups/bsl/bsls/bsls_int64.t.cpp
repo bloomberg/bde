@@ -1,4 +1,4 @@
-// bsls_int64.t.cpp               -*-C++-*-
+// bsls_int64.t.cpp                                                   -*-C++-*-
 
 #include <bsls_int64.h>
 
@@ -10,10 +10,6 @@
 #include <iostream>
 #include <stdio.h>     // sprintf(), snprintf() [NOT <cstdio>, which does not
                        // include 'snprintf']
-
-#if defined(BSLS_PLATFORM__CMP_IBM) && !defined(BSLS_PLATFORM__CPU_64_BIT)
-    #define BSLS_INT64_TEST__NO_64_BIT_CONSTANTS 1
-#endif
 
 #if defined(BSLS_PLATFORM__CMP_MSVC)
 #define snprintf _snprintf
@@ -32,8 +28,8 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // [ 2] Int64
 // [ 2] Uint64
-// [ 4] operator<<(ostream&, const bsls_PlatformUtil::Uint64&);
-// [ 3] operator<<(ostream&, const bsls_PlatformUtil::Int64&);
+// [ 4] operator<<(ostream&, const bsls::PlatformUtil::Uint64&);
+// [ 3] operator<<(ostream&, const bsls::PlatformUtil::Int64&);
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -68,10 +64,6 @@ static void aSsErT(int c, const char *s, int i)
 //==========================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 //--------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM__CMP_GNU)
-    #define BSLS_INT64_TEST__NO_64_BIT_CONSTANTS 1
-#endif
 
 #if defined(BSLS_PLATFORM__CMP_MSVC)
 #define INT64_FMT_STR  "0x%I64X"
@@ -227,7 +219,7 @@ int main(int argc, char *argv[]) {
             { L_,   0x7FFFFFFF,         "2147483647"           },
             { L_,   0x80000000,         "2147483648"           },
             { L_,   0xFFFFFFFF,         "4294967295"           },
-#if !defined(BSLS_INT64_TEST__NO_64_BIT_CONSTANTS)
+#if !defined(BSLS_PLATFORM__NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
             { L_,   0x8000000000000000, "9223372036854775808"  },
@@ -400,7 +392,7 @@ int main(int argc, char *argv[]) {
             { L_,   0x7FFFFFFF,         "2147483647"           },
             { L_,   0x80000000,         "2147483648"           },
             { L_,   0xFFFFFFFF,         "4294967295"           },
-#if !defined(BSLS_INT64_TEST__NO_64_BIT_CONSTANTS)
+#if !defined(BSLS_PLATFORM__NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
             { L_,   0x8000000000000000, "-9223372036854775808" },

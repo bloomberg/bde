@@ -25,7 +25,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bsl' currently has 11 packages forming 10 levels of physical dependency,
+ 'bsl' currently has 12 packages forming 11 levels of physical dependency,
  Note that required source control package 'bslscm' depends on 'bsls'; this
  behavior is unique to 'bsl', although it is temporarily also in 'bde' for
  historic reasons, since logically *every* other package should depend on
@@ -34,15 +34,17 @@
  'bslscm'.  The table below shows the physical dependency hierarchy among the
  packages of 'bsl'.
 ..
-   Level 10: bsltst, bsl+apache
+   Level 11: bsltst, bsl+apache
 
-   Level  9: bsl+stdhdrs(*)
+   Level 10: bsl+stdhdrs(*)
 
-   Level  8: bsl+bslhdrs
+   Level  9: bsl+bslhdrs
 
-   Level  7: bslstp(**)
+   Level  8: bslstp(**)
 
-   Level  6: bslstl
+   Level  7: bslstl
+
+   Level  6: bsltf
 
    Level  5: bslalg
 
@@ -83,6 +85,7 @@
    'bslscm'  - introspective versioning (Source Control Management)
    'bslstl'  - Bloomberg provided STL container implementations
    'bslstp'  - modified STlPort implementations of stl containers
+   'bsltf'   - testing facilities
    'bsltst'  - breathing TeSTs for stl containers
 
    'bsl+apache'  - APACHE test suites for testing the stl
@@ -150,10 +153,16 @@
 
 /bsltst
 /- - -
- 'bsltst provides a breathing test for the C++ standard containers implemented
+ 'bsltst' provides a breathing test for the C++ standard containers implemented
  in 'bslstl' and 'bslstp'.  Tests in this package also test to make sure
  'bsl::*' and 'std::*' container types are different (equivalent) when compiled
  under the 'BDE-STL' mode (or not).
+
+/bsltf
+/- - -
+'bsltf' provides a set test types and utilities that operates on those types,
+which can help simplify, particularly for template, the implementation of test
+drivers.
 
 /bsl+apache
 /- - - - - -

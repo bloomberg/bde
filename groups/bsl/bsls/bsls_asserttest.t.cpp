@@ -38,15 +38,15 @@ using namespace BloombergLP;
 // [ 4] BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG
 // [ 4] BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG
 // [ 4] BSLS_ASSERTTEST_IS_ACTIVE(TYPE)
-// [ 2] bsls_AssertTest::isValidAssertBuild
-// [ 3] bsls_AssertTest::isValidExpected
-// [ 6] bsls_AssertTest::tryProbe
-// [ 6] bsls_AssertTest::tryProbeRaw
-// [ 7] bsls_AssertTest::catchProbe
-// [ 7] bsls_AssertTest::catchProbeRaw
-// [ 5] bsls_AssertTest::failTestDriver
-// [10] bsls_AssertTestHandlerGuard::bsls_AssertTestHandlerGuard()
-// [10] ~bsls_AssertTestHandlerGuard::bsls_AssertTestHandlerGuard()
+// [ 2] bsls::AssertTest::isValidAssertBuild
+// [ 3] bsls::AssertTest::isValidExpected
+// [ 6] bsls::AssertTest::tryProbe
+// [ 6] bsls::AssertTest::tryProbeRaw
+// [ 7] bsls::AssertTest::catchProbe
+// [ 7] bsls::AssertTest::catchProbeRaw
+// [ 5] bsls::AssertTest::failTestDriver
+// [10] bsls::AssertTestHandlerGuard::bsls::AssertTestHandlerGuard()
+// [10] ~bsls::AssertTestHandlerGuard::bsls::AssertTestHandlerGuard()
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] Test case 1: vector
@@ -204,7 +204,7 @@ bool globalVeryVeryVerbose = false;
     void testVectorArrayAccess()
     {
     #ifdef BDE_BUILD_TARGET_EXC
-        bsls_AssertFailureHandlerGuard g(bsls_AssertTest::failTestDriver);
+        bsls::AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
 
         AssertTestVector<void *> mA; const AssertTestVector<void *> &A = mA;
 
@@ -328,7 +328,8 @@ bool globalVeryVeryVerbose = false;
 //..
     #ifdef BDE_BUILD_TARGET_EXC
         {
-            bsls_AssertFailureHandlerGuard g(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard g(
+                                             bsls::AssertTest::failTestDriver);
 
 //..
 // Then we build the table of test values, listing the expected build mode for
@@ -397,8 +398,8 @@ bool globalVeryVeryVerbose = false;
 // We should verify that the assert-related parameters describe a valid test
 // configuration before running any tests.
 //..
-                LOOP_ASSERT(LINE, bsls_AssertTest::isValidAssertBuild(TYPE));
-                LOOP_ASSERT(LINE, bsls_AssertTest::isValidExpected(RESULT));
+                LOOP_ASSERT(LINE, bsls::AssertTest::isValidAssertBuild(TYPE));
+                LOOP_ASSERT(LINE, bsls::AssertTest::isValidExpected(RESULT));
 //..
 // Then, if we determine that there is no useful test to perform, continue with
 // the next iteration of the loop.  Note that when a 'F'ail is expected, there
@@ -424,13 +425,13 @@ bool globalVeryVeryVerbose = false;
 
                     MyUtil::f(A, B, C, D);
 
-                    LOOP_ASSERT(LINE, bsls_AssertTest::tryProbe(RESULT));
+                    LOOP_ASSERT(LINE, bsls::AssertTest::tryProbe(RESULT));
                 }
-                catch (const bsls_AssertTestException& e) {
+                catch (const bsls::AssertTestException& e) {
 
-                    LOOP_ASSERT(LINE, bsls_AssertTest::catchProbe(RESULT,
-                                                                  e,
-                                                                  __FILE__));
+                    LOOP_ASSERT(LINE, bsls::AssertTest::catchProbe(RESULT,
+                                                                   e,
+                                                                   __FILE__));
                 }
 
             }  // table-driven 'for' loop
@@ -471,7 +472,7 @@ int main(int argc, char *argv[])
     globalVeryVerbose     = veryVerbose;
     globalVeryVeryVerbose = veryVeryVerbose;
 
-    //bsls_Assert::setFailureHandler(&bsls_AssertTest::failTestDriver);
+    //bsls::Assert::setFailureHandler(&bsls::AssertTest::failTestDriver);
 
     setbuf(stdout, 0);    // Use unbuffered output
 
@@ -514,7 +515,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING bsls_AssertTestHandlerGuard
+        // TESTING bsls::AssertTestHandlerGuard
         //
         // Concerns:
         //: 1 The usage example provided in the component header file must
@@ -524,22 +525,22 @@ int main(int argc, char *argv[])
         //   Run the usage example.
         //
         // Testing:
-        //   class bsls_AssertTestHandlerGuard
+        //   class bsls::AssertTestHandlerGuard
         // --------------------------------------------------------------------
 
-        if (globalVerbose) printf("\nTESTING bsls_AssertTestHandlerGuard"
-                                  "\n===================================\n");
+        if (globalVerbose) printf("\nTESTING bsls::AssertTestHandlerGuard"
+                                  "\n====================================\n");
 
-        bsls_AssertFailureHandlerGuard outerGuard(&bsls_Assert::failAbort);
+        bsls::AssertFailureHandlerGuard outerGuard(&bsls::Assert::failAbort);
 
-        ASSERT(&bsls_Assert::failAbort == bsls_Assert::failureHandler());
+        ASSERT(&bsls::Assert::failAbort == bsls::Assert::failureHandler());
         {
-            bsls_AssertTestHandlerGuard innerGuard;
+            bsls::AssertTestHandlerGuard innerGuard;
 
-            ASSERT(&bsls_AssertTest::failTestDriver ==
-                                                bsls_Assert::failureHandler());
+            ASSERT(&bsls::AssertTest::failTestDriver ==
+                                               bsls::Assert::failureHandler());
         }
-        ASSERT(&bsls_Assert::failAbort == bsls_Assert::failureHandler());
+        ASSERT(&bsls::Assert::failAbort == bsls::Assert::failureHandler());
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -659,8 +660,8 @@ int main(int argc, char *argv[])
         //   names into the set of potential invalid matches.
         //
         // Testing:
-        //   bsls_AssertTest::catchProbe
-        //   bsls_AssertTest::catchProbeRaw
+        //   bsls::AssertTest::catchProbe
+        //   bsls::AssertTest::catchProbeRaw
 
         if (globalVerbose) printf("\nTESTING catch-probes"
                                   "\n====================\n");
@@ -740,38 +741,40 @@ int main(int argc, char *argv[])
             const int         ASSERTED_LINE = DATA[ti].d_assertedLine;
 
             for (size_t i = 0; i != NUM_COMPATIBLE_NAMES_A; ++i) {
-                const bsls_AssertTestException EXCEPTION_AI(
+                const bsls::AssertTestException EXCEPTION_AI(
                                                          EXPRESSION,
                                                          COMPATIBLE_NAMES_A[i],
                                                          ASSERTED_LINE);
 
-                const bsls_AssertTestException EXCEPTION_ZZI(
+                const bsls::AssertTestException EXCEPTION_ZZI(
                                                         EXPRESSION,
                                                         COMPATIBLE_NAMES_ZZ[i],
                                                         ASSERTED_LINE);
 
                 bool testResult =
-                             bsls_AssertTest::catchProbe('P', EXCEPTION_AI, 0);
+                            bsls::AssertTest::catchProbe('P', EXCEPTION_AI, 0);
                 LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                testResult = bsls_AssertTest::catchProbe('F', EXCEPTION_AI, 0);
+                testResult = bsls::AssertTest::catchProbe('F',
+                                                          EXCEPTION_AI,
+                                                          0);
                 LOOP2_ASSERT(LINE, testResult, true == testResult);
 
                 testResult =
-                            bsls_AssertTest::catchProbe('P', EXCEPTION_ZZI, 0);
+                           bsls::AssertTest::catchProbe('P', EXCEPTION_ZZI, 0);
                 LOOP2_ASSERT(LINE, testResult, false == testResult);
 
                 testResult =
-                            bsls_AssertTest::catchProbe('F', EXCEPTION_ZZI, 0);
+                           bsls::AssertTest::catchProbe('F', EXCEPTION_ZZI, 0);
                 LOOP2_ASSERT(LINE, testResult, true == testResult);
 
                 for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
-                    const bsls_AssertTestException EXCEPTION_AJ(
+                    const bsls::AssertTestException EXCEPTION_AJ(
                                                          EXPRESSION,
                                                          COMPATIBLE_NAMES_A[j],
                                                          ASSERTED_LINE);
 
-                    const bsls_AssertTestException EXCEPTION_ZZJ(
+                    const bsls::AssertTestException EXCEPTION_ZZJ(
                                                         EXPRESSION,
                                                         COMPATIBLE_NAMES_ZZ[j],
                                                         ASSERTED_LINE);
@@ -783,49 +786,49 @@ int main(int argc, char *argv[])
                         P(EXCEPTION_ZZJ.filename())
                     }
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_AI,
                                                         COMPATIBLE_NAMES_A[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                        'P',
                                                        EXCEPTION_AI,
                                                        COMPATIBLE_NAMES_ZZ[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_ZZI,
                                                         COMPATIBLE_NAMES_A[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                        'P',
                                                        EXCEPTION_ZZI,
                                                        COMPATIBLE_NAMES_ZZ[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'F',
                                                         EXCEPTION_AI,
                                                         COMPATIBLE_NAMES_A[j]);
                     LOOP2_ASSERT(LINE, testResult, true == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                        'F',
                                                        EXCEPTION_AI,
                                                        COMPATIBLE_NAMES_ZZ[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'F',
                                                         EXCEPTION_ZZI,
                                                         COMPATIBLE_NAMES_A[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                        'F',
                                                        EXCEPTION_ZZI,
                                                        COMPATIBLE_NAMES_ZZ[j]);
@@ -837,13 +840,13 @@ int main(int argc, char *argv[])
                         P_(EXCEPTION_AI.filename()) P(INCOMPATIBLE_NAMES[j])
                     }
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_AI,
                                                         INCOMPATIBLE_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'F',
                                                         EXCEPTION_AI,
                                                         INCOMPATIBLE_NAMES[j]);
@@ -853,13 +856,13 @@ int main(int argc, char *argv[])
                         P_(EXCEPTION_ZZI.filename()) P(INCOMPATIBLE_NAMES[j])
                     }
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_ZZI,
                                                         INCOMPATIBLE_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'F',
                                                         EXCEPTION_ZZI,
                                                         INCOMPATIBLE_NAMES[j]);
@@ -868,38 +871,40 @@ int main(int argc, char *argv[])
             }
 
             for (size_t i = 0; i != NUM_INCOMPATIBLE_NAMES; ++i) {
-                const bsls_AssertTestException EXCEPTION_IN(
+                const bsls::AssertTestException EXCEPTION_IN(
                                                          EXPRESSION,
                                                          INCOMPATIBLE_NAMES[i],
                                                          ASSERTED_LINE);
 
                 bool testResult =
-                             bsls_AssertTest::catchProbe('P', EXCEPTION_IN, 0);
+                            bsls::AssertTest::catchProbe('P', EXCEPTION_IN, 0);
                 LOOP_ASSERT(LINE, false == testResult);
 
-                testResult = bsls_AssertTest::catchProbe('F', EXCEPTION_IN, 0);
+                testResult = bsls::AssertTest::catchProbe('F',
+                                                          EXCEPTION_IN,
+                                                          0);
                 LOOP_ASSERT(LINE, true == testResult);
 
                 for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_IN,
                                                         COMPATIBLE_NAMES_A[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                        'P',
                                                        EXCEPTION_IN,
                                                        COMPATIBLE_NAMES_ZZ[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'F',
                                                         EXCEPTION_IN,
                                                         COMPATIBLE_NAMES_A[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                        'F',
                                                        EXCEPTION_IN,
                                                        COMPATIBLE_NAMES_ZZ[j]);
@@ -912,13 +917,13 @@ int main(int argc, char *argv[])
                         P_(EXCEPTION_IN.filename()) P(INCOMPATIBLE_NAMES[j])
                     }
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_IN,
                                                         INCOMPATIBLE_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'F',
                                                         EXCEPTION_IN,
                                                         INCOMPATIBLE_NAMES[j]);
@@ -930,8 +935,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING catchProbeRaw"
                             "\n=====================\n");
 
-        ASSERT(false == bsls_AssertTest::catchProbeRaw('P'));
-        ASSERT(true == bsls_AssertTest::catchProbeRaw('F'));
+        ASSERT(false == bsls::AssertTest::catchProbeRaw('P'));
+        ASSERT(true == bsls::AssertTest::catchProbeRaw('F'));
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -955,8 +960,8 @@ int main(int argc, char *argv[])
         //   return 'false' and 'P' must always return 'true'.
         //
         // Testing:
-        //   bsls_AssertTest::tryProbe
-        //   bsls_AssertTest::tryProbeRaw
+        //   bsls::AssertTest::tryProbe
+        //   bsls::AssertTest::tryProbeRaw
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING try-probes"
@@ -965,28 +970,28 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING tryProbe"
                             "\n================\n");
 
-        ASSERT(true == bsls_AssertTest::tryProbe('P'));
-        ASSERT(false == bsls_AssertTest::tryProbe('F'));
+        ASSERT(true == bsls::AssertTest::tryProbe('P'));
+        ASSERT(false == bsls::AssertTest::tryProbe('F'));
 
         if (verbose) printf("\nTESTING tryProbeRaw"
                             "\n===================\n");
 
-        ASSERT(true == bsls_AssertTest::tryProbeRaw('P'));
-        ASSERT(false == bsls_AssertTest::tryProbeRaw('F'));
+        ASSERT(true == bsls::AssertTest::tryProbeRaw('P'));
+        ASSERT(false == bsls::AssertTest::tryProbeRaw('F'));
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING bsls_AssertTest::failTestDriver
+        // TESTING bsls::AssertTest::failTestDriver
         //
         // Concerns:
-        //: 1 The function 'bsls_AssertTest::failTestDriver' can be installed
-        //:   as an assertion-failure handler with 'bsls_Assert'.
+        //: 1 The function 'bsls::AssertTest::failTestDriver' can be installed
+        //:   as an assertion-failure handler with 'bsls::Assert'.
         //: 2 The function throws an exception of type
-        //:   'bsls_AssertTestException' whose attributes exactly match the
+        //:   'bsls::AssertTestException' whose attributes exactly match the
         //:   arguments to the function call.
         //
         // Plan:
-        //   First, we will install 'bsls_AssertTest::failTestDriver' as the
+        //   First, we will install 'bsls::AssertTest::failTestDriver' as the
         //   active assertion-failure handler function, demonstrating it has
         //   the required signature.  Then a table-driven approach will
         //   demonstrate that each call to the function throws an exception
@@ -996,12 +1001,13 @@ int main(int argc, char *argv[])
         //   failTestDriver
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING bsls_AssertTest::failTestDriver"
-                            "\n=======================================\n");
+        if (verbose) printf("\nTESTING bsls::AssertTest::failTestDriver"
+                            "\n========================================\n");
 
-        // First we install 'bsls_AssertTest::failTestDriver' as the active
+        // First we install 'bsls::AssertTest::failTestDriver' as the active
         // assertion-failure handler, to verify it has the correct signature.
-        bsls_AssertFailureHandlerGuard guard(&bsls_AssertTest::failTestDriver);
+        bsls::AssertFailureHandlerGuard guard(
+                                            &bsls::AssertTest::failTestDriver);
 
         // Next we verify that the installed assertion-failure handler throws
         // the expected exception when called directly.
@@ -1029,18 +1035,25 @@ int main(int argc, char *argv[])
             }
 
             // Validate test description.
+#if defined BDE_BUILD_TARGET_EXC
             try {
-                bsls_AssertTest::failTestDriver(
+                bsls::AssertTest::failTestDriver(
                                                EXPRESSION, FILENAME, TESTLINE);
             }
-            catch(const bsls_AssertTestException& ex) {
+            catch(const bsls::AssertTestException& ex) {
                 LOOP3_ASSERT(LINE, EXPRESSION, ex.expression(),
-                                     0 == strcmp(EXPRESSION, ex.expression()));
+                             0 == strcmp(EXPRESSION, ex.expression()));
                 LOOP3_ASSERT(LINE, FILENAME, ex.filename(),
-                                         0 == strcmp(FILENAME, ex.filename()));
+                             0 == strcmp(FILENAME, ex.filename()));
                 LOOP3_ASSERT(LINE, TESTLINE, ex.lineNumber(),
-                                                  TESTLINE == ex.lineNumber());
+                             TESTLINE == ex.lineNumber());
             }
+#else
+            // This should result in a regular assert/abort, which is probably
+            // a run-time rather than a compile-time fail in our nightly test
+            // framework.
+            bsls::AssertTest::failTestDriver(EXPRESSION, FILENAME, TESTLINE);
+#endif
         }
       } break;
       case 4: {
@@ -1075,7 +1088,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING bsls_AssertTest::isValidExpected
+        // TESTING bsls::AssertTest::isValidExpected
         //
         // Concerns:
         //: 1 The function should return 'true' for only two possible values,
@@ -1089,7 +1102,7 @@ int main(int argc, char *argv[])
         //   may be 'true' for only two values, 'F' and 'P'.
         //
         // Testing:
-        //   bsls_AssertTest::isValidExpected
+        //   bsls::AssertTest::isValidExpected
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING isValidExpected"
@@ -1101,14 +1114,14 @@ int main(int argc, char *argv[])
                 T_ P_(c) P(expectedResult)
             }
 
-            const bool testResult = bsls_AssertTest::isValidExpected(c);
+            const bool testResult = bsls::AssertTest::isValidExpected(c);
             LOOP2_ASSERT(c, expectedResult, expectedResult == testResult);
 
         }
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING bsls_AssertTest::isValidAssertBuild
+        // TESTING bsls::AssertTest::isValidAssertBuild
         //
         // Concerns:
         //: 1 The function returns 'true' for the six recognized string values,
@@ -1126,7 +1139,7 @@ int main(int argc, char *argv[])
         //   permutation of those valid values.
         //
         // Testing:
-        //   bsls_AssertTest::isValidAssertBuild
+        //   bsls::AssertTest::isValidAssertBuild
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING isValidAssertBuildType"
@@ -1197,7 +1210,7 @@ int main(int argc, char *argv[])
             }
 
             // Validate test description.
-            bool testResult = bsls_AssertTest::isValidAssertBuild(TYPE);
+            bool testResult = bsls::AssertTest::isValidAssertBuild(TYPE);
             LOOP3_ASSERT(LINE, TYPE, RESULT, RESULT == testResult);
         }  // table-driven 'for' loop
       } break;
@@ -1222,7 +1235,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        bsls_AssertFailureHandlerGuard guard(&bsls_AssertTest::failTestDriver);
+        bsls::AssertFailureHandlerGuard guard(
+                                            &bsls::AssertTest::failTestDriver);
 
         BSLS_ASSERTTEST_ASSERT_OPT_PASS(BSLS_ASSERT_OPT(true));
         BSLS_ASSERTTEST_ASSERT_OPT_FAIL(BSLS_ASSERT_OPT(false));
@@ -1250,48 +1264,48 @@ int main(int argc, char *argv[])
         //   reading the console.
         //
         // Testing:
-        //   bsls_AssertTest::tryProbe
-        //   bsls_AssertTest::tryProbeRaw
+        //   bsls::AssertTest::tryProbe
+        //   bsls::AssertTest::tryProbeRaw
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING bad characters with try probes"
                             "\n======================================\n");
 
-        if (verbose) printf("\nTESTING bsls_AssertTest::tryProbe"
-                            "\n=================================\n");
+        if (verbose) printf("\nTESTING bsls::AssertTest::tryProbe"
+                            "\n==================================\n");
 
         for (char c = CHAR_MIN; c != CHAR_MAX; ++c) {
             if ('P' == c) {
                 printf("== 'P' should not print a diagnostic\n");
-                ASSERT(true == bsls_AssertTest::tryProbe(c));
+                ASSERT(true == bsls::AssertTest::tryProbe(c));
             }
             else if ('F' == c) {
                 printf("== 'F' should not print a diagnostic\n");
-                ASSERT(false == bsls_AssertTest::tryProbe(c));
+                ASSERT(false == bsls::AssertTest::tryProbe(c));
             }
             else {
                 printf("-- invalid argumemt '%c' should print a diagnostic\n",
                        c);
-                ASSERT(false == bsls_AssertTest::tryProbe(c));
+                ASSERT(false == bsls::AssertTest::tryProbe(c));
             }
         }
 
-        if (verbose) printf("\nTESTING bsls_AssertTest::tryProbeRaw"
-                            "\n====================================\n");
+        if (verbose) printf("\nTESTING bsls::AssertTest::tryProbeRaw"
+                            "\n=====================================\n");
 
         for (char c = CHAR_MIN; c != CHAR_MAX; ++c) {
             if ('P' == c) {
                 printf("== 'P' should not print a diagnostic\n");
-                ASSERT(true == bsls_AssertTest::tryProbeRaw(c));
+                ASSERT(true == bsls::AssertTest::tryProbeRaw(c));
             }
             else if ('F' == c) {
                 printf("== 'F' should not print a diagnostic\n");
-                ASSERT(false == bsls_AssertTest::tryProbeRaw(c));
+                ASSERT(false == bsls::AssertTest::tryProbeRaw(c));
             }
             else {
                 printf("-- invalid argumemt '%c' should print a diagnostic\n",
                        c);
-                ASSERT(false == bsls_AssertTest::tryProbeRaw(c));
+                ASSERT(false == bsls::AssertTest::tryProbeRaw(c));
             }
         }
       } break;
@@ -1316,8 +1330,8 @@ int main(int argc, char *argv[])
         //   reading the console.
         //
         // Testing:
-        //   bsls_AssertTest::tryProbe
-        //   bsls_AssertTest::tryProbeRaw
+        //   bsls::AssertTest::tryProbe
+        //   bsls::AssertTest::tryProbeRaw
         // --------------------------------------------------------------------
 
         if (globalVerbose) printf(
@@ -1436,38 +1450,40 @@ int main(int argc, char *argv[])
                     P_(COMPATIBLE_NAMES_A[i]) P(COMPATIBLE_NAMES_ZZ[i])
                 }
 
-                const bsls_AssertTestException EXCEPTION_AI(
+                const bsls::AssertTestException EXCEPTION_AI(
                                                          EXPRESSION,
                                                          COMPATIBLE_NAMES_A[i],
                                                          ASSERTED_LINE);
 
-                const bsls_AssertTestException EXCEPTION_ZZI(
+                const bsls::AssertTestException EXCEPTION_ZZI(
                                                         EXPRESSION,
                                                         COMPATIBLE_NAMES_ZZ[i],
                                                         ASSERTED_LINE);
 
                 bool testResult =
-                             bsls_AssertTest::catchProbe('P', EXCEPTION_AI, 0);
+                            bsls::AssertTest::catchProbe('P', EXCEPTION_AI, 0);
                 LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                testResult = bsls_AssertTest::catchProbe('F', EXCEPTION_AI, 0);
+                testResult = bsls::AssertTest::catchProbe('F',
+                                                          EXCEPTION_AI,
+                                                          0);
                 LOOP3_ASSERT(LINE, RESULT, testResult, RESULT == testResult);
 
                 testResult =
-                            bsls_AssertTest::catchProbe('P', EXCEPTION_ZZI, 0);
+                           bsls::AssertTest::catchProbe('P', EXCEPTION_ZZI, 0);
                 LOOP2_ASSERT(LINE, testResult, false == testResult);
 
                 testResult =
-                            bsls_AssertTest::catchProbe('F', EXCEPTION_ZZI, 0);
+                           bsls::AssertTest::catchProbe('F', EXCEPTION_ZZI, 0);
                 LOOP3_ASSERT(LINE, RESULT, testResult, RESULT == testResult);
 
                 for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
-                    const bsls_AssertTestException EXCEPTION_AJ(
+                    const bsls::AssertTestException EXCEPTION_AJ(
                                                          EXPRESSION,
                                                          COMPATIBLE_NAMES_A[j],
                                                          ASSERTED_LINE);
 
-                    const bsls_AssertTestException EXCEPTION_ZZJ(
+                    const bsls::AssertTestException EXCEPTION_ZZJ(
                                                         EXPRESSION,
                                                         COMPATIBLE_NAMES_ZZ[j],
                                                         ASSERTED_LINE);
@@ -1479,57 +1495,57 @@ int main(int argc, char *argv[])
                         P(EXCEPTION_ZZJ.filename())
                     }
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_AI,
                                                         COMPATIBLE_NAMES_A[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                        'P',
                                                        EXCEPTION_AI,
                                                        COMPATIBLE_NAMES_ZZ[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_ZZI,
                                                         COMPATIBLE_NAMES_A[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                        'P',
                                                        EXCEPTION_ZZI,
                                                        COMPATIBLE_NAMES_ZZ[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'F',
                                                         EXCEPTION_AI,
                                                         COMPATIBLE_NAMES_A[j]);
                     LOOP3_ASSERT(LINE, testResult, RESULT,
-                                                         testResult == RESULT);
+                                 testResult == RESULT);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                        'F',
                                                        EXCEPTION_AI,
                                                        COMPATIBLE_NAMES_ZZ[j]);
                     LOOP3_ASSERT(LINE, testResult, RESULT,
-                                                          false == testResult);
+                                 false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'F',
                                                         EXCEPTION_ZZI,
                                                         COMPATIBLE_NAMES_A[j]);
                     LOOP3_ASSERT(LINE, testResult, RESULT,
-                                                          false == testResult);
+                                 false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                        'F',
                                                        EXCEPTION_ZZI,
                                                        COMPATIBLE_NAMES_ZZ[j]);
                     LOOP3_ASSERT(LINE, testResult, RESULT,
-                                                         testResult == RESULT);
+                                 testResult == RESULT);
                 }
 
                 for (size_t j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
@@ -1537,13 +1553,13 @@ int main(int argc, char *argv[])
                         P_(EXCEPTION_AI.filename()) P(INCOMPATIBLE_NAMES[j])
                     }
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_AI,
                                                         INCOMPATIBLE_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'F',
                                                         EXCEPTION_AI,
                                                         INCOMPATIBLE_NAMES[j]);
@@ -1553,13 +1569,13 @@ int main(int argc, char *argv[])
                         P_(EXCEPTION_ZZI.filename()) P(INCOMPATIBLE_NAMES[j])
                     }
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_ZZI,
                                                         INCOMPATIBLE_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'F',
                                                         EXCEPTION_ZZI,
                                                         INCOMPATIBLE_NAMES[j]);
@@ -1571,13 +1587,14 @@ int main(int argc, char *argv[])
                         P_(EXCEPTION_AI.filename()) P(INVALID_NAMES[j])
                     }
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                             'P',
                                                              EXCEPTION_AI,
                                                              INVALID_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe('F',
+                    testResult = bsls::AssertTest::catchProbe(
+                                                             'F',
                                                              EXCEPTION_AI,
                                                              INVALID_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
@@ -1586,12 +1603,14 @@ int main(int argc, char *argv[])
                         P_(EXCEPTION_ZZI.filename()) P(INVALID_NAMES[j])
                     }
 
-                    testResult = bsls_AssertTest::catchProbe('P',
+                    testResult = bsls::AssertTest::catchProbe(
+                                                             'P',
                                                              EXCEPTION_ZZI,
                                                              INVALID_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe('F',
+                    testResult = bsls::AssertTest::catchProbe(
+                                                             'F',
                                                              EXCEPTION_ZZI,
                                                              INVALID_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
@@ -1599,38 +1618,40 @@ int main(int argc, char *argv[])
             }
 
             for (size_t i = 0; i != NUM_INCOMPATIBLE_NAMES; ++i) {
-                const bsls_AssertTestException EXCEPTION_IN(
+                const bsls::AssertTestException EXCEPTION_IN(
                                                          EXPRESSION,
                                                          INCOMPATIBLE_NAMES[i],
                                                          ASSERTED_LINE);
 
                 bool testResult =
-                             bsls_AssertTest::catchProbe('P', EXCEPTION_IN, 0);
+                            bsls::AssertTest::catchProbe('P', EXCEPTION_IN, 0);
                 LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                testResult = bsls_AssertTest::catchProbe('F', EXCEPTION_IN, 0);
+                testResult = bsls::AssertTest::catchProbe('F',
+                                                          EXCEPTION_IN,
+                                                          0);
                 LOOP3_ASSERT(LINE, RESULT, testResult, RESULT == testResult);
 
                 for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_IN,
                                                         COMPATIBLE_NAMES_A[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                        'P',
                                                        EXCEPTION_IN,
                                                        COMPATIBLE_NAMES_ZZ[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'F',
                                                         EXCEPTION_IN,
                                                         COMPATIBLE_NAMES_A[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                        'F',
                                                        EXCEPTION_IN,
                                                        COMPATIBLE_NAMES_ZZ[j]);
@@ -1645,13 +1666,13 @@ int main(int argc, char *argv[])
                         P_(EXCEPTION_IN.filename()) P(INCOMPATIBLE_NAMES[j])
                     }
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_IN,
                                                         INCOMPATIBLE_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'F',
                                                         EXCEPTION_IN,
                                                         INCOMPATIBLE_NAMES[j]);
@@ -1664,12 +1685,14 @@ int main(int argc, char *argv[])
                         P_(EXCEPTION_IN.filename()) P(INVALID_NAMES[j])
                     }
 
-                    testResult = bsls_AssertTest::catchProbe('P',
+                    testResult = bsls::AssertTest::catchProbe(
+                                                             'P',
                                                              EXCEPTION_IN,
                                                              INVALID_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe('F',
+                    testResult = bsls::AssertTest::catchProbe(
+                                                             'F',
                                                              EXCEPTION_IN,
                                                              INVALID_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
@@ -1677,37 +1700,39 @@ int main(int argc, char *argv[])
             }
 
             for (size_t i = 0; i != NUM_INVALID_NAMES; ++i) {
-                const bsls_AssertTestException EXCEPTION_IN(EXPRESSION,
-                                                            INVALID_NAMES[i],
-                                                            ASSERTED_LINE);
+                const bsls::AssertTestException EXCEPTION_IN(EXPRESSION,
+                                                             INVALID_NAMES[i],
+                                                             ASSERTED_LINE);
 
                 bool testResult =
-                             bsls_AssertTest::catchProbe('P', EXCEPTION_IN, 0);
+                            bsls::AssertTest::catchProbe('P', EXCEPTION_IN, 0);
                 LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                testResult = bsls_AssertTest::catchProbe('F', EXCEPTION_IN, 0);
+                testResult = bsls::AssertTest::catchProbe('F',
+                                                          EXCEPTION_IN,
+                                                          0);
                 LOOP2_ASSERT(LINE, testResult, false == testResult);
 
                 for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_IN,
                                                         COMPATIBLE_NAMES_A[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                        'P',
                                                        EXCEPTION_IN,
                                                        COMPATIBLE_NAMES_ZZ[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'F',
                                                         EXCEPTION_IN,
                                                         COMPATIBLE_NAMES_A[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                        'F',
                                                        EXCEPTION_IN,
                                                        COMPATIBLE_NAMES_ZZ[j]);
@@ -1720,13 +1745,13 @@ int main(int argc, char *argv[])
                         P_(EXCEPTION_IN.filename()) P(INCOMPATIBLE_NAMES[j])
                     }
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_IN,
                                                         INCOMPATIBLE_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                         'F',
                                                         EXCEPTION_IN,
                                                         INCOMPATIBLE_NAMES[j]);
@@ -1738,13 +1763,14 @@ int main(int argc, char *argv[])
                         P_(EXCEPTION_IN.filename()) P(INVALID_NAMES[j])
                     }
 
-                    testResult = bsls_AssertTest::catchProbe(
+                    testResult = bsls::AssertTest::catchProbe(
                                                             'P',
                                                              EXCEPTION_IN,
                                                              INVALID_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                    testResult = bsls_AssertTest::catchProbe('F',
+                    testResult = bsls::AssertTest::catchProbe(
+                                                             'F',
                                                              EXCEPTION_IN,
                                                              INVALID_NAMES[j]);
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
@@ -1775,7 +1801,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
     if (globalVerbose)
         printf("\nWe need to write a running commentary\n");
 
-//    bsls_Assert::setFailureHandler(&AssertFailed::failMacroTest);
+//    bsls::Assert::setFailureHandler(&AssertFailed::failMacroTest);
 
 //  Config macros    Configuration  Expected results
 //  OVERRIDE SAFE2  OPT  DBG  SAFE   O A S O2 A2 S2
@@ -1891,7 +1917,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             }
 
             // Validate test description.
-            LOOP_ASSERT(LINE, bsls_AssertTest::isValidAssertBuild(TYPE));
+            LOOP_ASSERT(LINE, bsls::AssertTest::isValidAssertBuild(TYPE));
 
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             LOOP3_ASSERT(TYPE, RESULT, configResult, RESULT == configResult);
@@ -2001,7 +2027,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             }
 
             // Validate test description.
-            LOOP_ASSERT(LINE, bsls_AssertTest::isValidAssertBuild(TYPE));
+            LOOP_ASSERT(LINE, bsls::AssertTest::isValidAssertBuild(TYPE));
 
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             LOOP3_ASSERT(TYPE, RESULT, configResult, RESULT == configResult);
@@ -2111,7 +2137,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             }
 
             // Validate test description.
-            LOOP_ASSERT(LINE, bsls_AssertTest::isValidAssertBuild(TYPE));
+            LOOP_ASSERT(LINE, bsls::AssertTest::isValidAssertBuild(TYPE));
 
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             LOOP3_ASSERT(TYPE, RESULT, configResult, RESULT == configResult);
@@ -2221,7 +2247,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             }
 
             // Validate test description.
-            LOOP_ASSERT(LINE, bsls_AssertTest::isValidAssertBuild(TYPE));
+            LOOP_ASSERT(LINE, bsls::AssertTest::isValidAssertBuild(TYPE));
 
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             LOOP3_ASSERT(TYPE, RESULT, configResult, RESULT == configResult);
@@ -2331,7 +2357,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             }
 
             // Validate test description.
-            LOOP_ASSERT(LINE, bsls_AssertTest::isValidAssertBuild(TYPE));
+            LOOP_ASSERT(LINE, bsls::AssertTest::isValidAssertBuild(TYPE));
 
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             LOOP3_ASSERT(TYPE, RESULT, configResult, RESULT == configResult);
@@ -2440,7 +2466,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             }
 
             // Validate test description.
-            LOOP_ASSERT(LINE, bsls_AssertTest::isValidAssertBuild(TYPE));
+            LOOP_ASSERT(LINE, bsls::AssertTest::isValidAssertBuild(TYPE));
 
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             LOOP3_ASSERT(TYPE, RESULT, configResult, RESULT == configResult);
@@ -2549,7 +2575,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             }
 
             // Validate test description.
-            LOOP_ASSERT(LINE, bsls_AssertTest::isValidAssertBuild(TYPE));
+            LOOP_ASSERT(LINE, bsls::AssertTest::isValidAssertBuild(TYPE));
 
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             LOOP3_ASSERT(TYPE, RESULT, configResult, RESULT == configResult);
@@ -2658,7 +2684,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             }
 
             // Validate test description.
-            LOOP_ASSERT(LINE, bsls_AssertTest::isValidAssertBuild(TYPE));
+            LOOP_ASSERT(LINE, bsls::AssertTest::isValidAssertBuild(TYPE));
 
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             LOOP3_ASSERT(TYPE, RESULT, configResult, RESULT == configResult);
@@ -2708,7 +2734,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     if (globalVerbose)
         printf("\nWe need to write a running commentary\n");
 
-    bsls_Assert::setFailureHandler(&bsls_AssertTest::failTestDriver);
+    bsls::Assert::setFailureHandler(&bsls::AssertTest::failTestDriver);
 
 //===================== SAFE_2 LEVEL_NONE ===============================//
 
@@ -2813,21 +2839,21 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     ASSERT(!BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG);
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG);
 
-    {   
+    {
         EXPECTED = true;
 
-        // Verify that *PASS macros are expanded in any build mode. 
-        
+        // Verify that *PASS macros are expanded in any build mode.
+
         BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
     }
-    
+
     {
         EXPECTED = false;
-        
+
         // Force a fail if any of these macros expands the expression
-   
+
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_FAIL(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_OPT_FAIL(ASSERT(true));
@@ -2948,14 +2974,14 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
         {
             EXPECTED = true;
-        
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
         }
-        
+
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(ASSERT(true));
@@ -3032,12 +3058,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
-    
-        {   
+
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
@@ -3195,12 +3221,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #endif
             }
         };
-        
-        {   
+
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
@@ -3307,12 +3333,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
-        
-        {   
+
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
@@ -3496,12 +3522,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #endif
             }
         };
-        
-        {   
+
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
@@ -3633,12 +3659,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
-        
-        {   
+
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
@@ -3812,12 +3838,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     ASSERT(!BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG);
     ASSERT(!BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG);
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG);
-    
-    {   
+
+    {
         EXPECTED = true;
 
-        // Verify that *PASS macros are expanded in any build mode. 
-    
+        // Verify that *PASS macros are expanded in any build mode.
+
         BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
@@ -3942,12 +3968,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #endif
             }
         };
-    
-        {   
+
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
@@ -4030,16 +4056,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
-        {   
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
         }
-        
+
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(ASSERT(true));
@@ -4191,12 +4217,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #endif
             }
         };
-        
-        {   
+
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
@@ -4304,16 +4330,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
-        {   
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
         }
-        
+
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(ASSERT(true));
@@ -4491,12 +4517,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #endif
             }
         };
-        
-        {   
+
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
@@ -4629,16 +4655,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
-        {   
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
         }
-        
+
         EXPECTED = false;
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(Production::callAssertSafe(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_PASS(Production::callAssertSafe(false));
@@ -4757,7 +4783,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     if (globalVerbose)
         printf("\nWe need to write a running commentary\n");
 
-    bsls_Assert::setFailureHandler(&bsls_AssertTest::failTestDriver);
+    bsls::Assert::setFailureHandler(&bsls::AssertTest::failTestDriver);
 
 //===================== SAFE_2 LEVEL_NONE ===============================//
 
@@ -4861,12 +4887,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     ASSERT(!BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG);
     ASSERT(!BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG);
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG);
-        
-    {   
+
+    {
         EXPECTED = true;
 
-        // Verify that *PASS macros are expanded in any build mode. 
-    
+        // Verify that *PASS macros are expanded in any build mode.
+
         BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
@@ -4992,12 +5018,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #endif
             }
         };
-        
-        {   
+
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
@@ -5080,16 +5106,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
-        {   
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
         }
-        
+
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(ASSERT(true));
@@ -5239,12 +5265,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #endif
             }
         };
-        
-        {   
+
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
@@ -5351,12 +5377,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
-       
-        {   
+
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
@@ -5537,16 +5563,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
             }
         };
 
-        {   
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
         }
-        
+
         EXPECTED = false;
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(Production::callAssertSafe(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(Production::callAssertSafe(
@@ -5676,16 +5702,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
-        {   
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
         }
-        
+
         EXPECTED = false;
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(Production::callAssertSafe(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(Production::callAssertSafe(
@@ -5851,17 +5877,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     ASSERT(!BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG);
     ASSERT(!BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG);
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG);
-       
-    {   
+
+    {
         EXPECTED = true;
 
-        // Verify that *PASS macros are expanded in any build mode. 
-       
+        // Verify that *PASS macros are expanded in any build mode.
+
         BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
     }
-        
+
     {
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
@@ -5981,12 +6007,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #endif
             }
         };
-        
-        {   
+
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
@@ -6069,16 +6095,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
-        {   
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
         }
-        
+
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(ASSERT(true));
@@ -6228,16 +6254,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
             }
         };
 
-        {   
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
         }
-        
+
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(ASSERT(true));
@@ -6340,16 +6366,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
-        {   
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
         }
-        
+
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(ASSERT(true));
@@ -6523,12 +6549,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #endif
             }
         };
-        
-        {   
+
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
@@ -6663,11 +6689,11 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
-        {   
+        {
             EXPECTED = true;
 
-            // Verify that *PASS macros are expanded in any build mode. 
-        
+            // Verify that *PASS macros are expanded in any build mode.
+
             BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
             BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));

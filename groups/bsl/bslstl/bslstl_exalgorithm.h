@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace for algorithm extensions
 //
 //@CLASSES:
-//   bslstl::exalgorithm::copy_n: copy 'n' elements
+//  bslstl::exalgorithm::copy_n: copy 'n' elements
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 // Boris Fomitchev
 //
 // This material is provided "as is", with absolutely no warranty expressed
-// or implied. Any use is at your own risk.
+// or implied.  Any use is at your own risk.
 //
 // Permission to use or copy this software for any purpose is hereby granted
 // without fee, provided the above notices are retained on all copies.
@@ -91,10 +91,10 @@ namespace bsl {
 // PRIVATE FREE FUNCTIONS
 template <class InputIter, class Size, class OutputIter>
 pair<InputIter, OutputIter>
-bslstl_ExAlgorithm_CopyNImp(InputIter                 first,
-                            Size                      count,
-                            OutputIter                result,
-                            const input_iterator_tag&)
+bslstl_ExAlgorithm_CopyNImp(InputIter  first,
+                            Size       count,
+                            OutputIter result,
+                            const      input_iterator_tag&)
 {
     for ( ; count > 0; --count) {
         *result = *first;
@@ -107,10 +107,10 @@ bslstl_ExAlgorithm_CopyNImp(InputIter                 first,
 template <class RAIter, class Size, class OutputIter>
 inline
 pair<RAIter, OutputIter>
-bslstl_ExAlgorithm_CopyNImp(RAIter                            first,
-                            Size                              count,
-                            OutputIter                        result,
-                            const random_access_iterator_tag&)
+bslstl_ExAlgorithm_CopyNImp(RAIter     first,
+                            Size       count,
+                            OutputIter result,
+                            const      random_access_iterator_tag&)
 {
     RAIter last = first + count;
     return pair<RAIter, OutputIter>(last,

@@ -90,44 +90,52 @@ void printError(const char *text, const char *file, int line)
                           // in case it has been reopened as a buffered stream.
 }
 
-                              // -----------------
-                              // class bsls_Assert
-                              // -----------------
+namespace bsls {
+
+                                // ------------
+                                // class Assert
+                                // ------------
 
 // CLASS DATA
-bsls_Assert::Handler bsls_Assert::s_handler    = bsls_Assert::failAbort;
-bool                 bsls_Assert::s_lockedFlag = false;
+bsls::AtomicOperations::AtomicTypes::Pointer
+    Assert::s_handler = {(void *) &Assert::failAbort};
+bsls::AtomicOperations::AtomicTypes::Int Assert::s_lockedFlag = {0};
 
 // CLASS METHODS
-void bsls_Assert::setFailureHandler(bsls_Assert::Handler function)
+void Assert::setFailureHandlerRaw(Assert::Handler function)
 {
-    if (!s_lockedFlag) {
-        s_handler = function;
+    bsls::AtomicOperations::setPtrRelease(&s_handler, (void *) function);
+}
+
+void Assert::setFailureHandler(Assert::Handler function)
+{
+    if (!bsls::AtomicOperations::getIntRelaxed(&s_lockedFlag)) {
+        setFailureHandlerRaw(function);
     }
 }
 
-void bsls_Assert::lockAssertAdministration()
+void Assert::lockAssertAdministration()
 {
-    s_lockedFlag = true;
+    bsls::AtomicOperations::setIntRelaxed(&s_lockedFlag, 1);
 }
 
-bsls_Assert::Handler bsls_Assert::failureHandler()
+Assert::Handler Assert::failureHandler()
 {
-    return s_handler;
+    return (Handler) bsls::AtomicOperations::getPtrAcquire(&s_handler);
 }
 
                        // Macro Dispatcher Method
 
 BSLS_ASSERT_NORETURN_INVOKE_HANDLER
-void bsls_Assert::invokeHandler(const char *text, const char *file, int line)
+void Assert::invokeHandler(const char *text, const char *file, int line)
 {
-    s_handler(text, file, line);
+    failureHandler()(text, file, line);
 }
 
                      // Standard Assertion-Failure Handlers
 
 BSLS_ASSERT_NORETURN
-void bsls_Assert::failAbort(const char *text, const char *file, int line)
+void Assert::failAbort(const char *text, const char *file, int line)
 {
     printError(text, file, line);
 
@@ -165,7 +173,7 @@ void bsls_Assert::failAbort(const char *text, const char *file, int line)
 }
 
 BSLS_ASSERT_NORETURN
-void bsls_Assert::failSleep(const char *text, const char *file, int line)
+void Assert::failSleep(const char *text, const char *file, int line)
 {
     printError(text, file, line);
 
@@ -185,42 +193,47 @@ void bsls_Assert::failSleep(const char *text, const char *file, int line)
 }
 
 BSLS_ASSERT_NORETURN
-void bsls_Assert::failThrow(const char *text, const char *file, int line)
+void Assert::failThrow(const char *text, const char *file, int line)
 {
 
 #ifdef BDE_BUILD_TARGET_EXC
     if (!std::uncaught_exception()) {
-        throw bsls_AssertTestException(text, file, line);
+        throw AssertTestException(text, file, line);
     }
     else {
         std::fprintf(stderr,
                 "BSLS_ASSERTION ERROR: An uncaught exception is pending;"
-                " cannot throw 'bsls_AssertTestException'.\n");
+                " cannot throw 'AssertTestException'.\n");
     }
 #endif
 
     failAbort(text, file, line);
 }
 
+}  // close package namespace
+
 #undef BSLS_ASSERT_NORETURN
 
-                    // ------------------------------------
-                    // class bsls_AssertFailureHandlerGuard
-                    // ------------------------------------
+namespace bsls {
 
-bsls_AssertFailureHandlerGuard::bsls_AssertFailureHandlerGuard(
-                                                bsls_Assert::Handler temporary)
-: d_original(bsls_Assert::s_handler)
+                    // -------------------------------
+                    // class AssertFailureHandlerGuard
+                    // -------------------------------
+
+AssertFailureHandlerGuard::AssertFailureHandlerGuard(Assert::Handler temporary)
+: d_original(Assert::failureHandler())
 {
-    bsls_Assert::s_handler = temporary;
+    Assert::setFailureHandlerRaw(temporary);
 }
 
-bsls_AssertFailureHandlerGuard::~bsls_AssertFailureHandlerGuard()
+AssertFailureHandlerGuard::~AssertFailureHandlerGuard()
 {
-    bsls_Assert::s_handler = d_original;
+    Assert::setFailureHandlerRaw(d_original);
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

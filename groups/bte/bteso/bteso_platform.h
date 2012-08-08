@@ -44,14 +44,22 @@ struct bteso_Platform {
     struct BsdSockets {};
     struct WinSockets {};
 
+    struct SELECT {};
+
     #ifdef BSLS_PLATFORM__OS_UNIX
         typedef BsdSockets SocketFamily;
         #define BTESO_PLATFORM__BSD_SOCKETS 1
+
         struct POLL {};       // 'poll' syscall is available
         struct SIGNAL {};
-        struct SELECT {};
-        #ifdef BSLS_PLATFORM__OS_SOLARIS
-            struct DEVPOLL {};
+        struct DEVPOLL {};
+
+        #if defined(BSLS_PLATFORM__OS_AIX)
+            struct POLLSET {};
+            typedef POLLSET DEFAULT_POLLING_MECHANISM;
+        #endif
+
+        #if defined(BSLS_PLATFORM__OS_SOLARIS)
             typedef DEVPOLL DEFAULT_POLLING_MECHANISM;
         #endif
 
@@ -59,10 +67,11 @@ struct bteso_Platform {
             struct EPOLL {};
             typedef EPOLL   DEFAULT_POLLING_MECHANISM;
         #endif
-        #if defined(BSLS_PLATFORM__OS_AIX)     \
-         || defined(BSLS_PLATFORM__OS_HPUX)    \
-         || defined(BSLS_PLATFORM__OS_CYGWIN)  \
-         || defined(BSLS_PLATFORM__OS_FREEBSD)
+
+        #if defined(BSLS_PLATFORM__OS_CYGWIN)  \
+         || defined(BSLS_PLATFORM__OS_FREEBSD) \
+         || defined(BSLS_PLATFORM__OS_DARWIN)  \
+         || defined(BSLS_PLATFORM__OS_HPUX)
             typedef POLL    DEFAULT_POLLING_MECHANISM;
         #endif
 
@@ -71,11 +80,8 @@ struct bteso_Platform {
     #ifdef BSLS_PLATFORM__OS_WINDOWS
         typedef WinSockets SocketFamily;
         #define BTESO_PLATFORM__WIN_SOCKETS 1
-        struct WFMO {};
-        struct SELECT {};
 
         typedef SELECT  DEFAULT_POLLING_MECHANISM;
-        typedef WFMO    SlowPoll;
     #endif
 };
 

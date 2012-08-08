@@ -7,7 +7,6 @@ BDES_IDENT_RCSID(bdeut_stringref_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
-#include <bsl_hash_set.h>
 #include <bsl_ostream.h>
 #include <bsl_string.h>
 

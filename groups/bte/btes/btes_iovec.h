@@ -251,12 +251,15 @@ inline btes_Iovec::btes_Iovec(const btes_Iovec& iovec)
 
 inline btes_Iovec::btes_Iovec(void *buffer, int length)
 {
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#if defined(BSLS_PLATFORM__CMP_MSVC)
     d_buffer.buf = (char FAR *) buffer;
     d_buffer.len = (u_long) length;
+#elif defined(BSLS_PLATFORM__OS_DARWIN)
+    d_buffer.iov_base = buffer;
+    d_buffer.iov_len = length;
 #else
     d_buffer.iov_base = (caddr_t) buffer;
-    d_buffer.iov_len = (int) length;
+    d_buffer.iov_len = length;
 #endif
 }
 
@@ -275,9 +278,12 @@ inline void btes_Iovec::setBuffer(void *buffer, int length)
 #ifdef BSLS_PLATFORM__CMP_MSVC
     d_buffer.buf = (char FAR *) buffer;
     d_buffer.len = (u_long) length;
+#elif defined(BSLS_PLATFORM__OS_DARWIN)
+    d_buffer.iov_base = buffer;
+    d_buffer.iov_len = length;
 #else
     d_buffer.iov_base = (caddr_t) buffer;
-    d_buffer.iov_len = (int) length;
+    d_buffer.iov_len = length;
 #endif
 }
 
@@ -327,9 +333,12 @@ inline btes_Ovec::btes_Ovec(const void *buffer, int length)
 #ifdef BSLS_PLATFORM__CMP_MSVC
     d_buffer.buf = (char FAR *) buffer;
     d_buffer.len = (u_long) length;
+#elif defined(BSLS_PLATFORM__OS_DARWIN)
+    d_buffer.iov_base = (void *) buffer;
+    d_buffer.iov_len = length;
 #else
     d_buffer.iov_base = (caddr_t) buffer;
-    d_buffer.iov_len = (int) length;
+    d_buffer.iov_len = length;
 #endif
 }
 
@@ -348,9 +357,12 @@ inline void btes_Ovec::setBuffer(const void *buffer, int length)
 #ifdef BSLS_PLATFORM__CMP_MSVC
     d_buffer.buf = (char FAR *) buffer;
     d_buffer.len = (u_long) length;
+#elif defined(BSLS_PLATFORM__OS_DARWIN)
+    d_buffer.iov_base = (void *) buffer;
+    d_buffer.iov_len = length;
 #else
     d_buffer.iov_base = (caddr_t) buffer;
-    d_buffer.iov_len = (int) length;
+    d_buffer.iov_len = length;
 #endif
 }
 

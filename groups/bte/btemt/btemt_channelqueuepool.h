@@ -421,7 +421,7 @@ BDES_IDENT("$Id: $")
 //              btemt_DataMsg& dt = msg.dataMsg();
 //              dt.setData(newChain, &ta);
 //              dt.setUserDataField1(0);
-//              dt.setUserDataField1(length);
+//              dt.setUserDataField2(length);
 //
 //              outgoing.pushBack(msg);
 //            } break;
@@ -569,9 +569,12 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
-class bslma_Allocator;
 class btemt_Message;
 
                         // ============================

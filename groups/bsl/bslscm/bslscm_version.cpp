@@ -1,4 +1,4 @@
-// bslscm_version.cpp          -*-C++-*-
+// bslscm_version.cpp                                                 -*-C++-*-
 #include <bslscm_version.h>
 
 #include <bsls_ident.h>
@@ -15,16 +15,16 @@ namespace BloombergLP {
                                              "." STRINGIFY(BSL_VERSION_MINOR) \
                                              "." STRINGIFY(BSL_VERSION_PATCH)
 
-const char *bslscm_Version::d_ident = "$Id: "BSLSCM_VERSION_STRING" $";
-const char *bslscm_Version::d_what  = "@(#)"BSLSCM_VERSION_STRING;
+const char *bslscm::Version::d_ident = "$Id: "BSLSCM_VERSION_STRING" $";
+const char *bslscm::Version::d_what  = "@(#)"BSLSCM_VERSION_STRING;
 
-const char *bslscm_Version::BSLSCM_D_VERSION    = BSLSCM_VERSION_STRING;
-const char *bslscm_Version::d_dependencies      = "";
-const char *bslscm_Version::d_buildInfo         = "";
-const char *bslscm_Version::d_timestamp         = "";
-const char *bslscm_Version::d_sourceControlInfo = "";
+const char *bslscm::Version::BSLSCM_D_VERSION    = BSLSCM_VERSION_STRING;
+const char *bslscm::Version::d_dependencies      = "";
+const char *bslscm::Version::d_buildInfo         = "";
+const char *bslscm::Version::d_timestamp         = "";
+const char *bslscm::Version::d_sourceControlInfo = "";
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:
