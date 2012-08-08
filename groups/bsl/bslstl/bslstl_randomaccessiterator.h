@@ -36,45 +36,33 @@ BSLS_IDENT("$Id: $")
 // Suppose we want to create a standard compliant random access iterator for a
 // fixed-size array.
 //
-// First, we define the minimal interface of the iterator required by
-// 'bslstl::RandomAccessIterator'.  The implementation is elided for brevity:
+// First, we define an iterator-like class, 'MyArrayIterator', which implements
+// the minimal interface of the iterator required by
+// 'bslstl::RandomAccessIterator'.  Note that the following shows only the
+// public interface required.  Private members and additional methods that may
+// be needed to implement this class is elided in this example:
 //..
 //  template <class VALUE>
 //  class MyArrayIterator {
-//      // DATA
-//      VALUE *d_value_p;  // address of an element in an array (held, not
-//                         // owned)
-//    private:
-//      // FRIENDS
-//      template <class OTHER_VALUE>
-//      friend bool operator==(const MyArrayIterator<OTHER_VALUE>&,
-//                             const MyArrayIterator<OTHER_VALUE>&);
-//      template <class OTHER_VALUE>
-//      friend bool operator<(const MyArrayIterator<OTHER_VALUE>&,
-//                            const MyArrayIterator<OTHER_VALUE>&);
-//      template <class OTHER_VALUE>
-//      friend std::ptrdiff_t operator-(const MyArrayIterator<OTHER_VALUE>&,
-//                                      const MyArrayIterator<OTHER_VALUE>&);
-//
 //    public:
 //      // CREATORS
-//      explicit MyArrayIterator(VALUE* address = 0);
-//          // Create a 'MyArrayIterator' object referring to the
-//          // element of type 'VALUE' at the specified 'address'.
+//      MyArrayIterator();
+//          // Create a 'MyArrayIterator' object that does not refer to any
+//          // value.
 //
-//      //! MyArrayIterator(const MyArrayIterator& original) = default;
+//      MyArrayIterator(const MyArrayIterator& original);
 //          // Create a 'MyArrayIterator' object having the same value
 //          // as the specified 'original' object.
 //
-//      //! MyArrayIterator& operator=(const MyArrayIterator& rhs) = default;
+//      ~MyArrayIterator();
+//          // Destory this object;
+//
+//      // MANIPULATORS
+//      MyArrayIterator& operator=(const MyArrayIterator& rhs);
 //          // Assign to this object the value of the specified 'rhs' object,
 //          // and return a reference providing modifiable access to this
 //          // object.
 //
-//      //! ~MyArrayIterator() = default;
-//          // Destroy this object;
-//
-//      // MANIPULATORS
 //      void operator++();
 //          // Increment this object to refer to the next element in an array.
 //
@@ -91,6 +79,16 @@ BSLS_IDENT("$Id: $")
 //          // the parameterized 'VALUE' type) of the element referred to by
 //          // this object.
 //  };
+//
+//  template <class VALUE>
+//  bool operator==(const MyArrayIterator<VALUE>&,
+//                  const MyArrayIterator<VALUE>&);
+//  template <class VALUE>
+//  bool operator<(const MyArrayIterator<VALUE>&,
+//                 const MyArrayIterator<VALUE>&);
+//  template <class VALUE>
+//  std::ptrdiff_t operator-(const MyArrayIterator<VALUE>&,
+//                           const MyArrayIterator<VALUE>&);
 //..
 // Notice that 'MyArrayIterator' does not implements a complete standard
 // compliant random access iterator.  It is missing methods such as 'operator+'
@@ -101,9 +99,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  template <class VALUE, int SIZE>
 //  class MyFixedSizeArray
-//      // This is a container that contains a fixed number of elements.  The
-//      // number of elements is specified upon construction and can not be
-//      // changed afterwards.
+//      // This class implements a container that contains the parameterized
+//      // 'SIZE' number of elements of the parameterized 'VALUE' type.
 //  {
 //      // DATA
 //      VALUE d_array[SIZE];   // storage of the container
@@ -123,9 +120,7 @@ BSLS_IDENT("$Id: $")
 //                                                              const_iterator;
 //..
 // Notice that the implementation for 'const_iterator' is
-// 'MyArrayIterator<VALUE>' and *not* 'MyArrayIterator<const VALUE>'; rather
-// the 'const' is added to the return value of 'operator*' by way of conversion
-// to the first template argument.
+// 'MyArrayIterator<VALUE>' and *not* 'MyArrayIterator<const VALUE>'.
 //
 // Next, we continue defining the rest of the class:
 //..
@@ -136,8 +131,8 @@ BSLS_IDENT("$Id: $")
 //
 //      //! MyFixedSizeArray(const MyFixedSizeArray& original) = default;
 //          // Create a 'MyFixedSizeArray' object having same number of
-//          // elements as that of the specified 'rhs', the same value of each
-//          // element as that of corresponding element in 'rhs'.
+//          // elements as that of the specified 'original', the same value of
+//          // each element as that of corresponding element in 'original'.
 //
 //      //! ~MyFixedSizeArray() = default;
 //          // Destroy this object.
@@ -183,7 +178,8 @@ BSLS_IDENT("$Id: $")
 //  fixedArray[4] = 1;
 //..
 // Finally, to show that 'MyFixedSizeArray::iterator' can be used as a random
-// access iterator, we invoke 'std::sort' on the 'begin' and 'end' iterators
+// access iterator, we invoke a function that takes random iterators as
+// parameters, such as 'std::sort', on the 'begin' and 'end' iterators
 // and verify the results:
 //..
 //  std::sort(fixedArray.begin(), fixedArray.end());
