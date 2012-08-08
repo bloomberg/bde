@@ -2469,7 +2469,7 @@ void testConstructors(int callLine,
                   const TestPolicy<TEST_TARGET>(&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
     // This function iterates all viable variations of test functions composed
-    // of the policies above, to verify that all 'bcema_ManagedPtr::load'
+    // of the policies above, to verify that all 'bdema_ManagedPtr::load'
     // behave according to contract.  First, we call 'load' on an empty managed
     // pointer using a test function from the passed array, confirming that
     // the managed pointer takes up the correct state.  Then we allow that
@@ -2524,7 +2524,7 @@ void testLoadOps(int callLine,
                  const TestPolicy<TEST_TARGET> (&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
     // This function iterates all viable variations of test functions composed
-    // of the policies above, to verify that all 'bcema_ManagedPtr::load'
+    // of the policies above, to verify that all 'bdema_ManagedPtr::load'
     // behave according to contract.  First, we call 'load' on an empty managed
     // pointer using a test function from the passed array, confirming that
     // the managed pointer takes up the correct state.  Then we allow that
@@ -2788,7 +2788,7 @@ void testLoadAliasOps2(int callLine,
     // managed pointer value, and call 'loadAlias' again on the pointer in the
     // existing aliased state.  We again confirm that the aliased state is
     // transferred without allocating any memory, but also that the object
-    // managed by the original 'bcema_ManagedPtr' object has now been destroyed
+    // managed by the original 'bdema_ManagedPtr' object has now been destroyed
     // as expected.  Finally we let this final managed pointer object leave
     // scope and confirm that all managed objects have been destroyed, as
     // expected, and that all memory has been reclaimed.  At each step, we
@@ -3024,7 +3024,7 @@ void testConstructors(int callLine,
                       const TestCtorFn(&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
     // This function iterates all viable variations of test functions composed
-    // of the policies above, to verify that all 'bcema_ManagedPtr::load'
+    // of the policies above, to verify that all 'bdema_ManagedPtr::load'
     // behave according to contract.  First, we call 'load' on an empty managed
     // pointer using a test function from the passed array, confirming that
     // the managed pointer takes up the correct state.  Then we allow that
@@ -3200,7 +3200,7 @@ void testLoadAliasOps2(int callLine,
     // managed pointer value, and call 'loadAlias' again on the pointer in the
     // existing aliased state.  We again confirm that the aliased state is
     // transferred without allocating any memory, but also that the object
-    // managed by the original 'bcema_ManagedPtr' object has now been destroyed
+    // managed by the original 'bdema_ManagedPtr' object has now been destroyed
     // as expected.  Finally we let this final managed pointer object leave
     // scope and confirm that all managed objects have been destroyed, as
     // expected, and that all memory has been reclaimed.  At each step, we
@@ -5995,7 +5995,7 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 ///Implicit Conversion
 /// -  -  -  -  -  - -
 // As with native pointers, a pointer of the type 'B' that is publicly derived
-// from the type 'A', can be directly assigned a 'bcema_SharedPtr' of 'A'.
+// from the type 'A', can be directly assigned a 'bdema_ManagedPtr' of 'A'.
 //
 // First, consider the following code snippets:
 //..
