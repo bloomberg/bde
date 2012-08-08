@@ -8,6 +8,7 @@ BDES_IDENT_RCSID(bcesb_blobstreambuf_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+#include <bsl_cstdio.h>  // EOF
 #include <bsl_cstring.h>
 #include <bsl_string.h>
 
