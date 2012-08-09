@@ -2,6 +2,8 @@
 
 #include <bdeu_cstringhash.h>
 
+#include <bdeu_hashutil.h>
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -267,13 +269,16 @@ int main(int argc, char *argv[])
         //   standard adaptable binary function, ().
         //
         // Concerns:
-        //: 1 Objects of type 'bdeu_CStringHash' can be invokes as a binary
-        //:   predicate returning 'bool' and taking two 'const char *'
-        //:   arguments.
+        //: 1 Objects of type 'bdeu_CStringHash' can be invoked as a predicate
+        //:   function returning 'bool' and taking a 'const char *' argument.
         //:
         //: 2 The function call operator can be invoked on constant objects.
-        //
-        //: 3 .
+        //:
+        //: 3 The function call returns the same result as a call to 
+        //:   'bdeu_HashUtil::hash1' passing the argument string and its
+        //:   length.
+        //:
+        //: 4 No memory is allocated from the default or global allocators.
         //
         // Plan:
         //: 1 
@@ -299,7 +304,10 @@ int main(int argc, char *argv[])
             const char  *d_string;
             bsl::size_t  d_hashCode;
         } DATA[] = {
-            // LINE    LHS     RHS     EXPECTED    REVERSED
+            // LINE    STRING      HASHCODE
+            {  L_,     "",         0 },
+            {  L_,     "AAA",      bdeu_HashUtil::hash1("AAA", 3) },
+            {  L_,     "aBcXyZ!",  bdeu_HashUtil::hash1("aBcXyZ", 7) },
 #if 0 // TBD Complete this table
             {  L_,     "",     "",     false,      false   },
             {  L_,     "",     "\0",   false,      false   },

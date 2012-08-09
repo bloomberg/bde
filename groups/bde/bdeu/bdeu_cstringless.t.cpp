@@ -278,9 +278,12 @@ int main(int argc, char *argv[])
         //:   arguments.
         //:
         //: 2 The function call operator can be invoked on constant objects.
-        //
-        //: 3 .
-        //
+        //:
+        //: 3 The function call returns 'true' or 'false' indicating whether
+        //:   the two supplied string arguments are supplied in lexical order.
+        //:
+        //: 4 No memory is allocated from the default or global allocators.
+
         // Plan:
         //: 1 
         //: 2 
