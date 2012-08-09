@@ -563,8 +563,8 @@ int main(int argc, char *argv[])
 
     bslma_TestAllocator         allocator;
     bslma_TestAllocator        *Z = &allocator;
-    static bslma_TestAllocator  defaultAllocator;
-    static bslma_TestAllocator  globalAllocator;
+    static bslma_TestAllocator  defaultAllocator("dta", veryVeryVerbose);
+    static bslma_TestAllocator  globalAllocator("gta", veryVeryVerbose);;
 
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
@@ -711,7 +711,7 @@ int main(int argc, char *argv[])
         //:
         //: 8 Return the address of a valid 'baetzo_ZoneinfoCache' if 0 or no
         //:   argument are passed and 'setDefaultCache' was invoked with a 0
-        //:   argument. 
+        //:   argument.
         //
         // Plan:
         //: 1 Invoking this method passing the address of a cache object, and
@@ -759,10 +759,18 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nNot passing in a cache object and testing GA"
                           << endl;
         {
+            // QOI: globalAllocator will allocate the strings when compiled
+            // in the 32-bit mode, and will not allocate (short-string
+            // optimization) in 64-bit mode. The latter provides a larger
+            // bufffer for the SSO.
+
             const int GA_NUM_BYTES = globalAllocator.numBytesInUse();
             SYSTEM_DEFAULT = Obj::defaultCache();
             LOOP2_ASSERT(L_, SYSTEM_DEFAULT, 0 != SYSTEM_DEFAULT);
-            LOOP_ASSERT (L_, GA_NUM_BYTES < globalAllocator.numBytesInUse());
+            LOOP3_ASSERT(L_,
+                         GA_NUM_BYTES,
+                         globalAllocator.numBytesInUse(),
+                         GA_NUM_BYTES <= globalAllocator.numBytesInUse());
 
             const int GA_NUM_BYTES2 = globalAllocator.numBytesInUse();
             const baetzo_ZoneinfoCache *RESULT = Obj::defaultCache(0);
@@ -793,7 +801,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(L_, RESULT, &tempCache == RESULT);
             LOOP_ASSERT (L_, GA_NUM_BYTES4 == globalAllocator.numBytesInUse());
         }
-        
+
         if (verbose) cout << "\nTesting after 'setDefaultCache(0)'"
                           << endl;
         {
@@ -1141,7 +1149,7 @@ int main(int argc, char *argv[])
         const baetzo_ZoneinfoCache *SYSTEMDEFAULTCACHE = Obj::defaultCache();
         ASSERT(0 != SYSTEMDEFAULTCACHE);
         ASSERT(SYSTEMDEFAULTCACHE == Obj::defaultCache());
-        
+
         if(veryVerbose) cout << "Loading Etc/UTC" << endl;
         {
             const char *ID = "Etc/UTC";
@@ -1164,7 +1172,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting user defind default caches"
                           << endl;
-        
+
         ASSERT(0 != Obj::defaultCache(0));
         ASSERT(DUMMY1 == Obj::defaultCache(DUMMY1));
         ASSERT(DUMMY2 == Obj::defaultCache(DUMMY2));
@@ -1185,7 +1193,7 @@ int main(int argc, char *argv[])
         ASSERT(DUMMY1 == Obj::defaultCache(DUMMY1));
         ASSERT(DUMMY2 == Obj::defaultCache(DUMMY2));
         ASSERT(SYSTEMDEFAULTCACHE == Obj::defaultCache());
-        
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
