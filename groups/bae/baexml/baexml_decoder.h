@@ -2492,8 +2492,8 @@ int baexml_Decoder_SequenceContext<TYPE>::startElement(
     baexml_Decoder_PrepareSequenceContext prepareSequenceContext(
                                                            &d_simpleContentId);
 
-    int ret = bdeat_SequenceFunctions::accessAttributes(
-                                                       *d_object_p,
+    int ret = bdeat_SequenceFunctions::manipulateAttributes(
+                                                       d_object_p,
                                                        prepareSequenceContext);
 
     if (0 != ret) {
@@ -2912,7 +2912,7 @@ baexml_Decoder_PrepareSequenceContext::baexml_Decoder_PrepareSequenceContext(
 
 // MANIPULATORS
 template <typename TYPE, typename INFO_TYPE>
-int baexml_Decoder_PrepareSequenceContext::operator()(const TYPE&      object,
+int baexml_Decoder_PrepareSequenceContext::operator()(const TYPE&,
                                                       const INFO_TYPE& info)
 {
     enum { BAEXML_SUCCESS = 0 };
