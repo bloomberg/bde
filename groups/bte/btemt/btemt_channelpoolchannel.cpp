@@ -39,8 +39,6 @@ int btemt_ChannelPoolChannel::addReadQueueEntry(
                                              const BTEMT_CALLBACK&    callback,
                                              const bdet_TimeInterval& timeOut)
 {
-    bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
-
     if (d_closed) {
         return -2;
     }
@@ -231,12 +229,16 @@ btemt_ChannelPoolChannel::~btemt_ChannelPoolChannel()
 // MANIPULATORS
 int btemt_ChannelPoolChannel::read(int numBytes, const ReadCallback& callback)
 {
+    bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+
     return addReadQueueEntry(numBytes, callback, bdet_TimeInterval(0));
 }
 
 int btemt_ChannelPoolChannel::read(int                          numBytes,
                                    const BlobBasedReadCallback& callback)
 {
+    bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+
     return addReadQueueEntry(numBytes, callback, bdet_TimeInterval(0));
 }
 
@@ -244,6 +246,8 @@ int btemt_ChannelPoolChannel::timedRead(int                      numBytes,
                                         bdet_TimeInterval const& timeOut,
                                         const ReadCallback&      callback)
 {
+    bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+
     return addReadQueueEntry(numBytes, callback, timeOut);
 }
 
@@ -251,6 +255,8 @@ int btemt_ChannelPoolChannel::timedRead(int                          numBytes,
                                         bdet_TimeInterval const&     timeOut,
                                         const BlobBasedReadCallback& callback)
 {
+    bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+
     return addReadQueueEntry(numBytes, callback, timeOut);
 }
 
