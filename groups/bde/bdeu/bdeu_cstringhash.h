@@ -30,8 +30,20 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
+#ifndef INCLUDED_BDEU_HASHUTIL
+#include <bdeu_hashutil.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include <bsl_cstring.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTDDEF
@@ -85,6 +97,20 @@ struct bdeu_CStringHash {
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+
+                        // -----------------------
+                        // struct bdeu_CStringHash
+                        // -----------------------
+
+// ACCESSORS
+inline
+bsl::size_t bdeu_CStringHash::operator()(const char *argument) const
+{
+    BSLS_ASSERT_SAFE(argument);
+
+    return bdeu_HashUtil::hash1(argument, bsl::strlen(argument));
+}
 
 }  // close namespace BloombergLP
 
