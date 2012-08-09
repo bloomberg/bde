@@ -86,16 +86,16 @@ BSLS_IDENT("$Id: $")
 //      bsl::bitset<MAX_VALUE + 1> compositeFlags;
 //..
 // Next, we observe that a default-contructed 'bsl::bitset' has no flags set,
-// We can check this by asserting that the 'none()' method returns true, by
-// asserting that the 'any()' method returns false, or by asserting that the
-// 'count()' of set bits is 0:
+// We can check this by asserting that the 'none' method returns true, by
+// asserting that the 'any' method returns false, or by asserting that the
+// 'count' of set bits is 0:
 //..
 //      assert(true  == compositeFlags.none());
 //      assert(false == compositeFlags.any());
 //      assert(0     == compositeFlags.count());
 //..
-// Then, we note that a 'bsl::bitset' has a fixed 'size()' (the set can't be
-// grown or shrunk) and verify that 'size()' is the same as the template
+// Then, we note that a 'bsl::bitset' has a fixed 'size' (the set can't be
+// grown or shrunk) and verify that 'size' is the same as the template
 // argument used to create the 'bsl::bitset':
 //..
 //      assert(MAX_VALUE + 1 == compositeFlags.size());

@@ -327,16 +327,16 @@ bool isPrime(int candidate)
     bsl::bitset<MAX_VALUE + 1> compositeFlags;
 //..
 // Next, we observe that a default-contructed 'bsl::bitset' has no flags set,
-// which we can verify by asserting that the 'none()' method returns true, by
-// asserting that the 'any()' method returns false, or by asserting that the
-// 'count()' of set bits is 0:
+// which we can verify by asserting that the 'none' method returns true, by
+// asserting that the 'any' method returns false, or by asserting that the
+// 'count' of set bits is 0:
 //..
     ASSERT(true  == compositeFlags.none());
     ASSERT(false == compositeFlags.any());
     ASSERT(0     == compositeFlags.count());
 //..
-// Then, we note that a 'bsl::bitset' has a fixed 'size()' (the set can't be
-// grown or shrunk) and verify that 'size()' is the same as the template
+// Then, we note that a 'bsl::bitset' has a fixed 'size' (the set can't be
+// grown or shrunk) and verify that 'size' is the same as the template
 // argument used to create the 'bsl::bitset':
 //..
    ASSERT(MAX_VALUE + 1 == compositeFlags.size());
