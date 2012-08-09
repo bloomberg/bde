@@ -43,49 +43,43 @@ BSLS_IDENT("$Id: $")
 // 'MyFixedSizeArray', which provides mutable and constant iterators of
 // template type 'bsl::iterator' and 'reverse_iteraotr':
 //..
-//  template <class T, class ALLOC>
+//  template <class VALUE, int SIZE>
 //  class MyFixedSizeArray
 //      // This is a container that contains a fixed number of elements.  The
 //      // number of elements is specified upon construction and can not be
 //      // changed afterwards.
 //  {
-//      ALLOC  d_allocator;  // the allocator to supply memory
-//
-//      int    d_length;     // fixed size of this container
-//
-//      T     *d_array;      // head pointer to the elements
+//      // DATA
+//      VALUE  d_array[SIZE];  // storage of the container
 //
 //    public:
 //      // PUBLIC TYPES
-//      typedef ALLOC  allocator_type;
-//      typedef T      value_type;
+//      typedef VALUE value_type;
 //..
 // Here, we define mutable and constant iterators and reverse iterators:
 //..
-//      typedef T                                      *iterator;
-//      typedef T const                                *const_iterator;
+//      typedef VALUE                                  *iterator;
+//      typedef VALUE const                            *const_iterator;
 //      typedef bsl::reverse_iterator<iterator>         reverse_iterator;
 //      typedef bsl::reverse_iterator<const_iterator>   const_reverse_iterator;
 //
 //      // CREATORS
-//      MyFixedSizeArray(int length, const ALLOC& alloc = ALLOC());
-//          // Create a 'MyFixedSizeArray' object having the specified 'length'
-//          // elements, and using the specified 'alloc' to supply memory.
+//      //! MyFixedSizeArray() = default;
+//          // Create a 'MyFixedSizeArray' object having the parameterized
+//          // 'SIZE' elements of the parameterized type 'VALUE'.
 //
-//      MyFixedSizeArray(const MyFixedSizeArray& rhs,
-//                       const ALLOC&            alloc = ALLOC());
+//      //! MyFixedSizeArray(const MyFixedSizeArray& original) = default;
 //          // Create a 'MyFixedSizeArray' object having same number of
-//          // elements as that of the specified 'rhs', the same value of each
-//          // element as that of corresponding element in 'rhs', and using
-//          // the specified 'alloc' to supply memory.
+//          // elements as that of the specified 'rhs', and the same value of
+//          // each element as that of corresponding element in 'rhs'.
 //
-//      ~MyFixedSizeArray();
+//      //! ~MyFixedSizeArray() = default;
 //          // Destroy this object.
 //..
 // Here, we define the 'begin' and 'end' methods to return basic iterators
-// ('T*' and 'const T*'), and the 'rbegin' and 'rend' methods to return reverse
-// iterators ('bsl::reverse_iterator<T*>' and 'bsl::reverse_iterator<const T*>)
-// type:
+// ('VALUE*' and 'const VALUE*'), and the 'rbegin' and 'rend' methods to return
+// reverse iterators ('bsl::reverse_iterator<VALUE*>' and
+// 'bsl::reverse_iterator<const VALUE*>) type:
 //..
 //      // MANIPULATORS: None.
 //
@@ -110,18 +104,13 @@ BSLS_IDENT("$Id: $")
 //          // Return the reverse iterator referring to the position one before
 //          // the first valid element of this object.
 //
-//      const T& operator[](int i) const;
-//            T& operator[](int i);
-//          // Return the reference of the specified 'i'th element of this
-//          // object.
-//
-//      int length() const;
+//      int size() const;
 //          // Return the number of elements contained in this object.
 //
-//      const ALLOC& allocator() const;
-//          // Return the allocator used to supply memory for this object.
-//          // Notice that this is here for illustrative purposes.  We should
-//          // not generally have an accessor to return the allocator.
+//      const VALUE& operator[](int i) const;
+//            VALUE& operator[](int i);
+//          // Return the reference of the specified 'i'th element of this
+//          // object.
 //  };
 //
 //  // ...
@@ -130,21 +119,19 @@ BSLS_IDENT("$Id: $")
 //..
 //  // Create a fixed array having five elements.
 //
-//  MyFixedSizeArray<int, bsl::allocator<int> > fixedArray(5);
+//  MyFixedSizeArray<int, 5> fixedArray;
 //
 //  // Initialize the values of each element in the fixed array.
 //
-//  for (int i = 0; i < fixedArray.length(); ++i) {
+//  for (int i = 0; i < fixedArray.size(); ++i) {
 //      fixedArray[i] = i + 1;
 //  }
 //..
 // Next, we generate basic iterators using the 'begin' and 'end' methods of the
 // fixed array object:
 //..
-//  MyFixedSizeArray<int, bsl::allocator<int> >::iterator start
-//                                                        = fixedArray.begin();
-//  MyFixedSizeArray<int, bsl::allocator<int> >::iterator finish
-//                                                        = fixedArray.end();
+//  MyFixedSizeArray<int, 5>::iterator start  = fixedArray.begin();
+//  MyFixedSizeArray<int, 5>::iterator finish = fixedArray.end();
 //..
 // Then, we traverse the fixed array from beginning to end using the two
 // generated basic iterators:
@@ -158,10 +145,8 @@ BSLS_IDENT("$Id: $")
 // Now, we generate reverse iterators using the 'rbegin' and 'rend' methods of
 // the fixed array object:
 //..
-//  MyFixedSizeArray<int, bsl::allocator<int> >::reverse_iterator rstart
-//                                                       = fixedArray.rbegin();
-//  MyFixedSizeArray<int, bsl::allocator<int> >::reverse_iterator rfinish
-//                                                       = fixedArray.rend();
+//  MyFixedSizeArray<int, 5>::reverse_iterator rstart  = fixedArray.rbegin();
+//  MyFixedSizeArray<int, 5>::reverse_iterator rfinish = fixedArray.rend();
 //..
 // Finally, we traverse the fixed array again in reverse order using the two
 // generated reverse iterators:

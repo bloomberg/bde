@@ -167,50 +167,43 @@ namespace testcontainer {
 // 'MyFixedSizeArray', which provides mutable and constant iterators of
 // template type 'bsl::iterator' and 'reverse_iteraotr':
 //..
-template <class T, class ALLOC>
+template <class VALUE, int SIZE>
 class MyFixedSizeArray
     // This is a container that contains a fixed number of elements.  The
     // number of elements is specified upon construction and can not be
     // changed afterwards.
 {
-
-    ALLOC  d_allocator;  // the allocator to supply memory
-
-    int    d_length;     // fixed size of this container
-
-    T     *d_array;      // head pointer to the elements
+    // DATA
+    VALUE  d_array[SIZE];  // storage of the container
 
   public:
     // PUBLIC TYPES
-    typedef ALLOC  allocator_type;
-    typedef T      value_type;
+    typedef VALUE value_type;
 //..
 // Here, we define mutable and constant iterators and reverse iterators:
 //..
-    typedef T                                      *iterator;
-    typedef T const                                *const_iterator;
+    typedef VALUE                                  *iterator;
+    typedef VALUE const                            *const_iterator;
     typedef bsl::reverse_iterator<iterator>         reverse_iterator;
     typedef bsl::reverse_iterator<const_iterator>   const_reverse_iterator;
 
     // CREATORS
-    MyFixedSizeArray(int length, const ALLOC& alloc = ALLOC());
-        // Create a 'MyFixedSizeArray' object having the specified 'length'
-        // elements, and using the specified 'alloc' to supply memory.
+    //! MyFixedSizeArray() = default;
+        // Create a 'MyFixedSizeArray' object having the parameterized
+        // 'SIZE' elements of the parameterized type 'VALUE'.
 
-    MyFixedSizeArray(const MyFixedSizeArray& rhs,
-                     const ALLOC&            alloc = ALLOC());
+    //! MyFixedSizeArray(const MyFixedSizeArray& original) = default;
         // Create a 'MyFixedSizeArray' object having same number of
-        // elements as that of the specified 'rhs', the same value of each
-        // element as that of corresponding element in 'rhs', and using
-        // the specified 'alloc' to supply memory.
+        // elements as that of the specified 'rhs', and the same value of
+        // each element as that of corresponding element in 'rhs'.
 
-    ~MyFixedSizeArray();
+    //! ~MyFixedSizeArray() = default;
         // Destroy this object.
 //..
 // Here, we define the 'begin' and 'end' methods to return basic iterators
-// ('T*' and 'const T*'), and the 'rbegin' and 'rend' methods to return reverse
-// iterators ('bsl::reverse_iterator<T*>' and 'bsl::reverse_iterator<const T*>)
-// type:
+// ('VALUE*' and 'const VALUE*'), and the 'rbegin' and 'rend' methods to return
+// reverse iterators ('bsl::reverse_iterator<VALUE*>' and
+// 'bsl::reverse_iterator<const VALUE*>) type:
 //..
     // MANIPULATORS: None.
 
@@ -235,151 +228,106 @@ class MyFixedSizeArray
         // Return the reverse iterator referring to the position one before
         // the first valid element of this object.
 
-    const T& operator[](int i) const;
-          T& operator[](int i);
-        // Return the reference of the specified 'i'th element of this
-        // object.
-
-    int length() const;
+    int size() const;
         // Return the number of elements contained in this object.
 
-    const ALLOC& allocator() const;
-        // Return the allocator used to supply memory for this object.
-        // Notice that this is here for illustrative purposes.  We should
-        // not generally have an accessor to return the allocator.
+    const VALUE& operator[](int i) const;
+          VALUE& operator[](int i);
+        // Return the reference of the specified 'i'th element of this
+        // object.
 };
 
 // ...
 //..
 
-template<class T, class ALLOC>
-MyFixedSizeArray<T,ALLOC>::MyFixedSizeArray(int          length,
-                                            const ALLOC& alloc)
-    : d_allocator(alloc), d_length(length)
-{
-    d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 
-    // Default construct each element of the array:
-    for (int i = 0; i < d_length; ++i) {
-        d_allocator.construct(&d_array[i], T());
-    }
-}
+                        // ----------------
+                        // MyFixedSizeArray
+                        // ----------------
 
-template<class T, class ALLOC>
-MyFixedSizeArray<T,ALLOC>::MyFixedSizeArray(const MyFixedSizeArray& rhs,
-                                            const ALLOC&            alloc)
-    : d_allocator(alloc), d_length(rhs.d_length)
-{
-    d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
-
-    // copy construct each element of the array:
-    for (int i = 0; i < d_length; ++i) {
-        d_allocator.construct(&d_array[i], rhs.d_array[i]);
-    }
-}
-
-template<class T, class ALLOC>
-MyFixedSizeArray<T,ALLOC>::~MyFixedSizeArray()
-{
-    // Call destructor for each element
-    for (int i = 0; i < d_length; ++i) {
-        d_allocator.destroy(&d_array[i]);
-    }
-
-    // Return memory to allocator.
-    d_allocator.deallocate(d_array, d_length);
-}
-
-template<class T, class ALLOC>
-typename MyFixedSizeArray<T,ALLOC>::iterator
-MyFixedSizeArray<T,ALLOC>::begin()
+template<class VALUE, int SIZE>
+typename MyFixedSizeArray<VALUE,SIZE>::iterator
+MyFixedSizeArray<VALUE,SIZE>::begin()
 {
     return d_array;
 }
 
-template<class T, class ALLOC>
-typename MyFixedSizeArray<T,ALLOC>::iterator
-MyFixedSizeArray<T,ALLOC>::end()
+template<class VALUE, int SIZE>
+typename MyFixedSizeArray<VALUE,SIZE>::iterator
+MyFixedSizeArray<VALUE,SIZE>::end()
 {
-    return d_array + d_length;
+    return d_array + SIZE;
 }
 
-template<class T, class ALLOC>
-typename MyFixedSizeArray<T,ALLOC>::reverse_iterator
-MyFixedSizeArray<T,ALLOC>::rbegin()
+template<class VALUE, int SIZE>
+typename MyFixedSizeArray<VALUE,SIZE>::reverse_iterator
+MyFixedSizeArray<VALUE,SIZE>::rbegin()
 {
     return reverse_iterator(end());
 }
 
-template<class T, class ALLOC>
-typename MyFixedSizeArray<T,ALLOC>::reverse_iterator
-MyFixedSizeArray<T,ALLOC>::rend()
+template<class VALUE, int SIZE>
+typename MyFixedSizeArray<VALUE,SIZE>::reverse_iterator
+MyFixedSizeArray<VALUE,SIZE>::rend()
 {
     return reverse_iterator(begin());
 }
 
-template<class T, class ALLOC>
-inline T& MyFixedSizeArray<T,ALLOC>::operator[](int i)
+template<class VALUE, int SIZE>
+inline VALUE& MyFixedSizeArray<VALUE,SIZE>::operator[](int i)
 {
     return d_array[i];
 }
 
-template<class T, class ALLOC>
-typename MyFixedSizeArray<T,ALLOC>::const_iterator
-MyFixedSizeArray<T,ALLOC>::begin() const
+template<class VALUE, int SIZE>
+typename MyFixedSizeArray<VALUE,SIZE>::const_iterator
+MyFixedSizeArray<VALUE,SIZE>::begin() const
 {
     return d_array;
 }
 
-template<class T, class ALLOC>
-typename MyFixedSizeArray<T,ALLOC>::const_iterator
-MyFixedSizeArray<T,ALLOC>::end() const
+template<class VALUE, int SIZE>
+typename MyFixedSizeArray<VALUE,SIZE>::const_iterator
+MyFixedSizeArray<VALUE,SIZE>::end() const
 {
-    return d_array + d_length;
+    return d_array + SIZE;
 }
 
-template<class T, class ALLOC>
-typename MyFixedSizeArray<T,ALLOC>::const_reverse_iterator
-MyFixedSizeArray<T,ALLOC>::rbegin() const
+template<class VALUE, int SIZE>
+typename MyFixedSizeArray<VALUE,SIZE>::const_reverse_iterator
+MyFixedSizeArray<VALUE,SIZE>::rbegin() const
 {
     return const_reverse_iterator(end());
 }
 
-template<class T, class ALLOC>
-typename MyFixedSizeArray<T,ALLOC>::const_reverse_iterator
-MyFixedSizeArray<T,ALLOC>::rend() const
+template<class VALUE, int SIZE>
+typename MyFixedSizeArray<VALUE,SIZE>::const_reverse_iterator
+MyFixedSizeArray<VALUE,SIZE>::rend() const
 {
     return const_reverse_iterator(begin());
 }
 
-template<class T, class ALLOC>
+template<class VALUE, int SIZE>
+inline int MyFixedSizeArray<VALUE,SIZE>::size() const
+{
+    return SIZE;
+}
+
+template<class VALUE, int SIZE>
 inline
-const T& MyFixedSizeArray<T,ALLOC>::operator[](int i) const
+const VALUE& MyFixedSizeArray<VALUE,SIZE>::operator[](int i) const
 {
     return d_array[i];
 }
 
-template<class T, class ALLOC>
-inline int MyFixedSizeArray<T,ALLOC>::length() const
+template<class VALUE, int SIZE>
+bool operator==(const MyFixedSizeArray<VALUE,SIZE>& lhs,
+                const MyFixedSizeArray<VALUE,SIZE>& rhs)
 {
-    return d_length;
-}
-
-template<class T, class ALLOC>
-inline
-const ALLOC& MyFixedSizeArray<T,ALLOC>::allocator() const
-{
-    return d_allocator;
-}
-
-template<class T, class ALLOC>
-bool operator==(const MyFixedSizeArray<T,ALLOC>& lhs,
-                const MyFixedSizeArray<T,ALLOC>& rhs)
-{
-    if (lhs.length() != rhs.length()) {
+    if (lhs.size() != rhs.size()) {
         return false;
     }
-    for (int i = 0; i < lhs.length(); ++i) {
+    for (int i = 0; i < lhs.size(); ++i) {
         if (lhs[i] != rhs[i]) {
             return false;
         }
@@ -419,21 +367,19 @@ int main(int argc, char *argv[])
 //..
     // Create a fixed array having five elements.
 
-    MyFixedSizeArray<int, bsl::allocator<int> > fixedArray(5);
+    MyFixedSizeArray<int, 5> fixedArray;
 
     // Initialize the values of each element in the fixed array.
 
-    for (int i = 0; i < fixedArray.length(); ++i) {
+    for (int i = 0; i < fixedArray.size(); ++i) {
         fixedArray[i] = i + 1;
     }
 //..
 // Next, we generate basic iterators using the 'begin' and 'end' methods of the
 // fixed array object:
 //..
-    MyFixedSizeArray<int, bsl::allocator<int> >::iterator start
-                                                          = fixedArray.begin();
-    MyFixedSizeArray<int, bsl::allocator<int> >::iterator finish
-                                                          = fixedArray.end();
+    MyFixedSizeArray<int, 5>::iterator start  = fixedArray.begin();
+    MyFixedSizeArray<int, 5>::iterator finish = fixedArray.end();
 //..
 // Then, we traverse the fixed array from beginning to end using the two
 // generated basic iterators:
@@ -447,10 +393,8 @@ int main(int argc, char *argv[])
 // Now, we generate reverse iterators using the 'rbegin' and 'rend' methods of
 // the fixed array object:
 //..
-    MyFixedSizeArray<int, bsl::allocator<int> >::reverse_iterator rstart
-                                                         = fixedArray.rbegin();
-    MyFixedSizeArray<int, bsl::allocator<int> >::reverse_iterator rfinish
-                                                         = fixedArray.rend();
+    MyFixedSizeArray<int, 5>::reverse_iterator rstart  = fixedArray.rbegin();
+    MyFixedSizeArray<int, 5>::reverse_iterator rfinish = fixedArray.rend();
 //..
 // Finally, we traverse the fixed array again in reverse order using the two
 // generated reverse iterators:
@@ -461,6 +405,21 @@ int main(int argc, char *argv[])
         ++rstart;
     }
 //..
+// The console output will be like following after running this usage example:
+//
+// Traverse array using basic iterator:
+//      Element: 1
+//      Element: 2
+//      Element: 3
+//      Element: 4
+//      Element: 5
+// Traverse array using reverse iterator:
+//      Element: 5
+//      Element: 4
+//      Element: 3
+//      Element: 2
+//      Element: 1
+
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -796,14 +755,14 @@ int main(int argc, char *argv[])
 
         using namespace testcontainer;
 
-        typedef MyFixedSizeArray<int, bsl::allocator<int> > TestContainer;
+        typedef MyFixedSizeArray<int, 5>              TestContainer;
         typedef TestContainer::iterator               iterator;
         typedef TestContainer::const_iterator         const_iterator;
         typedef TestContainer::reverse_iterator       reverse_iterator;
         typedef TestContainer::const_reverse_iterator const_reverse_iterator;
 
-        TestContainer tc(5);
-        for (int i = 0; i < tc.length(); ++i) {
+        TestContainer tc;
+        for (int i = 0; i < tc.size(); ++i) {
             tc[i] = i * i + i * 13 + 1;
         }
 
@@ -829,7 +788,7 @@ int main(int argc, char *argv[])
         ASSERT(ritBegin == ritCursor);
         ASSERT(ritEnd   != ritCursor);
 
-        for (int i = 0;i < tc.length() - 1; ++i) {
+        for (int i = 0;i < tc.size() - 1; ++i) {
             ++ritCursor;
             ASSERT(ritBegin != ritCursor);
             ASSERT(ritEnd   != ritCursor);
@@ -885,16 +844,15 @@ int main(int argc, char *argv[])
         //:   constant reverse iterators.  (C-1..4)
         //
         // Testing:
-        //   class MyFixedSizeArray<T>;
-        //   MyFixedSizeArray<T, ALLOC>::MyFixedSizeArray(int, const ALLOC&);
-        //   MyFixedSizeArray<T, ALLOC>::begin();
-        //   MyFixedSizeArray<T, ALLOC>::end();
-        //   MyFixedSizeArray<T, ALLOC>::rbegin();
-        //   MyFixedSizeArray<T, ALLOC>::rend();
-        //   MyFixedSizeArray<T, ALLOC>::operator[](int);
-        //   MyFixedSizeArray<T, ALLOC>::operator[](int) const;
-        //   MyFixedSizeArray<T, ALLOC>::length() const;
-        //   MyFixedSizeArray<T, ALLOC>::allocator() const;
+        //   class MyFixedSizeArray<VALUE>;
+        //   MyFixedSizeArray<VALUE, SIZE>::MyFixedSizeArray();
+        //   MyFixedSizeArray<VALUE, SIZE>::begin();
+        //   MyFixedSizeArray<VALUE, SIZE>::end();
+        //   MyFixedSizeArray<VALUE, SIZE>::rbegin();
+        //   MyFixedSizeArray<VALUE, SIZE>::rend();
+        //   MyFixedSizeArray<VALUE, SIZE>::operator[](int);
+        //   MyFixedSizeArray<VALUE, SIZE>::operator[](int) const;
+        //   MyFixedSizeArray<VALUE, SIZE>::size() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING (PRIMITIVE) GENERATORS" << endl
@@ -906,25 +864,24 @@ int main(int argc, char *argv[])
 
         using namespace testcontainer;
 
-        typedef MyFixedSizeArray<int, bsl::allocator<int> > TestContainer;
+        const int arrayLength = 5;
+        typedef MyFixedSizeArray<int, arrayLength>    TestContainer;
         typedef TestContainer::iterator               iterator;
         typedef TestContainer::const_iterator         const_iterator;
         typedef TestContainer::reverse_iterator       reverse_iterator;
         typedef TestContainer::const_reverse_iterator const_reverse_iterator;
 
-        const int arrayLength = 5;
-        TestContainer tc(arrayLength);
-        ASSERT(arrayLength == tc.length());
-        ASSERT(bslma::Default::defaultAllocator() == tc.allocator());
+        TestContainer tc;
+        ASSERT(arrayLength == tc.size());
 
         if (verbose) cout << "\nCheck 'operator[]' and 'operator[] const'"
                           << endl;
 
-        for (int i = 0; i < tc.length(); ++i) {
+        for (int i = 0; i < tc.size(); ++i) {
             tc[i] = i + 1;
         }
         const TestContainer &tc2 = tc;
-        for (int i = 0; i < tc2.length(); ++i) {
+        for (int i = 0; i < tc2.size(); ++i) {
             ASSERT(i + 1 == tc2[i]);
         }
 
@@ -951,14 +908,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nCheck iterators refer to right values" << endl;
         itBegin = tc.begin();
-        for (int i = 0;i < tc.length(); ++i) {
+        for (int i = 0;i < tc.size(); ++i) {
             LOOP_ASSERT(*itBegin, i + 1 == *(itBegin++));
         }
 
         if (verbose) cout << "\nCheck reverse iterators refer to right values"
                           << endl;
         ritBegin = tc.rbegin();
-        for (int i = tc.length() ;i > 0; --i) {
+        for (int i = tc.size() ;i > 0; --i) {
             LOOP_ASSERT(*ritBegin, i == *(ritBegin++));
         }
 
@@ -983,13 +940,13 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(length, arrayLength == length);
 
         itcBegin = tc2.begin();
-        for (int i = 0;i < tc2.length(); ++i) {
+        for (int i = 0;i < tc2.size(); ++i) {
             LOOP_ASSERT(*itcBegin, i + 1 == *itcBegin);
             ++itcBegin;
         }
 
         ritcBegin = tc2.rbegin();
-        for (int i = tc2.length() ;i > 0; --i) {
+        for (int i = tc2.size() ;i > 0; --i) {
             LOOP_ASSERT(*ritcBegin, i == *ritcBegin);
             ++ritcBegin;
         }
