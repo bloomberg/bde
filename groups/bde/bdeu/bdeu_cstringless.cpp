@@ -7,7 +7,7 @@ BDES_IDENT_RCSID(bdeu_cstringless_cpp,"$Id$ $CSID$")
 namespace BloombergLP
 {
 
-}
+}  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------
 // NOTICE:

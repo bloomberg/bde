@@ -151,8 +151,8 @@ int main(int argc, char *argv[])
         //   compilers that support it.
         //
         // Concerns:
-        //: 1 class 'bdeu_CStringEqualTo' does not increase the size of an object
-        //:   when used as a base class.
+        //: 1 class 'bdeu_CStringEqualTo' does not increase the size of an
+        //:   object when used as a base class.
         //
         // Plan:
         //: 1 Define a non-empty class with no padding, 'TwoInts'.
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   QoI: Support for empty base optiization
         // --------------------------------------------------------------------
-        
+
         if (verbose) cout << endl
                           << "TESTING QoI: Is an empty type" << endl
                           << "=============================" << endl;
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   BDE Traits
         // --------------------------------------------------------------------
-        
+
         if (verbose) cout << endl
                           << "TESTING BDE TRAITS" << endl
                           << "==================" << endl;
@@ -254,16 +254,16 @@ int main(int argc, char *argv[])
         //   typedef second_arguent_type
         //   typedef result_type
         // --------------------------------------------------------------------
-        
+
         if (verbose) cout << endl
                           << "TESTING STANDARD TYPEDEFS" << endl
                           << "=========================" << endl;
 
         ASSERT((bslmf::IsSame<bool, bdeu_CStringEqualTo::result_type>::VALUE));
         ASSERT((bslmf::IsSame<const char *,
-                             bdeu_CStringEqualTo::first_argument_type>::VALUE));
+                           bdeu_CStringEqualTo::first_argument_type>::VALUE));
         ASSERT((bslmf::IsSame<const char *,
-                             bdeu_CStringEqualTo::second_argument_type>::VALUE));
+                           bdeu_CStringEqualTo::second_argument_type>::VALUE));
 
       } break;
       case 3: {
@@ -285,9 +285,9 @@ int main(int argc, char *argv[])
         //: 4 No memory is allocated from the default or global allocators.
         //
         // Plan:
-        //: 1 
-        //: 2 
-        //: 3 
+        //: 1
+        //: 2
+        //: 3
         //
         // Testing:
         //   operator()(const char*, const char *) const
@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
             const char *d_rhs;
             bool        d_expected;
         } DATA[] = {
-            // LINE    LHS     RHS     EXPECTED    
+            // LINE    LHS     RHS     EXPECTED
             {  L_,     "",     "",     true    },
             {  L_,     "",     "\0",   true    },
             {  L_,     "",     "A",    false   },
@@ -373,7 +373,8 @@ int main(int argc, char *argv[])
         //:   tested as a global concern. (C-7)
         //:
         //: 2 Verify the default constructor exists and is publicly accessible
-        //:   by default-constructing a 'const bdeu_CStringEqualTo' object. (C-1)
+        //:   by default-constructing a 'const bdeu_CStringEqualTo'
+        //:   object. (C-1)
         //:
         //: 3 Verify the copy constructor is publicly accessible and not
         //:   'explicit' by using the copy-initialization syntax to create a
@@ -387,7 +388,8 @@ int main(int argc, char *argv[])
         //:   itself. (C-5)
         //:
         //: 6 Verify the destructor is publicly accessible by allowing the two
-        //:   'bdeu_CStringEqualTo' object to leave scope and be destroyed. (C-6)
+        //:   'bdeu_CStringEqualTo' object to leave scope and be
+        //:    destroyed. (C-6)
         //
         // Testing:
         //   bdeu_CStringEqualTo()
@@ -410,7 +412,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Value initialization" << endl;
         const bdeu_CStringEqualTo obj1 = bdeu_CStringEqualTo();
 
-        
+
         if (verbose) cout << "Copy initialization" << endl;
         bdeu_CStringEqualTo obj2 = obj1;
 

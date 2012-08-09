@@ -18,8 +18,8 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a functor to compare two
 // null-terminated strings using a case-sensitive string comparison, rather
-// than simply comparing the two addresses, as the 'std::less' functor would
-// do.  This lexicographical ordering makes 'bdeu_CStringLess' suitable for
+// than simply comparing the two addresses (as the 'std::less' functor would
+// do).  This lexicographical ordering makes 'bdeu_CStringLess' suitable for
 // supporting C strings as keys in associative containers.  Note that the
 // container behavior would be undefined if the strings referenced by such
 // pointers were to change value.

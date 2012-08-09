@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   QoI: Support for empty base optiization
         // --------------------------------------------------------------------
-        
+
         if (verbose) cout << endl
                           << "TESTING QoI: Is an empty type" << endl
                           << "=============================" << endl;
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   BDE Traits
         // --------------------------------------------------------------------
-        
+
         if (verbose) cout << endl
                           << "TESTING BDE TRAITS" << endl
                           << "==================" << endl;
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
         //   typedef arguent_type
         //   typedef result_type
         // --------------------------------------------------------------------
-        
+
         if (verbose) cout << endl
                           << "TESTING STANDARD TYPEDEFS" << endl
                           << "=========================" << endl;
@@ -274,16 +274,16 @@ int main(int argc, char *argv[])
         //:
         //: 2 The function call operator can be invoked on constant objects.
         //:
-        //: 3 The function call returns the same result as a call to 
+        //: 3 The function call returns the same result as a call to
         //:   'bdeu_HashUtil::hash1' passing the argument string and its
         //:   length.
         //:
         //: 4 No memory is allocated from the default or global allocators.
         //
         // Plan:
-        //: 1 
-        //: 2 
-        //: 3 
+        //: 1
+        //: 2
+        //: 3
         //
         // Testing:
         //   operator()(const char*, const char *) const
@@ -408,7 +408,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Value initialization" << endl;
         const bdeu_CStringHash obj1 = bdeu_CStringHash();
 
-        
+
         if (verbose) cout << "Copy initialization" << endl;
         bdeu_CStringHash obj2 = obj1;
 

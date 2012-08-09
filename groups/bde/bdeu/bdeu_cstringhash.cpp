@@ -22,11 +22,10 @@ bsl::size_t bdeu_CStringHash::operator()(const char *argument) const
 {
     BSLS_ASSERT_SAFE(argument);
 
-//    return bdeu_HashUtil::hash0(argument, 1359964751);
     return bdeu_HashUtil::hash1(argument, bsl::strlen(argument));
 }
 
-}
+}  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------
 // NOTICE:

@@ -7,22 +7,21 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a functor enabling C strings as associative container keys.
+//@PURPOSE: Provide a functor enabling C strings as unordered container keys.
 //
 //@CLASSES:
-//  bdeu_CStringHash: functor enabling C strings as associative container keys
+//  bdeu_CStringHash: functor enabling C strings as unordered container keys
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@SEE_ALSO: bslstp_hashmap, bslstp_hashset
 //
-//@DESCRIPTION: This component provides a functor to compare two
-// null-terminated strings using a case-sensitive string comparison, rather
-// than simply comparing the two addresses, as the 'std::less' functor would
-// do.  This lexicographical ordering makes 'bdeu_CStringHash' suitable for
-// supporting C strings as keys in associative containers.  Note that the
-// container behavior would be undefined if the strings referenced by such
-// pointers were to change value.
+//@DESCRIPTION: This component provides a functor to generate a hash code for a
+// null-terminated string, rather than simply generating a hash code for the
+// address of the string, as the 'std::hash' functor would do.  This hash
+// functor is suitable for supporting C strings as keys in unordered
+// associative containers.  Note that the container behavior would be
+// undefined if the strings referenced by such pointers were to change value.
 //
 ///Usage
 ///-----
@@ -46,10 +45,10 @@ namespace BloombergLP {
                         // =======================
 
 struct bdeu_CStringHash {
-    // This 'struct' defines an ordering on null-terminated character strings,
-    // enabling them for use as keys in the standard associative containers
-    // such as 'bsl::map' and 'bsl::set'.  Note that this class is an empty
-    // POD type.
+    // This 'struct' defines a hash operation for null-terminated character
+    // strings enabling them to be used as keys in the standard unordered
+    // associative containers such as 'bsl::hash_map' and 'bsl::hash_set'.
+    // Note that this class is an empty POD type.
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdeu_CStringHash, bslalg::TypeTraitsGroupPod);
@@ -78,10 +77,9 @@ struct bdeu_CStringHash {
 
     // ACCESSORS
     bsl::size_t operator()(const char *argument) const;
-        // Return 'true' if the specified 'lhs' string is lexicographically
-        // ordered before the specified 'rhs' string, and 'false' otherwise.
-        // The behavior is undefined unless both 'lhs' and 'rhs' point to
-        // null-terminated strings.
+        // Return a hash code generated from the contents of the specified
+        // null-terminated 'argument' string.  The behavior is undefined
+        // unless both 'argument' is a null-terminated strings.
 };
 
 // ============================================================================

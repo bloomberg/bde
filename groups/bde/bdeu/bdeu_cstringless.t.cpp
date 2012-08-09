@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   QoI: Support for empty base optiization
         // --------------------------------------------------------------------
-        
+
         if (verbose) cout << endl
                           << "TESTING QoI: Is an empty type" << endl
                           << "=============================" << endl;
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   BDE Traits
         // --------------------------------------------------------------------
-        
+
         if (verbose) cout << endl
                           << "TESTING BDE TRAITS" << endl
                           << "==================" << endl;
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
         //   typedef second_arguent_type
         //   typedef result_type
         // --------------------------------------------------------------------
-        
+
         if (verbose) cout << endl
                           << "TESTING STANDARD TYPEDEFS" << endl
                           << "=========================" << endl;
@@ -285,9 +285,9 @@ int main(int argc, char *argv[])
         //: 4 No memory is allocated from the default or global allocators.
 
         // Plan:
-        //: 1 
-        //: 2 
-        //: 3 
+        //: 1
+        //: 2
+        //: 3
         //
         // Testing:
         //   operator()(const char*, const char *) const
@@ -417,7 +417,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Value initialization" << endl;
         const bdeu_CStringLess obj1 = bdeu_CStringLess();
 
-        
+
         if (verbose) cout << "Copy initialization" << endl;
         bdeu_CStringLess obj2 = obj1;
 

@@ -7,10 +7,10 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a functor enabling C strings as associative container keys.
+//@PURPOSE: Provide a functor enabling C strings as unordered containers keys.
 //
 //@CLASSES:
-//  bdeu_CStringEqualTo: functor enabling C strings as associative container keys
+//  bdeu_CStringEqualTo: functor enabling C strings as 'unordered_map' keys
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
@@ -18,11 +18,11 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a functor to compare two
 // null-terminated strings using a case-sensitive string comparison, rather
-// than simply comparing the two addresses, as the 'std::less' functor would
-// do.  This lexicographical ordering makes 'bdeu_CStringEqualTo' suitable for
-// supporting C strings as keys in associative containers.  Note that the
-// container behavior would be undefined if the strings referenced by such
-// pointers were to change value.
+// than simply comparing the two addresses (as the 'std::equal_to' functor
+// would do).  This comparison functor is suitable for supporting C strings as
+// keys in unordered associative containers.  Note that the container behavior
+// would be undefined if the strings referenced by such pointers were to
+// change value.
 //
 ///Usage
 ///-----
@@ -50,10 +50,10 @@ namespace BloombergLP {
                        // ==========================
 
 struct bdeu_CStringEqualTo {
-    // This 'struct' defines an ordering on null-terminated character strings,
-    // enabling them for use as keys in the standard associative containers
-    // such as 'bsl::map' and 'bsl::set'.  Note that this class is an empty
-    // POD type.
+    // This 'struct' defines a comparison functor on null-terminated character
+    // strings, enabling them for use as keys in the standard unordered
+    // associative containers such as 'bsl::hash_map' and 'bsl::hash_set'.
+    // Note that this class is an empty POD type.
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdeu_CStringEqualTo,
@@ -62,7 +62,7 @@ struct bdeu_CStringEqualTo {
     // STANDARD TYPEDEFS
     typedef const char *first_argument_type;
     typedef const char *second_argument_type;
-    typedef bool result_type;
+    typedef bool        result_type;
 
     //! bdeu_CStringEqualTo() = default;
         // Create a 'bdeu_CStringEqualTo' object.
@@ -76,11 +76,11 @@ struct bdeu_CStringEqualTo {
         // Destroy this object.
 
     // MANIPULATORS
-    //! bdeu_CStringEqualTo& operator=(const bdeu_CStringEqualTo& rhs) = default;
+    //! bdeu_CStringEqualTo& operator=(const bdeu_CStringEqualTo&) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // a return a reference providing modifiable access to this object.
-        // Note that as 'bdeu_CStringEqualTo' is an empty (stateless) type, this
-        // operation will have no observable effect.
+        // Note that as 'bdeu_CStringEqualTo' is an empty (stateless) type,
+        // this operation will have no observable effect.
 
     // ACCESSORS
     bool operator()(const char *lhs, const char *rhs) const;
