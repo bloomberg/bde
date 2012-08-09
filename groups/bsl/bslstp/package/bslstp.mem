@@ -10,3 +10,4 @@ bslstp_slist
 bslstp_slistbase
 bslstp_sstream
 bslstp_stack
+bslstp_util

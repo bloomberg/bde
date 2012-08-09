@@ -73,6 +73,10 @@
 #include <bslstp_iterator.h>
 #endif
 
+#ifndef INCLUDED_BSLSTP_UTIL
+#include <bslstp_util.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
 #endif
@@ -111,10 +115,6 @@
 
 #ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_UTIL
-#include <bslstl_util.h>
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL
@@ -387,7 +387,7 @@ public:
   const_reference back() const { return *(--end()); }
 
   void swap(list<_Tp, _Alloc>& __x) {
-    BloombergLP::bslstl::Util::swapContainers(*this, __x, QuickSwap());
+    BloombergLP::bslstp::Util::swapContainers(*this, __x, QuickSwap());
   }
 
   iterator insert(iterator __position, const _Tp& __x = _Tp()) {
@@ -476,7 +476,7 @@ public:
   { insert(begin(), __first, __last); }
 
   list(const _Self& __x)
-  : _List_base<_Tp, _Alloc>(BloombergLP::bslstl::Util::copyContainerAllocator(__x.get_allocator()))
+  : _List_base<_Tp, _Alloc>(BloombergLP::bslstp::Util::copyContainerAllocator(__x.get_allocator()))
     { insert(begin(), __x.begin(), __x.end()); }
 
   // Copy-construct with alternative allocator.

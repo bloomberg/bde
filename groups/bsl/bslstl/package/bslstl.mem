@@ -5,6 +5,7 @@ bslstl_bidirectionaliterator
 bslstl_bitset
 bslstl_containerbase
 bslstl_deque
+bslstl_disambiguator
 bslstl_exalgorithm
 bslstl_exfunctional
 bslstl_forwarditerator

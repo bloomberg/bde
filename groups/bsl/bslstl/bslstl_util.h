@@ -56,6 +56,7 @@ namespace bslstl {
                         // class Util
                         // ==========
 
+#if 0
 class Util {
     // Namespace for utility functions used to implement STL functionality.
 
@@ -108,6 +109,7 @@ class Util {
         // throws an exception, then the values of 'c1' and 'c2' are left
         // unchanged.  The 'quickswap' function must not throw an exception.
 };
+#endif
 
                         // ==================
                         // class UtilIterator
@@ -131,6 +133,7 @@ struct UtilIterator {
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
+#if 0
                //------------------------------------------------
                // struct AllocatorUtil<ALLOCATOR, IS_BSLMA_ALLOC>
                //------------------------------------------------
@@ -157,7 +160,11 @@ copyContainerAllocator(const ALLOCATOR& rhsAlloc)
     return rhsAlloc;
 }
 
+#endif
+
 namespace bslstl {
+
+#if 0
 
                               //-----------
                               // class Util
@@ -201,6 +208,8 @@ void Util::swapContainers(CONTAINER&            c1,
     }
 }
 
+#endif
+
 }  // close package namespace
 
 // ===========================================================================
@@ -209,9 +218,10 @@ void Util::swapContainers(CONTAINER&            c1,
 
 typedef bslstl::UtilIterator bslstl_UtilIterator;
     // This alias is defined for backward compatibility.
-
+#if 0
 typedef bslstl::Util bslstl_Util;
     // This alias is defined for backward compatibility.
+#endif
 
 }  // close enterprise namespace
 

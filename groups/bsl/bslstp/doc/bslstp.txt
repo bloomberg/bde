@@ -31,6 +31,7 @@
 
   Level 1:  queue              stack               slistbase
             alloc              iterator            iosfwd
+            util
 ..
 
 /Component Synopsis
@@ -74,4 +75,6 @@
 
   'bslstp_tree'       - generic red black tree used to implement 'map' and
                         'set'
+
+  'bslstp_util'       - utility functions for STL functionality
 ..
