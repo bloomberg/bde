@@ -131,8 +131,8 @@ BSLS_IDENT("$Id: $")
 //  const char *LONG_STRING  = "This really long string definitely causes " \
 //                             "memory to be allocated on creation";
 //
-//  const bsl::string x(SHORT_STRING, allocator1);
-//  const bsl::string y(LONG_STRING,  allocator2);
+//  const bsl::string x(SHORT_STRING, &allocator1);
+//  const bsl::string y(LONG_STRING,  &allocator2);
 //
 //  assert(SHORT_STRING == x);
 //  assert(LONG_STRING  == y);
@@ -351,6 +351,67 @@ BSLS_IDENT("$Id: $")
 //      return lhs.firstName() != rhs.firstName()
 //          || lhs.lastName()  != rhs.lastName()
 //          || lhs.id()        != rhs.id();
+//  }
+//..
+//
+///Example 3: A 'string' replace function
+///- - - - - - - - - - - - - - - - - - -
+// In this example, we will define a function that reads data from an input
+// stream, replaces all occurrences of a specified 'string' value with another
+// 'string' value, and writes the resulting 'string' to an output stream.
+//
+// First, we define the signature of the function:
+//..
+//  void replace(bsl::ostream&      outputStream,
+//               bsl::istream&      inputStream,
+//               const bsl::string& oldString,
+//               const bsl::string& newString)
+//      // Read data from the specified 'inputStream' and replace all
+//      // occurrences of the specified 'oldString' in the data to the
+//      // specified 'newString'.  Write the modified data to the specified
+//      // 'outputStream'.
+//..
+// Then, we provide the implementation for 'replace':
+//..
+//  {
+//      const int   oldStringSize = oldString.size();
+//      const int   newStringSize = newString.size();
+//      bsl::string line;
+//
+//      bsl::getline(inputStream, line);
+//..
+// Notice that we can use the 'getline' free function defined in this component
+// to read a single line of data from an input stream into a 'string'.
+//..
+//      if (!inputStream) {
+//          return;                                                   // RETURN
+//      }
+//
+//      do {
+//..
+// Next, we use the 'find' function to search if the contents of 'line' include
+// characters matching the contents of 'oldString':
+//..
+//          int pos = line.find(oldString);
+//          while (bsl::string::npos != pos) {
+//..
+// Now, we replace the contents of 'line' matching 'oldString' with the
+// contents of 'newString':
+//..
+//              line.replace(pos, oldStringSize, newString);
+//              pos = line.find(oldString, pos + newStringSize);
+//..
+// Notice that we provide the starting position from where to start searching
+// to this call of 'find'.
+//..
+//          }
+//..
+// Finally, we write the updated contents of 'line' to the output stream:
+//..
+//          outputStream << line;
+//
+//          bsl::getline(inputStream, line);
+//      } while (inputStream);
 //  }
 //..
 
