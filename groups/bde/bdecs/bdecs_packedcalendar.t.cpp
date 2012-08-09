@@ -490,6 +490,32 @@ bdecs_PackedCalendar& hh(bdecs_PackedCalendar *object, const char *spec)
 // right according to a complex custom language to bring the calendar to a
 // range of possible states relevant for testing.
 //
+///LANGUAGE SPECIFICATION
+//-----------------------
+// <SPEC>       ::= <ABS_DATE>[<DOW_LIST>|<EMPTY>] <DATE> <DATEM_LIST>
+//
+// <DATE>       ::= <ABS_DATE> | <REL_DATE>
+//
+// <ABS_DATE>   ::= @YYYY/MM/DD
+//
+// <REL_DATE>   ::= integer value
+//
+// <DATEM_LIST> ::= <DATEM> | <DATEM> <DATEM_LIST>
+//
+// <DATEM>      ::= <DATE><DATE_EMBEL> | <EMPTY>
+//
+// <EMPTY>      ::=
+//
+// <DATE_EMBEL> ::= <DOW_LIST> | <HCODE_LIST> | <EMPTY>
+//
+// <DOW_LIST>   ::= <DOW> | <DOW> <DOW_LIST>
+//
+// <DOW>        ::= 'u' | 'm' | 't' | 'w' | 'r' | 'f' | 'a'
+//                       // represents days of the week from Sunday to Saturday
+//
+// <HCODE>      ::= 'A' | 'B' | 'C' | 'D' | 'E'
+//                    // represents unique but otherwise arbitrary holidaycodes
+//
 // These functions enables the explict specification of dates representing the
 // first and last date in a calendar, holiday dates, and weekend-days
 // transition dates.  An absolute date will be represented as @yyyy/mm/dd, (but
@@ -497,9 +523,9 @@ bdecs_PackedCalendar& hh(bdecs_PackedCalendar *object, const char *spec)
 // unsigned integer offset from the start of the current range.  Note that
 // relative dates should not be used on an empty calendar.
 //
-// Holiday codes are represented symbolically as uppercase letters.  Days of
-// the week to be considered weekend days are identifier by lowercase letters
-// {u, m, t, w, r, f, a}.
+// Holiday codes are represented symbolically as uppercase letters (from 'A' to
+// 'E').  Days of the week to be considered weekend days are identifier by
+// lowercase letters ('u', 'm', 't', 'w', 'r', 'f', 'a').
 //
 // The first date in a spec represents one end of the range and must be
 // absolute.  If the first date is embellished by weekend-day identifiers, use
@@ -517,10 +543,6 @@ bdecs_PackedCalendar& hh(bdecs_PackedCalendar *object, const char *spec)
 // is used to delimit integer fields with no intervening holiday codes (notice
 // that absolute dates and holiday codes are self-delimiting).
 //
-// For example, let's again assume the following arbitrary assignments of
-// holiday codes:
-//
-//     int VA = 0, VB = 1, VC = 2, VD = 100, VE = 1000;
 //
 // This more powerful, but also more complex and less concise notation is used
 // as follows:

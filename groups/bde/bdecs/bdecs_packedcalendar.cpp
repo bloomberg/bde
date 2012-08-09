@@ -62,6 +62,10 @@ int numWeekendDaysInRangeImp(const bdet_Date&         firstDate,
     int numWeekendDays = (len / 7) * weekendDays.length();
     int dayOfWeek      = (int) firstDate.dayOfWeek();
 
+
+    // The switch statement unrolls a loop that repeats the same number of
+    // times as the number of days in the first partial week.
+
     switch (len % 7) {
       case 6:
         numWeekendDays += weekendDays.isMember(
@@ -1283,27 +1287,16 @@ int bdecs_PackedCalendar::numWeekendDaysInRange() const
 bool operator==(const bdecs_PackedCalendar& lhs,
                 const bdecs_PackedCalendar& rhs)
 {
-    bool sameTransitionFlag = false;
-
-    if (lhs.d_weekendDaysTransitions.size() == 0) {
-        if (rhs.d_weekendDaysTransitions.size() == 1) {
-            sameTransitionFlag =
-                    rhs.d_weekendDaysTransitions.begin()->second.length() == 0;
+    if (!(1 == lhs.numWeekendDaysTransitions() &&
+          1 == rhs.numWeekendDaysTransitions() &&
+          *lhs.beginWeekendDaysTransitions() ==
+                                         *rhs.beginWeekendDaysTransitions())) {
+        if (lhs.d_weekendDaysTransitions != rhs.d_weekendDaysTransitions) {
+            return false;
         }
     }
-    else if (rhs.d_weekendDaysTransitions.size() == 0) {
-        if (lhs.d_weekendDaysTransitions.size() == 1) {
-            sameTransitionFlag =
-                    lhs.d_weekendDaysTransitions.begin()->second.length() == 0;
-        }
-    }
-    if (!sameTransitionFlag) {
-         sameTransitionFlag =
-                  lhs.d_weekendDaysTransitions == rhs.d_weekendDaysTransitions;
-    }
 
-    return sameTransitionFlag
-        && lhs.d_firstDate         == rhs.d_firstDate
+    return lhs.d_firstDate         == rhs.d_firstDate
         && lhs.d_lastDate          == rhs.d_lastDate
         && lhs.d_holidayOffsets    == rhs.d_holidayOffsets
         && lhs.d_holidayCodesIndex == rhs.d_holidayCodesIndex
@@ -1560,7 +1553,7 @@ bdecs_PackedCalendar_WeekendDaysTransitionConstIterator(
                                           const bdecs_PackedCalendar& calendar,
                                           bool                        endFlag)
 : d_calendar_p(&calendar)
-, d_endFlag(endFlag)
+, d_implicitTransitionEndFlag(endFlag)
 {
     if (endFlag) {
         d_position = d_calendar_p->d_weekendDaysTransitions.end();
@@ -1581,8 +1574,8 @@ bdecs_PackedCalendar_WeekendDaysTransitionConstIterator::
 bdecs_PackedCalendar_WeekendDaysTransitionConstIterator&
 bdecs_PackedCalendar_WeekendDaysTransitionConstIterator::operator++()
 {
-    if (implicitTransition() && !d_endFlag) {
-        d_endFlag = true;
+    if (implicitTransition() && !d_implicitTransitionEndFlag) {
+        d_implicitTransitionEndFlag = true;
     }
     else {
         ++d_position;
@@ -1593,8 +1586,8 @@ bdecs_PackedCalendar_WeekendDaysTransitionConstIterator::operator++()
 bdecs_PackedCalendar_WeekendDaysTransitionConstIterator&
 bdecs_PackedCalendar_WeekendDaysTransitionConstIterator::operator--()
 {
-    if (implicitTransition() && d_endFlag) {
-        d_endFlag = false;
+    if (implicitTransition() && d_implicitTransitionEndFlag) {
+        d_implicitTransitionEndFlag = false;
     }
     else {
         --d_position;
@@ -1605,7 +1598,7 @@ bdecs_PackedCalendar_WeekendDaysTransitionConstIterator::operator--()
 const bdecs_PackedCalendar::WeekendDaysTransition&
 bdecs_PackedCalendar_WeekendDaysTransitionConstIterator::operator*() const
 {
-    if (implicitTransition() && !d_endFlag) {
+    if (implicitTransition() && !d_implicitTransitionEndFlag) {
         return getEmptyTransition();
     }
     return *d_position;
@@ -1614,7 +1607,7 @@ bdecs_PackedCalendar_WeekendDaysTransitionConstIterator::operator*() const
 const bdecs_PackedCalendar::WeekendDaysTransition*
 bdecs_PackedCalendar_WeekendDaysTransitionConstIterator::operator->() const
 {
-    if (implicitTransition() && !d_endFlag) {
+    if (implicitTransition() && !d_implicitTransitionEndFlag) {
         return &(getEmptyTransition());
     }
     return &(*d_position);
@@ -1632,7 +1625,8 @@ bool operator==(
 
     if (lhs.implicitTransition())
     {
-        return lhs.d_endFlag  == rhs.d_endFlag &&
+        return lhs.d_implicitTransitionEndFlag ==
+               rhs.d_implicitTransitionEndFlag &&
                lhs.d_position == rhs.d_position;
     }
 

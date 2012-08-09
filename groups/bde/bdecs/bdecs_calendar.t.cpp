@@ -371,13 +371,38 @@ bool sameWeekendDaysTransition(const Obj::WeekendDaysTransition& transition,
 
 }  // close unnamed namespace
 
-
 //=============================================================================
 //              FLEXIBLE GENERATOR FUNCTIONS 'g' and 'gg' FOR TESTING
 //-----------------------------------------------------------------------------
 // The function 'g' and 'gg' interpret a specified 'spec' in order from left to
 // right according to a complex custom language to bring the calendar to a
 // range of possible states relevant for testing.
+//
+///LANGUAGE SPECIFICATION
+//-----------------------
+// <SPEC>       ::= <ABS_DATE>[<DOW_LIST>|<EMPTY>] <DATE> <DATEM_LIST>
+//
+// <DATE>       ::= <ABS_DATE> | <REL_DATE>
+//
+// <ABS_DATE>   ::= @YYYY/MM/DD
+//
+// <REL_DATE>   ::= integer value
+//
+// <DATEM_LIST> ::= <DATEM> | <DATEM> <DATEM_LIST>
+//
+// <DATEM>      ::= <DATE><DATE_EMBEL> | <EMPTY>
+//
+// <EMPTY>      ::=
+//
+// <DATE_EMBEL> ::= <DOW_LIST> | <HCODE_LIST> | <EMPTY>
+//
+// <DOW_LIST>   ::= <DOW> | <DOW> <DOW_LIST>
+//
+// <DOW>        ::= 'u' | 'm' | 't' | 'w' | 'r' | 'f' | 'a'
+//                       // represents days of the week from Sunday to Saturday
+//
+// <HCODE>      ::= 'A' | 'B' | 'C' | 'D' | 'E'
+//                    // represents unique but otherwise arbitrary holidaycodes
 //
 // These functions enables the explict specification of dates representing the
 // first and last date in a calendar, holiday dates, and weekend-days
@@ -386,9 +411,9 @@ bool sameWeekendDaysTransition(const Obj::WeekendDaysTransition& transition,
 // unsigned integer offset from the start of the current range.  Note that
 // relative dates should not be used on an empty calendar.
 //
-// Holiday codes are represented symbolically as uppercase letters.  Days of
-// the week to be considered weekend days are identifier by lowercase letters
-// {u, m, t, w, r, f, a}.
+// Holiday codes are represented symbolically as uppercase letters (from 'A' to
+// 'E').  Days of the week to be considered weekend days are identifier by
+// lowercase letters ('u', 'm', 't', 'w', 'r', 'f', 'a').
 //
 // The first date in a spec represents one end of the range and must be
 // absolute.  If the first date is embellished by weekend-day identifiers, use
@@ -406,10 +431,6 @@ bool sameWeekendDaysTransition(const Obj::WeekendDaysTransition& transition,
 // is used to delimit integer fields with no intervening holiday codes (notice
 // that absolute dates and holiday codes are self-delimiting).
 //
-// For example, let's again assume the following arbitrary assignments of
-// holiday codes:
-//
-//     int VA = 0, VB = 1, VC = 2, VD = 100, VE = 1000;
 //
 // This more powerful, but also more complex and less concise notation is used
 // as follows:
@@ -4617,16 +4638,11 @@ int main(int argc, char *argv[])
         ASSERT(X.firstDate() == bdet_Date(2004,12,30));
         ASSERT(X.lastDate()  == bdet_Date(2006,1,3));
 
-        // Testing 'isHoliday' and 'isWeekendDay'.
+        // Testing 'isHoliday'.
 
         ASSERT(true  == X.isHoliday(bdet_Date(2005,1,2)));
         ASSERT(true  == X.isHoliday(bdet_Date(2005,4,1)));
         ASSERT(false == X.isHoliday(bdet_Date(2005,4,2)));
-        ASSERT(true  == X.isWeekendDay(bdet_DayOfWeek::BDET_SUN));
-        ASSERT(true  == X.isWeekendDay(bdet_DayOfWeek::BDET_SAT));
-        ASSERT(true  == X.isWeekendDay(bdet_DayOfWeek::BDET_FRI));
-        ASSERT(false  == X.isWeekendDay(bdet_DayOfWeek::BDET_TUE));
-        ASSERT(false == X.isWeekendDay(bdet_DayOfWeek::BDET_WED));
 
         Obj::WeekendDaysTransitionConstIterator nextTransIt =
                                                X.beginWeekendDaysTransitions();

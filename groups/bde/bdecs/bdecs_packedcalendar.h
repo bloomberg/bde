@@ -101,13 +101,14 @@ BDES_IDENT("$Id: $")
 // accessible as nested 'typedef's.  'HolidayConstIterator',
 // 'HolidayCodeConstIterator', and 'WeekendDaysTransitionConstIterator',
 // respectively, iterate over a chronologically ordered sequence of holidays, a
-// numerically ordered sequence of holiday codes, and a sequence of weekend
-// days, ordered from Sunday to Saturday.  As a general rule, calling a 'const'
-// method will not invalidate any iterators, and calling a non-'const' method
-// might invalidate any of them; it is, however, guaranteed that attempting to
-// add *duplicate* holidays or holiday codes will have no effect, and therefore
-// will not invalidate any iterators.  It is also guaranteed that adding a new
-// code for an existing holiday will not invalidate any 'HolidayConstIterator'.
+// numerically ordered sequence of holiday codes, and a sequence of
+// chronologically ordered weekend-days transitions.  As a general rule,
+// calling a 'const' method will not invalidate any iterators, and calling a
+// non-'const' method might invalidate any of them; it is, however, guaranteed
+// that attempting to add *duplicate* holidays or holiday codes will have no
+// effect, and therefore will not invalidate any iterators.  It is also
+// guaranteed that adding a new code for an existing holiday will not
+// invalidate any 'HolidayConstIterator'.
 //
 ///Performance and Exception-Safety Guarantees
 ///-------------------------------------------
@@ -1569,13 +1570,19 @@ class bdecs_PackedCalendar_WeekendDaysTransitionConstIterator {
     // days at a start date of 1/1/1.
 
     // DATA
-    const bdecs_PackedCalendar    *d_calendar_p;         // calendar refered by
-                                                         // this iterator
+    const bdecs_PackedCalendar *d_calendar_p;                // calendar
+                                                             // refered by this
+                                                             // iterator
 
     bdecs_PackedCalendar::WeekendDaysTransitionSequence::const_iterator
-                                   d_position;           // iterator position
+                                d_position;                   // iterator
+                                                              // position
 
-    bool                           d_endFlag;
+    bool                        d_implicitTransitionEndFlag;  // past-the-end
+                                                              // indicator when
+                                                              // traversing an
+                                                              // implicit
+                                                              // transition
 
     // FRIENDS
     friend class bdecs_PackedCalendar;

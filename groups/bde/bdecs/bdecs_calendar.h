@@ -106,15 +106,16 @@ BDES_IDENT("$Id: $")
 ///----------------
 // Also provided are several STL-style 'const' bidirectional iterators
 // accessible as nested 'typedef's.  'HolidayConstIterator',
-// 'HolidayCodeConstIterator', and 'WeekendDayTransitionConstIterator',
+// 'HolidayCodeConstIterator', and 'WeekendDaysTransitionConstIterator',
 // respectively, iterate over a chronologically ordered sequence of holidays, a
-// numerically ordered sequence of holiday codes, and a sequence of weekend
-// days, ordered from Sunday to Saturday.  As a general rule, calling a 'const'
-// method will not invalidate any iterators, and calling a non-'const' method
-// might invalidate any of them; it is, however, guaranteed that attempting to
-// add *duplicate* holidays or holiday codes will have no effect, and therefore
-// will not invalidate any iterators.  It is also guaranteed that adding a new
-// code for an existing holiday will not invalidate any 'HolidayConstIterator'.
+// numerically ordered sequence of holiday codes, and a sequence of
+// chronologically ordered weekend-days transitions.  As a general rule,
+// calling a 'const' method will not invalidate any iterators, and calling a
+// non-'const' method might invalidate any of them; it is, however, guaranteed
+// that attempting to add *duplicate* holidays or holiday codes will have no
+// effect, and therefore will not invalidate any iterators.  It is also
+// guaranteed that adding a new code for an existing holiday will not
+// invalidate any 'HolidayConstIterator'.
 //
 ///Performance and Exception-Safety Guarantees
 ///-------------------------------------------
@@ -1257,8 +1258,15 @@ void bdecs_Calendar::removeHolidayCode(const bdet_Date& date,
 template <class STREAM>
 STREAM& bdecs_Calendar::bdexStreamIn(STREAM& stream, int version)
 {
+
+    // The 'bdesc_Calendar' delegates its streaming operations to
+    // 'bdecs_PackedCalendar' because both types can represent the exact same
+    // set of mathematical values.
+
     if (stream) {
+
         if (version <= maxSupportedBdexVersion()) {
+
             bdecs_PackedCalendar inCal(d_allocator_p);
             inCal.bdexStreamIn(stream, version);
             if (!stream) {
@@ -1282,6 +1290,10 @@ STREAM& bdecs_Calendar::bdexStreamIn(STREAM& stream, int version)
 template <class STREAM>
 STREAM& bdecs_Calendar::bdexStreamOut(STREAM& stream, int version) const
 {
+
+    // The 'bdesc_Calendar' delegates its streaming operations to
+    // 'bdecs_PackedCalendar' because both types can represent the exact same
+    // set of mathematical values.
 
     if (version <= maxSupportedBdexVersion()) {
         d_packedCalendar.bdexStreamOut(stream, version);
