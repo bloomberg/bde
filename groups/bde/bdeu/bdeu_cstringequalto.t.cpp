@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
             {  L_,     "",     "\0",   true    },
             {  L_,     "",     "A",    false   },
             {  L_,     "A",    "A",    true    },
-            {  L_,     "A",    "a",    true    },
+            {  L_,     "A",    "a",    false   },
             {  L_,     "A",    "AA",   false   },
 #if 0 // TBD Complete this table
             {  L_,     "0",    "z",    true     },
@@ -327,7 +327,6 @@ int main(int argc, char *argv[])
             const char *LHS      = DATA[i].d_lhs;
             const char *RHS      = DATA[i].d_rhs;
             const bool  EXPECTED = DATA[i].d_expected;
-            const bool  REVERSED = DATA[i].d_reversed;
 
             //LOOP_ASSERT(LINE, LHS < RHS);
             LOOP_ASSERT(LINE, compare(LHS, RHS) == EXPECTED);

@@ -14,7 +14,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
-//@SEE_ALSO: bsl_map, bsl_set
+//@SEE_ALSO: bslstp_hashmap, bslstp_hashset
 //
 //@DESCRIPTION: This component provides a functor to compare two
 // null-terminated strings using a case-sensitive string comparison, rather
@@ -33,6 +33,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
 #endif
 
 namespace BloombergLP {
@@ -73,7 +77,7 @@ struct bdeu_CStringHash {
         // operation will have no observable effect.
 
     // ACCESSORS
-    bool operator()(const char *argument) const;
+    bsl::size_t operator()(const char *argument) const;
         // Return 'true' if the specified 'lhs' string is lexicographically
         // ordered before the specified 'rhs' string, and 'false' otherwise.
         // The behavior is undefined unless both 'lhs' and 'rhs' point to

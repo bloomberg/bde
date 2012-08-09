@@ -14,7 +14,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
-//@SEE_ALSO: bsl_map, bsl_set
+//@SEE_ALSO: bslstp_hashmap, bslstp_hashset
 //
 //@DESCRIPTION: This component provides a functor to compare two
 // null-terminated strings using a case-sensitive string comparison, rather

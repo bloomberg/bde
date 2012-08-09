@@ -236,22 +236,18 @@ int main(int argc, char *argv[])
         //   standard adaptable binary function.
         //
         // Concerns:
-        //: 1 The typedef 'first_argument_type' is publicly accessible and an
-        //:   alias for 'const char '.
+        //: 1 The typedef 'argument_type' is publicly accessible and an alias
+        //:   for 'const char '.
         //:
-        //: 2 The typedef 'second_argument_type' is publicly accessible and an
-        //:   alias for 'const char '.
-        //:
-        //: 3 The typedef 'result_type' is publicly accessible and an alias for
+        //: 2 The typedef 'result_type' is publicly accessible and an alias for
         //:   'bool'.
         //
         // Plan:
         //: 1 ASSERT each of the typedefs has accessibly aliases the correct
-        //:   type using 'bslmf::IsSame'. (C-1..3)
+        //:   type using 'bslmf::IsSame'. (C-1,2)
         //
         // Testing:
-        //   typedef first_arguent_type
-        //   typedef second_arguent_type
+        //   typedef arguent_type
         //   typedef result_type
         // --------------------------------------------------------------------
         
@@ -261,9 +257,7 @@ int main(int argc, char *argv[])
 
         ASSERT((bslmf::IsSame<bool, bdeu_CStringHash::result_type>::VALUE));
         ASSERT((bslmf::IsSame<const char *,
-                             bdeu_CStringHash::first_argument_type>::VALUE));
-        ASSERT((bslmf::IsSame<const char *,
-                             bdeu_CStringHash::second_argument_type>::VALUE));
+                              bdeu_CStringHash::argument_type>::VALUE));
 
       } break;
       case 3: {
@@ -301,11 +295,9 @@ int main(int argc, char *argv[])
         bslma_DefaultAllocatorGuard dag(&da);
 
         static const struct {
-            int         d_line;
-            const char *d_lhs;
-            const char *d_rhs;
-            bool        d_expected;
-            bool        d_reversed;
+            int          d_line;
+            const char  *d_string;
+            bsl::size_t  d_hashCode;
         } DATA[] = {
             // LINE    LHS     RHS     EXPECTED    REVERSED
 #if 0 // TBD Complete this table
@@ -326,27 +318,22 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        const bdeu_CStringHash compare = bdeu_CStringHash();
+        const bdeu_CStringHash hash = bdeu_CStringHash();
 
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int   LINE     = DATA[i].d_line;
-            const char *LHS      = DATA[i].d_lhs;
-            const char *RHS      = DATA[i].d_rhs;
-            const bool  EXPECTED = DATA[i].d_expected;
-            const bool  REVERSED = DATA[i].d_reversed;
+            const int          LINE      = DATA[i].d_line;
+            const char        *STRING    = DATA[i].d_string;
+            const bsl::size_t  HASHCODE  = DATA[i].d_hashCode;
 
-            //LOOP_ASSERT(LINE, compare(LHS, RHS) == EXPECTED);
-            //LOOP_ASSERT(LINE, compare(RHS, LHS) == REVERSED);
+            //LOOP_ASSERT(LINE, hash(STRING) == HASHCODE);
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertTestHandlerGuard guard;
 
-            ASSERT_SAFE_FAIL(compare(0, "Hello world"));
-            ASSERT_SAFE_FAIL(compare("Hello world", 0));
-            ASSERT_SAFE_FAIL(compare(0, 0));
-            ASSERT_SAFE_PASS(compare("Hello", "world"));
+            ASSERT_SAFE_FAIL(hash(0));
+            ASSERT_SAFE_PASS(hash("Hello world"));
         }
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
@@ -450,9 +437,8 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        bdeu_CStringHash compare;
-        ASSERT(compare("A", "Z"));
-        ASSERT(!compare("z", "a"));
+        bdeu_CStringHash hash;
+        ASSERT(hash("A") > 0);
 
       } break;
       default: {
