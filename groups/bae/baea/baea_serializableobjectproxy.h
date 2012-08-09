@@ -720,7 +720,7 @@ struct baea_SerializableObjectProxy_NullableDecodeInfo {
 
     // PUBLIC DATA
     Functions::ValueMaker    d_valueMaker; // address of a function that will
-                                           // makes the value non-null
+                                           // make the value non-null
 
     Functions::ObjectFetcher d_fetcher;    // address of a function that will
                                            // return address of underlying data
@@ -739,7 +739,7 @@ typedef baea_SerializableObjectProxyFunctions::Loader
               // ===================================================
 
 struct baea_SerializableObjectProxy_NullableAdapter {
-    // [!PRIVATE!] This 'struct' provide a type that holds a pointer to a
+    // [!PRIVATE!] This 'struct' provides a type that holds a pointer to a
     // 'baea_SerializableObjectProxy', but is only identified as a Nullable
     // type (through the implementation of the 'bdeat' functions overloads),
     // and not any other 'bdeat' type.  'baea_SerializableObjectProxy' is
@@ -1153,17 +1153,8 @@ class baea_SerializableObjectProxy {
         // populated by the 'loader' function supplied to this proxy object's
         // 'loadSequence' method.  Return the first non-zero value obtained by
         // invoking 'manipulator' on each sub-proxy object in the sequence, and
-        // return 0 otherwise.
-        //
-        //
-        // Invoke the specified 'manipulator' on proxy objects (populated by
-        // the 'loader' function supplied to the 'loadSequence' method), each
-        // representing an attribute in the Sequence object represented by this
-        // proxy .  If any invocation returns a non-zero value, return the
-        // result of that invocation; return 0 after 'manipulator' return 0 on
-        // all attributes otherwise.  'MANIPULATOR' shall be a functor
-        // providing a method that can be called as if it had the following
-        // signature:
+        // return 0 otherwise.  'MANIPULATOR' shall be a functor providing a
+        // method that can be called as if it had the following signature:
         //..
         //  int operator()(baea_SerializableObjectProxy *,
         //                 const bdeat_AttributeInfo&);
