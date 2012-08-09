@@ -542,7 +542,21 @@ class baexml_Formatter {
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-#ifndef BDE_BUILD_TARGET_SAFE2
+                        // -----------------------------------
+                        // class baexml_Formatter::ElemContext
+                        // -----------------------------------
+
+// CREATORS
+#ifdef BDE_BUILD_TARGET_SAFE2
+inline
+baexml_Formatter::ElemContext::ElemContext(const bdeut_StringRef& tag,
+                                           WhitespaceType         ws)
+: d_ws(ws), d_tagLen(bsl::min(tag.length(), 255))
+{
+    int len = bsl::min(int(BAEXML_TRUNCATED_TAG_LEN), tag.length());
+    bsl::memcpy(d_tag, tag.data(), len);
+}
+#else
 inline
 baexml_Formatter::ElemContext::ElemContext(const bdeut_StringRef& ,
                                            WhitespaceType         ws)
@@ -551,12 +565,14 @@ baexml_Formatter::ElemContext::ElemContext(const bdeut_StringRef& ,
 }
 #endif
 
+// MANIPULATORS
 inline
 void baexml_Formatter::ElemContext::setWs(baexml_Formatter::WhitespaceType ws)
 {
     d_ws = ws;
 }
 
+// ACCESSORS
 inline
 baexml_Formatter::WhitespaceType baexml_Formatter::ElemContext::ws() const
 {
