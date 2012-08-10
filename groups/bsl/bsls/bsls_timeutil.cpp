@@ -276,6 +276,10 @@ bsls::Types::Int64 WindowsTimerUtil::wallTimer()
 
     const bsls::Types::Int64 K = 1000;
     const bsls::Types::Int64 M = 1000000;
+	const bsls::Types::Int64 B = 1000000000;
+	// const bsls::Types::Uint64 HIGH_MASK = 0xffffffff00000000;
+	const bsls::Types::Int64 HIGH_DWORD_MULTIPLIER = B * (1LL << 32);
+
     bsls::Types::Int64 initialTime
         = bsls::AtomicOperations::getInt64Relaxed(&s_initialTime);
     bsls::Types::Int64 timerFrequency
@@ -284,7 +288,73 @@ bsls::Types::Int64 WindowsTimerUtil::wallTimer()
     if (0 != initialTime) {
         LARGE_INTEGER t;
         ::QueryPerformanceCounter(&t);
-        return (((t.QuadPart - initialTime) * M) / timerFrequency) * K;
+
+        // Original outline for improved-precision nanosecond calculation
+        // with integer arithmetic, provided to make the final implementation
+        // easier to understand:
+
+        // Treat the high-dword and low-dword contributions to the counter as
+        // separate 64-bit values.  Since all known timerFrequency values fit
+        // inside 32 unsigned bits, the high-dword contribution will retain 32
+        // significant bits after being divided by the timerFrequency.
+        // Therefore the calculation can be done on the high-dword contribution
+        // by dividing first by the frequency and then multiplying by one
+        // billion.  Similarly, one billion fits inside signed 32 bits, so the
+        // low-dword contribution can be multiplied by one billion without
+        // overflowing.  Therefore, the calculation can be done on the
+        // low-dword contribution by multiplying first by one billion, and then
+        // dividing by the frequency.
+
+		// return (
+        //         (
+        //          static_cast<bsls::Types::Int64>(t.QuadPart & HIGH_MASK)
+        //              / timerFrequency
+        //         ) * B 
+        //         +
+		//  	   (
+        //          static_cast<bsls::Types::Uint64>(t.LowPart) 
+        //              * B
+        //         ) / timerFrequency
+        //        )
+        //        - initialTime;
+
+        // If the high-dword contribution is small, this approach will lose
+        // most of the significant bits from the high-dword contribution during
+        // the initial division.  It can be improved by merging the division
+        // with the multiplication by one billion:
+
+        return (
+                static_cast<bsls::Types::Int64>(t.HighPart)
+                    * (HIGH_DWORD_MULTIPLIER / timerFrequency) 
+                +
+                (static_cast<bsls::Types::Uint64>(t.LowPart) * B)
+                    / timerFrequency
+               ) 
+               - 
+               initialTime;
+
+        // Note that this code runs almost as fast as the original
+        // implementation.  It works for counters representing time values up
+        // to 292 years (the upper limit for representing nanoseconds in 64
+        // bits), and for any frequency that fits in 32 bits.  It appears to be
+        // accurate to 9 decimal digits for frequencies in the gigahertz range
+        // and 12 decimal digits for frequencies in the megahertz range.
+        // Proofs are welcome.  The original implementation broke down on
+        // counter values over ~9x10^12, which could be as little as 50 minutes
+        // with a 3GHz clock.
+
+        // It might be possible to improve this further by finding a better
+        // division point between the high and low parts of the calculation.
+        // For instance, using mod(10 billion) might be better than mod(2^32).
+
+        // Another alternative is to use floating-point arithmetic.  This is
+        // just as fast as the integer arithmetic on my development machine,
+        // but might be very slow on systems with pre-Pentium CPUs, unless they
+        // have a separate floating-point processor.
+
+        // return static_cast<bsls::Types::Int64>(
+        //     static_cast<double>(t.QuadPart) * B) / 
+        //     static_cast<double>(timerFrequency));
     }
     else {
         timeb t;
