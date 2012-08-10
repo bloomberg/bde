@@ -289,6 +289,8 @@ bsls::Types::Int64 WindowsTimerUtil::wallTimer()
         LARGE_INTEGER t;
         ::QueryPerformanceCounter(&t);
 
+		t.QuadPart -= initialTime;
+
         // Original outline for improved-precision nanosecond calculation
         // with integer arithmetic, provided to make the final implementation
         // easier to understand:
@@ -315,8 +317,7 @@ bsls::Types::Int64 WindowsTimerUtil::wallTimer()
         //          static_cast<bsls::Types::Uint64>(t.LowPart) 
         //              * B
         //         ) / timerFrequency
-        //        )
-        //        - initialTime;
+        //        );
 
         // If the high-dword contribution is small, this approach will lose
         // most of the significant bits from the high-dword contribution during
@@ -329,11 +330,9 @@ bsls::Types::Int64 WindowsTimerUtil::wallTimer()
                 +
                 (static_cast<bsls::Types::Uint64>(t.LowPart) * B)
                     / timerFrequency
-               ) 
-               - 
-               initialTime;
+               );
 
-        // Note that this code runs almost as fast as the original
+		// Note that this code runs almost as fast as the original
         // implementation.  It works for counters representing time values up
         // to 292 years (the upper limit for representing nanoseconds in 64
         // bits), and for any frequency that fits in 32 bits.  It appears to be
