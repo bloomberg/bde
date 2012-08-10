@@ -76,7 +76,7 @@ struct HasTrait {
 
   public:
     enum {
-        VALUE = TRAIT::template Metafunction<TYPE>::value
+        VALUE = TRAIT::template Metafunction<typename bsl::remove_cv<TYPE>::type>::value
     };
 
     typedef bslmf::MetaInt<VALUE> Type;

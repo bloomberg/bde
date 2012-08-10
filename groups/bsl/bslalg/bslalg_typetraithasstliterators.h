@@ -46,9 +46,15 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#include <bslmf_detectnestedtrait.h>
+#include <bslmf_integerconstant.h>
+
 namespace BloombergLP {
 
 namespace bslalg {
+
+template <typename TYPE>
+struct HasStlIterators : bsl::false_type {};
 
                         //================================
                         // struct TypeTraitHasStlIterators
@@ -58,6 +64,17 @@ struct TypeTraitHasStlIterators {
     // A type with this trait defines (at minimum) the nested types 'iterator'
     // and 'const_iterator' and the functions 'begin()' and 'end()' having the
     // standard STL semantics.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, HasStlIterators>
+    {
+        // This class template ties the 'bslalg::TypeTaitBitwiseCopyable'
+        // trait tag to the 'bslmf::IsBitwiseCopyable' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : HasStlIterators<TYPE>::type { };
 };
 
 }  // close package namespace

@@ -84,6 +84,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isfundamental.h>
 #endif
 
+#include <bslmf_isbitwisecopyable.h>
+
 #ifndef INCLUDED_BSLMF_ISENUM
 #include <bslmf_isenum.h>
 #endif
@@ -103,7 +105,8 @@ namespace bslmf {
 template <class TYPE>
 struct IsBitwiseMoveable :
     integer_constant<bool,
-                     IsFundamental<TYPE>::value
+                     IsBitwiseCopyable<TYPE>::value
+                  || IsFundamental<TYPE>::value
                   || IsEnum<TYPE>::value
                   || DetectNestedTrait<TYPE, IsBitwiseMoveable>::value>
 {

@@ -879,10 +879,6 @@ class LimitAllocator : public ALLOC {
     size_type d_limit;
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(LimitAllocator,
-                                 BloombergLP::bslalg_TypeTraits<AllocBase>);
-
     // CREATORS
     LimitAllocator()
     : d_limit(-1) {}
@@ -901,6 +897,27 @@ class LimitAllocator : public ALLOC {
     // ACCESSORS
     size_type max_size() const { return d_limit; }
 };
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <typename ALLOCATOR>
+struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
+    : IsBitwiseMoveable<ALLOCATOR>
+{};
+
+}
+
+namespace bslma {
+
+template <typename ALLOCATOR>
+struct UsesBslmaAllocator<LimitAllocator<ALLOCATOR> >
+    : bslmf::IsConvertible<Allocator*, ALLOCATOR>
+{};
+
+}
+
+}  // namespace BloombergLP
 
 //=============================================================================
 //                            Test Case 22
@@ -957,7 +974,7 @@ struct TestDriver {
     //-------------------------------------------------------------------------
 
     // TYPES
-    typedef Vector_Imp<TYPE,ALLOC>  Obj;
+    typedef bsl::vector<TYPE,ALLOC>  Obj;
         // Type under testing.
 
     typedef typename Obj::iterator                iterator;
@@ -1159,7 +1176,7 @@ int TestDriver<TYPE,ALLOC>::ggg(Obj *object,
 }
 
 template <class TYPE, class ALLOC>
-Vector_Imp<TYPE,ALLOC>& TestDriver<TYPE,ALLOC>::gg(Obj        *object,
+bsl::vector<TYPE,ALLOC>& TestDriver<TYPE,ALLOC>::gg(Obj        *object,
                                                    const char *spec)
 {
     ASSERT(ggg(object, spec) < 0);
@@ -1167,7 +1184,7 @@ Vector_Imp<TYPE,ALLOC>& TestDriver<TYPE,ALLOC>::gg(Obj        *object,
 }
 
 template <class TYPE, class ALLOC>
-Vector_Imp<TYPE,ALLOC> TestDriver<TYPE,ALLOC>::g(const char *spec)
+bsl::vector<TYPE,ALLOC> TestDriver<TYPE,ALLOC>::g(const char *spec)
 {
     Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
@@ -5840,6 +5857,8 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     if (verbose)
         printf("\nTesting 'bslalg::TypeTraitUsesBslmaAllocator'.\n");
 
+    ASSERT((bsl::is_convertible<bslma::Allocator *, typename Obj::allocator_type>::value));
+    ASSERT((bslma::UsesBslmaAllocator<Obj>::value));
     ASSERT((bslalg::HasTrait<Obj,
                              bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
@@ -8947,11 +8966,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nAdditional tests: traits.\n");
 
 #ifndef BSLS_PLATFORM__CMP_MSVC  // Temporarily does not work
-        ASSERT(  (bslalg::HasTrait<Vector_Imp<char>,
+        ASSERT(  (bslalg::HasTrait<vector<char>,
                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Vector_Imp<T>,
+        ASSERT(  (bslalg::HasTrait<vector<T>,
                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Vector_Imp<Vector_Imp<int> >,
+        ASSERT(  (bslalg::HasTrait<vector<Vector_Imp<int> >,
                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
 #endif
 

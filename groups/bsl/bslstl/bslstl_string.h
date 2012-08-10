@@ -91,10 +91,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLSEQUENCECONTAINER
-#include <bslstl_traitsgroupstlsequencecontainer.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ANYTYPE
 #include <bslmf_anytype.h>
 #endif

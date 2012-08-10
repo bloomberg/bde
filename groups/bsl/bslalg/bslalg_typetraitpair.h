@@ -39,9 +39,15 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#include <bslmf_detectnestedtrait.h>
+#include <bslmf_integerconstant.h>
+
 namespace BloombergLP {
 
 namespace bslalg {
+
+template <typename TYPE>
+struct IsPair : bsl::false_type {};
 
                         // ====================
                         // struct TypeTraitPair
@@ -55,6 +61,17 @@ struct TypeTraitPair {
     // if both 'first_type' and 'second_type' have the
     // 'TypeTraitBitwiseMoveable' trait.  User-defined types will rarely need
     // this trait.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, IsPair>
+    {
+        // This class template ties the 'bslalg::TypeTaitBitwiseCopyable'
+        // trait tag to the 'bslmf::IsBitwiseCopyable' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : IsPair<TYPE>::type { };
 };
 
 }  // close package namespace

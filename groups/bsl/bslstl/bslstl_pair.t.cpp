@@ -468,8 +468,7 @@ struct my_CopyTrivial {};
 namespace BloombergLP {
 namespace bslmf {
 template <> struct IsBitwiseCopyable<my_CopyTrivial> : bsl::true_type {};
-// TODO:
-// template <> struct HasTrivialDefaultConstructor<my_CopyTrivial> : bsl::true_type {};
+template <> struct HasTrivialDefaultConstructor<my_CopyTrivial> : bsl::true_type {};
 }
 }
 
@@ -479,8 +478,7 @@ namespace BloombergLP {
 namespace bslmf {
 template <> struct IsBitwiseCopyable<my_EqualityTrivial> : bsl::true_type {};
 template <> struct IsBitwiseEqualityComparable<my_EqualityTrivial> : bsl::true_type {};
-// TODO:
-// template <> struct HasTrivialDefaultConstructor<my_EqualityTrivial> : bsl::true_type {};
+template <> struct HasTrivialDefaultConstructor<my_EqualityTrivial> : bsl::true_type {};
 }
 }
 
@@ -810,6 +808,7 @@ int main(int argc, char *argv[])
         ASSERT(! (bslalg::HasTrait<Pair0, TrivialConstructor>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair0, UsesBslmaAllocator>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair0, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair0, bslalg::TypeTraitPair>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -822,6 +821,7 @@ int main(int argc, char *argv[])
         ASSERT(! (bslalg::HasTrait<Pair1, TrivialConstructor>::VALUE));
         ASSERT(  (bslalg::HasTrait<Pair1, UsesBslmaAllocator>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair1, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair1, bslalg::TypeTraitPair>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -833,6 +833,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslalg::HasTrait<Pair2, TrivialConstructor>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair2, UsesBslmaAllocator>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair2, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair2, bslalg::TypeTraitPair>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -844,6 +845,7 @@ int main(int argc, char *argv[])
         ASSERT(! (bslalg::HasTrait<Pair3, TrivialConstructor>::VALUE));
         ASSERT(  (bslalg::HasTrait<Pair3, UsesBslmaAllocator>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair3, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair3, bslalg::TypeTraitPair>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -855,6 +857,7 @@ int main(int argc, char *argv[])
         ASSERT(! (bslalg::HasTrait<Pair4, TrivialConstructor>::VALUE));
         ASSERT(  (bslalg::HasTrait<Pair4, UsesBslmaAllocator>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair4, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair4, bslalg::TypeTraitPair>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -866,6 +869,7 @@ int main(int argc, char *argv[])
         ASSERT(! (bslalg::HasTrait<Pair5, TrivialConstructor>::VALUE));
         ASSERT(  (bslalg::HasTrait<Pair5, UsesBslmaAllocator>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair5, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair5, bslalg::TypeTraitPair>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -877,6 +881,7 @@ int main(int argc, char *argv[])
         ASSERT(! (bslalg::HasTrait<Pair6, TrivialConstructor>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair6, UsesBslmaAllocator>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair6, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair6, bslalg::TypeTraitPair>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -888,6 +893,7 @@ int main(int argc, char *argv[])
         ASSERT(! (bslalg::HasTrait<Pair7, TrivialConstructor>::VALUE));
         ASSERT(  (bslalg::HasTrait<Pair7, UsesBslmaAllocator>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair7, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair7, bslalg::TypeTraitPair>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -899,6 +905,7 @@ int main(int argc, char *argv[])
         ASSERT(! (bslalg::HasTrait<Pair8, TrivialConstructor>::VALUE));
         ASSERT(  (bslalg::HasTrait<Pair8, UsesBslmaAllocator>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair8, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair8, bslalg::TypeTraitPair>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -910,6 +917,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslalg::HasTrait<Pair9, TrivialConstructor>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair9, UsesBslmaAllocator>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair9, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair9, bslalg::TypeTraitPair>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -921,6 +929,7 @@ int main(int argc, char *argv[])
         ASSERT(! (bslalg::HasTrait<Pair10, TrivialConstructor>::VALUE));
         ASSERT(  (bslalg::HasTrait<Pair10, UsesBslmaAllocator>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair10, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair10, bslalg::TypeTraitPair>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -932,6 +941,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslalg::HasTrait<Pair11, TrivialConstructor>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair11, UsesBslmaAllocator>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair11, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair11, bslalg::TypeTraitPair>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -943,6 +953,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslalg::HasTrait<Pair12, TrivialConstructor>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair12, UsesBslmaAllocator>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair12, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair12, bslalg::TypeTraitPair>::VALUE));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -954,6 +965,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslalg::HasTrait<Pair13, TrivialConstructor>::VALUE));
         ASSERT(! (bslalg::HasTrait<Pair13, UsesBslmaAllocator>::VALUE));
         ASSERT(  (bslalg::HasTrait<Pair13, BitwiseComparable>::VALUE));
+        ASSERT(  (bslalg::HasTrait<Pair13, bslalg::TypeTraitPair>::VALUE));
 
       } break;
 

@@ -107,10 +107,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLSEQUENCECONTAINER
-#include <bslstl_traitsgroupstlsequencecontainer.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ANYTYPE
 #include <bslmf_anytype.h>
 #endif
@@ -583,15 +579,6 @@ class deque : public  Deque_Base<VALUE_TYPE>
     friend class Deque_Guard;
 
   public:
-    // TRAITS
-    /* TODO:
-    typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<
-                                                    VALUE_TYPE,
-                                                    ALLOCATOR> DequeTypeTraits;
-    BSLALG_DECLARE_NESTED_TRAITS(deque, DequeTypeTraits);
-    */
-        // Declare nested type traits for this class.
-
     // CREATORS
 
     // *** 23.2.1.1 construct/copy/destroy: ***
@@ -784,6 +771,49 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // number of elements are guaranteed to raise a 'bsl::length_error'
         // exception.
 };
+
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct HasStlIterators<bsl::deque<VALUE_TYPE, ALLOCATOR> > : bsl::true_type
+{};
+
+}
+
+namespace bslmf {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct IsBitwiseMoveable<bsl::deque<VALUE_TYPE, ALLOCATOR> >
+    : IsBitwiseMoveable<ALLOCATOR>
+{};
+
+}
+
+namespace bslma {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::deque<VALUE_TYPE, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
 
 // FREE OPERATORS
 template <class VALUE_TYPE, class ALLOCATOR>

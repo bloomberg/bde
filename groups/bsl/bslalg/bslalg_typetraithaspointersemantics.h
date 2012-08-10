@@ -30,6 +30,9 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_ispointer.h>
+
 namespace BloombergLP {
 
 namespace bslalg {
@@ -47,6 +50,17 @@ struct TypeTraitHasPointerSemantics {
     // pointers.  Some examples of such types include 'std::auto_ptr', and
     // 'bslma::ManagedPtr'.  This trait is generally used by objects that
     // invoke the wrapped type.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bslmf::IsPointer>
+    {
+        // This class template ties the 'bslalg::TypeTaitBitwiseEqualityComparable'
+        // trait tag to the 'bslmf::IsBitwiseEqualityCompareble' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bslmf::IsPointer<TYPE>::type { };
 };
 
 }  // close package namespace

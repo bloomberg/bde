@@ -524,10 +524,6 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLASSOCIATIVECONTAINER
-#include <bslstl_traitsgroupstlassociativecontainer.h>
-#endif
-
 #ifndef INCLUDED_FUNCTIONAL
 #include <functional>
 #define INCLUDED_FUNCTIONAL
@@ -691,13 +687,6 @@ class multimap : private BloombergLP::bslstl::TreeNodePool<
     };
 
   public:
-    // TRAITS
-    /* TODO:
-    typedef BloombergLP::bslstl::TraitsGroupStlAssociativeContainer<ALLOCATOR>
-                                                               TreeTypeTraits;
-    BSLALG_DECLARE_NESTED_TRAITS(multimap, TreeTypeTraits);
-    */
-
     // CREATORS
     explicit multimap(const COMPARATOR& comparator = COMPARATOR(),
                       const ALLOCATOR&  allocator  = ALLOCATOR());
@@ -1063,6 +1052,45 @@ class multimap : private BloombergLP::bslstl::TreeNodePool<
 
     //  void insert(initializer_list<value_type>);
 };
+
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *ordered* containers:
+//: o An ordered container defines STL iterators.
+//: o An ordered container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <typename KEY,
+          typename VALUE,
+          typename COMPARATOR,
+          typename ALLOCATOR>
+struct HasStlIterators<bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR> >
+    : bsl::true_type
+{};
+
+}
+
+namespace bslma {
+
+template <typename KEY,
+          typename VALUE,
+          typename COMPARATOR,
+          typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 bool operator==(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,

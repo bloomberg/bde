@@ -2,7 +2,8 @@
 
 #include <bsls_compilerfeatures.h>
 
-#include <cstdlib>     // atoi()
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
 
 using namespace BloombergLP;

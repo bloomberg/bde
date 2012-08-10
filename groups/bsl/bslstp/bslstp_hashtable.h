@@ -58,10 +58,6 @@
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLUNORDEREDCONTAINER
-#include <bslstl_traitsgroupstlunorderedcontainer.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_VECTOR
 #include <bslstl_vector.h>
 #endif

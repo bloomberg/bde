@@ -2,7 +2,6 @@
 #include <bslstl_allocatortraits.h>
 
 #include <bslstl_allocator.h>
-#include <bslstl_traitsgroupstlsequencecontainer.h>
 
 #include <bslalg_typetraits.h>
 #include <bslma_testallocator.h>
@@ -160,6 +159,19 @@ Uniq       *const DFLT_E = &g_x;
 // Most recent hint given to any allocator's 'allocate' member function.
 const void* g_lastHint;
 
+template <typename TYPE>
+struct UsesNonBslmaAllocator : bsl::false_type {};
+
+struct TypeTraitUsesNonBslmaAllocator {
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, UsesNonBslmaAllocator>
+    {};
+
+    template <class TYPE>
+    struct Metafunction : UsesNonBslmaAllocator<TYPE>::type { };
+};
+
 template <class T>
 class NonBslmaAllocator
 {
@@ -179,7 +191,7 @@ class NonBslmaAllocator
 
     // A client that uses this allocator should not have the
     // bslalg::TypeTraitUsesBslmaAllocator trait.  This is a stand-in trait.
-    typedef struct UsesNonBslma { } ClientTrait;
+    typedef TypeTraitUsesNonBslmaAllocator ClientTrait;
 
     template <class U>
     struct rebind
@@ -488,7 +500,10 @@ class AttribClass5Alloc
     // the bslma model, then this type will be
     // 'bslalg::TypeTraitUsesBslmaAllocator'
     typedef typename ALLOC::ClientTrait UsesAllocTrait;
-    BSLALG_DECLARE_NESTED_TRAITS(AttribClass5Alloc, UsesAllocTrait);
+    operator typename UsesAllocTrait::template NestedTraitDeclaration<AttribClass5Alloc<ALLOC> >() const
+    {
+        return typename UsesAllocTrait::template NestedTraitDeclaration<AttribClass5Alloc<ALLOC> >();
+    }
 
     typedef ALLOC AllocatorType;
 
@@ -610,7 +625,6 @@ inline bool isMutable(const T& /* x */) { return false; }
 //..
     #include <bslstl_allocatortraits.h>
     #include <bslstl_allocator.h>
-    #include <bslstl_traitsgroupstlsequencecontainer.h>
 
     using namespace BloombergLP;
 
@@ -628,10 +642,12 @@ inline bool isMutable(const T& /* x */) { return false; }
         TYPE  *d_value_p;
 
       public:
+        /* TODO:
         // TRAITS
         typedef bslstl::TraitsGroupStlSequenceContainer<TYPE,ALLOC> TypeTraits;
         BSLALG_DECLARE_NESTED_TRAITS(MyContainer, TypeTraits);
             // Declare nested type traits for this class.
+            */
 
         typedef TYPE  value_type;
         typedef ALLOC allocator_type;

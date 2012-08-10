@@ -491,10 +491,6 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLASSOCIATIVECONTAINER
-#include <bslstl_traitsgroupstlassociativecontainer.h>
-#endif
-
 #ifndef INCLUDED_FUNCTIONAL
 #include <functional>
 #define INCLUDED_FUNCTIONAL

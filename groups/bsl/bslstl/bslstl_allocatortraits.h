@@ -95,7 +95,6 @@ BSLS_IDENT("$Id: $")
 //..
 //  #include <bslstl_allocatortraits.h>
 //  #include <bslstl_allocator.h>
-//  #include <bslstl_traitsgroupstlsequencecontainer.h>
 //
 //  using namespace BloombergLP;
 //

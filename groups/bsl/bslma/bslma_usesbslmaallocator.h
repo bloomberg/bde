@@ -72,7 +72,7 @@ private:
         // would have detected an idiomatic type through trait sniffing.
         SNIFFED_BSLMA_IDIOM = BSLMA_POINTER_CTOR && ! ANY_POINTER_CTOR
     };
-    
+
 public:
     // If 'UsesBslmaAllocator' is not specialized for 'TYPE' and is not
     // declared as a nested trait within 'TYPE', then return 'false_type'.
