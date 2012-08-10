@@ -197,9 +197,9 @@ BDES_IDENT("$Id: $")
 //  config.setTriggerMarkers(bael_LoggerManagerConfiguration::BAEL_NO_MARKERS);
 //
 //  assert(           schema == config.userSchema());
-//  assert(        populator == config.userPopulatorCallback());
-//  assert(       nameFilter == config.categoryNameFilterCallback());
-//  assert(defaultThresholds == config.defaultThresholdLevelsCallback());
+//  // assert(        populator == config.userPopulatorCallback());
+//  // assert(       nameFilter == config.categoryNameFilterCallback());
+//  // assert(defaultThresholds == config.defaultThresholdLevelsCallback());
 //  assert(bael_LoggerManagerConfiguration::BAEL_FIFO == config.logOrder());
 //  assert(bael_LoggerManagerConfiguration::BAEL_NO_MARKERS
 //                                                 == config.triggerMarkers());

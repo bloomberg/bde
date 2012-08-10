@@ -887,6 +887,17 @@ class bdef_Function {
         return &Invoker::template invoke<FUNC>;
     }
 
+
+  private:
+    // NOT IMPLEMENTED
+    void operator==(const bdef_Function&) const; // = delete;
+    void operator!=(const bdef_Function&) const; // = delete;
+        // 'bdef_Function' objects cannot be compared for equality, as the
+        // function objects they wrap might not support the equality comparison
+        // operator to delegate to.  However, if these methods are not declared
+        // as private, then both 'bdef_Function' objects will be implicitly
+        // converted to their boolean value, and those values compared instead.
+
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdef_Function,
