@@ -346,10 +346,7 @@ struct ShipsCrew {
 // PRIVATE MANIPULATORS
 void ShipsCrew::addSailor(const bsl::string& name)
 {
-    if (d_sailors.count(name.c_str())) {
-        cerr << "Error, duplicate sailor's name " << name << bsl::endl;
-        return;                                                       // RETURN
-    }
+    BSLS_ASSERT(! d_sailors.count(name.c_str()));
     d_sailors.insert(copy(name));
 }
 
@@ -361,28 +358,19 @@ const char *ShipsCrew::copy(const bsl::string& str)
 
 void ShipsCrew::setCaptain(const bsl::string& name)
 {
-    if (d_captain) {
-        cerr << "Error, duplicate captain\n";
-        return;                                                       // RETURN
-    }
+    BSLS_ASSERT(! d_captain);
     d_captain = copy(name);
 }
 
 void ShipsCrew::setCook(const bsl::string& name)
 {
-    if (d_cook) {
-        cerr << "Error, duplicate cook\n";
-        return;                                                       // RETURN
-    }
+    BSLS_ASSERT(! d_cook);
     d_cook = copy(name);   // This was line 231 when this test case was written
 }
 
 void ShipsCrew::setFirstMate(const bsl::string& name)
 {
-    if (d_firstMate) {
-        cerr << "Error, duplicate first mate\n";
-        return;                                                       // RETURN
-    }
+    BSLS_ASSERT(! d_firstMate);
     d_firstMate = copy(name);
 }
 
@@ -437,8 +425,8 @@ ShipsCrew::~ShipsCrew()
     da->deallocate(const_cast<char *>(d_firstMate));
 
     // Note that deallocating the strings will invalidate 'd_sailors' -- any
-    // manipulation other than destruction after this would lead to undefined
-    // behavior.
+    // manipulation of 'd_sailors' other than destruction after this would lead
+    // to undefined behavior.
 
     const NameSet::iterator end = d_sailors.end();
     for (NameSet::iterator it = d_sailors.begin(); end != it; ++it) {
