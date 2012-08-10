@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - -
 // In this example, we will show how to create and use the 'string' class.
 //
-// First, we will create a default-constructed 'string' object:
+// First, we will default-construct a 'string' object:
 //..
 //  bsl::string s;
 //  assert(s.empty());
@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 //  assert("Hello World" == t);
 //..
 // Next, we will clear the contents of 't' and assign it a couple of values:
-// first from a string literal; second from another 'string' object:
+// first from a string literal; and second from another 'string' object:
 //..
 //  t.clear();
 //  assert(t.empty());
@@ -75,16 +75,14 @@ BSLS_IDENT("$Id: $")
 //  assert(t == s);
 //..
 // Then, we will create three 'string' objects: the first representing a street
-// name, the second a state, and the third a zipcode:
+// name, the second a state, and the third a zipcode.  We will then concatenate
+// them into a single address 'string' and print the contents of that 'string'
+// on standard output:
 //..
 //  const bsl::string street  = "731 Lexington Avenue";
 //  const bsl::string state   = "NY";
 //  const bsl::string zipcode = "10022";
-//..
-// Next, we can concatenate the three 'string' objects to form a single
-// 'string' representing a full address using 'operator+' and print out its
-// contents on standard output:
-//..
+//
 //  const bsl::string fullAddress = street + " " + state + " " + zipcode;
 //
 //  bsl::cout << fullAddress << bsl::endl;
@@ -93,9 +91,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  731 Lexington Avenue NY 10022
 //..
-// Then, we can search the contents of a 'string' using the 'find' function,
-// which takes a search 'string' and a starting position as arguments, to
-// determine if a given address lies on a specified street:
+// Then, we search the contents of 'address' (using the 'find' function) to
+// determine if it lies on a specified street:
 //..
 //  const bsl::string streetName = "Lexington";
 //
@@ -106,29 +103,19 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, we show how to get a reference providing modifiable access to the
 // null-terminated string literal stored by 's' using the 'c_str' function.
+// Note that the returned string literal can be passed to various standard
+// functions expecting a null-terminated string:
 //..
 //  const char *cs = s.c_str();
 //  assert(bsl::strlen(cs) == s.size());
 //..
-// Note that the returned string literal can be passed to various standard
-// functions expecting a null-terminated string.
-//
-// Then, we show how to construct a 'string' object using a user-specified
-// allocator.
-//
-// We construct two 'bslma::TestAllocator' objects, 'allocator1' and
-// 'allocator2' that implement the 'bslma::Allocator' protocol and allow
-// tracking of memory usage):
+// Then, we construct two 'string' objects, 'x' and 'y', using a user-specified
+// allocator:
 //..
 //  bslma::TestAllocator allocator1, allocator2;
-//..
-// Now, we construct two 'string' objects, 'x' and 'y'.  'x' is constructed
-// with a short string value and uses 'allocator1' for supplying memory, and
-// 'y' is constructed with a long string value and uses 'allocator2' for
-// supplying memory:
-//..
-//  const char *SHORT_STRING = "This string does not allocate memory";
-//  const char *LONG_STRING  = "This really long string definitely causes " \
+//
+//  const char *SHORT_STRING = "A small string";
+//  const char *LONG_STRING  = "This long string would definitely cause " \
 //                             "memory to be allocated on creation";
 //
 //  const bsl::string x(SHORT_STRING, &allocator1);
@@ -154,10 +141,19 @@ BSLS_IDENT("$Id: $")
 // corresponding to the employee of a company:
 //..
 //  class Employee {
-//      // This unconstrained (value-semantic) attribute class represents the
-//      // information about an employee.  An employee's first and last name
-//      // are represented as 'string' objects and their employee
-//      // identification number is represented by an 'int'.
+//      // This simply constrained (value-semantic) attribute class represents
+//      // the information about an employee.  An employee's first and last
+//      // name are represented as 'string' objects and their employee
+//      // identification number is represented by an 'int'.  Note that the
+//      // class invariants are identically the constraints on the individual
+//      // attributes.
+//      //
+//      // This class:
+//      //: o supports a complete set of *value-semantic* operations
+//      //:   o except for 'bdex' serialization
+//      //: o is *exception-neutral* (agnostic)
+//      //: o is *alias-safe*
+//      //: o is 'const' *thread-safe*
 //
 //      // DATA
 //      bsl::string d_firstName;       // first name
@@ -189,8 +185,8 @@ BSLS_IDENT("$Id: $")
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //          // 0, the currently installed default allocator is used.
 //
-//      Employee(const Employee&  original,
-//               bslma::Allocator  *basicAllocator = 0);
+//      Employee(const Employee&   original,
+//               bslma::Allocator *basicAllocator = 0);
 //          // Create a 'Employee' object having the same value as the
 //          // specified 'original' object.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
