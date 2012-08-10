@@ -401,6 +401,8 @@ bool sameWeekendDaysTransition(const Obj::WeekendDaysTransition& transition,
 // <DOW>        ::= 'u' | 'm' | 't' | 'w' | 'r' | 'f' | 'a'
 //                       // represents days of the week from Sunday to Saturday
 //
+// <HCODE_LIST> ::= <HCODE> | <HCODE> <HCODE_LIST>
+//
 // <HCODE>      ::= 'A' | 'B' | 'C' | 'D' | 'E'
 //                    // represents unique but otherwise arbitrary holidaycodes
 //
