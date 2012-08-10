@@ -72,7 +72,7 @@ void UnixTimerUtil::systemProcessTimers(clock_t *systemTimer,
     if (-1 == ::times(&processTimes)) {
         *systemTimer = 0;
         *userTimer   = 0;
-        return;
+        return;                                                       // RETURN
     }
 
     *systemTimer = processTimes.tms_stime;
@@ -211,7 +211,7 @@ void WindowsTimerUtil::systemProcessTimers(PULARGE_INTEGER systemTimer,
                            &userTm)) {
         systemTimer->QuadPart = 0;
         userTimer->QuadPart   = 0;
-        return;
+        return;                                                       // RETURN
     }
 
     systemTimer->LowPart  = krnlTm.dwLowDateTime;
@@ -276,9 +276,8 @@ bsls::Types::Int64 WindowsTimerUtil::wallTimer()
 
     const bsls::Types::Int64 K = 1000;
     const bsls::Types::Int64 M = 1000000;
-	const bsls::Types::Int64 B = 1000000000;
-	// const bsls::Types::Uint64 HIGH_MASK = 0xffffffff00000000;
-	const bsls::Types::Int64 HIGH_DWORD_MULTIPLIER = B * (1LL << 32);
+    const bsls::Types::Int64 B = 1000000000;
+    const bsls::Types::Int64 HIGH_DWORD_MULTIPLIER = B * (1LL << 32);
 
     bsls::Types::Int64 initialTime
         = bsls::AtomicOperations::getInt64Relaxed(&s_initialTime);
@@ -289,7 +288,7 @@ bsls::Types::Int64 WindowsTimerUtil::wallTimer()
         LARGE_INTEGER t;
         ::QueryPerformanceCounter(&t);
 
-		t.QuadPart -= initialTime;
+        t.QuadPart -= initialTime;
 
         // Original outline for improved-precision nanosecond calculation
         // with integer arithmetic, provided to make the final implementation
@@ -307,17 +306,18 @@ bsls::Types::Int64 WindowsTimerUtil::wallTimer()
         // low-dword contribution by multiplying first by one billion, and then
         // dividing by the frequency.
 
-		// return (
+        // const bsls::Types::Uint64 HIGH_MASK = 0xffffffff00000000;
+        // return (
         //         (
         //          static_cast<bsls::Types::Int64>(t.QuadPart & HIGH_MASK)
         //              / timerFrequency
-        //         ) * B 
+        //         ) * B
         //         +
-		//  	   (
-        //          static_cast<bsls::Types::Uint64>(t.LowPart) 
+        //         (
+        //          static_cast<bsls::Types::Uint64>(t.LowPart)
         //              * B
         //         ) / timerFrequency
-        //        );
+        //        );                                                  // RETURN
 
         // If the high-dword contribution is small, this approach will lose
         // most of the significant bits from the high-dword contribution during
@@ -326,13 +326,13 @@ bsls::Types::Int64 WindowsTimerUtil::wallTimer()
 
         return (
                 static_cast<bsls::Types::Int64>(t.HighPart)
-                    * (HIGH_DWORD_MULTIPLIER / timerFrequency) 
+                    * (HIGH_DWORD_MULTIPLIER / timerFrequency)
                 +
                 (static_cast<bsls::Types::Uint64>(t.LowPart) * B)
                     / timerFrequency
-               );
+                );                                                    // RETURN
 
-		// Note that this code runs almost as fast as the original
+        // Note that this code runs almost as fast as the original
         // implementation.  It works for counters representing time values up
         // to 292 years (the upper limit for representing nanoseconds in 64
         // bits), and for any frequency that fits in 32 bits.  It appears to be
@@ -352,7 +352,7 @@ bsls::Types::Int64 WindowsTimerUtil::wallTimer()
         // have a separate floating-point processor.
 
         // return static_cast<bsls::Types::Int64>(
-        //     static_cast<double>(t.QuadPart) * B) / 
+        //     static_cast<double>(t.QuadPart) * B) /
         //     static_cast<double>(timerFrequency));
     }
     else {
@@ -362,7 +362,7 @@ bsls::Types::Int64 WindowsTimerUtil::wallTimer()
         bsls::Types::Int64 t0;
         t0 = (static_cast<bsls::Types::Int64>(t.time) * K + t.millitm) * M;
 
-        return t0;
+        return t0;                                                    // RETURN
     }
 }
 #endif
