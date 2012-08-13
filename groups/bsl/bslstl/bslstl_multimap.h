@@ -543,9 +543,7 @@ template <class KEY,
           class VALUE,
           class COMPARATOR  = std::less<KEY>,
           class ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE> > >
-class multimap : private BloombergLP::bslstl::TreeNodePool<
-                                       bsl::pair<const KEY, VALUE>, ALLOCATOR>,
-                 private BloombergLP::bslstl::MapComparator<
+class multimap : private BloombergLP::bslstl::MapComparator<
                                                       KEY, VALUE, COMPARATOR> {
     // This class template implements a value-semantic container type holding
     // an ordered sequence of key-value pairs having possibly duplicate keys
@@ -586,6 +584,8 @@ class multimap : private BloombergLP::bslstl::TreeNodePool<
     // DATA
     BloombergLP::bslalg::RbTreeAnchor d_tree;  // balanced tree of 'Node'
                                                // objects
+
+    NodeFactory                       d_pool;  // pool of 'Node' objects
 
   private:
     // PRIVATE MANIPULATORS
@@ -1163,7 +1163,7 @@ inline
 typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::NodeFactory&
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::nodeFactory()
 {
-    return *this;
+    return d_pool;
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -1179,7 +1179,7 @@ inline
 void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::quickSwap(multimap& other)
 {
     BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
-    static_cast<NodeFactory *>(this)->swap(other);
+    nodeFactory().swap(other.nodeFactory());
     comparator().swap(other.comparator());
 }
 
@@ -1189,7 +1189,7 @@ inline
 const typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::NodeFactory&
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::nodeFactory() const
 {
-    return *this;
+    return d_pool;
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -1206,9 +1206,9 @@ inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
                                                   const COMPARATOR& comparator,
                                                   const ALLOCATOR&  allocator)
-: NodeFactory(allocator)
-, Comparator(comparator)
+: Comparator(comparator)
 , d_tree()
+, d_pool(allocator)
 {
 }
 
@@ -1220,9 +1220,9 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
                                                   INPUT_ITERATOR    last,
                                                   const COMPARATOR& comparator,
                                                   const ALLOCATOR&  allocator)
-: NodeFactory(allocator)
-, Comparator(comparator)
+: Comparator(comparator)
 , d_tree()
+, d_pool(allocator)
 {
     if (first != last) {
         BloombergLP::bslalg::RbTreeUtil_TreeProctor<NodeFactory> proctor(
@@ -1263,9 +1263,9 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(const multimap& original)
-: NodeFactory(ALLOCATOR())
-, Comparator(original.comparator().keyComparator())
+: Comparator(original.comparator().keyComparator())
 , d_tree()
+, d_pool(ALLOCATOR())
 {
     if (0 < original.size()) {
         nodeFactory().reserveNodes(original.size());
@@ -1279,9 +1279,9 @@ template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
                                                     const ALLOCATOR& allocator)
-: NodeFactory(allocator)
-, Comparator(COMPARATOR())
+: Comparator(COMPARATOR())
 , d_tree()
+, d_pool(allocator)
 {
 }
 
@@ -1290,9 +1290,9 @@ inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
                                                     const multimap&  original,
                                                     const ALLOCATOR& allocator)
-: NodeFactory(allocator)
-, Comparator(original.comparator().keyComparator())
+: Comparator(original.comparator().keyComparator())
 , d_tree()
+, d_pool(allocator)
 {
     if (0 < original.size()) {
         nodeFactory().reserveNodes(original.size());

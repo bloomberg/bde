@@ -528,8 +528,7 @@ namespace bsl {
 template <class KEY,
           class COMPARATOR  = std::less<KEY>,
           class ALLOCATOR = allocator<KEY> >
-class set : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
-            private BloombergLP::bslstl::SetComparator<KEY, COMPARATOR> {
+class set : private BloombergLP::bslstl::SetComparator<KEY, COMPARATOR> {
     // This class template implements a value-semantic container type holding
     // an ordered sequence of unique keys (of the parameterized type, 'KEY').
     //
@@ -565,6 +564,8 @@ class set : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
     // DATA
     BloombergLP::bslalg::RbTreeAnchor d_tree;  // balanced tree of 'Node'
                                                // objects
+
+    NodeFactory                       d_pool;  // pool of 'Node' objects
 
   public:
     // PUBLIC TYPES
@@ -1087,7 +1088,7 @@ inline
 typename set<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
 set<KEY, COMPARATOR, ALLOCATOR>::nodeFactory()
 {
-    return *this;
+    return d_pool;
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1103,7 +1104,7 @@ inline
 void set<KEY, COMPARATOR, ALLOCATOR>::quickSwap(set& other)
 {
     BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
-    static_cast<NodeFactory *>(this)->swap(other);
+    nodeFactory().swap(other.nodeFactory());
     comparator().swap(other.comparator());
 }
 
@@ -1113,7 +1114,7 @@ inline
 const typename set<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
 set<KEY, COMPARATOR, ALLOCATOR>::nodeFactory() const
 {
-    return *this;
+    return d_pool;
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1129,9 +1130,9 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(const COMPARATOR& comparator,
                                      const ALLOCATOR&  allocator)
-: NodeFactory(allocator)
-, Comparator(comparator)
+: Comparator(comparator)
 , d_tree()
+, d_pool(allocator)
 {
 }
 
@@ -1142,9 +1143,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(INPUT_ITERATOR    first,
                                      INPUT_ITERATOR    last,
                                      const COMPARATOR& comparator,
                                      const ALLOCATOR&  allocator)
-: NodeFactory(allocator)
-, Comparator(comparator)
+: Comparator(comparator)
 , d_tree()
+, d_pool(allocator)
 {
     if (first != last) {
         BloombergLP::bslalg::RbTreeUtil_TreeProctor<NodeFactory> proctor(
@@ -1185,9 +1186,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(INPUT_ITERATOR    first,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(const set& original)
-: NodeFactory(ALLOCATOR())
-, Comparator(original.comparator())
+: Comparator(original.comparator())
 , d_tree()
+, d_pool(ALLOCATOR())
 {
     if (0 < original.size()) {
         nodeFactory().reserveNodes(original.size());
@@ -1200,9 +1201,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(const set& original)
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(const ALLOCATOR& allocator)
-: NodeFactory(allocator)
-, Comparator(COMPARATOR())
+: Comparator(COMPARATOR())
 , d_tree()
+, d_pool(allocator)
 {
 }
 
@@ -1210,9 +1211,9 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(const set&       original,
                                      const ALLOCATOR& allocator)
-: NodeFactory(allocator)
-, Comparator(original.comparator())
+: Comparator(original.comparator())
 , d_tree()
+, d_pool(allocator)
 {
     if (0 < original.size()) {
         nodeFactory().reserveNodes(original.size());

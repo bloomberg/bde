@@ -474,8 +474,7 @@ namespace bsl {
 template <class KEY,
           class COMPARATOR  = std::less<KEY>,
           class ALLOCATOR = bsl::allocator<KEY> >
-class multiset : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
-                 private BloombergLP::bslstl::SetComparator<KEY, COMPARATOR> {
+class multiset : private BloombergLP::bslstl::SetComparator<KEY, COMPARATOR> {
     // This class template implements a value-semantic container type holding
     // an ordered sequence of possibly duplicate keys (of the parameterized
     // type, 'KEY').
@@ -512,6 +511,8 @@ class multiset : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
     // DATA
     BloombergLP::bslalg::RbTreeAnchor d_tree;  // balanced tree of 'Node'
                                                // objects
+
+    NodeFactory                       d_pool;  // pool of 'Node' objects
 
   public:
     // PUBLIC TYPES
@@ -1029,7 +1030,7 @@ inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
 multiset<KEY, COMPARATOR, ALLOCATOR>::nodeFactory()
 {
-    return *this;
+    return d_pool;
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1045,7 +1046,7 @@ inline
 void multiset<KEY, COMPARATOR, ALLOCATOR>::quickSwap(multiset& other)
 {
     BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
-    static_cast<NodeFactory *>(this)->swap(other);
+    nodeFactory().swap(other.nodeFactory());
     comparator().swap(other.comparator());
 }
 
@@ -1055,7 +1056,7 @@ inline
 const typename multiset<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
 multiset<KEY, COMPARATOR, ALLOCATOR>::nodeFactory() const
 {
-    return *this;
+    return d_pool;
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1071,9 +1072,9 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const COMPARATOR& comparator,
                                                const ALLOCATOR&  allocator)
-: NodeFactory(allocator)
-, Comparator(comparator)
+: Comparator(comparator)
 , d_tree()
+, d_pool(allocator)
 {
 }
 
@@ -1084,9 +1085,9 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(INPUT_ITERATOR    first,
                                                INPUT_ITERATOR    last,
                                                const COMPARATOR& comparator,
                                                const ALLOCATOR&  allocator)
-: NodeFactory(allocator)
-, Comparator(comparator)
+: Comparator(comparator)
 , d_tree()
+, d_pool(allocator)
 {
     if (first != last) {
         BloombergLP::bslalg::RbTreeUtil_TreeProctor<NodeFactory> proctor(
@@ -1127,9 +1128,9 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(INPUT_ITERATOR    first,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset& original)
-: NodeFactory(ALLOCATOR())
-, Comparator(original.comparator().keyComparator())
+: Comparator(original.comparator().keyComparator())
 , d_tree()
+, d_pool(ALLOCATOR())
 {
     if (0 < original.size()) {
         nodeFactory().reserveNodes(original.size());
@@ -1142,9 +1143,9 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset& original)
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const ALLOCATOR& allocator)
-: NodeFactory(allocator)
-, Comparator(COMPARATOR())
+: Comparator(COMPARATOR())
 , d_tree()
+, d_pool(allocator)
 {
 }
 
@@ -1152,9 +1153,9 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset&  original,
                                                const ALLOCATOR& allocator)
-: NodeFactory(allocator)
-, Comparator(original.comparator().keyComparator())
+: Comparator(original.comparator().keyComparator())
 , d_tree()
+, d_pool(allocator)
 {
     if (0 < original.size()) {
         nodeFactory().reserveNodes(original.size());

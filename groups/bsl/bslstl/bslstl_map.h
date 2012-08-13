@@ -510,9 +510,7 @@ template <class KEY,
           class VALUE,
           class COMPARATOR = std::less<KEY>,
           class ALLOCATOR  = allocator<bsl::pair<const KEY, VALUE> > >
-class map : private BloombergLP::bslstl::TreeNodePool<
-                                       bsl::pair<const KEY, VALUE>, ALLOCATOR>,
-            private BloombergLP::bslstl::MapComparator<
+class map : private BloombergLP::bslstl::MapComparator<
                                                       KEY, VALUE, COMPARATOR> {
     // This class template implements a value-semantic container type holding
     // an ordered sequence of key-value pairs having unique keys that provide a
@@ -553,6 +551,9 @@ class map : private BloombergLP::bslstl::TreeNodePool<
     // DATA
     BloombergLP::bslalg::RbTreeAnchor d_tree;  // balanced tree of 'Node'
                                                // objects
+
+    NodeFactory                       d_pool;  // pool of 'Node' objects
+
   public:
     // PUBLIC TYPES
     typedef KEY                                        key_type;
@@ -1182,7 +1183,7 @@ inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::NodeFactory&
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::nodeFactory()
 {
-    return *this;
+    return d_pool;
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -1198,7 +1199,7 @@ inline
 void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::quickSwap(map& other)
 {
     BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
-    static_cast<NodeFactory *>(this)->swap(other);
+    nodeFactory().swap(other.nodeFactory());
     comparator().swap(other.comparator());
 }
 
@@ -1208,7 +1209,7 @@ inline
 const typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::NodeFactory&
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::nodeFactory() const
 {
-    return *this;
+    return d_pool;
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -1224,27 +1225,27 @@ template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const COMPARATOR& comparator,
                                             const ALLOCATOR&  allocator)
-: NodeFactory(allocator)
-, Comparator(comparator)
+: Comparator(comparator)
 , d_tree()
+, d_pool(allocator)
 {
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const ALLOCATOR& allocator)
-: NodeFactory(allocator)
-, Comparator(COMPARATOR())
+: Comparator(COMPARATOR())
 , d_tree()
+, d_pool(allocator)
 {
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const map& original)
-: NodeFactory(ALLOCATOR())
-, Comparator(original.comparator().keyComparator())
+: Comparator(original.comparator().keyComparator())
 , d_tree()
+, d_pool(ALLOCATOR())
 {
     if (0 < original.size()) {
         nodeFactory().reserveNodes(original.size());
@@ -1258,9 +1259,9 @@ template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const map&       original,
                                             const ALLOCATOR& allocator)
-: NodeFactory(allocator)
-, Comparator(original.comparator().keyComparator())
+: Comparator(original.comparator().keyComparator())
 , d_tree()
+, d_pool(allocator)
 {
     if (0 < original.size()) {
         nodeFactory().reserveNodes(original.size());
@@ -1277,9 +1278,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(INPUT_ITERATOR    first,
                                             INPUT_ITERATOR    last,
                                             const COMPARATOR& comparator,
                                             const ALLOCATOR&  allocator)
-: NodeFactory(allocator)
-, Comparator(comparator)
+: Comparator(comparator)
 , d_tree()
+, d_pool(allocator)
 {
     if (first != last) {
         BloombergLP::bslalg::RbTreeUtil_TreeProctor<NodeFactory> proctor(
