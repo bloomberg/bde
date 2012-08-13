@@ -22,27 +22,27 @@ using namespace std;
 //                              Overview
 //                              --------
 // This component provides equality and less-than comparisons on ranges given
-// by start and finish iterators and length, all of parameterizable types.
-// The length is necessary because we do not, at the 'bslalg' level, have an
-// algorithm to compute the length of the range, and doing without the length
-// is an inferior implementation (it requires two tests per loop iteration,
-// instead of one).  Also, the implementation distinguishes the cases where the
-// iterator is convertible to a 'const VALUE_TYPE *' or not.
+// by start and end iterators and, optionally, length, all of parameterizable
+// types.  Where length is not provided, the component either calculates it (in
+// cases where the iterator is convertible to a 'const VALUE_TYPE *') or falls
+// back on an inferior implementation requiring two tests per loop iteration,
+// instead of one (in cases where the iterator is not convertible to a
+// 'const VALUE_TYPE *').
 //
 // The implementation uses traits to efficiently forward to 'std::memcmp' or
-// 'std::wmemcmp'.  All fundamental and pointer types haves the
-// bitwise-equality comparable trait.  The concerns range from correctness of
-// implementation to correct selection of traits.  There is no assignment and
-// therefore no exception-related concerns in this component.  We address this
-// with two custom test types, one that has the bitwise-equality comparable
-// trait and does not define 'operator==' (to ensure that it will not be
-// compiled), and another that has an 'operator==' but no trait.  Finally, in
-// order to trigger instantiation of all possible overloads, we wrap the
-// range pointers into an iterator type that is *not* convertible to the
-// pointer.
+// 'std::wmemcmp'.  All fundamental and pointer types have the bit-wise
+// equality-comparable trait.  The concerns range from correctness of
+// implementation to correct selection of traits.  There is no memory
+// allocation and therefore there are no exception-related concerns in this
+// component.  We address this with two custom test types, one that has the
+// bit-wise equality-comparable trait and does not define 'operator==' (to
+// ensure that it will not be compiled), and another that has an 'operator=='
+// but no trait.  Finally, in order to trigger instantiation of all possible
+// overloads, we wrap the range pointers into an iterator type that is *not*
+// convertible to the pointer.
 //-----------------------------------------------------------------------------
-// [ 2] bool equal(begin1, end1, length1, begin2, end2, length2);
-// [ 3] bool lexicographical(begin1, end1, length1, begin2, end2, length2);
+// [ 2] bool equal(start1, end1, length1, start2, end2, length2);
+// [ 3] bool lexicographical(start1, end1, length1, start2, end2, length2);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [-1] PERFORMANCE TEST
@@ -95,7 +95,7 @@ void aSsErT(int c, const char *s, int i) {
 #define P(X) dbg_print(#X " = ", X, "\n")  // Print identifier and value.
 #define P_(X) dbg_print(#X " = ", X, ", ") // P(X) without '\n'
 #define L_ __LINE__                        // current Line number
-#define T_ putchar('\t');                  // Print a tab (w/o newline)
+#define T_ putchar('\t');                  // Print a tab (w/o newline).
 
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -133,10 +133,10 @@ inline void dbg_print(float val) {
 inline void dbg_print(double val) {
     printf("'%f'", val); fflush(stdout);
 }
-inline void dbg_print(const char* s) {
+inline void dbg_print(const char *s) {
     printf("\"%s\"", s); fflush(stdout);
 }
-inline void dbg_print(const void * p) {
+inline void dbg_print(const void  *p) {
     printf("\"%p\"", p); fflush(stdout);
 }
 
@@ -173,7 +173,7 @@ struct ScalarPrimitives {
         // which does not use a 'bslma::Allocator', from the specified
         // 'original' object of the same 'TARGET_TYPE' in the uninitialized
         // memory at the specified 'address', as if by using the copy
-        // constructor of 'TARGET_TYPE'
+        // constructor of 'TARGET_TYPE'.
 
     template <typename TARGET_TYPE>
     static void doCopyConstruct(TARGET_TYPE         *address,
@@ -184,7 +184,7 @@ struct ScalarPrimitives {
         // which uses a 'bslma::Allocator', from the specified 'original'
         // object of the same 'TARGET_TYPE' in the uninitialized memory at the
         // specified 'address', as if by using the copy constructor of
-        // 'TARGET_TYPE'
+        // 'TARGET_TYPE'.
 
   public:
     // CLASS METHODS
@@ -325,7 +325,7 @@ class MyContainer {
         // Create an empty 'MyContainer' object having a capacity equal to the specified 'capacity'.  Optionally specify a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0, the currently installed default allocator is used.
 
     ~MyContainer();
-        // Destroy this object
+        // Destroy this object.
 
     // MANIPULATORS
     void reserve(std::size_t newCapacity);
@@ -406,7 +406,7 @@ void MyContainer<VALUE_TYPE>::reserve(std::size_t newCapacity)
            return;                                                    // RETURN
     }
 
-    // Build replacement container
+    // Build replacement container.
     MyContainer replacement(newCapacity, d_allocator_p);
     BSLS_ASSERT(d_start_p || 0 == d_size);
     BSLS_ASSERT(0 == replacement.d_size);
@@ -542,7 +542,7 @@ class MyString {
     bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
     // PRIVATE MANIPULATORS
-    void set(const char* sourceStr, std::size_t length);
+    void set(const char *sourceStr, std::size_t length);
         // Assign the value of the specified 'sourceStr', of length 'length',
         // to this 'MyString' object.
 
@@ -579,7 +579,7 @@ class MyString {
         // return a reference providing modifiable access to this object.
 
     // ACCESSORS
-    const char* c_str() const;
+    const char *c_str() const;
         // Return a null-terminated byte string representing the value of this 'MyString'.
 
     std::size_t length() const;
@@ -597,7 +597,7 @@ bool operator!=(const MyString& lhs, const MyString& rhs);
     // the same value if the strings they represent are not lexicographically
     // equal.
 
-MyString::MyString(const char* sourceStr, bslma::Allocator *basicAllocator)
+MyString::MyString(const char *sourceStr, bslma::Allocator *basicAllocator)
 : d_start_p(0)
 , d_length(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -627,7 +627,7 @@ MyString& MyString::operator=(const MyString& rhs)
     return *this;
 }
 
-void MyString::set(const char* sourceStr, std::size_t length)
+void MyString::set(const char *sourceStr, std::size_t length)
 {
     d_length = length;
     d_start_p =
@@ -636,7 +636,7 @@ void MyString::set(const char* sourceStr, std::size_t length)
     d_start_p[length] = '\0';
 }
 
-const char* MyString::c_str() const
+const char *MyString::c_str() const
 {
     return d_start_p;
 }
@@ -695,8 +695,8 @@ class MyPoint {
 
   private:
     // DATA
-    int d_x;  // The x-coordinate of the point
-    int d_y;  // The y-coordinate of the point
+    int d_x;  // the x-coordinate of the point
+    int d_y;  // the y-coordinate of the point
 
     // FRIENDS
     friend bool operator==(const MyPoint&, const MyPoint&);
@@ -836,8 +836,8 @@ typedef bslalg::RangeCompare   Obj;
                               // ===============
 
 class my_Class1 {
-    // Class that doesn't have the bitwise equality comparable traits, but has
-    // an 'operator=='.  In order to catch bitwise comparison, we stuff padding
+    // Class that doesn't have the bit-wise equality-comparable traits, but has
+    // an 'operator=='.  In order to catch bit-wise comparison, we stuff padding
     // with an extra byte filled with a random value.
 
     // CLASS DATA
@@ -879,7 +879,7 @@ bool operator< (const my_Class1& lhs, const my_Class1& rhs)
                               // ===============
 
 class my_Class2 {
-    // Class that has the bitwise equality comparable traits, and no
+    // Class that has the bit-wise equality-comparable traits, and no
     // 'operator=='.
 
     // DATA
@@ -913,7 +913,7 @@ struct bslalg_TypeTraits<my_Class2>
                               // ===============
 
 class my_Class3 : public my_Class1 {
-    // Class that doesn't have the bitwise equality comparable traits, but has
+    // Class that doesn't have the bit-wise equality-comparable traits, but has
     // an 'operator==' *and* is convertible to char.
 
   public:
@@ -967,7 +967,7 @@ class my_Iterator {
 
     // MANIPULATORS
     my_Iterator& operator++();
-        // Increment this iterator.
+        // Increment this iterator, and return a modifyable reference to it.
 
     // ACCESSORS
     const TYPE& operator*() const;
@@ -1069,7 +1069,7 @@ TYPE& gg(TYPE *array, const char *spec)
 static const struct {
     int          d_lineNum;
     const char  *d_string_p;
-} DATA_3[] = {
+} DATA_CASE3[] = {
     // All combinations of up to three letters, then all combinations of
     // identical four or five letters with up to one letter difference.
     // All letters belong to [abc].
@@ -1165,35 +1165,35 @@ static const struct {
     {  L_,    "ccccb",          },
     {  L_,    "ccccc",          }
 };
-const int NUM_DATA_3 = sizeof DATA_3 / sizeof *DATA_3;
+const int NUM_DATA_CASE3 = sizeof DATA_CASE3 / sizeof *DATA_CASE3;
 
 template <class TYPE>
 void testLexicographical(bool verboseFlag, bslma::TestAllocator& testAllocator)
     // Compare every pair of strings of the parameterized 'TYPE' from the
-    // specifications in the 'DATA_2' array, and verify that they are equal if
+    // specifications in the 'DATA_CASE3' array, and verify that they are equal if
     // and only if their specifications are equal.  Note that the range will be
     // passed using 'const TYPE *'.
 {
-    TYPE *strings[NUM_DATA_3];
+    TYPE *strings[NUM_DATA_CASE3];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
 
     const int NUM_BYTES = testAllocator.numBytesInUse();
 
-    for (int i = 0; i < NUM_DATA_3; ++i) {
-        const char *STRING = DATA_3[i].d_string_p;
+    for (int i = 0; i < NUM_DATA_CASE3; ++i) {
+        const char *STRING = DATA_CASE3[i].d_string_p;
         const int   LEN    = std::strlen(STRING);
         strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE));
         gg(strings[i], STRING);
     }
 
-    for (int i = 0; i < NUM_DATA_3; ++i) {
-        const int   LINE1   = DATA_3[i].d_lineNum;
-        const char *STRING1 = DATA_3[i].d_string_p;
+    for (int i = 0; i < NUM_DATA_CASE3; ++i) {
+        const int   LINE1   = DATA_CASE3[i].d_lineNum;
+        const char *STRING1 = DATA_CASE3[i].d_string_p;
         const int   LEN1    = std::strlen(STRING1);
 
-        for (int j = 0; j < NUM_DATA_3; ++j) {
-            const int   LINE2   = DATA_3[j].d_lineNum;
-            const char *STRING2 = DATA_3[j].d_string_p;
+        for (int j = 0; j < NUM_DATA_CASE3; ++j) {
+            const int   LINE2   = DATA_CASE3[j].d_lineNum;
+            const char *STRING2 = DATA_CASE3[j].d_string_p;
             const int   LEN2    = std::strlen(STRING2);
 
             const TYPE *LHS_BEGIN = STRINGS[i];
@@ -1222,7 +1222,7 @@ void testLexicographical(bool verboseFlag, bslma::TestAllocator& testAllocator)
         }
     }
 
-    for (int i = 0; i < NUM_DATA_3; ++i) {
+    for (int i = 0; i < NUM_DATA_CASE3; ++i) {
         testAllocator.deallocate(strings[i]);
     }
 
@@ -1231,7 +1231,7 @@ void testLexicographical(bool verboseFlag, bslma::TestAllocator& testAllocator)
 
 my_Class3 charGenerator(int i, int j)
 {
-    return my_Class3(DATA_3[i].d_string_p[j]);
+    return my_Class3(DATA_CASE3[i].d_string_p[j]);
 }
 
 int intGenerator(int i, int j)
@@ -1267,17 +1267,17 @@ void testLexicographicalBuiltin(bool                    verboseFlag,
                                 TYPE                  (*generator)(int, int),
                                 bslma::TestAllocator&   testAllocator)
     // Compare every pair of strings of the parameterized 'TYPE' from the
-    // specifications in the 'DATA_2' array, and verify that they are equal if
+    // specifications in the 'DATA_CASE2' array, and verify that they are equal if
     // and only if their specifications are equal.  Note that the range will be
     // passed using 'const TYPE *'.
 {
-    TYPE *strings[NUM_DATA_3];
+    TYPE *strings[NUM_DATA_CASE3];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
 
     const int NUM_BYTES = testAllocator.numBytesInUse();
 
-    for (int i = 0; i < NUM_DATA_3; ++i) {
-        const char *STRING = DATA_3[i].d_string_p;
+    for (int i = 0; i < NUM_DATA_CASE3; ++i) {
+        const char *STRING = DATA_CASE3[i].d_string_p;
         const int   LEN    = std::strlen(STRING);
         strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE));
         for (int j = 0; j < LEN; ++j) {
@@ -1285,14 +1285,14 @@ void testLexicographicalBuiltin(bool                    verboseFlag,
         }
     }
 
-    for (int i = 0; i < NUM_DATA_3; ++i) {
-        const int   LINE1   = DATA_3[i].d_lineNum;
-        const char *STRING1 = DATA_3[i].d_string_p;
+    for (int i = 0; i < NUM_DATA_CASE3; ++i) {
+        const int   LINE1   = DATA_CASE3[i].d_lineNum;
+        const char *STRING1 = DATA_CASE3[i].d_string_p;
         const int   LEN1    = std::strlen(STRING1);
 
-        for (int j = 0; j < NUM_DATA_3; ++j) {
-            const int   LINE2   = DATA_3[j].d_lineNum;
-            const char *STRING2 = DATA_3[j].d_string_p;
+        for (int j = 0; j < NUM_DATA_CASE3; ++j) {
+            const int   LINE2   = DATA_CASE3[j].d_lineNum;
+            const char *STRING2 = DATA_CASE3[j].d_string_p;
             const int   LEN2    = std::strlen(STRING2);
 
             const TYPE *LHS_BEGIN = STRINGS[i];
@@ -1351,7 +1351,7 @@ void testLexicographicalBuiltin(bool                    verboseFlag,
         }
     }
 
-    for (int i = 0; i < NUM_DATA_3; ++i) {
+    for (int i = 0; i < NUM_DATA_CASE3; ++i) {
         testAllocator.deallocate(strings[i]);
     }
 
@@ -1362,31 +1362,31 @@ template <class TYPE>
 void testLexicographicalNonBitwise(bool                  verboseFlag,
                                    bslma::TestAllocator& testAllocator)
     // Compare every pair of ranges of the parameterized 'TYPE' from the
-    // specifications in the 'DATA_2' array, and verify that they are equal if
+    // specifications in the 'DATA_CASE2' array, and verify that they are equal if
     // and only if their specifications are equal.  Note that the range will be
-    // passed using 'my_Iterator<TYPE>', which prevents any kind of bitwise
+    // passed using 'my_Iterator<TYPE>', which prevents any kind of bit-wise
     // optimization.
 {
-    TYPE *strings[NUM_DATA_3];
+    TYPE *strings[NUM_DATA_CASE3];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
 
     const int NUM_BYTES = testAllocator.numBytesInUse();
 
-    for (int i = 0; i < NUM_DATA_3; ++i) {
-        const char *STRING = DATA_3[i].d_string_p;
+    for (int i = 0; i < NUM_DATA_CASE3; ++i) {
+        const char *STRING = DATA_CASE3[i].d_string_p;
         const int   LEN    = std::strlen(STRING);
         strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE));
         gg(strings[i], STRING);
     }
 
-    for (int i = 0; i < NUM_DATA_3; ++i) {
-        const int   LINE1   = DATA_3[i].d_lineNum;
-        const char *STRING1 = DATA_3[i].d_string_p;
+    for (int i = 0; i < NUM_DATA_CASE3; ++i) {
+        const int   LINE1   = DATA_CASE3[i].d_lineNum;
+        const char *STRING1 = DATA_CASE3[i].d_string_p;
         const int   LEN1    = std::strlen(STRING1);
 
-        for (int j = 0; j < NUM_DATA_3; ++j) {
-            const int   LINE2   = DATA_3[j].d_lineNum;
-            const char *STRING2 = DATA_3[j].d_string_p;
+        for (int j = 0; j < NUM_DATA_CASE3; ++j) {
+            const int   LINE2   = DATA_CASE3[j].d_lineNum;
+            const char *STRING2 = DATA_CASE3[j].d_string_p;
             const int   LEN2    = std::strlen(STRING2);
 
             const TYPE *LHS_BEGIN = STRINGS[i];
@@ -1418,7 +1418,7 @@ void testLexicographicalNonBitwise(bool                  verboseFlag,
         }
     }
 
-    for (int i = 0; i < NUM_DATA_3; ++i) {
+    for (int i = 0; i < NUM_DATA_CASE3; ++i) {
         testAllocator.deallocate(strings[i]);
     }
 
@@ -1432,7 +1432,7 @@ void testLexicographicalNonBitwise(bool                  verboseFlag,
 static const struct {
     int          d_lineNum;
     const char  *d_string_p;
-} DATA_2[] = {
+} DATA_CASE2[] = {
     // line   string
     // ----   ------
     {  L_,    ""              },
@@ -1449,21 +1449,21 @@ static const struct {
     {  L_,    "abcde"         },
     {  L_,    "edcba"         }
 };
-const int NUM_DATA_2 = sizeof DATA_2 / sizeof *DATA_2;
+const int NUM_DATA_CASE2 = sizeof DATA_CASE2 / sizeof *DATA_CASE2;
 
 void testGenericEqual(bool verboseFlag, bslma::TestAllocator& testAllocator)
-    // Compare every pair of strings in the 'DATA_2' array, and verify that
+    // Compare every pair of strings in the 'DATA_CASE2' array, and verify that
     // they are equal according to the generic 'equal' implementation (using
     // four arguments) if and only if they are equal.
 {
-    for (int i = 0; i < NUM_DATA_2; ++i) {
-        const int   LINE1   = DATA_2[i].d_lineNum;
-        const char *STRING1 = DATA_2[i].d_string_p;
+    for (int i = 0; i < NUM_DATA_CASE2; ++i) {
+        const int   LINE1   = DATA_CASE2[i].d_lineNum;
+        const char *STRING1 = DATA_CASE2[i].d_string_p;
         const int   LEN1    = std::strlen(STRING1);
 
-        for (int j = 0; j < NUM_DATA_2; ++j) {
-            const int   LINE2   = DATA_2[j].d_lineNum;
-            const char *STRING2 = DATA_2[j].d_string_p;
+        for (int j = 0; j < NUM_DATA_CASE2; ++j) {
+            const int   LINE2   = DATA_CASE2[j].d_lineNum;
+            const char *STRING2 = DATA_CASE2[j].d_string_p;
             const int   LEN2    = std::strlen(STRING2);
 
             const bool EXP = (i == j);
@@ -1489,30 +1489,30 @@ void testGenericEqual(bool verboseFlag, bslma::TestAllocator& testAllocator)
 template <class TYPE>
 void testEqual(bool verboseFlag, bslma::TestAllocator& testAllocator)
     // Compare every pair of strings of the parameterized 'TYPE' from the
-    // specifications in the 'DATA_2' array, and verify that they are equal if
+    // specifications in the 'DATA_CASE2' array, and verify that they are equal if
     // and only if their specifications are equal.  Note that the range will be
     // passed using 'const TYPE *'.
 {
-    TYPE *strings[NUM_DATA_2];
+    TYPE *strings[NUM_DATA_CASE2];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
 
     const int NUM_BYTES = testAllocator.numBytesInUse();
 
-    for (int i = 0; i < NUM_DATA_2; ++i) {
-        const char *STRING = DATA_2[i].d_string_p;
+    for (int i = 0; i < NUM_DATA_CASE2; ++i) {
+        const char *STRING = DATA_CASE2[i].d_string_p;
         const int   LEN    = std::strlen(STRING);
         strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE));
         gg(strings[i], STRING);
     }
 
-    for (int i = 0; i < NUM_DATA_2; ++i) {
-        const int   LINE1   = DATA_2[i].d_lineNum;
-        const char *STRING1 = DATA_2[i].d_string_p;
+    for (int i = 0; i < NUM_DATA_CASE2; ++i) {
+        const int   LINE1   = DATA_CASE2[i].d_lineNum;
+        const char *STRING1 = DATA_CASE2[i].d_string_p;
         const int   LEN1    = std::strlen(STRING1);
 
-        for (int j = 0; j < NUM_DATA_2; ++j) {
-            const int   LINE2   = DATA_2[j].d_lineNum;
-            const char *STRING2 = DATA_2[j].d_string_p;
+        for (int j = 0; j < NUM_DATA_CASE2; ++j) {
+            const int   LINE2   = DATA_CASE2[j].d_lineNum;
+            const char *STRING2 = DATA_CASE2[j].d_string_p;
             const int   LEN2    = std::strlen(STRING2);
 
             const TYPE *LHS_BEGIN = STRINGS[i];
@@ -1542,7 +1542,7 @@ void testEqual(bool verboseFlag, bslma::TestAllocator& testAllocator)
         }
     }
 
-    for (int i = 0; i < NUM_DATA_2; ++i) {
+    for (int i = 0; i < NUM_DATA_CASE2; ++i) {
         testAllocator.deallocate(strings[i]);
     }
 
@@ -1552,31 +1552,31 @@ void testEqual(bool verboseFlag, bslma::TestAllocator& testAllocator)
 template <class TYPE>
 void testEqualNonBitwise(bool verboseFlag, bslma::TestAllocator& testAllocator)
     // Compare every pair of strings of the parameterized 'TYPE' from the
-    // specifications in the 'DATA_2' array, and verify that they are equal if
+    // specifications in the 'DATA_CASE2' array, and verify that they are equal if
     // and only if their specifications are equal.  Note that the range will be
-    // passed using 'my_Iterator<TYPE>', which prevents any kind of bitwise
+    // passed using 'my_Iterator<TYPE>', which prevents any kind of bit-wise
     // optimization.
 {
-    TYPE *strings[NUM_DATA_2];
+    TYPE *strings[NUM_DATA_CASE2];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
 
     const int NUM_BYTES = testAllocator.numBytesInUse();
 
-    for (int i = 0; i < NUM_DATA_2; ++i) {
-        const char *STRING = DATA_2[i].d_string_p;
+    for (int i = 0; i < NUM_DATA_CASE2; ++i) {
+        const char *STRING = DATA_CASE2[i].d_string_p;
         const int   LEN    = std::strlen(STRING);
         strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE));
         gg(strings[i], STRING);
     }
 
-    for (int i = 0; i < NUM_DATA_2; ++i) {
-        const int   LINE1   = DATA_2[i].d_lineNum;
-        const char *STRING1 = DATA_2[i].d_string_p;
+    for (int i = 0; i < NUM_DATA_CASE2; ++i) {
+        const int   LINE1   = DATA_CASE2[i].d_lineNum;
+        const char *STRING1 = DATA_CASE2[i].d_string_p;
         const int   LEN1    = std::strlen(STRING1);
 
-        for (int j = 0; j < NUM_DATA_2; ++j) {
-            const int   LINE2   = DATA_2[j].d_lineNum;
-            const char *STRING2 = DATA_2[j].d_string_p;
+        for (int j = 0; j < NUM_DATA_CASE2; ++j) {
+            const int   LINE2   = DATA_CASE2[j].d_lineNum;
+            const char *STRING2 = DATA_CASE2[j].d_string_p;
             const int   LEN2    = std::strlen(STRING2);
 
             const TYPE *LHS_BEGIN = STRINGS[i];
@@ -1611,7 +1611,7 @@ void testEqualNonBitwise(bool verboseFlag, bslma::TestAllocator& testAllocator)
         }
     }
 
-    for (int i = 0; i < NUM_DATA_2; ++i) {
+    for (int i = 0; i < NUM_DATA_CASE2; ++i) {
         testAllocator.deallocate(strings[i]);
     }
 
@@ -1825,7 +1825,7 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    setbuf(stdout, NULL);    // Use unbuffered output
+    setbuf(stdout, NULL);    // Use unbuffered output.
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -1853,13 +1853,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-        // Compare non-bitwise-comparable elements
+        // Compare non-bit-wise comparable elements.
         usageTestMyString();
 
-        // Compare bitwise-comparable elements
+        // Compare bit-wise comparable elements.
         usageTestMyPoint();
 
-        // Compare (bitwise-comparable) primitive types
+        // Compare (bit-wise comparable) primitive types.
         usageTestInt();
      } break;
       case 3: {
@@ -1867,102 +1867,111 @@ int main(int argc, char *argv[])
         // TESTING 'lexicographical'
         //
         // Concerns:
-        //   o That all implementations of 'equal' are correct.
+        //   o That all implementations of 'lexicographical' are correct.
         //   o That the correct implementation is selected for the
         //     correct trait and given iterator type.
         //   o That no instantiation leads to ambiguity.
         //
         // Plan:
+        //   Using the table method, and a generator that can generate ranges
+        //   of objects of various types with values based on an initialization
+        //   string, compare a pair of of ranges based on every combination of
+        //   two initialization strings and compare the output of
+        //   'bslalg::RangeCompare::lexicographical' with the expected output
+        //   based on the initialization strings used to create the range.  Do
+        //   this for the types: char, unsigned char, int, Unit64, double, void
+        //   *, my_Class1, my_Class2 and my_Class3.
         //
         // Testing:
-        //  bool lexicographical(begin1, end1, length1, begin2, end2, length2);
+        //  bool lexicographical(start1, end1, start2, end2);
+        //  bool lexicographical(start1, end1, length1, start2, end2, length2);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'lexicographical'"
                             "\n=========================\n");
 
-        if (verbose) printf("\t... with 'char'\n");
+        if (veryVerbose) printf("\t... with 'char'\n");
         {
-            if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+            if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographical<char>(veryVerbose, testAllocator);
 
-            if (verbose) printf("\t\tUsing forward iterator.\n");
+            if (veryVerbose) printf("\t\tUsing forward iterator.\n");
             testLexicographicalNonBitwise<char>(veryVerbose, testAllocator);
         }
 
-        if (verbose) printf("\t... with 'signed char'\n");
+        if (veryVerbose) printf("\t... with 'signed char'\n");
         {
-            if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+            if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographical<char>(veryVerbose, testAllocator);
 
-            if (verbose) printf("\t\tUsing forward iterator.\n");
+            if (veryVerbose) printf("\t\tUsing forward iterator.\n");
             testLexicographicalNonBitwise<char>(veryVerbose, testAllocator);
         }
 
-        if (verbose) printf("\t... with 'unsigned char'\n");
+        if (veryVerbose) printf("\t... with 'unsigned char'\n");
         {
-            if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+            if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographical<unsigned char>(veryVerbose, testAllocator);
 
-            if (verbose) printf("\t\tUsing forward iterator.\n");
+            if (veryVerbose) printf("\t\tUsing forward iterator.\n");
             testLexicographicalNonBitwise<unsigned char>(veryVerbose,
                                                          testAllocator);
         }
 
-        if (verbose) printf("\t... with 'int'\n");
+        if (veryVerbose) printf("\t... with 'int'\n");
         {
-            if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+            if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographicalBuiltin<int>(veryVerbose,
                                             &intGenerator,
                                             testAllocator);
         }
 
-        if (verbose) printf("\t... with 'long long'\n");
+        if (veryVerbose) printf("\t... with 'long long'\n");
         {
-            if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+            if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographicalBuiltin<Uint64>(veryVerbose,
                                                &uint64Generator,
                                                testAllocator);
         }
 
-        if (verbose) printf("\t... with 'double'\n");
+        if (veryVerbose) printf("\t... with 'double'\n");
         {
-            if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+            if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographicalBuiltin<double>(veryVerbose,
                                                &doubleGenerator,
                                                testAllocator);
         }
 
-        if (verbose) printf("\t... with 'void *'\n");
+        if (veryVerbose) printf("\t... with 'void *'\n");
         {
-            if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+            if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographicalBuiltin<void *>(veryVerbose,
                                                &ptrGenerator,
                                                testAllocator);
         }
 
-        if (verbose) printf("\t... with non-BitwiseEqualityComparableType.\n");
+        if (veryVerbose) printf("\t... with non-BitwiseEqualityComparableType.\n");
         {
-            if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+            if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographical<my_Class1>(veryVerbose, testAllocator);
 
-            if (verbose) printf("\t\tUsing forward iterator.\n");
+            if (veryVerbose) printf("\t\tUsing forward iterator.\n");
             testLexicographicalNonBitwise<my_Class1>(veryVerbose,
                                                      testAllocator);
         }
 
-        if (verbose) printf("\t... with BitwiseEqualityComparableType.\n");
+        if (veryVerbose) printf("\t... with BitwiseEqualityComparableType.\n");
         {
-            if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+            if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographical<my_Class2>(veryVerbose, testAllocator);
 
             // We cannot use forward iterators since it would require
             // 'operator==' for 'my_Class2'.
         }
 
-        if (verbose) printf("\t... with ConvertibleToBool.\n");
+        if (veryVerbose) printf("\t... with ConvertibleToBool.\n");
         {
-            if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+            if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographicalBuiltin<my_Class3>(veryVerbose,
                                                   &charGenerator,
                                                   testAllocator);
@@ -1978,75 +1987,76 @@ int main(int argc, char *argv[])
         //   o That the correct implementation is selected for the
         //     correct trait and given iterator type.
         //
-        // Plan:  Given an array of string specs, all different, we test every
-        //   pair of strings for equality, the expected result being that the
+        // Plan:
+        //   Given an array of string specs, all different, we test every pair
+        //   of strings for equality, the expected result being that the
         //   strings differ if their specs differ.  We then apply this test for
-        //   all four types, 'char', 'unsigned' char', bitwise equality
-        //   comparable UDT, and non-bitwise equality comparable UDT.  We make
-        //   sure that the correct implementation is selected for the trait by
-        //   not providing an 'operator==' when 'memcmp' should be used, and by
-        //   stuffing some random bytes into the footprint of the class when
-        //   memcmp should not be used.
+        //   all four types, 'char', 'unsigned' char', bit-wise
+        //   equality-comparable UDT, and non-bit-wise equality-comparable UDT.
+        //   We make sure that the correct implementation is selected for the
+        //   trait by not providing an 'operator==' when 'memcmp' should be
+        //   used, and by stuffing some random bytes into the footprint of the
+        //   class when memcmp should not be used.
         //
         // Testing:
-        //   bool equal(begin1, end1, begin2, end2);
-        //   bool equal(begin1, end1, length1, begin2, end2, length2);
+        //   bool equal(start1, end1, start2, end2);
+        //   bool equal(start1, end1, length1, start2, end2, length2);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'equal'"
                             "\n===============\n");
 
-        if (verbose) printf("\t... generic 'equal' (four arguments).\n");
+        if (veryVerbose) printf("\t... generic 'equal' (four arguments).\n");
 
-        if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+        if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
         testGenericEqual(veryVerbose, testAllocator);
 
-        if (verbose) printf("\t... with 'char'.\n");
+        if (veryVerbose) printf("\t... with 'char'.\n");
         {
-            if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+            if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testEqual<char>(veryVerbose, testAllocator);
 
-            if (verbose) printf("\t\tUsing forward iterator.\n");
+            if (veryVerbose) printf("\t\tUsing forward iterator.\n");
             testEqualNonBitwise<char>(veryVerbose, testAllocator);
         }
 
-        if (verbose) printf("\t... with 'unsigned char'.\n");
+        if (veryVerbose) printf("\t... with 'unsigned char'.\n");
         {
-            if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+            if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testEqual<unsigned char>(veryVerbose, testAllocator);
 
-            if (verbose) printf("\t\tUsing forward iterator.\n");
+            if (veryVerbose) printf("\t\tUsing forward iterator.\n");
             testEqualNonBitwise<unsigned char>(veryVerbose, testAllocator);
         }
 
-        if (verbose) printf("\t... with non-BitwiseEqualityComparableType.\n");
+        if (veryVerbose) printf("\t... with non-BitwiseEqualityComparableType.\n");
         {
-            if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+            if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testEqual<my_Class1>(veryVerbose, testAllocator);
 
-            if (verbose) printf("\t\tMake sure std::memcmp is not used.\n");
+            if (veryVerbose) printf("\t\tMake sure std::memcmp is not used.\n");
             {
                 my_Class1 buffer1[5];
                 my_Class1 *string1 = buffer1;
                 const my_Class1 *STRING1 = string1;
-                gg(string1, "abcde");  // use some seeds
+                gg(string1, "abcde");  // Use some seeds.
 
                 my_Class1 buffer2[5];
                 my_Class1 *string2 = buffer2;
                 const my_Class1 *STRING2 = string2;
-                gg(string2, "abcde");  // use same value but different seeds
+                gg(string2, "abcde");  // Use same value but different seeds.
 
                 ASSERT(Obj::equal(STRING1, STRING1 + 5, 5,
                                   STRING2, STRING2 + 5, 5));
             }
 
-            if (verbose) printf("\t\tUsing forward iterator.\n");
+            if (veryVerbose) printf("\t\tUsing forward iterator.\n");
             testEqualNonBitwise<my_Class1>(veryVerbose, testAllocator);
         }
 
-        if (verbose) printf("\t... with BitwiseEqualityComparableType.\n");
+        if (veryVerbose) printf("\t... with BitwiseEqualityComparableType.\n");
         {
-            if (verbose) printf("\t\tUsing pointer type for iterator.\n");
+            if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testEqual<my_Class2>(veryVerbose, testAllocator);
 
             // We cannot use forward iterators since it would require
@@ -2059,9 +2069,11 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   That the basic usage is functional and correct.
+        //   That the basic functionality of 'equal' and 'lexicographical' are
+        //   correct.
         //
-        // Plan:  Exercise basic usage of this component.
+        // Plan:
+        //   Exercise basic usage of this component.
         //
         // Testing:
         //   This test exercises basic usage but *tests* nothing.
@@ -2070,7 +2082,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============");
 
-        if (verbose) printf("\n\tTesting equality...");
+        if (veryVerbose) printf("\n\tTesting 'equal'...");
         {
             const char *X = "This is a string";
             const int  X_LEN = strlen(X);
@@ -2109,7 +2121,7 @@ int main(int argc, char *argv[])
                                 Z, Z + Z_LEN, Z_LEN)));
         }
 
-        if (verbose) printf("\n\tTesting lexicographical...");
+        if (veryVerbose) printf("\n\tTesting 'lexicographical'...");
         {
             const char *X = "This is a string";
             const int  X_LEN = strlen(X);
@@ -2154,12 +2166,16 @@ int main(int argc, char *argv[])
         // PERFORMANCE TEST
         //
         // Concerns:
-        //   It isn't clear if a single loop is slower or faster than memcmp
-        //   for builtin and for user types.
+        //   The implementation of the component takes pains to use 'memcmp'
+        //   whenever possible.  This is based on an assumption that 'memcmp'
+        //   will be faster than comparing each of the elements in a range in a
+        //   single loop.  This assumption should be tested for builtin and for
+        //   user types to confirm that the use of 'memcmp' is worthwhile.
         //
-        // Plan:  Time both implementations (memcmp) for various fundamental
-        //   types and taking care to separate the care where 'memcmp' can be
-        //   used.
+        // Plan:
+        //   Time both implementations (single loop and 'memcmp') for various
+        //   fundamental types, taking care to separate the case where 'memcmp'
+        //   can be used.  Display the resulting times.
         //
         // Testing:
         // --------------------------------------------------------------------
