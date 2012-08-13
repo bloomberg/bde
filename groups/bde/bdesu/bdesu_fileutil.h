@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a set of portable utilities for file system access.
 //
 //@CLASSES:
-//  bdesu_FileUtil: struct which scopes file system utilities
+//  bdesu_FileUtil: struct that scopes file system utilities
 //
 //@SEE_ALSO: bdesu_pathutil
 //
@@ -19,22 +19,30 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a platform-independent interface to
 // filesystem utility methods.
 //
-///Platform Specific File Locking Caveats
+///Platform-Specific File Locking Caveats
 ///--------------------------------------
 // Locking has the following caveats for the following operating systems:
 //:
-//: o On Posix, closing a file releases all locks on all file descriptors
-//:   referring to that file within the current process.  [Doc 1] [Doc 2]
+//: o On Posix:
 //:
-//: o On Posix, the child of a fork does not inherit the locks of the parent
-//:   process.  [Doc 1] [Doc 2]
+//:   o Closing a file releases all locks on all file descriptors referring to
+//:     that file within the current process.
 //:
-//: o On at least some flavors of Unix, you can't lock a file for writing using
-//:   file descriptor opened in read-only mode.
+//:   o The child of a 'fork' does not inherit the locks of the parent process.
+//:
+//:   o References:
+//:     o 'http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html'
+//:     o 'http://www.manpagez.com/man/2/fcntl'
+//:
+//: o On at least some flavors of Unix, a file descriptor opened in read-only
+//:   mode cannot be locked for writing.
 //
-// Documents
-//: 1 POSIX:http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html
-//: 2 BSD: http://www.manpagez.com/man/2/fcntl
+///Platform-Specific Atomicity Caveats
+///-----------------------------------
+// The 'bdesu_FileUtil::read' and 'bdesu_FileUtil::write' methods add no
+// atomicity guarantees for reading and writing to those provided (if any) by
+// the underlying platform's methods for reading and writing (see
+// 'http://lwn.net/Articles/180387/').
 //
 ///Usage
 ///-----

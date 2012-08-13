@@ -528,7 +528,7 @@ BDES_IDENT("$Id: $")
 ///Implicit Conversion
 /// -  -  -  -  -  - -
 // As with native pointers, a pointer of the type 'B' that is publicly derived
-// from the type 'A', can be directly assigned a 'bcema_SharedPtr' of 'A'.
+// from the type 'A', can be directly assigned a 'bdema_ManagedPtr' of 'A'.
 //
 // First, consider the following code snippets:
 //..
