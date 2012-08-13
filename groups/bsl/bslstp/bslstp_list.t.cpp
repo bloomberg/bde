@@ -1116,10 +1116,6 @@ class LimitAllocator : public ALLOC {
     size_type d_limit;
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(LimitAllocator,
-                                 BloombergLP::bslalg_TypeTraits<AllocBase>);
-
     // CREATORS
     LimitAllocator()
         : d_limit(-1) {}
@@ -1142,6 +1138,25 @@ class LimitAllocator : public ALLOC {
     size_type max_size() const { return d_limit; }
 };
 
+namespace BloombergLP {
+namespace bslmf {
+
+template <typename ALLOCATOR>
+struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
+    : IsBitwiseMoveable<ALLOCATOR>
+{};
+
+}
+
+namespace bslma {
+
+template <typename ALLOCATOR>
+struct UsesBslmaAllocator<LimitAllocator<ALLOCATOR> >
+    : bslmf::IsConvertible<Allocator*, ALLOCATOR>
+{};
+
+}
+}  // namespace BloombergLP
                               // ====================
                               // class PointerWrapper
                               // ====================

@@ -319,13 +319,6 @@ public:
   typedef bsl::reverse_iterator<iterator>       reverse_iterator;
   typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
 
-  /* TODO:
-  typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<_Tp,_Alloc>
-    ListTypeTraits;
-  BSLALG_DECLARE_NESTED_TRAITS(list, ListTypeTraits);
-      // Declare nested type traits for this class.
-      */
-
 protected:
   _Node* _M_create_node(const _Tp& __x = _Tp())
   {
@@ -607,6 +600,49 @@ public:
   }
 
 };
+
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <class _Tp, class _Alloc>
+struct HasStlIterators<bsl::list<_Tp, _Alloc> > : bsl::true_type
+{};
+
+}
+
+namespace bslmf {
+
+template <class _Tp, class _Alloc>
+struct IsBitwiseMoveable<bsl::list<_Tp, _Alloc> >
+    : IsBitwiseMoveable<_Alloc>
+{};
+
+}
+
+namespace bslma {
+
+template <class _Tp, class _Alloc>
+struct UsesBslmaAllocator<bsl::list<_Tp, _Alloc> >
+    : bsl::is_convertible<Allocator*, _Alloc>
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
 
 template <class _Tp, class _Alloc>
 inline

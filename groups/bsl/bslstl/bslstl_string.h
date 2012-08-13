@@ -724,19 +724,6 @@ class basic_string
         // This is required by the C++ standard (23.1, clause 1).
 
   public:
-    // TRAITS
-    /*
-     * TODO:
-    typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<
-                                                   CHAR_TYPE,
-                                                   ALLOCATOR> StringTypeTraits;
-
-    BSLALG_DECLARE_NESTED_TRAITS(basic_string, StringTypeTraits);
-    */
-        // Declare nested type traits for this class.  This class is bitwise
-        // movable if the allocator is bitwise movable.  It uses 'bslma'
-        // allocators if 'ALLOCATOR' is convertible from 'bslma::Allocator*'.
-
     // PUBLIC CLASS DATA
     static const size_type npos = ~size_type(0);
         // Value used to denote "not-a-position", guaranteed to be outside the
@@ -1585,6 +1572,49 @@ class basic_string
         // of equality.  Throw 'out_of_range' if 'lhsPosition > length()'.  See
         // "Lexicographical Comparisons" for definitions.
 };
+
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+struct HasStlIterators<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> > : bsl::true_type
+{};
+
+}
+
+namespace bslmf {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+struct IsBitwiseMoveable<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
+    : IsBitwiseMoveable<ALLOC>
+{};
+
+}
+
+namespace bslma {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+struct UsesBslmaAllocator<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
+    : bsl::is_convertible<Allocator*, ALLOC>
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
 
 // TYPEDEFS
 typedef basic_string<char>    string;

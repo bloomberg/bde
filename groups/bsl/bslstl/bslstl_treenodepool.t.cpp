@@ -183,6 +183,15 @@ class AllocatingIntType {
     const int& value() const { return *d_value_p; }
 };
 
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<AllocatingIntType> : bsl::true_type {};
+
+}
+}
+
 //=============================================================================
 //                               TEST FACILITIES
 //-----------------------------------------------------------------------------

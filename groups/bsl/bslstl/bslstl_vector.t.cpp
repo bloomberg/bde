@@ -916,7 +916,6 @@ struct UsesBslmaAllocator<LimitAllocator<ALLOCATOR> >
 {};
 
 }
-
 }  // namespace BloombergLP
 
 //=============================================================================

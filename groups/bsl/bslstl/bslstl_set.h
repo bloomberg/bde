@@ -624,13 +624,6 @@ class set : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
         // reference to this object.
 
   public:
-    // TRAITS
-    /* TODO:
-    typedef BloombergLP::bslstl::TraitsGroupStlAssociativeContainer<ALLOCATOR>
-                                                               TreeTypeTraits;
-    BSLALG_DECLARE_NESTED_TRAITS(set, TreeTypeTraits);
-    */
-
     // CREATORS
     explicit set(const COMPARATOR& comparator = COMPARATOR(),
                  const ALLOCATOR&  allocator  = ALLOCATOR());
@@ -990,6 +983,43 @@ class set : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
 //     void insert(initializer_list<value_type>);
 
 };
+
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *ordered* containers:
+//: o An ordered container defines STL iterators.
+//: o An ordered container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <typename KEY,
+          typename COMPARATOR,
+          typename ALLOCATOR>
+struct HasStlIterators<bsl::set<KEY, COMPARATOR, ALLOCATOR> >
+    : bsl::true_type
+{};
+
+}
+
+namespace bslma {
+
+template <typename KEY,
+          typename COMPARATOR,
+          typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::set<KEY, COMPARATOR, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator==(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
