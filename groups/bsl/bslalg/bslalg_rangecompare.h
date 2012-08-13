@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //         Alexander Beels (abeels)
 //
 //@DESCRIPTION: This component provides a utility 'struct',
-// 'bslalg::RangeCompare', that defines two class methods, 'equal' and
+// 'bslalg::RangeCompare', that defines two overloaded class methods, 'equal' and
 // 'lexicographical', for comparing two ranges, each specified by a pair of
 // input iterators that are compliant with the C++11 standard [24.2.3].  The
 // 'equal' method determines whether two specified ranges compare equal.  The
@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 //  template <class VALUE_TYPE>
 //  class MyContainer {
 //      // This class implements a container, semantically similar to
-//      // std::vector, holding objects of the (template parameter) type
+//      // 'std::vector', holding objects of the (template parameter) type
 //      // 'VALUE_TYPE'.
 //
 //    private:
@@ -89,14 +89,14 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // PUBLIC TYPES
-//      typedef VALUE_TYPE const *ConstIterator;
+//      typedef const VALUE_TYPE *ConstIterator;
 //          // This 'typedef' provides an alias for the type of iterator
 //          // providing non-modifiable access to the elements in the
 //          // container.
 //
 //      // CREATORS
 //      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
-//          // Initialize this object as an empty container with zero capacity.
+//          // Create an empty 'MyContainer' object having no capacity.  Optionally specify a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0, the currently installed default allocator is used.
 //
 //      // ...
 //
@@ -104,7 +104,7 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //
 //      void push_back(const VALUE_TYPE& value);
-//          // Add the specified value at the past-the-end position in this
+//          // Append the specified 'value' at the past-the-end position in this
 //          // container, increasing the container's capacity if needed.
 //
 //      // ...
@@ -139,7 +139,7 @@ BSLS_IDENT("$Id: $")
 //      // has the same value as the corresponding element in 'rhs'.
 //
 //  template <class VALUE_TYPE>
-//  inline bool operator!=(const MyContainer<VALUE_TYPE>& lhs,
+//  bool operator!=(const MyContainer<VALUE_TYPE>& lhs,
 //                         const MyContainer<VALUE_TYPE>& rhs);
 //      // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
 //      // the same value, and 'false' otherwise.  Two 'MyContainer' objects
@@ -195,10 +195,11 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //
 //    public:
-//      explicit MyString(const char* sourceStr,
+//      // CREATORS
+//      explicit MyString(const char       *string,
 //                        bslma::Allocator *basicAllocator = 0);
-//          // Create this object, initialized to the value of the specified
-//          // 'sourceStr'.  Optionally specify a 'basicAllocator' used to
+//          // Create a 'MyString' object initialized to the value of the specified
+//          // 'string'.  Optionally specify a 'basicAllocator' used to
 //          // supply memory.  If 'basicAllocator' is 0, the currently
 //          // installed default allocator is used.
 //
@@ -207,9 +208,8 @@ BSLS_IDENT("$Id: $")
 //
 //  bool operator==(const MyString& lhs, const MyString& rhs)
 //  {
-//      return lhs.d_length == rhs.d_length && strncmp(lhs.d_start_p,
-//                                                     rhs.d_start_p,
-//                                                     lhs.d_length);
+//      return lhs.d_length == rhs.d_length
+//          && 0 == std::strncmp(lhs.d_start_p, rhs.d_start_p, lhs.d_length);
 //  }
 //..
 // Notice that 'MyString' is not bit-wise comparable because the address values
@@ -239,12 +239,12 @@ BSLS_IDENT("$Id: $")
 //..
 //  class MyPoint {
 //    // This class provides a simple, elided point type that is bit-wise
-//    // comparable with other objects of the same time.
+//    // comparable with other objects of the same type.
 //
 //    private:
 //      // DATA
-//      int d_x;
-//      int d_y;
+//      int d_x;  // The x-coordinate of the point
+//      int d_y;  // The y-coordinate of the point
 //
 //      // FRIENDS
 //      friend bool operator==(const MyPoint& lhs, const MyPoint& rhs);
@@ -257,9 +257,8 @@ BSLS_IDENT("$Id: $")
 //
 //      // CREATORS
 //      MyPoint(int x, int y);
-//          // Create this object with its x-coordinate initialized to the
-//          // specified 'x' and its y-coordinate initialized to the specified
-//          // 'y'.
+//          // Create a 'MyPoint' object whose  x- and y-coordinates have the specified
+//          // 'x' and 'y' values, respectively.
 //
 //      // ...
 //  };
@@ -269,7 +268,7 @@ BSLS_IDENT("$Id: $")
 //      return lhs.d_x == rhs.d_x && lhs.d_y == rhs.d_y;
 //  }
 //..
-// Notice that the value of 'MyPoint' derives from the values of all of its
+// Notice that the value of a 'MyPoint' object derives from the values of all of its
 // data members, and that no padding is required for alignment.  Furthermore,
 // 'MyPoint' has no virtual methods.  Therefore, 'MyPoint' objects are
 // bit-wise comparable, and we can correctly declare the
@@ -296,13 +295,13 @@ BSLS_IDENT("$Id: $")
 // contained in the 'MyContainer<MyPoint>' objects.  This comparison can
 // provide a significant performance boost over the comparison between two
 // 'MyContainer<MyPoint>' objects in which the nested
-// 'TypeTraitsBitwiseEqualityComparable' trait is not associated with the
+// 'TypeTraitBitwiseEqualityComparable' trait is not associated with the
 // 'MyPoint' class.
 //
 // Finally, note that we can instantiate 'MyContainer' with 'int' or any other
 // primitive type as the 'VALUE_TYPE' and still benefit from the optimized
 // comparison operators, because primitive (i.e.: fundamental, enumerated, and
-// pointer) types are implicitly bit-wise comparable:
+// pointer) types are inherently bit-wise comparable:
 //..
 //  MyContainer<int> c5;
 //  MyContainer<int> c6;
@@ -410,7 +409,7 @@ struct RangeCompare {
         // corresponding elements compares equal, and 'false' otherwise.  Note
         // that this implementation uses 'operator==' to perform the
         // comparisons, or bit-wise comparison if the value type has the
-        // bit-wise equality comparable trait.
+        // bit-wise equality-comparable trait.
 
     template <typename INPUT_ITER>
     static bool equal(INPUT_ITER start1,
@@ -423,7 +422,7 @@ struct RangeCompare {
         // Compare each element in the range beginning at the specified
         // 'start1' position and ending immediately before the specified 'end1'
         // position, to the corresponding element in the range beginning at
-        // 'start2' position and ending immediately before the specified 'end2'
+        // the specified 'start2' position and ending immediately before the specified 'end2'
         // position, as if by using 'operator==' element-by-element.
         // Optionally specify the length of each range, 'length1' and
         // 'length2'.  Return 'true' if the ranges have the same length and
@@ -434,7 +433,7 @@ struct RangeCompare {
         // either unspecified or equals the length of the range
         // '[start2, end2)'.  Note that this implementation uses 'operator=='
         // to perform the comparisons, or bit-wise comparison if the value type
-        // has the bit-wise equality comparable trait.  Also note that
+        // has the bit-wise equality-comparable trait.  Also note that
         // providing lengths may reduce the runtime cost of this operation.
 
     template <typename INPUT_ITER>
@@ -571,9 +570,11 @@ struct RangeCompare_Imp {
         // range beginning at the specified 'start2' position and ending
         // immediately before the specified 'end2' position.  The last two
         // arguments are for removing overload ambiguities and are not used.
-        // Return a negative value if the first range compares
-        // lexicographically less than the second range, 0 if they compare
-        // equal, and a positive value if the first range compares larger.
+        // Return a negative value if the
+        // first range compares lexicographically less than the second range, 0
+        // if they are the same length and compare lexicographically equal, and
+        // a positive value if the first range compares lexicographically
+        // greater than the second range.
 
     template <typename INPUT_ITER, typename VALUE_TYPE>
     static int lexicographical(INPUT_ITER        start1,
@@ -587,10 +588,11 @@ struct RangeCompare_Imp {
         // position with the corresponding element in the range beginning at
         // the specified 'start2' position and ending immediately before the
         // specified 'end2' position using 'operator<'.  The last two arguments
-        // are for removing overload ambiguities and are not used.  Return a
-        // negative value if the first range compares lexicographically less
-        // than the second range, 0 if they compare equal, and a positive value
-        // if the first range compares larger.
+        // are for removing overload ambiguities and are not used.  Return a negative value if the
+        // first range compares lexicographically less than the second range, 0
+        // if they are the same length and compare lexicographically equal, and
+        // a positive value if the first range compares lexicographically
+        // greater than the second range.
 
     template <typename INPUT_ITER, typename VALUE_TYPE>
     static int lexicographical(INPUT_ITER        start1,
@@ -604,10 +606,11 @@ struct RangeCompare_Imp {
         // immediately before the specified 'end2' position.  The type of the
         // last argument is considered in determining what optimizations, if
         // any, can be applied to the comparison.  The last argument is not
-        // used in any other way.  Return a negative value if the first range
-        // compares lexicographically less than the second range, 0 if they
-        // compare equal, and a positive value if the first range compares
-        // larger.
+        // used in any other way.  Return a negative value if the
+        // first range compares lexicographically less than the second range, 0
+        // if they are the same length and compare lexicographically equal, and
+        // a positive value if the first range compares lexicographically
+        // greater than the second range.
 
     static int lexicographical(const char *start1,
                                const char *end1,
@@ -617,10 +620,11 @@ struct RangeCompare_Imp {
         // range beginning at the specified 'start2' position of the same
         // length (namely, 'end1 - start1'), using a bit-wise comparison
         // across the entire range, if 'const char' is unsigned, and using
-        // 'operator<' otherwise.  Return a negative value if the first range
-        // compares lexicographically less than the second range, 0 if they
-        // compare equal, and a positive value if the first range compares
-        // larger.
+        // 'operator<' otherwise.  Return a negative value if the
+        // first range compares lexicographically less than the second range, 0
+        // if they are the same length and compare lexicographically equal, and
+        // a positive value if the first range compares lexicographically
+        // greater than the second range.
 
     static int lexicographical(const unsigned char *start1,
                                const unsigned char *end1,
@@ -632,10 +636,11 @@ struct RangeCompare_Imp {
         // ending immediately before the specified 'end1' position with the
         // range beginning at the specified 'start2' position of the same
         // length (namely, 'end1 - start1'), using a bit-wise comparison
-        // across the entire range.  Return a negative value if the first range
-        // compares lexicographically less than the second range, 0 if they
-        // compare equal, and a positive value if the first range compares
-        // larger.
+        // across the entire range.  Return a negative value if the
+        // first range compares lexicographically less than the second range, 0
+        // if they are the same length and compare lexicographically equal, and
+        // a positive value if the first range compares lexicographically
+        // greater than the second range.
 
     template <typename INPUT_ITER>
     static int lexicographical(INPUT_ITER     start1,
@@ -649,10 +654,11 @@ struct RangeCompare_Imp {
         // Compare each element in the range beginning at the specified
         // 'start1' position and ending immediately before the specified 'end1'
         // position with the corresponding element in the range of the same
-        // length beginning at the specified 'start2' position.  Return a
-        // negative value if the first range compares lexicographically less
-        // than the second range, 0 if they compare equal, and a positive value
-        // if the first range compares larger.
+        // length beginning at the specified 'start2' position.  Return a negative value if the
+        // first range compares lexicographically less than the second range, 0
+        // if they are the same length and compare lexicographically equal, and
+        // a positive value if the first range compares lexicographically
+        // greater than the second range.
 };
 
 // ===========================================================================
