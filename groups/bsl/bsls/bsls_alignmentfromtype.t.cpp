@@ -114,16 +114,15 @@ static void aSsErT(int c, const char *s, int i) {
 // memory to store a user-defined type.  A 'my_AlignedBuffer' object is useful
 // in situations where efficient (e.g., stack-based) storage is required.
 //
-// The 'my_AlignedBuffer' 'union' (defined below) takes a 'TYPE' and the
-// 'ALIGNMENT' requirements for that type as template parameters, and provides
-// an appropriately sized and aligned block of memory via the 'buffer'
-// functions.  Note that 'my_AlignedBuffer' ensures that the returned memory is
-// aligned correctly for the specified size by using
+// The 'my_AlignedBuffer' 'union' (defined below) takes a template parameter
+// 'TYPE', and provides an appropriately sized and aligned block of memory via
+// the 'buffer' functions.  Note that 'my_AlignedBuffer' ensures that the
+// returned memory is aligned correctly for the specified size by using
 // 'bsls::AlignmentFromType<TYPE>::Type', which provides a primitive type
-// having the 'ALIGNMENT' requirement.  The class definition of
+// having the same alignment requirement as 'TYPE'.  The class definition of
 // 'my_AlignedBuffer' is as follows:
 //..
-    template <typename TYPE, int ALIGNMENT>
+    template <typename TYPE>
     union my_AlignedBuffer {
       private:
         // DATA
@@ -157,31 +156,31 @@ static void aSsErT(int c, const char *s, int i) {
 // The function definitions of 'my_AlignedBuffer' are as follows:
 //..
     // MANIPULATORS
-    template <typename TYPE, int ALIGNMENT>
+    template <typename TYPE>
     inline
-    char *my_AlignedBuffer<TYPE, ALIGNMENT>::buffer()
+    char *my_AlignedBuffer<TYPE>::buffer()
     {
         return d_buffer;
     }
 
-    template <typename TYPE, int ALIGNMENT>
+    template <typename TYPE>
     inline
-    TYPE& my_AlignedBuffer<TYPE, ALIGNMENT>::object()
+    TYPE& my_AlignedBuffer<TYPE>::object()
     {
         return *reinterpret_cast<TYPE *>(this);
     }
 
     // ACCESSORS
-    template <typename TYPE, int ALIGNMENT>
+    template <typename TYPE>
     inline
-    const char *my_AlignedBuffer<TYPE, ALIGNMENT>::buffer() const
+    const char *my_AlignedBuffer<TYPE>::buffer() const
     {
         return d_buffer;
     }
 
-    template <typename TYPE, int ALIGNMENT>
+    template <typename TYPE>
     inline
-    const TYPE& my_AlignedBuffer<TYPE, ALIGNMENT>::object() const
+    const TYPE& my_AlignedBuffer<TYPE>::object() const
     {
         return *reinterpret_cast<const TYPE *>(this);
     }
@@ -195,19 +194,13 @@ static void aSsErT(int c, const char *s, int i) {
 //..
     class Response {
 //..
-// To create a 'my_AlignedBuffer' object we must specify the alignment value
-// for our types.  For simplicity, we use a maximum alignment value for all
-// types (assumed to be 8 here):
-//..
-      enum { MAX_ALIGNMENT = 8 };
-//..
 // Note that we use 'my_AlignedBuffer' to allocate sufficient, aligned memory
 // to store the result of the operation or an error message:
 //..
       private:
         union {
-            my_AlignedBuffer<double, MAX_ALIGNMENT>      d_result;
-            my_AlignedBuffer<std::string, MAX_ALIGNMENT> d_errorMessage;
+            my_AlignedBuffer<double>      d_result;
+            my_AlignedBuffer<std::string> d_errorMessage;
         };
 //..
 // The 'isError' flag indicates whether the response object stores valid data
