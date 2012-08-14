@@ -238,26 +238,26 @@ class basic_stringbuf
         // and 'traits_type::eof()' otherwise.
 
     virtual int_type uflow();
-        // Return the character at the current input position, if available,
-        // and 'traits_type::eof()' otherwise.  Adjust the input position to
-        // point to the next character in this 'stringbuf' input stream, if
-        // available.
+        // Return 'traits_type::eof()' if no character is available at the
+        // current input position.  Otherwise, return the character at the
+        // current input position and move the input position forward to the
+        // next position.
 
     virtual int_type pbackfail(int_type c = traits_type::eof());
         // Put back the specified 'c' character and adjust the input position
         // so that the next character read is 'c'.  If
-        // 'c == traits_type::eof()', do nothing and return
-        // 'traits_type::eof()'.  Return the character that was put back on
+        // 'c == traits_type::eof()', back up the input position to the
+        // previous character.  Return the character that was put back on
         // success and 'traits_type::eof()' on failure.  Note that this
         // function provides a "best effort" contract.  It may fail to put back
         // a character if doing so is prohibitively expensive.
 
     virtual native_std::streamsize xsputn(const char_type *s,
                                           native_std::streamsize n);
-        // Write the specified 'n' characters from the array pointed by the
-        // specified 's' argument into this 'stringbuf' strting starting from
-        // the current output position.  Update the output position
-        // accordingly.  Return the number of characters written.
+        // Write the specified 'n' characters from the array pointed to by the
+        // 's' argument into this 'stringbuf' string starting from the current
+        // output position.  Update the output position accordingly.  Return
+        // the number of characters written.
 
     virtual int_type overflow(int_type c = traits_type::eof());
         // Write the specified character 'c' into this 'stringbuf' at the
@@ -532,12 +532,14 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
     }
 
     if (traits_type::eq_int_type(c, traits_type::eof())
-        || traits_type::eq_int_type(c, *(this->gptr() - 1)))
+        || traits_type::eq_int_type(
+                c,
+                traits_type::to_int_type(*(this->gptr() - 1))))
     {
         // putting back eof or the previous char,
         // just adjust the input pointer
         this->gbump(-1);
-        return c;
+        return traits_type::to_int_type(*this->gptr());
     }
 
     if (d_mode & ios_base::out) {
@@ -586,10 +588,13 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
             int_type c)
 {
     // check if we can write to stream
-    if (traits_type::eq_int_type(c, traits_type::eof())
-            || (d_mode & ios_base::out) == 0)
-    {
+    if ((d_mode & ios_base::out) == 0) {
         return traits_type::eof();
+    }
+
+    if (traits_type::eq_int_type(c, traits_type::eof())) {
+        // nothing to write, just return success
+        return traits_type::not_eof(c);
     }
 
     char_type ch = traits_type::to_char_type(c);

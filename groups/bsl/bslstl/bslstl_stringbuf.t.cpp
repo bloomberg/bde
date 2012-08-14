@@ -454,10 +454,10 @@ public:
                     LOOP4_ASSERT(LINE, pos, ic, bc, ic == bc);
                 }
                 else {
-                    // if nothing can be read, nothing can be put back
+                    // pbackfail at the end, returns the last character
                     int bc = strBuf.pbackfail();
                     LOOP3_ASSERT(LINE, pos, bc,
-                                 bc == std::char_traits<char>::eof());
+                                 bc != std::char_traits<char>::eof());
                 }
             }
         }
@@ -518,9 +518,10 @@ public:
         StringBufTest readonlyBuf("", bsl::ios_base::in);
         ASSERT(readonlyBuf.overflow('a') == std::char_traits<char>::eof());
 
-        // writing EOF fails
+        // writing EOF does nothing
         StringBufTest emptyBuf("", bsl::ios_base::out);
-        ASSERT(emptyBuf.overflow() == std::char_traits<char>::eof());
+        ASSERT(emptyBuf.overflow() != std::char_traits<char>::eof());
+        ASSERT(emptyBuf.str().size() == 0);
 
         struct DataDef {
             int line;

@@ -3,6 +3,12 @@
 
 int main()
 {
+    // verify that string stream classes are included from bslstl_sstream.h
+    bsl::stringbuf stringBuf;           (void) stringBuf;
+    bsl::istringstream inputStream;     (void) inputStream;
+    bsl::ostringstream outputStream;    (void) outputStream;
+    bsl::stringstream inoutStream;      (void) inoutStream;
+
     return -1;
 }
 
