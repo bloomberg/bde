@@ -280,7 +280,6 @@ class basic_stringbuf
     explicit
     basic_stringbuf(const StringType& str,
                     const allocator_type& alloc = allocator_type());
-    explicit
     basic_stringbuf(const StringType& str,
                     ios_base::openmode mode,
                     const allocator_type& alloc = allocator_type());
@@ -299,6 +298,58 @@ class basic_stringbuf
     void str(const StringType& s);
         // Initialize this 'stringbuf' object with the specified string 's'.
         // Reset the input and output positions.
+};
+
+                      // ================================
+                      // struct basic_stringbuf_container
+                      // ================================
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+class basic_stringbuf_container
+    // This class is intended to decouple stringbuf from stringstream classes.
+    // It is private and should be used only in the implementation of
+    // streamstring classes.  In order for stringbuf to initialize before any
+    // members of a stringstream class, the stringstream class privately
+    // derives from the stringbuf_container.  The stringbuf_container in turn
+    // contains an object of the stringbuf class which gets initialized before
+    // any members of the stringstream class.
+{
+  private:
+    // TYPES
+    typedef basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> StreamBufType;
+
+    // DATA
+    StreamBufType d_bufObj;
+
+  public:
+    // CREATORS
+    explicit
+    basic_stringbuf_container(const ALLOCATOR& alloc)
+        : d_bufObj(alloc)
+    {}
+
+    basic_stringbuf_container(ios_base::openmode mode,
+                              const ALLOCATOR& alloc)
+        : d_bufObj(mode, alloc)
+    {}
+
+    basic_stringbuf_container(
+            const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str,
+            const ALLOCATOR& alloc)
+        : d_bufObj(str, alloc)
+    {}
+
+    basic_stringbuf_container(
+            const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str,
+            ios_base::openmode mode,
+            const ALLOCATOR& alloc)
+        : d_bufObj(str, mode, alloc)
+    {}
+
+    StreamBufType * rdbuf() const
+    {
+        return const_cast<StreamBufType *>(&d_bufObj);
+    }
 };
 
 // ==========================================================================

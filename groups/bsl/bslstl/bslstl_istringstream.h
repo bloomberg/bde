@@ -77,7 +77,7 @@ namespace bsl {
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 class basic_istringstream
-    : private basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
+    : private basic_stringbuf_container<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
     , public native_std::basic_istream<CHAR_TYPE, CHAR_TRAITS>
     // This class implements the 'istream' interface to manipulate
     // 'bsl::string' objects as input streams of data.
@@ -85,6 +85,8 @@ class basic_istringstream
   private:
     // PRIVATE TYPES
     typedef basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>   StreamBufType;
+    typedef basic_stringbuf_container<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
+                                                                 BaseType;
     typedef bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> StringType;
     typedef native_std::basic_istream<CHAR_TYPE, CHAR_TRAITS>    BaseStream;
     typedef native_std::ios_base                                 ios_base;
@@ -147,7 +149,7 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     basic_istringstream(const allocator_type& alloc)
-: StreamBufType(ios_base::in, alloc)
+: BaseType(ios_base::in, alloc)
 , BaseStream(this->rdbuf())
 {
 }
@@ -157,7 +159,7 @@ inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     basic_istringstream(ios_base::openmode which,
                         const allocator_type& alloc)
-: StreamBufType(which, alloc)
+: BaseType(which, alloc)
 , BaseStream(this->rdbuf())
 {
 }
@@ -167,7 +169,7 @@ inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     basic_istringstream(const StringType& str,
                         const allocator_type& alloc)
-: StreamBufType(str, ios_base::in, alloc)
+: BaseType(str, ios_base::in, alloc)
 , BaseStream(this->rdbuf())
 {
 }
@@ -178,7 +180,7 @@ basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     basic_istringstream(const StringType& str,
                         ios_base::openmode which,
                         const allocator_type& alloc)
-: StreamBufType(str, which, alloc)
+: BaseType(str, which, alloc)
 , BaseStream(this->rdbuf())
 {
 }
@@ -197,8 +199,7 @@ inline
 typename basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StreamBufType *
     basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::rdbuf() const
 {
-    return const_cast<StreamBufType *>(
-            static_cast<const StreamBufType *>(this));
+    return this->BaseType::rdbuf();
 }
 
 // MANIPULATORS
