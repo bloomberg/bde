@@ -151,6 +151,20 @@ struct WindowsTimerUtil {
                                                 // Windows hardware
                                                 // timer
 
+    static bsls::AtomicOperations::AtomicTypes::Int64 s_highPartDivisionFactor;
+	                                            // cached, frequency-dependent
+												// factor for calculating the
+												// high part's contribution
+	                                            // to a nanosecond time
+
+    static bsls::AtomicOperations::AtomicTypes::Int64
+													 s_highPartRemainderFactor;
+	                                            // cached, frequency-dependent
+												// factor for calculating the
+												// high part's remainder's 
+												// contribution to a 
+												// nanosecond time
+
     static const bsls::Types::Int64 s_nsecsPerUnit;
                                                 // size in nanoseconds
                                                 // of one time unit used
@@ -188,14 +202,32 @@ struct WindowsTimerUtil {
     static bsls::Types::Int64 wallTimer();
         // Return converted to nanoseconds current value of wall time as per
         // Windows hardware timer, if available, uses ::ftime otherwise.
+
+    static bsls::Types::Int64 getTimerRaw();
+        // Return a machine-dependent value representing the current time.  'timeValue'
+        // must be converted by the 'convertRawTime' method to conventional
+        // units (nanoseconds).  This method is intended to facilitate accurate
+        // timing of small segments of code, and care must be used in
+        // interpreting the results.  Note that this method is thread-safe only
+        // if 'initialize' has been called before.
+
+	static bsls::Types::Int64 convertRawTime(bsls::Types::Int64 rawTime);
+        // Convert the specified 'rawTime' to a value in nanoseconds,
+        // referenced to an arbitrary but fixed origin, and return the result
+        // of the conversion.  Note that this method is thread-safe only if
+        // 'initialize' has been called before.
 };
 
 bsls::AtomicOperations::AtomicTypes::Int
-                                     WindowsTimerUtil::s_initRequired   = {1};
+                            WindowsTimerUtil::s_initRequired            = {1};
 bsls::AtomicOperations::AtomicTypes::Int64
-                                     WindowsTimerUtil::s_initialTime    = {-1};
+                            WindowsTimerUtil::s_initialTime             = {-1};
 bsls::AtomicOperations::AtomicTypes::Int64
-                                     WindowsTimerUtil::s_timerFrequency = {-1};
+                            WindowsTimerUtil::s_timerFrequency          = {-1};
+bsls::AtomicOperations::AtomicTypes::Int64
+                            WindowsTimerUtil::s_highPartDivisionFactor  = {-1};
+bsls::AtomicOperations::AtomicTypes::Int64
+                            WindowsTimerUtil::s_highPartRemainderFactor = {-1};
 const bsls::Types::Int64             WindowsTimerUtil::s_nsecsPerUnit   = 100;
 
 inline
@@ -223,7 +255,10 @@ void WindowsTimerUtil::systemProcessTimers(PULARGE_INTEGER systemTimer,
 inline
 void WindowsTimerUtil::initialize()
 {
-    if (bsls::AtomicOperations::getIntRelaxed(&s_initRequired)) {
+	const bsls::Types::Int64 B                     = 1000000000;
+	const bsls::Types::Int64 HIGH_DWORD_MULTIPLIER = B * (1LL << 32);
+
+	if (bsls::AtomicOperations::getIntRelaxed(&s_initRequired)) {
         bsls::AtomicOperations::setIntRelaxed(&s_initRequired, 0);
 
         LARGE_INTEGER t;
@@ -232,9 +267,25 @@ void WindowsTimerUtil::initialize()
                 ::QueryPerformanceCounter(&t) ? t.QuadPart : 0);
 
         LARGE_INTEGER f;
-        bsls::AtomicOperations::setInt64Relaxed(
-                &s_timerFrequency,
-                ::QueryPerformanceFrequency(&f) ? f.QuadPart : 0);
+		if (::QueryPerformanceFrequency(&f)) {
+			bsls::AtomicOperations::setInt64Relaxed(
+					&s_timerFrequency, f.QuadPart);
+
+			bsls::AtomicOperations::setInt64Relaxed(
+						&s_highPartDivisionFactor, HIGH_DWORD_MULTIPLIER / f.QuadPart);
+
+			bsls::AtomicOperations::setInt64Relaxed(
+						&s_highPartRemainderFactor, HIGH_DWORD_MULTIPLIER % f.QuadPart);
+		} else {
+			bsls::AtomicOperations::setInt64Relaxed(
+					&s_timerFrequency, 0);
+
+			bsls::AtomicOperations::setInt64Relaxed(
+						&s_highPartDivisionFactor, 0);
+
+			bsls::AtomicOperations::setInt64Relaxed(
+						&s_highPartRemainderFactor, 0);
+		}
     }
 }
 
@@ -272,24 +323,36 @@ void WindowsTimerUtil::processTimers(bsls::Types::Int64 *systemTimer,
 inline
 bsls::Types::Int64 WindowsTimerUtil::wallTimer()
 {
+	return convertRawTime(getTimerRaw());
+}
+
+inline
+bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
+{
     initialize();
 
-    const bsls::Types::Int64 K = 1000;
-    const bsls::Types::Int64 M = 1000000;
-	const bsls::Types::Int64 B = 1000000000;
+    const bsls::Types::Int64 M         = 1000000;
+	const bsls::Types::Int64 B         = 1000000000;
+	const bsls::Types::Uint64 LOW_MASK = 0x00000000ffffffff;
 	// const bsls::Types::Uint64 HIGH_MASK = 0xffffffff00000000;
-	const bsls::Types::Int64 HIGH_DWORD_MULTIPLIER = B * (1LL << 32);
+	// const bsls::Types::Int64 HIGH_DWORD_MULTIPLIER = B * (1LL << 32);
 
     bsls::Types::Int64 initialTime
         = bsls::AtomicOperations::getInt64Relaxed(&s_initialTime);
-    bsls::Types::Int64 timerFrequency
-        = bsls::AtomicOperations::getInt64Relaxed(&s_timerFrequency);
 
     if (0 != initialTime) {
-        LARGE_INTEGER t;
-        ::QueryPerformanceCounter(&t);
+		//TODO: Assert that rawTime < 292 days
 
-		t.QuadPart -= initialTime;
+		bsls::Types::Int64 timerFrequency
+			= bsls::AtomicOperations::getInt64Relaxed(&s_timerFrequency);
+		bsls::Types::Int64 highPartDivisionFactor
+			= bsls::AtomicOperations::getInt64Relaxed(
+			                                        &s_highPartDivisionFactor);
+		bsls::Types::Int64 highPartRemainderFactor
+			= bsls::AtomicOperations::getInt64Relaxed(
+			                                       &s_highPartRemainderFactor);
+
+		rawTime -= initialTime;
 
         // Original outline for improved-precision nanosecond calculation
         // with integer arithmetic, provided to make the final implementation
@@ -325,20 +388,26 @@ bsls::Types::Int64 WindowsTimerUtil::wallTimer()
         // with the multiplication by one billion:
 
         return (
-                static_cast<bsls::Types::Int64>(t.HighPart)
-                    * (HIGH_DWORD_MULTIPLIER / timerFrequency) 
+				// Divide high part by frequency
+                static_cast<bsls::Types::Int64>(rawTime >> 32)
+                    * highPartDivisionFactor 
                 +
-                (static_cast<bsls::Types::Uint64>(t.LowPart) * B)
+                (
+				 // Restore remainder of high part division
+                 static_cast<bsls::Types::Int64>(rawTime >> 32)
+                    * highPartRemainderFactor 
+				 +
+				 // Calculate low part contribution
+				 static_cast<bsls::Types::Uint64>(rawTime & LOW_MASK)
+				    * B
+				)
                     / timerFrequency
                );
 
-		// Note that this code runs almost as fast as the original
+		// Note that by caching the highPart factors, this code runs as fast as the original
         // implementation.  It works for counters representing time values up
         // to 292 years (the upper limit for representing nanoseconds in 64
-        // bits), and for any frequency that fits in 32 bits.  It appears to be
-        // accurate to 9 decimal digits for frequencies in the gigahertz range
-        // and 12 decimal digits for frequencies in the megahertz range.
-        // Proofs are welcome.  The original implementation broke down on
+        // bits), and for any frequency that fits in 32 bits.  The original implementation broke down on
         // counter values over ~9x10^12, which could be as little as 50 minutes
         // with a 3GHz clock.
 
@@ -356,15 +425,32 @@ bsls::Types::Int64 WindowsTimerUtil::wallTimer()
         //     static_cast<double>(timerFrequency));
     }
     else {
-        timeb t;
-        ::ftime(&t);
-
-        bsls::Types::Int64 t0;
-        t0 = (static_cast<bsls::Types::Int64>(t.time) * K + t.millitm) * M;
-
-        return t0;
+        return rawTime * M;
     }
 }
+
+inline
+bsls::Types::Int64 WindowsTimerUtil::getTimerRaw()
+{
+    const bsls::Types::Int64 K = 1000;
+
+    initialize();
+
+    bsls::Types::Int64 initialTime
+        = bsls::AtomicOperations::getInt64Relaxed(&s_initialTime);
+
+    if (0 != initialTime) {
+		LARGE_INTEGER counter;
+		::QueryPerformanceCounter(&counter);
+		return counter.QuadPart;
+	} else {
+		timeb t;
+        ::ftime(&t);
+
+        return static_cast<bsls::Types::Int64>(t.time) * K + t.millitm;
+	}
+}
+
 #endif
 
 }  // close unnamed namespace
@@ -418,7 +504,7 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 
 #elif defined BSLS_PLATFORM__OS_WINDOWS
 
-    return rawTime.d_opaque;
+    return WindowsTimerUtil::convertRawTime(rawTime.d_opaque);
 
 #else
     #error "Don't know how to get nanosecond time for this platform"
@@ -583,7 +669,7 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 
 #elif defined BSLS_PLATFORM__OS_WINDOWS
 
-    timeValue->d_opaque = WindowsTimerUtil::wallTimer();
+	timeValue->d_opaque = WindowsTimerUtil::getTimerRaw();
 
 #else
     #error "Don't know how to get nanosecond time for this platform"
