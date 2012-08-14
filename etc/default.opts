@@ -231,6 +231,7 @@ unix-                   _       RETRY_ALLTEST   = $(RETRY) -t 0 -a 3 -s!ILL,TRAP
 # Basic commands and nomenclature
 
 # file(s)-to-unspecified copy
+!! unix-           _       RSYNC           = rsync -a
 !! unix-           _       CP              = cp -p
 windows-           _       CP              = perl -MFile::Copy -MFile::Basename -e "$$d=pop(@ARGV); die unless -d($$d) or -d($$d=dirname($$d)); while ($$f=shift @ARGV) { copy $$_,$$d foreach glob($$f) }; print \"\tcopied to $$d\n\"" --
 
@@ -243,7 +244,7 @@ unix-           _   F2FCP       = $(CP)
 # add /k to preserve timestamps
 windows-                _       F2FCP           = echo f | xcopy /k /Y /I /R
 # recursive copy
-unix-           _   CPRECURSE   = cp -pr
+unix-           _   CPRECURSE   = $(RETRY_ON_EXIT) $(RSYNC)
 # add /k to preserve timestamps
 windows-        _   CPRECURSE   = xcopy /k /Y /I /R /E /Q
 # trailing directory separator to balance differing xcopy/rsync command semantics
