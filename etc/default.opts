@@ -161,13 +161,6 @@
 *                       _       SWITCHCHAR = -
 !! windows              _       SWITCHCHAR = /
 
-# The utility to use to sync up timestamps on platforms where rsync doesn't
-# set the high-res timestamp bits.
-*                       _       TIMESTAMP_FIXUP = true
-#!! unix-SunOS           _       TIMESTAMP_FIXUP = touch -r
-#!! unix-Linux           _       TIMESTAMP_FIXUP = touch -r
-#!! unix-Windows         _       TIMESTAMP_FIXUP = REM
-
 #==============================================================================
 # Retry false-negative wrapper. Use -X in bde_build.pl to override this,
 # or override RETRY_ON_EXIT and RETRY_ON_SIGNAL in the environment.
@@ -238,8 +231,6 @@ unix-                   _       RETRY_ALLTEST   = $(RETRY) -t 0 -a 3 -s!ILL,TRAP
 # Basic commands and nomenclature
 
 # file(s)-to-unspecified copy
-# DRQS 12110915 - cp -p broken on AIX and Linux when output isn't in
-# clearcase
 !! unix-           _       RSYNC           = rsync -a
 !! unix-           _       CP              = cp -p
 windows-           _       CP              = perl -MFile::Copy -MFile::Basename -e "$$d=pop(@ARGV); die unless -d($$d) or -d($$d=dirname($$d)); while ($$f=shift @ARGV) { copy $$_,$$d foreach glob($$f) }; print \"\tcopied to $$d\n\"" --
