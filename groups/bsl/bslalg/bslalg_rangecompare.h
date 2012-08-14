@@ -18,8 +18,8 @@ BSLS_IDENT("$Id: $")
 //         Alexander Beels (abeels)
 //
 //@DESCRIPTION: This component provides a utility 'struct',
-// 'bslalg::RangeCompare', that defines two overloaded class methods, 'equal' and
-// 'lexicographical', for comparing two ranges, each specified by a pair of
+// 'bslalg::RangeCompare', that defines two overloaded class methods, 'equal'
+// and 'lexicographical', for comparing two ranges, each specified by a pair of
 // input iterators that are compliant with the C++11 standard [24.2.3].  The
 // 'equal' method determines whether two specified ranges compare equal.  The
 // 'lexicographical' method determines whether the first range compares
@@ -96,7 +96,10 @@ BSLS_IDENT("$Id: $")
 //
 //      // CREATORS
 //      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
-//          // Create an empty 'MyContainer' object having no capacity.  Optionally specify a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0, the currently installed default allocator is used.
+//          // Create an empty 'MyContainer' object having no capacity.
+//          // Optionally specify a 'basicAllocator' used to supply memory.  If
+//          // 'basicAllocator' is 0, the currently installed default allocator
+//          // is used.
 //
 //      // ...
 //
@@ -104,8 +107,8 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //
 //      void push_back(const VALUE_TYPE& value);
-//          // Append the specified 'value' at the past-the-end position in this
-//          // container, increasing the container's capacity if needed.
+//          // Append the specified 'value' at the past-the-end position in
+//          // this container, increasing the container's capacity if needed.
 //
 //      // ...
 //
@@ -140,11 +143,11 @@ BSLS_IDENT("$Id: $")
 //
 //  template <class VALUE_TYPE>
 //  bool operator!=(const MyContainer<VALUE_TYPE>& lhs,
-//                         const MyContainer<VALUE_TYPE>& rhs);
+//                  const MyContainer<VALUE_TYPE>& rhs);
 //      // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
-//      // the same value, and 'false' otherwise.  Two 'MyContainer' objects
-//      // do not have the same value if they do not have the same length, or
-//      // if any element in 'lhs' does not have the same value as the
+//      // the same value, and 'false' otherwise.  Two 'MyContainer' objects do
+//      // not have the same value if they do not have the same length, or if
+//      // any element in 'lhs' does not have the same value as the
 //      // corresponding element in 'rhs'.
 //..
 // Next, we implement the equality comparison operators using
@@ -157,10 +160,10 @@ BSLS_IDENT("$Id: $")
 //  {
 //      return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
 //                                                      lhs.end(),
-//                                                      lhs.length(),
+//                                                      lhs.size(),
 //                                                      rhs.begin(),
 //                                                      rhs.end(),
-//                                                      rhs.length());
+//                                                      rhs.size());
 //  }
 //
 //  template <class VALUE_TYPE>
@@ -170,14 +173,14 @@ BSLS_IDENT("$Id: $")
 //  {
 //      return !BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
 //                                                       lhs.end(),
-//                                                       lhs.length(),
+//                                                       lhs.size(),
 //                                                       rhs.begin(),
 //                                                       rhs.end(),
-//                                                       rhs.length());
+//                                                       rhs.size());
 //  }
 //..
-// Then, we create the elided definition of a value-semantic class,
-// 'MyString', together with its definition of 'operator==':
+// Then, we create the elided definition of a value-semantic class, 'MyString',
+// together with its definition of 'operator==':
 //..
 //  class MyString {
 //      // This class provides a simple, elided string class that conforms to
@@ -185,22 +188,23 @@ BSLS_IDENT("$Id: $")
 //
 //    private:
 //      // DATA
-//      char        *d_start_p;  // storage for the string
-//      std::size_t  d_length;   // length of the string
+//      char             *d_start_p;      // storage for the string
+//      std::size_t       d_length;       // length of the string
+//      bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 //
 //      // ...
 //
 //      // FRIENDS
-//      friend bool operator==(const MyString& lhs, const MyString& rhs);
+//      friend bool operator==(const MyString&, const MyString&);
 //      // ...
 //
 //    public:
 //      // CREATORS
 //      explicit MyString(const char       *string,
 //                        bslma::Allocator *basicAllocator = 0);
-//          // Create a 'MyString' object initialized to the value of the specified
-//          // 'string'.  Optionally specify a 'basicAllocator' used to
-//          // supply memory.  If 'basicAllocator' is 0, the currently
+//          // Create a 'MyString' object initialized to the value of the
+//          // specified 'string'.  Optionally specify a 'basicAllocator' used
+//          // to supply memory.  If 'basicAllocator' is 0, the currently
 //          // installed default allocator is used.
 //
 //      // ...
@@ -216,8 +220,8 @@ BSLS_IDENT("$Id: $")
 // of the 'd_start_p' pointer data members in two 'MyString' objects will be
 // different, even if the string values of the two objects are the same.
 //
-// Next, we create two 'MyContainer<MyString>' objects, and compare them
-// using 'operator==':
+// Next, we create two 'MyContainer<MyString>' objects, and compare them using
+// 'operator==':
 //..
 //  MyContainer<MyString> c1;
 //  MyContainer<MyString> c2;
@@ -228,7 +232,7 @@ BSLS_IDENT("$Id: $")
 //  c2.push_back(MyString("hello"));
 //  c2.push_back(MyString("goodbye"));
 //
-//  assert(c1 == c2);  // unoptimized
+//  assert(c1 == c2);
 //..
 // Here, the call to the 'bslalg::RangeCompare::equal' class method in
 // 'operator==' will perform an unoptimized pair-wise comparison of the
@@ -238,16 +242,16 @@ BSLS_IDENT("$Id: $")
 // 'MyPoint', together with its definition of 'operator==':
 //..
 //  class MyPoint {
-//    // This class provides a simple, elided point type that is bit-wise
-//    // comparable with other objects of the same type.
+//      // This class provides a simple, elided point type that is bit-wise
+//      // comparable with other objects of the same type.
 //
 //    private:
 //      // DATA
-//      int d_x;  // The x-coordinate of the point
-//      int d_y;  // The y-coordinate of the point
+//      int d_x;  // the x-coordinate of the point
+//      int d_y;  // the y-coordinate of the point
 //
 //      // FRIENDS
-//      friend bool operator==(const MyPoint& lhs, const MyPoint& rhs);
+//      friend bool operator==(const MyPoint&, const MyPoint&);
 //      // ...
 //
 //    public:
@@ -257,8 +261,8 @@ BSLS_IDENT("$Id: $")
 //
 //      // CREATORS
 //      MyPoint(int x, int y);
-//          // Create a 'MyPoint' object whose  x- and y-coordinates have the specified
-//          // 'x' and 'y' values, respectively.
+//          // Create a 'MyPoint' object whose x- and y-coordinates have the
+//          // specified 'x' and 'y' values, respectively.
 //
 //      // ...
 //  };
@@ -268,10 +272,10 @@ BSLS_IDENT("$Id: $")
 //      return lhs.d_x == rhs.d_x && lhs.d_y == rhs.d_y;
 //  }
 //..
-// Notice that the value of a 'MyPoint' object derives from the values of all of its
-// data members, and that no padding is required for alignment.  Furthermore,
-// 'MyPoint' has no virtual methods.  Therefore, 'MyPoint' objects are
-// bit-wise comparable, and we can correctly declare the
+// Notice that the value of a 'MyPoint' object derives from the values of all
+// of its data members, and that no padding is required for alignment.
+// Furthermore, 'MyPoint' has no virtual methods.  Therefore, 'MyPoint' objects
+// are bit-wise comparable, and we can correctly declare the
 // 'bslalg::TypeTraitBitwiseEqualityComparable' trait for the class, as shown
 // above under the public 'TRAITS' section.
 //
@@ -421,12 +425,12 @@ struct RangeCompare {
                       INPUT_ITER start2, INPUT_ITER end2, size_type length2);
         // Compare each element in the range beginning at the specified
         // 'start1' position and ending immediately before the specified 'end1'
-        // position, to the corresponding element in the range beginning at
-        // the specified 'start2' position and ending immediately before the specified 'end2'
-        // position, as if by using 'operator==' element-by-element.
-        // Optionally specify the length of each range, 'length1' and
-        // 'length2'.  Return 'true' if the ranges have the same length and
-        // every element in the first range compares equal with the
+        // position, to the corresponding element in the range beginning at the
+        // specified 'start2' position and ending immediately before the
+        // specified 'end2' position, as if by using 'operator=='
+        // element-by-element.  Optionally specify the length of each range,
+        // 'length1' and 'length2'.  Return 'true' if the ranges have the same
+        // length and every element in the first range compares equal with the
         // corresponding element in the second, and 'false' otherwise.  The
         // behavior is undefined unless 'length1' is either unspecified or
         // equals the length of the range '[start1, end1)', and 'length2' is
@@ -588,11 +592,11 @@ struct RangeCompare_Imp {
         // position with the corresponding element in the range beginning at
         // the specified 'start2' position and ending immediately before the
         // specified 'end2' position using 'operator<'.  The last two arguments
-        // are for removing overload ambiguities and are not used.  Return a negative value if the
-        // first range compares lexicographically less than the second range, 0
-        // if they are the same length and compare lexicographically equal, and
-        // a positive value if the first range compares lexicographically
-        // greater than the second range.
+        // are for removing overload ambiguities and are not used.  Return a
+        // negative value if the first range compares lexicographically less
+        // than the second range, 0 if they are the same length and compare
+        // lexicographically equal, and a positive value if the first range
+        // compares lexicographically greater than the second range.
 
     template <typename INPUT_ITER, typename VALUE_TYPE>
     static int lexicographical(INPUT_ITER        start1,
@@ -654,11 +658,11 @@ struct RangeCompare_Imp {
         // Compare each element in the range beginning at the specified
         // 'start1' position and ending immediately before the specified 'end1'
         // position with the corresponding element in the range of the same
-        // length beginning at the specified 'start2' position.  Return a negative value if the
-        // first range compares lexicographically less than the second range, 0
-        // if they are the same length and compare lexicographically equal, and
-        // a positive value if the first range compares lexicographically
-        // greater than the second range.
+        // length beginning at the specified 'start2' position.  Return a
+        // negative value if the first range compares lexicographically less
+        // than the second range, 0 if they are the same length and compare
+        // lexicographically equal, and a positive value if the first range
+        // compares lexicographically greater than the second range.
 };
 
 // ===========================================================================
