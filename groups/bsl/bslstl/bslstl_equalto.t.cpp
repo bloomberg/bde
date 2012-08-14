@@ -1,5 +1,6 @@
-// bslstl_hash.t.cpp                                                  -*-C++-*-
-#include <bslstl_hash.h>
+// bslstl_equalto.t.cpp                                               -*-C++-*-
+
+#include <bslstl_equalto.h>
 
 #include <bslalg_hastrait.h>
 
@@ -26,11 +27,11 @@ using namespace bsl;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-// [ 3] operator()(const VALUE_TYPE&) const
-// [ 2] hash()
-// [ 2] hash(const hash)
-// [ 2] ~hash()
-// [ 2] hash& operator=(const hash&)
+// [ 3] operator()(const VALUE_TYPE&, const VALUE_TYPE&) const
+// [ 2] equal_to()
+// [ 2] equal_to(const equal_to)
+// [ 2] ~equal_to()
+// [ 2] equal_to& operator=(const equal_to&)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
@@ -143,7 +144,7 @@ int main(int argc, char *argv[])
         //   compilers that support it.
         //
         // Concerns:
-        //: 1 class 'hash' does not increase the size of an
+        //: 1 class 'equal_to' does not increase the size of an
         //:   object when used as a base class.
         //
         // Plan:
@@ -152,12 +153,12 @@ int main(int argc, char *argv[])
         //: 2 Assert that 'TwoInts has the expected size of 8 bytes.
         //:
         //: 3 Create a class, 'DerivedInts', with identical structure to
-        //:   'TwoInts' but derived from 'hash'.
+        //:   'TwoInts' but derived from 'equal_to'.
         //:
         //: 4 Assert that both classes have the same size.
         //:
         //: 5 Create a class, 'IntsWithMember', with identical structure to
-        //:   'TwoInts' and an 'hash' additional data member.
+        //:   'TwoInts' and an 'equal_to' additional data member.
         //:
         //: 6 Assert that 'IntsWithMember' is larger than the other two
         //:   classes.
@@ -176,13 +177,13 @@ int main(int argc, char *argv[])
             int b;
         };
 
-        struct DerivedInts : hash<TYPE> {
+        struct DerivedInts : equal_to<TYPE> {
             int a;
             int b;
         };
 
         struct IntsWithMember {
-            hash<TYPE> dummy;
+            equal_to<TYPE> dummy;
             int              a;
             int              b;
         };
@@ -216,11 +217,11 @@ int main(int argc, char *argv[])
 
         typedef int TYPE;
 
-        ASSERT((bslalg::HasTrait<hash<TYPE>,
+        ASSERT((bslalg::HasTrait<equal_to<TYPE>,
                                  bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT((bslalg::HasTrait<hash<TYPE>,
+        ASSERT((bslalg::HasTrait<equal_to<TYPE>,
                                  bslalg::TypeTraitBitwiseCopyable>::VALUE));
-        ASSERT((bslalg::HasTrait<hash<TYPE>,
+        ASSERT((bslalg::HasTrait<equal_to<TYPE>,
                        bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE));
       } break;
       case 4: {
@@ -244,8 +245,9 @@ int main(int argc, char *argv[])
         //:   type using 'bslmf::IsSame'. (C-1..3)
         //
         // Testing:
-        //   typedef arguent_type
+        //   typedef first_arguent_type
         //   typedef second_arguent_type
+        //   typedef result_type
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING STANDARD TYPEDEFS"
@@ -253,8 +255,11 @@ int main(int argc, char *argv[])
 
         typedef int TYPE;
 
-        ASSERT((bslmf::IsSame<size_t, hash<TYPE>::result_type>::VALUE));
-        ASSERT((bslmf::IsSame<TYPE, hash<TYPE>::argument_type>::VALUE));
+        ASSERT((bslmf::IsSame<bool, equal_to<TYPE>::result_type>::VALUE));
+        ASSERT((bslmf::IsSame<TYPE,
+                              equal_to<TYPE>::first_argument_type>::VALUE));
+        ASSERT((bslmf::IsSame<TYPE,
+                              equal_to<TYPE>::second_argument_type>::VALUE));
 
       } break;
       case 3: {
@@ -264,7 +269,7 @@ int main(int argc, char *argv[])
         //   standard adaptable binary function, ().
         //
         // Concerns:
-        //: 1 Objects of type 'hash' can be invokes as a binary
+        //: 1 Objects of type 'equal_to' can be invokes as a binary
         //:   predicate returning 'bool' and taking two 'const char *'
         //:   arguments.
         //:
@@ -290,31 +295,36 @@ int main(int argc, char *argv[])
         if (verbose) printf(
                  "\nCreate a test allocator and install it as the default.\n");
 
-        typedef int TYPE;
+        typedef const char *TYPE;
 
         bslma_TestAllocator         da("default", veryVeryVeryVerbose);
         bslma_DefaultAllocatorGuard dag(&da);
 
         static const struct {
-            int        d_line;
-            TYPE       d_value;
-            size_t     d_hashCode;
+            int         d_line;
+            const char *d_value;
         } DATA[] = {
-            // LINE    VALUE   HASHCODE
-            {  L_,     0,             0 },
-            {  L_,     13,           13 },
-            {  L_,     42,           42 },
+            // LINE    VALUE
+            {  L_,     ""   },
+            {  L_,     "a"  },
+            {  L_,     "A"  },
+            {  L_,     "1"  },
+            {  L_,     "AZ" },
+            {  L_,     "Aa" },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        const hash<int> callHash = hash<int>();
+        const equal_to<TYPE> compare = equal_to<TYPE>();
 
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int     LINE      = DATA[i].d_line;
-            const int     VALUE     = DATA[i].d_value;
-            const size_t  HASHCODE  = DATA[i].d_hashCode;
+            const int   LINE     = DATA[i].d_line;
+            const char *LHS      = DATA[i].d_value;
+            for (int j = 0; j != NUM_DATA; ++j) {
+                const char *RHS      = DATA[j].d_value;
+                const bool  EXPECTED = i == j;
 
-            LOOP_ASSERT(LINE, callHash(VALUE) == HASHCODE);
+                LOOP_ASSERT(LINE, compare(LHS, RHS) == EXPECTED);
+            }
         }
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
@@ -344,12 +354,12 @@ int main(int argc, char *argv[])
         //:   tested as a global concern. (C-7)
         //:
         //: 2 Verify the default constructor exists and is publicly accessible
-        //:   by default-constructing a 'const hash'
+        //:   by default-constructing a 'const equal_to'
         //:   object. (C-1)
         //:
         //: 3 Verify the copy constructor is publicly accessible and not
         //:   'explicit' by using the copy-initialization syntax to create a
-        //:   second 'hash' from the first. (C-2,3)
+        //:   second 'equal_to' from the first. (C-2,3)
         //:
         //: 4 Assign the value of the first ('const') object to the second.
         //:   (C-4)
@@ -359,14 +369,14 @@ int main(int argc, char *argv[])
         //:   itself. (C-5)
         //:
         //: 6 Verify the destructor is publicly accessible by allowing the two
-        //:   'hash' object to leave scope and be
+        //:   'equal_to' object to leave scope and be
         //:    destroyed. (C-6)
         //
         // Testing:
-        //   hash()
-        //   hash(const hash)
-        //   ~hash()
-        //   hash& operator=(const hash&)
+        //   equal_to()
+        //   equal_to(const equal_to)
+        //   ~equal_to()
+        //   equal_to& operator=(const equal_to&)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nIMPLICITLY DEFINED OPERATIONS"
@@ -381,11 +391,11 @@ int main(int argc, char *argv[])
         bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) printf("Value initialization\n");
-        const hash<TYPE> obj1 = hash<TYPE>();
+        const equal_to<TYPE> obj1 = equal_to<TYPE>();
 
 
         if (verbose) printf("Copy initialization\n");
-        hash<TYPE> obj2 = obj1;
+        equal_to<TYPE> obj2 = obj1;
 
         if (verbose) printf("Copy assignment\n");
         obj2 = obj1;
@@ -414,7 +424,7 @@ int main(int argc, char *argv[])
         //:
         //: 4 Call the 'compare' functor with two identical 'char' literals.
         //:
-        //: 5 Repeat steps 1-4 for 'hash<const int>' using 'int' literals.
+        //: 5 Repeat steps 1-4 for 'equal_to<const int>' using 'int' literals.
         //
         // Testing:
         //   BREATHING TEST
@@ -424,17 +434,17 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
         {
-            hash<char> func;
-            ASSERT('A' == func('A'));
-            ASSERT('a' == func('a'));
-            ASSERT('Z' == func('Z'));
+            equal_to<char> compare;
+            ASSERT( compare('A', 'A'));
+            ASSERT(!compare('A', 'Z'));
+            ASSERT( compare('Z', 'Z'));
         }
 
         {
-            hash<const int> func;
-            ASSERT( 0 == func( 0));
-            ASSERT( 1 == func( 1));
-            ASSERT(42 == func(42));
+            equal_to<const int> compare;
+            ASSERT( compare(0, 0));
+            ASSERT(!compare(1, 0));
+            ASSERT( compare(1, 1));
         }
 
       } break;
@@ -463,4 +473,4 @@ int main(int argc, char *argv[])
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ----------------------------------
+// ----------------------------- END-OF-FILE ---------------------------------

@@ -78,6 +78,7 @@ BSL_OVERRIDES_STD mode"
 
 namespace bsl {
 
+#if 0
 namespace {
 
 // FREE FUNCTIONS
@@ -95,6 +96,7 @@ std::size_t hashCstr(const char *string)
 }
 
 }  // close unnamed namespace
+#endif
 
                           // ==================
                           // class bslstl::hash
@@ -106,14 +108,40 @@ template <class BSLSTL_KEY> struct hash;
     // will generate error messages that are more clear when someone tries to
     // use a key that does not have a corresponding hash function.
 
+template <class BSLSTL_KEY>
+struct hash<const BSLSTL_KEY> : hash<BSLSTL_KEY> {
+    // This class provides hashing functionality for constant key types, by
+    // delegating to the same function for non-constant key types.
+};
+
 template <>
 struct hash<void *> {
     // Specialization of 'hash' for 'void' pointers.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef void *argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(const void *x) const
@@ -128,9 +156,29 @@ struct hash<const void *> {
     // Specialization of 'hash' for 'const' 'void' pointers.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef const void *argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(const void *x) const
@@ -145,15 +193,45 @@ struct hash<const char *> {
     // Specialization of 'hash' for 'const' 'char' pointers.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef const char *argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(const char *s) const
         // Return a hash value computed using the specified 's'.
     {
+#if 0
         return hashCstr(s);
+#else
+    unsigned long result = 0;
+
+    for (; *s; ++s) {
+        result = 5 * result + *s;
+    }
+
+    return std::size_t(result);
+#endif
     }
 };
 
@@ -162,9 +240,29 @@ struct hash<char> {
     // Specialization of 'hash' for 'char' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef char argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(char x) const
@@ -179,9 +277,29 @@ struct hash<unsigned char> {
     // Specialization of 'hash' for 'unsigned' 'char' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef unsigned char argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(unsigned char x) const
@@ -196,9 +314,29 @@ struct hash<signed char> {
     // Specialization of 'hash' for 'signed' 'char' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef signed char argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(unsigned char x) const
@@ -213,9 +351,29 @@ struct hash<short> {
     // Specialization of 'hash' for 'short' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef short argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(short x) const
@@ -230,9 +388,29 @@ struct hash<unsigned short> {
     // Specialization of 'hash' for 'unsigned' 'short' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef unsigned short argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(unsigned short x) const
@@ -247,9 +425,29 @@ struct hash<int> {
     // Specialization of 'hash' for 'int' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef int argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(int x) const
@@ -264,9 +462,29 @@ struct hash<unsigned int> {
     // Specialization of 'hash' for 'unsigned' 'int' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef unsigned int argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(unsigned int x) const
@@ -281,9 +499,29 @@ struct hash<long> {
     // Specialization of 'hash' for 'long' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef long argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(long x) const
@@ -298,9 +536,29 @@ struct hash<unsigned long> {
     // Specialization of 'hash' for 'unsigned' 'long' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef unsigned long argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(unsigned long x) const
@@ -316,9 +574,29 @@ struct hash<long long> {
     // Specialization of 'hash' for 'long long' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef long long argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(unsigned long long x) const
@@ -333,9 +611,29 @@ struct hash<unsigned long long> {
     // Specialization of 'hash' for 'unsigned' 'long long' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef unsigned long long argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(unsigned long long x) const
@@ -351,10 +649,30 @@ template <>
 struct hash<long long> {
     // Specialization of 'hash' for 'long long' values.
 
+    // STANDARD TYPEDEFS
+    typedef long long argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
+
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
 
     // ACCESSORS
     std::size_t operator()(unsigned long long x) const
@@ -369,9 +687,29 @@ struct hash<unsigned long long> {
     // Specialization of 'hash' for 'unsigned' 'long long' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(hash,
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+
+    // STANDARD TYPEDEFS
+    typedef unsigned long long argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     std::size_t operator()(unsigned long long x) const
