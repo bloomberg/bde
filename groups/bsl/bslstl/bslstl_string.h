@@ -18,11 +18,16 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Herve Bronnimann (hbronnim), Alexei Zakharov (azakhar1)
 //
-//@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_string.h>' and use 'bsl::string' instead.  This component implements a
-// dynamic string class that supports the 'bslma::Allocator' model and is
-// suitable for use as an implementation of the 'std::basic_string' class
-// template.
+//@DESCRIPTION: This component defines a single class template 'string',
+// implementing the standard container that holds a sequence of characters.
+//
+// A map meets the requirements of an associative container with bidirectional
+// iterators in the C++ standard [23.2.4].  The 'map' implemented here adheres
+// to the C++11 standard, except that it does not have interfaces that take
+// rvalue references, 'initializer_lists', 'emplace', or operations taking a
+// variadic number of template parameters.  Note that excluded C++11 features
+// are those that require (or are greatly simplified by) C++11 compiler
+// support.
 //
 ///Lexicographical Comparisons
 ///---------------------------
@@ -125,7 +130,7 @@ BSLS_IDENT("$Id: $")
 //  assert(LONG_STRING  == y);
 //..
 // Finally, we can track memory usage of 'x' and 'y' using 'allocator1' and
-// 'allocator2' and checking that memory was allocated only by 'allocator2':
+// 'allocator2' and check that memory was allocated only by 'allocator2':
 //..
 //  assert(0 == allocator1.numBlocksInUse());
 //  assert(1 == allocator2.numBlocksInUse());
@@ -138,7 +143,7 @@ BSLS_IDENT("$Id: $")
 // data members.
 //
 // First, we begin to define a 'class', 'Employee', that represents the data
-// corresponding to the employee of a company:
+// corresponding to an employee of a company:
 //..
 //  class Employee {
 //      // This simply constrained (value-semantic) attribute class represents
@@ -150,7 +155,7 @@ BSLS_IDENT("$Id: $")
 //      //
 //      // This class:
 //      //: o supports a complete set of *value-semantic* operations
-//      //:   o except for 'bdex' serialization
+//      //:   o except for 'bslx' serialization
 //      //: o is *exception-neutral* (agnostic)
 //      //: o is *alias-safe*
 //      //: o is 'const' *thread-safe*
@@ -176,10 +181,10 @@ BSLS_IDENT("$Id: $")
 //          // 'basicAllocator' is 0, the currently installed default
 //          // allocator is used.
 //
-//      Employee(const bsl::string&  firstName,
-//               const bsl::string&  lastName,
-//               int                 id,
-//               bslma::Allocator   *basicAllocator = 0);
+//      Employee(const bslstl::StringRef&  firstName,
+//               const bslstl::StringRef&  lastName,
+//               int                       id,
+//               bslma::Allocator         *basicAllocator = 0);
 //          // Create a 'Employee' object having the specified 'firstName',
 //          // 'lastName', and 'id'' attribute values.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
@@ -196,9 +201,13 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this object.
 //..
 // Notice that all constructors of the 'Employee' class are optionally provided
-// an allocator.  The provided allocator is then passed through to the 'string'
-// data members of 'Employee', allowing the user to control how memory is
-// allocated by 'Employee' objects.
+// an allocator that is then passed through to the 'string' data members of
+// 'Employee'.  This allows the user to control how memory is allocated by
+// 'Employee' objects.  Also note that the type of the 'firstName' and
+// 'lastName' arguments of the value constructor is 'bslstl::StringRef'.  The
+// 'bslstl::StringRef' allowing specifying a 'string' or a 'const char *' to
+// represent a string value and for the sake of brevity its implementation is
+// not explored here.
 //
 // Then, declare the remaining methods of the class:
 //..
@@ -208,11 +217,11 @@ BSLS_IDENT("$Id: $")
 //          // and return a reference providing modifiable access to this
 //          // object.
 //
-//      void setFirstName(const bsl::string& value);
+//      void setFirstName(const bslstl::StringRef& value);
 //          // Set the 'firstName' attribute of this object to the specified
 //          // 'value'.
 //
-//      void setLastName(const bsl::string& value);
+//      void setLastName(const bslstl::StringRef& value);
 //          // Set the 'lastName' attribute of this object to the specified
 //          // 'value'.
 //
@@ -260,14 +269,16 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  inline
-//  Employee::Employee(const bsl::string&  firstName,
-//                     const bsl::string&  lastName,
-//                     int                 id,
-//                     bslma::Allocator   *basicAllocator)
-//  : d_firstName(firstName, basicAllocator)
-//  , d_lastName(lastName, basicAllocator)
+//  Employee::Employee(const bslstl::StringRef&  firstName,
+//                     const bslstl::StringRef&  lastName,
+//                     int                       id,
+//                     bslma::Allocator         *basicAllocator)
+//  : d_firstName(firstName.begin(), firstName.end(), basicAllocator)
+//  , d_lastName(lastName.begin(), lastName.end(), basicAllocator)
 //  , d_id(id)
 //  {
+//      BSLS_ASSERT_SAFE(firstName.isBound());
+//      BSLS_ASSERT_SAFE(lastName.isBound());
 //  }
 //
 //  inline
@@ -295,15 +306,19 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  inline
-//  void Employee::setFirstName(const bsl::string& value)
+//  void Employee::setFirstName(const bslstl::StringRef& value)
 //  {
-//      d_firstName = value;
+//      BSLS_ASSERT_SAFE(value.isBound());
+//
+//      d_firstName.assign(value.begin(), value.end());
 //  }
 //
 //  inline
-//  void Employee::setLastName(const bsl::string& value)
+//  void Employee::setLastName(const bslstl::StringRef& value)
 //  {
-//      d_lastName = value;
+//      BSLS_ASSERT_SAFE(value.isBound());
+//
+//      d_lastName.assign(value.begin(), value.end());
 //  }
 //
 //  inline
@@ -350,11 +365,11 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Example 3: A 'string' replace function
-///- - - - - - - - - - - - - - - - - - -
+///Example 3: A stream text replacement filter
+///- - - - - - - - - - - - - - - - - - - - - -
 // In this example, we will define a function that reads data from an input
-// stream, replaces all occurrences of a specified 'string' value with another
-// 'string' value, and writes the resulting 'string' to an output stream.
+// stream, replaces all occurrences of a specified text fragment with another
+// text fragment, and writes the resulting text to an output stream.
 //
 // First, we define the signature of the function:
 //..
@@ -363,9 +378,9 @@ BSLS_IDENT("$Id: $")
 //               const bsl::string& oldString,
 //               const bsl::string& newString)
 //      // Read data from the specified 'inputStream' and replace all
-//      // occurrences of the specified 'oldString' in the data to the
-//      // specified 'newString'.  Write the modified data to the specified
-//      // 'outputStream'.
+//      // occurrences of the text contained in the specified 'oldString' in
+//      // the stream with the text contained in the specified 'newString'.
+//      // Write the modified data to the specified 'outputStream'.
 //..
 // Then, we provide the implementation for 'replace':
 //..
@@ -377,7 +392,7 @@ BSLS_IDENT("$Id: $")
 //      bsl::getline(inputStream, line);
 //..
 // Notice that we can use the 'getline' free function defined in this component
-// to read a single line of data from an input stream into a 'string'.
+// to read a single line of data from an input stream into a 'bsl::string'.
 //..
 //      if (!inputStream) {
 //          return;                                                   // RETURN
