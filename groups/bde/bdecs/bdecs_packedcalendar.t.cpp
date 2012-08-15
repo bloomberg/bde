@@ -492,31 +492,47 @@ bdecs_PackedCalendar& hh(bdecs_PackedCalendar *object, const char *spec)
 //
 ///LANGUAGE SPECIFICATION
 //-----------------------
-// <SPEC>       ::= <ABS_DATE>[<DOW_LIST>|<EMPTY>] <DATE> <DATEM_LIST>
+// <SPEC>       ::= <ABS_DATE>[<DOW_LIST>|<EMPTY>] [<DATE>|<EMPTY>]
+//                                                                 <DATEM_LIST>
+//                      // Represents the first date of the calendar (along
+//                      // with an associated list of weekend days in the
+//                      // default weekend-days transition at January 1, 0001),
+//                      // and optionally the last date of the calendar as well
+//                      // as a list of holiday dates along with their holiday
+//                      // codes, and weekend-days transitions.
 //
 // <DATE>       ::= <ABS_DATE> | <REL_DATE>
 //
-// <ABS_DATE>   ::= @YYYY/MM/DD
+// <ABS_DATE>   ::= @yyyy/mm/dd
 //
 // <REL_DATE>   ::= integer value
 //
-// <DATEM_LIST> ::= <DATEM> | <DATEM> <DATEM_LIST>
+// <DATEM_LIST> ::= <DATEM> | <DATEM> <DATEM_LIST> | <EMPTY>
+//                      // Represents a list of a combination of holidays and
+//                      // weekend-days transitions.
 //
-// <DATEM>      ::= <DATE><DATE_EMBEL> | <EMPTY>
+// <DATEM>      ::= <DATE>[<DATE_EMBEL>|<EMPTY>]
+//                      // Represents either a holiday if 'DATE' is
+//                      // unembellished or is proceeded by a list of holiday
+//                      // codes, or a weekend-days transition if 'DATE' is
+//                      // proceeded by a list of days of week.
 //
 // <EMPTY>      ::=
 //
-// <DATE_EMBEL> ::= <DOW_LIST> | <HCODE_LIST> | <EMPTY>
+// <DATE_EMBEL> ::= <DOW_LIST> | <HCODE_LIST>
+//                      // Represents either a list of days of week or a list
+//                      // of holiday codes.
 //
 // <DOW_LIST>   ::= <DOW> | <DOW> <DOW_LIST>
 //
 // <DOW>        ::= 'u' | 'm' | 't' | 'w' | 'r' | 'f' | 'a'
-//                       // represents days of the week from Sunday to Saturday
+//                      // Represents days of the week from Sunday to Saturday.
 //
 // <HCODE_LIST> ::= <HCODE> | <HCODE> <HCODE_LIST>
 //
 // <HCODE>      ::= 'A' | 'B' | 'C' | 'D' | 'E'
-//                    // represents unique but otherwise arbitrary holidaycodes
+//                      // Represents unique but otherwise arbitrary
+//                      // holidaycodes.
 //
 // These functions enables the explict specification of dates representing the
 // first and last date in a calendar, holiday dates, and weekend-days

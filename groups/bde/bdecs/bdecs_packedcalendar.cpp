@@ -48,10 +48,10 @@ void addDayImp(bdet_Date        *firstDate,
 int numWeekendDaysInRangeImp(const bdet_Date&         firstDate,
                              const bdet_Date&         endDate,
                              const bdec_DayOfWeekSet& weekendDays)
-// Return the number of days in the range starting from the specified
-// 'firstDate' to the date immediately before 'endDate' whoes day-of-week are
-// in the specified 'weekendDays' set.  Note that this function returns 0 if
-// 'endDate < firstDate'.
+    // Return the number of days in the range starting from the specified
+    // 'firstDate' to the date immediately before the specified 'endDate' whoes
+    // day-of-week are in the specified 'weekendDays' set.  Note that this
+    // function returns 0 if 'endDate < firstDate'.
 {
     const int len = firstDate < endDate ? endDate - firstDate : 0;
 
@@ -101,8 +101,9 @@ typedef bsl::vector<bsl::pair<bdet_Date, bdec_DayOfWeekSet> > WTransitions;
 void intersectWeekendDaysTransitions(WTransitions        *result,
                                      const WTransitions&  lhs,
                                      const WTransitions&  rhs)
-// Load, into the specified 'result', the intersection of the specified 'lhs'
-// weekend-days transitions and the specified 'rhs' weekend-days transitions.
+    // Load, into the specified 'result', the intersection of the specified
+    // 'lhs' weekend-days transitions and the specified 'rhs' weekend-days
+    // transitions.
 {
     if (lhs.empty() || rhs.empty()) {
         return;
@@ -253,6 +254,17 @@ const bdecs_PackedCalendar::WeekendDaysTransition& getEmptyTransition()
     // transition having a start date of 1/1/1 and an empty set of weekend
     // days.
 {
+
+    // static bdecs_PackedCalendar::WeekendDaysTransition *transitionPtr = 0;
+
+    // BCEMT_ONCE_DO {
+    //     static bdecs_PackedCalendar::WeekendDaysTransition
+    //                          transition(bdet_Date(1,1,1), bdec_DayOfWeekSet());
+    //     transitionPtr = &transition;
+    // }
+
+    // return *transitionPtr;
+
     static bdecs_PackedCalendar::WeekendDaysTransition
                              transition(bdet_Date(1,1,1), bdec_DayOfWeekSet());
     return transition;
@@ -1529,18 +1541,13 @@ bool bdecs_PackedCalendar::isWeekendDay(const bdet_Date& date) const
                                          WeekendDaysTransition(date, dummySet),
                                          WeekendDaysTransitionLess());
 
-    if (it == d_weekendDaysTransitions.begin()) {
 
-        // The specified 'date' is prior to the first weekend-days transition
-        // (this shouldn't happen because the default transition is always at
-        // 1/1/1).
+    // The specified 'date' should never be prior to the first weekend-days
+    // transition, which is always at 1/1/1.
+    BSLS_ASSERT_OPT(it != d_weekendDaysTransitions.begin());
 
-        return false;
-    }
-    else {
-        --it;
-        return it->second.isMember(date.dayOfWeek());
-    }
+    --it;
+    return it->second.isMember(date.dayOfWeek());
 }
 
             // --------------------------------------------------------------

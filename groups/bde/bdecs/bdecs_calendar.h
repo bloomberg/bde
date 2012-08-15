@@ -78,29 +78,29 @@ BDES_IDENT("$Id: $")
 ///Weekend-Days Transitions
 ///------------------------
 // A calendar maintains a sequence of weekend-days transitions that allows it
-// to represent a calendar whoes weekend days have changed over time.  For
-// example, Bangladesh's weekend days was Friday until 1997/6/1 when the
-// weekend days was changed to Friday and Saturday.  The country's weekend days
-// was changed back to only Friday from 2001/10/1 and was changed again to
-// Friday and Saturday since 2005/9/9.  A calendar may represent this with a
-// sequence of four weekend-days transitions: (1) Friday with a start date of
-// 1/1/1 (default transition), (2) Friday and Saturday with a start date of
-// 1997/6/1, (3) Friday with start date of 2001/10/1, and (4) Friday and
-// Saturday with a start date of 2005/9/9.
-//
-// The start date of a weekend-days transition determines the date at which the
-// transition's associated set of weekend days starts to takes effect -- the
-// calendar determines a date is a weekend day if the date's day of the week is
-// contained in the set of weekend days of the weekend-days transition having
-// the nearest start date on or prior to the date in question.
+// to represent a calendar whose weekend days have changed over time.  For
+// example, Bangladesh's weekend consists of Friday until June 1, 1997 when
+// Bangladesh changed its weekends to be both Friday and Saturday.  Later, on
+// October 1, 2001 Bangladesh reverted to a weekend of only Friday, until on
+// September 9, 2009 Bangladesh again changed its weekends to be both Friday
+// and Saturday.  A calendar may represent this with a sequence of four
+// weekend-days transitions: (1) a (default) transition on January 1, 0001
+// having a weekend day set containing only Friday, (2) a transition at June 1,
+// 1997 having a weekend day set containing Friday and Saturday, (3) a
+// transition at October 1, 2001 having a weekend day set containing only
+// Friday, and (4) a transition at September 9, 2009 having a weekend day set
+// containing Friday and Saturday.  The start date of a weekend-days transition
+// determines the date at which the transition's associated set of weekend days
+// takes effect.
 //
 // On construction, a calendar contains a single default weekend-day transition
-// having a start date of 1/1/1.  The 'addWeekendDay' and 'addWeekendDays'
-// methods add days of the weeks to the weekend-days transition at 1/1/1.  The
-// 'addWeekendDaysTransition' method can be used to add a new weekend-day
-// transition.  Note that, 'addWeekendDay' and 'addWeekendDays' methods are
-// convenient ways to define the weekend days of a calendar for which the day
-// of the week considered to be weekend days always stays the same.
+// having a start date of January 1, 0001.  The 'addWeekendDay' and
+// 'addWeekendDays' methods update the set of weekend days at the default
+// transition on January 1, 0001.  The 'addWeekendDaysTransition' method can be
+// used to add a new weekend-day transition.  Note that, 'addWeekendDay' and
+// 'addWeekendDays' methods are convenient ways to define the weekend days of a
+// calendar for which the days of the week considered to be weekend days is
+// always the same.
 //
 ///Nested Iterators
 ///----------------
@@ -1259,9 +1259,9 @@ template <class STREAM>
 STREAM& bdecs_Calendar::bdexStreamIn(STREAM& stream, int version)
 {
 
-    // The 'bdesc_Calendar' delegates its streaming operations to
-    // 'bdecs_PackedCalendar' because both types can represent the exact same
-    // set of mathematical values.
+    // The 'bdesc_Calendar' delegates its streaming operations (and the format
+    // version) to 'bdecs_PackedCalendar' as both types can represent the exact
+    // same set of mathematical values.
 
     if (stream) {
 
@@ -1291,9 +1291,9 @@ template <class STREAM>
 STREAM& bdecs_Calendar::bdexStreamOut(STREAM& stream, int version) const
 {
 
-    // The 'bdesc_Calendar' delegates its streaming operations to
-    // 'bdecs_PackedCalendar' because both types can represent the exact same
-    // set of mathematical values.
+    // The 'bdesc_Calendar' delegates its streaming operations (and the format
+    // version) to 'bdecs_PackedCalendar' as both types can represent the exact
+    // same set of mathematical values.
 
     if (version <= maxSupportedBdexVersion()) {
         d_packedCalendar.bdexStreamOut(stream, version);

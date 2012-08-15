@@ -32,7 +32,8 @@ void bdecs_Calendar::synchronizeCache()
         d_nonBusinessDays.set1(*it - d_packedCalendar.firstDate());
     }
 
-    // Update 'd_nonBusinessDays' with weekend days info.
+    // Update 'd_nonBusinessDays' with weekend days information from
+    // 'd_packedCalendar'.
 
     bdecs_PackedCalendar::WeekendDaysTransitionConstIterator nextTransIt
                               = d_packedCalendar.beginWeekendDaysTransitions();
