@@ -38,10 +38,22 @@ BSLS_IDENT("$Id: $")
 // copyable.
 //
 // A 'list' meets the requirements of a sequence container with bidirectional
-// iterators in the C++ standard.  The 'list' implemented here adheres to the
-// C++0x draft standard, except that it does not have interfaces that take
-// rvalue references or 'initializer_lists' and it limits variadic argument
-// lists to 5 arguments.
+// iterators in the C++ standard [23.3].  The 'list' implemented here adheres
+// to the C++11 standard, except that it does not have interfaces that take
+// rvalue references, 'initializer_lists', 'emplace', or operations taking a
+// variadic number of template parameters.  Note that excluded C++11 features
+// are those that require C++11 compiler support.
+//
+///Memory Allocation
+///-----------------
+// The type supplied as a list's 'ALLOCATOR' template parameter determines how
+// that list will allocate memory.  The 'list' template supports allocators
+// meeting the requirements of the C++11 standard [17.6.3.5], in addition it
+// supports scoped-allocators derived from the 'bslma::Allocator' memory
+// allocation protocol.  Clients intending to use 'bslma' style allocators
+// should use the template's default 'ALLOCATOR' type: The default type for the
+// 'ALLOCATOR' template parameter, 'bsl::allocator', provides a C++11
+// standard-compatible adapter for a 'bslma::Allocator' object.
 //
 ///Operations
 ///----------
@@ -134,33 +146,6 @@ BSLS_IDENT("$Id: $")
 //  | a.reverse()                                        | O(n)               |
 //  +----------------------------------------------------+--------------------+
 //..
-///Terminology
-///-----------
-// For convenience and consistency in describing the interfaces to
-// standard containers, a common terminology is used throughout this
-// component.  Given a container 'X' having an 'allocator_type' identical to
-// 'A' and a 'value_type' identical to 'T' and given a pointer 'p' of type
-// 'T*' and an expression 'v' of type 'T', the following terms are defined:
-//
-//: "default-insertion": Construction of a new element 'e' into 'X'.  If 'A'
-//:     is convertible from 'bslma_Allocator*', and 'T' conforms to the bslma
-//:     allocator protocol, then 'X.get_allocator().mechanism()' is passed as
-//:     the sole constructor argument to 'e'; otherwise, no arguments are
-//:     passed to the constructor of 'e'.
-//:
-//: "copy-insertion" (from 'v'): Construction of a new element 'e' into 'X'
-//:     using the constructor argument 'v'.  If 'A' is convertible from
-//:     'bslma_Allocator*', and 'T' conforms to the bslma allocator protocol,
-//:     pass 'X.get_allocator().mechanism()' as an additional (second)
-//:     constructor argument to 'e'; otherwise, construct 'e' from 'v' with no
-//:     allocator argument.
-//:
-//: "emplace-construction" (from *args*): Construction of a new element 'e'
-//:     into 'X' using zero or more constructor arguments, *args*.  If 'A' is
-//:     convertible from 'bslma_Allocator*', and 'T' conforms to the bslma
-//:     allocator protocol, pass 'X.get_allocator().mechanism()' as an
-//:     additional (final) constructor argument to 'e'; otherwise, construct
-//:     'e' from args with an allocator argument.
 //
 ///Thread Safety
 ///-------------
@@ -171,15 +156,14 @@ BSLS_IDENT("$Id: $")
 // if at least one of those operations modifies the list.  If an iterator or
 // reference to a list element is obtained in one thread, it may become
 // invalidated if the list is modified in the same or another thread, even if
-// the iterator is a 'const_iterator' or the reference is a
-// reference-to-const.
+// the iterator is a 'const_iterator' or the reference is a reference-to-const.
 //
 ///Usage
 ///-----
 // This section illustates intended usage of this component
 //
 ///Usage 1: Using push_back, erase, and iteration
-/// - - - - - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // An observatory needs to analyze the results of a sky survey.  The raw data
 // is a text file of star observations where each star is represented by a
 // tuple of three numbers: (x, y, b), where x and y represent the angular
@@ -195,24 +179,24 @@ BSLS_IDENT("$Id: $")
 //      // Representation of a star as seen through a digital telescope
 //      double d_x, d_y;     // Coordinates
 //      int    d_brightness; // Brightness on a scale of 0 to 100
-//    
+//
 //  public:
 //      Star() : d_x(0), d_y(0), d_brightness(0) { }
 //      Star(double x, double y, int b) : d_x(x), d_y(y), d_brightness(b) { }
-//    
+//
 //      // Compiler-generated copy construction, assignment, and destructor
 //      // Star(const Star&) = default;
 //      // Star& operator=(const Star&) = default;
 //      // ~Star() = default;
-//    
+//
 //      double x()       const { return d_x; }
 //      double y()       const { return d_y; }
 //      int brightness() const { return d_brightness; }
-//    
+//
 //      bool read(FILE *input);
 //          // Read x, y, and brightness from the specified 'input' file.
 //          // Return 'true' if the read succeeded and 'false' otherwise.
-//    
+//
 //      void write(FILE *output) const;
 //          // Write x, y, and brightness to the specified 'output' file
 //          // followed by a newline.
@@ -247,7 +231,7 @@ BSLS_IDENT("$Id: $")
 //  void filter(list<Star> *lst)
 //  {
 //      static const int threshold = 75;
-//    
+//
 //      list<Star>::iterator i = lst->begin();
 //      while (i != lst->end()) {
 //          if (i->brightness() < threshold) {
@@ -268,29 +252,29 @@ BSLS_IDENT("$Id: $")
 //  {
 //      FILE *input = fopen("star_data1.txt", "r");
 //      assert(input);
-//    
+//
 //      list<Star> lst;
 //      assert(lst.empty());
-//    
+//
 //      readData(&lst, input);
 //      assert(10 == lst.size());
 //      fclose(input);
-//    
+//
 //      filter(&lst);
 //      assert(4 == lst.size());
-//    
+//
 //      if (veryVerbose) {
 //          for (list<Star>::const_iterator i = lst.begin(); i != lst.end();
 //               ++i) {
 //              i->write(stdout);
 //          }
 //      }
-//    
+//
 //      return 0;
 //  }
 //..
 ///Usage 2: Using insert, splice, merge, and unique
-/// - - - - - - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // Now we want to combine the results from two star surveys into a single
 // list.  We begin by reading both lists and filtering them.  (Our test data is
 // selected so that the second data file contains 8 starts of which 3 are
@@ -300,27 +284,27 @@ BSLS_IDENT("$Id: $")
 //  {
 //      FILE *input = fopen("star_data1.txt", "r");
 //      assert(input);
-//    
+//
 //      list<Star> lst1;
 //      assert(lst1.empty());
-//    
+//
 //      readData(&lst1, input);
 //      assert(10 == lst1.size());
 //      fclose(input);
-//    
+//
 //      input = fopen("star_data2.txt", "r");
 //      assert(input);
-//    
+//
 //      list<Star> lst2;
 //      assert(lst2.empty());
-//    
+//
 //      readData(&lst2, input);
 //      assert(8 == lst2.size());
 //      fclose(input);
-//    
+//
 //      filter(&lst1);
 //      assert(4 == lst1.size());
-//    
+//
 //      filter(&lst2);
 //      assert(3 == lst2.size());
 //..
@@ -374,36 +358,36 @@ BSLS_IDENT("$Id: $")
 //              i->write(stdout);
 //          }
 //      }
-//    
+//
 //      return 0;
 //  }
 //..
 // For completeness, the implementations of the 'read', 'write', and comparison
 // functions for class 'Star' are shown below:
-//..  
+//..
 //  bool Star::read(FILE *input)
 //  {
 //      int ret = fscanf(input, "%lf %lf %d", &d_x, &d_y, &d_brightness);
 //      return 3 == ret;
 //  }
-//    
+//
 //  void Star::write(FILE *output) const
 //  {
 //      fprintf(output, "%f %f %d\n", d_x, d_y, d_brightness);
 //  }
-//    
+//
 //  bool operator==(const Star& a, const Star& b)
 //  {
 //      return a.x() == b.x()
 //          && a.y() == b.y()
 //          && a.brightness() == b.brightness();
 //  }
-//    
+//
 //  bool operator!=(const Star& a, const Star& b)
 //  {
 //      return ! (a == b);
 //  }
-//    
+//
 //  bool operator<(const Star& a, const Star& b)
 //  {
 //      if (a.x() < b.x())
@@ -478,13 +462,17 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 namespace bsl {
 
                         // =====================
                         // struct bsl::List_Node
                         // =====================
 
-template <class TYPE, class ALLOC> class list;
+template <class TYPE, class ALLOCATOR> class list;
 
 template <class TYPE>
 struct List_node {
@@ -494,14 +482,14 @@ struct List_node {
     // allocator type 'A'.  Note that an instantiation of this class for by a
     // given 'bsl::list' is independent of the allocator type.
 
-    // PUBLIC DATA TYPES
+    // PUBLIC TYPES
 
-    // In C++0x NodePtr would generalized as follows:
+    // In C++11 NodePtr would generalized as follows:
     // typedef pointer_traits<VoidPtr>::template rebind<List_node> NodePtr;
 
     typedef List_node* NodePtr;
 
-    // PUBLIC DATA MEMBERS
+    // PUBLIC DATA
     NodePtr d_prev;  // Pointer to the previous node in the list
     NodePtr d_next;  // Pointer to the next node in the list
     TYPE    d_value; // List element
@@ -544,12 +532,7 @@ class List_iterator
 {
     // Implementation of std::list::iterator
 
-    typedef typename BloombergLP::bslmf_RemoveCvq<TYPE>::Type  NcType;
-    typedef List_iterator<NcType, NODEPTR, DIFFTYPE>           NcIter;
-    typedef List_node<NcType>                                  Node;
-
-    NODEPTR d_nodeptr;
-
+    // FRIENDS
     template <class T, class A> friend class list;
     friend class List_iterator<const TYPE, NODEPTR, DIFFTYPE>;
 
@@ -557,9 +540,19 @@ class List_iterator
     friend bool operator==(List_iterator<T1, NODEP, DIFFT> a,
                            List_iterator<T2, NODEP, DIFFT> b);
 
+    // PRIVATE TYPES
+    typedef typename BloombergLP::bslmf_RemoveCvq<TYPE>::Type  NcType;
+    typedef List_iterator<NcType, NODEPTR, DIFFTYPE>           NcIter;
+    typedef List_node<NcType>                                  Node;
+
+    // DATA
+    NODEPTR d_nodeptr;
+
+    // PRIVATE FUNCTIONS
     NcIter unconst() const { return NcIter(d_nodeptr); }
 
   public:
+    // PUBLIC TYPES
     typedef std::bidirectional_iterator_tag iterator_category;
     typedef NcType                          value_type;
     typedef DIFFTYPE                        difference_type;
@@ -567,9 +560,9 @@ class List_iterator
     typedef TYPE&                           reference;
 
     // CREATORS
-    List_iterator() /* = default; */;
-        // Construct a singular iterator (i.e., one that cannot be
-        // incremented, decremented, or dereferenced.
+    List_iterator();
+        // Construct a singular iterator (i.e., one that cannot be incremented,
+        // decremented, or dereferenced.
 
     explicit List_iterator(NODEPTR p);
         // Construct an iterator that references the value pointed to by the
@@ -581,8 +574,8 @@ class List_iterator
         // constructor becomes the copy constructor.  Otherwise, the copy
         // constructor is implicitly generated.
 
-    // Compiler-generated copy constructor,
-    // destructor, and assignment operators:
+    // Compiler-generated copy constructor, destructor, and assignment
+    // operators:
     // List_iterator(const List_iterator&); // Not defaulted
     //! ~List_iterator() = default;
     //! List_iterator& operator=(const List_iterator&) = default;
@@ -626,8 +619,7 @@ class List_iterator
         // is not end() and has not be invalidated).
 };
 
-// List_iterator FREE OPERATORS
-
+// FREE OPERATORS
 template <class T1, class T2, class NODEPTR, class DIFFTYPE>
 inline
 bool operator==(List_iterator<T1, NODEPTR, DIFFTYPE> a,
@@ -653,12 +645,12 @@ bool operator!=(List_iterator<T1, NODEPTR, DIFFTYPE> a,
                         // class bsl::list
                         // ===============
 
-template <class TYPE, class ALLOC = bsl::allocator<TYPE> >
+template <class TYPE, class ALLOCATOR = bsl::allocator<TYPE> >
 class list {
     // PRIVATE TYPES
     typedef List_node<TYPE>                       Node;
 
-    typedef typename allocator_traits<ALLOC>::template rebind_traits<Node>
+    typedef typename allocator_traits<ALLOCATOR>::template rebind_traits<Node>
         AllocTraits;
 
     typedef typename AllocTraits::allocator_type  NodeAlloc;
@@ -678,7 +670,7 @@ class list {
         // interface.  (A properly-optimized 'tuple' would do the job.)
 
         typedef typename AllocTraits::size_type size_type;
-        
+
         size_type d_size;
 
         explicit AllocAndSizeWrapper(const NodeAlloc& a, size_type s)
@@ -712,11 +704,11 @@ class list {
             { return a < b; }
     };
 
-    // PRIVATE DATA MEMBERS
+    // PRIVATE DATA
     NodePtr             d_sentinel;
     AllocAndSizeWrapper d_alloc_and_size;
 
-    // PRIVATE MEMBER FUNCTIONS
+    // PRIVATE FUNCTIONS
     NodeAlloc& allocator();
         // Return a modifiable reference to the allocator used to allocate
         // nodes.
@@ -764,37 +756,39 @@ class list {
         // without checking the allocator.
 
   public:
-    //typedef BloombergLP::bslalg::TypeTraitsGroupStlSequence<TYPE,ALLOC>
-    //    ListTypeTraits;
-    //BSLALG_DECLARE_NESTED_TRAITS(list, ListTypeTraits<TYPE, ALLOC>);
+    // PUBLIC TYPES
     typedef BloombergLP::bslalg::PassthroughTrait<
-                                 ALLOC,
+                                 ALLOCATOR,
                                  BloombergLP::bslalg::TypeTraitBitwiseMoveable>
             AllocatorBitwiseMoveableTrait;
 
-    BSLALG_DECLARE_NESTED_TRAITS3(list,
-          BloombergLP::bslalg::TypeTraitHasStlIterators,
-          AllocatorBitwiseMoveableTrait,
-          BloombergLP::bslalg::PassthroughTraitBslmaAllocator<ALLOC>);
-        // Declare nested type traits for this class.
+    // Declare nested type traits for this class.
 
-    // types:
-    typedef TYPE&                                           reference;
-    typedef const TYPE&                                     const_reference;
-    typedef List_iterator<TYPE,NodePtr,DiffType>            iterator;
-    typedef List_iterator<const TYPE,NodePtr,DiffType>      const_iterator;
-    typedef typename allocator_traits<ALLOC>::pointer       pointer;
-    typedef typename allocator_traits<ALLOC>::const_pointer const_pointer;
+    BSLALG_DECLARE_NESTED_TRAITS3(
+               list,
+               BloombergLP::bslalg::TypeTraitHasStlIterators,
+               AllocatorBitwiseMoveableTrait,
+               BloombergLP::bslalg::PassthroughTraitBslmaAllocator<ALLOCATOR>);
+
+    typedef TYPE&                                              reference;
+    typedef const TYPE&                                        const_reference;
+    typedef List_iterator<TYPE,NodePtr,DiffType>               iterator;
+    typedef List_iterator<const TYPE,NodePtr,DiffType>         const_iterator;
+    typedef typename allocator_traits<ALLOCATOR>::pointer      pointer;
+    typedef typename allocator_traits<ALLOCATOR>::const_pointer
+                                                               const_pointer;
 
     typedef typename AllocTraits::size_type       size_type;
     typedef typename AllocTraits::difference_type difference_type;
     typedef TYPE                                  value_type;
-    typedef ALLOC                                 allocator_type;
+    typedef ALLOCATOR                             allocator_type;
     typedef bsl::reverse_iterator<iterator>       reverse_iterator;
     typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
 
-    // 23.3.4.1 construct/copy/destroy:
-    explicit list(const ALLOC& a = ALLOC());
+    // CREATORS
+
+    // 23.3.5.2 construct/copy/destroy
+    explicit list(const ALLOCATOR& a = ALLOCATOR());
         // Construct an empty list that allocates memory using the specified
         // allocator 'a'.
 
@@ -803,19 +797,19 @@ class list {
         // default-constructed allocator.  The initial elements in the list
         // are constructed by "default-insertion" (see {Terminology}).
 
-    list(size_type n, const TYPE& value, const ALLOC& a = ALLOC());
+    list(size_type n, const TYPE& value, const ALLOCATOR& a = ALLOCATOR());
         // Construct a list using the specified allocator 'a' and insert the
         // specified 'n' number of elements created by "copy-insertion" (see
         // {Terminology}) from 'value'.
 
     template <class InputIter>
-      list(InputIter first, InputIter last, const ALLOC& a = ALLOC(),
+      list(InputIter first, InputIter last, const ALLOCATOR& a = ALLOCATOR(),
            typename BloombergLP::bslmf_EnableIf<
                !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
            >::type* = 0)
         // Construct a list using the specified allocator 'a' and insert the
         // number of elements determined by the size of the specified range
-        // '[first, last)'.  Each initial element is created by 
+        // '[first, last)'.  Each initial element is created by
         // "copy-insertion" (see {Terminology}) from the corresponding element
         // in '[first, last)'.  Does not participate in overload resolution
         // unless 'InputIter' is an iterator type.  The behavior is undefined
@@ -846,20 +840,20 @@ class list {
     }
 
     list(const list& x);
-        // Construct a copy of the specified list 'x'.  If 'ALLOC' is
+        // Construct a copy of the specified list 'x'.  If 'ALLOCATOR' is
         // convertible from 'bslma_Allocator*', then the resulting list will
         // use the default allocator; otherwise, the resulting list will use a
         // copy of 'x.get_allocator()'.  Each element in the resulting list is
         // constructed by "copy-insertion" (see {Terminology}) from the
         // corresponding element in 'x'.
 
-    list(const list&, const ALLOC& a);
+    list(const list&, const ALLOCATOR& a);
         // Construct a copy of the specified list 'x' using a copy of the
         // specified allocator 'a'.  Each element in the resulting list is
         // constructed by "copy-insertion" (See {Terminology}) from the
         // corresponding element in 'x'.
 
-#ifdef BDE_CXX0X_RVALUES
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     list(list&& x);
         // Construct a new list using the contents and allocator from the
         // specified list 'x'.  No copy or move constructors are called for
@@ -867,7 +861,7 @@ class list {
         // valid, but unspecified.  Note that this constructor may allocate
         // memory and may, therfore, throw an allocation-related exception.
 
-    list(list&& x, const ALLOC& a);
+    list(list&& x, const ALLOCATOR& a);
         // Construct a new list using the contents from the specified list 'x'
         // and using a copy of the specified allocator 'a'.  If 'a ==
         // a.get_allocator()', then no copy or move constructors are called
@@ -876,9 +870,7 @@ class list {
         // the corresponding element in 'x'.  After the construction, the
         // value of 'x' is valid, but unspecified.
 
-#endif // BDE_CXX0X_RVALUES
-
-//    list(initializer_list<TYPE>, const ALLOC& = ALLOC());
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
     ~list();
         // Destroy this list by calling the destructor for each element and
@@ -890,7 +882,7 @@ class list {
         // copy-assigned or copy-inserted from the corresponding element of
         // 'x'.
 
-#ifdef BDE_CXX0X_RVALUES
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     list& operator=(list&& x);
         // Replace the elements of this list with the elements or copies of
         // the elements of the specified list 'x'.  If 'x.get_allocator() ==
@@ -900,9 +892,9 @@ class list {
         // {Terminology}) from the corresponding element of 'x'.  After the
         // construction, the value of 'x' is valid, but unspecified.
 
-#endif // BDE_CXX0X_RVALUES
-//    list& operator=(initializer_list<TYPE>);
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
+    // MANIPULATORS
     template <class InputIter>
     void assign(InputIter first, InputIter last,
                 typename BloombergLP::bslmf_EnableIf<
@@ -948,113 +940,8 @@ class list {
         // either copy-assignment or "copy-insertion" (See {Terminology}) from
         // 't'.
 
-//  void assign(initializer_list<TYPE>);
-
-    allocator_type get_allocator() const;
-        // Return a copy of the allocator used for memory allocation by this
-        // list.
-
-    // iterators:
-    iterator begin();
-        // Return a mutating iterator pointing to the first element in the
-        // list, if any, or one past the end of the list if the list is empty.
-
-    const_iterator begin() const;
-        // Return a non-mutating iterator pointing to the first element in the
-        // list, if any, or one past the end of the list if the list is empty.
-
-    iterator end();
-        // Return a mutating iterator pointing one past the end of the list.
-
-    const_iterator end() const;
-        // Return a non-mutating iterator pointing one past the end of the list.
-
-    reverse_iterator rbegin();
-        // Return  a mutating reverse iterator pointing to the last element
-        // of the list (i.e., the first element of the reverse sequence), if
-        // any, or one before the start if the list is empty.
-
-    const_reverse_iterator rbegin() const;
-        // Return  a const reverse iterator pointing to the last element
-        // of the list (i.e., the first element of the reverse sequence), if
-        // any, or one before the start if the list is empty.
-
-    reverse_iterator rend();
-        // Return a mutating reverse iterator pointing one before the start of
-        // the list.
-
-    const_reverse_iterator rend() const;
-        // Return a const reverse iterator pointing one before the start of
-        // the list.
-
-    const_iterator cbegin() const;
-        // Return a non-mutating iterator pointing to the first element in the
-        // list, if any, or one past the end of the list if the list is empty.
-
-    const_iterator cend() const;
-        // Return a non-mutating iterator pointing one past the end of the
-        // list.
-
-    const_reverse_iterator crbegin() const;
-        // Return  a const reverse iterator pointing to the last element
-        // of the list (i.e., the first element of the reverse sequence), if
-        // any, or one before the start if the list is empty.
-
-    const_reverse_iterator crend() const;
-        // Return a const reverse iterator pointing one before the start of
-        // the list.
-
-    // 23.3.4.2 capacity:
-    bool empty() const;
-        // Return true if the list has no elements and false otherwise.
-
-    size_type size() const;
-        // Return the number of elements in this list.
-
-    size_type max_size() const;
-        // Return an upper bound on the largest number of elements that this
-        // list could possibly hold.  Note that return value of this function
-        // does not guarantee that the list can succesfully grow that large,
-        // or even close to that large without running out of resources.
-
-    void resize(size_type sz);
-        // Resize this list to the specified 'sz' elements.  If 'sz' is less
-        // than or equal to the previous size of this list, then erase the
-        // excess elements from the end.  Otherwise, append additional
-        // elements to the end using "default-insertion" (see {Terminology})
-        // until there are a total of 'sz' elements.
-
-    void resize(size_type sz, const TYPE& c);
-        // Resize this list to the specified 'sz' elements, with added
-        // elements being copies of the specified value 'c'.  If 'sz' is less
-        // than or equal to the previous size of this list, then erase the
-        // excess elements from the end.  Otherwise, append additional
-        // elements to the end using "copy-insertion" (see {Terminology}) from
-        // 'c' until there are a total of 'sz' elements.
-
-    // element access:
-    reference front();
-        // Return a modifiable reference to the first element of this list.
-        // The behavior is undefined unless this list contains at least one
-        // element.
-
-    const_reference front() const;
-        // Return a non-modifiable reference to the first element of this list.
-        // The behavior is undefined unless this list contains at least one
-        // element.
-
-    reference back();
-        // Return a modifiable reference to the last element of this list.
-        // The behavior is undefined unless this list contains at least one
-        // element.
-
-    const_reference back() const;
-        // Return a non-modifiable reference to the last element of this list.
-        // The behavior is undefined unless this list contains at least one
-        // element.
-
-    // 23.3.4.3 modifiers:
-#ifdef BDE_CXX0X_VARIADIC_TEMPLATES
+    // 23.3.5.4 modifiers
+#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
     template <class... Args>
     void emplace_front(Args&&... args);
         // Insert a new element at the front of this list and construct it
@@ -1096,7 +983,7 @@ class list {
         // Remove and destroy the first element of this list.  The behavior is
         // undefined unless this list contains at least one element.
 
-#ifdef BDE_CXX0X_VARIADIC_TEMPLATES
+#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
     template <class... Args>
     void emplace_back(Args&&... args);
         // Insert a new element at the back of this list and construct it
@@ -1147,7 +1034,7 @@ class list {
         // Append a new element to the end of this list using
         // "copy-insertion" (see {Terminology}) from the specified value 'x'.
 
-#ifdef BDE_CXX0X_VARIADIC_TEMPLATES
+#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
     template <class... Args>
     iterator emplace(const_iterator position, Args&&... args);
         // Insert a new element into this list before the element at the
@@ -1225,49 +1112,222 @@ class list {
         return ret;
     }
 
-//  iterator insert(const_iterator position, initializer_list<TYPE> il);
-
-#ifdef BDE_CXX0X_RVALUES
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     void push_front(TYPE&& x);
     void push_back(TYPE&& x);
     iterator insert(const_iterator position, TYPE&& x);
-#endif // BDE_CXX0X_RVALUES
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
     iterator erase(const_iterator position);
+        // Remove from this list the element at the specified 'position', and
+        // return an iterator pointing to the element immediately following the
+        // removed element, or to the position returned by the 'end' method if
+        // the removed element was the last in the sequence.  The behavior is
+        // undefined unless 'position' is an iterator in the range
+        // '[ begin(), end() )'.
+
     iterator erase(const_iterator position, const_iterator last);
+        // Remove from this list the elements starting at the specified
+        // 'first' position that are before the specified 'last' position, and
+        // return an iterator pointing to the element immediately following the
+        // last removed element, or the position returned by the method 'end'
+        // if the removed elements were last in the sequence.  The behavior is
+        // undefined unless 'first' is an iterator in the range
+        // '[ begin(), end() ]' and 'last' is an iterator in the range
+        // '[ first, end() ]' (both endpoints included).
 
-    void swap(list&);
+    void swap(list& other);
+        // Exchange the value of this list with that of the specified 'other'
+        // list, such that each list has, upon return, the value of the other
+        // list prior to this call.  This method does not throw or invalidate
+        // iterators if 'get_allocator', invoked on this list and 'other',
+        // returns the same value.
+
     void clear();
+        // Remove all the elements from this list.
 
-    // 23.3.4.4 list operations:
     void splice(const_iterator position, list& x);
+        // Insert elements of the specified list 'x' before the element at the
+        // specified 'position' of this list, and remove those elements from
+        // 'x'.  The behavior is undefined unless 'x' is not this list.
+
     void splice(const_iterator position, list& x, const_iterator i);
-    void splice(const_iterator position, list& x,
-                const_iterator first, const_iterator last);
-#ifdef BDE_CXX0X_RVALUES
+        // Insert the element at the specified 'i' position before the element
+        // at the specified 'position' of this list, and remove this element
+        // from the specified list 'x'.  The behavior is undefined unless 'i'
+        // refers to a valid element in 'x'.
+
+    void splice(const_iterator position,
+                list& x,
+                const_iterator first,
+                const_iterator last);
+        // Insert the elements starting at the specified 'first' position and
+        // before the specified 'last' position into this list, right before
+        // the element at the specified 'position', and remove those elements
+        // from the specified list 'x'.  The behavior is undefined unless
+        // '[first, last)' represents a range of valid elements in 'x', and
+        // 'position' is not in the range '[first, last)'.
+
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     void splice(const_iterator position, list&& x);
     void splice(const_iterator position, list&& x, const_iterator i);
-    void splice(const_iterator position, list&& x,
-                const_iterator first, const_iterator last);
-#endif // BDE_CXX0X_RVALUES
+    void splice(const_iterator position,
+                list&& x,
+                const_iterator first,
+                const_iterator last);
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
     void remove(const TYPE& value);
-    template <class Pred> void remove_if(Pred pred);
+        // Erase all the elements having the specified 'value' from this list.
+
+    template <class Predicate>
+    void remove_if(Predicate pred);
+        // Erase from the list all the elements that are not predicted 'false'
+        // by the specified predicate 'pred'.
+
     void unique();
+        // Erase from this list all but the first element of every consecutive
+        // group of elements that have the same value.
+
     template <class EqPredicate>
     void unique(EqPredicate binary_pred);
-#ifdef BDE_CXX0X_RVALUES
+        // Erase from this list all but the first element of every consecutive
+        // group of elements that have the specified 'binary_pred' predicates
+        // 'true' for any two consecutive elements in the group.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     void merge(list&& x);
     template <class COMPARE>
-      void merge(list&& x, COMPARE comp);
-#endif // BDE_CXX0X_RVALUES
+    void merge(list&& x, COMPARE comp);
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     void merge(list& x);
+        // Merge the specified sorted list 'x' into this sorted list.  The
+        // method has no effect if 'x' is this list.  The behavior is undefined
+        // unless both 'x' and this list are sorted in non-decreasing order
+        // according to the ordering returned by 'operator<'.
+
     template <class COMPARE>
-      void merge(list& x, COMPARE comp);
+    void merge(list& x, COMPARE comp);
+        // Merge the specified sorted list 'x' into this sorted list, using the
+        // specified 'comp', which defines a strict weak ordering, to order
+        // elements.  The method has no effect if 'x' is this list.  The
+        // behavior is undefined unless both 'x' and this list are sorted in
+        // non-decreasing order according to the ordering returned by 'comp'.
+
     void sort();
+        // Sort this list in non-decreasing order according to the orders
+        // returned by 'operator<'.
+
     template <class COMPARE>
-      void sort(COMPARE comp);
+    void sort(COMPARE comp);
+        // Sort this list in non-decreasing order according to the orders
+        // returned by the specified 'comp' comparator.
+
     void reverse();
+        // Reverse the order of the elements in this list.
+
+    // ACCESSORS
+    allocator_type get_allocator() const;
+        // Return a copy of the allocator used for memory allocation by this
+        // list.
+
+    iterator begin();
+        // Return a mutating iterator pointing to the first element in the
+        // list, if any, or one past the end of the list if the list is empty.
+
+    const_iterator begin() const;
+        // Return a non-mutating iterator pointing to the first element in the
+        // list, if any, or one past the end of the list if the list is empty.
+
+    iterator end();
+        // Return a mutating iterator pointing one past the end of the list.
+
+    const_iterator end() const;
+        // Return a non-mutating iterator pointing one past the end of the list.
+
+    reverse_iterator rbegin();
+        // Return  a mutating reverse iterator pointing to the last element
+        // of the list (i.e., the first element of the reverse sequence), if
+        // any, or one before the start if the list is empty.
+
+    const_reverse_iterator rbegin() const;
+        // Return  a const reverse iterator pointing to the last element
+        // of the list (i.e., the first element of the reverse sequence), if
+        // any, or one before the start if the list is empty.
+
+    reverse_iterator rend();
+        // Return a mutating reverse iterator pointing one before the start of
+        // the list.
+
+    const_reverse_iterator rend() const;
+        // Return a const reverse iterator pointing one before the start of
+        // the list.
+
+    const_iterator cbegin() const;
+        // Return a non-mutating iterator pointing to the first element in the
+        // list, if any, or one past the end of the list if the list is empty.
+
+    const_iterator cend() const;
+        // Return a non-mutating iterator pointing one past the end of the
+        // list.
+
+    const_reverse_iterator crbegin() const;
+        // Return  a const reverse iterator pointing to the last element
+        // of the list (i.e., the first element of the reverse sequence), if
+        // any, or one before the start if the list is empty.
+
+    const_reverse_iterator crend() const;
+        // Return a const reverse iterator pointing one before the start of
+        // the list.
+
+    // 23.3.5.3 capacity
+    bool empty() const;
+        // Return true if the list has no elements and false otherwise.
+
+    size_type size() const;
+        // Return the number of elements in this list.
+
+    size_type max_size() const;
+        // Return an upper bound on the largest number of elements that this
+        // list could possibly hold.  Note that return value of this function
+        // does not guarantee that the list can succesfully grow that large,
+        // or even close to that large without running out of resources.
+
+    void resize(size_type sz);
+        // Resize this list to the specified 'sz' elements.  If 'sz' is less
+        // than or equal to the previous size of this list, then erase the
+        // excess elements from the end.  Otherwise, append additional
+        // elements to the end using "default-insertion" (see {Terminology})
+        // until there are a total of 'sz' elements.
+
+    void resize(size_type sz, const TYPE& c);
+        // Resize this list to the specified 'sz' elements, with added
+        // elements being copies of the specified value 'c'.  If 'sz' is less
+        // than or equal to the previous size of this list, then erase the
+        // excess elements from the end.  Otherwise, append additional
+        // elements to the end using "copy-insertion" (see {Terminology}) from
+        // 'c' until there are a total of 'sz' elements.
+
+    reference front();
+        // Return a modifiable reference to the first element of this list.
+        // The behavior is undefined unless this list contains at least one
+        // element.
+
+    const_reference front() const;
+        // Return a non-modifiable reference to the first element of this list.
+        // The behavior is undefined unless this list contains at least one
+        // element.
+
+    reference back();
+        // Return a modifiable reference to the last element of this list.
+        // The behavior is undefined unless this list contains at least one
+        // element.
+
+    const_reference back() const;
+        // Return a non-modifiable reference to the last element of this list.
+        // The behavior is undefined unless this list contains at least one
+        // element.
 
   private:
     // These private functions cannot be declared until 'const_iterator'
@@ -1303,22 +1363,33 @@ class list {
 };
 
 // FREE OPERATORS
-template <class TYPE, class ALLOC> inline
-  bool operator==(const list<TYPE,ALLOC>& x, const list<TYPE,ALLOC>& y);
-template <class TYPE, class ALLOC> inline
-  bool operator< (const list<TYPE,ALLOC>& x, const list<TYPE,ALLOC>& y);
-template <class TYPE, class ALLOC> inline
-  bool operator!=(const list<TYPE,ALLOC>& x, const list<TYPE,ALLOC>& y);
-template <class TYPE, class ALLOC> inline
-  bool operator> (const list<TYPE,ALLOC>& x, const list<TYPE,ALLOC>& y);
-template <class TYPE, class ALLOC> inline
-  bool operator>=(const list<TYPE,ALLOC>& x, const list<TYPE,ALLOC>& y);
-template <class TYPE, class ALLOC> inline
-  bool operator<=(const list<TYPE,ALLOC>& x, const list<TYPE,ALLOC>& y);
+template <class TYPE, class ALLOCATOR> inline
+bool operator==(const list<TYPE, ALLOCATOR>& x,
+                const list<TYPE, ALLOCATOR>& y);
 
-// SPECIALIZED ALGORITHMS:
-template <class TYPE, class ALLOC>
-  void swap(list<TYPE,ALLOC>& x, list<TYPE,ALLOC>& y);
+template <class TYPE, class ALLOCATOR> inline
+bool operator< (const list<TYPE, ALLOCATOR>& x,
+                const list<TYPE, ALLOCATOR>& y);
+
+template <class TYPE, class ALLOCATOR> inline
+bool operator!=(const list<TYPE, ALLOCATOR>& x,
+                const list<TYPE, ALLOCATOR>& y);
+
+template <class TYPE, class ALLOCATOR> inline
+bool operator> (const list<TYPE, ALLOCATOR>& x,
+                const list<TYPE, ALLOCATOR>& y);
+
+template <class TYPE, class ALLOCATOR> inline
+bool operator>=(const list<TYPE, ALLOCATOR>& x,
+                const list<TYPE, ALLOCATOR>& y);
+
+template <class TYPE, class ALLOCATOR> inline
+bool operator<=(const list<TYPE, ALLOCATOR>& x,
+                const list<TYPE, ALLOCATOR>& y);
+
+// SPECIALIZED ALGORITHMS
+template <class TYPE, class ALLOCATOR>
+void swap(list<TYPE, ALLOCATOR>& x, list<TYPE, ALLOCATOR>& y);
 
 }  // close namespace bsl
 
@@ -1399,7 +1470,7 @@ bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>::operator->() const
 
 template <class TYPE, class NODEPTR, class DIFFTYPE>
 inline
-bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>& 
+bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>&
 bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>::operator++()
 {
     this->d_nodeptr = this->d_nodeptr->d_next;
@@ -1408,7 +1479,7 @@ bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>::operator++()
 
 template <class TYPE, class NODEPTR, class DIFFTYPE>
 inline
-bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>& 
+bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>&
 bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>::operator--()
 {
     this->d_nodeptr = this->d_nodeptr->d_prev;
@@ -1417,7 +1488,7 @@ bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>::operator--()
 
 template <class TYPE, class NODEPTR, class DIFFTYPE>
 inline
-bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE> 
+bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>
 bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>::operator++(int)
 {
     List_iterator temp = *this;
@@ -1427,7 +1498,7 @@ bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>::operator++(int)
 
 template <class TYPE, class NODEPTR, class DIFFTYPE>
 inline
-bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE> 
+bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>
 bsl::List_iterator<TYPE, NODEPTR, DIFFTYPE>::operator--(int)
 {
     List_iterator temp = *this;
@@ -1461,73 +1532,74 @@ bool bsl::operator!=(List_iterator<T1,NODEPTR,DIFFTYPE> a,
 
 namespace bsl {
 
-// PRIVATE MEMBER FUNCTIONS
-template <class TYPE, class ALLOC>
+// PRIVATE FUNCTIONS
+template <class TYPE, class ALLOCATOR>
 inline
-typename list<TYPE,ALLOC>::NodeAlloc& list<TYPE,ALLOC>::allocator()
+typename list<TYPE, ALLOCATOR>::NodeAlloc& list<TYPE, ALLOCATOR>::allocator()
 {
     return d_alloc_and_size;  // Implicit cast to base class
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-const typename list<TYPE,ALLOC>::NodeAlloc&
-list<TYPE,ALLOC>::allocator() const
+const typename list<TYPE, ALLOCATOR>::NodeAlloc&
+list<TYPE, ALLOCATOR>::allocator() const
 {
     return d_alloc_and_size;  // Implicit cast to base class
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-typename list<TYPE,ALLOC>::NodePtr list<TYPE,ALLOC>::head() const
+typename list<TYPE, ALLOCATOR>::NodePtr list<TYPE, ALLOCATOR>::head() const
 {
     return d_sentinel->d_next;
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-typename list<TYPE,ALLOC>::AllocTraits::size_type& list<TYPE,ALLOC>::size_ref()
+typename list<TYPE, ALLOCATOR>::AllocTraits::size_type&
+list<TYPE, ALLOCATOR>::size_ref()
 {
     return d_alloc_and_size.d_size;
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-const typename list<TYPE,ALLOC>::AllocTraits::size_type&
-list<TYPE,ALLOC>::size_ref() const
+const typename list<TYPE, ALLOCATOR>::AllocTraits::size_type&
+list<TYPE, ALLOCATOR>::size_ref() const
 {
     return d_alloc_and_size.d_size;
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-typename list<TYPE,ALLOC>::NodePtr list<TYPE,ALLOC>::allocate_node()
+typename list<TYPE, ALLOCATOR>::NodePtr list<TYPE, ALLOCATOR>::allocate_node()
 {
     NodePtr ret = AllocTraits::allocate(allocator(), 1);
     ret->init();
     return ret;
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-void list<TYPE,ALLOC>::free_node(NodePtr np)
+void list<TYPE, ALLOCATOR>::free_node(NodePtr np)
 {
     np->deinit();
     AllocTraits::deallocate(allocator(), np, 1);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-void list<TYPE,ALLOC>::link_nodes(NodePtr prev, NodePtr next)
+void list<TYPE, ALLOCATOR>::link_nodes(NodePtr prev, NodePtr next)
 {
     prev->d_next = next;
     next->d_prev = prev;
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::insert_node(const_iterator position, NodePtr node)
+typename list<TYPE, ALLOCATOR>::iterator
+list<TYPE, ALLOCATOR>::insert_node(const_iterator position, NodePtr node)
 {
     typename AllocTraits::pointer next = position.d_nodeptr;
     typename AllocTraits::pointer prev = next->d_prev;
@@ -1537,27 +1609,27 @@ list<TYPE,ALLOC>::insert_node(const_iterator position, NodePtr node)
     return iterator(node);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-void list<TYPE,ALLOC>::create_sentinel()
+void list<TYPE, ALLOCATOR>::create_sentinel()
 {
     d_sentinel = allocate_node();
     link_nodes(d_sentinel, d_sentinel);  // circular
     size_ref() = 0;
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-void list<TYPE,ALLOC>::destroy_all()
+void list<TYPE, ALLOCATOR>::destroy_all()
 {
     clear();
     free_node(d_sentinel);
     size_ref() = size_type(-1);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-void list<TYPE,ALLOC>::quick_swap(list& other)
+void list<TYPE, ALLOCATOR>::quick_swap(list& other)
 {
     NodePtr tmpSentinel = d_sentinel;
     d_sentinel = other.d_sentinel;
@@ -1570,14 +1642,14 @@ void list<TYPE,ALLOC>::quick_swap(list& other)
 
 // CREATORS
 
-// 23.3.4.1 construct/copy/destroy:
-template <class TYPE, class ALLOC>
-list<TYPE,ALLOC>::list(const ALLOC& a)
+// 23.3.5.2 construct/copy/destroy
+template <class TYPE, class ALLOCATOR>
+list<TYPE, ALLOCATOR>::list(const ALLOCATOR& a)
     : d_alloc_and_size(a, 0) { create_sentinel(); }
 
-template <class TYPE, class ALLOC>
-list<TYPE,ALLOC>::list(size_type n)
-    : d_alloc_and_size(ALLOC(), size_type(-1))
+template <class TYPE, class ALLOCATOR>
+list<TYPE, ALLOCATOR>::list(size_type n)
+    : d_alloc_and_size(ALLOCATOR(), size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
     list tmp(allocator());
@@ -1592,8 +1664,8 @@ list<TYPE,ALLOC>::list(size_type n)
     quick_swap(tmp);  // Leave 'tmp' in an invalid but destructible state.
 }
 
-template <class TYPE, class ALLOC>
-list<TYPE,ALLOC>::list(size_type n, const TYPE& value, const ALLOC& a)
+template <class TYPE, class ALLOCATOR>
+list<TYPE, ALLOCATOR>::list(size_type n, const TYPE& value, const ALLOCATOR& a)
     : d_alloc_and_size(a, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
@@ -1602,8 +1674,8 @@ list<TYPE,ALLOC>::list(size_type n, const TYPE& value, const ALLOC& a)
     quick_swap(tmp);  // Leave 'tmp' in an invalid but destructible state.
 }
 
-template <class TYPE, class ALLOC>
-list<TYPE,ALLOC>::list(const list& x)
+template <class TYPE, class ALLOCATOR>
+list<TYPE, ALLOCATOR>::list(const list& x)
     : d_alloc_and_size(
        AllocTraits::select_on_container_copy_construction(x.allocator()),
        size_type(-1))
@@ -1614,9 +1686,9 @@ list<TYPE,ALLOC>::list(const list& x)
     quick_swap(tmp);  // Leave 'tmp' in an invalid but destructible state.
 }
 
-#ifdef BDE_CXX0X_RVALUES
-template <class TYPE, class ALLOC>
-list<TYPE,ALLOC>::list(list&& x)
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template <class TYPE, class ALLOCATOR>
+list<TYPE, ALLOCATOR>::list(list&& x)
     // Allocator should be copied, not moved, to ensure identical allocators
     // between this and 'x', otherwise 'swap' will be undefined.
     : d_alloc_and_size(x.allocator(), 0)
@@ -1624,10 +1696,10 @@ list<TYPE,ALLOC>::list(list&& x)
     create_sentinel();
     quick_swap(x);
 }
-#endif // BDE_CXX0X_RVALUES
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-template <class TYPE, class ALLOC>
-list<TYPE,ALLOC>::list(const list& x, const ALLOC& a)
+template <class TYPE, class ALLOCATOR>
+list<TYPE, ALLOCATOR>::list(const list& x, const ALLOCATOR& a)
     : d_alloc_and_size(a, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
@@ -1636,9 +1708,9 @@ list<TYPE,ALLOC>::list(const list& x, const ALLOC& a)
     quick_swap(tmp);  // Leave 'tmp' in an invalid but destructible state.
 }
 
-#ifdef BDE_CXX0X_RVALUES
-template <class TYPE, class ALLOC>
-list<TYPE,ALLOC>::list(list&& x, const ALLOC& a)
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template <class TYPE, class ALLOCATOR>
+list<TYPE, ALLOCATOR>::list(list&& x, const ALLOCATOR& a)
     : d_alloc_and_size(a, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
@@ -1653,12 +1725,10 @@ list<TYPE,ALLOC>::list(list&& x, const ALLOC& a)
         quick_swap(tmp);  // Leave 'tmp' in an invalid but destructible state.
     }
 }
-#endif // BDE_CXX0X_RVALUES
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-//    list(initializer_list<TYPE>, const ALLOC& = ALLOC());
-
-template <class TYPE, class ALLOC>
-list<TYPE,ALLOC>::~list()
+template <class TYPE, class ALLOCATOR>
+list<TYPE, ALLOCATOR>::~list()
 {
     // A size of -1 is a special incompletely-initialized or
     // destructively-moved-from state.
@@ -1667,8 +1737,8 @@ list<TYPE,ALLOC>::~list()
     }
 }
 
-template <class TYPE, class ALLOC>
-list<TYPE,ALLOC>& list<TYPE,ALLOC>::operator=(const list& x)
+template <class TYPE, class ALLOCATOR>
+list<TYPE, ALLOCATOR>& list<TYPE, ALLOCATOR>::operator=(const list& x)
 {
     if (this == &x) {
         return *this;
@@ -1696,9 +1766,9 @@ list<TYPE,ALLOC>& list<TYPE,ALLOC>::operator=(const list& x)
     return *this;
 }
 
-#ifdef BDE_CXX0X_RVALUES
-template <class TYPE, class ALLOC>
-list<TYPE,ALLOC>& list<TYPE,ALLOC>::operator=(list&& x)
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template <class TYPE, class ALLOCATOR>
+list<TYPE, ALLOCATOR>& list<TYPE, ALLOCATOR>::operator=(list&& x)
 {
     if (this == &x) {
         return *this;
@@ -1732,12 +1802,10 @@ list<TYPE,ALLOC>& list<TYPE,ALLOC>::operator=(list&& x)
 
     return *this;
 }
-#endif // BDE_CXX0X_RVALUES
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-//    list& operator=(initializer_list<TYPE>);
-
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::assign(size_type n, const TYPE& t)
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::assign(size_type n, const TYPE& t)
 {
     iterator i = this->begin();
     iterator e = this->end();
@@ -1753,112 +1821,116 @@ void list<TYPE,ALLOC>::assign(size_type n, const TYPE& t)
     }
 }
 
-//  void assign(initializer_list<TYPE>);
-
-template <class TYPE, class ALLOC>
-ALLOC list<TYPE,ALLOC>::get_allocator() const
+template <class TYPE, class ALLOCATOR>
+ALLOCATOR list<TYPE, ALLOCATOR>::get_allocator() const
 {
     return allocator();
 }
 
 // iterators:
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::iterator list<TYPE,ALLOC>::begin()
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::iterator list<TYPE, ALLOCATOR>::begin()
 {
     return iterator(head());
 }
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::const_iterator list<TYPE,ALLOC>::begin() const
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::const_iterator
+list<TYPE, ALLOCATOR>::begin() const
 {
     return const_iterator(head());
 }
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::iterator list<TYPE,ALLOC>::end()
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::iterator list<TYPE, ALLOCATOR>::end()
 {
     return iterator(d_sentinel);
 }
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::const_iterator list<TYPE,ALLOC>::end() const
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::const_iterator
+list<TYPE, ALLOCATOR>::end() const
 {
     return const_iterator(d_sentinel);
 }
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::reverse_iterator list<TYPE,ALLOC>::rbegin()
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::reverse_iterator
+list<TYPE, ALLOCATOR>::rbegin()
 {
     return reverse_iterator(end());
 }
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::const_reverse_iterator
-list<TYPE,ALLOC>::rbegin() const
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::const_reverse_iterator
+list<TYPE, ALLOCATOR>::rbegin() const
 {
     return const_reverse_iterator(end());
 }
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::reverse_iterator list<TYPE,ALLOC>::rend()
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::reverse_iterator list<TYPE, ALLOCATOR>::rend()
 {
     return reverse_iterator(begin());
 }
 
-template <class TYPE, class ALLOC>
-typename list<TYPE, ALLOC>::const_reverse_iterator
-list<TYPE, ALLOC>::rend() const
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::const_reverse_iterator
+list<TYPE, ALLOCATOR>::rend() const
 {
     return const_reverse_iterator(begin());
 }
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::const_iterator list<TYPE,ALLOC>::cbegin() const
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::const_iterator
+list<TYPE, ALLOCATOR>::cbegin() const
 {
     return begin();
 }
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::const_iterator list<TYPE,ALLOC>::cend() const
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::const_iterator
+list<TYPE, ALLOCATOR>::cend() const
 {
     return end();
 }
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::const_reverse_iterator
-list<TYPE,ALLOC>::crbegin() const
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::const_reverse_iterator
+list<TYPE, ALLOCATOR>::crbegin() const
 {
     return rbegin();
 }
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::const_reverse_iterator
-list<TYPE,ALLOC>::crend() const
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::const_reverse_iterator
+list<TYPE, ALLOCATOR>::crend() const
 {
     return rend();
 }
 
-// 23.3.4.2 capacity:
-template <class TYPE, class ALLOC>
-bool list<TYPE,ALLOC>::empty() const
+// 23.3.5.3 capacity
+template <class TYPE, class ALLOCATOR>
+bool list<TYPE, ALLOCATOR>::empty() const
 {
     return 0 == size_ref();
 }
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::size_type list<TYPE,ALLOC>::size() const
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::size_type list<TYPE, ALLOCATOR>::size() const
 {
     return size_ref();
 }
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::size_type list<TYPE,ALLOC>::max_size() const
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::size_type
+list<TYPE, ALLOCATOR>::max_size() const
 {
     return AllocTraits::max_size(allocator());
 }
 
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::resize(size_type sz)
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::resize(size_type sz)
 {
     if (sz > size()) {
         emplace_back();
@@ -1874,8 +1946,8 @@ void list<TYPE,ALLOC>::resize(size_type sz)
     }
 }
 
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::resize(size_type sz, const TYPE& c)
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::resize(size_type sz, const TYPE& c)
 {
     while (sz > size()) {
         push_back(c);
@@ -1887,202 +1959,212 @@ void list<TYPE,ALLOC>::resize(size_type sz, const TYPE& c)
 }
 
 // element access:
-template <class TYPE, class ALLOC>
-TYPE& list<TYPE,ALLOC>::front()
+template <class TYPE, class ALLOCATOR>
+TYPE& list<TYPE, ALLOCATOR>::front()
 {
     BSLS_ASSERT_SAFE(size_ref() > 0);
     return head()->d_value;
 }
 
-template <class TYPE, class ALLOC>
-const TYPE& list<TYPE,ALLOC>::front() const
+template <class TYPE, class ALLOCATOR>
+const TYPE& list<TYPE, ALLOCATOR>::front() const
 {
     BSLS_ASSERT_SAFE(size_ref() > 0);
     return head()->d_value;
 }
 
-template <class TYPE, class ALLOC>
-TYPE& list<TYPE,ALLOC>::back()
+template <class TYPE, class ALLOCATOR>
+TYPE& list<TYPE, ALLOCATOR>::back()
 {
     BSLS_ASSERT_SAFE(size_ref() > 0);
     NodePtr last = d_sentinel->d_prev;
     return last->d_value;
 }
 
-template <class TYPE, class ALLOC>
-const TYPE& list<TYPE,ALLOC>::back() const
+template <class TYPE, class ALLOCATOR>
+const TYPE& list<TYPE, ALLOCATOR>::back() const
 {
     BSLS_ASSERT_SAFE(size_ref() > 0);
     NodePtr last = d_sentinel->d_prev;
     return last->d_value;
 }
 
-// 23.3.4.3 modifiers:
-#ifdef BDE_CXX0X_VARIADIC_TEMPLATES
-template <class TYPE, class ALLOC>
+// 23.3.5.4 modifiers
+#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
+template <class TYPE, class ALLOCATOR>
     template <class... Args>
-void list<TYPE,ALLOC>::emplace_front(Args&&... args)
+void list<TYPE, ALLOCATOR>::emplace_front(Args&&... args)
 {
     emplace(begin(), std::forward<Args>(args)...);
 }
 #else
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-void list<TYPE,ALLOC>::emplace_front()
+void list<TYPE, ALLOCATOR>::emplace_front()
 {
     emplace(begin());
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
     template <class ARG1>
 inline
-void list<TYPE,ALLOC>::emplace_front(const ARG1& a1)
+void list<TYPE, ALLOCATOR>::emplace_front(const ARG1& a1)
 {
     emplace(begin(), a1);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
     template <class ARG1, class ARG2>
 inline
-void list<TYPE,ALLOC>::emplace_front(const ARG1& a1, const ARG2& a2)
+void list<TYPE, ALLOCATOR>::emplace_front(const ARG1& a1, const ARG2& a2)
 {
     emplace(begin(), a1, a2);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
     template <class ARG1, class ARG2, class ARG3>
 inline
-void list<TYPE,ALLOC>::emplace_front(const ARG1& a1, const ARG2& a2,
-                                     const ARG3& a3)
+void list<TYPE, ALLOCATOR>::emplace_front(const ARG1& a1,
+                                          const ARG2& a2,
+                                          const ARG3& a3)
 {
     emplace(begin(), a1, a2, a3);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
     template <class ARG1, class ARG2, class ARG3, class ARG4>
 inline
-void list<TYPE,ALLOC>::emplace_front(const ARG1& a1, const ARG2& a2,
-                                     const ARG3& a3, const ARG4& a4)
+void list<TYPE, ALLOCATOR>::emplace_front(const ARG1& a1,
+                                          const ARG2& a2,
+                                          const ARG3& a3,
+                                          const ARG4& a4)
 {
     emplace(begin(), a1, a2, a3, a4);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
     template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
 inline
-void list<TYPE,ALLOC>::emplace_front(const ARG1& a1, const ARG2& a2,
-                                     const ARG3& a3, const ARG4& a4,
-                                     const ARG5& a5)
+void list<TYPE, ALLOCATOR>::emplace_front(const ARG1& a1,
+                                          const ARG2& a2,
+                                          const ARG3& a3,
+                                          const ARG4& a4,
+                                          const ARG5& a5)
 {
     emplace(begin(), a1, a2, a3, a4, a5);
 }
-#endif // ! BDE_CXX0X_VARIADIC_TEMPLATES
+#endif // ! BSLS_SIMULATED_VARIADIC_TEMPLATES
 
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::pop_front()
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::pop_front()
 {
     BSLS_ASSERT_SAFE(size_ref() > 0);
     erase(begin());
 }
 
-#ifdef BDE_CXX0X_VARIADIC_TEMPLATES
-template <class TYPE, class ALLOC>
+#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
+template <class TYPE, class ALLOCATOR>
     template <class... Args>
-void list<TYPE,ALLOC>::emplace_back(Args&&... args)
+void list<TYPE, ALLOCATOR>::emplace_back(Args&&... args)
 {
     emplace(end(), std::forward<Args>(args)...);
 }
 #else
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-void list<TYPE,ALLOC>::emplace_back()
+void list<TYPE, ALLOCATOR>::emplace_back()
 {
     emplace(end());
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
     template <class ARG1>
 inline
-void list<TYPE,ALLOC>::emplace_back(const ARG1& a1)
+void list<TYPE, ALLOCATOR>::emplace_back(const ARG1& a1)
 {
     emplace(end(), a1);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
     template <class ARG1, class ARG2>
 inline
-void list<TYPE,ALLOC>::emplace_back(const ARG1& a1, const ARG2& a2)
+void list<TYPE, ALLOCATOR>::emplace_back(const ARG1& a1, const ARG2& a2)
 {
     emplace(end(), a1, a2);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
     template <class ARG1, class ARG2, class ARG3>
 inline
-void list<TYPE,ALLOC>::emplace_back(const ARG1& a1, const ARG2& a2,
-                                    const ARG3& a3)
+void list<TYPE, ALLOCATOR>::emplace_back(const ARG1& a1,
+                                         const ARG2& a2,
+                                         const ARG3& a3)
 {
     emplace(end(), a1, a2, a3);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
     template <class ARG1, class ARG2, class ARG3, class ARG4>
 inline
-void list<TYPE,ALLOC>::emplace_back(const ARG1& a1, const ARG2& a2,
-                                    const ARG3& a3, const ARG4& a4)
+void list<TYPE, ALLOCATOR>::emplace_back(const ARG1& a1,
+                                         const ARG2& a2,
+                                         const ARG3& a3,
+                                         const ARG4& a4)
 {
     emplace(end(), a1, a2, a3, a4);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
     template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
 inline
-void list<TYPE,ALLOC>::emplace_back(const ARG1& a1, const ARG2& a2,
-                                    const ARG3& a3, const ARG4& a4,
-                                    const ARG5& a5)
+void list<TYPE, ALLOCATOR>::emplace_back(const ARG1& a1,
+                                         const ARG2& a2,
+                                         const ARG3& a3,
+                                         const ARG4& a4,
+                                         const ARG5& a5)
 {
     emplace(end(), a1, a2, a3, a4, a5);
 }
-#endif // ! BDE_CXX0X_VARIADIC_TEMPLATES
+#endif // ! BSLS_SIMULATED_VARIADIC_TEMPLATES
 
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::pop_back()
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::pop_back()
 {
     BSLS_ASSERT_SAFE(size_ref() > 0);
     erase(--end());
 }
 
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::push_front(const TYPE& x)
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::push_front(const TYPE& x)
 {
     emplace(begin(), x);
 }
 
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::push_back(const TYPE& x)
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::push_back(const TYPE& x)
 {
     emplace(end(), x);
 }
 
-#ifdef BDE_CXX0X_RVALUES
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::push_front(TYPE&& x)
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::push_front(TYPE&& x)
 {
     emplace(begin(), std::move(x));
 }
 
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::push_back(TYPE&& x)
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::push_back(TYPE&& x)
 {
     emplace(end(), std::move(x));
 }
-#endif // BDE_CXX0X_RVALUES
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-#ifdef BDE_CXX0X_VARIADIC_TEMPLATES
-template <class TYPE, class ALLOC>
+#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
+template <class TYPE, class ALLOCATOR>
   template <class... Args>
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::emplace(const_iterator position, Args&&... args)
+typename list<TYPE, ALLOCATOR>::iterator
+list<TYPE, ALLOCATOR>::emplace(const_iterator position, Args&&... args)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(allocator(), p);
@@ -2093,9 +2175,9 @@ list<TYPE,ALLOC>::emplace(const_iterator position, Args&&... args)
     return insert_node(position, p);
 }
 #else
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::emplace(const_iterator position)
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::iterator
+list<TYPE, ALLOCATOR>::emplace(const_iterator position)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
@@ -2105,10 +2187,10 @@ list<TYPE,ALLOC>::emplace(const_iterator position)
     return insert_node(position, p);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
   template <class ARG1>
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::emplace(const_iterator position, const ARG1& a1)
+typename list<TYPE, ALLOCATOR>::iterator
+list<TYPE, ALLOCATOR>::emplace(const_iterator position, const ARG1& a1)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
@@ -2119,11 +2201,12 @@ list<TYPE,ALLOC>::emplace(const_iterator position, const ARG1& a1)
     return insert_node(position, p);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
   template <class ARG1, class ARG2>
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::emplace(const_iterator position,
-                          const ARG1& a1, const ARG2& a2)
+typename list<TYPE, ALLOCATOR>::iterator
+list<TYPE, ALLOCATOR>::emplace(const_iterator position,
+                               const ARG1& a1,
+                               const ARG2& a2)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
@@ -2133,11 +2216,13 @@ list<TYPE,ALLOC>::emplace(const_iterator position,
     return insert_node(position, p);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
   template <class ARG1, class ARG2, class ARG3>
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::emplace(const_iterator position,
-                          const ARG1& a1, const ARG2& a2, const ARG3& a3)
+typename list<TYPE, ALLOCATOR>::iterator
+list<TYPE, ALLOCATOR>::emplace(const_iterator position,
+                               const ARG1& a1,
+                               const ARG2& a2,
+                               const ARG3& a3)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
@@ -2150,12 +2235,14 @@ list<TYPE,ALLOC>::emplace(const_iterator position,
     return insert_node(position, p);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
   template <class ARG1, class ARG2, class ARG3, class ARG4>
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::emplace(const_iterator position,
-                          const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                          const ARG4& a4)
+typename list<TYPE, ALLOCATOR>::iterator
+list<TYPE, ALLOCATOR>::emplace(const_iterator position,
+                               const ARG1& a1,
+                               const ARG2& a2,
+                               const ARG3& a3,
+                               const ARG4& a4)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
@@ -2169,16 +2256,19 @@ list<TYPE,ALLOC>::emplace(const_iterator position,
     return insert_node(position, p);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
   template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::emplace(const_iterator position,
-                          const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                          const ARG4& a4, const ARG5& a5)
+typename list<TYPE, ALLOCATOR>::iterator
+list<TYPE, ALLOCATOR>::emplace(const_iterator position,
+                               const ARG1& a1,
+                               const ARG2& a2,
+                               const ARG3& a3,
+                               const ARG4& a4,
+                               const ARG5& a5)
 {
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
-    AllocTraits::construct(allocator(), 
+    AllocTraits::construct(allocator(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
                            a1,
                            a2,
@@ -2189,28 +2279,29 @@ list<TYPE,ALLOC>::emplace(const_iterator position,
     return insert_node(position, p);
 }
 
-#endif // ! BDE_CXX0X_VARIADIC_TEMPLATES
+#endif // ! BSLS_SIMULATED_VARIADIC_TEMPLATES
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::insert(const_iterator position, const TYPE& x)
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::iterator
+list<TYPE, ALLOCATOR>::insert(const_iterator position, const TYPE& x)
 {
     return emplace(position, x);
 }
 
-#ifdef BDE_CXX0X_RVALUES
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::insert(const_iterator position, TYPE&& x)
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::iterator
+list<TYPE, ALLOCATOR>::insert(const_iterator position, TYPE&& x)
 {
     return emplace(position, std::move(x));
 }
-#endif // BDE_CXX0X_RVALUES
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::insert(const_iterator position,
-                         size_type n, const TYPE& x)
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::iterator
+list<TYPE, ALLOCATOR>::insert(const_iterator position,
+                              size_type n,
+                              const TYPE& x)
 {
     if (0 == n) {
         return position.unconst();
@@ -2225,13 +2316,9 @@ list<TYPE,ALLOC>::insert(const_iterator position,
     return ret;
 }
 
-// template <class TYPE, class ALLOC>
-//     void list<TYPE,ALLOC>::insert(const_iterator position,
-//                                   initializer_list<TYPE> il);
-
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::erase(const_iterator position)
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::iterator
+list<TYPE, ALLOCATOR>::erase(const_iterator position)
 {
     BSLS_ASSERT(position.d_nodeptr != d_sentinel);
 
@@ -2246,9 +2333,9 @@ list<TYPE,ALLOC>::erase(const_iterator position)
     return ret;
 }
 
-template <class TYPE, class ALLOC>
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::erase(const_iterator position, const_iterator last)
+template <class TYPE, class ALLOCATOR>
+typename list<TYPE, ALLOCATOR>::iterator
+list<TYPE, ALLOCATOR>::erase(const_iterator position, const_iterator last)
 {
     while (position != last) {
         const_iterator curr = position;
@@ -2259,42 +2346,42 @@ list<TYPE,ALLOC>::erase(const_iterator position, const_iterator last)
     return position.unconst();
 }
 
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::swap(list& x)
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::swap(list& other)
 {
     using std::swap;
 
     if (AllocTraits::propagate_on_container_swap::VALUE) {
-        swap(allocator(), x.allocator());
-        quick_swap(x);
+        swap(allocator(), other.allocator());
+        quick_swap(other);
     }
     else {
         // C++0x behavior: undefined for unequal allocators
-        // BSLS_ASSERT(allocator() == x.allocator());
+        // BSLS_ASSERT(allocator() == other.allocator());
 
         // backward compatible behavior: swap with copies
-        if (allocator() == x.allocator()) {
-            quick_swap(x);
+        if (allocator() == other.allocator()) {
+            quick_swap(other);
         }
         else {
-            list thisCopy(*this, x.get_allocator());
-            list xCopy(x, get_allocator());
+            list thisCopy(*this, other.get_allocator());
+            list xCopy(other, get_allocator());
 
-            thisCopy.quick_swap(x);
+            thisCopy.quick_swap(other);
             xCopy.quick_swap(*this);
         }
     }
 }
 
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::clear()
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::clear()
 {
     erase(begin(), end());
 }
 
-// 23.3.4.4 list operations:
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::splice(const_iterator position, list& x)
+// 23.3.5.5 list operations
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::splice(const_iterator position, list& x)
 {
     BSLS_ASSERT(allocator() == x.allocator());
     if (x.empty()) {
@@ -2316,9 +2403,10 @@ void list<TYPE,ALLOC>::splice(const_iterator position, list& x)
     size_ref() += n;
 }
 
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::splice(const_iterator position, list& x,
-                              const_iterator i)
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::splice(const_iterator position,
+                                   list& x,
+                                   const_iterator i)
 {
     BSLS_ASSERT(allocator() == x.allocator());
     typename AllocTraits::pointer pos   = position.d_nodeptr;
@@ -2339,9 +2427,11 @@ void list<TYPE,ALLOC>::splice(const_iterator position, list& x,
     ++size_ref();
 }
 
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::splice(const_iterator position, list& x,
-                              const_iterator first, const_iterator last)
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::splice(const_iterator position,
+                                   list& x,
+                                   const_iterator first,
+                                   const_iterator last)
 {
     BSLS_ASSERT(allocator() == x.allocator());
     size_type n = bsl::distance(first, last);
@@ -2365,8 +2455,8 @@ void list<TYPE,ALLOC>::splice(const_iterator position, list& x,
     size_ref() += n;
 }
 
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::remove(const TYPE& value)
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::remove(const TYPE& value)
 {
     const_iterator e = cend();
     for (const_iterator i = cbegin(); i != e; ) {
@@ -2380,9 +2470,9 @@ void list<TYPE,ALLOC>::remove(const TYPE& value)
     }
 }
 
-template <class TYPE, class ALLOC>
-template <class Pred>
-void list<TYPE, ALLOC>::remove_if(Pred pred)
+template <class TYPE, class ALLOCATOR>
+template <class Predicate>
+void list<TYPE, ALLOCATOR>::remove_if(Predicate pred)
 {
     iterator e = end();
     for (iterator i = begin(); i != e; ) {
@@ -2395,8 +2485,8 @@ void list<TYPE, ALLOC>::remove_if(Pred pred)
     }
 }
 
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::unique()
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::unique()
 {
     if (size() < 2) {
         return;
@@ -2412,9 +2502,9 @@ void list<TYPE,ALLOC>::unique()
     }
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 template <class EqPredicate>
-void list<TYPE,ALLOC>::unique(EqPredicate binary_pred)
+void list<TYPE, ALLOCATOR>::unique(EqPredicate binary_pred)
 {
     if (size() < 2) {
         return;
@@ -2430,13 +2520,13 @@ void list<TYPE,ALLOC>::unique(EqPredicate binary_pred)
     }
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
   template <class COMPARE>
-typename list<TYPE,ALLOC>::NodePtr
-list<TYPE,ALLOC>::merge_imp(NodePtr node1,
-                            NodePtr node2,
-                            NodePtr finish,
-                            COMPARE comp)
+typename list<TYPE, ALLOCATOR>::NodePtr
+list<TYPE, ALLOCATOR>::merge_imp(NodePtr node1,
+                                 NodePtr node2,
+                                 NodePtr finish,
+                                 COMPARE comp)
 {
     NodePtr pre     = node1->d_prev;
 
@@ -2486,9 +2576,9 @@ list<TYPE,ALLOC>::merge_imp(NodePtr node1,
     return pre->d_next;
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 template <class COMPARE>
-void list<TYPE,ALLOC>::merge(list& x, COMPARE comp)
+void list<TYPE, ALLOCATOR>::merge(list& x, COMPARE comp)
 {
     if (x.empty()) {
         return;  // Important special case to avoid pointing to sentinel
@@ -2505,19 +2595,19 @@ void list<TYPE,ALLOC>::merge(list& x, COMPARE comp)
     merge_imp(d_sentinel->d_next, xfirst, d_sentinel, comp);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-void list<TYPE,ALLOC>::merge(list& x)
+void list<TYPE, ALLOCATOR>::merge(list& x)
 {
     merge(x, comp_elems());
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
   template <class COMPARE>
-typename list<TYPE,ALLOC>::NodePtr
-list<TYPE,ALLOC>::sort_imp(NodePtr*       pnode1,
-                           size_type      size,
-                           const COMPARE& comp)
+typename list<TYPE, ALLOCATOR>::NodePtr
+list<TYPE, ALLOCATOR>::sort_imp(NodePtr*       pnode1,
+                                size_type      size,
+                                const COMPARE& comp)
 {
     BSLS_ASSERT(size > 0);
 
@@ -2535,9 +2625,9 @@ list<TYPE,ALLOC>::sort_imp(NodePtr*       pnode1,
     return next;
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
   template <class COMPARE>
-void list<TYPE,ALLOC>::sort(COMPARE comp)
+void list<TYPE, ALLOCATOR>::sort(COMPARE comp)
 {
     if (size_ref() < 2) {
         return;
@@ -2546,15 +2636,15 @@ void list<TYPE,ALLOC>::sort(COMPARE comp)
     sort_imp(&node1, size(), comp);
 }
 
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-void list<TYPE,ALLOC>::sort()
+void list<TYPE, ALLOCATOR>::sort()
 {
     sort(comp_elems());
 }
 
-template <class TYPE, class ALLOC>
-void list<TYPE,ALLOC>::reverse()
+template <class TYPE, class ALLOCATOR>
+void list<TYPE, ALLOCATOR>::reverse()
 {
     NodePtr sentinel = d_sentinel;
     NodePtr p = sentinel;
@@ -2568,8 +2658,9 @@ void list<TYPE,ALLOC>::reverse()
 }
 
 // FREE OPERATORS
-template <class TYPE, class ALLOC> inline
-bool operator==(const list<TYPE,ALLOC>& lhs, const list<TYPE,ALLOC>& rhs)
+template <class TYPE, class ALLOCATOR> inline
+bool operator==(const list<TYPE, ALLOCATOR>& lhs,
+                const list<TYPE, ALLOCATOR>& rhs)
 {
     return BloombergLP::bslalg_RangeCompare::equal(lhs.begin(),
                                                    lhs.end(),
@@ -2579,14 +2670,16 @@ bool operator==(const list<TYPE,ALLOC>& lhs, const list<TYPE,ALLOC>& rhs)
                                                    rhs.size());
 }
 
-template <class TYPE, class ALLOC> inline
-bool operator!=(const list<TYPE,ALLOC>& lhs, const list<TYPE,ALLOC>& rhs)
+template <class TYPE, class ALLOCATOR> inline
+bool operator!=(const list<TYPE, ALLOCATOR>& lhs,
+                const list<TYPE, ALLOCATOR>& rhs)
 {
     return ! (lhs == rhs);
 }
 
-template <class TYPE, class ALLOC> inline
-bool operator< (const list<TYPE,ALLOC>& lhs, const list<TYPE,ALLOC>& rhs)
+template <class TYPE, class ALLOCATOR> inline
+bool operator< (const list<TYPE, ALLOCATOR>& lhs,
+                const list<TYPE, ALLOCATOR>& rhs)
 {
     return 0 > BloombergLP::bslalg_RangeCompare::lexicographical(lhs.begin(),
                                                                  lhs.end(),
@@ -2596,28 +2689,28 @@ bool operator< (const list<TYPE,ALLOC>& lhs, const list<TYPE,ALLOC>& rhs)
                                                                  rhs.size());
 }
 
-template <class TYPE, class ALLOC> inline
-bool operator> (const list<TYPE,ALLOC>& x, const list<TYPE,ALLOC>& y)
+template <class TYPE, class ALLOCATOR> inline
+bool operator> (const list<TYPE, ALLOCATOR>& x, const list<TYPE, ALLOCATOR>& y)
 {
     return y < x;
 }
 
-template <class TYPE, class ALLOC> inline
-bool operator>=(const list<TYPE,ALLOC>& x, const list<TYPE,ALLOC>& y)
+template <class TYPE, class ALLOCATOR> inline
+bool operator>=(const list<TYPE, ALLOCATOR>& x, const list<TYPE, ALLOCATOR>& y)
 {
     return ! (x < y);
 }
 
-template <class TYPE, class ALLOC> inline
-bool operator<=(const list<TYPE,ALLOC>& x, const list<TYPE,ALLOC>& y)
+template <class TYPE, class ALLOCATOR> inline
+bool operator<=(const list<TYPE, ALLOCATOR>& x, const list<TYPE, ALLOCATOR>& y)
 {
     return ! (y < x);
 }
 
 // specialized algorithms:
-template <class TYPE, class ALLOC>
+template <class TYPE, class ALLOCATOR>
 inline
-void swap(list<TYPE,ALLOC>& x, list<TYPE,ALLOC>& y)
+void swap(list<TYPE, ALLOCATOR>& x, list<TYPE, ALLOCATOR>& y)
 {
     x.swap(y);
 }
