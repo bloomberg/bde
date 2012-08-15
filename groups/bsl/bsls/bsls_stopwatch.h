@@ -113,7 +113,7 @@ class Stopwatch {
     Types::Int64 d_startUserTime;          // user time when
                                            // started (nanoseconds)
 
-    Types::Int64 d_startWallTime;          // wall time when
+    TimeUtil::OpaqueNativeTime d_startWallTime;          // wall time when
                                            // started (nanoseconds)
 
     Types::Int64 d_accumulatedSystemTime;  // accumulated system
@@ -148,10 +148,14 @@ class Stopwatch {
     // PRIVATE ACCESSORS
     void accumulatedTimesRaw(Types::Int64 *systemTime,
                              Types::Int64 *userTime,
-                             Types::Int64 *wallTime) const;
+                             TimeUtil::OpaqueNativeTime *wallTime) const;
         // Load into the specified 'systemTime', 'userTime', and 'wallTime' the
         // values of the system time, user time, and wall time (in
         // nanoseconds), respectively, as provided by 'TimeUtil'.
+
+    Types::Int64 elapsedWallTime(TimeUtil::OpaqueNativeTime rawWallTime) const;
+        // Return the elapsed time, in nanoseconds, between the current
+        // 'd_startWallTime' and the specified 'rawWallTime'.
 
   public:
     // CREATORS
@@ -230,11 +234,20 @@ class Stopwatch {
 inline
 void Stopwatch::accumulatedTimesRaw(Types::Int64 *systemTime,
                                     Types::Int64 *userTime,
-                                    Types::Int64 *wallTime) const
+                                    TimeUtil::OpaqueNativeTime *wallTime) const
 {
     TimeUtil::getProcessTimers(systemTime, userTime);
-    *wallTime = TimeUtil::getTimer();
+    TimeUtil::getTimerRaw(wallTime);
 }
+
+inline
+Types::Int64 Stopwatch::elapsedWallTime(
+                                  TimeUtil::OpaqueNativeTime rawWallTime) const
+{
+    return TimeUtil::convertRawTime(rawWallTime) 
+        - TimeUtil::convertRawTime(d_startWallTime);
+}
+
 
 // CREATORS
 inline
@@ -269,7 +282,7 @@ void Stopwatch::start(bool collectCpuTimes)
                                 &d_startWallTime);
         }
         else {
-            d_startWallTime =  TimeUtil::getTimer();
+            TimeUtil::getTimerRaw(&d_startWallTime);
         }
         d_isRunning = true;
     }
@@ -283,8 +296,9 @@ void Stopwatch::stop()
             updateTimes();
         }
         else {
-            d_accumulatedWallTime +=
-                                   TimeUtil::getTimer() - d_startWallTime;
+            TimeUtil::OpaqueNativeTime now;
+            TimeUtil::getTimerRaw(&now);
+            d_accumulatedWallTime += elapsedWallTime(now);
         }
         d_isRunning = false;
     }
@@ -329,8 +343,9 @@ inline
 double Stopwatch::accumulatedWallTime() const
 {
     if (d_isRunning) {
-        return (double)(d_accumulatedWallTime
-                                 + TimeUtil::getTimer() - d_startWallTime)
+        TimeUtil::OpaqueNativeTime now;
+        TimeUtil::getTimerRaw(&now);
+        return (double)(d_accumulatedWallTime + elapsedWallTime(now))
                                                       / s_nanosecondsPerSecond;
     }
     else {
