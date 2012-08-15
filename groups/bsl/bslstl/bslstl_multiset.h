@@ -474,7 +474,7 @@ namespace bsl {
 template <class KEY,
           class COMPARATOR  = std::less<KEY>,
           class ALLOCATOR = bsl::allocator<KEY> >
-class multiset : private BloombergLP::bslstl::SetComparator<KEY, COMPARATOR> {
+class multiset {
     // This class template implements a value-semantic container type holding
     // an ordered sequence of possibly duplicate keys (of the parameterized
     // type, 'KEY').
@@ -508,11 +508,30 @@ class multiset : private BloombergLP::bslstl::SetComparator<KEY, COMPARATOR> {
         // This typedef is an alias for the allocator traits type associated
         // with this container.
 
+    struct DataWrapper : public Comparator {
+        // This struct is wrapper around the comparator and allocator data
+        // member.  It takes advantage of the empty-base optimization (EBO) so
+        // that if the allocator is stateless, it takes up no space.
+        //
+        // TBD: This struct should eventually be replaced by the use of a
+        // general EBO-enabled component that provides a 'pair'-like
+        // interface or a 'tuple'.
+
+        NodeFactory d_pool;  // pool of 'Node' objects
+
+        explicit DataWrapper(const COMPARATOR&  comparator,
+                             const ALLOCATOR&   allocator);
+            // Create a 'DataWrapper' object with the specified 'comparator'
+            // and 'allocator'.
+    };
+
     // DATA
-    BloombergLP::bslalg::RbTreeAnchor d_tree;  // balanced tree of 'Node'
+    DataWrapper                       d_comp_and_alloc;
+                                               // comparator and pool of 'Node'
                                                // objects
 
-    NodeFactory                       d_pool;  // pool of 'Node' objects
+    BloombergLP::bslalg::RbTreeAnchor d_tree;  // balanced tree of 'Node'
+                                               // objects
 
   public:
     // PUBLIC TYPES
@@ -1019,6 +1038,20 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
+                             // -----------------
+                             // class DataWrapper
+                             // -----------------
+
+// CREATORS
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+multiset<KEY, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
+                                                  const COMPARATOR& comparator,
+                                                  const ALLOCATOR&  allocator)
+: Comparator(comparator)
+, d_pool(allocator)
+{
+}
 
                              // --------------
                              // class multiset
@@ -1030,7 +1063,7 @@ inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
 multiset<KEY, COMPARATOR, ALLOCATOR>::nodeFactory()
 {
-    return d_pool;
+    return d_comp_and_alloc.d_pool;
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1038,7 +1071,7 @@ inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::Comparator&
 multiset<KEY, COMPARATOR, ALLOCATOR>::comparator()
 {
-    return *this;
+    return d_comp_and_alloc;
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1056,7 +1089,7 @@ inline
 const typename multiset<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
 multiset<KEY, COMPARATOR, ALLOCATOR>::nodeFactory() const
 {
-    return d_pool;
+    return d_comp_and_alloc.d_pool;
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1064,7 +1097,7 @@ inline
 const typename multiset<KEY, COMPARATOR, ALLOCATOR>::Comparator&
 multiset<KEY, COMPARATOR, ALLOCATOR>::comparator() const
 {
-    return *this;
+    return d_comp_and_alloc;
 }
 
 // CREATORS
@@ -1072,9 +1105,8 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const COMPARATOR& comparator,
                                                const ALLOCATOR&  allocator)
-: Comparator(comparator)
+: d_comp_and_alloc(comparator, allocator)
 , d_tree()
-, d_pool(allocator)
 {
 }
 
@@ -1085,9 +1117,8 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(INPUT_ITERATOR    first,
                                                INPUT_ITERATOR    last,
                                                const COMPARATOR& comparator,
                                                const ALLOCATOR&  allocator)
-: Comparator(comparator)
+: d_comp_and_alloc(comparator, allocator)
 , d_tree()
-, d_pool(allocator)
 {
     if (first != last) {
         BloombergLP::bslalg::RbTreeUtil_TreeProctor<NodeFactory> proctor(
@@ -1128,9 +1159,8 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(INPUT_ITERATOR    first,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset& original)
-: Comparator(original.comparator().keyComparator())
+: d_comp_and_alloc(original.comparator().keyComparator(), ALLOCATOR())
 , d_tree()
-, d_pool(ALLOCATOR())
 {
     if (0 < original.size()) {
         nodeFactory().reserveNodes(original.size());
@@ -1143,9 +1173,8 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset& original)
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const ALLOCATOR& allocator)
-: Comparator(COMPARATOR())
+: d_comp_and_alloc(COMPARATOR(), allocator)
 , d_tree()
-, d_pool(allocator)
 {
 }
 
@@ -1153,9 +1182,8 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset&  original,
                                                const ALLOCATOR& allocator)
-: Comparator(original.comparator().keyComparator())
+: d_comp_and_alloc(original.comparator().keyComparator(), allocator)
 , d_tree()
-, d_pool(allocator)
 {
     if (0 < original.size()) {
         nodeFactory().reserveNodes(original.size());

@@ -543,8 +543,7 @@ template <class KEY,
           class VALUE,
           class COMPARATOR  = std::less<KEY>,
           class ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE> > >
-class multimap : private BloombergLP::bslstl::MapComparator<
-                                                      KEY, VALUE, COMPARATOR> {
+class multimap {
     // This class template implements a value-semantic container type holding
     // an ordered sequence of key-value pairs having possibly duplicate keys
     // that provide a mapping from keys (of the parameterized type, 'KEY') to
@@ -581,11 +580,30 @@ class multimap : private BloombergLP::bslstl::MapComparator<
         // This typedef is an alias for the allocator traits type associated
         // with this container.
 
+    struct DataWrapper : public Comparator {
+        // This struct is wrapper around the comparator and allocator data
+        // member.  It takes advantage of the empty-base optimization (EBO) so
+        // that if the allocator is stateless, it takes up no space.
+        //
+        // TBD: This struct should eventually be replaced by the use of a
+        // general EBO-enabled component that provides a 'pair'-like
+        // interface or a 'tuple'.
+
+        NodeFactory d_pool;  // pool of 'Node' objects
+
+        explicit DataWrapper(const COMPARATOR&  comparator,
+                             const ALLOCATOR&   allocator);
+            // Create a 'DataWrapper' object with the specified 'comparator'
+            // and 'allocator'.
+    };
+
     // DATA
-    BloombergLP::bslalg::RbTreeAnchor d_tree;  // balanced tree of 'Node'
+    DataWrapper                       d_comp_and_alloc;
+                                               // comparator and pool of 'Node'
                                                // objects
 
-    NodeFactory                       d_pool;  // pool of 'Node' objects
+    BloombergLP::bslalg::RbTreeAnchor d_tree;  // balanced tree of 'Node'
+                                               // objects
 
   private:
     // PRIVATE MANIPULATORS
@@ -1152,6 +1170,20 @@ void swap(multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
+                             // -----------------
+                             // class DataWrapper
+                             // -----------------
+
+// CREATORS
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+inline
+multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
+                                                  const COMPARATOR& comparator,
+                                                  const ALLOCATOR&  allocator)
+: Comparator(comparator)
+, d_pool(allocator)
+{
+}
 
                              // --------------
                              // class multimap
@@ -1163,7 +1195,7 @@ inline
 typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::NodeFactory&
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::nodeFactory()
 {
-    return d_pool;
+    return d_comp_and_alloc.d_pool;
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -1171,7 +1203,7 @@ inline
 typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::Comparator&
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::comparator()
 {
-    return *this;
+    return d_comp_and_alloc;
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -1189,7 +1221,7 @@ inline
 const typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::NodeFactory&
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::nodeFactory() const
 {
-    return d_pool;
+    return d_comp_and_alloc.d_pool;
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -1197,7 +1229,7 @@ inline
 const typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::Comparator&
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::comparator() const
 {
-    return *this;
+    return d_comp_and_alloc;
 }
 
 // CREATORS
@@ -1206,9 +1238,8 @@ inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
                                                   const COMPARATOR& comparator,
                                                   const ALLOCATOR&  allocator)
-: Comparator(comparator)
+: d_comp_and_alloc(comparator, allocator)
 , d_tree()
-, d_pool(allocator)
 {
 }
 
@@ -1220,9 +1251,8 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
                                                   INPUT_ITERATOR    last,
                                                   const COMPARATOR& comparator,
                                                   const ALLOCATOR&  allocator)
-: Comparator(comparator)
+: d_comp_and_alloc(comparator, allocator)
 , d_tree()
-, d_pool(allocator)
 {
     if (first != last) {
         BloombergLP::bslalg::RbTreeUtil_TreeProctor<NodeFactory> proctor(
@@ -1263,9 +1293,8 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(const multimap& original)
-: Comparator(original.comparator().keyComparator())
+: d_comp_and_alloc(original.comparator().keyComparator(), ALLOCATOR())
 , d_tree()
-, d_pool(ALLOCATOR())
 {
     if (0 < original.size()) {
         nodeFactory().reserveNodes(original.size());
@@ -1279,9 +1308,8 @@ template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
                                                     const ALLOCATOR& allocator)
-: Comparator(COMPARATOR())
+: d_comp_and_alloc(COMPARATOR(), allocator)
 , d_tree()
-, d_pool(allocator)
 {
 }
 
@@ -1290,9 +1318,8 @@ inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
                                                     const multimap&  original,
                                                     const ALLOCATOR& allocator)
-: Comparator(original.comparator().keyComparator())
+: d_comp_and_alloc(original.comparator().keyComparator(), allocator)
 , d_tree()
-, d_pool(allocator)
 {
     if (0 < original.size()) {
         nodeFactory().reserveNodes(original.size());
