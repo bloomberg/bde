@@ -334,17 +334,25 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
     const bsls::Types::Int64 M = 1000000;
     const bsls::Types::Int64 B = 1000000000;
     const bsls::Types::Uint64 LOW_MASK = 0x00000000ffffffff;
-    // const bsls::Types::Uint64 HIGH_MASK = 0xffffffff00000000;
-    // const bsls::Types::Int64 HIGH_DWORD_MULTIPLIER = B * (1LL << 32);
 
     bsls::Types::Int64 initialTime
         = bsls::AtomicOperations::getInt64Relaxed(&s_initialTime);
 
     if (0 != initialTime) {
-        //TODO: Assert that rawTime < 292 days
-
         bsls::Types::Int64 timerFrequency
             = bsls::AtomicOperations::getInt64Relaxed(&s_timerFrequency);
+        // Not implemented: Assert that rawTime - initialTime will fit in an 
+        // Int64, when expressed as nanoseconds (~292 days).
+        //
+        // N.B. This assert is not implemented because:
+        // A) Cannot use BSLS_ASSERT because bsls_assert has an indirect
+        // (and testing only) dependency on bsls_timeutil.
+        // B) Cannot use std::numeric_limits.
+        //
+        // If it were implemented, it would look like the following:
+        // BSLS_ASSERT(((rawTime - initialTime) / timerFrequency) 
+        //             < std::numeric_limits<bsls::Types::Int64>::max() / B)
+
         bsls::Types::Int64 highPartDivisionFactor
             = bsls::AtomicOperations::getInt64Relaxed(
                                                     &s_highPartDivisionFactor);
@@ -471,6 +479,7 @@ void TimeUtil::initialize()
 #endif
 }
 
+inline
 Types::Int64
 TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 {
@@ -479,6 +488,10 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
     return rawTime.d_opaque;
 
 #elif defined BSLS_PLATFORM__OS_AIX
+
+    // Imp Note:
+    // 'time_base_to_time' takes much more time (~1.2 usec) than actually
+    // collecting the raw time in the first place (<100 nsec).
 
     const Types::Int64 G = 1000000000;
     time_base_to_time(&rawTime, TIMEBASE_SZ);
@@ -497,8 +510,7 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 
     const Types::Int64 K = 1000;
     const Types::Int64 M = 1000000;
-    return ((Types::Int64) rawTime.tv_sec * M
-              + rawTime.tv_usec) * K;
+    return ((Types::Int64) rawTime.tv_sec * M + rawTime.tv_usec) * K;
 
 #elif defined BSLS_PLATFORM__OS_WINDOWS
 
@@ -511,88 +523,24 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 
 Types::Int64 TimeUtil::getTimer()
 {
-    // Historical Note: Older Sun machines (e.g., sundev2 circa 2003) exhibited
-    // intermittent non-compliant (i.e., non-monotonic) behavior for function
-    // 'gethrtime'.  As of July 2004, no non-monotonic behavior has been seen
-    // on any Sun machine.  However, hp2 does exhibit a *different*
-    // non-monotonic behavior.  An Imp Note within the 'OS_HPUX' block
-    // describes the new problem.  The imp note in the next paragraph is no
-    // longer valid, but is retained for archival purposes, and as a historical
-    // caution.
-    //
-    // Archival Imp Note:
-    // This method is implemented with a workaround for the clock-sync-induced
-    // problem that, occasionally, calls to system-time functions will return
-    // a value that is grossly too large.  Subsequent return values are
-    // presumed correct, and it is also assumed that the probability of two
-    // successive bad return values is vanishingly small.  On the other hand,
-    // two successive *calls* may yield *the same* return value, and so a new
-    // return value may need to be explicitly confirmed.
-
 #if defined BSLS_PLATFORM__OS_SOLARIS
 
-    // 'gethrtime' has not been observed to fail on any 'sundev' machine.
+    // Call the platform-specific function directly, since it is reliable and
+    // requires no conversion.
 
     return gethrtime();
 
-#elif defined BSLS_PLATFORM__OS_AIX
-
-    // Imp Note:
-    // 'read_wall_time' is very fast (<100 nsec), and guaranteed monotonic per
-    // http://publib.boulder.ibm.com/infocenter/systems doc.  (It has not been
-    // observed to be non-monotonic when tested to better than 3 parts in 10^10
-    // on ibm2.)  'time_base_to_time' is much slower (~1.2 usec).
-
-    const Types::Int64 G = 1000000000;
-    timebasestruct_t t;
-    read_wall_time(&t, TIMEBASE_SZ);
-    time_base_to_time(&t, TIMEBASE_SZ);
-
-    return (Types::Int64) t.tb_high * G + t.tb_low;
-
-#elif defined BSLS_PLATFORM__OS_HPUX
+#elif defined BSLS_PLATFORM__OS_AIX   || \
+      defined BSLS_PLATFORM__OS_HPUX  || \
+      defined BSLS_PLATFORM__OS_LINUX || \
+      defined BSLS_PLATFORM__OS_UNIX
 
     TimeUtil::OpaqueNativeTime rawTime;
     getTimerRaw(&rawTime);
-    return rawTime.d_opaque;
+    return convertRawTime(rawTime);
 
-#elif defined BSLS_PLATFORM__OS_LINUX
-
-    // The call to 'clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts)' has never
-    // been observed to be non-monotonic when tested at better than 1 parts in
-    // 10^9 on linxdev5, in a tight loop.  However, not all users will own the
-    // process, and for multi-processor systems the value returned may be
-    // meaningless.  Therefore, for the standard timer, the CLOCK_MONOTONIC
-    // clock is preferred.
-    //..
-    //         Clock ID            Performance (arbitrary but consistent test)
-    // ------------------------    -------------------------------------------
-    // CLOCK_PROCESS_CPUTIME_ID         ~0.8  usec
-    // CLOCK_THREAD_CPUTIME_ID          ~0.85 usec
-    // CLOCK_REALTIME                   ~1.8  usec
-    // CLOCK_MONOTONIC                  ~1.8  usec
-    //..
-
-    const Types::Int64 G = 1000000000;
-    timespec ts;
-
-    clock_gettime(CLOCK_MONOTONIC, &ts);  // significantly slower ~1.8 usec
-
-    return (Types::Int64) ts.tv_sec * G + ts.tv_nsec;
-
-#elif defined BSLS_PLATFORM__OS_UNIX
-
-    // A generic implementation having microsecond resolution is used.  There
-    // is no attempt to defend against possible non-monotonic behavior.  The
-    // imp would cause bsls_stopwatch to profile at ~1.40 usec on AIX when
-    // compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r.  Other
-    // implementations are left in place as comments for historical reference.
-
-    timeval tv;
-    gettimeofday(&tv, 0);
-    const Types::Int64 K = 1000;
-    const Types::Int64 M = 1000000;
-    return ((Types::Int64) tv.tv_sec * M + tv.tv_usec) * K;
+    // Other generic BSLS_PLATFORM__OS_UNIX implementations are left in place
+    // as comments for historical reference.
 
     // The below imp would cause bsls_stopwatch to profile at ~1.45 usec on AIX
     // when compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r
@@ -631,13 +579,41 @@ Types::Int64 TimeUtil::getTimer()
 #endif
 }
 
+inline
 void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 {
+    // Historical Note: Older Sun machines (e.g., sundev2 circa 2003) exhibited
+    // intermittent non-compliant (i.e., non-monotonic) behavior for function
+    // 'gethrtime'.  As of July 2004, no non-monotonic behavior has been seen
+    // on any Sun machine.  However, hp2 does exhibit a *different*
+    // non-monotonic behavior.  An Imp Note within the 'OS_HPUX' block
+    // describes the new problem.  The imp note in the next paragraph is no
+    // longer valid, but is retained for archival purposes, and as a historical
+    // caution.
+    //
+    // Archival Imp Note:
+    // This method is implemented with a workaround for the clock-sync-induced
+    // problem that, occasionally, calls to system-time functions will return
+    // a value that is grossly too large.  Subsequent return values are
+    // presumed correct, and it is also assumed that the probability of two
+    // successive bad return values is vanishingly small.  On the other hand,
+    // two successive *calls* may yield *the same* return value, and so a new
+    // return value may need to be explicitly confirmed.
+
 #if defined BSLS_PLATFORM__OS_SOLARIS
+
+    // 'gethrtime' has not been observed to fail on any 'sundev' machine.
 
     timeValue->d_opaque = gethrtime();
 
 #elif defined BSLS_PLATFORM__OS_AIX
+
+    // Imp Note:
+    // 'read_wall_time' is very fast (<100 nsec), and guaranteed monotonic per
+    // http://publib.boulder.ibm.com/infocenter/systems doc.  (It has not been
+    // observed to be non-monotonic when tested to better than 3 parts in 10^10
+    // on ibm2.)  Converting the time to nanoseconds is much slower
+    // (~1.2 usec).
 
     read_wall_time(timeValue, TIMEBASE_SZ);
 
@@ -661,9 +637,31 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 
 #elif defined BSLS_PLATFORM__OS_LINUX
 
-    clock_gettime(CLOCK_MONOTONIC, timeValue);
+    // The call to 'clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts)' has never
+    // been observed to be non-monotonic when tested at better than 1 parts in
+    // 10^9 on linxdev5, in a tight loop.  However, not all users will own the
+    // process, and for multi-processor systems the value returned may be
+    // meaningless.  Therefore, for the standard timer, the CLOCK_MONOTONIC
+    // clock is preferred.
+    //..
+    //         Clock ID            Performance (arbitrary but consistent test)
+    // ------------------------    -------------------------------------------
+    // CLOCK_PROCESS_CPUTIME_ID         ~0.8  usec
+    // CLOCK_THREAD_CPUTIME_ID          ~0.85 usec
+    // CLOCK_REALTIME                   ~1.8  usec
+    // CLOCK_MONOTONIC                  ~1.8  usec
+    //..
+
+    clock_gettime(CLOCK_MONOTONIC, timeValue);         // significantly slower
+                                                       // ~1.8 usec
 
 #elif defined BSLS_PLATFORM__OS_UNIX
+
+    // A generic implementation having microsecond resolution is used.  There
+    // is no attempt to defend against possible non-monotonic
+    // behavior. Together with the arithmetic to convert 'timeValue' to
+    // nanoseconds, the imp would cause bsls_stopwatch to profile at ~1.40 usec
+    // on AIX when compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r.
 
     gettimeofday(timeValue, 0);
 
