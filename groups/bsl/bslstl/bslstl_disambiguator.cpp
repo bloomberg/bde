@@ -1,8 +1,6 @@
 // bslstl_disambiguator.cpp                                           -*-C++-*-
 #include <bslstl_disambiguator.h>
 
-#include <bslmf_anytype.h> // For testing ony (usage)
-
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
@@ -12,7 +10,7 @@ namespace BloombergLP {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

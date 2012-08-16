@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_deque, bslstl_string, bslstl_vector
 //
-//@AUTHOR: Steven Breitstein (sbreitstein)
+//@AUTHOR: Pablo Halpern (phalpern), Steven Breitstein (sbreitstein)
 //
 //@DESCRIPTION: This component defines a class, 'bslstl::Disambiguator', to
 // which any integral type can be implicitly converted.  A class with that
@@ -286,8 +286,8 @@ BSLS_IDENT("$Id: $")
 //      privateInit(first, last, message);
 //  }
 //..
-// While the implementation of the more specialized overload invokes the private
-// manipulator that handles the duplicate value construction.
+// While the implementation of the more specialized overload invokes the
+// private manipulator that handles the duplicate value construction.
 //..
 //  template <class VALUE_TYPE>
 //  template <class INTEGER_TYPE>
@@ -414,7 +414,7 @@ Disambiguator::Disambiguator(int)
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

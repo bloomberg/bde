@@ -54,8 +54,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_stdexceptutil.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_UTIL
-#include <bslstl_util.h>
+#ifndef INCLUDED_BSLSTL_DISAMBIGUATOR
+#include <bslstl_disambiguator.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
@@ -388,6 +388,8 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // Container base type, containing the allocator and applying
         // empty base class optimization (EBO) whenever appropriate.
 
+    typedef BloombergLP::bslstl::Disambiguator            MatchIntegral;
+
     class Guard {
         // This class provides a proctor for deallocating an array of
         // 'VALUE_TYPE' objects, to be used in the 'Vector_Imp'
@@ -418,11 +420,11 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
     // PRIVATE MANIPULATORS
     template <class INPUT_ITER>
-    void privateInsertDispatch(const_iterator                   position,
-                               INPUT_ITER                       count,
-                               INPUT_ITER                       value,
-                               BloombergLP::bslstl::UtilIterator,
-                               int);
+    void privateInsertDispatch(const_iterator position,
+                               INPUT_ITER     count,
+                               INPUT_ITER     value,
+                               MatchIntegral  ,
+                               int            );
         // Match integral type for 'INPUT_ITER'.
 
     template <class INPUT_ITER>
@@ -1664,11 +1666,11 @@ template <typename VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
-                                     const_iterator                   position,
-                                     INPUT_ITER                       count,
-                                     INPUT_ITER                       value,
-                                     BloombergLP::bslstl::UtilIterator,
-                                     int)
+                                                       const_iterator position,
+                                                       INPUT_ITER     count,
+                                                       INPUT_ITER     value,
+                                                       MatchIntegral  ,
+                                                       int            )
 {
     // 'count' and 'value' are integral types that just happen to be the same.
     // They are not iterators, so we call 'insert(position, count, value)'.
@@ -2236,9 +2238,8 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator position,
     // fundamental type passed to this function is integral or else compilation
     // errors will result.  The extra argument, 0, is to avoid an overloading
     // ambiguity: In case 'first' is an integral type, it would be convertible
-    // both to 'bslstl::UtilIterator' and 'bslmf::AnyType'; but the 0 will be
-    // an exact match to 'int', so the overload with 'bslstl::UtilIterator'
-    // will be preferred.
+    // both to 'MatchIntegral' and 'bslmf::AnyType'; but the 0 will be an exact
+    // match to 'int', so the overload with 'MatchIntegral' will be preferred.
 
     privateInsertDispatch(position, first, last, first, 0);
 }

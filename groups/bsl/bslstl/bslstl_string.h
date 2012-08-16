@@ -71,8 +71,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_stringrefdata.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_UTIL
-#include <bslstl_util.h>
+#ifndef INCLUDED_BSLSTL_DISAMBIGUATOR
+#include <bslstl_disambiguator.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_HASTRAIT
@@ -495,7 +495,8 @@ class basic_string
 
   private:
     // PRIVATE TYPES
-    typedef String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type>  Imp;
+    typedef String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type> Imp;
+    typedef BloombergLP::bslstl::Disambiguator                   MatchIntegral;
 
     // PRIVATE MANIPULATORS
 
@@ -626,12 +627,12 @@ class basic_string
         // and 'length() <= max_size() - numChars'.
 
     template <typename INPUT_ITER>
-    basic_string& privateReplaceDispatch(size_type  position,
-                                         size_type  numChars,
-                                         INPUT_ITER first,
-                                         INPUT_ITER last,
-                                         BloombergLP::bslstl::UtilIterator,
-                                         int);
+    basic_string& privateReplaceDispatch(size_type     position,
+                                         size_type     numChars,
+                                         INPUT_ITER    first,
+                                         INPUT_ITER    last,
+                                         MatchIntegral ,
+                                         int           );
         // Match integral type for 'INPUT_ITER'.
 
     template <typename INPUT_ITER>
@@ -2420,12 +2421,12 @@ template <typename INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceDispatch(
-                                             size_type                position,
-                                             size_type                numChars,
-                                             INPUT_ITER               first,
-                                             INPUT_ITER               last,
-                                             BloombergLP::bslstl::UtilIterator,
-                                             int)
+                                                        size_type     position,
+                                                        size_type     numChars,
+                                                        INPUT_ITER    first,
+                                                        INPUT_ITER    last,
+                                                        MatchIntegral ,
+                                                        int           )
 {
     return replace(position, numChars, (size_type)first, (CHAR_TYPE)last);
 }

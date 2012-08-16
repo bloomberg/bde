@@ -2,24 +2,41 @@
 
 #include <bslstl_disambiguator.h>
 
-#include <bslmf_anytype.h>
+#include <bslmf_anytype.h>               // for Usage only
+#include <bsltf_templatetestfacility.h>
 
 #include <cstdio>
 #include <cstdlib>
+#include <typeinfo>
 
 using namespace BloombergLP;
 using namespace std;
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             Overview
+//                             --------
+// The implicity convertability of integral and floating point types to
+// 'bslstd::Disambiguator' is confirmed by creating an object for each type of
+// interest, and then using it a context where implicit conversion is required:
+// i.e., as an argument to a function expecting an argument of type
+// 'bslstd::Disambiguator'.  Successful compilation is the indicator of
+// success.  Correspondingly, a manually driven test case is supplied to
+// allow confirmation that inappropriate types are *not* converted.
+// Failure-to-compile is indication of success for that case.
 //
-//
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// CREATORS
+// [ 2] bslstd::Disambiguator(int);
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 3] USAGE EXAMPLE
+// [-1] NON-CONVERTIBLE
 
-//==========================================================================
+// ============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 
@@ -33,28 +50,106 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
 //#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_ printf("\t");             // Print a tab (w/o newline)
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+typedef bslstl::Disambiguator Obj;
+
+// ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+static int globalVerbose = 0;
+
+// ============================================================================
+//                  GLOBAL HELPER CLASSES
+// ----------------------------------------------------------------------------
+
+static void acceptObj(bslstl::Disambiguator)
+{
+}
+
+template <class TYPE>
+struct TestTemplate_INTEGRAL_CONVERTABILITY
+{
+    // This 'struct' provides a namespace for a simple test method.
+
+    // CLASS METHODS
+    static void implicitlyConvert();
+        // Implicity convert objects of type:
+        //: o 'TYPE'
+        //: o 'TYPE&'
+        //: o 'const TYPE'
+        //: o 'const TYPE&'
+        //: o 'volatile TYPE'
+        //: o 'volatile TYPE&'
+        //: o 'const volatile TYPE'
+        //: o 'const volatile TYPE&'
+        // for the parameterized 'TYPE' to 'bslstl::Disambiguator' objects, and
+        // write to standard output a human-readable representation of 'TYPE'.
+
+};
+
+template <class TYPE>
+void TestTemplate_INTEGRAL_CONVERTABILITY<TYPE>::implicitlyConvert()
+{
+    if (globalVerbose) {
+        printf("%s\n", typeid(TYPE).name());
+    }
+
+    TYPE obj;
+    acceptObj(obj);
+
+    TYPE& objRef = obj;
+    acceptObj(objRef);
+
+    const TYPE cObj = 0;
+    acceptObj(cObj);
+
+    const TYPE cObjRef = obj;
+    acceptObj(cObjRef);
+
+    volatile TYPE vObj = 0;
+    acceptObj(vObj);
+
+    volatile TYPE vObjRef = obj;
+    acceptObj(vObjRef);
+
+    const volatile TYPE cvObj = 0;
+    acceptObj(cvObj);
+
+    const volatile TYPE cvObjRef = obj;
+    acceptObj(cvObjRef);
+}
+
+class MyConvertibleToInt
+{
+  public:
+    // ACCESSORS
+    operator int() const;
+};
+
+// ACCESSORS
+MyConvertibleToInt::operator int() const
+{
+    return 113355;
+}
+
+// ============================================================================
 //                              USAGE EXAMPLES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace usageExample1 {
 
@@ -132,6 +227,7 @@ namespace usageExample1 {
         (void)numElements;
         (void)value;
 
+    if(globalVerbose)
         printf("CTOR: duplicate value: %s\n", message);
     }
 
@@ -147,6 +243,7 @@ namespace usageExample1 {
         (void)first;
         (void)last;
 
+    if(globalVerbose)
         printf("CTOR: range          : %s\n", message);
     }
 //..
@@ -177,8 +274,9 @@ namespace usageExample1 {
 // the third object, is created using the range constructor: at best, this
 // will fail to compile!
 //..
-// CTOR: range : Called with pointer pair.  CTOR: duplicate value: Called with
-// 'int' and 'char'.  CTOR: range : Called with 'int' and 'int'.
+//  CTOR: range          : Called with pointer pair.
+//  CTOR: duplicate value: Called with 'int' and 'char'.
+//  CTOR: range          : Called with 'int' and 'int'.
 //..
 // The arguments provided for the creation of 'initFromIntAndInt' resolve to
 // the range constructor because the template match of two arguments of the
@@ -255,6 +353,7 @@ namespace usageExample1 {
 // is 'bslstl::Disambiguator' (basic integral types accepted here), and
 // the last parameter is a simple 'int'.
 //..
+
         template <class INTEGER_TYPE>
         void privateInitDispatch(INTEGER_TYPE           numElements,
                                  INTEGER_TYPE           value,
@@ -309,6 +408,7 @@ namespace usageExample1 {
         (void) numElements;
         (void) value;
 
+    if(globalVerbose)
         printf("INIT: duplicate value: %s\n", message);
     }
     template <class VALUE_TYPE>
@@ -321,6 +421,7 @@ namespace usageExample1 {
         (void)first;
         (void)last;
 
+    if(globalVerbose)
         printf("INIT: range          : %s\n", message);
     }
 //..
@@ -417,8 +518,9 @@ namespace usageExample1 {
                                             65, // 'A'
                                             "Called with 'int' and 'int'.");
 //..
-// INIT: range : Called with pointer pair.  INIT: duplicate value: Called with
-// 'int' and 'char'.  INIT: duplicate value: via 'privateInitDispatch'
+//  INIT: range          : Called with pointer pair.
+//  INIT: duplicate value: Called with 'int' and 'char'.
+//  INIT: duplicate value: via 'privateInitDispatch'
 //..
 // Notice that the duplicate value 'privateInit' method is called directly
 // for the second object, but called via 'privateInitDispatch' for the
@@ -429,21 +531,23 @@ namespace usageExample1 {
 
 }  // end example namespace
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
     int    test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
 
+    globalVerbose = verbose;
+
     setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -468,26 +572,127 @@ int main(int argc, char *argv[])
         usageExample1::main2();
 
       } break;
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
-        // BREATHING/USAGE TEST
+        // INTEGRAL CONVERTABILITY
         //
         // Concerns:
+        //: 1 Every C++ integral type and the floating pointer types can be
+        //:   implicitly converted to a 'bslstl::Disambiguate' object.
         //
         // Plan:
+        //: 1 Define a function with a parameter 'bslstl::Disambiguate' and,
+        //:   using the 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro,
+        //:   invoke using an argument of each type of interest.  Successful
+        //:   compilation indicates success.  (C-1)
         //
         // Testing:
+        //   bslstl::Disambiguate(int)
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nINTEGRAL CONVERTABILITY"
+                            "\n=======================\n");
+
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
+                                          TestTemplate_INTEGRAL_CONVERTABILITY,
+                                          implicitlyConvert,
+                                                              bool,
+
+                                            signed            char,
+                                            signed      short int,
+                                            signed            int,
+                                            signed      long  int,
+                                            signed long long  int,
+
+                                          unsigned            char,
+                                          unsigned      short int,
+                                          unsigned            int,
+                                          unsigned      long  int,
+                                          unsigned long long  int,
+
+                                                              float,
+                                                              double,
+                                                        long  double);
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Construct an object 'obj' of type 'bslstl::Disambiguator' using
+        //:   an arbitrary integer value.  (C-1)
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+        Obj obj(-1234);
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
-      }
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // NON-CONVERTIBLE
+        //   This manually driven test case demonstrates how the 
+        //   'bslstl::Disambiguator' class disallows implicit conversion from
+        //   inappropriate types.  Each 'BSLSTL_DISAMBIGUATOR_NON_CONVERT_*' 
+        //   preprocessor symbol should in turn be defined and compiler
+        //   failure (success for the case) confirmed.
+        //
+        // Concerns:
+        //: 1 Classes convertible to 'int' are not implicitly convertible to
+        //:   'bslstl::Disamibugator'.
+        //:
+        //: 2 Pointers are are not implicitly convertible to
+        //:   'bslstl::Disamibugator'.
+        //
+        // Plan:
+        //: 1 Create an object of 'MyConvertibleToInt' class and attempt
+        //:   to use it in a context that requires implicit conversion to a
+        //:   'bslstl::Disamibugator' object.  (C-1)
+        //:
+        //: 2 Create a 'int *' object and attempt to use it n a context
+        //:   to use it in a context requiring implicit conversion to a
+        //:   'bslstl::Disamibugator' object.
+        //
+        // Testing:
+        //   NON-CONVERTIBLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nNON-CONVERTIBLE"
+                            "\n===============\n");
+
+//#define BSLSTL_DISAMBIGUATOR_NON_CONVERT_MYCONVERTITBLETOINTCLASS
+#ifdef  BSLSTL_DISAMBIGUATOR_NON_CONVERT_MYCONVERTITBLETOINTCLASS
+        MyConvertibleToInt obj;
+        if (verbose) {
+            printf ("MyConvertibleToInt: %d\n", (int)obj);
+        }
+        acceptObj(obj);
+#endif
+
+//#define BSLSTL_DISAMBIGUATOR_NON_CONVERT_POINTER
+#ifdef  BSLSTL_DISAMBIGUATOR_NON_CONVERT_POINTER
+        int i;
+        int *p = &i;
+        if (verbose) {
+            printf ("int *: %p\n", p);
+        }
+        acceptObj(p);
+#endif
+
+      } break;
     }
 
     if (testStatus > 0) {
@@ -499,7 +704,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

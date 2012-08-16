@@ -42,7 +42,7 @@
             traitsgroupstlassociativecontainer
             traitsgroupstlsequencecontainer
             traitsgroupstlunorderedcontainer
-            util
+            disambiguator
 ..
 
 /Component Synopsis
@@ -102,5 +102,5 @@
 
   'bslstl_vector'         - conforming 'std::vector' implementation
 
-  'bslstl_util'           - utilities for STL functionality
+  'bslstl_disambiguator'  - class for "do the right thing" dispatch
 ..
