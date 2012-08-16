@@ -255,21 +255,28 @@ const bdecs_PackedCalendar::WeekendDaysTransition& getEmptyTransition()
     // days.
 {
 
-    // static bdecs_PackedCalendar::WeekendDaysTransition *transitionPtr = 0;
+    static bsls::AtomicOperations::AtomicTypes::Pointer transitionPtr = {0};
 
-    // BCEMT_ONCE_DO {
-    //     static bdecs_PackedCalendar::WeekendDaysTransition
-    //                          transition(bdet_Date(1,1,1), bdec_DayOfWeekSet());
-    //     transitionPtr = &transition;
-    // }
+    if (bsls::AtomicOperations::getPtrAcquire(&transitionPtr)) {
+        return *(static_cast<
+                 const bdecs_PackedCalendar::WeekendDaysTransition*>(
+                       bsls::AtomicOperations::getPtrRelaxed(&transitionPtr)));
+    }
 
-    // return *transitionPtr;
+    bsls::AtomicOperations::AtomicTypes::Int initFlag = { 0 };
+    if (0 == bsls::AtomicOperations::testAndSwapIntAcqRel(&initFlag, 0, 1)) {
 
-    static bdecs_PackedCalendar::WeekendDaysTransition
-                             transition(bdet_Date(1,1,1), bdec_DayOfWeekSet());
-    return transition;
+        static bdecs_PackedCalendar::WeekendDaysTransition transition;
+        bsls::AtomicOperations::setPtr(&transitionPtr, &transition);
+    }
+    else {
+        while (0 == bsls::AtomicOperations::getPtr(&transitionPtr));
+    }
+
+    return *(static_cast<
+                 const bdecs_PackedCalendar::WeekendDaysTransition*>(
+                       bsls::AtomicOperations::getPtr(&transitionPtr)));
 }
-
 
 }  // close unnamed namespace
 
