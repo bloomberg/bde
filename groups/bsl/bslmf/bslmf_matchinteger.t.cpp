@@ -76,7 +76,7 @@ static int globalVerbose = 0;
 //                  GLOBAL HELPER CLASSES
 // ----------------------------------------------------------------------------
 
-static void acceptObj(bslmf::MatchInteger)
+void acceptObj(bslmf::MatchInteger)
 {
 }
 
