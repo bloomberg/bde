@@ -50,16 +50,16 @@
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_EXFUNCTIONAL
+#include <bslstp_exfunctional.h>
+#endif
+
 #ifndef INCLUDED_BSLSTP_HASHTABLE
 #include <bslstp_hashtable.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_EXFUNCTIONAL
-#include <bslstl_exfunctional.h>
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL
