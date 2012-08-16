@@ -71,10 +71,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_stringrefdata.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_DISAMBIGUATOR
-#include <bslstl_disambiguator.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_HASTRAIT
 #include <bslalg_hastrait.h>
 #endif
@@ -105,6 +101,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHINTEGER
+#include <bslmf_matchinteger.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNEDBUFFER
@@ -496,7 +496,6 @@ class basic_string
   private:
     // PRIVATE TYPES
     typedef String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type> Imp;
-    typedef BloombergLP::bslstl::Disambiguator                   MatchIntegral;
 
     // PRIVATE MANIPULATORS
 
@@ -627,21 +626,22 @@ class basic_string
         // and 'length() <= max_size() - numChars'.
 
     template <typename INPUT_ITER>
-    basic_string& privateReplaceDispatch(size_type     position,
-                                         size_type     numChars,
-                                         INPUT_ITER    first,
-                                         INPUT_ITER    last,
-                                         MatchIntegral ,
-                                         int           );
+    basic_string& privateReplaceDispatch(
+                                    size_type                        position,
+                                    size_type                        numChars,
+                                    INPUT_ITER                       first,
+                                    INPUT_ITER                       last,
+                                    BloombergLP::bslmf::MatchInteger ,
+                                    int                              );
         // Match integral type for 'INPUT_ITER'.
 
     template <typename INPUT_ITER>
-    basic_string& privateReplaceDispatch(size_type  position,
-                                         size_type  numChars,
-                                         INPUT_ITER first,
-                                         INPUT_ITER last,
-                                         BloombergLP::bslmf::AnyType,
-                                         BloombergLP::bslmf::AnyType);
+    basic_string& privateReplaceDispatch(size_type                   position,
+                                         size_type                   numChars,
+                                         INPUT_ITER                  first,
+                                         INPUT_ITER                  last,
+                                         BloombergLP::bslmf::AnyType ,
+                                         BloombergLP::bslmf::AnyType );
         // Match non-integral type for 'INPUT_ITER'.
 
     template <typename INPUT_ITER>
@@ -2421,12 +2421,12 @@ template <typename INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceDispatch(
-                                                        size_type     position,
-                                                        size_type     numChars,
-                                                        INPUT_ITER    first,
-                                                        INPUT_ITER    last,
-                                                        MatchIntegral ,
-                                                        int           )
+                                     size_type                        position,
+                                     size_type                        numChars,
+                                     INPUT_ITER                       first,
+                                     INPUT_ITER                       last,
+                                     BloombergLP::bslmf::MatchInteger ,
+                                     int                              )
 {
     return replace(position, numChars, (size_type)first, (CHAR_TYPE)last);
 }
@@ -2436,12 +2436,12 @@ template <typename INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceDispatch(
-                                                   size_type  position,
-                                                   size_type  numChars,
-                                                   INPUT_ITER first,
-                                                   INPUT_ITER last,
-                                                   BloombergLP::bslmf::AnyType,
-                                                   BloombergLP::bslmf::AnyType)
+                                          size_type                   position,
+                                          size_type                   numChars,
+                                          INPUT_ITER                  first,
+                                          INPUT_ITER                  last,
+                                          BloombergLP::bslmf::AnyType ,
+                                          BloombergLP::bslmf::AnyType )
 {
     typename iterator_traits<INPUT_ITER>::iterator_category tag;
     return privateReplace(position, numChars, first, last, tag);

@@ -42,7 +42,6 @@
             traitsgroupstlassociativecontainer
             traitsgroupstlsequencecontainer
             traitsgroupstlunorderedcontainer
-            disambiguator
 ..
 
 /Component Synopsis
@@ -101,6 +100,4 @@
                             ('hash_set', 'hash_map', etc.).
 
   'bslstl_vector'         - conforming 'std::vector' implementation
-
-  'bslstl_disambiguator'  - class for "do the right thing" dispatch
 ..

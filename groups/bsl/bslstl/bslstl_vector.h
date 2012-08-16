@@ -54,10 +54,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_stdexceptutil.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_DISAMBIGUATOR
-#include <bslstl_disambiguator.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
 #include <bslalg_arraydestructionprimitives.h>
 #endif
@@ -112,6 +108,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHINTEGER
+#include <bslmf_matchinteger.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -388,8 +388,6 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // Container base type, containing the allocator and applying
         // empty base class optimization (EBO) whenever appropriate.
 
-    typedef BloombergLP::bslstl::Disambiguator            MatchIntegral;
-
     class Guard {
         // This class provides a proctor for deallocating an array of
         // 'VALUE_TYPE' objects, to be used in the 'Vector_Imp'
@@ -420,19 +418,19 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
     // PRIVATE MANIPULATORS
     template <class INPUT_ITER>
-    void privateInsertDispatch(const_iterator position,
-                               INPUT_ITER     count,
-                               INPUT_ITER     value,
-                               MatchIntegral  ,
-                               int            );
+    void privateInsertDispatch(const_iterator                   position,
+                               INPUT_ITER                       count,
+                               INPUT_ITER                       value,
+                               BloombergLP::bslmf::MatchInteger ,
+                               int                              );
         // Match integral type for 'INPUT_ITER'.
 
     template <class INPUT_ITER>
-    void privateInsertDispatch(const_iterator             position,
-                               INPUT_ITER                 first,
-                               INPUT_ITER                 last,
-                               BloombergLP::bslmf::AnyType,
-                               BloombergLP::bslmf::AnyType);
+    void privateInsertDispatch(const_iterator              position,
+                               INPUT_ITER                  first,
+                               INPUT_ITER                  last,
+                               BloombergLP::bslmf::AnyType ,
+                               BloombergLP::bslmf::AnyType );
         // Match non-integral type for 'INPUT_ITER'.
 
     template <class INPUT_ITER>
@@ -1666,11 +1664,11 @@ template <typename VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
-                                                       const_iterator position,
-                                                       INPUT_ITER     count,
-                                                       INPUT_ITER     value,
-                                                       MatchIntegral  ,
-                                                       int            )
+                                     const_iterator                   position,
+                                     INPUT_ITER                       count,
+                                     INPUT_ITER                       value,
+                                     BloombergLP::bslmf::MatchInteger ,
+                                     int                              )
 {
     // 'count' and 'value' are integral types that just happen to be the same.
     // They are not iterators, so we call 'insert(position, count, value)'.
@@ -1684,11 +1682,11 @@ template <typename VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
-                                           const_iterator             position,
-                                           INPUT_ITER                 first,
-                                           INPUT_ITER                 last,
-                                           BloombergLP::bslmf::AnyType,
-                                           BloombergLP::bslmf::AnyType)
+                                          const_iterator              position,
+                                          INPUT_ITER                  first,
+                                          INPUT_ITER                  last,
+                                          BloombergLP::bslmf::AnyType ,
+                                          BloombergLP::bslmf::AnyType )
 {
     // Dispatch based on iterator category.
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
