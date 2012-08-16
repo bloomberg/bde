@@ -19,31 +19,35 @@ BSLS_IDENT("$Id: $")
 //         Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component provides an iterator adaptor that, given an
-// implementation class defining a core set of iterator functionality, adapts
-// it to provide an STL-compliant random access iterator interface.  The set of
-// requirements for a random access iterator is found in "Table 108: Random
-// access iterator requirements", under the tag "[random.access.iterators]".
-// (Note that this reference is sourced in N3092, a C++0x working paper; the
-// actual table number may be different in the actual standard.)  Include
-// bsl_iterator.h to use this component.
+// implementation class defining a core set of iterator functionality specified
+// in the class level documentation, adapts it to provide an STL-compliant
+// random access iterator interface.  'bslstl::RandomAccessIterator' meets the
+// requirements of a random access iterator described in the C++11 standard
+// [24.2.7] under the tag "[random.access.iterators]".  Include bsl_iterator.h
+// to use this component.
 //
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Using Iterators to Traverse a Container
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Defining a Standard Compliant Random Access Iterator
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to create a standard compliant random access iterator for a
-// fixed-size array.
+// container.
 //
-// First, we define an iterator-like class, 'MyArrayIterator', which implements
-// the minimal interface of the iterator required by
-// 'bslstl::RandomAccessIterator'.  Note that the following shows only the
-// public interface required.  Private members and additional methods that may
-// be needed to implement this class is elided in this example:
+// First, we define an iterator, 'MyArrayIterator', that meets the requirements
+// of the 'IMP_ITER' template parameter of 'RandomAccessIterator' class (see
+// class level documentation), but does not meet the full set of requirements
+// for a random access iterator as defined by the C++ standard.  Note that the
+// following shows only the public interface required.  Private members and
+// additional methods that may be needed to implement this class are elided in
+// this example:
 //..
 //  template <class VALUE>
 //  class MyArrayIterator {
+//      // This class implements the minimal requirements to implement a random
+//      // access iterator using 'bslstl::RandomAccessIterator'.
+//
 //    public:
 //      // CREATORS
 //      MyArrayIterator();
@@ -55,7 +59,7 @@ BSLS_IDENT("$Id: $")
 //          // as the specified 'original' object.
 //
 //      ~MyArrayIterator();
-//          // Destory this object;
+//          // Destroy this object;
 //
 //      // MANIPULATORS
 //      MyArrayIterator& operator=(const MyArrayIterator& rhs);
@@ -90,28 +94,28 @@ BSLS_IDENT("$Id: $")
 //  std::ptrdiff_t operator-(const MyArrayIterator<VALUE>&,
 //                           const MyArrayIterator<VALUE>&);
 //..
-// Notice that 'MyArrayIterator' does not implements a complete standard
+// Notice that 'MyArrayIterator' does not implement a complete standard
 // compliant random access iterator.  It is missing methods such as 'operator+'
 // and 'operator[]'.
 //
 // Then, we define the interface for our container class template,
-// 'MyFixedSizeArray':
+// 'MyFixedSizeArray'.  The implementation of the interface is elided for
+// brevity:
 //..
 //  template <class VALUE, int SIZE>
-//  class MyFixedSizeArray
+//  class MyFixedSizeArray {
 //      // This class implements a container that contains the parameterized
 //      // 'SIZE' number of elements of the parameterized 'VALUE' type.
-//  {
+//
 //      // DATA
 //      VALUE d_array[SIZE];   // storage of the container
 //
 //    public:
 //      // PUBLIC TYPES
-//      typedef VALUE      value_type;
-//
+//      typedef VALUE value_type;
 //..
-// Now, we use the adaptor to create a standard compliant random access
-// iterator for this container from 'MyArrayIterator':
+// Now, we use 'RandomAccessIterator' to create a standard compliant iterator
+// for this container:
 //..
 //      typedef bslstl::RandomAccessIterator<VALUE,
 //                                           MyArrayIterator<VALUE> > iterator;
@@ -122,7 +126,7 @@ BSLS_IDENT("$Id: $")
 // Notice that the implementation for 'const_iterator' is
 // 'MyArrayIterator<VALUE>' and *not* 'MyArrayIterator<const VALUE>'.
 //
-// Next, we continue defining the rest of the class:
+// Next, we continue defining the rest of the class.
 //..
 //      // CREATORS
 //      //! MyFixedSizeArray() = default;
@@ -159,16 +163,12 @@ BSLS_IDENT("$Id: $")
 //          // Return a random access iterator providing non-modifiable access
 //          // to the last valid element of this object.
 //
-//      int size() const;
-//          // Return the number of elements contained in this object.
-//
-//      const VALUE& operator[](int i) const;
+//      const VALUE& operator[](int position) const;
 //          // Return a reference providing non-modifiable access to the
 //          // specified 'i'th element in this object.
 //  };
 //..
-// Then, to test our container, we create a 'MyFixedSizeArray' object and
-// initialize its elements:
+// Then, we create a 'MyFixedSizeArray' and initialize its elements:
 //..
 //  MyFixedSizeArray<int, 5> fixedArray;
 //  fixedArray[0] = 3;
@@ -190,6 +190,7 @@ BSLS_IDENT("$Id: $")
 //  assert(fixedArray[3] == 4);
 //  assert(fixedArray[4] == 5);
 //..
+
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.

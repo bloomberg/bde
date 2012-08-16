@@ -376,19 +376,24 @@ namespace testcontainer {
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Using Iterators to Traverse a Container
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Defining a Standard Compliant Random Access Iterator
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to create a standard compliant random access iterator for a
 // container.
 //
-// First, we define an iterator-like class, 'MyArrayIterator', which implements
-// the minimal interface of the iterator required by
-// 'bslstl::RandomAccessIterator'.  Note that the following shows only the
-// public interface required.  Private members and additional methods that may
-// be needed to implement this class is elided in this example:
+// First, we define an iterator, 'MyArrayIterator', that meets the requirements
+// of the 'IMP_ITER' template parameter of 'RandomAccessIterator' class (see
+// class level documentation), but does not meet the full set of requirements
+// for a random access iterator as defined by the C++ standard.  Note that the
+// following shows only the public interface required.  Private members and
+// additional methods that may be needed to implement this class are elided in
+// this example:
 //..
     template <class VALUE>
     class MyArrayIterator {
+        // This class implements the minimal requirements to implement a random
+        // access iterator using 'bslstl::RandomAccessIterator'.
+//
 // *** Remove the following from usage example to emphasis on the interface ***
         // DATA
         VALUE *d_value_p;  // address of an element in an array (held, not
@@ -421,7 +426,7 @@ namespace testcontainer {
             // as the specified 'original' object.
 //
         ~MyArrayIterator();
-            // Destory this object;
+            // Destroy this object;
 //
         // MANIPULATORS
         MyArrayIterator& operator=(const MyArrayIterator& rhs);
@@ -456,12 +461,13 @@ namespace testcontainer {
     std::ptrdiff_t operator-(const MyArrayIterator<VALUE>&,
                              const MyArrayIterator<VALUE>&);
 //..
-// Notice that 'MyArrayIterator' does not implements a complete standard
+// Notice that 'MyArrayIterator' does not implement a complete standard
 // compliant random access iterator.  It is missing methods such as 'operator+'
 // and 'operator[]'.
 //
 // Then, we define the interface for our container class template,
-// 'MyFixedSizeArray':
+// 'MyFixedSizeArray'.  The implementation of the interface is elided for
+// brevity:
 //..
     template <class VALUE, int SIZE>
     class MyFixedSizeArray {
@@ -473,10 +479,10 @@ namespace testcontainer {
 //
       public:
         // PUBLIC TYPES
-        typedef VALUE      value_type;
+        typedef VALUE value_type;
 //..
-// Now, we use the adaptor to create a standard compliant iterator for this
-// container.
+// Now, we use 'RandomAccessIterator' to create a standard compliant iterator
+// for this container:
 //..
         typedef bslstl::RandomAccessIterator<VALUE,
                                              MyArrayIterator<VALUE> > iterator;
@@ -523,9 +529,6 @@ namespace testcontainer {
         const_iterator end() const;
             // Return a random access iterator providing non-modifiable access
             // to the last valid element of this object.
-//
-        int size() const;
-            // Return the number of elements contained in this object.
 //
         const VALUE& operator[](int position) const;
             // Return a reference providing non-modifiable access to the
@@ -656,12 +659,6 @@ typename MyFixedSizeArray<VALUE, SIZE>::const_iterator
 MyFixedSizeArray<VALUE, SIZE>::end() const
 {
     return MyArrayIterator<VALUE>(d_array + SIZE);
-}
-
-template <class VALUE, int SIZE>
-int MyFixedSizeArray<VALUE, SIZE>::size() const
-{
-    return SIZE;
 }
 
 template <class VALUE, int SIZE>
