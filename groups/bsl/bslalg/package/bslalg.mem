@@ -16,6 +16,7 @@ bslalg_dequeprimitives
 bslalg_functoradapter
 bslalg_hashtablebucket
 bslalg_hashtableutil
+bslalg_hashutil
 bslalg_hastrait
 bslalg_passthroughtrait
 bslalg_rangecompare

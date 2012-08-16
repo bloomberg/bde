@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::BidirectionalLink: utilities to maintain bidirectional list data structures
 //
-//@SEE_ALSO: bsl_unorderedmap5
+//@SEE_ALSO: bslalg_hashtableutil
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
@@ -55,7 +55,6 @@ struct BidirectionalListUtil {
     // Splice the segment of a doubly-linked list specified by the closed range
     // '[first, last]' into the doubly-linked target list before the specified
     // 'before' node.
-
 
     static
     void unlink(BidirectionalLink *node);
