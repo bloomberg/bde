@@ -72,7 +72,7 @@
             issame            nil            or
 
   Level 2:  arraytopointer    isarray        functionpointertraits
-            metaint
+            matchiterator     metaint
 
   Level 1:  anytype           assert         isbitwise
             removecvq         tag            typelist
@@ -105,6 +105,9 @@
   'bslmf_ispointertomember' - identifying pointer-to-member types.
   'bslmf_ispolymorphic'     - identifying polymorphic types.
   'bslmf_issame'            - testing whether two types are the same.
+
+  'bslstl_matchinteger'     - class for "do the right thing" dispatch
+
   'bslmf_memberfunctionpointertraits'
                             - extracting class, return, and argument types from
                               a member function type.

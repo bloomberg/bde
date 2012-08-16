@@ -1,6 +1,6 @@
-// bslstl_disambiguator.h                                             -*-C++-*-
-#ifndef INCLUDED_BSLSTL_DISAMBIGUATOR
-#define INCLUDED_BSLSTL_DISAMBIGUATOR
+// bslmf_matchinteger.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLMF_MATCHINTEGER
+#define INCLUDED_BSLMF_MATCHINTEGER
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,16 +10,16 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a class supporting "do the right thing" dispatch.
 //
 //@CLASSES:
-//  bslstl::Disambiguator: implicit conversion of integral types
+//  bslmf::MatchInteger: implicit conversion of integral types
 //
 //@SEE_ALSO: bslstl_deque, bslstl_string, bslstl_vector
 //
 //@AUTHOR: Pablo Halpern (phalpern), Steven Breitstein (sbreitstein)
 //
-//@DESCRIPTION: This component defines a class, 'bslstl::Disambiguator', to
-// which any integral type can be implicitly converted.  A class with that
-// conversion property is needed to meet the certain requirements of the
-// sequential standard containers.
+//@DESCRIPTION: This component defines a class, 'bslmf::MatchInteger', to which
+// any integral type can be implicitly converted.  A class with that conversion
+// property is needed to meet the certain requirements of the sequential
+// standard containers.
 //
 // Sequential containers have several overloaded method templates that accept a
 // pair of input iterators (e.g., constructors, 'insert' and 'append' methods),
@@ -30,8 +30,8 @@ BSLS_IDENT("$Id: $")
 // informally known as the "do the right thing" clause.  See
 // 'http://gcc.gnu.org/onlinedocs/libstdc++/ext/lwg-defects.html#438'.
 //
-// The convertability of arguments to 'bslstl::Disabmiguator' is used to
-// dispatch calls with integral arguments to the appropriate methods.
+// The convertibility of arguments to 'bslmf::MatchInteger' is used to dispatch
+// calls with integral arguments to the appropriate methods.
 //
 ///Usage
 ///-----
@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 //                             const char        *message);
 //          // Create a 'MyProblematicContainer' object containing the
 //          // specified 'numElements' of the specified 'value', and write to
-//          // 'stdout' the specified 'message'.
+//          // standard output the specified 'message'.
 //
 //      template <class INPUT_ITER>
 //      MyProblematicContainer(INPUT_ITER  first,
@@ -80,8 +80,8 @@ BSLS_IDENT("$Id: $")
 //          // Create a 'MyProblematicContainer' object containing the values
 //          // in the range starting at the specified 'first' iterator and
 //          // ending immediately before the specified 'last' iterator of the
-//          // parameterized 'INPUT_ITER' type, and write to 'stdout' the
-//          // specified 'message'.
+//          // parameterized 'INPUT_ITER' type, and write to standard output
+//          // the specified 'message'.
 //
 //      // ...
 //
@@ -125,11 +125,7 @@ BSLS_IDENT("$Id: $")
 //      printf("CTOR: range          : %s\n", message);
 //  }
 //..
-//
-//  int main1()
-//  {
-//..
-// The problem with the 'MyProblematicContainer' class become manifest when
+// The problem with the 'MyProblematicContainer' class becomes manifest when
 // we create several objects:
 //..
 //      const char                   input[] = "How now brown cow?";
@@ -149,12 +145,12 @@ BSLS_IDENT("$Id: $")
 //                                            "Called with 'int' and 'int'.");
 //..
 // The trace messages from the constructors show that 'initFromIntAndInt',
-// the third object, is created using the range constructor: at best, this
+// the third object, is created using the range constructor.  At best, this
 // will fail to compile!
 //..
-//  CTOR: range : Called with pointer pair.
+//  CTOR: range          : Called with pointer pair.
 //  CTOR: duplicate value: Called with 'int' and 'char'.
-//  CTOR: range : Called with 'int' and 'int'.
+//  CTOR: range          : Called with 'int' and 'int'.
 //..
 // The arguments provided for the creation of 'initFromIntAndInt' resolve to
 // the range constructor because the template match of two arguments of the
@@ -169,10 +165,7 @@ BSLS_IDENT("$Id: $")
 // so that the calls to the range constructor with two 'int' arguments
 // (or pairs of matching integer types) are routed to the duplicate value
 // constructor.
-//..
-//      return 0;
-//  }
-//..
+//
 // First, before we can perform a duplicate value construction from the context
 // of the range constructor, we must isolate the essential actions of that
 // these constructors into non-creator methods.  We define two 'privateInit'
@@ -193,8 +186,8 @@ BSLS_IDENT("$Id: $")
 //                       const VALUE_TYPE&  value,
 //                       const char        *message);
 //          // Initialize a 'MyProblematic' object containing the specified
-//          // 'numElements' of the specified 'value', and write to 'stdout'
-//          // the specified 'message'.
+//          // 'numElements' of the specified 'value', and write to standard
+//          // output the specified 'message'.
 //
 //      template <class INPUT_ITER>
 //      void privateInit(INPUT_ITER  first,
@@ -203,7 +196,7 @@ BSLS_IDENT("$Id: $")
 //          // Initialize a 'MyProblematic' object containing the values in the
 //          // range starting at the specified 'first' and ending immediately
 //          // before the specified 'last' iterators of the parameterized
-//          // 'INPUT_ITER' type, and write to 'stdout' the specified
+//          // 'INPUT_ITER' type, and write to standard output the specified
 //          // 'message'.
 //..
 // The implementation of these private methods shows that we have preserved the
@@ -243,45 +236,43 @@ BSLS_IDENT("$Id: $")
 // two argument an match 'bslmf::AnyType'.
 //..
 //      template <class INPUT_ITER>
-//      void privateInitDispatch(INPUT_ITER                   first,
-//                               INPUT_ITER                   last,
-//                               const char                  *message,
-//                               BloombergLP::bslmf::AnyType  ,
-//                               BloombergLP::bslmf::AnyType  );
+//      void privateInitDispatch(INPUT_ITER      first,
+//                               INPUT_ITER      last,
+//                               const char     *message,
+//                               bslmf::AnyType  ,
+//                               bslmf::AnyType  );
 //          // Initialize a 'MyProblematic' object containing the values in the
 //          // range starting at the specified 'first' and ending immediately
 //          // before the specified 'last' iterators of the parameterized
-//          // 'INPUT_ITER' type, and write to 'stdout' the specified
+//          // 'INPUT_ITER' type, and write to standard output the specified
 //          // 'message'.  The last two arguments are used only for overload
 //          // resolution.
-//
 //..
 // The other overload is more specialized: The penultimate parameter
-// is 'bslstl::Disambiguator' (basic integral types accepted here), and
+// is 'bslmf::MatchInteger' (basic integral types accepted here), and
 // the last parameter is a simple 'int'.
 //..
 //      template <class INTEGER_TYPE>
-//      void privateInitDispatch(INTEGER_TYPE           numElements,
-//                               INTEGER_TYPE           value,
-//                               const char            *message,
-//                               bslstl::Disambiguator  ,
-//                               int                    );
+//      void privateInitDispatch(INTEGER_TYPE         numElements,
+//                               INTEGER_TYPE         value,
+//                               const char          *message,
+//                               bslmf::MatchInteger  ,
+//                               int                  );
 //          // Initialize a 'MyProblematic' object containing the specified
-//          // 'numElements' of the specified 'value', and write to 'stdout'
-//          // the specified 'message'.  The last two arguments are used only
-//          // for overload resolution.
+//          // 'numElements' of the specified 'value', and write to standard
+//          // output the specified 'message'.  The last two arguments are used
+//          // only for overload resolution.
 //..
 // The implementation of the more general overload invokes the private
 // manipulator that handles the range construction.
 //..
 //  template <class VALUE_TYPE>
 //  template <class INPUT_ITER>
-//  void MyContainer<VALUE_TYPE>::privateInitDispatch(
-//                                        INPUT_ITER                   first,
-//                                        INPUT_ITER                   last,
-//                                        const char                  *message,
-//                                        BloombergLP::bslmf::AnyType  ,
-//                                        BloombergLP::bslmf::AnyType  )
+//  void MyContainer<VALUE_TYPE>::privateInitDispatch(INPUT_ITER      first,
+//                                                    INPUT_ITER      last,
+//                                                    const char     *message,
+//                                                    bslmf::AnyType  ,
+//                                                    bslmf::AnyType  )
 //  {
 //      privateInit(first, last, message);
 //  }
@@ -292,11 +283,11 @@ BSLS_IDENT("$Id: $")
 //  template <class VALUE_TYPE>
 //  template <class INTEGER_TYPE>
 //  void MyContainer<VALUE_TYPE>::privateInitDispatch(
-//                                          INTEGER_TYPE           numElements,
-//                                          INTEGER_TYPE           value,
-//                                          const char            *message,
-//                                          bslstl::Disambiguator  ,
-//                                          int                    )
+//                                          INTEGER_TYPE        numElements,
+//                                          INTEGER_TYPE        value,
+//                                          const char         *message,
+//                                          bslmf::MatchIntger  ,
+//                                          int                 )
 //  {
 //      (void)message;
 //
@@ -313,7 +304,7 @@ BSLS_IDENT("$Id: $")
 // last argument is an exact match for method expecting an 'int' as its last
 // argument.  Thus, the overload resolves to that method provided the type of
 // the penultimate argument, 'first', can be converted to
-// 'bslstl::Disambiguate' (i.e., 'first' is an integral type).
+// 'bslmf::MatchInteger' (i.e., 'first' is an integral type).
 //..
 //  template <class VALUE_TYPE>
 //  template <class INPUT_ITER>
@@ -324,14 +315,13 @@ BSLS_IDENT("$Id: $")
 //      privateInitDispatch(first, last, message, first, 0);
 //  }
 //..
-// Notice that this solution excludes iterators that themselves happen
-// to have a conversion to 'int'.  Such types would require two
-// user-defined conversions (iterator-to-integral type, then
-// integral-type to 'bslstl::Disambiguate') which are disallowed
-// by the C++ compiler.
+// Notice that this solution excludes iterators that themselves happen to have
+// a conversion to 'int'.  Such types would require two user-defined
+// conversions (iterator-to-integral type, then integral-type to
+// 'bslmf::MatchInteger') which are disallowed by the C++ compiler.
 //
-// The implementation of the duplicate value constructor simply calls the
-// the corresponding private manipulator.
+// The implementation of the duplicate value constructor simply calls the the
+// corresponding private manipulator.
 //..
 //  // CREATORS
 //  template <class VALUE_TYPE>
@@ -357,20 +347,21 @@ BSLS_IDENT("$Id: $")
 //      MyContainer<char> initFromIntAndInt(5,
 //                                          65, // 'A'
 //                                          "Called with 'int' and 'int'.");
+//
 //..
-//  INIT: range : Called with pointer pair.
+//  INIT: range          : Called with pointer pair.
 //  INIT: duplicate value: Called with 'int' and 'char'.
 //  INIT: duplicate value: via 'privateInitDispatch'
 //..
-// Notice that the duplicate value 'privateInit' method is called directly
-// for the second object, but called via 'privateInitDispatch' for the
-// third object.
+// Notice that the duplicate value 'privateInit' method is called directly for
+// the second object, but called via 'privateInitDispatch' for the third
+// object.
 
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// Prevent 'bslmf' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "<bslstl_diambiguator.h> header can't be included directly in \
-BSL_OVERRIDES_STD mode"
+#error "<bslmf_matchinteger.h> header can't be included directly in \
+        BSL_OVERRIDES_STD mode"
 #endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -379,13 +370,13 @@ BSL_OVERRIDES_STD mode"
 
 namespace BloombergLP {
 
-namespace bslstl {
+namespace bslmf {
 
-                        // ===================
-                        // class Disambiguator
-                        // ===================
+                        // ==================
+                        // class MatchInteger
+                        // ==================
 
-struct Disambiguator {
+struct MatchInteger {
     // Use as formal parameter for functions where an integral type can be
     // confused with an iterator type.  This class will match any integral
     // value.  If a type has a user-defined conversion to integral value, this
@@ -393,7 +384,7 @@ struct Disambiguator {
     // user-defined conversions.
 
     // CREATORS
-    Disambiguator(int);                                             // IMPLICIT
+    MatchInteger(int);                                              // IMPLICIT
         // Conversion constructor.  Does nothing.
 };
 
@@ -403,7 +394,7 @@ struct Disambiguator {
 // ===========================================================================
 
 inline
-Disambiguator::Disambiguator(int)
+MatchInteger::MatchInteger(int)
 {
 }
 

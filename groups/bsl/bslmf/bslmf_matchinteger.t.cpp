@@ -1,9 +1,8 @@
-// bslstl_disambiguator.t.cpp                                         -*-C++-*-
+// bslmf_matchinteger.t.cpp                                           -*-C++-*-
 
-#include <bslstl_disambiguator.h>
+#include <bslmf_matchinteger.h>
 
-#include <bslmf_anytype.h>               // for Usage only
-#include <bsltf_templatetestfacility.h>
+#include <bslmf_anytype.h>               // testing only (Usage)
 
 #include <cstdio>
 #include <cstdlib>
@@ -17,18 +16,18 @@ using namespace std;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The implicity convertability of integral and floating point types to
-// 'bslstd::Disambiguator' is confirmed by creating an object for each type of
+// The implicity convertibility of integral and floating point types to
+// 'bslmf::MatchInteger' is confirmed by creating an object for each type of
 // interest, and then using it a context where implicit conversion is required:
 // i.e., as an argument to a function expecting an argument of type
-// 'bslstd::Disambiguator'.  Successful compilation is the indicator of
-// success.  Correspondingly, a manually driven test case is supplied to
-// allow confirmation that inappropriate types are *not* converted.
+// 'bslmf::MatchInteger'.  Successful compilation is the indicator of success.
+// Correspondingly, a manually driven test case is supplied to allow
+// confirmation that inappropriate types are *not* converted.
 // Failure-to-compile is indication of success for that case.
 //
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] bslstd::Disambiguator(int);
+// [ 2] bslmf::MatchInteger(int);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] USAGE EXAMPLE
@@ -65,7 +64,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bslstl::Disambiguator Obj;
+typedef bslmf::MatchInteger Obj;
 
 // ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -77,12 +76,12 @@ static int globalVerbose = 0;
 //                  GLOBAL HELPER CLASSES
 // ----------------------------------------------------------------------------
 
-static void acceptObj(bslstl::Disambiguator)
+static void acceptObj(bslmf::MatchInteger)
 {
 }
 
 template <class TYPE>
-struct TestTemplate_INTEGRAL_CONVERTABILITY
+struct IntegralConveribility
 {
     // This 'struct' provides a namespace for a simple test method.
 
@@ -97,13 +96,13 @@ struct TestTemplate_INTEGRAL_CONVERTABILITY
         //: o 'volatile TYPE&'
         //: o 'const volatile TYPE'
         //: o 'const volatile TYPE&'
-        // for the parameterized 'TYPE' to 'bslstl::Disambiguator' objects, and
+        // for the parameterized 'TYPE' to 'bslmf::MatchInteger' objects, and
         // write to standard output a human-readable representation of 'TYPE'.
 
 };
 
 template <class TYPE>
-void TestTemplate_INTEGRAL_CONVERTABILITY<TYPE>::implicitlyConvert()
+void IntegralConveribility<TYPE>::implicitlyConvert()
 {
     if (globalVerbose) {
         printf("%s\n", typeid(TYPE).name());
@@ -191,7 +190,7 @@ namespace usageExample1 {
                                const char        *message);
             // Create a 'MyProblematicContainer' object containing the
             // specified 'numElements' of the specified 'value', and write to
-            // 'stdout' the specified 'message'.
+            // standard output the specified 'message'.
 
         template <class INPUT_ITER>
         MyProblematicContainer(INPUT_ITER  first,
@@ -200,8 +199,8 @@ namespace usageExample1 {
             // Create a 'MyProblematicContainer' object containing the values
             // in the range starting at the specified 'first' iterator and
             // ending immediately before the specified 'last' iterator of the
-            // parameterized 'INPUT_ITER' type, and write to 'stdout' the
-            // specified 'message'.
+            // parameterized 'INPUT_ITER' type, and write to standard output
+            // the specified 'message'.
 
         // ...
 
@@ -247,11 +246,11 @@ namespace usageExample1 {
         printf("CTOR: range          : %s\n", message);
     }
 //..
-
+//..
     int main1()
     {
 //..
-// The problem with the 'MyProblematicContainer' class become manifest when
+// The problem with the 'MyProblematicContainer' class becomes manifest when
 // we create several objects:
 //..
         const char                   input[] = "How now brown cow?";
@@ -271,7 +270,7 @@ namespace usageExample1 {
                                               "Called with 'int' and 'int'.");
 //..
 // The trace messages from the constructors show that 'initFromIntAndInt',
-// the third object, is created using the range constructor: at best, this
+// the third object, is created using the range constructor.  At best, this
 // will fail to compile!
 //..
 //  CTOR: range          : Called with pointer pair.
@@ -315,8 +314,8 @@ namespace usageExample1 {
                          const VALUE_TYPE&  value,
                          const char        *message);
             // Initialize a 'MyProblematic' object containing the specified
-            // 'numElements' of the specified 'value', and write to 'stdout'
-            // the specified 'message'.
+            // 'numElements' of the specified 'value', and write to standard
+            // output the specified 'message'.
 
         template <class INPUT_ITER>
         void privateInit(INPUT_ITER  first,
@@ -325,15 +324,15 @@ namespace usageExample1 {
             // Initialize a 'MyProblematic' object containing the values in the
             // range starting at the specified 'first' and ending immediately
             // before the specified 'last' iterators of the parameterized
-            // 'INPUT_ITER' type, and write to 'stdout' the specified
+            // 'INPUT_ITER' type, and write to standard output the specified
             // 'message'.
 //..
 // Next, we define two overloaded 'privateInitDispatch' methods, each taking
-// two parameters (the last two) which serve no purpose other than guiding
-// the overload resolution.
+// two parameters (the last two) which serve no purpose other than guiding the
+// overload resolution.
 //
-// One overload is quite general; the last two parameters are
-// match 'bslmf::AnyType'.
+// One overload is quite general; the last two parameters are match
+// 'bslmf::AnyType'.
 //..
         template <class INPUT_ITER>
         void privateInitDispatch(INPUT_ITER                   first,
@@ -344,28 +343,28 @@ namespace usageExample1 {
             // Initialize a 'MyProblematic' object containing the values in the
             // range starting at the specified 'first' and ending immediately
             // before the specified 'last' iterators of the parameterized
-            // 'INPUT_ITER' type, and write to 'stdout' the specified
+            // 'INPUT_ITER' type, and write to standard output the specified
             // 'message'.  The last two arguments are used only for overload
             // resolution.
 
 //..
-// The other overload is specialized: The penultimate parameter
-// is 'bslstl::Disambiguator' (basic integral types accepted here), and
-// the last parameter is a simple 'int'.
+// The other overload is specialized: The penultimate parameter is
+// 'bslmf::MatchInteger' (basic integral types accepted here), and the last
+// parameter is a simple 'int'.
 //..
 
         template <class INTEGER_TYPE>
         void privateInitDispatch(INTEGER_TYPE           numElements,
                                  INTEGER_TYPE           value,
                                  const char            *message,
-                                 bslstl::Disambiguator  ,
+                                 bslmf::MatchInteger  ,
                                  int                    );
             // Initialize a 'MyProblematic' object containing the specified
-            // 'numElements' of the specified 'value', and write to 'stdout'
-            // the specified 'message'.  The last two arguments are used only
-            // for overload resolution.
+            // 'numElements' of the specified 'value', and write to standard
+            // output the specified 'message'.  The last two arguments are used
+            // only for overload resolution.
 //..
-
+//..
       public:
         // CREATORS
         MyContainer(std::size_t        numElements,
@@ -373,7 +372,7 @@ namespace usageExample1 {
                     const char        *message);
             // Create a 'MyProblematicContainer' object containing the
             // specified 'numElements' of the specified 'value', and write to
-            // 'stdout' the specified 'message'.
+            // standard output the specified 'message'.
 
         template <class INPUT_ITER>
         MyContainer(INPUT_ITER  first, INPUT_ITER  last, const char *message);
@@ -381,7 +380,7 @@ namespace usageExample1 {
             // the values in the range starting at the specified
             // 'first' and ending immediately before the specified 'last'
             // iterators of the parameterized 'INPUT_ITER' type, and write to
-            // 'stdout' the specified 'message'.
+            // standard output the specified 'message'.
 
         // ...
 
@@ -394,9 +393,9 @@ namespace usageExample1 {
                         // =================
                         // class MyContainer
                         // =================
-
-// As in the 'MyProblematic' class, the essential behavior is merely to
-// provide a trace of the call path.
+//..
+// As in the 'MyProblematic' class, the essential behavior is merely to provide
+// a trace of the call path.
 //..
     // PRIVATE MANIPULATORS
     template <class VALUE_TYPE>
@@ -430,12 +429,11 @@ namespace usageExample1 {
 //..
     template <class VALUE_TYPE>
     template <class INPUT_ITER>
-    void MyContainer<VALUE_TYPE>::privateInitDispatch(
-                                          INPUT_ITER                   first,
-                                          INPUT_ITER                   last,
-                                          const char                  *message,
-                                          BloombergLP::bslmf::AnyType  ,
-                                          BloombergLP::bslmf::AnyType  )
+    void MyContainer<VALUE_TYPE>::privateInitDispatch(INPUT_ITER      first,
+                                                      INPUT_ITER      last,
+                                                      const char     *message,
+                                                      bslmf::AnyType  ,
+                                                      bslmf::AnyType  )
     {
         privateInit(first, last, message);
     }
@@ -447,11 +445,11 @@ namespace usageExample1 {
     template <class VALUE_TYPE>
     template <class INTEGER_TYPE>
     void MyContainer<VALUE_TYPE>::privateInitDispatch(
-                                            INTEGER_TYPE           numElements,
-                                            INTEGER_TYPE           value,
-                                            const char            *message,
-                                            bslstl::Disambiguator  ,
-                                            int                    )
+                                            INTEGER_TYPE         numElements,
+                                            INTEGER_TYPE         value,
+                                            const char          *message,
+                                            bslmf::MatchInteger  ,
+                                            int                  )
     {
         (void)message;
 
@@ -481,7 +479,7 @@ namespace usageExample1 {
 // The use of hardcoded '0' in the last argument is an exact match
 // for method expecting an 'int' as its last argument.  Thus, the
 // overload resolves to that method provided the type of the
-// penultimate argument, 'first', can be converted to 'bslstl::Disambiguate'
+// penultimate argument, 'first', can be converted to 'bslmf::MatchInteger'
 // (i.e., 'first' is an integral type).
 //..
     template <class VALUE_TYPE>
@@ -496,7 +494,7 @@ namespace usageExample1 {
 // Notice that this solution excludes iterators that themselves happen
 // to have a conversion to 'int'.  Such types would require two
 // user-defined conversions (iterator-to-integral type, then
-// integral-type to 'bslstl::Disambiguate') which are disallowed
+// integral-type to 'bslmf::MatchInteger') which are disallowed
 // by the C++ compiler.
 
     int main2()
@@ -574,45 +572,46 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // INTEGRAL CONVERTABILITY
+        // INTEGRAL CONVERIBILITY
         //
         // Concerns:
-        //: 1 Every C++ integral type and the floating pointer types can be
-        //:   implicitly converted to a 'bslstl::Disambiguate' object.
+        //: 1 Every C++ integral type and the floating point types can be
+        //:   implicitly converted to a 'bslmf::MatchInteger' object.
         //
         // Plan:
-        //: 1 Define a function with a parameter 'bslstl::Disambiguate' and,
-        //:   using the 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro,
-        //:   invoke using an argument of each type of interest.  Successful
+        //: 1 Define 'acceptObj', a function specifying a parameter of type
+        //:   'bslmf::MatchInteger', and 'IntegralConvertability' a structure
+        //:   templated on 'TYPE' whose 'implicityConvert' method has multipled
+        //:   invocations of 'acceptObj' providing and object 'TYPE' with
+        //:   different qualifications: e.g., by value, by reference, by
+        //:   'const'-reference, by 'volatile'-'const'-reference.  Successful
         //:   compilation indicates success.  (C-1)
         //
         // Testing:
-        //   bslstl::Disambiguate(int)
+        //   bslmf::MatchInteger(int)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nINTEGRAL CONVERTABILITY"
-                            "\n=======================\n");
+        if (verbose) printf("\nINTEGRAL CONVERIBILITY"
+                            "\n======================\n");
 
-        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
-                                          TestTemplate_INTEGRAL_CONVERTABILITY,
-                                          implicitlyConvert,
-                                                              bool,
+        IntegralConveribility<                    bool  >::implicitlyConvert();
 
-                                            signed            char,
-                                            signed      short int,
-                                            signed            int,
-                                            signed      long  int,
-                                            signed long long  int,
+        IntegralConveribility<  signed            char  >::implicitlyConvert();
+        IntegralConveribility<  signed      short int   >::implicitlyConvert();
+        IntegralConveribility<  signed            int   >::implicitlyConvert();
+        IntegralConveribility<  signed      long  int   >::implicitlyConvert();
+        IntegralConveribility<  signed long long  int   >::implicitlyConvert();
 
-                                          unsigned            char,
-                                          unsigned      short int,
-                                          unsigned            int,
-                                          unsigned      long  int,
-                                          unsigned long long  int,
+        IntegralConveribility<unsigned            char  >::implicitlyConvert();
+        IntegralConveribility<unsigned      short int   >::implicitlyConvert();
+        IntegralConveribility<unsigned            int   >::implicitlyConvert();
+        IntegralConveribility<unsigned      long  int   >::implicitlyConvert();
+        IntegralConveribility<unsigned long long  int   >::implicitlyConvert();
 
-                                                              float,
-                                                              double,
-                                                        long  double);
+        IntegralConveribility<                    float >::implicitlyConvert();
+        IntegralConveribility<                    double>::implicitlyConvert();
+        IntegralConveribility<              long  double>::implicitlyConvert();
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -624,8 +623,8 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Construct an object 'obj' of type 'bslstl::Disambiguator' using
-        //:   an arbitrary integer value.  (C-1)
+        //: 1 Construct an object 'obj' of type 'bslmf::MatchInteger' using an
+        //:   arbitrary integer value.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -644,27 +643,27 @@ int main(int argc, char *argv[])
       case -1: {
         // --------------------------------------------------------------------
         // NON-CONVERTIBLE
-        //   This manually driven test case demonstrates how the 
-        //   'bslstl::Disambiguator' class disallows implicit conversion from
-        //   inappropriate types.  Each 'BSLSTL_DISAMBIGUATOR_NON_CONVERT_*' 
+        //   This manually driven test case demonstrates how the
+        //   'bslmf::MatchInteger' class disallows implicit conversion from
+        //   inappropriate types.  Each 'BSLSTL_DISAMBIGUATOR_NON_CONVERT_*'
         //   preprocessor symbol should in turn be defined and compiler
         //   failure (success for the case) confirmed.
         //
         // Concerns:
         //: 1 Classes convertible to 'int' are not implicitly convertible to
-        //:   'bslstl::Disamibugator'.
+        //:   'bslmf::MatchInteger'.
         //:
         //: 2 Pointers are are not implicitly convertible to
-        //:   'bslstl::Disamibugator'.
+        //:   'bslmf::MatchInteger'.
         //
         // Plan:
         //: 1 Create an object of 'MyConvertibleToInt' class and attempt
         //:   to use it in a context that requires implicit conversion to a
-        //:   'bslstl::Disamibugator' object.  (C-1)
+        //:   'bslmf::MatchInteger' object.  (C-1)
         //:
         //: 2 Create a 'int *' object and attempt to use it n a context
         //:   to use it in a context requiring implicit conversion to a
-        //:   'bslstl::Disamibugator' object.
+        //:   'bslmf::MatchInteger' object.
         //
         // Testing:
         //   NON-CONVERTIBLE
