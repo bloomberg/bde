@@ -102,7 +102,6 @@ namespace bslalg { struct BidirectionalLink; }
 
 namespace bsl {
 
-namespace BALG = ::BloombergLP::bslalg;
 namespace BSTL = ::BloombergLP::bslstl;
 
 template <class KEY_TYPE,
