@@ -320,14 +320,32 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_enableif.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
-#include <bslmf_isconvertible.h>
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL
 #include <functional>
 #define INCLUDED_FUNCTIONAL
 #endif
+
+namespace BloombergLP {
+
+namespace bslstl {
+
+template <class CONTAINER, class ALLOCATOR>
+struct PriorityQueue_HasAllocatorType {
+    template <typename TYPE>
+    static bslmf_MetaInt<1> match(const typename TYPE::allocator_type *);
+    template <typename TYPE>
+    static bslmf_MetaInt<0> match(...);
+
+    enum { VALUE = BSLMF_METAINT_TO_BOOL(match<CONTAINER>(0)) };
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
 
 namespace bsl {
 
@@ -403,12 +421,12 @@ class priority_queue
         // priorities of elements.
 
     template <class ALLOCATOR>
-    explicit priority_queue(const ALLOCATOR& allocator,
-                            typename BloombergLP::bslmf_EnableIf<
-                                BloombergLP::bslmf_IsConvertible<
-                                    ALLOCATOR,
-                                    typename CONTAINER::allocator_type>::VALUE>
-                                ::type * = 0);
+    explicit priority_queue(
+                           const ALLOCATOR& allocator,
+                           typename BloombergLP::bslmf_EnableIf<
+                           BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
+                                               CONTAINER,
+                                               ALLOCATOR>::VALUE>::type * = 0);
         // Construct an empty priority queue that adapts a default-constructed
         // container of the parameterized 'CONTAINER' type and will use the
         // specified 'allocator' to supply memory.  Use a default-constructed
@@ -422,10 +440,9 @@ class priority_queue
     priority_queue(const COMPARATOR& comparator,
                    const ALLOCATOR& allocator,
                    typename BloombergLP::bslmf_EnableIf<
-                       BloombergLP::bslmf_IsConvertible<
-                                    ALLOCATOR,
-                                    typename CONTAINER::allocator_type>::VALUE>
-                       ::type * = 0);
+                           BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
+                                               CONTAINER,
+                                               ALLOCATOR>::VALUE>::type * = 0);
         // Construct an empty priority queue that adapts a default-constructed
         // container of the parameterized 'CONTAINER'type and will use the
         // specified 'allocator' to supply memory, and the specified
@@ -441,10 +458,9 @@ class priority_queue
                    const CONTAINER&  container,
                    const ALLOCATOR&  allocator,
                    typename BloombergLP::bslmf_EnableIf<
-                       BloombergLP::bslmf_IsConvertible<
-                                    ALLOCATOR,
-                                    typename CONTAINER::allocator_type>::VALUE>
-                   ::type * = 0);
+                           BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
+                                               CONTAINER,
+                                               ALLOCATOR>::VALUE>::type * = 0);
         // Construct a priority queue that will use the specified 'allocator'
         // to supply memory, and the specified 'comparator' to order priorities
         // of elements in the specified 'container'.  Note that the 'ALLOCATOR'
@@ -456,10 +472,9 @@ class priority_queue
     priority_queue(const priority_queue& original,
                    const ALLOCATOR& allocator,
                    typename BloombergLP::bslmf_EnableIf<
-                       BloombergLP::bslmf_IsConvertible<
-                                    ALLOCATOR,
-                                    typename CONTAINER::allocator_type>::VALUE>
-                   ::type * = 0);
+                           BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
+                                               CONTAINER,
+                                               ALLOCATOR>::VALUE>::type * = 0);
         // Construct a priority queue having the same value as the specified
         // 'original' that will use the specified 'allocator' to supply memory.
         // Use the comparator from 'original' to order the priorities of
@@ -570,13 +585,11 @@ template <class VALUE, class CONTAINER, class COMPARATOR>
 template <class ALLOCATOR>
 inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
-                                    const ALLOCATOR& allocator,
-                                    typename BloombergLP::bslmf_EnableIf<
-                                        BloombergLP::bslmf_IsConvertible<
-                                            ALLOCATOR,
-                                            typename CONTAINER::allocator_type>
-                                            ::VALUE>
-                                        ::type *)
+                           const ALLOCATOR& allocator,
+                           typename BloombergLP::bslmf_EnableIf<
+                           BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
+                                                    CONTAINER,
+                                                    ALLOCATOR>::VALUE>::type *)
 : c(allocator)
 , comp(COMPARATOR())
 {
@@ -586,14 +599,12 @@ template <class VALUE, class CONTAINER, class COMPARATOR>
 template <class ALLOCATOR>
 inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
-                                    const COMPARATOR& comparator,
-                                    const ALLOCATOR&  allocator,
-                                    typename BloombergLP::bslmf_EnableIf<
-                                        BloombergLP::bslmf_IsConvertible<
-                                            ALLOCATOR,
-                                            typename CONTAINER::allocator_type>
-                                            ::VALUE>
-                                        ::type *)
+                           const COMPARATOR& comparator,
+                           const ALLOCATOR&  allocator,
+                           typename BloombergLP::bslmf_EnableIf<
+                           BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
+                                                    CONTAINER,
+                                                    ALLOCATOR>::VALUE>::type *)
 : c(allocator)
 , comp(comparator)
 {
@@ -603,15 +614,13 @@ template <class VALUE, class CONTAINER, class COMPARATOR>
 template <class ALLOCATOR>
 inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
-                                    const COMPARATOR& comparator,
-                                    const CONTAINER&  container,
-                                    const ALLOCATOR&  allocator,
-                                    typename BloombergLP::bslmf_EnableIf<
-                                        BloombergLP::bslmf_IsConvertible<
-                                            ALLOCATOR,
-                                            typename CONTAINER::allocator_type>
-                                            ::VALUE>
-                                        ::type *)
+                           const COMPARATOR& comparator,
+                           const CONTAINER&  container,
+                           const ALLOCATOR&  allocator,
+                           typename BloombergLP::bslmf_EnableIf<
+                           BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
+                                                    CONTAINER,
+                                                    ALLOCATOR>::VALUE>::type *)
 : c(container, allocator)
 , comp(comparator)
 {
@@ -623,14 +632,12 @@ template <class VALUE, class CONTAINER, class COMPARATOR>
 template <class ALLOCATOR>
 inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
-                                    const priority_queue& original,
-                                    const ALLOCATOR&      allocator,
-                                    typename BloombergLP::bslmf_EnableIf<
-                                        BloombergLP::bslmf_IsConvertible<
-                                            ALLOCATOR,
-                                            typename CONTAINER::allocator_type>
-                                            ::VALUE>
-                                        ::type *)
+                           const priority_queue& original,
+                           const ALLOCATOR&      allocator,
+                           typename BloombergLP::bslmf_EnableIf<
+                           BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
+                                                    CONTAINER,
+                                                    ALLOCATOR>::VALUE>::type *)
 : c(original.c, allocator)
 , comp(original.comp)
 {

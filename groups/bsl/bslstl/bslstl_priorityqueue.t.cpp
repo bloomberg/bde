@@ -2,6 +2,7 @@
 
 #include <bslstl_priorityqueue.h>
 
+#include <bslstl_vector.h>
 #include <bslstl_allocator.h>
 #include <bslstl_iterator.h>
 #include <bslstl_forwarditerator.h>
@@ -10,6 +11,7 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>   // for testing only
 #include <bslma_newdeleteallocator.h>
+#include <bslma_mallocfreeallocator.h>
 #include <bslma_testallocator.h>           // for testing only
 #include <bslma_testallocatormonitor.h>    // for testing only
 #include <bslma_testallocatorexception.h>  // for testing only
@@ -105,7 +107,8 @@ using namespace bsl;
 // [ 8] void swap(priority_queue& lhs, priority_queue& rhs);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [14] USAGE EXAMPLE
+// [14] TESTING NON ALLOCATOR SUPPORTING TYPE
+// [15] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] ggg(queue<V,C> *object, const char *spec, int verbose = 1);
@@ -117,7 +120,7 @@ using namespace bsl;
 //
 // [ 5] TESTING OUTPUT: Not Applicable
 // [10] STREAMING: Not Applicable
-// [  ] TBD?: CONCERN: The object is compatible with STL allocator.
+// [**] CONCERN: The object is compatible with STL allocator.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -341,7 +344,96 @@ void dbg_print(const char* s, const T& val, const char* nl) {
 //                       GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace {
+                            // ==================
+                            // class NonAllocCont
+                            // ==================
+
+template <class VALUE>
+class NonAllocCont {
+  private:
+    // DATA
+    bsl::vector<VALUE> d_vector;
+
+  public:
+    // PUBLIC TYPES
+    typedef VALUE        value_type;
+    typedef VALUE&       reference;
+    typedef const VALUE& const_reference;
+    typedef std::size_t  size_type;
+    typedef VALUE*       iterator;
+    typedef const VALUE* const_iterator;
+
+    // CREATORS
+    NonAllocCont() : d_vector(&bslma::MallocFreeAllocator::singleton()) {}
+
+    ~NonAllocCont() {}
+
+    // MANIPULATORS
+    NonAllocCont& operator=(const NonAllocCont& other)
+    {
+        d_vector = other.d_vector;
+        return *this;
+    }
+
+    void pop_back() { d_vector.pop_back(); }
+
+    void push_back(const value_type& value) { d_vector.push_back(value); }
+
+    bsl::vector<value_type>& contents() { return d_vector; }
+
+    // ACCESSORS
+    bool operator==(const NonAllocCont& rhs) const
+    {
+        return d_vector == rhs.d_vector;
+    }
+
+    bool operator!=(const NonAllocCont& rhs) const
+    {
+        return !operator==(rhs);
+    }
+
+    bool operator<(const NonAllocCont& rhs) const
+    {
+        return d_vector < rhs.d_vector;
+    }
+
+    bool operator>=(const NonAllocCont& rhs) const
+    {
+        return !operator<(rhs);
+    }
+
+    bool operator>(const NonAllocCont& rhs) const
+    {
+        return d_vector > rhs.d_vector;
+    }
+
+    bool operator<=(const NonAllocCont& rhs) const
+    {
+        return !operator>(rhs);
+    }
+
+    const_iterator begin() const { return d_vector.begin(); }
+
+    const_iterator end() const { return d_vector.end(); }
+
+    iterator begin() { return d_vector.begin(); }
+
+    iterator end() { return d_vector.end(); }
+
+    const_reference front() const { return d_vector.front(); }
+
+    size_type size() const { return d_vector.size(); }
+
+    bool empty() const { return d_vector.empty(); }
+};
+
+namespace std {
+    template <typename VALUE>
+    void swap(NonAllocCont<VALUE>& lhs, NonAllocCont<VALUE>& rhs)
+    {
+        lhs.contents().swap(rhs.contents());
+    }
+}
 
 bool g_enableLessThanFunctorFlag = true;
 
@@ -462,9 +554,6 @@ bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
     return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
          < bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
 }
-
-}  // close unnamed namespace
-
 
 //=============================================================================
 //                            TEST DRIVER TEMPLATE
@@ -600,10 +689,16 @@ class TestDriver {
         // Test primary manipulators (default ctor, 'push', and 'pop')
 
     static void testCase1(const COMPARATOR& comparator,
-                          const VALUE       *testValues,
+                          const VALUE      *testValues,
                           size_t            numValues);
         // Breathing test.  This test *exercises* basic functionality but
         // *test* nothing.
+
+    static void testCase1_NoAlloc(const COMPARATOR& comparator,
+                                  const VALUE      *testValues,
+                                  size_t            numValues);
+        // Breathing test, except on a non-allocator container.  This test
+        // *exercises* basic functionality but *test* nothing.
 };
 
 
@@ -2331,6 +2426,167 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
+void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase1_NoAlloc(
+                                                  const COMPARATOR& comparator,
+                                                  const VALUE      *testValues,
+                                                  size_t            numValues)
+{
+    // --------------------------------------------------------------------
+    // BREATHING TEST:
+    //   This case exercises (but does not fully test) basic functionality.
+    //
+    // Concerns:
+    //: 1 The class is sufficiently functional to enable comprehensive
+    //:   testing in subsequent test cases.
+    //
+    // Plan:
+    //   Create four objects using both the default [1] and copy constructors
+    //   [2].  Exercise these objects using primary manipulators [1, 5], basic
+    //   accessors, equality operators, copy constructors [2, 8] and the
+    //   assignment operator [9, 10].  Try aliasing with assignment for a
+    //   non-empty object [11].
+    //
+    //: 1  Create an object x1 (default ctor).       { x1: }
+    //:
+    //: 2  Create a second object x2 (copy from x1). { x1: x2: }
+    //:
+    //: 3  Append an element of value A to x1).      { x1:A x2: }
+    //:
+    //: 4  Append the same value A to x2).           { x1:A x2:A }
+    //:
+    //: 5  Append two more elements B,C to x2).      { x1:A x2:ABC }
+    //:
+    //: 6  Remove top element of value A from x1.    { x1: x2:ABC }
+    //:
+    //: 7  Create a third object x3 (default ctor).  { x1: x2:ABC x3: }
+    //:
+    //: 8  Create a forth object x4 (copy of x2).    { x1: x2:ABC x3: x4:ABC }
+    //:
+    //: 9  Assign x2 = x1 (non-empty becomes empty). { x1: x2: x3: x4:ABC }
+    //:
+    //: 10 Assign x3 = x4 (empty becomes non-empty). { x1: x2: x3:ABC x4:ABC }
+    //:
+    //: 11 Assign x4 = x4 (aliasing).                { x1: x2: x3:ABC x4:ABC }
+    //
+    // Testing:
+    //   This test *exercises* basic functionality.
+    // --------------------------------------------------------------------
+
+    ASSERT(testValues);
+    ASSERT(1 < numValues);  // Need at least two test elements
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 1) Create an object x1 (default ctor)."
+                            "\t\t\t{ x1: }\n");
+    Obj mX1;  const Obj& X1 = mX1;
+
+    ASSERT(   0 == X1.size());
+    ASSERT(true == X1.empty());
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 2) Create a second object x2 (copy from x1)."
+                            "\t\t{ x1: x2: }\n");
+    Obj mX2(X1);  const Obj& X2 = mX2;
+    ASSERT(   0 == X2.size ());
+    ASSERT(true == X1.empty());
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 3) Push an element of value A to x1)."
+                                "\t\t\t{ x1:A x2: }\n");
+
+    mX1.push(testValues[0]);
+
+    ASSERT(            1 == X1.size ());
+    ASSERT(        false == X1.empty());
+    ASSERT(testValues[0] == X1.top());
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 4) Append the same value A to x2)."
+                            "\t\t\t{ x1:A x2:A }\n");
+
+    mX2.push(testValues[0]);
+
+    ASSERT(            1 == X2.size ());
+    ASSERT(        false == X2.empty());
+    ASSERT(testValues[0] == X2.top());
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 5) Append two more elements B,C to x2)."
+                            "\t\t{ x1:A x2:ABC }\n");
+
+    mX2.push(testValues[1]);
+    mX2.push(testValues[2]);
+
+    int maxIndex;
+    if (comparator(testValues[0], testValues[1]))
+        maxIndex = 1;
+    else
+        maxIndex = 0;
+
+    if (comparator(testValues[maxIndex], testValues[2]))
+        maxIndex = 2;
+
+    ASSERT(                   3 == X2.size ());
+    ASSERT(               false == X2.empty());
+    ASSERT(testValues[maxIndex] == X2.top  ());
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 6) Remove top element of value A from x1."
+                            "\t\t{ x1: x2:ABC }\n");
+    mX1.pop();
+
+    ASSERT(0 == X1.size());
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 7) Create a third object x3 (default ctor)."
+                            "\t\t{ x1: x2:ABC x3: }\n");
+
+    Obj mX3;  const Obj& X3 = mX3;
+
+    ASSERT(   0 == X3.size ());
+    ASSERT(true == X3.empty());
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 8) Create a forth object x4 (copy of x2)."
+                            "\t\t{ x1: x2:ABC x3: x4:ABC }\n");
+
+    Obj mX4(X2);  const Obj& X4 = mX4;
+
+    ASSERT(                   3 == X4.size ());
+    ASSERT(               false == X4.empty());
+    ASSERT(testValues[maxIndex] == X4.top  ());
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 9) Assign x2 = x1 (non-empty becomes empty)."
+                            "\t\t{ x1: x2: x3: x4:ABC }\n");
+
+    mX2 = X1;
+
+    ASSERT(   0 == X2.size ());
+    ASSERT(true == X2.empty());
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n10) Assign x3 = x4 (empty becomes non-empty)."
+                         "\t\t{ x1: x2: x3:ABC x4:ABC }\n");
+
+    mX3 = X4;
+
+    ASSERT(                   3 == X3.size ());
+    ASSERT(               false == X3.empty());
+    ASSERT(testValues[maxIndex] == X3.top  ());
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n11) Assign x4 = x4 (aliasing)."
+                            "\t\t\t\t{ x1: x2: x3:ABC x4:ABC}\n");
+
+    mX4 = X4;
+
+    ASSERT(                   3 == X4.size ());
+    ASSERT(               false == X4.empty());
+    ASSERT(testValues[maxIndex] == X4.top  ());
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
 void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase1(
                                                   const COMPARATOR& comparator,
                                                   const VALUE      *testValues,
@@ -2761,7 +3017,7 @@ int main(int argc, char *argv[])
     bslma_TestAllocator ta(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         // --------------------------------------------------------------------
@@ -2798,6 +3054,25 @@ int main(int argc, char *argv[])
                                   priorities[i]);
         }
         taskScheduler.processTasks();
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING NON ALLOCATOR SUPPORTING TYPE
+        // --------------------------------------------------------------------
+
+        typedef priority_queue<int, NonAllocCont<int> > NonAllocPriorityQueue;
+
+        NonAllocPriorityQueue mX;    const NonAllocPriorityQueue& X = mX;
+
+        ASSERT(X.empty());
+
+        mX.push(3);
+        mX.push(4);
+        mX.push(5);
+
+        ASSERT(! X.empty());
+        ASSERT(3 == X.size());
+        ASSERT(5 == X.top());
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -2938,7 +3213,9 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         // --------------------------------------------------------------------
 
-        // priority_queue
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
+
         typedef bool (*Comparator)(int, int);
         TestDriver<int, vector<int>, Comparator>::testCase1(
                                                        &intLessThan,
@@ -2954,6 +3231,11 @@ int main(int argc, char *argv[])
                                                        NUM_SPECIAL_INT_VALUES);
         //TBD: uncomment when 'bsl::list' is available
         //QTestDriver<int,  list<int> >::testCase1(INT_VALUES, NUM_INT_VALUES);
+
+        TestDriver<int, NonAllocCont<int>, std::less<int> >::testCase1_NoAlloc(
+                                                       std::less<int>(),
+                                                       SPECIAL_INT_VALUES,
+                                                       NUM_SPECIAL_INT_VALUES);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

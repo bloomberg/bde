@@ -115,7 +115,7 @@ using namespace bsl;
 //
 // [ 5] TESTING OUTPUT: Not Applicable
 // [10] STREAMING: Not Applicable
-// [ *] CONCERN: The object is compatible with STL allocator.
+// [**] CONCERN: The object is compatible with STL allocator.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
