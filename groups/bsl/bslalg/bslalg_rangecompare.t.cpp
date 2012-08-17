@@ -44,12 +44,13 @@ using namespace std;
 // overloads, we wrap the range pointers into an iterator type that is *not*
 // convertible to the pointer.
 //-----------------------------------------------------------------------------
-// [ 2] bool equal(start1, end1, length1, start2, end2, length2);
-// [ 3] bool lexicographical(start1, end1, length1, start2, end2, length2);
+// [ 3] bool equal(start1, end1, length1, start2, end2, length2);
+// [ 4] bool lexicographical(start1, end1, length1, start2, end2, length2);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 2] TEST APPARATUS
 // [-1] PERFORMANCE TEST
-// [ 4] USAGE EXAMPLE
+// [ 5] USAGE EXAMPLE
 
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -220,7 +221,7 @@ void dbg_print(const void  *p)
 
 struct ScalarPrimitives {
     // This 'struct' provides a namespace for an elided suite of utility
-    // functions that operate on elements of a parameterized type
+    // functions that operate on elements of (template parameter) type
     // 'TARGET_TYPE'.  The functions provided allow us to call the copy
     // constructor or destructor of 'TARGET_TYPE', correctly taking into
     // account whether or not 'TARGET_TYPE' uses a 'bslma::Allocator'.
@@ -797,15 +798,17 @@ class MyPoint {
 };
 
 bool operator==(const MyPoint& lhs, const MyPoint& rhs);
-    // Compare the specified 'lhs' with the specified 'rhs'.  Return 'true'
-    // if the x-coordinates and y-coordinates of 'lhs' are the same as
-    // those of 'rhs', and 'false' otherwise.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'MyPoint' objects have the same value
+    // if the x-coordinate and y-coordinate of one object have the same values
+    // as the corresponding coordinates of the other object.
 
 bool operator!=(const MyPoint& lhs, const MyPoint& rhs);
-    // Compare the specified 'lhs' with the specified 'rhs'.  Return 'true'
-    // if either the x-coordinate or the y-coordinate of 'lhs'is not the
-    // same as that of 'rhs', and 'false' otherwise.
-
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'MyPoint' objects do not have
+    // the same value if either the x-coordinate or y-coordinate of one object
+    // does not have the same value as the cooresponding coordinate of the
+    // other object.
 
 MyPoint::MyPoint(int x, int y)
 : d_x(x)
@@ -1083,7 +1086,7 @@ class my_Iterator {
 
     // MANIPULATORS
     my_Iterator& operator++();
-        // Increment this iterator, and return a modifyable reference to it.
+        // Increment this iterator, and return a modifiable reference to it.
 
     // ACCESSORS
     const TYPE& operator*() const;
@@ -1384,7 +1387,7 @@ void testLexicographicalBuiltin(bool                    verboseFlag,
                                 TYPE                  (*generator)(int, int),
                                 bslma::TestAllocator&   testAllocator)
     // Compare every pair of strings of (template parameter) type 'TYPE' from
-    // the specifications in the 'DATA_CASE2' array, and verify that they are
+    // the specifications in the 'DATA_CASE4' array, and verify that they are
     // equal if and only if their specifications are equal.  Note that the
     // range will be passed using 'const TYPE *'.
 {
@@ -1479,7 +1482,7 @@ template <class TYPE>
 void testLexicographicalNonBitwise(bool                  verboseFlag,
                                    bslma::TestAllocator& testAllocator)
     // Compare every pair of ranges of (template parameter) type 'TYPE' from
-    // the specifications in the 'DATA_CASE2' array, and verify that they are
+    // the specifications in the 'DATA_CASE4' array, and verify that they are
     // equal if and only if their specifications are equal.  Note that the
     // range will be passed using 'my_Iterator<TYPE>', which prevents any kind
     // of bit-wise optimization.
