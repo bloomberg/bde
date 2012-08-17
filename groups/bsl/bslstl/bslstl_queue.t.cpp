@@ -3,6 +3,7 @@
 #include <bslstl_queue.h>
 
 #include <bslstl_allocator.h>
+#include <bslstl_deque.h>
 #include <bslstl_iterator.h>
 #include <bslstl_forwarditerator.h>
 
@@ -10,6 +11,7 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>   // for testing only
 #include <bslma_newdeleteallocator.h>
+#include <bslma_mallocfreeallocator.h>
 #include <bslma_testallocator.h>           // for testing only
 #include <bslma_testallocatormonitor.h>    // for testing only
 #include <bslma_testallocatorexception.h>  // for testing only
@@ -100,7 +102,8 @@ using namespace bsl;
 // [ 8]void swap(queue& lhs,queue& rhs);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [16] USAGE EXAMPLE
+// [16] TESTING NON ALLOCATOR SUPPORTING TYPE
+// [17] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] ggg(queue<V,C> *object, const char *spec, int verbose = 1);
@@ -112,7 +115,7 @@ using namespace bsl;
 //
 // [ 5] TESTING OUTPUT: Not Applicable
 // [10] STREAMING: Not Applicable
-// [  ] TBD?: CONCERN: The object is compatible with STL allocator.
+// [ *] CONCERN: The object is compatible with STL allocator.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -334,6 +337,93 @@ void dbg_print(const char* s, const T& val, const char* nl) {
     fflush(stdout);
 }
 
+                            // ==================
+                            // class NonAllocCont
+                            // ==================
+
+template <class VALUE>
+class NonAllocCont {
+  private:
+    // DATA
+    bsl::deque<VALUE> d_deque;
+
+  public:
+    // PUBLIC TYPES
+    typedef VALUE        value_type;
+    typedef VALUE&       reference;
+    typedef const VALUE& const_reference;
+    typedef std::size_t  size_type;
+
+    // CREATORS
+    NonAllocCont() : d_deque(&bslma::MallocFreeAllocator::singleton()) {}
+
+    ~NonAllocCont() {}
+
+    // MANIPULATORS
+    NonAllocCont& operator=(const NonAllocCont& other)
+    {
+        d_deque = other.d_deque;
+        return *this;
+    }
+
+    reference front() { return d_deque.front(); }
+
+    reference back() { return d_deque.back(); }
+
+    void pop_front() { d_deque.pop_front(); }
+
+    void push_back(const value_type& value) { d_deque.push_back(value); }
+
+    bsl::deque<value_type>& contents() { return d_deque; }
+
+    // ACCESSORS
+    bool operator==(const NonAllocCont& rhs) const
+    {
+        return d_deque == rhs.d_deque;
+    }
+
+    bool operator!=(const NonAllocCont& rhs) const
+    {
+        return !operator==(rhs);
+    }
+
+    bool operator<(const NonAllocCont& rhs) const
+    {
+        return d_deque < rhs.d_deque;
+    }
+
+    bool operator>=(const NonAllocCont& rhs) const
+    {
+        return !operator<(rhs);
+    }
+
+    bool operator>(const NonAllocCont& rhs) const
+    {
+        return d_deque > rhs.d_deque;
+    }
+
+    bool operator<=(const NonAllocCont& rhs) const
+    {
+        return !operator>(rhs);
+    }
+
+    const_reference front() const { return d_deque.front(); }
+
+    const_reference back() const { return d_deque.back(); }
+
+    size_type size() const { return d_deque.size(); }
+
+    bool empty() const { return d_deque.empty(); }
+};
+
+namespace std {
+    template <typename VALUE>
+    void swap(NonAllocCont<VALUE>& lhs, NonAllocCont<VALUE>& rhs)
+    {
+        lhs.contents().swap(rhs.contents());
+    }
+}
+
                             // ====================
                             // class ExceptionGuard
                             // ====================
@@ -521,6 +611,10 @@ class TestDriver {
     static void testCase1(const VALUE  *testValues, size_t  numValues);
         // Breathing test.  This test *exercises* basic functionality but
         // *test* nothing.
+
+    static void testCase1_NoAlloc(const VALUE  *testValues, size_t  numValues);
+        // Breathing test, except on a non-allocator container.  This test
+        // *exercises* basic functionality but *test* nothing.
 };
 
                                // --------------
@@ -2520,6 +2614,202 @@ void TestDriver<VALUE, CONTAINER>::testCase2()
 }
 
 template <class VALUE, class CONTAINER>
+void TestDriver<VALUE, CONTAINER>::testCase1_NoAlloc(const VALUE  *testValues,
+                                                     size_t        numValues)
+{
+    // --------------------------------------------------------------------
+    // BREATHING TEST:
+    //   This case exercises (but does not fully test) basic functionality.
+    //
+    // Concerns:
+    //: 1 The class is sufficiently functional to enable comprehensive
+    //:   testing in subsequent test cases.
+    //
+    // Plan:
+    //   Create four objects using both the default and copy constructors.
+    //   Exercise these objects using primary manipulators [1, 5], basic
+    //   accessors, equality operators, copy constructors [2, 8], and the
+    //   assignment operator [9, 10].  Try aliasing with assignment for a
+    //   non-empty object [11].
+    //
+    //: 1  Create an object x1 (default ctor).       { x1: }
+    //:
+    //: 2  Create a second object x2 (copy from x1). { x1: x2: }
+    //:
+    //: 3  Append an element of value A to x1).      { x1:A x2: }
+    //:
+    //: 4  Append the same value A to x2).           { x1:A x2:A }
+    //:
+    //: 5  Append another element of value B to x2). { x1:A x2:AB }
+    //:
+    //: 6  Remove element of value A  from x1.       { x1: x2:AB }
+    //:
+    //: 7  Create a third object x3 (default ctor).  { x1: x2:AB x3: }
+    //:
+    //: 8  Create a forth object x4 (copy of x2).    { x1: x2:AB x3: x4:AB }
+    //:
+    //: 9  Assign x2 = x1 (non-empty becomes empty). { x1: x2: x3: x4:AB }
+    //:
+    //: 10 Assign x3 = x4 (empty becomes non-empty).{ x1: x2: x3:AB x4:AB }
+    //:
+    //: 11 Assign x4 = x4 (aliasing).               { x1: x2: x3:AB x4:AB }
+    //
+    // Testing:
+    //   This "test" *exercises* basic functionality.
+    // --------------------------------------------------------------------
+
+    ASSERT(testValues);
+    ASSERT(1 < numValues);  // Need at least two test elements
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 1) Create an object x1 (default ctor)."
+                            "\t\t\t{ x1: }\n");
+    Obj mX1;  const Obj& X1 = mX1;
+
+    ASSERT(   0 == X1.size());
+    ASSERT(true == X1.empty());
+
+    ASSERT(  X1  == X1 );        ASSERT(!(X1  != X1));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 2) Create a second object x2 (copy from x1)."
+                            "\t\t{ x1: x2: }\n");
+    Obj mX2(X1);  const Obj& X2 = mX2;
+    ASSERT(   0 == X2.size ());
+    ASSERT(true == X1.empty());
+
+    ASSERT(X2 == X1 );           ASSERT(!(X2 != X1));
+    ASSERT(X2 == X2 );           ASSERT(!(X2 != X2));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 3) Push an element of value A to x1)."
+                                "\t\t\t{ x1:A x2: }\n");
+
+    mX1.push(testValues[0]);
+
+    ASSERT(            1 == X1.size ());
+    ASSERT(        false == X1.empty());
+    ASSERT(testValues[0] == X1.front());
+    ASSERT(testValues[0] == X1.back ());
+
+    ASSERT(  X1 == X1 );         ASSERT(!(X1 != X1));
+    ASSERT(!(X1 == X2));         ASSERT(  X1 != X2 );
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 4) Append the same value A to x2)."
+                            "\t\t\t{ x1:A x2:A }\n");
+
+    mX2.push(testValues[0]);
+
+    ASSERT(            1 == X2.size ());
+    ASSERT(        false == X2.empty());
+    ASSERT(testValues[0] == X2.front());
+    ASSERT(testValues[0] == X2.back ());
+
+    ASSERT(  X2 == X1 );         ASSERT(!(X2 != X1));
+    ASSERT(  X2 == X2 );         ASSERT(!(X2 != X2));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 5) Append another element of value B to x2)."
+                            "\t\t{ x1:A x2:AB }\n");
+
+    mX2.push(testValues[1]);
+
+    ASSERT(            2 == X2.size ());
+    ASSERT(testValues[0] == X2.front());
+    ASSERT(testValues[1] == X2.back ());
+
+    ASSERT(!(X2 == X1));         ASSERT(  X2 != X1 );
+    ASSERT(  X2 == X2 );         ASSERT(!(X2 != X2));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 6) Remove element of value A from x1."
+                            "\t\t\t{ x1: x2:AB }\n");
+    mX1.pop();
+
+    ASSERT(0 == X1.size());
+
+    ASSERT(  X1 == X1 );         ASSERT(!(X1 != X1));
+    ASSERT(!(X1 == X2));         ASSERT(  X1 != X2 );
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 7) Create a third object x3 (default ctor)."
+                            "\t\t{ x1: x2:AB x3: }\n");
+
+    Obj mX3;  const Obj& X3 = mX3;
+
+    ASSERT(   0 == X3.size ());
+    ASSERT(true == X3.empty());
+
+    ASSERT(  X3 == X1 );         ASSERT(!(X3 != X1));
+    ASSERT(!(X3 == X2));         ASSERT(  X3 != X2 );
+    ASSERT(  X3 == X3 );         ASSERT(!(X3 != X3));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 8) Create a forth object x4 (copy of x2)."
+                            "\t\t{ x1: x2:AB x3: x4:AB }\n");
+
+    Obj mX4(X2);  const Obj& X4 = mX4;
+
+
+    ASSERT(            2 == X4.size ());
+    ASSERT(        false == X4.empty());
+    ASSERT(testValues[0] == X4.front());
+    ASSERT(testValues[1] == X4.back ());
+
+    ASSERT(!(X4 == X1));         ASSERT(  X4 != X1 );
+    ASSERT(  X4 == X2 );         ASSERT(!(X4 != X2));
+    ASSERT(!(X4 == X3));         ASSERT(  X4 != X3 );
+    ASSERT(  X4 == X4 );         ASSERT(!(X4 != X4));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n 9) Assign x2 = x1 (non-empty becomes empty)."
+                            "\t\t{ x1: x2: x3: x4:AB }\n");
+
+    mX2 = X1;
+
+    ASSERT(   0 == X2.size ());
+    ASSERT(true == X2.empty());
+
+    ASSERT(  X2 == X1 );         ASSERT(!(X2 != X1));
+    ASSERT(  X2 == X2 );         ASSERT(!(X2 != X2));
+    ASSERT(  X2 == X3 );         ASSERT(!(X2 != X3));
+    ASSERT(!(X2 == X4));         ASSERT(  X2 != X4 );
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n10) Assign x3 = x4 (empty becomes non-empty)."
+                         "\t\t{ x1: x2: x3:AB x4:AB }\n");
+
+    mX3 = X4;
+
+    ASSERT(            2 == X3.size ());
+    ASSERT(        false == X3.empty());
+    ASSERT(testValues[0] == X3.front());
+    ASSERT(testValues[1] == X3.back ());
+
+    ASSERT(!(X3 == X1));         ASSERT(  X3 != X1 );
+    ASSERT(!(X3 == X2));         ASSERT(  X3 != X2 );
+    ASSERT(  X3 == X3 );         ASSERT(!(X3 != X3));
+    ASSERT(  X3 == X4 );         ASSERT(!(X3 != X4));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (veryVerbose) printf("\n11) Assign x4 = x4 (aliasing)."
+                            "\t\t\t\t{ x1: x2: x3:AB x4:AB }\n");
+
+    mX4 = X4;
+
+    ASSERT(            2 == X4.size ());
+    ASSERT(        false == X4.empty());
+    ASSERT(testValues[0] == X4.front());
+    ASSERT(testValues[1] == X4.back ());
+
+    ASSERT(!(X4 == X1));          ASSERT(  X4 != X1 );
+    ASSERT(!(X4 == X2));          ASSERT(  X4 != X2 );
+    ASSERT(  X4 == X3 );          ASSERT(!(X4 != X3));
+    ASSERT(  X4 == X4 );          ASSERT(!(X4 != X4));
+}
+
+template <class VALUE, class CONTAINER>
 void TestDriver<VALUE, CONTAINER>::testCase1(const VALUE  *testValues,
                                              size_t        numValues)
 {
@@ -2851,7 +3141,7 @@ int main(int argc, char *argv[])
     bslma_TestAllocator ta(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         // --------------------------------------------------------------------
@@ -2882,6 +3172,39 @@ int main(int argc, char *argv[])
             }
             msgProcessor.processMessages();
         }
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING NON ALLOCATOR SUPPORTING TYPE
+        // --------------------------------------------------------------------
+
+        typedef queue<int, NonAllocCont<int> > NonAllocQueue;
+
+        NonAllocQueue mX;    const NonAllocQueue& X = mX;
+
+        ASSERT(X.empty());
+
+        mX.push(3);
+        mX.push(4);
+        mX.push(5);
+
+        ASSERT(! X.empty());
+        ASSERT(3 == X.size());
+        ASSERT(3 == X.front());
+        ASSERT(5 == X.back());
+
+        NonAllocQueue mY(X);   const NonAllocQueue& Y = mY;
+
+        ASSERT(X == Y);         ASSERT(!(X != Y));
+        ASSERT(X <= Y);         ASSERT(!(X >  Y));
+        ASSERT(X >= Y);         ASSERT(!(X <  Y));
+
+        mY.pop();
+        mY.push(6);
+
+        ASSERT(X != Y);         ASSERT(!(X == Y));
+        ASSERT(X <  Y);         ASSERT(!(X >= Y));
+        ASSERT(X <= Y);         ASSERT(!(X >  Y));
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -3031,11 +3354,20 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         // --------------------------------------------------------------------
 
-        // queue
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
+        if (verbose) printf("deque<int>:\n");
         TestDriver<int, deque<int> >::testCase1(SPECIAL_INT_VALUES,
                                                 NUM_SPECIAL_INT_VALUES);
-        //TBD: uncomment when 'bsl::list' is available
+
+        //TBD: uncomment when 'bsl::list' is available in bslstl
+        //if (verbose) printf("list:\n");
         //TestDriver<int,  list<int> >::testCase1(INT_VALUES, NUM_INT_VALUES);
+
+        if (verbose) printf("NonAllocCont<int>:\n");
+        TestDriver<int, NonAllocCont<int> >::testCase1_NoAlloc(
+                                                       SPECIAL_INT_VALUES,
+                                                       NUM_SPECIAL_INT_VALUES);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
