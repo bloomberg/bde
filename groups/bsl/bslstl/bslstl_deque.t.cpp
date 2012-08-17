@@ -999,15 +999,6 @@ struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
 
 }
 
-namespace bslma {
-
-template <typename ALLOCATOR>
-struct UsesBslmaAllocator<LimitAllocator<ALLOCATOR> >
-    : bslmf::IsConvertible<Allocator*, ALLOCATOR>
-{};
-
-}
-
 }  // namespace BloombergLP
 
 //=============================================================================

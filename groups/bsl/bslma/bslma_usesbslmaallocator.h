@@ -96,6 +96,27 @@ struct UsesBslmaAllocator : UsesBslmaAllocator_Imp<TYPE,
     // considering a type follow the idiom.
 };
 
+template <class TYPE>
+struct UsesBslmaAllocator<const TYPE> : UsesBslmaAllocator<TYPE>
+{
+    // Specialization that associates the same trait with 'const TYPE' as with
+    // unqualified 'TYPE'.
+};
+
+template <class TYPE>
+struct UsesBslmaAllocator<volatile TYPE> : UsesBslmaAllocator<TYPE>
+{
+    // Specialization that associates the same trait with 'volatile TYPE' as
+    // with unqualified 'TYPE'.
+};
+
+template <class TYPE>
+struct UsesBslmaAllocator<const volatile TYPE> : UsesBslmaAllocator<TYPE>
+{
+    // Specialization that associates the same trait with 'const volatile
+    // TYPE' as with unqualified 'TYPE'.
+};
+
 // FREE OPERATORS
 
 }  // close package namespace

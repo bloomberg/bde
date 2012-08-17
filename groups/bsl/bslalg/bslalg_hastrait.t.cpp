@@ -128,9 +128,11 @@ unsigned traitBits()
     result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
             ? TRAIT_HASSTLITERATORS
             : 0;
-    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
+
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasPointerSemantics>::VALUE
             ? TRAIT_HASPOINTERSEMANTICS
             : 0;
+
     return result;
 }
 
@@ -153,7 +155,7 @@ struct Identity
     typedef Type const volatile cvType;                                \
     static const char *TypeName = #TYPE;                               \
     static const unsigned traits = traitBits<  Type>();                \
-    LOOP2_ASSERT(TypeName, traits, traitBits<  Type>() == TRAIT_BITS); \
+    LOOP2_ASSERT(TypeName, traits, traitBits<  Type>() == (TRAIT_BITS)); \
     LOOP2_ASSERT(TypeName, traits, traitBits< cType>() == traits);     \
     LOOP2_ASSERT(TypeName, traits, traitBits< vType>() == traits);     \
     LOOP2_ASSERT(TypeName, traits, traitBits<cvType>() == traits);     \
@@ -289,13 +291,13 @@ int main(int argc, char *argv[])
         TRAIT_TEST(bsls::Types::Uint64, TRAIT_EQPOD);
         TRAIT_TEST(float, TRAIT_EQPOD);
         TRAIT_TEST(double, TRAIT_EQPOD);
-        TRAIT_TEST(char*, TRAIT_EQPOD);
-        TRAIT_TEST(const char*, TRAIT_EQPOD);
-        TRAIT_TEST(void*, TRAIT_EQPOD);
-        TRAIT_TEST(const void*, TRAIT_EQPOD);
-        TRAIT_TEST(void* const, TRAIT_EQPOD);
+        TRAIT_TEST(char*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
+        TRAIT_TEST(const char*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
+        TRAIT_TEST(void*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
+        TRAIT_TEST(const void*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
+        TRAIT_TEST(void* const, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
         TRAIT_TEST(my_Enum, TRAIT_EQPOD);
-        TRAIT_TEST(int (*)(int), TRAIT_EQPOD);
+        TRAIT_TEST(int (*)(int), TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
         TRAIT_TEST(int (my_Class1::*)(int), TRAIT_EQPOD);
 
         // Explicit traits

@@ -500,10 +500,8 @@ class AttribClass5Alloc
     // the bslma model, then this type will be
     // 'bslalg::TypeTraitUsesBslmaAllocator'
     typedef typename ALLOC::ClientTrait UsesAllocTrait;
-    operator typename UsesAllocTrait::template NestedTraitDeclaration<AttribClass5Alloc<ALLOC> >() const
-    {
-        return typename UsesAllocTrait::template NestedTraitDeclaration<AttribClass5Alloc<ALLOC> >();
-    }
+    BSLMF_NESTED_TRAIT_DECLARATION(AttribClass5Alloc,
+                              UsesAllocTrait::template NestedTraitDeclaration);
 
     typedef ALLOC AllocatorType;
 
@@ -792,9 +790,9 @@ inline bool isMutable(const T& /* x */) { return false; }
         // CREATORS
         explicit MyType(bslma::Allocator* basicAlloc = 0)
            : d_allocator_p(bslma::Default::allocator(basicAlloc)) { /* ... */ }
-        MyType(const MyType& other)
+        MyType(const MyType&)
             : d_allocator_p(bslma::Default::allocator(0)) { /* ... */ }
-        MyType(const MyType& other, bslma::Allocator* basicAlloc)
+        MyType(const MyType&, bslma::Allocator* basicAlloc)
            : d_allocator_p(bslma::Default::allocator(basicAlloc)) { /* ... */ }
         // etc.
 
@@ -1034,8 +1032,8 @@ void testAllocatorConformance(const char* allocName)
 
     a.destroy(bsls::Util::addressOf(*p));
     LOOP_ASSERT(allocName, AttribClass5::dtorCount() == dtorCountBefore + 1);
-    LOOP_ASSERT(allocName, 0xdeadbeaf == p->b());
-    LOOP_ASSERT(allocName, 0xdeadbeaf == cp->b());
+    LOOP_ASSERT(allocName, 0xdeadbeaf == (unsigned) p->b());
+    LOOP_ASSERT(allocName, 0xdeadbeaf == (unsigned) cp->b());
 
     a.deallocate(p, 1);
     LOOP_ASSERT(allocName, ta.numBytesInUse() == 0)
@@ -1169,7 +1167,7 @@ void testAttribClass<AttribClass5>(const char* className)
     };
     static const std::size_t NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
 
-    for (int i = 0; i < NUM_DATA; ++i) {
+    for (std::size_t i = 0; i < NUM_DATA; ++i) {
         const char        A = DATA[i].d_a;
         const int         B = DATA[i].d_b;
         const double      C = DATA[i].d_c;
@@ -1447,7 +1445,7 @@ void testConstructDestroy(const char *allocname,
     };
     static const std::size_t NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
 
-    for (int i = 0; i < NUM_DATA; ++i) {
+    for (std::size_t i = 0; i < NUM_DATA; ++i) {
         const char        A = DATA[i].d_a;
         const int         B = DATA[i].d_b;
         const double      C = DATA[i].d_c;
@@ -1515,7 +1513,7 @@ void testConstructDestroy(const char *allocname,
             LOOP3_ASSERT(allocname,tname,i, C::ctorCount() == expCtorCount);
             LOOP3_ASSERT(allocname,tname,i, C::dtorCount() == ++expDtorCount);
             LOOP3_ASSERT(allocname,tname,i,
-                         0xdeadbeaf == objects[i].object().b());
+                         0xdeadbeaf == (unsigned) objects[i].object().b());
         }
     }
 }
@@ -2200,7 +2198,7 @@ int main(int argc, char *argv[])
 
             // Test 'destroy'
             Traits::destroy(a1, p);
-            ASSERT(0xdeadbeaf == p->b());
+            ASSERT(0xdeadbeaf == (unsigned) p->b());
 
             // Test 'deallocate'
             Traits::deallocate(a1, p, 1);
@@ -2234,7 +2232,7 @@ int main(int argc, char *argv[])
 
             // Test 'destroy'
             Traits::destroy(a1, p);
-            ASSERT(0xdeadbeaf == p->b());
+            ASSERT(0xdeadbeaf == (unsigned) p->b());
 
             // Test 'deallocate'
             Traits::deallocate(a1, p, 1);

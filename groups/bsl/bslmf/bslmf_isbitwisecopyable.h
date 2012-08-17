@@ -88,6 +88,14 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isenum.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISPOINTER
+#include <bslmf_ispointer.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
+#include <bslmf_ispointertomember.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
 #endif
@@ -105,6 +113,8 @@ struct IsBitwiseCopyable :
     integer_constant<bool,
                      IsFundamental<TYPE>::value
                   || IsEnum<TYPE>::value
+                  || bsl::is_pointer<TYPE>::value
+                  || bslmf::IsPointerToMember<TYPE>::value
                   || DetectNestedTrait<TYPE, IsBitwiseCopyable>::value>
 {
     // Trait metafunction that determines whether the specified parameter
@@ -134,13 +144,6 @@ struct IsBitwiseCopyable<const volatile TYPE> : IsBitwiseCopyable<TYPE>::type
 {
     // Specialization that associates the same trait with 'const volatile
     // TYPE' as with unqualified 'TYPE'.
-};
-
-template <class TYPE>
-struct IsBitwiseCopyable<TYPE*> : bsl::true_type
-{
-    // Specialization of that associates the 'IsBitwiseCopyable' trait with
-    // all pointer types.
 };
 
 template <class TYPE>

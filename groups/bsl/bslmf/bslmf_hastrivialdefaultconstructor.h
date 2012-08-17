@@ -19,6 +19,14 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isenum.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISPOINTER
+#include <bslmf_ispointer.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
+#include <bslmf_ispointertomember.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
 #endif
@@ -36,7 +44,10 @@ struct HasTrivialDefaultConstructor :
     integer_constant<bool,
                      IsFundamental<TYPE>::value
                   || IsEnum<TYPE>::value
-                  || DetectNestedTrait<TYPE, HasTrivialDefaultConstructor>::value>
+                  || bsl::is_pointer<TYPE>::value
+                  || bslmf::IsPointerToMember<TYPE>::value
+                  || DetectNestedTrait<TYPE,
+                                       HasTrivialDefaultConstructor>::value>
 {
     // Trait metafunction that determines whether the specified parameter
     // 'TYPE' is bit-wise EqualityComparable.  If 'HasTrivialDefaultConstructor<TYPE>' is derived
@@ -65,13 +76,6 @@ struct HasTrivialDefaultConstructor<const volatile TYPE> : HasTrivialDefaultCons
 {
     // Specialization that associates the same trait with 'const volatile
     // TYPE' as with unqualified 'TYPE'.
-};
-
-template <class TYPE>
-struct HasTrivialDefaultConstructor<TYPE*> : bsl::true_type
-{
-    // Specialization of that associates the 'HasTrivialDefaultConstructor' trait with
-    // all pointer types.
 };
 
 template <class TYPE>

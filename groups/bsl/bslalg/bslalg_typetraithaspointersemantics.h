@@ -53,14 +53,16 @@ struct TypeTraitHasPointerSemantics {
 
     template <class TYPE>
     struct NestedTraitDeclaration :
-        bslmf::NestedTraitDeclaration<TYPE, bslmf::IsPointer>
+        bslmf::NestedTraitDeclaration<TYPE, bsl::is_pointer>
     {
-        // This class template ties the 'bslalg::TypeTaitBitwiseEqualityComparable'
-        // trait tag to the 'bslmf::IsBitwiseEqualityCompareble' trait metafunction.
+        // This class template ties the 'bslalg::TypeTraitHasPointerSemantics'
+        // trait tag to the 'bslmf::is_pointer' trait metafunction.  TODO:
+        // This is not the correct definition in general, since this trait is
+        // intended to work also with smart pointers.
     };
 
     template <class TYPE>
-    struct Metafunction : bslmf::IsPointer<TYPE>::type { };
+    struct Metafunction : bsl::is_pointer<TYPE>::type { };
 };
 
 }  // close package namespace

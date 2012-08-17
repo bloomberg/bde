@@ -19,6 +19,14 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isenum.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISPOINTER
+#include <bslmf_ispointer.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
+#include <bslmf_ispointertomember.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
 #endif
@@ -36,14 +44,18 @@ struct IsBitwiseEqualityComparable :
     integer_constant<bool,
                      IsFundamental<TYPE>::value
                   || IsEnum<TYPE>::value
-                  || DetectNestedTrait<TYPE, IsBitwiseEqualityComparable>::value>
+                  || bsl::is_pointer<TYPE>::value
+                  || bslmf::IsPointerToMember<TYPE>::value
+                  || DetectNestedTrait<TYPE,
+                                       IsBitwiseEqualityComparable>::value>
 {
     // Trait metafunction that determines whether the specified parameter
-    // 'TYPE' is bit-wise EqualityComparable.  If 'IsBitwiseEqualityComparable<TYPE>' is derived
-    // from 'true_type' then 'TYPE' is bit-wise EqualityComparable.  Otherwise, bit-wise
-    // moveability cannot be inferred for 'TYPE'.  This trait can be
-    // associated with a bit-wise EqualityComparable user-defined class by specializing
-    // this class or by using the 'BSLMF_DECLARE_NESTED_TRAIT' macro.
+    // 'TYPE' is bit-wise EqualityComparable.  If
+    // 'IsBitwiseEqualityComparable<TYPE>' is derived from 'true_type' then
+    // 'TYPE' is bit-wise EqualityComparable.  Otherwise, bit-wise moveability
+    // cannot be inferred for 'TYPE'.  This trait can be associated with a
+    // bit-wise EqualityComparable user-defined class by specializing this
+    // class or by using the 'BSLMF_DECLARE_NESTED_TRAIT' macro.
 };
 
 template <class TYPE>

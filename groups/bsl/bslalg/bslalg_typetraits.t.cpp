@@ -202,7 +202,7 @@ struct Identity {
     typedef Type const volatile   cvType;                              \
     static const char *TypeName = #TYPE;                               \
     static const unsigned traits = traitBits<  Type>();                \
-    LOOP2_ASSERT(TypeName, traits, traitBits<  Type>() == TRAIT_BITS); \
+    LOOP2_ASSERT(TypeName, traits, traitBits<  Type>() == (TRAIT_BITS)); \
     LOOP2_ASSERT(TypeName, traits, traitBits< cType>() == traits);     \
     LOOP2_ASSERT(TypeName, traits, traitBits< vType>() == traits);     \
     LOOP2_ASSERT(TypeName, traits, traitBits<cvType>() == traits);     \
