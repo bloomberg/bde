@@ -160,6 +160,28 @@
 # endif
 #endif
 
+#ifdef BSL_INCLUDE_BSL_UNORDERED_MAP
+# ifndef INCLUDED_BSLSTL_UNORDEREDMAP
+#   include <bslstl_unorderedmap.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_UNORDEREDMULTIMAP
+#   include <bslstl_unorderedmultimap.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
+#ifdef BSL_INCLUDE_BSL_UNORDERED_SET
+# ifndef INCLUDED_BSLSTL_UNORDEREDSET
+#   include <bslstl_unorderedset.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_UNORDEREDMULTISET
+#   include <bslstl_unorderedmultiset.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
 // The following include provides backwards compatibility for Bloomberg-managed
 // code that requires 'stdexcept' to include 'string'.  It is placed here
 // because placing it directly in 'bsl_stdexcept.h' breaks the delicate include
