@@ -16,11 +16,11 @@ namespace BloombergLP
 namespace bslalg
 {
 
-void HashTableUtil::removeNodeFromTable(BidirectionalLink    *position,
-                                        size_t            hashCode,
-                                        BidirectionalLink   **listRoot,
-                                        HashTableBucket  *buckets,
-                                        int               nBuckets)
+void HashTableUtil::removeNodeFromTable(BidirectionalLink  *position,
+                                        size_t              hashCode,
+                                        BidirectionalLink **listRoot,
+                                        HashTableBucket    *buckets,
+                                        int                 nBuckets)
 {
     BSLS_ASSERT_SAFE(position);
     BSLS_ASSERT_SAFE(listRoot);
@@ -50,12 +50,12 @@ void HashTableUtil::removeNodeFromTable(BidirectionalLink    *position,
     BidirectionalListUtil::unlink(position);
 }
 
-void HashTableUtil::insertDuplicateAtPosition(BidirectionalLink    *newNode,
-                                              size_t            hashCode,
-                                              BidirectionalLink    *location,
-                                              BidirectionalLink   **listRoot,
-                                              HashTableBucket  *buckets,
-                                              int               nBuckets)
+void HashTableUtil::insertDuplicateAtPosition(BidirectionalLink  *newNode,
+                                              size_t              hashCode,
+                                              BidirectionalLink  *location,
+                                              BidirectionalLink **listRoot,
+                                              HashTableBucket    *buckets,
+                                              int                 nBuckets)
 {
     BSLS_ASSERT_SAFE(newNode);
     BSLS_ASSERT_SAFE(location);
@@ -81,11 +81,11 @@ void HashTableUtil::insertDuplicateAtPosition(BidirectionalLink    *newNode,
     }
 }
 
-void HashTableUtil::insertAtFrontOfBucket(BidirectionalLink    *newNode,
-                                          size_t            hashCode,
-                                          BidirectionalLink   **listRoot,
-                                          HashTableBucket  *buckets,
-                                          int               nBuckets)
+void HashTableUtil::insertAtFrontOfBucket(BidirectionalLink  *newNode,
+                                          size_t              hashCode,
+                                          BidirectionalLink **listRoot,
+                                          HashTableBucket    *buckets,
+                                          int                 nBuckets)
 {
     BSLS_ASSERT_SAFE(newNode);
     BSLS_ASSERT_SAFE(listRoot);
@@ -114,10 +114,10 @@ void HashTableUtil::insertAtFrontOfBucket(BidirectionalLink    *newNode,
     }
 }
 
-void HashTableUtil::spliceSegmentIntoBucket(BidirectionalLink    *cursor,
-                                            BidirectionalLink    *nextCursor,
-                                            HashTableBucket  *bucket,
-                                            BidirectionalLink   **newRoot)
+void HashTableUtil::spliceSegmentIntoBucket(BidirectionalLink  *cursor,
+                                            BidirectionalLink  *nextCursor,
+                                            HashTableBucket    *bucket,
+                                            BidirectionalLink **newRoot)
 {
     BSLS_ASSERT_SAFE(cursor);
     BSLS_ASSERT_SAFE(nextCursor);

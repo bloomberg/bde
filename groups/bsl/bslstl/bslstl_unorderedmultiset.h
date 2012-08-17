@@ -707,7 +707,7 @@ equal_range(const key_type& k)
     HashTableLink *first;
     HashTableLink *last;
     d_impl.findKeyRange(&first, &last, k);
-    return bsl::pair<iterator, iterator>(first, last);
+    return bsl::pair<iterator, iterator>(iterator(first), iterator(last));
 }
 
 template <class KEY_TYPE,
@@ -729,7 +729,8 @@ equal_range(const key_type& k) const
     HashTableLink *first;
     HashTableLink *last;
     d_impl.findKeyRange(&first, &last, k);
-    return bsl::pair<const_iterator, const_iterator>(first, last);
+    return bsl::pair<const_iterator, const_iterator>(const_iterator(first),
+                                                     const_iterator(last));
 }
 
     // bucket interface

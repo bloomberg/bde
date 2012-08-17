@@ -644,7 +644,8 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::hasher
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::hash_function() const
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+hash_function() const
 {
     return d_impl.hasher();
 }
@@ -654,7 +655,8 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::key_equal
+typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+                                                                      key_equal
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::key_eq() const
 {
     return d_impl.comparator();
@@ -667,8 +669,10 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::find(const key_type& k)
+typename
+        unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+find(const key_type& k)
 {
     return iterator(d_impl.find(k));
 }
@@ -678,8 +682,10 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_iterator
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::find(const key_type& k) const
+typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+                                                                 const_iterator
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+find(const key_type& k) const
 {
     return const_iterator(d_impl.find(k));
 }
@@ -689,7 +695,8 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
+typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+                                                                      size_type
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 count(const key_type& k) const
 {
@@ -765,8 +772,10 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 inline
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::bucket_count() const
+typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+                                                                      size_type
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+bucket_count() const
 {
     return d_impl.bucket_count();
 }
@@ -777,8 +786,10 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 inline
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::max_bucket_count() const
+typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+                                                                      size_type
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+max_bucket_count() const
 {
     return d_impl.max_bucket_count();
 }
@@ -803,7 +814,8 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 inline
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
+typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+                                                                      size_type
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 bucket(const key_type& k) const
 {
@@ -816,8 +828,10 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 inline
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::local_iterator
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::begin(size_type n)
+typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+                                                                 local_iterator
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+begin(size_type n)
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
     return local_iterator(d_impl.begin(n));
@@ -829,8 +843,10 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 inline
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::begin(size_type n) const
+typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+                                                           const_local_iterator
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+begin(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
     return const_local_iterator(d_impl.begin(n));
@@ -842,7 +858,8 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 inline
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::local_iterator
+typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+                                                                 local_iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::end(size_type n)
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
@@ -856,8 +873,10 @@ template <class KEY_TYPE,
           class ALLOC>
 inline
 typename
- unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::end(size_type n) const
+ unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+                                                           const_local_iterator
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+end(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
     return const_local_iterator();
@@ -870,8 +889,10 @@ template <class KEY_TYPE,
           class ALLOC>
 inline
 typename
- unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::cbegin(size_type n) const
+ unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+                                                           const_local_iterator
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+cbegin(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
     return const_local_iterator(d_impl.begin(n));
@@ -883,8 +904,10 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 inline
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::cend(size_type n) const
+typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+                                                           const_local_iterator
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+cend(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
     return const_local_iterator();
@@ -897,7 +920,8 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 inline
-float unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::load_factor() const
+float unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+load_factor() const
 {
     return d_impl.load_factor();
 }
@@ -908,7 +932,8 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 inline
-float unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::max_load_factor() const
+float unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+max_load_factor() const
 {
     return d_impl.max_load_factor();
 }
@@ -919,7 +944,8 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 inline
-void unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::max_load_factor(float z)
+void unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+max_load_factor(float z)
 {
     d_impl.max_load_factor(z);
 }
@@ -931,7 +957,8 @@ template <class KEY_TYPE,
           class ALLOC>
 inline
 void
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::rehash(size_type n)
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+rehash(size_type n)
 {
     return d_impl.rehash(n);
 }
@@ -943,7 +970,8 @@ template <class KEY_TYPE,
           class ALLOC>
 inline
 void
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::reserve(size_type n)
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+reserve(size_type n)
 {
     return d_impl.reserve(n);
 }
@@ -974,8 +1002,15 @@ template <class KEY_TYPE,
           class ALLOC>
 inline
 bool
-bsl::operator!=(const bsl::unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& a,
-                const bsl::unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& b)
+bsl::operator!=(const bsl::unordered_multimap<KEY_TYPE,
+                                              MAPPED_TYPE,
+                                              HASH, EQUAL,
+                                              ALLOC>& a,
+                const bsl::unordered_multimap<KEY_TYPE,
+                                              MAPPED_TYPE,
+                                              HASH,
+                                              EQUAL,
+                                              ALLOC>& b)
 {
     return !(a == b);
 }

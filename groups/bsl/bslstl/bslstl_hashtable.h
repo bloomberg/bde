@@ -512,6 +512,7 @@ insertValueBefore(const ValueType& obj, bslalg::BidirectionalLink *before)
 
     bslalg::BidirectionalLink *newNode = this->allocateNodeHavingValue(obj);
     bslalg::HashTableUtil::insertDuplicateAtPosition(newNode,
+                                                     hashCodeForNode(newNode),
                                                      before,
                                                      &d_root,
                                                      d_buckets.data(),
