@@ -201,7 +201,7 @@ public:
                          std::streampos outputPos)
     {
         LOOP_ASSERT(line, eback() == pbase());
-        LOOP_ASSERT(line, egptr() == epptr());
+        LOOP_ASSERT(line, egptr() <= epptr());
         assertInputPosition(line, inputPos);
         assertOutputPosition(line, outputPos);
     }

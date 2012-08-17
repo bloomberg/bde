@@ -177,6 +177,8 @@ class basic_stringbuf
   private:
     // DATA
     StringType         d_str;   // internal string representation
+    off_type           d_highwatermark;
+                                // farthest position reached into d_str
     ios_base::openmode d_mode;  // stringbuf open mode ('in' or 'out')
 
   private:
@@ -199,12 +201,22 @@ class basic_stringbuf
         // behavior is undefined unless 'output_p' is within the range of the
         // internal string representation.
 
-    void updatePointers(off_type inputOffset = 0);
-        // Update the input and output pointers of this string buffer object
+    void updateStreamPositions(off_type inputOffset = 0,
+                               off_type outputOffset = 0);
+        // Update the input and output positions of this string buffer object
         // using the internal string buffer representation and set the current
         // output pointer, 'pptr', to the beginning, 'pbase', and the current
         // input pointer, 'gptr', according to the optionally specified
         // 'inputOffset' to 'eback + inputOffset'.
+
+    pos_type streamSize() const
+    {
+        pos_type size = native_std::max<off_type>(
+                                d_highwatermark, this->pptr() - this->pbase());
+        BSLS_ASSERT(size <= d_str.size());
+
+        return size;
+    }
 
   protected:
     // PROTECTED MANIPULATORS
@@ -366,10 +378,10 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     updateInputPointer(char_type *input_p)
 {
-    char_type *data_p = &d_str[0];
-    native_std::size_t dataSize = d_str.size();
+    BSLS_ASSERT(d_mode & ios_base::in);
 
-    this->setg(data_p, input_p, data_p + dataSize);
+    char_type *data_p = &d_str[0];
+    this->setg(data_p, input_p, data_p + d_highwatermark);
     return pos_type(input_p - data_p);
 }
 
@@ -378,6 +390,8 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     updateOutputPointer(char_type *output_p)
 {
+    BSLS_ASSERT(d_mode & ios_base::out);
+
     char_type *data_p = &d_str[0];
     native_std::size_t dataSize = d_str.size();
     pos_type outputPos(output_p - data_p);
@@ -389,14 +403,27 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-    updatePointers(off_type inputOffset)
+    updateStreamPositions(off_type inputOffset, off_type outputOffset)
 {
+    // extend the string to full capacity to allow using its capacity for
+    // output buffering
+    d_str.resize(d_str.capacity());
     char_type *data_p = &d_str[0];
-    native_std::size_t dataSize = d_str.size();
 
-    this->setg(data_p, data_p + inputOffset, data_p + dataSize);
-    this->setp(data_p, data_p + dataSize);
-    this->pbump(int(dataSize));
+    if (d_mode & ios_base::in) {
+        // set input position
+        this->setg(data_p, data_p + inputOffset, data_p + d_highwatermark);
+    }
+
+    if (d_mode & ios_base::out) {
+        // set output position
+        native_std::size_t dataSize = d_str.size();
+        this->setp(data_p, data_p + dataSize);
+
+        if (outputOffset) {
+            this->pbump(outputOffset);
+        }
+    }
 }
 
 // PROTECTED MANIPULATORS
@@ -430,13 +457,14 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
             input_p = this->gptr() + off;
             break;
           case ios_base::end:
-            input_p = this->egptr() + off;
+            input_p = this->eback() + streamSize() + off;
             break;
           default:
             BSLS_ASSERT(false && "invalid seekdir argument");
         }
 
-        if (input_p < this->eback() || input_p > this->egptr()) {
+        if (input_p < this->eback() || input_p > this->eback() + streamSize())
+        {
             // out of range
             return pos_type(-1);
         }
@@ -456,13 +484,15 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
             output_p = this->pptr() + off;
             break;
           case ios_base::end:
-            output_p = this->epptr() + off;
+            output_p = this->pbase() + streamSize() + off;
             break;
           default:
             BSLS_ASSERT(false && "invalid seekdir argument");
         }
 
-        if (output_p < this->pbase() || output_p > this->epptr()) {
+        if (output_p < this->pbase()
+            || output_p > this->pbase() + streamSize())
+        {
             // out of range
             return pos_type(-1);
         }
@@ -490,8 +520,8 @@ native_std::streamsize
             char_type *s,
             native_std::streamsize n)
 {
-    native_std::streamsize available(this->egptr() - this->gptr());
-    native_std::streamsize readChars(std::min(available, n));
+    native_std::streamsize available(streamSize());
+    native_std::streamsize readChars(native_std::min(available, n));
 
     traits_type::copy(s, this->gptr(), readChars);
     this->gbump(readChars);
@@ -572,12 +602,23 @@ native_std::streamsize
     // overwrite
     traits_type::copy(this->pptr(), s, toOverwrite);
 
-    // append
     off_type inputOffset(this->gptr() - this->eback());
-    d_str.append(s + toOverwrite, s + n);
 
-    // update pointer positions
-    updatePointers(inputOffset);
+    if (n == toOverwrite) {
+        // update stream positions
+        off_type newhigh = n + this->pptr() - this->pbase();
+        d_highwatermark = native_std::max(d_highwatermark, newhigh);
+
+        updateStreamPositions(inputOffset, newhigh);
+    }
+    else {
+        // append
+        d_str.append(s + toOverwrite, s + n);
+
+        // update stream positions
+        d_highwatermark = d_str.size();
+        updateStreamPositions(inputOffset, d_highwatermark);
+    }
 
     return n;
 }
@@ -602,6 +643,9 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
         // space is available, no need to expand the storage
         *this->pptr() = ch;
         this->pbump(1);
+
+        d_highwatermark = native_std::max<off_type>(
+                                d_highwatermark, this->pptr() - this->pbase());
     }
     else {
         // store the input position to restore later
@@ -610,8 +654,9 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
         // expand the storage
         d_str.push_back(ch);
 
-        // update pointer positions
-        updatePointers(inputOffset);
+        // update stream positions
+        d_highwatermark = d_str.size();
+        updateStreamPositions(inputOffset, d_highwatermark);
     }
 
     return c;
@@ -624,9 +669,10 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     basic_stringbuf(const allocator_type& alloc)
 : BaseType()
 , d_str(alloc)
+, d_highwatermark(0)
 , d_mode(ios_base::in | ios_base::out)
 {
-    updatePointers();
+    updateStreamPositions();
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -636,9 +682,10 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
                     const allocator_type& alloc)
 : BaseType()
 , d_str(alloc)
+, d_highwatermark(0)
 , d_mode(mode)
 {
-    updatePointers();
+    updateStreamPositions();
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -648,9 +695,10 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
                     const allocator_type& alloc)
 : BaseType()
 , d_str(str, alloc)
+, d_highwatermark(str.size())
 , d_mode(ios_base::in | ios_base::out)
 {
-    updatePointers();
+    updateStreamPositions();
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -661,9 +709,12 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
                     const allocator_type& alloc)
 : BaseType()
 , d_str(str, alloc)
+, d_highwatermark(str.size())
 , d_mode(mode)
 {
-    updatePointers();
+    updateStreamPositions(
+        0,
+        (d_mode & ios_base::ate) != 0 ? d_highwatermark : 0);
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -671,15 +722,19 @@ inline
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     ~basic_stringbuf()
 {
-    BSLS_ASSERT(this->eback() == d_str.data());
-    BSLS_ASSERT(this->pbase() == d_str.data());
-    BSLS_ASSERT(this->egptr() == d_str.data() + d_str.size());
-    BSLS_ASSERT(this->epptr() == d_str.data() + d_str.size());
+    if (d_mode & ios_base::in) {
+        BSLS_ASSERT(this->eback() == d_str.data());
+        BSLS_ASSERT(this->egptr() <= d_str.data() + d_str.size());
+        BSLS_ASSERT(this->eback() <= this->gptr());
+        BSLS_ASSERT(this->gptr() <= this->egptr());
+    }
 
-    BSLS_ASSERT(this->eback() <= this->gptr());
-    BSLS_ASSERT(this->gptr() <= this->egptr());
-    BSLS_ASSERT(this->pbase() <= this->pptr());
-    BSLS_ASSERT(this->pptr() <= this->epptr());
+    if (d_mode & ios_base::out) {
+        BSLS_ASSERT(this->pbase() == d_str.data());
+        BSLS_ASSERT(this->epptr() == d_str.data() + d_str.size());
+        BSLS_ASSERT(this->pbase() <= this->pptr());
+        BSLS_ASSERT(this->pptr() <= this->epptr());
+    }
 }
 
 // ACCESSORS
@@ -688,7 +743,7 @@ inline
 typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
 {
-    return d_str;
+    return StringType(d_str.begin(), d_str.begin() + streamSize());
 }
 
 // MANIPULATORS
@@ -698,7 +753,8 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
         const StringType& s)
 {
     d_str = s;
-    updatePointers();
+    d_highwatermark = d_str.size();
+    updateStreamPositions(0, d_highwatermark);
 }
 
 }  // close namespace bsl
