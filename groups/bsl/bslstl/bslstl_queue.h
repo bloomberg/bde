@@ -184,14 +184,33 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_enableif.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
-#include <bslmf_isconvertible.h>
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL
 #include <functional>
 #define INCLUDED_FUNCTIONAL
 #endif
+
+namespace BloombergLP {
+
+namespace bslstl {
+
+template <class CONTAINER, class ALLOCATOR>
+struct Queue_HasAllocatorType {
+    template <typename TYPE>
+    static bslmf_MetaInt<1> match(const typename TYPE::allocator_type *);
+    template <typename TYPE>
+    static bslmf_MetaInt<0> match(...);
+
+    enum { VALUE = BSLMF_METAINT_TO_BOOL(match<CONTAINER>(0)) };
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
 
 namespace bsl {
 
@@ -263,10 +282,9 @@ class queue
     explicit
     queue(const ALLOCATOR& allocator,
           typename BloombergLP::bslmf_EnableIf<
-              BloombergLP::bslmf_IsConvertible<
-                           ALLOCATOR,
-                           typename CONTAINER::allocator_type>::VALUE>
-              ::type * = 0);
+              BloombergLP::bslstl::Queue_HasAllocatorType<
+                           CONTAINER,
+                           ALLOCATOR>::VALUE>::type * = 0);
         // Construct an empty queue that holds a default-constructed container
         // of the parameterized 'CONTAINER' type, and will use the specified
         // 'allocator' to supply memory.  Note that the 'ALLOCATOR' parameter
@@ -278,10 +296,9 @@ class queue
     queue(const CONTAINER& container,
           const ALLOCATOR& allocator,
           typename BloombergLP::bslmf_EnableIf<
-              BloombergLP::bslmf_IsConvertible<
-                           ALLOCATOR,
-                           typename CONTAINER::allocator_type>::VALUE>
-              ::type * = 0);
+              BloombergLP::bslstl::Queue_HasAllocatorType<
+                           CONTAINER,
+                           ALLOCATOR>::VALUE>::type * = 0);
         // Construct an empty queue that holds the specified 'container', and
         // will use the specified 'allocator' to supply memory.  Note that the
         // 'ALLOCATOR' parameter type has to be convertible to the allocator of
@@ -292,10 +309,9 @@ class queue
     queue(const queue& original,
           const ALLOCATOR& allocator,
           typename BloombergLP::bslmf_EnableIf<
-              BloombergLP::bslmf_IsConvertible<
-                           ALLOCATOR,
-                           typename CONTAINER::allocator_type>::VALUE>
-              ::type * = 0);
+              BloombergLP::bslstl::Queue_HasAllocatorType<
+                           CONTAINER,
+                           ALLOCATOR>::VALUE>::type * = 0);
         // Construct a queue having the same value as that of the specified
         // 'original' that will use the specified 'allocator' to supply memory.
         // Note that the 'ALLOCATOR' parameter type has to be convertible to
@@ -442,11 +458,9 @@ template <class ALLOCATOR>
 inline
 queue<VALUE, CONTAINER>::queue(const ALLOCATOR& allocator,
                                typename BloombergLP::bslmf_EnableIf<
-                                   BloombergLP::bslmf_IsConvertible<
-                                       ALLOCATOR,
-                                       typename CONTAINER::allocator_type>
-                                       ::VALUE>
-                                   ::type *)
+                                   BloombergLP::bslstl::Queue_HasAllocatorType<
+                                                    CONTAINER,
+                                                    ALLOCATOR>::VALUE>::type *)
 : c(allocator)
 {
 }
@@ -457,11 +471,9 @@ inline
 queue<VALUE, CONTAINER>::queue(const CONTAINER& container,
                                const ALLOCATOR& allocator,
                                typename BloombergLP::bslmf_EnableIf<
-                                   BloombergLP::bslmf_IsConvertible<
-                                       ALLOCATOR,
-                                       typename CONTAINER::allocator_type>
-                                       ::VALUE>
-                                   ::type *)
+                                   BloombergLP::bslstl::Queue_HasAllocatorType<
+                                                    CONTAINER,
+                                                    ALLOCATOR>::VALUE>::type *)
 : c(container, allocator)
 {
 }
@@ -472,11 +484,9 @@ inline
 queue<VALUE, CONTAINER>::queue(const queue&     queue,
                                const ALLOCATOR& allocator,
                                typename BloombergLP::bslmf_EnableIf<
-                                   BloombergLP::bslmf_IsConvertible<
-                                       ALLOCATOR,
-                                       typename CONTAINER::allocator_type>
-                                       ::VALUE>
-                                   ::type *)
+                                   BloombergLP::bslstl::Queue_HasAllocatorType<
+                                                    CONTAINER,
+                                                    ALLOCATOR>::VALUE>::type *)
 : c(queue.c, allocator)
 {
 }
