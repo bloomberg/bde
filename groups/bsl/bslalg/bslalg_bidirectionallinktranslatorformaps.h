@@ -82,7 +82,7 @@ BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::extractValue(
 {
     BSLS_ASSERT_SAFE(link);
 
-    return static_cast<BidirectionalListNode<VALUE_TYPE> *>(link)->d_value;
+    return static_cast<BidirectionalListNode<VALUE_TYPE> *>(link)->value();
 }
 
 template <class VALUE_TYPE>
@@ -94,10 +94,11 @@ BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::extractValue(
     BSLS_ASSERT_SAFE(link);
 
     return
-         static_cast<const BidirectionalListNode<VALUE_TYPE> *>(link)->d_value;
+         static_cast<const BidirectionalListNode<VALUE_TYPE> *>(link)->value();
 }
 
 template <class VALUE_TYPE>
+inline
 const typename BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::KeyType&
 BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::extractKey(
                                                  const BidirectionalLink *link)

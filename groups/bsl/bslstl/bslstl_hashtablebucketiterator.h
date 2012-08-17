@@ -242,7 +242,7 @@ HashTableBucketIterator<VALUE_TYPE>::operator*() const
     BSLS_ASSERT_SAFE(this->d_node_p);
 
     typedef bslalg::BidirectionalListNode<VALUE_TYPE> NodeType;
-    return static_cast<NodeType *>(this->d_node_p)->d_value;
+    return static_cast<NodeType *>(this->d_node_p)->value();
 }
 
 template <typename VALUE_TYPE>
@@ -254,7 +254,7 @@ HashTableBucketIterator<VALUE_TYPE>::operator->() const
 
     typedef bslalg::BidirectionalListNode<VALUE_TYPE> NodeType;
     return bsls_Util::addressOf(
-                             static_cast<NodeType *>(this->d_node_p)->d_value);
+                             static_cast<NodeType *>(this->d_node_p)->value());
 }
 
 } // namespace BloombergLP::bslstl

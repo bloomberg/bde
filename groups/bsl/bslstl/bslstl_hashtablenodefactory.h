@@ -173,7 +173,7 @@ HashTableNodeFactory<ALLOCATOR_TYPE>::constructValueInNode(
     BSLS_ASSERT_SAFE(node);
     using BloombergLP::bsls_Util;
     AllocatorTraits::construct(d_allocator,
-                               bsls_Util::addressOf(node->d_value),
+                               bsls::Util::addressOf(node->value()),
                                value);
 }
 
@@ -184,22 +184,22 @@ HashTableNodeFactory<ALLOCATOR_TYPE>::createEmptyNode()
 {
     NodeType *result  = AllocatorTraits::allocate(d_allocator, 1);
     AllocatorTraits::template construct<bslalg::BidirectionalLink>(d_allocator,
-                                                               result);
+                                                                   result);
     return result;
 }
 
 template <class ALLOCATOR_TYPE>
 inline
 typename HashTableNodeFactory<ALLOCATOR_TYPE>::NodeType *
-HashTableNodeFactory<ALLOCATOR_TYPE>::cloneNode(const bslalg::BidirectionalLink *
-                                                                      original)
+HashTableNodeFactory<ALLOCATOR_TYPE>::cloneNode(
+                                     const bslalg::BidirectionalLink *original)
 {
     BSLS_ASSERT_SAFE(original);
 
     NodeType *result = createEmptyNode();
     try {
         constructValueInNode(result,
-                             static_cast<const NodeType *>(original)->d_value);
+                             static_cast<const NodeType *>(original)->value());
     }
     catch(...) {
         reclaimNode(result);
@@ -218,7 +218,7 @@ HashTableNodeFactory<ALLOCATOR_TYPE>::disposeNode(NodeType *node)
     using BloombergLP::bsls_Util;
 
     AllocatorTraits::destroy(d_allocator,
-                             bsls::Util::addressOf(node->d_value));
+                             bsls::Util::addressOf(node->value()));
     reclaimNode(node);
 }
 

@@ -81,7 +81,7 @@ BidirectionalLinkTranslatorForSets<VALUE_TYPE>::extractValue(
 {
     BSLS_ASSERT_SAFE(link);
 
-    return static_cast<BidirectionalListNode<VALUE_TYPE> *>(link)->d_value;
+    return static_cast<BidirectionalListNode<VALUE_TYPE> *>(link)->value();
 }
 
 template <class VALUE_TYPE>
@@ -93,10 +93,11 @@ BidirectionalLinkTranslatorForSets<VALUE_TYPE>::extractValue(
     BSLS_ASSERT_SAFE(link);
 
     return
-         static_cast<const BidirectionalListNode<VALUE_TYPE> *>(link)->d_value;
+         static_cast<const BidirectionalListNode<VALUE_TYPE> *>(link)->value();
 }
 
 template <class VALUE_TYPE>
+inline
 const typename BidirectionalLinkTranslatorForSets<VALUE_TYPE>::KeyType&
 BidirectionalLinkTranslatorForSets<VALUE_TYPE>::extractKey(
                                                  const BidirectionalLink *link)
