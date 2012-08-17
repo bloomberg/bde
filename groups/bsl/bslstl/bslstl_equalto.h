@@ -35,9 +35,6 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-namespace BloombergLP
-{
-
 namespace bsl
 {
 
@@ -54,7 +51,7 @@ struct equal_to {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(equal_to,
-                                 bslalg::TypeTraitsGroupPod);
+                                 ::BloombergLP::bslalg::TypeTraitsGroupPod);
 
     // STANDARD TYPEDEFS
     typedef VALUE_TYPE first_argument_type;
@@ -102,9 +99,7 @@ bool equal_to<VALUE_TYPE>::operator()(const VALUE_TYPE& lhs,
     return lhs == rhs;
 }
 
-}  // close namespace BloombergLP::bsl
-
-}  // close namespace BloombergLP
+}  // close namespace bsl
 
 #endif
 

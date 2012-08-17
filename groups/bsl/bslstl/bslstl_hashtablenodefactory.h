@@ -45,6 +45,10 @@ BSLS_IDENT("$Id: $")
 BSL_OVERRIDES_STD mode"
 #endif
 
+#ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
+#include <bslstl_allocatortraits.h>
+#endif
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
@@ -59,10 +63,6 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
-#include <bslstl_allocatortraits.h>
 #endif
 
 
@@ -80,7 +80,7 @@ class HashTableNodeFactory {
 
     // PRIVATE TYPES
     typedef ALLOCATOR NodeAllocator;
-    typedef bsl::allocator_traits<NodeAllocator> AllocatorTraits;
+    typedef ::bsl::allocator_traits<NodeAllocator> AllocatorTraits;
     typedef typename AllocatorTraits::value_type NodeType;
     //typedef typename NodeType::ValueType ValueType;
 
@@ -105,7 +105,7 @@ class HashTableNodeFactory {
         // Create an object of the parametized 'ValueType' in the specified
         // 'node' having the specified 'value'.
         // 'SOURCE_TYPE' is not 'ValueType' to avoid conversion in maps from
-        // 'pair<K,V' to 'pair<const K, V>', which would create a temporary
+        // 'pair<K,V>' to 'pair<const K, V>', which would create a temporary
         // potentially using the default allocator for the pair elements, rather
         // than the allocator provided by the factory.
         // Note that we need to be sure to check 'bslma' traits to propagate

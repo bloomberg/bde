@@ -875,10 +875,9 @@ int main(int argc, char *argv[])
         time_computeHash((unsigned int)0x12345678, "unsigned int");
         time_computeHash((long)0x12345678, "long");
         time_computeHash((unsigned long)0x12345678, "unsigned long");
-        time_computeHash((long long)0x12345678,
-                    "bsls_PlatformUtil::Int64");
+        time_computeHash((long long)0x12345678, "bsls_PlatformUtil::Int64");
         time_computeHash((unsigned long long)0x12345678,
-                    "bsls_PlatformUtil::Uint64");
+                         "bsls_PlatformUtil::Uint64");
         time_computeHash((float)3.1415926536, "float");
         time_computeHash((double)3.14159265358979323844, "double");
 #ifdef BSLS_PLATFORM__CPU_64_BIT

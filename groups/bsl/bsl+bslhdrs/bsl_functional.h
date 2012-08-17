@@ -39,7 +39,6 @@ namespace bsl
     using native_std::const_mem_fun_ref_t;
     using native_std::const_mem_fun_t;
     using native_std::divides;
-    using native_std::equal_to;
     using native_std::greater;
     using native_std::greater_equal;
     using native_std::less;
@@ -75,6 +74,7 @@ namespace bsl
 
 #ifndef BSL_OVERRIDES_STD
 #include <bslstp_exfunctional.h>
+#include <bslstl_equalto.h>
 #include <bslstl_hash.h>
 #endif
 

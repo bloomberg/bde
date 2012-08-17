@@ -9,6 +9,8 @@ bslstl_equalto
 bslstl_forwarditerator
 bslstl_hash
 bslstl_hashtable
+bslstl_hashtablebucketiterator
+bslstl_hashtableiterator
 bslstl_hashtablenodefactory
 bslstl_iterator
 bslstl_map
@@ -31,4 +33,8 @@ bslstl_treeiterator
 bslstl_treenode
 bslstl_treenodepool
 bslstl_util
+bslstl_unorderedmap
+bslstl_unorderedmultimap
+bslstl_unorderedmultiset
+bslstl_unorderedset
 bslstl_vector

@@ -221,6 +221,11 @@
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 # ifndef INCLUDED_BSLSTL_HASH
+#   include <bslstl_equalto.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+# ifndef INCLUDED_BSLSTL_HASH
 #   include <bslstl_hash.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
