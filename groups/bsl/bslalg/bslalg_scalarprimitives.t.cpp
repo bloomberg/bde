@@ -4,7 +4,6 @@
 
 #include <bslalg_autoscalardestructor.h>
 #include <bslalg_scalardestructionprimitives.h>
-#include <bslalg_typetraits.h>
 #include <bslalg_typetraitbitwisecopyable.h>
 #include <bslalg_typetraitbitwisemoveable.h>
 #include <bslalg_typetraitpair.h>
@@ -273,13 +272,12 @@ int my_ClassFussy::destructorInvocations            = 0;
 
 // TRAITS
 namespace BloombergLP {
-
-template <>
-struct bslalg_TypeTraits<my_ClassFussy>
-: bslalg::TypeTraitHasTrivialDefaultConstructor
-, bslalg::TypeTraitBitwiseCopyable
-{ };
-
+    namespace bslmf {
+        template <>
+        struct HasTrivialDefaultConstructor<my_ClassFussy> : true_type { };
+        template <>
+        struct IsBitwiseCopyable<my_ClassFussy> : true_type { };
+    } // close namespace bslmf
 }  // close enterprise namespace
 
                                  // =========
@@ -341,10 +339,10 @@ class my_Class4 {
 
 // TRAITS
 namespace BloombergLP {
-
-template <> struct bslalg_TypeTraits<my_Class4>
-    : bslalg::TypeTraitUsesBslmaAllocator { };
-
+    namespace bslma {
+        template <>
+        struct UsesBslmaAllocator<my_Class4> : bslmf::true_type { };
+    } // Close namespace bslma
 }  // close enterprise namespace
 
                                  // =========
@@ -482,11 +480,10 @@ struct my_PairAA {
 };
 
 namespace BloombergLP {
-
-template <typename T1, typename T2>
-struct  bslalg_TypeTraits<my_PairAA<T1, T2> >
-    : bslalg::TypeTraitUsesBslmaAllocator { };
-
+    namespace bslma {
+        template <typename T1, typename T2>
+        struct  UsesBslmaAllocator<my_PairAA<T1, T2> > : bslmf::true_type  { };
+    } // Close namespace bslma
 }  // close enterprise namespace
 
                               // ===============
@@ -527,11 +524,10 @@ struct my_PairBB {
 };
 
 namespace BloombergLP {
-
-template <typename T1, typename T2>
-struct  bslalg_TypeTraits<my_PairBB<T1, T2> >
-    : bslalg::TypeTraitPair {};
-
+    namespace bslalg {
+        template <typename T1, typename T2>
+        struct IsPair<my_PairBB<T1, T2> > : bslmf::true_type { };
+    } // Close namespace bslalg
 }  // close enterprise namespace
 
                               // ===============
@@ -779,11 +775,11 @@ class ConstructTestArgAlloc : public my_ClassDef {
 
 // TRAITS
 namespace BloombergLP {
-
-template <int ID>
-struct bslalg_TypeTraits<ConstructTestArgAlloc<ID> >
-    : bslalg::TypeTraitUsesBslmaAllocator { };
-
+    namespace bslma {
+        template <int ID>
+        struct UsesBslmaAllocator<ConstructTestArgAlloc<ID> >
+            : bslmf::true_type { };
+    } // close namespace bslma
 }  // close enterprise namespace
 
 // CREATORS
@@ -936,11 +932,11 @@ class ConstructTestTypeAlloc {
 
 // TRAITS
 namespace BloombergLP {
-
-template <>
-struct bslalg_TypeTraits<ConstructTestTypeAlloc>
-    : bslalg::TypeTraitUsesBslmaAllocator { };
-
+    namespace bslma {
+        template <>
+        struct UsesBslmaAllocator<ConstructTestTypeAlloc> : bslmf::true_type
+        { };
+    } // Close namespace bslma
 }  // close enterprise namespace
 
 // FREE OPERATORS
