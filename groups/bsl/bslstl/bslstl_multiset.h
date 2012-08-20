@@ -510,7 +510,7 @@ class multiset {
 
     struct DataWrapper : public Comparator {
         // This struct is wrapper around the comparator and allocator data
-        // member.  It takes advantage of the empty-base optimization (EBO) so
+        // members.  It takes advantage of the empty-base optimization (EBO) so
         // that if the allocator is stateless, it takes up no space.
         //
         // TBD: This struct should eventually be replaced by the use of a
@@ -526,7 +526,7 @@ class multiset {
     };
 
     // DATA
-    DataWrapper                       d_comp_and_alloc;
+    DataWrapper                       d_compAndAlloc;
                                                // comparator and pool of 'Node'
                                                // objects
 
@@ -561,17 +561,11 @@ class multiset {
     // PRIVATE MANIPULATORS
     NodeFactory& nodeFactory();
         // Return a reference providing modifiable access to the
-        // node-allocator for this tree.  Note that this class inherits from
-        // (rather than contains) a node-allocator to take advantage of the
-        // empty-base optimization, and this operation returns a base-class
-        // reference to this object.
+        // node-allocator for this tree.
 
     Comparator& comparator();
         // Return a reference providing modifiable access to the
-        // comparator for this tree.  Note that this class inherits from
-        // (rather than contains) a comparator to take advantage of the
-        // empty-base optimization, and this operation returns a base-class
-        // reference to this object.
+        // comparator for this tree.
 
     void quickSwap(multiset& other);
         // Efficiently exchange the value and comparator of this object with
@@ -582,17 +576,11 @@ class multiset {
     // PRIVATE ACCESSORS
     const NodeFactory& nodeFactory() const;
         // Return a reference providing non-modifiable access to the
-        // node-allocator for this tree.  Note that this class inherits from
-        // (rather than contains) a node-allocator to take advantage of the
-        // empty-base optimization, and this operation returns a base-class
-        // reference to this object.
+        // node-allocator for this tree.
 
     const Comparator& comparator() const;
         // Return a reference providing non-modifiable access to the
-        // comparator for this tree.  Note that this class inherits from
-        // (rather than contains) a comparator to take advantage of the
-        // empty-base optimization, and this operation returns a base-class
-        // reference to this object.
+        // comparator for this tree.
 
   public:
     // TRAITS
@@ -1063,7 +1051,7 @@ inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
 multiset<KEY, COMPARATOR, ALLOCATOR>::nodeFactory()
 {
-    return d_comp_and_alloc.d_pool;
+    return d_compAndAlloc.d_pool;
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1071,7 +1059,7 @@ inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::Comparator&
 multiset<KEY, COMPARATOR, ALLOCATOR>::comparator()
 {
-    return d_comp_and_alloc;
+    return d_compAndAlloc;
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1089,7 +1077,7 @@ inline
 const typename multiset<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
 multiset<KEY, COMPARATOR, ALLOCATOR>::nodeFactory() const
 {
-    return d_comp_and_alloc.d_pool;
+    return d_compAndAlloc.d_pool;
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1097,7 +1085,7 @@ inline
 const typename multiset<KEY, COMPARATOR, ALLOCATOR>::Comparator&
 multiset<KEY, COMPARATOR, ALLOCATOR>::comparator() const
 {
-    return d_comp_and_alloc;
+    return d_compAndAlloc;
 }
 
 // CREATORS
@@ -1105,7 +1093,7 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const COMPARATOR& comparator,
                                                const ALLOCATOR&  allocator)
-: d_comp_and_alloc(comparator, allocator)
+: d_compAndAlloc(comparator, allocator)
 , d_tree()
 {
 }
@@ -1117,7 +1105,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(INPUT_ITERATOR    first,
                                                INPUT_ITERATOR    last,
                                                const COMPARATOR& comparator,
                                                const ALLOCATOR&  allocator)
-: d_comp_and_alloc(comparator, allocator)
+: d_compAndAlloc(comparator, allocator)
 , d_tree()
 {
     if (first != last) {
@@ -1159,7 +1147,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(INPUT_ITERATOR    first,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset& original)
-: d_comp_and_alloc(original.comparator().keyComparator(), ALLOCATOR())
+: d_compAndAlloc(original.comparator().keyComparator(), ALLOCATOR())
 , d_tree()
 {
     if (0 < original.size()) {
@@ -1173,7 +1161,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset& original)
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const ALLOCATOR& allocator)
-: d_comp_and_alloc(COMPARATOR(), allocator)
+: d_compAndAlloc(COMPARATOR(), allocator)
 , d_tree()
 {
 }
@@ -1182,7 +1170,7 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset&  original,
                                                const ALLOCATOR& allocator)
-: d_comp_and_alloc(original.comparator().keyComparator(), allocator)
+: d_compAndAlloc(original.comparator().keyComparator(), allocator)
 , d_tree()
 {
     if (0 < original.size()) {
