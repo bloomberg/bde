@@ -192,6 +192,7 @@ void installAbortHandler()
 
 void removeAbortHandler() {
     signal(SIGABRT, SIG_DFL);
+    g_inTest = false;
 }
 
 
