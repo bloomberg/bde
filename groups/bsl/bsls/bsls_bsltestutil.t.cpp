@@ -10,6 +10,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <sys/types.h> // struct stat: required on Sun only
+#include <sys/stat.h>  // struct stat: required on Sun only
+
 using namespace BloombergLP;
 
 //=============================================================================
@@ -545,12 +548,16 @@ bool OutputRedirector::redirect()
         }
 
 
-        if (! freopen("/dev/stdout", "w", stderr)) {
+        if (1 != dup2(2, 1)) {
+            // Redirect 'stderr' to 'stdout;.
 
-            // Redirect 'stderr' first.
+            // The canonical way to redirect 'stderr' to 'stdout' is
+            // 'ASSERT(freopen("/dev/stdout", "w", stderr));', but we use dup2
+            // instead of 'freopen', because 'freopen' fails on AIX with errno
+            // 13 'Permission denied' when redirecting stderr.
 
-            // We will not be able to redirect 'stderr' after we have
-            // redirected 'stdout'.
+            // We want 'stderr' to point to 'stdout', so we have to redirect it
+            // before we change the meaning of 'stdout'.
 
             if (veryVerbose) {
 
