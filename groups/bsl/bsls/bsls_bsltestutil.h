@@ -127,25 +127,25 @@ BSLS_IDENT("$Id: $")
                        // =================
 
 # define BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, ",\t"); \
+    if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, "\n"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
 # define BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X) { \
     if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, "\t");  \
-                bsls::BslTestUtil::debugPrint(#J ": ", J, ",\t"); \
+                bsls::BslTestUtil::debugPrint(#J ": ", J, "\n"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X) { \
     if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, "\t");  \
                 bsls::BslTestUtil::debugPrint(#J ": ", J, "\t");  \
-                bsls::BslTestUtil::debugPrint(#K ": ", K, ",\t"); \
+                bsls::BslTestUtil::debugPrint(#K ": ", K, "\n"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X) { \
     if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, "\t");  \
                 bsls::BslTestUtil::debugPrint(#J ": ", J, "\t");  \
                 bsls::BslTestUtil::debugPrint(#K ": ", K, "\t");  \
-                bsls::BslTestUtil::debugPrint(#L ": ", L, ",\t"); \
+                bsls::BslTestUtil::debugPrint(#L ": ", L, "\n"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X) { \
@@ -153,7 +153,7 @@ BSLS_IDENT("$Id: $")
                 bsls::BslTestUtil::debugPrint(#J ": ", J, "\t");  \
                 bsls::BslTestUtil::debugPrint(#K ": ", K, "\t");  \
                 bsls::BslTestUtil::debugPrint(#L ": ", L, "\t");  \
-                bsls::BslTestUtil::debugPrint(#M ": ", M, ",\t"); \
+                bsls::BslTestUtil::debugPrint(#M ": ", M, "\n"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X) { \
@@ -162,7 +162,7 @@ BSLS_IDENT("$Id: $")
                 bsls::BslTestUtil::debugPrint(#K ": ", K, "\t");  \
                 bsls::BslTestUtil::debugPrint(#L ": ", L, "\t");  \
                 bsls::BslTestUtil::debugPrint(#M ": ", M, "\t");  \
-                bsls::BslTestUtil::debugPrint(#N ": ", N, ",\t"); \
+                bsls::BslTestUtil::debugPrint(#N ": ", N, "\n"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_Q(X)                                                 \
