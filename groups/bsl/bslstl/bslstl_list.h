@@ -541,9 +541,9 @@ class List_iterator
                            List_iterator<T2, NODEP, DIFFT> b);
 
     // PRIVATE TYPES
-    typedef typename BloombergLP::bslmf_RemoveCvq<TYPE>::Type  NcType;
-    typedef List_iterator<NcType, NODEPTR, DIFFTYPE>           NcIter;
-    typedef List_node<NcType>                                  Node;
+    typedef typename BloombergLP::bslmf::RemoveCvq<TYPE>::Type  NcType;
+    typedef List_iterator<NcType, NODEPTR, DIFFTYPE>            NcIter;
+    typedef List_node<NcType>                                   Node;
 
     // DATA
     NODEPTR d_nodeptr;
@@ -804,8 +804,8 @@ class list {
 
     template <class InputIter>
       list(InputIter first, InputIter last, const ALLOCATOR& a = ALLOCATOR(),
-           typename BloombergLP::bslmf_EnableIf<
-               !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
+           typename BloombergLP::bslmf::EnableIf<
+               !BloombergLP::bslmf::IsFundamental<InputIter>::VALUE
            >::type* = 0)
         // Construct a list using the specified allocator 'a' and insert the
         // number of elements determined by the size of the specified range
@@ -815,14 +815,14 @@ class list {
         // unless 'InputIter' is an iterator type.  The behavior is undefined
         // unless '[first, last)' defines a range of valid objects.
         //
-        // TBD: This function's signature is specified using 'bslmf_EnableIf'
+        // TBD: This function's signature is specified using 'bslmf::EnableIf'
         // in such a way that it will not be selected during overload
         // resolution if 'InputIter' is a fundamental type.  Unfortunately,
         // this function *will* (incorrectly) be selected if 'InputIter' is an
         // enumerated type.  The best way to correct this problem would be to
         // use 'std::is_arithmetic' (a currently unavailable metafunction that
-        // would include enums) instead of 'bslmf_IsFundamental' in the
-        // 'bslmf_EnableIf' expression.
+        // would include enums) instead of 'bslmf::IsFundamental' in the
+        // 'bslmf::EnableIf' expression.
       : d_alloc_and_size(a, size_type(-1))
     {
         // MS Visual Studio 2008 compiler requires that a function using
@@ -897,8 +897,8 @@ class list {
     // MANIPULATORS
     template <class InputIter>
     void assign(InputIter first, InputIter last,
-                typename BloombergLP::bslmf_EnableIf<
-                    !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
+                typename BloombergLP::bslmf::EnableIf<
+                    !BloombergLP::bslmf::IsFundamental<InputIter>::VALUE
                 >::type * = 0)
         // Replace the contents of this list with copies of the elements in
         // the specified range '[first, last)'.  Each element in this list is
@@ -908,14 +908,14 @@ class list {
         // an iterator type.  The behavior is undefined unless '[first, last)'
         // is a range of valid iterators not into this list.
         //
-        // TBD: This function's signature is specified using 'bslmf_EnableIf'
+        // TBD: This function's signature is specified using 'bslmf::EnableIf'
         // in such a way that it will not be selected during overload
         // resolution if 'InputIter' is a fundamental type.  Unfortunately,
         // this function *will* (incorrectly) be selected if 'InputIter' is an
         // enumerated type.  The best way to correct this problem is to use
-        // 'bslmf_IsArithmetic' (a currently unimplemented metafunction that
-        // would include enums) instead of 'bslmf_IsFundamental' in the
-        // 'bslmf_EnableIf' expression.
+        // 'bslmf::IsArithmetic' (a currently unimplemented metafunction that
+        // would include enums) instead of 'bslmf::IsFundamental' in the
+        // 'bslmf::EnableIf' expression.
     {
         // MS Visual Studio 2008 compiler requires that a function using
         // EnableIf be in-place inline.
@@ -1079,22 +1079,22 @@ class list {
     iterator insert(const_iterator position, size_type n, const TYPE& x);
     template <class InputIter>
     iterator insert(const_iterator position, InputIter first, InputIter last,
-                    typename BloombergLP::bslmf_EnableIf<
-                        !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
+                    typename BloombergLP::bslmf::EnableIf<
+                        !BloombergLP::bslmf::IsFundamental<InputIter>::VALUE
                     >::type * = 0)
         // Insert the specified range '[first, last)' into this list at the
         // specified 'position' and return an iterator to the first inserted
         // element or 'position' if the range is empty.  Does not participate
         // in overload resolution unless 'InputIter' is an iterator type.
         //
-        // TBD: This function's signature is specified using 'bslmf_EnableIf'
+        // TBD: This function's signature is specified using 'bslmf::EnableIf'
         // in such a way that it will not be selected during overload
         // resolution if 'InputIter' is a fundamental type.  Unfortunately,
         // this function *will* (incorrectly) be selected if 'InputIter' is an
         // enumerated type.  The best way to correct this problem is to use
-        // 'bslmf_IsArithmetic' (a currently unimplemented metafunction that
-        // would include enums) instead of 'bslmf_IsFundamental' in the
-        // 'bslmf_EnableIf' expression.
+        // 'bslmf::IsArithmetic' (a currently unimplemented metafunction that
+        // would include enums) instead of 'bslmf::IsFundamental' in the
+        // 'bslmf::EnableIf' expression.
     {
         // MS Visual Studio 2008 compiler requires that a function using
         // EnableIf be inplace inline.
@@ -2662,12 +2662,12 @@ template <class TYPE, class ALLOCATOR> inline
 bool operator==(const list<TYPE, ALLOCATOR>& lhs,
                 const list<TYPE, ALLOCATOR>& rhs)
 {
-    return BloombergLP::bslalg_RangeCompare::equal(lhs.begin(),
-                                                   lhs.end(),
-                                                   lhs.size(),
-                                                   rhs.begin(),
-                                                   rhs.end(),
-                                                   rhs.size());
+    return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
+                                                    lhs.end(),
+                                                    lhs.size(),
+                                                    rhs.begin(),
+                                                    rhs.end(),
+                                                    rhs.size());
 }
 
 template <class TYPE, class ALLOCATOR> inline
@@ -2681,12 +2681,12 @@ template <class TYPE, class ALLOCATOR> inline
 bool operator< (const list<TYPE, ALLOCATOR>& lhs,
                 const list<TYPE, ALLOCATOR>& rhs)
 {
-    return 0 > BloombergLP::bslalg_RangeCompare::lexicographical(lhs.begin(),
-                                                                 lhs.end(),
-                                                                 lhs.size(),
-                                                                 rhs.begin(),
-                                                                 rhs.end(),
-                                                                 rhs.size());
+    return 0 > BloombergLP::bslalg::RangeCompare::lexicographical(lhs.begin(),
+                                                                  lhs.end(),
+                                                                  lhs.size(),
+                                                                  rhs.begin(),
+                                                                  rhs.end(),
+                                                                  rhs.size());
 }
 
 template <class TYPE, class ALLOCATOR> inline
