@@ -15,9 +15,13 @@
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
 typedef unsigned long DWORD;
+typedef struct _LARGE_INTEGER {
+    long long QuadPart;
+} LARGE_INTEGER;
 
 extern "C" {
     __declspec(dllimport) void __stdcall Sleep(DWORD dwMilliseconds);
+    __declspec(dllimport) int  __stdcall QueryPerformanceFrequency(LARGE_INTEGER *lpFrequency);
 };
 #endif
 
@@ -61,6 +65,134 @@ using namespace std;
 // [10] Initialization test: getTimer (Windows only)
 //-----------------------------------------------------------------------------
 
+//..
+//  #!/usr/bin/env python
+//
+//  def testOutput(tests):
+//      for test in tests:
+//          (input, initialTime, frequency, output) = test
+//          if ((input - initialTime) * B) / frequency != output:
+//              print input, initialTime, frequency, output
+//          else:
+//              print "OK"
+//
+//  class Transform:
+//      """Provide a converter to transform a number of clock ticks and a
+//      frequency to a time expressed in nanoseconds"""
+//
+//      billion = long(1000 * 1000 * 1000)
+//      frequency = long(0)
+//      initialTime = long(0)
+//
+//      def __init__(self, frequency, initialTime):
+//          self.frequency = frequency
+//          self.initialTime = initialTime
+//
+//      def nanoseconds(self, ticks):
+//          return ((ticks - self.initialTime) * self.billion) / self.frequency
+//
+//      def ticks(self, nanoseconds):
+//          return (nanoseconds * self.frequency) / self.billion \
+//              + self.initialTime
+//
+//  class Generator:
+//      """Provide a driver to generate nanosecond conversions of a number of
+//      frequencies and clock tick values"""
+//      max64 = (1 << 63) - 1
+//      billion = long(1000 * 1000 * 1000)
+//      frequencies = [
+//          (1 << 32) - 1
+//          ,2992530000
+//          ,3579545
+//      ]
+//      verbose = True
+//
+//      def __init__(self, base, verbose):
+//          self.verbose = verbose
+//
+//          count = 0
+//          limit = 1 << 32
+//          n = base
+//
+//          while n < limit:
+//              self.frequencies.append(n)
+//              self.frequencies.append(n + 1)
+//              self.frequencies.append(n - 1)
+//              ++count
+//              n *= base
+//
+//      def generateTicks(self, base, initialTime):
+//          result = []
+//          limit = self.max64
+//
+//          n = base
+//          while n < limit:
+//              result.append(n)
+//              n *= base
+//
+//          return result
+//
+//      def maxTicks(self, frequency, initialTime):
+//          maxNSeconds = self.max64
+//
+//          return min((maxNSeconds * frequency) / self.billion - initialTime,
+//                     self.max64)
+//
+//      def report(self, frequency, ticks, initialTime):
+//          if initialTime < ticks:
+//              t = Transform(frequency, initialTime)
+//
+//              nanoseconds = t.nanoseconds(ticks)
+//              if (nanoseconds != 0 and nanoseconds <= self.max64):
+//                  if self.verbose:
+//                      print 'Init: f=%d, t=%d, i=%d' \
+//                          % (frequency, ticks, initialTime)
+//
+//                      print 'Ticks: %d' % (t.ticks(nanoseconds))
+//                      print 'Nanoseconds: %d' % (nanoseconds)
+//
+//                  print ',{ L_, %d, %d, %d, %d }' \
+//                      % (ticks, initialTime, frequency, nanoseconds)
+//
+//                  if self.verbose:
+//                      print
+//              elif self.verbose:
+//                  if nanoseconds == 0:
+//                      print 'SKIP: %s f=%d, t=%d, i=%d' \
+//                          % ("zero", frequency, ticks, initialTime)
+//                  else:
+//                      print 'SKIP: %s f=%d, t=%d, i=%d' \
+//                          % ("overflow", frequency, ticks, initialTime)
+//          elif self.verbose:
+//              print 'SKIP: bad init f=%d, t=%d, i=%d' \
+//                  % (frequency, ticks, initialTime)
+//
+//      def generate(self):
+//          for frequency in self.frequencies:
+//              initialTime = ((frequency) * 7) / 5
+//              print
+//              print '// Frequency: %d, Initial Time: %d' \
+//                  % (frequency, initialTime)
+//              self.report(frequency, initialTime + 1, initialTime)
+//              self.report(frequency, (1 << 32) - 2, initialTime)
+//              self.report(frequency, (1 << 32) - 1, initialTime)
+//              self.report(frequency, (1 << 32), initialTime)
+//              self.report(frequency, (1 << 32) + 1, initialTime)
+//              self.report(frequency,
+//                          self.maxTicks(frequency, initialTime) - 1,
+//                          initialTime)
+//              self.report(frequency,
+//                          self.maxTicks(frequency, initialTime),
+//                          initialTime)
+//
+//              #for baseValue in [2, 5, 7]:
+//              #    for ticks in self.generateTicks(baseValue, initialTime):
+//              #        self.report(frequency, ticks, initialTime)
+//
+//  g = Generator(3, False)
+//  g.generate()
+//..
+
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -86,6 +218,12 @@ static void aSsErT(int c, const char *s, int i)
 #define LOOP2_ASSERT(I,J,X) { \
     if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
               << J << "\n"; aSsErT(1, #X, __LINE__); } }
+
+#define LOOP5_ASSERT(I,J,K,L,M,X) { \
+   if (!(X)) { std::cout << #I << ": " << I << "\t" << #J << ": " << J    \
+                         << "\t" << #K << ": " << K << "\t" << #L << ": " \
+                         << L << "\t" << #M << ": " << M << "\n";         \
+               aSsErT(1, #X, __LINE__); } }
 
 //=============================================================================
 
@@ -199,6 +337,79 @@ double my_Timer::elapsedSystemTime()
 }
 
 //=============================================================================
+//                         HELPER FUNCTIONS FOR CASE 11
+//-----------------------------------------------------------------------------
+
+#if defined BSLS_PLATFORM__OS_WINDOWS
+
+bsls::Types::Int64 fakeConvertRawTime(bsls::Types::Int64 rawTime,
+                                      bsls::Types::Int64 initialTime,
+                                      bsls::Types::Int64 timerFrequency)
+{
+    const bsls::Types::Int64 B = 1000000000;
+    const bsls::Types::Int64 HIGH_DWORD_MULTIPLIER = B * (1LL << 32);
+    const bsls::Types::Int64 highPartDivisionFactor
+                                      = HIGH_DWORD_MULTIPLIER / timerFrequency;
+    const bsls::Types::Int64 highPartRemainderFactor
+                                      = HIGH_DWORD_MULTIPLIER % timerFrequency;
+
+    const bsls::Types::Uint64 LOW_MASK = 0x00000000ffffffff;
+
+        rawTime -= initialTime;
+
+        return (
+                // Divide high part by frequency
+                static_cast<bsls::Types::Int64>(rawTime >> 32)
+                    * highPartDivisionFactor
+                +
+                (
+                 // Restore remainder of high part division
+                 static_cast<bsls::Types::Int64>(rawTime >> 32)
+                    * highPartRemainderFactor
+                 +
+                 // Calculate low part contribution
+                 static_cast<bsls::Types::Uint64>(rawTime & LOW_MASK)
+                    * B
+                )
+                    / timerFrequency
+                );                                                    // RETURN
+}
+
+bsls::Types::Int64 getFrequency()
+{
+    LARGE_INTEGER frequency;
+
+    ::QueryPerformanceFrequency(&frequency);
+    return frequency.QuadPart;
+}
+
+bsls::Types::Uint64 getBitMask(int numBits)
+{
+	bsls::Types::Uint64 mask = 0;
+
+	return ~((~mask) << numBits);
+}
+
+unsigned getRand32()
+{
+	return ((unsigned) rand()) * 1103515245 + 12345;
+}
+
+bsls::Types::Uint64 getRand64()
+{
+	const bsls::Types::Uint64 random = getRand32();
+	return (random << 32) + (bsls::Types::Uint64) getRand32();
+}
+
+bsls::Types::Int64 getTestPeriod(bsls::Types::Int64 frequency)
+{
+	const bsls::Types::Int64 testPeriod = frequency * 60LL * 60LL * 24LL; // 24 hours
+	return testPeriod * 106653; // 292 years: close to limit of Int64 as nanoseconds
+}
+
+#endif
+
+//=============================================================================
 //                                MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -212,7 +423,246 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        //   The usage example provided in the component header must build and
+        //   run with a normal exit status.
+        //
+        // Plan:
+        //   Copy the implementation portion of the Usage Example to the
+        //   reserved space above, and copy the executable portion below,
+        //   adding any needed supporting code.
+        //
+        // Testing:
+        //   USAGE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Usage Example"
+                          << "\n=====================" << endl;
+
+        {
+            my_Timer tw;
+            for (int i = 0; i < 1000000; ++i) {
+                // ...
+            }
+            double dTw = tw.elapsedWallTime();
+            my_Timer tu;
+            for (int i = 0; i < 1000000; ++i) {
+                // ...
+            }
+            double dTu = tu.elapsedUserTime();
+            my_Timer ts;
+            for (int i = 0; i < 1000000; ++i) {
+                // ...
+            }
+            double dTs = ts.elapsedSystemTime();
+            if (verbose)
+                std::cout
+                    << "elapsed wall time: " << dTw << std::endl
+                    << "elapsed user time: " << dTu << std::endl
+                    << "elapsed system time: " << dTs << std::endl;
+        }
+
+      } break;
       case 11: {
+        // --------------------------------------------------------------------
+        // TESTING convertRawTime() arithmetic *** Windows Only ***
+        //
+        // Concerns:
+
+        //   When the QueryPerformanceCounter interface is available on Windows
+        //   platforms, the conversion arithmetic is non-obvious and cannot be
+        //   validated simply by reading the code.  Verify that the conversion
+        //   is accurate.
+        //
+        // Plan:
+        //   convertRawTime cannot be tested directly because it relies on two
+        //   hidden values: 's_timerFrequency' and 's_initialTime'.  We note,
+        //   however, that the value of 's_timerFrequency' can be retrieved
+        //   directly from the machine, and that the value of 's_initialTime'
+        //   will cancel itself out on any comparison between two converted
+        //   times.  Therefore, use a copy of the Windows implementation of
+        //   convertRawTime to test the correctness of the arithmetic.  This
+        //   copy must be kept in sync with the actual component code.  Test
+        //   the correctness of the arithmetic by using the fake convertRawTime
+        //   and a table-based strategy to convert a number of raw values for
+        //   which the output value is known.  Test that the fake
+        //   convertRawTime behaves the same as the real convertRawTime by
+        //   using both to measure real time intervals and compare the
+        //   nanosecond results, which should be close, though not necessarily
+        //   exact.
+        //
+        // Testing:
+        //   bsls::TimeUtil::convertRawTime(bsls::TimeUtil::OpaqueNativeTime)
+        // --------------------------------------------------------------------
+
+#if defined BSLS_PLATFORM__OS_WINDOWS
+
+        if (verbose) cout << "\nTesting convertRawTime arithmetic"
+                          << "\n=================================" << endl;
+
+        const bsls::Types::Int64 K = 1000;
+        const bsls::Types::Int64 G = K * K * K;
+        struct TimerTestData {
+            int d_line;
+            bsls::Types::Int64 d_input;
+            bsls::Types::Int64 d_initialTime;
+            bsls::Types::Int64 d_frequency;
+            bsls::Types::Int64 d_output;
+        } TIMES[] = {
+            //  Line Input      InitialTime Frequency  Output
+            //  ---- ---------- ----------- ---------  ---------
+             {  L_,  123456789,         0,  123456789, G }
+            ,{  L_,  123456789LL << 1, 0, 123456789, G << 1 }
+            ,{  L_,  123456789LL << 2, 0, 123456789, G << 2 }
+            ,{  L_,  123456789LL << 3, 0, 123456789, G << 3 }
+            ,{  L_,  123456789LL << 4, 0, 123456789, G << 4 }
+            ,{  L_,  123456789LL << 5, 0, 123456789, G << 5 }
+            ,{  L_,  123456789LL << 6, 0, 123456789, G << 6 }
+            ,{  L_,  123456789LL << 7, 0, 123456789, G << 7 }
+            ,{  L_,  123456789LL << 8, 0, 123456789, G << 8 }
+            ,{  L_,  123456789LL << 9, 0, 123456789, G << 9 }
+            ,{  L_,  123456789LL << 10, 0, 123456789, G << 10 }
+            ,{  L_,  123456789LL << 11, 0, 123456789, G << 11 }
+
+            ,{  L_,  3579545,         0,  3579545, G }
+            ,{  L_,  3579545LL << 1, 0, 3579545, G << 1 }
+            ,{  L_,  3579545LL << 2, 0, 3579545, G << 2 }
+            ,{  L_,  3579545LL << 3, 0, 3579545, G << 3 }
+            ,{  L_,  3579545LL << 4, 0, 3579545, G << 4 }
+            ,{  L_,  3579545LL << 5, 0, 3579545, G << 5 }
+            ,{  L_,  3579545LL << 6, 0, 3579545, G << 6 }
+            ,{  L_,  3579545LL << 7, 0, 3579545, G << 7 }
+            ,{  L_,  3579545LL << 8, 0, 3579545, G << 8 }
+            ,{  L_,  3579545LL << 9, 0, 3579545, G << 9 }
+            ,{  L_,  3579545LL << 10, 0, 3579545, G << 10 }
+            ,{  L_,  3579545LL << 11, 0, 3579545, G << 11 }
+
+			,{  L_,  2992530000,         0,  2992530000, G }
+            ,{  L_,  2992530000LL << 1, 0, 2992530000, G << 1 }
+            ,{  L_,  2992530000LL << 2, 0, 2992530000, G << 2 }
+            ,{  L_,  2992530000LL << 3, 0, 2992530000, G << 3 }
+            ,{  L_,  2992530000LL << 4, 0, 2992530000, G << 4 }
+            ,{  L_,  2992530000LL << 5, 0, 2992530000, G << 5 }
+            ,{  L_,  2992530000LL << 6, 0, 2992530000, G << 6 }
+            ,{  L_,  2992530000LL << 7, 0, 2992530000, G << 7 }
+            ,{  L_,  2992530000LL << 8, 0, 2992530000, G << 8 }
+            ,{  L_,  2992530000LL << 9, 0, 2992530000, G << 9 }
+            ,{  L_,  2992530000LL << 10, 0, 2992530000, G << 10 }
+            ,{  L_,  2992530000LL << 11, 0, 2992530000, G << 11 }
+};
+
+        const int NUM_TIMES = sizeof(TIMES) / sizeof(TIMES[0]);
+
+        {
+            if (verbose) cout << "\nCheck fakeConvertRawTime arithmetic"
+                              << "\n-----------------------------------"
+                              << endl;
+
+            for (int si = 0; si < NUM_TIMES; ++si) {
+                const int LINE = TIMES[si].d_line;
+                const bsls::Types::Int64 INPUT        = TIMES[si].d_input;
+                const bsls::Types::Int64 INITIAL_TIME = TIMES[si].d_initialTime;
+                const bsls::Types::Int64 FREQUENCY    = TIMES[si].d_frequency;
+                const bsls::Types::Int64 OUTPUT       = TIMES[si].d_output;
+
+                LOOP5_ASSERT(LINE,
+                             INPUT,
+                             INITIAL_TIME,
+                             FREQUENCY,
+                             OUTPUT,
+                             OUTPUT == fakeConvertRawTime(INPUT,
+                                                         INITIAL_TIME,
+                                                         FREQUENCY));
+            }
+        }
+
+        {
+            if (verbose) cout << "\nCompare fakeConvertRawTime to convertRawTime"
+                              << "\n--------------------------------------------"
+                              << endl;
+
+            const bsls::Types::Int64 frequency = getFrequency();
+            TU::OpaqueNativeTime startTime;
+            TU::initialize();
+            TU::getTimerRaw(&startTime);
+            for (int exponent = 0; exponent < 60; ++exponent) {
+                TU::OpaqueNativeTime endTime;
+                endTime.d_opaque = startTime.d_opaque + (1LL << exponent);
+                const bsls::Types::Int64 realStart
+                    = TU::convertRawTime(startTime);
+                const bsls::Types::Int64 fakeStart
+                    = fakeConvertRawTime(startTime.d_opaque,
+                                          startTime.d_opaque,
+                                          frequency);
+                const bsls::Types::Int64 realEnd
+                    = TU::convertRawTime(endTime);
+                const bsls::Types::Int64 fakeEnd
+                    = fakeConvertRawTime(endTime.d_opaque,
+                                          startTime.d_opaque,
+                                          frequency);
+
+				LOOP5_ASSERT(exponent,
+							realEnd,
+							fakeEnd,
+							(realEnd - realStart),
+							(fakeEnd - fakeStart),
+							(realEnd - realStart) - (fakeEnd - fakeStart) <= 1 && (realEnd - realStart) - (fakeEnd - fakeStart) >= -1);
+            }
+        }
+
+        {
+            if (verbose) cout << "\nCompare fakeConvertRawTime to convertRawTime with random data"
+                              << "\n-------------------------------------------------------------"
+                              << endl;
+
+			srand((unsigned) time(NULL));
+
+			const bsls::Types::Int64 frequency = getFrequency();
+            TU::OpaqueNativeTime startTime;
+            TU::initialize();
+            TU::getTimerRaw(&startTime);
+
+
+			bsls::Types::Int64 testPeriod = getTestPeriod(frequency);
+
+	        const Int64 NUM_TESTS  = verbose ? (veryVerbose ? 1L : 1000LL) * atoi(argv[2]) : 100;
+			for (int bits = 0; bits < 64 && (bits == 0 || (bsls::Types::Int64) getBitMask(bits - 1) < testPeriod); ++bits) {
+				if (veryVerbose) { P(bits); }
+				for (int iterations = 0; iterations < NUM_TESTS; ++iterations) {
+					const bsls::Types::Int64 offset = (getRand64() & getBitMask(bits)) % testPeriod;
+					TU::OpaqueNativeTime endTime;
+					endTime.d_opaque = startTime.d_opaque + offset;
+					const bsls::Types::Int64 realStart
+						= TU::convertRawTime(startTime);
+					const bsls::Types::Int64 fakeStart
+						= fakeConvertRawTime(startTime.d_opaque,
+											  startTime.d_opaque,
+											  frequency);
+					const bsls::Types::Int64 realEnd
+						= TU::convertRawTime(endTime);
+					const bsls::Types::Int64 fakeEnd
+						= fakeConvertRawTime(endTime.d_opaque,
+											  startTime.d_opaque,
+											  frequency);
+
+					if (veryVerbose) {
+						T_(); P_(iterations); P_(bits); P(offset);
+					}
+
+					LOOP5_ASSERT(frequency,
+								startTime.d_opaque,
+								endTime.d_opaque,
+								(realEnd - realStart),
+								(fakeEnd - fakeStart),
+								(realEnd - realStart) - (fakeEnd - fakeStart) <= 1 && (realEnd - realStart) - (fakeEnd - fakeStart) >= -1);
+				}
+			}
+        }
+#endif
+      } break;
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING getTimerRaw() and convertRawTime()
         //
@@ -366,7 +816,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // INITIALIZATION TEST
         //   *** Windows only ***: bsls::TimeUtil::getTimer()
@@ -381,13 +831,17 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
+        if (verbose)
+            cout << "\nTesting TimeUtil initialization (wall timer)"
+                 << "\n============================================" << endl;
+
         Int64 t = TU::getTimer();
         if (verbose) { T_(); P64_(t); }
         ASSERT(t >= 0);
 #endif
 
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // INITIALIZATION TEST
         //   *** UNIX only ***: bsls::TimeUtil::getProcessTimers()
@@ -401,13 +855,18 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM__OS_UNIX
+        if (verbose)
+            cout << "\nTesting TimeUtil initialization (process timers)"
+                 << "\n================================================"
+                 << endl;
+
         Int64 ts, tu; TU::getProcessTimers(&ts, &tu);
         if (verbose) { T_(); P64_(ts); P64_(tu); }
         ASSERT(ts >= 0); ASSERT(tu >= 0);
 #endif
 
       } break;
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // INITIALIZATION TEST
         //   *** UNIX only ***: bsls::TimeUtil::getProcessUserTimer()
@@ -421,13 +880,17 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM__OS_UNIX
+        if (verbose)
+            cout << "\nTesting TimeUtil initialization (user timer)"
+                 << "\n============================================" << endl;
+
         Int64 t = TU::getProcessUserTimer();
         if (verbose) { T_(); P64_(t); }
         ASSERT(t >= 0);
 #endif
 
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // INITIALIZATION TEST
         //   *** UNIX only ***: bsls::TimeUtil::getProcessSystemTimer()
@@ -441,13 +904,17 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM__OS_UNIX
+        if (verbose)
+            cout << "\nTesting TimeUtil initialization (system timer)"
+                 << "\n==============================================" << endl;
+
         Int64 t = TU::getProcessSystemTimer();
         if (verbose) { T_(); P64_(t); }
         ASSERT(t >= 0);
 #endif
 
       } break;
-      case 6: {
+      case 5: {
 #if defined (BSLS_PLATFORM__OS_SOLARIS) || defined (BSLS_PLATFORM__OS_HPUX)
         // --------------------------------------------------------------------
         // PERFORMANCE TEST 'gethrtime()' *** Sun and HP ONLY ***
@@ -509,7 +976,7 @@ int main(int argc, char *argv[])
 
 #endif
       } break;
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // HOOKING TEST
         // Concerns:
@@ -786,7 +1253,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // PERFORMANCE TEST
         //   Test whether successive calls ever return the same value.
@@ -878,7 +1345,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
         // PERFORMANCE TEST
         //   Time the (platform-dependent) call.
@@ -948,48 +1415,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
-        //   The usage example provided in the component header must build and
-        //   run with a normal exit status.
-        //
-        // Plan:
-        //   Copy the implementation portion of the Usage Example to the
-        //   reserved space above, and copy the executable portion below,
-        //   adding any needed supporting code.
-        //
-        // Testing:
-        //   USAGE
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting Usage Example"
-                          << "\n=====================" << endl;
-
-        {
-            my_Timer tw;
-            for (int i = 0; i < 1000000; ++i) {
-                // ...
-            }
-            double dTw = tw.elapsedWallTime();
-            my_Timer tu;
-            for (int i = 0; i < 1000000; ++i) {
-                // ...
-            }
-            double dTu = tu.elapsedUserTime();
-            my_Timer ts;
-            for (int i = 0; i < 1000000; ++i) {
-                // ...
-            }
-            double dTs = ts.elapsedSystemTime();
-            if (verbose)
-                std::cout
-                    << "elapsed wall time: " << dTw << std::endl
-                    << "elapsed user time: " << dTu << std::endl
-                    << "elapsed system time: " << dTs << std::endl;
-        }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------

@@ -479,7 +479,6 @@ void TimeUtil::initialize()
 #endif
 }
 
-inline
 Types::Int64
 TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 {
@@ -579,7 +578,6 @@ Types::Int64 TimeUtil::getTimer()
 #endif
 }
 
-inline
 void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 {
     // Historical Note: Older Sun machines (e.g., sundev2 circa 2003) exhibited
