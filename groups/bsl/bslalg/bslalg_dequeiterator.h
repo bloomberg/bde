@@ -22,10 +22,9 @@ BSLS_IDENT("$Id: $")
 // of blocks pointers, each block capable of containing a fixed number of
 // objects.  An element in the deque is identified by an iterator which
 // consists of two pointers:
-//..
-//  - a pointer to the block pointer array, and
-//  - a pointer to a value within the block referred to by the first pointer.
-//..
+//: o a pointer to the block pointer array, and
+//: o a pointer to a value within the block referred to by the first pointer.
+//
 // Dereferencing the iterator dereferences the second pointer.  Incrementing or
 // decrementing the iterator consists of incrementing the value pointer, unless
 // the iterator crosses a block boundary in which case it must increment or
