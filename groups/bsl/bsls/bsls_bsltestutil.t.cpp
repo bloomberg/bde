@@ -2,8 +2,8 @@
 
 #include <bsls_bsltestutil.h>
 
-// Some I/O code differs depending on the platform (especially on Windows), so 
-// we need to figure out what OS we are running on.  The following is brazenly 
+// Some I/O code differs depending on the platform (especially on Windows), so
+// we need to figure out what OS we are running on.  The following is brazenly
 // copied from bsls_platform.h since bsls_platform.h cannot be included because
 // of leveling concerns.
 
@@ -98,15 +98,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> // strnlen
-#include <limits.h> // PATH_MAX on linux
-#include <float.h>  // FLT_MAX, etc.
+#include <string.h>      // strnlen
+#include <limits.h>      // PATH_MAX on linux
+#include <float.h>       // FLT_MAX, etc.
 
 #if defined(BSLS_PLATFORM__OS_WINDOWS)
-# include <windows.h> // MAX_PATH
-# include <io.h>      // _dup2
-# include <sys/types.h> // struct stat: required on Sun and Windows only
-# include <sys/stat.h>  // struct stat: required on Sun and Windows only
+# include <windows.h>    // MAX_PATH
+# include <io.h>         // _dup2
+# include <sys/types.h>  // struct stat: required on Sun and Windows only
+# include <sys/stat.h>   // struct stat: required on Sun and Windows only
 #else
 # if defined(BSLS_PLATFORM__OS_SUNOS) || defined(BSLS_PLATFORM__OS_SOLARIS)
 #  include <sys/types.h> // struct stat: required on Sun and Windows only
@@ -263,37 +263,37 @@ static void realaSsErT(int c, const char *s, int i)
 // string.
 
 #define ANNOTATED_ASSERT(I,IF,X) do {                                         \
-        if (!(X)) { printDatum(stderr, #I,": ",(IF),"\n",(I));      \
+        if (!(X)) { printDatum(stderr, #I,": ",(IF),"\n",(I));                \
                     realaSsErT(1, #X, __LINE__);}                             \
     } while (0)
 
 #define ANNOTATED2_ASSERT(I,IF,J,JF,X) do {                                   \
-        if (!(X)) { printDatum(stderr, #I,": ",(IF),"\t",(I));      \
-                    printDatum(stderr, #J,": ",(JF),"\n",(J));      \
+        if (!(X)) { printDatum(stderr, #I,": ",(IF),"\t",(I));                \
+                    printDatum(stderr, #J,": ",(JF),"\n",(J));                \
                     realaSsErT(1, #X, __LINE__); }                            \
     } while (0)
 
 #define ANNOTATED3_ASSERT(I,IF,J,JF,K,KF,X) do {                              \
-        if (!(X)) { printDatum(stderr, #I,": ",(IF),"\t",(I));      \
-                    printDatum(stderr, #J,": ",(JF),"\t",(J));      \
-                    printDatum(stderr, #K,": ",(KF),"\n",(K));      \
+        if (!(X)) { printDatum(stderr, #I,": ",(IF),"\t",(I));                \
+                    printDatum(stderr, #J,": ",(JF),"\t",(J));                \
+                    printDatum(stderr, #K,": ",(KF),"\n",(K));                \
                     realaSsErT(1, #X, __LINE__); }                            \
     } while (0)
 
 #define ANNOTATED4_ASSERT(I,IF,J,JF,K,KF,L,LF,X) do {                         \
-        if (!(X)) { printDatum(stderr, #I,": ",(IF),"\t",(I));      \
-                    printDatum(stderr, #J,": ",(JF),"\t",(J));      \
-                    printDatum(stderr, #K,": ",(KF),"\t",(K));      \
-                    printDatum(stderr, #L,": ",(LF),"\n",(L));      \
+        if (!(X)) { printDatum(stderr, #I,": ",(IF),"\t",(I));                \
+                    printDatum(stderr, #J,": ",(JF),"\t",(J));                \
+                    printDatum(stderr, #K,": ",(KF),"\t",(K));                \
+                    printDatum(stderr, #L,": ",(LF),"\n",(L));                \
                     realaSsErT(1, #X, __LINE__); }                            \
     } while (0)
 
 #define PRINT(X,XF) do {                                                      \
-        printDatum(stderr,#X," = ",(XF),"\n",(X));                  \
+        printDatum(stderr,#X," = ",(XF),"\n",(X));                            \
     } while(0)
 
 #define PRINT_(X,XF) do {                                                     \
-        printDatum(stderr,#X," = ",(XF),", ",(X));                  \
+        printDatum(stderr,#X," = ",(XF),", ",(X));                            \
     } while(0)
 
 #define TAB_ do {                                                             \
@@ -545,9 +545,9 @@ class OutputRedirector {
                                               // 'stdout' just before
                                               // redirection.
 
-	static int redirectStream(FILE *from, FILE *to);
-	    // Redirect the specified stream 'from' to the specified stream 'to',
-		// returning 0 for success and a negative value on failure.
+    static int redirectStream(FILE *from, FILE *to);
+        // Redirect the specified stream 'from' to the specified stream 'to',
+        // returning 0 for success and a negative value on failure.
 
   private:
     // NOT IMPLEMENTED
@@ -616,10 +616,10 @@ class OutputRedirector {
 };
 
 OutputRedirector::OutputRedirector()
-    : d_isRedirectedFlag(false)
-    , d_isFileCreatedFlag(false)
-    , d_outputSize(0L)
-    , d_isOutputReadyFlag(false)
+: d_isRedirectedFlag(false)
+, d_isFileCreatedFlag(false)
+, d_outputSize(0L)
+, d_isOutputReadyFlag(false)
 {
     d_fileName[0] = '\0';
     memset(&d_originalStdoutStat, 0, sizeof(struct stat));
@@ -644,10 +644,10 @@ int OutputRedirector::redirectStream(FILE *from, FILE *to)
     // 13 'Permission denied' when redirecting stderr.
 
 #if defined(BSLS_PLATFORM__OS_WINDOWS)
-	return _dup2(_fileno(from), _fileno(to));
+    return _dup2(_fileno(from), _fileno(to));
 #else
-	int redirected = dup2(fileno(from), fileno(to));
-	return redirected == fileno(to) ? 0 : -1;
+    int redirected = dup2(fileno(from), fileno(to));
+    return redirected == fileno(to) ? 0 : -1;
 #endif
 }
 
@@ -725,13 +725,13 @@ bool OutputRedirector::redirect()
             // 'stderr' and 'stdout' have been successfully redirected.
 
 #if defined(BSLS_PLATFORM__OS_WINDOWS)
-			if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
-				ASSERT(0 == "Failed to set stdout to binary mode.");
-				return 1;
-			}	
+            if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
+                ASSERT(0 == "Failed to set stdout to binary mode.");
+                return success;                                       // RETURN
+            }
 #endif
 
-			d_isFileCreatedFlag = true;
+            d_isFileCreatedFlag = true;
             d_isRedirectedFlag = true;
 
             if (EOF == fflush(stdout)) {
@@ -814,7 +814,7 @@ bool OutputRedirector::load()
 
             // ...to ensure that direct inspection of buffer does not overflow
 
-		return false;                                                 // RETURN
+        return false;                                                 // RETURN
     } else {
 
         // We have read all output from the capture file.
@@ -1463,10 +1463,10 @@ int main(int argc, char *argv[])
     fprintf(stderr, "TEST " __FILE__ " CASE %d\n", test);
 
 #if defined(BSLS_PLATFORM__OS_WINDOWS)
-	if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
-		ASSERT(0 == "Failed to set stdout to binary mode.");
-		return 1;
-	}
+    if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
+        ASSERT(0 == "Failed to set stdout to binary mode.");
+        return 1;                                                     // RETURN
+    }
 #endif
     // Capture 'stdout', and send 'stderr' to 'stdout'
     OutputRedirector output;
@@ -2625,7 +2625,7 @@ int main(int argc, char *argv[])
             stderrStat.st_rdev = output.originalStdoutStat().st_rdev;
             ASSERT(-1 != fstat(newStderrFD, &stderrStat));
 #if !defined(BSLS_PLATFORM__OS_WINDOWS)
-			// st_dev and st_rdev are not stable on Windows
+            // st_dev and st_rdev are not stable on Windows
             ASSERT(stderrStat.st_dev == output.originalStdoutStat().st_dev);
             ASSERT(stderrStat.st_rdev == output.originalStdoutStat().st_rdev);
 #endif
