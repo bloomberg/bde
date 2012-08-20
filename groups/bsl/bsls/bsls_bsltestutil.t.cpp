@@ -2,16 +2,121 @@
 
 #include <bsls_bsltestutil.h>
 
+// Some I/O code differs depending on the platform (especially on Windows), so 
+// we need to figure out what OS we are running on.  The following is brazenly 
+// copied from bsls_platform.h since bsls_platform.h cannot be included because
+// of leveling concerns.
+
+#if defined(__xlC__) || defined(__IBMC__) || defined(__IBMCPP__)
+    // which OS -- this compiler should only be used on AIX
+    #define BSLS_PLATFORM__OS_UNIX 1
+    #if defined(_AIX)                          // must be defined
+        #define BSLS_PLATFORM__OS_AIX 1
+        #define BSLS_PLATFORM__OS_VER_MAJOR _AIX
+    #else
+        #error "AIX compiler appears to be in use on non-AIX OS."
+        char die[sizeof(bsls_Platform_Assert)];      // if '#error' unsupported
+    #endif
+// ---------------------------------------------------------------------------
+#elif defined(__HP_aCC)
+    // which OS -- should always be HPUX
+    #if defined(hpux) || defined(__hpux) || defined(_HPUX_SOURCE)
+        #define BSLS_PLATFORM__OS_UNIX 1
+        #define BSLS_PLATFORM__OS_HPUX 1
+    #else
+        #error "Unable to determine on which OS the HP compiler is running."
+        char die[sizeof(bsls_Platform_Assert)];      // if '#error' unsupported
+    #endif
+// ---------------------------------------------------------------------------
+#elif defined(_MSC_VER)
+    // which OS -- should be some flavor of Windows
+    // there is currently no support for:
+    // - 16-bit versions of Windows (3.x)
+    // - Windows CE
+    #if defined(_WIN64) || defined(_WIN32)
+        #define BSLS_PLATFORM__OS_WINDOWS 1
+    #elif defined(_WIN16)
+        #error "16-bit Windows platform not supported."
+        char die[sizeof(bsls_Platform_Assert)];      // if '#error' unsupported
+    #else
+        #error "Microsoft OS is running on an unknown platform."
+        char die[sizeof(bsls_Platform_Assert)];      // if '#error' unsupported
+    #endif
+// ---------------------------------------------------------------------------
+#elif defined(__GNUC__) || defined(__EDG__)
+    // which OS -- GNU and EDG/Como are implemented almost everywhere
+    #if defined(_AIX)
+        #define BSLS_PLATFORM__OS_AIX 1
+    #elif defined(hpux) || defined(__hpux)
+        #define BSLS_PLATFORM__OS_HPUX 1
+    #elif defined(__CYGWIN__) || defined(cygwin) || defined(__cygwin)
+        #define BSLS_PLATFORM__OS_CYGWIN 1
+    #elif defined(linux) || defined(__linux)
+        #define BSLS_PLATFORM__OS_LINUX 1
+    #elif defined(__FreeBSD__)
+        #define BSLS_PLATFORM__OS_FREEBSD 1
+    #elif defined(sun) || defined(__sun)
+        #if defined(__SVR4) || defined(__svr4__)
+            #define BSLS_PLATFORM__OS_SOLARIS 1
+        #else
+            #define BSLS_PLATFORM__OS_SUNOS 1
+        #endif
+    #elif defined(_WIN32) || defined(__WIN32__) && \
+          ! (defined(cygwin) || defined(__cygwin))
+        #define BSLS_PLATFORM__OS_WINDOWS 1
+    #elif defined(__APPLE__)
+        #define BSLS_PLATFORM__OS_DARWIN 1
+    #else
+        #if defined(__GNUC__)
+            #error "Unable to determine on which OS GNU compiler is running."
+        #else
+            #error "Unable to determine on which OS EDG compiler is running."
+        #endif
+        char die[sizeof(bsls_Platform_Assert)];      // if '#error' unsupported
+    #endif
+
+    #if !defined(BSLS_PLATFORM__OS_WINDOWS)
+        #define BSLS_PLATFORM__OS_UNIX 1
+    #endif
+// ---------------------------------------------------------------------------
+#elif defined(__SUNPRO_CC) || defined(__SUNPRO_C)
+    // which OS
+    #define BSLS_PLATFORM__OS_UNIX 1
+    #if defined(sun) || defined(__sun)
+        #define BSLS_PLATFORM__OS_SOLARIS 1
+    #elif defined(__SVR4) || defined(__svr4__)
+        #define BSLS_PLATFORM__OS_SUNOS 1
+    #else
+        #error "Unable to determine SUN OS version."
+        char die[sizeof(bsls_Platform_Assert)];      // if '#error' unsupported
+    #endif
+// ---------------------------------------------------------------------------
+#else
+    #error "Could not identify the compiler."
+    char die[sizeof(bsls_Platform_Assert)];          // if '#error' unsupported
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> // strnlen
 #include <limits.h> // PATH_MAX on linux
 #include <float.h>  // FLT_MAX, etc.
-#include <unistd.h>
+
+#if defined(BSLS_PLATFORM__OS_WINDOWS)
+# include <windows.h> // MAX_PATH
+# include <io.h>      // _dup2
+# include <sys/types.h> // struct stat: required on Sun and Windows only
+# include <sys/stat.h>  // struct stat: required on Sun and Windows only
+#else
+# if defined(BSLS_PLATFORM__OS_SUNOS) || defined(BSLS_PLATFORM__OS_SOLARIS)
+#  include <sys/types.h> // struct stat: required on Sun and Windows only
+#  include <sys/stat.h>  // struct stat: required on Sun and Windows only
+# endif
+# include <unistd.h>
+#endif
+
 #include <fcntl.h>
 
-#include <sys/types.h> // struct stat: required on Sun only
-#include <sys/stat.h>  // struct stat: required on Sun only
 
 using namespace BloombergLP;
 
@@ -332,6 +437,10 @@ static int verbose, veryVerbose, veryVeryVerbose;
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+# define snprintf _snprintf
+#endif
+
 template <typename ITYPE>
 int printDatum(FILE        *outStream,
                const char  *identifierI,
@@ -436,6 +545,10 @@ class OutputRedirector {
                                               // 'stdout' just before
                                               // redirection.
 
+	static int redirectStream(FILE *from, FILE *to);
+	    // Redirect the specified stream 'from' to the specified stream 'to',
+		// returning 0 for success and a negative value on failure.
+
   private:
     // NOT IMPLEMENTED
     OutputRedirector(const OutputRedirector&);
@@ -523,6 +636,21 @@ OutputRedirector::~OutputRedirector()
     }
 }
 
+int OutputRedirector::redirectStream(FILE *from, FILE *to)
+{
+    // The canonical way to redirect 'stderr' to 'stdout' is
+    // 'ASSERT(freopen("/dev/stdout", "w", stderr));', but we use dup2
+    // instead of 'freopen', because 'freopen' fails on AIX with errno
+    // 13 'Permission denied' when redirecting stderr.
+
+#if defined(BSLS_PLATFORM__OS_WINDOWS)
+	return _dup2(_fileno(from), _fileno(to));
+#else
+	int redirected = dup2(fileno(from), fileno(to));
+	return redirected == fileno(to) ? 0 : -1;
+#endif
+}
+
 bool OutputRedirector::redirect()
 {
     bool success = false;
@@ -548,13 +676,8 @@ bool OutputRedirector::redirect()
         }
 
 
-        if (1 != dup2(2, 1)) {
+        if (0 != redirectStream(stderr, stdout)) {
             // Redirect 'stderr' to 'stdout;.
-
-            // The canonical way to redirect 'stderr' to 'stdout' is
-            // 'ASSERT(freopen("/dev/stdout", "w", stderr));', but we use dup2
-            // instead of 'freopen', because 'freopen' fails on AIX with errno
-            // 13 'Permission denied' when redirecting stderr.
 
             // We want 'stderr' to point to 'stdout', so we have to redirect it
             // before we change the meaning of 'stdout'.
@@ -601,7 +724,14 @@ bool OutputRedirector::redirect()
 
             // 'stderr' and 'stdout' have been successfully redirected.
 
-            d_isFileCreatedFlag = true;
+#if defined(BSLS_PLATFORM__OS_WINDOWS)
+			if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
+				ASSERT(0 == "Failed to set stdout to binary mode.");
+				return 1;
+			}	
+#endif
+
+			d_isFileCreatedFlag = true;
             d_isRedirectedFlag = true;
 
             if (EOF == fflush(stdout)) {
@@ -679,7 +809,12 @@ bool OutputRedirector::load()
                         "(%d): Could not read all captured output\n",
                     __LINE__);
         }
-        return false;                                                 // RETURN
+
+        d_outputBuffer[charsRead] = '\0';
+
+            // ...to ensure that direct inspection of buffer does not overflow
+
+		return false;                                                 // RETURN
     } else {
 
         // We have read all output from the capture file.
@@ -1327,6 +1462,12 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "TEST " __FILE__ " CASE %d\n", test);
 
+#if defined(BSLS_PLATFORM__OS_WINDOWS)
+	if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
+		ASSERT(0 == "Failed to set stdout to binary mode.");
+		return 1;
+	}
+#endif
     // Capture 'stdout', and send 'stderr' to 'stdout'
     OutputRedirector output;
     if (!output.redirect()) {
@@ -2480,10 +2621,15 @@ int main(int argc, char *argv[])
             int newStderrFD = fileno(stderr);
             ASSERT(-1 != newStderrFD);
             struct stat stderrStat;
+            stderrStat.st_dev = output.originalStdoutStat().st_dev;
+            stderrStat.st_rdev = output.originalStdoutStat().st_rdev;
             ASSERT(-1 != fstat(newStderrFD, &stderrStat));
+#if !defined(BSLS_PLATFORM__OS_WINDOWS)
+			// st_dev and st_rdev are not stable on Windows
             ASSERT(stderrStat.st_dev == output.originalStdoutStat().st_dev);
-            ASSERT(stderrStat.st_ino == output.originalStdoutStat().st_ino);
             ASSERT(stderrStat.st_rdev == output.originalStdoutStat().st_rdev);
+#endif
+            ASSERT(stderrStat.st_ino == output.originalStdoutStat().st_ino);
         }
 
       } break;
