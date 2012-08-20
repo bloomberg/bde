@@ -178,7 +178,7 @@ void abortSignalHandler(int x)
 
 }
 
-bool installAbortHandler()
+void installAbortHandler()
    // Install a abort-signal handler and mark 'g_inTest' as 'true'.
 
 {
