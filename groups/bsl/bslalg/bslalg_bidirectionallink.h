@@ -1,4 +1,4 @@
-// bslalg_bidirectionallink.h                                             -*-C++-*-
+// bslalg_bidirectionallink.h                                         -*-C++-*-
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
 #define INCLUDED_BSLALG_BIDIRECTIONALLINK
 
@@ -90,7 +90,6 @@ class BidirectionalLink {
         // 'next' is 0, then this node will be the root of the list.
 
     // ACCESSORS
-
     BidirectionalLink *next() const;
         // Return the address of next node linked from this node.
 

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a hash table data structure for unordered containers 
 //
 //@CLASSES:
-//   bslALG::BidirectionalListNode : Node holding a value in a bidirectional list
+//   bslalg::BidirectionalLinkTranslatorForMaps : Node holding a value in a bidirectional list
 //
 //@SEE_ALSO: bslalg_hashtableutil
 //
