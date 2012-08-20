@@ -205,7 +205,7 @@ static void realaSsErT(int c, const char *s, int i)
 /// - - - - - - - - - - - - - - - -
 // First, we write a component to test, which provides a utility class:
 //..
-    struct xyza_BslExampleUtil {
+    struct BslExampleUtil {
         // This utility class provides sample functionality to demonstrate how
         // a test driver might be written validating its only method.
 
@@ -214,7 +214,7 @@ static void realaSsErT(int c, const char *s, int i)
     };
 
     inline
-    int xyza_BslExampleUtil::fortyTwo()
+    int BslExampleUtil::fortyTwo()
     {
         return 42;
     }
@@ -266,7 +266,7 @@ static void realaSsErT(int c, const char *s, int i)
         (void) veryVerbose;
         (void) veryVeryVerbose;
 
-        const int value = xyza_BslExampleUtil::fortyTwo();
+        const int value = BslExampleUtil::fortyTwo();
         if (verbose) P(value);
         LOOP_ASSERT(value, 42 == value);
     }

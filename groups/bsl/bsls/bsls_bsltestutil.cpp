@@ -9,6 +9,56 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace
 {
 
+// ----------------------------------------------------------------------------
+//                             INLINE FREE FUNCTIONS
+// ----------------------------------------------------------------------------
+
+void flush();
+    // Flush stdout.
+
+// Fundamental-type-specific print functions.
+
+void printValue(bool val);
+    // Print 'true' to stdout if the specified boolean 'val' is true, and print
+    // 'false' otherwise.
+
+void printValue(char val);
+    // Print the specified character 'val' to stdout, surrounded by single
+    // quotes.
+
+void printValue(signed char val);
+void printValue(unsigned char val);
+void printValue(short val);
+void printValue(unsigned short val);
+void printValue(int val);
+void printValue(unsigned int val);
+void printValue(long val);
+void printValue(unsigned long val);
+void printValue(long long val);
+void printValue(unsigned long long val);
+void printValue(float val);
+void printValue(double val);
+void printValue(long double val);
+    // Print the specified value 'val' to stdout, using the default 'printf'
+    // format for the the primitive type of 'val'.
+
+void printValue(const char *val);
+void printValue(char *val);
+    // Print the specified null-terminated byte string 'val' to stdout,
+    // surrounded by double quotes.
+
+void printValue(void *val);
+void printValue(const void *val);
+    // Print the specified pointer 'val' to stdout, using the default 'printf'
+    // format for addresses.
+
+template <typename BSLS_TYPE>
+void doDebugPrint(const char *s, const BSLS_TYPE& v, const char *t);
+    // Print the specified null-terminated byte string 's', followed by the
+    // string representation of the specified 'v', formatted according to the
+    // type-appropriate overload of 'printValue', followed by the specified
+    // null-terminated byte string 't'.
+
 inline
 void flush()
 {
@@ -17,27 +67,27 @@ void flush()
 
 // Fundamental-type-specific print functions.
 inline
-void printValue(bool b)
+void printValue(bool val)
 {
-    printf(b ? "true" : "false");
+    printf(val ? "true" : "false");
 }
 
 inline
-void printValue(char c)
+void printValue(char val)
 {
-    printf("'%c'", c);
+    printf("'%c'", val);
 }
 
 inline
-void printValue(signed char c)
+void printValue(signed char val)
 {
-    printf("%hhd", c);
+    printf("%hhd", val);
 }
 
 inline
-void printValue(unsigned char c)
+void printValue(unsigned char val)
 {
-    printf("%hhu", c);
+    printf("%hhu", val);
 }
 
 inline
@@ -111,27 +161,27 @@ void printValue(long double val)
 }
 
 inline
-void printValue(const char *s)
+void printValue(const char *val)
 {
-    printf("\"%s\"", s);
+    printf("\"%s\"", val);
 }
 
 inline
-void printValue(char *s)
+void printValue(char *val)
 {
-    printf("\"%s\"", s);
+    printf("\"%s\"", val);
 }
 
 inline
-void printValue(void *p)
+void printValue(void *val)
 {
-    printf("%p", p);
+    printf("%p", val);
 }
 
 inline
-void printValue(const void *p)
+void printValue(const void *val)
 {
-    printf("%p", p);
+    printf("%p", val);
 }
 
 template <typename BSLS_TYPE>
@@ -150,14 +200,14 @@ namespace BloombergLP
 
 namespace bsls {
 
-void BslTestUtil::debugPrint(const char *s, bool v, const char *t)
+void BslTestUtil::debugPrint(const char *s, bool b, const char *t)
 {
-    doDebugPrint(s, v, t);
+    doDebugPrint(s, b, t);
 }
 
-void BslTestUtil::debugPrint(const char *s, char v, const char *t)
+void BslTestUtil::debugPrint(const char *s, char c, const char *t)
 {
-    doDebugPrint(s, v, t);
+    doDebugPrint(s, c, t);
 }
 
 void BslTestUtil::debugPrint(const char *s, signed char v, const char *t)
@@ -230,14 +280,14 @@ void BslTestUtil::debugPrint(const char *s, long double v, const char *t)
     doDebugPrint(s, v, t);
 }
 
-void BslTestUtil::debugPrint(const char *s, char *v, const char *t)
+void BslTestUtil::debugPrint(const char *s, char *str, const char *t)
 {
-    doDebugPrint(s, v, t);
+    doDebugPrint(s, str, t);
 }
 
-void BslTestUtil::debugPrint(const char *s, const char *v, const char *t)
+void BslTestUtil::debugPrint(const char *s, const char *str, const char *t)
 {
-    doDebugPrint(s, v, t);
+    doDebugPrint(s, str, t);
 }
 
 void BslTestUtil::debugPrint(const char *s, void *p, const char *t)

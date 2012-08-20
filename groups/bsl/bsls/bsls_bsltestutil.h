@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - -
 // First, we write a component to test, which provides a utility class:
 //..
-//  struct xyza_BslExampleUtil {
+//  struct BslExampleUtil {
 //      // This utility class provides sample functionality to demonstrate how
 //      // a test driver might be written validating its only method.
 //
@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  inline
-//  int xyza_BslExampleUtil::fortyTwo()
+//  int BslExampleUtil::fortyTwo()
 //  {
 //      return 42;
 //  }
@@ -186,6 +186,11 @@ namespace BloombergLP {
 
 namespace bsls {
 
+                                  //===================
+                                  // struct BslTestUtil
+                                  //===================
+
+
 struct BslTestUtil {
     // This class provides a namespace for utilities that are useful when
     // writing a test driver that is not permitted to use the standard C++
@@ -193,6 +198,7 @@ struct BslTestUtil {
     // package group.
 
   public:
+    // CLASS METHODS
     static void debugPrint(const char *s, bool b, const char *t);
         // Print a message to the console, consististing of the specified
         // initial string, 's', followed by the string "true" if the specified
