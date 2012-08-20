@@ -164,20 +164,18 @@ template <class TYPE>
 void printTypeTraits()
     // Prints the traits of the parameterized 'TYPE' to the console.
 {
-    if (bslmf_IsConvertible<bslalg_TypeTraits<TYPE>,
-        bslalg_TypeTraitUsesBslmaAllocator>::VALUE) {
-        printf("Type defines bslalg_TypeTraitUsesBslmaAllocator.\n");
+    if (bslma::UsesBslmaAllocator<TYPE>::value) {
+        printf("Type defines bslma::UsesBslmaAllocator.\n");
     }
     else {
-        printf("Type does not define bslalg_TypeTraitUsesBslmaAllocator.\n");
+        printf("Type does not define bslma::UsesBslmaAllocator.\n");
     }
 
-    if (bslmf_IsConvertible<bslalg_TypeTraits<TYPE>,
-        bslalg_TypeTraitBitwiseMoveable>::VALUE) {
-        printf("Type defines bslalg_TypeTraitBitwiseMoveable.\n");
+    if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+        printf("Type defines bslmf::IsBitwiseMoveable.\n");
     }
     else {
-        printf("Type does not define bslalg_TypeTraitBitwiseMoveable.\n");
+        printf("Type does not define bslmf::IsBitwiseMoveable.\n");
     }
 }
 //..

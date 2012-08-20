@@ -456,7 +456,7 @@ namespace BloombergLP {
 
 // FORWARD DECLARATIONS
 
-#if 0 // implied traits
+#if 0 // TODO legacy traits
 
 namespace bslalg {
 
@@ -499,14 +499,14 @@ struct bslalg_TypeTraits : bslalg::TypeTraits_AutoDetect<
     // 'BloombergLP::bslalg_TypeTraits'.
 };
 
-#endif // implied traits
-
 template <class T>
 struct bslalg_TypeTraits {
     // TBD: Stub
     template <class TYPE> struct NestedTraitDeclaration { };
     template <class TYPE> struct Metafunction : bslmf::false_type { };
 };    
+
+#endif // legacy traits
 
                     // ========================================
                     // macros BSLALG_DECLARE_NESTED_TRAITS[1-5]
@@ -548,8 +548,9 @@ struct bslalg_TypeTraits {
     BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT5)
     // Like 'BSLALG_DECLARE_NESTED_TRAITS', but for five traits.
 
+#if 0 // TODO autodetect
+
 namespace bslalg {
-#if 0 // autodetect
                          //===========================
                          // class TypeTraits_NestedYes
                          //===========================
@@ -706,9 +707,11 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
 
     enum { VALUE = 4 };
 };
-#endif // autodetect
 
 }  // close package namespace
+
+#endif // autodetect
+
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
@@ -744,6 +747,8 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
 #endif
 #define bdealg_HasTrait bslalg::HasTrait
     // This alias is defined for backward compatibility.
+
+#if 0 // TODO old traits
 
 #ifdef bdealg_PassthroughTrait
 #undef bdealg_PassthroughTrait
@@ -793,6 +798,8 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
 #define bdealg_TypeTraitsGroupStlUnordered bslalg::TypeTraitsGroupStlUnordered
     // This alias is defined for backward compatibility.
 
+#endif // 0 old traits
+
 #ifdef bdealg_SelectTrait
 #undef bdealg_SelectTrait
 #endif
@@ -801,11 +808,15 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
 
 #endif
 
+#if 0 // TODO old traits
+
 #ifdef bslalg_TypeTraits_NotTrait
 #undef bslalg_TypeTraits_NotTrait
 #endif
 #define bslalg_TypeTraits_NotTrait bslalg::TypeTraits_NotTrait
     // This alias is defined for backward compatibility.
+
+#endif // 0 old traits
 
 }  // close enterprise namespace
 
