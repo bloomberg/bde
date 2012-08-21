@@ -2460,11 +2460,11 @@ int main(int argc, char *argv[])
                         "\n-----------------------------------\n");
             }
 
-            const char *testString = "This is output";
-            const char *longString = "This is outputA";
-            const char *shortString = "This is outpu";
-            const char *differentStartString = "Xhis is output";
-            const char *differentEndString = "This is outpuy";
+            const char *testString            = "This is output";
+            const char *longString            = "This is outputA";
+            const char *shortString           = "This is outpu";
+            const char *differentStartString  = "Xhis is output";
+            const char *differentEndString    = "This is outpuy";
             const char *differentMiddleString = "This iz output";
 
             output.reset();
