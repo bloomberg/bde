@@ -1,0 +1,185 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+MAKE_JOBS:=4
+PATH:=/bbshr/bde/bde-tools/bin:/usr/bin:/bin
+TMPDIR:=/tmp
+SHELL:=/bin/bash
+RSSUITE:=$(shell cat debian/RSSUITE.version)
+PRODUCEMAKE:=/bbsrc/bin/prod/bin/producemake
+UNAME:=$(shell uname)
+ifeq ($(UNAME),HP-UX)
+ UPLID:=unix-HP_UX-ia64-B.11.31-acc-6.2
+else ifeq ($(UNAME),SunOS)
+ UPLID:=unix-SunOS-sparc-5.10-cc-5.9
+else ifeq ($(UNAME),AIX)
+ UPLID:=unix-AIX-powerpc-6.1-xlc-10.1
+else ifeq ($(UNAME),Linux)
+ UPLID:=unix-Linux-x86_64-2.6.18-gcc-4.1.2
+else
+ $(error Unsupported platform $(UNAME))
+endif
+GROUPS_STATIC_ONLY:=bae bce bde bte
+GROUPS_RSSUITE:=bsl
+GROUPS:=$(GROUPS_STATIC_ONLY) $(GROUPS_RSSUITE)
+DEFAULT_STATIC_FLAVOR_32bit:=opt_exc_mt
+DEFAULT_STATIC_FLAVOR_64bit:=opt_exc_mt_64
+STATIC_FLAVORS_32bit:=$(shell echo {opt,dbg,opt_dbg}_exc_mt{,_safe})
+STATIC_FLAVORS_64bit:=$(shell echo {opt,dbg,opt_dbg}_exc_mt_64{,_safe} {opt,dbg}_exc_mt_64_pic)
+STATIC_FLAVORS:=$(STATIC_FLAVORS_64bit) $(STATIC_FLAVORS_32bit)
+DYNAMIC_FLAVOR_32bit:=opt_exc_mt_shr
+DYNAMIC_FLAVOR_64bit:=opt_exc_mt_64_shr
+DYNAMIC_FLAVORS:=$(DYNAMIC_FLAVOR_32bit) $(DYNAMIC_FLAVOR_64bit)
+ALL_FLAVORS:=$(STATIC_FLAVORS) $(DYNAMIC_FLAVORS)
+comma:= ,
+empty:=
+space:= $(empty) $(empty)
+
+clean:
+	rm -rf debian/lib{bae,bce,bde,bsl,bte}-dev debian/libbsl-rs
+	rm -f debian/*files debian/files
+	rm -f debian/build-stamp
+	rm -f debian/binary-stamp
+	rm -rf lib include
+	find . -type d \
+	   -name $(UPLID) \
+	   -prune -exec rm -rf {} \;
+
+producemake:
+ifeq ($(STATIC_FLAVORS),)
+	BDE_ROOT=. PATH=$(PATH)                                      \
+	  $(PRODUCEMAKE) -Lgv -r . --nonmake        \
+	  -p $(UPLID)                                                \
+	  -g $(subst $(space),$(comma),$(GROUPS_RSSUITE))            \
+	  -t $(subst $(space),$(comma),$(DYNAMIC_FLAVORS))
+else
+	BDE_ROOT=. PATH=$(PATH)                                      \
+	  $(PRODUCEMAKE) -Lgv -r . --nonmake        \
+	  -p $(UPLID)                                                \
+	  -g $(subst $(space),$(comma),$(GROUPS_STATIC_ONLY))        \
+	  -t $(subst $(space),$(comma),$(STATIC_FLAVORS))
+	BDE_ROOT=. PATH=$(PATH)                                      \
+	  $(PRODUCEMAKE) -Lgv -r . --nonmake        \
+	  -p $(UPLID)                                                \
+	  -g $(subst $(space),$(comma),$(GROUPS_RSSUITE))            \
+	  -t $(subst $(space),$(comma),$(ALL_FLAVORS))
+endif
+
+##################################################################
+# First we're going to define the rules for the actual build....
+##################################################################
+# the use of stamp files is to avoid unecessary build calls
+# when doing a rerun of the build target.
+
+# The canonical list
+# of packages that should *NOT* be installed in production
+# is:
+#    bde+pcre bsl+stdhdrs bsl+apache
+# All other packages need to be installed.
+PACKAGES_NO_INSTALL:=bde+pcre bsl+stdhdrs bsl+apache
+
+define GROUP_template
+GROUP_$(1)_DEPENDS:=$(shell cat groups/$(1)/group/$(1).dep)
+GROUP_$(1)_INSTALL_PACKAGES:=$(filter-out $(PACKAGES_NO_INSTALL),$(shell cat groups/$(1)/group/$(1).mem | perl -pi -e 's/\#.*$$//'))
+GROUP_$(1)_INSTALL_HEADERS:=$$(foreach package,$$(GROUP_$(1)_INSTALL_PACKAGES),$$(shell find groups/$(1)/$$(package)/ -name '*.h'))
+
+groups/$(1)/group/$(1).mk: producemake
+
+lib/$(UPLID)/$(1).stamp: groups/$(1)/group/$(1).mk $$(foreach dep,$$(GROUP_$(1)_DEPENDS),lib/$(UPLID)/$$(dep).stamp )
+	$(MAKE_ENV) SUNW_NO_UPDATE_NOTIFY=1 BDE_ROOT=. PATH=$(PATH) $(MAKE) -j$(MAKE_JOBS) -C groups/$(1)/group -f $(1).mk build install PLATFORM=$(UPLID) SONAME=lib$(1)_$(RSSUITE).so
+	touch lib/$(UPLID)/$(1).stamp
+
+endef
+
+$(foreach group,$(GROUPS),$(eval $(call GROUP_template,$(group))))
+
+#################################################################
+# now the part that generates the deb packages
+#################################################################
+
+############
+# dynamic libary... just one, so no macros...
+############
+
+libbsl-rs: lib/$(UPLID)/bsl.stamp
+	mkdir -p debian/libbsl-rs/bb/bin/so/RS$(RSSUITE)/
+	mkdir -p debian/libbsl-rs/bb/bin/so/64/RS$(RSSUITE)/
+	mkdir -p debian/libbsl-rs/DEBIAN
+	cp lib/$(UPLID)/libbsl.$(subst _shr,,$(DYNAMIC_FLAVOR_32bit)).so debian/libbsl-rs/bb/bin/so/RS$(RSSUITE)/libbsl_$(RSSUITE).so
+	cp lib/$(UPLID)/libbsl.$(subst _shr,,$(DYNAMIC_FLAVOR_64bit)).so debian/libbsl-rs/bb/bin/so/64/RS$(RSSUITE)/libbsl_$(RSSUITE).so
+
+ALL_SO_PACKAGES:=libbsl-rs-binary
+libbsl-rs-binary: libbsl-rs
+	dpkg-gencontrol -V"shlib:RSSUITE=$(RSSUITE)" -p"libbsl-rs$(RSSUITE)" \
+	  -Pdebian/libbsl-rs
+	dpkg-deb -b debian/libbsl-rs ../
+
+############
+# static libraries and headers...
+############
+
+# This was taken from $cstools/build/build_prebuild. Comment in there was:
+## the non-conformant bde and bsl directories are not deployed
+## normally (perhaps we should just test for '+' instead of listing
+## them out?), mostly they're not deployed at all. the only
+## exception being stlport (in BDE 2.0+ stdhdrs) which is deployed
+## by a special-case top level symlink elsewhere
+# We install the compliant package's headers here, and later we have a ifeq
+# for bsl to install the stlport headers.
+libbsl-dev-additional:
+	mkdir -p debian/libbsl-dev/bb/include/stlport
+# This is implemented just as a symlink in build_prebuild, but here we won't have
+# the source, so we need to copy
+	cp -r groups/bsl/bsl+stdhdrs/* debian/libbsl-dev/bb/include/stlport
+# Unfortunally, there is going to be more stuff in there than it should, so we're
+# just going to purge the excess
+	rm -rf debian/libbsl-dev/bb/include/stlport/package/ \
+	       debian/libbsl-dev/bb/include/stlport/doc/ \
+	       debian/libbsl-dev/bb/include/stlport/test/ \
+	       debian/libbsl-dev/bb/include/stlport/$(UPLID)/
+
+define GROUPdev_template
+
+# default empty rule for packages that don't need override.
+lib$(1)-dev-additional:
+
+lib$(1)-dev: lib/$(UPLID)/$(1).stamp lib$(1)-dev-additional
+	mkdir -p debian/lib$(1)-dev/bb/lib debian/lib$(1)-dev/bb/lib64
+	mkdir -p debian/lib$(1)-dev/DEBIAN
+ifeq ($(STATIC_FLAVORS),)
+else
+	$(foreach flavor,$(STATIC_FLAVORS_32bit),cp lib/$(UPLID)/lib$(1).$(flavor).a debian/lib$(1)-dev/bb/lib/
+	)
+	$(foreach flavor,$(STATIC_FLAVORS_64bit),cp lib/$(UPLID)/lib$(1).$(flavor).a debian/lib$(1)-dev/bb/lib64/
+	)
+	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_32bit).a debian/lib$(1)-dev/bb/lib/lib$(1).a
+	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_64bit).a debian/lib$(1)-dev/bb/lib64/lib$(1).a
+endif
+	mkdir -p debian/lib$(1)-dev/bb/include/00deployed
+	cp $$(GROUP_$(1)_INSTALL_HEADERS) debian/lib$(1)-dev/bb/include/00deployed
+
+ALL_DEV_PACKAGES+=lib$(1)-dev-binary
+lib$(1)-dev-binary: lib$(1)-dev
+	dpkg-gencontrol -plib$(1)-dev -V"shlib:RSSUITE=$(RSSUITE)" \
+	     -Pdebian/lib$(1)-dev
+	dpkg-deb -b debian/lib$(1)-dev ../
+
+endef
+
+$(foreach group,$(GROUPS),$(eval $(call GROUPdev_template,$(group))))
+
+##################################
+# build is the main build part.
+# binary is the governing rule for the packaging
+##################################
+
+build: build-arch build-indep
+
+build-indep:
+
+build-arch: $(foreach group,$(GROUPS),lib/$(UPLID)/$(group).stamp )
+
+binary: binary-arch binary-indep
+
+binary-indep:
+
+binary-arch: $(ALL_DEV_PACKAGES) $(ALL_SO_PACKAGES)
