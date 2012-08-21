@@ -20,10 +20,20 @@
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // task using a compliant compiler, each time defining a different
 // 'BSLS_ANNOTATION_TRIGGER_*' preprocessor variables (each undefined by
-// default), and check the build output for the proper behavior (e.g., did the
-// build succeed or not? was the expected warning observed? was a warning
-// suppressed as expected?)  The single run-time "test" provided by this test
-// driver, the BREATHING TEST, does nothing.
+// default), and check the build output for the proper behavior.  In each case,
+// the concerns are:
+//
+//: o Did the build succeed or not?
+//:
+//: o Was the expected warning observed, or not?
+//:
+//: o Was the expected suppression of some warning, suppressed or not?
+//:
+//: o For annotations taking arguments, do the results show if the arguments
+//:   were properly passed to the underlying compiler directives?
+//
+// The single run-time "test" provided by this test driver, the BREATHING TEST,
+// does nothing.
 //
 // The controlling preprocessor variables are:
 //
@@ -41,7 +51,7 @@
 //
 // For each annotation, 'BSLS_ANNOTATION_XXXX', we create a function named
 // 'test_XXXX' to which annotation 'BSLS_ANNOTATION_XXXX' is applied.  For the
-// two annotations that are also applicable to variables and tpes, we
+// two annotations that are also applicable to variables and types, we
 // additionally create 'test_XXXX_variable' and 'test_XXXX_type'.  These
 // entities are exercised in several ways:
 //
@@ -185,10 +195,24 @@ const char *test_FORMAT(const char *locale, const char *format)
     return "translateFormat: bad locale or format argument - no translation";
 }
 
-char test_ARG_NON_NULL(void *p) BSLS_ANNOTATION_ARG_NON_NULL(1);
-char test_ARG_NON_NULL(void *p)
+char test_ARG1_NON_NULL(void *p, void *q, void *r)
+                                              BSLS_ANNOTATION_ARG_NON_NULL(1);
+char test_ARG1_NON_NULL(void *p, void *q, void *r)
 {
     char c = *reinterpret_cast<char *>(p);
+    (void)q;
+    (void)r;
+
+    return c;
+}
+
+char test_ARG2_NON_NULL(void *p, void *q, void *r)
+                                              BSLS_ANNOTATION_ARG_NON_NULL(2);
+char test_ARG2_NON_NULL(void *p, void *q, void *r)
+{
+    (void)p;
+    char c = *reinterpret_cast<char *>(q);
+    (void)r;
 
     return c;
 }
@@ -203,9 +227,15 @@ void test_NULL_TERMINATED(void *, ...)
 {
 }
 
-void test_NULL_TERMINATED_AT(void *, ...)
+void test_NULL_TERMINATED_AT2(void *, ...)
                                          BSLS_ANNOTATION_NULL_TERMINATED_AT(2);
-void test_NULL_TERMINATED_AT(void *, ...)
+void test_NULL_TERMINATED_AT2(void *, ...)
+{
+}
+
+void test_NULL_TERMINATED_AT3(void *, ...)
+                                         BSLS_ANNOTATION_NULL_TERMINATED_AT(3);
+void test_NULL_TERMINATED_AT3(void *, ...)
 {
 }
 
@@ -274,10 +304,16 @@ void use_without_diagnostic_message_FORMAT()                         // { 7fwn}
     test_PRINTF(test_FORMAT("FR", "Name: %s"), "Michael Bloomberg");
 }
 
-void use_without_diagnostic_message_ARG_NON_NULL()                   // { 8fwn}
+void use_without_diagnostic_message_ARG1_NON_NULL()                  // { 8fwn}
 {
-    char buffer[2];
-    test_ARG_NON_NULL(buffer);
+    char buffer1[2];
+    test_ARG1_NON_NULL(buffer1, NULL, NULL);
+}
+
+void use_without_diagnostic_message_ARG2_NON_NULL()
+{
+    char buffer2[2];
+    test_ARG2_NON_NULL(NULL, buffer2, NULL);
 }
 
 void use_without_diagnostic_message_ARGS_NON_NULL()                  // { 9fwn}
@@ -297,13 +333,22 @@ void use_without_diagnostic_message_NULL_TERMINATED()                // {10fwn}
     test_NULL_TERMINATED(buffer1, buffer2, buffer3, buffer4, NULL);
 }
 
-void use_without_diagnostic_message_NULL_TERMINATED_AT()             // {11fwn}
+void use_without_diagnostic_message_NULL_TERMINATED_AT2()            // {11fwn}
 {
     char buffer1[2];
     char buffer2[2];
     char buffer4[2];
     char buffer5[2];
-    test_NULL_TERMINATED_AT(buffer1, buffer2, NULL, buffer4, buffer5);
+    test_NULL_TERMINATED_AT2(buffer1, buffer2, NULL, buffer4, buffer5);
+}
+
+void use_without_diagnostic_message_NULL_TERMINATED_AT3()
+{
+    char buffer1[2];
+    char buffer3[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED_AT3(buffer1, NULL, buffer3, buffer4, buffer5);
 }
 
 int use_without_diagnostic_message_WARN_UNUSED_RESULT()              // {12fwn}
@@ -342,9 +387,14 @@ void use_with_warning_message_FORMAT()                               // { 7fwy}
     test_PRINTF(test_FORMAT("FR", "Name: %s"), 3);
 }
 
-void use_with_warning_message_ARG_NON_NULL()                         // { 8fwy}
+void use_with_warning_message_ARG1_NON_NULL()                        // { 8fwy}
 {
-    test_ARG_NON_NULL(NULL);
+    test_ARG1_NON_NULL(NULL, NULL, NULL);
+}
+
+void use_with_warning_message_ARG2_NON_NULL()
+{
+    test_ARG2_NON_NULL(NULL, NULL, NULL);
 }
 
 void use_with_warning_message_ARGS_NON_NULL()                        // { 9fwy}
@@ -367,14 +417,23 @@ void use_with_warning_message_NULL_TERMINATED()                      // {10fwy}
     test_NULL_TERMINATED(buffer1, buffer2, buffer3, buffer4, buffer5);
 }
 
-void use_with_warning_message_NULL_TERMINATED_AT()                   // {11fwy}
+void use_with_warning_message_NULL_TERMINATED_AT2()                  // {11fwy}
 {
     char buffer1[2];
     char buffer2[2];
     char buffer3[2];
     char buffer4[2];
     char buffer5[2];
-    test_NULL_TERMINATED_AT(buffer1, buffer2, buffer3, buffer4, buffer5);
+    test_NULL_TERMINATED_AT2(buffer1, buffer2, buffer3, buffer4, buffer5);
+}
+void use_with_warning_message_NULL_TERMINATED_AT3()
+{
+    char buffer1[2];
+    char buffer2[2];
+    char buffer3[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED_AT3(buffer1, buffer2, buffer3, buffer4, buffer5);
 }
 
 void use_with_warning_message_WARN_UNUSED_RESULT()                   // {12fwy}
