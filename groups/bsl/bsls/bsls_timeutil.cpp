@@ -259,8 +259,7 @@ void WindowsTimerUtil::initialize()
     const bsls::Types::Int64 G = K * K * K;
     const bsls::Types::Int64 HIGH_DWORD_MULTIPLIER = G * (1LL << 32);
 
-    if (bsls::AtomicOperations::getIntRelaxed(&s_initRequired)) {
-        bsls::AtomicOperations::setIntRelaxed(&s_initRequired, 0);
+    if (bsls::AtomicOperations::getIntAcquire(&s_initRequired)) {
 
         LARGE_INTEGER t;
         bsls::AtomicOperations::setInt64Relaxed(
@@ -286,8 +285,10 @@ void WindowsTimerUtil::initialize()
 
             bsls::AtomicOperations::setInt64Relaxed(&s_highPartRemainderFactor,
                                                     0);
-    }
-}
+    	}
+
+        bsls::AtomicOperations::setIntRelease(&s_initRequired, 0);
+	}
 }
 
 inline
