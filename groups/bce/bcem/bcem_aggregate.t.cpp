@@ -4,6 +4,9 @@
 
 #include <bcema_sharedptr.h>
 
+#include <bcem_errorattributes.h>
+#include <bcem_fieldselector.h>
+
 #include <bdem_berdecoder.h>
 #include <bdem_berencoder.h>
 #include <bdem_choice.h>
@@ -28,6 +31,8 @@
 #include <bdeat_typename.h>
 #include <bdeat_valuetypefunctions.h>
 
+#include <bdesb_fixedmemoutstreambuf.h>
+
 #include <bdex_byteinstream.h>
 #include <bdex_byteoutstream.h>
 #include <bdex_instreamfunctions.h>
@@ -44,6 +49,7 @@
 
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
+#include <bsls_stopwatch.h>
 
 #include <bsl_iostream.h>
 #include <bsl_list.h>
@@ -464,8 +470,11 @@ static int veryVeryVerbose = 0;
 const int BCEM_ERR_TBD = -1;
 const int BDEM_NULL_FIELD_ID = bdem_RecordDef::BDEM_NULL_FIELD_ID;
 
+typedef bcem_Aggregate        Obj;
+typedef bcem_ErrorAttributes  Err;
+typedef bcem_ErrorCode        ErrorCode;
+
 const char *errorNm(int errorCode) {
-    typedef bcem_Aggregate Obj;
 
     static const char *ERROR_NAMES[] = {
         "UNKNOWN_ERROR",
@@ -490,9 +499,9 @@ const char *errorNm(int errorCode) {
     else if (BCEM_ERR_TBD == errorCode) {
         return "BCEM_ERR_TBD";
     }
-    else if (Obj::BCEM_ERR_UNKNOWN_ERROR <= errorCode &&
-             errorCode <= Obj::BCEM_ERR_AMBIGUOUS_ANON) {
-        return ERROR_NAMES[errorCode - Obj::BCEM_ERR_UNKNOWN_ERROR];
+    else if (ErrorCode::BCEM_UNKNOWN_ERROR <= errorCode &&
+             errorCode <= ErrorCode::BCEM_AMBIGUOUS_ANON) {
+        return ERROR_NAMES[errorCode - ErrorCode::BCEM_UNKNOWN_ERROR];
     }
     else {
         return "<unexpected error code>";
@@ -531,8 +540,6 @@ void aSsErTAggError(const bcem_Aggregate& agg, const char *aggNm,
     // match.  If 'e' is zero, then 'a' must be in a non-error state.  If
     // 'veryVerbose' is non-zero, then a verbose message is printed even when
     // the error codes match.
-
-typedef bcem_Aggregate        Obj;
 
 typedef bdem_ElemType         ET;
 typedef bdem_ElemType         EType;
@@ -3552,21 +3559,1006 @@ int AggManipulator::operator()(T* value, const INFO& info) {
 //-----------------------------------------------------------------------------
 
 enum {
-    NOT_CHOICE = Obj::BCEM_ERR_NOT_A_CHOICE,
-    BAD_FLDNM  = Obj::BCEM_ERR_BAD_FIELDNAME,
-    BAD_FLDIDX = Obj::BCEM_ERR_BAD_FIELDINDEX,
-    NOT_SELECT = Obj::BCEM_ERR_NOT_SELECTED,
-    NON_RECORD = Obj::BCEM_ERR_NOT_A_RECORD,
-    AMBIGUOUS  = Obj::BCEM_ERR_AMBIGUOUS_ANON
+    NOT_CHOICE = ErrorCode::BCEM_NOT_A_CHOICE,
+    BAD_FLDNM  = ErrorCode::BCEM_BAD_FIELDNAME,
+    BAD_FLDIDX = ErrorCode::BCEM_BAD_FIELDINDEX,
+    NOT_SELECT = ErrorCode::BCEM_NOT_SELECTED,
+    NON_RECORD = ErrorCode::BCEM_NOT_A_RECORD,
+    AMBIGUOUS  = ErrorCode::BCEM_AMBIGUOUS_ANON
+};
+
+
+struct Accumulator {
+    int d_count;
+
+    int operator()(const bcem_AggregateRaw& value) {
+        d_count += value.asInt();
+        return 0;
+    }
+
+    int operator()(const bcem_Aggregate& value) {
+        d_count += value.asInt();
+        return 0;
+//         return (*this)(value.aggregateRaw());
+    }
+
+    template<typename TYPE>
+    int operator()(const TYPE& value) {
+        return -1;
+    }
+
+    Accumulator() : d_count(0) {}
 };
 
 //=============================================================================
 //                              TEST CASES
 //-----------------------------------------------------------------------------
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+static void runBerBenchmark(bool verbose, bool veryVerbose,
+                            bool veryVeryVerbose) {
+
+    const char SPEC[] =
+        ":s Ca&NF Cb&NT Cf&NT Cg&NT Ch&NT Gc&NF Gd&NT"
+        ":d? Ga&NF Bb&NF"
+        ":r %fd Fa&NT Cb&NT Gc&NF #js "
+        ":f Cx&NF #js"
+        ":g Cx&NF #jr"
+        ":c? +ff +gg";
+
+    SchemaShdPtr schema;
+    schema.createInplace(0);
+
+    ggSchema(schema.ptr(), SPEC);
+    if (veryVerbose) {
+        bsl::cout << "Schema=";
+        schema->print(bsl::cout) << bsl::endl;
+    }
+
+    // create a test Aggregate
+    enum {
+        NUM_REQUEST_ENTRIES = 20,
+        NUM_ENTRY_FIELDS = 80,
+        STR_LENGTH = 400
+    };
+
+    bcem_Aggregate testMessage(schema, "c");
+    bcem_Aggregate gRecord = testMessage.makeSelection("g");
+    gRecord.setField("ex", 4);
+
+    bsl::string theString(STR_LENGTH, 'X');
+
+    bcem_Aggregate requestEntries = gRecord.field("j");
+    requestEntries.appendItems(NUM_REQUEST_ENTRIES);
+    for (int i = 0; i < NUM_REQUEST_ENTRIES; ++i) {
+        requestEntries[i].field("f").makeSelection("a").setValue(theString);
+        requestEntries[i].setField("a", 1.5);
+        requestEntries[i].setField("b", 5);
+        requestEntries[i].setField("c", theString);
+        bcem_Aggregate entryFields = requestEntries[i].field("j");
+        entryFields.appendItems(NUM_ENTRY_FIELDS);
+        for (int j = 0; j < NUM_ENTRY_FIELDS; ++j) {
+            entryFields[j].setField("a", 6);
+            entryFields[j].setField("c", theString);
+            entryFields[j].setField("d", theString);
+        }
+    }
+    if (veryVerbose) {
+        bsl::cout << "Message=" << testMessage
+                  << bsl::endl;
+    }
+
+    enum {
+        NUM_ITER = 500,
+        ENCODE_BUFFER_SIZE=512*1024*1024
+    };
+
+    char* ENCODE_BUFFER = new char[ENCODE_BUFFER_SIZE];
+
+    bsls_Stopwatch timer;
+    bdem_BerEncoderOptions options;
+    bdem_BerEncoder encoder(&options);
+
+    timer.start(true);
+    int length;
+    for (int i = 0; i < NUM_ITER; ++i) {
+        bdesb_FixedMemOutStreamBuf osb(ENCODE_BUFFER, ENCODE_BUFFER_SIZE);
+        ASSERT(0 == encoder.encode(&osb, testMessage));
+        length = osb.length();
+    }
+    timer.stop();
+
+    bsl::cout << "Encode time: " << timer.accumulatedWallTime()
+              << " user: " << timer.accumulatedUserTime() << bsl::endl;
+
+    timer.reset();
+    bdem_BerDecoderOptions berDecoderOptions;
+    bdem_BerDecoder berDecoder(&berDecoderOptions);
+
+    timer.start(true);
+    bcem_Aggregate testResponse(schema, "c");
+
+    for (int i = 0; i < NUM_ITER; ++i) {
+        bdesb_FixedMemInStreamBuf isb(ENCODE_BUFFER, length);
+        ASSERT(0 == berDecoder.decode(&isb, &testResponse));
+    }
+
+    timer.stop();
+
+    bsl::cout << "Decode time: " << timer.accumulatedWallTime()
+              << " user: " << timer.accumulatedUserTime() << bsl::endl;
+
+    delete[] ENCODE_BUFFER;
+}
+
+
+static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
+        // --------------------------------------------------------------------
+        // TESTING 'bdeat' FUNCTIONS
+        //
+        // Concerns:
+        //   - 'bdeat_TypeName::className(bcem_Aggregate)' returns the
+        //     record name for aggregates that are constrained by a record
+        //     definition, and a zero pointer for aggregates that are not
+        //     constrained by a record definition.
+        //   - 'bdeat_TypeCategory::Select<bcem_Aggregate>::
+        //      BDEAT_SELECTION' is '0'
+        //   - 'bdeat_TypeCategoryFunctions::select(bdem_AggregateRawPtr)'
+        //     returns the category value appropriate to the value of the
+        //     aggregate.
+        //   - The following methods in 'bdeat_SequenceFunctions' produce the
+        //     expected results on an AggregateRawPtr holding a list or row:
+        //     - 'manipulateAttribute'
+        //     - 'manipulateAttributes'
+        //     - 'accessAttribute'
+        //     - 'accessAttributes'
+        //     - 'hasAttribute'
+        //   - The following methods in 'bdeat_ChoiceFunctions' produce the
+        //     expected result on an aggregate holding a choice or choice array
+        //     item:
+        //     - 'makeSelection'
+        //     - 'manipulateSelection'
+        //     - 'accessSelection'
+        //     - 'hasSelection'
+        //     - 'selectionId'
+        //   - The following methods in 'bdeat_ArrayFunctions' produce the
+        //     expected result on an aggregate holding an array, table, or
+        //     choice array:
+        //     - 'size'
+        //     - 'resize'
+        //     - 'manipulateElement'
+        //     - 'accessElement'
+        //   - The following methods in 'bdeat_NullableValueFunctions'
+        //     return the expected results when invoked on a nullable field
+        //     within an aggregate:
+        //     - 'makeValue'
+        //     - 'manipulateValue'
+        //     - 'accessValue'
+        //     - 'isNull'
+        //   - The following methods in 'bdeat_EnumFunctions' set and get the
+        //     correct values for an enumeration field within an aggregate:
+        //     - 'fromInt'
+        //     - 'fromString'
+        //     - 'toInt'
+        //     - 'toString'
+        //   - The following methods in 'bdeat_ValueTypeFunctions' assign the
+        //     correct values for a scalar aggregate and for a list aggregate:
+        //     - 'assign'
+        //     - 'reset'
+        //   - A complex operation that uses bdeat functions works as expected.
+        //
+        // Plan:
+        // - Construct a schema with a root sequence record containing at
+        //   least one of each of the categories to be tested.
+        // - Define a manipulator class that performs a standard set of
+        //   manipulations on each simple type and simple recursive operations
+        //   on each sequence, choice, and nullable type.
+        // - Define an accessor that records the sequence of calls.
+        // - Create an 'bcem_Aggregate' object that conforms to the root
+        //   record of the schema.
+        // - Call 'bdeat_TypeName::className(bcem_Aggregate)' on each
+        //   field and check for expected result.
+        // - Check that
+        //   'bdeat_TypeCategory::Select<bcem_Aggregate>::
+        //    BDEAT_SELECTION' is '0'.
+        // - Call 'bdeat_TypeCategoryFunctions::select(bdem_AggregateRawPtr)'
+        //   on each field and check for expected result.
+        // - Apply the manipulator to the aggregate and confirm that the final
+        //   state of the aggregate is as expected.
+        // - Apply the accessor to the aggregate and confirm that the values
+        //   and sequence of accesses are as expected.
+        // - To exercise the bdeat functions in a real-world scenario, encode
+        //   a complex aggregate using 'bdem_berencoder' and decode
+        //   it using 'bdem_berdecoderutil'.  Confirm that the decoded
+        //   aggregate is equivalent to the original.
+        //
+        // Testing:
+        //     namespace bdeat_TypeCategoryFunctions
+        //     namespace bdeat_SequenceFunctions
+        //     namespace bdeat_ChoiceFunctions
+        //     namespace bdeat_ArrayFunctions
+        //     namespace bdeat_EnumFunctions
+        //     namespace bdeat_NullableValueFunctions
+        //     namespace bdeat_ValueTypeFunctions
+        // --------------------------------------------------------------------
+
+        if (verbose) tst::cout << "\nTESTING 'bdeat' FUNCTIONS"
+                               << "\n========================="
+                               << bsl::endl;
+
+        const char SPEC[] =
+            ":f= uvx"         // ENUM "f" { "you" => 0, "vee" => 1, "ex" => 2}
+            ":c? Aa&NF Bb&NF" // CHOICE "c" { CHAR "a"; SHORT "b"; }
+            ":s Cc&NF Dd"     // SEQUENCE "s" { INT "c"; INT64 "d"; }
+            ":r"              // SEQUENCE "r" {
+            "  Fa &NF"        //     DOUBLE "a" !nullable;
+            "  Fb &NT"        //     DOUBLE "b"  nullable;
+            "  Gc &NF"        //     STRING "c" !nullable;
+            "  Gd &NT &D1"    //     STRING "d"  nullable default="vee";
+            "  +fs &NF"       //     LIST<"s"> "f" !nullable;
+            "  +gs &NT"       //     LIST<"s"> "g"  nullable;
+            "  %hc"           //     CHOICE<"c"> "h";
+            "  Mi"            //     INT_ARRAY "i";
+            "  #js"           //     TABLE<"s"> "j"
+            "  @kc"           //     CHOICE_ARRAY<"c"> "k";
+            "  $mf &NF"       //     INT ENUM<"f"> "m" !nullable;
+            "  ^nf &NT"       //     STRING ENUM<"f"> "n" nullable;
+            "  Mo &FN"        //     INT_ARRAY     "o" !nullable nillable
+            "  #ps &FN"       //     TABLE<"s"> "p" nillable
+            "  /qf &FN"       //     STRING_ARRAY ENUM<"f"> "q" nillable
+            ;                 // }
+
+        SchemaShdPtr schema;
+        schema.createInplace(0);
+
+        ggSchema(schema.ptr(), SPEC);
+        ASSERT(5 == schema->numRecords());
+        ASSERT(1 == schema->numEnumerations());
+        if (veryVerbose) P(*schema);
+
+        ASSERT(0 == TC::Select<bcem_Aggregate>::BDEAT_SELECTION);
+
+        Obj mA1(schema, "r");  const Obj& A1 = mA1;
+        mA1.setField("a", 4.0);
+        mA1.setField("c", "22");
+        mA1.setField("d", "33");
+        mA1.setField("f", "c", 99);
+        mA1.setField("f", "d", 999);
+        mA1.field("g").makeValue();
+        mA1.setField("g", "c", 88);
+        mA1.setField("g", "d", 888);
+        mA1.field("h").makeSelection("a", 77);
+        mA1.field("i").append(6);
+        mA1.field("i").append(5);
+        mA1.field("i").append(4);
+        mA1.field("j").resize(2);
+        mA1.setField("j", 0, "c", 66);
+        mA1.setField("j", 0, "d", 666);
+        mA1.setField("j", 1, "c", 55);
+        mA1.setField("j", 1, "d", 555);
+        mA1.field("k").resize(2);
+        mA1.field("k", 0).makeSelection("a", 44);
+        mA1.field("k", 1).makeSelection("b", 333);
+        mA1.setField("m", 1);    // == enumerator string "vee"
+        mA1.setField("n", "ex"); // == enumerator ID 2
+        ASSERT(mA1.field("i").enumerationConstraint() == 0);
+        ASSERT(mA1.field("m").enumerationConstraint() ==
+               schema->lookupEnumeration("f"));
+        mA1.field("o").resize(2);
+        mA1.setField("o", 0, "33");
+        mA1.field("p").resize(2);
+        mA1.field("q").resize(2);
+        mA1.setField("p", 0, mA1.field("j", 0));
+        mA1.setField("q", 1, "ex");
+
+        if (veryVerbose) P(A1);
+
+        Obj mA2(schema, "r");  const Obj& A2 = mA2;
+        if (veryVerbose) P(A2);
+
+        if (verbose) tst::cout << "Testing type name" << bsl::endl;
+        ASSERT(streq("r", TN::className(A1))           );
+        ASSERT(      0 == TN::className(mA1.field("a").aggregateRaw()) );
+        ASSERT(      0 == TN::className(mA1.field("b").aggregateRaw()) );
+        ASSERT(      0 == TN::className(mA1.field("c").aggregateRaw()) );
+        ASSERT(      0 == TN::className(mA1.field("d").aggregateRaw()) );
+        ASSERT(streq("s", TN::className(mA1.field("f").aggregateRaw())));
+        ASSERT(streq("s", TN::className(mA1.field("g").aggregateRaw())));
+        ASSERT(streq("c", TN::className(mA1.field("h").aggregateRaw())));
+        ASSERT(      0 == TN::className(mA1.field("i").aggregateRaw()) );
+        ASSERT(streq("s", TN::className(mA1.field("j").aggregateRaw())));
+        ASSERT(streq("c", TN::className(mA1.field("k").aggregateRaw())));
+        ASSERT(streq("f", TN::className(mA1.field("m").aggregateRaw())));
+        ASSERT(streq("f", TN::className(mA1.field("n").aggregateRaw())));
+        ASSERT(      0 == TN::className(mA1.field("o").aggregateRaw()));
+        ASSERT(streq("s", TN::className(mA1.field("p").aggregateRaw())));
+        ASSERT(      0 == TN::className(mA1.field("q").aggregateRaw()));
+
+        if (verbose) tst::cout << "Testing category selection" << bsl::endl;
+        ASSERT(0 ==
+                  bdeat_TypeCategory::Select<bcem_Aggregate>::BDEAT_SELECTION);
+        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    == TCF::select(A1));
+        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      ==
+               TCF::select(mA1.field("a").aggregateRaw()));
+        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      ==
+               TCF::select(mA1.field("b").aggregateRaw()));
+        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      ==
+               TCF::select(mA1.field("c").aggregateRaw()));
+        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      ==
+               TCF::select(mA1.field("d").aggregateRaw()));
+        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    ==
+               TCF::select(mA1.field("f").aggregateRaw()));
+        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    ==
+               TCF::select(mA1.field("g").aggregateRaw()));
+        ASSERT(TC::BDEAT_CHOICE_CATEGORY      ==
+               TCF::select(mA1.field("h").aggregateRaw()));
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
+               TCF::select(mA1.field("i").aggregateRaw()));
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
+               TCF::select(mA1.field("j").aggregateRaw()));
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
+               TCF::select(mA1.field("k").aggregateRaw()));
+        ASSERT(TC::BDEAT_ENUMERATION_CATEGORY ==
+               TCF::select(mA1.field("m").aggregateRaw()));
+        ASSERT(TC::BDEAT_ENUMERATION_CATEGORY ==
+               TCF::select(mA1.field("n").aggregateRaw()));
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
+               TCF::select(mA1.field("o").aggregateRaw()));
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
+               TCF::select(mA1.field("p").aggregateRaw()));
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
+               TCF::select(mA1.field("q").aggregateRaw()));
+
+        AggAccessor       theAccessor;
+        AggManipulator    theManipulator;
+        NewAggAccessor    newAccessor;
+        NewAggManipulator newManipulator;
+
+        const bsl::string RA = "<a>4</a>";
+        const bsl::string RB = "<b/>";
+        const bsl::string RC = "<c>22</c>";
+        const bsl::string RD = "<d>33</d>";
+        const bsl::string RF = "<f><c>99</c><d>999</d></f>";
+        const bsl::string RG = "<g><c>88</c><d>888</d></g>";
+        const bsl::string RH = "<h><a>77</a></h>";
+        const bsl::string RI = "<i>6</i><i>5</i><i>4</i>";
+        const bsl::string RJ =
+                        "<j><c>66</c><d>666</d></j><j><c>55</c><d>555</d></j>";
+        const bsl::string RK = "<k><a>44</a></k><k><b>333</b></k>";
+        const bsl::string RM = "<m>1</m>";
+        const bsl::string RN = "<n>2</n>";
+        const bsl::string RO = "<o>33</o><o xsi:nil='true'/>";
+        const bsl::string RP = "<p><c>66</c><d>666</d></p><p xsi:nil='true'/>";
+        const bsl::string RQ = "<q xsi:nil='true'/><q>2</q>";
+
+        bsl::string res;
+        if (verbose) tst::cout << "Testing bdeat_SequenceFunctions"<<bsl::endl;
+        ASSERT(SF::IsSequence<bcem_Aggregate>::VALUE);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "a", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RA, res, RA == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "b", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RB, res, RB == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "c", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RC, res, RC == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "d", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RD, res, RD == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "f", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RF, res, RF == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "g", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RG, res, RG == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "h", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RH, res, RH == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "i", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RI, res, RI == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "j", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RJ, res, RJ == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "k", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RK, res, RK == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "m", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RM, res, RM == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "n", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RN, res, RN == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "o", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RO, res, RO == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "p", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RP, res, RP == res);
+
+        newAccessor.reset();
+        SF::accessAttribute(A1, newAccessor, "q", 1);
+        res = newAccessor.value();
+        LOOP2_ASSERT(RQ, res, RQ == res);
+
+        SF::accessAttribute(A1, theAccessor, "b", 1);
+        ASSERT(theAccessor.matchValue(-5000));
+        SF::accessAttribute(mA1.field("f").aggregateRaw(),
+                            theAccessor, "c", 1);
+        ASSERT(theAccessor.matchValue(99));
+        SF::accessAttribute(mA1.field("f").aggregateRaw(), theAccessor, 1);
+        ASSERT(theAccessor.matchValue(999));
+        SF::accessAttributes(mA1.field("f").aggregateRaw(), theAccessor);
+        ASSERT(theAccessor.matchValues(99, 999));
+
+        Obj mB(schema, "r"); const bcem_Aggregate& B = mB;
+
+        bsl::list<CERef>& values = newManipulator.elements();
+        const CERef& RefA = getCERef(ET::BDEM_DOUBLE, 1);
+        values.push_back(RefA);
+        SF::manipulateAttribute(&mB, newManipulator, "a", 1);
+        ASSERT(compareCERefs(RefA, B.field("a").asElemRef()));
+
+        newManipulator.reset();
+        const CERef& RefB = getCERef(ET::BDEM_DOUBLE, 2);
+        values.push_back(RefB);
+        SF::manipulateAttribute(&mB, newManipulator, "b", 1);
+        ASSERT(compareCERefs(RefB, B.field("b").asElemRef()));
+
+        newManipulator.reset();
+        const CERef& RefC = getCERef(ET::BDEM_STRING, 2);
+        values.push_back(RefC);
+        SF::manipulateAttribute(&mB, newManipulator, "c", 1);
+        LOOP2_ASSERT(RefC,
+                     B.field("c").asElemRef(),
+                     compareCERefs(RefC, B.field("c").asElemRef()));
+
+        newManipulator.reset();
+        const CERef& RefD = getCERef(ET::BDEM_STRING, 0);
+        values.push_back(RefD);
+        SF::manipulateAttribute(&mB, newManipulator, "d", 1);
+        ASSERT(compareCERefs(RefD, B.field("d").asElemRef()));
+
+        newManipulator.reset();
+        const CERef& RefFC = getCERef(ET::BDEM_INT, 2);
+        const CERef& RefFD = getCERef(ET::BDEM_INT64, 1);
+        values.push_back(RefFC);
+        values.push_back(RefFD);
+        SF::manipulateAttribute(&mB, newManipulator, "f", 1);
+        LOOP2_ASSERT(RefFC,
+                     B.field("f", "c").asElemRef(),
+                     compareCERefs(RefFC, B.field("f", "c").asElemRef()));
+        ASSERT(compareCERefs(RefFD, B.field("f", "d").asElemRef()));
+
+        newManipulator.reset();
+        const CERef& RefGC = getCERef(ET::BDEM_INT, 0);
+        const CERef& RefGD = getCERef(ET::BDEM_INT64, 0);
+        values.push_back(RefGC);
+        values.push_back(RefGD);
+        SF::manipulateAttribute(&mB, newManipulator, "g", 1);
+        ASSERT(compareCERefs(RefGC, B.field("g", "c").asElemRef()));
+        ASSERT(compareCERefs(RefGD, B.field("g", "d").asElemRef()));
+
+        newManipulator.reset();
+        int selector = 0;
+        const CERef  RefSelector(&selector, &bdem_Properties::d_intAttr);
+        values.push_back(RefSelector);
+        const CERef& RefH = getCERef(ET::BDEM_CHAR, 1);
+        values.push_back(RefH);
+        SF::manipulateAttribute(&mB, newManipulator, "h", 1);
+        ASSERT(selector == B.field("h").selectorId());
+        ASSERT(bsl::string("a") == B.field("h").selector());
+        ASSERT(compareCERefs(RefH, B.field("h", "a").asElemRef()));
+
+        newManipulator.reset();
+        int numItems = 1;
+        const CERef  RefNI(&numItems, &bdem_Properties::d_intAttr);
+        const CERef& RefI = getCERef(ET::BDEM_INT, 1);
+        values.push_back(RefNI);
+        values.push_back(RefI);
+        SF::manipulateAttribute(&mB, newManipulator, "i", 1);
+        Obj resAgg = B.field("i");  const Obj& RES = resAgg;
+        ASSERT(1 == RES.length());
+        LOOP2_ASSERT(RefI, resAgg.asElemRef(),
+                     compareCERefs(RefI, resAgg[0].asElemRef()));
+
+        newManipulator.reset();
+        numItems = 2;
+        const CERef& RefJA1 = getCERef(ET::BDEM_INT, 1);
+        const CERef& RefJA2 = getCERef(ET::BDEM_INT64, 1);
+        const CERef& RefJB1 = getCERef(ET::BDEM_INT, 2);
+        const CERef& RefJB2 = getCERef(ET::BDEM_INT64, 2);
+        values.push_back(RefNI);
+        values.push_back(RefJA1);
+        values.push_back(RefJA2);
+        values.push_back(RefJB1);
+        values.push_back(RefJB2);
+        SF::manipulateAttribute(&mB, newManipulator, "j", 1);
+        ASSERT(2 == B.field("j").length());
+        ASSERT(compareCERefs(RefJA1, B.field("j", 0, "c").asElemRef()));
+        ASSERT(compareCERefs(RefJA2, B.field("j", 0, "d").asElemRef()));
+        ASSERT(compareCERefs(RefJB1, B.field("j", 1, "c").asElemRef()));
+        ASSERT(compareCERefs(RefJB2, B.field("j", 1, "d").asElemRef()));
+
+        newManipulator.reset();
+        int s1 = 0, s2 = 1;
+        const CERef  RefS1(&s1, &bdem_Properties::d_intAttr);
+        const CERef  RefS2(&s2, &bdem_Properties::d_intAttr);
+        const CERef& RefKA = getCERef(ET::BDEM_CHAR, 1);
+        const CERef& RefKB = getCERef(ET::BDEM_SHORT, 1);
+        values.push_back(RefNI);
+        values.push_back(RefS1);
+        values.push_back(RefKA);
+        values.push_back(RefS2);
+        values.push_back(RefKB);
+        SF::manipulateAttribute(&mB, newManipulator, "k", 1);
+        ASSERT(numItems == B.field("k").length());
+
+        Obj resaAgg = B.field("k", 0);  const Obj& RESA = resaAgg;
+        Obj resbAgg = B.field("k", 1);  const Obj& RESB = resbAgg;
+
+        ASSERT(s1 == RESA.selectorId());
+        ASSERT(bsl::string("a") == RESA.selector());
+        LOOP_ASSERT(RefKA, compareCERefs(RefKA,
+                                         resaAgg.selection().asElemRef()));
+        ASSERT(s2 == RESB.selectorId());
+        ASSERT(bsl::string("b") == RESB.selector());
+        LOOP2_ASSERT(RefKB, resbAgg.selection().asElemRef(),
+                     compareCERefs(RefKB,
+                                   resbAgg.selection().asElemRef()));
+
+        newManipulator.reset();
+        int enumId = 1;
+        const CERef enumRef1(&enumId, &bdem_Properties::d_intAttr);
+        values.push_back(enumRef1);
+        SF::manipulateAttribute(&mB, newManipulator, "m", 1);
+        LOOP2_ASSERT(enumRef1, B.field("m").asElemRef(),
+                     compareCERefs(enumRef1, B.field("m").asElemRef()));
+        enumId = 2;
+        values.push_back(enumRef1);
+        SF::manipulateAttribute(&mB, newManipulator, "m", 1);
+        LOOP2_ASSERT(enumRef1, B.field("m").asElemRef(),
+                     compareCERefs(enumRef1, B.field("m").asElemRef()));
+
+        newManipulator.reset();
+        enumId = 1;
+        bsl::string enumString = "1";
+        const CERef enumRef2(&enumString, &bdem_Properties::d_stringAttr);
+        values.push_back(enumRef2);
+        SF::manipulateAttribute(&mB, newManipulator, "m", 1);
+        LOOP2_ASSERT(enumRef1, B.field("m").asElemRef(),
+                     compareCERefs(enumRef1, B.field("m").asElemRef()));
+        enumId = 2;
+        enumString = "2";
+        values.push_back(enumRef2);
+        SF::manipulateAttribute(&mB, newManipulator, "m", 1);
+        LOOP2_ASSERT(enumRef1, B.field("m").asElemRef(),
+                     compareCERefs(enumRef1, B.field("m").asElemRef()));
+
+        newManipulator.reset();
+        enumId = 1;
+        values.push_back(enumRef1);
+        SF::manipulateAttribute(&mB, newManipulator, "n", 1);
+        ASSERT(bsl::string("vee") == B.field("n").asElemRef().theString());
+
+        newManipulator.reset();
+        enumId = 2;
+        values.push_back(enumRef1);
+        SF::manipulateAttribute(&mB, newManipulator, "n", 1);
+        LOOP_ASSERT(B.field("n").asElemRef().theString(),
+                    bsl::string("ex") == B.field("n").asElemRef().theString());
+
+        newManipulator.reset();
+        enumString = "1";
+        values.push_back(enumRef2);
+        SF::manipulateAttribute(&mB, newManipulator, "n", 1);
+        ASSERT(bsl::string("vee") == B.field("n").asElemRef().theString());
+
+        newManipulator.reset();
+        enumString = "2";
+        values.push_back(enumRef2);
+        SF::manipulateAttribute(&mB, newManipulator, "n", 1);
+        LOOP_ASSERT(B.field("n").asElemRef().theString(),
+                    bsl::string("ex") == B.field("n").asElemRef().theString());
+
+        newManipulator.reset();
+        numItems = 2;
+        const CERef& RefO = getCERef(ET::BDEM_INT, 0);
+        values.push_back(RefNI);
+        values.push_back(RefI);
+        values.push_back(RefO);
+        SF::manipulateAttribute(&mB, newManipulator, "o", 1);
+        ASSERT(2 == B.field("o").length());
+        LOOP_ASSERT(B.field("o", 0).asElemRef(),
+                    compareCERefs(RefI, B.field("o", 0).asElemRef()));
+        LOOP_ASSERT(B.field("o", 1).asElemRef(),
+                    compareCERefs(RefO, B.field("o", 1).asElemRef()));
+
+        newManipulator.reset();
+        numItems = 2;
+        values.push_back(RefNI);
+        values.push_back(RefJA1);
+        values.push_back(RefJA2);
+        values.push_back(RefJB1);
+        values.push_back(RefJB2);
+        SF::manipulateAttribute(&mB, newManipulator, "p", 1);
+        ASSERT(2 == B.field("p").length());
+        ASSERT(compareCERefs(RefJA1, B.field("p", 0, "c").asElemRef()));
+        ASSERT(compareCERefs(RefJA2, B.field("p", 0, "d").asElemRef()));
+        ASSERT(compareCERefs(RefJB1, B.field("p", 1, "c").asElemRef()));
+        ASSERT(compareCERefs(RefJB2, B.field("p", 1, "d").asElemRef()));
+
+        newManipulator.reset();
+        numItems = 1;
+        enumString = "1";
+        values.push_back(RefNI);
+        values.push_back(enumRef2);
+        SF::manipulateAttribute(&mB, newManipulator, "q", 1);
+        ASSERT(1 == B.field("q").length());
+        ASSERT(bsl::string("vee") == B.field("q", 0).asElemRef().theString());
+
+        bcem_Aggregate mA2f = mA2.field("f");
+        SF::manipulateAttribute(&mA2f, theManipulator,  0);
+        ASSERT(100 == mA2.field("f", "c").asInt());
+        SF::manipulateAttribute(&mA2f, theManipulator,  "d", 1);
+        ASSERT(101 == mA2.field("f", "d").asInt64());
+        SF::manipulateAttributes(&mA2f, theManipulator);
+        ASSERT(102 == mA2.field("f", "c").asInt());
+        ASSERT(103 == mA2.field("f", "d").asInt64());
+        if (veryVerbose) P(A2);
+
+        if (verbose) tst::cout << "Testing bdeat_ChoiceFunctions" << bsl::endl;
+        ASSERT(CF::IsChoice<bcem_Aggregate>::VALUE);
+        int id = 99;
+        id = CF::selectionId(mA1.field("h").aggregateRaw());
+        ASSERT(0 == id);
+        ASSERT(CF::hasSelection(mA1.field("h").aggregateRaw(), 0));
+        ASSERT(CF::hasSelection(mA1.field("h").aggregateRaw(), 1));
+        ASSERT(! CF::hasSelection(mA1.field("h").aggregateRaw(), 2));
+        ASSERT(CF::hasSelection(mA1.field("h").aggregateRaw(), "a", 1));
+        ASSERT(CF::hasSelection(mA1.field("h").aggregateRaw(), "b", 1));
+        ASSERT(! CF::hasSelection(mA1.field("h").aggregateRaw(), "ab", 2));
+        CF::accessSelection(mA1.field("h").aggregateRaw(), theAccessor);
+        ASSERT(theAccessor.matchValue(77));
+
+        bcem_Aggregate mA2h(mA2.field("h"));
+        id = CF::selectionId(mA2h);
+        ASSERT(bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID == id);
+        CF::makeSelection(&mA2h, 0);
+        ASSERT(0 == CF::selectionId(mA2h));
+        CF::manipulateSelection(&mA2h, theManipulator);
+        ASSERT(104 == mA2.field("h", "a").asChar());
+        CF::makeSelection(&mA2h, "b", 1);
+        ASSERT(1 == CF::selectionId(mA2h));
+        CF::manipulateSelection(&mA2h, theManipulator);
+        ASSERT(105 == mA2.field("h", "").asShort());
+        if (veryVerbose) P(A2);
+
+        if (verbose) tst::cout << "Testing bdeat_ArrayFunctions" << bsl::endl;
+        ASSERT(AF::IsArray<bcem_Aggregate>::VALUE);
+        ASSERT(3 == AF::size(mA1.field("i").aggregateRaw()));
+        AF::accessElement(mA1.field("i").aggregateRaw(), theAccessor, 0);
+        ASSERT(theAccessor.matchValue(6));
+        AF::accessElement(mA1.field("i").aggregateRaw(), theAccessor, 2);
+        ASSERT(theAccessor.matchValue(4));
+        AF::accessElement(mA1.field("i").aggregateRaw(), theAccessor, 1);
+        ASSERT(theAccessor.matchValue(5));
+
+        mA2.setField("i", mA1.field("i"));
+        bcem_Aggregate mA2i(mA2.field("i"));
+        AF::manipulateElement(&mA2i, theManipulator, 1);
+        ASSERT(6   == mA2.field("i", 0).asInt());
+        ASSERT(106 == mA2.field("i", 1).asInt());
+        ASSERT(4   == mA2.field("i", 2).asInt());
+        AF::resize(&mA2i, 2);
+        ASSERT(2   == mA2.field("i").size());
+        ASSERT(6   == mA2.field("i", 0).asInt());
+        ASSERT(106 == mA2.field("i", 1).asInt());
+        if (veryVerbose) P(A2);
+
+        if (verbose) tst::cout << "Testing bdeat_ArrayFunctions on TABLEs"
+                               << bsl::endl;
+        ASSERT(2 == AF::size(mA1.field("j").aggregateRaw()));
+        AF::accessElement(mA1.field("j").aggregateRaw(), theAccessor, 0);
+        ASSERT(theAccessor.matchValues(66, 666));
+        AF::accessElement(mA1.field("j").aggregateRaw(), theAccessor, 1);
+        ASSERT(theAccessor.matchValues(55, 555));
+
+        mA2.setField("j", mA1.field("j"));
+        bcem_Aggregate mA2j(mA2.field("j"));
+        AF::manipulateElement(&mA2j, theManipulator, 0);
+        ASSERT(107 == mA2.field("j", 0, "c").asInt());
+        ASSERT(108 == mA2.field("j", 0, "d").asInt64());
+        ASSERT(55  == mA2.field("j", 1, "c").asInt());
+        ASSERT(555 == mA2.field("j", 1, "d").asInt64());
+        AF::resize(&mA2j, 3);
+        ASSERT(3   == mA2.field("j").size());
+        AF::manipulateElement(&mA2j, theManipulator, 2);
+        ASSERT(107 == mA2.field("j", 0, "c").asInt());
+        ASSERT(108 == mA2.field("j", 0, "d").asInt64());
+        ASSERT(55  == mA2.field("j", 1, "c").asInt());
+        ASSERT(555 == mA2.field("j", 1, "d").asInt64());
+        ASSERT(109 == mA2.field("j", 2, "c").asInt());
+        ASSERT(110 == mA2.field("j", 2, "d").asInt64());
+        if (veryVerbose) P(A2);
+
+        if (verbose) tst::cout << "Testing bdeat_ArrayFunctions on "
+                               << "CHOICE_ARRAYs" << bsl::endl;
+        ASSERT(2 == AF::size(mA1.field("k").aggregateRaw()));
+        ASSERT(0 == CF::selectionId(mA1.field("k", 0).aggregateRaw()));
+        ASSERT(1 == CF::selectionId(mA1.field("k", 1).aggregateRaw()));
+        AF::accessElement(mA1.field("k").aggregateRaw(), theAccessor, 0);
+        ASSERT(theAccessor.matchValue(44));
+        AF::accessElement(mA1.field("k").aggregateRaw(), theAccessor, 1);
+        ASSERT(theAccessor.matchValue(333));
+
+        mA2.setField("k", mA1.field("k"));
+        bcem_Aggregate mA2k(mA2.field("k"));
+        AF::manipulateElement(&mA2k, theManipulator, 0);
+        ASSERT(1   == mA2.field("k", 0).selectorId());
+        ASSERT(111 == mA2.field("k", 0, "b").asShort());
+        ASSERT(1   == mA2.field("k", 1).selectorId());
+        ASSERT(333 == mA2.field("k", 1, "b").asShort());
+        if (veryVerbose) P(A2);
+        AF::manipulateElement(&mA2k, theManipulator, 1);
+        ASSERT(1   == mA2.field("k", 0).selectorId());
+        ASSERT(111 == mA2.field("k", 0, "b").asShort());
+        ASSERT(0   == mA2.field("k", 1).selectorId());
+        ASSERT(112 == mA2.field("k", 1, "a").asChar());
+        AF::resize(&mA2k, 3);
+        ASSERT(3   == mA2.field("k").size());
+        AF::manipulateElement(&mA2k, theManipulator, 2);
+        ASSERT(1   == mA2.field("k", 0).selectorId());
+        ASSERT(111 == mA2.field("k", 0, "b").asShort());
+        ASSERT(0   == mA2.field("k", 1).selectorId());
+        ASSERT(112 == mA2.field("k", 1, "a").asChar());
+        ASSERT(1   == mA2.field("k", 2).selectorId());
+        ASSERT(113 == mA2.field("k", 2, "b").asShort());
+        if (veryVerbose) P(A2);
+
+        // WHITE-BOX test of bcem_Aggregate_BdeatUtil::NullableAdapter
+        if (verbose) tst::cout << "Testing bdeat_NullableValueFunctions:"
+                               << bsl::endl;
+        typedef bcem_Aggregate_NullableAdapter NullableAdapter;
+        ASSERT(! NVF::IsNullableValue<bcem_Aggregate>::VALUE);
+        ASSERT(NVF::IsNullableValue<NullableAdapter>::VALUE);
+        bcem_Aggregate mA1b(mA1.field("b"));
+        bcem_Aggregate mA1br(mA1.field("b"));
+        NullableAdapter nmA1b  = { &mA1br };
+        ASSERT(NVF::isNull(nmA1b));
+        bcem_Aggregate mA1g(mA1.field("g"));
+        bcem_Aggregate mA1gr = mA1g;
+        NullableAdapter nmA1g  = { &mA1gr };
+        ASSERT(!NVF::isNull(nmA1g));
+        bcem_Aggregate mA1gd(mA1.field("g", "d"));
+        NullableAdapter nmA1gd = { &mA1gd };
+        ASSERT(! NVF::isNull(nmA1gd));
+        NVF::accessValue(nmA1gd, theAccessor);
+        ASSERT(theAccessor.matchValue(888));
+        NVF::accessValue(nmA1g, theAccessor);
+        ASSERT(theAccessor.matchValues(88, 888));
+
+        bcem_Aggregate mA2b(mA2.field("b"));
+        NullableAdapter nmA2b  = { &mA2b };
+        ASSERT(NVF::isNull(nmA2b));
+        NVF::manipulateValue(&nmA2b, theManipulator);
+        ASSERT(! NVF::isNull(nmA2b));
+        ASSERT(114 == mA2b.asDouble());
+        // Note: mA2b is a COPY.  A2.field("b") is still null.
+        bcem_Aggregate mA2g(mA2.field("g"));
+        NullableAdapter nmA2g  = { &mA2g };
+        ASSERT(NVF::isNull(nmA2g));
+        mA2g.makeNull();
+        NVF::makeValue(&nmA2g);
+        ASSERT(! NVF::isNull(nmA2g));
+        NVF::manipulateValue(&nmA2g, theManipulator);
+        ASSERT(!mA2.field("g", "d").isNul2());
+        ASSERT(115 == mA2.field("g", "c").asInt());
+        ASSERT(116 == mA2.field("g", "d").asInt64());
+
+        // Black-box test of null value manipulator through parent sequence
+        mA2g.makeNull();
+        ASSERT(NVF::isNull(nmA2g));
+        mA2.field("g").makeValue();
+
+        SF::manipulateAttribute(&mA2, theManipulator, "g", 1);
+        ASSERT(! mA2.field("g").isNul2());
+        ASSERT(! mA2.field("g", "d").isNul2());
+        ASSERT(117 == mA2.field("g", "c").asInt());
+        ASSERT(118 == mA2.field("g", "d").asInt64());
+        if (veryVerbose) P(A2);
+
+        if (verbose) tst::cout << "Testing bdeat_EnumFunctions:" << bsl::endl;
+        ASSERT(EF::IsEnumeration<bcem_Aggregate>::VALUE);
+        int intValue;
+        bsl::string stringValue;
+        EF::toInt(&intValue, mA1.field("m").aggregateRaw());
+        ASSERT(1 == intValue);
+        EF::toString(&stringValue, mA1.field("m").aggregateRaw());
+        ASSERT("vee" == stringValue);
+        EF::toInt(&intValue, mA1.field("n").aggregateRaw());
+        ASSERT(2 == intValue);
+        EF::toString(&stringValue, mA1.field("n").aggregateRaw());
+        ASSERT("ex" == stringValue);
+
+        bcem_Aggregate mA2magg(mA2.field("m"));
+        const bcem_Aggregate &A2m = mA2magg;
+        bcem_Aggregate mA2mr = mA2magg;
+        int status;
+        status = EF::fromInt(&mA2mr, 0);
+        ASSERT(0 == status);
+        ASSERT(0 == A2m.asInt());
+        status = EF::fromString(&mA2mr, "ex", 2);
+        ASSERT(0 == status);
+        ASSERT(2 == A2m.asInt());
+        status = EF::fromInt(&mA2mr, 3);
+        ASSERT(0 != status);
+        ASSERT(2 == A2m.asInt());
+        status = EF::fromString(&mA2mr, "doubleU", 7);
+        ASSERT(0 != status);
+        ASSERT(2 == A2m.asInt());
+
+        bcem_Aggregate mA2n(mA2.field("n"));
+        const bcem_Aggregate &A2n = mA2n;
+        bcem_Aggregate mA2nr = mA2n;
+        status = EF::fromInt(&mA2nr, 1);
+        ASSERT(0 == status);
+        ASSERT("vee" == A2n.asString());
+        status = EF::fromString(&mA2nr, "you", 3);
+        ASSERT(0 == status);
+        ASSERT("you" == A2n.asString());
+        status = EF::fromInt(&mA2nr, 3);
+        ASSERT(0 != status);
+        ASSERT("you" == A2n.asString());
+        status = EF::fromString(&mA2nr, "doubleU", 7);
+        ASSERT(0 != status);
+        ASSERT("you" == A2n.asString());
+
+        // Test enumeration operations using accessors from parent
+        SF::accessAttribute(A1, theAccessor, "m", 1);
+        ASSERT(theAccessor.matchValue(1));
+        SF::accessAttribute(A1, theAccessor, "n", 1);
+        ASSERT(theAccessor.matchValue(-2));
+
+        // Test enumeration operations using manipulators from parent
+        theManipulator.reset(2);
+        SF::manipulateAttribute(&mA2, theManipulator, "m", 1);
+        ASSERT(2 == mA2.field("m").asInt())
+        theManipulator.reset(0);
+        SF::manipulateAttribute(&mA2, theManipulator, "n", 1);
+        ASSERT("you" == mA2.field("n").asString())
+
+        if (veryVerbose) P(A2);
+
+        if (verbose) tst::cout << "Testing bdeat_ValueTypeFunctions on STRING"
+                               << bsl::endl;
+        bcem_Aggregate mA3d(mA1["d"].clone());
+        const bcem_Aggregate& A3d = mA3d;
+        ASSERT("33" == A3d.asString());
+        if (veryVerbose) {
+            bsl::cout << "A3d.recordDef()=";
+            A3d.recordDef().print(bsl::cout) << bsl::endl;
+        }
+
+        bdeat_ValueTypeFunctions::reset(&mA3d);
+        ASSERT(ET::BDEM_STRING == A3d.dataType());
+        LOOP_ASSERT(A3d.asString(), "vee" == A3d.asString());
+        bdeat_ValueTypeFunctions::assign(&mA3d, mA1["c"]);
+        ASSERT("22" == A3d.asString());
+        ASSERT(A3d.data() != mA1["c"].data());  // replace with areIdentical.
+
+        if (verbose) tst::cout << "Testing BER encoding/decoding" << bsl::endl;
+        bsl::stringstream strm;
+        bdem_BerEncoderOptions berEncoderOptions;
+        berEncoderOptions.setTraceLevel(veryVeryVerbose);
+        bdem_BerEncoder berEncoder(&berEncoderOptions);
+        status = berEncoder.encode(strm, A1);
+        bsl::cerr << berEncoder.loggedMessages();
+        ASSERT(0 == status);
+        // Assert that enumerator "ex" is NOT stored in alpha form in stream.
+        ASSERT(bsl::string::npos == strm.str().find("ex"));
+
+        bcem_Aggregate mA4(schema, "r"); const bcem_Aggregate& A4 = mA4;
+        ASSERT(! bcem_Aggregate::areEquivalent(mA1, A4));
+        bcem_Aggregate a4Ptr = A4;
+
+        bdem_BerDecoderOptions berDecoderOptions;
+        berDecoderOptions.setTraceLevel(veryVeryVerbose);
+        bdem_BerDecoder berDecoder(&berDecoderOptions);
+        status = berDecoder.decode(strm, &a4Ptr);
+        bsl::cerr << berDecoder.loggedMessages();
+        ASSERT(0 == status);
+
+        bsl::ostringstream A1str, A4str;
+        A1str << A1;
+        A4str << a4Ptr;
+
+        LOOP2_ASSERT(A1, a4Ptr,
+                     A1str.str() == A4str.str());
+
+        if (veryVerbose) P(a4Ptr);
+}
+
+static void testCase34(bool verbose, bool veryVerbose, bool veryVeryVerbose)
+{
+    // --------------------------------------------------------------------
+    // TESTING 'accessArray(RawPtr)'
+    //
+    // Concerns:
+    //   - bdeat_arrayAccessElement() works properly when the argument is
+    //     bcem_AggregateRaw.
+    //
+    //
+    // Plan:
+    //
+    // Testing:
+    //
+    //  bdeat_arrayAccessElement(bcem_AggregateRaw, ...)
+    // --------------------------------------------------------------------
+
+    if (verbose) tst::cout << "\nTESTING 'accessArray(RawPtr)'"
+                           << "\n=============================" << bsl::endl;
+
+    bslma_TestAllocator da("da", veryVeryVerbose);
+    bslma_DefaultAllocatorGuard dag(&da);
+    bslma_TestAllocator ta("ta", veryVeryVerbose);
+
+    for (int numElements = 1; numElements <= 3; ++numElements) {
+
+        bsl::vector<int> scalarArray;
+        int expectedSum = 0;
+        for (int i = 0; i < numElements; ++i) {
+            scalarArray.push_back(i);
+            expectedSum += i;
+        }
+        bcem_Aggregate scalarArrayAggregate(bdem_ElemType::BDEM_INT_ARRAY,
+                                            scalarArray, &ta);
+
+        bcem_AggregateRaw data = scalarArrayAggregate.aggregateRaw();
+
+        Accumulator accumulator;
+
+        ASSERT(TC::BDEAT_ARRAY_CATEGORY == TCF::select(data));
+        ASSERT(AF::size(data) == numElements);
+
+        for (int i = 0; i < numElements; ++i) {
+            ASSERT(0 == AF::accessElement(data, accumulator, i));
+        }
+        ASSERT(expectedSum == accumulator.d_count);
+    }
+}
+
 static void testCase33(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 {
+#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
     // --------------------------------------------------------------------
     // TESTING 'isUnset':
     //
@@ -3699,8 +4691,11 @@ static void testCase33(bool verbose, bool veryVerbose, bool veryVeryVerbose)
             ASSERT(compareCERefs(VN, A.asElemRef()));
         }
     }
-}
+#else
+    if (verbose) tst::cout << "\n(nil test case)"
+                           << "\n===============" << bsl::endl;
 #endif
+}
 
 static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 {
@@ -3729,7 +4724,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
             Obj mX(ET::BDEM_CHAR, BB);  const Obj& X = mX;
 
             ASSERT(X.isError());
-            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == X.errorCode());
             ASSERT(S1 == X.errorMessage());
 
             Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
@@ -3737,7 +4732,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
             ASSERT(!Y.isError());
             ASSERT(ERR.isError());
-            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == ERR.errorCode());
             ASSERT(S2 == ERR.errorMessage());
         }
 
@@ -3746,7 +4741,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
             Obj mX(ET::BDEM_CHAR, CER);  const Obj& X = mX;
 
             ASSERT(X.isError());
-            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == X.errorCode());
             ASSERT(S1 == X.errorMessage());
 
             Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
@@ -3754,7 +4749,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
             ASSERT(!Y.isError());
             ASSERT(ERR.isError());
-            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == ERR.errorCode());
             ASSERT(S2 == ERR.errorMessage());
         }
 
@@ -3763,7 +4758,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
             Obj mX(ET::BDEM_CHAR, ER);  const Obj& X = mX;
 
             ASSERT(X.isError());
-            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == X.errorCode());
             LOOP_ASSERT(X.errorMessage(), S1 == X.errorMessage());
 
             Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
@@ -3771,7 +4766,7 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
             ASSERT(!Y.isError());
             ASSERT(ERR.isError());
-            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == ERR.errorCode());
             ASSERT(S2 == ERR.errorMessage());
         }
 
@@ -3780,15 +4775,16 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
             Obj mX(ET::BDEM_CHAR, mZ);  const Obj& X = mX;
 
             ASSERT(X.isError());
-            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == X.errorCode());
-            ASSERT(S1 == X.errorMessage());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == X.errorCode());
+            LOOP2_ASSERT(S1, X.errorMessage(),
+                         S1 == X.errorMessage());
 
             Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
             const Obj ERR = Y.setValue(BB);
 
             ASSERT(!Y.isError());
             ASSERT(ERR.isError());
-            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(ErrorCode::BCEM_BAD_CONVERSION == ERR.errorCode());
             ASSERT(S2 == ERR.errorMessage());
         }
     }
@@ -4065,7 +5061,7 @@ static void testCase31(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 //..
     bcem_Aggregate result = mike.setValue(michael["FirstName"]);
     ASSERT(result.isError());
-    ASSERT(result.errorCode() == bcem_Aggregate::BCEM_ERR_NON_CONFORMANT);
+    ASSERT(result.errorCode() == ErrorCode::BCEM_NON_CONFORMANT);
     if (verbose) tst::cout << result.errorMessage();
 //..
 // Modify the data that 'mike' references using 'setValue' with data having
@@ -4087,7 +5083,7 @@ static void testCase31(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 //..
     result = addr1["Entities"][40]["uHman"]["FirstName"];
     ASSERT(result.isError());
-    ASSERT(result.errorCode() == bcem_Aggregate::BCEM_ERR_BAD_ARRAYINDEX);
+    ASSERT(result.errorCode() == ErrorCode::BCEM_BAD_ARRAYINDEX);
     if (verbose) tst::cout << result.errorMessage();
 //..
 }
@@ -4651,8 +5647,15 @@ static void testCase28(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             // selectorIndex(), selectorId(), selector(), numSelections,
             // selection():
             int selectorIndex = theAgg.selectorIndex();
-            LOOP2_ASSERT(expSelectorIndex, selectorIndex,
+            LOOP3_ASSERT(LINE, expSelectorIndex, selectorIndex,
                          expSelectorIndex == selectorIndex);
+            if (veryVerbose && expSelectorIndex != selectorIndex) {
+                tst::cout << "theAgg=" << theAgg << bsl::endl;
+                if (theAgg.schemaPtr()) {
+                    tst::cout << "schema=" << *theAgg.schemaPtr()
+                              << bsl::endl;
+                }
+            }
 
             int selectorId = theAgg.selectorId();
             LOOP2_ASSERT(expSelectorId, selectorId,
@@ -5259,7 +6262,7 @@ static void testCase25(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             { L_,        0,     'a',    0 },
             { L_,        1,     'u',    0 },
             { L_,        2,     'v',    0 },
-            { L_,        3,     'w',    Obj::BCEM_ERR_BAD_ENUMVALUE }
+            { L_,        3,     'w',    ErrorCode::BCEM_BAD_ENUMVALUE }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -5299,7 +6302,7 @@ static void testCase25(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (verbose) tst::cout << "Testing bad conversions" << bsl::endl;
         const bdet_Date DATE_VAL(2006, 9, 20);
         enumTest(AGG, "isjtbc", DATE_VAL, 0,
-                 "", Obj::BCEM_ERR_BAD_CONVERSION);
+                 "", ErrorCode::BCEM_BAD_CONVERSION);
 
         // Conversion to date fails
         bdet_Date dateRet = AGG["i"].asDate();
@@ -5962,7 +6965,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // WHITE-BOX test of bcem_Aggregate_BdeatUtil::NullableAdapter
         if (verbose) tst::cout << "Testing bdeat_NullableValueFunctions:"
                                << bsl::endl;
-        typedef bcem_Aggregate_BdeatUtil::NullableAdapter NullableAdapter;
+        typedef bcem_Aggregate_NullableAdapter NullableAdapter;
         ASSERT(! NVF::IsNullableValue<bcem_Aggregate>::VALUE);
         ASSERT(NVF::IsNullableValue<NullableAdapter>::VALUE);
         bcem_Aggregate mA1b(A1.field("b"));
@@ -6098,7 +7101,14 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         status = berDecoder.decode(strm, &mA4);
         bsl::cerr << berDecoder.loggedMessages();
         ASSERT(0 == status);
-// //         ASSERT(bcem_Aggregate::areEquivalent(A1, A4));
+
+
+        bsl::ostringstream A1str, A4str;
+        A1str << A1;
+        A4str << A4;
+
+        LOOP2_ASSERT(A1, A4,
+                     A1str.str() == A4str.str());
 
         if (veryVerbose) P(A4);
 }
@@ -7203,19 +8213,17 @@ static void testCase19(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 mY.makeSelection(fldName.c_str());
 
                 LOOP2_ASSERT(LINE, Y, !Y.isNul2());
-                // TBD: Uncomment
-//                 LOOP4_ASSERT(LINE, IS_NULL, Y, Y.field(fldName),
-//                              IS_NULL == Y.field(fldName).isNul2());
                 if (ET::isScalarType(TYPE)) {
                     if (FIELD_DEF.defaultValue().isNull()) {
-                        ASSERT(isUnset(mY.fieldRef(fldName)));
+                        ASSERT(isUnset(mY.fieldRef(fldName.c_str())));
                     }
                     else {
                         LOOP3_ASSERT(LINE,
                                      FIELD_DEF.defaultValue(),
-                                     mY.fieldRef(fldName),
-                                     compareCERefs(FIELD_DEF.defaultValue(),
-                                                   mY.fieldRef(fldName)));
+                                     mY.fieldRef(fldName.c_str()),
+                                     compareCERefs(
+                                                FIELD_DEF.defaultValue(),
+                                                mY.fieldRef(fldName.c_str())));
                     }
                 }
 
@@ -7240,7 +8248,7 @@ static void testCase19(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 Obj mB = mX.makeSelection(fldName.c_str(), Z);
                 const Obj& B = mB;
-                ASSERT(B.asElemRef() == VA);
+                LOOP2_ASSERT(B, VA, B.asElemRef() == VA);
                 ASSERT(streq(fldName.c_str(), X.selector()));
                 ASSERT(X.selection().asElemRef() == VA);
 
@@ -8917,7 +9925,7 @@ static void testCase14(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 bsl::string sa; const bsl::string& SA = sa;
 
                 Obj mX(ET::BDEM_DOUBLE, CEA);
-                ASSERT(Obj::BCEM_ERR_NOT_A_CHOICE == mX.numSelections());
+                ASSERT(ErrorCode::BCEM_NOT_A_CHOICE == mX.numSelections());
             }
         }
 
@@ -10107,6 +11115,9 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                            << "\n========================"
                            << bsl::endl;
     {
+        bslma_TestAllocator da;
+        bslma_DefaultAllocatorGuard allocGuard(&da);
+
         Obj mX; const Obj& X = mX;
         ASSERT(ET::BDEM_VOID            == X.dataType());
         ASSERT(ConstRecDefShdPtr() == X.recordDefPtr());
@@ -10133,8 +11144,8 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             bdem_Convert::convert(&sa, CEA);
 
-            bslma_TestAllocator da;
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma_TestAllocator da("da");
+            bslma_TestAllocator testAllocator("ta", veryVeryVerbose);
 
             BEGIN_BSLMA_EXCEPTION_TEST {
                 bslma_DefaultAllocatorGuard allocGuard(&da);
@@ -10165,6 +11176,9 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         // Test error messages (Invalid conversion)
         {
+            if (verbose) tst::cout << "\nTest invalid conversion errors"
+                                   << "\n=============================="
+                                   << bsl::endl;
             const CERef CEA = getCERef(ET::BDEM_DOUBLE, 1);
             bsl::string sa; const bsl::string& SA = sa;
             bdem_Convert::convert(&sa, CEA);
@@ -10250,8 +11264,8 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) };
 
-            bslma_TestAllocator da;
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma_TestAllocator da("da");
+            bslma_TestAllocator testAllocator("ta", veryVeryVerbose);
 
             BEGIN_BSLMA_EXCEPTION_TEST {
                 // Test constructor that are explicitly supplied a ctor
@@ -14714,7 +15728,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 // Test error conditions and output
 
                 // Test with an index value
-// TBD                ASSERT_AGG_ERROR(mX.setField(0, CEA), BCEM_ERR_TBD);
+                ASSERT_AGG_ERROR(mX.setField(0, CEA), BCEM_ERR_TBD);
 
                 // Test with invalid field name
                 const char *errFldName = "ErrorField";
@@ -14998,7 +16012,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 ASSERT_AGG_ERROR(mY.setField(LEN, CEA), BCEM_ERR_TBD);
 
-// TBD                ASSERT_AGG_ERROR(mY.setField(-1, CEA), BCEM_ERR_TBD);
+                ASSERT_AGG_ERROR(mY.setField(-1, CEA), BCEM_ERR_TBD);
             }
         }
 
@@ -15432,7 +16446,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 const Obj RET = mX.setField(name1, Y.field(name2));
                 ASSERT(RET.isError());
 
-                if (veryVerbose) { P(RET) };
+                if (veryVerbose) { P(RET); P(Y); P(name1); P(name2) }
             }
         }
 }
@@ -15938,9 +16952,7 @@ static void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                      P(S2);
                  }
 
-                 ASSERT(2 == S2.numRecords
-
-());
+                 ASSERT(2 == S2.numRecords());
                  constraintRec = &S2.record(0);
                  rec           = &S2.record(1);
 
@@ -16041,7 +17053,7 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) tst::cout << "Testing scalar constructors" << bsl::endl;
         {
-            bslma_TestAllocator ta;
+            bslma_TestAllocator ta (veryVeryVerbose);
 
             bcem_Aggregate agg1;
             ASSERT(agg1.dataType() == ET::BDEM_VOID);
@@ -16187,7 +17199,8 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             ASSERT(3 == agg1.length());
             ASSERT("Hello"    == agg1.field(0, "StringField").asString());
             ASSERT(1.2        == agg1.field(0, "DoubleField").asDouble());
-            ASSERT("New row"  == agg1.field(1, "StringField").asString());
+            LOOP_ASSERT(agg1.field(1, "StringField").asString(),
+                        "New row" == agg1.field(1, "StringField").asString());
             ASSERT(99.99      == agg1.field(1, "DoubleField").asDouble());
             ASSERT("Goodbye"  == agg1.field(2, "StringField").asString());
             ASSERT(nullDouble == agg1.field(2, "DoubleField").asDouble());
@@ -16228,8 +17241,6 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             agg1.makeSelectionById(0);
             ASSERT(streq("NameSelection", agg1.selector()));
             ASSERT(0 == agg1.selectorId());
-            // TBD:
-//             ASSERT(agg1.selection().isNul2());
             agg1.setField("", "pizza");
             ASSERT("pizza" == agg1.selection().asString());
             ASSERT("pizza" == agg1.field("NameSelection").asString());
@@ -16330,9 +17341,9 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) tst::cout << "Testing clone" << bsl::endl;
         {
-            bslma_TestAllocator da;
-            bslma_TestAllocator ta1;
-            bslma_TestAllocator ta2;
+            bslma_TestAllocator da("da", veryVeryVerbose);
+            bslma_TestAllocator ta1("ta1", veryVeryVerbose);
+            bslma_TestAllocator ta2("ta2", veryVeryVerbose);
             const bsl::string recName = "Level1";
 
             bslma_DefaultAllocatorGuard allocGuard(&da);
@@ -16418,9 +17429,9 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER) \
     case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+        CASE(35);
+        CASE(34);
         CASE(33);
-#endif
         CASE(32);
         CASE(31);
         CASE(30);
@@ -16454,10 +17465,13 @@ int main(int argc, char *argv[])
         CASE(2);
         CASE(1);
 #undef CASE
-      default: {
-        bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
-        testStatus = -1;
-      }
+        case -1:
+          runBerBenchmark(verbose, veryVerbose, veryVeryVerbose); break;
+        default: {
+          bsl::cerr << "WARNING: CASE `" << test
+                    << "' NOT FOUND." << bsl::endl;
+          testStatus = -1;
+        }
     }
 
     if (testStatus > 0) {

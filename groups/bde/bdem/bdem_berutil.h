@@ -110,6 +110,10 @@ BDES_IDENT("$Id: $")
 #include <bdem_berencoderoptions.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -848,6 +852,19 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                bool                          value,
                                const bdem_BerEncoderOptions *)
 {
+    // It has been observed in practice that 'value' may refer to uninitialized
+    // or overwritten memory, in which case its value may neither be 'true'
+    // ('1') nor 'false' ('0').  We assert here to ensure that users get a
+    // useful error message.  Note that we assert (rather than returning an
+    // error code), as it is undefined behavior to examine the value of such an
+    // uninitialized 'bool'.  Also note that gcc complains about this assert
+    // when used with the '-Wlogical-op' flag.  Therefore, to silence this
+    // warning/error we cast the 'bool' value to a 'char *' and check the value
+    // referred to by the 'char *'.
+
+    BSLMF_ASSERT(sizeof(bool) == sizeof(char));
+    BSLS_ASSERT(0 == *(char *)&value || 1 == *(char *)&value);
+
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     typedef bsl::streambuf::char_type char_type;

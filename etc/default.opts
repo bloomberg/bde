@@ -160,6 +160,7 @@
 # and '/' on Windows
 *                       _       SWITCHCHAR = -
 !! windows              _       SWITCHCHAR = /
+
 #==============================================================================
 # Retry false-negative wrapper. Use -X in bde_build.pl to override this,
 # or override RETRY_ON_EXIT and RETRY_ON_SIGNAL in the environment.
@@ -230,13 +231,9 @@ unix-                   _       RETRY_ALLTEST   = $(RETRY) -t 0 -a 3 -s!ILL,TRAP
 # Basic commands and nomenclature
 
 # file(s)-to-unspecified copy
-# DRQS 12110915 - cp -p broken on AIX and Linux when output isn't in
-# clearcase
 !! unix-           _       RSYNC           = rsync -a
-!! unix-           _       CP              = $(RETRY_ON_EXIT) $(RSYNC)
+!! unix-           _       CP              = cp -p
 windows-           _       CP              = perl -MFile::Copy -MFile::Basename -e "$$d=pop(@ARGV); die unless -d($$d) or -d($$d=dirname($$d)); while ($$f=shift @ARGV) { copy $$_,$$d foreach glob($$f) }; print \"\tcopied to $$d\n\"" --
-# Experiment to use Win32::CopyFile if available to preserve timestamps on Windows
-#windows-           _       CP              = perl -MFile::Basename -e "use File::Copy; $copySub=sub { my $$d=shift; my $$f=shift; foreach (glob($$f){copy $$_,$$d; print qq{Copied $$_ to $$d using File::Copy::copy\n};} }; eval { use Win32; $tmp=\&Win32::CopyFile; $copySub= sub { my $$d=shift; my $$f=shift; foreach(glob($$f)){ my $$basename=basename $$_; Win32::CopyFile($$_,qq{$$d/$$basename},1);  print qq{Copied $$_ to $$d/$$basename using Win32::CopyFile\n}  }} }; $$d=pop(@ARGV); die unless -d($$d) or -d($$d=dirname($$d)); while ($$f=shift @ARGV) {$copySub->($$d,$$f)}; print qq{\tcopied to $$d\n}" --
 
 # file(s)-to-dir copy
 unix-                   _       F2DCP           = $(CP)
