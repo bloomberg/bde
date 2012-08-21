@@ -255,8 +255,9 @@ void WindowsTimerUtil::systemProcessTimers(PULARGE_INTEGER systemTimer,
 inline
 void WindowsTimerUtil::initialize()
 {
-    const bsls::Types::Int64 B                     = 1000000000;
-    const bsls::Types::Int64 HIGH_DWORD_MULTIPLIER = B * (1LL << 32);
+    const bsls::Types::Int64 K = 1000;
+    const bsls::Types::Int64 G = K * K * K;
+    const bsls::Types::Int64 HIGH_DWORD_MULTIPLIER = G * (1LL << 32);
 
     if (bsls::AtomicOperations::getIntRelaxed(&s_initRequired)) {
         bsls::AtomicOperations::setIntRelaxed(&s_initRequired, 0);
@@ -331,8 +332,9 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
 {
     initialize();
 
-    const bsls::Types::Int64 M = 1000000;
-    const bsls::Types::Int64 B = 1000000000;
+    const bsls::Types::Int64 K = 1000;
+    const bsls::Types::Int64 M = K * K;
+    const bsls::Types::Int64 G = K * K * K;
     const bsls::Types::Uint64 LOW_MASK = 0x00000000ffffffff;
 
     bsls::Types::Int64 initialTime
@@ -351,7 +353,7 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
         //
         // If it were implemented, it would look like the following:
         // BSLS_ASSERT(((rawTime - initialTime) / timerFrequency) 
-        //             < std::numeric_limits<bsls::Types::Int64>::max() / B)
+        //             < std::numeric_limits<bsls::Types::Int64>::max() / G)
 
         bsls::Types::Int64 highPartDivisionFactor
             = bsls::AtomicOperations::getInt64Relaxed(
@@ -383,11 +385,11 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
         //         (
         //          static_cast<bsls::Types::Int64>(t.QuadPart & HIGH_MASK)
         //              / timerFrequency
-        //         ) * B
+        //         ) * G
         //         +
         //         (
         //          static_cast<bsls::Types::Uint64>(t.LowPart)
-        //              * B
+        //              * G
         //         ) / timerFrequency
         //        );                                                  // RETURN
 
@@ -408,7 +410,7 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
                  +
                  // Calculate low part contribution
                  static_cast<bsls::Types::Uint64>(rawTime & LOW_MASK)
-                    * B
+                    * G
                 )
                     / timerFrequency
                 );                                                    // RETURN
@@ -426,7 +428,7 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
         // have a separate floating-point processor.
 
         // return static_cast<bsls::Types::Int64>(
-        //     static_cast<double>(t.QuadPart) * B) /
+        //     static_cast<double>(t.QuadPart) * G) /
         //     static_cast<double>(timerFrequency));
     }
     else {
