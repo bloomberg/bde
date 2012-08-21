@@ -2,7 +2,7 @@
 
 #include <bslalg_rangecompare.h>
 
-#include <bslalg_typetraitusesbslmaallocator.h>         // for testing only
+#include <bslalg_typetraitusesbslmaallocator.h>             // for testing only
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -2367,14 +2367,14 @@ int main(int argc, char *argv[])
         testGGG<NonBitwiseWithOpEqual>(verbose, veryVerbose);
         testGG<NonBitwiseWithOpEqual>(verbose, veryVerbose);
 
-        // if (veryVerbose) printf("\n\t...with 'BitWiseNoOpEqual'...");
-        // testGGG<BitWiseNoOpEqual>(verbose, veryVerbose);
-        // testGG<BitWiseNoOpEqual>(verbose, veryVerbose);
+        if (veryVerbose) printf("\n\t...with 'BitWiseNoOpEqual'...");
+        testGGG<BitWiseNoOpEqual>(verbose, veryVerbose);
+        testGG<BitWiseNoOpEqual>(verbose, veryVerbose);
 
-        // if (veryVerbose)
-        //     printf("\n\t...with 'CharEquivalentNonBitwiseWithOpEqual'...");
-        // testGGG<CharEquivalentNonBitwiseWithOpEqual>(verbose, veryVerbose);
-        // testGG<CharEquivalentNonBitwiseWithOpEqual>(verbose, veryVerbose);
+        if (veryVerbose)
+            printf("\n\t...with 'CharEquivalentNonBitwiseWithOpEqual'...");
+        testGGG<CharEquivalentNonBitwiseWithOpEqual>(verbose, veryVerbose);
+        testGG<CharEquivalentNonBitwiseWithOpEqual>(verbose, veryVerbose);
       } break;
       case 1: {
         // --------------------------------------------------------------------
