@@ -59,8 +59,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_CONTAINERBASE
-#include <bslstl_containerbase.h>
+#ifndef INCLUDED_BSLALG_CONTAINERBASE
+#include <bslalg_containerbase.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_ITERATOR
@@ -363,7 +363,7 @@ class Deque_Base {
 
 template <class VALUE_TYPE, class ALLOCATOR = allocator<VALUE_TYPE> >
 class deque : public  Deque_Base<VALUE_TYPE>
-            , private BloombergLP::bslstl::ContainerBase<ALLOCATOR> {
+            , private BloombergLP::bslalg::ContainerBase<ALLOCATOR> {
     // This class template provides an STL-compliant 'deque' that conforms to
     // the 'bslma::Allocator' model.  For the requirements of a deque class,
     // consult the second revision of the ISO/IEC 14882 Programming Language
@@ -403,7 +403,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
     typedef Deque_Base<VALUE_TYPE>                             Base;
 
-    typedef BloombergLP::bslstl::ContainerBase<ALLOCATOR>      ContainerBase;
+    typedef BloombergLP::bslalg::ContainerBase<ALLOCATOR>      ContainerBase;
 
     typedef BloombergLP::bslalg::DequeImpUtil<VALUE_TYPE,
                                              BLOCK_LENGTH>     Imp;

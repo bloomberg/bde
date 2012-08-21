@@ -5,6 +5,7 @@ bslalg_autoarraymovedestructor
 bslalg_autoscalardestructor
 bslalg_bitwiseeqpassthroughtrait
 bslalg_constructorproxy
+bslalg_containerbase
 bslalg_dequeimputil
 bslalg_dequeiterator
 bslalg_dequeprimitives

@@ -51,8 +51,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_CONTAINERBASE
-#include <bslstl_containerbase.h>
+#ifndef INCLUDED_BSLALG_CONTAINERBASE
+#include <bslalg_containerbase.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_HASH
@@ -443,7 +443,7 @@ template <typename CHAR_TYPE,
           typename ALLOCATOR = allocator<CHAR_TYPE> >
 class basic_string
     : private String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type>
-    , public BloombergLP::bslstl::ContainerBase<ALLOCATOR>
+    , public BloombergLP::bslalg::ContainerBase<ALLOCATOR>
 {
     // This class template provides an STL-compliant 'string' that conforms to
     // the 'bslma::Allocator' model.  For the requirements of a string class,
@@ -2668,7 +2668,7 @@ inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                     const ALLOCATOR& allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     CHAR_TRAITS::assign(*begin(), CHAR_TYPE());
 }
@@ -2677,7 +2677,7 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                   const basic_string& original)
 : Imp(original)
-, BloombergLP::bslstl::ContainerBase<allocator_type>(ALLOCATOR())
+, BloombergLP::bslalg::ContainerBase<allocator_type>(ALLOCATOR())
 {
     if (!this->isShortString()) {
         // Copy long string to either short or long.
@@ -2690,7 +2690,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                  const basic_string& original,
                                                  const ALLOCATOR&    allocator)
 : Imp(original)
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     if (!this->isShortString()) {
         // Copy long string to either short or long.
@@ -2705,7 +2705,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                  size_type           numChars,
                                                  const ALLOCATOR&    allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     assign(original, position, numChars);
 }
@@ -2715,7 +2715,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                              const CHAR_TYPE  *characterString,
                                              const ALLOCATOR&  allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     BSLS_ASSERT_SAFE(characterString);
 
@@ -2728,7 +2728,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                              size_type         numChars,
                                              const ALLOCATOR&  allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     BSLS_ASSERT_SAFE(characterString);
 
@@ -2741,7 +2741,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                    CHAR_TYPE         character,
                                                    const ALLOCATOR&  allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     assign(numChars, character);
 }
@@ -2754,7 +2754,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                     INPUT_ITER       last,
                                                     const ALLOCATOR& allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     privateInitDispatch(first, last);
 }
@@ -2765,7 +2765,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
        const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
        const ALLOCATOR&                                              allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     this->assign(original.data(), original.length());
 }
@@ -2776,7 +2776,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                 const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef,
                 const ALLOCATOR&                                     allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     assign(strRef.begin(), strRef.end());
 }
@@ -3874,7 +3874,7 @@ inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::allocator_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::get_allocator() const
 {
-    return BloombergLP::bslstl::ContainerBase<allocator_type>::allocator();
+    return BloombergLP::bslalg::ContainerBase<allocator_type>::allocator();
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>

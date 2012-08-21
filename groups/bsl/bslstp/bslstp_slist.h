@@ -89,6 +89,10 @@
 #include <bsls_util.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_ALLOCATOR
+#include <bslstl_allocator.h>
+#endif
+
 #ifndef INCLUDED_ALGORITHM
 #include <algorithm>
 #define INCLUDED_ALGORITHM

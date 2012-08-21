@@ -42,8 +42,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_CONTAINERBASE
-#include <bslstl_containerbase.h>
+#ifndef INCLUDED_BSLALG_CONTAINERBASE
+#include <bslalg_containerbase.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_ITERATOR
@@ -338,7 +338,7 @@ class Vector_ImpBase {
 
 template <class VALUE_TYPE, class ALLOCATOR = bsl::allocator<VALUE_TYPE> >
 class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
-                 , private BloombergLP::bslstl::ContainerBase<ALLOCATOR> {
+                 , private BloombergLP::bslalg::ContainerBase<ALLOCATOR> {
     // This class template provides an STL-compliant 'vector' that conforms to
     // the 'bslma::Allocator' model.  For the requirements of a vector class,
     // consult the second revision of the "ISO/IEC 14882 Programming Language
@@ -384,7 +384,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
   private:
     // PRIVATE TYPES
-    typedef BloombergLP::bslstl::ContainerBase<ALLOCATOR> VectorContainerBase;
+    typedef BloombergLP::bslalg::ContainerBase<ALLOCATOR> VectorContainerBase;
         // Container base type, containing the allocator and applying
         // empty base class optimization (EBO) whenever appropriate.
 
