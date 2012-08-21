@@ -1,5 +1,5 @@
-// bslstl_allocatorproxy.cpp                                          -*-C++-*-
-#include <bslstl_allocatorproxy.h>
+// bslalg_containerbase.cpp                                           -*-C++-*-
+#include <bslalg_containerbase.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
