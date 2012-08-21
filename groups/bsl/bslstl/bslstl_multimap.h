@@ -471,6 +471,14 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "include <bsl_map.h> instead of <bslstl_multimap.h> in \
+BSL_OVERRIDES_STD mode"
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
 
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>
