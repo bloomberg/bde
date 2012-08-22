@@ -81,6 +81,10 @@
 #include <bslalg_scalardestructionprimitives.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_ALLOCATOR
+#include <bslstl_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL
 #include <bsls_exceptionutil.h>
 #endif
