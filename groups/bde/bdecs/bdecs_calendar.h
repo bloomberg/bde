@@ -93,14 +93,14 @@ BDES_IDENT("$Id: $")
 // determines the date at which the transition's associated set of weekend days
 // takes effect.
 //
-// On construction, a calendar contains a single default weekend-day transition
-// having a start date of January 1, 0001.  The 'addWeekendDay' and
-// 'addWeekendDays' methods update the set of weekend days at the default
-// transition on January 1, 0001.  The 'addWeekendDaysTransition' method can be
-// used to add a new weekend-day transition.  Note that, 'addWeekendDay' and
-// 'addWeekendDays' methods are convenient ways to define the weekend days of a
-// calendar for which the days of the week considered to be weekend days is
-// always the same.
+// On construction, a calendar does not contain any weekend-days transitions.
+// The 'addWeekendDay' and 'addWeekendDays' methods adds a weekend-days
+// transition at January 1, 0001, if one doesn't already exist, and update the
+// set of weekend days for that transition.  The 'addWeekendDaysTransition'
+// method can be used to add a new weekend-day transition.  Note that,
+// 'addWeekendDay' and 'addWeekendDays' methods are convenient ways to define
+// the weekend days of a calendar for which the days of the week considered to
+// be weekend days is always the same.
 //
 ///Nested Iterators
 ///----------------
@@ -450,11 +450,6 @@ class bdecs_Calendar {
         // this method is only *exception* *neutral*; exception safety and
         // rollback must be handled by the caller.
 
-    // PRIVATE ACCESSORS
-    bool isCacheSynchronized() const;
-        // Return 'true' if the cache is currently synchronized with the
-        // underlying packed calendar, and 'false' otherwise.
-
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdecs_Calendar,
@@ -568,26 +563,20 @@ class bdecs_Calendar {
         // iterators.
 
     void addWeekendDay(bdet_DayOfWeek::Day weekendDay);
-        // Add the specified 'weekendDay' to the set of weekend days associated
-        // with the default weekend-days transition at 1/1/1 maintained by this
-        // calendar.  All dates within the valid range '[ firstDate()
-        // .. lastDate() ]' that fall on this day of the week will cease to be
-        // business days.  Note that every occurrence of 'weekendDay' will
-        // continue be a non-business day, even if the valid range of this
-        // calendar is subsequently increased.  The behavior is undefined if
-        // the sequence of weekend-days transitions maintained by this calendar
-        // comprises more than the default transition.
+        // Add the specified 'weekendDay' to the set of weekend days
+        // associated with the weekend-days transition at January 1, 0001
+        // maintained by this calendar.  Create a transition at January 1, 0001
+        // if one does not exist.  The behavior is undefined if the sequence of
+        // weekend-days transitions maintained by this calendar comprises more
+        // transitions other than the one at January 1, 0001.
 
     void addWeekendDays(const bdec_DayOfWeekSet& weekendDays);
         // Add the specified 'weekendDays' to the set of weekend days
-        // associated with the default weekend-days transition at 1/1/1
-        // maintained by this calendar.  All dates within the valid range '[
-        // firstDate() .. lastDate() ]' that fall on this day of the week will
-        // cease to be business days.  Note that every occurrence of
-        // 'weekendDay' will continue be a non-business day, even if the valid
-        // range of this calendar is subsequently increased.  The behavior is
-        // undefined if the sequence of weekend-days transitions maintained by
-        // this calendar comprises more than the default transition.
+        // associated with the weekend-days transition at January 1, 0001
+        // maintained by this calendar.  Create a transition at January 1, 0001
+        // if one does not exist.  The behavior is undefined if the sequence of
+        // weekend-days transitions maintained by this calendar comprises more
+        // transitions other than the one at January 1, 0001.
 
     void addWeekendDaysTransition(const bdet_Date&         date,
                                   const bdec_DayOfWeekSet& weekendDays);
@@ -1265,7 +1254,14 @@ STREAM& bdecs_Calendar::bdexStreamIn(STREAM& stream, int version)
 
     if (stream) {
 
-        if (version <= maxSupportedBdexVersion()) {
+        // Checks whether 'version' is less than the maximum supported version.
+        // The version is harded coded here as 2, because
+        // 'maxSupportedBdexVersion()' is kept at 1 for backwards compatibility
+        // reasons.  We should change the following condition to compare with
+        // 'maxSupportedBdexVersion()' once the class method is updated to
+        // return 2.
+
+        if (version <= 2) {
 
             bdecs_PackedCalendar inCal(d_allocator_p);
             inCal.bdexStreamIn(stream, version);
@@ -1295,7 +1291,14 @@ STREAM& bdecs_Calendar::bdexStreamOut(STREAM& stream, int version) const
     // version) to 'bdecs_PackedCalendar' as both types can represent the exact
     // same set of mathematical values.
 
-    if (version <= maxSupportedBdexVersion()) {
+    // Checks whether 'version' is less than the maximum supported version.
+    // The version is harded coded here as 2, because
+    // 'maxSupportedBdexVersion()' is kept at 1 for backwards compatibility
+    // reasons.  We should change the following condition to compare with
+    // 'maxSupportedBdexVersion()' once the class method is updated to return
+    // 2.
+
+    if (version <= 2) {
         d_packedCalendar.bdexStreamOut(stream, version);
     }
     else {
@@ -1618,7 +1621,8 @@ inline
 bool operator==(const bdecs_Calendar& lhs, const bdecs_Calendar& rhs)
 {
     const bool result = lhs.d_packedCalendar == rhs.d_packedCalendar;
-    BSLS_ASSERT(!result || lhs.d_nonBusinessDays == rhs.d_nonBusinessDays);
+    BSLS_ASSERT_SAFE(!result ||
+                               lhs.d_nonBusinessDays == rhs.d_nonBusinessDays);
     return result;
 }
 
@@ -1626,7 +1630,7 @@ inline
 bool operator!=(const bdecs_Calendar& lhs, const bdecs_Calendar& rhs)
 {
     const bool result = lhs.d_packedCalendar != rhs.d_packedCalendar;
-    BSLS_ASSERT(result || lhs.d_nonBusinessDays == rhs.d_nonBusinessDays);
+    BSLS_ASSERT_SAFE(result || lhs.d_nonBusinessDays == rhs.d_nonBusinessDays);
     return result;
 }
 
@@ -1686,7 +1690,7 @@ inline
 bdecs_Calendar_BusinessDayConstIter&
 bdecs_Calendar_BusinessDayConstIter::operator++()
 {
-    BSLS_ASSERT(d_currentOffset >= 0);
+    BSLS_ASSERT_SAFE(d_currentOffset >= 0);
 
     d_currentOffset =
                   d_nonBusinessDays_p->find0AtSmallestIndexGT(d_currentOffset);

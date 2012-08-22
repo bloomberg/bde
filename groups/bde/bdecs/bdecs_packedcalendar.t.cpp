@@ -289,10 +289,15 @@ struct IsSame<U, U>
 namespace {
 
 int numWeekendDaysInFirstTransition(const Obj& calendar)
-    // Return the number of weekend days in the first weekend-days transition
-    // of the specified 'calendar'.
+    // Return the number of weekend days in the weekend-days transition at
+    // January 1, 0001, if the transition exist; otherwise, return 0.
 {
-    return calendar.beginWeekendDaysTransitions()->second.length();
+
+    if (1 <= calendar.numWeekendDaysTransitions() &&
+        bdet_Date(1,1,1) == calendar.beginWeekendDaysTransitions()->first) {
+        return calendar.beginWeekendDaysTransitions()->second.length();
+    }
+    return 0;
 }
 
 bool sameWeekendDaysTransition(const Obj::WeekendDaysTransition& transition,
@@ -3512,6 +3517,12 @@ DEFINE_TEST_CASE(15) {
         //:
         //: 6 'numNonBusinessDays' returns the total number of non-business
         //:   days in the entire range of the calendar.
+        //:
+        //: 7 'isWeekendDay' returns 'false' for any date before the first
+        //:   weekend-days transition
+        //:
+        //: 8 'numWeekendDaysInRange' works correctly for calendar having
+        //:   boundary first and last dates.
         //
         // Plan:
         //: 1 Using a table-driven approach, specify a list of weekend-days
@@ -3522,14 +3533,15 @@ DEFINE_TEST_CASE(15) {
         //: 2 For each row in the table described in P-1:
         //:
         //:   1 Create a calendar having a range that encompases all the
-        //:     transition dates in the table.  Using the
-        //:     'addWeekendDaysTransition' method, add all transitions
-        //:     represented from the first row in the table up to the current
-        //:     row.
+        //:     transition dates in the table and have a start date before the
+        //:     earliest transition date (except for the transition at 1/1/1).
+        //:     Using the 'addWeekendDaysTransition' method, add all
+        //:     transitions represented from the first row in the table up to
+        //:     the current row.
         //:
         //:   2 Call 'isWeekendDay', 'isBusinessDay', and 'isNonBusinessDay'
         //:     for each date in the calendar and verify the correct values are
-        //:     returned.  (C-1..3)
+        //:     returned.  (C-1..3, 7)
         //:
         //:   3 Verify that 'numWeekendDaysInRange', 'numBusinessDays', and
         //:     'numNonBusinessDays' returns the correct values for the
@@ -3543,6 +3555,9 @@ DEFINE_TEST_CASE(15) {
         //:     'beginBusinessDays()' up to 'endBusinessDays()' and ensure that
         //:     both the holiday dates and weekend days are properly skipped by
         //:     the iterator.
+        //:
+        //: 3 Repeat P-1..3 for a list of transitions and a calendar that
+        //:   either has a start date at 1/1/1 or a last date of 12/31/9999.
         //
         // Testing:
         //    int isWeekendDay(bdet_Date&) const
@@ -3558,19 +3573,17 @@ DEFINE_TEST_CASE(15) {
             << "         'isNonBusinessDay', 'numWeekendDaysInRange'," << endl
             << "         'numBusinessDays', and 'numNonBusinessDays'," << endl;
 
-
-        static const struct {
+        struct WDTSpec {
             int d_line;
             int d_year;
             int d_month;
             int d_day;
             const char *d_weekendDays;
-        } DATA[] = {
+        };
+
+        static const WDTSpec DATA1[] = {
             //LINE  YYYY  MM  DD   SMTWTFS
             //----  ----  --  --   -------
-            // default transition at 1/1/1 (not included in the calendar range)
-            { L_,      1,  1,  1, "1000001" },
-
             { L_,   2000,  1,  1, "0000000" },
             { L_,   2000,  1, 10, "0000001" },
             { L_,   2000,  2, 10, "0000010" },
@@ -3578,6 +3591,11 @@ DEFINE_TEST_CASE(15) {
             { L_,   2000,  4, 10, "0001000" },
             { L_,   2000,  5, 10, "0010000" },
             { L_,   2000,  6, 10, "0100000" },
+
+            // The following is a special case, transition at 1/1/1 represents
+            // a call to 'addWeekendDays' method.
+
+            { L_,      1,  1,  1, "1000001" },
             { L_,   2000,  6, 20, "0000000" },
             { L_,   2000,  7, 10, "1000000" },
             { L_,   2000,  8, 10, "1000001" },
@@ -3590,195 +3608,211 @@ DEFINE_TEST_CASE(15) {
             { L_,   2001,  4, 10, "1111111" },
         };
 
-        const int NUM_DATA = sizeof DATA/sizeof *DATA;
+        static const WDTSpec DATA2[] = {
+            //LINE  YYYY  MM  DD   SMTWTFS
+            //----  ----  --  --   -------
 
-        const bdet_Date FIRST_DATE(bdet_Date(DATA[1].d_year,
-                                             DATA[1].d_month,
-                                             DATA[1].d_day) - 20);
-        const bdet_Date LAST_DATE(
-                                bdet_Date(DATA[NUM_DATA - 1].d_year,
-                                          DATA[NUM_DATA - 1].d_month,
-                                          DATA[NUM_DATA - 1].d_day + 10) + 20);
+            // First date is 1/1/1 because it is caculated by subtracting 20
+            // days from the first transition date.
 
-        bslma_TestAllocator oa("oa", veryVeryVerbose);
+            { L_,      1,  1, 21, "0000001" },
+            { L_,      1,  2, 20, "0000010" },
+            { L_,      1,  1,  1, "1000001" },
+            { L_,      1,  3, 20, "1000000" },
+        };
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        static const WDTSpec DATA3[] = {
+            //LINE  YYYY  MM  DD   SMTWTFS
+            //----  ----  --  --   -------
+            { L_,   9999, 10,  9, "0000001" },
+            { L_,   9999, 11, 12, "0000010" },
+            { L_,      1,  1,  1, "1000001" },
 
-            Obj mX(FIRST_DATE, LAST_DATE, &oa); const Obj& X = mX;
+            // Last date is 9999/12/31 because it is caculated by adding
+            // 20 days from the last transition date.
 
-            typedef bsl::vector<bsl::pair<bdet_Date, bdec_DayOfWeekSet> >
-                                                              TransitionVector;
-            TransitionVector transitions;
+            { L_,   9999, 12, 11, "1000000" },
+        };
 
-            for (int tj = 0; tj <= ti; ++tj)
-            {
-                bdet_Date date(DATA[tj].d_year,
-                               DATA[tj].d_month,
-                               DATA[tj].d_day);
-                bdec_DayOfWeekSet weekendDays;
-                int wdIndex = 1;
-                for(const char *wkStr = DATA[tj].d_weekendDays;
-                    *wkStr; ++wkStr, ++wdIndex) {
-                    if (*wkStr == '1') {
-                        if (veryVeryVerbose) {
-                            P(wdIndex)
+        static const struct {
+            const WDTSpec *d_specs;
+            int            d_numSpecs;
+        } DATA_LIST[] = {
+            { DATA1, sizeof DATA1/sizeof *DATA1 },
+            { DATA2, sizeof DATA2/sizeof *DATA2 },
+            { DATA3, sizeof DATA3/sizeof *DATA3 },
+        };
+
+        const int NUM_DATA_LIST  = sizeof DATA_LIST/sizeof *DATA_LIST;
+
+        for (int ts = 0; ts < NUM_DATA_LIST; ++ts) {
+            const WDTSpec *DATA     = DATA_LIST[ts].d_specs;
+            const int      NUM_DATA = DATA_LIST[ts].d_numSpecs;
+
+            const bdet_Date FIRST_DATE(bdet_Date(DATA[0].d_year,
+                                                 DATA[0].d_month,
+                                                 DATA[0].d_day) - 20);
+
+            const bdet_Date LAST_DATE(
+                                     bdet_Date(DATA[NUM_DATA - 1].d_year,
+                                               DATA[NUM_DATA - 1].d_month,
+                                               DATA[NUM_DATA - 1].d_day) + 20);
+
+            bslma_TestAllocator oa("oa", veryVeryVerbose);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+
+                Obj mX(FIRST_DATE, LAST_DATE, &oa); const Obj& X = mX;
+
+                typedef bsl::vector<bsl::pair<bdet_Date, bdec_DayOfWeekSet> >
+                    TransitionVector;
+                TransitionVector transitions;
+
+                for (int tj = 0; tj <= ti; ++tj)
+                {
+                    bdet_Date date(DATA[tj].d_year,
+                                   DATA[tj].d_month,
+                                   DATA[tj].d_day);
+                    bdec_DayOfWeekSet weekendDays;
+                    int wdIndex = 1;
+                    for(const char *wkStr = DATA[tj].d_weekendDays;
+                        *wkStr; ++wkStr, ++wdIndex) {
+                        if (*wkStr == '1') {
+                            if (veryVeryVerbose) {
+                                P(wdIndex)
+                                    }
+                            weekendDays.add(
+                                static_cast<bdet_DayOfWeek::Day>(wdIndex));
                         }
-                        weekendDays.add(
-                                    static_cast<bdet_DayOfWeek::Day>(wdIndex));
+                    }
+
+                    if (veryVerbose) {
+                        P_(date) P(weekendDays)
+                            }
+                    mX.addWeekendDaysTransition(date, weekendDays);
+                    if (bdet_Date(1,1,1) == date) {
+                        transitions.insert(transitions.begin(),
+                                           bsl::make_pair(date, weekendDays));
+                    }
+                    else {
+                        transitions.push_back(bsl::make_pair(date,
+                                                             weekendDays));
                     }
                 }
 
-                if (veryVerbose) {
-                    P_(date) P(weekendDays)
-                }
-                mX.addWeekendDaysTransition(date, weekendDays);
-                transitions.push_back(bsl::make_pair(date, weekendDays));
-            }
+                // verify methods
+                {
+                    int curTransI = 0;
+                    int numWeekendDays = 0;
+                    for (bdet_Date date = FIRST_DATE;
+                         date <= LAST_DATE;
+                         ++date) {
+                        while (curTransI < transitions.size() &&
+                               transitions[curTransI].first <= date) {
+                            ++curTransI;
+                        }
 
-            // verify methods
-            {
-                int curTransI = 0;
-                int numWeekendDays = 0;
-                for (bdet_Date date = FIRST_DATE; date <= LAST_DATE; ++date) {
-                    if (curTransI < transitions.size() - 1 &&
-                        date >= transitions[curTransI + 1].first) {
-                        ++curTransI;
-                    }
-                    bool isWeekend =
-                        transitions[curTransI].second.isMember(
-                                                             date.dayOfWeek());
+                        bool isWeekend = false;
+                        if (0 < curTransI) {
+                            isWeekend =
+                                transitions[curTransI - 1].second.isMember(
+                                    date.dayOfWeek());
+                        }
 
-                    if (isWeekend) {
-                        ++numWeekendDays;
-                    }
+                        if (isWeekend) {
+                            ++numWeekendDays;
+                        }
 
-                    LOOP2_ASSERT(isWeekend,
-                                 date,
-                                 isWeekend == X.isWeekendDay(date));
-                    LOOP2_ASSERT(isWeekend,
-                                 date,
-                                 isWeekend == X.isNonBusinessDay(date));
-                    LOOP2_ASSERT(isWeekend,
-                                 date,
-                                 isWeekend != X.isBusinessDay(date));
-                }
-
-                LOOP_ASSERT(numWeekendDays,
-                            numWeekendDays == X.numWeekendDaysInRange());
-                LOOP_ASSERT(numWeekendDays,
-                            numWeekendDays == X.numNonBusinessDays());
-
-                LOOP_ASSERT(numWeekendDays,
-                            X.length() - numWeekendDays ==
-                                                          X.numBusinessDays());
-            }
-
-            bsl::vector<bdet_Date> holidays(&oa);
-            holidays.push_back(bdet_Date(2000, 1,17));
-            holidays.push_back(bdet_Date(2000, 2,21));
-            holidays.push_back(bdet_Date(2000, 2,22));
-            holidays.push_back(bdet_Date(2000, 4,21));
-            holidays.push_back(bdet_Date(2000, 5,14));
-            holidays.push_back(bdet_Date(2000, 7, 4));
-            holidays.push_back(bdet_Date(2000, 9, 4));
-            holidays.push_back(bdet_Date(2000,11,23));
-            holidays.push_back(bdet_Date(2000,12,25));
-
-            for (bsl::vector<bdet_Date>::const_iterator itr = holidays.begin();
-                 itr != holidays.end();
-                 ++itr) {
-                mX.addHoliday(*itr);
-            }
-
-            // verify methods
-            {
-                int curTransI = 0;
-                int numWeekendDays = 0;
-                int numNonBusinessDays = 0;
-                for (bdet_Date date = FIRST_DATE; date <= LAST_DATE; ++date) {
-                    if (curTransI < transitions.size() - 1 &&
-                        date >= transitions[curTransI + 1].first) {
-                        ++curTransI;
-                    }
-                    bool isWeekend =
-                        transitions[curTransI].second.isMember(
-                                                             date.dayOfWeek());
-
-                    bool isHoliday = 0 < std::count(holidays.begin(),
-                                                    holidays.end(),
-                                                    date);
-                    bool isNonBusinessDay = isWeekend || isHoliday;
-
-                    if (isWeekend) {
-                        ++numWeekendDays;
-                    }
-                    if (isNonBusinessDay) {
-                        ++numNonBusinessDays;
+                        LOOP2_ASSERT(isWeekend,
+                                     date,
+                                     isWeekend == X.isWeekendDay(date));
+                        LOOP2_ASSERT(isWeekend,
+                                     date,
+                                     isWeekend == X.isNonBusinessDay(date));
+                        LOOP2_ASSERT(isWeekend,
+                                     date,
+                                     isWeekend != X.isBusinessDay(date));
                     }
 
-                    LOOP2_ASSERT(isWeekend,
-                                 date,
-                                 isWeekend == X.isWeekendDay(date));
-                    LOOP2_ASSERT(isWeekend,
-                                 date,
-                                 isNonBusinessDay == X.isNonBusinessDay(date));
-                    LOOP2_ASSERT(isWeekend,
-                                 date,
-                                 isNonBusinessDay != X.isBusinessDay(date));
+                    LOOP_ASSERT(numWeekendDays,
+                                numWeekendDays == X.numWeekendDaysInRange());
+                    LOOP_ASSERT(numWeekendDays,
+                                numWeekendDays == X.numNonBusinessDays());
+
+                    LOOP_ASSERT(numWeekendDays,
+                                X.length() - numWeekendDays ==
+                                X.numBusinessDays());
                 }
 
-                LOOP2_ASSERT(numWeekendDays, numNonBusinessDays,
-                             numWeekendDays != numNonBusinessDays);
-                LOOP_ASSERT(numWeekendDays,
-                            numWeekendDays == X.numWeekendDaysInRange());
-                LOOP_ASSERT(numNonBusinessDays,
-                            numNonBusinessDays == X.numNonBusinessDays());
+                // Only Test holidays for the first test data set.
 
-                LOOP_ASSERT(numWeekendDays,
-                            X.length() - numNonBusinessDays ==
-                                                          X.numBusinessDays());
-            }
+                if (ts != 0) {
+                    continue;
+                }
 
-            // verify business day iterator skips holidays and weekend days
-            {
-                Obj::BusinessDayConstIterator itr = X.beginBusinessDays();
-                bdet_Date prevDate = X.firstDate();
+                bsl::vector<bdet_Date> holidays(&oa);
+                holidays.push_back(bdet_Date(2000, 1,17));
+                holidays.push_back(bdet_Date(2000, 2,21));
+                holidays.push_back(bdet_Date(2000, 2,22));
+                holidays.push_back(bdet_Date(2000, 4,21));
+                holidays.push_back(bdet_Date(2000, 5,14));
+                holidays.push_back(bdet_Date(2000, 7, 4));
+                holidays.push_back(bdet_Date(2000, 9, 4));
+                holidays.push_back(bdet_Date(2000,11,23));
+                holidays.push_back(bdet_Date(2000,12,25));
 
-                while (itr != X.endBusinessDays()) {
+                for (bsl::vector<bdet_Date>::const_iterator itr =
+                                                              holidays.begin();
+                     itr != holidays.end();
+                     ++itr) {
+                    mX.addHoliday(*itr);
+                }
 
-                    bdet_Date curDate = *itr;
-                    if ((prevDate + 1) != curDate) {
-                        // ensure that the skipped days are weekend days or
-                        // holidays
-                        for (bdet_Date d = prevDate + 1; d < curDate; ++d) {
+                // verify business day iterator skips holidays and weekend days
+                {
+                    Obj::BusinessDayConstIterator itr = X.beginBusinessDays();
+                    bdet_Date prevDate = X.firstDate();
+
+                    while (itr != X.endBusinessDays()) {
+
+                        bdet_Date curDate = *itr;
+                        if ((prevDate + 1) != curDate) {
+                            // Ensure that the skipped days are weekend days or
+                            // holidays
+                            for (bdet_Date d = prevDate + 1;
+                                 d < curDate;
+                                 ++d) {
+                                LOOP_ASSERT(d,
+                                            X.isWeekendDay(d) ||
+                                            0 < std::count(holidays.begin(),
+                                                           holidays.end(),
+                                                           d));
+                            }
+                        }
+
+                        // Ensure that current date is not a weekend day or a
+                        // holiday.
+                        LOOP_ASSERT(curDate,
+                                    !(X.isWeekendDay(curDate) ||
+                                      0 < std::count(holidays.begin(),
+                                                     holidays.end(),
+                                                     curDate)));
+
+                        prevDate = curDate;
+                        ++itr;
+                    }
+
+                    if (prevDate != LAST_DATE) {
+                        // Ensure that the skipped days are weekend days or
+                        // holidays.
+
+                        for (bdet_Date d = prevDate + 1; d <= LAST_DATE; ++d) {
                             LOOP_ASSERT(d,
                                         X.isWeekendDay(d) ||
                                         0 < std::count(holidays.begin(),
                                                        holidays.end(),
                                                        d));
                         }
-                    }
-
-                    // ensure that current date is not a weekend day or a
-                    // holiday
-                    LOOP_ASSERT(curDate,
-                                !(X.isWeekendDay(curDate) ||
-                                  0 < std::count(holidays.begin(),
-                                                 holidays.end(),
-                                                 curDate)));
-
-                    prevDate = curDate;
-                    ++itr;
-                }
-
-                if (prevDate != LAST_DATE) {
-                // ensure that the skipped days are weekend days or holidays
-                    for (bdet_Date d = prevDate + 1; d <= LAST_DATE; ++d) {
-                        LOOP_ASSERT(d,
-                                    X.isWeekendDay(d) ||
-                                    0 < std::count(holidays.begin(),
-                                                   holidays.end(),
-                                                   d));
                     }
                 }
             }
@@ -4011,10 +4045,7 @@ DEFINE_TEST_CASE(12) {
 
                 // Set up the current weekend days before adding new weekend
                 // days
-                ASSERT(X.numWeekendDaysTransitions() == 1);
-                ASSERT(X.beginWeekendDaysTransitions()->first ==
-                                                           bdet_Date(1, 1, 1));
-                ASSERT(X.beginWeekendDaysTransitions()->second.length() == 0);
+                ASSERT(X.numWeekendDaysTransitions() == 0);
 
                 bdec_DayOfWeekSet compareSet(set);
 
@@ -4160,11 +4191,7 @@ DEFINE_TEST_CASE(11) {
                     LOOP_ASSERT(i, X.lastDate()  == dateLast );
                 }
                 LOOP_ASSERT(i, X.beginHolidays() == X.endHolidays());
-                LOOP_ASSERT(i, X.numWeekendDaysTransitions() == 1);
-                LOOP_ASSERT(i, X.beginWeekendDaysTransitions()->first
-                                                        == bdet_Date(1, 1, 1));
-                LOOP_ASSERT(i,X.beginWeekendDaysTransitions()->second.length()
-                                                                         == 0);
+                LOOP_ASSERT(i, X.numWeekendDaysTransitions() == 0);
             }
         }
 
@@ -4204,11 +4231,7 @@ DEFINE_TEST_CASE(11) {
                     LOOP_ASSERT(i, X.lastDate()  == dateLast );
                 }
                 LOOP_ASSERT(i, X.beginHolidays() == X.endHolidays());
-                LOOP_ASSERT(i, X.numWeekendDaysTransitions() == 1);
-                LOOP_ASSERT(i, X.beginWeekendDaysTransitions()->first
-                                                        == bdet_Date(1, 1, 1));
-                LOOP_ASSERT(i,X.beginWeekendDaysTransitions()->second.length()
-                                                                         == 0);
+                LOOP_ASSERT(i, X.numWeekendDaysTransitions() == 0);
             }
         }
 
@@ -4235,11 +4258,7 @@ DEFINE_TEST_CASE(11) {
                     LOOP_ASSERT(i, X.lastDate()  == dateLast );
                 }
                 LOOP_ASSERT(i, X.beginHolidays() == X.endHolidays());
-                LOOP_ASSERT(i, X.numWeekendDaysTransitions() == 1);
-                LOOP_ASSERT(i, X.beginWeekendDaysTransitions()->first
-                                                        == bdet_Date(1, 1, 1));
-                LOOP_ASSERT(i,X.beginWeekendDaysTransitions()->second.length()
-                                                                         == 0);
+                LOOP_ASSERT(i, X.numWeekendDaysTransitions() == 0);
               } END_BSLMA_EXCEPTION_TEST
             }
         }
@@ -4268,11 +4287,7 @@ DEFINE_TEST_CASE(11) {
                     LOOP_ASSERT(i, X.lastDate()  == dateLast );
                 }
                 LOOP_ASSERT(i, X.beginHolidays() == X.endHolidays());
-                LOOP_ASSERT(i, X.numWeekendDaysTransitions() == 1);
-                LOOP_ASSERT(i, X.beginWeekendDaysTransitions()->first
-                                                        == bdet_Date(1, 1, 1));
-                LOOP_ASSERT(i,X.beginWeekendDaysTransitions()->second.length()
-                                                                         == 0);
+                LOOP_ASSERT(i, X.numWeekendDaysTransitions() == 0);
             }
 
             // No destructor is called; will produce memory leak in purify
@@ -4394,12 +4409,16 @@ DEFINE_TEST_CASE(10) {
         {
             if (verbose) cout << "\tusing object syntax:" << endl;
             const Obj X;
-            ASSERT(2 == X.maxSupportedBdexVersion());
+            ASSERT(1 == X.maxSupportedBdexVersion());
             if (verbose) cout << "\tusing class method syntax:" << endl;
-            ASSERT(2 == Obj::maxSupportedBdexVersion());
+            ASSERT(1 == Obj::maxSupportedBdexVersion());
         }
 
-        const int VERSION = Obj::maxSupportedBdexVersion();
+        // Set the maximum supported version number to 2.  Note that
+        // 'maxSupportedBdexVersion()' is kept at 1 for backwards
+        // compatiblility reasons.
+
+        const int VERSION = 2; // Obj::maxSupportedBdexVersion();
         if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut' and"
                              " (valid) 'bdexStreamIn' functionality." << endl;
 
@@ -5125,69 +5144,6 @@ DEFINE_TEST_CASE(10) {
                 ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
             }
         }
-        if (verbose)
-            cout << "\t\tFirst weekend-days transition not at 1/1/1."
-                 << endl;
-        {
-            // only version 2 of the streaming format supports weekend-days
-            // transitions
-            for (int version = 2; version <= VERSION; ++version) {
-                bdex_TestOutStream out;
-
-                // Writing first date, last date, and weekend days into the
-                // stream.
-
-                bdet_Date tempFirstDate(2005, 1,  1);
-                bdet_Date tempLastDate (2005, 1, 31);
-
-                tempFirstDate.bdexStreamOut(out, 1);
-                tempLastDate.bdexStreamOut(out, 1);
-
-                int weekendDaysTransitionsLength = 1;
-                out.putLength(weekendDaysTransitionsLength);
-
-                // Writing offsets length and codes length into the stream.
-
-                int OffsetsLength = 5;
-                int codesLength   = 0;
-
-                out.putLength(OffsetsLength);
-                out.putLength(codesLength);
-
-
-                // Write more weekend-days transitions in some random
-                // (non-ascending) time order
-                {
-                    bdet_Date date(1, 1, 2);
-                    date.bdexStreamOut(out, 1);
-                    bdec_DayOfWeekSet days;
-                    days.add(bdet_DayOfWeek::BDET_MON);
-                    days.bdexStreamOut(out, 1);
-                }
-
-                // Writing offsets into the stream.
-
-                for (int i = 0; i < OffsetsLength; ++i) {
-                    out.putInt32(i);
-                }
-
-                for (int i = 0; i < OffsetsLength; ++i) {
-                    out.putInt32(0);
-                }
-
-                const char *const OD  = out.data();
-                const int         LOD = out.length();
-
-                Obj t(X);
-                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
-
-                bdex_TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
-                in.setSuppressVersionCheck(1);
-                ASSERT(in);
-                bdex_InStreamFunctions::streamIn(in, t, version); ASSERT(!in);
-                ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
-            }
-        }
       }
 
 DEFINE_TEST_CASE(9) {
@@ -5718,22 +5674,22 @@ DEFINE_TEST_CASE(5) {
 
         bslma_TestAllocator testAllocator(veryVeryVerbose);
 
-        char R0[]="{ [ 31DEC9999, 01JAN0001 ] [ 01JAN0001 : [ ] ] }";
+        char R0[]="{ [ 31DEC9999, 01JAN0001 ] [ ] }";
         char R1[]="{ [ 31DEC9999, 01JAN0001 ] [ 01JAN0001 : [ SUN SAT ] ] }";
-        char R2[]="{ [ 01JAN0001, 01JAN0001 ] [ 01JAN0001 : [ ] ] }";
+        char R2[]="{ [ 01JAN0001, 01JAN0001 ] [ ] }";
         char R3[]="{ [ 01JAN0001, 19MAY0001 ] [ 01JAN0001 : [ SUN SAT ] ] }";
-        char R4[]="{ [ 01JAN0001, 19MAY0001 ] [ 01JAN0001 : [ ] ] "
+        char R4[]="{ [ 01JAN0001, 19MAY0001 ] [ ] "
                   "02JAN0001 03JAN0001 { 0 1 } "
                   "}";
-        char R5[]="{ [ 01JAN0001, 13JAN0001 ] [ 01JAN0001 : [ ] ] "
+        char R5[]="{ [ 01JAN0001, 13JAN0001 ] [ ] "
                   "13JAN0001 { 0 1 2 100 1000 } }";
         char R6[]="{ [ 01JAN0001, 09FEB0001 ] [ 01JAN0001 : [ SUN SAT ] ] "
                   "02JAN0001 03JAN0001 { 0 } 04JAN0001 { 1 } "
                   "08JAN0001 { 0 1 2 100 } }";
 
-        char R7[]="  { [ 01JAN0001, 13JAN0001 ] [ 01JAN0001 : [ ] ] "
+        char R7[]="  { [ 01JAN0001, 13JAN0001 ] [ ] "
                   "13JAN0001 { 0 1 2 100 1000 } }";
-        char R8[]="      { [ 01JAN0001, 13JAN0001 ] [ 01JAN0001 : [ ] ] "
+        char R8[]="      { [ 01JAN0001, 13JAN0001 ] [ ] "
                   "13JAN0001 { 0 1 2 100 1000 } }";
         char R9[]="  {\n"
                   "    [ 01JAN0001, 13JAN0001 ]\n"
@@ -5889,22 +5845,18 @@ DEFINE_TEST_CASE(4) {
         //
         //  For 'WeekendDaysTransitionConstIterator',
         //
-        //  7. 'operator++' and 'operator--' move the iterator forward/backward
-        //     by one element.  'operator=' assigns an iterator to another one
-        //     of the same type and returns a reference to the iterator.
-        //  8. 'operator*' and 'operator->' return the actual value associated
-        //     with the iterator.
-        //  9. 'operator==' and 'operator!=' compare the values of the two
-        //     iterators and return the expected result.
+        //  7.  'beginWeekendDaysTransition' and 'endWeekendDaysTransition' are
+        //      properly hooked up with the corresponding container iterator
+        //      accessors.
         //
         //  For 'bdecs_PackedCalendar',
         //
-        // 10. 'length', 'isInRange', 'firstDate', and 'lastDate' return the
+        //  8. 'length', 'isInRange', 'firstDate', and 'lastDate' return the
         //     expected results for empty calendars, calendars that include
         //     regular years, and calendars that include leap years.
-        // 11. 'isHoliday', and 'isWeekendDay(bdet_DayOfWeek::Day)' properly
+        //  9. 'isHoliday', and 'isWeekendDay(bdet_DayOfWeek::Day)' properly
         //     identify holidays and weekend days.
-        // 12. 'weekendDays' properly returns the set of weekend days
+        // 10. 'weekendDays' properly returns the set of weekend days
         //     associated with this calendar.
         //
         // Plan:
@@ -5960,15 +5912,15 @@ DEFINE_TEST_CASE(4) {
         //  when a (1) holiday and (2) non-holiday from the calendar is
         //  supplied as the input parameter.
         //
-        //  To address concerns 7 - 9, we perform a similar set of test done
+        //  To address concerns 7, we perform a similar set of test done
         //  for concerns 4 - 6.
         //
-        //  To address concern 10, we will arbitrarily select a set of date
+        //  To address concern 8, we will arbitrarily select a set of date
         //  ranges and create calendar objects based on them.  Then we verify
         //  the return values of 'length', 'isInRange', 'firstDate', and
         //  'lastDate' against the expected values.
         //
-        //  To address concern 11, we will first test 'isHoliday' by adding a
+        //  To address concern 9, we will first test 'isHoliday' by adding a
         //  few pre-selected dates plus all the dates in a pre-selected month
         //  into a calendar object.  We will verify that 'isHoliday' returns
         //  'false' before these days were added and 'true' afterwards.  Then
@@ -5981,7 +5933,7 @@ DEFINE_TEST_CASE(4) {
         //  days and verify 'isWeekendDay' returns the correct result for each
         //  weekend day and non-weekend day.
         //
-        //  To address concern 12, we will add a few weekend days to a calendar
+        //  To address concern 1, we will add a few weekend days to a calendar
         //  and verify that 'weekendDays' returns the correct set of weekend
         //  days.  Then we will remove all weekend days from the calendar and
         //  verify that 'weekendDays' returns an empty weekend day set.
@@ -7039,8 +6991,7 @@ DEFINE_TEST_CASE(4) {
                 Obj mX(&testAllocator); const Obj& X = mX;
                 bdec_DayOfWeekSet set;
 
-                ASSERT(X.numWeekendDaysTransitions() == 1);
-                ASSERT(X.beginWeekendDaysTransitions()->second == set);
+                ASSERT(X.numWeekendDaysTransitions() == 0);
 
                 set.add(bdet_DayOfWeek::BDET_SUN);
                 mX.addWeekendDay(bdet_DayOfWeek::BDET_SUN);
@@ -7059,38 +7010,13 @@ DEFINE_TEST_CASE(4) {
 
                 set.removeAll();
                 mX.removeAll();
-                ASSERT(X.numWeekendDaysTransitions() == 1);
-                ASSERT(X.beginWeekendDaysTransitions()->second == set);
+                ASSERT(X.numWeekendDaysTransitions() == 0);
             }
         }
 
         if (verbose)
             cout << endl << "Test 'WeekendDaysTransitionConstIterator'"
                  << endl;
-
-        // Test typedefs
-        {
-
-            typedef Obj::WeekendDaysTransitionConstIterator Iterator;
-            typedef Obj::WeekendDaysTransition              IteratorValue;
-            typedef int                                 IteratorDifference;
-            typedef Obj::WeekendDaysTransition*         IteratorPointer;
-            typedef Obj::WeekendDaysTransition&         IteratorReference;
-            typedef bsl::bidirectional_iterator_tag IteratorCategory;
-
-            {
-                typedef bsl::iterator_traits<Iterator> IterTraits;
-                ASSERT((IsSame<IterTraits::value_type, IteratorValue>::VALUE));
-                ASSERT((IsSame<IterTraits::difference_type,
-                        IteratorDifference>::VALUE));
-                ASSERT((IsSame<IterTraits::pointer, IteratorPointer>::VALUE));
-                ASSERT((IsSame<IterTraits::reference,
-                            IteratorReference>::VALUE));
-                ASSERT((IsSame<IterTraits::iterator_category,
-                        IteratorCategory>::VALUE));
-            }
-
-        }
 
         // Test 'WeekendDaysTransitionConstIterator' type, the
         // 'beginWeekendDaysTransition' method, the 'endWeekendDaysTransition'
@@ -7105,9 +7031,7 @@ DEFINE_TEST_CASE(4) {
             } DATA[] = {
                 //LINE  YYYY  MM  DD   SMTWTFS
                 //----  ----  --  --   -------
-                // default transition at 1/1/1 (not manually added)
-                { L_,      1,  1,  1, "0000000" },
-
+                { L_,      1,  1,  1, "0020000" },
                 { L_,   2000,  1,  1, "0000000" },
                 { L_,   2000,  1, 10, "0000001" },
                 { L_,   2000,  2, 10, "0000010" },
@@ -7153,9 +7077,7 @@ DEFINE_TEST_CASE(4) {
                         P_(date) P(weekendDays)
                     }
                     transitions.push_back(bsl::make_pair(date, weekendDays));
-                    if (ti != 0) {
-                        mX.addWeekendDaysTransition(date, weekendDays);
-                    }
+                    mX.addWeekendDaysTransition(date, weekendDays);
                 }
 
                 ASSERT(transitions.size() == X.numWeekendDaysTransitions());
@@ -7165,7 +7087,7 @@ DEFINE_TEST_CASE(4) {
                     Iterator iter = X.beginWeekendDaysTransitions();
                     for (int tt = 0; tt < transitions.size(); ++tt) {
                         ASSERT(*iter == transitions[tt]);
-                        ASSERT(*(iter.operator->()) == transitions[tt]);
+                        ASSERT(iter->first == transitions[tt].first);
                         ++iter;
                     }
 
@@ -7642,8 +7564,7 @@ DEFINE_TEST_CASE(3) {
 
                 Obj::WeekendDaysTransitionConstIterator iter =
                                                X.beginWeekendDaysTransitions();
-                ASSERT(sameWeekendDaysTransition(*iter, bdet_Date(1,1,1), ""));
-                ASSERT(sameWeekendDaysTransition(*(++iter),
+                ASSERT(sameWeekendDaysTransition(*iter,
                                                  bdet_Date(2000,1,1), "rw"));
                 ASSERT(sameWeekendDaysTransition(*(++iter),
                                                  bdet_Date(2000,1,10), "mt"));
@@ -7933,22 +7854,24 @@ DEFINE_TEST_CASE(2) {
             Obj mX;
             const Obj& X = mX;
             bdec_DayOfWeekSet expected;
-            ASSERT(1 == X.numWeekendDaysTransitions());
-            ASSERT(X.beginWeekendDaysTransitions()->second == expected);
+            ASSERT(0 == X.numWeekendDaysTransitions());
 
             mX.addWeekendDay(bdet_DayOfWeek::BDET_SAT);
             expected.add(bdet_DayOfWeek::BDET_SAT);
             ASSERT(1 == X.numWeekendDaysTransitions());
-            ASSERT(X.beginWeekendDaysTransitions()->second == expected);
+            ASSERT(bdet_Date(1,1,1) == X.beginWeekendDaysTransitions()->first);
+            ASSERT(expected == X.beginWeekendDaysTransitions()->second);
 
             mX.addWeekendDay(bdet_DayOfWeek::BDET_MON);
             expected.add(bdet_DayOfWeek::BDET_MON);
             ASSERT(1 == X.numWeekendDaysTransitions());
-            ASSERT(X.beginWeekendDaysTransitions()->second == expected);
+            ASSERT(bdet_Date(1,1,1) == X.beginWeekendDaysTransitions()->first);
+            ASSERT(expected == X.beginWeekendDaysTransitions()->second);
 
             mX.addWeekendDay(bdet_DayOfWeek::BDET_SAT);
             ASSERT(1 == X.numWeekendDaysTransitions());
-            ASSERT(X.beginWeekendDaysTransitions()->second == expected);
+            ASSERT(bdet_Date(1,1,1) == X.beginWeekendDaysTransitions()->first);
+            ASSERT(expected == X.beginWeekendDaysTransitions()->second);
         }
 
         if (verbose) cout << "\nTesting 'addWeekendDaysTransition'." << endl;
@@ -7960,9 +7883,8 @@ DEFINE_TEST_CASE(2) {
             // default transition at 1/1/1
             Obj::WeekendDaysTransitionConstIterator iter =
                                                X.beginWeekendDaysTransitions();
-            ASSERT(sameWeekendDaysTransition(*iter,
-                                             bdet_Date(1,1,1), ""));
-            ASSERT(++iter == X.endWeekendDaysTransitions());
+            ASSERT(iter == X.endWeekendDaysTransitions());
+            ASSERT(0 == X.numWeekendDaysTransitions());
 
 
             // new transition
@@ -7973,8 +7895,6 @@ DEFINE_TEST_CASE(2) {
 
             iter = X.beginWeekendDaysTransitions();
             ASSERT(sameWeekendDaysTransition(*iter,
-                                             bdet_Date(1,1,1), ""));
-            ASSERT(sameWeekendDaysTransition(*(++iter),
                                              bdet_Date(2,2,2), "m"));
             ASSERT(++iter == X.endWeekendDaysTransitions());
 
@@ -8696,7 +8616,7 @@ DEFINE_TEST_CASE(1) {
         ASSERT( 0 == cal.numNonBusinessDays());
         ASSERT( 0 == cal.numHolidays());
         ASSERT( 0 == cal.numWeekendDaysInRange());
-        ASSERT( 0 == numWeekendDaysInFirstTransition(cal));
+        ASSERT( 0 == cal.numWeekendDaysTransitions());
 
         ASSERT( 0 == cal.isWeekendDay(bdet_DayOfWeek::BDET_SUN));
         ASSERT( 0 == cal.isWeekendDay(bdet_DayOfWeek::BDET_WED));
@@ -8726,7 +8646,8 @@ DEFINE_TEST_CASE(1) {
         ASSERT( 0 == cal.numNonBusinessDays());
         ASSERT( 0 == cal.numHolidays());
         ASSERT( 0 == cal.numWeekendDaysInRange());
-        ASSERT( 1 == numWeekendDaysInFirstTransition(cal));
+        ASSERT( 1 == cal.numWeekendDaysTransitions());
+        ASSERT(bdet_Date(1,1,1) == cal.beginWeekendDaysTransitions()->first);
 
         ASSERT( 0 == cal.isWeekendDay(bdet_DayOfWeek::BDET_SUN));
         ASSERT( 0 == cal.isWeekendDay(bdet_DayOfWeek::BDET_WED));
@@ -8757,6 +8678,7 @@ DEFINE_TEST_CASE(1) {
         ASSERT( 1 == cal.numNonBusinessDays());
         ASSERT( 0 == cal.numHolidays());
         ASSERT( 1 == cal.numWeekendDaysInRange());
+        ASSERT( 1 == cal.numWeekendDaysTransitions());
         ASSERT( 1 == numWeekendDaysInFirstTransition(cal));
 
         ASSERT( 0 == cal.isWeekendDay(bdet_DayOfWeek::BDET_SUN));
@@ -8795,6 +8717,7 @@ DEFINE_TEST_CASE(1) {
         ASSERT( 2 == cal.numNonBusinessDays());
         ASSERT( 1 == cal.numHolidays());
         ASSERT( 1 == cal.numWeekendDaysInRange());
+        ASSERT( 1 == cal.numWeekendDaysTransitions());
         ASSERT( 1 == numWeekendDaysInFirstTransition(cal));
 
         ASSERT( 0 == cal.isWeekendDay(bdet_DayOfWeek::BDET_SUN));
@@ -8852,6 +8775,7 @@ DEFINE_TEST_CASE(1) {
         ASSERT( 2 == cal.numNonBusinessDays());
         ASSERT( 1 == cal.numHolidays());
         ASSERT( 1 == cal.numWeekendDaysInRange());
+        ASSERT( 1 == cal.numWeekendDaysTransitions());
         ASSERT( 1 == numWeekendDaysInFirstTransition(cal));
 
         ASSERT( 0 == cal.isWeekendDay(bdet_DayOfWeek::BDET_SUN));
@@ -8915,6 +8839,7 @@ DEFINE_TEST_CASE(1) {
         ASSERT( 2 == cal.numNonBusinessDays());
         ASSERT( 2 == cal.numHolidays());
         ASSERT( 1 == cal.numWeekendDaysInRange());
+        ASSERT( 1 == cal.numWeekendDaysTransitions());
         ASSERT( 1 == numWeekendDaysInFirstTransition(cal));
 
         ASSERT( 0 == cal.isWeekendDay(bdet_DayOfWeek::BDET_SUN));
@@ -8978,6 +8903,7 @@ DEFINE_TEST_CASE(1) {
         ASSERT( 3 == cal.numNonBusinessDays());
         ASSERT( 3 == cal.numHolidays());
         ASSERT( 1 == cal.numWeekendDaysInRange());
+        ASSERT( 1 == cal.numWeekendDaysTransitions());
         ASSERT( 1 == numWeekendDaysInFirstTransition(cal));
 
         ASSERT( 0 == cal.isWeekendDay(bdet_DayOfWeek::BDET_SUN));
@@ -9061,6 +8987,7 @@ DEFINE_TEST_CASE(1) {
         ASSERT( 3 == cal.numNonBusinessDays());
         ASSERT( 3 == cal.numHolidays());
         ASSERT( 1 == cal.numWeekendDaysInRange());
+        ASSERT( 1 == cal.numWeekendDaysTransitions());
         ASSERT( 1 == numWeekendDaysInFirstTransition(cal));
 
         ASSERT( 0 == cal.isWeekendDay(bdet_DayOfWeek::BDET_SUN));
@@ -9145,6 +9072,7 @@ DEFINE_TEST_CASE(1) {
         ASSERT( 3 == cal.numNonBusinessDays());
         ASSERT( 3 == cal.numHolidays());
         ASSERT( 1 == cal.numWeekendDaysInRange());
+        ASSERT( 1 == cal.numWeekendDaysTransitions());
         ASSERT( 1 == numWeekendDaysInFirstTransition(cal));
 
         ASSERT( 0 == cal.isWeekendDay(bdet_DayOfWeek::BDET_SUN));
@@ -9230,6 +9158,7 @@ DEFINE_TEST_CASE(1) {
         ASSERT( 4 == cal.numNonBusinessDays());
         ASSERT( 3 == cal.numHolidays());
         ASSERT( 3 == cal.numWeekendDaysInRange());
+        ASSERT( 1 == cal.numWeekendDaysTransitions());
         ASSERT( 2 == numWeekendDaysInFirstTransition(cal));
 
         ASSERT( 1 == cal.isWeekendDay(bdet_DayOfWeek::BDET_SUN));
