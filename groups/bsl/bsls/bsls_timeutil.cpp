@@ -285,10 +285,10 @@ void WindowsTimerUtil::initialize()
 
             bsls::AtomicOperations::setInt64Relaxed(&s_highPartRemainderFactor,
                                                     0);
-    	}
+        }
 
         bsls::AtomicOperations::setIntRelease(&s_initRequired, 0);
-	}
+    }
 }
 
 inline
@@ -342,9 +342,7 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
         = bsls::AtomicOperations::getInt64Relaxed(&s_initialTime);
 
     if (0 != initialTime) {
-        bsls::Types::Int64 timerFrequency
-            = bsls::AtomicOperations::getInt64Relaxed(&s_timerFrequency);
-        // Not implemented: Assert that rawTime - initialTime will fit in an 
+        // Not implemented: Assert that rawTime - initialTime will fit in an
         // Int64, when expressed as nanoseconds (~292 days).
         //
         // N.B. This assert is not implemented because:
@@ -353,8 +351,11 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
         // B) Cannot use std::numeric_limits.
         //
         // If it were implemented, it would look like the following:
-        // BSLS_ASSERT(((rawTime - initialTime) / timerFrequency) 
+        // BSLS_ASSERT(((rawTime - initialTime) / timerFrequency)
         //             < std::numeric_limits<bsls::Types::Int64>::max() / G)
+
+        bsls::Types::Int64 timerFrequency
+            = bsls::AtomicOperations::getInt64Relaxed(&s_timerFrequency);
 
         bsls::Types::Int64 highPartDivisionFactor
             = bsls::AtomicOperations::getInt64Relaxed(

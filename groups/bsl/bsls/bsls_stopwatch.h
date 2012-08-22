@@ -32,6 +32,9 @@ BSLS_IDENT("$Id: $")
 // measure the overhead of the loop separately and subtract that time from the
 // over-all time interval.
 //
+// 'bsls::Stopwatch' may be slow or inconsistent on some Windows machines.  See
+// the 'Acuracy and Precision' section of 'bsls_timeutil.h'.
+//
 ///Usage
 ///-----
 // The following snippets of code illustrate basic use of a 'bsls::Stopwatch'
@@ -244,7 +247,7 @@ inline
 Types::Int64 Stopwatch::elapsedWallTime(
                                   TimeUtil::OpaqueNativeTime rawWallTime) const
 {
-    return TimeUtil::convertRawTime(rawWallTime) 
+    return TimeUtil::convertRawTime(rawWallTime)
         - TimeUtil::convertRawTime(d_startWallTime);
 }
 

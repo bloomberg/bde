@@ -31,6 +31,46 @@ BSLS_IDENT("$Id: $")
 // implied by the return value.  The user is advised to determine the actual
 // performance on each platform of interest.
 //
+// On windows platforms, 'bsls::TimeUtil::getTimer' and
+// 'bsls::TimeUtil::getRawTimer' can produce extremely unreliable results.  On
+// some machines, these high-resolution functions have been observed to run at
+// inconsistent speeds, with worst cases as slow as half the speed of actual
+// wall time.  This is known behavior of the underlying high-performance timer
+// function 'QueryPerformanceCounter', upon which the Windows implementation of
+// 'bsls::TimeUtil' relies.  Depending on the OS and machine configuration,
+// 'QueryPerformanceCounter' may be based on different underlying hardware
+// timers.  Often, 'QueryPerformanceCounter' will be based on the CPU's
+// timestamp counter (TSC).
+//
+// On machines with SpeedStep or another CPU speed scaling mechanism, the TSC
+// may change its speed as the CPU speed changes, resulting in slow and
+// inconsistent clock speeds.  Newer machines may provide an 'Invariant TSC'
+// which solves this problem.  Windows Vista and later OS versions may be able
+// to defend against timer accuracies due to CPU frequency scaling by basing
+// 'QueryPerformanceCounter' on the TSC only if the machine provides an
+// 'Invariant TSC'.  Nevertheless, the actual behavior of the timer should be
+// checked on any given machine, as it is a combination of interactions between
+// the OS, BIOS and hardware, and is vulnerable to bugs in all three.
+//
+// In addition, on multi-core machines, each call to 'QueryPerformanceCounter'
+// may read the TSC from a different CPU.  The TSCs of the CPUs may be out of
+// sync, resulting in slightly inconsistent or even non-monotonic behavior.
+//
+// Reference: http://support.microsoft.com/kb/895980
+//
+// If a Windows machine appears to have a slow and/or inconsistent
+// high-resolution timer, it can be reconfigured to avoid using the TSC.  On
+// Windows XP and earlier versions, add the parameter '/usepmtimer' to the
+// operating system's boot configuration in 'boot.ini'.  On Windows Vista and
+// later, run the following command as an administrator:
+//..
+//  bcdedit /set useplatformclock true
+//..
+// Note that unless the machine has a High Performance Event Timer (HPET) and
+// it has been enabled in the BIOS, these steps might reduce the resolution of
+// the 'bsls::TimeUtil' high-resolution functions from the nanosecond range to
+// the microsecond range or worse.
+//
 ///Usage
 ///-----
 // The following snippets of code illustrate how to use 'bsls::TimeUtil'
