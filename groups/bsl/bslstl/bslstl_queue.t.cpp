@@ -319,7 +319,7 @@ void dbg_print(const bsl::queue<VALUE, CONTAINER>& q)
         printf("<empty>");
     }
     else {
-        printf("size: %d, front: ", q.size());
+        printf("size: %d, front: ", (int) q.size());
         dbg_print(static_cast<char>(
                        bsltf::TemplateTestFacility::getIdentifier(q.front())));
         printf(", back: ");
@@ -1846,7 +1846,7 @@ void TestDriver<VALUE, CONTAINER>::testCase7()
             const size_t      LENGTH = (int) strlen(SPEC);
 
             if (verbose) {
-                printf("\nFor an object of length %d:\n", LENGTH);
+                printf("\nFor an object of length %u:\n", (int) LENGTH);
                 P(SPEC);
             }
 
@@ -2387,7 +2387,7 @@ void TestDriver<VALUE, CONTAINER>::testCase3()
             Obj mX(&oa);
 
             if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length %d:\n", LENGTH);
+                if (verbose) printf("\tof length %d:\n", (int) LENGTH);
                  ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
@@ -2547,7 +2547,8 @@ void TestDriver<VALUE, CONTAINER>::testCase2()
             if (veryVerbose) { printf("\n\tTesting 'push' (bootstrap).\n"); }
 
             if (veryVeryVerbose) {
-                printf("\t\tOn an object of initial length %d.\n", LENGTH);
+                printf("\t\tOn an object of initial length %d.\n",
+                       (int) LENGTH);
             }
 
             for (size_t tj = 0; tj < LENGTH; ++tj) {
@@ -2574,7 +2575,8 @@ void TestDriver<VALUE, CONTAINER>::testCase2()
             if (veryVerbose) printf("\n\tTesting 'pop'.\n");
 
             if (verbose) {
-                printf("\t\tOn an object of initial length %d.\n", LENGTH + 1);
+                printf("\t\tOn an object of initial length %d.\n",
+                       (int) LENGTH + 1);
             }
 
             for (size_t tj = 0; tj < LENGTH; ++tj) {

@@ -324,7 +324,7 @@ void dbg_print(const bsl::priority_queue<VALUE, CONTAINER, COMPARATOR>& pq)
         printf("<empty>");
     }
     else {
-        printf("size: %d, top: ", pq.size());
+        printf("size: %d, top: ", (int) pq.size());
         dbg_print(static_cast<char>(
                         bsltf::TemplateTestFacility::getIdentifier(pq.top())));
     }
@@ -1827,7 +1827,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
             const size_t      LENGTH = (int) strlen(SPEC);
 
             if (verbose) {
-                printf("\nFor an object of length %d:\n", LENGTH);
+                printf("\nFor an object of length %d:\n", (int) LENGTH);
                 P(SPEC);
             }
             {   // Testing concern 1..3.
@@ -2205,7 +2205,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase3()
             Obj mX(&oa);
 
             if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length %d:\n", LENGTH);
+                if (verbose) printf("\tof length %d:\n", (int) LENGTH);
                  ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
@@ -2366,7 +2366,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
             if (veryVerbose) { printf("\n\tTesting 'push' (bootstrap).\n"); }
 
             if (veryVeryVerbose) {
-                printf("\t\tOn an object of initial length %d.\n", LENGTH);
+                printf("\t\tOn an object of initial length %d.\n",
+                       (int) LENGTH);
             }
 
             for (size_t tj = 0; tj < LENGTH; ++tj) {
@@ -2387,7 +2388,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
             if (veryVerbose) printf("\n\tTesting 'pop'.\n");
 
             if (verbose) {
-                printf("\t\tOn an object of initial length %d.\n", LENGTH + 1);
+                printf("\t\tOn an object of initial length %d.\n",
+                       (int) LENGTH + 1);
             }
 
             for (size_t tj = 0; tj < LENGTH; ++tj) {
