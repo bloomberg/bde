@@ -1,6 +1,6 @@
-// bslstl_exalgorithm.h                                               -*-C++-*-
-#ifndef INCLUDED_BSLSTL_EXALGORITHM
-#define INCLUDED_BSLSTL_EXALGORITHM
+// bslstp_exalgorithm.h                                               -*-C++-*-
+#ifndef INCLUDED_BSLSTP_EXALGORITHM
+#define INCLUDED_BSLSTP_EXALGORITHM
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace for algorithm extensions
 //
 //@CLASSES:
-//  bslstl::exalgorithm::copy_n: copy 'n' elements
+//  bslstp::exalgorithm::copy_n: copy 'n' elements
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_algorithm.h> instead of <bslstl_exalgorithm.h> in \
+#error "include <bsl_algorithm.h> instead of <bslstp_exalgorithm.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
 
@@ -91,7 +91,7 @@ namespace bsl {
 // PRIVATE FREE FUNCTIONS
 template <class InputIter, class Size, class OutputIter>
 pair<InputIter, OutputIter>
-bslstl_ExAlgorithm_CopyNImp(InputIter  first,
+bslstp_ExAlgorithm_CopyNImp(InputIter  first,
                             Size       count,
                             OutputIter result,
                             const      input_iterator_tag&)
@@ -107,7 +107,7 @@ bslstl_ExAlgorithm_CopyNImp(InputIter  first,
 template <class RAIter, class Size, class OutputIter>
 inline
 pair<RAIter, OutputIter>
-bslstl_ExAlgorithm_CopyNImp(RAIter     first,
+bslstp_ExAlgorithm_CopyNImp(RAIter     first,
                             Size       count,
                             OutputIter result,
                             const      random_access_iterator_tag&)
@@ -127,7 +127,7 @@ pair<InputIter, OutputIter> copy_n(InputIter  first,
     // to the specified 'result' address.
 {
     typedef typename iterator_traits<InputIter>::iterator_category tag;
-    return bslstl_ExAlgorithm_CopyNImp(first, count, result, tag());
+    return bslstp_ExAlgorithm_CopyNImp(first, count, result, tag());
 }
 
 #if defined(BSLS_PLATFORM__CMP_SUN) && !defined(BDE_BUILD_TARGET_STLPORT)

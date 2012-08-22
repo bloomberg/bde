@@ -1,7 +1,8 @@
-// bslstl_exalgorithm.t.cpp                                           -*-C++-*-
-#include <bslstl_exalgorithm.h>
+// bslstp_exalgorithm.cpp                                             -*-C++-*-
+#include <bslstp_exalgorithm.h>
 
-int main() { return -1; }  // empty test driver
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$ $CSID$")
 
 // ---------------------------------------------------------------------------
 // NOTICE:
