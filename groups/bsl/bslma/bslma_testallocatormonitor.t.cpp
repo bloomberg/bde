@@ -327,38 +327,6 @@ class IntList {
         }
     }
 
-    void reverse()
-        // Reverse the order of the elements of this list object.
-    {
-        ListNode *push = 0;
-        ListNode *pull = d_sentinel_p->d_next_p;
-        if (pull) {
-            d_last_p = pull;
-        }
-        while (pull) {
-            ListNode *inTransit = pull;
-            pull = pull->d_next_p;
-            inTransit->d_next_p = push;
-            push = inTransit;
-        }
-        d_sentinel_p->d_next_p = push;
-    }
-
-    void unique()
-        // Eliminate any nodes in the list whose value is identical to that
-        // of the node before them.
-    {
-        ListNode *node = d_sentinel_p->d_next_p;
-        if (0 == node || 0 == node->d_next_p) {
-            return;                                                   // RETURN
-        }
-        for (; node->d_next_p; node = node->d_next_p) {
-            while (node->d_data == node->d_next_p->d_data) {
-                deleteListNodeAfter(node);
-            }
-        }
-    }
-
     // ACCESSORS
     int back() { return d_last_p->d_data; }
         // Return the value stored in the element at the back of this list.
@@ -487,41 +455,6 @@ int main(int argc, char *argv[])
         ASSERT(57 == myList.back());
         ASSERT(23 == myList.front());
         ASSERT(3  == myList.size());
-
-        // Then, we observe that 'reverse', though it's a manipulator, does no
-        // memory allocation:
-
-        oam.reset();
-
-        myList.reverse();
-
-        ASSERT(oam.isInUseSame());
-        ASSERT(oam.isTotalSame());
-
-        ASSERT(23 == myList.back());
-        ASSERT(57 == myList.front());
-        ASSERT(3  == myList.size());
-
-        // Next, we observe that 'unique', in this case, will do no new memory
-        // allocation and will in fact free some memory in this case.
-
-        oam.reset();
-
-        myList.unique();
-
-        ASSERT(oam.isInUseDown());
-        ASSERT(oam.isTotalSame());
-
-        // Now, we observe the state of the list after 'unique'.
-
-        ASSERT(23 == myList.back());
-        ASSERT(57 == myList.front());
-        ASSERT(2  == myList.size());
-
-        // Finally, we check the default and global allocator monitors.
-
-        ASSERT(dam.isTotalSame());
-        ASSERT(gam.isTotalSame());
       }  break;
       case 5: {
         // --------------------------------------------------------------------

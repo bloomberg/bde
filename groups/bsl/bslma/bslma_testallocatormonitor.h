@@ -416,9 +416,8 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - -
 // To demonstrate the usefulness of the 'reset' method, one needs to be testing
 // a class having multiple manipulators that allocate memory.  For brevity we
-// use 'bsl::list', whose interface is clearly described at
-// 'http://www.cplusplus.com/reference/stl/list' except that a 'bsl::list' uses
-// memory from a memory allocator supplied at construction.
+// use 'bsl::list' which uses memory from a memory allocator supplied at
+// construction.
 //..
 //  typedef bsl::list<int> IntList;
 //..
@@ -432,9 +431,9 @@ BSLS_IDENT("$Id: $")
 //  bslma::TestAllocator tda;
 //  bslma::TestAllocator tga;
 //..
-// Since neither the default nor the global allocators should ever be
-// have used for anything in this exercise, we only need check their
-// monitors 'dam' and 'gam' at the end of the example.
+// Since neither the default nor the global allocators are ever used for
+// anything in this exercise, we only need check their monitors 'dam' and 'gam'
+// at the end of the example.
 //
 // Then, we install our default and global allocators:
 //..
@@ -484,41 +483,6 @@ BSLS_IDENT("$Id: $")
 //  assert(57 == myList.back());
 //  assert(23 == myList.front());
 //  assert(3  == myList.size());
-//..
-// Then, we observe that 'reverse', though it's a manipulator, does no
-// memory allocation:
-//..
-//  oam.reset();
-//
-//  myList.reverse();
-//
-//  assert(oam.isInUseSame());
-//  assert(oam.isTotalSame());
-//
-//  assert(23 == myList.back());
-//  assert(57 == myList.front());
-//  assert(3  == myList.size());
-//..
-// Next, we observe that 'unique', in this case, will do no new memory
-// allocation and will in fact free some memory.
-//..
-//  oam.reset();
-//
-//  myList.unique();
-//
-//  assert(oam.isInUseDown());
-//  assert(oam.isTotalSame());
-//..
-// Now, we observe the state of the list after 'unique'.
-//..
-//  assert(23 == myList.back());
-//  assert(57 == myList.front());
-//  assert(2  == myList.size());
-//..
-// Finally, we check the default and global allocator monitors.
-//..
-//  assert(dam.isTotalSame());
-//  assert(gam.isTotalSame());
 //..
 
 #ifndef INCLUDED_BSLMA_TESTALLOCATOR
@@ -570,11 +534,11 @@ class TestAllocatorMonitor {
     // MANIPULATOR
     void reset(const bslma::TestAllocator *testAllocator = 0);
         // Change the allocator monitored by this object to the specified
-        // 'testAllocator' and initialize the other state of this object to the
-        // current state of 'testAllocator'.  If no 'testAllocator' is passed,
-        // do not modify the allocator held by this object and re-initialize
-        // the other state of this object to the current state of that
-        // allocator.
+        // 'testAllocator' and initialize the allocator properties monitored by
+        // this object to the current state of 'testAllocator'.  If no
+        // 'testAllocator' is passed, do not modify the allocator held by this
+        // object and re-initialize the allocator properties monitored by this
+        // object to the current state of that allocator.
 
     // ACCESSORS
     bool isInUseDown() const;
@@ -647,7 +611,7 @@ TestAllocatorMonitor::validateArgument(const TestAllocator *allocator)
 inline
 void TestAllocatorMonitor::reset(const TestAllocator *testAllocator)
 {
-    // called inline by c'tor, hence should precede it
+    // This method is alled inline by c'tor, hence it should precede it.
 
     if (testAllocator) {
         d_testAllocator_p = testAllocator;

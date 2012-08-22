@@ -27,6 +27,8 @@
 #include <functional>
 #include <typeinfo>
 
+#include <string.h>
+
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -564,51 +566,49 @@ void verifyStack(const stack<typename CONTAINER::value_type,
 
 class ToDoList {
     // DATA
-    bsl::stack<bsl::string> d_stack;
+    bsl::stack<const char *> d_stack;
 
   public:
     // MANIPULATORS
-    void enqueueTask(const bsl::string& task);
+    void enqueueTask(const char *task);
         // Add the specified 'task', a string describing a task, to the
-        // list.
+        // list.  Note the lifetime of the string referred to by 'task' must
+        // exceed the lifetime of the task in this list.
 
-    void finishTask();
-        // Remove the current task from the list.  If the list is empty when
-        // this is called, do nothing.  Otherwise, if the list is empty after
-        // removing the current task, report to the wife that the task is done.
+    bool finishTask();
+        // Remove the current task from the list.  Return 'true' if a task was
+        // removed and it was the last task on the list, and return 'false'
+        // otherwise.
 
     // ACCESSORS
-    const bsl::string& currentTask() const;
+    const char *currentTask() const;
         // Return the string representing the current task.  If there
         // is no current task, return the string "<EMPTY>", which is
         // not a valid task.
 };
 
 // MANIPULATORS
-void ToDoList::enqueueTask(const bsl::string& task)
+void ToDoList::enqueueTask(const char *task)
 {
-    printf("Yes, dear.\n");
-
     d_stack.push(task);
 }
 
-void ToDoList::finishTask()
+bool ToDoList::finishTask()
 {
     if (!d_stack.empty()) {
         d_stack.pop();
 
-        if (d_stack.empty()) {
-            printf("Honey, I've finished everything.\n");
-        }
+        return d_stack.empty();
     }
+
+    return false;
 };
 
 // ACCESSORS
-const bsl::string& ToDoList::currentTask() const
+const char *ToDoList::currentTask() const
 {
     if (d_stack.empty()) {
-        static const bsl::string emptyString("<EMPTY>");
-        return emptyString;
+        return "<EMPTY>";
     }
 
     return d_stack.top();
@@ -3249,50 +3249,42 @@ int main(int argc, char *argv[])
 
         // Next, a few tasks are requested:
 
-        toDoList.enqueueTask("Mow the lawn.");
         toDoList.enqueueTask("Change the car's oil.");
         toDoList.enqueueTask("Pay the bills.");
 
         // Then, the husband watches the Yankee's game on TV.  Upon returning
         // to the list he consults the list to see what task is up next:
 
-        ASSERT("Pay the bills." == toDoList.currentTask());
+        ASSERT(!strcmp("Pay the bills.", toDoList.currentTask()));
 
         // Next, he sees that he has to pay the bills.  When the bills are
         // finished, he flushes that task from the list:
 
-        toDoList.finishTask();
+        ASSERT(false == toDoList.finishTask());
 
-        // Then, it is now time for bed.  Upon getting out of bed Saturday
-        // morning, he consults the list for the next task:
+        // Then, he consults the list for the next task.
 
-        ASSERT("Change the car's oil." == toDoList.currentTask());
+        ASSERT(!strcmp("Change the car's oil.", toDoList.currentTask()));
 
         // Next, he sees he has to change the car's oil.  Before he can get
         // started, another request comes:
 
         toDoList.enqueueTask("Get some hot dogs.");
-        ASSERT("Get some hot dogs." == toDoList.currentTask());
+        ASSERT(!strcmp("Get some hot dogs.", toDoList.currentTask()));
 
         // Then, he drives the car to the convenience store and picks up some
         // hot dogs and buns.  Upon returning home, he gives the hot dogs to
         // his wife, updates the list, and consults it for the next task.
 
-        toDoList.finishTask();
-        ASSERT("Change the car's oil." == toDoList.currentTask());
+        ASSERT(false == toDoList.finishTask());
+        ASSERT(!strcmp("Change the car's oil.", toDoList.currentTask()));
 
         // Next, he finishes the oil change, updates the list, and consults it
         // for the next task.
 
-        toDoList.finishTask();
-        ASSERT("Mow the lawn." == toDoList.currentTask());
-
-        // Now, he pays the neighbor's kid $10 to mow the lawn, and watches
-        // Jerry Springer on TV.  When the show is done, he checks the lawn and
-        // sees the mowing is completed.  He updates the list:
-
-        toDoList.finishTask();
-        ASSERT("<EMPTY>" == toDoList.currentTask());
+        ASSERT(true == toDoList.finishTask());
+        ASSERT(!strcmp("<EMPTY>", toDoList.currentTask()));
+        printf("Honey, I'm done.\n");
 
         // Finally, the wife has now been informed that everything is done,
         // and she makes another request:

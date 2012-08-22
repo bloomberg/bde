@@ -27,15 +27,18 @@ BSLS_IDENT("$Id: $")
 ///Requirements of Parametrized 'CONTAINER' Type
 ///---------------------------------------------
 // This class works with the container classes 'bsl::deque', 'bsl::vector', or
-// 'bsl::list' passed to the 'CONTAINER' template class.  Another container
-// class could be passed, but it must satisfy the following requirements:
+// 'bsl::list' passed to the 'CONTAINER' template class.  In addition, other
+// container classes could be supplied for the CONTAINER argument, but they
+// must satisfy the following requirements:
+//: o The supplied 'CONTAINER' template parameter must support the following
+//:   public types:
 //: o It must have the following public types:
 //:   o value_type
 //:   o reference
 //:   o const_reference
 //:   o size_type
-//: o It must support the following methods, depending on what method of
-//:   'stack' are used:
+//: o The supplied 'CONTAINER' template parameter must support the following
+//:   methods, depending on what methods of 'stack' are used:
 //:   o constructors used must take a parameter of type 'allocator_type'
 //:   o void push_back(const value_type&)
 //:   o void pop_back()
@@ -43,7 +46,7 @@ BSLS_IDENT("$Id: $")
 //:   o size_type size()
 //:   o '==', '!=', '<', '>', '<=', '>='
 //:   o 'operator='
-//:   o if 'swap' is used, std::swap(CONTAINER&, CONTAINER&) must work
+//:   o std::swap(CONTAINER&, CONTAINER&) must work
 //
 ///Note on Parameterized 'VALUE' Type
 ///----------------------------------
@@ -156,19 +159,21 @@ BSLS_IDENT("$Id: $")
 //..
 //  class ToDoList {
 //      // DATA
-//      bsl::stack<bsl::string> d_stack;
+//      bsl::stack<const char *> d_stack;
 //
 //    public:
 //      // MANIPULATORS
-//      void enqueueTask(const bsl::string& task);
+//      void enqueueTask(const char *task);
 //          // Add the specified 'task', a string describing a task, to the
-//          // list.
+//          // list.  Note that the lifetime of the string referred to by
+//          // 'task' must exceed the lifetime of the task in this list.
 //
-//      void finishTask();
+//      bool finishTask();
 //          // Remove the current task from the list.  If the list is empty
 //          // when this is called, do nothing.  Otherwise, if the list is
-//          // empty after removing the current task, report to the wife that
-//          // the task is done.
+//          // remove the current task from the list.  Return 'true' if a task
+//          // was removed and it was the lsat task in the list and return
+//          // 'false' otherwise.
 //
 //      // ACCESSORS
 //      const bsl::string& currentTask() const;
@@ -180,8 +185,6 @@ BSLS_IDENT("$Id: $")
 //  // MANIPULATORS
 //  void ToDoList::enqueueTask(const bsl::string& task)
 //  {
-//      printf("Yes, dear.\n");
-//  
 //      d_stack.push(task);
 //  }
 //
@@ -190,10 +193,10 @@ BSLS_IDENT("$Id: $")
 //      if (!d_stack.empty()) {
 //          d_stack.pop();
 //
-//          if (d_stack.empty()) {
-//              printf("Honey, I've finished everything.\n");
-//          }
+//          return d_stack.empty();
 //      }
+//
+//      return false;
 //  };
 //
 //  // ACCESSORS
