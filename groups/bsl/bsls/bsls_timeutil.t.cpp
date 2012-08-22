@@ -1,6 +1,7 @@
 // bsls_timeutil.t.cpp                                                -*-C++-*-
-
 #include <bsls_timeutil.h>
+
+#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -26,14 +27,12 @@ extern "C" {
 };
 #endif
 
-#include <cstdio>                   // printf()
-#include <cstdlib>                  // atoi()
-#include <iostream>
-#include <iomanip>
-#include <string>
+// limit ourselves to the "C" library for packages below 'bslstl'
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>   // for srand
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                 TEST PLAN
@@ -72,41 +71,29 @@ using namespace std;
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
-{
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+static void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
-//-----------------------------------------------------------------------------
-
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);} }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { std::cout << #I << ": " << I << "\t" << #J << ": " << J    \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": " \
-                         << L << "\t" << #M << ": " << M << "\n";         \
-               aSsErT(1, #X, __LINE__); } }
-
+# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define P64(X) printf(#X " = %lld\n", (X));   // Print 64-bit integer id & val
-#define P64_(X) printf(#X " = %lld,  ", (X)); // Print 64-bit integer w/o '\n'
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                 GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -511,11 +498,13 @@ void compareRealToFakeConvertRawTime(const TU::OpaqueNativeTime& startTime,
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    bool verbose = argc > 2;
+    bool veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+    setbuf(stdout, 0);    // Use unbuffered output
+
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 12: {
@@ -533,8 +522,8 @@ int main(int argc, char *argv[])
         //   USAGE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage Example"
-                          << "\n=====================" << endl;
+        if (verbose) printf("\nTesting Usage Example"
+                            "\n=====================\n");
 
         {
             my_Timer tw;
@@ -553,10 +542,10 @@ int main(int argc, char *argv[])
             }
             double dTs = ts.elapsedSystemTime();
             if (verbose)
-                std::cout
-                    << "elapsed wall time: " << dTw << std::endl
-                    << "elapsed user time: " << dTu << std::endl
-                    << "elapsed system time: " << dTs << std::endl;
+                printf("elapsed wall time: %g\n"
+                       "elapsed user time: %g\n"
+                       "elapsed system time: %g\n",
+                       dTw, dTu, dTs);
         }
 
       } break;
@@ -617,8 +606,8 @@ int main(int argc, char *argv[])
 
 #if defined BSLS_PLATFORM__OS_WINDOWS
 
-        if (verbose) cout << "\nTesting convertRawTime arithmetic"
-                          << "\n=================================" << endl;
+        if (verbose) printf("\nTesting convertRawTime arithmetic"
+                            "\n=================================\n");
 
         const bsls::Types::Int64 K = 1000;
         const bsls::Types::Int64 G = K * K * K;
@@ -1246,9 +1235,8 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
 
         {
-            if (verbose) cout << "\nCheck fakeConvertRawTime arithmetic"
-                              << "\n-----------------------------------"
-                              << endl;
+            if (verbose) printf("\nCheck fakeConvertRawTime arithmetic"
+                                "\n-----------------------------------\n");
 
             for (int si = 0; si < NUM_DATA; ++si) {
                 const int LINE = DATA[si].d_line;
@@ -1258,12 +1246,12 @@ int main(int argc, char *argv[])
                 const bsls::Types::Int64 OUTPUT       = DATA[si].d_output;
 
                 if (veryVerbose) {
-                    T_();
+                    T_;
                     P_(LINE);
-                    P64_(INPUT);
-                    P64_(INITIAL_TIME);
-                    P64_(FREQUENCY);
-                    P64(OUTPUT)
+                    P_(INPUT);
+                    P_(INITIAL_TIME);
+                    P_(FREQUENCY);
+                    P(OUTPUT)
                 }
 
                 LOOP5_ASSERT(LINE,
@@ -1279,17 +1267,16 @@ int main(int argc, char *argv[])
 
         {
             if (verbose)
-                cout << "\nCompare fakeConvertRawTime to convertRawTime"
-                     << " with static data"
-                     << "\n--------------------------------------------"
-                     << "-----------------"
-                     << endl;
+                printf("\nCompare fakeConvertRawTime to convertRawTime"
+                       " with static data"
+                       "\n--------------------------------------------"
+                       "-----------------\n");
 
             const bsls::Types::Int64 frequency = getFrequency();
             const bsls::Types::Int64 testPeriod = getTestPeriod(frequency);
 
             if (veryVerbose) {
-                T_(); P64(frequency);
+                T_; P(frequency);
             }
 
             TU::OpaqueNativeTime startTime;
@@ -1304,7 +1291,7 @@ int main(int argc, char *argv[])
                 }
 
                 if (veryVerbose) {
-                    T_(); P_(exponent); P64(offset);
+                    T_; P_(exponent); P(offset);
                 }
 
                 compareRealToFakeConvertRawTime(startTime, offset, frequency);
@@ -1340,11 +1327,10 @@ int main(int argc, char *argv[])
 
         {
             if (verbose)
-                cout << "\nCompare fakeConvertRawTime "
-                        "to convertRawTime with random data"
-                     << "\n---------------------------"
-                        "----------------------------------"
-                     << endl;
+                printf("\nCompare fakeConvertRawTime "
+                       "to convertRawTime with random data"
+                       "\n---------------------------"
+                       "----------------------------------\n");
 
             srand((unsigned) time(NULL));
 
@@ -1352,7 +1338,7 @@ int main(int argc, char *argv[])
             const bsls::Types::Int64 testPeriod = getTestPeriod(frequency);
 
             if (veryVerbose) {
-                T_(); P64(frequency);
+                T_; P(frequency);
             }
 
             TU::OpaqueNativeTime startTime;
@@ -1379,7 +1365,7 @@ int main(int argc, char *argv[])
                         = (getRand64() & getBitMask(bits)) % testPeriod;
 
                     if (veryVerbose) {
-                        T_(); P_(bits); P_(iterations); P64(offset);
+                        T_; P_(bits); P_(iterations); P(offset);
                     }
 
                     compareRealToFakeConvertRawTime(startTime,
@@ -1414,8 +1400,8 @@ int main(int argc, char *argv[])
         //   bsls::TimeUtil::convertRawTime(bsls::TimeUtil::OpaqueNativeTime)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Raw methods"
-                          << "\n===================" << endl;
+        if (verbose) printf("\nTesting Raw methods"
+                            "\n===================\n");
 
         {
             // ---------------------------------------------------------------
@@ -1427,7 +1413,7 @@ int main(int argc, char *argv[])
             TU::getTimerRaw(&idle);
             double               primeThePump = 12345/67 / 8.901;
             if (veryVeryVerbose)
-                std::cout << "Warmup: " << primeThePump << std::endl;
+                printf("Warmup: %g\n", primeThePump);
             // ---------------------------------------------------------------
         }
 
@@ -1440,8 +1426,7 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) std::cout << "0: Elapsed time under test: " << dT
-                                   << " nsec" << std::endl;
+            if (verbose) printf("0: Elapsed time under test: %lld nsec\n", dT);
         }
 
         {
@@ -1455,10 +1440,8 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) std::cout << "1: Elapsed time under test: " << dT
-                                   << " nsec" << std::endl;
-            if (veryVerbose) std::cout << "Computed Values:"
-                                       << x << std::endl;
+            if (verbose) printf("1: Elapsed time under test: %lld nsec\n", dT);
+            if (veryVerbose) printf("Computed Values: %g\n", x);
         }
 
         {
@@ -1473,10 +1456,8 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) std::cout << "2: Elapsed time under test: " << dT
-                                   << " nsec" << std::endl;
-            if (veryVerbose) std::cout << "Computed Values:"
-                                       << x << "  " << y << std::endl;
+            if (verbose) printf("2: Elapsed time under test: %lld nsec\n", dT);
+            if (veryVerbose) printf("Computed Values: %g %g\n", x, y);
         }
 
         {
@@ -1493,10 +1474,8 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) std::cout << "3: Elapsed time under test: " << dT
-                                   << " nsec" << std::endl;
-            if (veryVerbose) std::cout << "Computed Values:" << x << "  "
-                                       << y << "  " << z << std::endl;
+            if (verbose) printf("3: Elapsed time under test: %lld nsec\n", dT);
+            if (veryVerbose) printf("Computed Values: %g %g %g\n", x, y, z);
         }
 
         {
@@ -1515,10 +1494,9 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) std::cout << "10: Elapsed time under test: " << dT
-                                   << " nsec" << std::endl;
-            if (veryVerbose) std::cout << "Computed Values:" << x << "  "
-                                       << y << "  " << z << std::endl;
+            if (verbose)
+                printf("10: Elapsed time under test: %lld nsec\n", dT);
+            if (veryVerbose) printf("Computed Values: %g %g %g\n", x, y, z);
         }
 
         {
@@ -1537,10 +1515,9 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) std::cout << "100: Elapsed time under test: " << dT
-                                   << " nsec" << std::endl;
-            if (veryVerbose) std::cout << "Computed Values:" << x << "  "
-                                       << y << "  " << z << std::endl;
+            if (verbose)
+                printf("100: Elapsed time under test: %lld nsec\n", dT);
+            if (veryVerbose) printf("Computed Values: %g %g %g\n", x, y, z);
         }
 
       } break;
@@ -1560,11 +1537,11 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
         if (verbose)
-            cout << "\nTesting TimeUtil initialization (wall timer)"
-                 << "\n============================================" << endl;
+            printf("\nTesting TimeUtil initialization (wall timer)"
+                   "\n============================================\n");
 
         Int64 t = TU::getTimer();
-        if (verbose) { T_(); P64(t); }
+        if (verbose) { T_; P_(t); }
         ASSERT(t >= 0);
 #endif
 
@@ -1584,12 +1561,11 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_PLATFORM__OS_UNIX
         if (verbose)
-            cout << "\nTesting TimeUtil initialization (process timers)"
-                 << "\n================================================"
-                 << endl;
+            printf("\nTesting TimeUtil initialization (process timers)"
+                   "\n================================================\n");
 
         Int64 ts, tu; TU::getProcessTimers(&ts, &tu);
-        if (verbose) { T_(); P64_(ts); P64(tu); }
+        if (verbose) { T_; P_(ts); P_(tu); }
         ASSERT(ts >= 0); ASSERT(tu >= 0);
 #endif
 
@@ -1609,11 +1585,11 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_PLATFORM__OS_UNIX
         if (verbose)
-            cout << "\nTesting TimeUtil initialization (user timer)"
-                 << "\n============================================" << endl;
+            printf("\nTesting TimeUtil initialization (user timer)"
+                   "\n============================================\n");
 
         Int64 t = TU::getProcessUserTimer();
-        if (verbose) { T_(); P64(t); }
+        if (verbose) { T_; P_(t); }
         ASSERT(t >= 0);
 #endif
 
@@ -1633,11 +1609,11 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_PLATFORM__OS_UNIX
         if (verbose)
-            cout << "\nTesting TimeUtil initialization (system timer)"
-                 << "\n==============================================" << endl;
+            printf("\nTesting TimeUtil initialization (system timer)"
+                   "\n==============================================\n");
 
         Int64 t = TU::getProcessSystemTimer();
-        if (verbose) { T_(); P64(t); }
+        if (verbose) { T_; P_(t); }
         ASSERT(t >= 0);
 #endif
 
@@ -1657,12 +1633,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTesting 'gethrtime()' statistical correctness"
-                 << "\n=============================================" << endl;
+            printf("\nTesting 'gethrtime()' statistical correctness"
+                   "\n=============================================\n");
 
-        if (verbose)
-            cout << "\nCall 'gethrtime()' twice in a large loop."
-                 << endl;
+        if (verbose) printf("\nCall 'gethrtime()' twice in a large loop.\n");
         {
             const Int64 NUM_TESTS = verbose ? 100LL * atoi(argv[2]) : 100;
 
@@ -1675,17 +1649,17 @@ int main(int argc, char *argv[])
                 t1 = (Int64) gethrtime();
                 t2 = (Int64) gethrtime();
                 // Int64 dt = t2 - t1;  // these lines retained for
-                // P64(dt);             //  non-production testing.
+                // P(dt);             //  non-production testing.
                 if (t2 <= t1) {  // Optimize for CORRECT behavior
                     if (t2 == t1) {
                         ++numSame;
-                        if (verbose) { T_();  P_(i);  P(numSame); }
+                        if (verbose) { T_;  P_(i);  P(numSame); }
                     }
                     else {
                         ++numWrong;
                         if (verbose) {
-                            T_();      P64_(i);   P_(numWrong);
-                            P64_(t1);  P64_(t2);  P64(t2 - t1);
+                            T_;      P_(i);   P_(numWrong);
+                            P_(t1);  P_(t2);  P(t2 - t1);
                         }
                     }
                 }
@@ -1694,12 +1668,17 @@ int main(int argc, char *argv[])
             double numCalls    = ((double) NUM_TESTS) * 1.0e-6;
             double timePerCall = elapsedTime / (numCalls * 2.0); //(microsec.)
             if (verbose) {
-                cout << "\telapsed time   = " << elapsedTime << " (sec)\n"
-                     << "\tnum tests     = " << numCalls << " x 10^6\n"
-                     << "\ttime per call  = " << timePerCall << " (nsec)\n"
-                     << "\n\tnum non-monotonic pairs   = " << numWrong
-                     << "\n\tnum pairs with same value = " << numSame << endl;
-            }
+                printf("\telapsed time  = %g (sec)\n"
+                       "\tnum calls     = %g x 10^6\n"
+                       "\ttime per call = %g (usec)\n\n"
+                       "\tnum non-monotonic pairs   = %d\n"
+                       "\tnum pairs with same value = %d\n",
+                       elapsedTime,
+                       numCalls,
+                       timePerCall,
+                       numWrong,
+                       numSame);
+                }
         }
 
 #endif
@@ -1775,12 +1754,10 @@ int main(int argc, char *argv[])
         {
 
             if (verbose)
-                cout << "\nHooking Test: System time requests across sleep."
-                     << "\n================================================"
-                     << endl;
+                printf("\nHooking Test: System time requests across sleep."
+                       "\n================================================\n");
 
-            if (veryVerbose)
-                cout << "timeQuantum = " << timeQuantum << endl;
+            if (veryVerbose) printf("timeQuantum = %lld\n", timeQuantum);
 
             const unsigned shortSleep = 2;
             Int64 wt1 = TU::getTimer();
@@ -1793,15 +1770,11 @@ int main(int argc, char *argv[])
             Int64 ut2 = TU::getProcessUserTimer();
             Int64 st2 = TU::getProcessSystemTimer();
 
-            if (veryVerbose)
-                cout
-                    << "wt1: " << wt1 << " "
-                    << "ut1: " << ut1 << " "
-                    << "st1: " << st1 << std::endl
-                    << "wt2: " << wt2 << " "
-                    << "ut2: " << ut2 << " "
-                    << "st2: " << st2 << std::endl
-                    << "wt2 - wt1: " << wt2 - wt1 << std::endl;
+            if (veryVerbose) {
+                P_(wt1) P_(ut1) P(st1)
+                P_(wt2) P_(ut2) P(st2)
+                P(wt2 - wt1)
+            }
 
             // System and user time differences must be zero mod quantum, or
             // quantum is wrong.
@@ -1835,9 +1808,8 @@ int main(int argc, char *argv[])
         // Second subtest: Make repeated time calls; check for consistency.
         {
             if (verbose)
-                cout << "\nHooking Test: System time requests repeated."
-                     << "\n============================================"
-                     << endl;
+                printf("\nHooking Test: System time requests repeated."
+                       "\n============================================\n");
 
             enum { NUM_INTERVALS = 10,
                    NUM_SAMPLES = NUM_INTERVALS + 1 };
@@ -1885,40 +1857,31 @@ int main(int argc, char *argv[])
 
             // We should not have spent much time getting the time ten times.
 
-            if (veryVerbose)
-                cout << "uQuantsSpent: " << uQuantsSpent << "    "
-                     << "sQuantsSpent: " << sQuantsSpent << endl;
+            if (veryVerbose) { P_(uQuantsSpent) P(sQuantsSpent) }
 
             ASSERT(uQuantsSpent <= 1);
             ASSERT(sQuantsSpent <= 1);
 
             if (veryVerbose) {
-                cout << " 0: " << "wt: " << samples[0].d_wt << endl
-                     << " 0: " << "ut: " << samples[0].d_ut << endl
-                     << " 0: " << "st: " << samples[0].d_st << endl;
+                printf( " 0: wt: %lld\n"
+                        " 0: ut: %lld\n"
+                        " 0: st: %lld\n",
+                        samples[0].d_wt,
+                        samples[0].d_ut,
+                        samples[0].d_st);
 
                 for (int i = 1; i < NUM_SAMPLES; ++i) {
                     sample& s0 = samples[i - 1];
                     sample& s1 = samples[i];
 
-                    cout << std::setw(2) << i << ": "
-                                             << "wt: " << s1.d_wt
-                                             << " - "  << s0.d_wt
-                                             << " = "  << s1.d_wt - s0.d_wt
-                                                                    << endl;
-                    cout << std::setw(2) << i << ": "
-                                            << "ut: " << s1.d_ut
-                                            << " - "  << s0.d_ut
-                                            << " = "  << s1.d_ut - s0.d_ut
-                                                                    << endl;
-                    cout << std::setw(2) << i << ": "
-                                            << "st: " << s1.d_st
-                                            << " - "  << s0.d_st
-                                            << " = "  << s1.d_st - s0.d_st
-                                                                    << endl;
+                    printf("%2d: wt: %lld - %lld = %lld\n"
+                           "%2d: ut: %lld - %lld = %lld\n"
+                           "%2d: st: %lld - %lld = %lld\n",
+                           i, s1.d_wt, s0.d_wt, s1.d_wt - s0.d_wt,
+                           i, s1.d_ut, s0.d_ut, s1.d_ut - s0.d_ut,
+                           i, s1.d_st, s0.d_st, s1.d_st - s0.d_st);
                 }
             }
-
         }
 
         // Third subtest: Consume time; verify that it appears in the counts.
@@ -1931,9 +1894,8 @@ int main(int argc, char *argv[])
             // dependent on ever-increasing processor speeds.
 
             if (verbose)
-                cout << "\nHooking Test: System time requests over long loop."
-                     << "\n=================================================="
-                     << endl;
+                printf("\nHooking Test: System time requests over long loop.\n"
+                       "==================================================\n");
 
             Int64 wt1 = TU::getTimer();
             Int64 ut1 = TU::getProcessUserTimer();
@@ -1947,16 +1909,11 @@ int main(int argc, char *argv[])
             Int64 ut2 = TU::getProcessUserTimer();
             Int64 st2 = TU::getProcessSystemTimer();
 
-            if (veryVerbose)
-                cout << "wt2: " << wt2       << " -  "
-                     << "wt1: " << wt1       << " = "
-                                << wt2 - wt1 << std::endl
-                     << "ut2: " << ut2       << " -  "
-                     << "ut1: " << ut1       << " = "
-                                << ut2 - ut1 << std::endl
-                     << "st2: " << st2       << " -  "
-                     << "st1: " << st1       << " = "
-                                << st2 - st1 << std::endl << endl;
+            if (veryVerbose) {
+                printf("wt2: %lld -  wt1: %lld = %lld\n", wt2, wt1, wt2 - wt1);
+                printf("ut2: %lld -  ut1: %lld = %lld\n", ut2, ut1, ut2 - ut1);
+                printf("st2: %lld -  st1: %lld = %lld\n", st2, st1, st2 - st1);
+            }
 
             ASSERT(wt2 - wt1 >= timeQuantum);
                                         // Our wall time is over a timeQuantum.
@@ -2000,7 +1957,7 @@ int main(int argc, char *argv[])
 
         struct {
             TimerMethod d_method;
-            std::string d_methodName;
+            const char *d_methodName;
             bool        d_reportSame;
                 // don't report same values for user and system timers
         }
@@ -2016,16 +1973,13 @@ int main(int argc, char *argv[])
 
         for (size_t t = 0; t < TimerMethodsCount; ++t) {
             if (verbose)
-                cout << "\nTesting '"
-                    << TimerMethods[t].d_methodName
-                    << "()' statistical correctness"
-                    << "\n===========================================" << endl;
+                printf("\nTesting '%s()' statistical correctness"
+                       "\n===========================================\n",
+                       TimerMethods[t].d_methodName);
 
             if (verbose)
-                cout << "\nCall 'bsls::TimeUtil::"
-                    << TimerMethods[t].d_methodName
-                    << "()' twice in a large loop."
-                    << endl;
+                printf("\nCall 'bsls::TimeUtil::%s()' twice in a large loop.\n",
+                       TimerMethods[t].d_methodName);
             {
                 const Int64 NUM_TESTS  = verbose ? 100LL * atoi(argv[2]) : 100;
 
@@ -2045,14 +1999,14 @@ int main(int argc, char *argv[])
                         if (t2 == t1) {
                             if (TimerMethods[t].d_reportSame) {
                                 ++numSame;
-                                if (verbose) { T_();  P_(i);  P(numSame); }
+                                if (verbose) { T_;  P_(i);  P(numSame); }
                             }
                         }
                         else {
                             ++numWrong;
                             if (verbose) {
-                                T_();      P64_(i);   P_(numWrong);
-                                P64_(t1);  P64_(t2);  P64(t2 - t1);
+                                T_;      P_(i);   P_(numWrong);
+                                P_(t1);  P_(t2);  P(t2 - t1);
                             }
                         }
                     }
@@ -2063,12 +2017,16 @@ int main(int argc, char *argv[])
                 double numCalls    = ((double) NUM_TESTS) * 1.0e-6;
                 double timePerCall = elapsedTime / (numCalls * 2.0);//microsec
                 if (verbose) {
-                    cout << "\telapsed time   = " << elapsedTime << " (sec)\n"
-                        << "\tnum tests     = " << numCalls << " x 10^6\n"
-                        << "\ttime per call  = " << timePerCall << " (nsec)\n"
-                        << "\n\tnum non-monotonic pairs   = " << numWrong
-                        << "\n\tnum pairs with same value = " << numSame
-                        << endl;
+                    printf("\telapsed time  = %g (sec)\n"
+                           "\tnum calls     = %g x 10^6\n"
+                           "\ttime per call = %g (usec)\n\n"
+                           "\tnum non-monotonic pairs   = %d\n"
+                           "\tnum pairs with same value = %d\n",
+                           elapsedTime,
+                           numCalls,
+                           timePerCall,
+                           numWrong,
+                           numSame);
                 }
             }
         }
@@ -2091,7 +2049,7 @@ int main(int argc, char *argv[])
 
         struct {
             TimerMethod d_method;
-            std::string d_methodName;
+            const char *d_methodName;
         }
         TimerMethods[] = {
             { TU::getTimer,                  "getTimer"                 },
@@ -2105,17 +2063,13 @@ int main(int argc, char *argv[])
 
         for (size_t t = 0; t < TimerMethodsCount; ++t) {
             if (verbose)
-                cout << "\nTesting 'bsls::TimeUtil::"
-                    << TimerMethods[t].d_methodName
-                    << " Performance()'"
-                    << "\n==============================================="
-                    << endl;
+                printf("\nTesting 'bsls::TimeUtil::%s Performance()'"
+                       "\n===============================================\n",
+                       TimerMethods[t].d_methodName);
 
             if (verbose)
-                cout << "\nCall 'bsls::TimeUtil::"
-                    << TimerMethods[t].d_methodName
-                    << "()' in a large loop."
-                    << endl;
+                printf("\nCall 'bsls::TimeUtil::%s()' in a large loop.\n",
+                        TimerMethods[t].d_methodName);
             {
                 const Int64 NUM_STEPS  = verbose ? 10LL * atoi(argv[2]) : 10;
                 const Int64 t0 = TU::getTimer(); //measure the tool with itself
@@ -2136,10 +2090,10 @@ int main(int argc, char *argv[])
                 double numCalls    = ((double) NUM_STEPS * 10.0) * 1.0e-6;
                 double timePerCall = elapsedTime / numCalls; // (microsec.)
                 if (verbose) {
-                    cout << "\telapsed time  = " << elapsedTime << " (sec)\n"
-                        << "\tnum calls    = " << numCalls << " x 10^6\n"
-                        << "\ttime per call = " << timePerCall << " (usec)"
-                        << endl;
+                    printf("\telapsed time  = %g (sec)\n"
+                           "\tnum calls     = %g x 10^6\n"
+                           "\ttime per call = %g (usec)\n",
+                           elapsedTime, numCalls, timePerCall);
                 }
             }
         }
@@ -2167,7 +2121,7 @@ int main(int argc, char *argv[])
 
         struct {
             TimerMethod d_method;
-            std::string d_methodName;
+            const char *d_methodName;
         }
         TimerMethods[] = {
             { TU::getTimer,                  "getTimer"                 },
@@ -2181,26 +2135,21 @@ int main(int argc, char *argv[])
 
         for (size_t t = 0; t < TimerMethodsCount; ++t) {
             if (verbose)
-                cout << "\nTesting '"
-                     << TimerMethods[t].d_methodName
-                     << "()'"
-                     << "\n====================" << endl;
+                printf("\nTesting '%s()'"
+                       "\n====================",
+                       TimerMethods[t].d_methodName);
 
             if (verbose)
-                cout << "\nConfirm sizeof ("
-                     << TimerMethods[t].d_methodName
-                     << "())."
-                     << endl;
+                 printf("\nConfirm sizeof (%s()).\n",
+                        TimerMethods[t].d_methodName);
             {
                 int numBytes = sizeof(TimerMethods[t].d_method());
-                if (veryVerbose) { T_(); P(numBytes); }
+                if (veryVerbose) { T_; P(numBytes); }
                 LOOP_ASSERT(t, 8 <= numBytes);
             }
 
             if (verbose)
-                cout << "\nExercise '"
-                     << TimerMethods[t].d_methodName
-                     << "()'." << endl;
+                printf("\nExercise '%s()'.\n", TimerMethods[t].d_methodName);
             {
                 const int NUM_CALLS   = 10;
                 const int DELAY_COUNT = 1000000;
@@ -2208,7 +2157,7 @@ int main(int argc, char *argv[])
                 double    totalElapsedTime = 0.0;
 
                 result[0] = TimerMethods[t].d_method();
-                if (veryVerbose) { T_();  P64(result[0]); }
+                if (veryVerbose) { T_;  P(result[0]); }
                 for (int i = 1; i < NUM_CALLS; ++i) {
                     for (int j = 0; j < DELAY_COUNT * i; ++j) {
                         i = i + 1;
@@ -2219,24 +2168,25 @@ int main(int argc, char *argv[])
                     double seconds = (double) difference / 1.0e9;
                     totalElapsedTime += seconds;
                     if (veryVerbose) {
-                        T_();  P64_(result[i]);  P64_(difference);  P(seconds);
+                        T_;  P_(result[i]);  P_(difference);  P(seconds);
                     }
                     LOOP2_ASSERT(t, i, (Int64) 0 <= difference);//cast--dg bug
                 }
-                if (veryVerbose) { cout << endl;  T_();  P(totalElapsedTime); }
+                if (veryVerbose) {  printf("\n");  T_;  P(totalElapsedTime); }
             }
         }
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 
@@ -2248,4 +2198,3 @@ int main(int argc, char *argv[])
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
-
