@@ -9,6 +9,7 @@
 
 #include <bsl_map.h>           // for usage example
 
+#include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 

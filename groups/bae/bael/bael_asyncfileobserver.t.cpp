@@ -2197,6 +2197,8 @@ int main(int argc, char *argv[])
 
                 bsl::cout.rdbuf(coutSbuf);
                 multiplexObserver.deregisterObserver(&localMultiObserver);
+                localMultiObserver.deregisterObserver(&defaultObserver);
+                localMultiObserver.deregisterObserver(&mX);
                 mX.stopPublicationThread();
             }
         }
@@ -2892,6 +2894,7 @@ int main(int argc, char *argv[])
             ASSERT(!mX.isPublicationThreadRunning());
         }
 
+        fclose(stdout);
         removeFilesByPrefix(fileName.c_str());
       } break;
       default: {

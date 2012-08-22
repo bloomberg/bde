@@ -439,6 +439,15 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "include <bsl_map.h> instead of <bslstl_map.h> in \
+BSL_OVERRIDES_STD mode"
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>
 #endif
@@ -510,10 +519,7 @@ template <class KEY,
           class VALUE,
           class COMPARATOR = std::less<KEY>,
           class ALLOCATOR  = allocator<bsl::pair<const KEY, VALUE> > >
-class map : private BloombergLP::bslstl::TreeNodePool<
-                                       bsl::pair<const KEY, VALUE>, ALLOCATOR>,
-            private BloombergLP::bslstl::MapComparator<
-                                                      KEY, VALUE, COMPARATOR> {
+class map {
     // This class template implements a value-semantic container type holding
     // an ordered sequence of key-value pairs having unique keys that provide a
     // mapping from keys (of the parameterized type, 'KEY') to their associated
@@ -550,9 +556,31 @@ class map : private BloombergLP::bslstl::TreeNodePool<
         // This typedef is an alias for the allocator traits type associated
         // with this container.
 
+    struct DataWrapper : public Comparator {
+        // This struct is wrapper around the comparator and allocator data
+        // members.  It takes advantage of the empty-base optimization (EBO) so
+        // that if the allocator is stateless, it takes up no space.
+        //
+        // TBD: This struct should eventually be replaced by the use of a
+        // general EBO-enabled component that provides a 'pair'-like
+        // interface or a 'tuple'.
+
+        NodeFactory d_pool;  // pool of 'Node' objects
+
+        explicit DataWrapper(const COMPARATOR&  comparator,
+                             const ALLOCATOR&   allocator);
+            // Create a 'DataWrapper' object with the specified 'comparator'
+            // and 'allocator'.
+    };
+
     // DATA
+    DataWrapper                       d_compAndAlloc;
+                                               // comparator and pool of 'Node'
+                                               // objects
+
     BloombergLP::bslalg::RbTreeAnchor d_tree;  // balanced tree of 'Node'
                                                // objects
+
   public:
     // PUBLIC TYPES
     typedef KEY                                        key_type;
@@ -632,17 +660,11 @@ class map : private BloombergLP::bslstl::TreeNodePool<
     // PRIVATE MANIPULATORS
     NodeFactory& nodeFactory();
         // Return a reference providing modifiable access to the
-        // node allocator for this map.  Note that this class inherits from
-        // (rather than contains) a node allocator to take advantage of the
-        // empty-base class optimization, and this operation returns a
-        // base-class reference to this object.
+        // node allocator for this map.
 
     Comparator& comparator();
         // Return a reference providing modifiable access to the
-        // comparator for this map.  Note that this class inherits from
-        // (rather than contains) a comparator to take advantage of the
-        // empty-base class optimization, and this operation returns a
-        // base-class reference to this object.
+        // comparator for this map.
 
     void quickSwap(map& other);
         // Efficiently exchange the value and comparator of this object with
@@ -653,17 +675,11 @@ class map : private BloombergLP::bslstl::TreeNodePool<
     // PRIVATE ACCESSORS
     const NodeFactory& nodeFactory() const;
         // Return a reference providing non-modifiable access to the
-        // node allocator for this map.  Note that this class inherits from
-        // (rather than contains) a node allocator to take advantage of the
-        // empty-base class optimization, and this operation returns a
-        // base-class reference to this object.
+        // node allocator for this map.
 
     const Comparator& comparator() const;
         // Return a reference providing non-modifiable access to the
-        // comparator for this map.  Note that this class inherits from
-        // (rather than contains) a comparator to take advantage of the
-        // empty-base class optimization, and this operation returns a
-        // base-class reference to this object.
+        // comparator for this map.
 
   public:
     // TRAITS
@@ -1153,6 +1169,21 @@ void swap(map<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
+                             // -----------------
+                             // class DataWrapper
+                             // -----------------
+
+// CREATORS
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+inline
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
+                                                  const COMPARATOR& comparator,
+                                                  const ALLOCATOR&  allocator)
+: Comparator(comparator)
+, d_pool(allocator)
+{
+}
+
                              // ---------
                              // class map
                              // ---------
@@ -1182,7 +1213,7 @@ inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::NodeFactory&
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::nodeFactory()
 {
-    return *this;
+    return d_compAndAlloc.d_pool;
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -1190,7 +1221,7 @@ inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::Comparator&
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::comparator()
 {
-    return *this;
+    return d_compAndAlloc;
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -1198,7 +1229,7 @@ inline
 void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::quickSwap(map& other)
 {
     BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
-    static_cast<NodeFactory *>(this)->swap(other);
+    nodeFactory().swap(other.nodeFactory());
     comparator().swap(other.comparator());
 }
 
@@ -1208,7 +1239,7 @@ inline
 const typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::NodeFactory&
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::nodeFactory() const
 {
-    return *this;
+    return d_compAndAlloc.d_pool;
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -1216,7 +1247,7 @@ inline
 const typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::Comparator&
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::comparator() const
 {
-    return *this;
+    return d_compAndAlloc;
 }
 
 // CREATORS
@@ -1224,8 +1255,7 @@ template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const COMPARATOR& comparator,
                                             const ALLOCATOR&  allocator)
-: NodeFactory(allocator)
-, Comparator(comparator)
+: d_compAndAlloc(comparator, allocator)
 , d_tree()
 {
 }
@@ -1233,8 +1263,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const COMPARATOR& comparator,
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const ALLOCATOR& allocator)
-: NodeFactory(allocator)
-, Comparator(COMPARATOR())
+: d_compAndAlloc(COMPARATOR(), allocator)
 , d_tree()
 {
 }
@@ -1242,8 +1271,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const ALLOCATOR& allocator)
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const map& original)
-: NodeFactory(ALLOCATOR())
-, Comparator(original.comparator().keyComparator())
+: d_compAndAlloc(original.comparator().keyComparator(), ALLOCATOR())
 , d_tree()
 {
     if (0 < original.size()) {
@@ -1258,8 +1286,7 @@ template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const map&       original,
                                             const ALLOCATOR& allocator)
-: NodeFactory(allocator)
-, Comparator(original.comparator().keyComparator())
+: d_compAndAlloc(original.comparator().keyComparator(), allocator)
 , d_tree()
 {
     if (0 < original.size()) {
@@ -1277,8 +1304,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(INPUT_ITERATOR    first,
                                             INPUT_ITERATOR    last,
                                             const COMPARATOR& comparator,
                                             const ALLOCATOR&  allocator)
-: NodeFactory(allocator)
-, Comparator(comparator)
+: d_compAndAlloc(comparator, allocator)
 , d_tree()
 {
     if (first != last) {

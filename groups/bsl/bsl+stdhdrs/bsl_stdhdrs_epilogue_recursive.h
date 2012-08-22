@@ -109,8 +109,8 @@
 
 // If '<algorithm>' was included, then include SGI extension to algorithms.
 #ifdef INCLUDED_NATIVE_ALGORITHM
-# ifndef INCLUDED_BSLSTL_EXALGORITHM
-#   include <bslstl_exalgorithm.h>
+# ifndef INCLUDED_BSLSTP_EXALGORITHM
+#   include <bslstp_exalgorithm.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
@@ -216,8 +216,8 @@
 
 // If '<functional>' was included, then include SGI extension to functional.
 #ifdef INCLUDED_NATIVE_FUNCTIONAL
-# ifndef INCLUDED_BSLSTL_EXFUNCTIONAL
-#   include <bslstl_exfunctional.h>
+# ifndef INCLUDED_BSLSTP_EXFUNCTIONAL
+#   include <bslstp_exfunctional.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 # ifndef INCLUDED_BSLSTL_HASH

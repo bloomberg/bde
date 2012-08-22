@@ -25,6 +25,8 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bslstl_stringref.h>
+
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
 #include <bsl_c_stdlib.h>
 #include <bsl_c_stdio.h>   // for 'snprintf'
@@ -32,8 +34,6 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bsl_iomanip.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
-
-
 
 namespace {
 
@@ -244,7 +244,8 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                 output += fixedFields.category();
               } break;
               case 'm': {
-                output += fixedFields.message();
+                bslstl_StringRef message = fixedFields.messageRef();
+                output.append(message.data(), message.length());
               } break;
               case 'x': {
                 bsl::stringstream ss;

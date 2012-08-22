@@ -1,4 +1,6 @@
 bslstp_alloc
+bslstp_exalgorithm
+bslstp_exfunctional
 bslstp_hashmap
 bslstp_hashset
 bslstp_hashtable
