@@ -2780,7 +2780,7 @@ namespace UsageExample {
 //
 // First, we define a 'TaskFunction' type:
 //..
-typedef void (*TaskFunction)(int, int);
+typedef void (*TaskFunction)(int, int, int);
 //..
 // Then, we define a 'Task' class, which contains a task id, a 'TaskFunction'
 // object and an associated task priority:
@@ -2891,8 +2891,10 @@ class TaskScheduler {
         // Enqueue the specified 'task' having the specified 'priority'
         // onto this scheduler.
 
-    void processTasks();
-        // Dequeue the task having the highest priority in this scheduler.
+    void processTasks(int verbose);
+        // Dequeue the task having the highest priority in this scheduler,
+        // and call its task function by passing in the specified 'verbose'
+        // flag.
 };
 //..
 // Next, we implement the 'TaskScheduler' constructor:
@@ -2922,7 +2924,7 @@ void TaskScheduler::addTask(int taskId,
 // Next, we implement the 'processTasks' method, which extracts tasks from the
 // priority queue in order of descending priorities, and executes them:
 //..
-void TaskScheduler::processTasks()
+void TaskScheduler::processTasks(int verbose)
 {
     // ... (some synchronization)
 
@@ -2930,7 +2932,7 @@ void TaskScheduler::processTasks()
         const Task& task = d_taskPriorityQueue.top();
         TaskFunction taskFunction = task.getFunction();
         if (taskFunction) {
-            taskFunction(task.getId(), task.getPriority());
+            taskFunction(task.getId(), task.getPriority(), verbose);
         }
         d_taskPriorityQueue.pop();
     }
@@ -2943,18 +2945,22 @@ void TaskScheduler::processTasks()
 //
 // Then, we define two task functions:
 //..
-void taskFunction1(int taskId, int priority)
+void taskFunction1(int taskId, int priority, int verbose)
 {
-    printf("Executing task %d (priority = %d) in 'taskFunction1'.\n",
-           taskId,
-           priority);
+    if (verbose) {
+        printf("Executing task %d (priority = %d) in 'taskFunction1'.\n",
+               taskId,
+               priority);
+    }
 }
 
-void taskFunction2(int taskId, int priority)
+void taskFunction2(int taskId, int priority, int verbose)
 {
-    printf("Executing task %d (priority = %d) in 'taskFunction2'.\n",
-           taskId,
-           priority);
+    if (verbose) {
+        printf("Executing task %d (priority = %d) in 'taskFunction2'.\n",
+               taskId,
+               priority);
+    }
 }
 //..
 // Next, we create a global 'TaskScheduler' object:
@@ -2985,7 +2991,7 @@ void taskFunction2(int taskId, int priority)
 //  // (in processing thread)
 //  // ...
 //
-//  taskScheduler.processTasks();
+//  taskScheduler.processTasks(veryVerbose);
 //
 //  // ...
 //..
@@ -3047,13 +3053,13 @@ int main(int argc, char *argv[])
                                   (i % 2) ? taskFunction1 : taskFunction2,
                                   priorities[i]);
         }
-        taskScheduler.processTasks();
+        taskScheduler.processTasks(veryVerbose);
         for (int i = 5;i < numTasks; ++i) {
             taskScheduler.addTask(i + 1,
                                   (i % 2) ? taskFunction1 : taskFunction2,
                                   priorities[i]);
         }
-        taskScheduler.processTasks();
+        taskScheduler.processTasks(veryVerbose);
       } break;
       case 14: {
         // --------------------------------------------------------------------

@@ -3068,8 +3068,10 @@ class MessageProcessor {
     void receiveMessage(const Message &message);
         // Enqueue the specified 'message' for processing.
 
-    void processMessages();
-        // Deque and print all messages currently in the processor.
+    void processMessages(int verbose);
+        // Dequeue all messages currently contained by this processor,
+        // and print them to the console if the specified 'verbose' flag
+        // is not 0.
 };
 //..
 // Next, we implement the 'MessageProcessor' constructor:
@@ -3097,13 +3099,15 @@ void MessageProcessor::receiveMessage(const Message &message)
 // Finally, we implement the 'processMessages' method, which pops all messages
 // off the queue object:
 //..
-void MessageProcessor::processMessages()
+void MessageProcessor::processMessages(int verbose)
 {
     // ... (some synchronization)
 
     while (!d_msgQueue.empty()) {
         const Message& message = d_msgQueue.front();
-        printf("Msg %d: %s\n", message.d_msgId, message.d_msg_p);
+        if (verbose) {
+            printf("Msg %d: %s\n", message.d_msgId, message.d_msg_p);
+        }
         d_msgQueue.pop();
     }
 
@@ -3167,10 +3171,10 @@ int main(int argc, char *argv[])
             msgProcessor.receiveMessage(msg);
 
             if (k < numProcess && i == PROCESS_TIME[k]) {
-                msgProcessor.processMessages();
+                msgProcessor.processMessages(veryVerbose);
                 ++k;
             }
-            msgProcessor.processMessages();
+            msgProcessor.processMessages(veryVerbose);
         }
       } break;
       case 16: {

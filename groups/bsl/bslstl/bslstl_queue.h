@@ -121,9 +121,10 @@ BSLS_IDENT("$Id: $")
 //      void receiveMessage(const Message &message);
 //          // Enqueue the specified 'message' onto this message processor.
 //
-//      void processMessages();
-//          // Dequeue and print all messages currently contained by this
-//          // processor.
+//      void processMessages(int verbose);
+//          // Dequeue all messages currently contained by this processor,
+//          // and print them to the console if the specified 'verbose' flag
+//          // is not 0.
 //  };
 //..
 // Next, we implement the 'MessageProcessor' constructor:
@@ -151,13 +152,15 @@ BSLS_IDENT("$Id: $")
 // Finally, we implement the 'processMessages' method, which pops all messages
 // off the queue object:
 //..
-//  void MessageProcessor::processMessages()
+//  void MessageProcessor::processMessages(int verbose)
 //  {
 //      // ... (some synchronization)
 //
 //      while (!d_msgQueue.empty()) {
 //          const Message& message = d_msgQueue.front();
-//          printf("Msg %d: %s\n", message.d_msgId, message.d_msg_p);
+//          if (verbose) {
+//              printf("Msg %d: %s\n", message.d_msgId, message.d_msg_p);
+//          }
 //          d_msgQueue.pop();
 //      }
 //
