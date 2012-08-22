@@ -62,13 +62,6 @@
 # endif
 #endif
 
-#ifdef BSL_INCLUDE_BSL_STACK
-# ifndef INCLUDED_BSLSTP_STACK
-#   include <bslstp_stack.h>
-#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
-# endif
-#endif
-
 #ifdef BSL_INCLUDE_BSL_HASH_MAP
 # ifndef INCLUDED_BSLSTP_HASHMAP
 #   include <bslstp_hashmap.h>
@@ -191,6 +184,13 @@
 
 # ifndef INCLUDED_BSLSTL_RANDOMACCESSITERATOR
 #   include <bslstl_randomaccessiterator.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
+#ifdef BSL_INCLUDE_BSL_STACK
+# ifndef INCLUDED_BSLSTL_STACK
+#   include <bslstl_stack.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
