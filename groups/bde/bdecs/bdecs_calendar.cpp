@@ -230,6 +230,9 @@ void bdecs_Calendar::addWeekendDay(bdet_DayOfWeek::Day weekendDay)
 void bdecs_Calendar::addWeekendDays(const bdec_DayOfWeekSet& weekendDays)
 {
 
+    // Adding a empty transition at 1/1/1 when 'weekendDays' is empty so that
+    // 'bdecs_Calendar' will have the same behavior as 'bdecs_PackedCalendar'.
+
     if (weekendDays.length() == 0) {
         d_packedCalendar.addWeekendDays(weekendDays);
         return;
