@@ -449,6 +449,7 @@ class stack {
     stack(stack&&          original);
 
         // TBD
+    template <class ALLOCATOR>
     stack(stack&&          original,
           const ALLOCATOR& allocator,
           typename BloombergLP::bslmf::EnableIf<
@@ -632,7 +633,7 @@ stack<VALUE, CONTAINER>::stack(
 template <class VALUE, class CONTAINER>
 inline
 stack<VALUE, CONTAINER>::stack(CONTAINER&&           container)
-: d_container(bsl::move(container))
+: d_container(std::move(container))
 , c(d_container)
 {}
 
@@ -645,14 +646,14 @@ stack<VALUE, CONTAINER>::stack(
                            typename BloombergLP::bslmf::EnableIf<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
-: d_container(bsl::move(container), allocator)
+: d_container(std::move(container), allocator)
 , c(d_container)
 {}
 
 template <class VALUE, class CONTAINER>
 inline
 stack<VALUE, CONTAINER>::stack(stack&&               original)
-: d_container(bsl::move(original.d_container))
+: d_container(std::move(original.d_container))
 , c(d_container)
 {}
 
@@ -665,7 +666,7 @@ stack<VALUE, CONTAINER>::stack(
                            typename BloombergLP::bslmf::EnableIf<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
-: d_container(bsl::move(original.d_container), allocator)
+: d_container(std::move(original.d_container), allocator)
 , c(d_container)
 {}
 
@@ -684,9 +685,10 @@ stack<VALUE, CONTAINER>& stack<VALUE, CONTAINER>::operator=(const stack& rhs)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 
+template <class VALUE, class CONTAINER>
 template <class... Args>
 inline
-void emplace(Args&&... args)
+void stack<VALUE, CONTAINER>::emplace(Args&&... args)
 {
     // This is just copied from the standard.  I am not familiar with this
     // template syntax or what 'emplace' means. -- Bill Chapman 4/20/2012
