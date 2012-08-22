@@ -225,12 +225,12 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckSegmentHeader(
 }
 
 // CLASS METHODS
-void baesu_StackTraceTestAllocator::abortAbort()
+void baesu_StackTraceTestAllocator::failureHandlerAbort()
 {
     bsl::abort();
 }
 
-void baesu_StackTraceTestAllocator::noopAbort()
+void baesu_StackTraceTestAllocator::failureHandlerNoop()
 {
     ;  // do nothing
 }
@@ -246,7 +246,7 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 , d_segments(0)
 , d_mutex()
 , d_name("<unnamed>")
-, d_abortFunction(&abortAbort)
+, d_failureHandler(&failureHandlerAbort)
 , d_maxRecordedFrames(numRecordedFrames + IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(numRecordedFrames))
 , d_ostream(ostream)
@@ -273,7 +273,7 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 , d_segments(0)
 , d_mutex()
 , d_name(name ? name : "<unnamed>")
-, d_abortFunction(&abortAbort)
+, d_failureHandler(&failureHandlerAbort)
 , d_maxRecordedFrames(numRecordedFrames + IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(numRecordedFrames))
 , d_ostream(ostream)
@@ -297,7 +297,7 @@ baesu_StackTraceTestAllocator::~baesu_StackTraceTestAllocator()
 
         reportBlocksInUse();
 
-	(*d_abortFunction)();
+        (*d_failureHandler)();
 
         release();
     }
@@ -376,7 +376,7 @@ void baesu_StackTraceTestAllocator::deallocate(void *address)
         *d_ostream << "Badly aligned segment passed to allocator '"
                    << d_name << "' must have been allocated by another type"
                    << " of allocator\n";
-	(*d_abortFunction)();
+        (*d_failureHandler)();
 
         return;                                                       // RETURN
     }
@@ -386,8 +386,8 @@ void baesu_StackTraceTestAllocator::deallocate(void *address)
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
 
     if (preDeallocateCheckSegmentHeader(segmentHdr)) {
-        guard.release();
-	(*d_abortFunction)();
+        guard.release()->unlock();
+        (*d_failureHandler)();
 
         return;                                                       // RETURN
     }
@@ -411,8 +411,8 @@ void baesu_StackTraceTestAllocator::release()
     for (SegmentHeader *segmentHdr = d_segments;
                                segmentHdr; segmentHdr = segmentHdr->d_next_p) {
         if (preDeallocateCheckSegmentHeader(segmentHdr)) {
-            guard.release();
-            (*d_abortFunction)();
+            guard.release()->unlock();
+            (*d_failureHandler)();
 
             return;                                                   // RETURN
         }
@@ -434,21 +434,22 @@ void baesu_StackTraceTestAllocator::release()
     d_numBlocksInUse = 0;
 }
 
-void baesu_StackTraceTestAllocator::setAbortFunction(AbortFunction func)
+void baesu_StackTraceTestAllocator::setFailureHandler(FailureHandler func)
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
 
     BSLS_ASSERT(0 != func);
 
-    d_abortFunction = func;
+    d_failureHandler = func;
 }
 
 // ACCESSORS
-AbortFunction baesu_StackTraceTestAllocator::abortFunction() const
+baesu_StackTraceTestAllocator::FailureHandler
+baesu_StackTraceTestAllocator::failureHandler() const
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
 
-    return d_abortFunction;
+    return d_failureHandler;
 }
 
 bsl::size_t baesu_StackTraceTestAllocator::numBlocksInUse() const

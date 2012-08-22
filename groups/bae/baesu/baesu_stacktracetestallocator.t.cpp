@@ -54,7 +54,6 @@ using bsl::flush;
 //: o setNoAbort
 //
 // Accessors
-//: o isNoAbort
 //: o numBlocksInUse
 //: o reportBlocksInUse
 //
@@ -179,8 +178,8 @@ using bsl::flush;
 // [15] * Underrun detection
 //      * Verify that writing before the beginning of the buffer from 1 byte
 //        to the size of 4 pointers (a) is always detected, and (b) does not
-//        result in segfaults, and (c) results in abort appropriate for
-//        'isNoAbort'
+//        result in segfaults, and (c) results in failure handling appropriate
+//        for 'failureHandler'
 // [14] Deallocation errors test
 //      * repeat all tests with and without 'noAbort'
 //      * attempt to deallocate segments allocated with 'malloc' and
@@ -550,7 +549,7 @@ void usageBottom()
         // Then, turn off abort mode.  If abort mode were left enabled, the
         // destructor would abort if any memory were leaked.
 
-        ta.setNoAbort(true);
+        ta.setFailureHandler(&Obj::failureHandlerNoop);
 
         // Next, call 'usageMiddle', which will iterate, calling other routines
         // which will allocate many segments of memory.
@@ -899,7 +898,7 @@ int main(int argc, char *argv[])
 
         {
             baesu_StackTraceTestAllocator ta;
-            ta.setNoAbort(true);
+            ta.setFailureHandler(&Obj::failureHandlerNoop);
             bslma::DefaultAllocatorGuard guard(&ta);
 
             bsl::string captain = getCaptain("shipscrew.txt");
@@ -948,7 +947,7 @@ int main(int argc, char *argv[])
         // destructor neglected to deallocate the cook's name.
 
         // Note the following:
-        //: o If we hadn't called 'setNoAbort(true)', the above report would
+        //: o If we hadn't called 'setFailureHandler(&Obj::failureHandlerNoop)', the above report would
         //:   have been followed by a core dump. Since 'isNoAbort' was set,
         //:   'ta's destructor instead frees all leaked memory after giving
         //:   the report and returns.
@@ -988,7 +987,7 @@ int main(int argc, char *argv[])
         bsl::stringstream oss;
         Obj ta("alpha",
                &oss);
-        ta.setNoAbort(true);
+        ta.setFailureHandler(&Obj::failureHandlerNoop);
 
         void *ptr = ta.allocate(6);
         ta.deallocate(ptr);
@@ -1000,7 +999,7 @@ int main(int argc, char *argv[])
 
         bsl::stringstream oss2;
         Obj ta2(&oss2);
-        ta2.setNoAbort(true);
+        ta2.setFailureHandler(&Obj::failureHandlerNoop);
 
         ptr = ta2.allocate(100);
         ta.deallocate(ptr);
@@ -1050,7 +1049,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == pta->numBlocksInUse());
         }
         else {
-            pta->setNoAbort(true);
+            pta->setFailureHandler(&Obj::failureHandlerNoop);
         }
 
         sta.deleteObject(pta);
@@ -1334,15 +1333,15 @@ int main(int argc, char *argv[])
         // BASIC ACCESSORS
         //
         // Concern:
-        //   That 'isNoAbort', 'numBlocksInUse', and 'reportBlocksInUse'
+        //   That 'failureHandler', 'numBlocksInUse', and 'reportBlocksInUse'
         //   function properly.
         //
         // Plan:
-        //   Manipulate the 'no abort' flag and observe it with the 'isNoAbort'
-        //   accessor.  Allocate and free some segments and observe that
-        //   'numBlocksInUse' tracks the number of allocations correctly.
-        //   Call 'reportBlocksInUse' and observe that it gives a report
-        //   appropriate to the number of blocks that are in use.
+        // Manipulate the failure handler and observe it with the
+        // 'failureHandler' accessor.  Allocate and free some segments and
+        // observe that 'numBlocksInUse' tracks the number of allocations
+        // correctly.  Call 'reportBlocksInUse' and observe that it gives a
+        // report appropriate to the number of blocks that are in use.
         //---------------------------------------------------------------------
 
         expectedDefaultAllocations = -1;    // turn off default allocator
@@ -1359,11 +1358,11 @@ int main(int argc, char *argv[])
             FREE_INC             = 7
         };
 
-        ASSERT(! ta.isNoAbort());
-        ta.setNoAbort(true);
-        ASSERT(  ta.isNoAbort());
-        ta.setNoAbort(false);
-        ASSERT(! ta.isNoAbort());
+        ASSERT(ta.failureHandler() == &Obj::failureHandlerAbort);
+        ta.setFailureHandler(&Obj::failureHandlerNoop);
+        ASSERT(ta.failureHandler() == &Obj::failureHandlerNoop);
+        ta.setFailureHandler(Obj::failureHandlerAbort);
+        ASSERT(ta.failureHandler() == &Obj::failureHandlerAbort);
 
         bsl::ostringstream oss;
         ta.reportBlocksInUse(&oss);
@@ -1520,13 +1519,13 @@ int main(int argc, char *argv[])
                 ASSERT(0 != pta);
                 Obj& ta = *pta;
 
-                ASSERT(! ta.isNoAbort());
-                ta.setNoAbort(true);
-                ASSERT(  ta.isNoAbort());
-                ta.setNoAbort(false);
-                ASSERT(! ta.isNoAbort());
-                ta.setNoAbort(true);
-                ASSERT(  ta.isNoAbort());
+                ASSERT(ta.failureHandler() == &Obj::failureHandlerAbort);
+                ta.setFailureHandler(&Obj::failureHandlerNoop);
+                ASSERT(ta.failureHandler() == &Obj::failureHandlerNoop);
+                ta.setFailureHandler(Obj::failureHandlerAbort);
+                ASSERT(ta.failureHandler() == &Obj::failureHandlerAbort);
+                ta.setFailureHandler(&Obj::failureHandlerNoop);
+                ASSERT(ta.failureHandler() == &Obj::failureHandlerNoop);
 
                 void *segment = ta.allocate(100);
                 ASSERT(1 == ta.numBlocksInUse());
@@ -1603,7 +1602,7 @@ int main(int argc, char *argv[])
                 }
 
                 if (!veryVerbose) {
-                    ta.setNoAbort(true);
+                    ta.setFailureHandler(&Obj::failureHandlerNoop);
                 }
             }
 
