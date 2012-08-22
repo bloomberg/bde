@@ -268,7 +268,9 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITPAIR
 #include <bslalg_typetraitpair.h>
+#endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>

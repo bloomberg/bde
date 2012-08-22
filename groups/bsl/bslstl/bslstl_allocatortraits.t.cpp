@@ -500,8 +500,7 @@ class AttribClass5Alloc
     // the bslma model, then this type will be
     // 'bslalg::TypeTraitUsesBslmaAllocator'
     typedef typename ALLOC::ClientTrait UsesAllocTrait;
-    BSLMF_NESTED_TRAIT_DECLARATION(AttribClass5Alloc,
-                              UsesAllocTrait::template NestedTraitDeclaration);
+    BSLMF_NESTED_TRAIT_DECLARATION_FWD(AttribClass5Alloc, UsesAllocTrait);
 
     typedef ALLOC AllocatorType;
 

@@ -39,8 +39,13 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
 #include <bslmf_integerconstant.h>
+#endif
 
 namespace BloombergLP {
 

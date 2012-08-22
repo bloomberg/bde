@@ -84,7 +84,9 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isfundamental.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISBITWISECOPYABLE
 #include <bslmf_isbitwisecopyable.h>
+#endif
 
 #ifndef INCLUDED_BSLMF_ISENUM
 #include <bslmf_isenum.h>

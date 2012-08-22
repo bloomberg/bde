@@ -390,9 +390,17 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_CSTDDEF
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
 #include <bslalg_typetraitbitwisecopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
 #include <bslalg_typetraitbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEEQUALITYCOMPARABLE
 #include <bslalg_typetraitbitwiseequalitycomparable.h>
+#endif
 
 namespace bsl {
 

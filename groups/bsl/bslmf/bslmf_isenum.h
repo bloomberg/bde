@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLTT_INTEGERCONSTANT
+#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
 #include <bslmf_integerconstant.h>
 #endif
 

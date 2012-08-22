@@ -47,7 +47,9 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISBITWISECOPYABLE
 #include <bslmf_isbitwisecopyable.h>
+#endif
 
 namespace BloombergLP {
 

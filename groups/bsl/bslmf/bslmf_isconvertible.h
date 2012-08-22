@@ -116,7 +116,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_anytype.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONTANT
+#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
 #include <bslmf_integerconstant.h>
 #endif
 

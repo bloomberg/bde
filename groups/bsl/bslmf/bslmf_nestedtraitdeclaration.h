@@ -59,6 +59,12 @@ class NestedTraitDeclaration {
         return BloombergLP::bslmf::NestedTraitDeclaration<TYPE, TRAIT>();    \
     }                                                                        \
 
+#define BSLMF_NESTED_TRAIT_DECLARATION_FWD(TYPE, TRAIT)                      \
+    operator typename TRAIT::template NestedTraitDeclaration<TYPE>() const   \
+    {                                                                        \
+        return typename TRAIT::template NestedTraitDeclaration<TYPE>();      \
+    }                                                                        \
+
 }  // close package namespace
 
 }  // close enterprise namespace
