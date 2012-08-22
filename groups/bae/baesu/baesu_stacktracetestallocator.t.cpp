@@ -129,12 +129,20 @@ using bsl::flush;
 //: o That segments returned really are of at least the requested size.
 //: o Is exception-safe if the underlying allocator throws exceptions.
 //-----------------------------------------------------------------------------
-// [21] * usage example
+// [25] * usage example
 //      * name the allocator in the usage example
-// [20] * testing for undefined behavior
+// [24] * segment header test -- use 'my_SegmentHeader' to test
+//      * magic number
+//      * pointer to allocator
+//      * validity of next segment (can't check prev segment)
+// [23] * test out of memory condition (aborts or throws) -- maybe not do this?
+// [22] * test all meaningful combos of c'tor args, ie 'name == 0'
+// [21] * testing that # of recorded frames EXACTLY equals 'numRecordedFrames'
+// [20] * testing for undefined behavior with setjmp/longjmp
 //        'numRecordedFrames >= 2'
+//        'name == 0'
 // [19] * stack depth testing
-//      * verify that the stack depth reported is at least as great as what
+//      * verify that the stack depth reported is exactly as great as what
 //        was specified at construction.
 //      * verify that the stack depth reported is not greater than
 //        (MAX_ALIGNMENT - 1) / sizeof(void *) more frames than were requested
@@ -146,13 +154,23 @@ using bsl::flush;
 //      * Pass the allocator a bslma::TestAllocator rigged to throw exceptions
 //        and verify that the allocator handles this properly.
 // [17] * alignment & min size test
-//      * allocate segments from 1 byte to 100 bytes long, several segments for
+//      * attempt to free pointers that don't meet the minimum alignment
+//        required for any pointer allocated by this type.
+//      * allocate segments from 0 byte to 100 bytes long, several segments for
 //        each size.  Calculate alignment
 //        via 'bsls::AlignmentUtil::calculateAlignmentFromSize', and verify
 //        that the segment return always satisfies the alignment requirement.
 //        Write over the full length of the segment. Use 'bslma::TestAllocator'
 //        as the underlying allocator as it will detect overruns if the any of
 //        the segments were smaller than requested.
+//      * fill segments with byte calculated from xor of all bits in ptr,
+//        verify before freeing no bytes have changed.
+//      * store segments in struct { void *d_p; int d_len; };
+//      * have array of segments, use a random number generator to determine
+//        which is allocated or freed next.  Maintain count of existing
+//        segments so never exceed available slots and only free when there is
+//        something to be freed.  Also monitor 'numBlocksInUse' during this
+//        and make sure it is accurate.
 // [16] * demanglingPreferredFlag
 //      * #ifdef appropriate for platform, do reports with & without
 //        'demanglingPreferredFlag' by searching for
@@ -164,8 +182,10 @@ using bsl::flush;
 //        result in segfaults, and (c) results in abort appropriate for
 //        'isNoAbort'
 // [14] Deallocation errors test
+//      * repeat all tests with and without 'noAbort'
 //      * attempt to deallocate segments allocated with 'malloc' and
-//        global 'new'
+//        global 'new' (actually, since we override 'new' to call 'malloc'
+//        for the sake of other tests, we can only check 'malloc').
 //      * verify that all errors encountered in this test will result in
 //        failure of assert unless 'noAbort' is set -- repeat all tests with &
 //        without 'noAbort'
@@ -176,7 +196,17 @@ using bsl::flush;
 // [13] Calling 'release' successfully frees all allocated segments
 //      * add test to verify that calling it when no segments are outstanding
 //        does no harm
+//      * call it with 1 through 10 segments outstanding
+//      * verify that d'tor also successfully frees all allocated segments
+//      * if d'tor aborts, it should be before segments are released (to
+//        provide a more meaningful core dump)
 // [12] Thread-safety test
+//      * Overhaul so that threads do less work and more allocating.
+//      * Create allocator that 'has-a' test allocator, and specifically keeps
+//        a count of how many times allocate or deallocate is currently
+//        happening, and asserts they're never happening at once.
+//      * Have test set up a barrier before allocating, allocates, a bunch of
+//        times, does same thing with frees.
 // [11] Successful freeing of all allocated segments results in no report
 //      being written at destruction
 // [10] Bslx streaming (N/A)
@@ -188,8 +218,23 @@ using bsl::flush;
 // [ 4] All accessors
 //      * verify that if 'reportBlocksInUse' is called with no args, it writes
 //        its report to the stream specified at construction of the allocator.
+//      * verify that if 'reportBlocksInUse' is called with no memory
+//        outstanding, it produces no output.
 // [ 3] Value c'tor (N/A)
 // [ 2] All constructors, destructor, all manipulators
+//      * Verify that underlying testallocator passed is providing memory, and
+//        freeing memory when 'deallocate' is called.
+//      * Instrument new/delete like mallocfreeallocator.t.cpp to verify
+//        default allocator configuration not coming from new/delete.
+//      * assert there is no output about leaked segments before d'tor is
+//        called
+//      * repeat all tests with and without abort flag (no abort is expected
+//        in this case
+//      * call 'ASSERT(oss.str().empty());' before d'tor is called
+//      * call one instance of object, destroy it with no memory outstanding,
+//        verify no report written by d'tor
+//      * use 'leakTwiceA', verify order of 'leadTwice{C,B,A}' in trace.
+//      * verify allocator name in report
 // [ 1] Breathing test
 //-----------------------------------------------------------------------------
 

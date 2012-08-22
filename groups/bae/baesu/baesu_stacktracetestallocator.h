@@ -234,6 +234,14 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
     // supplying (at construction) any other allocator implementing the
     // 'Allocator' protocol.
 
+  public:
+    // PUBLIC TYPES
+    typedef void (*FailureHandler)();
+        // Type of function called by this object to handle failures.  This
+        // allocator is guaranteed to cope, without undefined behavior,
+        // properly if the failure handler returns, throws, or longjmp's.
+
+  private:
     // PRIVATE TYPES
     enum AllocatorMagic { STACK_TRACE_TEST_ALLOCATOR_MAGIC = 1335775331 };
 
@@ -244,6 +252,9 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
     AllocatorMagic            d_magic;          // magic # to identify type of
                                                 // memory allocator
 
+    volatile int              d_numBlocksInUse; // number of allocated blocks
+                                                // currently unfreed
+
     SegmentHeader            *d_segments;       // list of allocated, unfreed
                                                 // segments
 
@@ -252,6 +263,9 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
 
     const char               *d_name;           // name of this allocator
                                                 // (held, not owned)
+
+    volatile FailureHandler  d_failureHandler;  // function we are to call to
+                                                // abort.
 
     const int                 d_maxRecordedFrames; // max number of stack trace
                                                    // frames to store in each
@@ -274,12 +288,6 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
     bool                      d_demangleFlag;   // if 'true' demangling of
                                                 // symbol names is attempted
 
-    volatile bool             d_noAbortFlag;    // 'true' if we are not to
-                                                // abort on errors
-
-    volatile int              d_numBlocksInUse; // number of allocated blocks
-                                                // currently unfreed
-
     bslma::Allocator         *d_allocator_p;    // held, not owned
 
   private:
@@ -290,11 +298,6 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
 
   private:
     // PRIVATE ACCESSORS
-    int checkHeadNode() const;
-        // Perform sanity checks on head node, reporting any irregularities to
-        // '*d_ostream'.  Return 0 if no irregularities are found, and a
-        // non-zero value otherwise.
-
     int preDeallocateCheckSegmentHeader(
                                      const SegmentHeader *segmentHdr) const;
         // Perform sanity checks on segment header, reporting any
@@ -302,6 +305,20 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
         // found, and a non-zero value otherwise.
 
   public:
+    // CLASS METHODS
+    static void failureHandlerAbort();
+        // Calls 'bsl::abort()', 'd_failureHanlder' is initialized to this
+        // value by all constructors.  Note that in ALL failure situations,
+        // errors or warnings will be written to the 'ostream' associated with
+        // this object prior to the failure handler call.
+
+    static void failureHandlerNoop();
+        // Does nothing.  'setFailureHandler' may be called with this function,
+        // in which case this allocator object, when a faliure occurs, will
+        // recover rather than abort.  Note that in ALL failure situations,
+        // errors or warnings will be written to the 'ostream' associated with
+        // this object prior to the failure handler call.
+
     // CREATORS
     explicit
     baesu_StackTraceTestAllocator(
@@ -339,10 +356,11 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
     virtual ~baesu_StackTraceTestAllocator();
         // Destroy this allocator.  Report any memory leaks to the 'ostream'
         // that was supplied at construction.  If no memory leaks are observed,
-        // nothing is written to the output 'ostream'.  Abort if
-        // 'numBlocksInUse() > 0' unless the 'noAbort' flag is set.  Note that
-        // if the 'noAbort' flag is set, all outstanding memory blocks will be
-        // released, but the report will still be written to 'ostream'.
+        // nothing is written to the output 'ostream'.  Call the failure
+        // handler if 'numBlocksInUse() > 0'.  Note that a report of
+        // outstanding memory blocks is written to 'ostream' before the failure
+        // handler is called, and if the failure handler returns, all
+        // outstanding memory blocks will be released.
 
     // MANIPULATORS
     virtual void *allocate(size_type size);
@@ -361,24 +379,26 @@ class baesu_StackTraceTestAllocator : public bslma::ManagedAllocator {
         // underlying allocator and delete it from the data structures keeping
         // track of blocks in use'.  If 'address' is not zero and is not the
         // address of a segment allocated with this allocator (or if it is
-        // being deallocated a second time), write an error message and, unless
-        // 'noAbortFlag' is set, abort.
+        // being deallocated a second time), write an error message and call
+        // the failure handler.
 
     virtual void release();
         // Deallocate all memory held by this allocator.
 
-    void setNoAbort(bool flagValue);
-        // Set the no-abort mode for this test allcoator to the specified
-        // (boolean) 'flagValue'.  'If flagValue' is 'true', aborting on fatal
-        // errors by the client is suppressed, and the functions simply return.
-        // Diagnostic reports are not affected.  Note that this function is
-        // provided primarily to enable testing of error messages in this
-        // component without having the test driver fail in the nightly build.
-        // The value of the 'noAbort' flag is 'false' at construction.
+    void setFailureHandler(FailureHandler func);
+        // Set the failure handler associated with this allocator object to the
+        // specified 'func'.  Upon construction, the function
+        // 'failureHandlerAbort' is associated with this object by default.
+        // Note that 'func' will be called by this object's destructor if
+        // memory is leaked, so it is important that it not throw.  Note that
+        // in ALL failure situations, errors or warnings will be written to the
+        // 'ostream' associated with this object prior to the failulre handler
+        // call.
 
     // ACCESSORS
-    bool isNoAbort() const;
-        // Return the value of the 'noAbort' flag;
+    FailureHandler failureHandler() const;
+        // Return the pointer to the function that will be called to facilitate
+        // this allocator object's handling of failure.
 
     bsl::size_t numBlocksInUse() const;
         // Return the number of segments that have been allocated and are not
