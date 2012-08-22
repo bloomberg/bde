@@ -1293,245 +1293,287 @@ enum TestEnum { TWO = 2, NINETYNINE = 99 };
 //                       USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-///Example 1: Using push_back, erase, and iteration
-///- - - - - - - - - - - - - - - - - - - - - - - - 
-// An observatory needs to analyze the results of a sky survey.  The raw data
-// is a text file of star observations where each star is represented by a
-// tuple of three numbers: (x, y, b), where x and y represent the angular
+///Example 1: Filter "Twinkle Star"
+/// - - - - - - - - - - - - - - - -
+// Suppose an observatory needs to analyze the results of a sky survey.  The
+// raw data is a text file of star observations where each star is represented
+// by a tuple of three numbers: (x, y, b), where x and y represent the angular
 // coordinates of the star in the sky and b represents its brightness on a
-// scale of 0 to 100.  The class 'Star' encapsulates a single tuple, and
+// scale of 0 to 100.  A star having brightness 75 or higher is of particular
+// interest, which is named "twinkle star".
+//
+// Our first example will read such a data file as described above, filter out
+// the dim stars (brightness less than 75), and count the "twinkle star"s left
+// in the list.  Our test data set has been selected such that there are 10
+// stars in the set, of which 4 are sufficiently bright as to pass our filter.
+//
+// First, we define the class 'Star' that encapsulates a single tuple, and
 // provides accessors functions 'x', 'y', and 'brightness', file I/O functions
 // 'read' and 'write', and free operators '==', '!=', and '<':
 //..
-    #include <cstdio>
-    using namespace std;
+#include <cstdio>
+using namespace std;
 
-    class Star {
-        // Representation of a star as seen through a digital telescope
-        double d_x, d_y;     // Coordinates
-        int    d_brightness; // Brightness on a scale of 0 to 100
-  
-    public:
-        Star() : d_x(0), d_y(0), d_brightness(0) { }
-        Star(double x, double y, int b) : d_x(x), d_y(y), d_brightness(b) { }
-  
-        // Compiler-generated copy construction, assignment, and destructor
-        // Star(const Star&) = default;
-        // Star& operator=(const Star&) = default;
-        // ~Star() = default;
-  
-        double x()       const { return d_x; }
-        double y()       const { return d_y; }
-        int brightness() const { return d_brightness; }
-  
-        bool read(FILE *input);
-            // Read x, y, and brightness from the specified 'input' file.
-            // Return 'true' if the read succeeded and 'false' otherwise.
-  
-        void write(FILE *output) const;
-            // Write x, y, and brightness to the specified 'output' file
-            // followed by a newline.
-    };
+class Star
+    // This class represents a star as seen through a digital telescope.
+{
+    // DATA
+    double d_x, d_y;     // coordinates
 
-    bool operator==(const Star& a, const Star& b);
-    bool operator!=(const Star& a, const Star& b);
-    bool operator<(const Star& a, const Star& b);
-//..
-// The first task is to read a file of data points and append each onto a
-// list.  The stars are stored in the data file in ascending sorted order by x
-// and y coordinates.
-//..
-    #include <bslstl_list.h>
-    using namespace bsl;
+    int    d_brightness; // brightness on a scale of 0 to 100
 
-    void readData(list<Star> *lst, FILE *input)
+public:
+    // CREATORS
+    Star()
+        // Create a 'Star' object located at coordinates '(0, 0)' having
+        // '0' brightness.
+    : d_x(0), d_y(0), d_brightness(0)
     {
-        Star s;
-        while (s.read(input)) {
-            lst->push_back(s);
+    }
+
+    Star(double x, double y, int b)
+        // Create a 'Star' object located at the specified coordinates
+        // '(x, y)' having the specified 'b' brightness.
+    : d_x(x), d_y(y), d_brightness(b)
+    {
+    }
+
+    // Compiler-generated copy construction, assignment, and destructor
+    // Star(const Star&) = default;
+    // Star& operator=(const Star&) = default;
+    // ~Star() = default;
+
+    // MANIPULATORS
+    bool read(FILE *input);
+        // Read x, y, and brightness from the specified 'input' file.
+        // Return 'true' if the read succeeded and 'false' otherwise.
+
+    void write(FILE *output) const;
+        // Write x, y, and brightness to the specified 'output' file
+        // followed by a newline.
+
+    // ACCESSORS
+    double x() const
+        // Return the x coordinate of this 'Star' object.
+    {
+        return d_x;
+    }
+
+    double y() const
+        // Return the y coordinate of this 'Star' object.
+    {
+        return d_y;
+    }
+
+    int brightness() const
+        // Return the brightness of this 'Star' ojbect.
+    {
+        return d_brightness;
+    }
+};
+
+// FREE FUNCTIONS
+bool operator==(const Star& lhs, const Star& rhs);
+bool operator!=(const Star& lhs, const Star& rhs);
+bool operator< (const Star& lhs, const Star& rhs);
+//..
+// Then, we define a 'readData' method that reads a file of data points and
+// appends each onto a list.  The stars are stored in the data file in
+// ascending sorted order by x and y coordinates.
+//..
+void readData(list<Star> *starList, FILE *input)
+{
+    Star s;
+    while (s.read(input)) {
+        starList->push_back(s);
+    }
+}
+//..
+// Now, we define the 'filter' method, which is responsible for removing stars
+// with a brightness of less than 75 from the data set.  It does this by
+// iterating over the list and erasing any element that does not pass the
+// filter.  The list object features a fast 'erase' member function.  The
+// return value of 'erase' is an iterator to the element immediately following
+// the erased element:
+//..
+void filter(list<Star> *starList)
+{
+    static const int threshold = 75;
+
+    list<Star>::iterator i = starList->begin();
+    while (i != starList->end()) {
+        if (i->brightness() < threshold) {
+            i = starList->erase(i);  // Erase and advance to next element.
+        }
+        else {
+            ++i;  // Advance to next element without erasing
         }
     }
+}
 //..
-// We are interested in only the brightest starts.  The 'filter' function is
-// responsible for removing stars with a brightness of less than 75 from the
-// data set.  It does this by iterating over the list and erasing any element
-// that does not pass the filter.  The list object features a fast 'erase'
-// member function.  The return value of 'erase' is an iterator
-// to the element immediately following the erased element:
+// Finally, we use the methods defined in above steps to put together our
+// program to find twinkle stars:
 //..
-    void filter(list<Star> *lst)
-    {
-        static const int threshold = 75;
-  
-        list<Star>::iterator i = lst->begin();
-        while (i != lst->end()) {
-            if (i->brightness() < threshold) {
-                i = lst->erase(i); // Erase and advance to next element.
-            }
-            else {
-                ++i;  // Advance to next element without erasing
-            }
+int usageExample1(int verbose)
+{
+    FILE *input = fopen("star_data1.txt", "r");  // Open input file.
+    ASSERT(input);
+
+    list<Star> starList;                         // Define a list of stars.
+    ASSERT(starList.empty());                    // A list should be empty
+                                                 // after default
+                                                 // construction.
+
+    readData(&starList, input);                  // Read input to the list.
+    ASSERT(10 == starList.size());               // Verify correct reading.
+    fclose(input);                               // Close input file.
+
+    filter(&starList);                           // Pick twinkle stars.
+    ASSERT(4 == starList.size());                // Verify correct filter.
+
+    // Print out twinkle stars.
+    if (verbose) {
+        for (list<Star>::const_iterator i = starList.begin();
+                i != starList.end(); ++i) {
+            i->write(stdout);
         }
     }
+    return 0;
+}
 //..
-// Our first program will read a data file, filter out the dim stars, and
-// count the ones left in the list.  Our test data set has been selected such
-// that there are 10 stars in the set, of which 4 are sufficiently bright as
-// to pass our filter.
-//..
-    int usageExample1()
-    {
-        FILE *input = fopen("star_data1.txt", "r");
-        ASSERT(input);
-  
-        list<Star> lst;
-        ASSERT(lst.empty());
-  
-        readData(&lst, input);
-        ASSERT(10 == lst.size());
-        fclose(input);
-  
-        filter(&lst);
-        ASSERT(4 == lst.size());
-  
-        if (veryVerbose) {
-            for (list<Star>::const_iterator i = lst.begin(); i != lst.end();
-                 ++i) {
-                i->write(stdout);
-            }
-        }
-  
-        return 0;
-    }
-//..
-///Example 2: Using insert, splice, merge, and unique
-///- - - - - - - - - - - - - - - - - - - - - - - - - 
+
+///Example 2: Combine Two Star Surveys
+///- - - - - - - - - - - - - - - - - -
 // Now we want to combine the results from two star surveys into a single
-// list.  We begin by reading both lists and filtering them.  (Our test data is
+// list, using the same 'Star' class defined in the first usage example.
+//
+// First, we begin by reading both lists and filtering them.  (Our test data is
 // selected so that the second data file contains 8 starts of which 3 are
 // sufficiently bright as to pass our filter:
 //..
-    int usageExample2()
-    {
-        FILE *input = fopen("star_data1.txt", "r");
-        ASSERT(input);
-  
-        list<Star> lst1;
-        ASSERT(lst1.empty());
-  
-        readData(&lst1, input);
-        ASSERT(10 == lst1.size());
-        fclose(input);
-  
-        input = fopen("star_data2.txt", "r");
-        ASSERT(input);
-  
-        list<Star> lst2;
-        ASSERT(lst2.empty());
-  
-        readData(&lst2, input);
-        ASSERT(8 == lst2.size());
-        fclose(input);
-  
-        filter(&lst1);
-        ASSERT(4 == lst1.size());
-  
-        filter(&lst2);
-        ASSERT(3 == lst2.size());
+int usageExample2(int verbose)
+{
+    FILE *input = fopen("star_data1.txt", "r");  // Open first input file.
+    ASSERT(input);
+
+    list<Star> starList1;                        // Define first star list.
+    ASSERT(starList1.empty());
+
+    readData(&starList1, input);                 // Read input into list.
+    ASSERT(10 == starList1.size());
+    fclose(input);                               // Close first input file.
+
+    input = fopen("star_data2.txt", "r");        // Open second input file.
+    ASSERT(input);
+
+    list<Star> starList2;                        // Define second list.
+    ASSERT(starList2.empty());
+
+    readData(&starList2, input);                 // Read input into list.
+    ASSERT(8 == starList2.size());
+    fclose(input);                               // Close input file.
+
+    filter(&starList1);                          // Pick twinkle stars from
+                                                 // the first star list.
+    ASSERT(4 == starList1.size());
+
+    filter(&starList2);                          // Pick twinkle stars from
+                                                 // the second star list.
+    ASSERT(3 == starList2.size());
 //..
-// One way to combine the lists is simply to insert the second list at the end
-// of the first:
+// Then, we combine the two lists, 'starList1' and 'starList2'.  One way to do
+// this is to simply insert the second list at the end of the first:
 //..
-        list<Star> tmp1(lst1);  // Make a copy of the first list
-        list<Star> tmp2(lst2);  // Make a copy of the second list
-        tmp1.insert(tmp1.end(), tmp2.begin(), tmp2.end());
-        ASSERT(7 == tmp1.size());  // Combination of lst1 and lst2 sizes
-        ASSERT(3 == tmp2.size());  // Unchanged
+    list<Star> tmp1(starList1);  // Make a copy of the first list
+    list<Star> tmp2(starList2);  // Make a copy of the second list
+    tmp1.insert(tmp1.end(), tmp2.begin(), tmp2.end());
+    ASSERT(7 == tmp1.size());    // Verify combined size.
+    ASSERT(3 == tmp2.size());    // 'tmp2' should be unchanged.
 //..
-// The above insert function appends a copy of each element in 'tmp2' onto the
-// end of 'tmp1'.  This copy is unnecessary because we have no need for 'tmp2'
-// after the lists have been combined.  A faster and less-memory-intensive
-// technique is to use the 'splice' function, which *moves* rather than
-// *copies* elements from one list to another:
+// Next, let's have a closer look of the above code and see if we can improve
+// the combination performance.  The above 'insert' method appends a copy of
+// each element in 'tmp2' onto the end of 'tmp1'.  This copy is unnecessary
+// because we have no need for 'tmp2' after the lists have been combined.  A
+// faster and less-memory-intensive technique is to use the 'splice' function,
+// which *moves* rather than *copies* elements from one list to another:
 //..
-        tmp1 = lst1;
-        tmp2 = lst2;
-        tmp1.splice(tmp1.begin(), tmp2);
-        ASSERT(7 == tmp1.size());  // Combination of lst1 and lst2 sizes
-        ASSERT(0 == tmp2.size());  // Emptied by the splice
+    tmp1 = starList1;
+    tmp2 = starList2;
+    tmp1.splice(tmp1.begin(), tmp2);
+    ASSERT(7 == tmp1.size());    // Verify combined size.
+    ASSERT(0 == tmp2.size());    // 'tmp2' should be emptied by the splice.
 //..
-// Unfortunately, while the original lists were sorted in ascending order
+// Notice that, while the original lists were sorted in ascending order
 // (because the data files were originally sorted), the combined list is no
-// longer sorted.  One way to fix it is simply to sort it using the 'sort'
-// member function:
+// longer sorted.  To fix it, we sort 'tmp1' using the 'sort' member function:
 //..
-        tmp1.sort();
+    tmp1.sort();
 //..
-// However, the best approach is take advantage of the fact that the lists
-// were originally sorted, using the 'merge' function:
+// Then, we suggest a third, and also the best approach to combine two lists,
+// which is to take advantage of the fact that the lists were originally
+// sorted, using the 'merge' function:
 //..
-        lst1.merge(lst2);          // Merge lst2 into lst1
-        ASSERT(7 == lst1.size());  // Combined size
-        ASSERT(0 == lst2.size());  // lst2 was emptied by the merge
+    starList1.merge(starList2);     // Merge 'starList2' into 'starList1'.
+    ASSERT(7 == starList1.size());  // Verify combined size.
+    ASSERT(0 == starList2.size());  // starList2 should be emptied by the
+                                    // merge.
 //..
-// Since the two star surveys may overlap, we want to eliminate duplicates.
-// We accomplish this task using the 'unique' member function:
+// Now, since the two star surveys may overlap, we want to eliminate
+// duplicates.  We accomplish this by using the 'unique' member function:
 //..
-        lst1.unique();
-        ASSERT(6 == lst1.size());
+    starList1.unique();             // Eliminate duplicates in 'starList1'.
+    ASSERT(6 == starList1.size());  // Verify size after elimination.
 //..
 // Finally, we print the result:
 //..
-        if (veryVerbose) {
-            for (list<Star>::const_iterator i = lst1.begin(); i != lst1.end();
-                 ++i)
-            {
-                i->write(stdout);
-            }
+    if (verbose) {
+        for (list<Star>::const_iterator i = starList1.begin();
+             i != starList1.end(); ++i) {
+            i->write(stdout);
         }
-  
-        return 0;
     }
+    return 0;
+}
 //..
 // For completeness, the implementations of the 'read', 'write', and comparison
 // functions for class 'Star' are shown below:
-//..  
-    bool Star::read(FILE *input)
-    {
-        int ret = fscanf(input, "%lf %lf %d", &d_x, &d_y, &d_brightness);
-        return 3 == ret;
-    }
-  
-    void Star::write(FILE *output) const
-    {
-        fprintf(output, "%f %f %d\n", d_x, d_y, d_brightness);
-    }
-  
-    bool operator==(const Star& a, const Star& b)
-    {
-        return a.x() == b.x()
-            && a.y() == b.y()
-            && a.brightness() == b.brightness();
-    }
-  
-    bool operator!=(const Star& a, const Star& b)
-    {
-        return ! (a == b);
-    }
-  
-    bool operator<(const Star& a, const Star& b)
-    {
-        if (a.x() < b.x())
-            return true;
-        else if (b.x() < a.x())
-            return false;
-        else if (a.y() < b.y())
-            return true;
-        else if (b.y() < a.y())
-            return true;
-        else
-            return a.brightness() < b.brightness();
-    }
+//..
+bool Star::read(FILE *input)
+{
+    int ret = fscanf(input, "%lf %lf %d", &d_x, &d_y, &d_brightness);
+    return 3 == ret;
+}
+
+void Star::write(FILE *output) const
+{
+    fprintf(output, "%f %f %d\n", d_x, d_y, d_brightness);
+}
+
+bool operator==(const Star& lhs, const Star& rhs)
+{
+    return lhs.x() == rhs.x()
+        && lhs.y() == rhs.y()
+        && lhs.brightness() == rhs.brightness();
+}
+
+bool operator!=(const Star& lhs, const Star& rhs)
+{
+    return ! (lhs == rhs);
+}
+
+bool operator<(const Star& lhs, const Star& rhs)
+{
+    if (lhs.x() < rhs.x())
+        return true;
+    else if (rhs.x() < lhs.x())
+        return false;
+    else if (lhs.y() < rhs.y())
+        return true;
+    else if (rhs.y() < lhs.y())
+        return true;
+    else
+        return lhs.brightness() < rhs.brightness();
+}
 //..
 
 // 10 data points with 4 stars at or above 75 brightness
@@ -4135,10 +4177,10 @@ void TestDriver<TYPE,ALLOC>::testInsert()
     //   7. That no iterators are invalidated by the insertion.
     //   8. That inserting 'n' copies of value 'v' selects the correct
     //      overload when 'n' and 'v' are identical arithmetic types (i.e.,
-    //      the iterator-range overload is not selected). 
+    //      the iterator-range overload is not selected).
     //   9. That inserting 'n' copies of value 'v' selects the correct
     //      overload when 'v' is a pointer type and 'n' is a null pointer
-    //      literal ,'0'. (i.e., the iterator-range overload is not selected). 
+    //      literal ,'0'. (i.e., the iterator-range overload is not selected).
     //
     // Plan:
     //   Create objects of various sizes and insert a distinct value one or
@@ -8658,10 +8700,10 @@ int main(int argc, char *argv[])
         fclose(output);
 
         if (verbose) printf("\nusageExample1\n");
-        usageExample1();
+        usageExample1(veryVerbose);
 
         if (verbose) printf("\nusageExample2\n");
-        usageExample2();
+        usageExample2(veryVerbose);
 
       } break;
       case 28: {

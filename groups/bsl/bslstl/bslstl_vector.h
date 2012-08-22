@@ -709,7 +709,7 @@ bool operator> (const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically larger
+    // Return 'true' if the specified 'lhs' vector is lexicographically smaller
     // than or equal to the specified 'rhs' vector, and 'false' otherwise.
     // This operator may only be used when the class 'VALUE_TYPE' defines the
     // operator:
