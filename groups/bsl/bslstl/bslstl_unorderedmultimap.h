@@ -146,10 +146,13 @@ class unordered_multimap
     typedef BSTL::HashTable<ListPolicy, HASH, EQUAL, ALLOC>     Impl;
 
   public:
-    typedef BSTL::HashTableIterator<value_type>                       iterator;
-    typedef BSTL::HashTableIterator<const value_type>           const_iterator;
-    typedef BSTL::HashTableBucketIterator<value_type>           local_iterator;
-    typedef BSTL::HashTableBucketIterator<const value_type>
+    typedef BSTL::HashTableIterator<value_type, difference_type, ListPolicy>
+                                                                      iterator;
+    typedef BSTL::HashTableIterator<const value_type, difference_type, ListPolicy>
+                                                                const_iterator;
+    typedef BSTL::HashTableBucketIterator<value_type, difference_type, ListPolicy>
+                                                                local_iterator;
+    typedef BSTL::HashTableBucketIterator<const value_type, difference_type, ListPolicy>
                                                           const_local_iterator;
 
   private:

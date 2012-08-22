@@ -139,11 +139,13 @@ class unordered_multiset
     typedef BSTL::HashTable<ListPolicy, HASH, EQUAL, ALLOC> Impl;
 
   public:
-    typedef BSTL::HashTableIterator<const value_type>                 iterator;
+    typedef BSTL::HashTableIterator<value_type, difference_type, ListPolicy>
+                                                                      iterator;
     typedef iterator                                            const_iterator;
-    typedef BSTL::HashTableBucketIterator<const value_type>     local_iterator;
+    typedef BSTL::HashTableBucketIterator<value_type, difference_type, ListPolicy>
+                                                                local_iterator;
     typedef local_iterator                                const_local_iterator;
-    
+
   private:
 //    enum { DEFAULT_BUCKET_COUNT = 127 };  // 127 is a prime number
     enum { DEFAULT_BUCKET_COUNT = 13 };  // 13 is a prime number

@@ -1,4 +1,4 @@
-// bslstl_hashtablebucketiterator.h                                         -*-C++-*-
+// bslstl_hashtablebucketiterator.h                                   -*-C++-*-
 #ifndef INCLUDED_BSLSTL_HASHTABLEBUCKETITERATOR
 #define INCLUDED_BSLSTL_HASHTABLEBUCKETITERATOR
 
@@ -7,12 +7,12 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a hash table data structure for unordered containers 
+//@PURPOSE: Provide an STL compliant iterator over hash table buckets.
 //
 //@CLASSES:
-// bslstl::HashBucketIterator: iterator to walk the hash-table data structure
+// bslstl::HashBucketIterator: iterator to walk a hash-table bucket
 //
-//@SEE_ALSO: bslstl_unorderedmap, bslstl_unorderedset
+//@SEE_ALSO: bslstl_unorderedmultimap, bslstl_unorderedmultiset
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
@@ -43,12 +43,16 @@ BSLS_IDENT("$Id: $")
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "<bslstl_hashtablebucketiterator.h> header can't be included directly in
-BSL_OVERRIDES_STD mode"
+#error "<bslstl_hashtablebucketiterator.h> header can't be included directly \
+in BSL_OVERRIDES_STD mode"
 #endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_ITERATOR
+#include <bslstl_iterator.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
@@ -75,16 +79,6 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_util.h>
 #endif
 
-#ifndef INCLUDED_ITERATOR
-#include <iterator>
-#define INCLUDED_ITERATOR
-#endif
-
-#ifndef INCLUDED_CSTDDEF
-#include <cstddef>  // 'ptrdiff_t'
-#define INCLUDED_CSTDDEF
-#endif
-
 namespace BloombergLP
 {
 namespace bslstl
@@ -95,31 +89,28 @@ namespace bslstl
                           // class HashTableBucketIterator
                           // =============================
 
-template <class VALUE_TYPE>
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 class HashTableBucketIterator
 #ifdef BSLS_PLATFORM__OS_SOLARIS
-: public std::iterator<std::forward_iterator_tag, VALUE_TYPE>
+: public std::iterator<bsl::forward_iterator_tag, VALUE_TYPE>
 // On Solaris just to keep studio12-v4 happy, since algorithms takes only
 // iterators inheriting from 'std::iterator'.
 #endif
 {
-    // Must use public inheritence, or else 'operator==' will not have an
-    // accessible conversion, which is one of only two reasons to factor out
-    // the base class, the other being the operators '->' and '*'.  Note that
-    // this template differs from the base class only in replacing the
-    // 'operator++' implementation to detect reaching the end of the bucket.
-    // Such implementation inheritance is generally
-    // poor form, but becomes important in minimizing the template footprint
-    // of STL implementations.  This class would be truly minimal with the
-    // C++11 "inheriting constructors" facility.
     
+    // PRIVATE TYPES
+    typedef typename bslmf::RemoveCvq<VALUE_TYPE>::Type NcType;
+    typedef HashTableBucketIterator<NcType, DIFFERENCE_TYPE, LINK_TRANSLATOR>
+                                                                        NcIter;
+
   public:
-    // TYPES
+    // PUBLIC TYPES
     typedef VALUE_TYPE                  value_type;
-    typedef std::ptrdiff_t              difference_type;
+    typedef DIFFERENCE_TYPE             difference_type;
     typedef value_type                 *pointer;
     typedef value_type&                 reference;
-    typedef std::forward_iterator_tag   iterator_category;
+    typedef bsl::forward_iterator_tag   iterator_category;
+        // Standard iterator defined types [24.4.2].
 
   private:
     // DATA
@@ -166,36 +157,36 @@ class HashTableBucketIterator
 };
 
 // FREE FUNCTIONS AND OPERATORS
-template <typename VALUE_TYPE>
-bool operator==(const HashTableBucketIterator<VALUE_TYPE>& lhs,
-                const HashTableBucketIterator<VALUE_TYPE>& rhs);
+template <class VALUE_TYPE1, class VALUE_TYPE2, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+bool operator==(const HashTableBucketIterator<VALUE_TYPE1, DIFFERENCE_TYPE, LINK_TRANSLATOR>& lhs,
+                const HashTableBucketIterator<VALUE_TYPE2, DIFFERENCE_TYPE, LINK_TRANSLATOR>& rhs);
 
-template <typename VALUE_TYPE>
-bool operator!=(const HashTableBucketIterator<VALUE_TYPE>& lhs,
-                const HashTableBucketIterator<VALUE_TYPE>& rhs);
+template <class VALUE_TYPE1, class VALUE_TYPE2, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+bool operator!=(const HashTableBucketIterator<VALUE_TYPE1, DIFFERENCE_TYPE, LINK_TRANSLATOR>& lhs,
+                const HashTableBucketIterator<VALUE_TYPE2, DIFFERENCE_TYPE, LINK_TRANSLATOR>& rhs);
 
 // INLINE FUNCTION DEFINITIONS
 
-template <class VALUE_TYPE>
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-HashTableBucketIterator<VALUE_TYPE>::HashTableBucketIterator()
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::HashTableBucketIterator()
 : d_node_p()
 , d_bucket_p()
 {}
 
-template <class VALUE_TYPE>
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-HashTableBucketIterator<VALUE_TYPE>::HashTableBucketIterator(
-                                         const bslalg::HashTableBucket *bucket)
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
+                 HashTableBucketIterator(const bslalg::HashTableBucket *bucket)
 : d_node_p(bucket ? bucket->first() : 0)
 , d_bucket_p(bucket)
 {
 }
 
     // MANIPULATORS
-template <typename VALUE_TYPE>
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-void HashTableBucketIterator<VALUE_TYPE>::advance()
+void HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::advance()
 {
     BSLS_ASSERT_SAFE(this->d_node_p);
     BSLS_ASSERT_SAFE(this->d_bucket_p);
@@ -208,10 +199,10 @@ void HashTableBucketIterator<VALUE_TYPE>::advance()
     }
 }
 
-template <class VALUE_TYPE>
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-HashTableBucketIterator<VALUE_TYPE>&
-HashTableBucketIterator<VALUE_TYPE>::operator++()
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>&
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::operator++()
 {
     BSLS_ASSERT_SAFE(this->d_node_p);
     BSLS_ASSERT_SAFE(this->d_bucket_p);
@@ -220,10 +211,10 @@ HashTableBucketIterator<VALUE_TYPE>::operator++()
     return *this;
 }
 
-template <class VALUE_TYPE>
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-HashTableBucketIterator<VALUE_TYPE>
-HashTableBucketIterator<VALUE_TYPE>::operator++(int)
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::operator++(int)
 {
     BSLS_ASSERT_SAFE(this->d_node_p);
     BSLS_ASSERT_SAFE(this->d_bucket_p);
@@ -234,10 +225,10 @@ HashTableBucketIterator<VALUE_TYPE>::operator++(int)
 }
 
 // ACCESSORS
-template <typename VALUE_TYPE>
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-typename HashTableBucketIterator<VALUE_TYPE>::reference
-HashTableBucketIterator<VALUE_TYPE>::operator*() const
+typename HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::reference
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::operator*() const
 {
     BSLS_ASSERT_SAFE(this->d_node_p);
 
@@ -245,10 +236,10 @@ HashTableBucketIterator<VALUE_TYPE>::operator*() const
     return static_cast<NodeType *>(this->d_node_p)->value();
 }
 
-template <typename VALUE_TYPE>
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-typename HashTableBucketIterator<VALUE_TYPE>::pointer
-HashTableBucketIterator<VALUE_TYPE>::operator->() const
+typename HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::pointer
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::operator->() const
 {
     BSLS_ASSERT_SAFE(this->d_node_p);
 
@@ -259,18 +250,18 @@ HashTableBucketIterator<VALUE_TYPE>::operator->() const
 
 } // namespace BloombergLP::bslstl
 
-template <typename VALUE_TYPE>
+template <class VALUE_TYPE1, class VALUE_TYPE2, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-bool bslstl::operator==(const HashTableBucketIterator<VALUE_TYPE>& lhs,
-                        const HashTableBucketIterator<VALUE_TYPE>& rhs)
+bool bslstl::operator==(const HashTableBucketIterator<VALUE_TYPE1, DIFFERENCE_TYPE, LINK_TRANSLATOR>& lhs,
+                        const HashTableBucketIterator<VALUE_TYPE2, DIFFERENCE_TYPE, LINK_TRANSLATOR>& rhs)
 {
     return lhs.node() == rhs.node();
 }
 
-template <typename VALUE_TYPE>
+template <class VALUE_TYPE1, class VALUE_TYPE2, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-bool bslstl::operator!=(const HashTableBucketIterator<VALUE_TYPE>& lhs,
-                        const HashTableBucketIterator<VALUE_TYPE>& rhs)
+bool bslstl::operator!=(const HashTableBucketIterator<VALUE_TYPE1, DIFFERENCE_TYPE, LINK_TRANSLATOR>& lhs,
+                        const HashTableBucketIterator<VALUE_TYPE2, DIFFERENCE_TYPE, LINK_TRANSLATOR>& rhs)
 {
     return lhs.node() != rhs.node();
 }

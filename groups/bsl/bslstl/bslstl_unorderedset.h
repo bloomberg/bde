@@ -207,9 +207,11 @@ class unordered_set
     typedef BSTL::HashTable<ListPolicy, HASH, EQUAL, ALLOC>   Impl;
 
   public:
-    typedef BSTL::HashTableIterator<value_type>                       iterator;
-    typedef BSTL::HashTableBucketIterator<value_type>           local_iterator;
+    typedef BSTL::HashTableIterator<value_type, difference_type, ListPolicy>
+                                                                      iterator;
     typedef iterator                                            const_iterator;
+    typedef BSTL::HashTableBucketIterator<value_type, difference_type, ListPolicy>
+                                                                local_iterator;
     typedef local_iterator                                const_local_iterator;
 
   private:

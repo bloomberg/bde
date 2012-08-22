@@ -219,10 +219,13 @@ class unordered_map
     typedef BSTL::HashTable<ListPolicy, HASH, EQUAL, ALLOC>     Impl;
 
   public:
-    typedef BSTL::HashTableIterator<value_type>                       iterator;
-    typedef BSTL::HashTableIterator<const value_type>           const_iterator;
-    typedef BSTL::HashTableBucketIterator<value_type>           local_iterator;
-    typedef BSTL::HashTableBucketIterator<const value_type>
+    typedef BSTL::HashTableIterator<value_type, difference_type, ListPolicy>
+                                                                      iterator;
+    typedef BSTL::HashTableIterator<const value_type, difference_type, ListPolicy>
+                                                                const_iterator;
+    typedef BSTL::HashTableBucketIterator<value_type, difference_type, ListPolicy>
+                                                                local_iterator;
+    typedef BSTL::HashTableBucketIterator<const value_type, difference_type, ListPolicy>
                                                           const_local_iterator;
 
   private:
@@ -922,7 +925,7 @@ operator[](const key_type& k)
     // do not think this is used in the benchmarks that show double-cost though
     HashTableLink *node = d_impl.find(k);
     if (!node) {
-        node = d_impl.do_emplace(value_type(k, mapped_type()));
+        node = d_impl.doEmplace(value_type(k, mapped_type()));
     }
 
     BSLS_ASSERT(k == ListPolicy::extractValue(node).first);

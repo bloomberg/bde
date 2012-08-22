@@ -3272,7 +3272,6 @@ int main(int argc, char *argv[])
                       testCase11,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
-#endif
       case 10: {
         // --------------------------------------------------------------------
         // STREAMING FUNCTIONALITY
@@ -3338,6 +3337,7 @@ int main(int argc, char *argv[])
                       testCase6,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
+#endif
       case 5: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR
