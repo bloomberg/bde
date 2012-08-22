@@ -307,7 +307,7 @@ class baexml_Formatter {
         // For use in element nesting stack.  Keep track of the whitespace
         // formatting mode and the tag (in safe mode) for an open element.
         WhitespaceType d_ws;
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BDE_BUILD_TARGET_SAFE2
         // Use a fixed-length string to validate close tag against open tag.
         // If tag is longer than the maximum length, only the first
         // 'TRUNCATED_TAG_LEN' characters are checked.
@@ -320,7 +320,7 @@ class baexml_Formatter {
         // Use compiler-generated copy constructor, assignment, and destructor.
         void setWs(WhitespaceType ws);
         WhitespaceType ws() const;
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BDE_BUILD_TARGET_SAFE2
         bool matchTag(const bdeut_StringRef& tag) const;
 #endif
     };
@@ -542,7 +542,21 @@ class baexml_Formatter {
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-#ifndef BDE_BUILD_TARGET_SAFE
+                        // -----------------------------------
+                        // class baexml_Formatter::ElemContext
+                        // -----------------------------------
+
+// CREATORS
+#ifdef BDE_BUILD_TARGET_SAFE2
+inline
+baexml_Formatter::ElemContext::ElemContext(const bdeut_StringRef& tag,
+                                           WhitespaceType         ws)
+: d_ws(ws), d_tagLen(bsl::min(tag.length(), 255))
+{
+    int len = bsl::min(int(BAEXML_TRUNCATED_TAG_LEN), tag.length());
+    bsl::memcpy(d_tag, tag.data(), len);
+}
+#else
 inline
 baexml_Formatter::ElemContext::ElemContext(const bdeut_StringRef& ,
                                            WhitespaceType         ws)
@@ -551,12 +565,14 @@ baexml_Formatter::ElemContext::ElemContext(const bdeut_StringRef& ,
 }
 #endif
 
+// MANIPULATORS
 inline
 void baexml_Formatter::ElemContext::setWs(baexml_Formatter::WhitespaceType ws)
 {
     d_ws = ws;
 }
 
+// ACCESSORS
 inline
 baexml_Formatter::WhitespaceType baexml_Formatter::ElemContext::ws() const
 {

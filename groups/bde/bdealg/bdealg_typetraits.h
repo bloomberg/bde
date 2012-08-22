@@ -391,24 +391,8 @@ BDES_IDENT("$Id: $")
 // include these, and although 'bdealg' is DEPRECATED, unconditionally
 // providing these inclusions is the correct thing to do.
 
-#ifndef INCLUDED_BDEALG_TYPETRAITBITWISECOPYABLE
-#include <bdealg_typetraitbitwisecopyable.h>
-#endif
-
-#ifndef INCLUDED_BDEALG_TYPETRAITBITWISEEQUALITYCOMPARABLE
-#include <bdealg_typetraitbitwiseequalitycomparable.h>
-#endif
-
-#ifndef INCLUDED_BDEALG_TYPETRAITBITWISEMOVEABLE
-#include <bdealg_typetraitbitwisemoveable.h>
-#endif
-
 #ifndef INCLUDED_BDEALG_TYPETRAITHASPOINTERSEMANTICS
 #include <bdealg_typetraithaspointersemantics.h>
-#endif
-
-#ifndef INCLUDED_BDEALG_TYPETRAITHASSTLITERATORS
-#include <bdealg_typetraithasstliterators.h>
 #endif
 
 #ifndef INCLUDED_BDEALG_TYPETRAITHASTRIVIALDEFAULTCONSTRUCTOR
@@ -417,10 +401,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDEALG_TYPETRAITNIL
 #include <bdealg_typetraitnil.h>
-#endif
-
-#ifndef INCLUDED_BDEALG_TYPETRAITPAIR
-#include <bdealg_typetraitpair.h>
 #endif
 
 #ifndef INCLUDED_BDEALG_TYPETRAITUSESBDEMAALLOCATOR

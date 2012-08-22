@@ -9,6 +9,7 @@ baetzo_localtimevalidity
 baetzo_testloader
 baetzo_timezoneutil
 baetzo_timezoneutilimp
+baetzo_windowstimezoneutil
 baetzo_zoneinfo
 baetzo_zoneinfobinaryheader
 baetzo_zoneinfobinaryreader
