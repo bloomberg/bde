@@ -285,7 +285,8 @@ static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#define TEST_TYPES_REGULAR(containerArg)                                      \
+#ifndef BSLS_PLATFORM__OS_WINDOWS
+# define TEST_TYPES_REGULAR(containerArg)                                     \
         containerArg<signed char>,                                            \
         containerArg<size_t>,                                                 \
         containerArg<bsltf::TemplateTestFacility::ObjectPtr>,                 \
@@ -298,6 +299,20 @@ static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
         containerArg<bsltf::BitwiseMoveableTestType>,                         \
         containerArg<bsltf::AllocBitwiseMoveableTestType>,                    \
         containerArg<bsltf::NonTypicalOverloadsTestType>
+#else
+# define TEST_TYPES_REGULAR(containerArg)                                     \
+        containerArg<signed char>,                                            \
+        containerArg<size_t>,                                                 \
+        containerArg<bsltf::TemplateTestFacility::ObjectPtr>,                 \
+        containerArg<bsltf::TemplateTestFacility::MethodPtr>,                 \
+        containerArg<bsltf::EnumeratedTestType::Enum>,                        \
+        containerArg<bsltf::UnionTestType>,                                   \
+        containerArg<bsltf::SimpleTestType>,                                  \
+        containerArg<bsltf::AllocTestType>,                                   \
+        containerArg<bsltf::BitwiseMoveableTestType>,                         \
+        containerArg<bsltf::AllocBitwiseMoveableTestType>,                    \
+        containerArg<bsltf::NonTypicalOverloadsTestType>
+#endif
 
 #define TEST_TYPES_INEQUAL_COMPARABLE(containerArg)                           \
         containerArg<signed char>,                                            \
