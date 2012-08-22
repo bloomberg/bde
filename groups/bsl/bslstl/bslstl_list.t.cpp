@@ -6101,7 +6101,7 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
                         // If TYPE uses bslma but Obj does not, then each
                         // element will allocate one block from the default
                         // allocator.
-                        ASSERT(TB + LENGTH ==
+                        ASSERT(TB + (int) LENGTH ==
                                defaultAllocator_p->numBlocksInUse());
                     }
                     else {
@@ -6144,7 +6144,7 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
                         // If TYPE uses bslma but Obj does not, then each
                         // element will allocate one block from the default
                         // allocator.
-                        ASSERT(TB + LENGTH ==
+                        ASSERT(TB + (int) LENGTH ==
                                defaultAllocator_p->numBlocksInUse());
                     }
                     else {
@@ -6805,7 +6805,7 @@ void TestDriver<TYPE,ALLOC>::testAssignmentOp()
                 const size_t      uLen   = strlen(U_SPEC);
 
                 if (verbose) {
-                    printf("\tFor lhs objects of length %d:\t", uLen);
+                    printf("\tFor lhs objects of length %d:\t", (int) uLen);
                     P(U_SPEC);
                 }
 
@@ -6817,7 +6817,8 @@ void TestDriver<TYPE,ALLOC>::testAssignmentOp()
                     const size_t      vLen   = strlen(V_SPEC);
 
                     if (veryVerbose) {
-                        printf("\t\tFor rhs objects of length %d:\t", vLen);
+                        printf("\t\tFor rhs objects of length %d:\t",
+                               (int) vLen);
                         P(V_SPEC);
                     }
 
@@ -6904,7 +6905,7 @@ void TestDriver<TYPE,ALLOC>::testAssignmentOp()
             const size_t    uLen   = (int) strlen(U_SPEC);
 
             if (verbose) {
-                printf("\tFor lhs objects of length %d:\t", uLen);
+                printf("\tFor lhs objects of length %d:\t", (int) uLen);
                 P(U_SPEC);
             }
 
@@ -6917,8 +6918,7 @@ void TestDriver<TYPE,ALLOC>::testAssignmentOp()
                 const size_t    vLen   = (int) strlen(V_SPEC);
 
                 if (veryVerbose) {
-                    printf("\t\tFor rhs objects of length %d:\t",
-                           vLen);
+                    printf("\t\tFor rhs objects of length %d:\t", (int) vLen);
                     P(V_SPEC);
                 }
 
@@ -7190,7 +7190,7 @@ void TestDriver<TYPE,ALLOC>::testCopyCtor()
             const size_t    LENGTH = (int) strlen(SPEC);
 
             if (verbose) {
-                printf("\nFor an object of length %d:\n", LENGTH);
+                printf("\nFor an object of length %d:\n", (int) LENGTH);
                 P(SPEC);
             }
 
@@ -7434,8 +7434,9 @@ void TestDriver<TYPE,ALLOC>::testEqualityOp()
 
             if ((int)LENGTH != oldLen) {
                 if (verbose)
-                    printf( "\tUsing lhs objects of length %d.\n", LENGTH);
-                LOOP_ASSERT(U_SPEC, oldLen <= (int)LENGTH);//non-decreasing
+                    printf("\tUsing lhs objects of length %d.\n",
+                           (int) LENGTH);
+                LOOP_ASSERT(U_SPEC, oldLen <= (int) LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
 
@@ -7625,7 +7626,7 @@ void TestDriver<TYPE,ALLOC>::testBasicAccessors()
                 LOOP2_ASSERT(ti, ai, (LENGTH == 0) == X.empty());
 
                 if (veryVerbose) {
-                    printf( "\ton objects of length %d:\n", LENGTH);
+                    printf( "\ton objects of length %d:\n", (int) LENGTH);
                 }
 
                 // non-decreasing
@@ -7685,7 +7686,7 @@ void TestDriver<TYPE,ALLOC>::testBasicAccessors()
                 LOOP2_ASSERT(ti, ai, (LENGTH == 0) == X.empty());
 
                 if (veryVerbose) {
-                    printf("\tOn objects of length %d:\n", LENGTH);
+                    printf("\tOn objects of length %d:\n", (int) LENGTH);
                 }
 
                 // non-decreasing
@@ -7910,7 +7911,7 @@ void TestDriver<TYPE,ALLOC>::testGeneratorGG()
             Obj mX(Z);
 
             if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length %d:\n", LENGTH);
+                if (verbose) printf("\tof length %d:\n", (int) LENGTH);
                 // LOOP_ASSERT(LINE, oldLen <= (int)LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
@@ -8080,7 +8081,7 @@ void TestDriver<TYPE,ALLOC>::testPrimaryManipulators()
 
         for (size_t li = 0; li < NUM_TRIALS; ++li) {
             if (verbose)
-                printf("\t\tOn an object of initial length %d.\n", li);
+                printf("\t\tOn an object of initial length %d.\n", (int) li);
 
             Obj mX;  const Obj& X = mX;
             const TYPE *elemAddrs[NUM_TRIALS];
@@ -8125,7 +8126,7 @@ void TestDriver<TYPE,ALLOC>::testPrimaryManipulators()
 
         for (size_t li = 0; li < NUM_TRIALS; ++li) {
             if (verbose)
-                printf("\t\tOn an object of initial length %d.\n", li);
+                printf("\t\tOn an object of initial length %d.\n", (int) li);
 
             ALLOC AL(&testAllocator);
             Obj mX(AL);  const Obj& X = mX;
@@ -8181,7 +8182,7 @@ void TestDriver<TYPE,ALLOC>::testPrimaryManipulators()
 
         for (size_t li = 0; li < NUM_TRIALS; ++li) {
             if (verbose)
-                    printf("\t\tOn an object of initial length %d.\n", li);
+                printf("\t\tOn an object of initial length %d.\n", (int) li);
 
             Obj mX;  const Obj& X = mX;
 
@@ -8227,7 +8228,7 @@ void TestDriver<TYPE,ALLOC>::testPrimaryManipulators()
 
         for (size_t li = 0; li < NUM_TRIALS; ++li) {
             if (verbose)
-                    printf("\t\tOn an object of initial length %d.\n", li);
+                printf("\t\tOn an object of initial length %d.\n", (int) li);
 
             ALLOC AL(&testAllocator);
             Obj mX(AL);  const Obj& X = mX;
@@ -8296,7 +8297,8 @@ void TestDriver<TYPE,ALLOC>::testPrimaryManipulators()
 
         const size_t NUM_TRIALS = LARGE_SIZE_VALUE;
         for (size_t li = 0; li < NUM_TRIALS; ++li) { // i is the length
-            if (verbose) printf("\t\t\tOn an object of length %d.\n", li);
+            if (verbose)
+                printf("\t\t\tOn an object of length %d.\n", (int) li);
 
           BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
@@ -8337,11 +8339,11 @@ void TestDriver<TYPE,ALLOC>::testPrimaryManipulators()
         const size_t NUM_TRIALS = LARGE_SIZE_VALUE;
         for (size_t i = 0; i < NUM_TRIALS; ++i) { // i is first length
             if (verbose)
-                printf("\t\t\tOn an object of initial length %d.\n", i);
+                printf("\t\t\tOn an object of initial length %d.\n", (int) i);
 
             for (size_t j = 0; j < NUM_TRIALS; ++j) { // j is second length
                 if (veryVerbose)
-                    printf("\t\t\t\tAnd with final length %d.\n", j);
+                    printf("\t\t\t\tAnd with final length %d.\n", (int) j);
 
               BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 size_t k; // loop index
