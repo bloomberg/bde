@@ -17,13 +17,12 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Bill Chapman (bchapman)
 //
-//@DESCRIPTION: This component describes a single class template
-// 'bslstl::stack', a container adapter that takes an underlying container and
-// provides a stack interface which the user accesses primarily through 'push',
-// 'pop', and 'top' operations.  A 'deque' (the default), 'vector', or 'list'
-// may be used, but any container which supports 'push_back', 'pop_back',
-// 'back', and 'size', plus a template specialization 'uses_allocator::type',
-// may be used.
+//@DESCRIPTION: This component defines a single class template 'bslstl::stack',
+// a container adapter that takes an underlying container and provides a stack
+// interface which the user accesses primarily through 'push', 'pop', and 'top'
+// operations.  A 'deque' (the default), 'vector', or 'list' may be used, but
+// any container which supports 'push_back', 'pop_back', 'back', and 'size',
+// plus a template specialization 'uses_allocator::type', may be used.
 //
 ///Requirements of Parametrized 'CONTAINER' Type
 ///---------------------------------------------
@@ -37,13 +36,14 @@ BSLS_IDENT("$Id: $")
 //:   o size_type
 //: o It must support the following methods, depending on what method of
 //:   'stack' are used:
+//:   o constructors used must take a parameter of type 'allocator_type'
 //:   o void push_back(const value_type&)
 //:   o void pop_back()
 //:   o value_type& back()
 //:   o size_type size()
 //:   o '==', '!=', '<', '>', '<=', '>='
 //:   o 'operator='
-//:   o std::swap(CONTAINER&, CONTAINER&)
+//:   o if 'swap' is used, std::swap(CONTAINER&, CONTAINER&) must work
 //
 ///Note on Parameterized 'VALUE' Type
 ///----------------------------------
@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 ///Operations
 ///----------
 // This section describes the run-time complexity of operations on instances
-// of 'map':
+// of 'stack':
 //..
 //  Legend
 //  ------
@@ -89,14 +89,14 @@ BSLS_IDENT("$Id: $")
 //  'c'             - container of type 'C'
 //  'nc'            - number of elements in container 'c'
 //  's', 't'        - two distinct objects of type 'stack<V, C>'
-//  'n', 'm'        - number of elements in 'a' and 'b' respectively
-//  'al             - a STL-style memory allocator
+//  'n', 'm'        - number of elements in 's' and 't' respectively
+//  'al'            - a STL-style memory allocator
 //  'v'             - an object of type 'V'
 //
 //
 //  +----------------------------------------------------+--------------------+
 //  | Note: the following estimations of operation complexity assume the      |
-//  | underlying contianer is a 'bsl::deque', 'bsl::vector', or 'bsl::list'.  |
+//  | underlying container is a 'bsl::deque', 'bsl::vector', or 'bsl::list'.  |
 //  +----------------------------------------------------+--------------------+
 //  | Operation                                          | Complexity         |
 //  +====================================================+====================+
@@ -143,73 +143,127 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1:
-/// - - - - - - - - - - - - - - - -
-// In this example, we demonstrate the basic functionality of the 'stack'
-// container adapter.
+///Example 1: Household Chores To Do List
+/// - - - - - - - - - - - - - - - - - - -
+// Suppose a husband wants to keep track of chores his wife has asked him to
+// do.  Over the years of being married, he has noticed that his wife generally
+// wants the most recently requested task done first.  If she has a new task in
+// mind that is low-priority, she will avoid asking for it until higher
+// priority tasks are finished.  When he has finished all tasks, he is to
+// report to his wife that he is ready for more.
 //
-// First, we create a couple of allocators, the test allocator 'ta' and the
-// default allocator 'da'.
+// First, we define the class implementing the 'to-do' list.
 //..
-//  bslma_TestAllocator ta;
-//  bslma_TestAllocator da;                    // Default Allocator
-//  bslma_DefaultAllocatorGuard guard(&da);
+//  class ToDoList {
+//      // DATA
+//      bsl::stack<bsl::string> d_stack;
+//
+//    public:
+//      // MANIPULATORS
+//      void enqueueTask(const bsl::string& task);
+//          // Add the specified 'task', a string describing a task, to the
+//          // list.
+//
+//      void finishTask();
+//          // Remove the current task from the list.  If the list is empty
+//          // when this is called, do nothing.  Otherwise, if the list is
+//          // empty after removing the current task, report to the wife that
+//          // the task is done.
+//
+//      // ACCESSORS
+//      const bsl::string& currentTask() const;
+//          // Return the string representing the current task.  If there
+//          // is no current task, return the string "<EMPTY>", which is
+//          // not a valid task.
+//  };
+//
+//  // MANIPULATORS
+//  void ToDoList::enqueueTask(const bsl::string& task)
+//  {
+//      printf("Yes, dear.\n");
+//  
+//      d_stack.push(task);
+//  }
+//
+//  void ToDoList::finishTask()
+//  {
+//      if (!d_stack.empty()) {
+//          d_stack.pop();
+//
+//          if (d_stack.empty()) {
+//              printf("Honey, I've finished everything.\n");
+//          }
+//      }
+//  };
+//
+//  // ACCESSORS
+//  const bsl::string& ToDoList::currentTask() const
+//  {
+//      if (d_stack.empty()) {
+//          static const bsl::string emptyString("<EMPTY>");
+//          return emptyString;
+//      }
+//
+//      return d_stack.top();
+//  }
 //..
-// Then, we create a stack of strings:
+// Then, create an object of type 'ToDoList'.
 //..
-//  stack<string> mX(&ta);        const stack<string>& X = mX;
+//  ToDoList toDoList;
 //..
-// Next, we observe that the newly created stack is empty.
+// Next, a few tasks are requested:
 //..
-//  assert(X.empty());
-//  assert(0 == X.size());
+//  toDoList.enqueueTask("Mow the lawn.");
+//  toDoList.enqueueTask("Change the car's oil.");
+//  toDoList.enqueueTask("Pay the bills.");
 //..
-// Then, we push a few strings onto the stack.  After each push, the last thing
-// pushed is what's on top of the stack:
+// Then, the husband watches the Yankee's game on TV.  Upon returning
+// to the list he consults the list to see what task is up next:
 //..
-//  mX.push("woof");
-//  assert(X.top() == "woof");
-//  mX.push("arf");
-//  assert(X.top() == "arf");
-//  mX.push("meow");
-//  assert(X.top() == "meow");
+//  ASSERT("Pay the bills." == toDoList.currentTask());
 //..
-// Next, we verify that we have 3 objects in the stack:
+// Next, he sees that he has to pay the bills.  When the bills are
+// finished, he flushes that task from the list:
 //..
-//  assert(3 == X.size());
-//  assert(!X.empty());
+//  toDoList.finishTask();
 //..
-// Then, we pop an item off the stack and see that the item pushed before it is
-// now on top of the stack:
+// Then, it is now time for bed.  Upon getting out of bed Saturday
+// morning, he consults the list for the next task:
 //..
-//  mX.pop();
-//  assert(X.top() == "arf");
+//  ASSERT("Change the car's oil." == toDoList.currentTask());
 //..
-// Next, we create a long string (long enough that taking a copy of it will
-// require memory allocation).  Note that 's' uses the default allocator.
+// Next, he sees he has to change the car's oil.  Before he can get
+// started, another request comes:
 //..
-//  const string s("supercalifragisticexpialidocious"
-//                 "supercalifragisticexpialidocious"
-//                 "supercalifragisticexpialidocious"
-//                 "supercalifragisticexpialidocious");
+//  toDoList.enqueueTask("Get some hot dogs.");
+//  ASSERT("Get some hot dogs." == toDoList.currentTask());
 //..
-// Then, we monitor both memory allocators:
+// Then, he drives the car to the convenience store and picks up some
+// hot dogs and buns.  Upon returning home, he gives the hot dogs to
+// his wife, updates the list, and consults it for the next task.
 //..
-//  bslma_TestAllocatorMonitor tam(&ta);
-//  bslma_TestAllocatorMonitor dam(&da);
+//  toDoList.finishTask();
+//  ASSERT("Change the car's oil." == toDoList.currentTask());
 //..
-// Now, we push the large string onto the stack:
+// Next, he finishes the oil change, updates the list, and consults it
+// for the next task.
 //..
-//  mX.push(s);
-//  assert(s == X.top());
+//  toDoList.finishTask();
+//  ASSERT("Mow the lawn." == toDoList.currentTask());
 //..
-// Finally, we observe that the memory allocated to store the large string in
-// the stack came from the allocator passed to the stack at construction, and
-// not from the default allocator.
+// Now, he pays the neighbor's kid $10 to mow the lawn, and watches
+// Jerry Springer on TV.  When the show is done, he checks the lawn and
+// sees the mowing is completed.  He updates the list:
 //..
-//  assert(tam.isTotalUp());
-//  assert(dam.isTotalSame());
+//  toDoList.finishTask();
+//  ASSERT("<EMPTY>" == toDoList.currentTask());
 //..
+// Finally, the wife has now been informed that everything is done,
+// and she makes another request:
+//..
+//  toDoList.enqueueTask("Clean the rain gutters.");
+//..
+
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -222,8 +276,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
-#include <bslalg_swaputil.h>
+#ifndef INCLUDED_BSLSTL_DEQUE
+#include <bslstl_deque.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
@@ -254,10 +308,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_metaint.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_DEQUE
-#include <bslstl_deque.h>
-#endif
-
 #ifndef INCLUDED_ALGORITHM
 #include <algorithm>
 #define INCLUDED_ALGORITHM
@@ -278,12 +328,18 @@ struct Stack_HasAllocatorType {
 
 template <class VALUE, class CONTAINER = deque<VALUE> >
 class stack {
+    // This 'class' defines a container adapter which supports access primarily
+    // via 'push', 'pop', and 'top'.  This type is value-semantic, and can be
+    // based on a variety of other container types, including 'deque',
+    // 'vector', and 'list'.
+    //
+    // Note that we never use 'VALUE' in the implementation except in the
+    // default argument of 'CONTAINER'.  We use 'CONTAINER::value_type' for
+    // everything, which means that if 'CONTAINER' is specified, then 'VALUE'
+    // is ignored.
+
   public:
     // PUBLIC TYPES
-
-    // Note that we never use 'VALUE' in the imp except in the default value of
-    // 'CONTAINER'.  We use 'CONTAINER::value_type' for everything, which means
-    // that if 'CONTAINER' is specified, then 'VALUE' is ignored.
 
     typedef typename CONTAINER::value_type      value_type;
     typedef typename CONTAINER::reference       reference;
@@ -326,23 +382,26 @@ class stack {
   public:
     // CREATORS
     stack();
+        // Construct an empty stack.  No allocator will be provided to the
+        // underlying container, and the container's memory allocation will be
+        // provided by whatever is the default for the container type.
 
     template <class ALLOCATOR>
-    explicit stack(const ALLOCATOR& allocator,
-                   typename BloombergLP::bslmf::EnableIf<
+    explicit
+    stack(const ALLOCATOR& allocator,
+          typename BloombergLP::bslmf::EnableIf<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type * = 0);
-        // Construct an empty stack.  If 'allocator' is not supplied, a
-        // default-constructed object of the parameter-derived 'allocator_type'
-        // type is used.  If the template parameter 'CONTAINER::allocator_type'
-        // is 'bsl::allocator' (the default) then 'allocator', if supplied, may
-        // be of any type convertible to 'bslma_Allocator *', which is
-        // implicitly convertible to 'bsl::allocator'.  If 'allocator_type' is
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
-        // installed bslma default allocator will be used to supply memory.
+        // Construct an empty stack.  If 'CONTAINER::allocator_type' does not
+        // exist, this constructor may not be used.  The specified 'allocator'
+        // will be passed to the constructor of the underlying container.
 
     explicit
     stack(const CONTAINER& container);
+        // Construct a stack whose underlying container is a copy of the
+        // specified 'container'.  No allocator will be provided to the
+        // underlying container, and that container's memory allocation will be
+        // provided by whatever is the default for the container type.
 
     template <class ALLOCATOR>
     stack(const CONTAINER& container,
@@ -350,19 +409,17 @@ class stack {
           typename BloombergLP::bslmf::EnableIf<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type * = 0);
-        // Construct an stack out of a copy of the specified 'container'.  If
-        // 'allocator' is not supplied, a default-constructed object of the
-        // parameter-derived 'allocator_type' type is used.  If
-        // 'allocator_type' is 'bsl::allocator' (the default) then 'allocator',
-        // if supplied, may be of any type convertible to 'bslma_Allocator *',
-        // which is implicitly convertible to 'bsl::allocator'.  If
-        // 'allocator_type' is 'bsl::allocator' and 'allocator' is not
-        // supplied, the currently installed bslma default allocator will be
-        // used to supply memory.  Copies of the objects in 'container', if
-        // any, will populate the the created stack, with the element accessed
-        // by 'container.back()' being the top of the stack.
+        // Construct a stack out of a copy of the specified 'container'.  Pass
+        // the specified 'allocator' to the copy constructor of the created
+        // underlying container.  If 'CONTAINER::allocator_type' does not
+        // exist, this constructor may not be used.  The type of 'allocator'
+        // must be convertible to the allocator type of the underlying
+        // container.
 
     stack(const stack&     original);
+        // Construct a copy of the specified stack 'original'.  No memory
+        // allocator is passed to the created underlying container, which will
+        // allocate memory according to its default.
 
     template <class ALLOCATOR>
     stack(const stack&     original,
@@ -370,15 +427,11 @@ class stack {
           typename BloombergLP::bslmf::EnableIf<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type * = 0);
-        // Construct a copy of the specified stack 'original', using the
-        // specified 'allocator' to allocate memory.  If 'allocator' is not
-        // supplied, a default-constructed object of the parameter-derived
-        // 'allocator_type' type is used.  If 'allocator_type' is
-        // 'bsl::allocator' (the default) then 'allocator', if supplied, may be
-        // of any type convertible to 'bslma_Allocator *', which is implicitly
-        // convertible to 'bsl::allocator'.  If 'allocator_type' is
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
-        // installed bslma default allocator will be used to supply memory.
+        // Construct a copy of the specified stack 'original', passing the
+        // specified 'allocator' to the underlying container.  If
+        // 'CONTAINER::allocator_type' does not exist, this constructor may not
+        // be used.  The type of 'allocator' must be convertible to the
+        // allocator type of the underlying container.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     explicit
@@ -403,8 +456,12 @@ class stack {
                                       ALLOCATOR>::type * = 0);
         // TBD
 #endif
+
     // MANIPULATORS
     stack& operator=(const stack& rhs);
+        // Assign the value of the specified 'rhs' to this 'stack' object, and
+        // return a reference to this object.
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
     template <class... Args>
@@ -417,7 +474,7 @@ class stack {
         // the stack is empty.
 
     void push(const value_type& value);
-        // Push a copy of 'x' to the top of the stack.
+        // Push a copy of 'value' to the top of the stack.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     void push(value_type&& value);

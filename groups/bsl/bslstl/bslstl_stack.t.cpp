@@ -534,6 +534,72 @@ void verifyStack(const stack<typename CONTAINER::value_type,
     emptyNVerifyStack(&copyX, expectedValues, expectedSize, LINE);
 }
 
+//=============================================================================
+//                                   USAGE EXAMPLE
+//=============================================================================
+
+// Suppose a husband wants to keep track of chores his wife has asked him to
+// do.  Over the years of being married, he has noticed that his wife generally
+// wants the most recently requested task done first.  If she has a new task in
+// mind that is low-priority, she will avoid asking for it until higher
+// priority tasks are finished.  When he has finished all tasks, he is to
+// report to his wife that he is ready for more.
+
+// First, we define the class implementing the 'to-do' list.
+
+class ToDoList {
+    // DATA
+    bsl::stack<bsl::string> d_stack;
+
+  public:
+    // MANIPULATORS
+    void enqueueTask(const bsl::string& task);
+        // Add the specified 'task', a string describing a task, to the
+        // list.
+
+    void finishTask();
+        // Remove the current task from the list.  If the list is empty when
+        // this is called, do nothing.  Otherwise, if the list is empty after
+        // removing the current task, report to the wife that the task is done.
+
+    // ACCESSORS
+    const bsl::string& currentTask() const;
+        // Return the string representing the current task.  If there
+        // is no current task, return the string "<EMPTY>", which is
+        // not a valid task.
+};
+
+// MANIPULATORS
+void ToDoList::enqueueTask(const bsl::string& task)
+{
+    printf("Yes, dear.\n");
+
+    d_stack.push(task);
+}
+
+void ToDoList::finishTask()
+{
+    if (!d_stack.empty()) {
+        d_stack.pop();
+
+        if (d_stack.empty()) {
+            printf("Honey, I've finished everything.\n");
+        }
+    }
+};
+
+// ACCESSORS
+const bsl::string& ToDoList::currentTask() const
+{
+    if (d_stack.empty()) {
+        static const bsl::string emptyString("<EMPTY>");
+        return emptyString;
+    }
+
+    return d_stack.top();
+}
+
+//=============================================================================
 
                             // ====================
                             // class ExceptionGuard
@@ -3157,74 +3223,66 @@ int main(int argc, char *argv[])
         //   Demonstrate the use of the stack.
         //
         // Plan:
-        //   Push and pop some strings to and from the stack, observing the
-        //   stack top.  Then push a large string on the stack and observe
-        //   that the memory it uses comes from the allocator passed at
-        //   construction.
+        //   Create the class 'ToDoList', which implements a list of chores to
+        //   be done, using the 'stack' container adapter, and demonstrate the
+        //   use of 'ToDoList'.
         // --------------------------------------------------------------------
 
-        // First, we create a couple of allocators, the test allocator 'ta'
-        // and the default allocator 'da'.
+        // Then, create an object of type 'ToDoList'.
 
-        bslma::TestAllocator ta;
-        bslma::TestAllocator da;                    // Default Allocator
-        bslma::DefaultAllocatorGuard guard(&da);
+        ToDoList toDoList;
 
-        // Then, we create a stack of strings:
+        // Next, a few tasks are requested:
 
-        stack<string> mX(&ta);        const stack<string>& X = mX;
+        toDoList.enqueueTask("Mow the lawn.");
+        toDoList.enqueueTask("Change the car's oil.");
+        toDoList.enqueueTask("Pay the bills.");
 
-        // Next, we observe that the newly created stack is empty.
+        // Then, the husband watches the Yankee's game on TV.  Upon returning
+        // to the list he consults the list to see what task is up next:
 
-        ASSERT(X.empty());
-        ASSERT(0 == X.size());
+        ASSERT("Pay the bills." == toDoList.currentTask());
 
-        // Then, we push a few strings onto the stack.  After each push, the
-        // last thing pushed is what's on top of the stack:
+        // Next, he sees that he has to pay the bills.  When the bills are
+        // finished, he flushes that task from the list:
 
-        mX.push("woof");
-        ASSERT(X.top() == "woof");
-        mX.push("arf");
-        ASSERT(X.top() == "arf");
-        mX.push("meow");
-        ASSERT(X.top() == "meow");
+        toDoList.finishTask();
 
-        // Next, we verify that we have 3 objects in the stack:
+        // Then, it is now time for bed.  Upon getting out of bed Saturday
+        // morning, he consults the list for the next task:
 
-        ASSERT(3 == X.size());
-        ASSERT(!X.empty());
+        ASSERT("Change the car's oil." == toDoList.currentTask());
 
-        // Then, we pop an item off the stack and see that the item pushed
-        // before it is now on top of the stack:
+        // Next, he sees he has to change the car's oil.  Before he can get
+        // started, another request comes:
 
-        mX.pop();
-        ASSERT(X.top() == "arf");
+        toDoList.enqueueTask("Get some hot dogs.");
+        ASSERT("Get some hot dogs." == toDoList.currentTask());
 
-        // Next, we create a long string (long enough that taking a copy of
-        // it will require memory allocation).  Note that 's' uses the
-        // default allocator.
+        // Then, he drives the car to the convenience store and picks up some
+        // hot dogs and buns.  Upon returning home, he gives the hot dogs to
+        // his wife, updates the list, and consults it for the next task.
 
-        const string s("supercalifragisticexpialidocious"
-                       "supercalifragisticexpialidocious"
-                       "supercalifragisticexpialidocious"
-                       "supercalifragisticexpialidocious");
+        toDoList.finishTask();
+        ASSERT("Change the car's oil." == toDoList.currentTask());
 
-        // Then, we monitor both memory allocators:
+        // Next, he finishes the oil change, updates the list, and consults it
+        // for the next task.
 
-        bslma::TestAllocatorMonitor tam(&ta);
-        bslma::TestAllocatorMonitor dam(&da);
+        toDoList.finishTask();
+        ASSERT("Mow the lawn." == toDoList.currentTask());
 
-        // Now, we push the large string onto the stack:
+        // Now, he pays the neighbor's kid $10 to mow the lawn, and watches
+        // Jerry Springer on TV.  When the show is done, he checks the lawn and
+        // sees the mowing is completed.  He updates the list:
 
-        mX.push(s);
-        ASSERT(s == X.top());
+        toDoList.finishTask();
+        ASSERT("<EMPTY>" == toDoList.currentTask());
 
-        // Finally, we observe that the memory allocated to store the large
-        // string in the stack came from the allocator passed to the stack at
-        // construction, and not from the default allocator.
+        // Finally, the wife has now been informed that everything is done,
+        // and she makes another request:
 
-        ASSERT(tam.isTotalUp());
-        ASSERT(dam.isTotalSame());
+        toDoList.enqueueTask("Clean the rain gutters.");
       } break;
       case 14: {
         // --------------------------------------------------------------------
