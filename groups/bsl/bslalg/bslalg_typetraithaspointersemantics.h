@@ -34,8 +34,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISPOINTER
-#include <bslmf_ispointer.h>
+#ifndef INCLUDED_BSLMF_HASPOINTERSEMANTICS
+#include <bslmf_haspointersemantics.h>
 #endif
 
 namespace BloombergLP {
@@ -58,7 +58,7 @@ struct TypeTraitHasPointerSemantics {
 
     template <class TYPE>
     struct NestedTraitDeclaration :
-        bslmf::NestedTraitDeclaration<TYPE, bsl::is_pointer>
+        bslmf::NestedTraitDeclaration<TYPE, bslmf::HasPointerSemantics>
     {
         // This class template ties the 'bslalg::TypeTraitHasPointerSemantics'
         // trait tag to the 'bslmf::is_pointer' trait metafunction.  TODO:
@@ -67,7 +67,7 @@ struct TypeTraitHasPointerSemantics {
     };
 
     template <class TYPE>
-    struct Metafunction : bsl::is_pointer<TYPE>::type { };
+    struct Metafunction : bslmf::HasPointerSemantics<TYPE>::type { };
 };
 
 }  // close package namespace

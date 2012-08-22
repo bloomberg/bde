@@ -6,6 +6,7 @@ bslmf_detectnestedtrait
 bslmf_enableif
 bslmf_forwardingtype
 bslmf_functionpointertraits
+bslmf_haspointersemantics
 bslmf_hastrivialdefaultconstructor
 bslmf_if
 bslmf_integerconstant
