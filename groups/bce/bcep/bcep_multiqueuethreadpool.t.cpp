@@ -17,6 +17,7 @@
 #include <bdef_function.h>
 #include <bdef_bind.h>
 #include <bsl_algorithm.h>
+#include <bsl_climits.h>
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
@@ -2681,7 +2682,7 @@ int main(int argc, char *argv[]) {
         // Only test on 32 bit, so we can easily exhaust the address space.
 
         bcemt_ThreadAttributes attr;
-        attr.setStackSize((2 << 30) - 1);    // int max
+        attr.setStackSize(bsl::numeric_limits<int>::max());
 
         bcema_TestAllocator ta(veryVeryVerbose);
 

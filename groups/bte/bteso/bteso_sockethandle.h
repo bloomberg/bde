@@ -83,9 +83,7 @@ struct bteso_SocketHandle {
 #ifdef BTESO_PLATFORM__WIN_SOCKETS
     typedef SOCKET Handle;
 #else
-  #ifdef BTESO_PLATFORM__BSD_SOCKETS
     typedef int Handle;
-  #endif
 #endif
 };
 

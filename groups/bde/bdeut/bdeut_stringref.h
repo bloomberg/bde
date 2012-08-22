@@ -316,8 +316,8 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstring.h>         // for 'bsl::strlen', 'bsl::memcmp'
 #endif
 
-#ifndef INCLUDED_BSL_HASH_SET
-#include <bsl_hash_set.h>
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -331,6 +331,14 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_STRING
 #include <string>                // for 'std::string'
 #define INCLUDED_STRING
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSL_HASH_SET
+#include <bsl_hash_set.h>
+#endif
+
 #endif
 
 namespace BloombergLP {

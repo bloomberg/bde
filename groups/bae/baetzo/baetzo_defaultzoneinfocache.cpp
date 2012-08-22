@@ -91,6 +91,11 @@ const char *baetzo_DefaultZoneinfoCache::defaultZoneinfoDataLocation()
                            << envValue << ")."
                            << BAEL_LOG_END;
         }
+        else {
+            BAEL_LOG_INFO <<"Environment variable 'BDE_ZONEINFO_ROOT_PATH' "
+                          <<"set to ' " << envValue << "'."
+                          << BAEL_LOG_END;
+        }
         return envValue;                                              // RETURN
     }
 

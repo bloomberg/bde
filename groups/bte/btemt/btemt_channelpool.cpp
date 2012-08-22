@@ -354,6 +354,8 @@ class btemt_Channel {
     bcema_BlobBufferFactory        *d_readBlobFactory_p;  // for d_blobReadData
     bcema_Blob                      d_blobReadData;       // blob for read data
 
+    bteso_IPv4Address               d_peerAddress;        // peer address
+
     bcema_PoolAllocator            *d_sharedPtrRepAllocator_p;
 
     bslma_Allocator                *d_allocator_p;        // for memory
@@ -604,6 +606,9 @@ class btemt_Channel {
     btemt_TcpTimerEventManager *eventManager() const;
         // Return a pointer to this channel's event manager.
 
+    const bteso_IPv4Address& peerAddress() const;
+        // Return the address of the peer that this channel is connected to.
+
     bool isChannelDown(ChannelDownMask mask) const;
         // Return 'true' is this channel is down for the specified 'mask'
         // (meaning completely down if 'mask' is CLOSED_BOTH_MASK, and
@@ -695,6 +700,12 @@ inline
 bool btemt_Channel::isChannelDown(ChannelDownMask mask) const
 {
     return mask == (d_channelDownFlag.relaxedLoad() & mask);
+}
+
+inline
+const bteso_IPv4Address& btemt_Channel::peerAddress() const
+{
+    return d_peerAddress;
 }
 
 inline
@@ -1905,6 +1916,7 @@ btemt_Channel::btemt_Channel(
     BSLS_ASSERT(socket);
 
     socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    socket->peerAddress(&d_peerAddress);
 
 #ifdef BSLS_PLATFORM__OS_UNIX
     // Set close-on-exec flag (DRQS 6748730): this only makes sense in Unix,
@@ -4616,11 +4628,11 @@ btemt_ChannelPool::getPeerAddress(bteso_IPv4Address *result,
     BSLS_ASSERT(result);
 
     ChannelHandle channelHandle;
-    if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return -1;
+    if (0 == findChannelHandle(&channelHandle, channelId)) {
+        *result = channelHandle->peerAddress();
+        return 0;
     }
-
-    return channelHandle->socket()->peerAddress(result);
+    return 1;
 }
 
 int btemt_ChannelPool::numBytesRead(bsls_PlatformUtil::Int64 *result,

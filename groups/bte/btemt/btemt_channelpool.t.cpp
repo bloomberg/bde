@@ -261,9 +261,16 @@ typedef bsls_PlatformUtil::Uint64 ThreadId;
 
 const ThreadId NULL_THREAD_ID = (ThreadId) (long long) -1;
 
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
+static inline void assertCb() {
+    ASSERT("This function should NOT be called" && 0);
+}
+
+static int          verbose = 0;
+static int          veryVerbose = 0;
+static int          veryVeryVerbose = 0;
+static int          ARGC = 0;
+static char       **ARGV = 0;
+static bdef_Function<void (*)()> NULL_CB(&assertCb);
 
 //=============================================================================
 //                       TESTING FUNCTIONS/CLASSES HELPER
@@ -380,10 +387,6 @@ void recordPoolState(int                        state,
 
     bcemt_LockGuard<bcemt_Mutex> lock(resultsLock);
     results->push_back(event);
-}
-
-static inline void assertCb() {
-    ASSERT("This function should NOT be called" && 0);
 }
 
 class ChannelPoolStateCbTester {
@@ -619,6 +622,77 @@ void populateMessage(bcema_Blob      *msg,
     }
     bcema_BlobBuffer blobBuffer(buffer, length);
     msg->appendDataBuffer(blobBuffer);
+}
+
+
+//-----------------------------------------------------------------------------
+// CASE 39
+//-----------------------------------------------------------------------------
+
+namespace CASE39 {
+
+btemt_ChannelPool *d_pool_p = 0;
+bteso_IPv4Address  d_peerAddress;
+
+void poolStateCb(int state, int source, int severity)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Pool state callback called with"
+                  << " State: " << state
+                  << " Source: "  << source
+                  << " Severity: " << severity << bsl::endl;
+    }
+}
+
+void channelStateCb(int              channelId,
+                    int              serverId,
+                    int              state,
+                    void            *arg,
+                    int             *id,
+                    bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Channel state callback called with"
+                  << " Channel Id: " << channelId
+                  << " Server Id: "  << serverId
+                  << " State: " << state << bsl::endl;
+    }
+    if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
+        *id = channelId;
+        d_pool_p->getPeerAddress(&d_peerAddress, channelId);
+        barrier->wait();
+    }
+    else if (btemt_ChannelPool::BTEMT_CHANNEL_DOWN == state) {
+        bteso_IPv4Address peer;
+        d_pool_p->getPeerAddress(&peer, channelId);
+        ASSERT(d_peerAddress != peer);
+        barrier->wait();
+    }
+}
+
+void blobBasedReadCb(int             *needed,
+                     bcema_Blob      *msg,
+                     int              channelId,
+                     void            *arg,
+                     bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Blob Based Read Cb called with"
+                  << " Channel Id: " << channelId
+                  << " of length: "  << msg->length() << bsl::endl;
+    }
+    *needed = 1;
+
+    bteso_IPv4Address peer;
+    d_pool_p->getPeerAddress(&peer, channelId);
+    LOOP2_ASSERT(d_peerAddress, peer, d_peerAddress == peer);
+
+    msg->removeAll();
+}
+
 }
 
 
@@ -8094,47 +8168,161 @@ void *usageExampleMinusOne(void *arg)
 
 } // closing namespace USAGE_EXAMPLE_M1_NAMESPACE
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[])
+// ============================================================================
+//                     GLOBAL 'class' FOR TESTING
+// ----------------------------------------------------------------------------
+
+class TestDriver {
+    // This 'class' provide a namespace for testing 'btemt_ChannelPool's
+    // functionality.
+
+  public:
+    // TEST CASES
+    static void testCase42();
+        // Test that 'BTEMT_WRITE_CACHE_LOWWAT' is invoked after the
+        // 'enqueueWatermark' is exceeded on the 'write'.
+
+    static void testCase41();
+        // Test that additional write statistics are reported as expected.
+
+    static void testCase40();
+        // TBD: Doc
+
+    static void testCase39();
+        // Test that 'peerAddress' returns the correct IP address.
+
+    static void testCase38();
+        // Test that 'disableRead' when called from dispatcher thread stops
+        // reading from the socket. 
+
+    static void testCase37();
+        // Test usage example 3.
+
+    static void testCase36();
+        // Test usage example 2.
+
+    static void testCase35();
+        // Test usage example 1.
+
+    static void testCase34();
+        // Test that there isnt a race condition in 'writeMessage' - DRQS
+        // 25245489.
+
+    static void testCase33();
+        // Test that channel pool does not read extra data even after
+        // numNeeded is set to 0.
+
+    static void testCase32();
+        // Test that providing socket options sets the appropriate options on
+        // the socket.
+
+    static void testCase31();
+        // Test that reading into a partially filled blob works as expected.
+
+    static void testCase30();
+        // Test that blob-based 'read' works as expected.
+
+    static void testCase29();
+        // Test that the allocation of event managers works as expected.
+
+    static void testCase28();
+        // Test that the time metrics are correctly computed.
+
+    static void testCase27();
+        // Test that read operations time out correctly.
+
+    static void testCase26();
+        // Test that 'btemt_ChannelPool_MessageUtil' class works as expected.
+
+    static void testCase25();
+        // Test that 'setWriteCacheLowWatermark' and
+        // 'setWriteCacheHighWatermark' works as expected.
+
+    static void testCase24();
+        // Test that 'enableRead' works as expected.
+
+    static void testCase23();
+        // Test that half-open connections operate as expected.
+
+    static void testCase22();
+        // Stress test the component.
+
+    static void testCase21();
+        // Test that reading from OpenSSL sockets works as expected.
+
+    static void testCase20();
+        // Test that 'import' works under high load.
+
+    static void testCase19();
+        // Test that channel pool fails to accept connections when its file
+        // descriptor limit is reached.
+
+    static void testCase18();
+        // Test that channel pool only creates 'maxConnections' channels.
+
+    static void testCase17();
+        // Test that CHANNEL_UP and CHANNEL_DOWN callbacks are correctly
+        // delivered.
+
+    static void testCase16();
+        // Test that 'shutdown' is correctly processed from within a channel
+        // state callback.
+
+    static void testCase15();
+        // Test that the 'getHandleStatistics' returns the correct statistics.
+
+    static void testCase14();
+        // Test that 'numBytes*', 'totalBytes*' and related accessors return
+        // the right values.
+
+    static void testCase13();
+        // Test that 'reportWeightedAverageReset' works as expected.
+
+    static void testCase12();
+        // Test that HIWAT and LOWWAT callbacks are correctly invoked.
+
+    static void testCase11();
+        // Test that 'enableRead' and 'disableRead' work as expected.
+
+    static void testCase10();
+        // Test that 'registerClock' AND 'deregisterClock' work as expected.
+
+    static void testCase9();
+        // Test that 'writeMessage' works as expected.
+
+    static void testCase8();
+        // Test that 'shutdown' works as expected.
+
+    static void testCase7();
+        // Test that a half-closed socket pair can be correctly imported and
+        // that the channel is correctly recognized as half-closed.
+
+    static void testCase6();
+        // Test that 'import' works as expected.
+
+    static void testCase5();
+        // Test that 'listen' works as expected.
+
+    static void testCase4();
+        // Test that 'connect' works as expected.
+
+    static void testCase3();
+        // Test that 'start' and 'stop' work as expected.
+
+    static void testCase2();
+        // Test the creators.
+
+    static void testCase1();
+        // Breathing test.
+};
+
+                               // --------------
+                               // TEST APPARATUS
+                               // --------------
+
+void TestDriver::testCase42()
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
-
-    // TBD: these tests frequently timeout on Windows, disabling until fixed
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-    testStatus = -1;
-#else
-
-    cout << "TEST " << __FILE__ << " CASE " << test
-         << " STARTED " << bdetu_SystemTime::nowAsDatetimeUtc() << endl;
-
-    ASSERT(0 == bteso_SocketImpUtil::startup());
-    bdef_Function<void (*)()> NULL_CB(&assertCb);
-
-#ifdef BSLS_PLATFORM__OS_UNIX
-    // Ignore SIGPIPE - test driver-wide.  This signal is raised when writing
-    // into a socket whose peer is down.  It creates havoc in test case 22 esp.
-    // but there is no reason it should be raised in any of the other test
-    // cases either.
-
-    struct sigaction sa;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sa.sa_handler = SIG_IGN;
-    if (0 != sigaction(SIGPIPE, &sa, NULL)) {
-        cout << "\n\t\t***WARNING****     Could not mask SIGPIPE."
-                "      ***WARNING***\n" << endl;
-        ASSERT(SIGPIPE);
-    }
-#endif
-
-    switch (test) { case 0:  // Zero is always the leading case.
-      case 42: {
         // --------------------------------------------------------------------
         // Testing LOWAT called when 'enqueueWatermark' exceeded
         //
@@ -8249,8 +8437,10 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == bcemt_ThreadUtil::join(handle));
         LOOP_ASSERT(numTimesLowWatCalled, 2 == numTimesLowWatCalled);
-      } break;
-      case 41: {
+}
+
+void TestDriver::testCase41()
+{
         // --------------------------------------------------------------------
         // ADDING WRITE STATISTICS - DRQS 30994480
         //
@@ -8360,8 +8550,121 @@ int main(int argc, char *argv[])
         mutex.unlock();
 
         ASSERT(0 == bcemt_ThreadUtil::join(handles[NUM_THREADS]));
-      } break;
-      case 38: {
+}
+
+void TestDriver::testCase40()
+{
+    // TBD: Update when test cases are merged.
+}
+
+void TestDriver::testCase39()
+{
+        // --------------------------------------------------------------------
+        // Testing 'peerAddress' is correctly returned
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   DRQS 20535695
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING 'peerAddress' is correctly returned"
+                 << "\n==========================================="
+                 << endl;
+
+        using namespace CASE39;
+
+        btemt_ChannelPoolConfiguration config;
+        config.setMaxThreads(1);
+        config.setWriteCacheWatermarks(0, 1024 * 1024);
+        config.setReadTimeout(0);        // in seconds
+        if (verbose) {
+            P(config);
+        }
+
+        bcemt_Barrier   channelCbBarrier(2);
+        int             channelId;
+        btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                                       bdef_BindUtil::bind(&channelStateCb,
+                                                         _1, _2, _3, _4,
+                                                         &channelId,
+                                                         &channelCbBarrier));
+
+        btemt_ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
+
+        bcemt_Barrier dataCbBarrier(2);
+
+        btemt_ChannelPool::BlobBasedReadCallback dataCb(
+                                     bdef_BindUtil::bind(&blobBasedReadCb,
+                                                         _1, _2, _3, _4,
+                                                         &dataCbBarrier));
+
+        btemt_ChannelPool pool(channelCb, dataCb, poolCb, config);
+        d_pool_p = &pool;
+
+        ASSERT(0 == pool.start());
+
+        const bteso_IPv4Address ADDRESS("127.0.0.1", 0);
+
+        enum {
+            SERVER_ID           = 1013410001,
+            BACKLOG             = 100
+        };
+
+        int rc = pool.listen(ADDRESS, BACKLOG, SERVER_ID);
+        LOOP_ASSERT(rc, !rc);
+
+        const bteso_IPv4Address SA = *pool.serverAddress(SERVER_ID);
+
+        typedef bteso_StreamSocket<bteso_IPv4Address>            Socket;
+        typedef btesos_TcpChannel                                Channel;
+        typedef bteso_InetStreamSocketFactory<bteso_IPv4Address> Factory;
+
+        Factory factory;
+
+        Socket  *socket = factory.allocate();
+        Channel  channel(socket);
+
+        rc = socket->connect(SA);
+        ASSERT(!rc);
+
+        channelCbBarrier.wait();
+        ASSERT(-1 != channelId);
+
+        bteso_IPv4Address exp;  const bteso_IPv4Address& EXP = exp;
+        rc = pool.getPeerAddress(&exp, channelId);
+        ASSERT(!rc);
+
+        const char data[] = "socket";
+        rc = socket->write(data, sizeof data);
+        ASSERT(rc);
+
+        bteso_IPv4Address peer;  const bteso_IPv4Address& PEER = peer;
+        rc = pool.getPeerAddress(&peer, channelId);
+        ASSERT(!rc);
+        LOOP2_ASSERT(EXP, PEER, EXP == PEER);
+
+        rc = socket->write(data, sizeof data);
+        ASSERT(rc);
+
+        rc = pool.getPeerAddress(&peer, channelId);
+        ASSERT(!rc);
+        LOOP2_ASSERT(EXP, PEER, EXP == PEER);
+
+        rc = socket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+        ASSERT(!rc);
+
+        bteso_IPv4Address other;  const bteso_IPv4Address& OTHER = other;
+        rc = pool.getPeerAddress(&other, channelId);
+
+        channelCbBarrier.wait();
+}
+
+void TestDriver::testCase38()
+{
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 28934644
         //
@@ -8459,8 +8762,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             P(dataStream.str())
         }
-      } break;
-      case 37: {
+}
+
+void TestDriver::testCase37()
+{
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
         //   Send and receive various messages conforming to the vlm_EchoServer
@@ -8546,8 +8851,10 @@ int main(int argc, char *argv[])
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
 
-      } break;
-      case 36: {
+}
+
+void TestDriver::testCase36()
+{
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST: my_QueueProcessor
         //
@@ -8574,11 +8881,11 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << "In another window, run this test driver's case -1, e.g.:";
-            cout << "\n\t" << argv[0] << " -1  10  2564  127.0.0.1  10000\n";
+            cout << "\n\t" << ARGV[0] << " -1  10  2564  127.0.0.1  10000\n";
             cout << "For bigger jobs (i.e, stress test), try:";
-            cout << "\n\t" << argv[0] << " -1  10  2564  127.0.0.1  10000\n";
+            cout << "\n\t" << ARGV[0] << " -1  10  2564  127.0.0.1  10000\n";
             cout << "For non-null testing in verbose mode, try:";
-            cout << "\n\t" << argv[0] << " 24 -1\n";
+            cout << "\n\t" << ARGV[0] << " 24 -1\n";
         }
 
         enum {
@@ -8633,8 +8940,10 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == qp.stopProcessor());
 
-      } break;
-      case 35: {
+}
+
+void TestDriver::testCase35()
+{
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -8668,10 +8977,10 @@ int main(int argc, char *argv[])
             MTCOUT << "monitor pool: count=" << NUM_MONITOR << MTENDL;
         }
         monitorPool(&coutMutex, echoServer.pool(), NUM_MONITOR, verbose);
+}
 
-      } break;
-
-      case 34: {
+void TestDriver::testCase34()
+{
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 25245489
         //   Reproducing that even when numNeeded is specified as 0 channel
@@ -8820,8 +9129,10 @@ int main(int argc, char *argv[])
           rc = write(CACHE_HI_WAT + 1);
           ASSERT(rc);
         }
-      } break;
-      case 33: {
+}
+
+void TestDriver::testCase33()
+{
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 20199908
         //   Reproducing that even when numNeeded is specified as 0 channel
@@ -8930,8 +9241,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             P(data);
         }
-      } break;
-      case 32: {
+}
+
+void TestDriver::testCase32()
+{
         // --------------------------------------------------------------------
         // TESTING 'connect' & 'listen' with SocketOpts and clientAddress
         //   Ensure that the 'connect' and 'listen' functions have the
@@ -9736,8 +10049,10 @@ int main(int argc, char *argv[])
                 factory.deallocate(sockets[i]);
             }
         }
-      } break;
-      case 31: {
+}
+
+void TestDriver::testCase31()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 22256519
         //
@@ -9810,8 +10125,10 @@ int main(int argc, char *argv[])
         const string& DATA = server.data();
 
         LOOP_ASSERT(DATA, DATA == string(TEXT));
-      } break;
-      case 30: {
+}
+
+void TestDriver::testCase30()
+{
         // --------------------------------------------------------------------
         // READ TEST
         //
@@ -9916,8 +10233,10 @@ int main(int argc, char *argv[])
                 ASSERT(0 == server.stop());
             }
         }
-      } break;
-      case 29: {
+}
+
+void TestDriver::testCase29()
+{
         // --------------------------------------------------------------------
         // CONCERN: Event Manager Allocation
         //
@@ -10255,8 +10574,10 @@ int main(int argc, char *argv[])
             }
 
         }
-      } break;
-      case 28: {
+}
+
+void TestDriver::testCase28()
+{
         // --------------------------------------------------------------------
         // TESTING: 'busyMetrics' and time metrics collection.
         //
@@ -10416,8 +10737,10 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numBytesInUse());
             if (veryVerbose) { P(ta); }
         }
-      } break;
-      case 27: {
+}
+
+void TestDriver::testCase27()
+{
         // --------------------------------------------------------------------
         // TESTING: readTimeout configuration
         //
@@ -10569,8 +10892,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 26: {
+}
+
+void TestDriver::testCase26()
+{
         // --------------------------------------------------------------------
         // TESTING: struct 'btemt_ChannelPool_MessageUtil' and
         //          'btemt_ChannelPool_IovecArray'.
@@ -10959,8 +11284,10 @@ int main(int argc, char *argv[])
                 factory.deallocate(rcvSocket);
             }
         }
-      } break;
-      case 25: {
+}
+
+void TestDriver::testCase25()
+{
         // --------------------------------------------------------------------
         // TESTING: 'setWriteCacheHigh/LowWatermark()'
         //
@@ -11225,8 +11552,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 24: {
+}
+
+void TestDriver::testCase24()
+{
         // --------------------------------------------------------------------
         // TESTING 'enableRead' FIX
         //
@@ -11267,8 +11596,10 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'enableRead' fix."
                  << "\n=========================" << endl;
 
-      } break;
-      case 23: {
+}
+
+void TestDriver::testCase23()
+{
         // --------------------------------------------------------------------
         // TESTING HALF-OPEN CONNECTIONS
         //
@@ -11501,8 +11832,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) { P(ta); }
 #endif
 
-      } break;
-      case 22: {
+}
+
+void TestDriver::testCase22()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: Stress test
         //
@@ -11572,7 +11905,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\t\tAlways invoke data callback." << endl;
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           NUM_THREADS, NUM_ITERS,
                           BUFFER_SIZE, MSG_SIZE,
                           SERVER_SIZE, 1,
@@ -11581,7 +11914,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\n\t\tInvoke data callback after "
                               << SERVER_NEEDED << " bytes only." << endl;
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           NUM_THREADS, NUM_ITERS,
                           BUFFER_SIZE, MSG_SIZE,
                           SERVER_SIZE, SERVER_NEEDED,
@@ -11591,7 +11924,7 @@ int main(int argc, char *argv[])
                               << SMALL_MSG_SIZE << " bytes (msg boundaries)."
                               << endl;
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           2, LARGE_NUM_ITERS,
                           BUFFER_SIZE, -SMALL_MSG_SIZE,
                           SERVER_SIZE, SERVER_NEEDED,
@@ -11601,7 +11934,7 @@ int main(int argc, char *argv[])
                               << MSG_SIZE << " bytes (msg boundaries)."
                               << endl;
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           2, LARGE_NUM_ITERS,
                           BUFFER_SIZE, -MSG_SIZE,
                           SERVER_SIZE, SERVER_NEEDED,
@@ -11636,7 +11969,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\t\tAlways invoke data callback." << endl;
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           NUM_THREADS, NUM_ITERS,
                           BUFFER_SIZE, MSG_SIZE,
                           SERVER_SIZE, 1,
@@ -11645,7 +11978,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\n\t\tInvoke data callback after "
                               << SERVER_NEEDED << " bytes only." << endl;
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           NUM_THREADS, NUM_ITERS,
                           BUFFER_SIZE, MSG_SIZE,
                           SERVER_SIZE, SERVER_NEEDED,
@@ -11677,7 +12010,7 @@ int main(int argc, char *argv[])
 
             // Always invoke data callback if data is incoming.
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           NUM_THREADS, NUM_ITERS,
                           BUFFER_SIZE, MSG_SIZE,
                           SERVER_SIZE, 1,
@@ -11686,7 +12019,7 @@ int main(int argc, char *argv[])
             // Only invoke data callback when 'SERVER_NEEDED' bytes are
             // available.
 
-            runTestCase22(argv[0],
+            runTestCase22(ARGV[0],
                           NUM_THREADS, NUM_ITERS,
                           BUFFER_SIZE, MSG_SIZE,
                           SERVER_SIZE, SERVER_NEEDED,
@@ -11697,8 +12030,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) { P(ta); }
 #endif
 
-      } break;
-      case 21: {
+}
+
+void TestDriver::testCase21()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: OpenSSL-like sockets
         //
@@ -11733,7 +12068,7 @@ int main(int argc, char *argv[])
             using namespace TEST_CASE_9_NAMESPACE;
 
             Factory factory(SSL_LIKE_SOCKET_BUFFER_SIZE, &ta);
-            runTestCase9(argv[0], &factory, ta);
+            runTestCase9(ARGV[0], &factory, ta);
                 // Note: ta passed by reference
         }
         ASSERT(0 <  ta.numAllocations());
@@ -11752,8 +12087,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 20: {
+}
+
+void TestDriver::testCase20()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 8397003
         //
@@ -11928,8 +12265,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) { P(ta); }
 #endif
 
-      } break;
-      case 19: {
+}
+
+void TestDriver::testCase19()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 5425522
         //
@@ -12037,7 +12376,7 @@ int main(int argc, char *argv[])
                         factory.deallocate(sockets[--i]);
                     }
                     ASSERT(0 == bteso_SocketImpUtil::cleanup());
-                    return testStatus;
+                    return;
                 }
                 LOOP_ASSERT(i, sockets[i]);
                 retCode = sockets[i]->setBlockingMode(
@@ -12116,8 +12455,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) { P(ta); }
 #endif
 
-      } break;
-      case 18: {
+}
+
+void TestDriver::testCase18()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 4430835
         //
@@ -12355,8 +12696,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 17: {
+}
+
+void TestDriver::testCase17()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 4340683
         //
@@ -12448,8 +12791,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 16: {
+}
+
+void TestDriver::testCase16()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: SHUTDOWN INSIDE CHANNEL STATE CALLBACK
         //
@@ -12543,8 +12888,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 15: {
+}
+
+void TestDriver::testCase15()
+{
         // --------------------------------------------------------------------
         // Testing getHandleStatistics facility
         //
@@ -12837,8 +13184,10 @@ int main(int argc, char *argv[])
             }
         }
 
-      } break;
-      case 14: {
+}
+
+void TestDriver::testCase14()
+{
         // --------------------------------------------------------------------
         // Testing numBytes*(), totalBytes*() and getChannelStatistics*()
         // facility
@@ -12952,7 +13301,7 @@ int main(int argc, char *argv[])
             }
             else {
                 cout << "Failed to connect to channelpool.  Abort.\n";
-                return -1;
+                return;
             }
 
             ASSERT(0 == mX.setSocketOption(
@@ -13080,7 +13429,7 @@ int main(int argc, char *argv[])
             }
             else {
                 cout << "Failed to connect to channelpool.  Abort.\n";
-                return -1;
+                return;
             }
 
             ASSERT(0 == mX.setSocketOption(
@@ -13225,7 +13574,7 @@ int main(int argc, char *argv[])
             }
             else {
                 cout << "Failed to connect to channelpool.  Abort.\n";
-                return -1;
+                return;
             }
 
             ASSERT(0 == mX.setSocketOption(
@@ -13339,8 +13688,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 13: {
+}
+
+void TestDriver::testCase13()
+{
         // --------------------------------------------------------------------
         // TESTING 'reportWeightedAverageReset()'
         //
@@ -13450,7 +13801,7 @@ int main(int argc, char *argv[])
                     double exp_lo = exp * (1 - TOLERANCE);
                     double exp_hi = exp * (1 + TOLERANCE);
                     if (!(exp_lo <i && i < exp_hi)) {
-                        cout << "*** Warning: " << argv[0] << ":" << L_
+                        cout << "*** Warning: " << ARGV[0] << ":" << L_
                              << ":\n*** Warning: anomalous timing results ***"
                              << endl;
                     }
@@ -13458,7 +13809,7 @@ int main(int argc, char *argv[])
                                           i < exp_really_hi);
                 }
                 else if (exp == -1) {
-                    cout << "*** Warning: " << argv[0] << ":" << L_
+                    cout << "*** Warning: " << ARGV[0] << ":" << L_
                          << ":\n*** Warning: less than 1ms between resets ***"
                          << endl;
                 }
@@ -13504,7 +13855,7 @@ int main(int argc, char *argv[])
             double exp_lo = exp * (1 - TOLERANCE);
             double exp_hi = exp * (1 + TOLERANCE);
             if (!(exp_lo < rr && rr < exp_hi)) {
-                cout << "*** Warning: " << argv[0] << ":" << L_ << ":\n"
+                cout << "*** Warning: " << ARGV[0] << ":" << L_ << ":\n"
                      << "*** Warning: anomalous timing results ***" << endl;
             }
 #ifndef BSLS_PLATFORM__OS_AIX
@@ -13516,8 +13867,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 12: {
+}
+
+void TestDriver::testCase12()
+{
         // --------------------------------------------------------------------
         // TESTING FLOW CONTROL
         //
@@ -13648,8 +14001,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 11: {
+}
+
+void TestDriver::testCase11()
+{
         // --------------------------------------------------------------------
         // TESTING 'disableRead' and 'enableRead' METHODS
         //
@@ -13689,8 +14044,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 10: {
+}
+
+void TestDriver::testCase10()
+{
         // --------------------------------------------------------------------
         // TESTING 'registerClock' AND 'deregisterClock' METHODS
         //
@@ -14224,8 +14581,10 @@ int main(int argc, char *argv[])
             if (veryVerbose) { P(ta); }
         }
 
-      } break;
-      case 9: {
+}
+
+void TestDriver::testCase9()
+{
         // --------------------------------------------------------------------
         // Testing 'writeMessage'
         //
@@ -14268,15 +14627,17 @@ int main(int argc, char *argv[])
 
         {
             bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
-            runTestCase9(argv[0], &factory, ta);
+            runTestCase9(ARGV[0], &factory, ta);
                 // Note: ta passed by reference
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 8: {
+}
+
+void TestDriver::testCase8()
+{
         // --------------------------------------------------------------------
         // TESTING 'shutdown'
         //
@@ -14503,8 +14864,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 7: {
+}
+
+void TestDriver::testCase7()
+{
         // --------------------------------------------------------------------
         // TESTING CONCERN: IMPORT HALF-CLOSED SOCKET PAIR
         //
@@ -14596,8 +14959,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 6: {
+}
+
+void TestDriver::testCase6()
+{
         // --------------------------------------------------------------------
         // TESTING 'import' METHOD
         //
@@ -14793,8 +15158,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 5: {
+}
+
+void TestDriver::testCase5()
+{
         // --------------------------------------------------------------------
         // TESTING ESTABLISHING LISTENING SOCKET - BASIC TEST
         //
@@ -14933,8 +15300,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 4: {
+}
+
+void TestDriver::testCase4()
+{
         // --------------------------------------------------------------------
         // TESTING 'connect' METHOD
         //
@@ -14995,7 +15364,7 @@ int main(int argc, char *argv[])
                 MTCOUT << "Creating server thread." << MTENDL;
             }
             const int PORT = PORT_BASE
-                           + bdeu_HashUtil::hash0(argv[0], PORT_RANGE);
+                           + bdeu_HashUtil::hash0(ARGV[0], PORT_RANGE);
             if (verbose) { P(PORT); }
 
             bteso_IPv4Address peer("127.0.0.1", PORT);
@@ -15130,7 +15499,7 @@ int main(int argc, char *argv[])
                 MTCOUT << "Creating server thread." << MTENDL;
             }
             const int PORT = PORT_BASE
-                           + bdeu_HashUtil::hash0(argv[0], PORT_RANGE);
+                           + bdeu_HashUtil::hash0(ARGV[0], PORT_RANGE);
             if (verbose) { P(PORT); }
 
             bteso_IPv4Address peer("127.0.0.1", PORT);
@@ -15419,8 +15788,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
         if (veryVerbose) { P(ta); }
 
-      } break;
-      case 3: {
+}
+
+void TestDriver::testCase3()
+{
         // --------------------------------------------------------------------
         // TESTING 'start' AND 'stop' METHODS
         //
@@ -15465,8 +15836,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == ta.numBytesInUse());
 
-      } break;
-      case 2: {
+}
+
+void TestDriver::testCase2()
+{
         // --------------------------------------------------------------------
         // TESTING CREATORS
         //
@@ -15478,8 +15851,10 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-      } break;
-      case 1: {
+}
+
+void TestDriver::testCase1()
+{
         // --------------------------------------------------------------------
         // BREATHING TEST:
         //   Developer's sandbox.
@@ -15518,7 +15893,7 @@ int main(int argc, char *argv[])
                 BACKLOG    = 10
             };
             const int PORT = PORT_BASE
-                           + bdeu_HashUtil::hash0(argv[0], PORT_RANGE);
+                           + bdeu_HashUtil::hash0(ARGV[0], PORT_RANGE);
             if (verbose) { P(PORT); }
 
             for (int i = 0; i < 10; ++i) {
@@ -15548,9 +15923,10 @@ int main(int argc, char *argv[])
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == ta.numBytesInUse());
+}
 
-      } break;
-      case -1: {
+static void negativeCase1()
+{
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST:  my_QueueClient
         //
@@ -15585,19 +15961,19 @@ int main(int argc, char *argv[])
         };
 
         caseMinusOneInfo info;
-        info.d_numConnections = (argc > 3) ? atoi(argv[3])
+        info.d_numConnections = (ARGC > 3) ? atoi(ARGV[3])
                                            : DEFAULT_NUM_CONNECTIONS;
-        info.d_portNumber     = (argc > 4) ? atoi(argv[4])
+        info.d_portNumber     = (ARGC > 4) ? atoi(ARGV[4])
                                            : DEFAULT_PORT_NUMBER;
-        info.d_hostname       = (argc > 5) ? argv[5]
+        info.d_hostname       = (ARGC > 5) ? ARGV[5]
                                            : const_cast<char*>("127.0.0.1");
-        info.d_numMessages    = (argc > 6) ? atoi(argv[6])
+        info.d_numMessages    = (ARGC > 6) ? atoi(ARGV[6])
                                            : DEFAULT_NUM_MESSAGES;
 
-        if (argc > 2) {
-            verbose         = atoi(argv[2]) > 0;
-            veryVerbose     = atoi(argv[2]) > 1;
-            veryVeryVerbose = atoi(argv[2]) > 2;
+        if (ARGC > 2) {
+            verbose         = atoi(ARGV[2]) > 0;
+            veryVerbose     = atoi(ARGV[2]) > 1;
+            veryVeryVerbose = atoi(ARGV[2]) > 2;
         }
         else {
             verbose = 1;
@@ -15606,9 +15982,10 @@ int main(int argc, char *argv[])
 
         usageExampleMinusOne(&info);
 
-      } break;
-      case -2:
-      {
+}
+
+static void negativeCase2()
+{
         // --------------------------------------------------------------------
         // TESTING CONNECTION MEM USAGE:
         //
@@ -15698,7 +16075,7 @@ int main(int argc, char *argv[])
             }
             else {
                 cout << "Failed to connect to channelpool.  Abort.\n";
-                return -1;
+                return;
             }
             const int newNumBytes = ta.numBytesInUse();
             bsl::cout << "Channel " << i << ": "
@@ -15711,7 +16088,100 @@ int main(int argc, char *argv[])
             channels[i].second.clear();
             factory.deallocate(channels[i].first);
         }
+}
+
+
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
+
+int main(int argc, char **argv)
+{
+    int test = argc > 1 ? atoi(argv[1]) : 0;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
+    ARGC = argc;
+    ARGV = argv;
+
+    // TBD: these tests frequently timeout on Windows, disabling until fixed
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    testStatus = -1;
+#else
+
+    cout << "TEST " << __FILE__ << " CASE " << test
+         << " STARTED " << bdetu_SystemTime::nowAsDatetimeUtc() << endl;
+
+    ASSERT(0 == bteso_SocketImpUtil::startup());
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+    // Ignore SIGPIPE - test driver-wide.  This signal is raised when writing
+    // into a socket whose peer is down.  It creates havoc in test case 22 esp.
+    // but there is no reason it should be raised in any of the other test
+    // cases either.
+
+    struct sigaction sa;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sa.sa_handler = SIG_IGN;
+    if (0 != sigaction(SIGPIPE, &sa, NULL)) {
+        cout << "\n\t\t***WARNING****     Could not mask SIGPIPE."
+                "      ***WARNING***\n" << endl;
+        ASSERT(SIGPIPE);
+    }
+#endif
+
+    switch (test) { case 0:  // Zero is always the leading case.
+#define CASE(NUMBER) case NUMBER: TestDriver::testCase##NUMBER(); break
+      CASE(42);
+      CASE(41);
+      CASE(40);
+      CASE(39);
+      CASE(38);
+      CASE(37);
+      CASE(36);
+      CASE(35);
+      CASE(34);
+      CASE(33);
+      CASE(32);
+      CASE(31);
+      CASE(30);
+      CASE(29);
+      CASE(28);
+      CASE(27);
+      CASE(26);
+      CASE(25);
+      CASE(24);
+      CASE(23);
+      CASE(22);
+      CASE(21);
+      CASE(20);
+      CASE(19);
+      CASE(18);
+      CASE(17);
+      CASE(16);
+      CASE(15);
+      CASE(14);
+      CASE(13);
+      CASE(12);
+      CASE(11);
+      CASE(10);
+      CASE(9);
+      CASE(8);
+      CASE(7);
+      CASE(6);
+      CASE(5);
+      CASE(4);
+      CASE(3);
+      CASE(2);
+      CASE(1);
+      case -1: {
+        negativeCase1();
       } break;
+      case -2: {
+        negativeCase2();
+      } break;
+#undef CASE
       default: {
         cerr << "WARNING: CASE " << test << " NOT FOUND." << endl;
         testStatus = -1;

@@ -75,6 +75,7 @@ namespace bsl
 
 #ifndef BSL_OVERRIDES_STD
 #include <bslstl_exfunctional.h>
+#include <bslstl_hash.h>
 #endif
 
 #endif

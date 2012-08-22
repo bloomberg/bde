@@ -789,7 +789,7 @@ int my_CountedHandle<INSTANCE>::numReferences() const
 template <class TYPE>
 class my_PtrStack {
     // TYPES
-    typedef struct Node {
+    struct Node {
         TYPE                 *d_item_p;
         Node                 *d_next_p;
         bsls::AtomicInt       d_inUseFlag; // used to lock this node

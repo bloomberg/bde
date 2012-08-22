@@ -6,3 +6,6 @@ baea_controlmanager
 baea_metric
 baea_performancemonitor
 baea_pipecontrolchannel
+baea_serializableobjectproxy
+baea_serializableobjectproxyutil
+baea_testmessages

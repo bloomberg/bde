@@ -225,13 +225,9 @@ int main(int argc, char *argv[]) {
 
 
           bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-          Obj *arr = reinterpret_cast<Obj*>(
-                                            scratch.allocate(sizeof(Obj)));
+          Obj *arr = reinterpret_cast<Obj*>(scratch.allocate(sizeof(Obj)));
 
-          // FIXME: Uncomment after{DRQS 30940277} is fixed.  See the
-          // definition of the overloaded placement new operator for more
-          // details.
-          // BSLS_ASSERTTEST_ASSERT_OPT_FAIL(new (arr) Obj());
+          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(new (arr) Obj());
 
           scratch.deallocate(reinterpret_cast<void*>(arr));
 
