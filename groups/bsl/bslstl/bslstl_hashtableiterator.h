@@ -106,10 +106,10 @@ class HashTableIterator
 
   public:
     // PUBLIC TYPES
-    typedef VALUE_TYPE                  value_type;
+    typedef NcType                      value_type;
     typedef DIFFERENCE_TYPE             difference_type;
-    typedef value_type                 *pointer;
-    typedef value_type&                 reference;
+    typedef VALUE_TYPE                 *pointer;
+    typedef VALUE_TYPE&                 reference;
     typedef bsl::forward_iterator_tag   iterator_category;
         // Standard iterator defined types [24.4.2].
 

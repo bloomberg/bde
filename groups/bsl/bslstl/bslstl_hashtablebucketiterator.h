@@ -105,10 +105,10 @@ class HashTableBucketIterator
 
   public:
     // PUBLIC TYPES
-    typedef VALUE_TYPE                  value_type;
+    typedef NcType                      value_type;
     typedef DIFFERENCE_TYPE             difference_type;
-    typedef value_type                 *pointer;
-    typedef value_type&                 reference;
+    typedef VALUE_TYPE                 *pointer;
+    typedef VALUE_TYPE&                 reference;
     typedef bsl::forward_iterator_tag   iterator_category;
         // Standard iterator defined types [24.4.2].
 
@@ -123,19 +123,27 @@ class HashTableBucketIterator
 
   public:
     // CREATORS
-    // Note that in C++11 we would use the 'inheriting constructors facility
-    // using TableNodeIterator::TableNodeIterator;
-
     HashTableBucketIterator();
-        // Create in iterator not associated with any hash table.
-        // Investigate if this constructor is truly required.
+        // Create an iterator object with the default value for this type.  All
+        // default-constructed 'HashTableBucketIterator' objects represent
+        // non-dereferenceable iterators into the same empty range.  They do
+        // not have a singular value.
 
-    HashTableBucketIterator(const bslalg::HashTableBucket *bucket);
-        // NOT explicit
-        // Create a 'TableNodeIterator' object pointing to the element in the
-        // node following 'node' in a 'HashTable'.
+    explicit HashTableBucketIterator(const bslalg::HashTableBucket *bucket);
+        // Create an iterator referring to the specified 'bucket', intially
+        // pointing to the first node in that 'bucket', or a past-the-end value
+        // if the 'bucket' it empty.  Note that this constructor is an
+        // implementation detail and is not part of the C++ standard.
 
-    //HashTableBucketIterator(const HashTableBucketIterator&) = default;
+
+    HashTableBucketIterator(const NcIter& original);
+        // Create an iterator having the same value as the specified
+        // 'original'.  Note that this operation is either defined by the
+        // constructor taking 'NcIter' (if 'NcType' is the same as
+        // 'VALUE_TYPE'), or generated automatically by the compiler.  Also
+        // note that this constructor cannot be defined explicitly (without
+        // using 'bsls::enableif') to avoid a duplicate declaration when
+        // 'NcType' is the same as 'VALUE_TYPE'.
 
     //~HashTableBucketIterator() = default;
 
@@ -144,49 +152,153 @@ class HashTableBucketIterator
     //                                                               = default;
 
     HashTableBucketIterator& operator++();
+        // Move this iterator to the next element in the hash table bucket and
+        // return a reference providing modifiable access to this iterator.
+        // The behavior is undefined unless the iterator refers to a valid (not
+        // yet erased) node a hash table bucket.  Note that
+        // 'HashTableBucketIterator's are invalidated when the underlying hash
+        // table is rehashed.
 
     HashTableBucketIterator operator++(int);
+        // Move this iterator to the next element in the hash table bucket and
+        // return value of this iterator prior to this call.  The behavior is
+        // undefined unless the iterator refers to a valid (not yet erased)
+        // node a hash table bucket.  Note that 'HashTableBucketIterator's are
+        // invalidated when the underlying hash table is rehashed.
 
     // ACCESSORS
     reference operator*()  const;
-    pointer   operator->() const;
+        // Return a reference providing modifiable access to the value (of the
+        // parameterized 'VALUE_TYPE') of the element at which this iterator
+        // is positioned.  The behavior is undefined unless the iterator refers
+        // to a valid (not yet erased) node a hash table.    Note that
+        // 'HashTableBucketIterator's are invalidated when the underlying hash
+        // table is rehashed.
 
-    bslalg::BidirectionalLink *node() const {
-        return d_node_p;
-    }
+    pointer   operator->() const;
+        // Return the address of the value (of the parameterized 'VALUE_TYPE')
+        // of the element at which this iterator is positioned.  The behavior
+        // is undefined unless the iterator refers to a valid (not yet erased)
+        // node a hash table.  Note that 'HashTableBucketIterator's are
+        // invalidated when the underlying hash table is rehashed.
+
+    bslalg::BidirectionalLink *node() const;
+        // Return the address of the list-node at which this iterator is
+        // positioned, or 0 if this iterator is positioned after the end of a
+        // bucket.  Note that this method is an implementation detail and is
+        // not part of the C++ standard.
+
+    const bslalg::HashTableBucket *bucket() const;
+        // Return the address of the list-node at which this iterator is
+        // positioned, or 0 if this iterator is positioned after the end of a
+        // bucket.  Note that this method is an implementation detail intended
+        // for debugging purposes only, and is not part of the C++ standard.  
 };
 
 // FREE FUNCTIONS AND OPERATORS
-template <class VALUE_TYPE1, class VALUE_TYPE2, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
-bool operator==(const HashTableBucketIterator<VALUE_TYPE1, DIFFERENCE_TYPE, LINK_TRANSLATOR>& lhs,
-                const HashTableBucketIterator<VALUE_TYPE2, DIFFERENCE_TYPE, LINK_TRANSLATOR>& rhs);
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+bool operator==(const HashTableBucketIterator<VALUE_TYPE,
+                                        DIFFERENCE_TYPE,
+                                        LINK_TRANSLATOR>& lhs,
+                const HashTableBucketIterator<VALUE_TYPE,
+                                        DIFFERENCE_TYPE,
+                                        LINK_TRANSLATOR>& rhs);
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+bool operator==(const HashTableBucketIterator<VALUE_TYPE,
+                                        DIFFERENCE_TYPE,
+                                        LINK_TRANSLATOR>& lhs,
+                const HashTableBucketIterator<const VALUE_TYPE,
+                                        DIFFERENCE_TYPE,
+                                        LINK_TRANSLATOR>& rhs);
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+bool operator==(const HashTableBucketIterator<const VALUE_TYPE,
+                                        DIFFERENCE_TYPE,
+                                        LINK_TRANSLATOR>& lhs,
+                const HashTableBucketIterator<VALUE_TYPE,
+                                        DIFFERENCE_TYPE,
+                                        LINK_TRANSLATOR>& rhs);
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+bool operator==(const HashTableBucketIterator<const VALUE_TYPE,
+                                        DIFFERENCE_TYPE,
+                                        LINK_TRANSLATOR>& lhs,
+                const HashTableBucketIterator<const VALUE_TYPE,
+                                        DIFFERENCE_TYPE,
+                                        LINK_TRANSLATOR>& rhs);
+    // Return 'true' if the specified 'lhs' and the specified 'rhs' iterators
+    // have the same value and 'false' otherwise.  Two iterators have
+    // the same value if they refer to the same node in the same hash table, or
+    // if both iterators are positioned after the end of a hash table bucket.
 
-template <class VALUE_TYPE1, class VALUE_TYPE2, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
-bool operator!=(const HashTableBucketIterator<VALUE_TYPE1, DIFFERENCE_TYPE, LINK_TRANSLATOR>& lhs,
-                const HashTableBucketIterator<VALUE_TYPE2, DIFFERENCE_TYPE, LINK_TRANSLATOR>& rhs);
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+bool operator!=(const HashTableBucketIterator<VALUE_TYPE,
+                                              DIFFERENCE_TYPE,
+                                              LINK_TRANSLATOR>& lhs,
+                const HashTableBucketIterator<VALUE_TYPE,
+                                              DIFFERENCE_TYPE,
+                                              LINK_TRANSLATOR>& rhs);
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+bool operator!=(const HashTableBucketIterator<VALUE_TYPE,
+                                              DIFFERENCE_TYPE,
+                                              LINK_TRANSLATOR>& lhs,
+                const HashTableBucketIterator<const VALUE_TYPE,
+                                              DIFFERENCE_TYPE,
+                                              LINK_TRANSLATOR>& rhs);
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+bool operator!=(const HashTableBucketIterator<const VALUE_TYPE,
+                                              DIFFERENCE_TYPE,
+                                              LINK_TRANSLATOR>& lhs,
+                const HashTableBucketIterator<VALUE_TYPE,
+                                              DIFFERENCE_TYPE,
+                                              LINK_TRANSLATOR>& rhs);
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+bool operator!=(const HashTableBucketIterator<const VALUE_TYPE,
+                                              DIFFERENCE_TYPE,
+                                              LINK_TRANSLATOR>& lhs,
+                const HashTableBucketIterator<const VALUE_TYPE,
+                                              DIFFERENCE_TYPE,
+                                              LINK_TRANSLATOR>& rhs);
+    // Return 'true' if the specified 'lhs' and the specified 'rhs' iterators
+    // do not have the same value and 'false' otherwise.  Two iterators do not
+    // have the same value if they refer to the different nodes in the same
+    // hash table, or if either (but not both) of the iterators are positioned
+    // after the end of a hash table bucket.
+
 
 // INLINE FUNCTION DEFINITIONS
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::HashTableBucketIterator()
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
+HashTableBucketIterator()
 : d_node_p()
 , d_bucket_p()
-{}
+{
+}
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
-                 HashTableBucketIterator(const bslalg::HashTableBucket *bucket)
+HashTableBucketIterator(const NcIter& original)
+: d_node_p(original.node())
+, d_bucket_p(original.bucket())
+{
+}
+
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+inline
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
+HashTableBucketIterator(const bslalg::HashTableBucket *bucket)
 : d_node_p(bucket ? bucket->first() : 0)
 , d_bucket_p(bucket)
 {
 }
 
-    // MANIPULATORS
+// MANIPULATORS
 template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-void HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::advance()
+void
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
+advance()
 {
     BSLS_ASSERT_SAFE(this->d_node_p);
     BSLS_ASSERT_SAFE(this->d_bucket_p);
@@ -202,7 +314,8 @@ void HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::adva
 template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>&
-HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::operator++()
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
+operator++()
 {
     BSLS_ASSERT_SAFE(this->d_node_p);
     BSLS_ASSERT_SAFE(this->d_bucket_p);
@@ -214,7 +327,8 @@ HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::operator+
 template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>
-HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::operator++(int)
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
+operator++(int)
 {
     BSLS_ASSERT_SAFE(this->d_node_p);
     BSLS_ASSERT_SAFE(this->d_bucket_p);
@@ -227,42 +341,158 @@ HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::operator+
 // ACCESSORS
 template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-typename HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::reference
-HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::operator*() const
+typename
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
+                                                                      reference
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
+operator*() const
 {
     BSLS_ASSERT_SAFE(this->d_node_p);
 
-    typedef bslalg::BidirectionalListNode<VALUE_TYPE> NodeType;
-    return static_cast<NodeType *>(this->d_node_p)->value();
+    return LINK_TRANSLATOR::extractValue(this->d_node_p);
 }
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-typename HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::pointer
-HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::operator->() const
+typename
+ HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::pointer
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
+operator->() const
 {
     BSLS_ASSERT_SAFE(this->d_node_p);
 
-    typedef bslalg::BidirectionalListNode<VALUE_TYPE> NodeType;
-    return bsls_Util::addressOf(
-                             static_cast<NodeType *>(this->d_node_p)->value());
+    return bsls_Util::addressOf(LINK_TRANSLATOR::extractValue(this->d_node_p));
+}
+
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+inline
+bslalg::BidirectionalLink *
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
+node() const
+{
+    return this->d_node_p;
+}
+
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+inline
+const bslalg::HashTableBucket *
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
+bucket() const
+{
+    return this->d_bucket_p;
 }
 
 } // namespace BloombergLP::bslstl
 
-template <class VALUE_TYPE1, class VALUE_TYPE2, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-bool bslstl::operator==(const HashTableBucketIterator<VALUE_TYPE1, DIFFERENCE_TYPE, LINK_TRANSLATOR>& lhs,
-                        const HashTableBucketIterator<VALUE_TYPE2, DIFFERENCE_TYPE, LINK_TRANSLATOR>& rhs)
+bool bslstl::operator==(const HashTableBucketIterator<VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& lhs,
+                        const HashTableBucketIterator<VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& rhs)
 {
+    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+
     return lhs.node() == rhs.node();
 }
 
-template <class VALUE_TYPE1, class VALUE_TYPE2, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
-bool bslstl::operator!=(const HashTableBucketIterator<VALUE_TYPE1, DIFFERENCE_TYPE, LINK_TRANSLATOR>& lhs,
-                        const HashTableBucketIterator<VALUE_TYPE2, DIFFERENCE_TYPE, LINK_TRANSLATOR>& rhs)
+bool bslstl::operator==(const HashTableBucketIterator<VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& lhs,
+                        const HashTableBucketIterator<const VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& rhs)
 {
+    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+
+    return lhs.node() == rhs.node();
+}
+
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+inline
+bool bslstl::operator==(const HashTableBucketIterator<const VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& lhs,
+                        const HashTableBucketIterator<VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& rhs)
+{
+    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+
+    return lhs.node() == rhs.node();
+}
+
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+inline
+bool bslstl::operator==(const HashTableBucketIterator<const VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& lhs,
+                        const HashTableBucketIterator<const VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& rhs)
+{
+    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+
+    return lhs.node() == rhs.node();
+}
+
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+inline
+bool bslstl::operator!=(const HashTableBucketIterator<VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& lhs,
+                        const HashTableBucketIterator<VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& rhs)
+{
+    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+
+    return lhs.node() != rhs.node();
+}
+
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+inline
+bool bslstl::operator!=(const HashTableBucketIterator<VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& lhs,
+                        const HashTableBucketIterator<const VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& rhs)
+{
+    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+
+    return lhs.node() != rhs.node();
+}
+
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+inline
+bool bslstl::operator!=(const HashTableBucketIterator<const VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& lhs,
+                        const HashTableBucketIterator<VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& rhs)
+{
+    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+
+    return lhs.node() != rhs.node();
+}
+
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+inline
+bool bslstl::operator!=(const HashTableBucketIterator<const VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& lhs,
+                        const HashTableBucketIterator<const VALUE_TYPE,
+                                                      DIFFERENCE_TYPE,
+                                                      LINK_TRANSLATOR>& rhs)
+{
+    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+
     return lhs.node() != rhs.node();
 }
 
