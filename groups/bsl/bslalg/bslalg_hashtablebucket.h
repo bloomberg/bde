@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a bucket represantation for hash table data structures.. 
+//@PURPOSE: Provide a bucket represantation for hash table data structures..
 //
 //@CLASSES:
 //   bslalg::HashTableBucket : hash-table that manages externally allocated nodes
@@ -51,7 +51,12 @@ class HashTableBucket {
   public:
     // CREATORS
     HashTableBucket();
-        // Create a link object having no next or previous node.
+        // Create a 'HashTableBucket' object having the 'first' and 'last'
+        // attributes set to 0.
+
+    HashTableBucket(BidirectionalLink *first, BidirectionalLink *last);
+        // Create a 'HashTableBucket' object having the specified 'first' and
+        // 'last' attributes.
 
     // Trivial Copy operations
     // Trivial Destructor
@@ -61,15 +66,15 @@ class HashTableBucket {
 
     void setLast(BidirectionalLink *prev);
 
-    void createBucket(BidirectionalLink *first, BidirectionalLink *last);
+    void setFirstLast(BidirectionalLink *first, BidirectionalLink *last);
         // Set 'first' and 'last' to the specified values.  Behavior is
         // undefined unless this bucket is empty.
 
-    void fillNewBucket(BidirectionalLink *node);
+    void setFirstLast(BidirectionalLink *node);
         // Set 'first' and 'last' to the specified 'node'.  Behavior is
         // undefined unless this bucket is empty.
 
-    void clearBucket();
+    void clear();
         // Set 'first' and 'last' to a null pointer value.
 
     // ACCESSORS
@@ -89,15 +94,23 @@ class HashTableBucket {
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                        //--------------------
-                        // class BidirectionalLink
-                        //--------------------
+                        //----------------------
+                        // class HashTableBucket
+                        //----------------------
 
 // CREATORS
 inline
 HashTableBucket::HashTableBucket()
 : d_first_p()
 , d_last_p()
+{
+}
+
+inline
+HashTableBucket::HashTableBucket(BidirectionalLink *first,
+                                 BidirectionalLink *last)
+: d_first_p(first)
+, d_last_p(last)
 {
 }
 
@@ -115,24 +128,21 @@ void HashTableBucket::setLast(BidirectionalLink *node)
 }
 
 inline
-void HashTableBucket::fillNewBucket(BidirectionalLink *node)
+void HashTableBucket::setFirstLast(BidirectionalLink *node)
 {
-    BSLS_ASSERT_SAFE(0 == d_first_p);
-    BSLS_ASSERT_SAFE(0 == d_last_p);
     d_first_p = d_last_p = node;
 }
 
 inline
-void HashTableBucket::createBucket(BidirectionalLink *first, BidirectionalLink *last)
+void HashTableBucket::setFirstLast(BidirectionalLink *first,
+                                   BidirectionalLink *last)
 {
-    BSLS_ASSERT_SAFE(0 == d_first_p);
-    BSLS_ASSERT_SAFE(0 == d_last_p);
     d_first_p = first;
     d_last_p  = last;
 }
 
 inline
-void HashTableBucket::clearBucket()
+void HashTableBucket::clear()
 {
     d_first_p = d_last_p = 0;
 }

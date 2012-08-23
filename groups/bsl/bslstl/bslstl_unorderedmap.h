@@ -983,7 +983,7 @@ typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::bucket_count()
                                                           const BSLSTL_NOEXCEPT
 {
-    return d_impl.bucket_count();
+    return d_impl.numOfBuckets();
 }
 
 template <class KEY_TYPE,
@@ -996,7 +996,7 @@ typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::max_bucket_count()
                                                           const BSLSTL_NOEXCEPT
 {
-    return d_impl.max_bucket_count();
+    return d_impl.maxNumOfBuckets();
 }
 
 template <class KEY_TYPE,
@@ -1037,7 +1037,7 @@ typename
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::begin(size_type n)
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return local_iterator(d_impl.begin(n));
+    return local_iterator(&d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -1052,7 +1052,7 @@ unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::begin(size_type n)
                                                                           const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator(d_impl.begin(n));
+    return const_local_iterator(&d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -1066,7 +1066,7 @@ typename
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::end(size_type n)
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return local_iterator();
+    return local_iterator(0, &d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -1076,12 +1076,12 @@ template <class KEY_TYPE,
           class ALLOC>
 inline
 typename
- unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
+unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::end(size_type n)
                                                                           const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator();
+    return const_local_iterator(0, &d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -1096,7 +1096,7 @@ unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::cbegin(size_type n)
                                                                           const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator(d_impl.begin(n));
+    return const_local_iterator(&d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -1111,7 +1111,7 @@ unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::cend(size_type n)
                                                                           const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator();
+    return const_local_iterator(0, &d_impl.getBucket(n));
 }
 
     // hash policy

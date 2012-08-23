@@ -133,8 +133,6 @@ class HashTable : private bslalg::FunctorAdapter<HASH>::Type
     typedef typename ALLOC::size_type            size_type; // should find via allocator_traits?
   private:
     // PRIVATE TYPES
-    typedef typename ALLOC::template rebind<bslalg::HashTableBucket>::other
-                                                                  VECTOR_ALLOC;
     typedef typename bsl::allocator_traits<ALLOC>::template
                                         rebind_traits<NodeType>::allocator_type
                                                                  NodeAllocator;
@@ -147,7 +145,7 @@ class HashTable : private bslalg::FunctorAdapter<HASH>::Type
   private:
     // DATA
     //HashTablePolicy               d_hashPolicy;  // typically empty
-    bsl::vector<bslalg::HashTableBucket, VECTOR_ALLOC>  d_buckets;
+    HashTable_BucketArray       d_buckets;
     bslalg::BidirectionalLink  *d_root;
     size_t                      d_size;
     NodeFactory                 d_nodeFactory;
@@ -189,6 +187,7 @@ class HashTable : private bslalg::FunctorAdapter<HASH>::Type
     size_type max_size() const;
 
     // iterators
+    //SP: we must find a better name, can't think of anything right now.
     bslalg::BidirectionalLink *begin() const;
 
     // modifiers
@@ -225,14 +224,16 @@ class HashTable : private bslalg::FunctorAdapter<HASH>::Type
         // the node pointed to by 'first'.
 
     // bucket interface
-    size_type bucket_count() const;
-    size_type max_bucket_count() const;
+    size_type numOfBuckets() const;
+    size_type maxNumOfbuckets() const;
     size_type bucket_size(size_type n) const;
 
     template<class key_type> // hope to determine from existing policy when done
     size_type bucket(const key_type& k) const;
 
-    const bslalg::HashTableBucket *begin(size_type n) const;
+    const bslalg::HashTableBucket& getBucket(size_type n) const;
+        // Return a reference to the 'n'th non-modifiable bucket in the
+        // sequence of buckets.  The behavior is undefined unless 'n < TBD'.
 
     // hash policy
     float load_factor() const;
@@ -379,7 +380,7 @@ HashTable(const HashTable& other, const AllocatorType& a)
                                                          d_buckets.size());
                 // APPEND 'next' after 'lastNode', and update any buckets / end-markers
                 if (!lastNode) {
-                    d_buckets[bucket].fillNewBucket(next);
+                    d_buckets[bucket].setFirstLast(next);
                     d_root            = next;
                     lastBucket        = bucket;
                 }
@@ -388,7 +389,7 @@ HashTable(const HashTable& other, const AllocatorType& a)
                     next->setPrev(lastNode);
 
                     if (bucket != lastBucket) {
-                        d_buckets[bucket].fillNewBucket(next);
+                        d_buckets[bucket].setFirstLast(next);
                         d_buckets[lastBucket].setLast(lastNode);
                         lastBucket        = bucket;
                     }
@@ -526,8 +527,8 @@ inline
 void
 HashTable<VALUE_TYPE, HASH, EQUAL, ALLOC>::expandTable()
 {
-//    this->rehash(2*this->bucket_count());
-    this->rehash(this->bucket_count() + 1);
+//    this->rehash(2*this->numOfBuckets());
+    this->rehash(this->numOfBuckets() + 1);
 }
 
 template <class VALUE_POLICY, class HASH, class EQUAL, class ALLOC>
@@ -674,7 +675,7 @@ HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::findEndOfRange(
 template <class VALUE_POLICY, class HASH, class EQUAL, class ALLOC>
 inline
 typename HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::size_type
-HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::bucket_count() const
+HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::numOfBuckets() const
 {
     return d_buckets.size();
 }
@@ -682,7 +683,7 @@ HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::bucket_count() const
 template <class VALUE_POLICY, class HASH, class EQUAL, class ALLOC>
 inline
 typename HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::size_type
-HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::max_bucket_count() const
+HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::maxNumOfbuckets() const
 {
     return this->max_size();
 }
@@ -692,7 +693,7 @@ inline
 typename HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::size_type
 HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::bucket_size(size_type n) const
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
+    BSLS_ASSERT_SAFE(n < this->numOfBuckets());
     return d_buckets[n].size();
 }
 
@@ -707,14 +708,13 @@ HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::bucket(const key_type& k) const
                                                           d_buckets.size());
 }
 
-
 template <class VALUE_POLICY, class HASH, class EQUAL, class ALLOC>
 inline
-const bslalg::HashTableBucket *
-HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::begin(size_type n) const
+const bslalg::HashTableBucket&
+HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::getBucket(size_type n) const
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return &d_buckets[n];
+    BSLS_ASSERT_SAFE(n < this->numOfBuckets());
+    return d_buckets[n];
 }
 
 
@@ -723,7 +723,7 @@ template <class VALUE_POLICY, class HASH, class EQUAL, class ALLOC>
 inline
 float HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::load_factor() const
 {
-    return (double)size() / this->bucket_count();
+    return (double)size() / this->numOfBuckets();
 }
 
 template <class VALUE_POLICY, class HASH, class EQUAL, class ALLOC>
@@ -738,7 +738,7 @@ inline
 void HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::max_load_factor(float z)
 {
     d_maxLoadFactor = z;
-    d_loadLimit = this->bucket_count() * z;
+    d_loadLimit = this->numOfBuckets() * z;
     if (d_loadLimit < this->size()) {
         this->reserve(this->size());
     }
@@ -752,7 +752,7 @@ HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::rehash(size_type n)
     // compute a "good" number of buckets, e.g., pick a prime number
     // from a sorted array of exponentially increasing primes. 
     n = HashTable_GrowthUtil::nextPrime(n);
-    if (n > this->bucket_count()) {
+    if (n > this->numOfBuckets()) {
         d_loadLimit = n * this->max_load_factor();
         // Which allocator should we use for this array, given we expect to
         // 'swap' at the end?
@@ -784,6 +784,7 @@ bool
 HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::hasSameValue(
                                                   const HashTable& other) const
 {
+    //SP: I think this should be refactored.
     typedef typename
            bslstl::HashTable<VALUE_POLICY, HASH, EQUAL, ALLOC>::size_type
                                                                       SizeType;

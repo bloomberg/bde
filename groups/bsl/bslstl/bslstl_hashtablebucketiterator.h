@@ -132,8 +132,16 @@ class HashTableBucketIterator
     explicit HashTableBucketIterator(const bslalg::HashTableBucket *bucket);
         // Create an iterator referring to the specified 'bucket', intially
         // pointing to the first node in that 'bucket', or a past-the-end value
-        // if the 'bucket' it empty.  Note that this constructor is an
+        // if the 'bucket' is empty.  Note that this constructor is an
         // implementation detail and is not part of the C++ standard.
+    
+    explicit HashTableBucketIterator(bslalg::BidirectionalLink     *node,
+                                     const bslalg::HashTableBucket *bucket);
+        // Create an iterator referring to the specified 'bucket', intially
+        // pointing to the specified 'node' in that bucket.  The behavior is
+        // undefined unless 'node' is part of 'bucket', or 'node' is 0.  Note
+        // that this constructor is an implementation detail and is not part of
+        // the C++ standard.
 
 
     HashTableBucketIterator(const NcIter& original);
@@ -266,6 +274,7 @@ bool operator!=(const HashTableBucketIterator<const VALUE_TYPE,
 
 // INLINE FUNCTION DEFINITIONS
 
+//CREATORS
 template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
@@ -278,18 +287,29 @@ HashTableBucketIterator()
 template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
-HashTableBucketIterator(const NcIter& original)
-: d_node_p(original.node())
-, d_bucket_p(original.bucket())
+HashTableBucketIterator(const bslalg::HashTableBucket *bucket)
+: d_node_p(bucket ? bucket->first() : 0)
+, d_bucket_p(bucket)
 {
 }
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
 inline
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
-HashTableBucketIterator(const bslalg::HashTableBucket *bucket)
-: d_node_p(bucket ? bucket->first() : 0)
+HashTableBucketIterator(bslalg::BidirectionalLink     *node,
+                        const bslalg::HashTableBucket *bucket)
+                        
+: d_node_p(node)
 , d_bucket_p(bucket)
+{
+}
+
+template <class VALUE_TYPE, class DIFFERENCE_TYPE, class LINK_TRANSLATOR>
+inline
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE, LINK_TRANSLATOR>::
+HashTableBucketIterator(const NcIter& original)
+: d_node_p(original.node())
+, d_bucket_p(original.bucket())
 {
 }
 

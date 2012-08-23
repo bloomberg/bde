@@ -1,5 +1,6 @@
 // bslalg_hashtableutil.h                                             -*-C++-*-
 #ifndef INCLUDED_BSLALG_HASHTABLEUTIL
+
 #define INCLUDED_BSLALG_HASHTABLEUTIL
 
 #ifndef INCLUDED_BSLS_IDENT

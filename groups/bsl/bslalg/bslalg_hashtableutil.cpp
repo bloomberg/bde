@@ -33,7 +33,7 @@ void HashTableUtil::removeNodeFromTable(BidirectionalLink  *position,
     HashTableBucket *bucket = bucketForHashCode(buckets, nBuckets, hashCode);
     if (bucket->first() == position) {
         if (bucket->last() == position) {
-            bucket->clearBucket();
+            bucket->clear();
         }
         else {
             bucket->setFirst(position->next());
@@ -110,7 +110,7 @@ void HashTableUtil::insertAtFrontOfBucket(BidirectionalLink  *newNode,
         // New bucket required
         BidirectionalListUtil::insertLinkBeforeTail(newNode, *listRoot);
         *listRoot = newNode;   // New buckets prepend to the front of the list
-        bucket->fillNewBucket(newNode);
+        bucket->setFirstLast(newNode);
     }
 }
 
@@ -126,7 +126,7 @@ void HashTableUtil::spliceSegmentIntoBucket(BidirectionalLink  *cursor,
 
     // splice the array segment
     if (!bucket->first()) {
-        bucket->createBucket(cursor, nextCursor);
+        bucket->setFirstLast(cursor, nextCursor);
         BidirectionalListUtil::spliceListBeforeLink(cursor,
                                                     nextCursor,
                                                     *newRoot);

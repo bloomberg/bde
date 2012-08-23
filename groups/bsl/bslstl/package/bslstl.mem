@@ -9,6 +9,7 @@ bslstl_equalto
 bslstl_forwarditerator
 bslstl_hash
 bslstl_hashtable
+bslstl_hashtable_array
 bslstl_hashtablebucketiterator
 bslstl_hashtableiterator
 bslstl_hashtablenodefactory
