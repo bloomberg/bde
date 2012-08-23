@@ -1075,7 +1075,7 @@ void AtomicOperations_DefaultPointer32<IMP>::
 {
     IMP::setInt(
         reinterpret_cast<typename AtomicTypes::Int *>(atomicPtr),
-        reinterpret_cast<int>(value));
+        reinterpret_cast<Types::IntPtr>(value));
 }
 
 template <typename IMP>
@@ -1086,7 +1086,7 @@ void AtomicOperations_DefaultPointer32<IMP>::
 {
     IMP::setIntRelaxed(
         reinterpret_cast<typename AtomicTypes::Int *>(atomicPtr),
-        reinterpret_cast<int>(value));
+        reinterpret_cast<Types::IntPtr>(value));
 }
 
 template <typename IMP>
@@ -1097,7 +1097,7 @@ void AtomicOperations_DefaultPointer32<IMP>::
 {
     IMP::setIntRelease(
         reinterpret_cast<typename AtomicTypes::Int *>(atomicPtr),
-        reinterpret_cast<int>(value));
+        reinterpret_cast<Types::IntPtr>(value));
 }
 
 template <typename IMP>
@@ -1109,7 +1109,7 @@ void *AtomicOperations_DefaultPointer32<IMP>::
     return reinterpret_cast<void *>(
             IMP::swapInt(
                 reinterpret_cast<typename AtomicTypes::Int *>(atomicPtr),
-                reinterpret_cast<int>(swapValue)));
+                reinterpret_cast<Types::IntPtr>(swapValue)));
 }
 
 template <typename IMP>
@@ -1121,7 +1121,7 @@ void *AtomicOperations_DefaultPointer32<IMP>::
     return reinterpret_cast<void *>(
             IMP::swapIntAcqRel(
                 reinterpret_cast<typename AtomicTypes::Int *>(atomicPtr),
-                reinterpret_cast<int>(swapValue)));
+                reinterpret_cast<Types::IntPtr>(swapValue)));
 }
 
 template <typename IMP>
@@ -1134,8 +1134,8 @@ void *AtomicOperations_DefaultPointer32<IMP>::
     return reinterpret_cast<void *>(
             IMP::testAndSwapInt(
                 reinterpret_cast<typename AtomicTypes::Int *>(atomicPtr),
-                reinterpret_cast<int>(compareValue),
-                reinterpret_cast<int>(swapValue)));
+                reinterpret_cast<Types::IntPtr>(compareValue),
+                reinterpret_cast<Types::IntPtr>(swapValue)));
 }
 
 template <typename IMP>
@@ -1148,8 +1148,8 @@ void *AtomicOperations_DefaultPointer32<IMP>::
     return reinterpret_cast<void *>(
             IMP::testAndSwapIntAcqRel(
                 reinterpret_cast<typename AtomicTypes::Int *>(atomicPtr),
-                reinterpret_cast<int>(compareValue),
-                reinterpret_cast<int>(swapValue)));
+                reinterpret_cast<Types::IntPtr>(compareValue),
+                reinterpret_cast<Types::IntPtr>(swapValue)));
 }
 
                   // ----------------------------------------
@@ -1207,7 +1207,7 @@ void AtomicOperations_DefaultPointer64<IMP>::
 {
     IMP::setInt64(
         reinterpret_cast<typename AtomicTypes::Int64 *>(atomicPtr),
-        reinterpret_cast<Types::Int64>(value));
+        reinterpret_cast<Types::IntPtr>(value));
 }
 
 template <typename IMP>
@@ -1218,7 +1218,7 @@ void AtomicOperations_DefaultPointer64<IMP>::
 {
     IMP::setInt64Relaxed(
         reinterpret_cast<typename AtomicTypes::Int64 *>(atomicPtr),
-        reinterpret_cast<Types::Int64>(value));
+        reinterpret_cast<Types::IntPtr>(value));
 }
 
 template <typename IMP>
@@ -1229,7 +1229,7 @@ void AtomicOperations_DefaultPointer64<IMP>::
 {
     IMP::setInt64Release(
         reinterpret_cast<typename AtomicTypes::Int64 *>(atomicPtr),
-        reinterpret_cast<Types::Int64>(value));
+        reinterpret_cast<Types::IntPtr>(value));
 }
 
 template <typename IMP>
@@ -1241,7 +1241,7 @@ void *AtomicOperations_DefaultPointer64<IMP>::
     return reinterpret_cast<void *>(
             IMP::swapInt64(
                 reinterpret_cast<typename AtomicTypes::Int64 *>(atomicPtr),
-                reinterpret_cast<Types::Int64>(swapValue)));
+                reinterpret_cast<Types::IntPtr>(swapValue)));
 }
 
 template <typename IMP>
@@ -1253,7 +1253,7 @@ void *AtomicOperations_DefaultPointer64<IMP>::
     return reinterpret_cast<void *>(
             IMP::swapInt64AcqRel(
                 reinterpret_cast<typename AtomicTypes::Int64 *>(atomicPtr),
-                reinterpret_cast<Types::Int64>(swapValue)));
+                reinterpret_cast<Types::IntPtr>(swapValue)));
 }
 
 template <typename IMP>
@@ -1266,8 +1266,8 @@ void *AtomicOperations_DefaultPointer64<IMP>::
     return reinterpret_cast<void *>(
             IMP::testAndSwapInt64(
                 reinterpret_cast<typename AtomicTypes::Int64 *>(atomicPtr),
-                reinterpret_cast<Types::Int64>(compareValue),
-                reinterpret_cast<Types::Int64>(swapValue)));
+                reinterpret_cast<Types::IntPtr>(compareValue),
+                reinterpret_cast<Types::IntPtr>(swapValue)));
 }
 
 template <typename IMP>
@@ -1280,8 +1280,8 @@ void *AtomicOperations_DefaultPointer64<IMP>::
     return reinterpret_cast<void *>(
             IMP::testAndSwapInt64AcqRel(
                 reinterpret_cast<typename AtomicTypes::Int64 *>(atomicPtr),
-                reinterpret_cast<Types::Int64>(compareValue),
-                reinterpret_cast<Types::Int64>(swapValue)));
+                reinterpret_cast<Types::IntPtr>(compareValue),
+                reinterpret_cast<Types::IntPtr>(swapValue)));
 }
 
 }  // close package namespace
