@@ -14,9 +14,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::SequentialAllocator: fast variable-size memory allocator
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendels)
-//
 //@SEE_ALSO: bdema_sequentialallocator
+//
+//@AUTHOR: Jeffrey Mendelsohn (jmendels)
 //
 //@DESCRIPTION: This component provides an allocator,
 // 'bslma::SequentialAllocator', that implements the 'bslma::ManagedAllocator'

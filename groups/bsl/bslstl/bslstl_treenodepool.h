@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bslstl::TreeNodePool: memory manager to allocate tree nodes
 //
-//@AUTHOR: Raymond Chiu (schiu49)
-//
 //@SEE_ALSO: bslstl_simplepool
+//
+//@AUTHOR: Raymond Chiu (schiu49)
 //
 //@DESCRIPTION: This component implements a mechanism that creates and deletes
 // 'bslstl::TreeNode' objects for the parameterized 'VALUE' type for use in a

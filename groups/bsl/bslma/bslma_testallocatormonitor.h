@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::TestAllocatorMonitor: 'bslma::TestAllocator' summary mechanism
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwale), Steven Breitstein (sbreitstein)
-//
 //@SEE_ALSO: bslma_testallocator
+//
+//@AUTHOR: Rohan Bhindwale (rbhindwale), Steven Breitstein (sbreitstein)
 //
 //@DESCRIPTION: This component provides a single mechanism class,
 // 'bslma::TestAllocatorMonitor', which is used, in concert with

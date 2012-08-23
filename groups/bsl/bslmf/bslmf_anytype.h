@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //  bslmf::AnyType: generic type to which any type can be converted
 //  bslmf::TypeRep: meta-function for providing a reference to 'TYPE'
 //
-//@SEE_ALSO:
-//
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: 'bslmf::AnyType' is a type to which any type can be implicitly

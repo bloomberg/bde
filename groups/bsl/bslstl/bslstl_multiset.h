@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::multiset: STL-compatible multiset template
 //
-//@AUTHOR:  Henry Verschell (hverschell)
-//
 //@SEE_ALSO: bslstl_set, bslstl_multimap
+//
+//@AUTHOR:  Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component defines a single class template 'multiset',
 // implementing the standard container holding an ordered sequence of possibly

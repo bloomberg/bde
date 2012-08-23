@@ -14,9 +14,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::SequentialPool: fast variable-size memory pool
 //
-//@AUTHOR: Shao-wei Hung (shung1)
-//
 //@SEE_ALSO: bdema_sequentialpool
+//
+//@AUTHOR: Shao-wei Hung (shung1)
 //
 //@DESCRIPTION: This component implements a memory pool that dispenses memory
 // blocks of any requested size from an internal buffer or an optional

@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Clay Wilson (cwilson9)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether its single type parameter is of polymorphic type.  A class
 // is polymorphic if it has virtual functions.  Note that the destructor of

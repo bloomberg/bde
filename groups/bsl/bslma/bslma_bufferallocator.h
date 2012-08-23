@@ -14,9 +14,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::BufferAllocator: memory allocator from user-supplied buffer
 //
-//@AUTHOR: John Lakos (jlakos)
-//
 //@SEE_ALSO: bdema_bufferedsequentialallocator, bdema_bufferimputil
+//
+//@AUTHOR: John Lakos (jlakos)
 //
 //@DESCRIPTION: This component provides an allocator, 'bslma::BufferAllocator',
 // that implements the 'bslma::Allocator' protocol and sequentially allocates

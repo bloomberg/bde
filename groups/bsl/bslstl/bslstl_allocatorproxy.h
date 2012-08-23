@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //  bslstl::AllocatorProxyBslmaBase: base class for 'bslstl::AllocatorProxy'
 //  bslstl::AllocatorProxyNonBslmaBase: base class for 'bslstl::AllocatorProxy'
 //
-//@SEE_ALSO:
-//
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION:

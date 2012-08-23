@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstl::ContainerBase: base class for STL-style containers
 //
-//@SEE_ALSO:
-//
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component defines a class, 'bslstl::ContainerBase', that

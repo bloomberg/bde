@@ -13,8 +13,7 @@ BSLS_IDENT("$Id: $")
 //  bsl::allocator: STL-compatible allocator template
 //  bsl::Allocator_BslalgTypeTraits: type traits for 'bsl::allocator'
 //
-//@SEE_ALSO:
-//  bslma_allocator
+//@SEE_ALSO: bslma_allocator
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
