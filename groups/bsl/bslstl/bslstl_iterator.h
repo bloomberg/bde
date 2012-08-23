@@ -76,41 +76,55 @@ BSLS_IDENT("$Id: $")
 //      //! ~MyFixedSizeArray() = default;
 //          // Destroy this object.
 //..
-// Here, we define the 'begin' and 'end' methods to return basic iterators
+// Now, we define the 'begin' and 'end' methods to return basic iterators
 // ('VALUE*' and 'const VALUE*'), and the 'rbegin' and 'rend' methods to return
 // reverse iterators ('bsl::reverse_iterator<VALUE*>' and
 // 'bsl::reverse_iterator<const VALUE*>) type:
 //..
-//      // MANIPULATORS: None.
+//      // MANIPULATORS
+//      iterator begin();
+//          // Return the basic iterator providing modifiable access to the
+//          // first valid element of this object.
+//
+//      iterator end();
+//          // Return the basic iterator providing modifiable access to the
+//          // position one after the last valid element of this object.
+//
+//      reverse_iterator rbegin();
+//          // Return the reverse iterator providing modifiable access to the
+//          // last valid element of this object.
+//
+//      reverse_iterator rend();
+//          // Return the reverse iterator providing modifiable access to the
+//          // position one before the first valid element of this object.
+//
+//      VALUE& operator[](int i);
+//          // Return the reference providing modifiable access of the
+//          // specified 'i'th element of this object.
 //
 //      // ACCESSORS
 //      const_iterator begin() const;
-//            iterator begin();
-//          // Return the basic iterator referring to the first valid element
-//          // of this object.
+//          // Return the basic iterator providing non-modifiable access to the
+//          // first valid element of this object.
 //
 //      const_iterator end() const;
-//            iterator end();
-//          // Return the basic iterator referring to the position one after
-//          // the last valid element of this object.
+//          // Return the basic iterator providing non-modifiable access to the
+//          // position one after the last valid element of this object.
 //
 //      const_reverse_iterator rbegin() const;
-//            reverse_iterator rbegin();
-//          // Return the reverse iterator referring to the last valid element
-//          // of this object.
+//          // Return the reverse iterator providing non-modifiable access to
+//          // the last valid element of this object.
 //
 //      const_reverse_iterator rend() const;
-//            reverse_iterator rend();
-//          // Return the reverse iterator referring to the position one before
-//          // the first valid element of this object.
+//          // Return the reverse iterator providing non-modifiable access to
+//          // the position one before the first valid element of this object.
 //
 //      int size() const;
 //          // Return the number of elements contained in this object.
 //
 //      const VALUE& operator[](int i) const;
-//            VALUE& operator[](int i);
-//          // Return the reference of the specified 'i'th element of this
-//          // object.
+//          // Return the reference providing non-modifiable access of the
+//          // specified 'i'th element of this object.
 //  };
 //
 //  // ...
@@ -125,21 +139,6 @@ BSLS_IDENT("$Id: $")
 //
 //  for (int i = 0; i < fixedArray.size(); ++i) {
 //      fixedArray[i] = i + 1;
-//  }
-//..
-// Next, we generate basic iterators using the 'begin' and 'end' methods of the
-// fixed array object:
-//..
-//  MyFixedSizeArray<int, 5>::iterator start  = fixedArray.begin();
-//  MyFixedSizeArray<int, 5>::iterator finish = fixedArray.end();
-//..
-// Then, we traverse the fixed array from beginning to end using the two
-// generated basic iterators:
-//..
-//  printf("Traverse array using basic iterator:\n");
-//  while (start != finish) {
-//      printf("\tElement: %d\n", *start);
-//      ++start;
 //  }
 //..
 // Now, we generate reverse iterators using the 'rbegin' and 'rend' methods of
@@ -157,20 +156,15 @@ BSLS_IDENT("$Id: $")
 //      ++rstart;
 //  }
 //..
-// The console output will be like following after running this usage example:
-//
-// Traverse array using basic iterator:
-//      Element: 1
-//      Element: 2
-//      Element: 3
-//      Element: 4
-//      Element: 5
-// Traverse array using reverse iterator:
-//      Element: 5
-//      Element: 4
-//      Element: 3
-//      Element: 2
-//      Element: 1
+// The preceding loop produces the following output on 'stdout':
+//..
+//  Traverse array using reverse iterator:
+//       Element: 5
+//       Element: 4
+//       Element: 3
+//       Element: 2
+//       Element: 1
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
