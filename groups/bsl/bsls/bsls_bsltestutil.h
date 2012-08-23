@@ -43,6 +43,8 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - -
 // First, we write a component to test, which provides a utility class:
 //..
+//  namespace bslexample {
+//
 //  struct BslExampleUtil {
 //      // This utility class provides sample functionality to demonstrate how
 //      // a test driver might be written validating its only method.
@@ -56,6 +58,8 @@ BSLS_IDENT("$Id: $")
 //  {
 //      return 42;
 //  }
+//
+//  } // close package namespace
 //..
 // Then, we can write a test driver for this component.  We start by providing
 // the standard BDE assert test macro:
@@ -94,10 +98,19 @@ BSLS_IDENT("$Id: $")
 //  #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 //  #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 //..
-// Finally, we write the test case for the 'static' 'fortyTwo' method, using
+// Then, we define the test driver for the 'static' 'fortyTwo' method, uwing
 // the (standard) abbreviated macro names we have just defined.
 //..
-//  case 2: {
+//  void testFortyTwo(bool verbose)
+//  {
+//      const int value = bslexample::BslExampleUtil::fortyTwo();
+//      if (verbose) P(value);
+//      LOOP_ASSERT(value, 42 == value);
+//  }
+//..
+// Finally, we write the test case calling our test driver.
+//..
+//  case 9: {
 //    // --------------------------------------------------------------------
 //    // TESTING USAGE EXAMPLE
 //    //
@@ -116,9 +129,7 @@ BSLS_IDENT("$Id: $")
 //    if (verbose) printf("\nTESTING USAGE EXAMPLE"
 //                        "\n---------------------\n");
 //
-//    const int value = bsls::BslTestUtil_FortyTwo::value();
-//    if (verbose) P(value);
-//    LOOP_ASSERT(value, 42 == value);
+//    testFortyTwo(verbose);
 //  } break;
 //..
 

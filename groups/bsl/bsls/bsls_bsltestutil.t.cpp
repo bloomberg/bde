@@ -9,23 +9,21 @@
 
 #if defined(__xlC__) || defined(__IBMC__) || defined(__IBMCPP__)
     // which OS -- this compiler should only be used on AIX
-    #define BSLS_PLATFORM__OS_UNIX 1
+    #define BSLS_BSLTESTUTIL__OS_UNIX 1
     #if defined(_AIX)                          // must be defined
-        #define BSLS_PLATFORM__OS_AIX 1
-        #define BSLS_PLATFORM__OS_VER_MAJOR _AIX
+        #define BSLS_BSLTESTUTIL__OS_AIX 1
+        #define BSLS_BSLTESTUTIL__OS_VER_MAJOR _AIX
     #else
         #error "AIX compiler appears to be in use on non-AIX OS."
-        char die[sizeof(bsls_Platform_Assert)];      // if '#error' unsupported
     #endif
 // ---------------------------------------------------------------------------
 #elif defined(__HP_aCC)
     // which OS -- should always be HPUX
     #if defined(hpux) || defined(__hpux) || defined(_HPUX_SOURCE)
-        #define BSLS_PLATFORM__OS_UNIX 1
-        #define BSLS_PLATFORM__OS_HPUX 1
+        #define BSLS_BSLTESTUTIL__OS_UNIX 1
+        #define BSLS_BSLTESTUTIL__OS_HPUX 1
     #else
         #error "Unable to determine on which OS the HP compiler is running."
-        char die[sizeof(bsls_Platform_Assert)];      // if '#error' unsupported
     #endif
 // ---------------------------------------------------------------------------
 #elif defined(_MSC_VER)
@@ -34,66 +32,61 @@
     // - 16-bit versions of Windows (3.x)
     // - Windows CE
     #if defined(_WIN64) || defined(_WIN32)
-        #define BSLS_PLATFORM__OS_WINDOWS 1
+        #define BSLS_BSLTESTUTIL__OS_WINDOWS 1
     #elif defined(_WIN16)
         #error "16-bit Windows platform not supported."
-        char die[sizeof(bsls_Platform_Assert)];      // if '#error' unsupported
     #else
         #error "Microsoft OS is running on an unknown platform."
-        char die[sizeof(bsls_Platform_Assert)];      // if '#error' unsupported
     #endif
 // ---------------------------------------------------------------------------
 #elif defined(__GNUC__) || defined(__EDG__)
     // which OS -- GNU and EDG/Como are implemented almost everywhere
     #if defined(_AIX)
-        #define BSLS_PLATFORM__OS_AIX 1
+        #define BSLS_BSLTESTUTIL__OS_AIX 1
     #elif defined(hpux) || defined(__hpux)
-        #define BSLS_PLATFORM__OS_HPUX 1
+        #define BSLS_BSLTESTUTIL__OS_HPUX 1
     #elif defined(__CYGWIN__) || defined(cygwin) || defined(__cygwin)
-        #define BSLS_PLATFORM__OS_CYGWIN 1
+        #define BSLS_BSLTESTUTIL__OS_CYGWIN 1
     #elif defined(linux) || defined(__linux)
-        #define BSLS_PLATFORM__OS_LINUX 1
+        #define BSLS_BSLTESTUTIL__OS_LINUX 1
     #elif defined(__FreeBSD__)
-        #define BSLS_PLATFORM__OS_FREEBSD 1
+        #define BSLS_BSLTESTUTIL__OS_FREEBSD 1
     #elif defined(sun) || defined(__sun)
         #if defined(__SVR4) || defined(__svr4__)
-            #define BSLS_PLATFORM__OS_SOLARIS 1
+            #define BSLS_BSLTESTUTIL__OS_SOLARIS 1
         #else
-            #define BSLS_PLATFORM__OS_SUNOS 1
+            #define BSLS_BSLTESTUTIL__OS_SUNOS 1
         #endif
     #elif defined(_WIN32) || defined(__WIN32__) && \
           ! (defined(cygwin) || defined(__cygwin))
-        #define BSLS_PLATFORM__OS_WINDOWS 1
+        #define BSLS_BSLTESTUTIL__OS_WINDOWS 1
     #elif defined(__APPLE__)
-        #define BSLS_PLATFORM__OS_DARWIN 1
+        #define BSLS_BSLTESTUTIL__OS_DARWIN 1
     #else
         #if defined(__GNUC__)
             #error "Unable to determine on which OS GNU compiler is running."
         #else
             #error "Unable to determine on which OS EDG compiler is running."
         #endif
-        char die[sizeof(bsls_Platform_Assert)];      // if '#error' unsupported
     #endif
 
-    #if !defined(BSLS_PLATFORM__OS_WINDOWS)
-        #define BSLS_PLATFORM__OS_UNIX 1
+    #if !defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
+        #define BSLS_BSLTESTUTIL__OS_UNIX 1
     #endif
 // ---------------------------------------------------------------------------
 #elif defined(__SUNPRO_CC) || defined(__SUNPRO_C)
     // which OS
-    #define BSLS_PLATFORM__OS_UNIX 1
+    #define BSLS_BSLTESTUTIL__OS_UNIX 1
     #if defined(sun) || defined(__sun)
-        #define BSLS_PLATFORM__OS_SOLARIS 1
+        #define BSLS_BSLTESTUTIL__OS_SOLARIS 1
     #elif defined(__SVR4) || defined(__svr4__)
-        #define BSLS_PLATFORM__OS_SUNOS 1
+        #define BSLS_BSLTESTUTIL__OS_SUNOS 1
     #else
         #error "Unable to determine SUN OS version."
-        char die[sizeof(bsls_Platform_Assert)];      // if '#error' unsupported
     #endif
 // ---------------------------------------------------------------------------
 #else
     #error "Could not identify the compiler."
-    char die[sizeof(bsls_Platform_Assert)];          // if '#error' unsupported
 #endif
 
 #include <stdio.h>
@@ -102,13 +95,13 @@
 #include <limits.h>      // PATH_MAX on linux
 #include <float.h>       // FLT_MAX, etc.
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
 # include <windows.h>    // MAX_PATH
 # include <io.h>         // _dup2
 # include <sys/types.h>  // struct stat: required on Sun and Windows only
 # include <sys/stat.h>   // struct stat: required on Sun and Windows only
 #else
-# if defined(BSLS_PLATFORM__OS_SUNOS) || defined(BSLS_PLATFORM__OS_SOLARIS)
+# if defined(BSLS_BSLTESTUTIL__OS_SUNOS) || defined(BSLS_BSLTESTUTIL__OS_SOLARIS)
 #  include <sys/types.h> // struct stat: required on Sun and Windows only
 #  include <sys/stat.h>  // struct stat: required on Sun and Windows only
 # endif
@@ -169,10 +162,10 @@ using namespace BloombergLP;
 // the methods under test so that it can be checked for accuracy.  In addition,
 // error messages and other output produced by the test driver itself must
 // still appear on 'stdout' for compatibility with the standard build and
-// testing scripts.  For this purpose, a support class name 'OutputRedirector'
+// testing scripts.  For this purpose, a support class named 'OutputRedirector'
 // is provided.  'OutputRedirector' will redirect 'stdout' to a temporary file
-// and check the contents of the temporary file to character buffers provided
-// by the user.
+// and verify that the contents of the temporary file match the character
+// buffers provided by the user.
 //
 // Global Concerns:
 //: o The test driver can reliably capture 'stdout' and play back captured
@@ -234,9 +227,9 @@ using namespace BloombergLP;
 
 static int realTestStatus = 0;
 
-static void realaSsErT(int c, const char *s, int i)
+static void realaSsErT(bool b, const char *s, int i)
 {
-    if (c) {
+    if (b) {
         fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (realTestStatus >= 0 && realTestStatus <= 100) ++realTestStatus;
     }
@@ -313,6 +306,8 @@ static void realaSsErT(int c, const char *s, int i)
 /// - - - - - - - - - - - - - - - -
 // First, we write a component to test, which provides a utility class:
 //..
+    namespace bslexample {
+
     struct BslExampleUtil {
         // This utility class provides sample functionality to demonstrate how
         // a test driver might be written validating its only method.
@@ -326,6 +321,8 @@ static void realaSsErT(int c, const char *s, int i)
     {
         return 42;
     }
+
+    } // close package namespace
 //..
 // Then, we can write a test driver for this component.  We start by providing
 // the standard BDE assert test macro:
@@ -367,14 +364,9 @@ static void realaSsErT(int c, const char *s, int i)
 // Finally, we write the test case for the 'static' 'fortyTwo' method, using
 // the (standard) abbreviated macro names we have just defined.
 //..
-    void executeUsageExample(bool verbose,
-                             bool veryVerbose,
-                             bool veryVeryVerbose)
+    void testFortyTwo(bool verbose)
     {
-        (void) veryVerbose;
-        (void) veryVeryVerbose;
-
-        const int value = BslExampleUtil::fortyTwo();
+        const int value = bslexample::BslExampleUtil::fortyTwo();
         if (verbose) P(value);
         LOOP_ASSERT(value, 42 == value);
     }
@@ -413,9 +405,9 @@ enum {
 
     OUTPUT_BUFFER_SIZE = 4096,
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_BSLTESTUTIL__OS_WINDOWS
     PATH_BUFFER_SIZE   = MAX_PATH
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_BSLTESTUTIL__OS_HPUX)
     PATH_BUFFER_SIZE   = L_tmpnam
 #else
     PATH_BUFFER_SIZE   = PATH_MAX
@@ -437,7 +429,7 @@ static int verbose, veryVerbose, veryVeryVerbose;
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_BSLTESTUTIL__OS_WINDOWS
 # define snprintf _snprintf
 #endif
 
@@ -453,6 +445,13 @@ int printDatum(FILE        *outStream,
     // 'outStream', and separated by the specified 'connector' string and
     // followed by the specified 'suffix' string, using the specified 'formatI'
     // format string to format 'valueI' according to the rules of 'printf'.
+
+bool tempFileName(char *result);
+    // Store an available temp file name in the user-supplied buffer at the
+    // address pointed to by the specified 'result'.  Return 'true' if
+    // successful, and 'false' otherwise.  The behavior is undefined unless the
+    // buffer pointed to by the specified 'result' is at least
+    // 'PATH_BUFFER_SIZE' bytes long.
 
 template <typename ITYPE>
 int printDatum(FILE        *outStream,
@@ -477,23 +476,17 @@ int printDatum(FILE        *outStream,
                    suffix);
 }
 
-bool tempFileName(char *result);
-    // Store an available temp file name in the user-supplied buffer at the
-    // address pointed to by the specified 'result'.  Return 'true' if
-    // successful, and 'false' otherwise.  The buffer pointed to by the
-    // specified 'result' must be at least 'PATH_BUFFER_SIZE' bytes long.
-
 bool tempFileName(char *result)
 {
     ASSERT(result);
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_BSLTESTUTIL__OS_WINDOWS
     char tmpPathBuf[MAX_PATH];
     if (! GetTempPath(MAX_PATH, tmpPathBuf) ||
         ! GetTempFileName(tmpPathBuf, "bsls", 0, result)) {
         return false;                                                 // RETURN
     }
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_BSLTESTUTIL__OS_HPUX)
     if(! tempnam(result, "bsls")) {
         return false;
     }
@@ -535,11 +528,11 @@ class OutputRedirector {
 
     bool d_isFileCreatedFlag;                 // Has a temp file been created
 
-    long d_outputSize;                        // Size of output loaded into
-                                              // 'd_outputBuffer'
-
     bool d_isOutputReadyFlag;                 // Has output been read from
                                               // temp file
+
+    long d_outputSize;                        // Size of output loaded into
+                                              // 'd_outputBuffer'
 
     struct stat d_originalStdoutStat;         // Status information for
                                               // 'stdout' just before
@@ -557,23 +550,36 @@ class OutputRedirector {
   public:
     // CREATORS
     explicit OutputRedirector();
-        // Create this object.
+        // Create an 'OutputRedirector' in an un-redirected state, and
+        // containing no captured output.
 
     ~OutputRedirector();
-        // Destroy this object.
+        // Destroy this 'OutputRedirector' object.  If the object is in a
+        // redirected state, 'stdout' will be closed and the temporary file to
+        // which 'stdout' was redirected will be deleted.
 
     // MANIPULATORS
     bool redirect();
         // Redirect 'stdout' to a temp file, and stderr to the original
-        // 'stdout'.  Return 'true' if successful, and 'false' otherwise.
+        // 'stdout'.  Return 'true' if successful, and 'false' otherwise.  The
+        // temp file to which 'stdout' is redirected will be created the first
+        // time 'redirect' is called, and will be deleted when this object is
+        // destroyed.  If a call to 'redirect' succeeds, subsequent calls will
+        // have no effect on 'stdout' and 'stderr'.  If a call to 'redirect'
+        // fails, the destinations of 'stdout' and 'stderr' are undefined, and
+        // the calling process should exit without producing further output and
+        // without attempting to call 'redirect' again.
 
     void reset();
-        // Reset the scratch buffer to empty.
+        // Reset the scratch buffer to empty.  The behavior is undefined unless
+        // 'redirect' has been previously been called successfully.
 
     bool load();
-        // Read captured output into the scratch buffer.  Return 'true' if
-        // there was output to be read and it was successfully loaded, and
-        // 'false' otherwise.
+        // Read captured output into the scratch buffer.  Return 'true' if all
+        // captured output was successfully loaded, and 'false' otherwise.
+        // Note that captured output is allowed to have zero length.  The
+        // behavior is undefined unless 'redirect' has been previously been
+        // called successfully.
 
     // ACCESSORS
     bool isRedirected();
@@ -599,7 +605,8 @@ class OutputRedirector {
         // specified 'expectedLength'.  Return 0 if the 'expected' buffer has
         // the same length and contents as the scratch buffer, and non-zero
         // otherwise.  Note that the 'expected' buffer is allowed to contain
-        // embedded nulls.
+        // embedded nulls.  The behavior is undefined unless
+        // 'redirect' has been previously been called successfully.
 
     int compare(const char *expected);
         // Compare the character buffer pointed to by the specified pointer
@@ -607,19 +614,20 @@ class OutputRedirector {
         // buffer.  The 'expected' buffer is assumed to be a NTBS, and and its
         // length is taken to be the string length of the NTBS.  Return 0 if
         // the 'expected' buffer has the same length and contents as the
-        // scratch buffer, and non-zero otherwise.
+        // scratch buffer, and non-zero otherwise.  The behavior is undefined unless
+        // 'redirect' has been previously been called successfully.
 
     const struct stat& originalStdoutStat();
         // Return a reference to the status information for 'stdout' collected
-        // just before redirection.  This method is only used to test the
+        // just before redirection.  This method is used only to test the
         // correctness of 'OutputRedirector'.
 };
 
 OutputRedirector::OutputRedirector()
 : d_isRedirectedFlag(false)
 , d_isFileCreatedFlag(false)
-, d_outputSize(0L)
 , d_isOutputReadyFlag(false)
+, d_outputSize(0L)
 {
     d_fileName[0] = '\0';
     memset(&d_originalStdoutStat, 0, sizeof(struct stat));
@@ -638,12 +646,15 @@ OutputRedirector::~OutputRedirector()
 
 int OutputRedirector::redirectStream(FILE *from, FILE *to)
 {
+    ASSERT(from);
+    ASSERT(to);
+
     // The canonical way to redirect 'stderr' to 'stdout' is
     // 'ASSERT(freopen("/dev/stdout", "w", stderr));', but we use dup2
     // instead of 'freopen', because 'freopen' fails on AIX with errno
     // 13 'Permission denied' when redirecting stderr.
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
     return _dup2(_fileno(from), _fileno(to));
 #else
     int redirected = dup2(fileno(from), fileno(to));
@@ -724,7 +735,7 @@ bool OutputRedirector::redirect()
 
             // 'stderr' and 'stdout' have been successfully redirected.
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
             if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
                 ASSERT(0 == "Failed to set stdout to binary mode.");
                 return success;                                       // RETURN
@@ -757,6 +768,8 @@ bool OutputRedirector::redirect()
 
 void OutputRedirector::reset()
 {
+    ASSERT(d_isRedirectedFlag);
+
     d_outputSize = 0L;
     d_isOutputReadyFlag = false;
     d_outputBuffer[0] = '\0';
@@ -851,12 +864,15 @@ size_t OutputRedirector::outputSize()
 
 int OutputRedirector::compare(const char *expected)
 {
+    ASSERT(expected);
+
     return compare(expected, strlen(expected));
 }
 
 int OutputRedirector::compare(const char *expected, size_t expectedLength)
 {
     ASSERT(d_isRedirectedFlag);
+    ASSERT(expected || ! expectedLength);
 
     if (!d_isOutputReadyFlag) {
         if (veryVerbose) {
@@ -899,21 +915,24 @@ struct DataRow {
 
 struct TestDriver {
     enum {
-        EXPECTED_OUTPUT_BUFFER_SIZE = 1024, // Size of the buffer used to store
-                                            // captured output
+        BUFFER_SIZE     = 1024, // size of the buffer used to store captured 
+                                // output
 
-        LOOP_ITERATIONS             = 10    // Number of iterations to use when
-                                            // testing loop assert macros
+        LOOP_ITERATIONS = 10    // number of iterations to use when testing 
+                                // loop assert macros
     };
 
-    static char expectedOutput[EXPECTED_OUTPUT_BUFFER_SIZE];
+    static char s_expectedOutput[BUFFER_SIZE];  // scratch area for assembling
+                                                // model output that will be
+                                                // compared to real output
+                                                // captured from 'stdout'
 
     // TEST APPARATUS
 
     template <typename TEST_TYPE>
-    static int generateExpectedOutput(const char      *formatString,
-                                      const TEST_TYPE  input);
-        // Populate 'expectedOutput' with the result of calling 'printf' with
+    static int generateExpectedOutput(const char       *formatString,
+                                      const TEST_TYPE&  input);
+        // Populate 's_expectedOutput' with the result of calling 'printf' with
         // the specified 'formatString' and 'input'.
 
     // TEST CASES
@@ -921,10 +940,9 @@ struct TestDriver {
     static void testCase8(OutputRedirector *output);
         // Test 'BSLS_BSLTESTUTIL_LOOP*_ASSERT' macros.
 
-    template <typename TEST_TYPE>
+    template <typename TEST_TYPE, size_t NUM_DATA>
     static void testCase3(OutputRedirector         *output,
-                          const DataRow<TEST_TYPE> *DATA,
-                          const int                 NUM_DATA,
+                                   const DataRow<TEST_TYPE>(&  DATA)[NUM_DATA],
                           const char               *formatString);
         // Test 'debugPrint'.
 };
@@ -933,11 +951,11 @@ struct TestDriver {
                                // TEST APPARATUS
                                // --------------
 
-char TestDriver::expectedOutput[EXPECTED_OUTPUT_BUFFER_SIZE];
+char TestDriver::s_expectedOutput[TestDriver::BUFFER_SIZE];
 
 template <typename TEST_TYPE>
-int TestDriver::generateExpectedOutput(const char      *formatString,
-                                       const TEST_TYPE  input)
+int TestDriver::generateExpectedOutput(const char       *formatString,
+                                       const TEST_TYPE&  input)
 {
     char tempFormatString[FORMAT_STRING_SIZE];
 
@@ -946,14 +964,14 @@ int TestDriver::generateExpectedOutput(const char      *formatString,
                                 "%%s%s%%s",
                                 formatString);
     ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
-    charsWritten = snprintf(expectedOutput,
-                            EXPECTED_OUTPUT_BUFFER_SIZE,
+    charsWritten = snprintf(s_expectedOutput,
+                            BUFFER_SIZE,
                             tempFormatString,
                             PREFIX,
                             input,
                             SUFFIX);
     ASSERT(charsWritten >= 0 &&
-           charsWritten < EXPECTED_OUTPUT_BUFFER_SIZE);
+           charsWritten < BUFFER_SIZE);
 
     return charsWritten;
 }
@@ -970,8 +988,10 @@ void TestDriver::testCase8(OutputRedirector *output)
     // Concerns:
     //: 1 Macros do not call 'aSsErT' and emit no output when the assertion is
     //:   'true'.
+    //:
     //: 2 Macros call 'aSsErT' and emit output each time the assertion is
     //:   'false'.
+    //:
     //: 3 Macros emit properly formatted output for each loop variable
     //:   supplied.
     //
@@ -988,8 +1008,8 @@ void TestDriver::testCase8(OutputRedirector *output)
     //:   expected error output is captured by the output redirection
     //:   apparatus.  Note that using distinct values for each loop variable
     //:   allows us to detect omissions, repititions or mis-ordering of the
-    //:   loop assert macro's arguments.  Also note that we only need to test
-    //:   the loop assert macro with one set of variable types, since we test
+    //:   loop assert macro's arguments.  Also note that we test the loop
+    //:   assert macro with only one set of variable types, since we test
     //:   separately in test case 3 the ability of the underlying apparatus to
     //:   identify and correctly format each primitive type. (C-2,3)
     //
@@ -1041,18 +1061,18 @@ void TestDriver::testCase8(OutputRedirector *output)
             ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d",
                               testStatus == idx + 1);
             ASSERT(output->load());
-            snprintf(expectedOutput,
-                     EXPECTED_OUTPUT_BUFFER_SIZE,
+            snprintf(s_expectedOutput,
+                     BUFFER_SIZE,
                      "I: %d\nError %s(%d):"
                          " idx > LOOP_ITERATIONS    (failed)\n",
                      I,
                      __FILE__,
                      LINE);
-            ANNOTATED2_ASSERT(expectedOutput,
+            ANNOTATED2_ASSERT(s_expectedOutput,
                     "%s",
                     output->getOutput(),
                     "%s",
-                    0 == output->compare(expectedOutput));
+                    0 == output->compare(s_expectedOutput));
         }
         testStatus = 0;
     }
@@ -1097,17 +1117,17 @@ void TestDriver::testCase8(OutputRedirector *output)
             ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d",
                               testStatus == idx + 1);
             ASSERT(output->load());
-            snprintf(expectedOutput,
-                     EXPECTED_OUTPUT_BUFFER_SIZE,
+            snprintf(s_expectedOutput,
+                     BUFFER_SIZE,
                      "I: %d\tJ: %d\nError %s(%d): idx > LOOP_ITERATIONS"
                          "    (failed)\n",
                      I,
                      J,
                      __FILE__,
                      LINE);
-            ANNOTATED2_ASSERT(expectedOutput, "%s",
+            ANNOTATED2_ASSERT(s_expectedOutput, "%s",
                               output->getOutput(), "%s",
-                              0 == output->compare(expectedOutput));
+                              0 == output->compare(s_expectedOutput));
         }
         testStatus = 0;
     }
@@ -1154,8 +1174,8 @@ void TestDriver::testCase8(OutputRedirector *output)
             ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d",
                               testStatus == idx + 1);
             ASSERT(output->load());
-            snprintf(expectedOutput,
-                     EXPECTED_OUTPUT_BUFFER_SIZE,
+            snprintf(s_expectedOutput,
+                     BUFFER_SIZE,
                      "I: %d\tJ: %d\tK: %d\nError %s(%d):"
                          " idx > LOOP_ITERATIONS    (failed)\n",
                      I,
@@ -1163,8 +1183,8 @@ void TestDriver::testCase8(OutputRedirector *output)
                      K,
                      __FILE__,
                      LINE);
-            ANNOTATED2_ASSERT(expectedOutput, "%s", output->getOutput(), "%s",
-                              0 == output->compare(expectedOutput));
+            ANNOTATED2_ASSERT(s_expectedOutput, "%s", output->getOutput(), "%s",
+                              0 == output->compare(s_expectedOutput));
         }
         testStatus = 0;
     }
@@ -1214,8 +1234,8 @@ void TestDriver::testCase8(OutputRedirector *output)
                               idx, "%d",
                               testStatus == idx + 1);
             ASSERT(output->load());
-            snprintf(expectedOutput,
-                     EXPECTED_OUTPUT_BUFFER_SIZE,
+            snprintf(s_expectedOutput,
+                     BUFFER_SIZE,
                      "I: %d\tJ: %d\tK: %d\tL: %d\nError %s(%d):"
                          " idx > LOOP_ITERATIONS    (failed)\n",
                      I,
@@ -1224,8 +1244,8 @@ void TestDriver::testCase8(OutputRedirector *output)
                      L,
                      __FILE__,
                      LINE);
-            ANNOTATED2_ASSERT(expectedOutput, "%s", output->getOutput(), "%s",
-                              0 == output->compare(expectedOutput));
+            ANNOTATED2_ASSERT(s_expectedOutput, "%s", output->getOutput(), "%s",
+                              0 == output->compare(s_expectedOutput));
         }
         testStatus = 0;
     }
@@ -1277,8 +1297,8 @@ void TestDriver::testCase8(OutputRedirector *output)
             ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d",
                               testStatus == idx + 1);
             ASSERT(output->load());
-            snprintf(expectedOutput,
-                     EXPECTED_OUTPUT_BUFFER_SIZE,
+            snprintf(s_expectedOutput,
+                     BUFFER_SIZE,
                      "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\nError %s(%d):"
                          " idx > LOOP_ITERATIONS    (failed)\n",
                      I,
@@ -1288,9 +1308,9 @@ void TestDriver::testCase8(OutputRedirector *output)
                      M,
                      __FILE__,
                      LINE);
-            ANNOTATED2_ASSERT(expectedOutput, "%s",
+            ANNOTATED2_ASSERT(s_expectedOutput, "%s",
                               output->getOutput(), "%s",
-                              0 == output->compare(expectedOutput));
+                              0 == output->compare(s_expectedOutput));
         }
         testStatus = 0;
     }
@@ -1344,8 +1364,8 @@ void TestDriver::testCase8(OutputRedirector *output)
             ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d",
                               testStatus == idx + 1);
             ASSERT(output->load());
-            snprintf(expectedOutput,
-                     EXPECTED_OUTPUT_BUFFER_SIZE,
+            snprintf(s_expectedOutput,
+                     BUFFER_SIZE,
                      "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\nError %s(%d):"
                          " idx > LOOP_ITERATIONS    (failed)\n",
                      I,
@@ -1356,19 +1376,18 @@ void TestDriver::testCase8(OutputRedirector *output)
                      N,
                      __FILE__,
                      LINE);
-            ANNOTATED2_ASSERT(expectedOutput, "%s",
+            ANNOTATED2_ASSERT(s_expectedOutput, "%s",
                               output->getOutput(), "%s",
-                              0 == output->compare(expectedOutput));
+                              0 == output->compare(s_expectedOutput));
         }
         testStatus = 0;
     }
 }
 
-template <typename TEST_TYPE>
-void TestDriver::testCase3(OutputRedirector                    *output,
-                                      const DataRow<TEST_TYPE> *DATA,
-                                      const int                 NUM_DATA,
-                                      const char               *formatString)
+template <typename TEST_TYPE, size_t NUM_DATA>
+void TestDriver::testCase3(OutputRedirector                   *output,
+                                   const DataRow<TEST_TYPE>(&  DATA)[NUM_DATA],
+                                   const char                 *formatString)
 {
     // ------------------------------------------------------------------------
     // FORMATTED OUTPUT TEST
@@ -1378,18 +1397,22 @@ void TestDriver::testCase3(OutputRedirector                    *output,
     // Concerns:
     //: 1 The 'debugPrint' method writes the value to 'stdout'.
     //:
-    //: 2 The 'debugPrint' method writes the value in the intended format.
+    //: 2 The 'debugPrint' method writes the value in the intended format, 
+    //:   making appropriate use of the prefix and suffix strings 's' and 't'.
+    //:
     //
     // Plan:
     //: 1 Using the table-driven technique:  (C-1, 2)
     //:
-    //:   For each overload of debugPrint, choose a number of significant
-    //:   values for the second parameter, and check that each is written to
-    //:   'stdout' in the intended format as follows:
-    //:
-    //:   Reset the output redirector, invoke the method under test with the
-    //:   appropriate value for the second parameter, then compare the contents
-    //:   of the redirector with the expected form.
+    //:   For each data row in the supplied DATA table, reset the output
+    //:   redirector, invoke the method under test with the second parameter
+    //:   set to the 'd_input' member of the row, then compare the contents of
+    //:   the redirector with the expected form.  If the 'd_expectedOutput_p'
+    //:   member of the 'DATA' table is non-null, then the null-terminated byte
+    //:   string it points to is used as the expected form for that row.  If
+    //:   the 'd_expectedOutput_p' member is null, the expected form is
+    //:   generated by formatting the 'd_input' member with the specified
+    //:   'formatString'.
     //
     // Testing:
     //   static void debugPrint(const char *s, bool b, const char *t);
@@ -1415,7 +1438,7 @@ void TestDriver::testCase3(OutputRedirector                    *output,
     //   static void debugPrint(const char *s, const void *p, const char *t);
     // ------------------------------------------------------------------------
 
-    for (int ti = 0; ti < NUM_DATA; ++ti) {
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int LINE =       DATA[ti].d_line;
         //ARB: Should INPUT not be capitalized, because it is not necessarily
         // constant?
@@ -1426,7 +1449,7 @@ void TestDriver::testCase3(OutputRedirector                    *output,
 
         if (!EXPECTED) {
             expectedSize = generateExpectedOutput(formatString, INPUT);
-            EXPECTED = expectedOutput;
+            EXPECTED = s_expectedOutput;
         } else {
             expectedSize = strlen(EXPECTED);
         }
@@ -1462,16 +1485,17 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "TEST " __FILE__ " CASE %d\n", test);
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
     if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
         ASSERT(0 == "Failed to set stdout to binary mode.");
         return 1;                                                     // RETURN
     }
 #endif
+
     // Capture 'stdout', and send 'stderr' to 'stdout'
     OutputRedirector output;
     if (!output.redirect()) {
-        ASSERT(output.isRedirected());
+        //ASSERT(output.isRedirected());
         return 1;                                                     // RETURN
     }
 
@@ -1504,7 +1528,7 @@ int main(int argc, char *argv[])
         // the source file where the standard test macros have been defined in
         // terms of the macros supplied by the component under test.
 
-        executeUsageExample(verbose, veryVerbose, veryVeryVerbose);
+        testFortyTwo(verbose);
       } break;
       case 8: {
           // ------------------------------------------------------------------
@@ -1529,11 +1553,14 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // IDENTIFIER OUTPUT MACRO TEST
+        // IDENTIFIER OUTPUT MACRO TEST (standard 'Q' macro)
         //
         // Concerns:
         //: 1 Identifier output macro emits output.
-        //: 2 Output emitted is in correct format
+        //:
+        //: 2 Output emitted is in correct format for the standard Q() macro,
+        //:   i.e. '<| [macroargument] |>', where '[macroargument]' is the
+        //:   tokenization of the text supplied as argument to the macro.
         //
         // Plan:
         //: 1 Call 'BSLS_BSLTESTUTIL_Q' with a series of arbitrary identifiers
@@ -1585,11 +1612,18 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // VALUE OUTPUT MACRO TEST
+        // VALUE OUTPUT MACRO TEST (standard 'P' and 'P_' macros)
         //
         // Concerns:
         //: 1 Value output macros emit output.
-        //: 2 Output emitted is in correct format
+        //:
+        //: 2 Output emitted is in correct format for the standard 'P' and 'P_'
+        //:   macros, i.e. 'identifier = value' (with following newline in the
+        //:   case of 'BSLS_BSLTESTUTIL_P') where 'identifier' is the name of
+        //:   the argument supplied to the macro, and 'value' is the value of
+        //:   that argument.  Note that we are not concerned here with the
+        //:   exact formatting of the 'value' portion for all types, as that
+        //:   will be tested in test case 3.
         //
         // Plan
         //: 1 Call the value output macros on a variable of known value, and
@@ -1646,12 +1680,15 @@ int main(int argc, char *argv[])
      } break;
       case 5: {
         // --------------------------------------------------------------------
-        // STATIC MACRO TEST
+        // STATIC MACRO TEST (standard 'L_' and 'T_' macros)
         //
         // Concerns:
         //: 1 Line number macro has the correct value.
+        //:
         //: 2 Tab output macro emits output.
-        //: 3 Tab output macro output emitted is in correct format
+        //:
+        //: 3 Tab output macro output emitted is in correct format, i.e. is a
+        //:   single tab character.
         //
         // Plan
         //: 1 Compare the value of the line number macro to '__LINE__'. (C-1)
@@ -1677,7 +1714,20 @@ int main(int argc, char *argv[])
                         "\n---------------------------\n");
             }
 
+            // Line spacing is significant, as it assures BSLS_BSLTESTUTIL_L_
+            // is not a simple sequence.
             ASSERT(__LINE__ == BSLS_BSLTESTUTIL_L_);
+
+
+            ASSERT(__LINE__ == BSLS_BSLTESTUTIL_L_);
+            ASSERT(__LINE__ == BSLS_BSLTESTUTIL_L_);
+
+
+
+            ASSERT(__LINE__ == BSLS_BSLTESTUTIL_L_);
+
+            ASSERT(__LINE__ == BSLS_BSLTESTUTIL_L_);
+
         }
 
         // [ 5] BSLS_BSLTESTUTIL_T_
@@ -1700,16 +1750,25 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Unformatted output methods emit output.
+        //:
         //: 2 Output emitted is in correct format
+        //:
+        //:   For printStringNoFlush, the correct format is identical to the
+        //:   input string.
+        //:
+        //:   For printTab, the correct format is a single tab character.
+        //:
         //: 3 'printStringNoFlush' does not flush output between calls
         //
         // Plan
         //: 1 Using the table-driven technique, call 'printStringNoFlush' with
         //:   a variety of arguments, and check that the captured output is
         //:   correct.  (C-1,2)
+        //:
         //: 2 Call 'printStringNoFlush' twice in succession, and check that the
         //:   captured output matches the concatenation of the input strings,
         //:   with no embedded nulls or newlines.  (C-3)
+        //:
         //: 3 Call 'printTab' and check that the captured output is correct.
         //:   (C-1,2)
         //
@@ -1786,6 +1845,33 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // FORMATTED OUTPUT TEST
+        //   Ensure that the 'debugPrint' formatted output methods write values
+        //   to 'stdout' in the expected form
+        //
+        // Concerns:
+        //: 1 The 'debugPrint' method writes the value to 'stdout'.
+        //:
+        //: 2 The 'debugPrint' method writes the value in the intended format,
+        //:   making appropriate use of the prefix and suffix strings 's' and
+        //:   't'.
+        //:
+        //: 3 The appropriate overload is called unambiguously for each
+        //:   fundamental data type, and for any pointer type.
+        //:
+        //: 4 The appropriate overload is called unambiguously for
+        //:   const/volatile qualified arguments.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique:  (C-1, 2)
+        //:
+        //:   For each overload of debugPrint, choose a number of significant
+        //:   values for the second parameter, and check that each is written
+        //:   to 'stdout' in the intended format.  The actual checking is
+        //:   delegated to 'TestDriver::testCase3'.  Note that in the data
+        //:   table supplied to 'TestDriver::testCase3', the 'OUTPUT' column
+        //:   may be set to null, in which case the intended format is taken to
+        //:   be the 'INPUT' column formated by 'printf' using the last
+        //:   argument to 'TestDriver::testCase3'.
         //
         // Testing:
         //   static void debugPrint(const char *s, bool b, const char *t);
@@ -1840,8 +1926,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  true,  PREFIX "true" SUFFIX,  "true" },
                 { __LINE__,  false, PREFIX "false" SUFFIX, "false" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver::testCase3<bool>(&output, DATA, NUM_DATA, "%d");
+            TestDriver::testCase3<bool>(&output, DATA, "%d");
         }
 
         // [ 3] static void debugPrint(const char *s, char c, const char *t);
@@ -1867,8 +1952,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  'A',      0,     "positive signed character" },
                 { __LINE__,  '\xcc',   0,     "negative signed character" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver::testCase3<char>(&output, DATA, NUM_DATA, "'%c'");
+            TestDriver::testCase3<char>(&output, DATA, "'%c'");
         }
 
         // [ 3] static void debugPrint(const char *s, signed char v,
@@ -1892,10 +1976,8 @@ int main(int argc, char *argv[])
                 { __LINE__,  '\x50',    0,     "positive signed character" },
                 { __LINE__,  '\xcc',    0,     "negative signed character" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
             TestDriver::testCase3<signed char>(&output,
                                                DATA,
-                                               NUM_DATA,
                                                "%hhd");
         }
 
@@ -1919,10 +2001,8 @@ int main(int argc, char *argv[])
                 { __LINE__,  '\x50',    0,     "positive signed character" },
                 { __LINE__,  '\xcc',    0,     "negative signed character" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
             TestDriver::testCase3<unsigned char>(&output,
                                                  DATA,
-                                                 NUM_DATA,
                                                  "%hhu");
         }
 
@@ -1945,8 +2025,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  SHRT_MAX, 0,     "SHRT_MAX" },
                 { __LINE__,  SHRT_MIN, 0,     "SHRT_MIN" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver::testCase3<short>(&output, DATA, NUM_DATA, "%hd");
+            TestDriver::testCase3<short>(&output, DATA, "%hd");
         }
 
         // [ 3] static void debugPrint(const char *s, unsigned short v,
@@ -1967,10 +2046,8 @@ int main(int argc, char *argv[])
                 { __LINE__,  1,         0,     "1" },
                 { __LINE__,  USHRT_MAX, 0,     "USHRT_MAX" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
             TestDriver::testCase3<unsigned short>(&output,
                                                   DATA,
-                                                  NUM_DATA,
                                                   "%hu");
         }
 
@@ -1993,8 +2070,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  INT_MAX, 0,     "INT_MAX" },
                 { __LINE__,  INT_MIN, 0,     "INT_MIN" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver::testCase3<int>(&output, DATA, NUM_DATA, "%d");
+            TestDriver::testCase3<int>(&output, DATA, "%d");
         }
 
         // [ 3] static void debugPrint(const char *s, unsigned int v,
@@ -2015,8 +2091,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  1,        0,     "1" },
                 { __LINE__,  UINT_MAX, 0,     "UINT_MAX" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver::testCase3<unsigned int>(&output, DATA, NUM_DATA, "%u");
+            TestDriver::testCase3<unsigned int>(&output, DATA, "%u");
         }
 
         // [ 3] static void debugPrint(const char *s, long v, const char *t);
@@ -2038,8 +2113,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  LONG_MAX, 0,     "LONG_MAX" },
                 { __LINE__,  LONG_MIN, 0,     "LONG_MIN" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver::testCase3<long>(&output, DATA, NUM_DATA, "%ld");
+            TestDriver::testCase3<long>(&output, DATA, "%ld");
         }
 
         // [ 3] static void debugPrint(const char *s, unsigned long v,
@@ -2060,10 +2134,8 @@ int main(int argc, char *argv[])
                 { __LINE__,  1UL,       0,     "1UL" },
                 { __LINE__,  ULONG_MAX, 0,     "ULONG_MAX" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
             TestDriver::testCase3<unsigned long>(&output,
                                                  DATA,
-                                                 NUM_DATA,
                                                  "%lu");
         }
 
@@ -2087,8 +2159,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  LLONG_MAX, 0,     "LLONG_MAX" },
                 { __LINE__,  LLONG_MIN, 0,     "LLONG_MIN" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver::testCase3<long long>(&output, DATA, NUM_DATA, "%lld");
+            TestDriver::testCase3<long long>(&output, DATA, "%lld");
         }
 
         // [ 3] static void debugPrint(const char *s, unsigned long long v,
@@ -2109,10 +2180,8 @@ int main(int argc, char *argv[])
                 { __LINE__,  1ULL,       0,     "1ULL" },
                 { __LINE__,  ULLONG_MAX, 0,     "ULLONG_MAX" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
             TestDriver::testCase3<unsigned long long>(&output,
                                                       DATA,
-                                                      NUM_DATA,
                                                       "%llu");
         }
 
@@ -2136,8 +2205,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  FLT_MAX,     0,     "FLT_MAX" },
                 { __LINE__,  FLT_MIN,     0,     "FLT_MIN" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver::testCase3<float>(&output, DATA, NUM_DATA, "%f");
+            TestDriver::testCase3<float>(&output, DATA, "%f");
         }
 
         // [ 3] static void debugPrint(const char *s, double v, const char *t);
@@ -2160,8 +2228,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  DBL_MAX,   0,     "DBL_MAX" },
                 { __LINE__,  DBL_MIN,   0,     "DBL_MIN" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver::testCase3<double>(&output, DATA, NUM_DATA, "%g");
+            TestDriver::testCase3<double>(&output, DATA, "%g");
         }
 
         // [ 3] static void debugPrint(const char *s, long double v,
@@ -2185,8 +2252,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  LDBL_MAX,    0,     "LDBL_MAX" },
                 { __LINE__,  LDBL_MIN,    0,     "LDBL_MIN" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            TestDriver::testCase3<long double>(&output, DATA, NUM_DATA, "%Lg");
+            TestDriver::testCase3<long double>(&output, DATA, "%Lg");
         }
 
         // [ 3] static void debugPrint(const char *s, char *str,
@@ -2212,9 +2278,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  const_cast<char *>("a\r\nb"), 0,
                                                "string with embedded <CRLF>" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            TestDriver::testCase3<char *>(&output, DATA, NUM_DATA, "\"%s\"");
+            TestDriver::testCase3<char *>(&output, DATA, "\"%s\"");
         }
 
         // [ 3] static void debugPrint(const char *s, const char *str,
@@ -2236,11 +2300,8 @@ int main(int argc, char *argv[])
                 { __LINE__,  "a\nb",   0,     "string with embedded newline" },
                 { __LINE__,  "a\r\nb", 0,     "string with embedded <CRLF>" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
             TestDriver::testCase3<const char *>(&output,
                                                 DATA,
-                                                NUM_DATA,
                                                 "\"%s\"");
         }
 
@@ -2260,9 +2321,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  (void *) 0,       0,     "NULL pointer" },
                 { __LINE__,  (void *) &output, 0,     "valid address" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            TestDriver::testCase3<void *>(&output, DATA, NUM_DATA, "%p");
+            TestDriver::testCase3<void *>(&output, DATA, "%p");
         }
         // [ 3] static void debugPrint(const char *s, const void *p,
         //                             const char *t);
@@ -2281,9 +2340,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  (const void *) 0,       0,     "NULL pointer" },
                 { __LINE__,  (const void *) &output, 0,     "valid address" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            TestDriver::testCase3<const void *>(&output, DATA, NUM_DATA, "%p");
+            TestDriver::testCase3<const void *>(&output, DATA, "%p");
         }
 
       } break;
@@ -2293,34 +2350,48 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //:  1 Output is redirected
+        //:
         //:  2 Captured output is readable
+        //:
         //:  3 'load' works
+        //:
         //:  4 'reset' works
+        //:
         //:  5 'compare' works
+        //:
         //:  6 Incorrect output is correctly diagnosed
+        //:
         //:  7 Embedded newlines work
+        //:
         //:  8 Empty output works
+        //:
         //:  9 Embedded nulls work
+        //:
         //: 10 Filesystem-dependent control sequences work
+        //:
         //: 11 stderr points to original target of 'stdout'
         //
         // Plan:
         //:  1 Confirm that 'ftell(stdout)' succeeds.  This demonstrates that
         //:    'stdout' is a seekable file. (C-1)
+        //:
         //:  2 Write a string to 'stdout', confirm that 'stdout's seek position
         //:    has changed, read back the contents of 'stdout' and compare them
         //:    to the original string.  (C-2)
+        //:
         //:  3 Write a string to 'stdout'.  Confirm that
         //:    'OutputRedirector::load' changes the contents of the output
         //:    buffer and that it changes the result of
         //:    'OutputRedirector::isOutputReady' from 'false' to 'true'.
         //:    Confirm that the contents of the output buffer match the
         //:    original string.  (C-3)
+        //:
         //:  4 Write a string to 'stdout' and load it with
         //:    'OutputRedirector::load'.  Confirm that
         //:    'OutputRedirector::reset' rewinds 'stdout', changes the output
         //:    of 'OutputRedirector::isOutputReady' from 'true' to 'false' and
         //:    sets the length of the output buffer to 0.  (C-4)
+        //:
         //:  5 Write a string to 'stdout' and read it back with
         //:    'OutputRedirector::load'.  Confirm that
         //:    'OutputRedirector::compare' gives the correct results when the
@@ -2340,17 +2411,22 @@ int main(int argc, char *argv[])
         //:    than can be fit in the capture buffer.  Confirm that 'compare'
         //:    fails if 'load' has not been first called to read data into the
         //:    capture buffer.  (C-6)
+        //:
         //:  7 Confirm that strings containing embedded newlines are correctly
         //:    captured and correctly identified by 'compare'.  (C-7)
+        //:
         //:  8 Write an empty string to 'stdout'.  Confirm that it can be
         //:    correctly loaded and compared with the original.  (C-8)
+        //:
         //:  9 Write a series of strings to 'stdout', containing '\0' at the
         //:    beginning, end or interior of the string.  Confirm that the
         //:    captured output can be correctly loaded and compared with the
         //:    original input.  (C-9)
+        //:
         //: 10 Write a series of strings to 'stdout' containing '^D' and
         //:    '<CRLF>' and confirm that these strings are correctly captured
         //:    and loaded.  (C-10)
+        //:
         //: 11 Use 'fstat' to find out the device and inode of the current
         //:    (post-redirection) 'stderr'.  Compare these values to the device
         //:    and inode of 'stdout' before redirection.  (C-11)
@@ -2624,7 +2700,7 @@ int main(int argc, char *argv[])
             stderrStat.st_dev = output.originalStdoutStat().st_dev;
             stderrStat.st_rdev = output.originalStdoutStat().st_rdev;
             ASSERT(-1 != fstat(newStderrFD, &stderrStat));
-#if !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if !defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
             // st_dev and st_rdev are not stable on Windows
             ASSERT(stderrStat.st_dev == output.originalStdoutStat().st_dev);
             ASSERT(stderrStat.st_rdev == output.originalStdoutStat().st_rdev);

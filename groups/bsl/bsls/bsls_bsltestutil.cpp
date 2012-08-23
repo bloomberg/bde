@@ -54,10 +54,10 @@ void printValue(const void *val);
 
 template <typename BSLS_TYPE>
 void doDebugPrint(const char *s, const BSLS_TYPE& v, const char *t);
-    // Print the specified null-terminated byte string 's', followed by the
-    // string representation of the specified 'v', formatted according to the
-    // type-appropriate overload of 'printValue', followed by the specified
-    // null-terminated byte string 't'.
+    // Print the specified null-terminated byte string 's' to stdout, followed
+    // by the string representation of the specified 'v', formatted according
+    // to the type-appropriate overload of 'printValue', followed by the
+    // specified null-terminated byte string 't'.
 
 inline
 void flush()
