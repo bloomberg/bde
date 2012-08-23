@@ -322,18 +322,18 @@ class reverse_iterator :
 
     reverse_iterator  operator++(int);
 
-    reverse_iterator& operator+=(typename difference_type n);
+    reverse_iterator& operator+=(difference_type n);
 
     reverse_iterator& operator--();
 
     reverse_iterator  operator--(int);
 
-    reverse_iterator& operator-=(typename difference_type n);
+    reverse_iterator& operator-=(difference_type n);
 
     // ACCESSORS
-    reverse_iterator operator+(typename difference_type n) const;
+    reverse_iterator operator+(difference_type n) const;
 
-    reverse_iterator operator-(typename difference_type n) const;
+    reverse_iterator operator-(difference_type n) const;
 };
 
 // FREE OPERATORS
@@ -341,25 +341,49 @@ template <class ITER> inline
 bool operator==(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs);
 
+template <class ITER1, class ITER2> inline
+bool operator==(const reverse_iterator<ITER1>& lhs,
+                const reverse_iterator<ITER2>& rhs);
+
 template <class ITER> inline
 bool operator!=(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs);
+
+template <class ITER1, class ITER2> inline
+bool operator!=(const reverse_iterator<ITER1>& lhs,
+                const reverse_iterator<ITER2>& rhs);
 
 template <class ITER> inline
 bool operator<(const reverse_iterator<ITER>& lhs,
                const reverse_iterator<ITER>& rhs);
 
+template <class ITER1, class ITER2> inline
+bool operator<(const reverse_iterator<ITER1>& lhs,
+               const reverse_iterator<ITER2>& rhs);
+
 template <class ITER> inline
 bool operator>(const reverse_iterator<ITER>& lhs,
                const reverse_iterator<ITER>& rhs);
+
+template <class ITER1, class ITER2> inline
+bool operator>(const reverse_iterator<ITER1>& lhs,
+               const reverse_iterator<ITER2>& rhs);
 
 template <class ITER> inline
 bool operator<=(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs);
 
+template <class ITER1, class ITER2> inline
+bool operator<=(const reverse_iterator<ITER1>& lhs,
+                const reverse_iterator<ITER2>& rhs);
+
 template <class ITER> inline
 bool operator>=(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs);
+
+template <class ITER1, class ITER2> inline
+bool operator>=(const reverse_iterator<ITER1>& lhs,
+                const reverse_iterator<ITER2>& rhs);
 
 template <class ITER> inline
 typename reverse_iterator<ITER>::difference_type
@@ -539,11 +563,29 @@ bool operator==(const reverse_iterator<ITER>& lhs,
                            static_cast<const Base&>(rhs));
 }
 
+template <class ITER1, class ITER2>
+inline
+bool operator==(const reverse_iterator<ITER1>& lhs,
+                const reverse_iterator<ITER2>& rhs)
+{
+    // this is to compare reverse_iterator with const_reverse_iterator
+    return lhs.base() == rhs.base();
+}
+
 template <class ITER>
 inline
 bool operator!=(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs)
 {
+    return ! (lhs == rhs);
+}
+
+template <class ITER1, class ITER2>
+inline
+bool operator!=(const reverse_iterator<ITER1>& lhs,
+                const reverse_iterator<ITER2>& rhs)
+{
+    // this is to compare reverse_iterator with const_reverse_iterator
     return ! (lhs == rhs);
 }
 
@@ -563,10 +605,27 @@ bool operator<(const reverse_iterator<ITER>& lhs,
                           static_cast<const Base&>(rhs));
 }
 
+template <class ITER1, class ITER2>
+inline
+bool operator<(const reverse_iterator<ITER1>& lhs,
+               const reverse_iterator<ITER2>& rhs)
+{
+    // this is to compare reverse_iterator with const_reverse_iterator
+    return lhs.base() < rhs.base();
+}
+
 template <class ITER>
 inline
 bool operator>(const reverse_iterator<ITER>& lhs,
                const reverse_iterator<ITER>& rhs)
+{
+    return rhs < lhs;
+}
+
+template <class ITER1, class ITER2>
+inline
+bool operator>(const reverse_iterator<ITER1>& lhs,
+               const reverse_iterator<ITER2>& rhs)
 {
     return rhs < lhs;
 }
@@ -579,10 +638,26 @@ bool operator<=(const reverse_iterator<ITER>& lhs,
     return !(rhs < lhs);
 }
 
+template <class ITER1, class ITER2>
+inline
+bool operator<=(const reverse_iterator<ITER1>& x,
+                const reverse_iterator<ITER2>& y)
+{
+    return !(rhs < lhs);
+}
+
 template <class ITER>
 inline
 bool operator>=(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs)
+{
+    return !(lhs < rhs);
+}
+
+template <class ITER1, class ITER2>
+inline
+bool operator>=(const reverse_iterator<ITER1>& x,
+                const reverse_iterator<ITER2>& y)
 {
     return !(lhs < rhs);
 }
