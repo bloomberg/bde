@@ -439,19 +439,9 @@ int main(int argc, char *argv[]) {
     bool     veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
-    verbose = true;
-    for(test = 1; test <= 20; test++)
     switch (test) {
 
         case 0:
-        case 99: {
-
-            for(unsigned i = 0; i < 100000000; i++) {
-                Ti t = btes_LeakyBucket::calculateDrainTime(i, 10000000, true);
-            }
-
-        } break;
-
         case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
