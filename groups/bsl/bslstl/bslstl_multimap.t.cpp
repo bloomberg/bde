@@ -1294,8 +1294,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase24()
                     DummyAllocator<bsl::pair<const KEY, VALUE> > > obj2(obj1);
     (void) obj2;
 
-    // This would also compile for some unknown reason.  Most likely because
-    // the constructor is a templatized.
+    // This would also compile, most likely because the constructor is
+    // templatized.
 
     typename Obj::value_type array[1];
     TemplateWrapper<KEY,
