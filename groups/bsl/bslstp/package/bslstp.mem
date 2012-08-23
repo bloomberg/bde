@@ -7,7 +7,6 @@ bslstp_hashtable
 bslstp_iosfwd
 bslstp_iterator
 bslstp_list
-bslstp_queue
 bslstp_slist
 bslstp_slistbase
 bslstp_sstream

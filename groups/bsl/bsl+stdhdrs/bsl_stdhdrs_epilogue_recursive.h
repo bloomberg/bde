@@ -55,13 +55,6 @@
 # endif
 #endif
 
-#ifdef BSL_INCLUDE_BSL_QUEUE
-# ifndef INCLUDED_BSLSTP_QUEUE
-#   include <bslstp_queue.h>
-#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
-# endif
-#endif
-
 #ifdef BSL_INCLUDE_BSL_STACK
 # ifndef INCLUDED_BSLSTP_STACK
 #   include <bslstp_stack.h>
@@ -156,6 +149,17 @@
 # endif
 # ifndef INCLUDED_BSLSTL_MULTISET
 #   include <bslstl_multiset.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
+#ifdef BSL_INCLUDE_BSL_QUEUE
+# ifndef INCLUDED_BSLSTL_QUEUE
+#   include <bslstl_queue.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_PRIORITYQUEUE
+#   include <bslstl_priorityqueue.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
