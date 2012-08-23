@@ -431,9 +431,9 @@ BSLS_IDENT("$Id: $")
 //  bslma::TestAllocator tda;
 //  bslma::TestAllocator tga;
 //..
-// Since neither the default nor the global allocators are ever used for
-// anything in this exercise, we only need check their monitors 'dam' and 'gam'
-// at the end of the example.
+// Since neither the default nor the global allocators are used for anything in
+// this exercise, we only need check their monitors 'dam' and 'gam' at the end
+// of the example.
 //
 // Then, we install our default and global allocators:
 //..

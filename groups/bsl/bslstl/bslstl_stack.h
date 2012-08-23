@@ -32,13 +32,12 @@ BSLS_IDENT("$Id: $")
 // must satisfy the following requirements:
 //: o The supplied 'CONTAINER' template parameter must support the following
 //:   public types:
-//: o It must have the following public types:
 //:   o value_type
 //:   o reference
 //:   o const_reference
 //:   o size_type
 //: o The supplied 'CONTAINER' template parameter must support the following
-//:   methods, depending on what methods of 'stack' are used:
+//:   methods, (depending on the methods of 'stack' being used):
 //:   o constructors used must take a parameter of type 'allocator_type'
 //:   o void push_back(const value_type&)
 //:   o void pop_back()
@@ -95,7 +94,6 @@ BSLS_IDENT("$Id: $")
 //  'n', 'm'        - number of elements in 's' and 't' respectively
 //  'al'            - a STL-style memory allocator
 //  'v'             - an object of type 'V'
-//
 //
 //  +----------------------------------------------------+--------------------+
 //  | Note: the following estimations of operation complexity assume the      |
@@ -165,30 +163,28 @@ BSLS_IDENT("$Id: $")
 //      // MANIPULATORS
 //      void enqueueTask(const char *task);
 //          // Add the specified 'task', a string describing a task, to the
-//          // list.  Note that the lifetime of the string referred to by
-//          // 'task' must exceed the lifetime of the task in this list.
+//          // list.  Note the lifetime of the string referred to by 'task'
+//          // must exceed the lifetime of the task in this list.
 //
 //      bool finishTask();
-//          // Remove the current task from the list.  If the list is empty
-//          // when this is called, do nothing.  Otherwise, if the list is
-//          // remove the current task from the list.  Return 'true' if a task
-//          // was removed and it was the lsat task in the list and return
+//          // Remove the current task from the list.  Return 'true' if a task
+//          // was removed and it was the last task on the list, and return
 //          // 'false' otherwise.
 //
 //      // ACCESSORS
-//      const bsl::string& currentTask() const;
+//      const char *currentTask() const;
 //          // Return the string representing the current task.  If there
 //          // is no current task, return the string "<EMPTY>", which is
 //          // not a valid task.
 //  };
 //
 //  // MANIPULATORS
-//  void ToDoList::enqueueTask(const bsl::string& task)
+//  void ToDoList::enqueueTask(const char *task)
 //  {
 //      d_stack.push(task);
 //  }
 //
-//  void ToDoList::finishTask()
+//  bool ToDoList::finishTask()
 //  {
 //      if (!d_stack.empty()) {
 //          d_stack.pop();
@@ -200,73 +196,62 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  // ACCESSORS
-//  const bsl::string& ToDoList::currentTask() const
+//  const char *ToDoList::currentTask() const
 //  {
 //      if (d_stack.empty()) {
-//          static const bsl::string emptyString("<EMPTY>");
-//          return emptyString;
+//          return "<EMPTY>";
 //      }
 //
 //      return d_stack.top();
 //  }
 //..
 // Then, create an object of type 'ToDoList'.
-//..
+//
 //  ToDoList toDoList;
-//..
+//
 // Next, a few tasks are requested:
-//..
-//  toDoList.enqueueTask("Mow the lawn.");
+//
 //  toDoList.enqueueTask("Change the car's oil.");
 //  toDoList.enqueueTask("Pay the bills.");
-//..
-// Then, the husband watches the Yankee's game on TV.  Upon returning
-// to the list he consults the list to see what task is up next:
-//..
-//  ASSERT("Pay the bills." == toDoList.currentTask());
-//..
-// Next, he sees that he has to pay the bills.  When the bills are
-// finished, he flushes that task from the list:
-//..
-//  toDoList.finishTask();
-//..
-// Then, it is now time for bed.  Upon getting out of bed Saturday
-// morning, he consults the list for the next task:
-//..
-//  ASSERT("Change the car's oil." == toDoList.currentTask());
-//..
-// Next, he sees he has to change the car's oil.  Before he can get
-// started, another request comes:
-//..
+//
+// Then, the husband watches the Yankee's game on TV.  Upon returning to the
+// list he consults the list to see what task is up next:
+//
+//  ASSERT(!strcmp("Pay the bills.", toDoList.currentTask()));
+//
+// Next, he sees that he has to pay the bills.  When the bills are finished, he
+// flushes that task from the list:
+//
+//  ASSERT(false == toDoList.finishTask());
+//
+// Then, he consults the list for the next task.
+//
+//  ASSERT(!strcmp("Change the car's oil.", toDoList.currentTask()));
+//
+// Next, he sees he has to change the car's oil.  Before he can get started,
+// another request comes:
+//
 //  toDoList.enqueueTask("Get some hot dogs.");
-//  ASSERT("Get some hot dogs." == toDoList.currentTask());
-//..
-// Then, he drives the car to the convenience store and picks up some
-// hot dogs and buns.  Upon returning home, he gives the hot dogs to
-// his wife, updates the list, and consults it for the next task.
-//..
-//  toDoList.finishTask();
-//  ASSERT("Change the car's oil." == toDoList.currentTask());
-//..
-// Next, he finishes the oil change, updates the list, and consults it
-// for the next task.
-//..
-//  toDoList.finishTask();
-//  ASSERT("Mow the lawn." == toDoList.currentTask());
-//..
-// Now, he pays the neighbor's kid $10 to mow the lawn, and watches
-// Jerry Springer on TV.  When the show is done, he checks the lawn and
-// sees the mowing is completed.  He updates the list:
-//..
-//  toDoList.finishTask();
-//  ASSERT("<EMPTY>" == toDoList.currentTask());
-//..
-// Finally, the wife has now been informed that everything is done,
-// and she makes another request:
-//..
+//  ASSERT(!strcmp("Get some hot dogs.", toDoList.currentTask()));
+//
+// Then, he drives the car to the convenience store and picks up some hot dogs
+// and buns.  Upon returning home, he gives the hot dogs to his wife, updates
+// the list, and consults it for the next task.
+//
+//  ASSERT(false == toDoList.finishTask());
+//  ASSERT(!strcmp("Change the car's oil.", toDoList.currentTask()));
+//
+// Next, he finishes the oil change, updates the list, and consults it for the
+// next task.
+//
+//  ASSERT(true == toDoList.finishTask());
+//  ASSERT(!strcmp("<EMPTY>", toDoList.currentTask()));
+//
+// Finally, the wife has now been informed that everything is done, and she
+// makes another request:
+//
 //  toDoList.enqueueTask("Clean the rain gutters.");
 //..
-
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -319,13 +304,20 @@ BSL_OVERRIDES_STD mode"
 namespace bsl {
 
 template <class CONTAINER>
-struct Stack_HasAllocatorType {
+class Stack_HasAllocatorType {
+    // This 'class' computes 'VALUE', which is 'true' if the passed 'CONTAINER'
+    // defines a type 'CONTAINER::allocator_type' and 'false' otherwise.  This
+    // is used in conjuction with 'bslmf::EnableIf' to make methods of 'stack'
+    // that take allocator args exist if 'CONTAINER::allocator_type' is
+    // present, and make them not exist otherwise.
+
     template <typename TYPE>
     static BloombergLP::bslmf::MetaInt<1> match(
                                         const typename TYPE::allocator_type *);
     template <typename TYPE>
     static BloombergLP::bslmf::MetaInt<0> match(...);
 
+  public:
     enum { VALUE = BSLMF_METAINT_TO_BOOL(match<CONTAINER>(0)) };
 };
 
@@ -395,16 +387,14 @@ class stack {
           typename BloombergLP::bslmf::EnableIf<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type * = 0);
-        // Construct an empty stack.  If 'CONTAINER::allocator_type' does not
-        // exist, this constructor may not be used.  The specified 'allocator'
-        // will be passed to the constructor of the underlying container.
+        // Construct an empty stack, and use 'allocator' to supply memory.  If
+        // 'CONTAINER::allocator_type' does not exist, this constructor may not
+        // be used.
 
     explicit
     stack(const CONTAINER& container);
-        // Construct a stack whose underlying container is a copy of the
-        // specified 'container'.  No allocator will be provided to the
-        // underlying container, and that container's memory allocation will be
-        // provided by whatever is the default for the container type.
+        // Construct a stack whose underlying container has the value of the
+        // specified 'container'.
 
     template <class ALLOCATOR>
     stack(const CONTAINER& container,
@@ -412,17 +402,13 @@ class stack {
           typename BloombergLP::bslmf::EnableIf<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type * = 0);
-        // Construct a stack out of a copy of the specified 'container'.  Pass
-        // the specified 'allocator' to the copy constructor of the created
-        // underlying container.  If 'CONTAINER::allocator_type' does not
-        // exist, this constructor may not be used.  The type of 'allocator'
-        // must be convertible to the allocator type of the underlying
-        // container.
+        // Construct a stack whose underlying continer has the value of the
+        // specified 'container', and use the specified 'allocator' to supply
+        // memory.  If 'CONTAINER::allocator_type' does not exist, this
+        // constructor may not be used.
 
-    stack(const stack&     original);
-        // Construct a copy of the specified stack 'original'.  No memory
-        // allocator is passed to the created underlying container, which will
-        // allocate memory according to its default.
+    stack(const stack& original);
+        // Construct a stack having the same value as the specified 'original'.
 
     template <class ALLOCATOR>
     stack(const stack&     original,
@@ -430,11 +416,10 @@ class stack {
           typename BloombergLP::bslmf::EnableIf<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type * = 0);
-        // Construct a copy of the specified stack 'original', passing the
-        // specified 'allocator' to the underlying container.  If
+        // Construct a stack having the same value as the specified stack
+        // 'original', and use the specified 'allocator' to supply memory.  If
         // 'CONTAINER::allocator_type' does not exist, this constructor may not
-        // be used.  The type of 'allocator' must be convertible to the
-        // allocator type of the underlying container.
+        // be used.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     explicit
@@ -463,8 +448,8 @@ class stack {
 
     // MANIPULATORS
     stack& operator=(const stack& rhs);
-        // Assign the value of the specified 'rhs' to this 'stack' object, and
-        // return a reference to this object.
+        // Assign to this object the value of the specified 'rhs' objject, abd
+        // return a reference providing modifiable access to this object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
@@ -474,11 +459,11 @@ class stack {
 #endif
 
     void pop();
-        // Erase the top element from this stack.  The behavior is undefined if
-        // the stack is empty.
+        // Remove the top element from this stack.  The behavior is undefined
+        // if the stack is empty.
 
     void push(const value_type& value);
-        // Push a copy of 'value' to the top of the stack.
+        // Push the specifed 'value' onto the top of the stack.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     void push(value_type&& value);
@@ -486,7 +471,8 @@ class stack {
 #endif
 
     void swap(stack& other);
-        // Swap the contents of this stack with the specified stack 'other'.
+        // Exchange the value of this object with the value of the specified
+        // 'other' object.
 
     reference top();
         // Return a reference to the element at the top of this stack.  The
@@ -529,38 +515,46 @@ struct uses_allocator<stack<VALUE, CONTAINER>, ALLOCATOR>
 template <class VALUE, class CONTAINER>
 bool operator==(const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return the result of the equality comparison of the containers in 'lhs'
-    // and 'rhs', respectively.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'stack' objects have the same value
+    // if their underlying containers have the same value.
 
 template <class VALUE, class CONTAINER>
 bool operator!=(const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return the result of the inequality comparison of the containers in
-    // 'lhs' and 'rhs', respectively.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'stack' objects have the same
+    // value if their underlying containers have the same value.
 
 template <class VALUE, class CONTAINER>
 bool operator< (const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return the result of the 'less than' comparison of the containers in
-    // 'lhs' and 'rhs', respectively.
+    // Return 'true' if the specified 'lhs' is less than the specified 'rhs'.
+    // One 'stack' object is less than another if its underlying container is
+    // less than the other's underlying container.
 
 template <class VALUE, class CONTAINER>
 bool operator> (const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return the result of the 'greater than' comparison of the containers in
-    // 'lhs' and 'rhs', respectively.
+    // Return 'true' if the specified 'lhs' is greater than the specified
+    // 'rhs'.  One 'stack' object is greater than another if its underlying
+    // container is greater than the other's underlying container.
 
 template <class VALUE, class CONTAINER>
 bool operator<=(const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return the result of the 'less than or equal to' comparison of the
-    // containers in 'lhs' and 'rhs', respectively.
+    // Return 'true' if the specified 'lhs' is less than or equal to the
+    // specified 'rhs'.  One 'stack' object is less than or equal to another if
+    // its underlying container is less than or equal to the other's underlying
+    // container.
 
 template <class VALUE, class CONTAINER>
 bool operator>=(const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return the result of the 'greater than or equal to' comparison of the
-    // containers in 'lhs' and 'rhs', respectively.
+    // Return 'true' if the specified 'lhs' is greater than or equal to the
+    // specified 'rhs'.  One 'stack' object is greater than or equal to another
+    // if its underlying container is greater than or equal to the other's
+    // underlying container.
 
 template <class VALUE, class CONTAINER>
 void swap(stack<VALUE, CONTAINER>& lhs,
@@ -693,9 +687,6 @@ template <class... Args>
 inline
 void stack<VALUE, CONTAINER>::emplace(Args&&... args)
 {
-    // This is just copied from the standard.  I am not familiar with this
-    // template syntax or what 'emplace' means. -- Bill Chapman 4/20/2012
-
     d_container.emplace_back(std::forward<Args>(args)...);
 }
 
@@ -705,6 +696,8 @@ template <class VALUE, class CONTAINER>
 inline
 void stack<VALUE, CONTAINER>::pop()
 {
+    BSLS_ASSERT_SAFE(!empty());
+
     d_container.pop_back();
 }
 
@@ -737,6 +730,8 @@ template <class VALUE, class CONTAINER>
 inline
 typename CONTAINER::reference stack<VALUE, CONTAINER>::top()
 {
+    BSLS_ASSERT_SAFE(!empty());
+
     return d_container.back();
 }
 

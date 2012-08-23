@@ -1,7 +1,6 @@
 // bslstl_stack.t.cpp                                                 -*-C++-*-
 #include <bslstl_stack.h>
 
-#include <bslstl_string.h>
 #include <bslstl_vector.h>
 
 #include <bsltf_stdtestallocator.h>
@@ -66,17 +65,17 @@ using namespace bsl;
 // The Primary Manipulators and Basic Accessors are decided to be:
 //
 // Primary Manipulators:
-//: o 'insert'
-//: o 'clear'
+//: o 'push'
+//: o 'pop
 //
 // Basic Accessors:
-//: o 'cbegin'
-//: o 'cend'
+//: o 'empty'
 //: o 'size'
+//: o 'top'
 //
 // This test plan follows the standard approach for components implementing
 // value-semantic containers.  We have chosen as *primary* *manipulators* the
-// 'insert' and 'clear' methods to be used by the generator functions 'g' and
+// 'push' and 'pop' methods to be used by the generator functions 'g' and
 // 'gg'.  Note that some manipulators must support aliasing, and those that
 // perform memory allocation must be tested for exception neutrality via the
 // 'bslma::TestAllocator' component.  After the mandatory sequence of cases
@@ -84,82 +83,54 @@ using namespace bsl;
 // there is not output or streaming below bslstl), we test each individual
 // constructor, manipulator, and accessor in subsequent cases.
 //
+// Certain standard value-semantic-type test cases are omitted:
+//: o BSLX streaming is not (yet) implemented for this class.
+//
+// Global Concerns:
+//: o The test driver is robust w.r.t. reuse in other, similar components.
+//: o ACCESSOR methods are declared 'const'.
+//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
+//: o No memory is ever allocated from the global allocator.
+//: o Any allocated memory is always from the object allocator.
+//: o An object's value is independent of the allocator used to supply memory.
+//: o Injected exceptions are safely propagated during memory allocation.
+//: o Precondition violations are detected in appropriate build modes.
+//
+// Global Assumptions:
+//: o All explicit memory allocations are presumed to use the global, default,
+//:   or object allocator.
+//: o ACCESSOR methods are 'const' thread-safe.
+//: o Individual attribute types are presumed to be *alias-safe*; hence, only
+//:   certain methods require the testing of this property:
+//:   o copy-assignment
+//:   o swap
 // ----------------------------------------------------------------------------
-// 23.4.6.2, construct/copy/destroy:
-// [19] set(const C& comparator, const A& allocator);
-// [12] set(ITER first, ITER last, const C& comparator, const A& allocator);
-// [ 7] set(const set& original);
-// [ 2] explicit set(const A& allocator);
-// [ 7] set(const set& original, const A& allocator);
-// [ 2] ~set();
-// [ 9] set& operator=(const set& rhs);
+// CREATORS
+// [ 7] copy c'tor
+// [ 2] stack, stack(bslma::Allocator *bA)
 //
-// iterators:
-// [14] iterator begin();
-// [14] const_iterator begin() const;
-// [14] iterator end();
-// [14] const_iterator end() const;
-// [14] reverse_iterator rbegin();
-// [14] const_reverse_iterator rbegin() const;
-// [14] reverse_iterator rend();
-// [14] const_reverse_iterator rend() const;
-// [ 4] const_iterator cbegin() const;
-// [ 4] const_iterator cend() const;
-// [14] const_reverse_iterator crbegin() const;
-// [14] const_reverse_iterator crend() const;
+// MANIPULATORS
+// [ 9] 'operator='
+// [ 8] member swap
+// [ 2] Primary Manipulators -- push and pop
 //
-// capacity:
-// [18] bool empty() const;
-// [ 4] size_type size() const;
-// [18] size_type max_size() const;
+// ACCESSORS
+// [15] testing empty, size
+// [ 4] Primary Accessors
 //
-// modifiers:
-// [15] bsl::pair<iterator, bool> insert(const value_type& value);
-// [15] iterator insert(const_iterator position, const value_type& value);
-// [15] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+// FREE FUNCTIONS
+// [12] inequality comparisons: '<', '>', '<=', '>='
+// [ 6] equality comparisons: '==', '!='
+// [ 5] operator<< (N/A)
 //
-// [16] iterator erase(const_iterator position);
-// [16] size_type erase(const key_type& key);
-// [16] iterator erase(const_iterator first, const_iterator last);
-// [ 8] void swap(set& other);
-// [ 2] void clear();
-//
-// observers:
-// [19] key_compare key_comp() const;
-// [19] value_compare value_comp() const;
-//
-// set operations:
-// [13] iterator find(const key_type& key);
-// [13] const_iterator find(const key_type& key) const;
-// [13] size_type count(const key_type& key) const;
-// [13] iterator lower_bound(const key_type& key);
-// [13] const_iterator lower_bound(const key_type& key) const;
-// [13] iterator upper_bound(const key_type& key);
-// [13] const_iterator upper_bound(const key_type& key) const;
-// [13] bsl::pair<iterator, iterator> equal_range(const key_type& key);
-// [13] bsl::pair<const_iter, const_iter> equal_range(const key_type&) const;
-//
-// [ 6] bool operator==(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
-// [17] bool operator< (const set<K, C, A>& lhs, const set<K, C, A>& rhs);
-// [ 6] bool operator!=(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
-// [17] bool operator> (const set<K, C, A>& lhs, const set<K, C, A>& rhs);
-// [17] bool operator>=(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
-// [17] bool operator<=(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
-//
-//// specialized algorithms:
-// [ 8] void swap(set<K, C, A>& a, set<K, C, A>& b);
-//
-// ----------------------------------------------------------------------------
-// [ 1] BREATHING TEST
-// [21] USAGE EXAMPLE
-//
-// TEST APPARATUS: GENERATOR FUNCTIONS
-// [ 3] int ggg(set<T,A> *object, const char *spec, int verbose = 1);
-// [ 3] set<T,A>& gg(set<T,A> *object, const char *spec);
-// [11] set<T,A> g(const char *spec);
-//
-// [20] CONCERN: The object has the necessary type traits
-
+// OTHER
+// [16] Usage Example
+// [14] testing simple container that does not support allocators
+// [13] testing container override of specified 'VALUE'
+// [11] type traits
+// [10] allocator
+// [ 3] Primary generator functions 'gg' and 'ggg'
+// [ 1] Breathing Test
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
@@ -876,8 +847,8 @@ class TestDriver {
 
     static bool typeAlloc()
     {
-        return bslalg_HasTrait<value_type,
-                               bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+        return bslalg::HasTrait<value_type,
+                                bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
     }
 
     static bool emptyWillAlloc()
@@ -898,7 +869,7 @@ class TestDriver {
         // Test type traits.
 
     static void testCase10();
-        // Test STL allocator.
+        // Test bslma::Allocator.
 
     static void testCase9();
         // Test assignment operator ('operator=').
@@ -1015,6 +986,10 @@ void TestDriver<CONTAINER>::testCase12()
     //   and compare them.  It turns out that 'strcmp' comparing the two
     //   'SPEC's will correspond directly to the result of inequality
     //   operators, which is very convenient.
+    //
+    //   Repeat the test a second time, with the second stack object created
+    //   with a different allocator than the first, to verify that creation
+    //   via different allocators has no impact on value.
     // ------------------------------------------------------------------------
 
     const char *cont = ContainerName<container_type>::name();
@@ -1022,7 +997,8 @@ void TestDriver<CONTAINER>::testCase12()
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-    bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+    bslma::TestAllocator ta("testA", veryVeryVeryVerbose);
+    bslma::TestAllocator tb("testB", veryVeryVeryVerbose);
 
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -1045,25 +1021,100 @@ void TestDriver<CONTAINER>::testCase12()
                               ? 0
                               : strcmp(SPECX, SPECY) > 0 ? 1 : -1;
 
-                ASSERTV(cont, SPECX, SPECY, CMP, (CMP < 0) == (X < Y));
-                ASSERTV(cont, SPECX, SPECY, CMP, (CMP < 0) == !(X >= Y));
-                ASSERTV(cont, SPECX, SPECY, CMP, (CMP < 0) == (Y > X));
-                ASSERTV(cont, SPECX, SPECY, CMP, (CMP < 0) == !(Y <= X));
+                const bool EQ = X == Y;
+                const bool NE = X != Y;
+                const bool LT = X <  Y;
+                const bool LE = X <= Y;
+                const bool GT = X >  Y;
+                const bool GE = X >= Y;
 
-                ASSERTV(cont, SPECX, SPECY, CMP, !((CMP == 0) && (X < Y)));
-                ASSERTV(cont, SPECX, SPECY, CMP, !((CMP == 0) && (Y > X)));
-                ASSERTV(cont, SPECX, SPECY, CMP, !((CMP == 0) && (X > Y)));
-                ASSERTV(cont, SPECX, SPECY, CMP, !((CMP == 0) && (Y < X)));
+                ASSERTV(cont, SPECX, SPECY, EQ == (Y == X));
+                ASSERTV(cont, SPECX, SPECY, NE == (Y != X));
+                ASSERTV(cont, SPECX, SPECY, LT == (Y >  X));
+                ASSERTV(cont, SPECX, SPECY, LE == (Y >= X));
+                ASSERTV(cont, SPECX, SPECY, GT == (Y <  X));
+                ASSERTV(cont, SPECX, SPECY, GE == (Y <= X));
 
-                ASSERTV(cont, SPECX, SPECY, CMP, (CMP > 0) == (X > Y));
-                ASSERTV(cont, SPECX, SPECY, CMP, (CMP > 0) == !(X <= Y));
-                ASSERTV(cont, SPECX, SPECY, CMP, (CMP > 0) == (Y < X));
-                ASSERTV(cont, SPECX, SPECY, CMP, (CMP > 0) == !(Y >= X));
+                ASSERTV(cont, SPECX, SPECY, LT == !GE);
+                ASSERTV(cont, SPECX, SPECY, GT == !LE);
 
-                ASSERTV(cont, SPECX, SPECY, CMP, (CMP == 0) == (X == Y));
-                ASSERTV(cont, SPECX, SPECY, CMP, (CMP == 0) == (Y == X));
-                ASSERTV(cont, SPECX, SPECY, CMP, (CMP != 0) == (X != Y));
-                ASSERTV(cont, SPECX, SPECY, CMP, (CMP != 0) == (Y != X));
+                ASSERTV(cont, SPECX, SPECY, !(LT && GT));
+                ASSERTV(cont, SPECX, SPECY, LE || GE);
+
+                if (0 == CMP) {
+                    ASSERTV(cont, SPECX, SPECY, !LT && !GT);
+                    ASSERTV(cont, SPECX, SPECY, LE  &&  GE);
+                }
+                else {
+                    ASSERTV(cont, SPECX, SPECY, LT || GT);
+                }
+
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP < 0) == LT);
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP < 0) == !GE);
+
+                ASSERTV(cont, SPECX, SPECY, CMP, !((CMP == 0) && LT));
+                ASSERTV(cont, SPECX, SPECY, CMP, !((CMP == 0) && GT));
+
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP > 0) == GT);
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP > 0) == !LE);
+
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP == 0) == EQ);
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP != 0) == NE);
+            }
+
+            // Do it all over again, this time using a differrent allocator
+            // for 'mY' to verify changing the allocator has no impact on
+            // comparisons.  Note we are re-testing the equality comparators
+            // so this memory allocation aspect is tested for them too.
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const char *const SPECY = DATA[tj].d_spec;
+
+                Obj mY(g(SPECY), &tb); const Obj& Y = mY;
+
+                const int CMP = ti == tj
+                              ? 0
+                              : strcmp(SPECX, SPECY) > 0 ? 1 : -1;
+
+                const bool EQ = X == Y;
+                const bool NE = X != Y;
+                const bool LT = X <  Y;
+                const bool LE = X <= Y;
+                const bool GT = X >  Y;
+                const bool GE = X >= Y;
+
+                ASSERTV(cont, SPECX, SPECY, EQ == (Y == X));
+                ASSERTV(cont, SPECX, SPECY, NE == (Y != X));
+                ASSERTV(cont, SPECX, SPECY, LT == (Y >  X));
+                ASSERTV(cont, SPECX, SPECY, LE == (Y >= X));
+                ASSERTV(cont, SPECX, SPECY, GT == (Y <  X));
+                ASSERTV(cont, SPECX, SPECY, GE == (Y <= X));
+
+                ASSERTV(cont, SPECX, SPECY, LT == !GE);
+                ASSERTV(cont, SPECX, SPECY, GT == !LE);
+
+                ASSERTV(cont, SPECX, SPECY, !(LT && GT));
+                ASSERTV(cont, SPECX, SPECY, LE || GE);
+
+                if (EQ) {
+                    ASSERTV(cont, SPECX, SPECY, !LT && !GT);
+                    ASSERTV(cont, SPECX, SPECY, LE  &&  GE);
+                }
+                else {
+                    ASSERTV(cont, SPECX, SPECY, LT || GT);
+                }
+
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP < 0) == LT);
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP < 0) == !GE);
+
+                ASSERTV(cont, SPECX, SPECY, CMP, !((CMP == 0) && LT));
+                ASSERTV(cont, SPECX, SPECY, CMP, !((CMP == 0) && GT));
+
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP > 0) == GT);
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP > 0) == !LE);
+
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP == 0) == EQ);
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP != 0) == NE);
             }
         }
     }
@@ -1087,42 +1138,46 @@ void TestDriver<CONTAINER>::testCase11()
 
     // Verify set defines the expected traits.
 
-    BSLMF_ASSERT((1 ==
-                  bslalg_HasTrait<Obj,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+    enum { CONTAINER_USES_ALLOC = 
+                bslalg::HasTrait<CONTAINER,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE };
+
+    BSLMF_ASSERT(((int) CONTAINER_USES_ALLOC ==
+                bslalg::HasTrait<Obj,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
     // Verify stack does not define other common traits.
 
     BSLMF_ASSERT((0 ==
-                  bslalg_HasTrait<Obj,
-                                  bslalg_TypeTraitHasStlIterators>::VALUE));
+                  bslalg::HasTrait<Obj,
+                                   bslalg::TypeTraitHasStlIterators>::VALUE));
 
     BSLMF_ASSERT((0 ==
-                  bslalg_HasTrait<Obj,
-                                  bslalg_TypeTraitBitwiseCopyable>::VALUE));
+                  bslalg::HasTrait<Obj,
+                                   bslalg::TypeTraitBitwiseCopyable>::VALUE));
 
     BSLMF_ASSERT((0 ==
-                  bslalg_HasTrait<Obj,
-                           bslalg_TypeTraitBitwiseEqualityComparable>::VALUE));
+                  bslalg::HasTrait<Obj,
+                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE));
 
     BSLMF_ASSERT((0 ==
-                  bslalg_HasTrait<Obj,
-                                  bslalg_TypeTraitBitwiseMoveable>::VALUE));
+                  bslalg::HasTrait<Obj,
+                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
 
     BSLMF_ASSERT((0 ==
-                  bslalg_HasTrait<Obj,
-                                 bslalg_TypeTraitHasPointerSemantics>::VALUE));
+                  bslalg::HasTrait<Obj,
+                                bslalg::TypeTraitHasPointerSemantics>::VALUE));
 
     BSLMF_ASSERT((0 ==
-                  bslalg_HasTrait<Obj,
-                        bslalg_TypeTraitHasTrivialDefaultConstructor>::VALUE));
+                  bslalg::HasTrait<Obj,
+                       bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE));
 }
 
 template <class CONTAINER>
 void TestDriver<CONTAINER>::testCase10()
 {
     // ------------------------------------------------------------------------
-    // TESTING STL ALLOCATOR
+    // TESTING BSLMA ALLOCATOR
     //
     // Concern:
     //: 1 A standard compliant allocator can be used instead of
@@ -2319,6 +2374,15 @@ void TestDriver<CONTAINER>::testCase4()
                     ASSERTV(LINE, SPEC, CONFIG, EXP[LENGTH - 1] == mX.top());
                     ASSERTV(LINE, SPEC, CONFIG, EXP[LENGTH - 1] ==  X.top());
                 }
+                else {
+                    bsls_AssertFailureHandlerGuard
+                                           hG(bsls_AssertTest::failTestDriver);
+
+                    ASSERT_SAFE_FAIL(mX.top());
+                }
+
+                ASSERTV(LINE, LENGTH, X.empty(), (0 == LENGTH) == mX.empty());
+                ASSERTV(LINE, LENGTH, X.empty(), (0 == LENGTH) ==  X.empty());
 
                 ASSERT( oam.isTotalSame());
                 ASSERT(noam.isTotalSame());
@@ -2592,6 +2656,8 @@ void TestDriver<CONTAINER>::testCase2()
     //:
     //:    10 Verify that all object memory is released when the object is
     //:       destroyed.  (Implicit in test allocator).  (C-8)
+    //:    11 Verify that calling 'pop' on an empty stack will fail an assert
+    //:       in safe mode.
     //
     // Testing:
     //   stack;
@@ -2659,6 +2725,13 @@ void TestDriver<CONTAINER>::testCase2()
 
             ASSERTV(LENGTH, CONFIG, 0 == X.size());
             ASSERTV(LENGTH, CONFIG, X.empty());
+
+            {
+                bsls_AssertFailureHandlerGuard
+                                           hG(bsls_AssertTest::failTestDriver);
+
+                ASSERT_SAFE_FAIL(mX.pop());
+            }
 
             // ----------------------------------------------------------------
 
@@ -3230,7 +3303,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -3284,12 +3357,49 @@ int main(int argc, char *argv[])
 
         ASSERT(true == toDoList.finishTask());
         ASSERT(!strcmp("<EMPTY>", toDoList.currentTask()));
-        printf("Honey, I'm done.\n");
 
-        // Finally, the wife has now been informed that everything is done,
-        // and she makes another request:
+        // Finally, the wife has been informed that everything is done, and she
+        // makes another request:
 
         toDoList.enqueueTask("Clean the rain gutters.");
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING EMPTY, SIZE
+        //
+        // Concern:
+        //   That the 'empty()' and 'size()' accessors work according to their
+        //   specifications.
+        //
+        // Plan:
+        //   Manipulate a 'stack' object, and observe that 'empty()' and
+        //   'size()' return the expected values.
+        // --------------------------------------------------------------------
+
+        stack<int> mX;    const stack<int>& X = mX;
+
+        ASSERT(mX.empty());         ASSERT(X.empty());
+        ASSERT(0 == mX.size());     ASSERT(0 == X.size());
+
+        for (int i = 7; i < 22; ++i) {
+            mX.push(i);
+            ASSERT(! mX.empty());              ASSERT(! X.empty());
+            ASSERT(i - 6 == (int) mX.size());  ASSERT(i - 6 == (int) X.size());
+            ASSERT(i == X.top());
+
+            mX.top() = X.size();            // 'top()' returns a ref to
+                                            // modifiable
+            ASSERT((int) X.size() == X.top());
+        }
+
+        for (int i = X.size(); i > 0; --i, mX.pop()) {
+            ASSERT(! mX.empty());             ASSERT(! X.empty());
+            ASSERT(i == (int) X.size());
+            ASSERT(X.top() == i);
+        }
+
+        ASSERT(mX.empty());         ASSERT(X.empty());
+        ASSERT(0 == mX.size());     ASSERT(0 == X.size());
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -3334,12 +3444,16 @@ int main(int argc, char *argv[])
         typedef stack<int>                IStack;
         typedef stack<int, deque<int> >   IDStack;
 
-        BSLMF_ASSERT((bslmf_IsSame<IStack, IDStack>::VALUE));
+        BSLMF_ASSERT((bslmf::IsSame<IStack, IDStack>::VALUE));
 
         // Verify that if a container is specified, the first template
         // argument is ignored.
 
-        typedef stack<void, vector<int> > VIVStack;
+        typedef stack<void,   vector<int> > VIVStack;
+        typedef stack<double, vector<int> > DIVStack;
+
+        BSLMF_ASSERT((bslmf::IsSame<VIVStack::value_type, int>::VALUE));
+        BSLMF_ASSERT((bslmf::IsSame<DIVStack::value_type, int>::VALUE));
 
         VIVStack vivs;          const VIVStack& VIVS = vivs;
 
@@ -3383,25 +3497,35 @@ int main(int argc, char *argv[])
         typedef deque< ATT, StlAlloc> WeirdAllocDeque;
         typedef vector<ATT, StlAlloc> WeirdAllocVector;
 
-        typedef bsl::stack<ATT, WeirdAllocDeque > WeirdAllocDequeStack;
-        typedef bsl::stack<ATT, WeirdAllocVector> WeirdAllocVectorStack;
+        typedef bsl::stack<ATT, WeirdAllocDeque >   WeirdAllocDequeStack;
+        typedef bsl::stack<ATT, WeirdAllocVector>   WeirdAllocVectorStack;
+        typedef bsl::stack<int, NonAllocCont<int> > NonAllocStack;
+
+        if (verbose) printf("NonAllocCont --------------------------------\n");
+        BSLMF_ASSERT((0 == bslalg::HasTrait<
+                                 NonAllocCont<int>,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        BSLMF_ASSERT((0 == bslalg::HasTrait<
+                                 NonAllocStack,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        TestDriver<NonAllocCont<int> >::testCase11();
 
         if (verbose) printf("deque ---------------------------------------\n");
-        BSLMF_ASSERT((0 == bslalg_HasTrait<
-                                  WeirdAllocDeque,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-        BSLMF_ASSERT((0 == bslalg_HasTrait<
-                                  WeirdAllocDequeStack,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+        BSLMF_ASSERT((0 == bslalg::HasTrait<
+                                 WeirdAllocDeque,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        BSLMF_ASSERT((0 == bslalg::HasTrait<
+                                 WeirdAllocDequeStack,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
         RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES_REGULAR(deque));
 
         if (verbose) printf("vector --------------------------------------\n");
-        BSLMF_ASSERT((0 == bslalg_HasTrait<
-                                  WeirdAllocVector,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-        BSLMF_ASSERT((0 == bslalg_HasTrait<
-                                  WeirdAllocVectorStack,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+        BSLMF_ASSERT((0 == bslalg::HasTrait<
+                                 WeirdAllocVector,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        BSLMF_ASSERT((0 == bslalg::HasTrait<
+                                 WeirdAllocVectorStack,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
         RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES_REGULAR(vector));
       } break;
       case 10: {
