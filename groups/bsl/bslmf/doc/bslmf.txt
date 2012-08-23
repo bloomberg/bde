@@ -67,12 +67,13 @@
   Level 5:  forwardingtype    isenum         memberfunctionpointertraits
 
   Level 4:  if                isconvertible  switch
+            matchinteger
 
   Level 3:  isfundamental     ispointer      ispointertomember
             issame            nil            or
 
   Level 2:  arraytopointer    isarray        functionpointertraits
-            matchiterator     metaint
+            metaint
 
   Level 1:  anytype           assert         isbitwise
             removecvq         tag            typelist
@@ -106,7 +107,7 @@
   'bslmf_ispolymorphic'     - identifying polymorphic types.
   'bslmf_issame'            - testing whether two types are the same.
 
-  'bslstl_matchinteger'     - class for "do the right thing" dispatch
+  'bslstl_matchinteger'     - class for "do the right thing clause" dispatch
 
   'bslmf_memberfunctionpointertraits'
                             - extracting class, return, and argument types from

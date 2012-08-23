@@ -5,6 +5,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslmf_anytype.h>  // for testing only (Usage)
+#include <bslmf_nil.h>      // for testing only (Usage)
 
 namespace BloombergLP {
 
