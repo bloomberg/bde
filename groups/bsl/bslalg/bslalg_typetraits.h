@@ -518,28 +518,32 @@ struct bslalg_TypeTraits : bslalg::TypeTraits_AutoDetect<
     // operator visible in the derived class.
 
 #define BSLALG_DECLARE_NESTED_TRAITS2(T, TRAIT1, TRAIT2)                      \
-    typedef bslalg::TypeTraits_MakeGroup2<TRAIT1, TRAIT2> NestedTypeTraits;   \
+    typedef BloombergLP::bslalg::TypeTraits_MakeGroup2<TRAIT1, TRAIT2>        \
+                                                            NestedTypeTraits; \
     BloombergLP::bslalg::TypeTraits_NestedYes&                                \
         operator,(BloombergLP::bslalg::TypeTraits_NestedProbe<T>)
     // Like 'BSLALG_DECLARE_NESTED_TRAITS', but for two traits.
 
 #define BSLALG_DECLARE_NESTED_TRAITS3(T, TRAIT1, TRAIT2, TRAIT3)              \
-    typedef bslalg::TypeTraits_MakeGroup3<TRAIT1, TRAIT2, TRAIT3>             \
-                                                         NestedTypeTraits;    \
+    typedef BloombergLP::bslalg::TypeTraits_MakeGroup3<                       \
+                                                      TRAIT1, TRAIT2, TRAIT3> \
+                                                            NestedTypeTraits; \
     BloombergLP::bslalg::TypeTraits_NestedYes&                                \
         operator,(BloombergLP::bslalg::TypeTraits_NestedProbe<T>)
     // Like 'BSLALG_DECLARE_NESTED_TRAITS', but for three traits.
 
 #define BSLALG_DECLARE_NESTED_TRAITS4(T, TRAIT1, TRAIT2, TRAIT3, TRAIT4)      \
-    typedef bslalg::TypeTraits_MakeGroup4<TRAIT1, TRAIT2, TRAIT3, TRAIT4>     \
-                                                         NestedTypeTraits;    \
+    typedef Bloomberg::bslalg::TypeTraits_MakeGroup4<                         \
+                                              TRAIT1, TRAIT2, TRAIT3, TRAIT4> \
+                                                            NestedTypeTraits; \
     BloombergLP::bslalg::TypeTraits_NestedYes&                                \
         operator,(BloombergLP::bslalg::TypeTraits_NestedProbe<T>)
     // Like 'BSLALG_DECLARE_NESTED_TRAITS', but for four traits.
 
 #define BSLALG_DECLARE_NESTED_TRAITS5(T, TRAIT1,TRAIT2,TRAIT3,TRAIT4,TRAIT5)  \
-    typedef bslalg::TypeTraits_MakeGroup5<TRAIT1,TRAIT2,TRAIT3,TRAIT4,TRAIT5> \
-                                                         NestedTypeTraits;    \
+    typedef Bloomberg::bslalg::TypeTraits_MakeGroup5<                         \
+                                      TRAIT1, TRAIT2, TRAIT3, TRAIT4, TRAIT5> \
+                                                            NestedTypeTraits; \
     BloombergLP::bslalg::TypeTraits_NestedYes&                                \
         operator,(BloombergLP::bslalg::TypeTraits_NestedProbe<T>)
 

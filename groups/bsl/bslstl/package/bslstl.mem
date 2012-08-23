@@ -8,6 +8,7 @@ bslstl_deque
 bslstl_forwarditerator
 bslstl_hash
 bslstl_iterator
+bslstl_list
 bslstl_map
 bslstl_mapcomparator
 bslstl_multimap
