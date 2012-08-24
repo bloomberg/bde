@@ -95,6 +95,8 @@
 
 // If '<algorithm>' was included, then include SGI extension to algorithms.
 #ifdef INCLUDED_NATIVE_ALGORITHM
+# ifndef INCLUDED_BSLSTP_EXALGORITHM
+#   include <bslstp_exalgorithm.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
@@ -111,6 +113,13 @@
 #ifdef BSL_INCLUDE_BSL_DEQUE
 # ifndef INCLUDED_BSLSTL_DEQUE
 #   include <bslstl_deque.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
+#ifdef BSL_INCLUDE_BSL_LIST
+# ifndef INCLUDED_BSLSTL_LIST
+#   include <bslstl_list.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
@@ -140,6 +149,17 @@
 # endif
 # ifndef INCLUDED_BSLSTL_MULTISET
 #   include <bslstl_multiset.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
+#ifdef BSL_INCLUDE_BSL_QUEUE
+# ifndef INCLUDED_BSLSTL_QUEUE
+#   include <bslstl_queue.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_PRIORITYQUEUE
+#   include <bslstl_priorityqueue.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
@@ -200,6 +220,8 @@
 
 // If '<functional>' was included, then include SGI extension to functional.
 #ifdef INCLUDED_NATIVE_FUNCTIONAL
+# ifndef INCLUDED_BSLSTP_EXFUNCTIONAL
+#   include <bslstp_exfunctional.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 # ifndef INCLUDED_BSLSTL_HASH
