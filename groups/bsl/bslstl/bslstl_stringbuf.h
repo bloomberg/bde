@@ -209,14 +209,15 @@ class basic_stringbuf
         // input pointer, 'gptr', according to the optionally specified
         // 'inputOffset' to 'eback + inputOffset'.
 
-    pos_type streamSize() const
-    {
-        pos_type size = native_std::max<off_type>(
-                                d_highwatermark, this->pptr() - this->pbase());
-        BSLS_ASSERT(size <= d_str.size());
+    bool extendInputArea();
+        // Extend the input area into written buffer.  The input area and the
+        // written buffer may get out of sync because the buffer can be written
+        // into without calling any methods of 'basic_stringbuf' class.  This
+        // method synchronizes the input area with the written buffer, so that
+        // the data written to 'basic_stringbuf' can be successfully read.
 
-        return size;
-    }
+    pos_type streamSize() const;
+        // Return the size of the stream.
 
   protected:
     // PROTECTED MANIPULATORS
@@ -426,6 +427,32 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     }
 }
 
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+bool basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::extendInputArea()
+{
+    // try to extend into written buffer
+    if (d_mode & ios_base::out && this->pptr() > this->egptr()) {
+        off_type newhigh = this->pptr() - this->pbase();
+        d_highwatermark = native_std::max(d_highwatermark, newhigh);
+
+        updateInputPointer(this->gptr());
+        return true;
+    }
+
+    return false;
+}
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
+    basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::streamSize() const
+{
+    pos_type size = native_std::max<off_type>(
+                            d_highwatermark, this->pptr() - this->pbase());
+    BSLS_ASSERT(size <= d_str.size());
+
+    return size;
+}
+
 // PROTECTED MANIPULATORS
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
@@ -520,36 +547,59 @@ native_std::streamsize
             char_type *s,
             native_std::streamsize n)
 {
-    native_std::streamsize available(streamSize());
-    native_std::streamsize readChars(native_std::min(available, n));
+    if (this->gptr() != this->egptr()) {
+        // characters available
+        native_std::streamsize available(this->egptr() - this->gptr());
+        native_std::streamsize readChars(native_std::min(available, n));
 
-    traits_type::copy(s, this->gptr(), readChars);
-    this->gbump(readChars);
+        traits_type::copy(s, this->gptr(), readChars);
+        this->gbump(readChars);
 
-    return readChars;
+        return readChars;
+    }
+
+    if (extendInputArea()) {
+        // characters may become available after the input area is extended
+        return this->basic_stringbuf::xsgetn(s, n);
+    }
+
+    return 0;
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::underflow()
 {
-    return this->gptr() != this->egptr()
-                        ?  traits_type::to_int_type(*this->gptr())
-                        :  traits_type::eof();
+    if (this->gptr() != this->egptr()) {
+        // characters available
+        return traits_type::to_int_type(*this->gptr());
+    }
+
+    if (extendInputArea()) {
+        // characters may become available after the input area is extended
+        return this->basic_stringbuf::underflow();
+    }
+
+    return traits_type::eof();
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::uflow()
 {
-    int_type c = traits_type::eof();
-
     if (this->gptr() != this->egptr()) {
-        c = traits_type::to_int_type(*this->gptr());
+        // characters available
+        int_type c = traits_type::to_int_type(*this->gptr());
         this->gbump(1);
+        return c;
     }
 
-    return c;
+    if (extendInputArea()) {
+        // characters may become available after the input area is extended
+        return this->basic_stringbuf::uflow();
+    }
+
+    return traits_type::eof();
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
