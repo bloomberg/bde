@@ -657,8 +657,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============");
+        if (verbose) cout << ("\nUSAGE EXAMPLE"
+                              "\n=============");
 
         using namespace testcontainer;
 

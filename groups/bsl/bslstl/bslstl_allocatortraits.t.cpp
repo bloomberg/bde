@@ -7,6 +7,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_usesbslmaallocator.h>
 #include <bslmf_issame.h>
 #include <bslmf_removecvq.h>
 #include <bsls_bsltestutil.h>
@@ -159,19 +160,6 @@ Uniq       *const DFLT_E = &g_x;
 // Most recent hint given to any allocator's 'allocate' member function.
 const void* g_lastHint;
 
-template <typename TYPE>
-struct UsesNonBslmaAllocator : bsl::false_type {};
-
-struct TypeTraitUsesNonBslmaAllocator {
-    template <class TYPE>
-    struct NestedTraitDeclaration :
-        bslmf::NestedTraitDeclaration<TYPE, UsesNonBslmaAllocator>
-    {};
-
-    template <class TYPE>
-    struct Metafunction : UsesNonBslmaAllocator<TYPE>::type { };
-};
-
 template <class T>
 class NonBslmaAllocator
 {
@@ -188,10 +176,6 @@ class NonBslmaAllocator
     typedef T&              reference;
     typedef const T&        const_reference;
     typedef T               value_type;
-
-    // A client that uses this allocator should not have the
-    // bslalg::TypeTraitUsesBslmaAllocator trait.  This is a stand-in trait.
-    typedef TypeTraitUsesNonBslmaAllocator ClientTrait;
 
     template <class U>
     struct rebind
@@ -268,9 +252,6 @@ class BslmaAllocator
     {
         typedef BslmaAllocator<U> other;
     };
-
-    // A client that uses this allocator should have this trait
-    typedef bslalg::TypeTraitUsesBslmaAllocator ClientTrait;
 
     BslmaAllocator(bslma::Allocator *basicAlloc = 0)
         : d_mechanism(bslma::Default::allocator(basicAlloc)) { }
@@ -381,9 +362,6 @@ class FunkyAllocator
     {
         typedef FunkyAllocator<U> other;
     };
-
-    // A client that uses this allocator should have this trait
-    typedef bslalg::TypeTraitUsesBslmaAllocator ClientTrait;
 
     FunkyAllocator(bslma::Allocator *basicAlloc = 0)
         : d_mechanism(bslma::Default::allocator(basicAlloc)) { }
@@ -496,13 +474,6 @@ class AttribClass5Alloc
     ALLOC        d_allocator;
 
   public:
-    // Use the client trait exported by the allocator.  If the allocator uses
-    // the bslma model, then this type will be
-    // 'bslalg::TypeTraitUsesBslmaAllocator'
-    typedef typename ALLOC::ClientTrait UsesAllocTrait;
-    BSLMF_NESTED_TRAIT_DECLARATION(AttribClass5Alloc,
-                              UsesAllocTrait::template NestedTraitDeclaration);
-
     typedef ALLOC AllocatorType;
 
     explicit AttribClass5Alloc(const ALLOC& alloc = ALLOC())
@@ -538,6 +509,18 @@ class AttribClass5Alloc
     friend void operator&(AttribClass5Alloc&) { }
 };
 
+// Set the 'UsesBslmaAllocator' trait.  If the allocator uses the bslma model,
+// then this trait will be true.
+namespace BloombergLP {
+namespace bslma {
+    template <class ALLOC>
+    struct UsesBslmaAllocator<AttribClass5Alloc<ALLOC> > :
+        bsl::is_convertible<bslma::Allocator*, ALLOC>::type
+    {
+    };
+} // namespace bslma
+} // namespace BloombergLP
+
 class AttribClass5bslma
 {
     // This test class has up to 5 constructor arguments plus an (optional)
@@ -548,8 +531,8 @@ class AttribClass5bslma
     bslma::Allocator* d_allocator;
 
   public:
-    BSLALG_DECLARE_NESTED_TRAITS(AttribClass5bslma,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(AttribClass5bslma,
+                                   bslma::UsesBslmaAllocator);
 
     typedef bslma::Allocator* AllocatorType;
 
@@ -640,13 +623,6 @@ inline bool isMutable(const T& /* x */) { return false; }
         TYPE  *d_value_p;
 
       public:
-        /* TODO:
-        // TRAITS
-        typedef bslstl::TraitsGroupStlSequenceContainer<TYPE,ALLOC> TypeTraits;
-        BSLALG_DECLARE_NESTED_TRAITS(MyContainer, TypeTraits);
-            // Declare nested type traits for this class.
-            */
-
         typedef TYPE  value_type;
         typedef ALLOC allocator_type;
         // etc.
@@ -666,6 +642,41 @@ inline bool isMutable(const T& /* x */) { return false; }
         const TYPE& front() const { return *d_value_p; }
         // etc.
     };
+//..
+// Next we define the type traits for 'MyContainer' so that it is recognized
+// as an STL *sequence* container:
+//: o Defines STL iterators
+//: o Is bitwise moveable if the allocator is bitwise moveable
+//: o Uses 'bslma' allocators if the 'ALLOC' template parameter
+//:   is convertible from 'bslma::Allocator*'.
+//..
+    namespace BloombergLP {
+    namespace bslalg {
+
+    template <typename TYPE, typename ALLOC>
+    struct HasStlIterators<MyContainer<TYPE, ALLOC> > : bsl::true_type
+    {};
+
+    } // namespace bslalg
+
+    namespace bslmf {
+
+    template <typename TYPE, typename ALLOC>
+    struct IsBitwiseMoveable<MyContainer<TYPE, ALLOC> >
+        : IsBitwiseMoveable<ALLOC>
+    {};
+
+    } // namespace bslmf
+
+    namespace bslma {
+
+    template <typename TYPE, typename ALLOC>
+    struct UsesBslmaAllocator<MyContainer<TYPE, ALLOC> >
+        : bsl::is_convertible<Allocator*, ALLOC>
+    {};
+
+    }  // namespace bslma
+    }  // namespace BloombergLP
 //..
 // Then we implement the constructors, which allocate memory and construct a
 // 'TYPE' object in the allocated memory.  Because the allocation and
@@ -1754,6 +1765,14 @@ int main(int argc, char *argv[])
         typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;
         typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocBslma;
         typedef AttribClass5Alloc<FunkyAllocator<int> >    AC5AllocFunky;
+
+        ASSERT((!bsl::is_convertible<bslma::Allocator*, NonBslmaAllocator<int> >::value));
+        ASSERT((bsl::is_convertible<bslma::Allocator*, BslmaAllocator<int> >::value));
+        ASSERT((bsl::is_convertible<bslma::Allocator*, FunkyAllocator<int> >::value));
+
+        ASSERT(!bslma::UsesBslmaAllocator<AttribClass5Alloc<NonBslmaAllocator<int> > >::value);
+        ASSERT(bslma::UsesBslmaAllocator<AttribClass5Alloc<BslmaAllocator<int> > >::value);
+        ASSERT(bslma::UsesBslmaAllocator<AttribClass5Alloc<FunkyAllocator<int> > >::value);
 
         TEST_CONSTRUCT_DESTROY(NonBslmaAllocator<AttribClass5>,
                                AttribClass5, false);
