@@ -244,6 +244,10 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
+#ifndef INCLUDED_BDEMA_MANAGEDPTR
+#include <bdema_managedptr.h>
+#endif
+
 #ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
 #include <bslfwd_bslma_allocator.h>
 #endif
@@ -386,7 +390,9 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
     bcec_TimeQueue<bdef_Function<void (*)()> >
                                d_timerQueue;      // queue of registered timers
 
-    mutable ControlChannel     d_controlChannel;  // channel for sending
+    mutable bdema_ManagedPtr<ControlChannel>
+                               d_controlChannel_p;
+                                                  // channel for sending
                                                   // control bytes from
                                                   // external threads operating
                                                   // on this manager to unlock
@@ -401,6 +407,11 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
                                                   // 'd_metrics'
 
     bces_AtomicInt             d_numTotalSocketEvents;
+                                                  // the total number of all
+                                                  // socket events registered
+                                                  // (excluding registered
+                                                  // events of
+                                                  // 'd_controlChannel_p')
 
     bslma_Allocator           *d_allocator_p;     // memory allocator (held,
                                                   // not owned)
@@ -419,7 +430,7 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
 
     void controlCb();
         // Internal callback method to process control information received
-        // on 'd_controlChannel.serverFd()'.
+        // on 'd_controlChannel_p.serverFd()'.
 
   public:
     // CREATORS
