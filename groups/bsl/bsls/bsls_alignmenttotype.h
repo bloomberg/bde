@@ -104,8 +104,10 @@ BSLS_IDENT("$Id: $")
 // with varied alignment requirements.  Consider that we want to construct an
 // object that stores the response of a floating-point operation.  If the
 // operation is successful, then the response object stores a 'double' result;
-// otherwise, it stores an error string.  Here is the definition for the
-// 'Response' class:
+// otherwise, it stores an error string of type 'string', which is based on the
+// standard type 'string' (see 'bslstl_string').  For the sake of brevity, the
+// implementation of 'string' is not explored here.  Here is the definition for
+// the 'Response' class:
 //..
 //  class Response {
 //..
@@ -121,7 +123,7 @@ BSLS_IDENT("$Id: $")
 //  private:
 //    union {
 //        my_AlignedBuffer<double, MAX_ALIGNMENT>      d_result;
-//        my_AlignedBuffer<std::string, MAX_ALIGNMENT> d_errorMessage;
+//        my_AlignedBuffer<string, MAX_ALIGNMENT> d_errorMessage;
 //    };
 //..
 // The 'isError' flag indicates whether the response object stores valid data
@@ -136,7 +138,7 @@ BSLS_IDENT("$Id: $")
 //    Response(double result);
 //        // Create a response object that stores the specified 'result'.
 //
-//    Response(const std::string& errorMessage);
+//    Response(const string& errorMessage);
 //        // Create a response object that stores the specified
 //        // 'errorMessage'.
 //
@@ -151,7 +153,7 @@ BSLS_IDENT("$Id: $")
 //      // Update this object to store the specified 'result'.  After this
 //      // operation 'isError' returns 'false'.
 //
-//  void setErrorMessage(const std::string& errorMessage);
+//  void setErrorMessage(const string& errorMessage);
 //      // Update this object to store the specified 'errorMessage'.  After
 //      // this operation 'isError' returns 'true'.
 //..
@@ -167,7 +169,7 @@ BSLS_IDENT("$Id: $")
 //          // Return the result value stored by this object.  The behavior is
 //          // undefined unless 'false == isError()'.
 //
-//      const std::string& errorMessage() const;
+//      const string& errorMessage() const;
 //          // Return a reference to the non-modifiable error message stored by
 //          // this object.  The behavior is undefined unless
 //          // 'true == isError()'.
@@ -189,16 +191,16 @@ BSLS_IDENT("$Id: $")
 //      d_isError = false;
 //  }
 //
-//  Response::Response(const std::string& errorMessage)
+//  Response::Response(const string& errorMessage)
 //  {
-//      new (d_errorMessage.buffer()) std::string(errorMessage);
+//      new (d_errorMessage.buffer()) string(errorMessage);
 //      d_isError = true;
 //  }
 //
 //  Response::~Response()
 //  {
 //      if (d_isError) {
-//          typedef std::string Type;
+//          typedef string Type;
 //          d_errorMessage.object().~Type();
 //      }
 //  }
@@ -210,20 +212,20 @@ BSLS_IDENT("$Id: $")
 //          d_result.object() = result;
 //      }
 //      else {
-//          typedef std::string Type;
+//          typedef string Type;
 //          d_errorMessage.object().~Type();
 //          new (d_result.buffer()) double(result);
 //          d_isError = false;
 //      }
 //  }
 //
-//  void Response::setErrorMessage(const std::string& errorMessage)
+//  void Response::setErrorMessage(const string& errorMessage)
 //  {
 //      if (d_isError) {
 //          d_errorMessage.object() = errorMessage;
 //      }
 //      else {
-//          new (d_errorMessage.buffer()) std::string(errorMessage);
+//          new (d_errorMessage.buffer()) string(errorMessage);
 //          d_isError = true;
 //      }
 //  }
@@ -241,7 +243,7 @@ BSLS_IDENT("$Id: $")
 //      return d_result.object();
 //  }
 //
-//  const std::string& Response::errorMessage() const
+//  const string& Response::errorMessage() const
 //  {
 //      assert(d_isError);
 //
