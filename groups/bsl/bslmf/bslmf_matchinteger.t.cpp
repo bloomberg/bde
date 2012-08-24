@@ -154,7 +154,7 @@ MyConvertibleToInt::operator int() const
 
 namespace usageExample1 {
 
-// USAGE: BEG: SLICE 1 of 9
+// USAGE: BEG: SLICE 1 of 10
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -227,7 +227,6 @@ namespace usageExample1 {
         ASSERT(message);
 #ifdef SHOW_IN_COMPONENT_LEVEL_DOC
         printf("CTOR: repeated value: %s\n", message);
-
         // ...
 #else
         if(globalVerbose) {
@@ -248,7 +247,6 @@ namespace usageExample1 {
         ASSERT(message);
 #ifdef SHOW_IN_COMPONENT_LEVEL_DOC
         printf("CTOR: range         : %s\n", message);
-
         // ...
 #else
         if(globalVerbose) {
@@ -259,12 +257,12 @@ namespace usageExample1 {
 #endif
     }
 //..
-// USAGE: END: SLICE 1 of 9
+// USAGE: END: SLICE 1 of 10
 //..
     int main1()
     {
 //..
-// USAGE: BEG: SLICE 2 of 9
+// USAGE: BEG: SLICE 2 of 10
 // The problem with the 'MyProblematicContainer' class becomes manifest when
 // we create several objects:
 //..
@@ -293,12 +291,12 @@ namespace usageExample1 {
 // Notice that the range constructor, not the repeated value constructor, is
 // invoked for the creation of 'initFromIntAndInt', the third object.
 //
-// The range constructor is chosen to resolve that overload because its
-// match of two arguments of the same type ('int' in this usage) without
-// conversion is is better than that provided by the repeated value
-// constructor, which requires conversions of two different arguments.
+// The range constructor is chosen to resolve that overload because its match
+// of two arguments of the same type ('int' in this usage) without conversion
+// is better than that provided by the repeated value constructor, which
+// requires conversions of two different arguments.
 //
-// If we are fortunate, this code will fail to compile; otherwise,
+// If we are fortunate, range constructor code will fail to compile; otherwise,
 // dereferencing integer values (i.e., using them as pointers) leads to
 // undefined behavior.
 //
@@ -306,22 +304,20 @@ namespace usageExample1 {
 // avoided by function renaming; however, as these are constructors, we do not
 // have that option.
 //
-// Instead, we redesign our class ('MyContainer' is the redesigned class)
-// so that the calls to the range constructor with two 'int' arguments
-// (or pairs of the same integer types) are routed to the repeated value
-// constructor.  The 'bslmf::MatchInteger' class is used to distinguish between
-// integer types and other types.
+// Instead, we redesign our class ('MyContainer' is the redesigned class) so
+// that the calls to the range constructor with two 'int' arguments (or pairs
+// of the same integer types) are routed to the repeated value constructor.
+// The 'bslmf::MatchInteger' class is used to distinguish between integer types
+// and other types.
 //
-// USAGE: END: SLICE 2 of 9
+// USAGE: END: SLICE 2 of 10
 //..
         return 0;
     }
 //..
-// USAGE: BEG: SLICE 3 of 9
-// First, we isolate the essential actions of our two constructors into two
-// private, non-creator methods.  This allows us to achieve the results of
-// either constructor, as appropriate, from the context of the range
-// constructor.  The two 'privateInit*' methods are:
+// USAGE: BEG: SLICE 3 of 10
+// First, we define the 'MyContainer' class to have constructors taking
+// the same arguments as the constructors of 'MyProblematicContainer':
 //..
                         // =================
                         // class MyContainer
@@ -332,6 +328,36 @@ namespace usageExample1 {
 
         // ...
 
+      public:
+        // CREATORS
+        MyContainer(std::size_t        numElements,
+                    const VALUE_TYPE&  value,
+                    const char        *message);
+            // Create a 'MyProblematicContainer' object containing the
+            // specified 'numElements' of the specified 'value', and write to
+            // standard output the specified 'message'.
+
+        template <class INPUT_ITER>
+        MyContainer(INPUT_ITER  first, INPUT_ITER  last, const char *message);
+            // Create a 'MyProblematicContainer' object containing the values
+            // in the range starting at the specified 'first' and ending
+            // immediately before the specified 'last' iterators of the type
+            // 'INPUT_ITER', and write to standard output the specified
+            // 'message'.
+
+        // ...
+
+#ifdef SHOW_IN_COMPONENT_LEVEL_DOC
+   };
+#endif
+//..
+// USAGE: END: SLICE 3 of 10
+// USAGE: BEG: SLICE 4 of 10
+// Then, we isolate the essential actions of our two constructors into two
+// private, non-creator methods.  This allows us to achieve the results of
+// either constructor, as appropriate, from the context of the range
+// constructor.  The two 'privateInit*' methods are:
+//..
       private:
         // PRIVATE MANIPULATORS
         void privateInit(std::size_t        numElements,
@@ -350,9 +376,9 @@ namespace usageExample1 {
             // before the specified 'last' iterators of the type 'INPUT_ITER',
             // and write to standard output the specified 'message'.
 //..
-// USAGE: END: SLICE 3 of 9
-// USAGE: BEG: SLICE 5 of 9
-// Then, we define two overloaded 'privateInitDispatch' methods, each taking
+// USAGE: END: SLICE 4 of 10
+// USAGE: BEG: SLICE 6 of 10
+// Next, we define two overloaded 'privateInitDispatch' methods, each taking
 // two parameters (the last two) which serve no run-time purpose.  As we shall
 // see, they exist only to guide overload resolution at compile-time.
 //..
@@ -383,26 +409,8 @@ namespace usageExample1 {
 // arguments, but the second overload (accepting 'bslmf::AnyType' in those
 // positions) will match all contexts in which the first fails to match.
 //
-// USAGE: END: SLICE 5 of 9
+// USAGE: END: SLICE 6 of 10
 //..
-      public:
-        // CREATORS
-        MyContainer(std::size_t        numElements,
-                    const VALUE_TYPE&  value,
-                    const char        *message);
-            // Create a 'MyProblematicContainer' object containing the
-            // specified 'numElements' of the specified 'value', and write to
-            // standard output the specified 'message'.
-
-        template <class INPUT_ITER>
-        MyContainer(INPUT_ITER  first, INPUT_ITER  last, const char *message);
-            // Create a 'MyProblematicContainer' object containing the values
-            // in the range starting at the specified 'first' and ending
-            // immediately before the specified 'last' iterators of the type
-            // 'INPUT_ITER', and write to standard output the specified
-            // 'message'.
-
-        // ...
 
     };
 
@@ -414,9 +422,10 @@ namespace usageExample1 {
                         // class MyContainer
                         // =================
 //..
-// USAGE: BEG: SLICE 4 of 9
-// As in the constructors of the 'MyProblematic' class, 'privateInit*' methods
-// provide display a message so we can trace the call path.
+// USAGE: BEG: SLICE 5 of 10
+// Note that, as in the constructors of the 'MyProblematic' class, the
+// 'privateInit*' methods provide display a message so we can trace the call
+// path.
 //..
     // PRIVATE MANIPULATORS
     template <class VALUE_TYPE>
@@ -427,7 +436,6 @@ namespace usageExample1 {
         ASSERT(message);
 #ifdef SHOW_IN_COMPONENT_LEVEL_DOC
         printf("INIT: repeated value: %s\n", message);
-
         // ...
 #else
         if(globalVerbose) {
@@ -447,7 +455,6 @@ namespace usageExample1 {
         ASSERT(message);
 #ifdef SHOW_IN_COMPONENT_LEVEL_DOC
         printf("INIT: range         : %s\n", message);
-
         // ...
 #else
         if(globalVerbose) {
@@ -458,10 +465,10 @@ namespace usageExample1 {
 #endif
     }
 //..
-// USAGE: END: SLICE 4 of 9
-// USAGE: BEG: SLICE 6 of 9
-// The implementations of the two 'privateInitDispatch' overloads
-// each invoke one of the 'privateInit' methods:
+// USAGE: END: SLICE 5 of 10
+// USAGE: BEG: SLICE 7 of 10
+// Then, we implement the two 'privateInitDispatch' overloads so that
+// each invokes a different overload of the 'privateInit' methods:
 //
 //: o The 'privateInit' corresponding to repeated value constructor is invoked
 //:   from the "strict" overload of 'privateInitDispatch'.
@@ -496,9 +503,9 @@ namespace usageExample1 {
         privateInit(first, last, message);
     }
 //..
-// USAGE: END: SLICE 6 of 9
+// USAGE: END: SLICE 7 of 10
 //
-// USAGE: BEG: SLICE 8 of 9
+// USAGE: BEG: SLICE 9 of 10
 // Then, we implement the repeated value constructor using a direct call
 // to the repeated value private initializer:
 //..
@@ -511,8 +518,8 @@ namespace usageExample1 {
         privateInit(numElements, value, message);
     }
 //..
-// USAGE: END: SLICE 8 of 9
-// USAGE: BEG: SLICE 7 of 9
+// USAGE: END: SLICE 9 of 10
+// USAGE: BEG: SLICE 8 of 10
 // Next, we use overloaded 'privateInitDispatch' method in the range
 // constructor of 'MyContainer'.  Note that we always supply a 'bslmf::Nil'
 // object (an exact type match) as the final argument, the choice of overload
@@ -532,17 +539,18 @@ namespace usageExample1 {
 //..
 // Notice that this design is safe for iterators that themselves happen to have
 // a conversion to 'int'.  Such types would require two user-defined
-// conversions (iterator-to-integral type, then integral-type to
-// 'bslmf::MatchInteger') which are disallowed by the C++ compiler.
+// conversions, which are disallowed by the C++ compiler, to match the
+// 'bslmf::MatchInteger' parameter of the "strict" 'privateInitDispatch'
+// overload.
 //
-// USAGE: END: SLICE 7 of 9
+// USAGE: END: SLICE 8 of 10
 //..
     int main2()
     {
 //..
-// USAGE: BEG: SLICE 9 of 9
+// USAGE: BEG: SLICE 10 of 10
 // Finally, we create three objects of 'MyContainer', using the same arguments
-// has we used for the three 'MyProblematicContainer' objects.
+// as we used for the three 'MyProblematicContainer' objects.
 //..
         const char        input[] = "How now brown cow?";
         MyContainer<char> initFromPtrPair(input,
@@ -566,7 +574,7 @@ namespace usageExample1 {
 // Notice that the repeated value 'privateInit' method is called directly
 // for the second object, but called via 'privateInitDispatch' for the
 // third object.
-// USAGE: END: SLICE 9 of 9
+// USAGE: END: SLICE 10 of 10
 //..
         return 0;
     }
