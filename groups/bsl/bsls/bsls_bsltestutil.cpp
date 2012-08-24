@@ -112,12 +112,20 @@ void debugprint(long double v)
 
 void debugprint(const char *v)
 {
-    printf("\"%s\"", v);
+    if (v) {
+        printf("\"%s\"", v);
+    } else {
+        printf("(null)", v);
+    }
 }
 
 void debugprint(char *v)
 {
-    printf("\"%s\"", v);
+    if (v) {
+        printf("\"%s\"", v);
+    } else {
+        printf("(null)", v);
+    }
 }
 
 void debugprint(const void *v)

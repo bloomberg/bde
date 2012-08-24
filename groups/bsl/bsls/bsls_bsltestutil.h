@@ -90,7 +90,7 @@ BSLS_IDENT("$Id: $")
 //      return 42;
 //  }
 //
-//  } // close package namespace
+//  }  // close package namespace
 //..
 // Then, we can write a test driver for this component.  We start by providing
 // the standard BDE assert test macro:
@@ -110,8 +110,8 @@ BSLS_IDENT("$Id: $")
 //
 //  # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //..
-// Next, we define the standard print and LOOP_ASSERT macros, as aliases to the
-// macros defined by this component:
+// Next, we define the standard print and 'LOOP_ASSERT' macros, as aliases to
+// the macros defined by this component:
 //..
 //  //=========================================================================
 //  //                       STANDARD BDE TEST DRIVER MACROS
@@ -125,12 +125,13 @@ BSLS_IDENT("$Id: $")
 //
 //  #define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
 //  #define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-//  #define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+//  #define P_  BSLS_BSLTESTUTIL_P_  // 'P(X)' without '\n'.
 //  #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 //  #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 //..
-// Then, we define the test driver for the 'static' 'fortyTwo' method, uwing
-// the (standard) abbreviated macro names we have just defined.
+// Now, using the (standard) abbreviated macro names we have just defined, we
+// write a test function for the 'static' 'fortyTwo' method, to be called from
+// a test case in a test driver.
 //..
 //  void testFortyTwo(bool verbose)
 //  {
@@ -139,29 +140,10 @@ BSLS_IDENT("$Id: $")
 //      LOOP_ASSERT(value, 42 == value);
 //  }
 //..
-// Finally, we write the test case calling our test driver.
+// Finally, when 'testMyTypeSetValue' is called from a test case in verbose
+// mode we observe the console output:
 //..
-//  case 9: {
-//    // --------------------------------------------------------------------
-//    // TESTING USAGE EXAMPLE
-//    //
-//    // Concerns
-//    //: 1 The usage example provided in the component header file must
-//    //:   compile, link, and run on all platforms as shown.
-//    //
-//    // Plan:
-//    //: 1 Incorporate usage example from header into driver, remove leading
-//    //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
-//    //
-//    // Testing:
-//    //   USAGE EXAMPLE
-//    // --------------------------------------------------------------------
-//
-//    if (verbose) printf("\nTESTING USAGE EXAMPLE"
-//                        "\n---------------------\n");
-//
-//    testFortyTwo(verbose);
-//  } break;
+//  value = 42
 //..
 ///Example 2: Adding Support For A New User-Defined Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -170,31 +152,74 @@ BSLS_IDENT("$Id: $")
 //  namespace MyNamespace {
 //
 //  class MyType {
-//      // This empty class provides a type intended to show how the macros in
+//      // This elided class provides a type intended to show how the macros in
 //      // 'bsls_bsltestutil' can be extended to support a new user-defined
 //      // type.
+//
+//    private:
+//      // DATA
+//      int d_value;  // the value of MyType
+//
+//      // ...
+//
+//    public:
+//      // CREATORS
+//
+//      // ...
+//
+//      explicit MyType(int value);
+//          // Create a 'MyType' object with 'd_value' set to the specified
+//          // 'value'.
+//
+//      // ACCESSORS
+//
+//      // ...
+//
+//      int value() const;
+//          // Return the value of 'd_value'.
+//
+//      // ...
 //  };
-//..
-// Then, we define a function 'debugprint' that prints the value of an 'MyType'
-// object to standard out in the same namespace in which 'MyType' is defined
-// (in this case, we will simply print a string literal for simplicity):
-//..
-//  void debugprint(const MyType& v)
+//
+//  // ...
+//
+//  MyType::MyType(int value)
+//  : d_value(value)
 //  {
-//      printf("MyType Value");
 //  }
 //
-//  }  // close 'MyNamespace'
+//  // ...
+//
+//  int MyType::value() const
+//  {
+//      return d_value;
+//  }
 //..
-// Now, we create a 'MyType' object and call the 'BSLS_BSLTESTUTIL_P'
-// specifying the object as the argument:
+// Then, we define a function 'debugprint' that prints the value of a 'MyType'
+// object to the console in the same namespace in which 'MyType' is defined (in
+// this case, we will simply print a string literal for simplicity):
 //..
-//  MyType obj;
-//  BSLS_BSLTESTUTIL_P(obj);
+//  void debugprint(const MyType& obj)
+//  {
+//      printf("MyType<%d>", obj.value());
+//  }
+//
+//  }  // close namespace MyNamespace
 //..
-// Finally, we observe the console output:
+// Now, using the (standard) abbreviated macro names previously defined, we
+// write a test function for the 'MyType' constructor, to be called from a test
+// case in a test driver.
 //..
-//  obj = MyType Value
+//  void testMyTypeSetValue(bool verbose) {
+//      MyNamespace::MyType obj(9);
+//      if (verbose) P(obj);
+//      LOOP_ASSERT(obj.value(), obj.value() == 9);
+//  }
+//..
+// Finally, when 'testMyTypeSetValue' is called from a test case in verbose
+// mode we observe the console output:
+//..
+//  obj = MyType<9>
 //..
                        // =================
                        // Macro Definitions
@@ -361,7 +386,8 @@ void debugprint(long double v);
 void debugprint(const char *v);
 void debugprint(char *v);
     // Print to the console the specified string, 'v', enclosed by quote
-    // characters (").
+    // characters ("), unless 'v' is null, in which case print '(null)'
+    // (without quotes of any kind).
 
 void debugprint(const void *v);
     // Print to the console the specified memory address, 'v', formatted as

@@ -101,7 +101,8 @@
 # include <sys/types.h>  // struct stat: required on Sun and Windows only
 # include <sys/stat.h>   // struct stat: required on Sun and Windows only
 #else
-# if defined(BSLS_BSLTESTUTIL__OS_SUNOS) || defined(BSLS_BSLTESTUTIL__OS_SOLARIS)
+# if defined(BSLS_BSLTESTUTIL__OS_SUNOS) || \
+     defined(BSLS_BSLTESTUTIL__OS_SOLARIS)
 #  include <sys/types.h> // struct stat: required on Sun and Windows only
 #  include <sys/stat.h>  // struct stat: required on Sun and Windows only
 # endif
@@ -322,7 +323,7 @@ static void realaSsErT(bool b, const char *s, int i)
         return 42;
     }
 
-    } // close package namespace
+    }  // close package namespace
 //..
 // Then, we can write a test driver for this component.  We start by providing
 // the standard BDE assert test macro:
@@ -361,8 +362,9 @@ static void realaSsErT(bool b, const char *s, int i)
     #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
     #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 //..
-// Finally, we write the test case for the 'static' 'fortyTwo' method, using
-// the (standard) abbreviated macro names we have just defined.
+// Now, using the (standard) abbreviated macro names we have just defined, we
+// write a test function for the 'static' 'fortyTwo' method, to be called from
+// a test case in a test driver.
 //..
     void testFortyTwo(bool verbose)
     {
@@ -371,22 +373,28 @@ static void realaSsErT(bool b, const char *s, int i)
         LOOP_ASSERT(value, 42 == value);
     }
 //..
+// Finally, when 'testMyTypeSetValue' is called from a test case in verbose
+// mode we observe the console output:
+//..
+//  value = 42
+//..
 ///Example 2: Adding Support For A New User-Defined Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we define a new user-defined type, 'MyType':
 //..
     namespace MyNamespace {
-    
+
     class MyType {
         // This elided class provides a type intended to show how the macros in
-        // 'bsls_bsltestutil' can be extended to support a new user-defined type.
-    
+        // 'bsls_bsltestutil' can be extended to support a new user-defined
+        // type.
+
       private:
         // DATA
         int d_value;  // the value of MyType
-    
+
         // ...
-    
+
       public:
         // CREATORS
 
@@ -395,26 +403,26 @@ static void realaSsErT(bool b, const char *s, int i)
         explicit MyType(int value);
             // Create a 'MyType' object with 'd_value' set to the specified
             // 'value'.
-    
+
         // ACCESSORS
-    
+
         // ...
-    
+
         int value() const;
             // Return the value of 'd_value'.
-    
+
         // ...
     };
 
     // ...
-    
+
     MyType::MyType(int value)
     : d_value(value)
     {
     }
 
     // ...
-    
+
     int MyType::value() const
     {
         return d_value;
@@ -429,9 +437,11 @@ static void realaSsErT(bool b, const char *s, int i)
         printf("MyType<%d>", obj.value());
     }
 
-}  // close 'MyNamespace'
+    }  // close namespace MyNamespace
 //..
-// Now, we write a test case for 'MyType' object that tests the constructor.
+// Now, using the (standard) abbreviated macro names previously defined, we
+// write a test function for the 'MyType' constructor, to be called from a test
+// case in a test driver.
 //..
     void testMyTypeSetValue(bool verbose) {
         MyNamespace::MyType obj(9);
@@ -439,9 +449,10 @@ static void realaSsErT(bool b, const char *s, int i)
         LOOP_ASSERT(obj.value(), obj.value() == 9);
     }
 //..
-// Finally, in the verbose case we observe the console output:
+// Finally, when 'testMyTypeSetValue' is called from a test case in verbose
+// mode we observe the console output:
 //..
-// obj = MyType<9>
+//  obj = MyType<9>
 //..
 
 //=============================================================================
@@ -679,8 +690,8 @@ class OutputRedirector {
         // buffer.  The 'expected' buffer is assumed to be a NTBS, and and its
         // length is taken to be the string length of the NTBS.  Return 0 if
         // the 'expected' buffer has the same length and contents as the
-        // scratch buffer, and non-zero otherwise.  The behavior is undefined unless
-        // 'redirect' has been previously been called successfully.
+        // scratch buffer, and non-zero otherwise.  The behavior is undefined
+        // unless 'redirect' has been previously been called successfully.
 
     const struct stat& originalStdoutStat();
         // Return a reference to the status information for 'stdout' collected
@@ -980,10 +991,10 @@ struct DataRow {
 
 struct TestDriver {
     enum {
-        BUFFER_SIZE     = 1024, // size of the buffer used to store captured 
+        BUFFER_SIZE     = 1024, // size of the buffer used to store captured
                                 // output
 
-        LOOP_ITERATIONS = 10    // number of iterations to use when testing 
+        LOOP_ITERATIONS = 10    // number of iterations to use when testing
                                 // loop assert macros
     };
 
@@ -1217,7 +1228,8 @@ void TestDriver::testCase8(OutputRedirector *output)
                      K,
                      __FILE__,
                      LINE);
-            ANNOTATED2_ASSERT(s_expectedOutput, "%s", output->getOutput(), "%s",
+            ANNOTATED2_ASSERT(s_expectedOutput, "%s",
+                              output->getOutput(), "%s",
                               0 == output->compare(s_expectedOutput));
         }
         testStatus = 0;
@@ -1278,7 +1290,8 @@ void TestDriver::testCase8(OutputRedirector *output)
                      L,
                      __FILE__,
                      LINE);
-            ANNOTATED2_ASSERT(s_expectedOutput, "%s", output->getOutput(), "%s",
+            ANNOTATED2_ASSERT(s_expectedOutput, "%s",
+                              output->getOutput(), "%s",
                               0 == output->compare(s_expectedOutput));
         }
         testStatus = 0;
@@ -1431,7 +1444,7 @@ void TestDriver::testCase3(OutputRedirector                   *output,
     // Concerns:
     //: 1 The 'debugPrint' method writes the value to 'stdout'.
     //:
-    //: 2 The 'debugPrint' method writes the value in the intended format, 
+    //: 2 The 'debugPrint' method writes the value in the intended format,
     //:   making appropriate use of the prefix and suffix strings 's' and 't'.
     //:
     //
@@ -1524,17 +1537,10 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "TEST " __FILE__ " CASE %d\n", test);
 
-#if defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
-    if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
-        ASSERT(0 == "Failed to set stdout to binary mode.");
-        return 1;                                                     // RETURN
-    }
-#endif
-
     // Capture 'stdout', and send 'stderr' to 'stdout', unless we are running
     // the usage example.
     OutputRedirector output;
-    if (test != 9 && !output.redirect()) {
+    if (test != 9 && test != 0 && !output.redirect()) {
         return 1;                                                     // RETURN
     }
 
@@ -1557,8 +1563,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            fprintf(stderr,
-                    "\nTESTING USAGE EXAMPLE"
+            printf("\nTESTING USAGE EXAMPLE"
                     "\n---------------------\n");
         }
 
@@ -2309,6 +2314,8 @@ int main(int argc, char *argv[])
                 //LINE       INPUT                         OUTPUT          DESC
                 //---------- -----                         ------          ----
 
+                { __LINE__,  static_cast<char *>(0),       "(null)",
+                                                              "null string"  },
                 { __LINE__,  const_cast<char *>(""),       0,
                                                               "empty string" },
                 { __LINE__,  const_cast<char *>("a"),      0,
@@ -2335,6 +2342,8 @@ int main(int argc, char *argv[])
                 //LINE       INPUT     OUTPUT DESC
                 //---------- -----     ------ ----
 
+                { __LINE__,  static_cast<const char *>(0),
+                                    "(null)", "null string"  },
                 { __LINE__,  "",       0,     "empty string" },
                 { __LINE__,  "a",      0,     "non-empty string" },
                 { __LINE__,  "a\nb",   0,     "string with embedded newline" },
