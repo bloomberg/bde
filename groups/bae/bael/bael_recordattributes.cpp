@@ -1,4 +1,4 @@
-// bael_recordattributes.cpp         -*-C++-*-
+// bael_recordattributes.cpp                                          -*-C++-*-
 #include <bael_recordattributes.h>
 
 #include <bdes_ident.h>
@@ -112,6 +112,15 @@ const char *bael_RecordAttributes::message() const
     return d_messageStreamBuf.data();
 }
 
+bslstl_StringRef bael_RecordAttributes::messageRef() const
+{
+    int length = d_messageStreamBuf.length();
+    const char *str = d_messageStreamBuf.data();
+    return bslstl_StringRef(str,
+                            (!length || '\0' != str[length - 1]) ? length
+                                                                 : length - 1);
+}
+
 bsl::ostream& bael_RecordAttributes::print(bsl::ostream& stream,
                                            int           level,
                                            int           spacesPerLevel) const
@@ -200,7 +209,8 @@ bsl::ostream& bael_RecordAttributes::print(bsl::ostream& stream,
     else {
         stream << ' ';
     }
-    stream << message();
+    bslstl_StringRef message = messageRef();
+    stream.write(message.data(), message.length());
 
     if (0 <= spacesPerLevel) {
         stream << '\n';
@@ -225,7 +235,7 @@ bool operator==(const bael_RecordAttributes& lhs,
         && lhs.d_lineNumber == rhs.d_lineNumber
         && lhs.d_fileName   == rhs.d_fileName
         && lhs.d_category   == rhs.d_category
-        && !bsl::strcmp(lhs.message(), rhs.message());
+        && lhs.messageRef() == rhs.messageRef();
 }
 
 }  // close namespace BloombergLP

@@ -188,6 +188,7 @@ bcemt_RWMutexImpl<bces_Platform::PosixThreads>::lockRead()
     const int rc = pthread_rwlock_rdlock(&d_lock);
 
     BSLS_ASSERT(0 == rc);
+    (void) rc;    // suppress 'unused variable' warnings
 }
 
 inline
@@ -197,6 +198,7 @@ bcemt_RWMutexImpl<bces_Platform::PosixThreads>::lockWrite()
     const int rc = pthread_rwlock_wrlock(&d_lock);
 
     BSLS_ASSERT(0 == rc);
+    (void) rc;    // suppress 'unused variable' warnings
 }
 
 inline

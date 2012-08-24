@@ -34,6 +34,8 @@
 #include <bsls_platform.h>                      // for testing only
 #include <bsls_platformutil.h>                  // for testing only
 
+#include <bslstl_stringref.h>
+
 #include <bsl_iostream.h>
 #include <bsl_fstream.h>
 #include <bsl_map.h>
@@ -1457,10 +1459,10 @@ int main(int argc, char *argv[])
             const Attr& A = R.fixedFields();
             ASSERT(0                == bsl::strcmp("Bloomberg.Bae",
                                                    A.category()));
-            ASSERT(cat->passLevel() == A.severity());
-            ASSERT(0                == bsl::strcmp(__FILE__, A.fileName()));
-            ASSERT(LINE             == A.lineNumber());
-            ASSERT(0                == bsl::strcmp(MESSAGE, A.message()));
+            ASSERT(A.severity() == cat->passLevel());
+            ASSERT(0            == bsl::strcmp(__FILE__, A.fileName()));
+            ASSERT(LINE         == A.lineNumber());
+            ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
             const List& L = R.userFields();
             ASSERT(0 == L.length());
@@ -1583,10 +1585,10 @@ int main(int argc, char *argv[])
             const Attr& A = R.fixedFields();
             ASSERT(0                == bsl::strcmp("Bloomberg.Bae",
                                                    A.category()));
-            ASSERT(cat->passLevel() == A.severity());
-            ASSERT(0                == bsl::strcmp(__FILE__, A.fileName()));
-            ASSERT(LINE             == A.lineNumber());
-            ASSERT(0                == bsl::strcmp(MESSAGE, A.message()));
+            ASSERT(A.severity() == cat->passLevel());
+            ASSERT(0            == bsl::strcmp(__FILE__, A.fileName()));
+            ASSERT(LINE         == A.lineNumber());
+            ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
             const List& L = R.userFields();
             ASSERT(0 == L.length());
@@ -1623,12 +1625,25 @@ int main(int argc, char *argv[])
          bael_Record* record5 = Obj::getRecord(F_, L_);
          bael_Record* record6 = Obj::getRecord(F_, L_);
 
+         // The first three messages are set to strings without embedded '\0'.
+
          record1->fixedFields().setMessage("No Logger Manager!");
          record2->fixedFields().setMessage("No Logger Manager!");
          record3->fixedFields().setMessage("No Logger Manager!");
-         record4->fixedFields().setMessage("No Logger Manager!");
-         record5->fixedFields().setMessage("No Logger Manager!");
-         record6->fixedFields().setMessage("No Logger Manager!");
+
+         // The next three messages are set to strings with embedded '\0'.
+
+         record4->fixedFields().messageStreamBuf().pubseekpos(0);
+         record4->fixedFields().messageStreamBuf().sputn(
+                                               "No Logger\0 Manager\0 4!", 22);
+
+         record4->fixedFields().messageStreamBuf().pubseekpos(0);
+         record4->fixedFields().messageStreamBuf().sputn(
+                                               "No Logger\0 Manager\0 5!", 22);
+
+         record4->fixedFields().messageStreamBuf().pubseekpos(0);
+         record4->fixedFields().messageStreamBuf().sputn(
+                                               "No Logger\0 Manager\0 6!", 22);
 
 #ifdef BSLS_PLATFORM__OS_UNIX
          fflush(stderr);

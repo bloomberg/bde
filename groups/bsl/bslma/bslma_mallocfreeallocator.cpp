@@ -4,6 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_atomicoperations.h>
 #include <bsls_objectbuffer.h>
 
 #include <new>
@@ -27,7 +28,8 @@ typedef bsls::ObjectBuffer<bslma::MallocFreeAllocator>
 static bslma_MallocFreeAllocator_Singleton g_mallocFreeAllocatorSingleton;
     // A global static buffer to hold the singleton.
 
-static bslma::MallocFreeAllocator *g_mallocFreeAllocatorSingleton_p = 0;
+static bsls::AtomicOperations::AtomicTypes::Pointer
+                                        g_mallocFreeAllocatorSingleton_p = {0};
     // A global static pointer to the singleton, which is *statically*
     // initialized to zero.
 
@@ -59,12 +61,17 @@ bslma::MallocFreeAllocator *initSingleton(
     // thread's copy.)
 
     bslma_MallocFreeAllocator_Singleton stackTemp;
-    void *v = new(&stackTemp) bslma::MallocFreeAllocator;
+    void *v = new(stackTemp.buffer()) bslma::MallocFreeAllocator();
 
-    // 'bsls::ObjectBuffer<T>' assignment is a bit-wise copy.
-
+    // Note that 'bsls::ObjectBuffer<T>' copy-assignment is a bit-wise copy.
+    // Also, it's imperative to use 'v' here instead of the 'stackTemp' object
+    // itself even though they point to the same object in memory, because that
+    // creates a data dependency between the construction of the
+    // 'MallocFreeAllocator' and this copy-assignment.  Without this dependency
+    // the construction of the 'MallocFreeAllocator' can be reordered past the
+    // copy-assignment or optimized out (as observed for Solaris optimized
+    // builds)
     *p = *(static_cast<bslma_MallocFreeAllocator_Singleton *>(v));
-
     return &p->object();
 }
 
@@ -80,18 +87,15 @@ MallocFreeAllocator& MallocFreeAllocator::singleton()
     // This initialization is not guaranteed to happen once, but repeated
     // initialization will be safe (see the comment above).
 
-    if (!g_mallocFreeAllocatorSingleton_p) {
-        g_mallocFreeAllocatorSingleton_p =
-                                initSingleton(&g_mallocFreeAllocatorSingleton);
+    if (!bsls::AtomicOperations::getPtrAcquire(
+                                          &g_mallocFreeAllocatorSingleton_p)) {
+        bsls::AtomicOperations::setPtrRelease(
+                &g_mallocFreeAllocatorSingleton_p,
+                initSingleton(&g_mallocFreeAllocatorSingleton));
     }
 
-    // In case the singleton has been previously initialized on another thread,
-    // the data dependency between 'g_mallocFreeAllocator_p' and the singleton
-    // itself will guarantee visibility of singleton updates on most modern
-    // architectures.  This is the best we can do here in the absence of access
-    // to any kind of atomic operations.
-
-    return *g_mallocFreeAllocatorSingleton_p;
+    return *(bslma::MallocFreeAllocator *)
+       bsls::AtomicOperations::getPtrRelaxed(&g_mallocFreeAllocatorSingleton_p);
 }
 
 }  // close package namespace

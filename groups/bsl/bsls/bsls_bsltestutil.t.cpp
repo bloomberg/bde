@@ -370,6 +370,79 @@ static void realaSsErT(bool b, const char *s, int i)
         if (verbose) P(value);
         LOOP_ASSERT(value, 42 == value);
     }
+//..
+///Example 2: Adding Support For A New User-Defined Type
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we define a new user-defined type, 'MyType':
+//..
+    namespace MyNamespace {
+    
+    class MyType {
+        // This elided class provides a type intended to show how the macros in
+        // 'bsls_bsltestutil' can be extended to support a new user-defined type.
+    
+      private:
+        // DATA
+        int d_value;  // the value of MyType
+    
+        // ...
+    
+      public:
+        // CREATORS
+
+        // ...
+
+        explicit MyType(int value);
+            // Create a 'MyType' object with 'd_value' set to the specified
+            // 'value'.
+    
+        // ACCESSORS
+    
+        // ...
+    
+        int value() const;
+            // Return the value of 'd_value'.
+    
+        // ...
+    };
+
+    // ...
+    
+    MyType::MyType(int value)
+    : d_value(value)
+    {
+    }
+
+    // ...
+    
+    int MyType::value() const
+    {
+        return d_value;
+    }
+//..
+// Then, we define a function 'debugprint' that prints the value of a 'MyType'
+// object to the console in the same namespace in which 'MyType' is defined (in
+// this case, we will simply print a string literal for simplicity):
+//..
+    void debugprint(const MyType& obj)
+    {
+        printf("MyType<%d>", obj.value());
+    }
+
+}  // close 'MyNamespace'
+//..
+// Now, we write a test case for 'MyType' object that tests the constructor.
+//..
+    void testMyTypeSetValue(bool verbose) {
+        MyNamespace::MyType obj(9);
+        if (verbose) P(obj);
+        LOOP_ASSERT(obj.value(), obj.value() == 9);
+    }
+//..
+// Finally, in the verbose case we observe the console output:
+//..
+// obj = MyType<9>
+//..
 
 //=============================================================================
 //                    CLEANUP STANDARD TEST DRIVER MACROS
@@ -413,14 +486,6 @@ enum {
     PATH_BUFFER_SIZE   = PATH_MAX
 #endif
 };
-
-// The constants 'PREFIX' and 'SUFFIX' are defined as macros because they are
-// used in the initialization lists for the 'DataRow<>' arrays in test case 3.
-
-#define PREFIX "<"
-    // Standard prefix for use as 's' in 'debugPrint' tests
-#define SUFFIX ">"
-    // Standard suffix for use as 't' in 'debugPrint' tests
 
 // STATIC DATA
 static int verbose, veryVerbose, veryVeryVerbose;
@@ -927,14 +992,6 @@ struct TestDriver {
                                                 // compared to real output
                                                 // captured from 'stdout'
 
-    // TEST APPARATUS
-
-    template <typename TEST_TYPE>
-    static int generateExpectedOutput(const char       *formatString,
-                                      const TEST_TYPE&  input);
-        // Populate 's_expectedOutput' with the result of calling 'printf' with
-        // the specified 'formatString' and 'input'.
-
     // TEST CASES
 
     static void testCase8(OutputRedirector *output);
@@ -952,29 +1009,6 @@ struct TestDriver {
                                // --------------
 
 char TestDriver::s_expectedOutput[TestDriver::BUFFER_SIZE];
-
-template <typename TEST_TYPE>
-int TestDriver::generateExpectedOutput(const char       *formatString,
-                                       const TEST_TYPE&  input)
-{
-    char tempFormatString[FORMAT_STRING_SIZE];
-
-    int charsWritten = snprintf(tempFormatString,
-                                FORMAT_STRING_SIZE,
-                                "%%s%s%%s",
-                                formatString);
-    ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
-    charsWritten = snprintf(s_expectedOutput,
-                            BUFFER_SIZE,
-                            tempFormatString,
-                            PREFIX,
-                            input,
-                            SUFFIX);
-    ASSERT(charsWritten >= 0 &&
-           charsWritten < BUFFER_SIZE);
-
-    return charsWritten;
-}
 
                                  // ----------
                                  // TEST CASES
@@ -1448,7 +1482,12 @@ void TestDriver::testCase3(OutputRedirector                   *output,
         int expectedSize = 0;
 
         if (!EXPECTED) {
-            expectedSize = generateExpectedOutput(formatString, INPUT);
+            expectedSize = snprintf(s_expectedOutput,
+                                    BUFFER_SIZE,
+                                    formatString,
+                                    INPUT);
+            ASSERT(expectedSize >= 0 &&
+                   expectedSize < BUFFER_SIZE);
             EXPECTED = s_expectedOutput;
         } else {
             expectedSize = strlen(EXPECTED);
@@ -1461,7 +1500,7 @@ void TestDriver::testCase3(OutputRedirector                   *output,
         }
 
         output->reset();
-        bsls::BslTestUtil::debugPrint(PREFIX, INPUT, SUFFIX);
+        bsls::debugprint(INPUT);
 
         ANNOTATED2_ASSERT(LINE, "%d", INPUT, formatString, output->load());
         ANNOTATED4_ASSERT(LINE, "%d",
@@ -1492,10 +1531,10 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    // Capture 'stdout', and send 'stderr' to 'stdout'
+    // Capture 'stdout', and send 'stderr' to 'stdout', unless we are running
+    // the usage example.
     OutputRedirector output;
-    if (!output.redirect()) {
-        //ASSERT(output.isRedirected());
+    if (test != 9 && !output.redirect()) {
         return 1;                                                     // RETURN
     }
 
@@ -1523,12 +1562,13 @@ int main(int argc, char *argv[])
                     "\n---------------------\n");
         }
 
-        // The actual usage example code is encapsulated in a free function,
-        // 'executeUsageExample', so that it can be relocated to the section of
-        // the source file where the standard test macros have been defined in
-        // terms of the macros supplied by the component under test.
+        // The actual usage example code is encapsulated in two free functions,
+        // 'testFortyTwo', and 'testMyType' so that it can be relocated to the
+        // section of the source file where the standard test macros have been
+        // defined in terms of the macros supplied by the component under test.
 
         testFortyTwo(verbose);
+        testMyTypeSetValue(verbose);
       } break;
       case 8: {
           // ------------------------------------------------------------------
@@ -1920,11 +1960,11 @@ int main(int argc, char *argv[])
 
             static const DataRow<bool> DATA[] =
             {
-                //LINE       INPUT  OUTPUT                 DESC
-                //---------- -----  ------                 ----
+                //LINE       INPUT  OUTPUT   DESC
+                //---------- -----  ------   ----
 
-                { __LINE__,  true,  PREFIX "true" SUFFIX,  "true" },
-                { __LINE__,  false, PREFIX "false" SUFFIX, "false" },
+                { __LINE__,  true,  "true",  "true" },
+                { __LINE__,  false, "false", "false" },
             };
             TestDriver::testCase3<bool>(&output, DATA, "%d");
         }
@@ -2205,7 +2245,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  FLT_MAX,     0,     "FLT_MAX" },
                 { __LINE__,  FLT_MIN,     0,     "FLT_MIN" },
             };
-            TestDriver::testCase3<float>(&output, DATA, "%f");
+            TestDriver::testCase3<float>(&output, DATA, "'%f'");
         }
 
         // [ 3] static void debugPrint(const char *s, double v, const char *t);
@@ -2228,7 +2268,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  DBL_MAX,   0,     "DBL_MAX" },
                 { __LINE__,  DBL_MIN,   0,     "DBL_MIN" },
             };
-            TestDriver::testCase3<double>(&output, DATA, "%g");
+            TestDriver::testCase3<double>(&output, DATA, "'%g'");
         }
 
         // [ 3] static void debugPrint(const char *s, long double v,
@@ -2252,7 +2292,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  LDBL_MAX,    0,     "LDBL_MAX" },
                 { __LINE__,  LDBL_MIN,    0,     "LDBL_MIN" },
             };
-            TestDriver::testCase3<long double>(&output, DATA, "%Lg");
+            TestDriver::testCase3<long double>(&output, DATA, "'%Lg'");
         }
 
         // [ 3] static void debugPrint(const char *s, char *str,
