@@ -385,11 +385,14 @@ void debugprint(long double v);
 
 void debugprint(const char *v);
 void debugprint(char *v);
+void debugprint(const volatile char *v);
+void debugprint(volatile char *v);
     // Print to the console the specified string, 'v', enclosed by quote
     // characters ("), unless 'v' is null, in which case print '(null)'
     // (without quotes of any kind).
 
 void debugprint(const void *v);
+void debugprint(const volatile void *v);
     // Print to the console the specified memory address, 'v', formatted as
     // a hexadecimal integer.
 

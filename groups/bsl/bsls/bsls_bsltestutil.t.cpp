@@ -186,26 +186,24 @@ using namespace BloombergLP;
 // [ 6] BSLS_BSLTESTUTIL_P_(X)
 // [ 5] BSLS_BSLTESTUTIL_L_
 // [ 5] BSLS_BSLTESTUTIL_T_
-// [ 3] static void debugPrint(const char *s, bool b, const char *t);
-// [ 3] static void debugPrint(const char *s, char c, const char *t);
-// [ 3] static void debugPrint(const char *s, signed char v, const char *t);
-// [ 3] static void debugPrint(const char *s, unsigned char v, const char *t);
-// [ 3] static void debugPrint(const char *s, short v, const char *t);
-// [ 3] static void debugPrint(const char *s, unsigned short v, const char *t);
-// [ 3] static void debugPrint(const char *s, int v, const char *t);
-// [ 3] static void debugPrint(const char *s, unsigned int v, const char *t);
-// [ 3] static void debugPrint(const char *s, long v, const char *t);
-// [ 3] static void debugPrint(const char *s, unsigned long v, const char *t);
-// [ 3] static void debugPrint(const char *s, long long v, const char *t);
-// [ 3] static void debugPrint(const char *s, unsigned long long v,
-//                             const char *t);
-// [ 3] static void debugPrint(const char *s, float v, const char *t);
-// [ 3] static void debugPrint(const char *s, double v, const char *t);
-// [ 3] static void debugPrint(const char *s, long double v, const char *t);
-// [ 3] static void debugPrint(const char *s, char *str, const char *t);
-// [ 3] static void debugPrint(const char *s, const char *str, const char *t);
-// [ 3] static void debugPrint(const char *s, void *p, const char *t);
-// [ 3] static void debugPrint(const char *s, const void *p, const char *t);
+// [ 3] void debugprint(bool v)
+// [ 3] void debugprint(char v)
+// [ 3] void debugprint(signed char v)
+// [ 3] void debugprint(unsigned char v)
+// [ 3] void debugprint(short v)
+// [ 3] void debugprint(unsigned short v)
+// [ 3] void debugprint(int v)
+// [ 3] void debugprint(unsigned int v)
+// [ 3] void debugprint(long v)
+// [ 3] void debugprint(unsigned long v)
+// [ 3] void debugprint(long long v)
+// [ 3] void debugprint(unsigned long long v)
+// [ 3] void debugprint(float v)
+// [ 3] void debugprint(double v)
+// [ 3] void debugprint(long double v)
+// [ 3] void debugprint(const char *v)
+// [ 3] void debugprint(char *v)
+// [ 3] void debugprint(const void *v)
 // [ 4] static void printStringNoFlush(const char *s);
 // [ 4] static void printTab();
 //-----------------------------------------------------------------------------
@@ -439,6 +437,9 @@ static void realaSsErT(bool b, const char *s, int i)
 
     }  // close namespace MyNamespace
 //..
+// Notice that 'debugprint' is defined inside the namespace 'MyNamespace'.
+// This is required in order to allow the compiler to find this overload of
+// debugprint by argument-dependent lookup.
 // Now, using the (standard) abbreviated macro names previously defined, we
 // write a test function for the 'MyType' constructor, to be called from a test
 // case in a test driver.
@@ -515,12 +516,13 @@ int printDatum(FILE        *outStream,
                const char  *connector,
                const char  *formatI,
                const char  *suffix,
-               const ITYPE  valueI);
+               const ITYPE& valueI);
     // Print the specified 'identifierI' identifier name and specified value
     // 'valueI' of (parameter template) type 'ITYPE' to the specified
     // 'outStream', and separated by the specified 'connector' string and
     // followed by the specified 'suffix' string, using the specified 'formatI'
-    // format string to format 'valueI' according to the rules of 'printf'.
+    // format string to format 'valueI' according to the rules of 'printf'.  As
+    // a special case, null 'char' strings are output as '(null)'.
 
 bool tempFileName(char *result);
     // Store an available temp file name in the user-supplied buffer at the
@@ -529,13 +531,77 @@ bool tempFileName(char *result);
     // buffer pointed to by the specified 'result' is at least
     // 'PATH_BUFFER_SIZE' bytes long.
 
+int printDatum(FILE        *outStream,
+               const char  *identifierI,
+               const char  *connector,
+               const char  *formatI,
+               const char  *suffix,
+               char        *valueI)
+{
+    char tempFormatString[FORMAT_STRING_SIZE];
+
+    int charsWritten = snprintf(tempFormatString,
+                                FORMAT_STRING_SIZE,
+                                "%%s%%s%s%%s",
+                                formatI);
+    ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
+
+    if (valueI) {
+        return fprintf(outStream,
+                       tempFormatString,
+                       identifierI,
+                       connector,
+                       valueI,
+                       suffix);
+    } else {
+        return fprintf(outStream,
+                       tempFormatString,
+                       identifierI,
+                       connector,
+                       "(null)",
+                       suffix);
+    }
+}
+
+int printDatum(FILE        *outStream,
+               const char  *identifierI,
+               const char  *connector,
+               const char  *formatI,
+               const char  *suffix,
+               const char  *valueI)
+{
+    char tempFormatString[FORMAT_STRING_SIZE];
+
+    int charsWritten = snprintf(tempFormatString,
+                                FORMAT_STRING_SIZE,
+                                "%%s%%s%s%%s",
+                                formatI);
+    ASSERT(charsWritten >= 0 && charsWritten < FORMAT_STRING_SIZE);
+
+    if (valueI) {
+        return fprintf(outStream,
+                       tempFormatString,
+                       identifierI,
+                       connector,
+                       valueI,
+                       suffix);
+    } else {
+        return fprintf(outStream,
+                       tempFormatString,
+                       identifierI,
+                       connector,
+                       "(null)",
+                       suffix);
+    }
+}
+
 template <typename ITYPE>
 int printDatum(FILE        *outStream,
                const char  *identifierI,
                const char  *connector,
                const char  *formatI,
                const char  *suffix,
-               const ITYPE  valueI)
+               const ITYPE& valueI)
 {
     char tempFormatString[FORMAT_STRING_SIZE];
 
@@ -591,7 +657,21 @@ bool tempFileName(char *result)
 class OutputRedirector {
     // This class redirects 'stdout' to a temporary file and provides
     // facilities for retrieving output from the temporary file and comparing
-    // it to user-supplied character buffers.
+    // it to user-supplied character buffers.  An 'OutputRedirector' object can
+    // exist in one of two states, un-redirected or redirected.  In the
+    // un-redirected state, the process' 'stdout' and 'stderr' are connected to
+    // their normal targets.  In the redirected state, the process' 'stdout' is
+    // connected to a temporary file, and the process' 'stderr' is connected to
+    // the original target of 'stdout'.  The redirected state of an
+    // 'OutputRedirector' object can be tested by calling 'isRedirected'.  An
+    // 'OutputRedirector' object has the concept of a scratch buffer, where
+    // output captured from the process' 'stdout' stream is stored when the
+    // 'OutputRedirector' object is in the redirected state.  Throughout this
+    // class, the term "captured output" refers to data that has been written
+    // to the 'stdout' stream and is waiting to be loaded into the scratch
+    // buffer.  Each time the 'load' method is called, the scratch buffer is
+    // truncated, the captured output is moved into the scratch buffer.  When
+    // this is done, there is no longer any captured output.
 
   private:
     // DATA
@@ -627,7 +707,7 @@ class OutputRedirector {
     // CREATORS
     explicit OutputRedirector();
         // Create an 'OutputRedirector' in an un-redirected state, and
-        // containing no captured output.
+        // an empty scratch buffer.
 
     ~OutputRedirector();
         // Destroy this 'OutputRedirector' object.  If the object is in a
@@ -637,14 +717,15 @@ class OutputRedirector {
     // MANIPULATORS
     bool redirect();
         // Redirect 'stdout' to a temp file, and stderr to the original
-        // 'stdout'.  Return 'true' if successful, and 'false' otherwise.  The
-        // temp file to which 'stdout' is redirected will be created the first
-        // time 'redirect' is called, and will be deleted when this object is
-        // destroyed.  If a call to 'redirect' succeeds, subsequent calls will
-        // have no effect on 'stdout' and 'stderr'.  If a call to 'redirect'
-        // fails, the destinations of 'stdout' and 'stderr' are undefined, and
-        // the calling process should exit without producing further output and
-        // without attempting to call 'redirect' again.
+        // 'stdout', putting this 'OutputRedirector' object into the
+        // 'redirected' state.  Return 'true' if successful, and 'false'
+        // otherwise.  The temp file to which 'stdout' is redirected will be
+        // created the first time 'redirect' is called, and will be deleted
+        // when this object is destroyed.  If a call to 'redirect' succeeds,
+        // subsequent calls will have no effect on 'stdout' and 'stderr'.  If a
+        // call to 'redirect' fails, the destinations of 'stdout' and 'stderr'
+        // are undefined, and the calling process should exit without producing
+        // further output and without attempting to call 'redirect' again.
 
     void reset();
         // Reset the scratch buffer to empty.  The behavior is undefined unless
@@ -730,7 +811,9 @@ int OutputRedirector::redirectStream(FILE *from, FILE *to)
     // instead of 'freopen', because 'freopen' fails on AIX with errno
     // 13 'Permission denied' when redirecting stderr.
 
-#if defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
+#if ! defined(BSLS_BSLTESTUTIL__OS_AIX)
+    return (stderr == freopen("/dev/stdout", "w", stderr)) ? 0 : -1;
+#elif 0 && defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
     return _dup2(_fileno(from), _fileno(to));
 #else
     int redirected = dup2(fileno(from), fileno(to));
@@ -1009,10 +1092,10 @@ struct TestDriver {
         // Test 'BSLS_BSLTESTUTIL_LOOP*_ASSERT' macros.
 
     template <typename TEST_TYPE, size_t NUM_DATA>
-    static void testCase3(OutputRedirector         *output,
-                                   const DataRow<TEST_TYPE>(&  DATA)[NUM_DATA],
-                          const char               *formatString);
-        // Test 'debugPrint'.
+    static void testCase3(OutputRedirector           *output,
+                          const DataRow<TEST_TYPE>(&  DATA)[NUM_DATA],
+                          const char                 *formatString);
+        // Test 'debugprint'.
 };
 
                                // --------------
@@ -1438,14 +1521,13 @@ void TestDriver::testCase3(OutputRedirector                   *output,
 {
     // ------------------------------------------------------------------------
     // FORMATTED OUTPUT TEST
-    //   Ensure that the 'debugPrint' formatted output methods write values to
+    //   Ensure that the 'debugprint' formatted output methods write values to
     //   'stdout' in the expected form
     //
     // Concerns:
-    //: 1 The 'debugPrint' method writes the value to 'stdout'.
+    //: 1 The 'debugprint' method writes the value to 'stdout'.
     //:
-    //: 2 The 'debugPrint' method writes the value in the intended format,
-    //:   making appropriate use of the prefix and suffix strings 's' and 't'.
+    //: 2 The 'debugprint' method writes the value in the intended format.
     //:
     //
     // Plan:
@@ -1462,27 +1544,24 @@ void TestDriver::testCase3(OutputRedirector                   *output,
     //:   'formatString'.
     //
     // Testing:
-    //   static void debugPrint(const char *s, bool b, const char *t);
-    //   static void debugPrint(const char *s, char c, const char *t);
-    //   static void debugPrint(const char *s, signed char v, const char *t);
-    //   static void debugPrint(const char *s, unsigned char v, const char *t);
-    //   static void debugPrint(const char *s, short v, const char *t);
-    //   static void debugPrint(const char *s, unsigned short v,
-    //                          const char *t);
-    //   static void debugPrint(const char *s, int v, const char *t);
-    //   static void debugPrint(const char *s, unsigned int v, const char *t);
-    //   static void debugPrint(const char *s, long v, const char *t);
-    //   static void debugPrint(const char *s, unsigned long v, const char *t);
-    //   static void debugPrint(const char *s, long long v, const char *t);
-    //   static void debugPrint(const char *s, unsigned long long v,
-    //                          const char *t);
-    //   static void debugPrint(const char *s, float v, const char *t);
-    //   static void debugPrint(const char *s, double v, const char *t);
-    //   static void debugPrint(const char *s, long double v, const char *t);
-    //   static void debugPrint(const char *s, char *str, const char *t);
-    //   static void debugPrint(const char *s, const char *str, const char *t);
-    //   static void debugPrint(const char *s, void *p, const char *t);
-    //   static void debugPrint(const char *s, const void *p, const char *t);
+    //   void debugprint(bool v)
+    //   void debugprint(char v)
+    //   void debugprint(signed char v)
+    //   void debugprint(unsigned char v)
+    //   void debugprint(short v)
+    //   void debugprint(unsigned short v)
+    //   void debugprint(int v)
+    //   void debugprint(unsigned int v)
+    //   void debugprint(long v)
+    //   void debugprint(unsigned long v)
+    //   void debugprint(long long v)
+    //   void debugprint(unsigned long long v)
+    //   void debugprint(float v)
+    //   void debugprint(double v)
+    //   void debugprint(long double v)
+    //   void debugprint(const char *v)
+    //   void debugprint(char *v)
+    //   void debugprint(const void *v)
     // ------------------------------------------------------------------------
 
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
@@ -1890,15 +1969,13 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // FORMATTED OUTPUT TEST
-        //   Ensure that the 'debugPrint' formatted output methods write values
+        //   Ensure that the 'debugprint' formatted output methods write values
         //   to 'stdout' in the expected form
         //
         // Concerns:
-        //: 1 The 'debugPrint' method writes the value to 'stdout'.
+        //: 1 The 'debugprint' method writes the value to 'stdout'.
         //:
-        //: 2 The 'debugPrint' method writes the value in the intended format,
-        //:   making appropriate use of the prefix and suffix strings 's' and
-        //:   't'.
+        //: 2 The 'debugprint' method writes the value in the intended format.
         //:
         //: 3 The appropriate overload is called unambiguously for each
         //:   fundamental data type, and for any pointer type.
@@ -1909,7 +1986,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Using the table-driven technique:  (C-1, 2)
         //:
-        //:   For each overload of debugPrint, choose a number of significant
+        //:   For each overload of debugprint, choose a number of significant
         //:   values for the second parameter, and check that each is written
         //:   to 'stdout' in the intended format.  The actual checking is
         //:   delegated to 'TestDriver::testCase3'.  Note that in the data
@@ -1917,36 +1994,39 @@ int main(int argc, char *argv[])
         //:   may be set to null, in which case the intended format is taken to
         //:   be the 'INPUT' column formated by 'printf' using the last
         //:   argument to 'TestDriver::testCase3'.
+        //:
+        //: 2 For fundamental types, much coverage of concern 3 is covered by
+        //:   checking for correct output in plan 1.  Beyond this, concern 3
+        //:   devolves for fundamental types into testing the compiler.
+        //:   Continuing the same methodology as plan 1, there are a few corner
+        //:   cases that can additionally be checked: (C-3)
+        //:   o That decayed arrays devolve to pointers handled by the 'const
+        //:     void *' overload.
+        //:   o That pointers to arbitrary types are handled by the 'const void
+        //:     *' overload.
+        //:
+        //: 3 All of the tests from plan 1 are repeated with 'const',
+        //:   'volatile', and 'const volatile' input data. (C-4)
         //
         // Testing:
-        //   static void debugPrint(const char *s, bool b, const char *t);
-        //   static void debugPrint(const char *s, char c, const char *t);
-        //   static void debugPrint(const char *s, signed char v,
-        //                          const char *t);
-        //   static void debugPrint(const char *s, unsigned char v,
-        //                          const char *t);
-        //   static void debugPrint(const char *s, short v, const char *t);
-        //   static void debugPrint(const char *s, unsigned short v,
-        //                          const char *t);
-        //   static void debugPrint(const char *s, int v, const char *t);
-        //   static void debugPrint(const char *s, unsigned int v,
-        //                          const char *t);
-        //   static void debugPrint(const char *s, long v, const char *t);
-        //   static void debugPrint(const char *s, unsigned long v,
-        //                          const char *t);
-        //   static void debugPrint(const char *s, long long v, const char *t);
-        //   static void debugPrint(const char *s, unsigned long long v,
-        //                          const char *t);
-        //   static void debugPrint(const char *s, float v, const char *t);
-        //   static void debugPrint(const char *s, double v, const char *t);
-        //   static void debugPrint(const char *s, long double v,
-        //                          const char *t);
-        //   static void debugPrint(const char *s, char *str, const char *t);
-        //   static void debugPrint(const char *s, const char *str,
-        //                          const char *t);
-        //   static void debugPrint(const char *s, void *p, const char *t);
-        //   static void debugPrint(const char *s, const void *p,
-        //                          const char *t);
+        //   void debugprint(bool v)
+        //   void debugprint(char v)
+        //   void debugprint(signed char v)
+        //   void debugprint(unsigned char v)
+        //   void debugprint(short v)
+        //   void debugprint(unsigned short v)
+        //   void debugprint(int v)
+        //   void debugprint(unsigned int v)
+        //   void debugprint(long v)
+        //   void debugprint(unsigned long v)
+        //   void debugprint(long long v)
+        //   void debugprint(unsigned long long v)
+        //   void debugprint(float v)
+        //   void debugprint(double v)
+        //   void debugprint(long double v)
+        //   void debugprint(const char *v)
+        //   void debugprint(char *v)
+        //   void debugprint(const void *v)
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1955,11 +2035,11 @@ int main(int argc, char *argv[])
                     "\n--------------------------------\n");
         }
 
-        // [ 3] static void debugPrint(const char *s, bool b, const char *t);
+        // void debugprint(bool b);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR bool"
+                        "\nTESTING debugprint FOR bool"
                         "\n---------------------------\n");
             }
 
@@ -1974,11 +2054,11 @@ int main(int argc, char *argv[])
             TestDriver::testCase3<bool>(&output, DATA, "%d");
         }
 
-        // [ 3] static void debugPrint(const char *s, char c, const char *t);
+        // void debugprint(char c);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR char"
+                        "\nTESTING debugprint FOR char"
                         "\n---------------------------\n");
             }
 
@@ -2000,12 +2080,11 @@ int main(int argc, char *argv[])
             TestDriver::testCase3<char>(&output, DATA, "'%c'");
         }
 
-        // [ 3] static void debugPrint(const char *s, signed char v,
-        //                             const char *t);
+        // void debugprint(signed char v);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR signed char"
+                        "\nTESTING debugprint FOR signed char"
                         "\n----------------------------------\n");
             }
 
@@ -2026,12 +2105,11 @@ int main(int argc, char *argv[])
                                                "%hhd");
         }
 
-        // [ 3] static void debugPrint(const char *s, unsigned char v,
-        //                             const char *t);
+        // void debugprint(unsigned char v);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR unsigned char"
+                        "\nTESTING debugprint FOR unsigned char"
                         "\n------------------------------------\n");
             }
 
@@ -2051,11 +2129,11 @@ int main(int argc, char *argv[])
                                                  "%hhu");
         }
 
-        // [ 3] static void debugPrint(const char *s, short v, const char *t);
+        // void debugprint(short v);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR short"
+                        "\nTESTING debugprint FOR short"
                         "\n----------------------------\n");
             }
 
@@ -2073,12 +2151,11 @@ int main(int argc, char *argv[])
             TestDriver::testCase3<short>(&output, DATA, "%hd");
         }
 
-        // [ 3] static void debugPrint(const char *s, unsigned short v,
-        //                             const char *t);
+        // void debugprint(unsigned short v);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR unsigned short"
+                        "\nTESTING debugprint FOR unsigned short"
                         "\n-------------------------------------\n");
             }
 
@@ -2096,11 +2173,11 @@ int main(int argc, char *argv[])
                                                   "%hu");
         }
 
-        // [ 3] static void debugPrint(const char *s, int v, const char *t);
+        // void debugprint(int v);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR int"
+                        "\nTESTING debugprint FOR int"
                         "\n--------------------------\n");
             }
 
@@ -2118,12 +2195,11 @@ int main(int argc, char *argv[])
             TestDriver::testCase3<int>(&output, DATA, "%d");
         }
 
-        // [ 3] static void debugPrint(const char *s, unsigned int v,
-        //                             const char *t);
+        // void debugprint(unsigned int v);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR unsigned int"
+                        "\nTESTING debugprint FOR unsigned int"
                         "\n-----------------------------------\n");
             }
 
@@ -2139,11 +2215,11 @@ int main(int argc, char *argv[])
             TestDriver::testCase3<unsigned int>(&output, DATA, "%u");
         }
 
-        // [ 3] static void debugPrint(const char *s, long v, const char *t);
+        // void debugprint(long v);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR long"
+                        "\nTESTING debugprint FOR long"
                         "\n---------------------------\n");
             }
 
@@ -2161,12 +2237,11 @@ int main(int argc, char *argv[])
             TestDriver::testCase3<long>(&output, DATA, "%ld");
         }
 
-        // [ 3] static void debugPrint(const char *s, unsigned long v,
-        //                             const char *t);
+        // void debugprint(unsigned long v);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR unsigned long"
+                        "\nTESTING debugprint FOR unsigned long"
                         "\n------------------------------------\n");
             }
 
@@ -2184,12 +2259,11 @@ int main(int argc, char *argv[])
                                                  "%lu");
         }
 
-        // [ 3] static void debugPrint(const char *s, long long v,
-        //                             const char *t);
+        // void debugprint(long long v);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR long long"
+                        "\nTESTING debugprint FOR long long"
                         "\n--------------------------------\n");
             }
 
@@ -2207,12 +2281,11 @@ int main(int argc, char *argv[])
             TestDriver::testCase3<long long>(&output, DATA, "%lld");
         }
 
-        // [ 3] static void debugPrint(const char *s, unsigned long long v,
-        //                             const char *t);
+        // void debugprint(unsigned long long v);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR unsigned long long"
+                        "\nTESTING debugprint FOR unsigned long long"
                         "\n-----------------------------------------\n");
             }
 
@@ -2230,11 +2303,11 @@ int main(int argc, char *argv[])
                                                       "%llu");
         }
 
-        // [ 3] static void debugPrint(const char *s, float v, const char *t);
+        // void debugprint(float v);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR float"
+                        "\nTESTING debugprint FOR float"
                         "\n----------------------------\n");
             }
 
@@ -2253,11 +2326,11 @@ int main(int argc, char *argv[])
             TestDriver::testCase3<float>(&output, DATA, "'%f'");
         }
 
-        // [ 3] static void debugPrint(const char *s, double v, const char *t);
+        // void debugprint(double v);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR double"
+                        "\nTESTING debugprint FOR double"
                         "\n-----------------------------\n");
             }
 
@@ -2276,12 +2349,11 @@ int main(int argc, char *argv[])
             TestDriver::testCase3<double>(&output, DATA, "'%g'");
         }
 
-        // [ 3] static void debugPrint(const char *s, long double v,
-        //                             const char *t);
+        // void debugprint(long double v);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR long double"
+                        "\nTESTING debugprint FOR long double"
                         "\n----------------------------------\n");
             }
 
@@ -2300,12 +2372,11 @@ int main(int argc, char *argv[])
             TestDriver::testCase3<long double>(&output, DATA, "'%Lg'");
         }
 
-        // [ 3] static void debugPrint(const char *s, char *str,
-        //                             const char *t);
+        // void debugprint(char *str);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR char *"
+                        "\nTESTING debugprint FOR char *"
                         "\n-----------------------------\n");
             }
 
@@ -2328,12 +2399,11 @@ int main(int argc, char *argv[])
             TestDriver::testCase3<char *>(&output, DATA, "\"%s\"");
         }
 
-        // [ 3] static void debugPrint(const char *s, const char *str,
-        //                             const char *t);
+        // void debugprint(const char *str);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR const char *"
+                        "\nTESTING debugprint FOR const char *"
                         "\n-----------------------------------\n");
             }
 
@@ -2354,11 +2424,11 @@ int main(int argc, char *argv[])
                                                 "\"%s\"");
         }
 
-        // [ 3] static void debugPrint(const char *s, void *p, const char *t);
+        // void debugprint(void *p);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR void *"
+                        "\nTESTING debugprint FOR void *"
                         "\n-----------------------------\n");
             }
 
@@ -2367,17 +2437,17 @@ int main(int argc, char *argv[])
                 //LINE       INPUT             OUTPUT DESC
                 //---------- -----             ------ ----
 
-                { __LINE__,  (void *) 0,       0,     "NULL pointer" },
-                { __LINE__,  (void *) &output, 0,     "valid address" },
+                { __LINE__,  static_cast<void *>(0),       0,     "NULL pointer" },
+                { __LINE__,  static_cast<void *>(&output), 0,     "valid address" },
             };
             TestDriver::testCase3<void *>(&output, DATA, "%p");
         }
-        // [ 3] static void debugPrint(const char *s, const void *p,
-        //                             const char *t);
+
+        // void debugprint(const void *p);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugPrint FOR const void *"
+                        "\nTESTING debugprint FOR const void *"
                         "\n-----------------------------------\n");
             }
 
@@ -2386,10 +2456,586 @@ int main(int argc, char *argv[])
                 //LINE       INPUT                   OUTPUT DESC
                 //---------- -----                   ------ ----
 
-                { __LINE__,  (const void *) 0,       0,     "NULL pointer" },
-                { __LINE__,  (const void *) &output, 0,     "valid address" },
+                { __LINE__,  static_cast<const void *>(0),       0,     "NULL pointer" },
+                { __LINE__,  static_cast<const void *>(&output), 0,     "valid address" },
             };
             TestDriver::testCase3<const void *>(&output, DATA, "%p");
+        }
+
+        // CONCERN 4: const
+
+
+        // void debugprint(char c);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR const char"
+                        "\n---------------------------\n");
+            }
+
+            static const DataRow<const char> DATA[] =
+            {
+                //LINE       INPUT     OUTPUT DESC
+                //---------- -----     ------ ----
+
+                { __LINE__,  '\0',     0,     "\\0" },
+                { __LINE__,  CHAR_MIN, 0,     "CHAR_MIN" },
+                { __LINE__,  CHAR_MAX, 0,     "CHAR_MAX" },
+                { __LINE__,  '\x01',   0,     "\\x01" },
+                { __LINE__,  '\t',     0,     "tab character" },
+                { __LINE__,  '\n',     0,     "newline character" },
+                { __LINE__,  '\r',     0,     "carriage return character" },
+                { __LINE__,  'A',      0,     "positive signed character" },
+                { __LINE__,  '\xcc',   0,     "negative signed character" },
+            };
+            TestDriver::testCase3<const char>(&output, DATA, "'%c'");
+        }
+
+        // void debugprint(int v);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR const int"
+                        "\n--------------------------\n");
+            }
+
+            static const DataRow<const int> DATA[] =
+            {
+                //LINE       INPUT    OUTPUT DESC
+                //---------- -----    ------ ----
+
+                { __LINE__,  0,       0,     "0" },
+                { __LINE__,  1,       0,     "1" },
+                { __LINE__,  -1,      0,     "-1" },
+                { __LINE__,  INT_MAX, 0,     "INT_MAX" },
+                { __LINE__,  INT_MIN, 0,     "INT_MIN" },
+            };
+            TestDriver::testCase3<const int>(&output, DATA, "%d");
+        }
+
+        // void debugprint(unsigned int v);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR const unsigned int"
+                        "\n-----------------------------------\n");
+            }
+
+            static const DataRow<const unsigned int> DATA[] =
+            {
+                //LINE       INPUT     OUTPUT DESC
+                //---------- -----     ------ ----
+
+                { __LINE__,  0,        0,     "0" },
+                { __LINE__,  1,        0,     "1" },
+                { __LINE__,  UINT_MAX, 0,     "UINT_MAX" },
+            };
+            TestDriver::testCase3<const unsigned int>(&output, DATA, "%u");
+        }
+
+        // void debugprint(double v);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR const double"
+                        "\n-----------------------------\n");
+            }
+
+            static const DataRow<const double> DATA[] =
+            {
+                //LINE       INPUT      OUTPUT DESC
+                //---------- -----      ------ ----
+
+                { __LINE__,  0.0,       0,     "0.0" },
+                { __LINE__,  1.0,       0,     "1.0" },
+                { __LINE__,  -1.0,      0,     "-1.0" },
+                { __LINE__,  1.0 / 3.0, 0,     "(double) 1/3" },
+                { __LINE__,  DBL_MAX,   0,     "DBL_MAX" },
+                { __LINE__,  DBL_MIN,   0,     "DBL_MIN" },
+            };
+            TestDriver::testCase3<const double>(&output, DATA, "'%g'");
+        }
+
+        // CONCERN 4: volatile
+
+        // void debugprint(char c);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR volatile char"
+                        "\n---------------------------\n");
+            }
+
+            static const DataRow<volatile char> DATA[] =
+            {
+                //LINE       INPUT     OUTPUT DESC
+                //---------- -----     ------ ----
+
+                { __LINE__,  '\0',     0,     "\\0" },
+                { __LINE__,  CHAR_MIN, 0,     "CHAR_MIN" },
+                { __LINE__,  CHAR_MAX, 0,     "CHAR_MAX" },
+                { __LINE__,  '\x01',   0,     "\\x01" },
+                { __LINE__,  '\t',     0,     "tab character" },
+                { __LINE__,  '\n',     0,     "newline character" },
+                { __LINE__,  '\r',     0,     "carriage return character" },
+                { __LINE__,  'A',      0,     "positive signed character" },
+                { __LINE__,  '\xcc',   0,     "negative signed character" },
+            };
+            TestDriver::testCase3<volatile char>(&output, DATA, "'%c'");
+        }
+
+        // void debugprint(int v);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR volatile int"
+                        "\n--------------------------\n");
+            }
+
+            static const DataRow<volatile int> DATA[] =
+            {
+                //LINE       INPUT    OUTPUT DESC
+                //---------- -----    ------ ----
+
+                { __LINE__,  0,       0,     "0" },
+                { __LINE__,  1,       0,     "1" },
+                { __LINE__,  -1,      0,     "-1" },
+                { __LINE__,  INT_MAX, 0,     "INT_MAX" },
+                { __LINE__,  INT_MIN, 0,     "INT_MIN" },
+            };
+            TestDriver::testCase3<volatile int>(&output, DATA, "%d");
+        }
+
+        // void debugprint(unsigned int v);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR volatile unsigned int"
+                        "\n-----------------------------------\n");
+            }
+
+            static const DataRow<volatile unsigned int> DATA[] =
+            {
+                //LINE       INPUT     OUTPUT DESC
+                //---------- -----     ------ ----
+
+                { __LINE__,  0,        0,     "0" },
+                { __LINE__,  1,        0,     "1" },
+                { __LINE__,  UINT_MAX, 0,     "UINT_MAX" },
+            };
+            TestDriver::testCase3<volatile unsigned int>(&output, DATA, "%u");
+        }
+
+        // void debugprint(double v);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR volatile double"
+                        "\n-----------------------------\n");
+            }
+
+            static const DataRow<volatile double> DATA[] =
+            {
+                //LINE       INPUT      OUTPUT DESC
+                //---------- -----      ------ ----
+
+                { __LINE__,  0.0,       0,     "0.0" },
+                { __LINE__,  1.0,       0,     "1.0" },
+                { __LINE__,  -1.0,      0,     "-1.0" },
+                { __LINE__,  1.0 / 3.0, 0,     "(double) 1/3" },
+                { __LINE__,  DBL_MAX,   0,     "DBL_MAX" },
+                { __LINE__,  DBL_MIN,   0,     "DBL_MIN" },
+            };
+            TestDriver::testCase3<volatile double>(&output, DATA, "'%g'");
+        }
+
+        // void debugprint(const char *str);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR volatile char *"
+                        "\n-----------------------------------\n");
+            }
+
+            static const DataRow<volatile char *> DATA[] =
+            {
+                //LINE       INPUT     OUTPUT DESC
+                //---------- -----     ------ ----
+
+                { __LINE__,  static_cast<volatile char *>(0),
+                                    "(null)", "null string"  },
+                { __LINE__,  const_cast<volatile char *>(""),       0,     "empty string" },
+                { __LINE__,  const_cast<volatile char *>("a"),      0,     "non-empty string" },
+                { __LINE__,  const_cast<volatile char *>("a\nb"),   0,     "string with embedded newline" },
+                { __LINE__,  const_cast<volatile char *>("a\r\nb"), 0,     "string with embedded <CRLF>" },
+            };
+            TestDriver::testCase3<volatile char *>(&output,
+                                                DATA,
+                                                "\"%s\"");
+        }
+
+        // void debugprint(const void *p);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR volatile void *"
+                        "\n-----------------------------------\n");
+            }
+
+            static const DataRow<volatile void *> DATA[] =
+            {
+                //LINE       INPUT                   OUTPUT DESC
+                //---------- -----                   ------ ----
+
+                { __LINE__,  static_cast<volatile void *>(0),       0,     "NULL pointer" },
+                { __LINE__,  static_cast<volatile void *>(&output), 0,     "valid address" },
+            };
+            TestDriver::testCase3<volatile void *>(&output, DATA, "%p");
+        }
+
+        // CONCERN 4: const volatile
+
+        // void debugprint(char c);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR const volatile char"
+                        "\n---------------------------\n");
+            }
+
+            static const DataRow<const volatile char> DATA[] =
+            {
+                //LINE       INPUT     OUTPUT DESC
+                //---------- -----     ------ ----
+
+                { __LINE__,  '\0',     0,     "\\0" },
+                { __LINE__,  CHAR_MIN, 0,     "CHAR_MIN" },
+                { __LINE__,  CHAR_MAX, 0,     "CHAR_MAX" },
+                { __LINE__,  '\x01',   0,     "\\x01" },
+                { __LINE__,  '\t',     0,     "tab character" },
+                { __LINE__,  '\n',     0,     "newline character" },
+                { __LINE__,  '\r',     0,     "carriage return character" },
+                { __LINE__,  'A',      0,     "positive signed character" },
+                { __LINE__,  '\xcc',   0,     "negative signed character" },
+            };
+            TestDriver::testCase3<const volatile char>(&output, DATA, "'%c'");
+        }
+
+        // void debugprint(int v);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR const volatile int"
+                        "\n--------------------------\n");
+            }
+
+            static const DataRow<const volatile int> DATA[] =
+            {
+                //LINE       INPUT    OUTPUT DESC
+                //---------- -----    ------ ----
+
+                { __LINE__,  0,       0,     "0" },
+                { __LINE__,  1,       0,     "1" },
+                { __LINE__,  -1,      0,     "-1" },
+                { __LINE__,  INT_MAX, 0,     "INT_MAX" },
+                { __LINE__,  INT_MIN, 0,     "INT_MIN" },
+            };
+            TestDriver::testCase3<const volatile int>(&output, DATA, "%d");
+        }
+
+        // void debugprint(unsigned int v);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR const volatile unsigned int"
+                        "\n-----------------------------------\n");
+            }
+
+            static const DataRow<const volatile unsigned int> DATA[] =
+            {
+                //LINE       INPUT     OUTPUT DESC
+                //---------- -----     ------ ----
+
+                { __LINE__,  0,        0,     "0" },
+                { __LINE__,  1,        0,     "1" },
+                { __LINE__,  UINT_MAX, 0,     "UINT_MAX" },
+            };
+            TestDriver::testCase3<const volatile unsigned int>(&output, DATA, "%u");
+        }
+
+        // void debugprint(double v);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR const volatile double"
+                        "\n-----------------------------\n");
+            }
+
+            static const DataRow<const volatile double> DATA[] =
+            {
+                //LINE       INPUT      OUTPUT DESC
+                //---------- -----      ------ ----
+
+                { __LINE__,  0.0,       0,     "0.0" },
+                { __LINE__,  1.0,       0,     "1.0" },
+                { __LINE__,  -1.0,      0,     "-1.0" },
+                { __LINE__,  1.0 / 3.0, 0,     "(double) 1/3" },
+                { __LINE__,  DBL_MAX,   0,     "DBL_MAX" },
+                { __LINE__,  DBL_MIN,   0,     "DBL_MIN" },
+            };
+            TestDriver::testCase3<const volatile double>(&output, DATA, "'%g'");
+        }
+
+        // void debugprint(const char *str);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR const volatile char *"
+                        "\n-----------------------------------\n");
+            }
+
+            static const DataRow<const volatile char *> DATA[] =
+            {
+                //LINE       INPUT     OUTPUT DESC
+                //---------- -----     ------ ----
+
+                { __LINE__,  static_cast<const volatile char *>(0),
+                                    "(null)", "null string"  },
+                { __LINE__,  "",       0,     "empty string" },
+                { __LINE__,  "a",      0,     "non-empty string" },
+                { __LINE__,  "a\nb",   0,     "string with embedded newline" },
+                { __LINE__,  "a\r\nb", 0,     "string with embedded <CRLF>" },
+            };
+            TestDriver::testCase3<const volatile char *>(&output,
+                                                DATA,
+                                                "\"%s\"");
+        }
+
+        // void debugprint(const void *p);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR const volatile void *"
+                        "\n-----------------------------------\n");
+            }
+
+            static const DataRow<const volatile void *> DATA[] =
+            {
+                //LINE       INPUT                   OUTPUT DESC
+                //---------- -----                   ------ ----
+
+                { __LINE__,  static_cast<const volatile void *>(0),       0,     "NULL pointer" },
+                { __LINE__,  static_cast<const volatile void *>(&output), 0,     "valid address" },
+            };
+            TestDriver::testCase3<const volatile void *>(&output, DATA, "%p");
+        }
+
+        // CONCERN 3
+
+        // void debugprint(const void *p);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR decayed int array"
+                        "\n----------------------------------------\n");
+            }
+
+            int a[3] = { 1, 2, 3 };
+
+            // N.B. empty non-dynamic arrays are not allowed in conforming
+            // compilers, and empty dynamic arrays are just pointers from the
+            // outset.  So we only test non-empty arrays for array decay.
+            static const DataRow<int *> DATA[] =
+            {
+                //LINE       INPUT    OUTPUT DESC
+                //---------- -----    ------ ----
+
+                { __LINE__,  a,       0,     "non-empty int array" },
+            };
+            TestDriver::testCase3<int *>(&output, DATA, "%p");
+        }
+
+        // void debugprint(const void *p);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR decayed char array"
+                        "\n-----------------------------------------\n");
+            }
+
+            char a[4] = { 'a', 'b', 'c', '\0' };
+
+            // N.B. empty non-dynamic arrays are not allowed in conforming
+            // compilers, and empty dynamic arrays are just pointers from the
+            // outset.  So we only test non-empty arrays for array decay.
+            static const DataRow<char *> DATA[] =
+            {
+                //LINE       INPUT    OUTPUT DESC
+                //---------- -----    ------ ----
+
+                { __LINE__,  a,       0,     "non-empty char array" },
+            };
+            TestDriver::testCase3<char *>(&output, DATA, "\"%s\"");
+        }
+
+        // void debugprint(const void *p);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR int *"
+                        "\n-----------------------------------\n");
+            }
+
+            int a = 1;
+
+            static const DataRow<int *> DATA[] =
+            {
+                //LINE       INPUT                   OUTPUT DESC
+                //---------- -----                   ------ ----
+
+                { __LINE__,  &a,       0,     "int pointer" },
+            };
+            TestDriver::testCase3<int *>(&output, DATA, "%p");
+        }
+
+        // void debugprint(const void *p);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR const int *"
+                        "\n-----------------------------------\n");
+            }
+
+            const int a = 1;
+
+            static const DataRow<const int *> DATA[] =
+            {
+                //LINE       INPUT                   OUTPUT DESC
+                //---------- -----                   ------ ----
+
+                { __LINE__,  &a,       0,     "int pointer" },
+            };
+            TestDriver::testCase3<const int *>(&output, DATA, "%p");
+        }
+
+        // void debugprint(const void *p);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR volatile int *"
+                        "\n-----------------------------------\n");
+            }
+
+            volatile int a = 1;
+
+            static const DataRow<volatile int *> DATA[] =
+            {
+                //LINE       INPUT                   OUTPUT DESC
+                //---------- -----                   ------ ----
+
+                { __LINE__,  &a,       0,     "int pointer" },
+            };
+            TestDriver::testCase3<volatile int *>(&output, DATA, "%p");
+        }
+
+        // void debugprint(const void *p);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR const volatile int *"
+                        "\n-----------------------------------\n");
+            }
+
+            const volatile int a = 1;
+
+            static const DataRow<const volatile int *> DATA[] =
+            {
+                //LINE       INPUT                   OUTPUT DESC
+                //---------- -----                   ------ ----
+
+                { __LINE__,  &a,       0,     "int pointer" },
+            };
+            TestDriver::testCase3<const volatile int *>(&output, DATA, "%p");
+        }
+
+        // void debugprint(const void *p);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR MyType *"
+                        "\n-----------------------------------\n");
+            }
+
+            MyNamespace::MyType a(1);
+
+            static const DataRow<MyNamespace::MyType *> DATA[] =
+            {
+                //LINE       INPUT                   OUTPUT DESC
+                //---------- -----                   ------ ----
+
+                { __LINE__,  &a,       0,     "MyType pointer" },
+            };
+            TestDriver::testCase3<MyNamespace::MyType *>(&output, DATA, "%p");
+        }
+
+        // void debugprint(const void *p);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR const MyType *"
+                        "\n-----------------------------------\n");
+            }
+
+            const MyNamespace::MyType a(1);
+
+            static const DataRow<const MyNamespace::MyType *> DATA[] =
+            {
+                //LINE       INPUT                   OUTPUT DESC
+                //---------- -----                   ------ ----
+
+                { __LINE__,  &a,       0,     "MyType pointer" },
+            };
+            TestDriver::testCase3<const MyNamespace::MyType *>(&output, DATA, "%p");
+        }
+
+        // void debugprint(const void *p);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR volatile MyType *"
+                        "\n-----------------------------------\n");
+            }
+
+            volatile MyNamespace::MyType a(1);
+
+            static const DataRow<volatile MyNamespace::MyType *> DATA[] =
+            {
+                //LINE       INPUT                   OUTPUT DESC
+                //---------- -----                   ------ ----
+
+                { __LINE__,  &a,       0,     "MyType pointer" },
+            };
+            TestDriver::testCase3<volatile MyNamespace::MyType *>(&output, DATA, "%p");
+        }
+
+        // void debugprint(const void *p);
+        {
+            if (verbose) {
+                fprintf(stderr,
+                        "\nTESTING debugprint FOR const volatile MyType *"
+                        "\n-----------------------------------\n");
+            }
+
+            const volatile MyNamespace::MyType a(1);
+
+            static const DataRow<const volatile MyNamespace::MyType *> DATA[] =
+            {
+                //LINE       INPUT                   OUTPUT DESC
+                //---------- -----                   ------ ----
+
+                { __LINE__,  &a,       0,     "MyType pointer" },
+            };
+            TestDriver::testCase3<const volatile MyNamespace::MyType *>(&output, DATA, "%p");
         }
 
       } break;

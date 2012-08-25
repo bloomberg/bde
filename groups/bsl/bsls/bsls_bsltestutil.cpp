@@ -128,10 +128,41 @@ void debugprint(char *v)
     }
 }
 
+void debugprint(const volatile char *v)
+{
+    if (v) {
+        printf("\"%s\"", v);
+    } else {
+        printf("(null)", v);
+    }
+}
+
+void debugprint(volatile char *v)
+{
+    if (v) {
+        printf("\"%s\"", v);
+    } else {
+        printf("(null)", v);
+    }
+}
+
 void debugprint(const void *v)
 {
     printf("%p", v);
 }
+
+void debugprint(const volatile void *v)
+{
+    printf("%p", v);
+}
+
+// Possible future support for function pointers (req. C++11)
+//
+// template< class RESULT, class ... ARGS>
+// void debugprint(RESULT (*v)(ARGS...))
+// {
+//     printf("%p", reinterpret_cast<uinptr_t>(v));
+// }
 
 }  // close package namespace
 }  // close enterprise namespace
