@@ -378,29 +378,16 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
         // significant bits after being divided by the timerFrequency.
         // Therefore the calculation can be done on the high-dword contribution
         // by dividing first by the frequency and then multiplying by one
-        // billion.  Similarly, one billion fits inside signed 32 bits, so the
-        // low-dword contribution can be multiplied by one billion without
-        // overflowing.  Therefore, the calculation can be done on the
-        // low-dword contribution by multiplying first by one billion, and then
-        // dividing by the frequency.
-
-        // const bsls::Types::Uint64 HIGH_MASK = 0xffffffff00000000;
-        // return (
-        //         (
-        //          static_cast<bsls::Types::Int64>(t.QuadPart & HIGH_MASK)
-        //              / timerFrequency
-        //         ) * G
-        //         +
-        //         (
-        //          static_cast<bsls::Types::Uint64>(t.LowPart)
-        //              * G
-        //         ) / timerFrequency
-        //        );                                                  // RETURN
-
-        // If the high-dword contribution is small, this approach will lose
-        // most of the significant bits from the high-dword contribution during
-        // the initial division.  It can be improved by merging the division
-        // with the multiplication by one billion:
+        // billion.  Then the remainder of the division by frequency can be
+        // calculated and added back to the low part of the result, for
+        // complete accuracy down to the nanosecond.  Similarly, one billion
+        // fits inside signed 32 bits, so the low-dword contribution can be
+        // multiplied by one billion without overflowing.  Therefore, the
+        // calculation can be done on the low-dword contribution by multiplying
+        // first by one billion, and then dividing by the frequency.  Finally,
+        // the whole calculation can be sped up by pre-calculating the parts of
+        // the calculation that involve frequency and constants, and caching
+        // the results at initialization time.
 
         return (
                 // Divide high part by frequency
@@ -419,17 +406,18 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
                     / timerFrequency
                 );                                                    // RETURN
 
-        // Note that by caching the highPart factors, this code runs as fast as
-        // the original implementation.  It works for counters representing
-        // time values up to 292 years (the upper limit for representing
-        // nanoseconds in 64 bits), and for any frequency that fits in 32 bits.
-        // The original implementation broke down on counter values over
-        // ~9x10^12, which could be as little as 50 minutes with a 3GHz clock.
+        // Note that this code runs as fast as the original implementation.  It
+        // works for counters representing time values up to 292 years (the
+        // upper limit for representing nanoseconds in 64 bits), and for any
+        // frequency that fits in 32 bits.  The original implementation broke
+        // down on counter values over ~9x10^12, which could be as little as 50
+        // minutes with a 3GHz clock.
 
         // Another alternative is to use floating-point arithmetic.  This is
-        // just as fast as the integer arithmetic on my development machine,
-        // but might be very slow on systems with pre-Pentium CPUs, unless they
-        // have a separate floating-point processor.
+        // just as fast as the integer arithmetic on my development machine.
+        // On the other hand, it is accurate to only 15 decimal places, which
+        // will affect our resolution on timers that have been running for more
+        // than 11 days.
 
         // return static_cast<bsls::Types::Int64>(
         //     static_cast<double>(t.QuadPart) * G) /
@@ -543,37 +531,6 @@ Types::Int64 TimeUtil::getTimer()
     TimeUtil::OpaqueNativeTime rawTime;
     getTimerRaw(&rawTime);
     return convertRawTime(rawTime);
-
-    // Other generic BSLS_PLATFORM__OS_UNIX implementations are left in place
-    // as comments for historical reference.
-
-    // The below imp would cause bsls_stopwatch to profile at ~1.45 usec on AIX
-    // when compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r
-    //..
-    //  const Types::Int64 G = 1000000000;
-    //  timespec ts;
-    //  clock_gettime(CLOCK_REALTIME, &ts);
-    //  return = (Types::Int64) ts.tv_sec * G + ts.tv_nsec;
-    //..
-
-    // Historic workaround for non-monotonic clock behavior.
-    //..
-    //  const Types::Int64 K = 1000;
-    //  const Types::Int64 M = 1000000;
-    //  timeval t;
-    //  Types::Int64 t0, t1, t2;
-    //  gettimeofday(&t, 0);
-    //  t0 = ((Types::Int64) t.tv_sec * M + t.tv_usec) * K;
-    //  do {
-    //      gettimeofday(&t, 0);
-    //      t1 = ((Types::Int64) t.tv_sec * M + t.tv_usec) * K;
-    //  } while (t1 == t0);
-    //  do {
-    //      gettimeofday(&t, 0);
-    //      t2 = ((Types::Int64) t.tv_sec * M + t.tv_usec) * K;
-    //  } while (t2 == t1);
-    //  return t2 < t1 || t2 < t1 + 10 * M ? t2 : t1;
-    //..
 
 #elif defined BSLS_PLATFORM__OS_WINDOWS
 

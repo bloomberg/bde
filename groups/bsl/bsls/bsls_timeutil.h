@@ -31,26 +31,29 @@ BSLS_IDENT("$Id: $")
 // implied by the return value.  The user is advised to determine the actual
 // performance on each platform of interest.
 //
-// On windows platforms, 'bsls::TimeUtil::getTimer' and
-// 'bsls::TimeUtil::getRawTimer' can produce extremely unreliable results.  On
-// some machines, these high-resolution functions have been observed to run at
+///Accuracy on Windows
+///- - - - - - - - - -
+// On certain windows platform configurations, 'bsls::TimeUtil::getTimer' and
+// 'bsls::TimeUtil::getRawTimer' can produce unreliable results.  On some
+// machines, these high-resolution functions have been observed to run at
 // inconsistent speeds, with worst cases as slow as half the speed of actual
 // wall time.  This is known behavior of the underlying high-performance timer
 // function 'QueryPerformanceCounter', upon which the Windows implementation of
 // 'bsls::TimeUtil' relies.  Depending on the OS and machine configuration,
 // 'QueryPerformanceCounter' may be based on different underlying hardware
-// timers.  Often, 'QueryPerformanceCounter' will be based on the CPU's
-// timestamp counter (TSC).
+// timers.
 //
-// On machines with SpeedStep or another CPU speed scaling mechanism, the TSC
-// may change its speed as the CPU speed changes, resulting in slow and
-// inconsistent clock speeds.  Newer machines may provide an 'Invariant TSC'
-// which solves this problem.  Windows Vista and later OS versions may be able
-// to defend against timer accuracies due to CPU frequency scaling by basing
-// 'QueryPerformanceCounter' on the TSC only if the machine provides an
-// 'Invariant TSC'.  Nevertheless, the actual behavior of the timer should be
-// checked on any given machine, as it is a combination of interactions between
-// the OS, BIOS and hardware, and is vulnerable to bugs in all three.
+// The behavior of the timer on windows platforms depends on the interaction of
+// operating system, BIOS, and processor, and certain combinations of the three
+// (particularly older ones) are vulnerable to timer inaccuracy. For example,
+// frequently the 'QueryPerformanceCounter' function that 'TmeUtil' uses on
+// Windows will utilize the CPU's timestamp counter (TSC), and CPUs with speed
+// scaling mechanisms such as SpeedStep (frequently used for power management)
+// will generally see inconsistent clock speeds. However, newer processors
+// often provide an 'Invariant TSC' that solves this problem. Also versions of
+// Windows starting with Vista may internally handle the inconsistency by
+// automatically using a lower resolution, but accurate, counter on processors
+// that do not provide an 'Invariant TSC'.
 //
 // In addition, on multi-core machines, each call to 'QueryPerformanceCounter'
 // may read the TSC from a different CPU.  The TSCs of the CPUs may be out of
@@ -58,6 +61,8 @@ BSLS_IDENT("$Id: $")
 //
 // Reference: http://support.microsoft.com/kb/895980
 //
+///Ensuring Accurate Timers on Windows
+///- - - - - - - - - - - - - - - - - -
 // If a Windows machine appears to have a slow and/or inconsistent
 // high-resolution timer, it can be reconfigured to avoid using the TSC.  On
 // Windows XP and earlier versions, add the parameter '/usepmtimer' to the
@@ -69,7 +74,7 @@ BSLS_IDENT("$Id: $")
 // Note that unless the machine has a High Performance Event Timer (HPET) and
 // it has been enabled in the BIOS, these steps might reduce the resolution of
 // the 'bsls::TimeUtil' high-resolution functions from the nanosecond range to
-// the microsecond range or worse.
+// the microsecond range (or worse).
 //
 ///Usage
 ///-----
