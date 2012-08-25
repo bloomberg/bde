@@ -18,8 +18,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a class, 'bslmf::MatchInteger', to which
 // any integral type can be implicitly converted.  A class with that conversion
-// property is needed to meet the certain requirements of the standard
-// sequential containers.
+// property is useful for meeting the certain requirements of the standard
+// sequential containers (e.g., 'bsl::vector', 'bsl::deque', 'bsl::string').
 //
 // Sequential containers have several overloaded method templates that accept a
 // pair of input iterators (e.g., constructors, 'insert' and 'append' methods),
@@ -248,7 +248,7 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //  }
 //..
-// Next, we define two overloaded 'privateInitDispatch' methods, each taking
+// Now, we define two overloaded 'privateInitDispatch' methods, each taking
 // two parameters (the last two) which serve no run-time purpose.  As we shall
 // see, they exist only to guide overload resolution at compile-time.
 //..
@@ -376,13 +376,6 @@ BSLS_IDENT("$Id: $")
 // for the second object, but called via 'privateInitDispatch' for the
 // third object.
 
-// Prevent 'bslmf' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "<bslmf_matchinteger.h> header can't be included directly in \
-        BSL_OVERRIDES_STD mode"
-#endif
-
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
@@ -394,17 +387,23 @@ namespace bslmf {
                         // ==================
                         // class MatchInteger
                         // ==================
-
 struct MatchInteger {
-    // Use as formal parameter for functions where an integral type can be
-    // confused with an iterator type.  This class will match any integral
-    // value.  If a type has a user-defined conversion to integral value, this
-    // will *not* match because passing such an object would require two
+    // This copy-constructible mechanism provides can be used as a formal
+    // parameter for functions where an integral type can be confused with an
+    // iterator type.  A copy-constructbile mechanism is needed so that such
+    // objects can be used as function arguments.
+    //
+    // Note that if a type has a user-defined conversion to integral value,
+    // this will *not* match because passing such an object would require two
     // user-defined conversions.
 
     // CREATORS
     MatchInteger(int);                                              // IMPLICIT
         // Conversion constructor.  Does nothing.
+
+    //! MatchInteger(const MatchInteger&) = default
+        // Create a 'MatchInteger' object.  Note that as 'MatchInteger' is an
+        // empty (stateless) type, this operation has no observable effect.
 
     //! ~MatchInteger() = default;
         // Destroy this object.

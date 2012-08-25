@@ -28,7 +28,9 @@ using namespace std;
 //
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 1] bslmf::MatchInteger(int);
+// [ 1] MatchInteger(int);
+// [ 1] MatchInteger(const MatchInteger&);
+// [ 1] ~MatchInteger();
 // ----------------------------------------------------------------------------
 // [ 2] INTEGRAL CONVERIBILITY
 // [ 3] USAGE EXAMPLE
@@ -378,7 +380,7 @@ namespace usageExample1 {
 //..
 // USAGE: END: SLICE 4 of 10
 // USAGE: BEG: SLICE 6 of 10
-// Next, we define two overloaded 'privateInitDispatch' methods, each taking
+// Now, we define two overloaded 'privateInitDispatch' methods, each taking
 // two parameters (the last two) which serve no run-time purpose.  As we shall
 // see, they exist only to guide overload resolution at compile-time.
 //..
@@ -571,9 +573,9 @@ namespace usageExample1 {
 //  INIT: repeated value: Called with 'int' and 'char'.
 //  INIT: repeated value: Called via 'privateInitDispatch'.
 //..
-// Notice that the repeated value 'privateInit' method is called directly
-// for the second object, but called via 'privateInitDispatch' for the
-// third object.
+// Notice that the repeated value 'privateInit' method is called directly for
+// the second object, but called via 'privateInitDispatch' for the third
+// object.
 // USAGE: END: SLICE 10 of 10
 //..
         return 0;
@@ -667,38 +669,55 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // CTOR
-        //   Ensure that we can construct an object, and destroy it safely.
+        // VALUE CTOR, COPY CTOR, and DTOR
+        //   Ensure that we can construct an object, use it as a function
+        //   argument, and destroy it safely.
         //
         // Concerns:
         //: 1 The non-'explicit' constructor will safely construct an object
         //:   for an arbitrary 'int' value.
         //:
-        //: 2 The (compilter-generated default) destructor, safely destroys
-        //:   the object.
-        //:   testing in subsequent test cases.
+        //: 2 The object can be (compiler-generated) copy-constructed and used
+        //:   a function argument.
+        //:
+        //: 3 The (compiler-generated) destructor, safely destroys the object.
         //
         // Plan:
         //: 1 Construct an object 'obj' of type 'bslmf::MatchInteger' using an
         //:   arbitrary integer value.  (C-1)
         //:
-        //: 2 Allow the constructed object to go out of scope.
+        //: 2 Pass the constructed 'obj' to 'accepObj' to a locally defined
+        //:   function with a formal parameter of 'MatchInteger', and confirm
+        //:   that the correct function was called.  (C-2)
+        //:
+        //: 3 Allow the constructed object to go out of scope.  (C-3)
         //
         // Testing:
-        //   bslmf::MatchInteger(int)
+        //   MatchInteger(int);
+        //   MatchInteger(const MatchInteger&);
+        //   ~MatchInteger();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCTOR"
-                            "\n====\n");
+        if (verbose) printf("\nVALUE CTOR, COPY CTOR, and DTOR"
+                            "\n===============================\n");
 
         {
             Obj obj(-1234);
+
+            struct Local {
+                static int sink(Obj obj)
+                {
+                    return 4321;
+                }
+                static int sink(...) 
+                {
+                    return 5678;
+                }
+            };
+
+            ASSERT(4321 == Local::sink(obj));
         }
 
-      } break;
-      default: {
-        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
-        testStatus = -1;
       } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -750,7 +769,10 @@ int main(int argc, char *argv[])
         }
         acceptObj(p);
 #endif
-
+      } break;
+      default: {
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+        testStatus = -1;
       } break;
     }
 
