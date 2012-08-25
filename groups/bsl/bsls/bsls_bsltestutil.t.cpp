@@ -552,14 +552,14 @@ int printDatum(FILE        *outStream,
                        identifierI,
                        connector,
                        valueI,
-                       suffix);
+                       suffix);                                       // RETURN
     } else {
         return fprintf(outStream,
                        tempFormatString,
                        identifierI,
                        connector,
                        "(null)",
-                       suffix);
+                       suffix);                                       // RETURN
     }
 }
 
@@ -584,14 +584,14 @@ int printDatum(FILE        *outStream,
                        identifierI,
                        connector,
                        valueI,
-                       suffix);
+                       suffix);                                       // RETURN
     } else {
         return fprintf(outStream,
                        tempFormatString,
                        identifierI,
                        connector,
                        "(null)",
-                       suffix);
+                       suffix);                                       // RETURN
     }
 }
 
@@ -811,13 +811,13 @@ int OutputRedirector::redirectStream(FILE *from, FILE *to)
     // instead of 'freopen', because 'freopen' fails on AIX with errno
     // 13 'Permission denied' when redirecting stderr.
 
-#if ! defined(BSLS_BSLTESTUTIL__OS_AIX)
-    return (stderr == freopen("/dev/stdout", "w", stderr)) ? 0 : -1;
-#elif 0 && defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
-    return _dup2(_fileno(from), _fileno(to));
-#else
+#if defined(BSLS_BSLTESTUTIL__OS_AIX)
     int redirected = dup2(fileno(from), fileno(to));
     return redirected == fileno(to) ? 0 : -1;
+#elif defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
+    return _dup2(_fileno(from), _fileno(to));
+#else
+    return (stderr == freopen("/dev/stdout", "w", stderr)) ? 0 : -1;
 #endif
 }
 
@@ -2437,8 +2437,10 @@ int main(int argc, char *argv[])
                 //LINE       INPUT             OUTPUT DESC
                 //---------- -----             ------ ----
 
-                { __LINE__,  static_cast<void *>(0),       0,     "NULL pointer" },
-                { __LINE__,  static_cast<void *>(&output), 0,     "valid address" },
+                { __LINE__,  static_cast<void *>(0),
+                                               0,     "NULL pointer" },
+                { __LINE__,  static_cast<void *>(&output),
+                                               0,     "valid address" },
             };
             TestDriver::testCase3<void *>(&output, DATA, "%p");
         }
@@ -2456,8 +2458,10 @@ int main(int argc, char *argv[])
                 //LINE       INPUT                   OUTPUT DESC
                 //---------- -----                   ------ ----
 
-                { __LINE__,  static_cast<const void *>(0),       0,     "NULL pointer" },
-                { __LINE__,  static_cast<const void *>(&output), 0,     "valid address" },
+                { __LINE__,  static_cast<const void *>(0),
+                                                     0,     "NULL pointer" },
+                { __LINE__,  static_cast<const void *>(&output),
+                                                     0,     "valid address" },
             };
             TestDriver::testCase3<const void *>(&output, DATA, "%p");
         }
@@ -2664,10 +2668,14 @@ int main(int argc, char *argv[])
 
                 { __LINE__,  static_cast<volatile char *>(0),
                                     "(null)", "null string"  },
-                { __LINE__,  const_cast<volatile char *>(""),       0,     "empty string" },
-                { __LINE__,  const_cast<volatile char *>("a"),      0,     "non-empty string" },
-                { __LINE__,  const_cast<volatile char *>("a\nb"),   0,     "string with embedded newline" },
-                { __LINE__,  const_cast<volatile char *>("a\r\nb"), 0,     "string with embedded <CRLF>" },
+                { __LINE__,  const_cast<volatile char *>(""),
+                                       0,     "empty string" },
+                { __LINE__,  const_cast<volatile char *>("a"),
+                                       0,     "non-empty string" },
+                { __LINE__,  const_cast<volatile char *>("a\nb"),
+                                       0,     "string with embedded newline" },
+                { __LINE__,  const_cast<volatile char *>("a\r\nb"),
+                                       0,     "string with embedded <CRLF>" },
             };
             TestDriver::testCase3<volatile char *>(&output,
                                                 DATA,
@@ -2687,8 +2695,10 @@ int main(int argc, char *argv[])
                 //LINE       INPUT                   OUTPUT DESC
                 //---------- -----                   ------ ----
 
-                { __LINE__,  static_cast<volatile void *>(0),       0,     "NULL pointer" },
-                { __LINE__,  static_cast<volatile void *>(&output), 0,     "valid address" },
+                { __LINE__,  static_cast<volatile void *>(0),
+                                                     0,     "NULL pointer" },
+                { __LINE__,  static_cast<volatile void *>(&output),
+                                                     0,     "valid address" },
             };
             TestDriver::testCase3<volatile void *>(&output, DATA, "%p");
         }
@@ -2760,7 +2770,9 @@ int main(int argc, char *argv[])
                 { __LINE__,  1,        0,     "1" },
                 { __LINE__,  UINT_MAX, 0,     "UINT_MAX" },
             };
-            TestDriver::testCase3<const volatile unsigned int>(&output, DATA, "%u");
+            TestDriver::testCase3<const volatile unsigned int>(&output,
+                                                               DATA,
+                                                               "%u");
         }
 
         // void debugprint(double v);
@@ -2783,7 +2795,9 @@ int main(int argc, char *argv[])
                 { __LINE__,  DBL_MAX,   0,     "DBL_MAX" },
                 { __LINE__,  DBL_MIN,   0,     "DBL_MIN" },
             };
-            TestDriver::testCase3<const volatile double>(&output, DATA, "'%g'");
+            TestDriver::testCase3<const volatile double>(&output,
+                                                         DATA,
+                                                         "'%g'");
         }
 
         // void debugprint(const char *str);
@@ -2824,8 +2838,10 @@ int main(int argc, char *argv[])
                 //LINE       INPUT                   OUTPUT DESC
                 //---------- -----                   ------ ----
 
-                { __LINE__,  static_cast<const volatile void *>(0),       0,     "NULL pointer" },
-                { __LINE__,  static_cast<const volatile void *>(&output), 0,     "valid address" },
+                { __LINE__,  static_cast<const volatile void *>(0),
+                                                     0,     "NULL pointer" },
+                { __LINE__,  static_cast<const volatile void *>(&output),
+                                                     0,     "valid address" },
             };
             TestDriver::testCase3<const volatile void *>(&output, DATA, "%p");
         }
@@ -2995,7 +3011,9 @@ int main(int argc, char *argv[])
 
                 { __LINE__,  &a,       0,     "MyType pointer" },
             };
-            TestDriver::testCase3<const MyNamespace::MyType *>(&output, DATA, "%p");
+            TestDriver::testCase3<const MyNamespace::MyType *>(&output,
+                                                               DATA,
+                                                               "%p");
         }
 
         // void debugprint(const void *p);
@@ -3015,7 +3033,9 @@ int main(int argc, char *argv[])
 
                 { __LINE__,  &a,       0,     "MyType pointer" },
             };
-            TestDriver::testCase3<volatile MyNamespace::MyType *>(&output, DATA, "%p");
+            TestDriver::testCase3<volatile MyNamespace::MyType *>(&output,
+                                                                  DATA,
+                                                                  "%p");
         }
 
         // void debugprint(const void *p);
@@ -3035,7 +3055,8 @@ int main(int argc, char *argv[])
 
                 { __LINE__,  &a,       0,     "MyType pointer" },
             };
-            TestDriver::testCase3<const volatile MyNamespace::MyType *>(&output, DATA, "%p");
+            TestDriver::testCase3<const volatile MyNamespace::MyType *>(
+                                                          &output, DATA, "%p");
         }
 
       } break;
