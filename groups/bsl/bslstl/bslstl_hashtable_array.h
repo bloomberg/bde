@@ -171,6 +171,16 @@ class HashTable_Array {
         // undefined unless '0 <= size'.  Note that if 'size' is 0, no memory
         // is required for this instantiation.
 
+    HashTable_Array(const HashTable_Array& other,
+                    bslma_Allocator *basicAllocator = 0);
+        // Create an array of the specified 'size' of the parameterized type
+        // 'TYPE', using the default constructor of 'TYPE' to initialize the
+        // individual elements in the array.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  The behavior is
+        // undefined unless '0 <= size'.  Note that if 'size' is 0, no memory
+        // is required for this instantiation.
+
     ~HashTable_Array();
         // Destroy this array.
 
@@ -195,6 +205,9 @@ class HashTable_Array {
         // the 'clear' and 'resize' methods.  The behavior is undefined unless
         // '0 <= index < size()'.
 
+    TYPE * data();
+        // TBD
+
     iterator begin();
         // Return an 'iterator' positioned at the first element in this
         // array if it exists, and 'end()' if the size of this array is 0.
@@ -203,7 +216,7 @@ class HashTable_Array {
         // Return a 'iterator' positioned at 'begin() + size()'.
 
     // ACCESSORS
-    
+
     std::size_t size() const;
         // Return the number of elements in this array.
 
@@ -239,46 +252,14 @@ inline
 void HashTable_Array<TYPE>::allocateArray(std::size_t newSize)
 {
     if (newSize) {
-        d_data_p =  
+        d_data_p =
           static_cast<TYPE *>(d_allocator_p->allocate(sizeof(TYPE) * newSize));
         bslma::DeallocatorProctor<bslma_Allocator> autoDealloc(d_data_p,
                                                               d_allocator_p);
-        bslalg::ArrayPrimitives::defaultConstruct(begin(), 
-                newSize, 
+        bslalg::ArrayPrimitives::defaultConstruct(begin(),
+                newSize,
                 d_allocator_p);
         autoDealloc.release();
-    }
-    d_size = newSize;
-}
-
-template <typename TYPE> 
-inline
-void HashTable_Array<TYPE>::resize(std::size_t newSize) {
-    if (newSize <= this->size()) {
-        BloombergLP::bslalg::ArrayDestructionPrimitives::destroy(
-                                                       this->begin() + newSize,
-                                                       this->end());
-    }
-    else {
-
-        bslalg::ConstructorProxy<TYPE> defaultValue(
-                                                  bslma::Default::allocator());
-        HashTable_Array<TYPE> temp(this->get_allocator());
-        temp.allocateArray(newSize);
-
-        TYPE *cursor = this->end();
-        bslalg::ArrayPrimitives::destructiveMoveAndInsert(
-                                                       temp.begin(),
-                                                       &cursor,
-                                                       this->begin(),
-                                                       this->end(),
-                                                       this->end(),
-                                                       defaultValue.object(),
-                                                       newSize - this->size(),
-                                                       this->get_allocator());
-
-        std::swap(this->d_data_p, temp.d_data_p);
-        temp.d_size = d_size;
     }
     d_size = newSize;
 }
@@ -298,10 +279,35 @@ inline
 HashTable_Array<TYPE>::HashTable_Array(std::size_t      size,
                                        bslma_Allocator *basicAllocator)
 : d_data_p(0)
-, d_size(size)
+, d_size(0)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
     allocateArray(size);
+}
+
+template <typename TYPE>
+inline
+HashTable_Array<TYPE>::HashTable_Array(const HashTable_Array& other,
+                                       bslma_Allocator *basicAllocator)
+: d_data_p(0)
+, d_size(0)
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
+{
+    if(0 != other.d_size) {
+        d_data_p = static_cast<TYPE *>(
+                         d_allocator_p->allocate(sizeof(TYPE) * other.d_size));
+
+        bslma::DeallocatorProctor<bslma_Allocator> autoDealloc(d_data_p,
+                                                               d_allocator_p);
+        bslalg::ArrayPrimitives::copyConstruct(this->begin(),
+                                               other.begin(),
+                                               other.end(),
+                                               d_allocator_p);
+
+        autoDealloc.release();
+    }
+
+    d_size = other.d_size;
 }
 
 template <typename TYPE>
@@ -324,6 +330,47 @@ void HashTable_Array<TYPE>::clear()
         d_size   = 0;
     }
 }
+
+template <typename TYPE>
+inline
+void HashTable_Array<TYPE>::resize(std::size_t newSize) {
+    if (newSize <= this->size()) {
+        BloombergLP::bslalg::ArrayDestructionPrimitives::destroy(
+                                                       this->begin() + newSize,
+                                                       this->end());
+    }
+    else {
+        HashTable_Array<TYPE> temp(this->get_allocator());
+
+        temp.d_data_p = static_cast<TYPE *>(
+                         d_allocator_p->allocate(sizeof(TYPE) * other.d_size));
+
+        bslma::DeallocatorProctor<bslma_Allocator> autoDealloc(temp.d_data_p,
+                                                               d_allocator_p);
+
+        bslalg::ConstructorProxy<TYPE> defaultValue(
+                                                  bslma::Default::allocator());
+
+
+
+        TYPE *cursor = this->end();
+        bslalg::ArrayPrimitives::destructiveMoveAndInsert(
+                                                       temp.begin(),
+                                                       &cursor,
+                                                       this->begin(),
+                                                       this->end(),
+                                                       this->end(),
+                                                       defaultValue.object(),
+                                                       newSize - this->size(),
+                                                       this->get_allocator());
+
+        autoDealloc.release();
+        std::swap(this->d_data_p, temp.d_data_p);
+        temp.d_size = d_size;
+    }
+    d_size = newSize;
+}
+
 
 template <typename TYPE>
 inline

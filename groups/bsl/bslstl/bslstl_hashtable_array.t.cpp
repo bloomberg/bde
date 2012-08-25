@@ -116,6 +116,12 @@ class ClassNoAlloc {
     size_t& value() { return d_x; }
     const size_t& value() const { return d_x; }
 };
+
+bool operator==(const ClassNoAlloc& lhs, const ClassNoAlloc& rhs)
+{
+    return lhs.value() == rhs.value();
+}
+
 typedef bslstl::HashTable_Array<ClassNoAlloc> NoAllocArray;
 
 class ClassAlloc {
@@ -456,6 +462,18 @@ int main(int argc, char *argv[])
                 for (size_t j = 0; j < X.size(); ++j) {
                     ASSERT(j == X[j].value());
                 }
+
+                NoAllocArray mY(X, Z); 
+                NoAllocArray::iterator itX = mX.begin();
+                NoAllocArray::iterator itY = mY.begin();
+
+                while (itX != mY.end() && itX != mX.end()) {
+                    LOOP2_ASSERT(itY->value(), itX->value(), *itY == *itX);
+                    ++itY; 
+                    ++itX;
+                }
+                ASSERT(itY == mY.end());
+                ASSERT(itX == mX.end());
             }
             mX.clear();
             ASSERT(0 == testAllocator.numBlocksInUse());

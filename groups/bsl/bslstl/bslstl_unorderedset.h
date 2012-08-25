@@ -424,7 +424,7 @@ template <class KEY_TYPE,
 ALLOC
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::get_allocator() const
 {
-    return d_impl.get_allocator();
+    return d_impl.allocator();
 }
 
     // size and capacity

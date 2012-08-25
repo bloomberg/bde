@@ -69,7 +69,7 @@ void HashTableUtil::insertDuplicateAtPosition(BidirectionalLink  *newNode,
     BSLS_ASSERT_SAFE(!newNode->next());
     BSLS_ASSERT_SAFE(!newNode->prev());
 
-    BidirectionalListUtil::insertLinkBeforeTail(newNode, location);
+    BidirectionalListUtil::inserLinkInHead(newNode, location);
 
     HashTableBucket *bucket = bucketForHashCode(buckets, nBuckets, hashCode);
     if (location == bucket->first()) {
@@ -100,7 +100,7 @@ void HashTableUtil::insertAtFrontOfBucket(BidirectionalLink  *newNode,
     BSLS_ASSERT_SAFE(bucket);
 
     if (bucket->first()) {
-        BidirectionalListUtil::insertLinkBeforeTail(newNode, bucket->first());
+        BidirectionalListUtil::inserLinkInHead(newNode, bucket->first());
         if (*listRoot ==  bucket->first()) {
             *listRoot = newNode;
         }
@@ -108,7 +108,7 @@ void HashTableUtil::insertAtFrontOfBucket(BidirectionalLink  *newNode,
     }
     else {
         // New bucket required
-        BidirectionalListUtil::insertLinkBeforeTail(newNode, *listRoot);
+        BidirectionalListUtil::inserLinkInHead(newNode, *listRoot);
         *listRoot = newNode;   // New buckets prepend to the front of the list
         bucket->setFirstLast(newNode);
     }

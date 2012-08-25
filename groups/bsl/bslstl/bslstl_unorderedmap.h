@@ -491,7 +491,7 @@ ALLOC
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::get_allocator() const
                                                                 BSLSTL_NOEXCEPT
 {
-    return d_impl.get_allocator();
+    return d_impl.allocator();
 }
 
     // size and capacity

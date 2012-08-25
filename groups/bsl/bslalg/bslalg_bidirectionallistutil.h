@@ -43,8 +43,8 @@ class BidirectionalLink;
 struct BidirectionalListUtil {
   public:
     static
-    void insertLinkBeforeTail(BidirectionalLink *newNode,
-                              BidirectionalLink *tail);
+    void inserLinkInHead(BidirectionalLink *newNode,
+                         BidirectionalLink *list);
        // Insert the specified 'newNode' into the doubly-linked list before the
        // specified 'tail' node.
 

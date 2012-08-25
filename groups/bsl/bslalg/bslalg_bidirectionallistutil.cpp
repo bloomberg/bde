@@ -15,7 +15,7 @@ namespace BloombergLP
 namespace bslalg
 {
 
-void BidirectionalListUtil::insertLinkBeforeTail(BidirectionalLink *newNode,
+void BidirectionalListUtil::inserLinkInHead(BidirectionalLink *newNode,
                                                  BidirectionalLink *tail)
        // Insert the specified 'newNode' into the doubly-linked list before the
        // specified 'tail' node.

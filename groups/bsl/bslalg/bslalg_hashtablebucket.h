@@ -27,6 +27,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -38,15 +42,19 @@ namespace bslalg
 
 class BidirectionalLink;
 
-                          // ========================
-                          //     Hash table nodes
-                          // ========================
+                          // =====================
+                          // class HashTableBucket
+                          // =====================
 
 class HashTableBucket {
   private:
     // DATA
     BidirectionalLink *d_first_p;
     BidirectionalLink *d_last_p;
+    
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(HashTableBucket,
+                                 TypeTraitBitwiseCopyable);
 
   public:
     // CREATORS
