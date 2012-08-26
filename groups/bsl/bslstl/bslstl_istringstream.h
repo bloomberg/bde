@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide the C++03 compatible istringstream class.
+//@PURPOSE: Provide a C++03 compatible istringstream class.
 //
 //@CLASSES:
 //  bsl::istringstream: C++03-compatible istringstream class

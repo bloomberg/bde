@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide the C++03 compatible stringstream class.
+//@PURPOSE: Provide a C++03 compatible stringstream class.
 //
 //@CLASSES:
 //  bsl::stringstream: C++03-compatible stringstream class
