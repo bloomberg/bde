@@ -48,13 +48,6 @@
 // 'BSL_INCLUDE_*' macros are defined in the standard headers inside the
 // 'bsl+stdhdrs' package.
 
-#ifdef BSL_INCLUDE_BSL_STACK
-# ifndef INCLUDED_BSLSTP_STACK
-#   include <bslstp_stack.h>
-#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
-# endif
-#endif
-
 #ifdef BSL_INCLUDE_BSL_HASH_MAP
 # ifndef INCLUDED_BSLSTP_HASHMAP
 #   include <bslstp_hashmap.h>
