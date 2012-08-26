@@ -34,8 +34,8 @@ BSLS_IDENT("$Id: $")
 //: o reference
 //: o const_reference
 //: o size_type
-//In addition, the supplied 'CONTAINER' template parameter must support the
-//following methods, (depending on the methods of 'stack' being used):
+// In addition, the supplied 'CONTAINER' template parameter must support the
+// following methods, (depending on the methods of 'stack' being used):
 //: o constructors used must take a parameter of type 'allocator_type'
 //: o void push_back(const value_type&)
 //: o void pop_back()
