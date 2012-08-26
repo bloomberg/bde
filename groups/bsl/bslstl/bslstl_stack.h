@@ -26,26 +26,24 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirements of Parametrized 'CONTAINER' Type
 ///---------------------------------------------
-// This class works with the container classes 'bsl::deque', 'bsl::vector', or
-// 'bsl::list' passed to the 'CONTAINER' template class.  In addition, other
-// container classes could be supplied for the CONTAINER argument, but they
-// must satisfy the following requirements:
-//: o The supplied 'CONTAINER' template parameter must support the following
-//:   public types:
-//:   o value_type
-//:   o reference
-//:   o const_reference
-//:   o size_type
-//: o The supplied 'CONTAINER' template parameter must support the following
-//:   methods, (depending on the methods of 'stack' being used):
-//:   o constructors used must take a parameter of type 'allocator_type'
-//:   o void push_back(const value_type&)
-//:   o void pop_back()
-//:   o value_type& back()
-//:   o size_type size()
-//:   o '==', '!=', '<', '>', '<=', '>='
-//:   o 'operator='
-//:   o std::swap(CONTAINER&, CONTAINER&) must work
+// This class will accept 'bsl::queue', 'bsl::vector', or 'bsl::list' as the
+// template parameter 'CONTAINER'.  In addition, other container classes could
+// be supplied for the CONTAINER argument, but the supplied 'CONTAINER'
+// template parameter must support the following public types:
+//: o value_type
+//: o reference
+//: o const_reference
+//: o size_type
+//In addition, the supplied 'CONTAINER' template parameter must support the
+//following methods, (depending on the methods of 'stack' being used):
+//: o constructors used must take a parameter of type 'allocator_type'
+//: o void push_back(const value_type&)
+//: o void pop_back()
+//: o value_type& back()
+//: o size_type size()
+//: o '==', '!=', '<', '>', '<=', '>='
+//: o 'operator='
+//: o std::swap(CONTAINER&, CONTAINER&) must work
 //
 ///Note on Parameterized 'VALUE' Type
 ///----------------------------------
@@ -217,35 +215,35 @@ BSLS_IDENT("$Id: $")
 // Then, the husband watches the Yankee's game on TV.  Upon returning to the
 // list he consults the list to see what task is up next:
 //
-//  ASSERT(!strcmp("Pay the bills.", toDoList.currentTask()));
+//  assert(!strcmp("Pay the bills.", toDoList.currentTask()));
 //
 // Next, he sees that he has to pay the bills.  When the bills are finished, he
 // flushes that task from the list:
 //
-//  ASSERT(false == toDoList.finishTask());
+//  assert(false == toDoList.finishTask());
 //
 // Then, he consults the list for the next task.
 //
-//  ASSERT(!strcmp("Change the car's oil.", toDoList.currentTask()));
+//  assert(!strcmp("Change the car's oil.", toDoList.currentTask()));
 //
 // Next, he sees he has to change the car's oil.  Before he can get started,
 // another request comes:
 //
 //  toDoList.enqueueTask("Get some hot dogs.");
-//  ASSERT(!strcmp("Get some hot dogs.", toDoList.currentTask()));
+//  assert(!strcmp("Get some hot dogs.", toDoList.currentTask()));
 //
 // Then, he drives the car to the convenience store and picks up some hot dogs
 // and buns.  Upon returning home, he gives the hot dogs to his wife, updates
 // the list, and consults it for the next task.
 //
-//  ASSERT(false == toDoList.finishTask());
-//  ASSERT(!strcmp("Change the car's oil.", toDoList.currentTask()));
+//  assert(false == toDoList.finishTask());
+//  assert(!strcmp("Change the car's oil.", toDoList.currentTask()));
 //
 // Next, he finishes the oil change, updates the list, and consults it for the
 // next task.
 //
-//  ASSERT(true == toDoList.finishTask());
-//  ASSERT(!strcmp("<EMPTY>", toDoList.currentTask()));
+//  assert(true == toDoList.finishTask());
+//  assert(!strcmp("<EMPTY>", toDoList.currentTask()));
 //
 // Finally, the wife has now been informed that everything is done, and she
 // makes another request:
@@ -305,11 +303,12 @@ namespace bsl {
 
 template <class CONTAINER>
 class Stack_HasAllocatorType {
-    // This 'class' computes 'VALUE', which is 'true' if the passed 'CONTAINER'
-    // defines a type 'CONTAINER::allocator_type' and 'false' otherwise.  This
-    // is used in conjuction with 'bslmf::EnableIf' to make methods of 'stack'
-    // that take allocator args exist if 'CONTAINER::allocator_type' is
-    // present, and make them not exist otherwise.
+    // This 'class' computes a public constant 'VALUE', which is 'true' if the
+    // passed 'CONTAINER' defines a type 'CONTAINER::allocator_type' and
+    // 'false' otherwise.  This is used in conjunction with 'bslmf::EnableIf'
+    // to make methods of 'stack' that take allocator arguments exist if
+    // 'CONTAINER::allocator_type' is present, and remove them from the
+    // constructor overload set otherwise.
 
     template <typename TYPE>
     static BloombergLP::bslmf::MetaInt<1> match(
@@ -402,7 +401,7 @@ class stack {
           typename BloombergLP::bslmf::EnableIf<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type * = 0);
-        // Construct a stack whose underlying continer has the value of the
+        // Construct a stack whose underlying container has the value of the
         // specified 'container', and use the specified 'allocator' to supply
         // memory.  If 'CONTAINER::allocator_type' does not exist, this
         // constructor may not be used.
@@ -448,7 +447,7 @@ class stack {
 
     // MANIPULATORS
     stack& operator=(const stack& rhs);
-        // Assign to this object the value of the specified 'rhs' objject, abd
+        // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
@@ -463,7 +462,7 @@ class stack {
         // if the stack is empty.
 
     void push(const value_type& value);
-        // Push the specifed 'value' onto the top of the stack.
+        // Push the specified 'value' onto the top of the stack.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     void push(value_type&& value);

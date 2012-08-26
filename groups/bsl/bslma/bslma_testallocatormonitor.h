@@ -412,78 +412,11 @@ BSLS_IDENT("$Id: $")
 //      assert(gam.isTotalSame());
 //      assert(dam.isTotalSame());
 //  }
-///Example 2: The 'reset' method
-///- - - - - - - - - - - - - - -
-// To demonstrate the usefulness of the 'reset' method, one needs to be testing
-// a class having multiple manipulators that allocate memory.  For brevity we
-// use 'bsl::list' which uses memory from a memory allocator supplied at
-// construction.
 //..
-//  typedef bsl::list<int> IntList;
-//..
-// In this example, we observe how some of the manipulators and
-// accessors of 'bsl::list' use memory.
-//
-// First, we declare 3 allocators, Test Object Allocator ('toa'), Test
-// Default Allocator ('tda'), and Test Global Allocator ('tga'):
-//..
-//  bslma::TestAllocator toa;
-//  bslma::TestAllocator tda;
-//  bslma::TestAllocator tga;
-//..
-// Since neither the default nor the global allocators are used for anything in
-// this exercise, we only need check their monitors 'dam' and 'gam' at the end
-// of the example.
-//
-// Then, we install our default and global allocators:
-//..
-//  bslma_DefaultAllocatorGuard defaultGuard(&tda);
-//  bslma_Default::setGlobalAllocator(&tga);
-//..
-// Next, we set up our monitors of the 3 allocators:
-//..
-//  bslma::TestAllocatorMonitor oam(&toa);
-//  bslma::TestAllocatorMonitor dam(&tda);
-//  bslma::TestAllocatorMonitor gam(&tga);
-//..
-// Then, we observe that creating an empty list allocates memory:
-//..
-//  IntList myList(&toa);
-//
-//  assert(oam.isTotalUp());
-//..
-// Next, we observe that 'push_back' also allocates memory:
-//..
-//  oam.reset();
-//
-//  myList.push_back(57);
-//
-//  assert(oam.isTotalUp());
-//
-//  myList.push_back(57);
-//..
-// Then, we observe that accessors 'back', 'front', and 'size' don't
-// cause any allocation.
-//..
-//  oam.reset();
-//
-//  assert(57 == myList.back());
-//  assert(57 == myList.front());
-//  assert(2  == myList.size());
-//
-//  assert(oam.isTotalSame());
-//..
-// Next, we observe that manipulator 'push_front' causes memory
-// allocation:
-//..
-//  myList.push_front(23);
-//
-//  assert(oam.isTotalUp());
-//
-//  assert(57 == myList.back());
-//  assert(23 == myList.front());
-//  assert(3  == myList.size());
-//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
 
 #ifndef INCLUDED_BSLMA_TESTALLOCATOR
 #include <bslma_testallocator.h>
@@ -509,6 +442,7 @@ class TestAllocatorMonitor {
     bsls::Types::Int64   d_initialTotal;    // 'numBlocksTotal'
     const TestAllocator *d_testAllocator_p; // held, not owned
 
+    // PRIVATE CLASS METHODS
     static const TestAllocator *validateArgument(
                                                const TestAllocator *allocator);
         // Return the specified 'allocator', and, if compiled in "SAFE" mode,
