@@ -14,6 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLMF_NESTED_TRAIT_DECLARATION: Associates a trait with a class
+//  BSLMF_NESTED_TRAIT_DECLARATION_IF: Conditionally associates a trait
 //
 //@SEE_ALSO: bslmf_detectnestedtrait
 //
@@ -32,11 +33,16 @@ namespace bslmf {
                         // class NestedTraitDeclaration
                         // ============================
 
-template <class TYPE, template <class T> class TRAIT>
+template <class TYPE, template <class T> class TRAIT, bool COND = true>
 class NestedTraitDeclaration {
-    // Class 'TYPE' will be convertible to 'NestedTraitDeclaration<TYPE,TRAIT>'
-    // if 'TRAIT' is associated with 'TYPE' using the
-    // 'BSLMF_NESTED_TRAIT_DECLARATION' macro.
+    // Class 'TYPE' will be convertible to
+    // 'NestedTraitDeclaration<TYPE,TRAIT,true>' if 'TRAIT' is associated with
+    // 'TYPE' using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro.  Nested trait
+    // detection depends on 'COND' being true.  If 'COND' is false, the nested
+    // trait detection will not see the conversion it is looking for and will
+    // not associate 'TRAIT' with 'TYPE'.  This feature is used by
+    // 'BSLMF_NESTED_TRAIT_DECLARATION_IF' to turn a trait on or off depending
+    // on a compile-time condition (usually another trait).
 
   public:
     // PUBLIC TYPES
@@ -57,6 +63,14 @@ class NestedTraitDeclaration {
     operator BloombergLP::bslmf::NestedTraitDeclaration<TYPE, TRAIT>() const \
     {                                                                        \
         return BloombergLP::bslmf::NestedTraitDeclaration<TYPE, TRAIT>();    \
+    }                                                                        \
+
+#define BSLMF_NESTED_TRAIT_DECLARATION_IF(TYPE, TRAIT, COND)                 \
+    operator BloombergLP::bslmf::NestedTraitDeclaration<TYPE, TRAIT,         \
+                                                        COND >() const       \
+    {                                                                        \
+        return                                                               \
+            BloombergLP::bslmf::NestedTraitDeclaration<TYPE, TRAIT, COND >();\
     }                                                                        \
 
 }  // close package namespace

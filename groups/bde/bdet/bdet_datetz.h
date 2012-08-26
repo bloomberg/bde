@@ -140,16 +140,12 @@ BDES_IDENT("$Id: $")
 #include <bdet_datetime.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
-#include <bslalg_passthroughtrait.h>
+#ifndef INCLUDED_BSLMF_ISBITWISECOPYABLE
+#include <bslmf_isbitwisecopyable.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
-#include <bslalg_typetraitbitwisecopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -187,8 +183,6 @@ class bdet_DateTz {
     // an object as both source and destination) is supported in all cases.
 
     // PRIVATE TYPES
-    typedef bslalg_PassthroughTrait<bdet_Date,
-                                    bslalg_TypeTraitBitwiseCopyable> DateTrait;
     enum ValidOffsetRange {
         // Enumeration used to hold the boundaries of the interval of validity
         // for the offset.
@@ -205,7 +199,9 @@ class bdet_DateTz {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdet_DateTz, DateTrait);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdet_DateTz,
+                                   bslmf::IsBitwiseCopyable,
+                                   bslmf::IsBitwiseCopyable<bdet_Date>::value);
 
     // CLASS METHODS
     static bool isValid(const bdet_Date& localDate, int offset);

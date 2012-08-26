@@ -1006,151 +1006,101 @@ struct bdeut_VariantImp_Traits {
     // 'bslalg_TypeTraitUsesBslmaAllocator' trait, and
     // 'bdeut_VariantImp_NonAllocatorBase' as the base class type otherwise.
 
+    typedef typename bslmf_TypeListTypeOf< 1, TYPES>::TypeOrDefault Type1;
+    typedef typename bslmf_TypeListTypeOf< 2, TYPES>::TypeOrDefault Type2;
+    typedef typename bslmf_TypeListTypeOf< 3, TYPES>::TypeOrDefault Type3;
+    typedef typename bslmf_TypeListTypeOf< 4, TYPES>::TypeOrDefault Type4;
+    typedef typename bslmf_TypeListTypeOf< 5, TYPES>::TypeOrDefault Type5;
+    typedef typename bslmf_TypeListTypeOf< 6, TYPES>::TypeOrDefault Type6;
+    typedef typename bslmf_TypeListTypeOf< 7, TYPES>::TypeOrDefault Type7;
+    typedef typename bslmf_TypeListTypeOf< 8, TYPES>::TypeOrDefault Type8;
+    typedef typename bslmf_TypeListTypeOf< 9, TYPES>::TypeOrDefault Type9;
+    typedef typename bslmf_TypeListTypeOf<10, TYPES>::TypeOrDefault Type10;
+    typedef typename bslmf_TypeListTypeOf<11, TYPES>::TypeOrDefault Type11;
+    typedef typename bslmf_TypeListTypeOf<12, TYPES>::TypeOrDefault Type12;
+    typedef typename bslmf_TypeListTypeOf<13, TYPES>::TypeOrDefault Type13;
+    typedef typename bslmf_TypeListTypeOf<14, TYPES>::TypeOrDefault Type14;
+    typedef typename bslmf_TypeListTypeOf<15, TYPES>::TypeOrDefault Type15;
+    typedef typename bslmf_TypeListTypeOf<16, TYPES>::TypeOrDefault Type16;
+    typedef typename bslmf_TypeListTypeOf<17, TYPES>::TypeOrDefault Type17;
+    typedef typename bslmf_TypeListTypeOf<18, TYPES>::TypeOrDefault Type18;
+    typedef typename bslmf_TypeListTypeOf<19, TYPES>::TypeOrDefault Type19;
+    typedef typename bslmf_TypeListTypeOf<20, TYPES>::TypeOrDefault Type20;
+
   public:
+    enum {
+        VARIANT_USES_BSLMA_ALLOCATOR = (
+            bslma::UsesBslmaAllocator< Type1>::value
+         || bslma::UsesBslmaAllocator< Type2>::value
+         || bslma::UsesBslmaAllocator< Type3>::value
+         || bslma::UsesBslmaAllocator< Type4>::value
+         || bslma::UsesBslmaAllocator< Type5>::value
+         || bslma::UsesBslmaAllocator< Type6>::value
+         || bslma::UsesBslmaAllocator< Type7>::value
+         || bslma::UsesBslmaAllocator< Type8>::value
+         || bslma::UsesBslmaAllocator< Type9>::value
+         || bslma::UsesBslmaAllocator<Type10>::value
+         || bslma::UsesBslmaAllocator<Type11>::value
+         || bslma::UsesBslmaAllocator<Type12>::value
+         || bslma::UsesBslmaAllocator<Type13>::value
+         || bslma::UsesBslmaAllocator<Type14>::value
+         || bslma::UsesBslmaAllocator<Type15>::value
+         || bslma::UsesBslmaAllocator<Type16>::value
+         || bslma::UsesBslmaAllocator<Type17>::value
+         || bslma::UsesBslmaAllocator<Type18>::value
+         || bslma::UsesBslmaAllocator<Type19>::value
+         || bslma::UsesBslmaAllocator<Type20>::value),
+
+        VARIANT_IS_BITWISE_COPYABLE = (
+            bslmf::IsBitwiseCopyable< Type1>::value
+         && bslmf::IsBitwiseCopyable< Type2>::value
+         && bslmf::IsBitwiseCopyable< Type3>::value
+         && bslmf::IsBitwiseCopyable< Type4>::value
+         && bslmf::IsBitwiseCopyable< Type5>::value
+         && bslmf::IsBitwiseCopyable< Type6>::value
+         && bslmf::IsBitwiseCopyable< Type7>::value
+         && bslmf::IsBitwiseCopyable< Type8>::value
+         && bslmf::IsBitwiseCopyable< Type9>::value
+         && bslmf::IsBitwiseCopyable<Type10>::value
+         && bslmf::IsBitwiseCopyable<Type11>::value
+         && bslmf::IsBitwiseCopyable<Type12>::value
+         && bslmf::IsBitwiseCopyable<Type13>::value
+         && bslmf::IsBitwiseCopyable<Type14>::value
+         && bslmf::IsBitwiseCopyable<Type15>::value
+         && bslmf::IsBitwiseCopyable<Type16>::value
+         && bslmf::IsBitwiseCopyable<Type17>::value
+         && bslmf::IsBitwiseCopyable<Type18>::value
+         && bslmf::IsBitwiseCopyable<Type19>::value
+         && bslmf::IsBitwiseCopyable<Type20>::value),
+
+        VARIANT_IS_BITWISE_MOVEABLE = (
+            bslmf::IsBitwiseMoveable< Type1>::value
+         && bslmf::IsBitwiseMoveable< Type2>::value
+         && bslmf::IsBitwiseMoveable< Type3>::value
+         && bslmf::IsBitwiseMoveable< Type4>::value
+         && bslmf::IsBitwiseMoveable< Type5>::value
+         && bslmf::IsBitwiseMoveable< Type6>::value
+         && bslmf::IsBitwiseMoveable< Type7>::value
+         && bslmf::IsBitwiseMoveable< Type8>::value
+         && bslmf::IsBitwiseMoveable< Type9>::value
+         && bslmf::IsBitwiseMoveable<Type10>::value
+         && bslmf::IsBitwiseMoveable<Type11>::value
+         && bslmf::IsBitwiseMoveable<Type12>::value
+         && bslmf::IsBitwiseMoveable<Type13>::value
+         && bslmf::IsBitwiseMoveable<Type14>::value
+         && bslmf::IsBitwiseMoveable<Type15>::value
+         && bslmf::IsBitwiseMoveable<Type16>::value
+         && bslmf::IsBitwiseMoveable<Type17>::value
+         && bslmf::IsBitwiseMoveable<Type18>::value
+         && bslmf::IsBitwiseMoveable<Type19>::value
+         && bslmf::IsBitwiseMoveable<Type20>::value),
+    };
+
     typedef typename bslmf_If<
-       bslalg_HasTrait<typename bslmf_TypeListTypeOf< 1, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf< 2, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf< 3, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf< 4, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf< 5, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf< 6, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf< 7, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf< 8, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf< 9, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf<10, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf<11, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf<12, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf<13, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf<14, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf<15, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf<16, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf<17, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf<18, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf<19, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    || bslalg_HasTrait<typename bslmf_TypeListTypeOf<20, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitUsesBslmaAllocator>::VALUE,
-     bdeut_VariantImp_AllocatorBase<TYPES>,
-     bdeut_VariantImp_NonAllocatorBase<TYPES> >::Type                 BaseType;
+        VARIANT_USES_BSLMA_ALLOCATOR,
+        bdeut_VariantImp_AllocatorBase<TYPES>,
+        bdeut_VariantImp_NonAllocatorBase<TYPES> >::Type BaseType;
         // Determines what the base type is.
-
-    struct BitwiseCopyableTrait : public bslmf_If<
-       bslalg_HasTrait<typename bslmf_TypeListTypeOf<1, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<2, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<3, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<4, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<5, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<6, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<7, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<8, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<9, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<10, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<11, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<12, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<13, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<14, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<15, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<16, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<17, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<18, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<19, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseCopyable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<20, TYPES>::TypeOrDefault,
-                           bslalg_TypeTraitBitwiseCopyable>::VALUE,
-        bslalg_TypeTraitBitwiseCopyable,
-        bslalg_TypeTraits_NotTrait<bslalg_TypeTraitBitwiseCopyable> >::Type
-        // Determines whether this variant is bitwise copyable.
-    {
-    };
-
-    struct BitwiseMoveableTrait : public bslmf_If<
-       bslalg_HasTrait<typename bslmf_TypeListTypeOf<1, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<2, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<3, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<4, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<5, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<6, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<7, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<8, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<9, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<10, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<11, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<12, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<13, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<14, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<15, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<16, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<17, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<18, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<19, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE
-    && bslalg_HasTrait<typename bslmf_TypeListTypeOf<20, TYPES>::TypeOrDefault,
-                       bslalg_TypeTraitBitwiseMoveable>::VALUE,
-        bslalg_TypeTraitBitwiseMoveable,
-        bslalg_TypeTraits_NotTrait<bslalg_TypeTraitBitwiseMoveable> >::Type
-        // Determines whether this variant is bitwise moveable.
-    {
-    };
-
-    struct BitwiseTraits : public BitwiseMoveableTrait,
-                           public BitwiseCopyableTrait
-        // Groups the bitwise traits together.
-    {
-    };
 };
 
                        // =============================
@@ -1186,8 +1136,6 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     // PRIVATE TYPES
     typedef bdeut_VariantImp_Traits<TYPES>                           Traits;
     typedef typename Traits::BaseType                                Base;
-    typedef bslalg_PassthroughTrait<Base,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
 
   private:
     // PRIVATE CLASS METHODS
@@ -1290,10 +1238,16 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS3(bdeut_VariantImp,
-                                  BaseTrait,
-                                  typename Traits::BitwiseTraits,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_VariantImp,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_VariantImp,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_VariantImp,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_VariantImp, bdeu_HasPrintMethod);
 
     // CREATORS
     bdeut_VariantImp();
@@ -2154,16 +2108,20 @@ class bdeut_Variant : public bdeut_VariantImp<typename bslmf_TypeList<
                                        A11, A12, A13, A14, A15,
                                        A16, A17, A18, A19, A20>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
     typedef bdeut_VariantImp_Traits<typename Imp::TypeList>          Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS3(bdeut_Variant,
-                                  BaseTrait,
-                                  typename Traits::BitwiseTraits,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant, bdeu_HasPrintMethod);
 
     // CREATORS
     bdeut_Variant();
@@ -2312,15 +2270,20 @@ class bdeut_Variant2 : public bdeut_VariantImp<typename bslmf_TypeList2<
 
     // TYPES
     typedef bdeut_VariantImp<typename bslmf_TypeList2<A1, A2>::ListType> Imp;
-
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant2,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant2,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant2,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant2,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant2, bdeu_HasPrintMethod);
 
     // CREATORS
     bdeut_Variant2();
@@ -2439,14 +2402,21 @@ class bdeut_Variant3 : public bdeut_VariantImp<typename bslmf_TypeList3<
     typedef bdeut_VariantImp<typename bslmf_TypeList3<
                                                     A1, A2, A3>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant3,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant3,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant3,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant3,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant3, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant3();
@@ -2568,14 +2538,21 @@ class bdeut_Variant4 : public bdeut_VariantImp<typename bslmf_TypeList4<
     typedef bdeut_VariantImp<typename bslmf_TypeList4<
                                                 A1, A2, A3, A4>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant4,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant4,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant4,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant4,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant4, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant4();
@@ -2697,14 +2674,21 @@ class bdeut_Variant5 : public bdeut_VariantImp<typename bslmf_TypeList5<
     typedef bdeut_VariantImp<typename bslmf_TypeList5<
                                             A1, A2, A3, A4, A5>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant5,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant5,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant5,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant5,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant5, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant5();
@@ -2826,14 +2810,21 @@ class bdeut_Variant6 : public bdeut_VariantImp<typename bslmf_TypeList6<
     typedef bdeut_VariantImp<typename bslmf_TypeList6<
                                         A1, A2, A3, A4, A5, A6>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant6,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant6,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant6,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant6,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant6, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant6();
@@ -2956,14 +2947,21 @@ class bdeut_Variant7 : public bdeut_VariantImp<typename bslmf_TypeList7<
     typedef bdeut_VariantImp<typename bslmf_TypeList7<A1, A2, A3, A4, A5,
                                                       A6, A7>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant7,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant7,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant7,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant7,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant7, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant7();
@@ -3088,14 +3086,21 @@ class bdeut_Variant8 : public bdeut_VariantImp<typename bslmf_TypeList8<
                                                     A1, A2, A3, A4, A5,
                                                     A6, A7, A8>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant8,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant8,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant8,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant8,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant8, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant8();
@@ -3226,14 +3231,21 @@ class bdeut_Variant9 : public bdeut_VariantImp<typename bslmf_TypeList9<
                                                 A1, A2, A3, A4, A5,
                                                 A6, A7, A8, A9>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant9,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant9,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant9,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant9,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant9, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant9();
@@ -3365,14 +3377,21 @@ class bdeut_Variant10 : public bdeut_VariantImp<typename bslmf_TypeList10<
                                            A1, A2, A3, A4, A5,
                                            A6, A7, A8, A9, A10>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant10,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant10,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant10,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant10,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant10, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant10();
@@ -3504,14 +3523,21 @@ class bdeut_Variant11 : public bdeut_VariantImp<typename bslmf_TypeList11<
                                                        A6, A7, A8, A9, A10,
                                                        A11>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant11,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant11,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant11,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant11,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant11, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant11();
@@ -3645,14 +3671,21 @@ class bdeut_Variant12 : public bdeut_VariantImp<typename bslmf_TypeList12<
                                                       A6,  A7,  A8,  A9,  A10,
                                                       A11, A12>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant12,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant12,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant12,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant12,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant12, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant12();
@@ -3787,14 +3820,21 @@ class bdeut_Variant13 : public bdeut_VariantImp<typename bslmf_TypeList13<
                                                  A6,  A7,  A8,  A9,  A10,
                                                  A11, A12, A13>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant13,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant13,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant13,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant13,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant13, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant13();
@@ -3931,14 +3971,21 @@ class bdeut_Variant14 : public bdeut_VariantImp<typename bslmf_TypeList14<
                                             A6,  A7,  A8,  A9,  A10,
                                             A11, A12, A13, A14>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant14,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant14,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant14,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant14,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant14, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant14();
@@ -4081,14 +4128,21 @@ class bdeut_Variant15 : public bdeut_VariantImp<typename bslmf_TypeList15<
                                        A6,  A7,  A8,  A9,  A10,
                                        A11, A12, A13, A14, A15>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant15,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant15,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant15,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant15,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant15, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant15();
@@ -4240,14 +4294,21 @@ class bdeut_Variant16 : public bdeut_VariantImp<typename bslmf_TypeList16<
                                                        A11, A12, A13, A14, A15,
                                                        A16>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant16,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant16,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant16,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant16,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant16, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant16();
@@ -4400,14 +4461,21 @@ class bdeut_Variant17 : public bdeut_VariantImp<typename bslmf_TypeList17<
                                                       A11, A12, A13, A14, A15,
                                                       A16, A17>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant17,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant17,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant17,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant17,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant17, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant17();
@@ -4559,14 +4627,21 @@ class bdeut_Variant18 : public bdeut_VariantImp<typename bslmf_TypeList18<
                                                  A11, A12, A13, A14, A15,
                                                  A16, A17, A18>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant18,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant18,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant18,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant18,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant18, bdeu_HasPrintMethod);
+
 
     // CREATORS
     bdeut_Variant18();
@@ -4720,14 +4795,20 @@ class bdeut_Variant19 : public bdeut_VariantImp<typename bslmf_TypeList19<
                                             A11, A12, A13, A14, A15,
                                             A16, A17, A18, A19>::ListType> Imp;
 
-    typedef bslalg_PassthroughTrait<Imp,
-                                 bslalg_TypeTraitUsesBslmaAllocator> BaseTrait;
+    typedef bdeut_VariantImp_Traits<typename Imp::TypeList>             Traits;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdeut_Variant19,
-                                  BaseTrait,
-                                  bdeu_TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant19,
+                                      bslma::UsesBslmaAllocator,
+                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant19,
+                                      bslmf::IsBitwiseCopyable,
+                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant19,
+                                      bslmf::IsBitwiseMoveable,
+                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_Variant19, bdeu_HasPrintMethod);
 
     // CREATORS
     bdeut_Variant19();

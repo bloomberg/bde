@@ -11,7 +11,8 @@ BDES_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bdeu_PrintMethods: templates for uniform printing of value-semantic types
-//  bdeu_TypeTraitHasPrintMethod: trait indicating existence of 'print' method
+//  bdeu_HasPrintMethod: trait indicating existence of 'print' method
+//  bdeu_TypeTraitHasPrintMethod: Old-style version of 'bdeu_HasPrintMethod'
 //
 //@AUTHOR: Shezan Baig (sbaig)
 //
@@ -260,6 +261,22 @@ class basic_string;
 
 namespace BloombergLP {
 
+                    // ==========================
+                    // struct bdeu_HasPrintMethod
+                    // ==========================
+
+template <class TYPE>
+struct bdeu_HasPrintMethod :
+        bslmf::DetectNestedTrait<TYPE, bdeu_HasPrintMethod>::type {
+    // A class, 'TYPE', should specialize this trait to derive from
+    // 'true_type' if it has a 'print' method with the following signature:
+    //..
+    //  bsl::ostream& print(bsl::ostream& stream,
+    //                      int           level          = 0,
+    //                      int           spacesPerLevel = 4) const;
+    //..
+};
+
                     // ===================================
                     // struct bdeu_TypeTraitHasPrintMethod
                     // ===================================
@@ -272,6 +289,17 @@ struct bdeu_TypeTraitHasPrintMethod {
     //                      int           level          = 0,
     //                      int           spacesPerLevel = 4) const;
     //..
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bdeu_HasPrintMethod>
+    {
+        // This class template ties the 'bslalg::TypeTaitBitwiseMoveable'
+        // trait tag to the 'bslmf::IsBitwiseMoveable' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bdeu_HasPrintMethod<TYPE>::type { };
 };
 
                         // ===========================

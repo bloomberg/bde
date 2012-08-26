@@ -225,10 +225,6 @@ BDES_IDENT("$Id: $")
 #include <bdet_time.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
-#include <bslalg_passthroughtrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
 #include <bslalg_typetraitbitwisecopyable.h>
 #endif
@@ -272,17 +268,15 @@ class bdet_TimeTz {
     // event is memory leaked.  Finally, *aliasing* (e.g., using all or part of
     // an object as both source and destination) is supported in all cases.
 
-    // PRIVATE TYPES
-    typedef bslalg_PassthroughTrait<bdet_Time,
-                                    bslalg_TypeTraitBitwiseCopyable> TimeTrait;
-
     // DATA
     bdet_Time d_time;    // time (local)
     int       d_offset;  // offset from UTC (in minutes)
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdet_TimeTz, TimeTrait);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdet_TimeTz,
+                                   bslmf::IsBitwiseCopyable,
+                                   bslmf::IsBitwiseCopyable<bdet_Time>::value);
 
     // CLASS METHODS
     static bool isValid(const bdet_Time& time, int offset);

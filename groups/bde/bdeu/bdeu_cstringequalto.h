@@ -31,8 +31,12 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISBITWISECOPYABLE
+#include <bslmf_isbitwisecopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_HASTRIVIALDEFAULTCONSTRUCTOR
+#include <bslmf_hastrivialdefaultconstructor.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -54,10 +58,6 @@ struct bdeu_CStringEqualTo {
     // strings, enabling them for use as keys in the standard unordered
     // associative containers such as 'bsl::hash_map' and 'bsl::hash_set'.
     // Note that this class is an empty POD type.
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdeu_CStringEqualTo,
-                                 bslalg::TypeTraitsGroupPod);
 
     // STANDARD TYPEDEFS
     typedef const char *first_argument_type;
@@ -89,6 +89,17 @@ struct bdeu_CStringEqualTo {
         // otherwise.  The behavior is undefined unless both 'lhs' and 'rhs'
         // point to null-terminated strings.
 };
+
+// POD TRAITS
+namespace bslmf {
+
+template <>
+struct IsBitwiseCopyable<bdeu_CStringEqualTo> : bsl::true_type { };
+
+template <>
+struct HasTrivialDefaultConstructor<bdeu_CStringEqualTo> : bsl::true_type { };
+
+} // Close namespace bslmf
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS

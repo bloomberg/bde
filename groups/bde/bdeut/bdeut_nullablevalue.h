@@ -129,7 +129,6 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-template <typename TYPE> struct bdeut_NullableValue_Traits;
 template <typename TYPE> class  bdeut_NullableValue_WithAllocator;
 template <typename TYPE> class  bdeut_NullableValue_WithoutAllocator;
 
@@ -151,19 +150,11 @@ class bdeut_NullableValue {
     // Attempts to copy construct, copy assign, or compare incompatible
     // values will fail to compile.
 
-    // PRIVATE CONSTANTS
-    enum {
-        USES_ALLOCATOR
-             = bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-    };
-
     // PRIVATE TYPES
     typedef typename
-    bslmf_If<USES_ALLOCATOR,
+    bslmf_If<bslma::UsesBslmaAllocator<TYPE>::value,
              bdeut_NullableValue_WithAllocator<TYPE>,
              bdeut_NullableValue_WithoutAllocator<TYPE> >::Type Imp;
-
-    typedef bdeut_NullableValue_Traits<TYPE> NullableValueTraits;
 
     // DATA
     Imp d_imp;
@@ -176,7 +167,20 @@ class bdeut_NullableValue {
         // a nullable object represents when it is not null.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdeut_NullableValue, NullableValueTraits);
+    // 'UsesBslmaAllocator', 'IsBitwiseCopyable', and 'IsBitwiseMoveable' are
+    // true for 'bdeut_NullableValue' only if the corresponding trait is true
+    // for 'TYPE'.  The 'bdeu_HasPrintMethod' is always true for
+    // 'bdeut_NullableValue'.
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_NullableValue,
+                                      bslma::UsesBslmaAllocator,
+                                      bslma::UsesBslmaAllocator<TYPE>::value);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_NullableValue,
+                                      bslmf::IsBitwiseCopyable,
+                                      bslmf::IsBitwiseCopyable<TYPE>::value);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_NullableValue,
+                                      bslmf::IsBitwiseMoveable,
+                                      bslmf::IsBitwiseMoveable<TYPE>::value);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_NullableValue, bdeu_HasPrintMethod);
 
     // CREATORS
     bdeut_NullableValue();
@@ -404,58 +408,6 @@ void swap(bdeut_NullableValue<TYPE>& a, bdeut_NullableValue<TYPE>& b);
 // ----------------------------------------------------------------------------
 // ---  Anything below this line is implementation specific.  Do not use.  ----
 // ----------------------------------------------------------------------------
-
-                   // =======================================
-                   // struct bdeut_NullableValue_Traits<TYPE>
-                   // =======================================
-
-// TRAITS
-
-// TBD: Meta-functions for passthrough traits are duplicated here, because
-// TBD: passthrough traits are not available in BB branch.  When it becomes
-// TBD: available, remove them from here.
-
-template <typename TRAIT> struct bdeut_NullableValue_NotTrait
-{
-    // Private class: Given a trait, this template produces a unique type
-    // which is NOT the trait type.
-};
-
-template <typename T, typename TRAIT>
-struct bdeut_NullableValue_PassthroughTraitImp
-{
-    // Private implementation of bslalg_PassthroughTrait class.
-
-    enum { HAS_TRAIT = (int) bslalg_HasTrait<T, TRAIT>::VALUE };
-
-    typedef typename bslmf_If<HAS_TRAIT,
-                              TRAIT,
-                              bdeut_NullableValue_NotTrait<TRAIT> >::Type Type;
-};
-
-template <typename T, typename TRAIT>
-struct bdeut_NullableValue_PassthroughTrait
-                      : bdeut_NullableValue_PassthroughTraitImp<T, TRAIT>::Type
-{
-    // If 'T' has 'TRAIT', then evaluate to 'TRAIT', else evaluate to a unique
-    // class that is not 'TRAIT'.  Users of this meta-function do not need to
-    // expand the result with '::Type' (though they may).
-
-    typedef typename bdeut_NullableValue_PassthroughTraitImp<T,
-                                                             TRAIT>::Type Type;
-};
-
-template <typename TYPE>
-struct bdeut_NullableValue_Traits
-    : bdeut_NullableValue_PassthroughTrait<TYPE,
-                                           bslalg_TypeTraitUsesBslmaAllocator>,
-      bdeut_NullableValue_PassthroughTrait<TYPE,
-                                           bslalg_TypeTraitBitwiseMoveable>,
-      bdeut_NullableValue_PassthroughTrait<TYPE,
-                                           bslalg_TypeTraitBitwiseCopyable>,
-      bdeu_TypeTraitHasPrintMethod {
-    // TBD: doc
-};
 
                // =============================================
                // class bdeut_NullableValue_WithAllocator<TYPE>

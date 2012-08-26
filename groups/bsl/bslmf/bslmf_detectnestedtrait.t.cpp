@@ -133,6 +133,14 @@ struct NonInflatableType
 {
 };
 
+template <class TYPE>
+struct Container
+{
+    // 'Container' is inflatable iff 'TYPE' is inflatable.
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(Container, IsInflatable,
+                                      IsInflatable<TYPE>::value);
+};
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -166,9 +174,15 @@ int main(int argc, char *argv[])
                                            IsInflatable>::value));
         ASSERT((! bslmf::DetectNestedTrait<NonInflatableType,
                                            IsInflatable>::value));
+        ASSERT((  bslmf::DetectNestedTrait<Container<InflatableType>,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<Container<NonInflatableType>,
+                                           IsInflatable>::value));
 
         ASSERT((  IsInflatable<InflatableType>::value));
         ASSERT((! IsInflatable<NonInflatableType>::value));
+        ASSERT((  IsInflatable<Container<InflatableType> >::value));
+        ASSERT((! IsInflatable<Container<NonInflatableType> >::value));
 
       } break;
 
