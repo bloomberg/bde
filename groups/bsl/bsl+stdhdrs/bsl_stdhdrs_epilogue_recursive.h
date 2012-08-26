@@ -199,6 +199,13 @@
 # endif
 #endif
 
+#ifdef BSL_INCLUDE_BSL_STACK
+# ifndef INCLUDED_BSLSTL_STACK
+#   include <bslstl_stack.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
 #ifdef BSL_INCLUDE_BSL_STRING
 # ifndef INCLUDED_BSLSTL_STRING
 #   include <bslstl_string.h>
