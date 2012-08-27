@@ -16,11 +16,175 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
 //
-//@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_vector.h>' instead and use 'bsl::vector' directly.  This component
-// implements a dynamic array class that supports the 'bslma::Allocator' model
-// and is suitable for use as an implementation of the 'std::vector' class
-// template.
+//@DESCRIPTION: This component defines a single class template 'vector',
+// implementing the standard sequential container holding a dynamic array of
+// values of (template-parameter) type 'VALUE_TYPE'.
+//
+// An instantiation of 'vector' is an allocator-aware, value-semantic type
+// whose salient attributes are its size (number of values) and the sequence of
+// values the vector contains.  If 'vector' is instantiated with an value type
+// that is not value-semantic, then the vector will not retain all of its
+// value-semantic qualities.  In particular, if an value type cannot be tested
+// for equality, then a 'vector' containing that type cannot be tested for
+// equality.  It is even possible to instantiate 'vector' with an value type
+// that does not have a copy-constructor, in which case the 'vector' will not
+// be copyable.
+//
+// A map meets the requirements of a sequential container with random access
+// iterators in the [vector] section of the C++ standard.  The 'vector'
+// implemented here adheres to the C++11 standard, except it does not have
+// interfaces that take rvalue references, 'initializer_lists', 'emplace', or
+// operations taking a variadic number of template parameters.  Note that
+// excluded C++11 features are those that require (or are greatly simplified
+// by) C++11 compiler support.
+//
+///Requirements on 'VALUE_TYPE'
+///---------------------------------
+// A 'vector' is a fully "Value-Semantic Type" (see {'bsldoc_glossary'}) only
+// if the supplied 'VALUE_TYPE' template parameter is fully value-semantic.  It
+// is possible to instantiate a 'map' with 'VALUE_TYPE' parameters that do not
+// a full set of value-semantic operations, but then some methods of the
+// container may not be instantiable.  The following terminology, adopted from
+// the C++11 standard, is used in the function-level documentation of 'vector'
+// to describe a method's requirements for the 'VALUE_TYPE' template parameter.
+// These terms are also defined in section [17.6.3.1] of the C++11 standard.
+//
+//: "default-constructible": The type provides a default constructor.
+//:
+//: "copy-constructible": The type provides a copy constructor.
+//
+///Memory Allocation
+///-----------------
+// The type supplied as a vector's 'ALLOCATOR' template parameter determines
+// how that vector will allocate memory.  The 'vector' template supports
+// allocators meeting the requirements of the C++03 standard, in
+// addition it supports scoped-allocators derived from the 'bslma::Allocator'
+// memory allocation protocol.  Clients intending to use 'bslma' style
+// allocators should use the template's default 'ALLOCATOR' type: The default
+// type for the 'ALLOCATOR' template parameter, 'bsl::allocator', provides a
+// C++11 standard-compatible adapter for a 'bslma::Allocator' object.
+//
+///'bslma'-Style Allocators
+/// - - - - - - - - - - - -
+// If the (template parameter) type 'ALLOCATOR' of an 'vector' instantiation'
+// is 'bsl::allocator', then objects of that vector type will conform to the
+// standard behavior of a 'bslma'-allocator-enabled type.  Such a vector
+// accepts an optional 'bslma::Allocator' argument at construction.  If the
+// address of a 'bslma::Allocator' object is explicitly supplied at
+// construction, it will be used to supply memory for the vector throughout its
+// lifetime; otherwise, the vector will use the default allocator installed at
+// the time of the vector's construction (see 'bslma_default').  In addition to
+// directly allocating memory from the indicated 'bslma::Allocator', a vector
+// supplies that allocator's address to the constructors of contained objects
+// of the (template parameter) type 'VALUE_TYPE', if it define the
+// 'bslalg::TypeTraitUsesBslmaAllocator' trait.
+//
+///Operations
+///----------
+// This section describes the run-time complexity of operations on instances
+// of 'map':
+//..
+//  Legend
+//  ------
+//  'V'             - the 'VALUE_TYPE' template parameter type of the map
+//  'a', 'b'        - two distinct objects of type 'vector<V>'
+//  'n', 'm'        - number of elements in 'a' and 'b' respectively
+//  'value_type'    - vector<V>::value_type
+//  'al             - an STL-style memory allocator
+//  'i1', 'i2'      - two iterators defining a sequence of 'value_type' objects
+//  'v'             - an object of type 'V'
+//  'p1', 'p2'      - two iterators belonging to 'a'
+//  dist(i1,i2) - the number of elements in the range [i1, i2)
+//
+//  +----------------------------------------------------+--------------------+
+//  | Operation                                          | Complexity         |
+//  +====================================================+====================+
+//  | vector<V> a;    (default construction)             | O[1]               |
+//  | vector<V> a(al);                                   |                    |
+//  +----------------------------------------------------+--------------------+
+//  | vector<V> a(b); (copy construction)                | O[n]               |
+//  | vector<V> a(b, al);                                |                    |
+//  +----------------------------------------------------+--------------------+
+//  | vector<V> a(i1, i2);                               | O[n]               |
+//  | vector<V> a(i1, i2, al);                           |                    |
+//  | vector<V> a(i1, i2, c, al);                        |                    |
+//  |                                                    |                    |
+//  |                                                    |                    |
+//  |                                                    |                    |
+//  +----------------------------------------------------+--------------------+
+//  | a.~vector<V>(); (destruction)                      | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a = b;          (assignment)                       | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
+//  | a.rbegin(), a.rend(), a.crbegin(), a.crend()       |                    |
+//  +----------------------------------------------------+--------------------+
+//  | a == b, a != b                                     | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a < b, a <= b, a > b, a >= b                       | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.swap(b), swap(a,b)                               | O[1] if 'a' and    |
+//  |                                                    | 'b' use the same   |
+//  |                                                    | allocator,         |
+//  |                                                    | O[n + m] otherwise |
+//  +----------------------------------------------------+--------------------+
+//  | a.size()                                           | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_size()                                       | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.empty()                                          | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | get_allocator()                                    | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a[k]                                               | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.at(k)                                            | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(pos, v)                              | O[dist(pos, a.end())] |
+//  |                                                    |                |
+//  |                                                    |          a.end())] |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(pos, num, v)                              | O[num +            |
+//  |                                                    |   distance(        |
+//  |                                                    |          pos,      |
+//  |                                                    |          a.end())] |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(pos, i1, i2)                              | O[distance(        |
+//  |                                                    |          pos,      |
+//  |                                                    |          a.end())] + |distance         |
+//  |                                                    |   distance(i1,i2)] |
+//  |                                                    |                    |
+//  |                                                    | where N is         |
+//  |                                                    | n + distance(i1,i2)|
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1)                                        | amortized constant |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(k)                                         | O[log(n) +         |
+//  |                                                    | a.count(k)]        |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1, p2)                                    | O[log(n) +         |
+//  |                                                    | distance(p1, p2)]  |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1, p2)                                    | O[log(n) +         |
+//  |                                                    | distance(p1, p2)]  |
+//  +----------------------------------------------------+--------------------+
+//  | a.clear()                                          | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.key_comp()                                       | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.value_comp()                                     | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.find(k)                                          | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//  | a.count(k)                                         | O[log(n) +         |
+//  |                                                    | a.count(k)]        |
+//  +----------------------------------------------------+--------------------+
+//  | a.lower_bound(k)                                   | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//  | a.upper_bound(k)                                   | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//  | a.equal_range(k)                                   | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
 //
 ///Usage
 ///-----
