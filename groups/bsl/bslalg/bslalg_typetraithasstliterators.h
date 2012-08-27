@@ -74,8 +74,8 @@ struct TypeTraitHasStlIterators {
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, HasStlIterators>
     {
-        // This class template ties the 'bslalg::TypeTaitBitwiseCopyable'
-        // trait tag to the 'bslmf::IsBitwiseCopyable' trait metafunction.
+        // This class template ties the 'bslalg::TypeTraitHasStlIterators'
+        // trait tag to the 'bslmf::HasStlIterators' trait metafunction.
     };
 
     template <class TYPE>

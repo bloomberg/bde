@@ -18,6 +18,7 @@ bslmf_isclass
 bslmf_isconvertible
 bslmf_isenum
 bslmf_isfundamental
+bslmf_ispair
 bslmf_ispointer
 bslmf_ispointertomember
 bslmf_ispolymorphic

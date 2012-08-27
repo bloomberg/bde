@@ -559,7 +559,7 @@ class pair : private Pair_Imp<T1, T2,
 // ===========================================================================
 
 namespace BloombergLP {
-namespace bslalg {
+namespace bslmf {
 
 template <typename T1, typename T2>
 struct IsPair<bsl::pair<T1, T2> > : bsl::true_type

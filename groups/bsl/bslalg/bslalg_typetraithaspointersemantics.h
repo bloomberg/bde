@@ -61,9 +61,7 @@ struct TypeTraitHasPointerSemantics {
         bslmf::NestedTraitDeclaration<TYPE, bslmf::HasPointerSemantics>
     {
         // This class template ties the 'bslalg::TypeTraitHasPointerSemantics'
-        // trait tag to the 'bslmf::is_pointer' trait metafunction.  TODO:
-        // This is not the correct definition in general, since this trait is
-        // intended to work also with smart pointers.
+        // trait tag to the 'bslmf::HasPointerSemantics' trait metafunction.
     };
 
     template <class TYPE>

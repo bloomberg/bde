@@ -189,7 +189,7 @@ class my_Class2 {
 // TRAITS
 namespace BloombergLP {
 namespace bslma {
-    
+
     template <>
     struct UsesBslmaAllocator<my_Class2> : bslmf::true_type { };
 
@@ -524,7 +524,7 @@ struct my_PairBB {
 };
 
 namespace BloombergLP {
-    namespace bslalg {
+    namespace bslmf {
         template <typename T1, typename T2>
         struct IsPair<my_PairBB<T1, T2> > : bslmf::true_type { };
     } // Close namespace bslalg
