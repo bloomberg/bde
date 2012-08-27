@@ -1008,7 +1008,7 @@ class Deque_Guard {
         // Call the parameterized 'VALUE_TYPE' destructor on objects in the
         // range '[d.end(), d.end() + count())' if 'isTail' was specified as
         // 'true' during construction, or '[d.start() - count(), d.start()]' if
-        // 'isTail was specified as 'false' during construction, where 'd' is
+        // 'isTail' was specified as 'false' during construction, where 'd' is
         // the deque used to construct this guard.
 
     // MANIPULATORS

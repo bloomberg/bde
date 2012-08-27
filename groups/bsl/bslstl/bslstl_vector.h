@@ -854,7 +854,7 @@ class vector< VALUE_TYPE *, ALLOCATOR >
     // 'Vector_Imp<void *>' to reduce the amount of code generated.  Note
     // that this specialization rebinds the parameterized 'ALLOCATOR' type to
     // an allocator of 'void *' so as to satisfy the invariant in 'Vector_Imp'.
-    // Also note that members which don't need to be redefined are inherited
+    // Also note that members which do not need to be redefined are inherited
     // straightforwardly from the 'Base', although if an overloaded method
     // needs to be redefined, then all its overloads need to be redefined.
 
@@ -1085,7 +1085,7 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
     // 'Vector_Imp<const void *>' to reduce the amount of code generated.
     // Note that this specialization rebinds the parameterized 'ALLOCATOR' type
     // to an allocator of 'const void *' so as to satisfy the invariant in
-    // 'Vector_Imp'.  Also note that members which don't need to be redefined
+    // 'Vector_Imp'.  Also note that members which do not need to be redefined
     // are inherited straightforwardly from the 'Base', although if an
     // overloaded method needs to be redefined, then all its overloads need to
     // be redefined.
