@@ -534,56 +534,37 @@ class TestType_NoTraits {
 };
 
 // The following template specializations declare the traits for the above
-// types.  They need to be in the same namespace as 'bslalg_TypeTraits'.
-
+// types.  Each needs to be in the same namespace as the primary traits
+// template.
 namespace BloombergLP {
 
-template <>
-struct bslalg_TypeTraits<TestType_PrintMethod>
-        : bdeu_TypeTraitHasPrintMethod {
-    // Traits for 'TestType_PrintMethod'.
-};
+template <> struct bdeu_HasPrintMethod<TestType_PrintMethod> :
+    bslmf::true_type { };
+template <> struct bdeu_HasPrintMethod<TestType_PrintMethod_Pair> :
+    bslmf::true_type { };
+template <> struct bdeu_HasPrintMethod<TestType_PrintMethod_STLIterators> :
+    bslmf::true_type { };
+template <> struct bdeu_HasPrintMethod<TestType_PrintMethod_STLIterators_Pair>:
+    bslmf::true_type { };
 
-template <>
-struct bslalg_TypeTraits<TestType_PrintMethod_STLIterators>
-        : bdeu_TypeTraitHasPrintMethod,
-          bslalg_TypeTraitHasStlIterators {
-    // Traits for 'TestType_PrintMethod_STLIterators'.
-};
+namespace bslalg {
+template <> struct HasStlIterators<TestType_STLIterators> :
+    bslmf::true_type { };
+template <> struct HasStlIterators<TestType_STLIterators_Pair> :
+    bslmf::true_type { };
+template <> struct HasStlIterators<TestType_PrintMethod_STLIterators> :
+    bslmf::true_type { };
+template <> struct HasStlIterators<TestType_PrintMethod_STLIterators_Pair> :
+    bslmf::true_type { };
+}
 
-template <>
-struct bslalg_TypeTraits<TestType_PrintMethod_Pair>
-        : bdeu_TypeTraitHasPrintMethod,
-          bslalg_TypeTraitPair {
-    // Traits for 'TestType_PrintMethod_Pair'.
-};
-
-template <>
-struct bslalg_TypeTraits<TestType_PrintMethod_STLIterators_Pair>
-        : bdeu_TypeTraitHasPrintMethod,
-          bslalg_TypeTraitHasStlIterators,
-          bslalg_TypeTraitPair {
-    // Traits for 'TestType_PrintMethod_STLIterators_Pair'.
-};
-
-template <>
-struct bslalg_TypeTraits<TestType_STLIterators>
-        : bslalg_TypeTraitHasStlIterators {
-    // Traits for 'TestType_STLIterators'.
-};
-
-template <>
-struct bslalg_TypeTraits<TestType_STLIterators_Pair>
-        : bslalg_TypeTraitHasStlIterators,
-          bslalg_TypeTraitPair{
-    // Traits for 'TestType_STLIterators_Pair'.
-};
-
-template <>
-struct bslalg_TypeTraits<TestType_Pair>
-        : bslalg_TypeTraitPair {
-    // Traits for 'TestType_Pair'.
-};
+namespace bslalg {
+template <> struct IsPair<TestType_Pair> : bslmf::true_type { };
+template <> struct IsPair<TestType_STLIterators_Pair> : bslmf::true_type { };
+template <> struct IsPair<TestType_PrintMethod_Pair> : bslmf::true_type { };
+template <> struct IsPair<TestType_PrintMethod_STLIterators_Pair> :
+    bslmf::true_type { };
+}
 
 }  // close namespace BloombergLP
 
