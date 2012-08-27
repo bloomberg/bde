@@ -344,13 +344,13 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
     // consult the second revision of the "ISO/IEC 14882 Programming Language
     // C++ (Working Paper, 2009)".  In particular, this implementation offers
     // the general rules that:
-    //..
-    //   (1) a call to any methods that would result in a vector of size larger
-    //       than 'max_size()' triggers a 'std::throwLengthError' exception.
-    //   (2) a call to the 'at' method that attempts to access a position
-    //       outside the valid range of a vector triggers a 'std::out_of_range'
-    //       exception.
-    //..
+    //
+    //: 1 a call to any methods that would result in a vector of size larger
+    //:   than 'max_size()' triggers a 'std::throwLengthError' exception.
+    //:
+    //: 2 a call to the 'at' method that attempts to access a position outside
+    //:   the valid range of a vector triggers a 'std::out_of_range' exception.
+    //
     // More generally, this class supports an almost complete set of *in-core*
     // *value* *semantic* operations, including copy construction, assignment,
     // equality comparison (but excluding 'ostream' printing since this is

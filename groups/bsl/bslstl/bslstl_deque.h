@@ -27,17 +27,17 @@ BSLS_IDENT("$Id: $")
 ///--------------------
 // Since this component is below the BSL STL, we centralize all the exceptional
 // behavior into a 'bslstl::StdExceptUtil' class, which has a dual purpose:
-//..
-//  - Remove the dependency of this header on the '<exception>' header, so
-//    that this implementation can offer an exception handler with the native
-//    exceptions, and so that all the C-strings may be defined in a single
-//    library ('bsl') and not in all the translation units including this
-//    header.
-//  - Allow installation of exception handlers at a higher level to
-//    throw BSL STL exceptions (which differ from the native exceptions) and
-//    thus establish a full standard compliance for this component when used
-//    as 'bsl::deque' in the BSL STL.
-//..
+//
+//: o Remove the dependency of this header on the '<exception>' header, so that
+//:   this implementation can offer an exception handler with the native
+//:   exceptions, and so that all the C-strings may be defined in a single
+//:   library ('bsl') and not in all the translation units including this
+//:   header.
+//:
+//: o Allow installation of exception handlers at a higher level to throw BSL
+//:   STL exceptions (which differ from the native exceptions) and thus
+//:   establish a full standard compliance for this component when used as
+//:   'bsl::deque' in the BSL STL.
 //
 ///Usage
 ///-----
