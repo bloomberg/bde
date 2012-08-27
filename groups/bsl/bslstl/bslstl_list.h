@@ -1200,8 +1200,7 @@ class list
         // at least one element.
 
     // 23.3.5.4 modifiers:
-#if !defined(BSLS_SIMULATED_VARIADIC_TEMPLATES) \
-    && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
     template <class... Args>
     void emplace_front(Args&&... args);
         // Insert a new element at the front of this list and construct it
@@ -1241,8 +1240,7 @@ class list
         // Remove and destroy the first element of this list.  The behavior is
         // undefined unless this list contains at least one element.
 
-#if !defined(BSLS_SIMULATED_VARIADIC_TEMPLATES) \
-    && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
     template <class... Args>
     void emplace_back(Args&&... args);
         // Insert a new element at the back of this list and construct it
@@ -1296,8 +1294,7 @@ class list
     void push_back(VALUE&& value);
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-#if !defined(BSLS_SIMULATED_VARIADIC_TEMPLATES) \
-    && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
     template <class... Args>
     iterator emplace(const_iterator position, Args&&... args);
         // Insert a new element into this list before the element at the
@@ -2259,8 +2256,7 @@ VALUE& list<VALUE, ALLOCATOR>::back()
 }
 
 // 23.3.5.4 modifiers:
-#if !defined(BSLS_SIMULATED_VARIADIC_TEMPLATES) \
-    && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
 template <class VALUE, class ALLOCATOR>
 template <class... Args>
 void list<VALUE, ALLOCATOR>::emplace_front(Args&&... args)
@@ -2333,8 +2329,7 @@ void list<VALUE, ALLOCATOR>::pop_front()
     erase(begin());
 }
 
-#if !defined(BSLS_SIMULATED_VARIADIC_TEMPLATES) \
-    && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
 template <class VALUE, class ALLOCATOR>
 template <class... Args>
 void list<VALUE, ALLOCATOR>::emplace_back(Args&&... args)
@@ -2433,15 +2428,14 @@ void list<VALUE, ALLOCATOR>::push_back(VALUE&& value)
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-#if !defined(BSLS_SIMULATED_VARIADIC_TEMPLATES) \
-    && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
 template <class VALUE, class ALLOCATOR>
 template <class... Args>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position, Args&&... args)
 {
     NodePtr p = allocate_node();
-    NodeProctor proctor(this, p);
+    NodeProctor proctor(allocator(), p);
     AllocTraits::construct(allocator(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
                            std::forward<Args>(args)...);
