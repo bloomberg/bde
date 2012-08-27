@@ -29,16 +29,15 @@ using namespace bsl;  // automatically added by script
 // and suppress indentation [9].  Finally, test the usage example to make sure
 // it compiles and runs [10].
 //-----------------------------------------------------------------------------
-// [ 4] bdeu_PrintMethods_Imp<TYPE, BDEU_PRINT_METHOD>::print(...);
-// [ 6] bdeu_PrintMethods_Imp<TYPE, BDEU_STL_ITERATORS>::print(...);
-// [ 5] bdeu_PrintMethods_Imp<TYPE, BDEU_PAIR>::print(...);
-// [ 3] bdeu_PrintMethods_Imp<TYPE, BDEU_STREAM_OPERATOR>::print(...);
-// [ 7] bdeu_PrintMethodDetectTraitIndex
-// [ 8] bdeu_PrintMethods::print(..., const TYPE&, ...);
+// [ 4] bdeu_PrintMethods_Imp<TYPE, bdeu_HasPrintMethod>::print(...);
+// [ 6] bdeu_PrintMethods_Imp<TYPE, bslalg::HasStlIterators>::print(...);
+// [ 5] bdeu_PrintMethods_Imp<TYPE, bslalg::IsPair>::print(...);
+// [ 3] bdeu_PrintMethods_Imp<TYPE, bslmf::false_type>::print(...);
+// [ 7] bdeu_PrintMethods::print(..., const TYPE&, ...);
 // [ 2] bdeu_PrintMethods::print(..., const vector<char, ALLOC>, ...);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 9] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -415,8 +414,6 @@ class TestType_PrintMethod {
                                              // 'print'
 
   public:
-    // CONSTANTS
-    enum { EXPECTED_SELECTOR = bdeu_PrintMethods_Selector::BDEU_PRINT_METHOD };
 
     // CREATORS
     TestType_PrintMethod()
@@ -460,10 +457,6 @@ class TestType_PrintMethod_STLIterators {
     // 'bslalg_TypeTraitHasStlIterators'.  Note that the traits just need to be
     // declared but the functionality does not need to be implemented, because
     // they will not be used at run-time.
-
-  public:
-    // CONSTANTS
-    enum { EXPECTED_SELECTOR = bdeu_PrintMethods_Selector::BDEU_PRINT_METHOD };
 };
 
 class TestType_PrintMethod_Pair {
@@ -472,10 +465,6 @@ class TestType_PrintMethod_Pair {
     // Note that the traits just need to be declared but the functionality does
     // not need to be implemented, because they will not be used at run-time in
     // this test driver.
-
-  public:
-    // CONSTANTS
-    enum { EXPECTED_SELECTOR = bdeu_PrintMethods_Selector::BDEU_PRINT_METHOD };
 };
 
 class TestType_PrintMethod_STLIterators_Pair {
@@ -484,10 +473,6 @@ class TestType_PrintMethod_STLIterators_Pair {
     // 'bslalg_TypeTraitHasStlIterators', and 'bslalg_TypeTraitPair'.  Note
     // that the traits just need to be declared but the functionality does not
     // need to be implemented, because they will not be used at run-time.
-
-  public:
-    // CONSTANTS
-    enum { EXPECTED_SELECTOR = bdeu_PrintMethods_Selector::BDEU_PRINT_METHOD };
 };
 
 class TestType_STLIterators {
@@ -495,10 +480,6 @@ class TestType_STLIterators {
     // type declares 'bslalg_TypeTraitHasStlIterators'.  Note that the traits
     // just need to be declared but the functionality does not need to be
     // implemented, because they will not be used at run-time.
-
-  public:
-    // CONSTANTS
-    enum { EXPECTED_SELECTOR = bdeu_PrintMethods_Selector::BDEU_STL_ITERATORS };
 };
 
 class TestType_STLIterators_Pair {
@@ -507,10 +488,6 @@ class TestType_STLIterators_Pair {
     // 'bslalg_TypeTraitPair'.  Note that the traits just need to be declared
     // but the functionality does not need to be implemented, because they will
     // not be used at run-time.
-
-  public:
-    // CONSTANTS
-    enum { EXPECTED_SELECTOR = bdeu_PrintMethods_Selector::BDEU_STL_ITERATORS };
 };
 
 class TestType_Pair {
@@ -518,19 +495,11 @@ class TestType_Pair {
     // type declares 'bslalg_TypeTraitPair'.  Note that the traits just need to
     // be declared but the functionality does not need to be implemented,
     // because they will not be used at run-time.
-
-  public:
-    // CONSTANTS
-    enum { EXPECTED_SELECTOR = bdeu_PrintMethods_Selector::BDEU_PAIR };
 };
 
 class TestType_NoTraits {
     // This type is used for testing the trait detection meta-function.  This
     // type does not have any traits.
-
-  public:
-    // CONSTANTS
-    enum { EXPECTED_SELECTOR = bdeu_PrintMethods_Selector::BDEU_STREAM_OPERATOR };
 };
 
 // The following template specializations declare the traits for the above
@@ -697,7 +666,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   This will test the usage example.
@@ -724,7 +693,7 @@ int main(int argc, char *argv[])
 
         LOOP_ASSERT(ss.str(), "123\n" == ss.str());
       } break;
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING GENERIC 'print' METHOD
         //   This will test the generic 'print' method for arbitrary types.
@@ -901,7 +870,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'BDEU_PRINT_METHOD'." << endl;
+        if (verbose) cout << "\nUsing 'BdeuPrintMethod'." << endl;
         {
             static const struct {
                 int d_lineNum;
@@ -1204,124 +1173,6 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 7: {
-        // --------------------------------------------------------------------
-        // TESTING TRAIT DETECTION META-FUNCTION
-        //   This will test the meta-function used to detect traits and select
-        //   a print method.
-        //
-        // Concerns:
-        //   If a type contains multiple traits, the trait with highest
-        //   priority should be selected.
-        //
-        // Plan:
-        //   For each of the 'TestType_*' types declared above, exercise this
-        //   meta-function and check that the returned meta integer corresponds
-        //   to the expected print method selector.
-        //
-        // Testing:
-        //   bdeu_PrintMethods_DetectTraitIndex
-        // --------------------------------------------------------------------
-        if (verbose) cout << "\nTesting Trait Detection Meta-Function"
-                          << "\n=====================================" << endl;
-
-        if (verbose) cout << "\nUsing 'TestType_PrintMethod'." << endl;
-        {
-            typedef TestType_PrintMethod Type;
-
-            const int SELECTOR =
-                               bdeu_PrintMethods_DetectTraitIndex<Type>::VALUE;
-
-            LOOP_ASSERT(SELECTOR, Type::EXPECTED_SELECTOR == SELECTOR);
-        }
-
-        if (verbose) cout << "\nUsing 'TestType_PrintMethod_STLIterators'."
-                          << endl;
-        {
-            typedef TestType_PrintMethod_STLIterators Type;
-
-            const int SELECTOR =
-                               bdeu_PrintMethods_DetectTraitIndex<Type>::VALUE;
-
-            LOOP_ASSERT(SELECTOR, Type::EXPECTED_SELECTOR == SELECTOR);
-        }
-
-        if (verbose) cout << "\nUsing 'bsl::vector<int>'."
-                          << endl;
-        {
-            typedef bsl::vector<int> Type;
-
-            const int SELECTOR =
-                               bdeu_PrintMethods_DetectTraitIndex<Type>::VALUE;
-
-            LOOP_ASSERT(SELECTOR,
-                        bdeu_PrintMethods_Selector::BDEU_STL_ITERATORS == SELECTOR);
-        }
-
-        if (verbose) cout << "\nUsing 'TestType_PrintMethod_Pair'."
-                          << endl;
-        {
-            typedef TestType_PrintMethod_Pair Type;
-
-            const int SELECTOR =
-                               bdeu_PrintMethods_DetectTraitIndex<Type>::VALUE;
-
-            LOOP_ASSERT(SELECTOR, Type::EXPECTED_SELECTOR == SELECTOR);
-        }
-
-        if (verbose) cout << "\nUsing "
-                          << "'TestType_PrintMethod_STLIterators_Pair'."
-                          << endl;
-        {
-            typedef TestType_PrintMethod_STLIterators_Pair Type;
-
-            const int SELECTOR =
-                               bdeu_PrintMethods_DetectTraitIndex<Type>::VALUE;
-
-            LOOP_ASSERT(SELECTOR, Type::EXPECTED_SELECTOR == SELECTOR);
-        }
-
-        if (verbose) cout << "\nUsing 'TestType_STLIterators'." << endl;
-        {
-            typedef TestType_STLIterators Type;
-
-            const int SELECTOR =
-                               bdeu_PrintMethods_DetectTraitIndex<Type>::VALUE;
-
-            LOOP_ASSERT(SELECTOR, Type::EXPECTED_SELECTOR == SELECTOR);
-        }
-
-        if (verbose) cout << "\nUsing 'TestType_STLIterators_Pair'." << endl;
-        {
-            typedef TestType_STLIterators_Pair Type;
-
-            const int SELECTOR =
-                               bdeu_PrintMethods_DetectTraitIndex<Type>::VALUE;
-
-            LOOP_ASSERT(SELECTOR, Type::EXPECTED_SELECTOR == SELECTOR);
-        }
-
-        if (verbose) cout << "\nUsing 'TestType_Pair'." << endl;
-        {
-            typedef TestType_Pair Type;
-
-            const int SELECTOR =
-                               bdeu_PrintMethods_DetectTraitIndex<Type>::VALUE;
-
-            LOOP_ASSERT(SELECTOR, Type::EXPECTED_SELECTOR == SELECTOR);
-        }
-
-        if (verbose) cout << "\nUsing 'TestType_NoTraits'." << endl;
-        {
-            typedef TestType_NoTraits Type;
-
-            const int SELECTOR =
-                               bdeu_PrintMethods_DetectTraitIndex<Type>::VALUE;
-
-            LOOP_ASSERT(SELECTOR, Type::EXPECTED_SELECTOR == SELECTOR);
-        }
-
-      } break;
       case 6: {
         // --------------------------------------------------------------------
         // TESTING 'BDEU_STL_ITERATORS' PRINT IMPLEMENTATION
@@ -1357,11 +1208,10 @@ int main(int argc, char *argv[])
                           << "\n================================================="
                           << endl;
 
-        const int BDEU_PRINT_METHOD = bdeu_PrintMethods_Selector::BDEU_STL_ITERATORS;
-
         if (verbose) cout << "\nTesting indentation." << endl;
         {
-            typedef vector<int> Type;
+            typedef vector<int>                   Type;
+            typedef bslalg::HasStlIterators<Type> BdeuPrintMethod;
 
             const int ELEMENTS[]   = { 45, 123 };
             const int NUM_ELEMENTS = sizeof ELEMENTS / sizeof *ELEMENTS;
@@ -1468,7 +1318,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -1511,7 +1361,8 @@ int main(int argc, char *argv[])
                 const int *ELEMENTS     = DATA[i].d_elements;
                 const int  NUM_ELEMENTS = DATA[i].d_numElements;
 
-                typedef vector<int> Type;
+                typedef vector<int>                   Type;
+                typedef bslalg::HasStlIterators<Type> BdeuPrintMethod;
 
                 const Type VALUE(ELEMENTS, ELEMENTS + NUM_ELEMENTS);
 
@@ -1524,7 +1375,7 @@ int main(int argc, char *argv[])
                     stringstream ss;
 
                     ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                         BDEU_PRINT_METHOD>::print(
+                                                         BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
                                                                          0, 0);
@@ -1543,7 +1394,7 @@ int main(int argc, char *argv[])
                     stringstream ss;
 
                     ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                         BDEU_PRINT_METHOD>::print(
+                                                         BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
                                                                         0, -1);
@@ -1557,8 +1408,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting with 'vector<char>' elements." << endl;
         {
-            typedef vector<char>     ElemType;
-            typedef vector<ElemType> Type;
+            typedef vector<char>                  ElemType;
+            typedef vector<ElemType>              Type;
+            typedef bslalg::HasStlIterators<Type> BdeuPrintMethod;
 
             const char FIRST_DATA[]  = "Hello\r";
             const char SECOND_DATA[] = "World\n";
@@ -1583,7 +1435,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
                                                                          0, 0);
@@ -1602,7 +1454,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
                                                                         0, -1);
@@ -1615,8 +1467,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting with 'vector<int>' elements." << endl;
         {
-            typedef vector<int> ElemType;
-            typedef vector<ElemType> Type;
+            typedef vector<int>                   ElemType;
+            typedef vector<ElemType>              Type;
+            typedef bslalg::HasStlIterators<Type> BdeuPrintMethod;
 
             const int FIRST_DATA[]  = { 2, 6, 23 };
             const int SECOND_DATA[] = { 54, 2 };
@@ -1651,7 +1504,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
                                                                          0, 0);
@@ -1667,7 +1520,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
                                                                         0, -1);
@@ -1680,8 +1533,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting with 'pair<...>' elements." << endl;
         {
-            typedef pair<int, double> ElemType;
-            typedef vector<ElemType>  Type;
+            typedef pair<int, double>             ElemType;
+            typedef vector<ElemType>              Type;
+            typedef bslalg::HasStlIterators<Type> BdeuPrintMethod;
 
             const ElemType DATA[] = { ElemType(45, 1.23),
                                       ElemType(21, 97.54) };
@@ -1705,7 +1559,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
                                                                          0, 0);
@@ -1721,7 +1575,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
                                                                         0, -1);
@@ -1735,8 +1589,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with 'TestType_PrintMethod' elements."
                           << endl;
         {
-            typedef TestType_PrintMethod ElemType;
-            typedef vector<ElemType>     Type;
+            typedef TestType_PrintMethod          ElemType;
+            typedef vector<ElemType>              Type;
+            typedef bslalg::HasStlIterators<Type> BdeuPrintMethod;
 
             if (veryVerbose) cout << "\tUsing multiline output." << endl;
             {
@@ -1754,7 +1609,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -1788,7 +1643,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -1809,7 +1664,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting with invalid stream." << endl;
         {
-            typedef vector<int> Type;
+            typedef vector<int>                   Type;
+            typedef bslalg::HasStlIterators<Type> BdeuPrintMethod;
 
             const Type VALUE;
 
@@ -1817,7 +1673,7 @@ int main(int argc, char *argv[])
 
             ss.setstate(ios_base::badbit);
 
-            ostream& ret = bdeu_PrintMethods_Imp<Type, BDEU_PRINT_METHOD>::print(
+            ostream& ret = bdeu_PrintMethods_Imp<Type, BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
                                                                         0, -1);
@@ -1854,13 +1710,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'BDEU_PAIR' Print Implementation"
-                          << "\n========================================" << endl;
-
-        const int BDEU_PRINT_METHOD = bdeu_PrintMethods_Selector::BDEU_PAIR;
+                          << "\n========================================"
+                          << endl;
 
         if (verbose) cout << "\nTesting indentation." << endl;
         {
-            typedef pair<int, double> Type;
+            typedef pair<int, double>    Type;
+            typedef bslalg::IsPair<Type> BdeuPrintMethod;
 
             const int    INT_VALUE    = 45;
             const double DOUBLE_VALUE = 1.23;
@@ -1966,7 +1822,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -1981,6 +1837,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with 'vector<char>' elements." << endl;
         {
             typedef pair<vector<char>, vector<char> > Type;
+            typedef bslalg::IsPair<Type>              BdeuPrintMethod;
 
             const char FIRST_DATA[]  = "Hello\r";
             const char SECOND_DATA[] = "World\n";
@@ -2002,7 +1859,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
                                                                          0, 0);
@@ -2021,7 +1878,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
                                                                         0, -1);
@@ -2035,6 +1892,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with 'vector<int>' elements." << endl;
         {
             typedef pair<vector<int>, vector<int> > Type;
+            typedef bslalg::IsPair<Type>            BdeuPrintMethod;
 
             const int FIRST_DATA[]  = { 2, 6, 23 };
             const int SECOND_DATA[] = { 54, 2 };
@@ -2066,7 +1924,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
                                                                          0, 0);
@@ -2082,7 +1940,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
                                                                         0, -1);
@@ -2098,6 +1956,7 @@ int main(int argc, char *argv[])
             typedef pair<int, int>            IntPair;
             typedef pair<double, double>      DoublePair;
             typedef pair<IntPair, DoublePair> Type;
+            typedef bslalg::IsPair<Type>      BdeuPrintMethod;
 
             const Type VALUE = Type(IntPair(45, 21),
                                     DoublePair(1.23, 97.54));
@@ -2117,7 +1976,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
                                                                          0, 0);
@@ -2133,7 +1992,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
                                                                         0, -1);
@@ -2148,6 +2007,7 @@ int main(int argc, char *argv[])
                           << endl;
         {
             typedef pair<TestType_PrintMethod, TestType_PrintMethod> Type;
+            typedef bslalg::IsPair<Type>                       BdeuPrintMethod;
 
             if (veryVerbose) cout << "\tUsing multiline output." << endl;
             {
@@ -2162,7 +2022,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -2200,7 +2060,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -2228,7 +2088,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting with invalid stream." << endl;
         {
-            typedef pair<int, double> Type;
+            typedef pair<int, double>    Type;
+            typedef bslalg::IsPair<Type> BdeuPrintMethod;
 
             const int    INT_VALUE    = 45;
             const double DOUBLE_VALUE = 1.23;
@@ -2238,7 +2099,7 @@ int main(int argc, char *argv[])
 
             ss.setstate(ios_base::badbit);
 
-            ostream& ret = bdeu_PrintMethods_Imp<Type, BDEU_PRINT_METHOD>::print(
+            ostream& ret = bdeu_PrintMethods_Imp<Type, BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
                                                                         0, -1);
@@ -2249,7 +2110,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'BDEU_PRINT_METHOD' PRINT IMPLEMENTATION
+        // TESTING 'BdeuPrintMethod' PRINT IMPLEMENTATION
         //   This will test the print implementation function that uses the
         //   object's 'print' method.
         //
@@ -2262,10 +2123,10 @@ int main(int argc, char *argv[])
         //   'spacesPerLevel'.
         //
         // Testing:
-        //   bdeu_PrintMethods_Imp<TYPE, BDEU_PRINT_METHOD>::print(...);
+        //   bdeu_PrintMethods_Imp<TYPE, BdeuPrintMethod>::print(...);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'BDEU_PRINT_METHOD' Print Implementation"
+        if (verbose) cout << "\nTesting 'BdeuPrintMethod' Print Implementation"
                           << "\n================================================"
                           << endl;
 
@@ -2308,20 +2169,19 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        const int BDEU_PRINT_METHOD = bdeu_PrintMethods_Selector::BDEU_PRINT_METHOD;
-
         for (int i = 0; i < NUM_DATA; ++i) {
             const int LINE             = DATA[i].d_lineNum;
             const int LEVEL            = DATA[i].d_level;
             const int SPACES_PER_LEVEL = DATA[i].d_spacesPerLevel;
 
-            typedef TestType_PrintMethod Type;
+            typedef TestType_PrintMethod      Type;
+            typedef bdeu_HasPrintMethod<Type> BdeuPrintMethod;
 
             const Type VALUE;
 
             stringstream ss;
 
-            ostream& ret = bdeu_PrintMethods_Imp<Type, BDEU_PRINT_METHOD>::print(
+            ostream& ret = bdeu_PrintMethods_Imp<Type, BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -2358,7 +2218,8 @@ int main(int argc, char *argv[])
                           << "\n==================================================="
                           << endl;
 
-        const int BDEU_PRINT_METHOD = bdeu_PrintMethods_Selector::BDEU_STREAM_OPERATOR;
+        // false_type == Default == stream operator
+        typedef bslmf::false_type BdeuPrintMethod;
 
         static const struct {
             int         d_lineNum;
@@ -2422,7 +2283,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -2455,7 +2316,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -2489,7 +2350,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdeu_PrintMethods_Imp<Type,
-                                                     BDEU_PRINT_METHOD>::print(
+                                                     BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -2512,7 +2373,7 @@ int main(int argc, char *argv[])
 
             ss.setstate(ios_base::badbit);
 
-            ostream& ret = bdeu_PrintMethods_Imp<Type, BDEU_PRINT_METHOD>::print(
+            ostream& ret = bdeu_PrintMethods_Imp<Type, BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
                                                                         0, -1);
