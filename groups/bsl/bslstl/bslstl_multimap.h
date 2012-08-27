@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::multimap STL-compatible multimap template
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@SEE_ALSO: bslstl_map, bslstl_multiset
+//
+//@AUTHOR: Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component defines a single class template 'multimap',
 // implementing the standard container holding an ordered sequence of key-value

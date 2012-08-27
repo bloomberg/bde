@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Oleg Grunin (ogrunin)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: 'bslmf::Nil' is mainly used for template meta-programming.  It
 // is useful for providing defaults for template parameters and terminating
 // template recursions.  'bslmf::Nil' can also be used to represent an unset

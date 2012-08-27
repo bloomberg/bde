@@ -16,8 +16,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Chen He (che2)
 //
-//@SEE ALSO:
-//
 //@DESCRIPTION: This component provides an allocator, 'StdTestAllocator', that
 // defines the minimal interface to comply with section 20.1.5
 // ([lib.allocator.requirements]) of the C++03 standard.  This type can be used

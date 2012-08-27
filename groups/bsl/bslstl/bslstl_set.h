@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::set: STL-compatible set template
 //
-//@AUTHOR:  Henry Verschell (hverschell)
-//
 //@SEE_ALSO: bslstl_multiset, bslstl_map
+//
+//@AUTHOR:  Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component defines a single class template 'set',
 // implementing the standard container holding an ordered sequence of

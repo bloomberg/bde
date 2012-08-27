@@ -15,9 +15,9 @@ BSLS_IDENT("$Id: $")
 //  bslmf::IsMemberFunctionPointer: meta-function to determine if a type is
 //  a member function pointer
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@SEE_ALSO: bslmf_functionpointertraits
+//
+//@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides meta-functions for determining the
 // traits of a member function pointer.  Two meta-functions are provided:

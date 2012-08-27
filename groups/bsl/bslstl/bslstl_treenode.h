@@ -12,10 +12,10 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bslstl::TreeNode: a tree node holding a parameterized value
 //
+//@SEE_ALSO: bslstl_treenodefactory, bslstl_set, bslstl_map
+//
 //@AUTHOR: Henry Verschell (hverschell),
 //         Raymond Chiu (schiu49)
-//
-//@SEE_ALSO: bslstl_treenodefactory, bslstl_set, bslstl_map
 //
 //@DESCRIPTION: This component provides a single POD-like class, 'TreeNode',
 // used to represent a node in a red-black binary search tree holding a value

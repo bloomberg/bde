@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::TimeUtil: namespace for platform-neutral system-time pure procedures
 //
-//@AUTHOR: Tom Marshall (tmarshal)
-//
 //@SEE_ALSO: bsls_stopwatch
+//
+//@AUTHOR: Tom Marshall (tmarshal)
 //
 //@DESCRIPTION: This component provides a set of platform-neutral pure
 // procedures to access real-time system clock functionality.  High-resolution

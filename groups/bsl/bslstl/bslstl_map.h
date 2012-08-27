@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::map: STL-compliant map template
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@SEE_ALSO: bslstl_multimap, bslstl_set
+//
+//@AUTHOR: Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component defines a single class template 'map',
 // implementing the standard container holding an ordered sequence of key-value

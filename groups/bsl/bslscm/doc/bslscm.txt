@@ -2,9 +2,9 @@
 
 @PURPOSE: Provide versioning information for BDE library components.
 
-@AUTHOR: Tom Marshall (tmarshal)
+@SEE_ALSO: bdescm
 
-@SEE ALSO: bdescm
+@AUTHOR: Tom Marshall (tmarshal)
 
 @DESCRIPTION: This package provides versioning information that is incorporated
  into every release of the 'bsl' Package Group Library.  This versioning
