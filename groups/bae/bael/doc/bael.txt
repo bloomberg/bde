@@ -280,6 +280,15 @@ bael_transmission               - enumerates the set of states for log record
  user populator callback that will describe the 'bdem_List' used in each log
  record.
 
+/Message Constraints
+/- - - - - - - - - -
+ The consumers of log records (e.g., readers of log files) may place
+ constraints on log records with respect to encoding, maximum length, etc.  The
+ 'bael' infrastructure has no provisions for specifying or enforcing such
+ constraints.  These issues must be addressed by external communication between
+ the log record producers (i.e., clients of 'bael') and the log record
+ consumers.
+
 /Log Record Storage and Publication
 /----------------------------------
  The logger achieves good run-time performance while capturing critical log
