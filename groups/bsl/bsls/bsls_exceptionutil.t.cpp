@@ -152,8 +152,8 @@ typedef sigjmp_buf JumpBuffer;
 // The following global variables are managed by the 'abortSignalHandler'
 // defined below.
 
-static JumpBuffer g_jumpBuffer;
-static bool       g_inTest = false;
+static JumpBuffer    g_jumpBuffer;
+static volatile bool g_inTest = false;
 
 extern "C" {
 
@@ -174,6 +174,9 @@ void abortSignalHandler(int x)
         siglongjmp(g_jumpBuffer, 1);
 #endif
     }
+    else {
+        BSLS_ASSERT(false);
+    }
 }
 
 }
@@ -186,7 +189,6 @@ void installAbortHandler()
     signal(SIGABRT, abortSignalHandler);
 
     // set the global test flag (used by the signal handler).
-
     g_inTest = true;
 }
 
@@ -195,14 +197,12 @@ void removeAbortHandler() {
     g_inTest = false;
 }
 
-
 #define BEGIN_ABORT_TEST {                                                    \
-    bool _firstAttempt = true;                                                \
-    bool _abortOccurred = false;                                              \
+    volatile bool _abortOccurred = false;                                     \
     installAbortHandler();                                                    \
     _abortOccurred = setJump(g_jumpBuffer);                                   \
-    if (_firstAttempt) {                                                      \
-        _firstAttempt = false;
+    if (!_abortOccurred) {                                                    
+
 
 static const bool ABORT_OCCURRED    = true;
 static const bool NO_ABORT_OCCURRED = false;
@@ -813,7 +813,7 @@ int main(int argc, char *argv[])
             printf("Verify aborting test\n");
         }
         {
-            bool executedTest = false;
+            volatile bool executedTest = false;
             BEGIN_ABORT_TEST {
                 executedTest = true;
                 abort();
@@ -823,11 +823,15 @@ int main(int argc, char *argv[])
             ASSERT(executedTest);
         }
 
+        // Note that the use of 'volatile' prevents (for the time being)
+        // reordering the assignment to 'executedTest' in ways that cause the
+        // test to fail on opt-AIX builds.
+
         if (verbose) {
             printf("Verify second aborting test\n");
         }
         {
-            bool executedTest = false;
+            volatile bool executedTest = false;
             BEGIN_ABORT_TEST {
                 executedTest = true;
                 abort();
