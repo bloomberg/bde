@@ -62,123 +62,245 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show the intended usage of this component.
+// Suppose we want a 'struct' that will keep track of a ship's crew.  Upon
+// creation, it will parse a text file whose name is passed to the constructor
+// containing the names and ranks of the crew members of the ship, and the
+// members names will be public data members of the class.
 //
-///Example 1:
-// First, we create a call stack where memory is allocated, and leaked, in 2
-// places:
+// First, we define the class:
 //..
-//  void usageTop(int *depth, bslma::Allocator *alloc)
+//  struct ShipsCrew {
+//      // This struct will, at construction, read and parse a file describing
+//      // the names of the crew of a ship.
+//
+//    private:
+//      // PRIVATE TYPES
+//      struct Less {
+//          // Functor to compare two 'const char *'s
+//
+//          bool operator()(const char *a, const char *b) const
+//          {
+//              return bsl::strcmp(a, b) < 0;
+//          }
+//      };
+//
+//      typedef bsl::set<const char *, Less> NameSet;
+//
+//    public:
+//      // PUBLIC DATA
+//      const char       *d_captain;
+//      const char       *d_firstMate;
+//      const char       *d_cook;
+//      NameSet           d_sailors;
+//
+//    private:
+//      // PRIVATE MANIPULATORS
+//      void addSailor(const bsl::string& name);
+//          // Add the specified 'name' to the set of sailor's names.  Check
+//          // for redundancy.
+//
+//      const char *copy(const bsl::string& str);
+//          // Allocate memory for a copy of the specified 'str' as a char
+//          // array, copy the contents of 'str' into it, and return a pointer
+//          // to the array.
+//
+//      void setCaptain(const bsl::string& name);
+//          // Set the name of the ship's captain to the specified 'name', but
+//          // only if the captain's name was not already set.
+//
+//      void setCook(const bsl::string& name);
+//          // Set the name of the ship's cook to the specified 'name', but
+//          // only if the captain's name was not already set.
+//
+//      void setFirstMate(const bsl::string& name);
+//          // Set the name of the ship's first mate to the specified 'name',
+//          // but only if the captain's name was not already set.
+//
+//    public:
+//      // CREATORS
+//      explicit
+//      ShipsCrew(const char *crewFileName);
+//          // Read the names of the ship's crew in from the file with the
+//          // specified name 'crewFileName'.
+//
+//      ~ShipsCrew();
+//          // Destroy this object and free memory.
+//  };
+//
+//  // PRIVATE MANIPULATORS
+//  void ShipsCrew::addSailor(const bsl::string& name)
 //  {
-//      if (!*depth) {
-//          for (int i = 0; i < 1000; ++i) {
-//              (void) alloc->allocate(100);   // memory leaked here 1000 times
+//      BSLS_ASSERT(! d_sailors.count(name.c_str()));
+//
+//      d_sailors.insert(copy(name));
+//  }
+//
+//  const char *ShipsCrew::copy(const bsl::string& str)
+//  {
+//      return BloombergLP::bdeu_String::copy(str,
+//                                         bslma::Default::defaultAllocator());
+//  }
+//
+//  void ShipsCrew::setCaptain(const bsl::string& name)
+//  {
+//      BSLS_ASSERT(! d_captain);
+//
+//      d_captain = copy(name);
+//  }
+//
+//  void ShipsCrew::setCook(const bsl::string& name)
+//  {
+//      BSLS_ASSERT(! d_cook);
+//
+//      d_cook = copy(name);   // This was line 231 when this test case was
+//                             // written
+//  }
+//
+//  void ShipsCrew::setFirstMate(const bsl::string& name)
+//  {
+//      BSLS_ASSERT(! d_firstMate);
+//
+//      d_firstMate = copy(name);
+//  }
+//
+//  // CREATORS
+//  ShipsCrew::ShipsCrew(const char *crewFileName)
+//  : d_captain(0)
+//  , d_firstMate(0)
+//  , d_cook(0)
+//  , d_sailors()
+//  {
+//      typedef BloombergLP::bdeu_String String;
+//
+//      bsl::ifstream input(crewFileName);
+//      BSLS_ASSERT(!input.eof() && !input.bad());
+//
+//      while (!input.bad() && !input.eof()) {
+//          bsl::string line;
+//          bsl::getline(input, line);
+//
+//          bsl::size_t colon = line.find(':');
+//          if (bsl::string::npos != colon) {
+//              bsl::string field = line.substr(0, colon);
+//              bsl::string name  = line.substr(colon + 1);
+//
+//              if (0 == String::lowerCaseCmp(field, "captain")) {
+//                  setCaptain(name);
+//              }
+//              else if (0 == String::lowerCaseCmp(field, "first mate")) {
+//                  setFirstMate(name);
+//              }
+//              else if (0 == String::lowerCaseCmp(field, "cook")) {
+//                  setCook(name);
+//              }
+//              else if (0 == String::lowerCaseCmp(field, "sailor")) {
+//                  addSailor(name);
+//              }
+//              else {
+//                  cerr << "Unrecognized field '" << field << "'\n";
+//              }
+//          }
+//          else if (!line.empty()) {
+//              cerr << "Garbled line '" << line << "'\n";
 //          }
 //      }
 //  }
 //
-//  void usageRecurser(int *depth, bslma::Allocator *alloc)
+//  ShipsCrew::~ShipsCrew()
 //  {
-//      if (--*depth > 0) {
-//          if (3 == *depth) {
-//              (void) alloc->allocate(50);          // memory leaked here once
-//          }
+//      bslma::Allocator *da = bslma::Default::defaultAllocator();
 //
-//          usageRecurser(depth, alloc);
-//      }
-//      else {
-//          usageTop(depth, alloc);
-//      }
+//      da->deallocate(const_cast<char *>(d_captain));
+//      da->deallocate(const_cast<char *>(d_firstMate));
 //
-//      ++*depth;   // Prevent compiler from optimizing tail recursion as a
-//                  // loop
+//      // Note that deallocating the strings will invalidate 'd_sailors' --
+//      // any manipulation of 'd_sailors' other than destruction after this
+//      // would lead to undefined behavior.
+//
+//      const NameSet::iterator end = d_sailors.end();
+//      for (NameSet::iterator it = d_sailors.begin(); end != it; ++it) {
+//          da->deallocate(const_cast<char *>(*it));
+//      }
 //  }
 //..
-// Then, in our 'main' routine, we create our stack trace test allocator.  Note
-// that the stack traces will default to a depth of 8:
+// Then, we define the free function 'getCaptain' which will create and load
+// a 'ShipsCrew' object and return the captain's name:
 //..
-//  baesu_StackTraceTestAllocator ta("myTestAllocator");
-//..
-// Next, we call 'usageRecurse' to do the allocations:
-//..
-//  int depth = 4;
-//  usageRecurser(&depth, &ta);
-//..
-// Then, we verify that we have allocated 1001 blocks.
-//..
-//  assert(1001 == ta.numBlocksInUse());
-//..
-// Next, if 'verbose' but not 'veryVerbose' was selected, we do a dump of all
-// currently outstanding allocated segments:
-//..
-//  if (verbose && !veryVerbose) {
-//      ta.reportBlocksInUse(&cout);
+//  bsl::string getCaptain(const char *fileName)
+//  {
+//      ShipsCrew crew(fileName);
+//
+//      return crew.d_captain ? crew.d_captain : "";
 //  }
 //..
-// Then, if 'veryVerbose' is not selected, we can release all outstanding
-// segments with the 'release' method, since this allocator supports the
-// 'bslma::ManagedAllocator' protocol, which will free all the outstanding
-// memory blocks.
+// Next, we install a stack trace test allocator as the default allocator.  We
+// set the failure handler to 'failureHandlerNoop' to prevent it from aborting
+// if it finds any memory leaks:
 //..
-//  if (!veryVerbose) {
-//      ta.release();
-//      assert(0 == ta.numBlocksInUse());
+//  {
+//      baesu_StackTraceTestAllocator ta;
+//      ta.setFailureHandler(&Obj::failureHandlerNoop);
+//      bslma::DefaultAllocatorGuard guard(&ta);
 //..
-// Now that there are no segments leaked, we confirm this by doing a report of
-// outstanding segments to a stringstream and verifying that no output was
-// written:
+// Then, we call our 'getCaptain' function to find the captain's name:
 //..
-//      bsl::stringstream ss;
-//      ta.reportBlocksInUse(&ss);
-//      assert(ss.str().empty());
+//     bsl::string captain = getCaptain("shipscrew.txt");
+//
+//      cout << "The captain is: " << captain << bsl::endl;
+//..
+// Now, we close the block, destroying 'ta', the stack trace test allocator,
+// which causes it to report memory leakss to 'cout', and we read the report of
+// memory leaks written to 'cout' when 'ta' was destroyed:
+//..
 //  }
+//
+// ====================================================================
+// Error: memory leaked:
+// 1 segment(s) in allocator '<unnamed>' in use.
+// Segment(s) allocated from 1 trace(s).
+// --------------------------------------------------------------------
+// Allocation trace 1, 1 segment(s) in use.
+// Stack trace at allocation time:
+// (0): BloombergLP::baesu_StackTraceTestAllocator::.allocate(long)+
+//      0x2fc at 0x100007b64 source:baesu_stacktracetestallocator.cpp:
+//      335 in baesu_stacktracetestallocator.t.d
+// (1): BloombergLP::bdeu_String::.copy(const char*,int,BloombergLP::
+//      bslma::Allocator*)+0xbc at 0x10001893c source:bdeu_string.cpp:
+//      96 in baesu_stacktracetestallocator.t.d
+// (2): ShipsCrew::.copy(const bsl::basic_string<char,std::char_traits<
+//      char>,bsl::allocator<char> >&)+0x8c at 0x1000232c4 source:
+//      baesu_stacktracetestallocator.t.cpp:610 in
+//      baesu_stacktracetestallocator.t.d
+// (3): ShipsCrew::.setCook(const bsl::basic_string<char,std::
+//      char_traits<char>,bsl::allocator<char> >&)+0x54 at 0x1000233e4
+//      source:baesu_stacktracetestallocator.t.cpp:232 in
+//      baesu_stacktracetestallocator.t.d
+// (4): ShipsCrew::.__ct(const char*)+0x430 at 0x1000214c8
+//      source:baesu_stacktracetestallocator.t.cpp:272 in
+//      baesu_stacktracetestallocator.t.d
+// (5): .getCaptain(const char*)+0x44 at 0x100020704 source:
+//      baesu_stacktracetestallocator.t.cpp:306 in
+//      baesu_stacktracetestallocator.t.d
+// (6): .main+0x278 at 0x100000ab0 source:
+//      baesu_stacktracetestallocator.t.cpp:727 in
+//      baesu_stacktracetestallocator.t.d
+// (7): .__start+0x74 at 0x1000002fc source:crt0_64.s in
+//      baesu_stacktracetestallocator.t.d
 //..
-// Finally, if 'veryVerbose' was set and we didn't call 'ta.release()', when
-// 'ta' goes out of scope and is destroyed, an error condtion will occur, and a
-// report of leaked segments will be written to the 'ostream' passed to 'ta' at
-// construction (it defaulted to 'cout') and 'abort()' will be called.  Output:
-// (long lines wrapped for aesthetics)
-//..
-//  ===========================================================================
-//  Error: memory leaked:
-//  1001 segment(s) in allocator 'myTestAllocator' in use.
-//  Segment(s) allocated in 2 place(s).
-//  ---------------------------------------------------------------------------
-//  Allocation place 1, 1 segment(s) in use.
-//  Stack trace at allocation time:
-//  (0): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0x84 at 0x1001b80c
-//        source:baesu_stacktracetestallocator.t.cpp:155 in
-//        baesu_stacktracetestallocator.t.
-//  (1): .main+0x1b4 at 0x1000090c
-//        source:baesu_stacktracetestallocator.t.cpp:398 in
-//        baesu_stacktracetestallocator.t.
-//  (2): .__start+0x6c at 0x1000020c source:crt0main.s in
-//        baesu_stacktracetestallocator.t.
-//  ---------------------------------------------------------------------------
-//  Allocation place 2, 1000 segment(s) in use.
-//  Stack trace at allocation time:
-//  (0): .usageTop(int*,BloombergLP::bslma::Allocator*)+0x70 at 0x1001b8e0
-//        source:baesu_stacktracetestallocator.t.cpp:146 in
-//        baesu_stacktracetestallocator.t.
-//  (1): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0xa8 at 0x1001b830
-//        source:baesu_stacktracetestallocator.t.cpp:161 in
-//        baesu_stacktracetestallocator.t.
-//  (2): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0x94 at 0x1001b81c
-//        source:baesu_stacktracetestallocator.t.cpp:158 in
-//        baesu_stacktracetestallocator.t.
-//  (3): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0x94 at 0x1001b81c
-//        source:baesu_stacktracetestallocator.t.cpp:158 in
-//        baesu_stacktracetestallocator.t.
-//  (4): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0x94 at 0x1001b81c
-//        source:baesu_stacktracetestallocator.t.cpp:158 in
-//        baesu_stacktracetestallocator.t.
-//  (5): .main+0x1b4 at 0x1000090c
-//        source:baesu_stacktracetestallocator.t.cpp:398 in
-//        baesu_stacktracetestallocator.t.
-//  (6): .__start+0x6c at 0x1000020c source:crt0main.s in
-//        baesu_stacktracetestallocator.t.
-//  IOT/Abort trap (core dumped)
-//..
+// Finally, we see that the leaked memory was in the 'setCook' method line 232
+// (line numbers are generally the line after the subroutine call in question
+// -- the call to 'copy' was on line 231).  The destructor neglected to
+// deallocate the cook's name.
+//
+// Note the following:
+//: o 'ta's destructor freed all the leaked memory, because
+//:   'setFailureHandler(&Obj::failureHandlerNoop)' had been called.  If the
+//:   default value, '&Obj::failureHandlerAbort', had been left in place, the
+//:   destructor would have core dumped before freeing the leaked memory.
+//: o Output will vary by platform.  Not all platforms support line number
+//:   information and demangling.  This report was generated on AIX, and a
+//:   couple of AIX quirks are visible -- identifiers have a '.' prepended, and
+//:   the constructor name got converted to '__ct'.
 
 #ifndef INCLUDED_BCESCM_VERSION
 #include <bcescm_version.h>

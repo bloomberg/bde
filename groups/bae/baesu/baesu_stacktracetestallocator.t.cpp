@@ -8,11 +8,13 @@
 #include <bcemt_threadutil.h>
 
 #include <bdesu_fileutil.h>
+#include <bdeu_random.h>
 #include <bdeu_string.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_newdeleteallocator.h>
+#include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_types.h>
 
@@ -23,6 +25,8 @@
 #include <bsl_set.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+
+#include <setjmp.h>
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
 
@@ -215,25 +219,30 @@ using bsl::flush;
 // [ 6] Equality comparisons (N/A)
 // [ 5] Print and output operator (N/A)
 // [ 4] All accessors
-//      * verify that if 'reportBlocksInUse' is called with no args, it writes
+//      o verify that if 'reportBlocksInUse' is called with no args, it writes
 //        its report to the stream specified at construction of the allocator.
-//      * verify that if 'reportBlocksInUse' is called with no memory
+//      o verify that if 'reportBlocksInUse' is called with no memory
 //        outstanding, it produces no output.
+//      * use 'leakTwiceA', verify order of 'leakTwice{C,B,A}' in trace.
 // [ 3] Value c'tor (N/A)
 // [ 2] All constructors, destructor, all manipulators
-//      * Verify that underlying testallocator passed is providing memory, and
+//      o Verify that underlying testallocator passed is providing memory, and
 //        freeing memory when 'deallocate' is called.
-//      * Instrument new/delete like mallocfreeallocator.t.cpp to verify
-//        default allocator configuration not coming from new/delete.
-//      * assert there is no output about leaked segments before d'tor is
+//      o Verify that the default allocator is not used when no allocator is
+//        passed to the STTA at construction.
+//      X Instrument new/delete like mallocfreeallocator.t.cpp to verify
+//        default allocator configuration not coming from new/delete.  (Effort
+//        was abandoned -- stringstream uses global 'new' & 'delete', even when
+//        an allocator is passed.o
+//      o assert there is no output about leaked segments before d'tor is
 //        called
-//      * repeat all tests with and without abort flag (no abort is expected
+//      o repeat all tests with and without abort flag (no abort is expected
 //        in this case
-//      * call 'ASSERT(oss.str().empty());' before d'tor is called
-//      * call one instance of object, destroy it with no memory outstanding,
+//      o call 'ASSERT(oss.str().empty());' before d'tor is called
+//      o call one instance of object, destroy it with no memory outstanding,
 //        verify no report written by d'tor
-//      * use 'leakTwiceA', verify order of 'leadTwice{C,B,A}' in trace.
-//      * verify allocator name in report
+//      o verify allocator name in report
+//      * verify operation of release with & without memory allocated.
 // [ 1] Breathing test
 //-----------------------------------------------------------------------------
 
@@ -391,6 +400,7 @@ struct ShipsCrew {
 void ShipsCrew::addSailor(const bsl::string& name)
 {
     BSLS_ASSERT(! d_sailors.count(name.c_str()));
+
     d_sailors.insert(copy(name));
 }
 
@@ -403,18 +413,21 @@ const char *ShipsCrew::copy(const bsl::string& str)
 void ShipsCrew::setCaptain(const bsl::string& name)
 {
     BSLS_ASSERT(! d_captain);
+
     d_captain = copy(name);
 }
 
 void ShipsCrew::setCook(const bsl::string& name)
 {
     BSLS_ASSERT(! d_cook);
+
     d_cook = copy(name);   // This was line 231 when this test case was written
 }
 
 void ShipsCrew::setFirstMate(const bsl::string& name)
 {
     BSLS_ASSERT(! d_firstMate);
+
     d_firstMate = copy(name);
 }
 
@@ -485,143 +498,110 @@ bsl::string getCaptain(const char *fileName)
     return crew.d_captain ? crew.d_captain : "";
 }
 
-                                // -----
-                                // Usage
-                                // -----
+// ============================================================================
+//                           RETOOL 'NEW' & 'DELETE'
+// ============================================================================
 
-struct S {
-    // This 'struct' allows us to keep a linked list of 'double's.
+#if 0
+// This experiment was abandoned -- it turned out the stringstreams were
+// calling global 'new' & 'delete' quite a bit, even when passed an allocator,
+// and there's not anything this component can do about it.
 
-    // DATA
-    static S                *s_head;
-    S                       *d_next;
-    double                   d_x;
-};
-S *S::s_head = 0;
+// We retool new and 'delete' to make sure they aren't being called directly
+// anywhere.
 
+static int numGlobalNewCalls    = 0;
+static int numGlobalDeleteCalls = 0;
 
-void usagePushVal(double x, bslma::Allocator *alloc)
-    // Add a node to our linked list containing the specified 'x'.
+#ifdef BDE_BUILD_TARGET_EXC
+void *operator new(size_t size) throw(std::bad_alloc)
+#else
+void *operator new(size_t size)
+#endif
+    // Trace use of global operator new.  Note that we must use printf
+    // to avoid recursion.
 {
-    S *p = new(*alloc) S;
-
-    p->d_x = x;
-    p->d_next = S::s_head;
-    S::s_head = p;
+    ++numGlobalNewCalls;
+    return malloc(size);
 }
 
-void usagePushGeometricSequence(double base, bslma::Allocator *alloc)
-    // Given a specified 'base', dd a sequence of nodes to the linked list in a
-    // geometric sequence from 'base' through 'base ** 4', in geometric
-    // increments of 'base'.
+#ifdef BDE_BUILD_TARGET_EXC
+void operator delete(void *address) throw()
+#else
+void operator delete(void *address)
+#endif
+    // Trace use of global operator delete.
 {
-    double x = 1.0;
-    for (int i = 0; i < 4; ++i) {
-        usagePushVal((x *= base), alloc);
+    ++numGlobalDeleteCalls;
+    free(address);
+}
+
+#endif
+
+// ============================================================================
+//                               my_jmpAbort
+// ============================================================================
+
+jmp_buf my_setJmpBuf;    // Note 'jmp_buf' is an array type
+
+void my_assertHandlerLongJmp(const char *,  // text
+                             const char *,  // fail
+                             int         )  // lineo
+{
+    longjmp(my_setJmpBuf, true);
+}
+
+void my_failureHandlerLongJmp()
+{
+    longjmp(my_setJmpBuf, true);
+}
+
+// ============================================================================
+// There is a problem with some of the optimizers being *VERY* clever about
+// inlining calls.  Even if you take a pointer to a function and then call
+// through the pointer,
+// ============================================================================
+
+inline
+void nullTransform(UintPtr *funcPtr)
+    // Do a complex transform on a function pointer that leaves the ptr
+    // ultimately unchanged in such a way that no optimizer is going to be able
+    // to figure out that the transform does not change.
+    //
+    // This is done by toggling the 4 bits 0xf000, each bit being toggled
+    // twice.  This is done by iterating through the loop 5 times.
+{
+    UintPtr uip = *funcPtr;
+
+    enum { FIRST       = 1 << 12,
+           TOGGLE_MASK = 7 << 12 };
+
+    // Toggle will be (1 << 12) * { 1, 3, 6, 4, 0 } and terminate on 0,
+    // what this mean is that each bit in the function pointer that gets
+    // modified gets toggled exactly twice, but the optimizer can't figure
+    // out that the value returned equals the value passed in.  And we only
+    // waste 4 iterations before we stop.
+
+    for (UintPtr toggle = FIRST; 0 != toggle; ) {
+        uip ^= toggle;
+
+        toggle = (FIRST == toggle) ? 3 * toggle : (toggle << 1);
+        toggle &= TOGGLE_MASK;
     }
+
+    ASSERT(uip == *funcPtr);     // The optimizer doesn't know what ASSERT
+                                 // means.
+
+    *funcPtr = uip;
 }
 
-void usageMiddle(bslma::Allocator *alloc)
-    // Iterate, doing 2 calls, each of which eventually calls 'pushVal' and
-    // thus allocate, but with 2 different call stacks.
-{
-    for (double x = 0; x < 100; x += 10) {
-        usagePushVal(x, alloc);
-        usagePushGeometricSequence(x, alloc);
-    }
-}
+// ============================================================================
+//                            CASE-SPECIFIC CODE
+// ============================================================================
 
-void usageBottom()
-{
-    // First, create a stringstream to which output will go if we're not in
-    // verbose mode.  Create a pointer to an 'ostream' which will point to
-    // 'cout' if we're in verbose mode, the stringstream otherwise.
-
-    bsl::stringstream ss(&bslma::NewDeleteAllocator::singleton());
-    bsl::ostream *pOut = (verbose ? &cout : &ss);
-
-    {
-        // Next, create 'ta', a stack trace test allocator, and associate it
-        // with the stream 'pOut'.
-
-        baesu_StackTraceTestAllocator ta("Usage Test Allocator", pOut);
-
-        // Then, turn off abort mode.  If abort mode were left enabled, the
-        // destructor would abort if any memory were leaked.
-
-        ta.setFailureHandler(&Obj::failureHandlerNoop);
-
-        // Next, call 'usageMiddle', which will iterate, calling other routines
-        // which will allocate many segments of memory.
-
-        usageMiddle(&ta);
-
-        // Now, verify that we have unfreed memory outstanding.
-
-        ASSERT(ta.numBlocksInUse() > 0);
-        if (verbose) {
-            cout << ta.numBlocksInUse() << " segments leaked\n";
-        }
-
-        // Finally, destroy 'ta', leaking allocated memory.  The destructor of
-        // 'ta' will write a report about the leaked segments to '*pOut', and
-        // automatically clean up, freeing all the leaked segments.  Note that
-        // although leaked memory was only allocated from one routine, it was
-        // allocated from 2 call chains, so 2 call chains will be reported.
-        // Also note that had no memory been leaked, no report would be
-        // written.
-    }
-}
-
-// Output of usage example on AIX.  Note that the 2 call stacks shown are
-// different -- only one of them contains the routine
-// 'usagePushGeometricSequence':
-//
-//  46 segments leaked
-//  ===========================================================================
-//  Error: memory leaked:
-//  1001 segment(s) in allocator 'myTestAllocator' in use.
-//  Segment(s) allocated in 2 place(s).
-//  ---------------------------------------------------------------------------
-//  Allocation place 1, 1 segment(s) in use.
-//  Stack trace at allocation time:
-//  (0): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0x84 at 0x1001b80c
-//        source:baesu_stacktracetestallocator.t.cpp:155 in
-//        baesu_stacktracetestallocator.t.
-//  (1): .main+0x1b4 at 0x1000090c
-//        source:baesu_stacktracetestallocator.t.cpp:398 in
-//        baesu_stacktracetestallocator.t.
-//  (2): .__start+0x6c at 0x1000020c source:crt0main.s in
-//        baesu_stacktracetestallocator.t.
-//  ---------------------------------------------------------------------------
-//  Allocation place 2, 1000 segment(s) in use.
-//  Stack trace at allocation time:
-//  (0): .usageTop(int*,BloombergLP::bslma::Allocator*)+0x70 at 0x1001b8e0
-//        source:baesu_stacktracetestallocator.t.cpp:146 in
-//        baesu_stacktracetestallocator.t.
-//  (1): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0xa8 at 0x1001b830
-//        source:baesu_stacktracetestallocator.t.cpp:161 in
-//        baesu_stacktracetestallocator.t.
-//  (2): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0x94 at 0x1001b81c
-//        source:baesu_stacktracetestallocator.t.cpp:158 in
-//        baesu_stacktracetestallocator.t.
-//  (3): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0x94 at 0x1001b81c
-//        source:baesu_stacktracetestallocator.t.cpp:158 in
-//        baesu_stacktracetestallocator.t.
-//  (4): .usageRecurser(int*,BloombergLP::bslma::Allocator*)+0x94 at 0x1001b81c
-//        source:baesu_stacktracetestallocator.t.cpp:158 in
-//        baesu_stacktracetestallocator.t.
-//  (5): .main+0x1b4 at 0x1000090c
-//        source:baesu_stacktracetestallocator.t.cpp:398 in
-//        baesu_stacktracetestallocator.t.
-//  (6): .__start+0x6c at 0x1000020c source:crt0main.s in
-//        baesu_stacktracetestallocator.t.
-//  IOT/Abort trap (core dumped)
-//..
-
-                                // ------
-                                // case 3
-                                // ------
+                                    // -------
+                                    // case 12
+                                    // -------
 
 namespace MultiThreadedTest {
 
@@ -639,6 +619,9 @@ struct NotEqual {
 };
 
 struct Functor {
+    // TYPES
+    typedef void (Functor::*FuncPtr)();
+
     enum { NUM_THREADS = 10 };
 
     // DATA
@@ -647,15 +630,31 @@ struct Functor {
     static bcemt_Barrier           s_finishBarrier;
 
     bsl::vector<int *>             d_alloced;
-    unsigned                       d_randNum;
+    int                            d_randNum;
     int                            d_64;
+    bool                           d_ran;
     baesu_StackTraceTestAllocator *d_allocator;
+
+    // CLASS METHODS
+    static
+    FuncPtr localNullTransform(FuncPtr func)
+    {
+        union {
+            FuncPtr d_func;
+            UintPtr d_uintPtr;
+        } u;
+
+        u.d_func = func;
+        nullTransform(&u.d_uintPtr);
+        return u.d_func;
+    }
 
     // CREATORS
     Functor(bslma::Allocator              *vecAllocator,
             baesu_StackTraceTestAllocator *traceAllocator)
     : d_alloced(vecAllocator)
     , d_randNum(0x55aa55aa + ++s_threadRand)
+    , d_ran(false)
     , d_allocator(traceAllocator)
     {}
 
@@ -663,25 +662,28 @@ struct Functor {
     : d_alloced(original.d_alloced,
                 original.d_alloced.get_allocator().mechanism())
     , d_randNum(original.d_randNum + ++s_threadRand * 7)
+    , d_ran(false)
     , d_allocator(original.d_allocator)
     {}
 
     // MANIPULATORS
-    unsigned rand()
+    int rand()
     {
-        return d_randNum = d_randNum * 1103515245 + 12345;
+        int ret = bdeu_Random::generate15(&d_randNum);
+        ASSERT(ret >= 0);
+        return ret;
     }
 
     void freeOne(int index)
     {
         ASSERT((unsigned) index < d_alloced.size());
         int *segment = d_alloced[index];
-        int *end = segment + *segment + 1;
+        int length = *segment;
+        int *end = segment + 1 + length;
         int fillWord = (int) (UintPtr) segment;
         int *f = bsl::find_if(segment + 1, end, NotEqual(fillWord));
-        LOOP4_ASSERT(fillWord, *f, *segment, f - segment - 1, end == f);
-        bsl::fill(segment + 1, end, ~fillWord);
-        *segment = -5;
+        LOOP4_ASSERT(fillWord, *f, length, f - segment - 1, end == f);
+        bsl::fill(segment, end, ~fillWord);
 
         d_allocator->deallocate(segment);
         d_alloced[index] = d_alloced.back();
@@ -690,11 +692,9 @@ struct Functor {
 
     void freeSome()
     {
-        int mod = bsl::min((int) d_alloced.size() / 4,
-                           (int) d_alloced.size() - 4);
-        mod = bsl::max(mod, 0);
-        for (int numToFree = mod > 1 ? rand() % mod : 0; numToFree;
-                                                                 --numToFree) {
+        int mod = bsl::max(0, bsl::min((int) d_alloced.size() / 2,
+                                       (int) d_alloced.size() - 4)) + 1;
+        for (int numToFree = rand() % mod; numToFree; --numToFree) {
             int index = rand() % (unsigned) d_alloced.size();
             freeOne(index);
         }
@@ -724,66 +724,57 @@ void Functor::top()
     d_alloced.push_back(segment);
     *segment = allocLength;
     int fillWord = (int) (UintPtr) segment;
-    bsl::fill(segment + 1, segment + allocLength + 1, fillWord);
+    bsl::fill(segment + 1, segment + 1 + allocLength, fillWord);
     ASSERT(fillWord == segment[1]);
+
+    d_ran = true;
 }
 
 void Functor::nest4()
 {
-    for (int i = 1; i < d_64; i += 32) {
-        top();
+    FuncPtr topPtr      = localNullTransform(&MultiThreadedTest::Functor::top);
+    FuncPtr freeSomePtr = localNullTransform(
+                                        &MultiThreadedTest::Functor::freeSome);
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            (this->*topPtr)();
+        }
+        (this->*freeSomePtr)();
     }
 }
 
 void Functor::nest3()
 {
-    int end = d_64 >> 3;
-    for (int j = 4; j < end; ++j) {
-        nest4();
-    }
+    (this->*localNullTransform(&MultiThreadedTest::Functor::nest4))();
 }
 
 void Functor::nest2()
 {
-    for (int i = 0; i < d_64 / 16; ++i) {
-        nest3();
-    }
+    (this->*localNullTransform(&MultiThreadedTest::Functor::nest3))();
 }
 
 void Functor::nest1()
 {
-    for (int i = 0; i < 3; ++i) {
-        nest2();
-    }
+    (this->*localNullTransform(&MultiThreadedTest::Functor::nest2))();
 }
 
 void Functor::operator()()
 {
     ASSERT(0 == d_alloced.size());
 
-    d_64 = 75;
-    for (int i = 0; 0 == (i & 0x23474000); ++i) {
-        d_64 ^= i;
-    }
-    d_64 -= 11;
-
-    ASSERT(64 == d_64);
-
-    for (int i = 0; i < 10; ++i) {
-        nest1();
-        freeSome();
-    }
+    (this->*localNullTransform(&MultiThreadedTest::Functor::nest1))();
 
     s_numUnfreedSegments += (int) d_alloced.size();
+
+    ASSERT(d_ran);
 
     s_finishBarrier.wait();
 
     // Main thread will now gather a report on unfreed segments
 
     s_finishBarrier.wait();
-    for (int i = (int) d_alloced.size() - 1; i >= 0; --i) {
-        freeOne(i);
-    }
+
+    d_allocator->release();
 }
 
 }  // close namespace MultiThreadedTest
@@ -861,10 +852,12 @@ int main(int argc, char *argv[])
     bslma::TestAllocator da;
     bslma::DefaultAllocatorGuard guard(&da);
 
+    memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
+
     int expectedDefaultAllocations = 0;
 
     switch (test) { case 0:
-      case 16: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -940,35 +933,24 @@ int main(int argc, char *argv[])
         //      baesu_stacktracetestallocator.t.d
         // (7): .__start+0x74 at 0x1000002fc source:crt0_64.s in
         //      baesu_stacktracetestallocator.t.d
-
+        //
         // Finally, we see that the leaked memory was in the 'setCook' method
         // line 232 (line numbers are generally the line after the subroutine
         // call in question -- the call to 'copy' was on line 231).  The
         // destructor neglected to deallocate the cook's name.
-
+        //
         // Note the following:
-        //: o If we hadn't called 'setFailureHandler(&Obj::failureHandlerNoop)', the above report would
-        //:   have been followed by a core dump. Since 'isNoAbort' was set,
-        //:   'ta's destructor instead frees all leaked memory after giving
-        //:   the report and returns.
+        //: o If we hadn't called
+        //:   'setFailureHandler(&Obj::failureHandlerNoop)', the above report
+        //:   would have been followed by a core dump.  Since 'isNoAbort' was
+        //:   set, 'ta's destructor instead frees all leaked memory after
+        //:   giving the report and returns.
         //: o Output will vary by platform.  Not all platforms support line
         //:   number information and demangling.  This report was generated on
         //:   AIX, and a couple of AIX quirks are visible -- identifiers have a
         //:   '.' prepended, and the constructor name got converted to '__ct'.
 
-        // Post usage example: clean up 'shipscrew.txt'
-
         bdesu_FileUtil::remove("shipscrew.txt");
-      }  break;
-      case 15: {
-        //---------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //---------------------------------------------------------------------
-
-        if (verbose) cout << "Usage Example\n"
-                             "=============\n";
-
-        usageBottom();
       }  break;
       case 14: {
         //---------------------------------------------------------------------
@@ -1110,9 +1092,9 @@ int main(int argc, char *argv[])
 
             static bool firstTime = true;
             if (verbose && firstTime) {
-                firstTime = false;
                 P(isInplace);
             }
+            firstTime = false;
         }
 
         TC::Functor::s_finishBarrier.wait();
@@ -1138,7 +1120,9 @@ int main(int argc, char *argv[])
             bsl::stringstream matchSs(&sta);
             matchSs << TC::Functor::s_numUnfreedSegments <<
                                         " segment(s) in allocator 'ta' in use";
-            ASSERT(npos != (pos = otherStr.find(matchSs.str())));
+            bsl::size_t nextPos = otherStr.find(matchSs.str());
+            LOOP2_ASSERT(otherStr, matchSs.str(), npos != nextPos);
+            pos = npos == nextPos ? 0 : nextPos;
             ++expectedDefaultAllocations;              // otherSs.str() uses da
         }
 
@@ -1337,91 +1321,114 @@ int main(int argc, char *argv[])
         //   function properly.
         //
         // Plan:
-        // Manipulate the failure handler and observe it with the
-        // 'failureHandler' accessor.  Allocate and free some segments and
-        // observe that 'numBlocksInUse' tracks the number of allocations
-        // correctly.  Call 'reportBlocksInUse' and observe that it gives a
-        // report appropriate to the number of blocks that are in use.
+        //   Manipulate the failure handler and observe it with the
+        //   'failureHandler' accessor.  Allocate and free some segments and
+        //   observe that 'numBlocksInUse' tracks the number of allocations
+        //   correctly.  Call 'reportBlocksInUse' and observe that it gives a
+        //   report appropriate to the number of blocks that are in use.
         //---------------------------------------------------------------------
 
         expectedDefaultAllocations = -1;    // turn off default allocator
                                             // monitoring
-        Obj ta("my_allocator");
+        bsl::ostringstream taOss;
+        {
+            Obj ta("my_allocator", &taOss);
 
-        enum {
-            MAX_ALLOC_LENGTH     = 100,
+            enum {
+                MAX_ALLOC_LENGTH     = 100,
 
-            // The following 3 numbers should all be relatively prime
+                // The following 3 numbers should all be relatively prime
 
-            SEGMENT_ARRAY_LENGTH = 10,
-            ALLOC_INC            = 3,
-            FREE_INC             = 7
-        };
+                SEGMENT_ARRAY_LENGTH = 10,
+                ALLOC_INC            = 3,
+                FREE_INC             = 7
+            };
 
-        ASSERT(ta.failureHandler() == &Obj::failureHandlerAbort);
-        ta.setFailureHandler(&Obj::failureHandlerNoop);
-        ASSERT(ta.failureHandler() == &Obj::failureHandlerNoop);
-        ta.setFailureHandler(Obj::failureHandlerAbort);
-        ASSERT(ta.failureHandler() == &Obj::failureHandlerAbort);
+            ASSERT(ta.failureHandler() == &Obj::failureHandlerAbort);
+            ta.setFailureHandler(&Obj::failureHandlerNoop);
+            ASSERT(ta.failureHandler() == &Obj::failureHandlerNoop);
+            ta.setFailureHandler(Obj::failureHandlerAbort);
+            ASSERT(ta.failureHandler() == &Obj::failureHandlerAbort);
 
-        bsl::ostringstream oss;
-        ta.reportBlocksInUse(&oss);
-        ASSERT(oss.str().empty());    // no blocks in use
+            bsl::ostringstream oss;
+            ta.reportBlocksInUse(&oss);
+            ASSERT(oss.str().empty());      // no blocks in use
+            ta.reportBlocksInUse();
+            ASSERT(taOss.str().empty());    // no blocks in use
 
-        void *segments[SEGMENT_ARRAY_LENGTH] = { 0 };
+            void *segments[SEGMENT_ARRAY_LENGTH] = { 0 };
 
-        unsigned numSegments = 0;
+            unsigned numSegments = 0;
 
-        // do a lot of allocating and freeing, not just freeing the segment
-        // most recently allocated, but rather choosing the segment to free in
-        // a somewhat random fashion.
+            // do a lot of allocating and freeing, not just freeing the segment
+            // most recently allocated, but rather choosing the segment to free
+            // in a somewhat random fashion.
 
-        for (int i = 0; i < 100; ++i) {
-            unsigned allocIdx = (unsigned) rand() % SEGMENT_ARRAY_LENGTH;
-            while (segments[allocIdx]) {
-                allocIdx = (allocIdx + ALLOC_INC) % SEGMENT_ARRAY_LENGTH;
-            }
-            segments[allocIdx] = ta.allocate(
+            for (int i = 0; i < 100; ++i) {
+                unsigned allocIdx = (unsigned) rand() % SEGMENT_ARRAY_LENGTH;
+                while (segments[allocIdx]) {
+                    allocIdx = (allocIdx + ALLOC_INC) % SEGMENT_ARRAY_LENGTH;
+                }
+                segments[allocIdx] = ta.allocate(
                        bsl::max<int>(1, (unsigned) rand() % MAX_ALLOC_LENGTH));
-            ++numSegments;
-            LOOP3_ASSERT(i, ta.numBlocksInUse(), numSegments,
+                ++numSegments;
+                LOOP3_ASSERT(i, ta.numBlocksInUse(), numSegments,
                                            ta.numBlocksInUse() == numSegments);
 
-            if (numSegments >= 4) {
-                unsigned freeIdx = (unsigned) rand() % SEGMENT_ARRAY_LENGTH;
-                while (! segments[freeIdx]) {
-                    freeIdx = (freeIdx+ FREE_INC) % SEGMENT_ARRAY_LENGTH;
+                if (numSegments >= 4) {
+                    unsigned freeIdx = (unsigned) rand() %
+                                                          SEGMENT_ARRAY_LENGTH;
+                    while (! segments[freeIdx]) {
+                        freeIdx = (freeIdx+ FREE_INC) % SEGMENT_ARRAY_LENGTH;
+                    }
+                    ta.deallocate(segments[freeIdx]);
+                    segments[freeIdx] = 0;
+                    --numSegments;
+                    ASSERT(ta.numBlocksInUse() == numSegments);
                 }
-                ta.deallocate(segments[freeIdx]);
-                segments[freeIdx] = 0;
-                --numSegments;
-                ASSERT(ta.numBlocksInUse() == numSegments);
             }
-        }
 
-        ASSERT(3 == numSegments);
-        ASSERT(3 == ta.numBlocksInUse());
+            ASSERT(3 == numSegments);
+            ASSERT(3 == ta.numBlocksInUse());
 
-        ASSERT(oss.str().empty());
-        ta.reportBlocksInUse(&oss);
-        const bsl::string& report = oss.str();
+            ASSERT(oss.str().empty());
+            ta.reportBlocksInUse(&oss);
+            const bsl::string& report = oss.str();
 
-        ASSERT(!report.empty());
-        LOOP_ASSERT(report,
+            ASSERT(!report.empty());
+            LOOP_ASSERT(report,
                 npos != report.find("3 segment(s) in allocator 'my_allocator'"
                                     " in use"));
-        ASSERT(npos != report.find("main"));
+            ASSERT(npos != report.find("main"));
 
-        for (int i = 0; i < SEGMENT_ARRAY_LENGTH; ++i) {
-            if (segments[i]) {
-                ta.deallocate(segments[i]);
-                --numSegments;
+            ASSERT(taOss.str().empty());
+            ta.reportBlocksInUse();
+            const bsl::string& taReport = taOss.str();
+
+            ASSERT(!taReport.empty());
+            ASSERT(taReport == report);
+
+            for (int i = 0; i < SEGMENT_ARRAY_LENGTH; ++i) {
+                if (segments[i]) {
+                    ta.deallocate(segments[i]);
+                    --numSegments;
+                }
+                ASSERT(ta.numBlocksInUse() == numSegments);
             }
-            ASSERT(ta.numBlocksInUse() == numSegments);
+
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(0 == numSegments);
+
+            oss.str("");
+            taOss.str("");
+
+            ta.reportBlocksInUse(&oss);
+            ASSERT(oss.str().empty());
+            ta.reportBlocksInUse();
+            ASSERT(taOss.str().empty());
         }
 
-        ASSERT(0 == ta.numBlocksInUse());
-        ASSERT(0 == numSegments);
+        ASSERT(taOss.str().empty());    // nothing happened at destruction
       }  break;
       case 3: {
         //---------------------------------------------------------------------
@@ -1456,10 +1463,16 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ota;
 
-        for (int i = 0; i < 2; ++i) {
-            const bool CLEAN_DESTROY = i;
+        if (verbose) Q("Loop to exercise all c'tors");
+        for (int i = 0; i < 4; ++i) {
+            const bool CLEAN_DESTROY = i %  2;
+            const bool ABORT_LONGJMP = i >= 2;
 
             for (char c = 'a'; c <= 'j' ; ++c) {
+                if (veryVerbose) {
+                    P_(CLEAN_DESTROY);    P_(ABORT_LONGJMP);    P(c);
+                }
+
                 Obj *pta = 0;
 
                 bsl::stringstream oss(&ota);
@@ -1467,6 +1480,7 @@ int main(int argc, char *argv[])
                 // Note that 'Obj's that are constructed without an allocator
                 // arg use the gmalloc allocator singleton, not 'da'
 
+                bool otaPassed = false;
                 switch (c) {
                   case 'a': {
                     pta = new (ota) Obj();
@@ -1488,6 +1502,7 @@ int main(int argc, char *argv[])
                                         10,
                                         false,
                                         &ota);
+                    otaPassed = true;
                   } break;
                   case 'f': {
                     pta = new (ota) Obj("my_allocator");
@@ -1513,6 +1528,7 @@ int main(int argc, char *argv[])
                                         10,
                                         false,
                                         &ota);
+                    otaPassed = true;
                   } break;
                 }
 
@@ -1524,18 +1540,20 @@ int main(int argc, char *argv[])
                 ASSERT(ta.failureHandler() == &Obj::failureHandlerNoop);
                 ta.setFailureHandler(Obj::failureHandlerAbort);
                 ASSERT(ta.failureHandler() == &Obj::failureHandlerAbort);
-                ta.setFailureHandler(&Obj::failureHandlerNoop);
-                ASSERT(ta.failureHandler() == &Obj::failureHandlerNoop);
 
+                const int otaNumBlocks = ota.numBlocksInUse();
                 void *segment = ta.allocate(100);
                 ASSERT(1 == ta.numBlocksInUse());
+                ASSERT(!otaPassed || otaNumBlocks + 1 == ota.numBlocksInUse());
                 ta.deallocate(segment);
                 ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(otaNumBlocks == ota.numBlocksInUse());
 
                 segment = ta.allocate(50);
                 ASSERT(1 == ta.numBlocksInUse());
                 ta.release();
                 ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(!otaPassed || otaNumBlocks == ota.numBlocksInUse());
 
                 segment = ta.allocate(200);
                 if (CLEAN_DESTROY) {
@@ -1547,7 +1565,27 @@ int main(int argc, char *argv[])
                 // still be unfreed and a report will be written.
 
                 ASSERT(! CLEAN_DESTROY == ta.numBlocksInUse());
-                ota.deleteObject(pta);
+                ASSERT(oss.str().empty());    // verify no output has been
+                                              // written before d'tor called
+
+                if (setjmp(my_setJmpBuf)) {
+                    LOOP_ASSERT(c, !CLEAN_DESTROY && ABORT_LONGJMP);
+                    ta.setFailureHandler(Obj::failureHandlerAbort);
+                    ASSERT(ta.failureHandler() == &Obj::failureHandlerAbort);
+                }
+                else {
+                    if (ABORT_LONGJMP) {
+                        ta.setFailureHandler(&my_failureHandlerLongJmp);
+                    }
+                    else {
+                        ta.setFailureHandler(&Obj::failureHandlerNoop);
+                    }
+
+                    ota.deleteObject(pta);
+
+                    LOOP2_ASSERT(i, c, CLEAN_DESTROY || !ABORT_LONGJMP);
+                }
+                memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 const bool OSS_REPORT = 'a' != c && 'f' != c && !CLEAN_DESTROY;
 
@@ -1563,7 +1601,63 @@ int main(int argc, char *argv[])
                     ASSERT((c >= 'f') ==
                                         (npos != report.find("my_allocator")));
                 }
+
+                if (!CLEAN_DESTROY && ABORT_LONGJMP) {
+                    // Make sure we haven't released memory before calling
+                    // the failure handler:
+
+                    ASSERT(! CLEAN_DESTROY == ta.numBlocksInUse());
+                    ta.setFailureHandler(&Obj::failureHandlerNoop);
+
+                    ta.release();
+                    ota.deleteObject(pta);
+                }
             }
+        }
+
+        if (verbose) Q("Prove if no ostream is given, output goes to cout");
+        {
+#           define ASSERT_STDERR(exp)                                         \
+                if (!(exp)) {                                                 \
+                    cerr << "Error " << __FILE__ << "(" << __LINE__ << "): "  \
+                                       << #exp << "    (failed)" << endl;     \
+                    if (0 <= testStatus && testStatus <= 100) ++testStatus;   \
+                }
+
+            bsl::stringstream oss(&ota);
+            cout.rdbuf(oss.rdbuf());
+
+            for (int i = 0; i < 2; ++i) {
+                const bool NAME = i;
+
+                oss.str("");
+                ASSERT_STDERR(oss.str().empty());
+
+                if (NAME) {
+                    Obj ta("my_allocator");
+
+                    ta.setFailureHandler(&Obj::failureHandlerNoop);
+                    ta.allocate(100);
+                }
+                else {
+                    Obj ta;
+
+                    ta.setFailureHandler(&Obj::failureHandlerNoop);
+                    ta.allocate(100);
+                }
+
+                const bsl::string& report = oss.str();
+                ++expectedDefaultAllocations;
+
+                ASSERT_STDERR(!report.empty());
+                ASSERT_STDERR(npos != report.find("main"));
+                ASSERT_STDERR(npos != report.find("1 segment(s) in use"));
+                ASSERT_STDERR(npos != report.find("Error: memory leaked"));
+                ASSERT_STDERR(npos != report.find("allocate"));
+                ASSERT_STDERR((npos != report.find("my_allocator")) == NAME);
+            }
+
+#           undef ASSERT_STDERR
         }
       }  break;
       case 1: {
@@ -1638,6 +1732,14 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+#if 0
+    // Tracking calls to global 'new' & 'delete' was abandoned -- see comment
+    // above.
+
+    LOOP_ASSERT(numGlobalNewCalls,    0 == numGlobalNewCalls);
+    LOOP_ASSERT(numGlobalDeleteCalls, 0 == numGlobalDeleteCalls);
+#endif
 
     LOOP2_ASSERT(expectedDefaultAllocations, da.numAllocations(),
                         expectedDefaultAllocations < 0 ||

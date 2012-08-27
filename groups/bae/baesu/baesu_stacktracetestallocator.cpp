@@ -138,6 +138,7 @@ struct baesu_StackTraceTestAllocator::SegmentHeader {
         // arguments.
 };
 
+// CREATORS
 inline
 baesu_StackTraceTestAllocator::SegmentHeader::SegmentHeader(
                         SegmentHeader                 *next,
@@ -203,6 +204,7 @@ int baesu_StackTraceTestAllocator::preDeallocateCheckSegmentHeader(
     }
 
     // check out next node
+
     const SegmentHeader *next = segmentHdr->d_next_p;
     if (next) {
         if (UNFREED_SEGMENT_MAGIC != next->d_magic) {
