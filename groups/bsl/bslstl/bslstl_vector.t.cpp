@@ -8033,6 +8033,308 @@ void TestDriver<TYPE,ALLOC>::testCase1()
 }
 
 //=============================================================================
+//                                USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+namespace {
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Creating a Matrix Type
+///- - - - - - - - - - - - - - - - -
+// Suppose we want to define a value semantic type representing a
+// dynamically resizable two-dimensional matrix.
+//
+// First, we define the public interface for the 'MyMatrix' class template:
+//..
+template <class TYPE>
+class MyMatrix {
+    // This value-semantic type characterizes a two-dimensional matrix of
+    // objects of the (template parameter) 'TYPE'.  The numbers of columns and
+    // rows of the matrix can be specified at construction and, at any time,
+    // via the 'reset', 'insertRow', and 'insertColumn' methods.  The value of
+    // each element in the matrix can be set and accessed using the 'theValue',
+    // and 'theModifiableValue' methods respectively.  A free operator,
+    // 'operator*', is available to return the product of two specified
+    // matrices.
+
+  public:
+    // PUBLIC TYPES
+//..
+// Here, we create a type alias, 'RowType', for an instantiation of
+// 'bsl::vector' to represent a row of 'TYPE' objects in the matrix.  We create
+// another type alias, 'MatrixType', for an instantiation of 'bsl::vector' to
+// represent the entire matrix of 'TYPE' objects as a list of rows:
+//..
+    typedef bsl::vector<TYPE>    RowType;
+        // This is an alias representing a row of values of the (template
+        // parameter) 'TYPE'.
+
+    typedef bsl::vector<RowType> MatrixType;
+        // This is an alias representing a two-dimensional matrix of values of
+        // the (template parameter) 'TYPE'.
+
+  private:
+    // DATA
+    MatrixType d_matrix;      // matrix of values
+    int        d_numColumns;  // number of columns
+
+    // FRIENDS
+    template<class T>
+    friend bool operator==(const MyMatrix<T>&, const MyMatrix<T>&);
+
+  public:
+    // PUBLIC TYPES
+    typedef typename MatrixType::const_iterator ConstRowIterator;
+
+    // CREATORS
+    MyMatrix(int numRows,
+             int numColumns,
+             bslma::Allocator *basicAllocator = 0);
+        // Create a 'MyMatrix' object having the specified 'numRows' and the
+        // specified 'numColumns'.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  The behavior is undefined unless
+        // '0 <= numRows' and '0 <= numColumns'
+
+    MyMatrix(const MyMatrix& original,
+             bslma::Allocator *basicAllocator = 0);
+        // Create a 'MyMatrix' object having the same value as the specified
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    //! ~MyMatrix = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    MyMatrix& operator=(const MyMatrix& rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
+    void clear();
+        // Remove all rows and columns from this object.
+
+    void insertRow(int rowIndex);
+        // Insert, into this matrix, an empty row at the specified 'rowIndex'.
+        // The behavior is undefined unless '0 <= rowIndex <= numRows()'.
+
+    void insertColumn(int columnIndex);
+        // Insert, into this matrix, an empty column at the specified
+        // 'columnIndex'.  The behavior is undefined unless '0 <= columnIndex
+        // <= numColumns()'.
+
+    TYPE& theModifiableValue(int rowIndex, int columnIndex);
+        // Return a reference providing modifiable access to the element at the
+        // specified 'rowIndex' and the specified 'columnIndex' in this matrix.
+        // The behavior is undefined unless '0 <= rowIndex < numRows()'
+        // and '0 < columnIndex <= numColumns()'.
+
+    // ACCESSORS
+    int numRows() const;
+        // Return the number of rows in this matrix.
+
+    int numColumns() const;
+        // Return the number of columns in this matrix.
+
+    ConstRowIterator beginRow() const;
+        // Return an iterator providing non-modifiable access to the 'RowType'
+        // objects representing the first row in this matrix.
+
+    ConstRowIterator endRow() const;
+        // Return an iterator providing non-modifiable access to the 'RowType'
+        // objects representing the past-the-end row in this matrix.
+
+    const TYPE& theValue(int rowIndex, int columnIndex) const;
+        // Return a reference providing non-modifiable access to the element at
+        // the specified 'rowIndex' and the specified 'columnIndex' in this
+        // matrix.  The behavior is undefined unless
+        // '0 <= rowIndex < numRows()' and '0 < columnIndex <= numColumns()'.
+};
+//..
+// Then we declare the free operator for 'MyMatrix':
+//..
+// FREE OPERATORS
+template <class TYPE>
+MyMatrix<TYPE> operator==(const MyMatrix<TYPE>& lhs,
+                          const MyMatrix<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'MyMatrix' objects have the same
+    // value if they have the same number of rows and columns and every element
+    // in both matrices compare equal.
+
+template <class TYPE>
+MyMatrix<TYPE> operator!=(const MyMatrix<TYPE>& lhs,
+                          const MyMatrix<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'MyMatrix' objects do not have
+    // the same value if they do not have the same number of rows and columns
+    // or every element in both matrices do not compare equal.
+
+template <class TYPE>
+MyMatrix<TYPE> operator*(const MyMatrix<TYPE>& lhs,
+                         const MyMatrix<TYPE>& rhs);
+    // Return a 'MyMatrix' objects that is the product of the specified 'lhs'
+    // and 'rhs'.  The behavior is undefined unless
+    // 'lhs.numColumns() == rhs.numRows()'.
+//..
+// Now, we define the methods of 'MyMatrix':
+//..
+// CREATORS
+template <class TYPE>
+MyMatrix<TYPE>::MyMatrix(int numRows,
+                         int numColumns,
+                         bslma::Allocator *basicAllocator)
+: d_matrix(numRows, basicAllocator)
+, d_numColumns(numColumns)
+{
+    BSLS_ASSERT(0 <= numRows);
+    BSLS_ASSERT(0 <= numColumns);
+
+    for (typename MatrixType::iterator itr = d_matrix.begin();
+         itr != d_matrix.end();
+         ++itr) {
+        itr->resize(d_numColumns);
+    }
+}
+
+template <class TYPE>
+MyMatrix<TYPE>::MyMatrix(const MyMatrix& original,
+                         bslma::Allocator *basicAllocator)
+: d_matrix(original.d_matrix, basicAllocator)
+, d_numColumns(original.d_numColumns)
+{
+}
+//..
+// Notice that we pass the contained 'bsl::vector' ('d_matrix') the allocator
+// specified at construction to supply memory.  If type of the elements
+// contained in the vector has the 'bslalg_TypeTraitUsesBslmaAllocator' trait,
+// this allocator will be passed by the vector to its contained elements as
+// well.
+//..
+// MANIPULATORS
+template <class TYPE>
+MyMatrix<TYPE>& MyMatrix<TYPE>::operator=(const MyMatrix& rhs)
+{
+    d_matrix = rhs.d_matrix;
+    d_numColumns = rhs.d_numColumns;
+}
+
+template <class TYPE>
+void MyMatrix<TYPE>::clear()
+{
+    d_matrix.clear();
+    d_numColumns = 0;
+}
+
+template <class TYPE>
+void MyMatrix<TYPE>::insertRow(int rowIndex)
+{
+    typename MatrixType::iterator itr =
+        d_matrix.insert(d_matrix.begin() + rowIndex, RowType());
+    itr->resize(d_numColumns);
+}
+
+template <class TYPE>
+void MyMatrix<TYPE>::insertColumn(int colIndex) {
+    for (typename MatrixType::iterator itr = d_matrix.begin();
+         itr != d_matrix.end();
+         ++itr) {
+        itr->insert(itr->begin() + colIndex, 0);
+    }
+    ++d_numColumns;
+}
+
+template <class TYPE>
+TYPE& MyMatrix<TYPE>::theModifiableValue(int rowIndex, int columnIndex)
+{
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(rowIndex < d_matrix.size());
+    BSLS_ASSERT(0 <= columnIndex);
+    BSLS_ASSERT(columnIndex < d_numColumns);
+
+    return d_matrix[rowIndex][columnIndex];
+}
+
+// ACCESSORS
+template <class TYPE>
+int MyMatrix<TYPE>::numRows() const
+{
+    return d_matrix.size();
+}
+
+template <class TYPE>
+int MyMatrix<TYPE>::numColumns() const
+{
+    return d_numColumns;
+}
+
+template <class TYPE>
+typename MyMatrix<TYPE>::ConstRowIterator MyMatrix<TYPE>::beginRow() const
+{
+    return d_matrix.begin();
+}
+
+template <class TYPE>
+typename MyMatrix<TYPE>::ConstRowIterator MyMatrix<TYPE>::endRow() const
+{
+    return d_matrix.end();
+}
+
+template <class TYPE>
+const TYPE& MyMatrix<TYPE>::theValue(int rowIndex, int columnIndex) const
+{
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(rowIndex < d_matrix.size());
+    BSLS_ASSERT(0 <= columnIndex);
+    BSLS_ASSERT(columnIndex < d_numColumns);
+
+    return d_matrix[rowIndex][columnIndex];
+}
+//..
+// Finally, we defines the free operators for 'MyMatrix':
+//..
+// FREE OPERATORS
+template <class TYPE>
+MyMatrix<TYPE> operator==(const MyMatrix<TYPE>& lhs,
+                          const MyMatrix<TYPE>& rhs)
+{
+    return lhs.d_numColumns == rhs.d_numColumns &&
+                                                  lhs.d_matrix == rhs.d_matrix;
+}
+
+template <class TYPE>
+MyMatrix<TYPE> operator!=(const MyMatrix<TYPE>& lhs,
+                          const MyMatrix<TYPE>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+template <class TYPE>
+MyMatrix<TYPE> operator*(const MyMatrix<TYPE>& lhs,
+                         const MyMatrix<TYPE>& rhs)
+{
+    BSLS_ASSERT(lhs.numColumns() == rhs.numRows());
+
+    MyMatrix<TYPE> answer(lhs.numRows(), rhs.numColumns());
+
+    for (int i = 0; i < lhs.numRows(); ++i) {
+        for (int j = 0; j < rhs.numColumns(); ++j) {
+            for (int k = 0; k < lhs.numColumns(); ++k) {
+                answer.theModifiableValue(i, j) +=
+                    lhs.theValue(i, k) * rhs.theValue(k, j);
+            }
+        }
+    }
+    return answer;
+}
+//..
+
+}  // close unnamed namespace
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -8071,6 +8373,54 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 24: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+
+        // Do some ad-hoc breathing test for the 'MyMatrix' type defined in the
+        // usage example
+
+        {
+            bslma::TestAllocator oa("oa", veryVeryVeryVerbose);
+
+            // 1 2     5   17
+            //      x    =
+            // 3 4     6   39
+
+            MyMatrix<int> m1(1, 1, &oa);
+            m1.theModifiableValue(0, 0) = 4;
+            m1.insertRow(0);
+            m1.theModifiableValue(0, 0) = 2;
+            m1.insertColumn(0);
+            m1.theModifiableValue(0, 0) = 1;
+            m1.theModifiableValue(1, 0) = 3;
+
+            MyMatrix<int> m2(2, 1, &oa);
+            m2.theModifiableValue(0, 0) = 5;
+            m2.theModifiableValue(1, 0) = 6;
+
+            MyMatrix<int> m3 = m1 * m2;
+
+            ASSERT(17 == m3.theValue(0, 0));
+            ASSERT(39 == m3.theValue(1, 0));
+        }
+      } break;
       case 23: {
         // --------------------------------------------------------------------
         // RANGE INSERT FUNCION PTR BUG

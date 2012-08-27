@@ -17,8 +17,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component defines a single class template 'vector',
-// implementing the standard sequential container holding a dynamic array of
-// values of (template-parameter) type 'VALUE_TYPE'.
+// implementing the standard sequential container, 'std::vector', holding a
+// dynamic array of values of a template parameter type.
 //
 // An instantiation of 'vector' is an allocator-aware, value-semantic type
 // whose salient attributes are its size (number of values) and the sequence of
@@ -30,28 +30,22 @@ BSLS_IDENT("$Id: $")
 // that does not have a copy-constructor, in which case the 'vector' will not
 // be copyable.
 //
-// A map meets the requirements of a sequential container with random access
+// A vector meets the requirements of a sequential container with random access
 // iterators in the [vector] section of the C++ standard.  The 'vector'
-// implemented here adheres to the C++11 standard, except it does not have
-// interfaces that take rvalue references, 'initializer_lists', 'emplace', or
-// operations taking a variadic number of template parameters.  Note that
-// excluded C++11 features are those that require (or are greatly simplified
-// by) C++11 compiler support.
+// implemented here adheres to the C++11 standard, except it does not have the
+// 'shrink_to_fit' method, interfaces that take rvalue references,
+// 'initializer_lists', 'emplace', and operations taking a variadic number of
+// template parameters.  Note that, except for 'shrink_to_fit', excluded C++11
+// features are those that require (or are greatly simplified by) C++11
+// compiler support.
 //
 ///Requirements on 'VALUE_TYPE'
-///---------------------------------
+///----------------------------
 // A 'vector' is a fully "Value-Semantic Type" (see {'bsldoc_glossary'}) only
 // if the supplied 'VALUE_TYPE' template parameter is fully value-semantic.  It
-// is possible to instantiate a 'map' with 'VALUE_TYPE' parameters that do not
-// a full set of value-semantic operations, but then some methods of the
-// container may not be instantiable.  The following terminology, adopted from
-// the C++11 standard, is used in the function-level documentation of 'vector'
-// to describe a method's requirements for the 'VALUE_TYPE' template parameter.
-// These terms are also defined in section [17.6.3.1] of the C++11 standard.
-//
-//: "default-constructible": The type provides a default constructor.
-//:
-//: "copy-constructible": The type provides a copy constructor.
+// is possible to instantiate a 'vector' with 'VALUE_TYPE' parameters that do
+// not a full set of value-semantic operations, but then some methods of the
+// container may not be instantiable.
 //
 ///Memory Allocation
 ///-----------------
@@ -82,114 +76,394 @@ BSLS_IDENT("$Id: $")
 ///Operations
 ///----------
 // This section describes the run-time complexity of operations on instances
-// of 'map':
+// of 'vector':
 //..
 //  Legend
 //  ------
-//  'V'             - the 'VALUE_TYPE' template parameter type of the map
-//  'a', 'b'        - two distinct objects of type 'vector<V>'
-//  'n', 'm'        - number of elements in 'a' and 'b' respectively
-//  'value_type'    - vector<V>::value_type
-//  'al             - an STL-style memory allocator
-//  'i1', 'i2'      - two iterators defining a sequence of 'value_type' objects
-//  'v'             - an object of type 'V'
-//  'p1', 'p2'      - two iterators belonging to 'a'
-//  dist(i1,i2) - the number of elements in the range [i1, i2)
+//  'V'              - the 'VALUE_TYPE' template parameter type of the vector
+//  'a', 'b'         - two distinct objects of type 'vector<V>'
+//  'n', 'm'         - number of elements in 'a' and 'b' respectively
+//  'k'              - an integral number
+//  'al'             - an STL-style memory allocator
+//  'i1', 'i2'       - two iterators defining a sequence of 'VALUE_TYPE'
+//                     objects
+//  'v'              - an object of type 'V'
+//  'p1', 'p2'       - two iterators belonging to 'a'
+//  distance(i1,i2)  - the number of elements in the range [i1, i2)
 //
-//  +----------------------------------------------------+--------------------+
-//  | Operation                                          | Complexity         |
-//  +====================================================+====================+
-//  | vector<V> a;    (default construction)             | O[1]               |
-//  | vector<V> a(al);                                   |                    |
-//  +----------------------------------------------------+--------------------+
-//  | vector<V> a(b); (copy construction)                | O[n]               |
-//  | vector<V> a(b, al);                                |                    |
-//  +----------------------------------------------------+--------------------+
-//  | vector<V> a(i1, i2);                               | O[n]               |
-//  | vector<V> a(i1, i2, al);                           |                    |
-//  | vector<V> a(i1, i2, c, al);                        |                    |
-//  |                                                    |                    |
-//  |                                                    |                    |
-//  |                                                    |                    |
-//  +----------------------------------------------------+--------------------+
-//  | a.~vector<V>(); (destruction)                      | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a = b;          (assignment)                       | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
-//  | a.rbegin(), a.rend(), a.crbegin(), a.crend()       |                    |
-//  +----------------------------------------------------+--------------------+
-//  | a == b, a != b                                     | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a < b, a <= b, a > b, a >= b                       | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.swap(b), swap(a,b)                               | O[1] if 'a' and    |
-//  |                                                    | 'b' use the same   |
-//  |                                                    | allocator,         |
-//  |                                                    | O[n + m] otherwise |
-//  +----------------------------------------------------+--------------------+
-//  | a.size()                                           | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.max_size()                                       | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.empty()                                          | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | get_allocator()                                    | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a[k]                                               | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.at(k)                                            | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.insert(pos, v)                              | O[dist(pos, a.end())] |
-//  |                                                    |                |
-//  |                                                    |          a.end())] |
-//  +----------------------------------------------------+--------------------+
-//  | a.insert(pos, num, v)                              | O[num +            |
-//  |                                                    |   distance(        |
-//  |                                                    |          pos,      |
-//  |                                                    |          a.end())] |
-//  +----------------------------------------------------+--------------------+
-//  | a.insert(pos, i1, i2)                              | O[distance(        |
-//  |                                                    |          pos,      |
-//  |                                                    |          a.end())] + |distance         |
-//  |                                                    |   distance(i1,i2)] |
-//  |                                                    |                    |
-//  |                                                    | where N is         |
-//  |                                                    | n + distance(i1,i2)|
-//  +----------------------------------------------------+--------------------+
-//  | a.erase(p1)                                        | amortized constant |
-//  +----------------------------------------------------+--------------------+
-//  | a.erase(k)                                         | O[log(n) +         |
-//  |                                                    | a.count(k)]        |
-//  +----------------------------------------------------+--------------------+
-//  | a.erase(p1, p2)                                    | O[log(n) +         |
-//  |                                                    | distance(p1, p2)]  |
-//  +----------------------------------------------------+--------------------+
-//  | a.erase(p1, p2)                                    | O[log(n) +         |
-//  |                                                    | distance(p1, p2)]  |
-//  +----------------------------------------------------+--------------------+
-//  | a.clear()                                          | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.key_comp()                                       | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.value_comp()                                     | O[1]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.find(k)                                          | O[log(n)]          |
-//  +----------------------------------------------------+--------------------+
-//  | a.count(k)                                         | O[log(n) +         |
-//  |                                                    | a.count(k)]        |
-//  +----------------------------------------------------+--------------------+
-//  | a.lower_bound(k)                                   | O[log(n)]          |
-//  +----------------------------------------------------+--------------------+
-//  | a.upper_bound(k)                                   | O[log(n)]          |
-//  +----------------------------------------------------+--------------------+
-//  | a.equal_range(k)                                   | O[log(n)]          |
-//  +----------------------------------------------------+--------------------+
+//  |-----------------------------------------+-------------------------------|
+//  | Operation                               | Complexity                    |
+//  |=========================================+===============================|
+//  | vector<V> a      (default construction) | O[1]                          |
+//  | vector<V> a(al)                         |                               |
+//  |-----------------------------------------+-------------------------------|
+//  | vector<V> a(b)   (copy construction)    | O[n]                          |
+//  | vector<V> a(b, al)                      |                               |
+//  |-----------------------------------------+-------------------------------|
+//  | vector<V> a(k)                          | O[k]                          |
+//  | vector<V> a(k, al)                      |                               |
+//  |-----------------------------------------+-------------------------------|
+//  | vector<V> a(i1, i2)                     | O[distance(i1, i2)]           |
+//  | vector<V> a(i1, i2, al)                 |                               |
+//  |-----------------------------------------+-------------------------------|
+//  | a.~vector<V>()  (destruction)           | O[n]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.assign(k, v)                          | O[k]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.assign(i1, i2)                        | O[distance(i1, i2)            |
+//  |-----------------------------------------+-------------------------------|
+//  | get_allocator()                         | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.begin(), a.end(),                     | O[1]                          |
+//  | a.cbegin(), a.cend(),                   |                               |
+//  | a.rbegin(), a.rend(),                   |                               |
+//  | a.crbegin(), a.crend()                  |                               |
+//  |-----------------------------------------+-------------------------------|
+//  | a.size()                                | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.max_size()                            | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.resize(k)                             | O[k]                          |
+//  | a.resize(k, v)                          |                               |
+//  |-----------------------------------------+-------------------------------|
+//  | a.empty()                               | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.reserve(k)                            | O[k]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a[k]                                    | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.at(k)                                 | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.front()                               | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.back()                                | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.push_back()                           | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.pop_back()                            | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.insert(p1, v)                         | O[1 + distance(pos, a.end())] |
+//  |-----------------------------------------+-------------------------------|
+//  | a.insert(p1, k, v)                      | O[k + distance(pos, a.end())] |
+//  |-----------------------------------------+-------------------------------|
+//  | a.insert(p1, i1, i2)                    | O[distance(i1, i2)            |
+//  |                                         |      + distance(p1, a.end())] |
+//  |-----------------------------------------+-------------------------------|
+//  | a.erase(p1)                             | O[1 + distance(p1, a.end())]  |
+//  |-----------------------------------------+-------------------------------|
+//  | a.erase(p1, p2)                         | O[distance(p1, p2)            |
+//  |                                         |      + distance(p1, a.end())] |
+//  |-----------------------------------------+-------------------------------|
+//  | a.swap(b), swap(a,b),                   | O[1] if 'a' and 'b' use the   |
+//  |                                         | same allocator, O[n + m]      |
+//  |                                         | otherwise                     |
+//  |-----------------------------------------+-------------------------------|
+//  | a.clear()                               | O[n]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a = b;           (assignment)           | O[n]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a == b, a != b                          | O[n]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a < b, a <= b, a > b, a >= b            | O[n]                          |
+//  |-----------------------------------------+-------------------------------|
 //
 ///Usage
 ///-----
-// This component is for use by the 'bsl+stdhdrs' package.  Use 'std::vector'
-// directly.
+// In this section we show intended use of this component.
+//
+///Example 1: Creating a Matrix Type
+///- - - - - - - - - - - - - - - - -
+// Suppose we want to define a value semantic type representing a
+// dynamically resizable two-dimensional matrix.
+//
+// First, we define the public interface for the 'MyMatrix' class template:
+//..
+//  template <class TYPE>
+//  class MyMatrix {
+//      // This value-semantic type characterizes a two-dimensional matrix of
+//      // objects of the (template parameter) 'TYPE'.  The numbers of columns
+//      // and rows of the matrix can be specified at construction and, at any
+//      // time, via the 'reset', 'insertRow', and 'insertColumn' methods.  The
+//      // value of each element in the matrix can be set and accessed using
+//      // the 'theValue', and 'theModifiableValue' methods respectively.  A
+//      // free operator, 'operator*', is available to return the product of
+//      // two specified matrices.
+//
+//    public:
+//      // PUBLIC TYPES
+//..
+// Here, we create a type alias, 'RowType', for an instantiation of
+// 'bsl::vector' to represent a row of 'TYPE' objects in the matrix.  We create
+// another type alias, 'MatrixType', for an instantiation of 'bsl::vector' to
+// represent the entire matrix of 'TYPE' objects as a list of rows:
+//..
+//      typedef bsl::vector<TYPE>    RowType;
+//          // This is an alias representing a row of values of the (template
+//          // parameter) 'TYPE'.
+//
+//      typedef bsl::vector<RowType> MatrixType;
+//          // This is an alias representing a two-dimensional matrix of values
+//          // of the (template parameter) 'TYPE'.
+//
+//    private:
+//      // DATA
+//      MatrixType d_matrix;      // matrix of values
+//      int        d_numColumns;  // number of columns
+//
+//      // FRIENDS
+//      template<class T>
+//      friend bool operator==(const MyMatrix<T>&, const MyMatrix<T>&);
+//
+//    public:
+//      // PUBLIC TYPES
+//      typedef typename MatrixType::const_iterator ConstRowIterator;
+//
+//      // CREATORS
+//      MyMatrix(int numRows,
+//               int numColumns,
+//               bslma::Allocator *basicAllocator = 0);
+//          // Create a 'MyMatrix' object having the specified 'numRows' and
+//          // the specified 'numColumns'.  Optionally specify a
+//          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+//          // 0, the currently installed default allocator is used.  The
+//          // behavior is undefined unless '0 <= numRows' and '0 <=
+//          // numColumns'
+//
+//      MyMatrix(const MyMatrix& original,
+//               bslma::Allocator *basicAllocator = 0);
+//          // Create a 'MyMatrix' object having the same value as the
+//          // specified 'original' object.  Optionally specify a
+//          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+//          // 0, the currently installed default allocator is used.
+//
+//      //! ~MyMatrix = default;
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      MyMatrix& operator=(const MyMatrix& rhs);
+//          // Assign to this object the value of the specified 'rhs' object,
+//          // and return a reference providing modifiable access to this
+//          // object.
+//
+//      void clear();
+//          // Remove all rows and columns from this object.
+//
+//      void insertRow(int rowIndex);
+//          // Insert, into this matrix, an empty row at the specified
+//          // 'rowIndex'.  The behavior is undefined unless '0 <= rowIndex <=
+//          // numRows()'.
+//
+//      void insertColumn(int columnIndex);
+//          // Insert, into this matrix, an empty column at the specified
+//          // 'columnIndex'.  The behavior is undefined unless '0 <=
+//          // columnIndex <= numColumns()'.
+//
+//      TYPE& theModifiableValue(int rowIndex, int columnIndex);
+//          // Return a reference providing modifiable access to the element at
+//          // the specified 'rowIndex' and the specified 'columnIndex' in this
+//          // matrix.  The behavior is undefined unless '0 <= rowIndex <
+//          // numRows()' and '0 < columnIndex <= numColumns()'.
+//
+//      // ACCESSORS
+//      int numRows() const;
+//          // Return the number of rows in this matrix.
+//
+//      int numColumns() const;
+//          // Return the number of columns in this matrix.
+//
+//      ConstRowIterator beginRow() const;
+//          // Return an iterator providing non-modifiable access to the
+//          // 'RowType' objects representing the first row in this matrix.
+//
+//      ConstRowIterator endRow() const;
+//          // Return an iterator providing non-modifiable access to the
+//          // 'RowType' objects representing the past-the-end row in this
+//          // matrix.
+//
+//      const TYPE& theValue(int rowIndex, int columnIndex) const;
+//          // Return a reference providing non-modifiable access to the
+//          // element at the specified 'rowIndex' and the specified
+//          // 'columnIndex' in this matrix.  The behavior is undefined unless
+//          // '0 <= rowIndex < numRows()' and '0 < columnIndex <=
+//          // numColumns()'.
+//  };
+//..
+// Then we declare the free operator for 'MyMatrix':
+//..
+//  // FREE OPERATORS
+//  template <class TYPE>
+//  MyMatrix<TYPE> operator==(const MyMatrix<TYPE>& lhs,
+//                            const MyMatrix<TYPE>& rhs);
+//      // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+//      // value, and 'false' otherwise.  Two 'MyMatrix' objects have the same
+//      // value if they have the same number of rows and columns and every
+//      // element in both matrices compare equal.
+//
+//  template <class TYPE>
+//  MyMatrix<TYPE> operator!=(const MyMatrix<TYPE>& lhs,
+//                            const MyMatrix<TYPE>& rhs);
+//      // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
+//      // the same value, and 'false' otherwise.  Two 'MyMatrix' objects do
+//      // not have the same value if they do not have the same number of rows
+//      // and columns or every element in both matrices do not compare equal.
+//
+//  template <class TYPE>
+//  MyMatrix<TYPE> operator*(const MyMatrix<TYPE>& lhs,
+//                           const MyMatrix<TYPE>& rhs);
+//      // Return a 'MyMatrix' objects that is the product of the specified
+//      // 'lhs' and 'rhs'.  The behavior is undefined unless 'lhs.numColumns()
+//      // == rhs.numRows()'.
+//..
+// Now, we define the methods of 'MyMatrix':
+//..
+//  // CREATORS
+//  template <class TYPE>
+//  MyMatrix<TYPE>::MyMatrix(int numRows,
+//                           int numColumns,
+//                           bslma::Allocator *basicAllocator)
+//  : d_matrix(numRows, basicAllocator)
+//  , d_numColumns(numColumns)
+//  {
+//      BSLS_ASSERT(0 <= numRows);
+//      BSLS_ASSERT(0 <= numColumns);
+//
+//      for (typename MatrixType::iterator itr = d_matrix.begin();
+//           itr != d_matrix.end();
+//           ++itr) {
+//          itr->resize(d_numColumns);
+//      }
+//  }
+//  template <class TYPE>
+//  MyMatrix<TYPE>::MyMatrix(const MyMatrix& original,
+//                           bslma::Allocator *basicAllocator)
+//  : d_matrix(original.d_matrix, basicAllocator)
+//  , d_numColumns(original.d_numColumns)
+//  {
+//  }
+//..
+// Notice that we pass the contained 'bsl::vector' ('d_matrix') the allocator
+// specified at construction to supply memory.  If type of the elements
+// contained in the vector has the 'bslalg_TypeTraitUsesBslmaAllocator' trait,
+// this allocator will be passed by the vector to its contained elements as
+// well.
+//..
+//  // MANIPULATORS
+//  template <class TYPE>
+//  MyMatrix<TYPE>& MyMatrix<TYPE>::operator=(const MyMatrix& rhs)
+//  {
+//      d_matrix = rhs.d_matrix;
+//      d_numColumns = rhs.d_numColumns;
+//  }
+//
+//  template <class TYPE>
+//  void MyMatrix<TYPE>::clear()
+//  {
+//      d_matrix.clear();
+//      d_numColumns = 0;
+//  }
+//
+//  template <class TYPE>
+//  void MyMatrix<TYPE>::insertRow(int rowIndex)
+//  {
+//      typename MatrixType::iterator itr =
+//          d_matrix.insert(d_matrix.begin() + rowIndex, RowType());
+//      itr->resize(d_numColumns);
+//  }
+//
+//  template <class TYPE>
+//  void MyMatrix<TYPE>::insertColumn(int colIndex) {
+//      for (typename MatrixType::iterator itr = d_matrix.begin();
+//           itr != d_matrix.end();
+//           ++itr) {
+//          itr->insert(itr->begin() + colIndex, 0);
+//      }
+//      ++d_numColumns;
+//  }
+//
+//  template <class TYPE>
+//  TYPE& MyMatrix<TYPE>::theModifiableValue(int rowIndex, int columnIndex)
+//  {
+//      BSLS_ASSERT(0 <= rowIndex);
+//      BSLS_ASSERT(rowIndex < d_matrix.size());
+//      BSLS_ASSERT(0 <= columnIndex);
+//      BSLS_ASSERT(columnIndex < d_numColumns);
+//
+//      return d_matrix[rowIndex][columnIndex];
+//  }
+//
+//  // ACCESSORS
+//  template <class TYPE>
+//  int MyMatrix<TYPE>::numRows() const
+//  {
+//      return d_matrix.size();
+//  }
+//
+//  template <class TYPE>
+//  int MyMatrix<TYPE>::numColumns() const
+//  {
+//      return d_numColumns;
+//  }
+//
+//  template <class TYPE>
+//  typename MyMatrix<TYPE>::ConstRowIterator MyMatrix<TYPE>::beginRow() const
+//  {
+//      return d_matrix.begin();
+//  }
+//
+//  template <class TYPE>
+//  typename MyMatrix<TYPE>::ConstRowIterator MyMatrix<TYPE>::endRow() const
+//  {
+//      return d_matrix.end();
+//  }
+//
+//  template <class TYPE>
+//  const TYPE& MyMatrix<TYPE>::theValue(int rowIndex, int columnIndex) const
+//  {
+//      BSLS_ASSERT(0 <= rowIndex);
+//      BSLS_ASSERT(rowIndex < d_matrix.size());
+//      BSLS_ASSERT(0 <= columnIndex);
+//      BSLS_ASSERT(columnIndex < d_numColumns);
+//
+//      return d_matrix[rowIndex][columnIndex];
+//  }
+//..
+// Finally, we defines the free operators for 'MyMatrix':
+//..
+//  // FREE OPERATORS
+//  template <class TYPE>
+//  MyMatrix<TYPE> operator==(const MyMatrix<TYPE>& lhs,
+//                            const MyMatrix<TYPE>& rhs)
+//  {
+//      return lhs.d_numColumns == rhs.d_numColumns &&
+//                                                lhs.d_matrix == rhs.d_matrix;
+//  }
+//
+//  template <class TYPE>
+//  MyMatrix<TYPE> operator!=(const MyMatrix<TYPE>& lhs,
+//                            const MyMatrix<TYPE>& rhs)
+//  {
+//      return !(lhs == rhs);
+//  }
+//
+//  template <class TYPE>
+//  MyMatrix<TYPE> operator*(const MyMatrix<TYPE>& lhs,
+//                           const MyMatrix<TYPE>& rhs)
+//  {
+//      BSLS_ASSERT(lhs.numColumns() == rhs.numRows());
+//
+//      MyMatrix<TYPE> answer(lhs.numRows(), rhs.numColumns());
+//
+//      for (int i = 0; i < lhs.numRows(); ++i) {
+//          for (int j = 0; j < rhs.numColumns(); ++j) {
+//              for (int k = 0; k < lhs.numColumns(); ++k) {
+//                  answer.theModifiableValue(i, j) +=
+//                      lhs.theValue(i, k) * rhs.theValue(k, j);
+//              }
+//          }
+//      }
+//      return answer;
+//  }
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
