@@ -115,7 +115,7 @@ void debugprint(const char *v)
     if (v) {
         printf("\"%s\"", v);
     } else {
-        printf("(null)", v);
+        printf("(null)");
     }
 }
 
@@ -124,7 +124,7 @@ void debugprint(char *v)
     if (v) {
         printf("\"%s\"", v);
     } else {
-        printf("(null)", v);
+        printf("(null)");
     }
 }
 
@@ -133,7 +133,7 @@ void debugprint(const volatile char *v)
     if (v) {
         printf("\"%s\"", v);
     } else {
-        printf("(null)", v);
+        printf("(null)");
     }
 }
 
@@ -142,7 +142,7 @@ void debugprint(volatile char *v)
     if (v) {
         printf("\"%s\"", v);
     } else {
-        printf("(null)", v);
+        printf("(null)");
     }
 }
 

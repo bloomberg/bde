@@ -1,4 +1,4 @@
-/// bsls_bsltestutil.t.cpp                                            -*-C++-*-
+// bsls_bsltestutil.t.cpp                                             -*-C++-*-
 
 #include <bsls_bsltestutil.h>
 
@@ -9,10 +9,10 @@
 
 #if defined(__xlC__) || defined(__IBMC__) || defined(__IBMCPP__)
     // which OS -- this compiler should only be used on AIX
-    #define BSLS_BSLTESTUTIL__OS_UNIX 1
+    #define BSLS_BSLTESTUTIL_OS_UNIX 1
     #if defined(_AIX)                          // must be defined
-        #define BSLS_BSLTESTUTIL__OS_AIX 1
-        #define BSLS_BSLTESTUTIL__OS_VER_MAJOR _AIX
+        #define BSLS_BSLTESTUTIL_OS_AIX 1
+        #define BSLS_BSLTESTUTIL_OS_VER_MAJOR _AIX
     #else
         #error "AIX compiler appears to be in use on non-AIX OS."
     #endif
@@ -20,8 +20,8 @@
 #elif defined(__HP_aCC)
     // which OS -- should always be HPUX
     #if defined(hpux) || defined(__hpux) || defined(_HPUX_SOURCE)
-        #define BSLS_BSLTESTUTIL__OS_UNIX 1
-        #define BSLS_BSLTESTUTIL__OS_HPUX 1
+        #define BSLS_BSLTESTUTIL_OS_UNIX 1
+        #define BSLS_BSLTESTUTIL_OS_HPUX 1
     #else
         #error "Unable to determine on which OS the HP compiler is running."
     #endif
@@ -32,7 +32,7 @@
     // - 16-bit versions of Windows (3.x)
     // - Windows CE
     #if defined(_WIN64) || defined(_WIN32)
-        #define BSLS_BSLTESTUTIL__OS_WINDOWS 1
+        #define BSLS_BSLTESTUTIL_OS_WINDOWS 1
     #elif defined(_WIN16)
         #error "16-bit Windows platform not supported."
     #else
@@ -42,26 +42,26 @@
 #elif defined(__GNUC__) || defined(__EDG__)
     // which OS -- GNU and EDG/Como are implemented almost everywhere
     #if defined(_AIX)
-        #define BSLS_BSLTESTUTIL__OS_AIX 1
+        #define BSLS_BSLTESTUTIL_OS_AIX 1
     #elif defined(hpux) || defined(__hpux)
-        #define BSLS_BSLTESTUTIL__OS_HPUX 1
+        #define BSLS_BSLTESTUTIL_OS_HPUX 1
     #elif defined(__CYGWIN__) || defined(cygwin) || defined(__cygwin)
-        #define BSLS_BSLTESTUTIL__OS_CYGWIN 1
+        #define BSLS_BSLTESTUTIL_OS_CYGWIN 1
     #elif defined(linux) || defined(__linux)
-        #define BSLS_BSLTESTUTIL__OS_LINUX 1
+        #define BSLS_BSLTESTUTIL_OS_LINUX 1
     #elif defined(__FreeBSD__)
-        #define BSLS_BSLTESTUTIL__OS_FREEBSD 1
+        #define BSLS_BSLTESTUTIL_OS_FREEBSD 1
     #elif defined(sun) || defined(__sun)
         #if defined(__SVR4) || defined(__svr4__)
-            #define BSLS_BSLTESTUTIL__OS_SOLARIS 1
+            #define BSLS_BSLTESTUTIL_OS_SOLARIS 1
         #else
-            #define BSLS_BSLTESTUTIL__OS_SUNOS 1
+            #define BSLS_BSLTESTUTIL_OS_SUNOS 1
         #endif
     #elif defined(_WIN32) || defined(__WIN32__) && \
           ! (defined(cygwin) || defined(__cygwin))
-        #define BSLS_BSLTESTUTIL__OS_WINDOWS 1
+        #define BSLS_BSLTESTUTIL_OS_WINDOWS 1
     #elif defined(__APPLE__)
-        #define BSLS_BSLTESTUTIL__OS_DARWIN 1
+        #define BSLS_BSLTESTUTIL_OS_DARWIN 1
     #else
         #if defined(__GNUC__)
             #error "Unable to determine on which OS GNU compiler is running."
@@ -70,17 +70,17 @@
         #endif
     #endif
 
-    #if !defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
-        #define BSLS_BSLTESTUTIL__OS_UNIX 1
+    #if !defined(BSLS_BSLTESTUTIL_OS_WINDOWS)
+        #define BSLS_BSLTESTUTIL_OS_UNIX 1
     #endif
 // ---------------------------------------------------------------------------
 #elif defined(__SUNPRO_CC) || defined(__SUNPRO_C)
     // which OS
-    #define BSLS_BSLTESTUTIL__OS_UNIX 1
+    #define BSLS_BSLTESTUTIL_OS_UNIX 1
     #if defined(sun) || defined(__sun)
-        #define BSLS_BSLTESTUTIL__OS_SOLARIS 1
+        #define BSLS_BSLTESTUTIL_OS_SOLARIS 1
     #elif defined(__SVR4) || defined(__svr4__)
-        #define BSLS_BSLTESTUTIL__OS_SUNOS 1
+        #define BSLS_BSLTESTUTIL_OS_SUNOS 1
     #else
         #error "Unable to determine SUN OS version."
     #endif
@@ -95,14 +95,14 @@
 #include <limits.h>      // PATH_MAX on linux
 #include <float.h>       // FLT_MAX, etc.
 
-#if defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
+#if defined(BSLS_BSLTESTUTIL_OS_WINDOWS)
 # include <windows.h>    // MAX_PATH
 # include <io.h>         // _dup2
 # include <sys/types.h>  // struct stat: required on Sun and Windows only
 # include <sys/stat.h>   // struct stat: required on Sun and Windows only
 #else
-# if defined(BSLS_BSLTESTUTIL__OS_SUNOS) || \
-     defined(BSLS_BSLTESTUTIL__OS_SOLARIS)
+# if defined(BSLS_BSLTESTUTIL_OS_SUNOS) || \
+     defined(BSLS_BSLTESTUTIL_OS_SOLARIS)
 #  include <sys/types.h> // struct stat: required on Sun and Windows only
 #  include <sys/stat.h>  // struct stat: required on Sun and Windows only
 # endif
@@ -110,7 +110,7 @@
 #endif
 
 #include <fcntl.h>
-
+#include <cstdlib>      // abort
 
 using namespace BloombergLP;
 
@@ -305,7 +305,7 @@ static void realaSsErT(bool b, const char *s, int i)
 /// - - - - - - - - - - - - - - - -
 // First, we write a component to test, which provides a utility class:
 //..
-    namespace bslexample {
+    namespace bslabc {
 
     struct BslExampleUtil {
         // This utility class provides sample functionality to demonstrate how
@@ -366,7 +366,7 @@ static void realaSsErT(bool b, const char *s, int i)
 //..
     void testFortyTwo(bool verbose)
     {
-        const int value = bslexample::BslExampleUtil::fortyTwo();
+        const int value = bslabc::BslExampleUtil::fortyTwo();
         if (verbose) P(value);
         LOOP_ASSERT(value, 42 == value);
     }
@@ -380,7 +380,7 @@ static void realaSsErT(bool b, const char *s, int i)
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we define a new user-defined type, 'MyType':
 //..
-    namespace MyNamespace {
+    namespace xyza {
 
     class MyType {
         // This elided class provides a type intended to show how the macros in
@@ -426,16 +426,17 @@ static void realaSsErT(bool b, const char *s, int i)
         return d_value;
     }
 //..
-// Then, we define a function 'debugprint' that prints the value of a 'MyType'
-// object to the console in the same namespace in which 'MyType' is defined (in
-// this case, we will simply print a string literal for simplicity):
+// Then, in the same namespace in which 'MyType' is defined, we define a
+// function 'debugprint' that prints the value of a 'MyType' object to the
+// console.  (In this case, we will simply print a string literal for
+// simplicity):
 //..
     void debugprint(const MyType& obj)
     {
         printf("MyType<%d>", obj.value());
     }
 
-    }  // close namespace MyNamespace
+    }  // close namespace xyza
 //..
 // Notice that 'debugprint' is defined inside the namespace 'MyNamespace'.
 // This is required in order to allow the compiler to find this overload of
@@ -445,7 +446,7 @@ static void realaSsErT(bool b, const char *s, int i)
 // case in a test driver.
 //..
     void testMyTypeSetValue(bool verbose) {
-        MyNamespace::MyType obj(9);
+        xyza::MyType obj(9);
         if (verbose) P(obj);
         LOOP_ASSERT(obj.value(), obj.value() == 9);
     }
@@ -490,9 +491,9 @@ enum {
 
     OUTPUT_BUFFER_SIZE = 4096,
 
-#ifdef BSLS_BSLTESTUTIL__OS_WINDOWS
+#ifdef BSLS_BSLTESTUTIL_OS_WINDOWS
     PATH_BUFFER_SIZE   = MAX_PATH
-#elif defined(BSLS_BSLTESTUTIL__OS_HPUX)
+#elif defined(BSLS_BSLTESTUTIL_OS_HPUX)
     PATH_BUFFER_SIZE   = L_tmpnam
 #else
     PATH_BUFFER_SIZE   = PATH_MAX
@@ -506,7 +507,7 @@ static int verbose, veryVerbose, veryVeryVerbose;
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#ifdef BSLS_BSLTESTUTIL__OS_WINDOWS
+#ifdef BSLS_BSLTESTUTIL_OS_WINDOWS
 # define snprintf _snprintf
 #endif
 
@@ -525,11 +526,11 @@ int printDatum(FILE        *outStream,
     // a special case, null 'char' strings are output as '(null)'.
 
 bool tempFileName(char *result);
-    // Store an available temp file name in the user-supplied buffer at the
-    // address pointed to by the specified 'result'.  Return 'true' if
-    // successful, and 'false' otherwise.  The behavior is undefined unless the
-    // buffer pointed to by the specified 'result' is at least
-    // 'PATH_BUFFER_SIZE' bytes long.
+    // Create a temporary file and store its name in the user-supplied buffer
+    // at the address pointed to by the specified 'result'.  Return 'true' if
+    // the temporary file was successfully created, and 'false' otherwise.  The
+    // behavior is undefined unless the buffer pointed to by the specified
+    // 'result' is at least 'PATH_BUFFER_SIZE' bytes long.
 
 int printDatum(FILE        *outStream,
                const char  *identifierI,
@@ -622,13 +623,13 @@ bool tempFileName(char *result)
 {
     ASSERT(result);
 
-#ifdef BSLS_BSLTESTUTIL__OS_WINDOWS
+#ifdef BSLS_BSLTESTUTIL_OS_WINDOWS
     char tmpPathBuf[MAX_PATH];
     if (! GetTempPath(MAX_PATH, tmpPathBuf) ||
         ! GetTempFileName(tmpPathBuf, "bsls", 0, result)) {
         return false;                                                 // RETURN
     }
-#elif defined(BSLS_BSLTESTUTIL__OS_HPUX)
+#elif defined(BSLS_BSLTESTUTIL_OS_HPUX)
     if(! tempnam(result, "bsls")) {
         return false;
     }
@@ -655,9 +656,9 @@ bool tempFileName(char *result)
 //-----------------------------------------------------------------------------
 
 class OutputRedirector {
-    // This class redirects 'stdout' to a temporary file and provides
-    // facilities for retrieving output from the temporary file and comparing
-    // it to user-supplied character buffers.  An 'OutputRedirector' object can
+    // This class provides a facility for redirecting 'stdout' to a temporary
+    // file, retrieving output from the temporary file and comparing the output
+    // to user-supplied character buffers.  An 'OutputRedirector' object can
     // exist in one of two states, un-redirected or redirected.  In the
     // un-redirected state, the process' 'stdout' and 'stderr' are connected to
     // their normal targets.  In the redirected state, the process' 'stdout' is
@@ -698,6 +699,10 @@ class OutputRedirector {
         // Redirect the specified stream 'from' to the specified stream 'to',
         // returning 0 for success and a negative value on failure.
 
+    void cleanup();
+        // Close 'stdout', if redirected, and delete the temporary output
+        // capture file.
+
   private:
     // NOT IMPLEMENTED
     OutputRedirector(const OutputRedirector&);
@@ -715,17 +720,15 @@ class OutputRedirector {
         // which 'stdout' was redirected will be deleted.
 
     // MANIPULATORS
-    bool redirect();
+    void redirect();
         // Redirect 'stdout' to a temp file, and stderr to the original
         // 'stdout', putting this 'OutputRedirector' object into the
-        // 'redirected' state.  Return 'true' if successful, and 'false'
-        // otherwise.  The temp file to which 'stdout' is redirected will be
-        // created the first time 'redirect' is called, and will be deleted
-        // when this object is destroyed.  If a call to 'redirect' succeeds,
-        // subsequent calls will have no effect on 'stdout' and 'stderr'.  If a
-        // call to 'redirect' fails, the destinations of 'stdout' and 'stderr'
-        // are undefined, and the calling process should exit without producing
-        // further output and without attempting to call 'redirect' again.
+        // 'redirected' state.  The temp file to which 'stdout' is redirected
+        // will be created the first time 'redirect' is called, and will be
+        // deleted when this object is destroyed.  Subsequent calls to
+        // 'redirect' will have no effect on 'stdout' and 'stderr'.  If
+        // 'redirect' fails to redirect either 'stdout' or 'stderr' it will end
+        // the program by calling 'std::abort'.
 
     void reset();
         // Reset the scratch buffer to empty.  The behavior is undefined unless
@@ -792,13 +795,7 @@ OutputRedirector::OutputRedirector()
 
 OutputRedirector::~OutputRedirector()
 {
-    if (d_isRedirectedFlag) {
-        fclose(stdout);
-    }
-
-    if (d_isFileCreatedFlag) {
-        unlink(d_fileName);
-    }
+    cleanup();
 }
 
 int OutputRedirector::redirectStream(FILE *from, FILE *to)
@@ -811,20 +808,29 @@ int OutputRedirector::redirectStream(FILE *from, FILE *to)
     // instead of 'freopen', because 'freopen' fails on AIX with errno
     // 13 'Permission denied' when redirecting stderr.
 
-#if defined(BSLS_BSLTESTUTIL__OS_AIX)
+#if defined(BSLS_BSLTESTUTIL_OS_AIX)
     int redirected = dup2(fileno(from), fileno(to));
     return redirected == fileno(to) ? 0 : -1;
-#elif defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
+#elif defined(BSLS_BSLTESTUTIL_OS_WINDOWS)
     return _dup2(_fileno(from), _fileno(to));
 #else
     return (stderr == freopen("/dev/stdout", "w", stderr)) ? 0 : -1;
 #endif
 }
 
-bool OutputRedirector::redirect()
+void OutputRedirector::cleanup()
 {
-    bool success = false;
+    if (d_isRedirectedFlag) {
+        fclose(stdout);
+    }
 
+    if (d_isFileCreatedFlag) {
+        unlink(d_fileName);
+    }
+}
+
+void OutputRedirector::redirect()
+{
     if (d_isRedirectedFlag) {
 
         // Do not redirect anything if we have already redirected.
@@ -834,95 +840,101 @@ bool OutputRedirector::redirect()
                     "Warning " __FILE__ "(%d): Output already redirected\n",
                     __LINE__);
         }
-        success = true;
-    } else {
 
-        // Retain information about original 'stdout' file descriptor for
-        // use in later tests.
-        {
-            int originalStdoutFD = fileno(stdout);
-            ASSERT(-1 != originalStdoutFD);
-            ASSERT(0 == fstat(originalStdoutFD, &d_originalStdoutStat));
+        return;                                                       // RETURN
+    }
+
+    // Retain information about original 'stdout' file descriptor for use in
+    // later tests.
+
+    int originalStdoutFD = fileno(stdout);
+    ASSERT(-1 != originalStdoutFD);
+    ASSERT(0 == fstat(originalStdoutFD, &d_originalStdoutStat));
+
+
+    if (0 != redirectStream(stderr, stdout)) {
+        // Redirect 'stderr' to 'stdout;.
+
+        // We want 'stderr' to point to 'stdout', so we have to redirect it
+        // before we change the meaning of 'stdout'.
+
+        if (veryVerbose) {
+
+            // Note that we print this error message on 'stdout' instead of
+            // 'stderr', because 'stdout' has not been redirected.
+
+            fprintf(stdout,
+                    "Error " __FILE__ "(%d): Failed to redirect stderr\n",
+                    __LINE__);
         }
+        std::abort();
+    }
 
+    if (! tempFileName(d_fileName)) {
 
-        if (0 != redirectStream(stderr, stdout)) {
-            // Redirect 'stderr' to 'stdout;.
+        // Get temp file name
 
-            // We want 'stderr' to point to 'stdout', so we have to redirect it
-            // before we change the meaning of 'stdout'.
+        if (veryVerbose) {
 
-            if (veryVerbose) {
+            // Note that we print this error message on 'stdout' instead of
+            // 'stderr', because 'stdout' has not been redirected.
 
-                // Note that we print this error message on 'stdout' instead of
-                // 'stderr', because 'stdout' has not been redirected.
-
-                fprintf(stdout,
-                        "Error " __FILE__ "(%d): Failed to redirect stderr\n",
-                        __LINE__);
-            }
-        } else if (! tempFileName(d_fileName)) {
-
-            // Get temp file name
-
-            if (veryVerbose) {
-
-                // Note that we print this error message on 'stdout' instead of
-                // 'stderr', because 'stdout' has not been redirected.
-
-                fprintf(stdout,
+            fprintf(stdout,
                     "Error "
                     __FILE__
                     "(%d): Failed to get temp file name for stdout capture\n",
                     __LINE__);
-            }
-        } else if (! freopen(d_fileName, "w+", stdout)) {
-
-            // Redirect 'stdout'
-
-            if (veryVerbose) {
-
-                // Note that we print this error message on 'stderr', because
-                // we have just redirected 'stdout' to the capture file.
-
-                PRINT(d_fileName, "%s");
-                fprintf(stderr,
-                        "Error " __FILE__ "(%d): Failed to redirect stdout\n",
-                        __LINE__);
-            }
-        } else {
-
-            // 'stderr' and 'stdout' have been successfully redirected.
-
-#if defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
-            if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
-                ASSERT(0 == "Failed to set stdout to binary mode.");
-                return success;                                       // RETURN
-            }
-#endif
-
-            d_isFileCreatedFlag = true;
-            d_isRedirectedFlag = true;
-
-            if (EOF == fflush(stdout)) {
-                if (veryVerbose) {
-
-                    // Note that we print this error message on 'stderr',
-                    // because we have just redirected 'stdout' to the capture
-                    // file.
-
-                    perror("Error message: ");
-                    fprintf(stderr,
-                            "Error " __FILE__ "(%d): Error flushing stdout\n",
-                            __LINE__);
-                }
-            }
-
-            success = true;
         }
+        std::abort();
     }
 
-    return success;
+    if (! freopen(d_fileName, "w+", stdout)) {
+
+        // Redirect 'stdout'
+
+        if (veryVerbose) {
+
+            // Note that we print this error message on 'stderr', because we
+            // have just redirected 'stdout' to the capture file.
+
+            PRINT(d_fileName, "%s");
+            fprintf(stderr,
+                    "Error " __FILE__ "(%d): Failed to redirect stdout\n",
+                    __LINE__);
+        }
+        cleanup();
+        std::abort();
+    }
+
+    // 'stderr' and 'stdout' have been successfully redirected.
+
+#if defined(BSLS_BSLTESTUTIL_OS_WINDOWS)
+    if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
+        ASSERT(0 == "Failed to set stdout to binary mode.");
+        cleanup();
+        std::abort();
+    }
+#endif
+
+    d_isFileCreatedFlag = true;
+    d_isRedirectedFlag = true;
+
+    if (EOF == fflush(stdout)) {
+
+        // Not flushing 'stdout' is not a fatal condition, so we print out a
+        // warning, but do not abort.
+
+        if (veryVerbose) {
+
+            // Note that we print this error message on 'stderr', because we
+            // have just redirected 'stdout' to the capture file.
+
+            perror("Error message: ");
+            fprintf(stderr,
+                    "Warning " __FILE__ "(%d): Error flushing stdout\n",
+                    __LINE__);
+        }
+    }
 }
 
 void OutputRedirector::reset()
@@ -1054,6 +1066,90 @@ const struct stat& OutputRedirector::originalStdoutStat()
 {
     return d_originalStdoutStat;
 }
+
+namespace xyzb {
+
+class TestType {
+    // Provide a user-defined type to use in testing 'debugprint'.
+
+  private:
+    // DATA
+    int d_value;  // the value of this 'TestType' object
+
+  public:
+    // CREATORS
+    explicit TestType(int value);
+        // Create a 'TestType' object with 'd_value' set to the specified
+        // 'value'.
+
+    // ACCESSORS
+    int value() const;
+};
+
+TestType::TestType(int value)
+: d_value(value)
+{
+}
+
+int TestType::value() const
+{
+    return d_value;
+}
+
+void debugprint(const TestType& obj)
+    // Print the string representation of the specified 'TestType' object to
+    // stdout.  The representation of a 'TestType' object is the string
+    // "TestType<n>", where "n" is the value of the 'TestType' object.
+{
+    printf("TestType<%d>", obj.value());
+}
+
+
+class BrokenTestType {
+    // Provide a user-defined type to use in testing 'debugprint'.  This class
+    // does not allow copying, assignment, or the address-of operator, so that
+    // it can be used to demonstrate that none of these are needed for the
+    // basic operation of 'bsls_bsltestutil' on user-defined types.
+
+  private:
+    // NOT IMPLEMENTED
+    BrokenTestType(const BrokenTestType&);
+    void operator=(const BrokenTestType&);
+    void operator&();
+
+    // DATA
+    int d_value;  // the value of this 'BrokenTestType' object
+
+  public:
+    // CREATORS
+    explicit BrokenTestType(int value);
+        // Create a 'BrokenTestType' object with 'd_value' set to the specified
+        // 'value'.
+
+    // ACCESSORS
+    int value() const;
+};
+
+BrokenTestType::BrokenTestType(int value)
+: d_value(value)
+{
+}
+
+int BrokenTestType::value() const
+{
+    return d_value;
+}
+
+void debugprint(const BrokenTestType& obj)
+    // Print the string representation of the specified 'BrokenTestType' object
+    // to stdout.  The representation of a 'BrokenTestType' object is the
+    // string "BrokenTestType<n>", where "n" is the value of the
+    // 'BrokenTestType' object.
+{
+    printf("BrokenTestType<%d>", obj.value());
+}
+
+}  // close namespace xyzb
 
 template <typename TEST_TYPE>
 struct DataRow {
@@ -1619,8 +1715,8 @@ int main(int argc, char *argv[])
     // Capture 'stdout', and send 'stderr' to 'stdout', unless we are running
     // the usage example.
     OutputRedirector output;
-    if (test != 9 && test != 0 && !output.redirect()) {
-        return 1;                                                     // RETURN
+    if (test != 9 && test != 0) {
+        output.redirect();
     }
 
     switch (test) { case 0:
@@ -1643,7 +1739,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             printf("\nTESTING USAGE EXAMPLE"
-                    "\n---------------------\n");
+                    "\n--------------------\n");
         }
 
         // The actual usage example code is encapsulated in two free functions,
@@ -2474,7 +2570,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR const char"
-                        "\n---------------------------\n");
+                        "\n---------------------------------\n");
             }
 
             static const DataRow<const char> DATA[] =
@@ -2500,7 +2596,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR const int"
-                        "\n--------------------------\n");
+                        "\n--------------------------------\n");
             }
 
             static const DataRow<const int> DATA[] =
@@ -2522,7 +2618,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR const unsigned int"
-                        "\n-----------------------------------\n");
+                        "\n-----------------------------------------\n");
             }
 
             static const DataRow<const unsigned int> DATA[] =
@@ -2542,7 +2638,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR const double"
-                        "\n-----------------------------\n");
+                        "\n-----------------------------------\n");
             }
 
             static const DataRow<const double> DATA[] =
@@ -2567,7 +2663,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR volatile char"
-                        "\n---------------------------\n");
+                        "\n------------------------------------\n");
             }
 
             static const DataRow<volatile char> DATA[] =
@@ -2593,7 +2689,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR volatile int"
-                        "\n--------------------------\n");
+                        "\n-----------------------------------\n");
             }
 
             static const DataRow<volatile int> DATA[] =
@@ -2615,7 +2711,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR volatile unsigned int"
-                        "\n-----------------------------------\n");
+                        "\n--------------------------------------------\n");
             }
 
             static const DataRow<volatile unsigned int> DATA[] =
@@ -2635,7 +2731,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR volatile double"
-                        "\n-----------------------------\n");
+                        "\n--------------------------------------\n");
             }
 
             static const DataRow<volatile double> DATA[] =
@@ -2658,7 +2754,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR volatile char *"
-                        "\n-----------------------------------\n");
+                        "\n--------------------------------------\n");
             }
 
             static const DataRow<volatile char *> DATA[] =
@@ -2687,7 +2783,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR volatile void *"
-                        "\n-----------------------------------\n");
+                        "\n--------------------------------------\n");
             }
 
             static const DataRow<volatile void *> DATA[] =
@@ -2710,7 +2806,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR const volatile char"
-                        "\n---------------------------\n");
+                        "\n------------------------------------------\n");
             }
 
             static const DataRow<const volatile char> DATA[] =
@@ -2736,7 +2832,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR const volatile int"
-                        "\n--------------------------\n");
+                        "\n-----------------------------------------\n");
             }
 
             static const DataRow<const volatile int> DATA[] =
@@ -2757,8 +2853,8 @@ int main(int argc, char *argv[])
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugprint FOR const volatile unsigned int"
-                        "\n-----------------------------------\n");
+                    "\nTESTING debugprint FOR const volatile unsigned int"
+                    "\n---------------------------------------------------\n");
             }
 
             static const DataRow<const volatile unsigned int> DATA[] =
@@ -2780,7 +2876,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR const volatile double"
-                        "\n-----------------------------\n");
+                        "\n--------------------------------------------\n");
             }
 
             static const DataRow<const volatile double> DATA[] =
@@ -2805,7 +2901,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR const volatile char *"
-                        "\n-----------------------------------\n");
+                        "\n--------------------------------------------\n");
             }
 
             static const DataRow<const volatile char *> DATA[] =
@@ -2830,7 +2926,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR const volatile void *"
-                        "\n-----------------------------------\n");
+                        "\n--------------------------------------------\n");
             }
 
             static const DataRow<const volatile void *> DATA[] =
@@ -2899,7 +2995,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR int *"
-                        "\n-----------------------------------\n");
+                        "\n----------------------------\n");
             }
 
             int a = 1;
@@ -2919,7 +3015,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR const int *"
-                        "\n-----------------------------------\n");
+                        "\n----------------------------------\n");
             }
 
             const int a = 1;
@@ -2939,7 +3035,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR volatile int *"
-                        "\n-----------------------------------\n");
+                        "\n-------------------------------------\n");
             }
 
             volatile int a = 1;
@@ -2959,7 +3055,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING debugprint FOR const volatile int *"
-                        "\n-----------------------------------\n");
+                        "\n-------------------------------------------\n");
             }
 
             const volatile int a = 1;
@@ -2978,85 +3074,87 @@ int main(int argc, char *argv[])
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugprint FOR MyType *"
-                        "\n-----------------------------------\n");
+                        "\nTESTING debugprint FOR TestType *"
+                        "\n---------------------------------\n");
             }
 
-            MyNamespace::MyType a(1);
+            xyzb::TestType a(1);
 
-            static const DataRow<MyNamespace::MyType *> DATA[] =
+            static const DataRow<xyzb::TestType *> DATA[] =
             {
                 //LINE       INPUT                   OUTPUT DESC
                 //---------- -----                   ------ ----
 
-                { __LINE__,  &a,       0,     "MyType pointer" },
+                { __LINE__,  &a,       0,     "TestType pointer" },
             };
-            TestDriver::testCase3<MyNamespace::MyType *>(&output, DATA, "%p");
+            TestDriver::testCase3<xyzb::TestType *>(&output, DATA, "%p");
         }
 
         // void debugprint(const void *p);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugprint FOR const MyType *"
-                        "\n-----------------------------------\n");
+                        "\nTESTING debugprint FOR const TestType *"
+                        "\n---------------------------------------\n");
             }
 
-            const MyNamespace::MyType a(1);
+            const xyzb::TestType a(1);
 
-            static const DataRow<const MyNamespace::MyType *> DATA[] =
+            static const DataRow<const xyzb::TestType *> DATA[] =
             {
                 //LINE       INPUT                   OUTPUT DESC
                 //---------- -----                   ------ ----
 
-                { __LINE__,  &a,       0,     "MyType pointer" },
+                { __LINE__,  &a,       0,     "TestType pointer" },
             };
-            TestDriver::testCase3<const MyNamespace::MyType *>(&output,
-                                                               DATA,
-                                                               "%p");
+            TestDriver::testCase3<const xyzb::TestType *>(&output,
+                                                          DATA,
+                                                          "%p");
         }
 
         // void debugprint(const void *p);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugprint FOR volatile MyType *"
-                        "\n-----------------------------------\n");
+                        "\nTESTING debugprint FOR volatile TestType *"
+                        "\n------------------------------------------\n");
             }
 
-            volatile MyNamespace::MyType a(1);
+            volatile xyzb::TestType a(1);
 
-            static const DataRow<volatile MyNamespace::MyType *> DATA[] =
+            static const DataRow<volatile xyzb::TestType *> DATA[] =
             {
                 //LINE       INPUT                   OUTPUT DESC
                 //---------- -----                   ------ ----
 
-                { __LINE__,  &a,       0,     "MyType pointer" },
+                { __LINE__,  &a,       0,     "TestType pointer" },
             };
-            TestDriver::testCase3<volatile MyNamespace::MyType *>(&output,
-                                                                  DATA,
-                                                                  "%p");
+            TestDriver::testCase3<volatile xyzb::TestType *>(&output,
+                                                             DATA,
+                                                             "%p");
         }
 
         // void debugprint(const void *p);
         {
             if (verbose) {
                 fprintf(stderr,
-                        "\nTESTING debugprint FOR const volatile MyType *"
-                        "\n-----------------------------------\n");
+                       "\nTESTING debugprint FOR const volatile TestType *"
+                       "\n------------------------------------------------\n");
             }
 
-            const volatile MyNamespace::MyType a(1);
+            const volatile xyzb::TestType a(1);
 
-            static const DataRow<const volatile MyNamespace::MyType *> DATA[] =
+            static const DataRow<const volatile xyzb::TestType *> DATA[] =
             {
                 //LINE       INPUT                   OUTPUT DESC
                 //---------- -----                   ------ ----
 
-                { __LINE__,  &a,       0,     "MyType pointer" },
+                { __LINE__,  &a,       0,     "TestType pointer" },
             };
-            TestDriver::testCase3<const volatile MyNamespace::MyType *>(
-                                                          &output, DATA, "%p");
+
+            TestDriver::testCase3<const volatile xyzb::TestType *>(&output,
+                                                                   DATA,
+                                                                   "%p");
         }
 
       } break;
@@ -3416,7 +3514,7 @@ int main(int argc, char *argv[])
             stderrStat.st_dev = output.originalStdoutStat().st_dev;
             stderrStat.st_rdev = output.originalStdoutStat().st_rdev;
             ASSERT(-1 != fstat(newStderrFD, &stderrStat));
-#if !defined(BSLS_BSLTESTUTIL__OS_WINDOWS)
+#if !defined(BSLS_BSLTESTUTIL_OS_WINDOWS)
             // st_dev and st_rdev are not stable on Windows
             ASSERT(stderrStat.st_dev == output.originalStdoutStat().st_dev);
             ASSERT(stderrStat.st_rdev == output.originalStdoutStat().st_rdev);

@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_BSLTESTUTIL_L_
 //  BSLS_BSLTESTUTIL_T_
 //
-//@AUTHOR: Alisdair Meredith (ameredit)
+//@AUTHOR: Alisdair Meredith (ameredit), Chen He (che2)
 //
 //@DESCRIPTION: This component provides the standard printing macros used in
 // BDE-style test drivers ('ASSERT', 'LOOP_ASSERT', 'ASSERTV', 'P', 'Q', 'L',
@@ -74,7 +74,7 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - -
 // First, we write a component to test, which provides a utility class:
 //..
-//  namespace bslexample {
+//  namespace bslabc {
 //
 //  struct BslExampleUtil {
 //      // This utility class provides sample functionality to demonstrate how
@@ -135,7 +135,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  void testFortyTwo(bool verbose)
 //  {
-//      const int value = bslexample::BslExampleUtil::fortyTwo();
+//      const int value = bslabc::BslExampleUtil::fortyTwo();
 //      if (verbose) P(value);
 //      LOOP_ASSERT(value, 42 == value);
 //  }
@@ -149,7 +149,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we define a new user-defined type, 'MyType':
 //..
-//  namespace MyNamespace {
+//  namespace xyza {
 //
 //  class MyType {
 //      // This elided class provides a type intended to show how the macros in
@@ -195,23 +195,24 @@ BSLS_IDENT("$Id: $")
 //      return d_value;
 //  }
 //..
-// Then, we define a function 'debugprint' that prints the value of a 'MyType'
-// object to the console in the same namespace in which 'MyType' is defined (in
-// this case, we will simply print a string literal for simplicity):
+// Then, in the same namespace in which 'MyType' is defined, we define a
+// function 'debugprint' that prints the value of a 'MyType' object to the
+// console.  (In this case, we will simply print a string literal for
+// simplicity):
 //..
 //  void debugprint(const MyType& obj)
 //  {
 //      printf("MyType<%d>", obj.value());
 //  }
 //
-//  }  // close namespace MyNamespace
+//  }  // close namespace xyza
 //..
 // Now, using the (standard) abbreviated macro names previously defined, we
 // write a test function for the 'MyType' constructor, to be called from a test
 // case in a test driver.
 //..
 //  void testMyTypeSetValue(bool verbose) {
-//      MyNamespace::MyType obj(9);
+//      xyza::MyType obj(9);
 //      if (verbose) P(obj);
 //      LOOP_ASSERT(obj.value(), obj.value() == 9);
 //  }
@@ -330,7 +331,6 @@ struct BslTestUtil {
     // iostream facilities, which is typical of test drivers in the 'bsl'
     // package group.
 
-  public:
     // CLASS METHODS
     static void flush();
         // Write any unwritten text in the output buffer to 'stdout'.
