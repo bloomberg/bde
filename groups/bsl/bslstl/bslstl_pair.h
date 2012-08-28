@@ -643,6 +643,12 @@ struct is_trivially_copyable<pair<T1, T2> >
                                   && is_trivially_copyable<T2>::value>
 {};
 
+template <typename T1, typename T2>
+struct is_trivially_default_constructible<bsl::pair<T1, T2> >
+    : bsl::integer_constant<bool, is_trivially_default_constructible<T1>::value
+                                  && is_trivially_default_constructible<T2>::value>
+{};
+
 }
 
 namespace BloombergLP {
@@ -652,12 +658,6 @@ template <typename T1, typename T2>
 struct IsBitwiseMoveable<bsl::pair<T1, T2> >
     : bsl::integer_constant<bool, bslmf::IsBitwiseMoveable<T1>::value
                                   && bslmf::IsBitwiseMoveable<T2>::value>
-{};
-
-template <typename T1, typename T2>
-struct HasTrivialDefaultConstructor<bsl::pair<T1, T2> >
-    : bsl::integer_constant<bool, bslmf::HasTrivialDefaultConstructor<T1>::value
-                                  && bslmf::HasTrivialDefaultConstructor<T2>::value>
 {};
 
 template <typename T1, typename T2>

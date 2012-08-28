@@ -273,12 +273,7 @@ int my_ClassFussy::destructorInvocations            = 0;
 // TRAITS
 namespace bsl {
 template <> struct is_trivially_copyable<my_ClassFussy> : true_type {};
-}
-
-namespace BloombergLP {
-namespace bslmf {
-template <> struct HasTrivialDefaultConstructor<my_ClassFussy> : true_type {};
-}
+template <> struct is_trivially_default_constructible<my_ClassFussy> : true_type {};
 }
 
                                  // =========

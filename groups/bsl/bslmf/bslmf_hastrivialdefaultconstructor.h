@@ -31,65 +31,55 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_detectnestedtrait.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLMF_REMOVECVQ
+#include <bslmf_removecvq.h>
+#endif
 
+namespace bsl {
+
+template <typename TYPE>
+struct is_trivially_default_constructible;
+
+}
+
+namespace BloombergLP {
 namespace bslmf {
 
-                        // ========================
-                        // struct HasTrivialDefaultConstructor
-                        // ========================
-
-template <class TYPE>
-struct HasTrivialDefaultConstructor :
+template <typename TYPE>
+struct IsTriviallyDefaultConstructible_Imp :
     integer_constant<bool,
                      IsFundamental<TYPE>::value
                   || IsEnum<TYPE>::value
                   || bsl::is_pointer<TYPE>::value
                   || bslmf::IsPointerToMember<TYPE>::value
-                  || DetectNestedTrait<TYPE,
-                                       HasTrivialDefaultConstructor>::value>
+                  || DetectNestedTrait<
+                            TYPE,
+                            bsl::is_trivially_default_constructible>::value>
+{};
+
+}
+}
+
+namespace bsl {
+
+template <typename TYPE>
+struct is_trivially_default_constructible
+    : BloombergLP::bslmf::IsTriviallyDefaultConstructible_Imp<
+                                                typename remove_cv<TYPE>::type>
 {
     // Trait metafunction that determines whether the specified parameter
-    // 'TYPE' is bit-wise EqualityComparable.  If 'HasTrivialDefaultConstructor<TYPE>' is derived
-    // from 'true_type' then 'TYPE' is bit-wise EqualityComparable.  Otherwise, bit-wise
-    // moveability cannot be inferred for 'TYPE'.  This trait can be
-    // associated with a bit-wise EqualityComparable user-defined class by specializing
-    // this class or by using the 'BSLMF_DECLARE_NESTED_TRAIT' macro.
+    // 'TYPE' is trivially default constructible.  If
+    // 'is_trivially_default_constructible<TYPE>' is derived from 'true_type'
+    // then 'TYPE' is trivially default constructible.
 };
 
-template <class TYPE>
-struct HasTrivialDefaultConstructor<const TYPE> : HasTrivialDefaultConstructor<TYPE>::type
-{
-    // Specialization that associates the same trait with 'const TYPE' as with
-    // unqualified 'TYPE'.
-};
+template <typename TYPE>
+struct is_trivially_default_constructible<TYPE&> : false_type
+{};
 
-template <class TYPE>
-struct HasTrivialDefaultConstructor<volatile TYPE> : HasTrivialDefaultConstructor<TYPE>::type
-{
-    // Specialization that associates the same trait with 'volatile TYPE' as
-    // with unqualified 'TYPE'.
-};
+}
 
-template <class TYPE>
-struct HasTrivialDefaultConstructor<const volatile TYPE> : HasTrivialDefaultConstructor<TYPE>::type
-{
-    // Specialization that associates the same trait with 'const volatile
-    // TYPE' as with unqualified 'TYPE'.
-};
-
-template <class TYPE>
-struct HasTrivialDefaultConstructor<TYPE&> : bsl::false_type
-{
-    // Specialization of that prevents associating the 'HasTrivialDefaultConstructor'
-    // trait with any reference type.
-};
-
-}  // close package namespace
-
-}  // close namespace BloombergLP
-
-#endif // ! defined(INCLUDED_BSLMF_HASTRIVIALDEFAULTCONSTRUCTOR)
+#endif
 
 // ---------------------------------------------------------------------------
 // NOTICE:
