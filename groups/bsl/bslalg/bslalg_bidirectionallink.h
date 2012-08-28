@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bslalg::BidirectionalLink : A node in a doubly-linked list
 //
-//@SEE_ALSO: bslalg_bidirectionallistutil, bslalg_hashtableutil
+//@SEE_ALSO: bslalg_bidirectionallinklistutil, bslalg_hashtableutil
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
@@ -22,8 +22,8 @@ BSLS_IDENT("$Id: $")
 // address of it successor node.  A null-pointer value for either address
 // signifies the end of the list.  'BidirectionalLink' does not, however,
 // contain "payload" data (e.g., a value), as it is intended to work with
-// generalized list operations (see 'bslalg_bidirectionallistutil').  Clients
-// creating a doubly-linked list must define their own node type that
+// generalized list operations (see 'bslalg_bidirectionallinklistutil').
+// Clients creating a doubly-linked list must define their own node type that
 // incorporates 'BidirectionalLink' (generally via inheritance), and that
 // maintains the "value" stored in that node.
 //
@@ -49,11 +49,13 @@ namespace bslalg
 class BidirectionalLink {
     // This POD-like 'class' describes a node suitable for use in a doubly-
     // linked (bidirectional) list, holding the addresses of the preceding and
-    // succeeding nodes, both of which may be 0).  This class is "POD-like" to
-    // facilitate efficient allocation and use in the context of a container
-    // implementations.  In order to meet the essential requirements of a POD
-    // type, this 'class' does not define a constructor or destructor.  However
-    // its data members are private.  Note that this type does not contain any
+    // succeeding nodes, either or both of which may be 0.  This class is
+    // "POD-like" to facilitate efficient allocation and use in the context of
+    // a container implementations.  In order to meet the essential
+    // requirements of a POD type, this 'class' does not declare a constructor
+    // or destructor.  However its data members are private.  It satisfies the
+    // requirements of a *trivial* type and a *standard* *layout* type defined
+    // by the C++11 standard.  Note that this type does not contain any
     // "payload" member data: Clients creating a doubly-linked list of data
     // must define an appropriate node type that incorporates
     // 'BidirectionalLink' (generally via inheritance), and that holds the
@@ -67,31 +69,33 @@ class BidirectionalLink {
   public:
     // CREATORS
     //! BidirectionalLink() = default;
-        // Create a 'BidirectionalLink' object having uninitialized values.
+        // Create a 'BidirectionalLink' object having uninitialized values,
+        // or zero-initialized values if value-initialized.
 
     //! BidirectionalLink(const BidirectionalLink& original) = default;
-        // Create a 'BidirectionalLink' object having the same value as the
-        // specified 'original' object.
+        // Create a 'BidirectionalLink' object having the same data member
+        // values as the specified 'original' object.
 
     //! ~BidirectionalLink() = default;
         // Destroy this object.
 
     // MANIPULATORS
     //! BidirectionalLink& operator= (const BidirectionalLink& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
+        // Assign to the data members of this object the values of the data
+        // members of the specified 'rhs' object, and return a reference
+        // providing modifiable access to this object.
 
     void setNext(BidirectionalLink *next);
         // Set the successor of this node to be the specified 'next' link.  If
-        // 'next' is 0, then this node will terminate the list.
+        // 'next' is 0, then this node will terminate a list.
 
     void setPrev(BidirectionalLink *prev);
-        // Set the successor of this node to be the specified 'next' link.  If
-        // 'next' is 0, then this node will be the root of the list.
+        // Set the predecessor of this node to be the specified 'prev' link.
+        // If 'prev' is 0, then this node will be the root of a list.
 
     // ACCESSORS
     BidirectionalLink *next() const;
-        // Return the address of next node linked from this node.
+        // Return the address of the next node linked from this node.
 
     BidirectionalLink *prev() const;
         // Return the address of the preceding node linked from this node.
@@ -132,9 +136,8 @@ BidirectionalLink *BidirectionalLink::prev() const
     return d_prev_p;
 }
 
-} // namespace BloombergLP::bslalg
-
-} // namespace BloombergLP
+} // close namespace BloombergLP::bslalg
+} // close namespace BloombergLP
 
 #endif
 

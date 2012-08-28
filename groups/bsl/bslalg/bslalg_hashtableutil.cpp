@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslalg_bidirectionallistutil.h>
+#include <bslalg_bidirectionallinklistutil.h>
 
 #include <bsls_types.h>
 
@@ -47,7 +47,7 @@ void HashTableUtil::removeNodeFromTable(BidirectionalLink  *position,
         *listRoot = position->next();
     }
 
-    BidirectionalListUtil::unlink(position);
+    BidirectionalLinkListUtil::unlink(position);
 }
 
 void HashTableUtil::insertDuplicateAtPosition(BidirectionalLink  *newNode,
@@ -69,7 +69,7 @@ void HashTableUtil::insertDuplicateAtPosition(BidirectionalLink  *newNode,
     BSLS_ASSERT_SAFE(!newNode->next());
     BSLS_ASSERT_SAFE(!newNode->prev());
 
-    BidirectionalListUtil::insertLinkBeforeTail(newNode, location);
+    BidirectionalLinkListUtil::insertLinkBeforeTail(newNode, location);
 
     HashTableBucket *bucket = bucketForHashCode(buckets, nBuckets, hashCode);
     if (location == bucket->first()) {
@@ -100,7 +100,8 @@ void HashTableUtil::insertAtFrontOfBucket(BidirectionalLink  *newNode,
     BSLS_ASSERT_SAFE(bucket);
 
     if (bucket->first()) {
-        BidirectionalListUtil::insertLinkBeforeTail(newNode, bucket->first());
+        BidirectionalLinkListUtil::insertLinkBeforeTail(newNode,
+                                                        bucket->first());
         if (*listRoot ==  bucket->first()) {
             *listRoot = newNode;
         }
@@ -108,7 +109,7 @@ void HashTableUtil::insertAtFrontOfBucket(BidirectionalLink  *newNode,
     }
     else {
         // New bucket required
-        BidirectionalListUtil::insertLinkBeforeTail(newNode, *listRoot);
+        BidirectionalLinkListUtil::insertLinkBeforeTail(newNode, *listRoot);
         *listRoot = newNode;   // New buckets prepend to the front of the list
         bucket->fillNewBucket(newNode);
     }
@@ -127,15 +128,15 @@ void HashTableUtil::spliceSegmentIntoBucket(BidirectionalLink  *cursor,
     // splice the array segment
     if (!bucket->first()) {
         bucket->createBucket(cursor, nextCursor);
-        BidirectionalListUtil::spliceListBeforeLink(cursor,
-                                                    nextCursor,
-                                                    *newRoot);
+        BidirectionalLinkListUtil::spliceListBeforeLink(cursor,
+                                                        nextCursor,
+                                                        *newRoot);
         *newRoot = cursor;
     }
     else {
-        BidirectionalListUtil::spliceListBeforeLink(cursor,
-                                                    nextCursor,
-                                                    bucket->first());
+        BidirectionalLinkListUtil::spliceListBeforeLink(cursor,
+                                                        nextCursor,
+                                                        bucket->first());
         if (bucket->first() == *newRoot) { // Check before updating 'first'!
             *newRoot = cursor;
         }
