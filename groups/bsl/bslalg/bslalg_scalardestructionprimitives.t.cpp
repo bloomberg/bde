@@ -52,13 +52,14 @@ using namespace BloombergLP;
 int testStatus = 0;
 
 namespace {
-    void aSsErT(int c, const char *s, int i) {
+void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
-    }
 }
 }
+}  // close unnamed namespace
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //=============================================================================
@@ -151,7 +152,7 @@ class TestType {
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TestType(bslma::Allocator *ba = 0)
+    explicit TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
     , d_allocator_p(bslma::Default::allocator(ba))
     {
@@ -160,7 +161,7 @@ class TestType {
         *d_data_p = '?';
     }
 
-    TestType(char c, bslma::Allocator *ba = 0)
+    explicit TestType(char c, bslma::Allocator *ba = 0)
     : d_data_p(0)
     , d_allocator_p(bslma::Default::allocator(ba))
     {
@@ -169,7 +170,7 @@ class TestType {
         *d_data_p = c;
     }
 
-    TestType(const TestType& original, bslma::Allocator *ba = 0)
+    explicit TestType(const TestType& original, bslma::Allocator *ba = 0)
     : d_data_p(0)
     , d_allocator_p(bslma::Default::allocator(ba))
     {
@@ -180,7 +181,8 @@ class TestType {
     }
     }
 
-    ~TestType() {
+    ~TestType()
+    {
         ++numDestructorCalls;
         *d_data_p = '_';
         d_allocator_p->deallocate(d_data_p);
@@ -201,12 +203,14 @@ class TestType {
         return *this;
     }
 
-    void setDatum(char c) {
+    void setDatum(char c)
+    {
         *d_data_p = c;
     }
 
     // ACCESSORS
-    char datum() const {
+    char datum() const
+    {
         return *d_data_p;
     }
 
@@ -249,18 +253,19 @@ class TestTypeNoAlloc {
 
   public:
     // CREATORS
-    TestTypeNoAlloc(bslma::Allocator * = 0)
+    explicit TestTypeNoAlloc(bslma::Allocator * = 0)
     {
         d_u.d_char = '?';
         ++numDefaultCtorCalls;
     }
 
-    TestTypeNoAlloc(char c, bslma::Allocator * = 0)
+    explicit TestTypeNoAlloc(char c, bslma::Allocator * = 0)
     {
         d_u.d_char = c;
         ++numCharCtorCalls;
     }
 
+    explicit
     TestTypeNoAlloc(const TestTypeNoAlloc& original, bslma::Allocator * = 0)
     {
         d_u.d_char = original.d_u.d_char;
@@ -317,19 +322,19 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
                                  bslalg::TypeTraitBitwiseCopyable);
 
     // CREATORS
-    BitwiseCopyableTestType(bslma::Allocator * = 0)
+    explicit BitwiseCopyableTestType(bslma::Allocator * = 0)
     : TestTypeNoAlloc()
     {
     }
 
-    BitwiseCopyableTestType(char c, bslma::Allocator * = 0)
+    explicit BitwiseCopyableTestType(char c, bslma::Allocator * = 0)
     : TestTypeNoAlloc(c)
     {
         ++numCharCtorCalls;
     }
 
-    BitwiseCopyableTestType(const BitwiseCopyableTestType&  original,
-                            bslma::Allocator               * = 0)
+    explicit BitwiseCopyableTestType(const BitwiseCopyableTestType&  original,
+                                     bslma::Allocator               * = 0)
     : TestTypeNoAlloc(original.datum())
     {
     }
@@ -386,11 +391,13 @@ class CleanupGuard {
     }
 
     // MANIPULATORS
-    void setLength(int length) {
+    void setLength(int length)
+    {
         d_length = length;
     }
 
-    void release(const char *newSpec) {
+    void release(const char *newSpec)
+    {
         d_spec_p = newSpec;
         d_length = strlen(newSpec);
         d_endPtr_p = 0;
@@ -507,7 +514,8 @@ int ggg(TYPE *scalar, const char *spec, int verboseFlag = 1)
                 printf("Error, bad character ('%c') in spec \"%s\""
                        " at position %d.\n", spec[i], spec, i);
             }
-            return i;  // Discontinue processing this spec.
+            // Discontinue processing this spec.
+            return i;                                                 // RETURN
         }
     }
     guard.setLength(0);
@@ -596,6 +604,67 @@ void testDestroy(bool bitwiseCopyableFlag)
         cleanup(buf, EXP);
     }
 }
+// ============================================================================
+//                                  USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+namespace UsageExample {
+///Usage
+///-----
+// In this section we show intended use of this component.  Notice that this
+// component is for use by the 'bslstl' package.  Other clients should use
+// the STL algorithms (in header '<algorithm>' and '<memory>').
+//
+///Example 1: Destroy Integers
+///- - - - - - - - - - - - - -
+// In this example, we will use 'bslalg::ScalarDestructionPrimitives' to
+// destroy both a scalar integer and a 'MyInteger' type object.
+//
+// First, we define a 'MyInteger' class that represents an integer value:
+//..
+class MyInteger
+    // This class represents an integer value.
+{
+    int d_intValue;  // integer value
+
+  public:
+    // CREATORS
+    MyInteger();
+        // Create a 'MyInteger' object having integer value '0'.
+
+    explicit MyInteger(int value);
+        // Create a 'MyInteger' object having the specified 'value'.
+
+    ~MyInteger();
+        // Destroy this object.
+
+    // ACCESSORS
+    int getValue() const;
+};
+//..
+
+// CREATORS
+MyInteger::MyInteger()
+:d_intValue(0)
+{
+}
+
+MyInteger::MyInteger(int value)
+:d_intValue(value)
+{
+}
+
+MyInteger::~MyInteger()
+{
+}
+
+// ACCESSORS
+int MyInteger::getValue() const
+{
+    return d_intValue;
+}
+
+}  // close namespace UsageExample
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -617,13 +686,44 @@ int main(int argc, char *argv[])
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Usage Example"
+                            "\n=====================\n");
+        using namespace UsageExample;
+
+// Then, we create a 'MyInteger' object:
+//..
+    bsls::ObjectBuffer<MyInteger> buffer;
+    MyInteger *myInteger = &buffer.object();
+    new (myInteger) MyInteger(1);
+//..
+// Now, we define a scalar integer:
+//..
+    int scalarInteger = 2;
+//..
+// Finally, we use the uniform 'bslalg::ScalarDestructionPrimitives:destroy'
+// method to destroy both 'myInteger' and 'scalarInteger':
+//..
+     bslalg::ScalarDestructionPrimitives::destroy(myInteger);
+     bslalg::ScalarDestructionPrimitives::destroy(&scalarInteger);
+//..
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING destroy
         //
         // Concerns:
+        //: 1. The 'destroy' acts as a uniform interface to destroy objects of
+        //:    different types as expected.
         //
         // Plan:
+        //: 1. Construct objects of types that have different type traits
+        //:    declared.  Call the 'destroy' method on them and verify they
+        //:    are destroyed as expected.
         //
         // Testing:
         //   void destroy(T *dst);
@@ -657,10 +757,11 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   That the basic 'destroy' algorithm works as intended.
+        //: 1. That the basic 'destroy' algorithm works as intended.
         //
-        // Plan: Construct objects in a range and use 'destroy' to destroy
-        //   them.  Make sure all memory is deallocated.
+        // Plan:
+        //: 1. Construct objects in a range and use 'destroy' to destroy
+        //:    them.  Make sure all memory is deallocated.
         //
         // Testing:
         //   This test exercises the component but tests nothing.

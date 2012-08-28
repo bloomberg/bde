@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component provides utilities to destroy scalars with a
-// uniform interface, but selecting a different implementation according to the
+// uniform interface, but select a different implementation according to the
 // traits possessed by the underlying type.
 //
 // The trait under consideration by this component is:
@@ -32,10 +32,56 @@ BSLS_IDENT("$Id: $")
 //                                    behavior.
 //
 //..
+//
 ///Usage
 ///-----
-// This component is for use by the 'bslstl' package.  Other clients should use
+// In this section we show intended use of this component.  Notice that this
+// component is for use by the 'bslstl' package.  Other clients should use
 // the STL algorithms (in header '<algorithm>' and '<memory>').
+//
+///Example 1: Destroy Integers
+///- - - - - - - - - - - - - -
+// In this example, we will use 'bslalg::ScalarDestructionPrimitives' to
+// destroy both a scalar integer and a 'MyInteger' type object.
+//
+// First, we define a 'MyInteger' class that represents an integer value:
+//..
+//  class MyInteger
+//      // This class represents an integer value.
+//  {
+//      int d_intValue;  // integer value
+//
+//    public:
+//      // CREATORS
+//      MyInteger();
+//          // Create a 'MyInteger' object having integer value '0'.
+//
+//      explicit MyInteger(int value);
+//          // Create a 'MyInteger' object having the specified 'value'.
+//
+//      ~MyInteger();
+//          // Destroy this object.
+//
+//      // ACCESSORS
+//      int getValue() const;
+//  };
+//..
+// Then, we create a 'MyInteger' object:
+//..
+//  bsls::ObjectBuffer<MyInteger> buffer;
+//  MyInteger *myInteger = &buffer.object();
+//  new (myInteger) MyInteger(1);
+//..
+// Now, we define a scalar integer:
+//..
+//  int scalarInteger = 2;
+//..
+// Finally, we use the uniform 'bslalg::ScalarDestructionPrimitives:destroy'
+// method to destroy both 'myInteger' and 'scalarInteger':
+//..
+//   bslalg::ScalarDestructionPrimitives::destroy(myInteger);
+//   bslalg::ScalarDestructionPrimitives::destroy(&scalarInteger);
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
