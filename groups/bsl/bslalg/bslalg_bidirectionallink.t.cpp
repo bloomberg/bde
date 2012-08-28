@@ -1,6 +1,9 @@
 // bslalg_bidirectionallink.t.cpp                                     -*-C++-*-
 #include <bslalg_bidirectionallink.h>
 
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
@@ -19,7 +22,6 @@ using namespace BloombergLP;
 //: o [ 8] -- 'swap' is not implemented for this class.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
 //: o ACCESSOR methods are declared 'const'.
 //: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
 //: o Precondition violations are detected in appropriate build modes.
@@ -45,12 +47,12 @@ using namespace BloombergLP;
 // [ 2] void setPrev(BidirectionalLink *prev);
 //
 // ACCESSORS
-// [ 8] BidirectionalLink *next();
-// [ 8] BidirectionalLink *prev();
+// [ 4] BidirectionalLink *next() const;
+// [ 4] BidirectionalLink *prev() const;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [10] USAGE EXAMPLE
+// [  ] USAGE EXAMPLE
 // [ 3] 'gg' FUNCTION
 // [ 2] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
 // [ 4] CONCERN: All accessor methods are declared 'const'.
@@ -95,8 +97,6 @@ void aSsErT(bool b, const char *s, int i)
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-#define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
-
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
@@ -127,8 +127,8 @@ void debugprint(const Obj& val)
     printf("prev=0x%x, next=0x%x", val.prev(), val.next());
 }
 
-} // close namespace bslalg
-} // close enterprise namespace
+}  // close namespace bslalg
+}  // close enterprise namespace
 
 static Obj& gg(Obj *result, Obj *prev, Obj *next)
     // Initialize the specified 'result' with the specified 'prev', and 'next'.
@@ -159,7 +159,7 @@ static bool operator!=(const Obj& lhs, const Obj& rhs)
 //                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
 
-// Define DEFAULT DATA (potentially) used by test cases 3, 7, (8), 9, and (10)
+// Define DEFAULT DATA (potentially) used by test cases 3, 6 and 7.
 
 struct DefaultDataRow {
     int    d_line;           // source line number
@@ -206,6 +206,16 @@ int main(int argc, char *argv[])
     bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
+
+    // CONCERN: In no case is memory allocated from the global allocator.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // CONCERN: In no case is memory allocated from the default allocator.
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
       case 7: {
@@ -286,7 +296,7 @@ int main(int argc, char *argv[])
         //:     (C-5)
         //
         // Testing:
-        //   bslalg::RbTreeNode& operator=(const bslalg::RbTreeNode& rhs);
+        //   BidirectionalLink& operator=(const BidirectionalLink& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY-ASSIGNMENT OPERATOR"
@@ -431,14 +441,20 @@ int main(int argc, char *argv[])
             // Verify that the value of 'Z' has not changed.
 
             ASSERTV(LINE, ZZ, Z, ZZ == Z);
-        }  // end foreach row
+        }  // end for each row
 
       } break;
-
       case 5: {
-        // There is no test case 5 ...
-      } break;
+        // --------------------------------------------------------------------
+        // PRINT AND OUTPUT OPERATOR
+        //   This component does not support printing or streaming.
 
+        if (verbose) printf("\nPRINT AND OUTPUT OPERATOR"
+                            "\n=========================\n");
+
+        if (verbose) printf(
+                 "\nThis component does not support printing or streaming.\n");
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
@@ -481,8 +497,8 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef Obj * T3;  // 'prev'
-        typedef Obj * T4;  // 'next'
+        typedef Obj * T1;  // 'prev'
+        typedef Obj * T2;  // 'next'
 
         if (verbose) printf("\nEstablish suitable attribute values.\n");
 
@@ -490,25 +506,25 @@ int main(int argc, char *argv[])
         // 'D' values: These are the default-constructed values.
         // -----------------------------------------------------
 
-        const T3 D3 = 0;    // 'prev'
-        const T4 D4 = 0;    // 'next'
+        const T1 D1 = 0;    // 'prev'
+        const T2 D2 = 0;    // 'next'
 
         // -------------------------------------------------------
         // 'A' values: Boundary values.
         // -------------------------------------------------------
 
-        const T3 A3 = PTR1;
-        const T4 A4 = PTR2;
+        const T1 A1 = PTR1;
+        const T2 A2 = PTR2;
 
         if (verbose) printf("\nCreate an object.\n");
 
-        Obj mX;  const Obj& X = gg(&mX, D3, D4);
+        Obj mX;  const Obj& X = gg(&mX, D1, D2);
 
         if (verbose) printf(
                      "\nVerify all basic accessors report expected values.\n");
         {
-            ASSERTV(D3, X.prev(), D3 == X.prev());
-            ASSERTV(D4, X.next(), D4 == X.next());
+            ASSERTV(D1, X.prev(), D1 == X.prev());
+            ASSERTV(D2, X.next(), D2 == X.next());
         }
 
         if (verbose) printf(
@@ -516,18 +532,18 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ Q(prev) }
         {
-            mX.setPrev(A3);
+            mX.setPrev(A1);
 
             const Obj *const prev = X.prev();
-            ASSERTV(A3, X.prev(), A3 == X.prev());
+            ASSERTV(A1, X.prev(), A1 == X.prev());
         }
 
         if (veryVerbose) { T_ Q(next) }
         {
-            mX.setNext(A4);
+            mX.setNext(A2);
 
             const Obj *const next = X.next();
-            ASSERTV(A4, X.next(), A4 == X.next());
+            ASSERTV(A2, X.next(), A2 == X.next());
         }
       } break;
       case 3: {
@@ -554,7 +570,7 @@ int main(int argc, char *argv[])
         //:   table described in P-1: (C-1..2)
         //:
         //:   1 Use the value constructor to create an object having the value
-        //:     'V' supplying all the arguments as 'const'. (C-2)
+        //:     'V' supplying all the arguments as 'const'.  (C-2)
         //:
         //:   2 Use the (as yet unproven) salient attribute accessors to verify
         //:     that all of the attributes of each object have their expected
@@ -651,18 +667,18 @@ int main(int argc, char *argv[])
 
         // 'D' values: These are the default-constructed values.
 
-        Obj *const  D3 = 0;          // 'prev'
-        Obj *const  D4 = 0;          // 'next'
+        Obj *const  D1 = 0;          // 'prev'
+        Obj *const  D2 = 0;          // 'next'
 
         // 'A' values.
 
-        Obj *const  A3 = (Obj *)0x08;
-        Obj *const  A4 = (Obj *)0x0c;
+        Obj *const  A1 = (Obj *)0x08;
+        Obj *const  A2 = (Obj *)0x0c;
 
         // 'B' values.
 
-        Obj *const  B3 = PTR1;
-        Obj *const  B4 = PTR2;
+        Obj *const  B1 = PTR1;
+        Obj *const  B2 = PTR2;
 
         if (verbose) printf(
                           "Create an object using the default constructor.\n");
@@ -675,11 +691,11 @@ int main(int argc, char *argv[])
         // Verify the object's attribute values.
         // -------------------------------------
 
-        mX.setPrev(D3);
-        mX.setNext(D4);
+        mX.setPrev(D1);
+        mX.setNext(D2);
 
-        ASSERTV(D3, X.prev(),  D3 == X.prev());
-        ASSERTV(D4, X.next(),  D4 == X.next());
+        ASSERTV(D1, X.prev(),  D1 == X.prev());
+        ASSERTV(D2, X.next(),  D2 == X.next());
 
         if (verbose) printf(
                     "Verify that each attribute is independently settable.\n");
@@ -688,34 +704,34 @@ int main(int argc, char *argv[])
         // 'prev'
         // -----------
         {
-            mX.setPrev(A3);
-            ASSERT(A3 == X.prev());
-            ASSERT(D4 == X.next());
+            mX.setPrev(A1);
+            ASSERT(A1 == X.prev());
+            ASSERT(D2 == X.next());
 
-            mX.setPrev(B3);
-            ASSERT(B3 == X.prev());
-            ASSERT(D4 == X.next());
+            mX.setPrev(B1);
+            ASSERT(B1 == X.prev());
+            ASSERT(D2 == X.next());
 
-            mX.setPrev(D3);
-            ASSERT(D3 == X.prev());
-            ASSERT(D4 == X.next());
+            mX.setPrev(D1);
+            ASSERT(D1 == X.prev());
+            ASSERT(D2 == X.next());
         }
 
         // ------------
         // 'next'
         // ------------
         {
-            mX.setNext(A4);
-            ASSERT(D3 == X.prev());
-            ASSERT(A4 == X.next());
+            mX.setNext(A2);
+            ASSERT(D1 == X.prev());
+            ASSERT(A2 == X.next());
 
-            mX.setNext(B4);
-            ASSERT(D3 == X.prev());
-            ASSERT(B4 == X.next());
+            mX.setNext(B2);
+            ASSERT(D1 == X.prev());
+            ASSERT(B2 == X.next());
 
-            mX.setNext(D4);
-            ASSERT(D3 == X.prev());
-            ASSERT(D4 == X.next());
+            mX.setNext(D2);
+            ASSERT(D1 == X.prev());
+            ASSERT(D2 == X.next());
         }
 
         if (verbose) printf("Corroborate attribute independence.\n");
@@ -724,27 +740,26 @@ int main(int argc, char *argv[])
             // Set all attributes to their 'A' values.
             // ---------------------------------------
 
-            mX.setPrev(A3);
-            mX.setNext(A4);
+            mX.setPrev(A1);
+            mX.setNext(A2);
 
-            ASSERT(A3 == X.prev());
-            ASSERT(A4 == X.next());
+            ASSERT(A1 == X.prev());
+            ASSERT(A2 == X.next());
 
 
             // ---------------------------------------
             // Set all attributes to their 'B' values.
             // ---------------------------------------
 
-            mX.setPrev(B3);
-            ASSERT(B3 == X.prev());
-            ASSERT(A4 == X.next());
+            mX.setPrev(B1);
+            ASSERT(B1 == X.prev());
+            ASSERT(A2 == X.next());
 
-            mX.setNext(B4);
-            ASSERT(B3 == X.prev());
-            ASSERT(B4 == X.next());
+            mX.setNext(B2);
+            ASSERT(B1 == X.prev());
+            ASSERT(B2 == X.next());
 
         }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -867,6 +882,16 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case is memory allocated from the default allocator.
+
+    ASSERTV(defaultAllocator.numBlocksTotal(),
+            0 == defaultAllocator.numBlocksTotal());
+
+    // CONCERN: In no case is memory allocated from the global allocator.
+
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);

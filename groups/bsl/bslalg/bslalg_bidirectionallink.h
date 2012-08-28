@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a basic link type for building doubly-linked lists. 
+//@PURPOSE: Provide a basic link type for building doubly-linked lists.
 //
 //@CLASSES:
 //   bslalg::BidirectionalLink : A node in a doubly-linked list
@@ -28,10 +28,16 @@ BSLS_IDENT("$Id: $")
 // maintains the "value" stored in that node.
 //
 //-----------------------------------------------------------------------------
-//..
 //
 ///Usage
 ///-----
+// This section illustrates intended usage of this component.
+//
+///Example 1: ...
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates ...
+//..
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -136,8 +142,8 @@ BidirectionalLink *BidirectionalLink::prev() const
     return d_prev_p;
 }
 
-} // close namespace BloombergLP::bslalg
-} // close namespace BloombergLP
+}  // close namespace BloombergLP::bslalg
+}  // close namespace BloombergLP
 
 #endif
 

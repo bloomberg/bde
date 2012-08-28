@@ -14,7 +14,7 @@ namespace BloombergLP
 namespace bslalg
 {
 
-}  // close namespace BloobmergLP::bslimp
+}  // close namespace BloombergLP::bslalg
 }  // close namespace BloombergLP
 // ---------------------------------------------------------------------------
 // NOTICE:
