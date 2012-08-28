@@ -4,6 +4,7 @@
 
 #include <bsls_platform.h>
 
+#include <algorithm>
 #include <cstddef>     // offsetof() macro
 #include <cstdlib>     // atoi()
 #include <cstring>
@@ -297,6 +298,8 @@ bool operator>(const string& lhs, const string& rhs)
 {
     return rhs < lhs;
 }
+
+const char *string::EMPTY_STRING = "";
 
     class Response {
 //..
