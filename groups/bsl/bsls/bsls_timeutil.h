@@ -39,22 +39,24 @@ BSLS_IDENT("$Id: $")
 // inconsistent speeds, with worst cases as slow as half the speed of actual
 // wall time.  This is known behavior of the underlying high-performance timer
 // function 'QueryPerformanceCounter', upon which the Windows implementation of
-// 'bsls::TimeUtil' relies.  Depending on the OS and machine configuration,
-// 'QueryPerformanceCounter' may be based on different underlying hardware
-// timers.
+// 'bsls::TimeUtil' relies.
 //
+///CPU Scaling
+/// -  -  -  -
 // The behavior of the timer on windows platforms depends on the interaction of
 // operating system, BIOS, and processor, and certain combinations of the three
 // (particularly older ones) are vulnerable to timer inaccuracy. For example,
 // frequently the 'QueryPerformanceCounter' function that 'TmeUtil' uses on
 // Windows will utilize the CPU's timestamp counter (TSC), and CPUs with speed
 // scaling mechanisms such as SpeedStep (frequently used for power management)
-// will generally see inconsistent clock speeds. However, newer processors
-// often provide an 'Invariant TSC' that solves this problem. Also versions of
-// Windows starting with Vista may internally handle the inconsistency by
-// automatically using a lower resolution, but accurate, counter on processors
-// that do not provide an 'Invariant TSC'.
+// will generally see the clock speed vary with the CPU frequency. However,
+// newer processors often provide an 'Invariant TSC' that solves this
+// problem. Also versions of Windows starting with Vista may internally handle
+// the inconsistency by automatically using a lower resolution, but accurate,
+// counter on processors that do not provide an 'Invariant TSC'.
 //
+///Multi-Core Issues
+/// -  -  -  -  -  -
 // In addition, on multi-core machines, each call to 'QueryPerformanceCounter'
 // may read the TSC from a different CPU.  The TSCs of the CPUs may be out of
 // sync, resulting in slightly inconsistent or even non-monotonic behavior.

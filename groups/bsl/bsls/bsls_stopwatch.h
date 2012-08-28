@@ -152,8 +152,8 @@ class Stopwatch {
         // Update the CPU times accumulated but this stopwatch.
 
     // PRIVATE ACCESSORS
-    void accumulatedTimesRaw(Types::Int64 *systemTime,
-                             Types::Int64 *userTime,
+    void accumulatedTimesRaw(Types::Int64               *systemTime,
+                             Types::Int64               *userTime,
                              TimeUtil::OpaqueNativeTime *wallTime) const;
         // Load into the specified 'systemTime', 'userTime', and 'wallTime' the
         // values of the system time, user time, and wall time (in
@@ -251,7 +251,7 @@ Types::Int64 Stopwatch::elapsedWallTime(
                                   TimeUtil::OpaqueNativeTime rawWallTime) const
 {
     return TimeUtil::convertRawTime(rawWallTime)
-           - TimeUtil::convertRawTime(d_startWallTime);
+         - TimeUtil::convertRawTime(d_startWallTime);
 }
 
 

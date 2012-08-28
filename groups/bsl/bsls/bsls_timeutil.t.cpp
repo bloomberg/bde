@@ -214,14 +214,13 @@ double my_Timer::elapsedSystemTime()
 //: o Generator: Generate a set of interesting sample conversions from clock
 //:   ticks to nanoseconds for a variety of frequencies.
 //:
-//:   The frequencies
-//:   sampled include hardcoded frequencies typically seen on Windows machines,
-//:   the highest possible 32-bit frequency, and all of the powers of a given
-//:   base that are valid 32-bit numbers.  By choosing a base that is
-//:   relatively prime to 1 billion and (1 << 32), we can get representative
-//:   frequencies that cover the 32-bit range well and that consistently leave
-//:   a remainder when calculating the constant factors used in the Windows
-//:   implementation of 'convertRawTimer'.
+//:   The frequencies sampled include hardcoded frequencies typically seen on
+//:   Windows machines, the highest possible 32-bit frequency, and all of the
+//:   powers of a given base that are valid 32-bit numbers.  By choosing a base
+//:   that is relatively prime to 1 billion and (1 << 32), we can get
+//:   representative frequencies that cover the 32-bit range well and that
+//:   consistently leave a remainder when calculating the constant factors used
+//:   in the Windows implementation of 'convertRawTimer'.
 //:
 //:   For each frequency, we calculate nanoseconds based on the following
 //:   values:
@@ -231,32 +230,32 @@ double my_Timer::elapsedSystemTime()
 //:       nanoseconds that can be represented for this frequency.
 //:
 //:   Additionally, a full range of tick counts that are powers of a given base
-//:   can be generated, but they are not included in the current test data.
+//:   are generated.
 //:
 //:   Any generated values that include frequencies, tick counts or nanosecond
 //:   values that cannot be represented by 'bsls::Types::Int64' are discarded.
 //..
 //  #!/usr/bin/env python
-//
+//  
 //  class Transform:
 //      """Provide a converter to transform a number of clock ticks and a
 //      frequency to a time expressed in nanoseconds"""
-//
+//  
 //      billion = long(1000 * 1000 * 1000)
 //      frequency = long(0)
 //      initialTime = long(0)
-//
+//  
 //      def __init__(self, frequency, initialTime):
 //          self.frequency = frequency
 //          self.initialTime = initialTime
-//
+//  
 //      def nanoseconds(self, ticks):
 //          return ((ticks - self.initialTime) * self.billion) / self.frequency
-//
+//  
 //      def ticks(self, nanoseconds):
 //          return (nanoseconds * self.frequency) / self.billion \
 //              + self.initialTime
-//
+//  
 //  class Generator:
 //      """Provide a driver to generate nanosecond conversions of a number of
 //      frequencies and clock tick values"""
@@ -268,54 +267,57 @@ double my_Timer::elapsedSystemTime()
 //          ,3579545
 //      ]
 //      verbose = True
-//
+//  
 //      def __init__(self, base, verbose):
 //          self.verbose = verbose
-//
+//  
 //          count = 0
 //          limit = 1 << 32
 //          n = base
-//
+//  
 //          while n < limit:
+//              if n < 1000:
+//                  n *= base
+//                  continue
 //              self.frequencies.append(n)
 //              #self.frequencies.append(n + 1)
 //              #self.frequencies.append(n - 1)
 //              ++count
 //              n *= base
-//
+//  
 //      def generateTicks(self, base, initialTime):
 //          result = []
 //          limit = self.max64
-//
+//  
 //          n = base
 //          while n < limit:
 //              result.append(n)
 //              n *= base
-//
+//  
 //          return result
-//
+//  
 //      def maxTicks(self, frequency, initialTime):
 //          maxNSeconds = self.max64
-//
+//  
 //          return min((maxNSeconds * frequency) / self.billion - initialTime,
 //                     self.max64)
-//
+//  
 //      def report(self, frequency, ticks, initialTime):
 //          if initialTime < ticks:
 //              t = Transform(frequency, initialTime)
-//
+//  
 //              nanoseconds = t.nanoseconds(ticks)
 //              if (nanoseconds != 0 and nanoseconds <= self.max64):
 //                  if self.verbose:
 //                      print 'Init: f=%d, t=%d, i=%d' \
 //                          % (frequency, ticks, initialTime)
-//
+//  
 //                      print 'Ticks: %d' % (t.ticks(nanoseconds))
 //                      print 'Nanoseconds: %d' % (nanoseconds)
-//
+//  
 //                  print ',{ L_, %d, %d, %d, %d }' \
 //                      % (ticks, initialTime, frequency, nanoseconds)
-//
+//  
 //                  if self.verbose:
 //                      print
 //              elif self.verbose:
@@ -328,7 +330,7 @@ double my_Timer::elapsedSystemTime()
 //          elif self.verbose:
 //              print 'SKIP: bad init f=%d, t=%d, i=%d' \
 //                  % (frequency, ticks, initialTime)
-//
+//  
 //      def generate(self):
 //          for frequency in self.frequencies:
 //              initialTime = ((frequency) * 7) / 5
@@ -336,31 +338,31 @@ double my_Timer::elapsedSystemTime()
 //              print '// Frequency: %d, Initial Time: %d' \
 //                  % (frequency, initialTime)
 //              self.report(frequency, initialTime + 1, initialTime)
-//              self.report(frequency,
-//                          (1 << 32) - 2 + initialTime,
-//                          initialTime)
+//              #self.report(frequency,
+//              #            (1 << 32) - 2 + initialTime,
+//              #            initialTime)
 //              self.report(frequency,
 //                          (1 << 32) - 1 + initialTime,
 //                          initialTime)
 //              self.report(frequency,
 //                          (1 << 32) + initialTime,
 //                          initialTime)
-//              self.report(frequency,
-//                          (1 << 32) + 1 + initialTime,
-//                          initialTime)
-//              self.report(frequency,
-//                          self.maxTicks(frequency, initialTime) - 1,
-//                          initialTime)
+//              #self.report(frequency,
+//              #            (1 << 32) + 1 + initialTime,
+//              #            initialTime)
+//              #self.report(frequency,
+//              #            self.maxTicks(frequency, initialTime) - 1,
+//              #            initialTime)
 //              self.report(frequency,
 //                          self.maxTicks(frequency, initialTime),
 //                          initialTime)
-//
+//  
 //              #for baseValue in [2, 5, 7]:
-//              for baseValue in [5]:
+//              for baseValue in [7]:
 //                  for ticks in self.generateTicks(baseValue, initialTime):
 //                      self.report(frequency, ticks, initialTime)
-//
-//  g = Generator(3, False)
+//  
+//  g = Generator(7, False)
 //  g.generate()
 //..
 
@@ -369,20 +371,19 @@ double my_Timer::elapsedSystemTime()
 bsls::Types::Int64 fakeConvertRawTime(bsls::Types::Int64 rawTime,
                                       bsls::Types::Int64 initialTime,
                                       bsls::Types::Int64 timerFrequency)
+// Convert the specified raw interval ('initialTime', 'rawTime'] to a value in
+// nanoseconds, by dividing the number of clock ticks in the raw interval by
+// the specified 'timerFrequency', and return the result of the conversion.
+// Note that this method is thread-safe only if 'initialize' has been called
+// before.
+
+// This function is copied from 'WindowsTimerUtil::convertRawTime' in
+// bsls_timeutil.cpp.  It is used as a stand-in for that method by which we can
+// check the accuracy of the calculations in 'WindowsTimerUtil::convertRawTime'
+// against known values.  Other tests will compare the behavior of this
+// function to that of 'WindowsTimerUtil::convertRawTime' to confirm that the
+// they both behave the same.
 {
-    // Convert the specified 'rawTime' to a value in nanoseconds,
-    // referenced to an arbitrary but fixed origin, and return the result
-    // of the conversion.  Note that this method is thread-safe only if
-    // 'initialize' has been called before.
-
-    // This function is copied from 'WindowsTimerUtil::convertRawTime' in
-    // bsls_timeutil.cpp.  It is used as a stand-in for that method by which we
-    // can check the accuracy of the calculations in
-    // 'WindowsTimerUtil::convertRawTime' against known values.  Other tests
-    // will compare the behavior of this function to that of
-    // 'WindowsTimerUtil::convertRawTime' to confirm that the they both behave
-    // the same.
-
     const bsls::Types::Int64 K = 1000;
     const bsls::Types::Int64 G = K * K * K;
     const bsls::Types::Int64 HIGH_DWORD_MULTIPLIER = G * (1LL << 32);
@@ -460,16 +461,15 @@ bsls::Types::Int64 getTestPeriod(const bsls::Types::Int64 frequency)
 void compareRealToFakeConvertRawTime(const TU::OpaqueNativeTime& startTime,
                                      const bsls::Types::Int64& offset,
                                      const bsls::Types::Int64& frequency)
+// Calculate the nanosecond length of an interval of the specified 'offset'
+// clock ticks on a timer with the specified 'frequency', using both
+// 'TU::convertRawTime' and 'fakeConvertRawTime', where 'fakeConvertRawTime'
+// uses the specified 'startTime' for the initial time of the interval and
+// 'TU::convertRawTime' uses its own internal initial time.  Assert that both
+// functions calculate the same length.  Note that because the two functions
+// base their calculations on different initial times, their results may differ
+// by at most 1 due to rounding error.
 {
-    // Calculate the nanosecond length of an interval of the specified 'offset'
-    // clock ticks on a timer with the specified 'frequency', using both
-    // 'TU::convertRawTime' and 'fakeConvertRawTime', where
-    // 'fakeConvertRawTime' uses the specified 'startTime' for the initial time
-    // of the interval and 'TU::convertRawTime' uses its own internal initial
-    // time.  Assert that both functions calculate the same length.  Note that
-    // because the two functions base their calculations on different initial
-    // times, their results may differ by at most 1 due to rounding error.
-
     TU::OpaqueNativeTime endTime;
     endTime.d_opaque = startTime.d_opaque + offset;
     const bsls::Types::Int64 realStart

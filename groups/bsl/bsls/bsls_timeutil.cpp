@@ -368,9 +368,8 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
 
         rawTime -= initialTime;
 
-        // Original outline for improved-precision nanosecond calculation
-        // with integer arithmetic, provided to make the final implementation
-        // easier to understand:
+        // Outline for improved-precision nanosecond calculation with integer
+        // arithmetic:
 
         // Treat the high-dword and low-dword contributions to the counter as
         // separate 64-bit values.  Since all known timerFrequency values fit
@@ -389,22 +388,14 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
         // the calculation that involve frequency and constants, and caching
         // the results at initialization time.
 
-        return (
-                // Divide high part by frequency
-                static_cast<bsls::Types::Int64>(rawTime >> 32)
-                    * highPartDivisionFactor
-                +
-                (
-                 // Restore remainder of high part division
-                 static_cast<bsls::Types::Int64>(rawTime >> 32)
-                    * highPartRemainderFactor
-                 +
-                 // Calculate low part contribution
-                 static_cast<bsls::Types::Uint64>(rawTime & LOW_MASK)
-                    * G
-                )
-                    / timerFrequency
-                );                                                    // RETURN
+        const bsls::Types::Int64 high32Bits = 
+            static_cast<bsls::Types::Int64>(rawTime >> 32);
+        const bsls::Types::Int64 low32Bits  = 
+            static_cast<bsls::Types::Uint64> (rawTime & LOW_MASK);
+        
+        return high32Bits * highPartDivisionFactor + 
+             ((high32Bits * highPartRemainderFactor + low32Bits * G) 
+                                                   / timerFrequency);  // RETURN
 
         // Note that this code runs as fast as the original implementation.  It
         // works for counters representing time values up to 292 years (the
