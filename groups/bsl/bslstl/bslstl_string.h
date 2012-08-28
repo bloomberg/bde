@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Herve Bronnimann (hbronnim), Alexei Zakharov (azakhar1)
 //
-//@DESCRIPTION: This component defines a single class template 'string',
+//@DESCRIPTION: This component defines a single class template 'basic_string',
 // implementing the standard container that holds a sequence of characters.
 //
 // A map meets the requirements of an associative container with bidirectional
@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
-// In this example, we will show how to create and use the 'string' class.
+// In this example, we will show how to create and use the 'string' typedef.
 //
 // First, we will default-construct a 'string' object:
 //..
@@ -107,12 +107,13 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Next, we show how to get a reference providing modifiable access to the
-// null-terminated string literal stored by 's' using the 'c_str' function.
-// Note that the returned string literal can be passed to various standard
-// functions expecting a null-terminated string:
+// null-terminated string literal stored by a 'string' object using the 'c_str'
+// function.  Note that the returned string literal can be passed to various
+// standard functions expecting a null-terminated string:
 //..
-//  const char *cs = s.c_str();
-//  assert(bsl::strlen(cs) == s.size());
+//  const bsl::string  v = "Another string";
+//  const char        *cs = v.c_str();
+//  assert(bsl::strlen(cs) == v.size());
 //..
 // Then, we construct two 'string' objects, 'x' and 'y', using a user-specified
 // allocator:
@@ -129,6 +130,9 @@ BSLS_IDENT("$Id: $")
 //  assert(SHORT_STRING == x);
 //  assert(LONG_STRING  == y);
 //..
+// Notice that, no memory was allocated from the allocator for object 'x'
+// because of the short-string optimization used in the 'string' type.
+//
 // Finally, we can track memory usage of 'x' and 'y' using 'allocator1' and
 // 'allocator2' and check that memory was allocated only by 'allocator2':
 //..
@@ -205,8 +209,8 @@ BSLS_IDENT("$Id: $")
 // 'Employee'.  This allows the user to control how memory is allocated by
 // 'Employee' objects.  Also note that the type of the 'firstName' and
 // 'lastName' arguments of the value constructor is 'bslstl::StringRef'.  The
-// 'bslstl::StringRef' allowing specifying a 'string' or a 'const char *' to
-// represent a string value and for the sake of brevity its implementation is
+// 'bslstl::StringRef' allows specifying a 'string' or a 'const char *' to
+// represent a string value.  For the sake of brevity its implementation is
 // not explored here.
 //
 // Then, declare the remaining methods of the class:
@@ -257,7 +261,7 @@ BSLS_IDENT("$Id: $")
 //      // not have the same value if any of the corresponding values of their
 //      // 'firstName', 'lastName', or 'id' attributes are not the same.
 //..
-// Next, we define the implementations methods of the 'Employee' class:
+// Then, we implement the various methods of the 'Employee' class:
 //..
 //  // CREATORS
 //  inline
@@ -290,8 +294,8 @@ BSLS_IDENT("$Id: $")
 //  {
 //  }
 //..
-// Notice that the provided 'basicAllocator' parameter can simply be passed as
-// an argument to the constructor of 'bsl::string'.
+// Notice that the 'basicAllocator' parameter can simply be passed as an
+// argument to the constructor of 'bsl::string'.
 //
 // Now, we implement the remaining manipulators of the 'Employee' class:
 //..
@@ -367,11 +371,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 3: A stream text replacement filter
 ///- - - - - - - - - - - - - - - - - - - - - -
-// In this example, we will define a function that reads data from an input
-// stream, replaces all occurrences of a specified text fragment with another
-// text fragment, and writes the resulting text to an output stream.
+// In this example, we will utilize the 'string' type and its associated
+// utility functions to define a function that reads data from an input stream,
+// replaces all occurrences of a specified text fragment with another text
+// fragment, and writes the resulting text to an output stream.
 //
-// First, we define the signature of the function:
+// First, we define the signature of the function, 'replace':
 //..
 //  void replace(bsl::ostream&      outputStream,
 //               bsl::istream&      inputStream,
@@ -400,20 +405,20 @@ BSLS_IDENT("$Id: $")
 //
 //      do {
 //..
-// Next, we use the 'find' function to search if the contents of 'line' include
+// Next, we use the 'find' function to search the contents of 'line' for
 // characters matching the contents of 'oldString':
 //..
 //          int pos = line.find(oldString);
 //          while (bsl::string::npos != pos) {
 //..
-// Now, we replace the contents of 'line' matching 'oldString' with the
-// contents of 'newString':
+// Now, we use the 'replace' method to modify the contents of 'line' matching
+// 'oldString' to 'newString':
 //..
 //              line.replace(pos, oldStringSize, newString);
 //              pos = line.find(oldString, pos + newStringSize);
 //..
-// Notice that we provide the starting position from where to start searching
-// to this call of 'find'.
+// Notice that we provide 'find' with the starting position from which to start
+// searching.
 //..
 //          }
 //..
