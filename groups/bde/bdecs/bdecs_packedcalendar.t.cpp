@@ -1525,7 +1525,10 @@ DEFINE_TEST_CASE(21) {
                 }
 
                 // Verifying the new weekend days in 'Z'.
-                for (bdet_Date d = Z.firstDate(); d <= Z.lastDate(); ++d) {
+
+                bdet_Date d = Z.firstDate();
+                bool endFlag = false;
+                while (d <= Z.lastDate() && !endFlag) {
                     bool xWeekendDayFlag = X.isWeekendDay(d);
                     bool yWeekendDayFlag = Y.isWeekendDay(d);
                     bool zWeekendDayFlag = Z.isWeekendDay(d);
@@ -1534,6 +1537,13 @@ DEFINE_TEST_CASE(21) {
                                  yWeekendDayFlag,
                                  zWeekendDayFlag ==
                                          (xWeekendDayFlag && yWeekendDayFlag));
+
+                    if (d < Z.lastDate()) {
+                        ++d;
+                    }
+                    else {
+                        endFlag = true;
+                    }
                 }
 
                 // Verifying the new holidays in 'Z'.
@@ -1739,26 +1749,49 @@ DEFINE_TEST_CASE(21) {
                 }
 
                 // Verifying the new weekend days in 'Z'.
-                for (bdet_Date d = X.firstDate(); d <= X.lastDate(); ++d) {
-                    bool xWeekendDayFlag = X.isWeekendDay(d);
-                    bool yWeekendDayFlag = Y.isWeekendDay(d);
-                    bool zWeekendDayFlag = Z.isWeekendDay(d);
-                    LOOP3_ASSERT(zWeekendDayFlag,
-                                 xWeekendDayFlag,
-                                 yWeekendDayFlag,
-                                 zWeekendDayFlag ==
-                                         (xWeekendDayFlag && yWeekendDayFlag));
+                {
+                    bdet_Date d = X.firstDate();
+                    bool endFlag = false;
+
+                    while (d <= X.lastDate() && !endFlag) {
+                        bool xWeekendDayFlag = X.isWeekendDay(d);
+                        bool yWeekendDayFlag = Y.isWeekendDay(d);
+                        bool zWeekendDayFlag = Z.isWeekendDay(d);
+                        LOOP3_ASSERT(zWeekendDayFlag,
+                                     xWeekendDayFlag,
+                                     yWeekendDayFlag,
+                                     zWeekendDayFlag ==
+                                     (xWeekendDayFlag && yWeekendDayFlag));
+
+                        if (d < X.lastDate()) {
+                            ++d;
+                        }
+                        else {
+                            endFlag = true;
+                        }
+                    }
                 }
 
-                for (bdet_Date d = Y.firstDate(); d <= Y.lastDate(); ++d) {
-                    bool xWeekendDayFlag = X.isWeekendDay(d);
-                    bool yWeekendDayFlag = Y.isWeekendDay(d);
-                    bool zWeekendDayFlag = Z.isWeekendDay(d);
-                    LOOP3_ASSERT(zWeekendDayFlag,
-                                 xWeekendDayFlag,
-                                 yWeekendDayFlag,
-                                 zWeekendDayFlag ==
-                                         (xWeekendDayFlag && yWeekendDayFlag));
+                {
+                    bdet_Date d = Y.firstDate();
+                    bool endFlag = false;
+                    while (d <= Y.lastDate() && !endFlag) {
+                        bool xWeekendDayFlag = X.isWeekendDay(d);
+                        bool yWeekendDayFlag = Y.isWeekendDay(d);
+                        bool zWeekendDayFlag = Z.isWeekendDay(d);
+                        LOOP3_ASSERT(zWeekendDayFlag,
+                                     xWeekendDayFlag,
+                                     yWeekendDayFlag,
+                                     zWeekendDayFlag ==
+                                     (xWeekendDayFlag && yWeekendDayFlag));
+
+                        if (d < Y.lastDate()) {
+                            ++d;
+                        }
+                        else {
+                            endFlag = true;
+                        }
+                    }
                 }
 
                 // Verifying the new holidays in 'Z'.
@@ -2028,7 +2061,9 @@ DEFINE_TEST_CASE(20) {
 
                 // Verifying the new weekend days in 'Z'.
 
-                for (bdet_Date d = Z.firstDate(); d <= Z.lastDate(); ++d) {
+                bool endFlag = false;
+                bdet_Date d = Z.firstDate();
+                while (d <= Z.lastDate() && !endFlag) {
                     bool xWeekendDayFlag = X.isWeekendDay(d);
                     bool yWeekendDayFlag = Y.isWeekendDay(d);
                     bool zWeekendDayFlag = Z.isWeekendDay(d);
@@ -2037,6 +2072,13 @@ DEFINE_TEST_CASE(20) {
                                  yWeekendDayFlag,
                                  zWeekendDayFlag ==
                                          (xWeekendDayFlag || yWeekendDayFlag));
+
+                    if (d < Z.lastDate()) {
+                        ++d;
+                    }
+                    else {
+                        endFlag = true;
+                    }
                 }
 
                 // Verifying the new holidays in 'Z'.
@@ -2219,26 +2261,49 @@ DEFINE_TEST_CASE(20) {
 
                 // Verifying the new weekend days in 'Z'.
 
-                for (bdet_Date d = X.firstDate(); d <= X.lastDate(); ++d) {
-                    bool xWeekendDayFlag = X.isWeekendDay(d);
-                    bool yWeekendDayFlag = Y.isWeekendDay(d);
-                    bool zWeekendDayFlag = Z.isWeekendDay(d);
-                    LOOP3_ASSERT(zWeekendDayFlag,
-                                 xWeekendDayFlag,
-                                 yWeekendDayFlag,
-                                 zWeekendDayFlag ==
-                                         (xWeekendDayFlag || yWeekendDayFlag));
+
+                {
+                    bool endFlag = false;
+                    bdet_Date d = X.firstDate();
+                    while (d <= X.lastDate() && !endFlag) {
+                        bool xWeekendDayFlag = X.isWeekendDay(d);
+                        bool yWeekendDayFlag = Y.isWeekendDay(d);
+                        bool zWeekendDayFlag = Z.isWeekendDay(d);
+                        LOOP3_ASSERT(zWeekendDayFlag,
+                                     xWeekendDayFlag,
+                                     yWeekendDayFlag,
+                                     zWeekendDayFlag ==
+                                     (xWeekendDayFlag || yWeekendDayFlag));
+
+                        if (d < X.lastDate()) {
+                            ++d;
+                        }
+                        else {
+                            endFlag = true;
+                        }
+                    }
                 }
 
-                for (bdet_Date d = Y.firstDate(); d <= Y.lastDate(); ++d) {
-                    bool xWeekendDayFlag = X.isWeekendDay(d);
-                    bool yWeekendDayFlag = Y.isWeekendDay(d);
-                    bool zWeekendDayFlag = Z.isWeekendDay(d);
-                    LOOP6_ASSERT(X, Y, Z, zWeekendDayFlag,
-                                 xWeekendDayFlag,
-                                 yWeekendDayFlag,
-                                 zWeekendDayFlag ==
-                                         (xWeekendDayFlag || yWeekendDayFlag));
+                {
+                    bool endFlag = false;
+                    bdet_Date d = Y.firstDate();
+                    while (d <= Y.lastDate() && !endFlag) {
+                        bool xWeekendDayFlag = X.isWeekendDay(d);
+                        bool yWeekendDayFlag = Y.isWeekendDay(d);
+                        bool zWeekendDayFlag = Z.isWeekendDay(d);
+                        LOOP6_ASSERT(X, Y, Z, zWeekendDayFlag,
+                                     xWeekendDayFlag,
+                                     yWeekendDayFlag,
+                                     zWeekendDayFlag ==
+                                     (xWeekendDayFlag || yWeekendDayFlag));
+
+                        if (d < Y.lastDate()) {
+                            ++d;
+                        }
+                        else {
+                            endFlag = true;
+                        }
+                    }
                 }
 
                 // Verifying the new holidays in 'Z'.
@@ -3704,9 +3769,9 @@ DEFINE_TEST_CASE(15) {
                 {
                     int curTransI = 0;
                     int numWeekendDays = 0;
-                    for (bdet_Date date = FIRST_DATE;
-                         date <= LAST_DATE;
-                         ++date) {
+                    bdet_Date date = FIRST_DATE;
+                    bool endFlag = false;
+                    while(date <= LAST_DATE && !endFlag) {
                         while (curTransI < transitions.size() &&
                                transitions[curTransI].first <= date) {
                             ++curTransI;
@@ -3732,6 +3797,15 @@ DEFINE_TEST_CASE(15) {
                         LOOP2_ASSERT(isWeekend,
                                      date,
                                      isWeekend != X.isBusinessDay(date));
+
+                        // Avoid going over LAST_DATE if it is 9999/12/31.
+
+                        if (date < LAST_DATE) {
+                            ++date;
+                        }
+                        else {
+                            endFlag = true;
+                        }
                     }
 
                     LOOP_ASSERT(numWeekendDays,

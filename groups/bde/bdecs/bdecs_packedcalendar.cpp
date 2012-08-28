@@ -1231,11 +1231,9 @@ bsl::ostream& bdecs_PackedCalendar::print(bsl::ostream& stream,
 
 int bdecs_PackedCalendar::numWeekendDaysInRange() const
 {
-    if (d_weekendDaysTransitions.empty()) {
+    if (d_weekendDaysTransitions.empty() || d_firstDate > d_lastDate) {
         return 0;
     }
-
-    BSLS_ASSERT_SAFE(d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
 
     // Find the first transition that has a date less than or equal to the
     // first date of calendar.
@@ -1275,9 +1273,14 @@ int bdecs_PackedCalendar::numWeekendDaysInRange() const
                                                    lastDate,
                                                    weekendDays);
 
+        if (itr == d_weekendDaysTransitions.end() )
+        {
+            break;
+        }
+
         firstDate = itr->first;
-    } while (itr != d_weekendDaysTransitions.end() &&
-                                                     itr->first <= d_lastDate);
+
+    } while (firstDate <= d_lastDate);
 
     return numWeekendDays;
 }

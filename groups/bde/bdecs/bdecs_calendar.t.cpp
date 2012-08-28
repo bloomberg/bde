@@ -1130,7 +1130,12 @@ int main(int argc, char *argv[])
                 cout << "Modifying calendar adding a unique holiday"
                      << endl;
 
-            mX.addHoliday(X.lastDate() + 2);
+            if (X.lastDate() < bdet_Date(9999, 12, 31)) {
+                mX.addHoliday(X.lastDate() + 2);
+            }
+            else {
+                mX.addHoliday(X.lastDate());
+            }
 
             // Need too rebuild a calendar from the modified reference.
 
@@ -2508,8 +2513,11 @@ int main(int argc, char *argv[])
 
             Obj X(g(SPEC), &testAllocator);
 
-            for (bdet_Date tempDate = X.firstDate(); tempDate <= X.lastDate();
-                                                                  ++tempDate) {
+
+            bdet_Date tempDate = X.firstDate();
+            bool endFlag = false;
+
+            while (tempDate <= X.lastDate() && !endFlag) {
                 bool weekendDayFlag = X.isWeekendDay(tempDate);
                 bool holidayFlag = X.isHoliday(tempDate);
 
@@ -2524,6 +2532,13 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(weekendDayFlag, holidayFlag, nonBusinessDayFlag,
                              nonBusinessDayFlag == weekendDayFlag ||
                                                                   holidayFlag);
+
+                if (tempDate < X.lastDate()) {
+                    ++tempDate;
+                }
+                else {
+                    endFlag = true;
+                }
             }
         }
 

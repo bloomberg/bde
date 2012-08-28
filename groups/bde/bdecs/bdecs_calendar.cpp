@@ -128,8 +128,6 @@ bdecs_Calendar::~bdecs_Calendar()
     BSLS_ASSERT(d_packedCalendar.length() == d_nonBusinessDays.length());
     BSLS_ASSERT(d_packedCalendar.numNonBusinessDays() ==
                                                   d_nonBusinessDays.numSet1());
-
-    BSLS_ASSERT_SAFE(isCacheSynchronized());
 }
 
 // MANIPULATORS
