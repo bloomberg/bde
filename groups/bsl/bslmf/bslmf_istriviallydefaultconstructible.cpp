@@ -1,6 +1,6 @@
-// bslmf_hastrivialdefaultconstructor.cpp                  -*-C++-*-
+// bslmf_istriviallydefaultconstructible.cpp                          -*-C++-*-
 
-#include <bslmf_hastrivialdefaultconstructor.h>
+#include <bslmf_istriviallydefaultconstructible.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

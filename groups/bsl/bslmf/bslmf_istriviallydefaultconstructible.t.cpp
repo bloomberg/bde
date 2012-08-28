@@ -1,6 +1,6 @@
-// bslmf_hastrivialdefaultconstructor.t.cpp                  -*-C++-*-
+// bslmf_istriviallydefaultconstructible.t.cpp                        -*-C++-*-
 
-#include "bslmf_hastrivialdefaultconstructor.h"
+#include "bslmf_istriviallydefaultconstructible.h"
 
 #include <new>
 #include <cstdio>

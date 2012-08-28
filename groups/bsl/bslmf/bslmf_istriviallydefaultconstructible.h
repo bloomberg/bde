@@ -1,6 +1,6 @@
-// bslmf_hastrivialdefaultconstructor.h                  -*-C++-*-
-#ifndef INCLUDED_BSLMF_HASTRIVIALDEFAULTCONSTRUCTOR
-#define INCLUDED_BSLMF_HASTRIVIALDEFAULTCONSTRUCTOR
+// bslmf_istriviallydefaultconstructible.h                            -*-C++-*-
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#define INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>

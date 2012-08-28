@@ -26,8 +26,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_HASTRIVIALDEFAULTCONSTRUCTOR
-#include <bslmf_hastrivialdefaultconstructor.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
 namespace BloombergLP {
