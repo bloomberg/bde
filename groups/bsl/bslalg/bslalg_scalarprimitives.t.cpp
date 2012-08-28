@@ -271,14 +271,15 @@ int my_ClassFussy::assignmentInvocations            = 0;
 int my_ClassFussy::destructorInvocations            = 0;
 
 // TRAITS
+namespace bsl {
+template <> struct is_trivially_copyable<my_ClassFussy> : true_type {};
+}
+
 namespace BloombergLP {
-    namespace bslmf {
-        template <>
-        struct HasTrivialDefaultConstructor<my_ClassFussy> : true_type { };
-        template <>
-        struct IsBitwiseCopyable<my_ClassFussy> : true_type { };
-    } // close namespace bslmf
-}  // close enterprise namespace
+namespace bslmf {
+template <> struct HasTrivialDefaultConstructor<my_ClassFussy> : true_type {};
+}
+}
 
                                  // =========
                                  // my_Class4

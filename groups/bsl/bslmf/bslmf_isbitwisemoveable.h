@@ -96,6 +96,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_detectnestedtrait.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECVQ
+#include <bslmf_removecvq.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
@@ -106,11 +110,10 @@ namespace bslmf {
 
 template <class TYPE>
 struct IsBitwiseMoveable :
-    integer_constant<bool,
-                     IsBitwiseCopyable<TYPE>::value
-                  || IsFundamental<TYPE>::value
-                  || IsEnum<TYPE>::value
-                  || DetectNestedTrait<TYPE, IsBitwiseMoveable>::value>
+    integer_constant<
+        bool,
+        bsl::is_trivially_copyable<typename bsl::remove_cv<TYPE>::type>::value
+        || DetectNestedTrait<TYPE, IsBitwiseMoveable>::value>
 {
     // Trait metafunction that determines whether the specified parameter
     // 'TYPE' is bit-wise moveable.  If 'IsBitwiseMoveable<TYPE>' is derived
@@ -118,34 +121,6 @@ struct IsBitwiseMoveable :
     // moveability cannot be inferred for 'TYPE'.  This trait can be
     // associated with a bit-wise moveable user-defined class by specializing
     // this class or by using the 'BSLMF_DECLARE_NESTED_TRAIT' macro.
-};
-
-template <class TYPE>
-struct IsBitwiseMoveable<const TYPE> : IsBitwiseMoveable<TYPE>::type
-{
-    // Specialization that associates the same trait with 'const TYPE' as with
-    // unqualified 'TYPE'.
-};
-
-template <class TYPE>
-struct IsBitwiseMoveable<volatile TYPE> : IsBitwiseMoveable<TYPE>::type
-{
-    // Specialization that associates the same trait with 'volatile TYPE' as
-    // with unqualified 'TYPE'.
-};
-
-template <class TYPE>
-struct IsBitwiseMoveable<const volatile TYPE> : IsBitwiseMoveable<TYPE>::type
-{
-    // Specialization that associates the same trait with 'const volatile
-    // TYPE' as with unqualified 'TYPE'.
-};
-
-template <class TYPE>
-struct IsBitwiseMoveable<TYPE*> : true_type
-{
-    // Specialization of that associates the 'IsBitwiseMoveable' trait with
-    // all pointer types.
 };
 
 template <class TYPE>

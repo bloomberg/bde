@@ -465,18 +465,24 @@ template <> struct UsesBslmaAllocator<my_MoveAbandonBslma> : bsl::true_type {};
 
 struct my_CopyTrivial {};
 
+namespace bsl {
+template <> struct is_trivially_copyable<my_CopyTrivial> : bsl::true_type {};
+}
+
 namespace BloombergLP {
 namespace bslmf {
-template <> struct IsBitwiseCopyable<my_CopyTrivial> : bsl::true_type {};
 template <> struct HasTrivialDefaultConstructor<my_CopyTrivial> : bsl::true_type {};
 }
 }
 
 struct my_EqualityTrivial {};
 
+namespace bsl {
+template <> struct is_trivially_copyable<my_EqualityTrivial> : bsl::true_type {};
+}
+
 namespace BloombergLP {
 namespace bslmf {
-template <> struct IsBitwiseCopyable<my_EqualityTrivial> : bsl::true_type {};
 template <> struct IsBitwiseEqualityComparable<my_EqualityTrivial> : bsl::true_type {};
 template <> struct HasTrivialDefaultConstructor<my_EqualityTrivial> : bsl::true_type {};
 }

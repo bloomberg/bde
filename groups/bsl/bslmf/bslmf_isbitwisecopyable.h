@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a primitive type trait for bit-wise copyable classes.
 //
 //@CLASSES:
-//  bslmf::IsBitwiseCopyable<TYPE>: bit-wise copyable trait metafunction
+//  bsl::is_trivially_copyable<TYPE>: bit-wise copyable trait metafunction
 //
 //@SEE_ALSO:
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION:This component provides a single trait metafunction,
-// 'bslmf::IsBitwiseCopyable<TYPE>', which allows generic code to determine
+// 'bsl::is_trivially_copyable<TYPE>', which allows generic code to determine
 // whether 'TYPE' can be destructively moved using 'memcpy'.  Given a pointer,
 // 'p1', to an object of 'TYPE', and a pointer 'p2' of the same type pointing
 // to allocated but uninitialized storage, a destructive move from 'p1' to
@@ -31,8 +31,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  std::memcpy(p2, p1, sizeof(TYPE));
 //..
-// If 'IsBitwiseCopyable<TYPE>::value' inherits from 'true_type' for a given
-// 'TYPE', then a generic algorithm can infer that 'TYPE' is bit-wise
+// If 'bsl::is_trivially_copyable<TYPE>::value' inherits from 'true_type' for a
+// given 'TYPE', then a generic algorithm can infer that 'TYPE' is bit-wise
 // Copyable.
 //
 // This trait is used by various components for providing optimizations for
@@ -40,8 +40,8 @@ BSLS_IDENT("$Id: $")
 // for a single object but for an array of such types, as a loop of
 // Copy/destroy operations can be replaced by a single call to 'memcpy'.
 //
-// 'IsBitwiseCopyable<TYPE>' will inherit from 'true_type' if 'TYPE' is a
-// fundamental type, enumeration type, or pointer type.  Most user-defined
+// 'bsl::is_trivially_copyable<TYPE>' will inherit from 'true_type' if 'TYPE'
+// is a fundamental type, enumeration type, or pointer type.  Most user-defined
 // classes are are bit-wise copyable, but generic code must assume that an
 // arbrary 'TYPE' is not bitwise-copyable, as bit-wise moving a type that is
 // not bit-wise copyable is likely to result in a dangling pointer.  Thus, it
@@ -100,62 +100,56 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_detectnestedtrait.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLMF_REMOVECVQ
+#include <bslmf_removecvq.h>
+#endif
 
+namespace bsl {
+
+template <typename TYPE>
+struct is_trivially_copyable;
+
+}
+
+namespace BloombergLP {
 namespace bslmf {
 
-                        // ========================
-                        // struct IsBitwiseCopyable
-                        // ========================
+template <typename TYPE>
+struct IsTriviallyCopyable_Imp
+    : bsl::integer_constant<
+                bool,
+                IsFundamental<TYPE>::value
+             || IsEnum<TYPE>::value
+             || bsl::is_pointer<TYPE>::value
+             || bslmf::IsPointerToMember<TYPE>::value
+             || DetectNestedTrait<TYPE, bsl::is_trivially_copyable>::value>
+{};
 
-template <class TYPE>
-struct IsBitwiseCopyable :
-    integer_constant<bool,
-                     IsFundamental<TYPE>::value
-                  || IsEnum<TYPE>::value
-                  || bsl::is_pointer<TYPE>::value
-                  || bslmf::IsPointerToMember<TYPE>::value
-                  || DetectNestedTrait<TYPE, IsBitwiseCopyable>::value>
+}  // close package namespace
+}  // close enterprise namespace
+
+namespace bsl {
+
+template <typename TYPE>
+struct is_trivially_copyable
+: BloombergLP::bslmf::IsTriviallyCopyable_Imp<typename remove_cv<TYPE>::type>
 {
     // Trait metafunction that determines whether the specified parameter
-    // 'TYPE' is bit-wise Copyable.  If 'IsBitwiseCopyable<TYPE>' is derived
-    // from 'true_type' then 'TYPE' is bit-wise Copyable.  Otherwise, bit-wise
-    // moveability cannot be inferred for 'TYPE'.  This trait can be
+    // 'TYPE' is bit-wise Copyable.  If 'is_trivially_copyable<TYPE>' is
+    // derived from 'true_type' then 'TYPE' is bit-wise Copyable.  Otherwise,
+    // bit-wise moveability cannot be inferred for 'TYPE'.  This trait can be
     // associated with a bit-wise Copyable user-defined class by specializing
     // this class or by using the 'BSLMF_DECLARE_NESTED_TRAIT' macro.
 };
 
-template <class TYPE>
-struct IsBitwiseCopyable<const TYPE> : IsBitwiseCopyable<TYPE>::type
+template <typename TYPE>
+struct is_trivially_copyable<TYPE&> : false_type
 {
-    // Specialization that associates the same trait with 'const TYPE' as with
-    // unqualified 'TYPE'.
-};
-
-template <class TYPE>
-struct IsBitwiseCopyable<volatile TYPE> : IsBitwiseCopyable<TYPE>::type
-{
-    // Specialization that associates the same trait with 'volatile TYPE' as
-    // with unqualified 'TYPE'.
-};
-
-template <class TYPE>
-struct IsBitwiseCopyable<const volatile TYPE> : IsBitwiseCopyable<TYPE>::type
-{
-    // Specialization that associates the same trait with 'const volatile
-    // TYPE' as with unqualified 'TYPE'.
-};
-
-template <class TYPE>
-struct IsBitwiseCopyable<TYPE&> : bsl::false_type
-{
-    // Specialization of that prevents associating the 'IsBitwiseCopyable'
+    // Specialization of that prevents associating the 'is_trivially_copyable'
     // trait with any reference type.
 };
 
-}  // close package namespace
-
-}  // close namespace BloombergLP
+}
 
 #endif // ! defined(INCLUDED_BSLMF_ISBITWISECOPYABLE)
 

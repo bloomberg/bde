@@ -635,6 +635,16 @@ void swap(pair<T1, T2>& a, pair<T1, T2>& b);
 //                                TYPE TRAITS
 // ===========================================================================
 
+namespace bsl {
+
+template <typename T1, typename T2>
+struct is_trivially_copyable<pair<T1, T2> >
+    : bsl::integer_constant<bool, is_trivially_copyable<T1>::value
+                                  && is_trivially_copyable<T2>::value>
+{};
+
+}
+
 namespace BloombergLP {
 namespace bslmf {
 
@@ -642,12 +652,6 @@ template <typename T1, typename T2>
 struct IsBitwiseMoveable<bsl::pair<T1, T2> >
     : bsl::integer_constant<bool, bslmf::IsBitwiseMoveable<T1>::value
                                   && bslmf::IsBitwiseMoveable<T2>::value>
-{};
-
-template <typename T1, typename T2>
-struct IsBitwiseCopyable<bsl::pair<T1, T2> >
-    : bsl::integer_constant<bool, bslmf::IsBitwiseCopyable<T1>::value
-                                  && bslmf::IsBitwiseCopyable<T2>::value>
 {};
 
 template <typename T1, typename T2>
