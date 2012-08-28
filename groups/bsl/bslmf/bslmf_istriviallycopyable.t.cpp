@@ -1,6 +1,6 @@
-// bslmf_isbitwisecopyable.t.cpp                  -*-C++-*-
+// bslmf_istriviallycopyable.t.cpp                                    -*-C++-*-
 
-#include "bslmf_isbitwisecopyable.h"
+#include "bslmf_istriviallycopyable.h"
 
 #include <new>
 #include <cstdio>

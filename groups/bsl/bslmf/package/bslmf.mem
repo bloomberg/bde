@@ -11,7 +11,6 @@ bslmf_hastrivialdefaultconstructor
 bslmf_if
 bslmf_integerconstant
 bslmf_isarray
-bslmf_isbitwisecopyable
 bslmf_isbitwiseequalitycomparable
 bslmf_isbitwisemoveable
 bslmf_isclass
@@ -23,6 +22,7 @@ bslmf_ispointer
 bslmf_ispointertomember
 bslmf_ispolymorphic
 bslmf_issame
+bslmf_istriviallycopyable
 bslmf_isvoid
 bslmf_memberfunctionpointertraits
 bslmf_metaint

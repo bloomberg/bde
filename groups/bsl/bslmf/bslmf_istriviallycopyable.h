@@ -1,6 +1,6 @@
-// bslmf_isbitwisecopyable.h                  -*-C++-*-
-#ifndef INCLUDED_BSLMF_ISBITWISECOPYABLE
-#define INCLUDED_BSLMF_ISBITWISECOPYABLE
+// bslmf_istriviallycopyable.h                                        -*-C++-*-
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#define INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -151,7 +151,7 @@ struct is_trivially_copyable<TYPE&> : false_type
 
 }
 
-#endif // ! defined(INCLUDED_BSLMF_ISBITWISECOPYABLE)
+#endif // ! defined(INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE)
 
 // ---------------------------------------------------------------------------
 // NOTICE:
