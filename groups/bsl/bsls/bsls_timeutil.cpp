@@ -347,7 +347,7 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
         // Not implemented: Assert that rawTime - initialTime will fit in an
         // Int64, when expressed as nanoseconds (~292 days).
         //
-        // N.B. This assert is not implemented because:
+        // N.B.  This assert is not implemented because:
         // A) Cannot use BSLS_ASSERT because bsls_assert has an indirect
         // (and testing only) dependency on bsls_timeutil.
         // B) Cannot use std::numeric_limits.
@@ -388,14 +388,14 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
         // the calculation that involve frequency and constants, and caching
         // the results at initialization time.
 
-        const bsls::Types::Int64 high32Bits = 
+        const bsls::Types::Int64 high32Bits =
             static_cast<bsls::Types::Int64>(rawTime >> 32);
-        const bsls::Types::Int64 low32Bits  = 
+        const bsls::Types::Int64 low32Bits  =
             static_cast<bsls::Types::Uint64> (rawTime & LOW_MASK);
-        
-        return high32Bits * highPartDivisionFactor + 
-             ((high32Bits * highPartRemainderFactor + low32Bits * G) 
-                                                   / timerFrequency);  // RETURN
+
+        return high32Bits * highPartDivisionFactor +
+             ((high32Bits * highPartRemainderFactor + low32Bits * G)
+                                                   / timerFrequency); // RETURN
 
         // Note that this code runs as fast as the original implementation.  It
         // works for counters representing time values up to 292 years (the
@@ -611,7 +611,7 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 
     // A generic implementation having microsecond resolution is used.  There
     // is no attempt to defend against possible non-monotonic
-    // behavior. Together with the arithmetic to convert 'timeValue' to
+    // behavior.  Together with the arithmetic to convert 'timeValue' to
     // nanoseconds, the imp would cause bsls_stopwatch to profile at ~1.40 usec
     // on AIX when compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r.
 

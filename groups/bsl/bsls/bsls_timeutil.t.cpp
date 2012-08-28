@@ -236,26 +236,26 @@ double my_Timer::elapsedSystemTime()
 //:   values that cannot be represented by 'bsls::Types::Int64' are discarded.
 //..
 //  #!/usr/bin/env python
-//  
+//
 //  class Transform:
 //      """Provide a converter to transform a number of clock ticks and a
 //      frequency to a time expressed in nanoseconds"""
-//  
+//
 //      billion = long(1000 * 1000 * 1000)
 //      frequency = long(0)
 //      initialTime = long(0)
-//  
+//
 //      def __init__(self, frequency, initialTime):
 //          self.frequency = frequency
 //          self.initialTime = initialTime
-//  
+//
 //      def nanoseconds(self, ticks):
 //          return ((ticks - self.initialTime) * self.billion) / self.frequency
-//  
+//
 //      def ticks(self, nanoseconds):
 //          return (nanoseconds * self.frequency) / self.billion \
 //              + self.initialTime
-//  
+//
 //  class Generator:
 //      """Provide a driver to generate nanosecond conversions of a number of
 //      frequencies and clock tick values"""
@@ -267,14 +267,14 @@ double my_Timer::elapsedSystemTime()
 //          ,3579545
 //      ]
 //      verbose = True
-//  
+//
 //      def __init__(self, base, verbose):
 //          self.verbose = verbose
-//  
+//
 //          count = 0
 //          limit = 1 << 32
 //          n = base
-//  
+//
 //          while n < limit:
 //              if n < 1000:
 //                  n *= base
@@ -284,40 +284,40 @@ double my_Timer::elapsedSystemTime()
 //              #self.frequencies.append(n - 1)
 //              ++count
 //              n *= base
-//  
+//
 //      def generateTicks(self, base, initialTime):
 //          result = []
 //          limit = self.max64
-//  
+//
 //          n = base
 //          while n < limit:
 //              result.append(n)
 //              n *= base
-//  
+//
 //          return result
-//  
+//
 //      def maxTicks(self, frequency, initialTime):
 //          maxNSeconds = self.max64
-//  
+//
 //          return min((maxNSeconds * frequency) / self.billion - initialTime,
 //                     self.max64)
-//  
+//
 //      def report(self, frequency, ticks, initialTime):
 //          if initialTime < ticks:
 //              t = Transform(frequency, initialTime)
-//  
+//
 //              nanoseconds = t.nanoseconds(ticks)
 //              if (nanoseconds != 0 and nanoseconds <= self.max64):
 //                  if self.verbose:
 //                      print 'Init: f=%d, t=%d, i=%d' \
 //                          % (frequency, ticks, initialTime)
-//  
+//
 //                      print 'Ticks: %d' % (t.ticks(nanoseconds))
 //                      print 'Nanoseconds: %d' % (nanoseconds)
-//  
+//
 //                  print ',{ L_, %d, %d, %d, %d }' \
 //                      % (ticks, initialTime, frequency, nanoseconds)
-//  
+//
 //                  if self.verbose:
 //                      print
 //              elif self.verbose:
@@ -330,7 +330,7 @@ double my_Timer::elapsedSystemTime()
 //          elif self.verbose:
 //              print 'SKIP: bad init f=%d, t=%d, i=%d' \
 //                  % (frequency, ticks, initialTime)
-//  
+//
 //      def generate(self):
 //          for frequency in self.frequencies:
 //              initialTime = ((frequency) * 7) / 5
@@ -356,12 +356,12 @@ double my_Timer::elapsedSystemTime()
 //              self.report(frequency,
 //                          self.maxTicks(frequency, initialTime),
 //                          initialTime)
-//  
+//
 //              #for baseValue in [2, 5, 7]:
 //              for baseValue in [7]:
 //                  for ticks in self.generateTicks(baseValue, initialTime):
 //                      self.report(frequency, ticks, initialTime)
-//  
+//
 //  g = Generator(7, False)
 //  g.generate()
 //..
