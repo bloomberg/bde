@@ -35,6 +35,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecvq.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include <bslmf_isreference.h>
+#endif
+
 namespace bsl {
 
 template <typename TYPE>
@@ -48,13 +52,13 @@ namespace bslmf {
 template <typename TYPE>
 struct IsTriviallyDefaultConstructible_Imp :
     integer_constant<bool,
-                     IsFundamental<TYPE>::value
-                  || IsEnum<TYPE>::value
-                  || bsl::is_pointer<TYPE>::value
-                  || bslmf::IsPointerToMember<TYPE>::value
-                  || DetectNestedTrait<
-                            TYPE,
-                            bsl::is_trivially_default_constructible>::value>
+                     !bsl::is_reference<TYPE>::value
+                     && (  IsFundamental<TYPE>::value
+                        || IsEnum<TYPE>::value
+                        || bsl::is_pointer<TYPE>::value
+                        || bslmf::IsPointerToMember<TYPE>::value
+                        || DetectNestedTrait<TYPE,
+                              bsl::is_trivially_default_constructible>::value)>
 {};
 
 }
@@ -72,10 +76,6 @@ struct is_trivially_default_constructible
     // 'is_trivially_default_constructible<TYPE>' is derived from 'true_type'
     // then 'TYPE' is trivially default constructible.
 };
-
-template <typename TYPE>
-struct is_trivially_default_constructible<TYPE&> : false_type
-{};
 
 }
 

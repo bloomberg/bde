@@ -104,6 +104,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecvq.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include <bslmf_isreference.h>
+#endif
+
 namespace bsl {
 
 template <typename TYPE>
@@ -117,12 +121,13 @@ namespace bslmf {
 template <typename TYPE>
 struct IsTriviallyCopyable_Imp
     : bsl::integer_constant<
-                bool,
-                IsFundamental<TYPE>::value
-             || IsEnum<TYPE>::value
-             || bsl::is_pointer<TYPE>::value
-             || bslmf::IsPointerToMember<TYPE>::value
-             || DetectNestedTrait<TYPE, bsl::is_trivially_copyable>::value>
+             bool,
+             !bsl::is_reference<TYPE>::value
+             && (  IsFundamental<TYPE>::value
+                || IsEnum<TYPE>::value
+                || bsl::is_pointer<TYPE>::value
+                || bslmf::IsPointerToMember<TYPE>::value
+                || DetectNestedTrait<TYPE, bsl::is_trivially_copyable>::value)>
 {};
 
 }  // close package namespace
@@ -132,7 +137,7 @@ namespace bsl {
 
 template <typename TYPE>
 struct is_trivially_copyable
-: BloombergLP::bslmf::IsTriviallyCopyable_Imp<typename remove_cv<TYPE>::type>
+    : BloombergLP::bslmf::IsTriviallyCopyable_Imp<typename remove_cv<TYPE>::type>
 {
     // Trait metafunction that determines whether the specified parameter
     // 'TYPE' is bit-wise Copyable.  If 'is_trivially_copyable<TYPE>' is
@@ -140,13 +145,6 @@ struct is_trivially_copyable
     // bit-wise moveability cannot be inferred for 'TYPE'.  This trait can be
     // associated with a bit-wise Copyable user-defined class by specializing
     // this class or by using the 'BSLMF_DECLARE_NESTED_TRAIT' macro.
-};
-
-template <typename TYPE>
-struct is_trivially_copyable<TYPE&> : false_type
-{
-    // Specialization of that prevents associating the 'is_trivially_copyable'
-    // trait with any reference type.
 };
 
 }
