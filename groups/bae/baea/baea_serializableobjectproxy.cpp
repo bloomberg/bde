@@ -82,6 +82,9 @@ void baea_SerializableObjectProxy::loadArrayElementDecodeProxy(
     BSLS_ASSERT(d_objectInfo.is<ArrayDecodeInfo>());
 
     const ArrayDecodeInfo& info = d_objectInfo.the<ArrayDecodeInfo>();
+
+    BSLS_ASSERT_SAFE(0 <= index && index <= info.d_length);
+
     void* address = (char*)info.d_begin + info.d_elementSize * index;
     info.d_loader(elementProxy, address);
 }
@@ -96,7 +99,7 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
     const SequenceInfo& info = d_objectInfo.the<SequenceInfo>();
     for(int i = 0; i < info.d_numAttributes; ++i) {
         if (info.d_attributeInfo_p[i].id() == elementId) {
-            info.d_loader(proxy, *this, i);
+            info.d_elementLoader(proxy, *this, i);
             *attrInfo = info.d_attributeInfo_p + i;
             return 0;                                                 // RETURN
         }
@@ -121,7 +124,7 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
                      elementNameLength,
                      (*attrInfo)->name(),
                      (*attrInfo)->nameLength())) {
-            info.d_loader(proxy, *this, i);
+            info.d_elementLoader(proxy, *this, i);
             return 0;                                                 // RETURN
         }
     }
