@@ -1156,7 +1156,9 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(INPUT_ITERATOR    first,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset& original)
-: d_compAndAlloc(original.comparator().keyComparator(), ALLOCATOR())
+: d_compAndAlloc(original.comparator().keyComparator(),
+                 AllocatorTraits::select_on_container_copy_construction(
+                                           original.nodeFactory().allocator()))
 , d_tree()
 {
     if (0 < original.size()) {

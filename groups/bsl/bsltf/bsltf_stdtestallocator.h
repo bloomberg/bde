@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a minimal standard compliant allocator  .
+//@PURPOSE: Provide a minimal standard compliant allocator.
 //
 //@CLASSES:
 //      bsltf::StdTestAllocatorConfiguration: namespace to configure allocator

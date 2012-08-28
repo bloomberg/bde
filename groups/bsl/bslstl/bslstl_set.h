@@ -1214,7 +1214,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(INPUT_ITERATOR    first,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(const set& original)
-: d_compAndAlloc(original.comparator().keyComparator(), ALLOCATOR())
+: d_compAndAlloc(original.comparator().keyComparator(),
+                 AllocatorTraits::select_on_container_copy_construction(
+                                           original.nodeFactory().allocator()))
 , d_tree()
 {
     if (0 < original.size()) {

@@ -1271,7 +1271,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const ALLOCATOR& allocator)
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const map& original)
-: d_compAndAlloc(original.comparator().keyComparator(), ALLOCATOR())
+: d_compAndAlloc(original.comparator().keyComparator(),
+                 AllocatorTraits::select_on_container_copy_construction(
+                                           original.nodeFactory().allocator()))
 , d_tree()
 {
     if (0 < original.size()) {
