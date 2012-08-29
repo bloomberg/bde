@@ -1269,39 +1269,23 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf               *streamBuf,
     const int MAX_BINARY_TYPETZ_LENGTH =
                                      BinaryDateTimeFormat::maxLength<TYPETZ>();
     const int MAX_BINARY_TYPE_LENGTH = BinaryDateTimeFormat::maxLength<TYPE>();
-    const int MAX_BDEPU_TYPE_STRLEN = StringDateTimeFormat::maxLength<TYPE>();
+    const int MAX_STRING_TYPE_LENGTH = StringDateTimeFormat::maxLength<TYPE>();
 
     int rc;
-    if (length > MAX_BINARY_TYPETZ_LENGTH) {
-        if (length <= MAX_BDEPU_TYPE_STRLEN) {
-            TYPE object;
-            rc = getValueUsingIso8601(streamBuf, &object, length);
-            if (!rc) {
-                *value = object;
-            }
-        }
-        else {
-            TYPETZ object;
-            rc = getValueUsingIso8601(streamBuf, &object, length);
-            if (!rc) {
-                *value = object;
-            }
+    if (length > MAX_STRING_TYPE_LENGTH
+     || (length > MAX_BINARY_TYPE_LENGTH
+      && length <= MAX_BINARY_TYPETZ_LENGTH)) {
+        TYPETZ object;
+        rc = getValue(streamBuf, &object, length);
+        if (!rc) {
+            *value = object;
         }
     }
     else {
-        if (length <= MAX_BINARY_TYPE_LENGTH) {
-            TYPE object;
-            rc = getValue(streamBuf, &object, length);
-            if (!rc) {
-                *value = object;
-            }
-        }
-        else {
-            TYPETZ object;
-            rc = getValue(streamBuf, &object, length);
-            if (!rc) {
-                *value = object;
-            }
+        TYPE object;
+        rc = getValue(streamBuf, &object, length);
+        if (!rc) {
+            *value = object;
         }
     }
     return rc;
