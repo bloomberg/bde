@@ -119,7 +119,8 @@ BDES_IDENT_RCSID(bdem_berutil_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <cstring>
 
@@ -130,11 +131,11 @@ namespace {
 BSLMF_ASSERT(sizeof(int)       == sizeof(float));
 BSLMF_ASSERT(sizeof(long long) == sizeof(double));
 
-const bsls_PlatformUtil::Uint64 DOUBLE_EXPONENT_MASK = 0x7ff0000000000000ULL;
-const bsls_PlatformUtil::Uint64 DOUBLE_MANTISSA_MASK = 0x000fffffffffffffULL;
-const bsls_PlatformUtil::Uint64
-                   DOUBLE_MANTISSA_IMPLICIT_ONE_MASK = 0x0010000000000000ULL;
-const bsls_PlatformUtil::Uint64 DOUBLE_SIGN_MASK     = 0x8000000000000000ULL;
+const bsls::Types::Uint64 DOUBLE_EXPONENT_MASK = 0x7ff0000000000000ULL;
+const bsls::Types::Uint64 DOUBLE_MANTISSA_MASK = 0x000fffffffffffffULL;
+const bsls::Types::Uint64
+                     DOUBLE_MANTISSA_IMPLICIT_ONE_MASK = 0x0010000000000000ULL;
+const bsls::Types::Uint64 DOUBLE_SIGN_MASK     = 0x8000000000000000ULL;
 
 enum {
     // These constants are used by the implementation of this component.
@@ -373,7 +374,7 @@ void putChars(bsl::streambuf *streamBuf, char value, int numChars)
     char buffer[MIN_BINARY_DATETIMETZ_LENGTH];
     bsl::memset(buffer, value, numChars);
 
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#if BSLS_PLATFORM__IS_BIG_ENDIAN
     streamBuf->sputn(buffer, numChars);
 #else
     for (int i = 0; i < numChars; ++i) {
@@ -1112,7 +1113,7 @@ int bdem_BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
     }
 
     // Combine low and high word into a long word.
-#ifdef BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#ifdef BSLS_PLATFORM__IS_BIG_ENDIAN
     reinterpret_cast<unsigned int*>(value)[1] = valueLo;
     reinterpret_cast<unsigned int*>(value)[0] = valueHi;
 #else
@@ -1271,24 +1272,23 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf               *streamBuf,
     const int MAX_BINARY_TYPE_LENGTH = BinaryDateTimeFormat::maxLength<TYPE>();
     const int MAX_STRING_TYPE_LENGTH = StringDateTimeFormat::maxLength<TYPE>();
 
-    int rc;
-    if (length > MAX_STRING_TYPE_LENGTH
-     || (length > MAX_BINARY_TYPE_LENGTH
-      && length <= MAX_BINARY_TYPETZ_LENGTH)) {
-        TYPETZ object;
-        rc = getValue(streamBuf, &object, length);
-        if (!rc) {
-            *value = object;
-        }
+    bool doesNotHaveTzOffset = length > MAX_BINARY_TYPETZ_LENGTH
+                             ? length <= MAX_STRING_TYPE_LENGTH
+                             : length <= MAX_BINARY_TYPE_LENGTH;
+
+    if (doesNotHaveTzOffset) {
+        // Decode into TYPE
+
+        value->template createInPlace<TYPE>();
+        return getValue(streamBuf,
+                        &value->template the<TYPE>(),
+                        length);                                      // RETURN
     }
-    else {
-        TYPE object;
-        rc = getValue(streamBuf, &object, length);
-        if (!rc) {
-            *value = object;
-        }
-    }
-    return rc;
+
+    // Decode into TYPETZ
+
+    value->template createInPlace<TYPETZ>();
+    return getValue(streamBuf, &value->template the<TYPETZ>(), length);
 }
 
 int bdem_BerUtil_Imp::numBytesToStream(short value)
