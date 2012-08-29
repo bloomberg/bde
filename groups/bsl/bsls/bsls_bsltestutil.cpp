@@ -161,7 +161,7 @@ void debugprint(const volatile void *v)
 // template< class RESULT, class ... ARGS>
 // void debugprint(RESULT (*v)(ARGS...))
 // {
-//     printf("%lx", reinterpret_cast<uintptr_t>(v));
+//     printf("%llx", reinterpret_cast<uintptr_t>(v));
 // }
 
 }  // close package namespace
