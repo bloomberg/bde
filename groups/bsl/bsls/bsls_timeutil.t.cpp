@@ -1,6 +1,7 @@
 // bsls_timeutil.t.cpp                                                -*-C++-*-
-
 #include <bsls_timeutil.h>
+
+#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -15,20 +16,23 @@
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
 typedef unsigned long DWORD;
+typedef struct _LARGE_INTEGER {
+    long long QuadPart;
+} LARGE_INTEGER;
 
 extern "C" {
     __declspec(dllimport) void __stdcall Sleep(DWORD dwMilliseconds);
+    __declspec(dllimport) int  __stdcall QueryPerformanceFrequency(
+                                                   LARGE_INTEGER *lpFrequency);
 };
 #endif
 
-#include <cstdio>                   // printf()
-#include <cstdlib>                  // atoi()
-#include <iostream>
-#include <iomanip>
-#include <string>
+// limit ourselves to the "C" library for packages below 'bslstl'
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>   // for srand
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                 TEST PLAN
@@ -67,35 +71,29 @@ using namespace std;
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
-{
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+static void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
-//-----------------------------------------------------------------------------
-
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);} }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
+# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define P64(X) printf(#X " = %lld\n", (X));   // Print 64-bit integer id & val
-#define P64_(X) printf(#X " = %lld,  ", (X)); // Print 64-bit integer w/o '\n'
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                 GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -199,20 +197,824 @@ double my_Timer::elapsedSystemTime()
 }
 
 //=============================================================================
+//                         HELPER FUNCTIONS FOR CASE 11
+//-----------------------------------------------------------------------------
+
+// Data Generation Script for Case 11
+// ----------------------------------
+//
+// The following python script is used to generate the data in Section 2 of the
+// DATA array.  Python is used because it exists on all of our platforms and
+// provides unbounded integer arithmetic.
+//
+// The script provides two classes:
+//: o Transform: Provides a facility for conversions between clock ticks and
+//:   nanoseconds, given a set clock frequency and initial time.
+//:
+//: o Generator: Generate a set of interesting sample conversions from clock
+//:   ticks to nanoseconds for a variety of frequencies.
+//:
+//:   The frequencies sampled include hardcoded frequencies typically seen on
+//:   Windows machines, the highest possible 32-bit frequency, and all of the
+//:   powers of a given base that are valid 32-bit numbers.  By choosing a base
+//:   that is relatively prime to 1 billion and (1 << 32), we can get
+//:   representative frequencies that cover the 32-bit range well and that
+//:   consistently leave a remainder when calculating the constant factors used
+//:   in the Windows implementation of 'convertRawTimer'.
+//:
+//:   For each frequency, we calculate nanoseconds based on the following
+//:   values:
+//:     o Lowest valid clock tick value
+//:     o Clock tick values around the 32-bit limit
+//:     o Clock tick values near the value that generates the maximum number of
+//:       nanoseconds that can be represented for this frequency.
+//:
+//:   Additionally, a full range of tick counts that are powers of a given base
+//:   are generated.
+//:
+//:   Any generated values that include frequencies, tick counts or nanosecond
+//:   values that cannot be represented by 'bsls::Types::Int64' are discarded.
+//..
+//  #!/usr/bin/env python
+//
+//  max64 = (1 << 63) - 1
+//  billion = long(1000 * 1000 * 1000)
+//
+//  class Transform:
+//      """Provide a converter to transform a number of clock ticks and a
+//      frequency to a time expressed in nanoseconds"""
+//
+//      def __init__(self, frequency, initialTime):
+//          self.frequency = frequency
+//          self.initialTime = initialTime
+//
+//      def nanoseconds(self, ticks):
+//          return ((ticks - self.initialTime) * billion) / self.frequency
+//
+//      def ticks(self, nanoseconds):
+//          return (nanoseconds * self.frequency) / billion \
+//              + self.initialTime
+//
+//  class Generator:
+//      """Provide a driver to generate nanosecond conversions of a number of
+//      frequencies and clock tick values"""
+//      frequencies = [
+//          (1 << 32) - 1
+//          ,2992530000
+//          ,3579545
+//      ]
+//
+//      def __init__(self, base, verbose):
+//          self.verbose = verbose
+//
+//          count = 0
+//          limit = 1 << 32
+//          n = base
+//
+//          while n < limit:
+//              if n < 1000:
+//                  n *= base
+//                  continue
+//              self.frequencies.append(n)
+//              ++count
+//              n *= base
+//
+//      def generateTicks(self, base, initialTime):
+//          result = []
+//          limit = max64
+//
+//          n = base
+//          while n < limit:
+//              result.append(n)
+//              n *= base
+//
+//          return result
+//
+//      def maxTicks(self, frequency, initialTime):
+//          maxticks = (max64 * frequency) / billion - initialTime
+//
+//          return min(maxticks, max64)
+//
+//      def report(self, frequency, ticks, initialTime):
+//          if initialTime < ticks:
+//              t = Transform(frequency, initialTime)
+//
+//              nanoseconds = t.nanoseconds(ticks)
+//              if (nanoseconds != 0 and nanoseconds <= max64):
+//                  if self.verbose:
+//                      print 'Init: f=%d, t=%d, i=%d' \
+//                          % (frequency, ticks, initialTime)
+//
+//                      print 'Ticks: %d' % (t.ticks(nanoseconds))
+//                      print 'Nanoseconds: %d' % (nanoseconds)
+//
+//                  print ',{ L_, %d, %d, %d, %d }' \
+//                      % (ticks, initialTime, frequency, nanoseconds)
+//
+//                  if self.verbose:
+//                      print
+//              elif self.verbose:
+//                  if nanoseconds == 0:
+//                      print 'SKIP: %s f=%d, t=%d, i=%d' \
+//                          % ("zero", frequency, ticks, initialTime)
+//                  else:
+//                      print 'SKIP: %s f=%d, t=%d, i=%d' \
+//                          % ("overflow", frequency, ticks, initialTime)
+//          elif self.verbose:
+//              print 'SKIP: bad init f=%d, t=%d, i=%d' \
+//                  % (frequency, ticks, initialTime)
+//
+//      def generate(self):
+//          for frequency in self.frequencies:
+//              initialTime = ((frequency) * 7) / 5
+//              print
+//              print '// Frequency: %d, Initial Time: %d' \
+//                  % (frequency, initialTime)
+//              self.report(frequency, initialTime + 1, initialTime)
+//              self.report(frequency,
+//                          (1 << 32) - 1 + initialTime,
+//                          initialTime)
+//              self.report(frequency,
+//                          (1 << 32) + initialTime,
+//                          initialTime)
+//              self.report(frequency,
+//                          self.maxTicks(frequency, initialTime),
+//                          initialTime)
+//
+//              for baseValue in [7]:
+//                  for ticks in self.generateTicks(baseValue, initialTime):
+//                      self.report(frequency, ticks, initialTime)
+//
+//  g = Generator(7, False)
+//  g.generate()
+//..
+
+#if defined BSLS_PLATFORM__OS_WINDOWS
+
+bsls::Types::Int64 fakeConvertRawTime(bsls::Types::Int64 rawTime,
+                                      bsls::Types::Int64 initialTime,
+                                      bsls::Types::Int64 timerFrequency)
+// Convert the specified raw interval ('initialTime', 'rawTime'] to a value in
+// nanoseconds, by dividing the number of clock ticks in the raw interval by
+// the specified 'timerFrequency', and return the result of the conversion.
+// Note that this method is thread-safe only if 'initialize' has been called
+// before.
+
+// This function is copied from 'WindowsTimerUtil::convertRawTime' in
+// bsls_timeutil.cpp.  It is used as a stand-in for that method by which we can
+// check the accuracy of the calculations in 'WindowsTimerUtil::convertRawTime'
+// against known values.  Other tests will compare the behavior of this
+// function to that of 'WindowsTimerUtil::convertRawTime' to confirm that the
+// they both behave the same.
+{
+    const bsls::Types::Int64 K = 1000;
+    const bsls::Types::Int64 G = K * K * K;
+    const bsls::Types::Int64 HIGH_DWORD_MULTIPLIER = G * (1LL << 32);
+    const bsls::Types::Int64 highPartDivisionFactor
+                                      = HIGH_DWORD_MULTIPLIER / timerFrequency;
+    const bsls::Types::Int64 highPartRemainderFactor
+                                      = HIGH_DWORD_MULTIPLIER % timerFrequency;
+
+    const bsls::Types::Uint64 LOW_MASK = 0x00000000ffffffff;
+
+        rawTime -= initialTime;
+
+        return (
+                // Divide high part by frequency
+                static_cast<bsls::Types::Int64>(rawTime >> 32)
+                    * highPartDivisionFactor
+                +
+                (
+                 // Restore remainder of high part division
+                 static_cast<bsls::Types::Int64>(rawTime >> 32)
+                    * highPartRemainderFactor
+                 +
+                 // Calculate low part contribution
+                 static_cast<bsls::Types::Uint64>(rawTime & LOW_MASK)
+                    * G
+                )
+                    / timerFrequency
+                );
+}
+
+bsls::Types::Int64 getFrequency()
+{
+    LARGE_INTEGER frequency;
+
+    ::QueryPerformanceFrequency(&frequency);
+    return frequency.QuadPart;
+}
+
+bsls::Types::Uint64 getBitMask(int numBits)
+{
+    bsls::Types::Uint64 mask = 0;
+
+    return ~((~mask) << numBits);
+}
+
+unsigned getRand32()
+{
+    return ((unsigned) rand()) * 1103515245 + 12345;
+}
+
+bsls::Types::Uint64 getRand64()
+{
+    const bsls::Types::Uint64 random = getRand32();
+    return (random << 32) + (bsls::Types::Uint64) getRand32();
+}
+
+bsls::Types::Int64 getTestPeriod(const bsls::Types::Int64 frequency)
+{
+    // const bsls::Types::Int64 testPeriod
+    //     = frequency * 60LL * 60LL * 24LL; // 24 hours
+    // return testPeriod * 106653; // 292 years: close to limit of Int64 as
+    //                             // nanoseconds
+
+    const bsls::Types::Int64 K = 1000;
+    const bsls::Types::Int64 G = K * K * K;
+    const bsls::Types::Int64 maxInt64 = getBitMask(63);
+
+    if (frequency < G) {
+        return (maxInt64 / G) * frequency;                            // RETURN
+    } else {
+        return maxInt64;                                              // RETURN
+    }
+}
+
+void compareRealToFakeConvertRawTime(const TU::OpaqueNativeTime& startTime,
+                                     const bsls::Types::Int64& offset,
+                                     const bsls::Types::Int64& frequency)
+// Calculate the nanosecond length of an interval of the specified 'offset'
+// clock ticks on a timer with the specified 'frequency', using both
+// 'TU::convertRawTime' and 'fakeConvertRawTime', where 'fakeConvertRawTime'
+// uses the specified 'startTime' for the initial time of the interval and
+// 'TU::convertRawTime' uses its own internal initial time.  Assert that both
+// functions calculate the same length.  Note that because the two functions
+// base their calculations on different initial times, their results may differ
+// by at most 1 due to rounding error.
+{
+    TU::OpaqueNativeTime endTime;
+    endTime.d_opaque = startTime.d_opaque + offset;
+    const bsls::Types::Int64 realStart
+        = TU::convertRawTime(startTime);
+    const bsls::Types::Int64 fakeStart
+        = fakeConvertRawTime(startTime.d_opaque,
+                             startTime.d_opaque,
+                             frequency);
+    const bsls::Types::Int64 realEnd
+        = TU::convertRawTime(endTime);
+    const bsls::Types::Int64 fakeEnd
+        = fakeConvertRawTime(endTime.d_opaque,
+                             startTime.d_opaque,
+                             frequency);
+
+    // We expect 'realEnd - realStart' to be the same as
+    // 'fakeEnd - fakeStart'.  However, we know that
+    // 'realEnd != fakeEnd' and 'realStart != fakeStart', because
+    // the internal initial time used by 'TU::convertRawTime' is
+    // not the same as 'startTime.d_opaque'.  Because the
+    // calculations of 'realEnd', 'realStart, 'fakeEnd', and
+    // 'fakeStart' all discard fractions of nanoseconds, the
+    // intervals we compare will include a small amount of rounding
+    // error, and therefore 'realEnd - realStart' and
+    // 'fakeEnd - fakeStart' may differ by at most 1.
+
+    LOOP5_ASSERT(offset,
+                 realEnd,
+                 fakeEnd,
+                 (realEnd - realStart),
+                 (fakeEnd - fakeStart),
+                 (realEnd - realStart) - (fakeEnd - fakeStart)
+                 <= 1
+                 &&
+                 (realEnd - realStart) - (fakeEnd - fakeStart)
+                 >= -1);
+}
+
+#endif
+
+//=============================================================================
 //                                MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    bool verbose = argc > 2;
+    bool veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+    setbuf(stdout, 0);    // Use unbuffered output
+
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        //   The usage example provided in the component header must build and
+        //   run with a normal exit status.
+        //
+        // Plan:
+        //   Copy the implementation portion of the Usage Example to the
+        //   reserved space above, and copy the executable portion below,
+        //   adding any needed supporting code.
+        //
+        // Testing:
+        //   USAGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Usage Example"
+                            "\n=====================\n");
+
+        {
+            my_Timer tw;
+            for (int i = 0; i < 1000000; ++i) {
+                // ...
+            }
+            double dTw = tw.elapsedWallTime();
+            my_Timer tu;
+            for (int i = 0; i < 1000000; ++i) {
+                // ...
+            }
+            double dTu = tu.elapsedUserTime();
+            my_Timer ts;
+            for (int i = 0; i < 1000000; ++i) {
+                // ...
+            }
+            double dTs = ts.elapsedSystemTime();
+            if (verbose)
+                printf("elapsed wall time: %g\n"
+                       "elapsed user time: %g\n"
+                       "elapsed system time: %g\n",
+                       dTw, dTu, dTs);
+        }
+
+      } break;
       case 11: {
+        // --------------------------------------------------------------------
+        // TESTING convertRawTime() arithmetic *** Windows Only ***
+        //
+        // Concerns:
+        //   When the 'QueryPerformanceCounter' interface is available on
+        //   Windows platforms, the conversion arithmetic is non-obvious and
+        //   cannot be validated simply by reading the code.  Verify that the
+        //   conversion is accurate.
+        //
+        //   Subconcerns include:
+        //    o Underflow due to a small time interval and high frequency does
+        //      not result in inaccurate calculation.
+        //
+        //    o Overflow due to a large interval and low frequency does not
+        //      result in overflow.
+        //
+        //    o The minimum possible interval (one clock tick) is accurately
+        //      handled.
+        //
+        //    o The maximum possible interval (frequency dependent, up to the
+        //      maximum number of nanoseconds that can be represented by
+        //      'bsls::Types::Int64' is accurately handled.
+        //
+        //    o Because calculation of the contributions from the high part and
+        //      low part of the ''bsls::Types::Int64' representing the number
+        //      of clock ticks in an interval are done separately, intervals
+        //      just above or below the value '1 << 32' might not be handled
+        //      correctly.
+        //
+        // Plan:
+        //   'convertRawTime' cannot be tested directly because it relies on
+        //   two hidden values: 's_timerFrequency' and 's_initialTime'.  We
+        //   note, however, that the value of 's_timerFrequency' can be
+        //   retrieved directly from the machine, and that the value of
+        //   's_initialTime' will cancel itself out on any comparison between
+        //   two converted times.  Therefore, use a copy of the Windows
+        //   implementation of 'convertRawTime' to test the correctness of the
+        //   arithmetic.  This copy must be kept in sync with the actual
+        //   component code.
+        //
+        //   Test the correctness of the arithmetic by using the fake
+        //   'convertRawTime' and a table-based strategy to convert a number of
+        //   raw values for which the output value is known.
+        //
+        //   Test that the fake 'convertRawTime' behaves the same as the real
+        //   'convertRawTime' by using both to measure real time intervals and
+        //   compare the nanosecond results.  Test using fixed data based on
+        //   the concerns above, as well as random data distributed over the
+        //   entire range of valid clock tick values.
+        //
+        // Testing:
+        //   bsls::TimeUtil::convertRawTime(bsls::TimeUtil::OpaqueNativeTime)
+        // --------------------------------------------------------------------
+
+#if defined BSLS_PLATFORM__OS_WINDOWS
+
+        if (verbose) printf("\nTesting convertRawTime arithmetic"
+                            "\n=================================\n");
+
+        const bsls::Types::Int64 K = 1000;
+        const bsls::Types::Int64 G = K * K * K;
+        struct TimerTestData {
+            int d_line;
+            bsls::Types::Int64 d_input;
+            bsls::Types::Int64 d_initialTime;
+            bsls::Types::Int64 d_frequency;
+            bsls::Types::Int64 d_output;
+        } DATA[] = {
+            //  Line Input      InitialTime Frequency  Output
+            //  ---- ---------- ----------- ---------  ---------
+            // Section 1: Simple overflow test covering ability to calculate
+            // times from 1 second to 2^11 seconds.
+             {  L_,  123456789,         0,  123456789, G }
+            ,{  L_,  123456789LL << 1, 0, 123456789, G << 1 }
+            ,{  L_,  123456789LL << 2, 0, 123456789, G << 2 }
+            ,{  L_,  123456789LL << 3, 0, 123456789, G << 3 }
+            ,{  L_,  123456789LL << 4, 0, 123456789, G << 4 }
+            ,{  L_,  123456789LL << 5, 0, 123456789, G << 5 }
+            ,{  L_,  123456789LL << 6, 0, 123456789, G << 6 }
+            ,{  L_,  123456789LL << 7, 0, 123456789, G << 7 }
+            ,{  L_,  123456789LL << 8, 0, 123456789, G << 8 }
+            ,{  L_,  123456789LL << 9, 0, 123456789, G << 9 }
+            ,{  L_,  123456789LL << 10, 0, 123456789, G << 10 }
+            ,{  L_,  123456789LL << 11, 0, 123456789, G << 11 }
+
+            ,{  L_,  3579545,         0,  3579545, G }
+            ,{  L_,  3579545LL << 1, 0, 3579545, G << 1 }
+            ,{  L_,  3579545LL << 2, 0, 3579545, G << 2 }
+            ,{  L_,  3579545LL << 3, 0, 3579545, G << 3 }
+            ,{  L_,  3579545LL << 4, 0, 3579545, G << 4 }
+            ,{  L_,  3579545LL << 5, 0, 3579545, G << 5 }
+            ,{  L_,  3579545LL << 6, 0, 3579545, G << 6 }
+            ,{  L_,  3579545LL << 7, 0, 3579545, G << 7 }
+            ,{  L_,  3579545LL << 8, 0, 3579545, G << 8 }
+            ,{  L_,  3579545LL << 9, 0, 3579545, G << 9 }
+            ,{  L_,  3579545LL << 10, 0, 3579545, G << 10 }
+            ,{  L_,  3579545LL << 11, 0, 3579545, G << 11 }
+
+            ,{  L_,  2992530000,         0,  2992530000, G }
+            ,{  L_,  2992530000LL << 1, 0, 2992530000, G << 1 }
+            ,{  L_,  2992530000LL << 2, 0, 2992530000, G << 2 }
+            ,{  L_,  2992530000LL << 3, 0, 2992530000, G << 3 }
+            ,{  L_,  2992530000LL << 4, 0, 2992530000, G << 4 }
+            ,{  L_,  2992530000LL << 5, 0, 2992530000, G << 5 }
+            ,{  L_,  2992530000LL << 6, 0, 2992530000, G << 6 }
+            ,{  L_,  2992530000LL << 7, 0, 2992530000, G << 7 }
+            ,{  L_,  2992530000LL << 8, 0, 2992530000, G << 8 }
+            ,{  L_,  2992530000LL << 9, 0, 2992530000, G << 9 }
+            ,{  L_,  2992530000LL << 10, 0, 2992530000, G << 10 }
+            ,{  L_,  2992530000LL << 11, 0, 2992530000, G << 11 }
+
+            // Section 2: Generated data
+
+            // Frequency: 4294967295, Initial Time: 6012954213
+            ,{ L_, 10307921508, 6012954213, 4294967295, 1000000000 }
+            ,{ L_, 10307921509, 6012954213, 4294967295, 1000000000 }
+            ,{ L_, 9223372036854775807, 6012954213, 4294967295,
+                                                          2147483647099999999 }
+            ,{ L_, 13841287201, 6012954213, 4294967295, 1822675808 }
+            ,{ L_, 96889010407, 6012954213, 4294967295, 21158730661 }
+            ,{ L_, 678223072849, 6012954213, 4294967295, 156511114629 }
+            ,{ L_, 4747561509943, 6012954213, 4294967295, 1103977802403 }
+            ,{ L_, 33232930569601, 6012954213, 4294967295, 7736244616826 }
+            ,{ L_, 232630513987207, 6012954213, 4294967295, 54162112317782 }
+            ,{ L_, 1628413597910449, 6012954213, 4294967295, 379143186224479 }
+            ,{ L_, 11398895185373143, 6012954213, 4294967295,
+                                                             2654010703571359 }
+            ,{ L_, 79792266297612001, 6012954213, 4294967295,
+                                                            18578083324999518 }
+            ,{ L_, 558545864083284007, 6012954213, 4294967295,
+                                                           130046591674996629 }
+            ,{ L_, 3909821048582988049, 6012954213, 4294967295,
+                                                           910326150124976408 }
+
+            // Frequency: 2992530000, Initial Time: 4189542000
+            ,{ L_, 8484509295, 4189542000, 2992530000, 1435229486 }
+            ,{ L_, 8484509296, 4189542000, 2992530000, 1435229486 }
+            ,{ L_, 9223372036854775807, 4189542000, 2992530000,
+                                                          3082131852534555645 }
+            ,{ L_, 13841287201, 4189542000, 2992530000, 3225279345 }
+            ,{ L_, 96889010407, 4189542000, 2992530000, 30976955421 }
+            ,{ L_, 678223072849, 4189542000, 2992530000, 225238687949 }
+            ,{ L_, 4747561509943, 4189542000, 2992530000, 1585070815645 }
+            ,{ L_, 33232930569601, 4189542000, 2992530000, 11103895709517 }
+            ,{ L_, 232630513987207, 4189542000, 2992530000, 77735669966619 }
+            ,{ L_, 1628413597910449, 4189542000, 2992530000, 544158089766334 }
+            ,{ L_, 11398895185373143, 4189542000, 2992530000,
+                                                             3809115028364341 }
+            ,{ L_, 79792266297612001, 4189542000, 2992530000,
+                                                            26663813598550390 }
+            ,{ L_, 558545864083284007, 4189542000, 2992530000,
+                                                           186646703589852735 }
+            ,{ L_, 3909821048582988049, 4189542000, 2992530000,
+                                                          1306526933528969149 }
+
+            // Frequency: 3579545, Initial Time: 5011363
+            ,{ L_, 5011364, 5011363, 3579545, 279 }
+            ,{ L_, 4299978658, 5011363, 3579545, 1199864031601 }
+            ,{ L_, 4299978659, 5011363, 3579545, 1199864031881 }
+            ,{ L_, 33015475252651965, 5011363, 3579545, 9223372034054775676 }
+            ,{ L_, 5764801, 5011363, 3579545, 210484293 }
+            ,{ L_, 40353607, 5011363, 3579545, 9873390053 }
+            ,{ L_, 282475249, 5011363, 3579545, 77513730376 }
+            ,{ L_, 1977326743, 5011363, 3579545, 550996112634 }
+            ,{ L_, 13841287201, 5011363, 3579545, 3865372788440 }
+            ,{ L_, 96889010407, 5011363, 3579545, 27066009519086 }
+            ,{ L_, 678223072849, 5011363, 3579545, 189470466633608 }
+            ,{ L_, 4747561509943, 5011363, 3579545, 1326301666435259 }
+            ,{ L_, 33232930569601, 5011363, 3579545, 9284120065046814 }
+            ,{ L_, 232630513987207, 5011363, 3579545, 64988848855327702 }
+            ,{ L_, 1628413597910449, 5011363, 3579545, 454921950387293915 }
+            ,{ L_, 11398895185373143, 5011363, 3579545, 3184453661111057410 }
+
+            // Frequency: 2401, Initial Time: 3361
+            ,{ L_, 3362, 3361, 2401, 416493 }
+            ,{ L_, 4294970656, 3361, 2401, 1788824362765514 }
+            ,{ L_, 4294970657, 3361, 2401, 1788824363182007 }
+            ,{ L_, 22145316257127, 3361, 2401, 9223372034054977092 }
+            ,{ L_, 16807, 3361, 2401, 5600166597 }
+            ,{ L_, 117649, 3361, 2401, 47600166597 }
+            ,{ L_, 823543, 3361, 2401, 341600166597 }
+            ,{ L_, 5764801, 3361, 2401, 2399600166597 }
+            ,{ L_, 40353607, 3361, 2401, 16805600166597 }
+            ,{ L_, 282475249, 3361, 2401, 117647600166597 }
+            ,{ L_, 1977326743, 3361, 2401, 823541600166597 }
+            ,{ L_, 13841287201, 3361, 2401, 5764799600166597 }
+            ,{ L_, 96889010407, 3361, 2401, 40353605600166597 }
+            ,{ L_, 678223072849, 3361, 2401, 282475247600166597 }
+            ,{ L_, 4747561509943, 3361, 2401, 1977326741600166597 }
+
+            // Frequency: 16807, Initial Time: 23529
+            ,{ L_, 23530, 23529, 16807, 59499 }
+            ,{ L_, 4294990824, 23529, 16807, 255546337537930 }
+            ,{ L_, 4294990825, 23529, 16807, 255546337597429 }
+            ,{ L_, 155017213799889, 23529, 16807, 9223372034054858094 }
+            ,{ L_, 117649, 23529, 16807, 5600047599 }
+            ,{ L_, 823543, 23529, 16807, 47600047599 }
+            ,{ L_, 5764801, 23529, 16807, 341600047599 }
+            ,{ L_, 40353607, 23529, 16807, 2399600047599 }
+            ,{ L_, 282475249, 23529, 16807, 16805600047599 }
+            ,{ L_, 1977326743, 23529, 16807, 117647600047599 }
+            ,{ L_, 13841287201, 23529, 16807, 823541600047599 }
+            ,{ L_, 96889010407, 23529, 16807, 5764799600047599 }
+            ,{ L_, 678223072849, 23529, 16807, 40353605600047599 }
+            ,{ L_, 4747561509943, 23529, 16807, 282475247600047599 }
+            ,{ L_, 33232930569601, 23529, 16807, 1977326741600047599 }
+
+            // Frequency: 117649, Initial Time: 164708
+            ,{ L_, 164709, 164708, 117649, 8499 }
+            ,{ L_, 4295132003, 164708, 117649, 36506619648275 }
+            ,{ L_, 4295132004, 164708, 117649, 36506619656775 }
+            ,{ L_, 1085120496599219, 164708, 117649, 9223372034054781596 }
+            ,{ L_, 823543, 164708, 117649, 5600005099 }
+            ,{ L_, 5764801, 164708, 117649, 47600005099 }
+            ,{ L_, 40353607, 164708, 117649, 341600005099 }
+            ,{ L_, 282475249, 164708, 117649, 2399600005099 }
+            ,{ L_, 1977326743, 164708, 117649, 16805600005099 }
+            ,{ L_, 13841287201, 164708, 117649, 117647600005099 }
+            ,{ L_, 96889010407, 164708, 117649, 823541600005099 }
+            ,{ L_, 678223072849, 164708, 117649, 5764799600005099 }
+            ,{ L_, 4747561509943, 164708, 117649, 40353605600005099 }
+            ,{ L_, 33232930569601, 164708, 117649, 282475247600005099 }
+            ,{ L_, 232630513987207, 164708, 117649, 1977326741600005099 }
+
+            // Frequency: 823543, Initial Time: 1152960
+            ,{ L_, 1152961, 1152960, 823543, 1214 }
+            ,{ L_, 4296120255, 1152960, 823543, 5215231378325 }
+            ,{ L_, 4296120256, 1152960, 823543, 5215231379539 }
+            ,{ L_, 7595843476194532, 1152960, 823543, 9223372034054775524 }
+            ,{ L_, 5764801, 1152960, 823543, 5600000242 }
+            ,{ L_, 40353607, 1152960, 823543, 47600000242 }
+            ,{ L_, 282475249, 1152960, 823543, 341600000242 }
+            ,{ L_, 1977326743, 1152960, 823543, 2399600000242 }
+            ,{ L_, 13841287201, 1152960, 823543, 16805600000242 }
+            ,{ L_, 96889010407, 1152960, 823543, 117647600000242 }
+            ,{ L_, 678223072849, 1152960, 823543, 823541600000242 }
+            ,{ L_, 4747561509943, 1152960, 823543, 5764799600000242 }
+            ,{ L_, 33232930569601, 1152960, 823543, 40353605600000242 }
+            ,{ L_, 232630513987207, 1152960, 823543, 282475247600000242 }
+            ,{ L_, 1628413597910449, 1152960, 823543, 1977326741600000242 }
+
+            // Frequency: 5764801, Initial Time: 8070721
+            ,{ L_, 8070722, 8070721, 5764801, 173 }
+            ,{ L_, 4303038016, 8070721, 5764801, 745033054046 }
+            ,{ L_, 4303038017, 8070721, 5764801, 745033054219 }
+            ,{ L_, 53170904333361727, 8070721, 5764801, 9223372034054775871 }
+            ,{ L_, 40353607, 8070721, 5764801, 5600000069 }
+            ,{ L_, 282475249, 8070721, 5764801, 47600000069 }
+            ,{ L_, 1977326743, 8070721, 5764801, 341600000069 }
+            ,{ L_, 13841287201, 8070721, 5764801, 2399600000069 }
+            ,{ L_, 96889010407, 8070721, 5764801, 16805600000069 }
+            ,{ L_, 678223072849, 8070721, 5764801, 117647600000069 }
+            ,{ L_, 4747561509943, 8070721, 5764801, 823541600000069 }
+            ,{ L_, 33232930569601, 8070721, 5764801, 5764799600000069 }
+            ,{ L_, 232630513987207, 8070721, 5764801, 40353605600000069 }
+            ,{ L_, 1628413597910449, 8070721, 5764801, 282475247600000069 }
+            ,{ L_, 11398895185373143, 8070721, 5764801, 1977326741600000069 }
+
+            // Frequency: 40353607, Initial Time: 56495049
+            ,{ L_, 56495050, 56495049, 40353607, 24 }
+            ,{ L_, 4351462344, 56495049, 40353607, 106433293435 }
+            ,{ L_, 4351462345, 56495049, 40353607, 106433293459 }
+            ,{ L_, 372196330333532089, 56495049, 40353607,
+                                                          9223372034054775822 }
+            ,{ L_, 282475249, 56495049, 40353607, 5600000019 }
+            ,{ L_, 1977326743, 56495049, 40353607, 47600000019 }
+            ,{ L_, 13841287201, 56495049, 40353607, 341600000019 }
+            ,{ L_, 96889010407, 56495049, 40353607, 2399600000019 }
+            ,{ L_, 678223072849, 56495049, 40353607, 16805600000019 }
+            ,{ L_, 4747561509943, 56495049, 40353607, 117647600000019 }
+            ,{ L_, 33232930569601, 56495049, 40353607, 823541600000019 }
+            ,{ L_, 232630513987207, 56495049, 40353607, 5764799600000019 }
+            ,{ L_, 1628413597910449, 56495049, 40353607, 40353605600000019 }
+            ,{ L_, 11398895185373143, 56495049, 40353607, 282475247600000019 }
+            ,{ L_, 79792266297612001, 56495049, 40353607, 1977326741600000019 }
+
+            // Frequency: 282475249, Initial Time: 395465348
+            ,{ L_, 395465349, 395465348, 282475249, 3 }
+            ,{ L_, 4690432643, 395465348, 282475249, 15204756205 }
+            ,{ L_, 4690432644, 395465348, 282475249, 15204756208 }
+            ,{ L_, 2605374312334724624, 395465348, 282475249,
+                                                          9223372034054775807 }
+            ,{ L_, 1977326743, 395465348, 282475249, 5600000002 }
+            ,{ L_, 13841287201, 395465348, 282475249, 47600000002 }
+            ,{ L_, 96889010407, 395465348, 282475249, 341600000002 }
+            ,{ L_, 678223072849, 395465348, 282475249, 2399600000002 }
+            ,{ L_, 4747561509943, 395465348, 282475249, 16805600000002 }
+            ,{ L_, 33232930569601, 395465348, 282475249, 117647600000002 }
+            ,{ L_, 232630513987207, 395465348, 282475249, 823541600000002 }
+            ,{ L_, 1628413597910449, 395465348, 282475249, 5764799600000002 }
+            ,{ L_, 11398895185373143, 395465348, 282475249, 40353605600000002 }
+            ,{ L_, 79792266297612001, 395465348, 282475249,
+                                                           282475247600000002 }
+            ,{ L_, 558545864083284007, 395465348, 282475249,
+                                                          1977326741600000002 }
+
+            // Frequency: 1977326743, Initial Time: 2768257440
+            ,{ L_, 7063224735, 2768257440, 1977326743, 2172108029 }
+            ,{ L_, 7063224736, 2768257440, 1977326743, 2172108029 }
+            ,{ L_, 9223372036854775807, 2768257440, 1977326743,
+                                                          4664566474275677344 }
+            ,{ L_, 13841287201, 2768257440, 1977326743, 5600000000 }
+            ,{ L_, 96889010407, 2768257440, 1977326743, 47600000000 }
+            ,{ L_, 678223072849, 2768257440, 1977326743, 341600000000 }
+            ,{ L_, 4747561509943, 2768257440, 1977326743, 2399600000000 }
+            ,{ L_, 33232930569601, 2768257440, 1977326743, 16805600000000 }
+            ,{ L_, 232630513987207, 2768257440, 1977326743, 117647600000000 }
+            ,{ L_, 1628413597910449, 2768257440, 1977326743, 823541600000000 }
+            ,{ L_, 11398895185373143, 2768257440, 1977326743,
+                                                             5764799600000000 }
+            ,{ L_, 79792266297612001, 2768257440, 1977326743,
+                                                            40353605600000000 }
+            ,{ L_, 558545864083284007, 2768257440, 1977326743,
+                                                           282475247600000000 }
+            ,{ L_, 3909821048582988049, 2768257440, 1977326743,
+                                                          1977326741600000000 }
+        };
+
+        const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+        {
+            if (verbose) printf("\nCheck fakeConvertRawTime arithmetic"
+                                "\n-----------------------------------\n");
+
+            for (int si = 0; si < NUM_DATA; ++si) {
+                const int LINE = DATA[si].d_line;
+                const bsls::Types::Int64 INPUT        = DATA[si].d_input;
+                const bsls::Types::Int64 INITIAL_TIME = DATA[si].d_initialTime;
+                const bsls::Types::Int64 FREQUENCY    = DATA[si].d_frequency;
+                const bsls::Types::Int64 OUTPUT       = DATA[si].d_output;
+
+                if (veryVerbose) {
+                    T_;
+                    P_(LINE);
+                    P_(INPUT);
+                    P_(INITIAL_TIME);
+                    P_(FREQUENCY);
+                    P(OUTPUT)
+                }
+
+                LOOP5_ASSERT(LINE,
+                             INPUT,
+                             INITIAL_TIME,
+                             FREQUENCY,
+                             OUTPUT,
+                             OUTPUT == fakeConvertRawTime(INPUT,
+                                                         INITIAL_TIME,
+                                                         FREQUENCY));
+            }
+        }
+
+        {
+            if (verbose)
+                printf("\nCompare fakeConvertRawTime to convertRawTime"
+                       " with static data"
+                       "\n--------------------------------------------"
+                       "-----------------\n");
+
+            const bsls::Types::Int64 frequency = getFrequency();
+            const bsls::Types::Int64 testPeriod = getTestPeriod(frequency);
+
+            if (veryVerbose) {
+                T_; P(frequency);
+            }
+
+            TU::OpaqueNativeTime startTime;
+            TU::initialize();
+            TU::getTimerRaw(&startTime);
+            for (int exponent = 0; exponent < 63; ++exponent) {
+
+                const bsls::Types::Int64 offset = (1LL << exponent);
+                if (offset > testPeriod - startTime.d_opaque) {
+                    // endTime would not be expressible in nanoseconds
+                    break;
+                }
+
+                if (veryVerbose) {
+                    T_; P_(exponent); P(offset);
+                }
+
+                compareRealToFakeConvertRawTime(startTime, offset, frequency);
+            }
+
+            compareRealToFakeConvertRawTime(startTime, 1, frequency);
+            const bsls::Types::Int64 limit32Bits = 1LL << 32;
+            if (startTime.d_opaque < limit32Bits - 2) {
+                compareRealToFakeConvertRawTime(
+                                          startTime,
+                                          limit32Bits - 2 - startTime.d_opaque,
+                                          frequency);
+                compareRealToFakeConvertRawTime(
+                                          startTime,
+                                          limit32Bits - 1 - startTime.d_opaque,
+                                          frequency);
+                compareRealToFakeConvertRawTime(startTime,
+                                                limit32Bits - 2,
+                                                frequency);
+                compareRealToFakeConvertRawTime(
+                                          startTime,
+                                          limit32Bits + 1 - startTime.d_opaque,
+                                          frequency);
+            }
+            compareRealToFakeConvertRawTime(
+                                           startTime,
+                                           testPeriod - 1 - startTime.d_opaque,
+                                           frequency);
+            compareRealToFakeConvertRawTime(startTime,
+                                            testPeriod - startTime.d_opaque,
+                                            frequency);
+        }
+
+        {
+            if (verbose)
+                printf("\nCompare fakeConvertRawTime "
+                       "to convertRawTime with random data"
+                       "\n---------------------------"
+                       "----------------------------------\n");
+
+            srand((unsigned) time(NULL));
+
+            const bsls::Types::Int64 frequency = getFrequency();
+            const bsls::Types::Int64 testPeriod = getTestPeriod(frequency);
+
+            if (veryVerbose) {
+                T_; P(frequency);
+            }
+
+            TU::OpaqueNativeTime startTime;
+            TU::initialize();
+            TU::getTimerRaw(&startTime);
+
+
+            const Int64 NUM_TESTS  = verbose
+                ? (veryVerbose ? 1L : 1000LL) * atoi(argv[2])
+                : 100;
+            for (int bits = 0;
+                 bits < 64 &&
+                 (bits == 0 ||
+                     (bsls::Types::Int64) getBitMask(bits - 1) < testPeriod);
+                 ++bits) {
+
+                if (veryVerbose) { P(bits); }
+
+                for (int iterations = 0;
+                     iterations < NUM_TESTS && iterations < 1 << bits;
+                     ++iterations) {
+
+                    const bsls::Types::Int64 offset
+                        = (getRand64() & getBitMask(bits)) % testPeriod;
+
+                    if (veryVerbose) {
+                        T_; P_(bits); P_(iterations); P(offset);
+                    }
+
+                    compareRealToFakeConvertRawTime(startTime,
+                                                    offset,
+                                                    frequency);
+                }
+            }
+        }
+#endif
+      } break;
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING getTimerRaw() and convertRawTime()
         //
@@ -236,8 +1038,8 @@ int main(int argc, char *argv[])
         //   bsls::TimeUtil::convertRawTime(bsls::TimeUtil::OpaqueNativeTime)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Raw methods"
-                          << "\n===================" << endl;
+        if (verbose) printf("\nTesting Raw methods"
+                            "\n===================\n");
 
         {
             // ---------------------------------------------------------------
@@ -249,7 +1051,7 @@ int main(int argc, char *argv[])
             TU::getTimerRaw(&idle);
             double               primeThePump = 12345/67 / 8.901;
             if (veryVeryVerbose)
-                std::cout << "Warmup: " << primeThePump << std::endl;
+                printf("Warmup: %g\n", primeThePump);
             // ---------------------------------------------------------------
         }
 
@@ -262,8 +1064,7 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) std::cout << "0: Elapsed time under test: " << dT
-                                   << " nsec" << std::endl;
+            if (verbose) printf("0: Elapsed time under test: %lld nsec\n", dT);
         }
 
         {
@@ -277,10 +1078,8 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) std::cout << "1: Elapsed time under test: " << dT
-                                   << " nsec" << std::endl;
-            if (veryVerbose) std::cout << "Computed Values:"
-                                       << x << std::endl;
+            if (verbose) printf("1: Elapsed time under test: %lld nsec\n", dT);
+            if (veryVerbose) printf("Computed Values: %g\n", x);
         }
 
         {
@@ -295,10 +1094,8 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) std::cout << "2: Elapsed time under test: " << dT
-                                   << " nsec" << std::endl;
-            if (veryVerbose) std::cout << "Computed Values:"
-                                       << x << "  " << y << std::endl;
+            if (verbose) printf("2: Elapsed time under test: %lld nsec\n", dT);
+            if (veryVerbose) printf("Computed Values: %g %g\n", x, y);
         }
 
         {
@@ -315,10 +1112,8 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) std::cout << "3: Elapsed time under test: " << dT
-                                   << " nsec" << std::endl;
-            if (veryVerbose) std::cout << "Computed Values:" << x << "  "
-                                       << y << "  " << z << std::endl;
+            if (verbose) printf("3: Elapsed time under test: %lld nsec\n", dT);
+            if (veryVerbose) printf("Computed Values: %g %g %g\n", x, y, z);
         }
 
         {
@@ -337,10 +1132,9 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) std::cout << "10: Elapsed time under test: " << dT
-                                   << " nsec" << std::endl;
-            if (veryVerbose) std::cout << "Computed Values:" << x << "  "
-                                       << y << "  " << z << std::endl;
+            if (verbose)
+                printf("10: Elapsed time under test: %lld nsec\n", dT);
+            if (veryVerbose) printf("Computed Values: %g %g %g\n", x, y, z);
         }
 
         {
@@ -359,14 +1153,13 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) std::cout << "100: Elapsed time under test: " << dT
-                                   << " nsec" << std::endl;
-            if (veryVerbose) std::cout << "Computed Values:" << x << "  "
-                                       << y << "  " << z << std::endl;
+            if (verbose)
+                printf("100: Elapsed time under test: %lld nsec\n", dT);
+            if (veryVerbose) printf("Computed Values: %g %g %g\n", x, y, z);
         }
 
       } break;
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // INITIALIZATION TEST
         //   *** Windows only ***: bsls::TimeUtil::getTimer()
@@ -381,13 +1174,17 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
+        if (verbose)
+            printf("\nTesting TimeUtil initialization (wall timer)"
+                   "\n============================================\n");
+
         Int64 t = TU::getTimer();
-        if (verbose) { T_(); P64_(t); }
+        if (verbose) { T_; P_(t); }
         ASSERT(t >= 0);
 #endif
 
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // INITIALIZATION TEST
         //   *** UNIX only ***: bsls::TimeUtil::getProcessTimers()
@@ -401,13 +1198,17 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM__OS_UNIX
+        if (verbose)
+            printf("\nTesting TimeUtil initialization (process timers)"
+                   "\n================================================\n");
+
         Int64 ts, tu; TU::getProcessTimers(&ts, &tu);
-        if (verbose) { T_(); P64_(ts); P64_(tu); }
+        if (verbose) { T_; P_(ts); P_(tu); }
         ASSERT(ts >= 0); ASSERT(tu >= 0);
 #endif
 
       } break;
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // INITIALIZATION TEST
         //   *** UNIX only ***: bsls::TimeUtil::getProcessUserTimer()
@@ -421,13 +1222,17 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM__OS_UNIX
+        if (verbose)
+            printf("\nTesting TimeUtil initialization (user timer)"
+                   "\n============================================\n");
+
         Int64 t = TU::getProcessUserTimer();
-        if (verbose) { T_(); P64_(t); }
+        if (verbose) { T_; P_(t); }
         ASSERT(t >= 0);
 #endif
 
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // INITIALIZATION TEST
         //   *** UNIX only ***: bsls::TimeUtil::getProcessSystemTimer()
@@ -441,13 +1246,17 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM__OS_UNIX
+        if (verbose)
+            printf("\nTesting TimeUtil initialization (system timer)"
+                   "\n==============================================\n");
+
         Int64 t = TU::getProcessSystemTimer();
-        if (verbose) { T_(); P64_(t); }
+        if (verbose) { T_; P_(t); }
         ASSERT(t >= 0);
 #endif
 
       } break;
-      case 6: {
+      case 5: {
 #if defined (BSLS_PLATFORM__OS_SOLARIS) || defined (BSLS_PLATFORM__OS_HPUX)
         // --------------------------------------------------------------------
         // PERFORMANCE TEST 'gethrtime()' *** Sun and HP ONLY ***
@@ -462,12 +1271,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTesting 'gethrtime()' statistical correctness"
-                 << "\n=============================================" << endl;
+            printf("\nTesting 'gethrtime()' statistical correctness"
+                   "\n=============================================\n");
 
-        if (verbose)
-            cout << "\nCall 'gethrtime()' twice in a large loop."
-                 << endl;
+        if (verbose) printf("\nCall 'gethrtime()' twice in a large loop.\n");
         {
             const Int64 NUM_TESTS = verbose ? 100LL * atoi(argv[2]) : 100;
 
@@ -480,17 +1287,17 @@ int main(int argc, char *argv[])
                 t1 = (Int64) gethrtime();
                 t2 = (Int64) gethrtime();
                 // Int64 dt = t2 - t1;  // these lines retained for
-                // P64(dt);             //  non-production testing.
+                // P(dt);             //  non-production testing.
                 if (t2 <= t1) {  // Optimize for CORRECT behavior
                     if (t2 == t1) {
                         ++numSame;
-                        if (verbose) { T_();  P_(i);  P(numSame); }
+                        if (verbose) { T_;  P_(i);  P(numSame); }
                     }
                     else {
                         ++numWrong;
                         if (verbose) {
-                            T_();      P64_(i);   P_(numWrong);
-                            P64_(t1);  P64_(t2);  P64(t2 - t1);
+                            T_;      P_(i);   P_(numWrong);
+                            P_(t1);  P_(t2);  P(t2 - t1);
                         }
                     }
                 }
@@ -499,17 +1306,22 @@ int main(int argc, char *argv[])
             double numCalls    = ((double) NUM_TESTS) * 1.0e-6;
             double timePerCall = elapsedTime / (numCalls * 2.0); //(microsec.)
             if (verbose) {
-                cout << "\telapsed time   = " << elapsedTime << " (sec)\n"
-                     << "\tnum tests     = " << numCalls << " x 10^6\n"
-                     << "\ttime per call  = " << timePerCall << " (nsec)\n"
-                     << "\n\tnum non-monotonic pairs   = " << numWrong
-                     << "\n\tnum pairs with same value = " << numSame << endl;
-            }
+                printf("\telapsed time  = %g (sec)\n"
+                       "\tnum calls     = %g x 10^6\n"
+                       "\ttime per call = %g (usec)\n\n"
+                       "\tnum non-monotonic pairs   = %d\n"
+                       "\tnum pairs with same value = %d\n",
+                       elapsedTime,
+                       numCalls,
+                       timePerCall,
+                       numWrong,
+                       numSame);
+                }
         }
 
 #endif
       } break;
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // HOOKING TEST
         // Concerns:
@@ -580,12 +1392,10 @@ int main(int argc, char *argv[])
         {
 
             if (verbose)
-                cout << "\nHooking Test: System time requests across sleep."
-                     << "\n================================================"
-                     << endl;
+                printf("\nHooking Test: System time requests across sleep."
+                       "\n================================================\n");
 
-            if (veryVerbose)
-                cout << "timeQuantum = " << timeQuantum << endl;
+            if (veryVerbose) printf("timeQuantum = %lld\n", timeQuantum);
 
             const unsigned shortSleep = 2;
             Int64 wt1 = TU::getTimer();
@@ -598,15 +1408,11 @@ int main(int argc, char *argv[])
             Int64 ut2 = TU::getProcessUserTimer();
             Int64 st2 = TU::getProcessSystemTimer();
 
-            if (veryVerbose)
-                cout
-                    << "wt1: " << wt1 << " "
-                    << "ut1: " << ut1 << " "
-                    << "st1: " << st1 << std::endl
-                    << "wt2: " << wt2 << " "
-                    << "ut2: " << ut2 << " "
-                    << "st2: " << st2 << std::endl
-                    << "wt2 - wt1: " << wt2 - wt1 << std::endl;
+            if (veryVerbose) {
+                P_(wt1) P_(ut1) P(st1)
+                P_(wt2) P_(ut2) P(st2)
+                P(wt2 - wt1)
+            }
 
             // System and user time differences must be zero mod quantum, or
             // quantum is wrong.
@@ -640,9 +1446,8 @@ int main(int argc, char *argv[])
         // Second subtest: Make repeated time calls; check for consistency.
         {
             if (verbose)
-                cout << "\nHooking Test: System time requests repeated."
-                     << "\n============================================"
-                     << endl;
+                printf("\nHooking Test: System time requests repeated."
+                       "\n============================================\n");
 
             enum { NUM_INTERVALS = 10,
                    NUM_SAMPLES = NUM_INTERVALS + 1 };
@@ -690,40 +1495,31 @@ int main(int argc, char *argv[])
 
             // We should not have spent much time getting the time ten times.
 
-            if (veryVerbose)
-                cout << "uQuantsSpent: " << uQuantsSpent << "    "
-                     << "sQuantsSpent: " << sQuantsSpent << endl;
+            if (veryVerbose) { P_(uQuantsSpent) P(sQuantsSpent) }
 
             ASSERT(uQuantsSpent <= 1);
             ASSERT(sQuantsSpent <= 1);
 
             if (veryVerbose) {
-                cout << " 0: " << "wt: " << samples[0].d_wt << endl
-                     << " 0: " << "ut: " << samples[0].d_ut << endl
-                     << " 0: " << "st: " << samples[0].d_st << endl;
+                printf( " 0: wt: %lld\n"
+                        " 0: ut: %lld\n"
+                        " 0: st: %lld\n",
+                        samples[0].d_wt,
+                        samples[0].d_ut,
+                        samples[0].d_st);
 
                 for (int i = 1; i < NUM_SAMPLES; ++i) {
                     sample& s0 = samples[i - 1];
                     sample& s1 = samples[i];
 
-                    cout << std::setw(2) << i << ": "
-                                             << "wt: " << s1.d_wt
-                                             << " - "  << s0.d_wt
-                                             << " = "  << s1.d_wt - s0.d_wt
-                                                                    << endl;
-                    cout << std::setw(2) << i << ": "
-                                            << "ut: " << s1.d_ut
-                                            << " - "  << s0.d_ut
-                                            << " = "  << s1.d_ut - s0.d_ut
-                                                                    << endl;
-                    cout << std::setw(2) << i << ": "
-                                            << "st: " << s1.d_st
-                                            << " - "  << s0.d_st
-                                            << " = "  << s1.d_st - s0.d_st
-                                                                    << endl;
+                    printf("%2d: wt: %lld - %lld = %lld\n"
+                           "%2d: ut: %lld - %lld = %lld\n"
+                           "%2d: st: %lld - %lld = %lld\n",
+                           i, s1.d_wt, s0.d_wt, s1.d_wt - s0.d_wt,
+                           i, s1.d_ut, s0.d_ut, s1.d_ut - s0.d_ut,
+                           i, s1.d_st, s0.d_st, s1.d_st - s0.d_st);
                 }
             }
-
         }
 
         // Third subtest: Consume time; verify that it appears in the counts.
@@ -736,9 +1532,8 @@ int main(int argc, char *argv[])
             // dependent on ever-increasing processor speeds.
 
             if (verbose)
-                cout << "\nHooking Test: System time requests over long loop."
-                     << "\n=================================================="
-                     << endl;
+                printf("\nHooking Test: System time requests over long loop.\n"
+                       "==================================================\n");
 
             Int64 wt1 = TU::getTimer();
             Int64 ut1 = TU::getProcessUserTimer();
@@ -752,16 +1547,11 @@ int main(int argc, char *argv[])
             Int64 ut2 = TU::getProcessUserTimer();
             Int64 st2 = TU::getProcessSystemTimer();
 
-            if (veryVerbose)
-                cout << "wt2: " << wt2       << " -  "
-                     << "wt1: " << wt1       << " = "
-                                << wt2 - wt1 << std::endl
-                     << "ut2: " << ut2       << " -  "
-                     << "ut1: " << ut1       << " = "
-                                << ut2 - ut1 << std::endl
-                     << "st2: " << st2       << " -  "
-                     << "st1: " << st1       << " = "
-                                << st2 - st1 << std::endl << endl;
+            if (veryVerbose) {
+                printf("wt2: %lld -  wt1: %lld = %lld\n", wt2, wt1, wt2 - wt1);
+                printf("ut2: %lld -  ut1: %lld = %lld\n", ut2, ut1, ut2 - ut1);
+                printf("st2: %lld -  st1: %lld = %lld\n", st2, st1, st2 - st1);
+            }
 
             ASSERT(wt2 - wt1 >= timeQuantum);
                                         // Our wall time is over a timeQuantum.
@@ -786,7 +1576,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // PERFORMANCE TEST
         //   Test whether successive calls ever return the same value.
@@ -805,7 +1595,7 @@ int main(int argc, char *argv[])
 
         struct {
             TimerMethod d_method;
-            std::string d_methodName;
+            const char *d_methodName;
             bool        d_reportSame;
                 // don't report same values for user and system timers
         }
@@ -821,16 +1611,14 @@ int main(int argc, char *argv[])
 
         for (size_t t = 0; t < TimerMethodsCount; ++t) {
             if (verbose)
-                cout << "\nTesting '"
-                    << TimerMethods[t].d_methodName
-                    << "()' statistical correctness"
-                    << "\n===========================================" << endl;
+                printf("\nTesting '%s()' statistical correctness"
+                       "\n===========================================\n",
+                       TimerMethods[t].d_methodName);
 
             if (verbose)
-                cout << "\nCall 'bsls::TimeUtil::"
-                    << TimerMethods[t].d_methodName
-                    << "()' twice in a large loop."
-                    << endl;
+                printf("\nCall 'bsls::TimeUtil::%s()' twice in a large loop."
+                           "\n",
+                       TimerMethods[t].d_methodName);
             {
                 const Int64 NUM_TESTS  = verbose ? 100LL * atoi(argv[2]) : 100;
 
@@ -850,14 +1638,14 @@ int main(int argc, char *argv[])
                         if (t2 == t1) {
                             if (TimerMethods[t].d_reportSame) {
                                 ++numSame;
-                                if (verbose) { T_();  P_(i);  P(numSame); }
+                                if (verbose) { T_;  P_(i);  P(numSame); }
                             }
                         }
                         else {
                             ++numWrong;
                             if (verbose) {
-                                T_();      P64_(i);   P_(numWrong);
-                                P64_(t1);  P64_(t2);  P64(t2 - t1);
+                                T_;      P_(i);   P_(numWrong);
+                                P_(t1);  P_(t2);  P(t2 - t1);
                             }
                         }
                     }
@@ -868,17 +1656,21 @@ int main(int argc, char *argv[])
                 double numCalls    = ((double) NUM_TESTS) * 1.0e-6;
                 double timePerCall = elapsedTime / (numCalls * 2.0);//microsec
                 if (verbose) {
-                    cout << "\telapsed time   = " << elapsedTime << " (sec)\n"
-                        << "\tnum tests     = " << numCalls << " x 10^6\n"
-                        << "\ttime per call  = " << timePerCall << " (nsec)\n"
-                        << "\n\tnum non-monotonic pairs   = " << numWrong
-                        << "\n\tnum pairs with same value = " << numSame
-                        << endl;
+                    printf("\telapsed time  = %g (sec)\n"
+                           "\tnum calls     = %g x 10^6\n"
+                           "\ttime per call = %g (usec)\n\n"
+                           "\tnum non-monotonic pairs   = %d\n"
+                           "\tnum pairs with same value = %d\n",
+                           elapsedTime,
+                           numCalls,
+                           timePerCall,
+                           numWrong,
+                           numSame);
                 }
             }
         }
       } break;
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
         // PERFORMANCE TEST
         //   Time the (platform-dependent) call.
@@ -896,7 +1688,7 @@ int main(int argc, char *argv[])
 
         struct {
             TimerMethod d_method;
-            std::string d_methodName;
+            const char *d_methodName;
         }
         TimerMethods[] = {
             { TU::getTimer,                  "getTimer"                 },
@@ -910,17 +1702,13 @@ int main(int argc, char *argv[])
 
         for (size_t t = 0; t < TimerMethodsCount; ++t) {
             if (verbose)
-                cout << "\nTesting 'bsls::TimeUtil::"
-                    << TimerMethods[t].d_methodName
-                    << " Performance()'"
-                    << "\n==============================================="
-                    << endl;
+                printf("\nTesting 'bsls::TimeUtil::%s Performance()'"
+                       "\n===============================================\n",
+                       TimerMethods[t].d_methodName);
 
             if (verbose)
-                cout << "\nCall 'bsls::TimeUtil::"
-                    << TimerMethods[t].d_methodName
-                    << "()' in a large loop."
-                    << endl;
+                printf("\nCall 'bsls::TimeUtil::%s()' in a large loop.\n",
+                        TimerMethods[t].d_methodName);
             {
                 const Int64 NUM_STEPS  = verbose ? 10LL * atoi(argv[2]) : 10;
                 const Int64 t0 = TU::getTimer(); //measure the tool with itself
@@ -941,55 +1729,13 @@ int main(int argc, char *argv[])
                 double numCalls    = ((double) NUM_STEPS * 10.0) * 1.0e-6;
                 double timePerCall = elapsedTime / numCalls; // (microsec.)
                 if (verbose) {
-                    cout << "\telapsed time  = " << elapsedTime << " (sec)\n"
-                        << "\tnum calls    = " << numCalls << " x 10^6\n"
-                        << "\ttime per call = " << timePerCall << " (usec)"
-                        << endl;
+                    printf("\telapsed time  = %g (sec)\n"
+                           "\tnum calls     = %g x 10^6\n"
+                           "\ttime per call = %g (usec)\n",
+                           elapsedTime, numCalls, timePerCall);
                 }
             }
         }
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
-        //   The usage example provided in the component header must build and
-        //   run with a normal exit status.
-        //
-        // Plan:
-        //   Copy the implementation portion of the Usage Example to the
-        //   reserved space above, and copy the executable portion below,
-        //   adding any needed supporting code.
-        //
-        // Testing:
-        //   USAGE
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting Usage Example"
-                          << "\n=====================" << endl;
-
-        {
-            my_Timer tw;
-            for (int i = 0; i < 1000000; ++i) {
-                // ...
-            }
-            double dTw = tw.elapsedWallTime();
-            my_Timer tu;
-            for (int i = 0; i < 1000000; ++i) {
-                // ...
-            }
-            double dTu = tu.elapsedUserTime();
-            my_Timer ts;
-            for (int i = 0; i < 1000000; ++i) {
-                // ...
-            }
-            double dTs = ts.elapsedSystemTime();
-            if (verbose)
-                std::cout
-                    << "elapsed wall time: " << dTw << std::endl
-                    << "elapsed user time: " << dTu << std::endl
-                    << "elapsed system time: " << dTs << std::endl;
-        }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1014,7 +1760,7 @@ int main(int argc, char *argv[])
 
         struct {
             TimerMethod d_method;
-            std::string d_methodName;
+            const char *d_methodName;
         }
         TimerMethods[] = {
             { TU::getTimer,                  "getTimer"                 },
@@ -1028,26 +1774,21 @@ int main(int argc, char *argv[])
 
         for (size_t t = 0; t < TimerMethodsCount; ++t) {
             if (verbose)
-                cout << "\nTesting '"
-                     << TimerMethods[t].d_methodName
-                     << "()'"
-                     << "\n====================" << endl;
+                printf("\nTesting '%s()'"
+                       "\n====================",
+                       TimerMethods[t].d_methodName);
 
             if (verbose)
-                cout << "\nConfirm sizeof ("
-                     << TimerMethods[t].d_methodName
-                     << "())."
-                     << endl;
+                 printf("\nConfirm sizeof (%s()).\n",
+                        TimerMethods[t].d_methodName);
             {
                 int numBytes = sizeof(TimerMethods[t].d_method());
-                if (veryVerbose) { T_(); P(numBytes); }
+                if (veryVerbose) { T_; P(numBytes); }
                 LOOP_ASSERT(t, 8 <= numBytes);
             }
 
             if (verbose)
-                cout << "\nExercise '"
-                     << TimerMethods[t].d_methodName
-                     << "()'." << endl;
+                printf("\nExercise '%s()'.\n", TimerMethods[t].d_methodName);
             {
                 const int NUM_CALLS   = 10;
                 const int DELAY_COUNT = 1000000;
@@ -1055,7 +1796,7 @@ int main(int argc, char *argv[])
                 double    totalElapsedTime = 0.0;
 
                 result[0] = TimerMethods[t].d_method();
-                if (veryVerbose) { T_();  P64(result[0]); }
+                if (veryVerbose) { T_;  P(result[0]); }
                 for (int i = 1; i < NUM_CALLS; ++i) {
                     for (int j = 0; j < DELAY_COUNT * i; ++j) {
                         i = i + 1;
@@ -1066,24 +1807,25 @@ int main(int argc, char *argv[])
                     double seconds = (double) difference / 1.0e9;
                     totalElapsedTime += seconds;
                     if (veryVerbose) {
-                        T_();  P64_(result[i]);  P64_(difference);  P(seconds);
+                        T_;  P_(result[i]);  P_(difference);  P(seconds);
                     }
                     LOOP2_ASSERT(t, i, (Int64) 0 <= difference);//cast--dg bug
                 }
-                if (veryVerbose) { cout << endl;  T_();  P(totalElapsedTime); }
+                if (veryVerbose) {  printf("\n");  T_;  P(totalElapsedTime); }
             }
         }
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 

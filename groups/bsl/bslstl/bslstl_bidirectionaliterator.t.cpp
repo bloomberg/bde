@@ -6,8 +6,7 @@
 #include <bslmf_issame.h>
 #include <bsls_unspecifiedbool.h>
 
-#include <climits>
-#include <cstdo>
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
