@@ -14,9 +14,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::InfrequentDeleteBlockList: list of infrequently deleted blocks
 //
-//@AUTHOR: Shao-wei Hung (shung1)
-//
 //@SEE_ALSO: bdema_infrequentdeleteblocklist
+//
+//@AUTHOR: Shao-wei Hung (shung1)
 //
 //@DESCRIPTION: This component implements a memory manager that allocates and
 // manages a sequence of memory blocks, each potentially of a different size as

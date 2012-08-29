@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
+//@DEPRECATED: Do not use.
+//
 //@SEE_ALSO: package bsl+stdhdrs
 //
 //@AUTHOR: Arthur Chiu (achiu21)

@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //
-//@SEE_ALSO:
-//
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component provides a macro, 'BSLS_MACROINCREMENT(NUMBER)',

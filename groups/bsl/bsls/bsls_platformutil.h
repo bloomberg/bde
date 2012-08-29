@@ -15,9 +15,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::PlatformUtil: namespace for platform-neutral type names and API
 //
-//@AUTHOR: John Lakos (jlakos)
-//
 //@SEE_ALSO: bsls_platform, bsls_types
+//
+//@AUTHOR: John Lakos (jlakos)
 //
 //@DESCRIPTION: This component provides a namespace for a set of 'typedef's and
 // functions that provide a stable, portable interface to platform-dependent

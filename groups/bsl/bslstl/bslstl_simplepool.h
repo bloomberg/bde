@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstl::SimplePool: memory manager that allocates memory blocks for a type
 //
-//@AUTHOR: Raymond Chiu (schiu49)
-//
 //@SEE_ALSO: bslstl_treenodepool, bdema_pool
+//
+//@AUTHOR: Raymond Chiu (schiu49)
 //
 //@DESCRIPTION: This component implements a memory pool, 'bslstl::SimplePool',
 // that allocates and manages memory blocks of for a parameterized type.  A
@@ -195,6 +195,17 @@ BSLS_IDENT("$Id: $")
 //  stack.pop();
 //  assert(0 == stack.size());
 //..
+
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "<bslstl_simplepool.h> header can't be included directly in \
+BSL_OVERRIDES_STD mode"
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
 
 #ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
 #include <bslstl_allocatortraits.h>

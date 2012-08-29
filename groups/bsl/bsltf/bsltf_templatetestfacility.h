@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsltf::TemplateTestFacility: namespace for template-testing utilities
 //
-//@AUTHOR: Chen He (che2)
+//@SEE_ALSO: bsltf_simpletesttype, bslstl_map
 //
-//@SEE ALSO: bsltf_simpletesttype, bslstl_map
+//@AUTHOR: Chen He (che2)
 //
 //@DESCRIPTION: When testing a container template having a type parameter, we
 // need to ensure that the template supports its contractually specified

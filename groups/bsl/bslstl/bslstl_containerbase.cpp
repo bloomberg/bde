@@ -1,6 +1,8 @@
 // bslstl_containerbase.cpp                                           -*-C++-*-
 #include <bslstl_containerbase.h>
 
+#include <bslstl_allocator.h>  // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 

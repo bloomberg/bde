@@ -316,7 +316,13 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
 #endif
                   "c" ((int) (swapValue >> 32)),
                   "A" (*atomicInt)
-                : "memory", "cc");
+                :
+#if defined(BSLS_PLATFORM__CMP_CLANG) && defined(__PIC__)
+                  "ebx",    // Clang wants to reuse 'ebx' even in PIC mode
+                            // and generates invalid code.
+                            // Mark 'ebx' as clobbered to prevent that.
+#endif
+                  "memory", "cc");
 
     return result;
 }

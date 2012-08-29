@@ -1,5 +1,8 @@
-// bslstp_list.cpp                                                    -*-C++-*-
-#include <bslstp_list.h>
+// bsttst_bsl_stack.cpp                                               -*-C++-*-
+#include <bsttst_bsl_stack.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
 
 // ---------------------------------------------------------------------------
 // NOTICE:

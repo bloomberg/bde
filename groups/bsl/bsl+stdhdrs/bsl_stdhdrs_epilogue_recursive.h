@@ -48,27 +48,6 @@
 // 'BSL_INCLUDE_*' macros are defined in the standard headers inside the
 // 'bsl+stdhdrs' package.
 
-#ifdef BSL_INCLUDE_BSL_LIST
-# ifndef INCLUDED_BSLSTP_LIST
-#   include <bslstp_list.h>
-#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
-# endif
-#endif
-
-#ifdef BSL_INCLUDE_BSL_QUEUE
-# ifndef INCLUDED_BSLSTP_QUEUE
-#   include <bslstp_queue.h>
-#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
-# endif
-#endif
-
-#ifdef BSL_INCLUDE_BSL_STACK
-# ifndef INCLUDED_BSLSTP_STACK
-#   include <bslstp_stack.h>
-#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
-# endif
-#endif
-
 #ifdef BSL_INCLUDE_BSL_HASH_MAP
 # ifndef INCLUDED_BSLSTP_HASHMAP
 #   include <bslstp_hashmap.h>
@@ -131,6 +110,13 @@
 # endif
 #endif
 
+#ifdef BSL_INCLUDE_BSL_LIST
+# ifndef INCLUDED_BSLSTL_LIST
+#   include <bslstl_list.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
 #ifdef BSL_INCLUDE_BSL_VECTOR
 # ifndef INCLUDED_BSLSTL_VECTOR
 #   include <bslstl_vector.h>
@@ -182,6 +168,17 @@
 # endif
 #endif
 
+#ifdef BSL_INCLUDE_BSL_QUEUE
+# ifndef INCLUDED_BSLSTL_QUEUE
+#   include <bslstl_queue.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_PRIORITYQUEUE
+#   include <bslstl_priorityqueue.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
 // The following include provides backwards compatibility for Bloomberg-managed
 // code that requires 'stdexcept' to include 'string'.  It is placed here
 // because placing it directly in 'bsl_stdexcept.h' breaks the delicate include
@@ -217,6 +214,13 @@
 # endif
 #endif
 
+#ifdef BSL_INCLUDE_BSL_STACK
+# ifndef INCLUDED_BSLSTL_STACK
+#   include <bslstl_stack.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
 #ifdef BSL_INCLUDE_BSL_STRING
 # ifndef INCLUDED_BSLSTL_STRING
 #   include <bslstl_string.h>
@@ -242,11 +246,10 @@
 #   include <bslstp_exfunctional.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
-# ifndef INCLUDED_BSLSTL_HASH
+# ifndef INCLUDED_BSLSTL_EQUALTO
 #   include <bslstl_equalto.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
-#endif
 # ifndef INCLUDED_BSLSTL_HASH
 #   include <bslstl_hash.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE

@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::RawDeleterProctor: proctor to conditionally manage an object
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@SEE_ALSO: bslma_rawdeleterguard, bslma_autorawdeleter
+//
+//@AUTHOR: Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component provides a proctor class template to
 // conditionally manage an (otherwise-unmanaged) object of parameterized 'TYPE'

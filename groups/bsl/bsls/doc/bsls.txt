@@ -8,13 +8,13 @@
 
 @DESCRIPTION: The 'bsls' package provides a variety of system utilities
  for use by the 'bsl' library.  These utilities include:
-..
-  1. Various buffer types with different alignment properties.
-  2. Uniform exception handling, even for non-exception build targets.
-  3. A platform-dependent 64-bit integer type.
-  4. Platform-identification routines.
-  5. A timer component, and access to system time facilities.
-..
+
+: 1 Various buffer types with different alignment properties.
+: 2 Uniform exception handling, even for non-exception build targets.
+: 3 A platform-dependent 64-bit integer type.
+: 4 Platform-identification routines.
+: 5 A timer component, and access to system time facilities.
+
  Note that this list is not meant to be exhaustive.  The sections below provide
  more information about the individual components.
 

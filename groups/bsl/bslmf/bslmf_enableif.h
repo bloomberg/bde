@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component contains the class template 'bslma::EnableIf', a
 // "meta-function" that can cause a deduced function template instantiation to
 // fail in a way compatible with the C++ SFINAE rules, and so remove that

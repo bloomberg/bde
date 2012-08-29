@@ -31,7 +31,8 @@ BSLS_IDENT("$Id: $")
 // the Bloomberg supplied standard header file.
 
 #ifndef BSL_OVERRIDES_STD
-#include <bslstp_queue.h>
+#include <bslstl_queue.h>
+#include <bslstl_priorityqueue.h>
 #endif
 
 #endif

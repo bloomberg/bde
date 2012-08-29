@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::DestructorProctor: proctor to conditionally manage an object
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@SEE_ALSO: bslma_destructorguard, bslma_autodestructor
+//
+//@AUTHOR: Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component provides a proctor class template to
 // conditionally manage an (otherwise-unmanaged) object of parameterized 'TYPE'

@@ -19,56 +19,168 @@ BSLS_IDENT("$Id: $")
 //         Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component provides an iterator adaptor that, given an
-// implementation class defining a core set of iterator functionality, adapts
-// it to provide an STL-compliant bidirectional iterator interface.  The set of
-// requirements for a forward iterator is found in "Table 107: Bidirectional
-// iterator requirements", under the tag "[bidirectional.iterators]".  (Note
-// that this reference is sourced in N3092, a C++0x working paper; the actual
-// table number may be different in the actual standard.)  Include
-// bsl_iterator.h to use this component.
+// implementation class defining a core set of iterator functionality specified
+// in the class level documentation, adapts it to provide an STL-compliant
+// bidirectional iterator interface.  'bslstl::BidirectionalIterator' meets the
+// requirements of a bidirectional iterator described in the C++11 standard
+// [24.2.7] under the tag "[bidirectional.iterators]".  Include bsl_iterator.h
+// to use this component.
 //
 ///Usage
 ///-----
-// Given the following "iterator-like" implementation class:
+// In this section we show intended use of this component.
+//
+///Example 1: Defining a Standard Compliant Bidirectional Iterator
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to create a standard compliant bidirectional access iterator
+// for a container.
+//
+// First, we define an iterator, 'MyArrayIterator', that meets the requirements
+// of the 'IMP_ITER' template parameter of 'BidirectionalIterator' class (see
+// class level documentation), but does not meet the full set of requirements
+// for a bidirectional iterator as defined by the C++ standard.  Note that the
+// following shows only the public interface required.  Private members and
+// additional methods that may be needed to implement this class are elided in
+// this example:
 //..
-//  template <class T>
-//  class my_IteratorImp {
+//  template <class VALUE>
+//  class MyArrayIterator {
+//      // This class implements the minimal requirements to implement a
+//      // bidirectional iterator using 'bslstl::BidirectionalIterator'.
+//
 //    public:
 //      // CREATORS
-//      my_IteratorImp();
-//      my_IteratorImp(const my_IteratorImp&);
-//      ~my_IteratorImp();
+//      MyArrayIterator();
+//          // Create a 'MyArrayIterator' object that does not refer to any
+//          // value.
 //
-//      // An additional value-constructor should be supplied that can be
-//      // called by the unspecified container type, providing access to the
-//      // container's internal data structure that is to be iterated over.
-//      // This would typically be called by 'begin' and 'end'.
+//      MyArrayIterator(const MyArrayIterator& original);
+//          // Create a 'MyArrayIterator' object having the same value
+//          // as the specified 'original' object.
+//
+//      ~MyArrayIterator();
+//          // Destroy this object;
 //
 //      // MANIPULATORS
-//      my_IteratorImp& operator=(const my_IteratorImp&);
+//      MyArrayIterator& operator=(const MyArrayIterator& rhs);
+//          // Assign to this object the value of the specified 'rhs' object,
+//          // and return a reference providing modifiable access to this
+//          // object.
 //
 //      void operator++();
+//          // Increment this object to refer to the next element in an array.
+//
 //      void operator--();
+//          // Decrement this object to refer to the previous element in an
+//          // array.
 //
 //      // ACCESSORS
-//      T& operator*() const;
+//      VALUE& operator*() const;
+//          // Return a reference providing modifiable access to the value (of
+//          // the parameterized 'VALUE' type) of the element referred to by
+//          // this object.
 //  };
 //
-//  template <class T>
-//  bool operator==(const my_IteratorImp<T>& lhs,
-//                  const my_IteratorImp<T>& rhs);
+//  template <class VALUE>
+//  bool operator==(const MyArrayIterator<VALUE>&,
+//                  const MyArrayIterator<VALUE>&);
 //..
-// simply add the following two 'typedef's to any container class that provides
-// 'my_IteratorImp<T>' access, and the container will have STL-compliant
-// bidirectional iterators:
+// Notice that 'MyArrayIterator' does not implement a complete standard
+// compliant bidirectional iterator.  It is missing methods such as 'operator+'
+// and 'operator[]'.
+//
+// Then, we define the interface for our container class template,
+// 'MyFixedSizeArray'.  The implementation of the interface is elided for
+// brevity:
 //..
-//  typedef bslstl::BidirectionalIterator<T, my_IteratorImp<T> > iterator;
-//  typedef bslstl::BidirectionalIterator<const T, my_IteratorImp<T> >
+//  template <class VALUE, int SIZE>
+//  class MyFixedSizeArray {
+//      // This class implements a container that contains the parameterized
+//      // 'SIZE' number of elements of the parameterized 'VALUE' type.
+//
+//      // DATA
+//      VALUE d_array[SIZE];   // storage of the container
+//
+//    public:
+//      // PUBLIC TYPES
+//      typedef VALUE value_type;
+//..
+// Now, we use 'BidirectionalIterator' to create a standard compliant iterator
+// for this container:
+//..
+//      typedef bslstl::BidirectionalIterator<VALUE,
+//                                           MyArrayIterator<VALUE> > iterator;
+//      typedef bslstl::BidirectionalIterator<const VALUE,
+//                                           MyArrayIterator<VALUE> >
 //                                                              const_iterator;
 //..
-// Note that the implementation for 'const_iterator' is 'my_IteratorImp<T>' and
-// *not* 'my_IteratorImp<const T>'; rather the 'const' is added to the return
-// value of 'operator*' by way of conversion to the first template argument.
+// Notice that the implementation for 'const_iterator' is
+// 'MyArrayIterator<VALUE>' and *not* 'MyArrayIterator<const VALUE>'.
+//
+// Next, we continue defining the rest of the class.
+//..
+//      // CREATORS
+//      //! MyFixedSizeArray() = default;
+//          // Create a 'MyFixedSizeArray' object having the parameterized
+//          // 'SIZE' number of elements of the parameterized type 'VALUE'.
+//
+//      //! MyFixedSizeArray(const MyFixedSizeArray& original) = default;
+//          // Create a 'MyFixedSizeArray' object having same number of
+//          // elements as that of the specified 'original', the same value of
+//          // each element as that of corresponding element in 'original'.
+//
+//      //! ~MyFixedSizeArray() = default;
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      iterator begin();
+//          // Return a bidirectional iterator providing modifiable access to
+//          // the first valid element of this object.
+//
+//      iterator end();
+//          // Return a bidirectional iterator providing modifiable access to
+//          // the last valid element of this object.
+//
+//      VALUE& operator[](int position);
+//          // Return a reference providing modifiable access to the element at
+//          // the specified 'position'.
+//
+//      // ACCESSORS
+//      const_iterator begin() const;
+//          // Return a bidirectional iterator providing non-modifiable access
+//          // to the first valid element of this object.
+//
+//      const_iterator end() const;
+//          // Return a bidirectional iterator providing non-modifiable access
+//          // to the last valid element of this object.
+//
+//      const VALUE& operator[](int position) const;
+//          // Return a reference providing non-modifiable access to the
+//          // specified 'i'th element in this object.
+//  };
+//..
+// Then, we create a 'MyFixedSizeArray' and initialize its elements:
+//..
+//  MyFixedSizeArray<int, 5> fixedArray;
+//  fixedArray[0] = 1;
+//  fixedArray[1] = 2;
+//  fixedArray[2] = 3;
+//  fixedArray[3] = 4;
+//  fixedArray[4] = 5;
+//..
+// Finally, to show that 'MyFixedSizeArray::iterator' can be used as a
+// bidirectional iterator, we invoke a function that takes bidirectional
+// iterators as parameters, such as 'std::reverse', on the 'begin' and 'end'
+// iterators and verify the results:
+//..
+//  std::reverse(fixedArray.begin(), fixedArray.end());
+//
+//  assert(fixedArray[0] == 5);
+//  assert(fixedArray[1] == 4);
+//  assert(fixedArray[2] == 3);
+//  assert(fixedArray[3] == 2);
+//  assert(fixedArray[4] == 1);
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -154,7 +266,7 @@ class BidirectionalIterator
         // the template parameter 'ITER_IMP' has a singular value after
         // value-initialization.
 
-    BidirectionalIterator(const ITER_IMP& implementation);
+    BidirectionalIterator(const ITER_IMP& implementation);          // IMPLICIT
         // Construct a bidirectional iterator having the specified
         // 'implementation' of the parameterized 'ITER_IMP' type.
 

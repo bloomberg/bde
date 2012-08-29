@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template structure used to map
 // an integral constant to a C++ type.  'bslmf::Tag<unsigned>' defines a
 // different type for each distinct compile-time constant integral parameter.
@@ -31,18 +29,17 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // This section provides a brief description of the macros defined in this
 // component.
-//..
-//  BSLMF_TAG_TO_INT(EXPR)
-//    Given an integral value, 'V', and an expression, 'EXPR', of type
-//    'bslmf::Tag<V>', this macro returns a compile-time constant with the
-//    value 'V'.  'EXPR' is not evaluated at run-time.
 //
-//  BSLMF_TAG_TO_BOOL(EXPR)
-//    Given an integral value, 'V', and an expression, 'EXPR', of type
-//    'bslmf::Tag<V>', this macro returns a compile-time constant with the
-//    value 'true' or 'false', depending on the boolean value of 'V'.  'EXPR'
-//    is not evaluated at run-time.
-//..
+//: 'BSLMF_TAG_TO_INT(EXPR)'
+//:     Given an integral value, 'V', and an expression, 'EXPR', of type
+//:     'bslmf::Tag<V>', this macro returns a compile-time constant with the
+//:     value 'V'.  'EXPR' is not evaluated at run-time.
+//:
+//: 'BSLMF_TAG_TO_BOOL(EXPR)'
+//:     Given an integral value, 'V', and an expression, 'EXPR', of type
+//:     'bslmf::Tag<V>', this macro returns a compile-time constant with the
+//:     value 'true' or 'false', depending on the boolean value of 'V'.  'EXPR'
+//:     is not evaluated at run-time.
 //
 ///Usage
 ///-----

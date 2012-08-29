@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Clay Wilson (cwilson9)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's single type parameter is of array type.
 // 'bslmf::IsArray' defines a 'VALUE' member that is initialized (at

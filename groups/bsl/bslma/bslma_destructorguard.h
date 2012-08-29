@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::DestructorGuard: guard to unconditionally manage an object
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@SEE_ALSO: bslma_destructorproctor, bslma_autodestructor
+//
+//@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a guard class template to
 // unconditionally manage an (otherwise-unmanaged) object of parameterized
