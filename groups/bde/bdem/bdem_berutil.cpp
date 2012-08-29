@@ -420,14 +420,13 @@ bsls_Types::Int64 getSerialDatetimeValue(const bdet_Datetime& value)
 }
 
 struct BinaryDateTimeFormat {
-    // This 'struct' provides a function that specifies the maximum length, in
-    // bytes, that would be taken to encode an object of the templated 'TYPE'
-    // in the binary BER (octet string) format.
+    // This 'struct' provides a function that specifies the maximum length
+    // required to encode an object in the binary BER (octet string) format.
 
     template <typename TYPE>
     static int maxLength();
-        // Return the maximum length taken a encode an object of the templated
-        // 'TYPE' in the binary ber format.
+        // Return the maximum length, in bytes, required to encode an object
+        // of the templated 'TYPE' in the binary ber format.
 };
 
 template <>
@@ -467,12 +466,14 @@ int BinaryDateTimeFormat::maxLength<bdet_DatetimeTz>()
 }
 
 struct StringDateTimeFormat {
-    // This 'struct' provides a function that specifies the maximum length, in
-    // bytes, that would be taken to encode an object of the templated 'TYPE'
-    // in the ISO 8601 BER (visible string) format.
+    // This 'struct' provides a function that specifies the maximum length
+    // required to encode an object in the ISO 8601 BER (visible string)
+    // format.
 
     template <typename TYPE>
     static int maxLength();
+        // Return the maximum length, in bytes, required to encode an object
+        // of the templated 'TYPE' in the ISO 8601 format.
 };
 
 template <>
