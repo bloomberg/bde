@@ -140,8 +140,8 @@ BSLS_IDENT("$Id: $")
 //      LOOP_ASSERT(value, 42 == value);
 //  }
 //..
-// Finally, when 'testMyTypeSetValue' is called from a test case in verbose
-// mode we observe the console output:
+// Finally, when 'testFortyTwo' is called from a test case in verbose mode we
+// observe the console output:
 //..
 //  value = 42
 //..
@@ -183,6 +183,7 @@ BSLS_IDENT("$Id: $")
 //
 //  // ...
 //
+//  inline
 //  MyType::MyType(int value)
 //  : d_value(value)
 //  {
@@ -190,6 +191,7 @@ BSLS_IDENT("$Id: $")
 //
 //  // ...
 //
+//  inline
 //  int MyType::value() const
 //  {
 //      return d_value;

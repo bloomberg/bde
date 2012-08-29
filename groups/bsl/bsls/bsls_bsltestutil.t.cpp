@@ -671,8 +671,8 @@ class OutputRedirector {
     // class, the term "captured output" refers to data that has been written
     // to the 'stdout' stream and is waiting to be loaded into the scratch
     // buffer.  Each time the 'load' method is called, the scratch buffer is
-    // truncated, the captured output is moved into the scratch buffer.  When
-    // this is done, there is no longer any captured output.
+    // truncated, and the captured output is moved into the scratch buffer.
+    // When this is done, there is no longer any captured output.
 
   private:
     // DATA
@@ -1115,7 +1115,8 @@ class BrokenTestType {
     // NOT IMPLEMENTED
     BrokenTestType(const BrokenTestType&);
     void operator=(const BrokenTestType&);
-    void operator&();
+    void operator&() const;
+    void operator,(const BrokenTestType&) const;
 
     // DATA
     int d_value;  // the value of this 'BrokenTestType' object

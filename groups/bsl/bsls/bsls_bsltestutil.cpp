@@ -53,12 +53,12 @@ void debugprint(unsigned char v)
 
 void debugprint(short v)
 {
-    printf("%hd", (int)v);
+    printf("%hd", v);
 }
 
 void debugprint(unsigned short v)
 {
-    printf("%hu", (int)v);
+    printf("%hu", v);
 }
 
 void debugprint(int v)
@@ -161,7 +161,7 @@ void debugprint(const volatile void *v)
 // template< class RESULT, class ... ARGS>
 // void debugprint(RESULT (*v)(ARGS...))
 // {
-//     printf("%p", reinterpret_cast<uinptr_t>(v));
+//     printf("%lx", reinterpret_cast<uintptr_t>(v));
 // }
 
 }  // close package namespace
