@@ -23,7 +23,7 @@ Architecture: any
 Description: BDE
  groups/bde static library and headers
 
-Package: libbsl-rs201208v01
+Package: libbsl-rs201209v00
 Architecture: any
 Description: BSL
  groups/bde shared library runtime files Robo Shared Library Suite
