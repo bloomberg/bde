@@ -124,7 +124,7 @@ namespace bslalg {
 
 void debugprint(const Obj& val)
 {
-    printf("prev=0x%x, next=0x%x", val.prev(), val.next());
+    printf("prev=0x%p, next=0x%p", val.prev(), val.next());
 }
 
 }  // close namespace bslalg
@@ -535,7 +535,7 @@ int main(int argc, char *argv[])
             mX.setPrev(A1);
 
             const Obj *const prev = X.prev();
-            ASSERTV(A1, X.prev(), A1 == X.prev());
+            ASSERTV(A1, prev, A1 == prev);
         }
 
         if (veryVerbose) { T_ Q(next) }
@@ -543,7 +543,7 @@ int main(int argc, char *argv[])
             mX.setNext(A2);
 
             const Obj *const next = X.next();
-            ASSERTV(A2, X.next(), A2 == X.next());
+            ASSERTV(A2, next, A2 == next);
         }
       } break;
       case 3: {
