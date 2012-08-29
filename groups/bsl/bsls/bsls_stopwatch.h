@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 ///Accuracy on Windows
 ///- - - - - - - - - -
 // 'bsls::Stopwatch' may be slow or inconsistent on some Windows machines.  See
-// the 'Acuracy and Precision' section of 'bsls_timeutil.h'.
+// the 'Accuracy and Precision' section of 'bsls_timeutil.h'.
 //
 ///Usage
 ///-----
@@ -118,7 +118,7 @@ class Stopwatch {
     Types::Int64 d_startUserTime;          // user time when
                                            // started (nanoseconds)
 
-    TimeUtil::OpaqueNativeTime d_startWallTime;          
+    TimeUtil::OpaqueNativeTime d_startWallTime;
                                            // wall time when
                                            // started (nanoseconds)
 
@@ -142,6 +142,7 @@ class Stopwatch {
                                                        // (for nanoseconds to
                                                        // seconds)
 
+  private:
     // NOT IMPLEMENTED
     Stopwatch(const Stopwatch&);
     Stopwatch& operator=(const Stopwatch&);
@@ -315,34 +316,32 @@ inline
 double Stopwatch::accumulatedSystemTime() const
 {
     if (!d_collectCpuTimesFlag) {
-        return 0.0;
+        return 0.0;                                                   // RETURN
     }
 
     if (d_isRunning) {
         return (double)(d_accumulatedSystemTime
                   + TimeUtil::getProcessSystemTimer() - d_startSystemTime)
                                                       / s_nanosecondsPerSecond;
+                                                                      // RETURN
     }
-    else {
-        return (double)d_accumulatedSystemTime / s_nanosecondsPerSecond;
-    }
+    return (double)d_accumulatedSystemTime / s_nanosecondsPerSecond;
 }
 
 inline
 double Stopwatch::accumulatedUserTime() const
 {
     if (!d_collectCpuTimesFlag) {
-        return 0.0;
+        return 0.0;                                                   // RETURN
     }
 
     if (d_isRunning) {
         return (double)(d_accumulatedUserTime
                       + TimeUtil::getProcessUserTimer() - d_startUserTime)
                                                       / s_nanosecondsPerSecond;
+                                                                      // RETURN
     }
-    else {
-        return (double)d_accumulatedUserTime / s_nanosecondsPerSecond;
-    }
+    return (double)d_accumulatedUserTime / s_nanosecondsPerSecond;
 }
 
 inline
@@ -353,10 +352,9 @@ double Stopwatch::accumulatedWallTime() const
         TimeUtil::getTimerRaw(&now);
         return (double)(d_accumulatedWallTime + elapsedWallTime(now))
                                                       / s_nanosecondsPerSecond;
+                                                                      // RETURN
     }
-    else {
-        return (double)d_accumulatedWallTime / s_nanosecondsPerSecond;
-    }
+    return (double)d_accumulatedWallTime / s_nanosecondsPerSecond;
 }
 
 inline

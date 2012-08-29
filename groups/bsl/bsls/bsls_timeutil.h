@@ -45,13 +45,13 @@ BSLS_IDENT("$Id: $")
 /// -  -  -  -
 // The behavior of the timer on windows platforms depends on the interaction of
 // operating system, BIOS, and processor, and certain combinations of the three
-// (particularly older ones) are vulnerable to timer inaccuracy. For example,
+// (particularly older ones) are vulnerable to timer inaccuracy.  For example,
 // frequently the 'QueryPerformanceCounter' function that 'TmeUtil' uses on
 // Windows will utilize the CPU's timestamp counter (TSC), and CPUs with speed
 // scaling mechanisms such as SpeedStep (frequently used for power management)
-// will generally see the clock speed vary with the CPU frequency. However,
+// will generally see the clock speed vary with the CPU frequency.  However,
 // newer processors often provide an 'Invariant TSC' that solves this
-// problem. Also versions of Windows starting with Vista may internally handle
+// problem.  Also versions of Windows starting with Vista may internally handle
 // the inconsistency by automatically using a lower resolution, but accurate,
 // counter on processors that do not provide an 'Invariant TSC'.
 //
@@ -221,17 +221,17 @@ struct TimeUtil {
 
     // TYPES
 #if   defined BSLS_PLATFORM__OS_SOLARIS
-        typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
+    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
 #elif defined BSLS_PLATFORM__OS_AIX
-        typedef timebasestruct_t                  OpaqueNativeTime;
+    typedef timebasestruct_t                  OpaqueNativeTime;
 #elif defined BSLS_PLATFORM__OS_HPUX
-        typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
+    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
 #elif defined BSLS_PLATFORM__OS_LINUX
-        typedef timespec                          OpaqueNativeTime;
+    typedef timespec                          OpaqueNativeTime;
 #elif defined BSLS_PLATFORM__OS_UNIX
-        typedef timeval                           OpaqueNativeTime;
+    typedef timeval                           OpaqueNativeTime;
 #elif defined BSLS_PLATFORM__OS_WINDOWS
-        typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
+    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
 #endif
 
     // CLASS METHODS
