@@ -19,12 +19,44 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_sstream.h>' instead.
 //
-// This component provides 'bsl::basic_ostringstream' class template
-// parameterized with a character type and two specializations: one for 'char'
-// and another for 'wchar_t'.  'bsl::basic_ostringstream' implements the
-// functionality of the standard class 'std::basic_ostream' for writing into
-// 'bsl::basic_string' objects.  It's a 'bsl' replacement for the standard
-// 'std::basic_ostringstream' class.
+// This component defines a class template 'bsl::basic_ostringstream',
+// implementing a standard output stream that provides a method for obtaining a
+// 'bsl::basic_string', which contains the characters that have been written to
+// the stream.  This component also defines two standard aliases,
+// 'bsl::ostringstream' and 'bsl::wostringstream', that refer to
+// specializations of the 'bsl::basic_ostringstream' template for 'char' and
+// 'wchar_t' types respectively.  The 'bsl::basic_ostringstream' template has
+// three parameters, 'CHAR_TYPE', 'CHAR_TRAITS', and 'ALLOCATOR'.  The
+// 'CHAR_TYPE' and 'CHAR_TRAITS' parameters respectively define the character
+// type for the string-stream and a type providing a set of operations the
+// string-stream will use to manipulate characters of that type, which must
+// meet the character traits requirements defined by the C++11 standard, 21.2
+// [char.traits].  The 'ALLOCATOR' template parameter is described in the
+// "Memory Allocation" section below.
+//
+///Memory Allocation
+///-----------------
+// The type supplied as a string-stream's 'ALLOCATOR' template parameter
+// determines how that string-stream will allocate memory.  The
+// 'basic_ostringstream' template supports allocators meeting the requirements
+// of the C++11 standard [17.6.3.5], in addition it supports scoped-allocators
+// derived from the 'bslma::Allocator' memory allocation protocol.  Clients
+// intending to use 'bslma' style allocators should use 'bsl::allocator', which
+// provides a C++11 standard-compatible adapter for a 'bslma::Allocator'
+// object.  Note that the standard aliases 'bsl::ostringstream' and
+// 'bsl::wostringstream' both use 'bsl::allocator'.
+//
+///'bslma'-Style Allocators
+/// - - - - - - - - - - - -
+// If the parameterized 'ALLOCATOR' type of an 'ostringstream' instantiation is
+// 'bsl::allocator', then objects of that string-stream type will conform to
+// the standard behavior of a 'bslma'-allocator-enabled type.  Such a
+// string-stream accepts an optional 'bslma::Allocator' argument at
+// construction.  If the address of a 'bslma::Allocator' object is explicitly
+// supplied at construction, it will be used to supply memory for the
+// string-stream throughout its lifetime; otherwise, the string-stream will use
+// the default allocator installed at the time of the string-stream's
+// construction (see 'bslma_default').
 //
 ///Usage
 ///-----
