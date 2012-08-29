@@ -419,84 +419,94 @@ bsls_Types::Int64 getSerialDatetimeValue(const bdet_Datetime& value)
     return serialDatetime;
 }
 
-struct BinaryFormat {
+struct BinaryDateTimeFormat {
+    // This 'struct' provides a function that specifies the maximum length, in
+    // bytes, that would be taken to encode an object of the templated 'TYPE'
+    // in the binary BER (octet string) format.
+
     template <typename TYPE>
     static int maxLength();
+        // Return the maximum length taken a encode an object of the templated
+        // 'TYPE' in the binary ber format.
 };
 
 template <>
-int BinaryFormat::maxLength<bdet_Date>()
+int BinaryDateTimeFormat::maxLength<bdet_Date>()
 {
     return MAX_BINARY_DATE_LENGTH;
 }
 
 template <>
-int BinaryFormat::maxLength<bdet_Time>()
+int BinaryDateTimeFormat::maxLength<bdet_Time>()
 {
     return MAX_BINARY_TIME_LENGTH;
 }
 
 template <>
-int BinaryFormat::maxLength<bdet_Datetime>()
+int BinaryDateTimeFormat::maxLength<bdet_Datetime>()
 {
     return MAX_BINARY_DATETIME_LENGTH;
 }
 
 template <>
-int BinaryFormat::maxLength<bdet_DateTz>()
+int BinaryDateTimeFormat::maxLength<bdet_DateTz>()
 {
     return MAX_BINARY_DATETZ_LENGTH;
 }
 
 template <>
-int BinaryFormat::maxLength<bdet_TimeTz>()
+int BinaryDateTimeFormat::maxLength<bdet_TimeTz>()
 {
     return MAX_BINARY_TIMETZ_LENGTH;
 }
 
 template <>
-int BinaryFormat::maxLength<bdet_DatetimeTz>()
+int BinaryDateTimeFormat::maxLength<bdet_DatetimeTz>()
 {
     return MAX_BINARY_DATETIMETZ_LENGTH;
 }
 
-struct StringFormat {
+struct StringDateTimeFormat {
+    // This 'struct' provides a function that specifies the maximum length, in
+    // bytes, that would be taken to encode an object of the templated 'TYPE'
+    // in the ISO 8601 BER (visible string) format.
+
     template <typename TYPE>
     static int maxLength();
 };
 
 template <>
-int StringFormat::maxLength<bdet_Date>()
+int StringDateTimeFormat::maxLength<bdet_Date>()
 {
     return bdepu_Iso8601::BDEPU_DATE_STRLEN;
 }
 
 template <>
-int StringFormat::maxLength<bdet_Time>()
+int StringDateTimeFormat::maxLength<bdet_Time>()
 {
     return bdepu_Iso8601::BDEPU_TIME_STRLEN;
 }
 
 template <>
-int StringFormat::maxLength<bdet_Datetime>()
+int StringDateTimeFormat::maxLength<bdet_Datetime>()
 {
     return bdepu_Iso8601::BDEPU_DATETIME_STRLEN;
 }
 
 template <>
-int StringFormat::maxLength<bdet_DateTz>()
+int StringDateTimeFormat::maxLength<bdet_DateTz>()
 {
     return bdepu_Iso8601::BDEPU_DATETZ_STRLEN;
 }
 
 template <>
-int StringFormat::maxLength<bdet_TimeTz>()
+int StringDateTimeFormat::maxLength<bdet_TimeTz>()
 {
     return bdepu_Iso8601::BDEPU_TIMETZ_STRLEN;
 }
 
 template <>
-int StringFormat::maxLength<bdet_DatetimeTz>()
+int StringDateTimeFormat::maxLength<bdet_DatetimeTz>()
 {
     return bdepu_Iso8601::BDEPU_DATETIMETZ_STRLEN;
 }
@@ -1248,9 +1258,17 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf               *streamBuf,
                                bdeut_Variant2<TYPE, TYPETZ> *value,
                                int                           length)
 {
-    const int MAX_BINARY_TYPETZ_LENGTH = BinaryFormat::maxLength<TYPETZ>();
-    const int MAX_BINARY_TYPE_LENGTH   = BinaryFormat::maxLength<TYPE>();
-    const int MAX_BDEPU_TYPE_STRLEN    = StringFormat::maxLength<TYPE>();
+    BSLMF_ASSERT((bslmf_IsSame<bdet_Date, TYPE>::VALUE
+               && bslmf_IsSame<bdet_DateTz, TYPETZ>::VALUE)
+              || (bslmf_IsSame<bdet_Time, TYPE>::VALUE
+               && bslmf_IsSame<bdet_TimeTz, TYPETZ>::VALUE)
+              || (bslmf_IsSame<bdet_Datetime, TYPE>::VALUE
+               && bslmf_IsSame<bdet_DatetimeTz, TYPETZ>::VALUE));
+
+    const int MAX_BINARY_TYPETZ_LENGTH =
+                                     BinaryDateTimeFormat::maxLength<TYPETZ>();
+    const int MAX_BINARY_TYPE_LENGTH = BinaryDateTimeFormat::maxLength<TYPE>();
+    const int MAX_BDEPU_TYPE_STRLEN = StringDateTimeFormat::maxLength<TYPE>();
 
     int rc;
     if (length > MAX_BINARY_TYPETZ_LENGTH) {

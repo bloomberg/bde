@@ -606,9 +606,6 @@ class bdem_BerDecoder_UniversalElementVisitor {
     // MANIPULATORS
     template <typename TYPE>
     int operator()(TYPE *variable);
-
-    template <typename TYPE, typename TYPETZ>
-    int operator()(bdeut_Variant2<TYPE, TYPETZ> *variable);
 };
 
                          // ============================
@@ -1317,42 +1314,6 @@ int bdem_BerDecoder_UniversalElementVisitor::operator()(TYPE *variable)
     }
 
     rc = d_node(variable);
-
-    if (rc != bdem_BerDecoder::BDEM_BER_SUCCESS) {
-        return rc;
-    }
-
-    rc = d_node.readTagTrailer();
-
-    return rc;
-}
-
-template <typename TYPE, typename TYPETZ>
-inline
-int bdem_BerDecoder_UniversalElementVisitor::operator()(
-                                        bdeut_Variant2<TYPE, TYPETZ> *variable)
-{
-    int alternateTag      = (int)
-                             bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
-    int expectedTagNumber = (int)
-                           bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-
-    int rc = d_node.readTagHeader();
-    if (rc != bdem_BerDecoder::BDEM_BER_SUCCESS) {
-        return rc;  // error message is already logged
-    }
-
-    if (d_node.tagClass() != bdem_BerConstants::BDEM_UNIVERSAL) {
-        return d_node.logError("Expected UNIVERSAL tag class");
-    }
-
-    if (d_node.tagNumber() != expectedTagNumber) {
-        if (-1 == alternateTag || d_node.tagNumber() != alternateTag) {
-            return d_node.logError("Unexpected tag number");
-        }
-    }
-
-    rc = d_node(variable, bdeat_TypeCategory::Simple());
 
     if (rc != bdem_BerDecoder::BDEM_BER_SUCCESS) {
         return rc;
