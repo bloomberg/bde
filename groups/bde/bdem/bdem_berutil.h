@@ -110,6 +110,10 @@ BDES_IDENT("$Id: $")
 #include <bdem_berencoderoptions.h>
 #endif
 
+#ifndef INCLUDED_BDEUT_VARIANT
+#include <bdeut_variant.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -358,6 +362,10 @@ struct bdem_BerUtil_Imp {
     static int getValue(bsl::streambuf *streamBuf,
                         bdet_TimeTz    *value,
                         int             length);
+    template <typename TYPE, typename TYPETZ>
+    static int getValue(bsl::streambuf               *streamBuf,
+                        bdeut_Variant2<TYPE, TYPETZ> *value,
+                        int                           length);
 
     static int numBytesToStream(short value);
     static int numBytesToStream(int value);
