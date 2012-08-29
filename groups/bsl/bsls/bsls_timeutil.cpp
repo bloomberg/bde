@@ -388,14 +388,14 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
         // the calculation that involve frequency and constants, and caching
         // the results at initialization time.
 
-        const bsls::Types::Int64 high32Bits = 
+        const bsls::Types::Int64 high32Bits =
             static_cast<bsls::Types::Int64>(rawTime >> 32);
-        const bsls::Types::Int64 low32Bits  = 
+        const bsls::Types::Int64 low32Bits  =
             static_cast<bsls::Types::Uint64> (rawTime & LOW_MASK);
-        
-        return high32Bits * highPartDivisionFactor + 
-             ((high32Bits * highPartRemainderFactor + low32Bits * G) 
-                                                   / timerFrequency);  // RETURN
+
+        return high32Bits * highPartDivisionFactor +
+             ((high32Bits * highPartRemainderFactor + low32Bits * G)
+                                                  / timerFrequency);  // RETURN
 
         // Note that this code runs as fast as the original implementation.  It
         // works for counters representing time values up to 292 years (the
