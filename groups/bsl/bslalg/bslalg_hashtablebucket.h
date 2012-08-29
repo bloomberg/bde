@@ -57,9 +57,9 @@ class HashTableBucket {
     // Trivial Destructor
 
     // MANIPULATORS
-    void setFirst(BidirectionalLink *next);
+    void setFirst(BidirectionalLink *node);
 
-    void setLast(BidirectionalLink *prev);
+    void setLast(BidirectionalLink *node);
 
     void createBucket(BidirectionalLink *first, BidirectionalLink *last);
         // Set 'first' and 'last' to the specified values.  Behavior is
