@@ -31,12 +31,12 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISECOPYABLE
-#include <bslmf_isbitwisecopyable.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_HASTRIVIALDEFAULTCONSTRUCTOR
-#include <bslmf_hastrivialdefaultconstructor.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -90,20 +90,26 @@ struct bdeu_CStringEqualTo {
         // point to null-terminated strings.
 };
 
+} // CLose enterprise namespace
+
 // POD TRAITS
-namespace bslmf {
+namespace bsl {
 
 template <>
-struct IsBitwiseCopyable<bdeu_CStringEqualTo> : bsl::true_type { };
+struct is_trivially_copyable<BloombergLP::bdeu_CStringEqualTo> :
+        bsl::true_type { };
 
 template <>
-struct HasTrivialDefaultConstructor<bdeu_CStringEqualTo> : bsl::true_type { };
+struct is_trivially_default_constructible<BloombergLP::bdeu_CStringEqualTo> :
+        bsl::true_type { };
 
-} // Close namespace bslmf
+} // Close namespace bsl
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+namespace BloombergLP {
 
                        // --------------------------
                        // struct bdeu_CStringEqualTo

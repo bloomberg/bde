@@ -31,7 +31,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 4] bdeu_PrintMethods_Imp<TYPE, bdeu_HasPrintMethod>::print(...);
 // [ 6] bdeu_PrintMethods_Imp<TYPE, bslalg::HasStlIterators>::print(...);
-// [ 5] bdeu_PrintMethods_Imp<TYPE, bslalg::IsPair>::print(...);
+// [ 5] bdeu_PrintMethods_Imp<TYPE, bslmf::IsPair>::print(...);
 // [ 3] bdeu_PrintMethods_Imp<TYPE, bslmf::false_type>::print(...);
 // [ 7] bdeu_PrintMethods::print(..., const TYPE&, ...);
 // [ 2] bdeu_PrintMethods::print(..., const vector<char, ALLOC>, ...);
@@ -527,7 +527,7 @@ template <> struct HasStlIterators<TestType_PrintMethod_STLIterators_Pair> :
     bslmf::true_type { };
 }
 
-namespace bslalg {
+namespace bslmf {
 template <> struct IsPair<TestType_Pair> : bslmf::true_type { };
 template <> struct IsPair<TestType_STLIterators_Pair> : bslmf::true_type { };
 template <> struct IsPair<TestType_PrintMethod_Pair> : bslmf::true_type { };
@@ -1716,7 +1716,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting indentation." << endl;
         {
             typedef pair<int, double>    Type;
-            typedef bslalg::IsPair<Type> BdeuPrintMethod;
+            typedef bslmf::IsPair<Type> BdeuPrintMethod;
 
             const int    INT_VALUE    = 45;
             const double DOUBLE_VALUE = 1.23;
@@ -1837,7 +1837,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with 'vector<char>' elements." << endl;
         {
             typedef pair<vector<char>, vector<char> > Type;
-            typedef bslalg::IsPair<Type>              BdeuPrintMethod;
+            typedef bslmf::IsPair<Type>              BdeuPrintMethod;
 
             const char FIRST_DATA[]  = "Hello\r";
             const char SECOND_DATA[] = "World\n";
@@ -1892,7 +1892,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with 'vector<int>' elements." << endl;
         {
             typedef pair<vector<int>, vector<int> > Type;
-            typedef bslalg::IsPair<Type>            BdeuPrintMethod;
+            typedef bslmf::IsPair<Type>            BdeuPrintMethod;
 
             const int FIRST_DATA[]  = { 2, 6, 23 };
             const int SECOND_DATA[] = { 54, 2 };
@@ -1956,7 +1956,7 @@ int main(int argc, char *argv[])
             typedef pair<int, int>            IntPair;
             typedef pair<double, double>      DoublePair;
             typedef pair<IntPair, DoublePair> Type;
-            typedef bslalg::IsPair<Type>      BdeuPrintMethod;
+            typedef bslmf::IsPair<Type>      BdeuPrintMethod;
 
             const Type VALUE = Type(IntPair(45, 21),
                                     DoublePair(1.23, 97.54));
@@ -2007,7 +2007,7 @@ int main(int argc, char *argv[])
                           << endl;
         {
             typedef pair<TestType_PrintMethod, TestType_PrintMethod> Type;
-            typedef bslalg::IsPair<Type>                       BdeuPrintMethod;
+            typedef bslmf::IsPair<Type>                       BdeuPrintMethod;
 
             if (veryVerbose) cout << "\tUsing multiline output." << endl;
             {
@@ -2088,8 +2088,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting with invalid stream." << endl;
         {
-            typedef pair<int, double>    Type;
-            typedef bslalg::IsPair<Type> BdeuPrintMethod;
+            typedef pair<int, double>   Type;
+            typedef bslmf::IsPair<Type> BdeuPrintMethod;
 
             const int    INT_VALUE    = 45;
             const double DOUBLE_VALUE = 1.23;

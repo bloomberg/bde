@@ -318,8 +318,8 @@ class bdet_DatetimeTz {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdet_DatetimeTz,
-                               bslmf::IsBitwiseCopyable,
-                               bslmf::IsBitwiseCopyable<bdet_Datetime>::value);
+                             bsl::is_trivially_copyable,
+                             bsl::is_trivially_copyable<bdet_Datetime>::value);
 
     // CLASS METHODS
     static bool isValid(const bdet_Datetime& datetime, int offset);

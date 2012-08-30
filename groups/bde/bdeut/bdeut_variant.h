@@ -1052,26 +1052,26 @@ struct bdeut_VariantImp_Traits {
          || bslma::UsesBslmaAllocator<Type20>::value),
 
         VARIANT_IS_BITWISE_COPYABLE = (
-            bslmf::IsBitwiseCopyable< Type1>::value
-         && bslmf::IsBitwiseCopyable< Type2>::value
-         && bslmf::IsBitwiseCopyable< Type3>::value
-         && bslmf::IsBitwiseCopyable< Type4>::value
-         && bslmf::IsBitwiseCopyable< Type5>::value
-         && bslmf::IsBitwiseCopyable< Type6>::value
-         && bslmf::IsBitwiseCopyable< Type7>::value
-         && bslmf::IsBitwiseCopyable< Type8>::value
-         && bslmf::IsBitwiseCopyable< Type9>::value
-         && bslmf::IsBitwiseCopyable<Type10>::value
-         && bslmf::IsBitwiseCopyable<Type11>::value
-         && bslmf::IsBitwiseCopyable<Type12>::value
-         && bslmf::IsBitwiseCopyable<Type13>::value
-         && bslmf::IsBitwiseCopyable<Type14>::value
-         && bslmf::IsBitwiseCopyable<Type15>::value
-         && bslmf::IsBitwiseCopyable<Type16>::value
-         && bslmf::IsBitwiseCopyable<Type17>::value
-         && bslmf::IsBitwiseCopyable<Type18>::value
-         && bslmf::IsBitwiseCopyable<Type19>::value
-         && bslmf::IsBitwiseCopyable<Type20>::value),
+            bsl::is_trivially_copyable< Type1>::value
+         && bsl::is_trivially_copyable< Type2>::value
+         && bsl::is_trivially_copyable< Type3>::value
+         && bsl::is_trivially_copyable< Type4>::value
+         && bsl::is_trivially_copyable< Type5>::value
+         && bsl::is_trivially_copyable< Type6>::value
+         && bsl::is_trivially_copyable< Type7>::value
+         && bsl::is_trivially_copyable< Type8>::value
+         && bsl::is_trivially_copyable< Type9>::value
+         && bsl::is_trivially_copyable<Type10>::value
+         && bsl::is_trivially_copyable<Type11>::value
+         && bsl::is_trivially_copyable<Type12>::value
+         && bsl::is_trivially_copyable<Type13>::value
+         && bsl::is_trivially_copyable<Type14>::value
+         && bsl::is_trivially_copyable<Type15>::value
+         && bsl::is_trivially_copyable<Type16>::value
+         && bsl::is_trivially_copyable<Type17>::value
+         && bsl::is_trivially_copyable<Type18>::value
+         && bsl::is_trivially_copyable<Type19>::value
+         && bsl::is_trivially_copyable<Type20>::value),
 
         VARIANT_IS_BITWISE_MOVEABLE = (
             bslmf::IsBitwiseMoveable< Type1>::value
@@ -1242,7 +1242,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_VariantImp,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_VariantImp,
                                       bslmf::IsBitwiseMoveable,
@@ -2116,7 +2116,7 @@ class bdeut_Variant : public bdeut_VariantImp<typename bslmf_TypeList<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant,
                                       bslmf::IsBitwiseMoveable,
@@ -2278,7 +2278,7 @@ class bdeut_Variant2 : public bdeut_VariantImp<typename bslmf_TypeList2<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant2,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant2,
                                       bslmf::IsBitwiseMoveable,
@@ -2410,7 +2410,7 @@ class bdeut_Variant3 : public bdeut_VariantImp<typename bslmf_TypeList3<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant3,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant3,
                                       bslmf::IsBitwiseMoveable,
@@ -2546,7 +2546,7 @@ class bdeut_Variant4 : public bdeut_VariantImp<typename bslmf_TypeList4<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant4,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant4,
                                       bslmf::IsBitwiseMoveable,
@@ -2682,7 +2682,7 @@ class bdeut_Variant5 : public bdeut_VariantImp<typename bslmf_TypeList5<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant5,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant5,
                                       bslmf::IsBitwiseMoveable,
@@ -2818,7 +2818,7 @@ class bdeut_Variant6 : public bdeut_VariantImp<typename bslmf_TypeList6<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant6,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant6,
                                       bslmf::IsBitwiseMoveable,
@@ -2955,7 +2955,7 @@ class bdeut_Variant7 : public bdeut_VariantImp<typename bslmf_TypeList7<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant7,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant7,
                                       bslmf::IsBitwiseMoveable,
@@ -3094,7 +3094,7 @@ class bdeut_Variant8 : public bdeut_VariantImp<typename bslmf_TypeList8<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant8,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant8,
                                       bslmf::IsBitwiseMoveable,
@@ -3239,7 +3239,7 @@ class bdeut_Variant9 : public bdeut_VariantImp<typename bslmf_TypeList9<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant9,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant9,
                                       bslmf::IsBitwiseMoveable,
@@ -3385,7 +3385,7 @@ class bdeut_Variant10 : public bdeut_VariantImp<typename bslmf_TypeList10<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant10,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant10,
                                       bslmf::IsBitwiseMoveable,
@@ -3531,7 +3531,7 @@ class bdeut_Variant11 : public bdeut_VariantImp<typename bslmf_TypeList11<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant11,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant11,
                                       bslmf::IsBitwiseMoveable,
@@ -3679,7 +3679,7 @@ class bdeut_Variant12 : public bdeut_VariantImp<typename bslmf_TypeList12<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant12,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant12,
                                       bslmf::IsBitwiseMoveable,
@@ -3828,7 +3828,7 @@ class bdeut_Variant13 : public bdeut_VariantImp<typename bslmf_TypeList13<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant13,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant13,
                                       bslmf::IsBitwiseMoveable,
@@ -3979,7 +3979,7 @@ class bdeut_Variant14 : public bdeut_VariantImp<typename bslmf_TypeList14<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant14,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant14,
                                       bslmf::IsBitwiseMoveable,
@@ -4136,7 +4136,7 @@ class bdeut_Variant15 : public bdeut_VariantImp<typename bslmf_TypeList15<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant15,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant15,
                                       bslmf::IsBitwiseMoveable,
@@ -4302,7 +4302,7 @@ class bdeut_Variant16 : public bdeut_VariantImp<typename bslmf_TypeList16<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant16,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant16,
                                       bslmf::IsBitwiseMoveable,
@@ -4469,7 +4469,7 @@ class bdeut_Variant17 : public bdeut_VariantImp<typename bslmf_TypeList17<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant17,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant17,
                                       bslmf::IsBitwiseMoveable,
@@ -4635,7 +4635,7 @@ class bdeut_Variant18 : public bdeut_VariantImp<typename bslmf_TypeList18<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant18,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant18,
                                       bslmf::IsBitwiseMoveable,
@@ -4803,7 +4803,7 @@ class bdeut_Variant19 : public bdeut_VariantImp<typename bslmf_TypeList19<
                                       bslma::UsesBslmaAllocator,
                                       Traits::VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant19,
-                                      bslmf::IsBitwiseCopyable,
+                                      bsl::is_trivially_copyable,
                                       Traits::VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_Variant19,
                                       bslmf::IsBitwiseMoveable,

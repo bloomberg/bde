@@ -231,8 +231,8 @@ class bdet_Datetime {
     };
 
     enum { IS_BITWISE_COPYABLE_DATETIME =
-           bslmf::IsBitwiseCopyable<bdet_Date>::value &&
-           bslmf::IsBitwiseCopyable<bdet_Time>::value };
+           bsl::is_trivially_copyable<bdet_Date>::value &&
+           bsl::is_trivially_copyable<bdet_Time>::value };
 
     // DATA
     bdet_Date d_date;  // "date" part of "date+time" value
@@ -244,7 +244,8 @@ class bdet_Datetime {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdet_Datetime, bslmf::IsBitwiseCopyable,
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdet_Datetime,
+                                      bsl::is_trivially_copyable,
                                       IS_BITWISE_COPYABLE_DATETIME);
 
     // CLASS METHODS

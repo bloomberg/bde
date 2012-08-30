@@ -86,20 +86,26 @@ struct bdeu_CStringLess {
         // null-terminated strings.
 };
 
+} // Close enterprise namespace
+
 // POD TRAITS
-namespace bslmf {
+namespace bsl {
 
 template <>
-struct IsBitwiseCopyable<bdeu_CStringLess> : bsl::true_type { };
+struct is_trivially_copyable<BloombergLP::bdeu_CStringLess> :
+        bsl::true_type { };
 
 template <>
-struct HasTrivialDefaultConstructor<bdeu_CStringLess> : bsl::true_type { };
+struct is_trivially_default_constructible<BloombergLP::bdeu_CStringLess> :
+        bsl::true_type { };
 
 } // Close namespace bslmf
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+namespace BloombergLP {
 
                         // -----------------------
                         // struct bdeu_CStringLess

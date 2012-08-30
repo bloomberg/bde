@@ -91,22 +91,27 @@ struct bdeu_CStringHash {
         // unless both 'argument' is a null-terminated strings.
 };
 
+} // CLose enterprese namespace
+
 // POD TRAITS
-namespace bslmf {
+namespace bsl {
 
 template <>
-struct IsBitwiseCopyable<bdeu_CStringHash> : bsl::true_type { };
+struct is_trivially_copyable<BloombergLP::bdeu_CStringHash> :
+        bsl::true_type { };
 
 template <>
-struct HasTrivialDefaultConstructor<bdeu_CStringHash> : bsl::true_type { };
+struct is_trivially_default_constructible<BloombergLP::bdeu_CStringHash>
+    : bsl::true_type { };
 
-} // Close namespace bslmf
+} // Close namespace bsl
 
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+namespace BloombergLP {
 
                         // -----------------------
                         // struct bdeu_CStringHash

@@ -407,14 +407,14 @@ struct bdeu_PrintMethods_Imp<TYPE, bslalg::HasStlIterators<TYPE> > {
 };
 
                   // ---------------------------------------------------------
-                  // struct bdeu_PrintMethods_Imp<TYPE, bslalg::IsPair<TYPE> >
+                  // struct bdeu_PrintMethods_Imp<TYPE, bslmf::IsPair<TYPE> >
                   // ---------------------------------------------------------
 
 template <typename TYPE>
-struct bdeu_PrintMethods_Imp<TYPE, bslalg::IsPair<TYPE> > {
+struct bdeu_PrintMethods_Imp<TYPE, bslmf::IsPair<TYPE> > {
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of
-    // parameterized 'TYPE' that declare the 'bslalg::IsPair' trait.
+    // parameterized 'TYPE' that declare the 'bslmf::IsPair' trait.
 
     // CLASS METHODS
     static bsl::ostream& print(bsl::ostream& stream,
@@ -533,13 +533,13 @@ print(bsl::ostream& stream,
 }
 
                   // ---------------------------------------------------------
-                  // struct bdeu_PrintMethods_Imp<TYPE, bslalg::IsPair<TYPE> >
+                  // struct bdeu_PrintMethods_Imp<TYPE, bslmf::IsPair<TYPE> >
                   // ---------------------------------------------------------
 
 // CLASS METHODS
 template <typename TYPE>
 bsl::ostream&
-bdeu_PrintMethods_Imp<TYPE, bslalg::IsPair<TYPE> >::
+bdeu_PrintMethods_Imp<TYPE, bslmf::IsPair<TYPE> >::
 print(bsl::ostream& stream,
       const TYPE&   object,
       int           level,
@@ -643,7 +643,7 @@ bdeu_PrintMethods::print(bsl::ostream& stream,
                 TYPE,
                 bdeu_HasPrintMethod,
                 bslalg::HasStlIterators,
-                bslalg::IsPair
+                bslmf::IsPair
             >::Type BdeuSelector;
         
     return bdeu_PrintMethods_Imp<TYPE, BdeuSelector>::print(stream,

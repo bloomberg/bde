@@ -140,8 +140,8 @@ BDES_IDENT("$Id: $")
 #include <bdet_datetime.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISECOPYABLE
-#include <bslmf_isbitwisecopyable.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
@@ -200,8 +200,8 @@ class bdet_DateTz {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdet_DateTz,
-                                   bslmf::IsBitwiseCopyable,
-                                   bslmf::IsBitwiseCopyable<bdet_Date>::value);
+                                 bsl::is_trivially_copyable,
+                                 bsl::is_trivially_copyable<bdet_Date>::value);
 
     // CLASS METHODS
     static bool isValid(const bdet_Date& localDate, int offset);

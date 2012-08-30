@@ -175,8 +175,8 @@ class bdeut_NullableValue {
                                       bslma::UsesBslmaAllocator,
                                       bslma::UsesBslmaAllocator<TYPE>::value);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_NullableValue,
-                                      bslmf::IsBitwiseCopyable,
-                                      bslmf::IsBitwiseCopyable<TYPE>::value);
+                                      bsl::is_trivially_copyable,
+                                      bsl::is_trivially_copyable<TYPE>::value);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_NullableValue,
                                       bslmf::IsBitwiseMoveable,
                                       bslmf::IsBitwiseMoveable<TYPE>::value);
