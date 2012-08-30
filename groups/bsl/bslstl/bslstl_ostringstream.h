@@ -109,10 +109,11 @@ namespace bsl {
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 class basic_ostringstream
     : private basic_stringbuf_container<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
-    , public native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>
-    // This class implements the 'ostream' interface to manipulate
-    // 'bsl::string' objects as output streams of data.
-{
+    , public native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> {
+    // This class implements an output stream capable of creating a
+    // 'basic_string' containing the characters that have been written to the
+    // stream.
+
   private:
     // PRIVATE TYPES
     typedef basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>   StreamBufType;
@@ -138,33 +139,45 @@ class basic_ostringstream
 
     // CREATORS
     explicit
-    basic_ostringstream(const allocator_type& alloc = allocator_type());
+    basic_ostringstream(const allocator_type& allocator = allocator_type());
     explicit
-    basic_ostringstream(ios_base::openmode which,
-                        const allocator_type& alloc = allocator_type());
+    basic_ostringstream(ios_base::openmode    modeBitMask,
+                        const allocator_type& allocator = allocator_type());
     explicit
-    basic_ostringstream(const StringType& str,
-                        const allocator_type& alloc = allocator_type());
-    explicit
-    basic_ostringstream(const StringType& str,
-                        ios_base::openmode which,
-                        const allocator_type& alloc = allocator_type());
-        // Create an 'ostringstream' object with an optionally specified
-        // 'alloc' allocator, with the 'which' open mode, and the initial 'str'
-        // string.
+    basic_ostringstream(const StringType&     initialString,
+                        const allocator_type& allocator = allocator_type());
+    basic_ostringstream(const StringType&     initialString,
+                        ios_base::openmode    modeBitMask,
+                        const allocator_type& allocator = allocator_type());
+        // Create a 'basic_ostringstream' object.  Optionally
+        // specify a 'modeBitmask' indicating whether the underlying
+        // stream-buffer may also be read from ('rdbuf' is created using
+        // 'modeBitMask | ios_base::out').  Optionally specify 'initialString'
+        // indicating the value that will be returned by a call to 'str' prior
+        // to any streaming operations performed on this object.  Optionally
+        // specify 'allocator' used to supply memory.  If 'allocator' is not
+        // supplied, a default-constructed object of the parameterized
+        // 'ALLOCATOR' type is used.  If the template parameter 'ALLOCATOR'
+        // argument is of type 'bsl::allocator' (the default) then 'allocator',
+        // if supplied, shall be convertible to 'bslma::Allocator *'.  If the
+        // template parameter 'ALLOCATOR' argument is of type 'bsl::allocator'
+        // and 'allocator' is not supplied, the currently installed default
+        // allocator will be used to supply memory.
 
     // ACCESSORS
     StringType str() const;
-        // Return the string used for output of this 'ostringstream' object.
+        // Return the sequence of characters that have been written to this
+        // stream object.
 
-    StreamBufType * rdbuf() const;
-        // Return the modifiable pointer to the 'stringbuf' object that
-        // performs the unformatted output for this 'ostringstream' object.
+    StreamBufType *rdbuf() const;
+        // Return the address of the 'basic_stringbuf' object that is
+        // internally used by this string stream to buffer the formatted
+        // characters.
 
     // MANIPULATORS
-    void str(const StringType& s);
-        // Initialize this 'ostringstream' object with the specified string
-        // 's'.
+    void str(const StringType& value);
+        // Reset the internally buffered sequence of characters maintained by
+        // this 'ostringstream' object to the specified 'value'.
 };
 
 // ==========================================================================
@@ -179,8 +192,8 @@ class basic_ostringstream
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-    basic_ostringstream(const allocator_type& alloc)
-: BaseType(ios_base::out, alloc)
+basic_ostringstream(const allocator_type& allocator)
+: BaseType(ios_base::out, allocator)
 , BaseStream(this->rdbuf())
 {
 }
@@ -188,9 +201,9 @@ basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-    basic_ostringstream(ios_base::openmode which,
-                        const allocator_type& alloc)
-: BaseType(which, alloc)
+basic_ostringstream(ios_base::openmode    modeBitMask,
+                    const allocator_type& allocator)
+: BaseType(modeBitMask | ios_base::out, allocator)
 , BaseStream(this->rdbuf())
 {
 }
@@ -198,9 +211,9 @@ basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-    basic_ostringstream(const StringType& str,
-                        const allocator_type& alloc)
-: BaseType(str, ios_base::out, alloc)
+basic_ostringstream(const StringType&     initialString,
+                    const allocator_type& allocator)
+: BaseType(initialString, ios_base::out, allocator)
 , BaseStream(this->rdbuf())
 {
 }
@@ -208,10 +221,10 @@ basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-    basic_ostringstream(const StringType& str,
-                        ios_base::openmode which,
-                        const allocator_type& alloc)
-: BaseType(str, which, alloc)
+basic_ostringstream(const StringType&     initialString,
+                    ios_base::openmode    modeBitmask,
+                    const allocator_type& allocator)
+: BaseType(initialString, modeBitmask, allocator)
 , BaseStream(this->rdbuf())
 {
 }
@@ -220,15 +233,16 @@ basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 typename basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
-    basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
+basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
 {
     return this->rdbuf()->str();
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
-typename basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StreamBufType *
-    basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::rdbuf() const
+typename
+       basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StreamBufType *
+basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::rdbuf() const
 {
     return this->BaseType::rdbuf();
 }
@@ -237,9 +251,9 @@ typename basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StreamBufType *
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 void basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
-        const StringType& s)
+                                                       const StringType& value)
 {
-    this->rdbuf()->str(s);
+    this->rdbuf()->str(value);
 }
 
 }  // close namespace bsl
