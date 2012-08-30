@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsltf::SimpleTestType: non-allocating test class without type traits
 //
-//@AUTHOR: Chen He (che2)
+//@SEE_ALSO: bsltf_templatetestfacility
 //
-//@SEE ALSO: bsltf_templatetestfacility
+//@AUTHOR: Chen He (che2)
 //
 //@DESCRIPTION: This component provides a single, unconstrained in-core
 // (value-semantic) attribute class, 'SimpleTestType', that does not take an

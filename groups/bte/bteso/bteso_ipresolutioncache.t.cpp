@@ -1274,14 +1274,11 @@ int main(int argc, char *argv[])
             ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
         }
 
-        // Double check that some object memory was allocated.
+        // Verify no allocation from the object/non-object allocators.
 
-        ASSERT(1 <= oa.numBlocksTotal());
+        LOOP_ASSERT(oa.numBlocksTotal(), 0 ==  oa.numBlocksTotal());
+        LOOP_ASSERT(da.numBlocksTotal(), 0 ==  da.numBlocksTotal());
 
-        // Note that memory should be independently allocated for each
-        // attribute capable of allocating memory.
-
-        LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -1522,15 +1519,13 @@ int main(int argc, char *argv[])
             // Verify all memory is released on object destruction.
 
             LOOP_ASSERT(fa.numBlocksInUse(),  0 ==  fa.numBlocksInUse());
-            LOOP_ASSERT(oa.numBlocksInUse(),  0 ==  oa.numBlocksInUse());
-            LOOP_ASSERT(noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
 
-            // Double check that some object memory was allocated.
+            // Verify no allocation from the object/non-object allocators.
 
-            LOOP_ASSERT(CONFIG, 1 <= oa.numBlocksTotal());
-
-            // Note that memory should be independently allocated for each
-            // attribute capable of allocating memory.
+            LOOP2_ASSERT(CONFIG,  oa.numBlocksTotal(),
+                         0 ==  oa.numBlocksTotal());
+            LOOP2_ASSERT(CONFIG, noa.numBlocksTotal(),
+                         0 == noa.numBlocksTotal());
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;

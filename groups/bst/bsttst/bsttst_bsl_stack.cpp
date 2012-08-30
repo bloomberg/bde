@@ -1,11 +1,12 @@
-// bslstl_exalgorithm.t.cpp                                           -*-C++-*-
-#include <bslstl_exalgorithm.h>
+// bsttst_bsl_stack.cpp                                               -*-C++-*-
+#include <bsttst_bsl_stack.h>
 
-int main() { return -1; }  // empty test driver
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
+//      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

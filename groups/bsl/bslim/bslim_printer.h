@@ -646,7 +646,7 @@ class Printer {
         //:   stream as a null-terminated C-style string enclosed in quotes if
         //:   'data' is not 0, and print the string "NULL" otherwise.
         //:
-        //: o If 'TYPE' is 'void * or 'const void *', print the address value
+        //: o If 'TYPE' is 'void *' or 'const void *', print the address value
         //:   of 'data' in hexadecimal format if it is not 0, and print the
         //:   string "NULL" otherwise.
         //:

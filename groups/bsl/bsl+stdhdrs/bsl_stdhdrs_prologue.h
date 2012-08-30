@@ -2,7 +2,7 @@
 
 //@PURPOSE: Provide initial declarations for each C++ standard header file.
 //
-//@SEE_ALSO: bsl_stdhdrs_epilogue.h
+//@SEE_ALSO: bsl_stdhdrs_epilogue
 //
 //@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
 //
