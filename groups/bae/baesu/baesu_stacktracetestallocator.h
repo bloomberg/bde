@@ -238,7 +238,7 @@ BDES_IDENT("$Id: $")
 // if it finds any memory leaks:
 //..
 //  {
-//      baesu_StackTraceTestAllocator ta;
+//      baesu_StackTraceTestAllocator ta("Test Allocator");
 //      ta.setFailureHandler(&Obj::failureHandlerNoop);
 //      bslma::DefaultAllocatorGuard guard(&ta);
 //..
@@ -256,7 +256,7 @@ BDES_IDENT("$Id: $")
 //
 // ====================================================================
 // Error: memory leaked:
-// 1 segment(s) in allocator '<unnamed>' in use.
+// 1 segment(s) in allocator 'Test Allocator' in use.
 // Segment(s) allocated from 1 trace(s).
 // --------------------------------------------------------------------
 // Allocation trace 1, 1 segment(s) in use.
