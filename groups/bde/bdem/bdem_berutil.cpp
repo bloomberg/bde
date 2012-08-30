@@ -216,18 +216,6 @@ enum {
     TIMEZONE_LENGTH                    = 2,
     MIN_OFFSET                         = -1439,
     MAX_OFFSET                         = 1439,
-
-    MAX_BINARY_DATE_LENGTH             = 3,
-    MAX_BINARY_TIME_LENGTH             = 4,
-    MAX_BINARY_DATETIME_LENGTH         = 6,
-
-    MIN_BINARY_DATETZ_LENGTH           = MAX_BINARY_DATE_LENGTH + 1,
-    MIN_BINARY_TIMETZ_LENGTH           = MAX_BINARY_TIME_LENGTH + 1,
-    MIN_BINARY_DATETIMETZ_LENGTH       = MAX_BINARY_DATETIME_LENGTH + 1,
-
-    MAX_BINARY_DATETZ_LENGTH           = 5,
-    MAX_BINARY_TIMETZ_LENGTH           = 6,
-    MAX_BINARY_DATETIMETZ_LENGTH       = 9
 };
 
 // HELPER FUNCTIONS
@@ -371,6 +359,7 @@ void putChars(bsl::streambuf *streamBuf, char value, int numChars)
 //     BSLS_ASSERT(0 == padChar || ((char) -1) == padChar);
     BSLS_ASSERT(0 <= numChars);
 
+    const int MIN_BINARY_DATETIMETZ_LENGTH = 7;
     char buffer[MIN_BINARY_DATETIMETZ_LENGTH];
     bsl::memset(buffer, value, numChars);
 
@@ -418,99 +407,6 @@ bsls_Types::Int64 getSerialDatetimeValue(const bdet_Datetime& value)
                                    serialDate * MILLISECS_PER_DAY + serialTime;
 
     return serialDatetime;
-}
-
-struct BinaryDateTimeFormat {
-    // This 'struct' provides a function that specifies the maximum length
-    // required to encode an object in the binary BER (octet string) format.
-
-    template <typename TYPE>
-    static int maxLength();
-        // Return the maximum length, in bytes, required to encode an object
-        // of the templated 'TYPE' in the binary ber format.
-};
-
-template <>
-int BinaryDateTimeFormat::maxLength<bdet_Date>()
-{
-    return MAX_BINARY_DATE_LENGTH;
-}
-
-template <>
-int BinaryDateTimeFormat::maxLength<bdet_Time>()
-{
-    return MAX_BINARY_TIME_LENGTH;
-}
-
-template <>
-int BinaryDateTimeFormat::maxLength<bdet_Datetime>()
-{
-    return MAX_BINARY_DATETIME_LENGTH;
-}
-
-template <>
-int BinaryDateTimeFormat::maxLength<bdet_DateTz>()
-{
-    return MAX_BINARY_DATETZ_LENGTH;
-}
-
-template <>
-int BinaryDateTimeFormat::maxLength<bdet_TimeTz>()
-{
-    return MAX_BINARY_TIMETZ_LENGTH;
-}
-
-template <>
-int BinaryDateTimeFormat::maxLength<bdet_DatetimeTz>()
-{
-    return MAX_BINARY_DATETIMETZ_LENGTH;
-}
-
-struct StringDateTimeFormat {
-    // This 'struct' provides a function that specifies the maximum length
-    // required to encode an object in the ISO 8601 BER (visible string)
-    // format.
-
-    template <typename TYPE>
-    static int maxLength();
-        // Return the maximum length, in bytes, required to encode an object
-        // of the templated 'TYPE' in the ISO 8601 format.
-};
-
-template <>
-int StringDateTimeFormat::maxLength<bdet_Date>()
-{
-    return bdepu_Iso8601::BDEPU_DATE_STRLEN;
-}
-
-template <>
-int StringDateTimeFormat::maxLength<bdet_Time>()
-{
-    return bdepu_Iso8601::BDEPU_TIME_STRLEN;
-}
-
-template <>
-int StringDateTimeFormat::maxLength<bdet_Datetime>()
-{
-    return bdepu_Iso8601::BDEPU_DATETIME_STRLEN;
-}
-
-template <>
-int StringDateTimeFormat::maxLength<bdet_DateTz>()
-{
-    return bdepu_Iso8601::BDEPU_DATETZ_STRLEN;
-}
-
-template <>
-int StringDateTimeFormat::maxLength<bdet_TimeTz>()
-{
-    return bdepu_Iso8601::BDEPU_TIMETZ_STRLEN;
-}
-
-template <>
-int StringDateTimeFormat::maxLength<bdet_DatetimeTz>()
-{
-    return bdepu_Iso8601::BDEPU_DATETIMETZ_STRLEN;
 }
 
 }  // close anonymous namespace
@@ -1255,42 +1151,6 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
          : getBinaryTimeTzValue(streamBuf, value, length);
 }
 
-template <typename TYPE, typename TYPETZ>
-int bdem_BerUtil_Imp::getValue(bsl::streambuf               *streamBuf,
-                               bdeut_Variant2<TYPE, TYPETZ> *value,
-                               int                           length)
-{
-    BSLMF_ASSERT((bslmf_IsSame<bdet_Date, TYPE>::VALUE
-               && bslmf_IsSame<bdet_DateTz, TYPETZ>::VALUE)
-              || (bslmf_IsSame<bdet_Time, TYPE>::VALUE
-               && bslmf_IsSame<bdet_TimeTz, TYPETZ>::VALUE)
-              || (bslmf_IsSame<bdet_Datetime, TYPE>::VALUE
-               && bslmf_IsSame<bdet_DatetimeTz, TYPETZ>::VALUE));
-
-    const int MAX_BINARY_TYPETZ_LENGTH =
-                                     BinaryDateTimeFormat::maxLength<TYPETZ>();
-    const int MAX_BINARY_TYPE_LENGTH = BinaryDateTimeFormat::maxLength<TYPE>();
-    const int MAX_STRING_TYPE_LENGTH = StringDateTimeFormat::maxLength<TYPE>();
-
-    bool doesNotHaveTzOffset = length > MAX_BINARY_TYPETZ_LENGTH
-                             ? length <= MAX_STRING_TYPE_LENGTH
-                             : length <= MAX_BINARY_TYPE_LENGTH;
-
-    if (doesNotHaveTzOffset) {
-        // Decode into TYPE
-
-        value->template createInPlace<TYPE>();
-        return getValue(streamBuf,
-                        &value->template the<TYPE>(),
-                        length);                                      // RETURN
-    }
-
-    // Decode into TYPETZ
-
-    value->template createInPlace<TYPETZ>();
-    return getValue(streamBuf, &value->template the<TYPETZ>(), length);
-}
-
 int bdem_BerUtil_Imp::numBytesToStream(short value)
 {
     // This overload of 'numBytesToStream' is optimized for a 16-bit 'value'.
@@ -1548,26 +1408,6 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
          ? putBinaryTimeTzValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
 }
-
-// Template specializations to allow the linker to pick them up.
-
-template
-int bdem_BerUtil_Imp::getValue<bdet_Datetime, bdet_DatetimeTz>(
-                             bsl::streambuf                                 *,
-                             bdeut_Variant2<bdet_Datetime, bdet_DatetimeTz> *,
-                             int                                             );
-
-template
-int bdem_BerUtil_Imp::getValue<bdet_Date, bdet_DateTz>(
-                                     bsl::streambuf                         *,
-                                     bdeut_Variant2<bdet_Date, bdet_DateTz> *,
-                                     int                                     );
-
-template
-int bdem_BerUtil_Imp::getValue<bdet_Time, bdet_TimeTz>(
-                                     bsl::streambuf                         *,
-                                     bdeut_Variant2<bdet_Time, bdet_TimeTz> *,
-                                     int                                     );
 
 }  // close namespace BloombergLP
 
