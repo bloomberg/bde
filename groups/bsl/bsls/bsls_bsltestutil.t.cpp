@@ -102,7 +102,8 @@
 # include <sys/stat.h>   // struct stat: required on Sun and Windows only
 #else
 # if defined(BSLS_BSLTESTUTIL_OS_SUNOS) || \
-     defined(BSLS_BSLTESTUTIL_OS_SOLARIS)
+     defined(BSLS_BSLTESTUTIL_OS_SOLARIS) || \
+     defined(BSLS_BSLTESTUTIL_OS_DARWIN)
 #  include <sys/types.h> // struct stat: required on Sun and Windows only
 #  include <sys/stat.h>  // struct stat: required on Sun and Windows only
 # endif
