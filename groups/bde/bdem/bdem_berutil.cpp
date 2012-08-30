@@ -215,7 +215,7 @@ enum {
 
     TIMEZONE_LENGTH                    = 2,
     MIN_OFFSET                         = -1439,
-    MAX_OFFSET                         = 1439,
+    MAX_OFFSET                         = 1439
 };
 
 // HELPER FUNCTIONS
