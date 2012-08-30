@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_TYPELIST
+#ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
 #endif
 

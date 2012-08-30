@@ -189,7 +189,7 @@ class my_Class2 {
 // TRAITS
 namespace BloombergLP {
 namespace bslma {
-    
+
     template <>
     struct UsesBslmaAllocator<my_Class2> : bslmf::true_type { };
 
@@ -271,14 +271,10 @@ int my_ClassFussy::assignmentInvocations            = 0;
 int my_ClassFussy::destructorInvocations            = 0;
 
 // TRAITS
-namespace BloombergLP {
-    namespace bslmf {
-        template <>
-        struct HasTrivialDefaultConstructor<my_ClassFussy> : true_type { };
-        template <>
-        struct IsBitwiseCopyable<my_ClassFussy> : true_type { };
-    } // close namespace bslmf
-}  // close enterprise namespace
+namespace bsl {
+template <> struct is_trivially_copyable<my_ClassFussy> : true_type {};
+template <> struct is_trivially_default_constructible<my_ClassFussy> : true_type {};
+}
 
                                  // =========
                                  // my_Class4
@@ -524,7 +520,7 @@ struct my_PairBB {
 };
 
 namespace BloombergLP {
-    namespace bslalg {
+    namespace bslmf {
         template <typename T1, typename T2>
         struct IsPair<my_PairBB<T1, T2> > : bslmf::true_type { };
     } // Close namespace bslalg

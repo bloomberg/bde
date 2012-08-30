@@ -31,23 +31,40 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_detectnestedtrait.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECVQ
+#include <bslmf_removecvq.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include <bslmf_isreference.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
 
-                        // ========================
-                        // struct IsBitwiseEqualityComparable
-                        // ========================
+template <typename TYPE>
+struct IsBitwiseEqualityComparable;
 
-template <class TYPE>
-struct IsBitwiseEqualityComparable :
-    integer_constant<bool,
-                     IsFundamental<TYPE>::value
-                  || IsEnum<TYPE>::value
-                  || bsl::is_pointer<TYPE>::value
-                  || bslmf::IsPointerToMember<TYPE>::value
-                  || DetectNestedTrait<TYPE,
-                                       IsBitwiseEqualityComparable>::value>
+template <typename TYPE>
+struct IsBitwiseEqualityComparable_Imp
+    : bsl::integer_constant<bool,
+                            !bsl::is_reference<TYPE>::value
+                         && (  IsFundamental<TYPE>::value
+                            || IsEnum<TYPE>::value
+                            || bsl::is_pointer<TYPE>::value
+                            || bslmf::IsPointerToMember<TYPE>::value
+                            || DetectNestedTrait<TYPE,
+                                          IsBitwiseEqualityComparable>::value)>
+{};
+
+                     // ==================================
+                     // struct IsBitwiseEqualityComparable
+                     // ==================================
+
+template <typename TYPE>
+struct IsBitwiseEqualityComparable
+    : IsBitwiseEqualityComparable_Imp<typename bsl::remove_cv<TYPE>::type>
 {
     // Trait metafunction that determines whether the specified parameter
     // 'TYPE' is bit-wise EqualityComparable.  If
@@ -56,41 +73,6 @@ struct IsBitwiseEqualityComparable :
     // cannot be inferred for 'TYPE'.  This trait can be associated with a
     // bit-wise EqualityComparable user-defined class by specializing this
     // class or by using the 'BSLMF_DECLARE_NESTED_TRAIT' macro.
-};
-
-template <class TYPE>
-struct IsBitwiseEqualityComparable<const TYPE> : IsBitwiseEqualityComparable<TYPE>::type
-{
-    // Specialization that associates the same trait with 'const TYPE' as with
-    // unqualified 'TYPE'.
-};
-
-template <class TYPE>
-struct IsBitwiseEqualityComparable<volatile TYPE> : IsBitwiseEqualityComparable<TYPE>::type
-{
-    // Specialization that associates the same trait with 'volatile TYPE' as
-    // with unqualified 'TYPE'.
-};
-
-template <class TYPE>
-struct IsBitwiseEqualityComparable<const volatile TYPE> : IsBitwiseEqualityComparable<TYPE>::type
-{
-    // Specialization that associates the same trait with 'const volatile
-    // TYPE' as with unqualified 'TYPE'.
-};
-
-template <class TYPE>
-struct IsBitwiseEqualityComparable<TYPE*> : bsl::true_type
-{
-    // Specialization of that associates the 'IsBitwiseEqualityComparable' trait with
-    // all pointer types.
-};
-
-template <class TYPE>
-struct IsBitwiseEqualityComparable<TYPE&> : bsl::false_type
-{
-    // Specialization of that prevents associating the 'IsBitwiseEqualityComparable'
-    // trait with any reference type.
 };
 
 }  // close package namespace

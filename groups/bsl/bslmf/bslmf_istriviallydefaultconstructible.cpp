@@ -1,6 +1,6 @@
-// bslmf_isbitwisecopyable.cpp                  -*-C++-*-
+// bslmf_istriviallydefaultconstructible.cpp                          -*-C++-*-
 
-#include <bslmf_isbitwisecopyable.h>
+#include <bslmf_istriviallydefaultconstructible.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

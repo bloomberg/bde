@@ -1,13 +1,10 @@
-// bslmf_hastrivialdefaultconstructor.cpp                  -*-C++-*-
+// bslmf_haspointersemantics.t.cpp                                      -*-C++-*-
 
-#include <bslmf_hastrivialdefaultconstructor.h>
+#include <bslmf_haspointersemantics.h>
 
-#include <bsls_ident.h>
-BSLS_IDENT("$Id$ $CSID$")
-
-namespace BloombergLP {
-
-} // Close namespace BloombergLP
+int main() {
+    return -1;
+}
 
 // ---------------------------------------------------------------------------
 // NOTICE:

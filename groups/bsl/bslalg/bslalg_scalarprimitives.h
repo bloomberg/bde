@@ -88,7 +88,9 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalardestructionprimitives.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITPAIR
 #include <bslalg_typetraitpair.h>
+#endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>

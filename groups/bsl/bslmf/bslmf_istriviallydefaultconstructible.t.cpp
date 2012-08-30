@@ -1,6 +1,6 @@
-// bslmf_isbitwisecopyable.t.cpp                  -*-C++-*-
+// bslmf_istriviallydefaultconstructible.t.cpp                        -*-C++-*-
 
-#include "bslmf_isbitwisecopyable.h"
+#include "bslmf_istriviallydefaultconstructible.h"
 
 #include <new>
 #include <cstdio>

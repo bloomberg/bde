@@ -1,20 +1,8 @@
-// bslmf_hastrivialdefaultconstructor.t.cpp                  -*-C++-*-
+// bslmf_ispair.cpp                                                   -*-C++-*-
+#include <bslmf_ispair.h>
 
-#include "bslmf_hastrivialdefaultconstructor.h"
-
-#include <new>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-
-using namespace BloombergLP;
-using namespace std;
-using namespace bsl;
-
-int main()
-{
-    return -1;
-}
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$ $CSID$")
 
 // ---------------------------------------------------------------------------
 // NOTICE:

@@ -268,7 +268,9 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITPAIR
 #include <bslalg_typetraitpair.h>
+#endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
@@ -557,7 +559,7 @@ class pair : private Pair_Imp<T1, T2,
 // ===========================================================================
 
 namespace BloombergLP {
-namespace bslalg {
+namespace bslmf {
 
 template <typename T1, typename T2>
 struct IsPair<bsl::pair<T1, T2> > : bsl::true_type
@@ -633,6 +635,22 @@ void swap(pair<T1, T2>& a, pair<T1, T2>& b);
 //                                TYPE TRAITS
 // ===========================================================================
 
+namespace bsl {
+
+template <typename T1, typename T2>
+struct is_trivially_copyable<pair<T1, T2> >
+    : bsl::integer_constant<bool, is_trivially_copyable<T1>::value
+                                  && is_trivially_copyable<T2>::value>
+{};
+
+template <typename T1, typename T2>
+struct is_trivially_default_constructible<bsl::pair<T1, T2> >
+    : bsl::integer_constant<bool, is_trivially_default_constructible<T1>::value
+                                  && is_trivially_default_constructible<T2>::value>
+{};
+
+}
+
 namespace BloombergLP {
 namespace bslmf {
 
@@ -640,18 +658,6 @@ template <typename T1, typename T2>
 struct IsBitwiseMoveable<bsl::pair<T1, T2> >
     : bsl::integer_constant<bool, bslmf::IsBitwiseMoveable<T1>::value
                                   && bslmf::IsBitwiseMoveable<T2>::value>
-{};
-
-template <typename T1, typename T2>
-struct IsBitwiseCopyable<bsl::pair<T1, T2> >
-    : bsl::integer_constant<bool, bslmf::IsBitwiseCopyable<T1>::value
-                                  && bslmf::IsBitwiseCopyable<T2>::value>
-{};
-
-template <typename T1, typename T2>
-struct HasTrivialDefaultConstructor<bsl::pair<T1, T2> >
-    : bsl::integer_constant<bool, bslmf::HasTrivialDefaultConstructor<T1>::value
-                                  && bslmf::HasTrivialDefaultConstructor<T2>::value>
 {};
 
 template <typename T1, typename T2>

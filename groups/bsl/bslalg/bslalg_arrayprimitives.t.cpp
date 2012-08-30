@@ -508,7 +508,7 @@ struct ConstructEnabler {
         return fpt;
     }
 
-    operator char() const 
+    operator char() const
     {
         return d_c;
     }
