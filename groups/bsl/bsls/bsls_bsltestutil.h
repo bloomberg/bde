@@ -410,8 +410,18 @@ void debugprinthelper(uintptr_t v);
 
 template <typename RESULT>
 void debugprint(RESULT (*v)())
+    // Print to the console the specified function pointer, 'v', formatted as a
+    // hexidecimal integer.  On some platforms (notably Windows), a function
+    // pointer is treated differently from an object pointer, and the compiler
+    // will not be able to determine which 'void *' overload of 'debugprint'
+    // should be used for a function pointer.  Therefore an overload of
+    // 'debugprint' is provided specifically for function pointers.  Because
+    // the type signature of a function pointer varies with its return type as
+    // well as with its argument list, a template is used, which converts
+    // function pointers with any return type to a single integral type and
+    // delegates the actual output to a function that operates on that type.
 {
-	debugprinthelper(reinterpret_cast<uintptr_t>(v));
+    debugprinthelper(reinterpret_cast<uintptr_t>(v));
 }
 
 // ===========================================================================
