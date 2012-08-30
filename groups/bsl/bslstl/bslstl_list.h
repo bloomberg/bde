@@ -620,6 +620,11 @@ struct List_Node
 
 template <class VALUE, class NODEPTR, class DIFFTYPE>
 class List_Iterator
+#ifdef BSLS_PLATFORM__OS_SOLARIS
+    : public std::iterator<std::bidirectional_iterator_tag, VALUE>
+// On Solaris just to keep studio12-v4 happy, since algorithms takes only
+// iterators inheriting from 'std::iterator'.
+#endif
 {
     // Implementation of std::list::iterator
 
