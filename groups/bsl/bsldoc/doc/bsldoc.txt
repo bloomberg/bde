@@ -12,11 +12,9 @@
 /Hierarchical Synopsis
 /---------------------
  'bsldoc' currently has 1 component having 1 level of physical dependency.
- The table below shows the hierarchical ordering of the component.  The package
- prefix and underscore ('bsldoc_') is omitted from the full component name for
- layout efficiency.
+ The table below shows the hierarchical ordering of the component.
 ..
-  Level 1: glossary
+  1. bsldoc_glossary
 ..
 
 /Component Synopsis

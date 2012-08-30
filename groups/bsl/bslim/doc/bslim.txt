@@ -23,7 +23,7 @@
  prefix and underscore ('bslim_') is omitted from the full component name for
  layout efficiency.
 ..
-  Level 1: printer
+  1. bslim_printer
 ..
 
 /Component Synopsis
@@ -32,7 +32,3 @@
 ..
   'bslim_printer' - Provide a mechanism to implement standard 'print' methods.
 ..
-
-/'bslim_printer'
-/- - - - - - - -
- This component provides a mechanism to implement standard 'print' methods.
