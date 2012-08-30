@@ -1188,7 +1188,7 @@ inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
                                                   const COMPARATOR& comparator,
                                                   const ALLOCATOR&  allocator)
-: Comparator(comparator)
+: ::bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR>::Comparator(comparator)
 , d_pool(allocator)
 {
 }

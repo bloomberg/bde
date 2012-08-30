@@ -6224,7 +6224,7 @@ int main(int argc, char *argv[])
         // TESTING CONSTRUCTOR OF TEMPLATE WRAPPER
         // --------------------------------------------------------------------
         // KEY doesn't affect the test.  So run test only for 'int'.
-        TestDriver<int>::testCase24;
+        TestDriver<int>::testCase24();
       } break;
       case 23: {
         // --------------------------------------------------------------------
