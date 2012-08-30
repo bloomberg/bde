@@ -859,10 +859,11 @@ class bdecs_Calendar {
         // returns the same result, but calling this method may be faster.
 
     bool isWeekendDay(const bdet_Date& date) const;
-        // Return 'true' if the specified 'dayOfWeek' is a weekend day in this
-        // calendar, and 'false' otherwise.  The behavior is undefined if
-        // weekend-days transitions were added to this calendar via the
-        // 'addWeekendDaysTransition' method.
+        // Return 'true' if the specified 'date' falls on a day of the week
+        // that is considered a weekend day in this calendar, and 'false'
+        // otherwise.  Note that this method is defined for all 'bdet_Date'
+        // values, not just those that fall within the valid range, and may
+        // be invoked on even an empty calendar (i.e., having '0 == length()').
 
     bool isWeekendDay(bdet_DayOfWeek::Day dayOfWeek) const;
         // Return 'true' if the specified 'dayOfWeek' is a weekend day in this
