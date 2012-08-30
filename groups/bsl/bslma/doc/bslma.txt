@@ -72,19 +72,20 @@
                                     statistics
 ..
 
-@Component Overview:
- This Overview section summarizes the components that are available in 'bslma'.
+/Component Overview
+/------------------
+ This section summarizes the components that are available in 'bslma'.
  Subsequent sections provide more detail on component selection, performance,
  and usage.
 
 /'bslma_allocator'
-/-----------------
+/- - - - - - - - -
  'bslma_allocator' defines a protocol (i.e., an abstract base class) requiring
  the following interface: 'allocate' for memory allocation, and 'deallocate',
  for deallocation of individual allocated  memory blocks.
 
 /'bslma_autodeallocator'
-/-----------------------
+/- - - - - - - - - - - -
  'bslma_autodeallocator' provides a "scoped guard" mechanism that assumes
  ownership responsibility for a block of memory obtained from an allocator
  having a 'deallocate' method; the memory is deallocated when the scoped
@@ -93,7 +94,7 @@
  additional allocations may throw an exception.
 
 /'bslma_autodestructor'
-/----------------------
+/ - - - - - - - - - - -
  'bslma_autodestructor' provides a "scoped guard" mechanism that assumes
  ownership of a sequence of objects that reside on contiguous memory that is
  *not* managed by the guard.  The objects are destroyed when the guard goes out
@@ -104,7 +105,7 @@
  exception.
 
 /'bslma_autorawdeleter'
-/----------------------
+/ - - - - - - - - - - -
  'bslma_autorawdeleter' provides a range proctor class template to manage a
  sequence of (otherwise-unmanaged) objects of parameterized 'TYPE' supplied at
  construction.  If not explicitly released, the sequence of managed objects are
@@ -115,7 +116,7 @@
  construction.
 
 /'bslma_deallocatorguard'
-/------------------------
+/ - - - - - - - - - - - -
  'bslma_deallocatorguard' provides a guard class template to unconditionally
  manage a block of (otherwise-unmanaged) memory.  The managed memory is
  deallocated automatically when the guard object goes out of scope using the
@@ -123,7 +124,7 @@
  supplied at construction.
 
 /'bslma_deallocatorproctor'
-/--------------------------
+/ - - - - - - - - - - - - -
  'bslma_deallocatorproctor' provides a proctor class template to conditionally
  manage a block of (otherwise-unmanaged) memory.  If not explicitly released,
  the managed memory is deallocated automatically when the proctor object goes
@@ -131,33 +132,33 @@
  (allocator or pool) supplied at construction.
 
 /'bslma_default'
-/---------------
+/- - - - - - - -
  'bslma_default' provides a namespace in which to declare a default allocator
  that can be used by any component requiring an allocator in cases where the
  client does not supply one, and two functions relating to this default
  allocator: a "setter", and a "getter".
 
 /'bslma_defaultallocatorguard'
-/-----------------------------
+/- - - - - - - - - - - - - - -
  'bslma_defaultallocatorguard' provides a mechanism to enable safe, temporary
  replacement of the default allocator.
 
 /'bslma_deleterhelper'
-/---------------------
+/- - - - - - - - - - -
  'bslma_deleterhelper' provides non-primitive procedures used to delete objects
  of parameterized 'TYPE' by first calling the destructor of the object, and
  then freeing the memory footprint of the object using a parameterized
  'ALLOCATOR' (allocator or pool) provided as a second argument.
 
 /'bslma_destructorguard'
-/-----------------------
+/- - - - - - - - - - - -
  'bslma_destructorguard' provides a guard class template to unconditionally
  manage an (otherwise-unmanaged) object of parameterized 'TYPE' supplied at
  construction.  The managed object is destroyed automatically when the guard
  object goes out of scope by calling the (managed) object's destructor.
 
 /'bslma_destructorproctor'
-/-------------------------
+/- - - - - - - - - - - - -
  'bslma_destructorproctor' provides a proctor class template to conditionally
  manage an (otherwise-unmanaged) object of parameterized 'TYPE' supplied at
  construction.  If not explicitly released, the managed object is destroyed
@@ -165,25 +166,25 @@
  object's destructor.
 
 /'bslma_mallocfreeallocator'
-/---------------------------
+/- - - - - - - - - - - - - -
  'bslma_mallocfreeallocator' provides a wrapper around 'std::malloc' and
  'std::free' that adheres to the 'bslma_Allocator' protocol (i.e., provides
  'allocate' and 'deallocate' functions).
 
 /'bslma_managedallocator'
-/------------------------
+/ - - - - - - - - - - - -
  'bslma_managedallocator' defines a protocol that extends the 'bslma_Allocator'
  protocol with a 'release' function.  'release' indicates that all memory
  allocated since the previous 'release' call is to be deallocated.
 
 /'bslma_newdeleteallocator'
-/--------------------------
+/ - - - - - - - - - - - - -
  'bslma_newdeleteallocator' provides a wrapper around 'operator new' and
  'operator delete' that adheres to the 'bslma_Allocator' protocol (i.e.,
  provides an 'allocate' function and a 'deallocate' function).
 
 /'bslma_rawdeleterguard'
-/-----------------------
+/- - - - - - - - - - - -
  'bslma_rawdeleterguard' provides a guard class template to unconditionally
  manage an (otherwise-unmanaged) object of parameterized 'TYPE' supplied at
  construction.  The managed object is deleted automatically when the guard
@@ -192,7 +193,7 @@
  pool) also supplied at construction.
 
 /'bslma_rawdeleterproctor'
-/-------------------------
+/- - - - - - - - - - - - -
  'bslma_rawdeleterproctor' provides a proctor class template to conditionally
  manage an (otherwise-unmanaged) object of parameterized 'TYPE' supplied at
  construction.  If not explicitly released, the managed object is deleted
@@ -201,22 +202,23 @@
  parameterized 'ALLOCATOR' (allocator or pool) also supplied at construction.
 
 /'bslma_testallocator'
-/---------------------
+/- - - - - - - - - - -
  'bslma_testallocator' provides an instrumented memory allocator drawing on
  'malloc'-provided memory, that can be exceedingly useful during development.
 
 /'bslma_testallocatorexception'
-/------------------------------
+/ - - - - - - - - - - - - - - -
  'bslma_testallocatorexception' defines an exception object for use in testing
  exceptions during memory allocations.
 
 /'bslma_testallocatormonitor'
-/----------------------------
+/ - - - - - - - - - - - - - -
  'bslma_testallocatormonitor' provides a "monitor", a mechanism class, that
  allows concise tests of state change (or lack of change) in the test allocator
  provided at the monitor's construction.
 
-@Allocators and Other Memory-Dispensing Mechanisms
+/Allocators and Other Memory-Dispensing Mechanisms
+/-------------------------------------------------
  An allocator is a memory manager that derives from the 'bslma_Allocator'
  protocol and provides an 'allocate' method for obtaining memory, and a
  'deallocate' method for returning memory (to the allocator).  'bslma' also
@@ -462,6 +464,7 @@ Test              | Single items only     | Untyped, varying sizes  |
 Allocator         |                       |                         |
                   +-----------------------+-------------------------+
 ..
+
 /The Default Allocator
 /---------------------
  All object types in the BDE library needing dynamic memory require that an
@@ -472,18 +475,19 @@ Allocator         |                       |                         |
  'bslma_Default::setDefaultAllocator' sets the value of the (global) default
  allocator, and 'bslma_Default::allocator' returns it.
 
-@INTERACTION WITH OTHER PACKAGES: All BDE library objects needing dynamic
+/Interaction With Other Packages
+/-------------------------------
+ All BDE library objects needing dynamic
  memory require that an allocator be passed to their constructor, which
  defaults to the allocator currently installed as the default allocator.
 
-@USAGE EXAMPLES
-..
-    1. Using 'bslma_SequentialAllocator' for an ODBC/JDBC-like database driver.
-    2. Sketch use of 'bslma_BufferAllocator'.
-..
+/Usage
+/-----
+: 1 Using 'bslma_SequentialAllocator' for an ODBC/JDBC-like database driver.
+: 2 Sketch use of 'bslma_BufferAllocator'.
 
-/USAGE EXAMPLE 1: 'bslma_SequentialAllocator' for a database driver
-/------------------------------------------------------------------
+/Example 1: 'bslma_SequentialAllocator' for a Database Driver
+/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  ODBC/JDBC drivers are libraries providing standardized, language-appropriate
  API's for accessing SQL databases.  The standardization allows programmers
  using these drivers to access any vendor's SQL-based DBMS in the same way.
@@ -799,8 +803,9 @@ Allocator         |                       |                         |
       return 0;
   }
 ..
-/USAGE EXAMPLE 2: Sketch use of 'bslma_BufferAllocator'
-/------------------------------------------------------
+
+/Example 2: Sketch Use of 'bslma_BufferAllocator'
+/ - - - - - - - - - - - - - - - - - - - - - - - -
  Clients can take advantage of the faster and cheaper memory originating
  on the stack for use with objects (wanting allocators) that are used as
  *local* *variables* within some procedure.
@@ -850,4 +855,3 @@ The code above might look like
                        initSize,
                        bslma_BufferAllocator(hugeLocalBuffer, 5000, cheapNew));
 ..
-

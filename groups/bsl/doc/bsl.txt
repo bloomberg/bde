@@ -102,22 +102,22 @@
  brief; see the respective Package Level documents for more details and usage
  examples.
 
-/bslalg
-/- - -
+/'bslalg'
+/ - - - -
  'bslalg' provides a variety of lower-level algorithms, comparisons, and
  traits.
 
-/bslma
-/- - -
+/'bslma'
+/- - - -
  'bslma' provides memory allocation and related proctor and handle objects.
 
-/bslmf
-/- - -
+/'bslmf'
+/- - - -
  'bslmf' provides low-level "meta-functions" implementing "traits" and other
  useful properties of types, determined at compile-time.
 
-/bsls
-/- -
+/'bsls'
+/ - - -
  'bsls' provides the needed platform-independent definitions and utilities
  (with platform-specific implementations) so that the rest of the bsl library,
  and all conforming applications within the Development Framework, can be
@@ -128,8 +128,8 @@
  memory, bit-manipulation utilities, and a uniform interface to system services
  (e.g., timers).
 
-/bslscm
-/- - -
+/'bslscm'
+/ - - - -
  'bslscm' is a special source control management package containing only two
  components, 'bslscm_version' and 'bslscm_versiontag'.  The first of these
  components is included by every other component in 'bsl', and provides
@@ -139,45 +139,45 @@
  conditional-compilation based on 'bsl' version information.
  See '{BP BDE_SCM <GO>}' for a detailed specification for this package.
 
-/bslstl
-/- - -
+/'bslstl'
+/ - - - -
  'bslstl' provides an implementation of certain containers of the C++ standard
  library using the 'bslma' memory allocation model, algorithms and traits in
  'bslalg' and meta-functions in 'bslmf'.
 
-/bslstp
-/- - -
+/'bslstp'
+/ - - - -
  'bslstp' provides an implementation of certain containers of the C++ standard
  library by modifying source code originally from stlport to adapt to the
  'bslma' memory allocation model.
 
-/bsltst
-/- - -
+/'bsltst'
+/ - - - -
  'bsltst' provides a breathing test for the C++ standard containers implemented
  in 'bslstl' and 'bslstp'.  Tests in this package also test to make sure
  'bsl::*' and 'std::*' container types are different (equivalent) when compiled
  under the 'BDE-STL' mode (or not).
 
-/bsltf
-/- - -
+/'bsltf'
+/- - - -
 'bsltf' provides a set test types and utilities that operates on those types,
 which can help simplify, particularly for template, the implementation of test
 drivers.
 
-/bsl+apache
-/- - - - - -
+/'bsl+apache'
+/ - - - - - -
  'bsl+apache' provides extensive test coverage of the C++ standard library
  using the third-party apache test suite.
 
-/bsl+bslhdrs
-/- - - - - -
+/'bsl+bslhdrs'
+/- - - - - - -
  'bsl+bslhdrs' provides the 'bsl' version of the standard C++ library (e.g.,
  'bsl_vector.h' instead of 'vector', 'bsl_algorithm.h' instead of 'algorithm').
  Users of 'bsl' can include these headers to obtain the corresponding C++ STL
  functionalities.
 
-/bsl+stdhdrs
-/- - - - - -
+/'bsl+stdhdrs'
+/- - - - - - -
  'bsl+stdhdrs' provides a compatibility layer to for the 'BDE-STL' mode.  When
  users include standard C++ headers from this directory (e.g., 'vector',
  'algorithm'), and use standard STL types such as 'std::vector', 'std::cout',

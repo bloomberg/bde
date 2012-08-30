@@ -26,15 +26,11 @@
   'bsldoc_glossary' - glossary of terms used throughout BDE documentation.
 ..
 
-@Component Overview:
-
- This Overview section summarizes the component that is available in 'bsldoc'.
-
 /'bsldoc_glossary'
-/-----------------
+/- - - - - - - - -
  This component provides a glossary of terms used throughout BDE documentation.
 
-@Usage Examples
-
+/Usage
+/-----
  This package has no Usage examples, as yet.  It consists only of (strictly
  non-executable) documentation.

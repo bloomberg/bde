@@ -72,12 +72,12 @@
   'bsls_timeutil'      - a platform-neutral interface to system clocks.
 ..
 
-@Component Overview:
-
- This Overview section summarizes the components that are available in 'bsls'.
+/Component Overview
+/------------------
+ This section summarizes the components that are available in 'bsls'.
 
 /'bsls_alignedbuffer'
-/--------------------
+/ - - - - - - - - - -
  This component provides a templated buffer type with a user-specified
  compile-time size and user-specified alignment. Typically, such a type is used
  in situations where it is desirable to allocate a block of properly-aligned
@@ -86,7 +86,7 @@
  a small heap from which one or more objects are allocated at run-time.
 
 /'bsls_alignment'
-/----------------
+/ - - - - - - - -
  This component computes (at compile-time) platform-dependent alignment
  information.  This component also provides a namespace for a suite of
  compile-time constants and pure procedures that yield platform-dependent
@@ -96,7 +96,7 @@
  useful for creating pools and allocators that rely on efficient alignment.
 
 /'bsls_assert'
-/-------------
+/- - - - - - -
  This component provides a pair of "assert-like" macros to implement a
  compile-time-selectable and run-time-configurable "defensive" or "safe" mode.
  It also provides a suite of "assert-failure handler" methods suitable for
@@ -107,14 +107,14 @@
  failure handler in a limited scope.
 
 /'bsls_buildtarget'
-/------------------
+/ - - - - - - - - -
  This component defines types and runtime constants for identifying the
  build target information (usually specified to the compiler via a set of
  'BDE_BUILD_...' macros).  This is mostly useful for retrieving such
  information from a linkable or executable binary.
 
 /'bsls_exceptionutil'
-/--------------------
+/ - - - - - - - - - -
  This component provides macros to replace 'try', 'throw' and 'catch'.  These
  macros expand to normal exception constructs when exceptions are
  enabled and to reasonable alternatives (usually no-ops) when exceptions are
@@ -122,20 +122,20 @@
  compile even if exceptions are disabled using a compiler switch.
 
 /'bsls_int64'
-/------------
+/ - - - - - -
  This component provides platform-independent type names for both signed and
  unsigned 64-bit integers.  For healthy platforms, the component simply
  provides a BDE-standard 'typedef' for the non-standard native type name.  All
  platforms currently supported are healthy regarding 64-bit integers.
 
 /'bsls_iosfwd'
-/-------------
+/- - - - - - -
  This component provides the correct forward declaration for types 'ostream'
  and 'istream', regardless of whether the compiler/library uses the classical
  ARM-style streams or the newer ANSI standard streams.
 
 /'bsls_logicerror'
-/-----------------
+/- - - - - - - - -
  This component provides a class 'bsls_LogicError' that formats a file name,
  line number, and message into a single, dynamically-allocated string.  This
  class is particularly convenient for throwing as an exception because (a)
@@ -145,7 +145,7 @@
  of memory.
 
 /'bsls_objectbuffer'
-/-------------------
+/- - - - - - - - - -
  This component provides a templated buffer type, 'bsls_ObjectBuffer', which is
  compile-time sized and aligned to hold a specified object type.  Defining a
  'bsls_ObjectBuffer<T>' object does not cause the constructor for 'T' to be
@@ -156,14 +156,14 @@
  used to create a 'union' containing non-POD element types.
 
 /'bsls_platform'
-/---------------
+/- - - - - - - -
  This component defines preprocessor macros that identify and
  describe platform-specific attributes (at compile time).  These attributes
  consist of the types and versions of operating system, processor(s), and
  compiler that comprise the platform.
 
 /'bsls_platformutil'
-/-------------------
+/- - - - - - - - - -
  This component provides a namespace for a collection of typedefs and pure
  procedures that would otherwise have platform-dependent interfaces.  For
  example, it defines the preferred fundamental types denoting signed and
@@ -174,11 +174,11 @@
  'ntohs' which do not require including any system header.
 
 /'bsls_protocoltest'
-/-------------------
+/- - - - - - - - - -
  This component provides classes and macros for testing abstract protocols.
 
 /'bsls_stopwatch'
-/----------------
+/ - - - - - - - -
  This component implements a real-time (system clock) interval timer.  A
  'bsls_Stopwatch' object can accumulate and return only one interval at a time,
  but may be started and stopped repeatedly without being reset, so the elapsed
@@ -187,14 +187,14 @@
  seconds) is available as a 'double' value.
 
 /'bsls_timeutil'
-/---------------
+/- - - - - - - -
  This component provides a set of platform-neutral pure procedures to access
  real-time system clock functionality.  High-resolution time functions intended
  for interval-timing return an interval in nanoseconds (1 nsec = 1E-9 sec) as a
  64-bit integer.
 
-@Usage Examples
-
+/Usage
+/-----
  This package provides disparate functionality close to the system layer.
  There is no natural usage example for the entire package.  It is best to refer
  to the usage example for each individual component.

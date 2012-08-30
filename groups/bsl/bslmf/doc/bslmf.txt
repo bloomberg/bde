@@ -121,9 +121,8 @@
   'bslmf_typelist'          - bundle several types into a single type.
 ..
 
-@Usage Examples
-
+/Usage
+/-----
  This package provides disparate functionality close to the system layer.
  There is no natural usage example for the entire package.  It is best to refer
  to the usage example for each individual component.
-

@@ -33,15 +33,6 @@
   'bslim_printer' - Provide a mechanism to implement standard 'print' methods.
 ..
 
-@Component Overview:
-
- This Overview section summarizes the component that is available in 'bslim'.
-
 /'bslim_printer'
-/---------------
+/- - - - - - - -
  This component provides a mechanism to implement standard 'print' methods.
-
-@Usage Examples
-
- See 'bslim_printer' for usage examples pertaining to the lone component in the
- 'bslim' package.

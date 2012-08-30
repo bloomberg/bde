@@ -1,0 +1,104 @@
+ bslfwd.txt
+
+@PURPOSE: Provide system-level utilities for 'bsl'.
+
+@DEPRECATED:  Do not use.
+
+@MNEMONIC: Basic Standard Library System forwarding declarations (bslfwd)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: Each component of this package provides a code snippet defining a
+ forward reference to a corresponding type within 'bsl' (e.g.,
+ 'bslfwd_bslma_allocator' defines a forward reference to the type defined in
+ 'bslma_allocator').  If 'BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES' is defined,
+ the forward declaration will refer the 'bsl' type in the two-level namespace;
+ otherwise, it will refer to the type in the legacy one-level namespace (e.g.,
+ 'bslma::Allocator' versus 'bslma_Allocator', both in the 'BloombergLP'
+ namespace).
+
+ The components in this package are provided to provide backward compatibility
+ for existing clients.  All new code must be written using the two-level
+ namespace for 'bsl' types.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bsls' currently has 59 components having 2 levels of physical dependency.
+..
+  2. bslfwd_bslalg_arraydestructionprimitives
+     bslfwd_bslalg_arrayprimitives
+     bslfwd_bslalg_rangecompare
+     bslfwd_bslalg_scalardestructionprimitives
+     bslfwd_bslalg_scalarprimitives
+     bslfwd_bslalg_swaputil
+     bslfwd_bslalg_typetraitbitwisecopyable
+     bslfwd_bslalg_typetraitbitwiseequalitycomparable
+     bslfwd_bslalg_typetraitbitwisemoveable
+     bslfwd_bslalg_typetraithaspointersemantics
+     bslfwd_bslalg_typetraithasstliterators
+     bslfwd_bslalg_typetraithastrivialdefaultconstructor
+     bslfwd_bslalg_typetraitsgrouppod
+     bslfwd_bslalg_typetraitusesbslmaallocator
+     bslfwd_bslma_allocator
+     bslfwd_bslma_bufferallocator
+     bslfwd_bslma_default
+     bslfwd_bslma_defaultallocatorguard
+     bslfwd_bslma_deleterhelper
+     bslfwd_bslma_infrequentdeleteblocklist
+     bslfwd_bslma_mallocfreeallocator
+     bslfwd_bslma_managedallocator
+     bslfwd_bslma_newdeleteallocator
+     bslfwd_bslma_sequentialallocator
+     bslfwd_bslma_sequentialpool
+     bslfwd_bslma_testallocator
+     bslfwd_bslma_testallocatorexception
+     bslfwd_bslma_testallocatormonitor
+     bslfwd_bslmf_anytype
+     bslfwd_bslmf_functionpointerclinkage
+     bslfwd_bslmf_functionpointercpluspluslinkage
+     bslfwd_bslmf_nil
+     bslfwd_bslmf_typelist0
+     bslfwd_bsls_alignment
+     bslfwd_bsls_alignmentimp8bytealignedtype
+     bslfwd_bsls_alignmentimpmatch
+     bslfwd_bsls_alignmentutil
+     bslfwd_bsls_assert
+     bslfwd_bsls_assertfailurehandlerguard
+     bslfwd_bsls_asserttest
+     bslfwd_bsls_asserttestexception
+     bslfwd_bsls_blockgrowth
+     bslfwd_bsls_no64bitbuildtarget
+     bslfwd_bsls_noexcbuildtarget
+     bslfwd_bsls_nomtbuildtarget
+     bslfwd_bsls_performancehint
+     bslfwd_bsls_platform
+     bslfwd_bsls_stopwatch
+     bslfwd_bsls_timeutil
+     bslfwd_bsls_types
+     bslfwd_bsls_util
+     bslfwd_bsls_yes64bitbuildtarget
+     bslfwd_bsls_yesexcbuildtarget
+     bslfwd_bsls_yesmtbuildtarget
+     bslfwd_bslscm_version
+     bslfwd_bslstl_stdexceptutil
+     bslfwd_bslstl_util
+     bslfwd_bslstl_utiliterator
+  
+  1. bslfwd_buildtarget
+..
+
+/Component Synopsis
+/------------------
+ The purpose of each component (except one) is identical:
+..
+  Provide a forward-declaration for the corresponding BDE type.
+..
+ The single exception is 'bslfwd_buildtarget':
+..
+  Supply a compile-time indicator of whether BSL uses C++ namespaces.
+..
+
+/Usage
+/-----
+ See "Updating 'bsl' Clients for Two-Level Namespaces" at
+ 'https://bbiportal.bloomberg.com/BDE/Solutions/BSLFWD.html'
