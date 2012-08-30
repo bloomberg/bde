@@ -75,32 +75,43 @@ BDES_IDENT("$Id: $")
 // can be significantly more efficient for certain repeated
 // "is-common-business-day" determinations among two or more calendars.
 //
-///Weekend-Days Transitions
-///------------------------
-// A calendar maintains a sequence of weekend-days transitions that allows it
-// to represent a calendar whose weekend days have changed over time.  For
-// example, Bangladesh's weekend consists of Friday until June 1, 1997 when
-// Bangladesh changed its weekends to be both Friday and Saturday.  Later, on
-// October 1, 2001 Bangladesh reverted to a weekend of only Friday, until on
-// September 9, 2009 Bangladesh again changed its weekends to be both Friday
-// and Saturday.  A calendar may represent this with a sequence of four
-// weekend-days transitions: (1) a (default) transition on January 1, 0001
-// having a weekend day set containing only Friday, (2) a transition at June 1,
-// 1997 having a weekend day set containing Friday and Saturday, (3) a
+///Weekend Days and Weekend-Days Transitions
+///-----------------------------------------
+// A calendar maintain a set of dates considered to be weekend days.
+// Typically, a calendar's weekend days falls on the same days of the week for
+// the entire range of a calendar.  For example, the weekend for United States
+// has consisted of Saturday and Sunday since the year 1940.  The
+// 'addWeekendDay' and 'AddWeekendDays' methods can be used to specify the
+// weekend days for these calendars.
+//
+// Sometimes, a calendar's weekend days changes over time.  For example,
+// Bangladesh's weekend consists of Friday until June 1, 1997 when Bangladesh
+// changed its weekends to be both Friday and Saturday.  Later, on October 1,
+// 2001 Bangladesh reverted to a weekend of only Friday, until on September 9,
+// 2009 Bangladesh again changed its weekends to be both Friday and Saturday.
+//
+// To optimize for space allocation while supporting both consistent and
+// changing weekend days, a calendar represents weekend information using a
+// sequence of weekend-days transitions, each of which comprises a date and a
+// set of days of the week considered to the be the weekend on and after that
+// date.  To represent the weekend days of Bangladesh, a calendar can use a
+// sequence of four weekend-days transitions: (1) a transition on January 1,
+// 0001 having a weekend day set containing only Friday, (2) a transition at
+// June 1, 1997 having a weekend day set containing Friday and Saturday, (3) a
 // transition at October 1, 2001 having a weekend day set containing only
 // Friday, and (4) a transition at September 9, 2009 having a weekend day set
-// containing Friday and Saturday.  The start date of a weekend-days transition
-// determines the date at which the transition's associated set of weekend days
-// takes effect.
+// containing Friday and Saturday.  To represent the weekend days of the United
+// States, a calendar having a range after 1940 can use a single weekend-days
+// transition on January 1, 0001 containing Saturday and Sunday.
 //
-// On construction, a calendar does not contain any weekend-days transitions.
-// The 'addWeekendDay' and 'addWeekendDays' methods adds a weekend-days
+// On construction, a calendar does contains no weekend-days transitions.  The
+// 'addWeekendDaysTransition' method adds a new weekend-days transition.  The
+// 'addWeekendDay' and 'addWeekendDays' methods create a weekend-days
 // transition at January 1, 0001, if one doesn't already exist, and update the
-// set of weekend days for that transition.  The 'addWeekendDaysTransition'
-// method can be used to add a new weekend-day transition.  Note that,
-// 'addWeekendDay' and 'addWeekendDays' methods are convenient ways to define
-// the weekend days of a calendar for which the days of the week considered to
-// be weekend days is always the same.
+// set of weekend days for that transition.  'addWeekendDay' and
+// 'addWeekendDays' should be only used for calendars having a consistent set
+// of weekend days throughout their entire range.  As such, using these methods
+// together with 'addWeekendDaysTransition' is unspecified.
 //
 ///Nested Iterators
 ///----------------
@@ -396,22 +407,22 @@ class bdecs_Calendar_BusinessDayConstIter;
 
 class bdecs_Calendar {
     // This class implements a runtime-efficient, fully value-semantic
-    // repository of weekend and holiday information over a *valid* *range*
-    // of dates.  This valid range, '[ firstDate() .. lastDate() ]', spans
-    // the first and last dates of a calendar's accessible contents.  A
-    // calendar can be "populated" with weekend and holiday information via a
-    // suite of 'add' methods.  Any subset of days of the week may be
-    // specified as weekend (i.e., recurring non-business) days for each
-    // occurrence of that day-of-the-week within the valid range; holidays
-    // within the valid range are specified individually.  When adding a
-    // holiday, an arbitrary integer "holiday code" may be associated with
-    // that date.  Additional holiday codes for that date may subsequently be
-    // added.  Both the holidays and the set of unique holiday codes
-    // associated with each holiday date are maintained (internally) in order
-    // of increasing value.  Note that the behavior of requesting *any*
-    // calendar information for a supplied date whose value is outside the
-    // current *valid* *range* for that calendar (unless otherwise noted,
-    // e.g., 'isWeekendDay') is undefined.
+    // repository of weekend and holiday information over a *valid* *range* of
+    // dates.  This valid range, '[ firstDate() .. lastDate() ]', spans the
+    // first and last dates of a calendar's accessible contents.  A calendar
+    // can be "populated" with weekend and holiday information via a suite of
+    // 'add' methods.  Any subset of days of the week may be specified as
+    // weekend (i.e., recurring non-business) days starting from a specified
+    // date by adding a weekend-days transition; holidays within the valid
+    // range are specified individually.  When adding a holiday, an arbitrary
+    // integer "holiday code" may be associated with that date.  Additional
+    // holiday codes for that date may subsequently be added.  Both the
+    // holidays and the set of unique holiday codes associated with each
+    // holiday date are maintained (internally) in order of increasing value.
+    // Note that the behavior of requesting *any* calendar information for a
+    // supplied date whose value is outside the current *valid* *range* for
+    // that calendar (unless otherwise noted, e.g., 'isWeekendDay') is
+    // undefined.
     //
     // More generally, this class supports a complete set of *value* *semantic*
     // operations, including copy construction, assignment, equality
@@ -563,30 +574,29 @@ class bdecs_Calendar {
         // iterators.
 
     void addWeekendDay(bdet_DayOfWeek::Day weekendDay);
-        // Add the specified 'weekendDay' to the set of weekend days
-        // associated with the weekend-days transition at January 1, 0001
-        // maintained by this calendar.  Create a transition at January 1, 0001
-        // if one does not exist.  The behavior is undefined if the sequence of
-        // weekend-days transitions maintained by this calendar comprises more
-        // transitions other than the one at January 1, 0001.
+        // Add the specified 'weekendDay' to the set of weekend days associated
+        // with the weekend-days transition at January 1, 0001 maintained by
+        // this calendar.  Create a transition at January 1, 0001 if one does
+        // not exist.  The behavior is undefined if weekend-days transitions
+        // were added to this calendar via the 'addWeekendDaysTransition'
+        // method.
 
     void addWeekendDays(const bdec_DayOfWeekSet& weekendDays);
         // Add the specified 'weekendDays' to the set of weekend days
         // associated with the weekend-days transition at January 1, 0001
         // maintained by this calendar.  Create a transition at January 1, 0001
-        // if one does not exist.  The behavior is undefined if the sequence of
-        // weekend-days transitions maintained by this calendar comprises more
-        // transitions other than the one at January 1, 0001.
+        // if one does not exist.  The behavior is undefined if weekend-days
+        // transitions were added to this calendar via the
+        // 'addWeekendDaysTransition' method.
 
     void addWeekendDaysTransition(const bdet_Date&         date,
                                   const bdec_DayOfWeekSet& weekendDays);
-        // Add to this calendar a weekend-days transition having the specified
-        // 'startDate' when the calendar adopts the specified 'weekendDays'.
-        // If a weekend-days transition having 'startDate' already exist,
-        // replace the weekend days of the transition with 'weekendDays'.  The
-        // behavior is undefined if weekend days have been added to this
-        // calendar via the 'addWeekendDay' method or the 'addWeekendDays'
-        // method.
+        // Add to this calendar a weekend-days transition on the specified
+        // 'date' having the specified 'weekendDays' set.  If a weekend-days
+        // transition already exists on 'date', replace the set of weekend days
+        // of that transition with 'weekendDays'.  The behavior is undefined if
+        // weekend days have been added to this calendar via either the
+        // 'addWeekendDay' method or the 'addWeekendDays' method.
 
     void intersectBusinessDays(const bdecs_Calendar& other);
     void intersectBusinessDays(const bdecs_PackedCalendar& other);
@@ -849,15 +859,16 @@ class bdecs_Calendar {
         // returns the same result, but calling this method may be faster.
 
     bool isWeekendDay(const bdet_Date& date) const;
-        // Return 'true' if the specified 'date' falls on a day of the week
-        // that is considered a weekend day in this calendar, and 'false'
-        // otherwise.  Note that this method is defined for all 'bdet_Date'
-        // values, not just those that fall within the valid range, and may
-        // be invoked on even an empty calendar (i.e., having '0 == length()').
+        // Return 'true' if the specified 'dayOfWeek' is a weekend day in this
+        // calendar, and 'false' otherwise.  The behavior is undefined if
+        // weekend-days transitions were added to this calendar via the
+        // 'addWeekendDaysTransition' method.
 
     bool isWeekendDay(bdet_DayOfWeek::Day dayOfWeek) const;
         // Return 'true' if the specified 'dayOfWeek' is a weekend day in this
-        // calendar, and 'false' otherwise.
+        // calendar, and 'false' otherwise.  The behavior is undefined if
+        // weekend-days transitions were added to this calendar via the
+        // 'addWeekendDaysTransition' method.
 
     const bdet_Date& lastDate() const;
         // Return a reference to the non-modifiable latest date in the valid
@@ -1248,18 +1259,18 @@ template <class STREAM>
 STREAM& bdecs_Calendar::bdexStreamIn(STREAM& stream, int version)
 {
 
-    // The 'bdesc_Calendar' delegates its streaming operations (and the format
+    // The 'bdecs_Calendar' delegates its streaming operations (and the format
     // version) to 'bdecs_PackedCalendar' as both types can represent the exact
     // same set of mathematical values.
 
     if (stream) {
 
-        // Checks whether 'version' is less than the maximum supported version.
-        // The version is harded coded here as 2, because
-        // 'maxSupportedBdexVersion()' is kept at 1 for backwards compatibility
-        // reasons.  We should change the following condition to compare with
-        // 'maxSupportedBdexVersion()' once the class method is updated to
-        // return 2.
+        // Check whether 'version' is less than the maximum supported version.
+        // The version is hard-coded here as 2, because
+        // 'maxSupportedBdexVersion()' is kept at 1 for
+        // backwards-compatibility.  We should change the following condition
+        // to compare with 'maxSupportedBdexVersion()' once the class method is
+        // updated to return 2.
 
         if (version <= 2) {
 
@@ -1287,16 +1298,15 @@ template <class STREAM>
 STREAM& bdecs_Calendar::bdexStreamOut(STREAM& stream, int version) const
 {
 
-    // The 'bdesc_Calendar' delegates its streaming operations (and the format
+    // The 'bdecs_Calendar' delegates its streaming operations (and the format
     // version) to 'bdecs_PackedCalendar' as both types can represent the exact
     // same set of mathematical values.
 
-    // Checks whether 'version' is less than the maximum supported version.
-    // The version is harded coded here as 2, because
-    // 'maxSupportedBdexVersion()' is kept at 1 for backwards compatibility
-    // reasons.  We should change the following condition to compare with
-    // 'maxSupportedBdexVersion()' once the class method is updated to return
-    // 2.
+    // Check whether 'version' is less than the maximum supported version.  The
+    // version is hard-coded here as 2, because 'maxSupportedBdexVersion()' is
+    // kept at 1 for backwards-compatibility.  We should change the following
+    // condition to compare with 'maxSupportedBdexVersion()' once the class
+    // method is updated to return 2.
 
     if (version <= 2) {
         d_packedCalendar.bdexStreamOut(stream, version);

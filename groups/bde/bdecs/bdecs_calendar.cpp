@@ -227,11 +227,10 @@ void bdecs_Calendar::addWeekendDay(bdet_DayOfWeek::Day weekendDay)
 
 void bdecs_Calendar::addWeekendDays(const bdec_DayOfWeekSet& weekendDays)
 {
+    // Add a empty transition at 1/1/1 when 'weekendDays' is empty so that
+    // 'bdecs_Calendar' has the same behavior as 'bdecs_PackedCalendar'.
 
-    // Adding a empty transition at 1/1/1 when 'weekendDays' is empty so that
-    // 'bdecs_Calendar' will have the same behavior as 'bdecs_PackedCalendar'.
-
-    if (weekendDays.length() == 0) {
+    if (0 == weekendDays.length()) {
         d_packedCalendar.addWeekendDays(weekendDays);
         return;
     }
@@ -243,7 +242,7 @@ void bdecs_Calendar::addWeekendDays(const bdec_DayOfWeekSet& weekendDays)
 }
 
 void bdecs_Calendar::addWeekendDaysTransition(
-                                          const bdet_Date& date,
+                                          const bdet_Date&         date,
                                           const bdec_DayOfWeekSet& weekendDays)
 {
     d_packedCalendar.addWeekendDaysTransition(date, weekendDays);
@@ -326,9 +325,9 @@ bdecs_Calendar::getNextBusinessDay(const bdet_Date& initialDate) const
     ++currentDate;
 
     // For 'currentDate < calendarFirstDate', only weekend days are considered
-    // holidays.  Note that the following loop will run 6 times in the worst
-    // case because we know at this point that this calendar has at least one
-    // day which is not a weekend day.
+    // non-business days.  Note that the following loop will run 6 times in the
+    // worst case because we know at this point that this calendar has at least
+    // one day which is not a weekend day.
 
     while (currentDate < calendarFirstDate) {
         if (0 == isWeekendDay(currentDate)) {
@@ -357,10 +356,10 @@ bdecs_Calendar::getNextBusinessDay(const bdet_Date& initialDate) const
         ++currentDate;
     }
 
-    // Starting from 'lastDate + 1', only weekend days are considered holidays.
-    // Note that this loop will run 6 times in the worst case because we know
-    // at this point that this calendar has at least one day which is not a
-    // weekend day.
+    // Starting from 'lastDate + 1', only weekend days are considered
+    // non-business days.  Note that this loop will run 6 times in the worst
+    // case because we know at this point that this calendar has at least one
+    // day which is not a weekend day.
 
     while (isWeekendDay(currentDate)) {
         ++currentDate;

@@ -49,9 +49,9 @@ int numWeekendDaysInRangeImp(const bdet_Date&         firstDate,
                              const bdet_Date&         lastDate,
                              const bdec_DayOfWeekSet& weekendDays)
     // Return the number of days in the range starting from the specified
-    // 'firstDate' to 'lastDate' whoes day-of-week are in the specified
+    // 'firstDate' to 'lastDate' whose day-of-week are in the specified
     // 'weekendDays' set.  Note that this function returns 0 if 'endDate <
-    // firstDate'.
+    // lastDate'.
 {
     const int len = firstDate <= lastDate ? lastDate - firstDate + 1 : 0;
 
@@ -109,31 +109,31 @@ void intersectWeekendDaysTransitions(WTransitions        *result,
         return;
     }
 
-    WTransitions::const_iterator l = lhs.begin();
+    WTransitions::const_iterator lh = lhs.begin();
     WTransitions::const_iterator r = rhs.begin();
 
     WTransitions::const_iterator lprev = lhs.end();
     WTransitions::const_iterator rprev = rhs.end();
 
-    while (l != lhs.end() && r != rhs.end()) {
+    while (lh != lhs.end() && r != rhs.end()) {
 
-        if (l->first < r->first) {
+        if (lh->first < r->first) {
             if (rprev == rhs.end()) {
 
                 // The intersection is empty.
 
                 result->push_back(WTransitions::value_type(
-                                               l->first, bdec_DayOfWeekSet()));
+                                              lh->first, bdec_DayOfWeekSet()));
             }
             else {
-                WTransitions::value_type val = *l;
+                WTransitions::value_type val = *lh;
                 val.second &= rprev->second;
                 result->push_back(val);
             }
-            lprev = l;
-            ++l;
+            lprev = lh;
+            ++lh;
         }
-        else if (r->first < l->first) {
+        else if (r->first < lh->first) {
             if (lprev == lhs.end()) {
 
                 // The intersection is empty.
@@ -150,21 +150,21 @@ void intersectWeekendDaysTransitions(WTransitions        *result,
             ++r;
         }
         else {
-            WTransitions::value_type val = *l;
+            WTransitions::value_type val = *lh;
             val.second &= r->second;
             result->push_back(val);
-            lprev = l;
+            lprev = lh;
             rprev = r;
-            ++l;
+            ++lh;
             ++r;
         }
     }
 
-    while (l != lhs.end()) {
-        WTransitions::value_type val = *l;
+    while (lh != lhs.end()) {
+        WTransitions::value_type val = *lh;
         val.second &= rprev->second;
         result->push_back(val);
-        ++l;
+        ++lh;
     }
 
     while (r != rhs.end()) {
@@ -176,11 +176,12 @@ void intersectWeekendDaysTransitions(WTransitions        *result,
 }
 
 
-void unionWeekendDaysTransitions(WTransitions *result,
-                                 const WTransitions& lhs,
-                                 const WTransitions& rhs)
-// Load, into the specified 'result', the union of the specified 'lhs'
-// weekend-days transitions and the specified 'rhs' weekend-days transitions.
+void unionWeekendDaysTransitions(WTransitions        *result,
+                                 const WTransitions&  lhs,
+                                 const WTransitions&  rhs)
+   // Load, into the specified 'result', the union of the specified 'lhs'
+   // weekend-days transitions and the specified 'rhs' weekend-days
+   // transitions.
 {
     if (lhs.empty()) {
         *result = rhs;
@@ -192,26 +193,26 @@ void unionWeekendDaysTransitions(WTransitions *result,
         return;
     }
 
-    WTransitions::const_iterator l = lhs.begin();
+    WTransitions::const_iterator lh = lhs.begin();
     WTransitions::const_iterator r = rhs.begin();
     WTransitions::const_iterator lprev = lhs.end();
     WTransitions::const_iterator rprev = rhs.end();
 
-    while (l != lhs.end() && r != rhs.end()) {
+    while (lh != lhs.end() && r != rhs.end()) {
 
-        if (l->first < r->first) {
+        if (lh->first < r->first) {
             if (rprev == rhs.end()) {
-                result->push_back(*l);
+                result->push_back(*lh);
             }
             else {
-                WTransitions::value_type val = *l;
+                WTransitions::value_type val = *lh;
                 val.second |= rprev->second;
                 result->push_back(val);
             }
-            lprev = l;
-            ++l;
+            lprev = lh;
+            ++lh;
         }
-        else if (r->first < l->first) {
+        else if (r->first < lh->first) {
             if (lprev == lhs.end()) {
                 result->push_back(*r);
             }
@@ -224,21 +225,21 @@ void unionWeekendDaysTransitions(WTransitions *result,
             ++r;
         }
         else {
-            WTransitions::value_type val = *l;
+            WTransitions::value_type val = *lh;
             val.second |= r->second;
             result->push_back(val);
-            lprev = l;
+            lprev = lh;
             rprev = r;
-            ++l;
+            ++lh;
             ++r;
         }
     }
 
-    while (l != lhs.end()) {
-        WTransitions::value_type val = *l;
+    while (lh != lhs.end()) {
+        WTransitions::value_type val = *lh;
         val.second |= rprev->second;
         result->push_back(val);
-        ++l;
+        ++lh;
     }
 
     while (r != rhs.end()) {
@@ -762,11 +763,11 @@ void bdecs_PackedCalendar::swap(bdecs_PackedCalendar& other)
 
     bslalg_SwapUtil::swap(&d_firstDate,         &other.d_firstDate);
     bslalg_SwapUtil::swap(&d_lastDate,          &other.d_lastDate);
+    bslalg_SwapUtil::swap(&d_weekendDaysTransitions,
+                          &other.d_weekendDaysTransitions);
     bslalg_SwapUtil::swap(&d_holidayOffsets,    &other.d_holidayOffsets);
     bslalg_SwapUtil::swap(&d_holidayCodesIndex, &other.d_holidayCodesIndex);
     bslalg_SwapUtil::swap(&d_holidayCodes,      &other.d_holidayCodes);
-    bslalg_SwapUtil::swap(&d_weekendDaysTransitions,
-                          &other.d_weekendDaysTransitions);
 }
 
 void bdecs_PackedCalendar::addDay(const bdet_Date& date)
@@ -825,6 +826,64 @@ int bdecs_PackedCalendar::addHolidayCodeIfInRange(const bdet_Date& date,
         return 0;
     }
     return -1;
+}
+
+
+
+void bdecs_PackedCalendar::addWeekendDay(bdet_DayOfWeek::Day weekendDay)
+{
+    BSLS_ASSERT(d_weekendDaysTransitions.empty()
+                || (1                == d_weekendDaysTransitions.size() &&
+                    bdet_Date(1,1,1) == d_weekendDaysTransitions[0].first));
+
+    if (d_weekendDaysTransitions.empty()) {
+        bdec_DayOfWeekSet weekendDays;
+        weekendDays.add(weekendDay);
+        d_weekendDaysTransitions.push_back(
+                         WeekendDaysTransition(bdet_Date(1,1,1), weekendDays));
+    }
+    else {
+        BSLS_ASSERT(d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
+
+        d_weekendDaysTransitions[0].second.add(weekendDay);
+    }
+}
+
+void bdecs_PackedCalendar::addWeekendDays(const bdec_DayOfWeekSet& weekendDays)
+{
+    BSLS_ASSERT(d_weekendDaysTransitions.empty()
+                || (1                == d_weekendDaysTransitions.size() &&
+                    bdet_Date(1,1,1) == d_weekendDaysTransitions[0].first));
+
+    if (d_weekendDaysTransitions.empty()) {
+        d_weekendDaysTransitions.push_back(
+                         WeekendDaysTransition(bdet_Date(1,1,1), weekendDays));
+    }
+    else {
+        BSLS_ASSERT(d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
+
+        d_weekendDaysTransitions[0].second |= weekendDays;
+    }
+}
+
+void bdecs_PackedCalendar::addWeekendDaysTransition(
+                                          const bdet_Date&         date,
+                                          const bdec_DayOfWeekSet& weekendDays)
+{
+    WeekendDaysTransition newTransition(date, weekendDays);
+
+    WeekendDaysTransitionSequence::iterator it =
+                             bsl::lower_bound(d_weekendDaysTransitions.begin(),
+                                              d_weekendDaysTransitions.end(),
+                                              newTransition,
+                                              WeekendDaysTransitionLess());
+
+    if (it != d_weekendDaysTransitions.end() && it->first == date) {
+        it->second = weekendDays;
+    }
+    else {
+        d_weekendDaysTransitions.insert(it, newTransition);
+    }
 }
 
 void
@@ -973,10 +1032,10 @@ void bdecs_PackedCalendar::removeAll()
 {
     d_firstDate.setYearMonthDay(9999, 12, 31);
     d_lastDate.setYearMonthDay(1, 1, 1);
+    d_weekendDaysTransitions.clear();
     d_holidayOffsets.clear();
     d_holidayCodesIndex.clear();
     d_holidayCodes.clear();
-    d_weekendDaysTransitions.clear();
 }
 
 void bdecs_PackedCalendar::setValidRange(const bdet_Date& firstDate,
@@ -1024,7 +1083,7 @@ void bdecs_PackedCalendar::setValidRange(const bdet_Date& firstDate,
 
     if (d_firstDate < firstDate) {
         b = d_holidayOffsets.begin();
-        e  = d_holidayOffsets.end();
+        e = d_holidayOffsets.end();
 
         // We're looking for all holidays lower and up to firstDate -
         // d_firstDate - 1.  upper_bound will return an iterator one past the
@@ -1115,6 +1174,29 @@ bdecs_PackedCalendar::endHolidayCodes(const bdet_Date& date) const
                     : d_holidayCodes.size();
     }
     return HolidayCodeConstIterator(d_holidayCodes.begin() + iterIndex);
+}
+
+bool bdecs_PackedCalendar::isWeekendDay(const bdet_Date& date) const
+{
+    if (d_weekendDaysTransitions.empty()) {
+        return false;
+    }
+
+    bdec_DayOfWeekSet dummySet;
+
+    WeekendDaysTransitionSequence::const_iterator it =
+                        bsl::upper_bound(d_weekendDaysTransitions.begin(),
+                                         d_weekendDaysTransitions.end(),
+                                         WeekendDaysTransition(date, dummySet),
+                                         WeekendDaysTransitionLess());
+
+    if (it == d_weekendDaysTransitions.begin()) {
+        return false;
+    }
+    else {
+        --it;
+        return it->second.isMember(date.dayOfWeek());
+    }
 }
 
 int bdecs_PackedCalendar::numHolidayCodes(const bdet_Date& date) const
@@ -1235,7 +1317,7 @@ int bdecs_PackedCalendar::numWeekendDaysInRange() const
         return 0;
     }
 
-    // Find the first transition that has a date less than or equal to the
+    // Find the nearest transition that has a date less than or equal to the
     // first date of calendar.
 
     bdec_DayOfWeekSet dummySet;
@@ -1299,12 +1381,6 @@ bool operator==(const bdecs_PackedCalendar& lhs,
 
 
 // FREE OPERATORS
-bool operator!=(const bdecs_PackedCalendar& lhs,
-                const bdecs_PackedCalendar& rhs)
-{
-    return !(lhs == rhs);
-}
-
 bsl::ostream& operator<<(bsl::ostream&               stream,
                          const bdecs_PackedCalendar& calendar)
 {
@@ -1447,86 +1523,6 @@ bdecs_PackedCalendar_BusinessDayConstIterator::operator=(
     d_endFlag       = rhs.d_endFlag;
 
     return *this;
-}
-
-void bdecs_PackedCalendar::addWeekendDay(bdet_DayOfWeek::Day weekendDay)
-{
-    BSLS_ASSERT(d_weekendDaysTransitions.empty()
-                || (1                == d_weekendDaysTransitions.size() &&
-                    bdet_Date(1,1,1) == d_weekendDaysTransitions[0].first));
-
-    if (d_weekendDaysTransitions.empty()) {
-        bdec_DayOfWeekSet weekendDays;
-        weekendDays.add(weekendDay);
-        d_weekendDaysTransitions.push_back(
-                         WeekendDaysTransition(bdet_Date(1,1,1), weekendDays));
-    }
-    else {
-        BSLS_ASSERT(d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
-
-        d_weekendDaysTransitions[0].second.add(weekendDay);
-    }
-}
-
-void bdecs_PackedCalendar::addWeekendDays(const bdec_DayOfWeekSet& weekendDays)
-{
-    BSLS_ASSERT(d_weekendDaysTransitions.empty()
-                || (1                == d_weekendDaysTransitions.size() &&
-                    bdet_Date(1,1,1) == d_weekendDaysTransitions[0].first));
-
-    if (d_weekendDaysTransitions.empty()) {
-        d_weekendDaysTransitions.push_back(
-                         WeekendDaysTransition(bdet_Date(1,1,1), weekendDays));
-    }
-    else {
-        BSLS_ASSERT(d_weekendDaysTransitions[0].first == bdet_Date(1,1,1));
-
-        d_weekendDaysTransitions[0].second |= weekendDays;
-    }
-}
-
-void bdecs_PackedCalendar::addWeekendDaysTransition(
-                                          const bdet_Date& date,
-                                          const bdec_DayOfWeekSet& weekendDays)
-{
-    WeekendDaysTransition newTransition(date, weekendDays);
-
-    WeekendDaysTransitionSequence::iterator it =
-                             bsl::lower_bound(d_weekendDaysTransitions.begin(),
-                                              d_weekendDaysTransitions.end(),
-                                              newTransition,
-                                              WeekendDaysTransitionLess());
-
-    if (it != d_weekendDaysTransitions.end() && it->first == date) {
-        it->second = weekendDays;
-    }
-    else {
-        d_weekendDaysTransitions.insert(it, newTransition);
-    }
-}
-
-// ACCESSORS
-bool bdecs_PackedCalendar::isWeekendDay(const bdet_Date& date) const
-{
-    if (d_weekendDaysTransitions.empty()) {
-        return false;
-    }
-
-    bdec_DayOfWeekSet dummySet;
-
-    WeekendDaysTransitionSequence::const_iterator it =
-                        bsl::upper_bound(d_weekendDaysTransitions.begin(),
-                                         d_weekendDaysTransitions.end(),
-                                         WeekendDaysTransition(date, dummySet),
-                                         WeekendDaysTransitionLess());
-
-    if (it == d_weekendDaysTransitions.begin()) {
-        return false;
-    }
-    else {
-        --it;
-        return it->second.isMember(date.dayOfWeek());
-    }
 }
 
 }  // close namespace BloombergLP
