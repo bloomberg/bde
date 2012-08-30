@@ -17,8 +17,6 @@ namespace bslalg
 
 void BidirectionalLinkListUtil::insertLinkBeforeTail(BidirectionalLink *newNode,
                                                      BidirectionalLink *tail)
-       // Insert the specified 'newNode' into the doubly-linked list before the
-       // specified 'tail' node.
 {
 //    BSLS_ASSERT(tail);
     BSLS_ASSERT(newNode);
@@ -47,9 +45,6 @@ void BidirectionalLinkListUtil::insertLinkBeforeTail(BidirectionalLink *newNode,
 void BidirectionalLinkListUtil::spliceListBeforeLink(BidirectionalLink *first,
                                                      BidirectionalLink *last,
                                                      BidirectionalLink *before)
-    // Splice the segment of a doubly-linked list specified by the closed range
-    // '[first, last]' into the doubly-linked target list before the specified
-    // 'before' node.
 {
     BSLS_ASSERT(first);
     BSLS_ASSERT(last);
@@ -85,9 +80,6 @@ void BidirectionalLinkListUtil::spliceListBeforeLink(BidirectionalLink *first,
 
 
 void BidirectionalLinkListUtil::unlink(BidirectionalLink *node)
-        // Unlink the specified 'node' from a linked list.
-        // Note that this method does *not* change
-        // the 'next' and 'prev' attributes of 'node' itself.
 {
     BSLS_ASSERT_SAFE(node);
 

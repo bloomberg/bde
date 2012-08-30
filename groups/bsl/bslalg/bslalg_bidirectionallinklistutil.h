@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide utilities to maintain bidirectional list data structures.
 //
 //@CLASSES:
-//  bslalg::BidirectionalLinkListUtil: utilities to maintain bidirectional list data structures
+//  bslalg::BidirectionalLinkListUtil: utilities to maintain linked lists
 //
 //@SEE_ALSO: bslalg_bidirectionallink, bslalg_hashtableutil
 //
@@ -45,21 +45,34 @@ struct BidirectionalLinkListUtil {
     void insertLinkBeforeTail(BidirectionalLink *newNode,
                               BidirectionalLink *tail);
        // Insert the specified 'newNode' into the doubly-linked list before the
-       // specified 'tail' node.
+       // specified 'tail' node.  If 'tail' is null, then 'newNode' becomes an
+       // entire list, and this function has no observable effect.  The
+       // behavior is undefined unless 'newNode' is not currently linked into
+       // any list, such as having a null pointer for both 'next' and 'prev'
+       // addresses.
 
     static
     void spliceListBeforeLink(BidirectionalLink *first,
                               BidirectionalLink *last,
                               BidirectionalLink *before);
     // Splice the segment of a doubly-linked list specified by the closed range
-    // '[first, last]' into the doubly-linked target list before the specified
-    // 'before' node.
+    // '[first, last]' out of its original list and into the doubly-linked
+    // target list before the specified 'before' node.  If 'before' is null,
+    // then the splice is extracted and becomes a whole list in its own right,
+    // so that 'first->prev()' and 'last->next()' will both return null
+    // pointers.  The behavior is undefined unless both 'first' and 'last' are
+    // members of the same linked list, and that 'first' precedes last in the
+    // list, or 'first == last'.
 
     static
     void unlink(BidirectionalLink *node);
-        // Unlink the specified 'node' from a linked list.
-        // Note that this method does *not* change
-        // the 'next' and 'prev' attributes of 'node' itself.
+        // Unlink the specified 'node' from the linked list it is a member of.
+        // Note that this method does *not* change the 'next' and 'prev'
+        // attributes of 'node' itself, just those of the adjacent nodes in
+        // the original list.  The behavior is undefined unless 'node' is a
+        // member of a linked list.  Note that a list having only will element
+        // would be represented by a node having 'prev()' == 0 == 'next()', so
+        // this is well defined.
 };
 
 // ===========================================================================
