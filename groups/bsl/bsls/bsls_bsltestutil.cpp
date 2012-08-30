@@ -166,13 +166,22 @@ void debugprint(const volatile void *v)
     printf("%p", v);
 }
 
-// Possible future support for function pointers (req. C++11)
-//
-// template< class RESULT, class ... ARGS>
-// void debugprint(RESULT (*v)(ARGS...))
-// {
-//     printf("%llx", reinterpret_cast<uintptr_t>(v));
-// }
+typedef void (*funcptr)();
+
+void debugprinthelper(uintptr_t v)
+{
+    const char *format = "[function pointer of unknown size]";
+
+    if (sizeof(funcptr) == sizeof(int)) {
+        format = "%x";
+    } else if (sizeof(funcptr) == sizeof(long)) {
+        format = "%lx";
+    } else if (sizeof(funcptr) == sizeof(long long)) {
+        format = "%llx";
+    }
+
+    printf(format, v);
+}
 
 }  // close package namespace
 }  // close enterprise namespace

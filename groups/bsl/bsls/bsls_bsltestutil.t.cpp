@@ -652,6 +652,18 @@ bool tempFileName(char *result)
     return true;
 }
 
+void dummyVoidFunction() {
+    return;
+}
+
+int dummyIntFunction() {
+    return 0;
+}
+
+double dummyDoubleFunction() {
+    return 0.0;
+}
+
 //=============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
@@ -3092,6 +3104,8 @@ int main(int argc, char *argv[])
             TestDriver::testCase3<xyzb::TestType *>(&output, DATA, "%p");
         }
 
+        // User-defined types
+
         // void debugprint(const void *p);
         {
             if (verbose) {
@@ -3158,6 +3172,201 @@ int main(int argc, char *argv[])
                                                                    DATA,
                                                                    "%p");
         }
+
+        // Function pointers
+        // void debugprint<RESULT>(RESULT (*v)());
+        {
+            if (verbose) {
+                fprintf(stderr,
+                       "\nTESTING debugprint FOR RESULT (*v)()"
+                       "\n------------------------------------\n");
+            }
+
+            const char *format = 0;
+
+            if (sizeof(&dummyVoidFunction) == sizeof(int)) {
+                format = "%x";
+            } else if (sizeof(&dummyVoidFunction) == sizeof(long)) {
+                format = "%lx";
+            } else if (sizeof(&dummyVoidFunction) == sizeof(long long)) {
+                format = "%llx";
+            }
+
+            ASSERT(format);
+
+            // Normal function pointers
+            {
+                static const DataRow<void (*)()> DATA[] =
+                {
+                    //LINE       INPUT         OUTPUT  DESC
+                    //---------- -----         ------  ----
+
+                    { __LINE__,  dummyVoidFunction, 0, "function pointer" },
+                };
+
+                TestDriver::testCase3<void (*)()>(&output,
+                                                  DATA,
+                                                  format);
+            }
+
+            {
+                static const DataRow<int (*)()> DATA[] =
+                {
+                    //LINE       INPUT         OUTPUT  DESC
+                    //---------- -----         ------  ----
+
+                    { __LINE__,  dummyIntFunction,  0, "function pointer" },
+                };
+
+                TestDriver::testCase3<int (*)()>(&output,
+                                                 DATA,
+                                                 format);
+            }
+
+            {
+                static const DataRow<double (*)()> DATA[] =
+                {
+                    //LINE       INPUT           OUTPUT  DESC
+                    //---------- -----           ------  ----
+
+                    { __LINE__,  dummyDoubleFunction, 0, "function pointer" },
+                };
+
+                TestDriver::testCase3<double (*)()>(&output,
+                                                    DATA,
+                                                    format);
+            }
+
+            // Const function pointers
+            {
+                static const DataRow<void (* const)()> DATA[] =
+                {
+                    //LINE       INPUT         OUTPUT  DESC
+                    //---------- -----         ------  ----
+
+                    { __LINE__,  dummyVoidFunction, 0, "function pointer" },
+                };
+
+                TestDriver::testCase3<void (* const)()>(&output,
+                                                  DATA,
+                                                  format);
+            }
+
+            {
+                static const DataRow<int (* const)()> DATA[] =
+                {
+                    //LINE       INPUT         OUTPUT  DESC
+                    //---------- -----         ------  ----
+
+                    { __LINE__,  dummyIntFunction,  0, "function pointer" },
+                };
+
+                TestDriver::testCase3<int (* const)()>(&output,
+                                                 DATA,
+                                                 format);
+            }
+
+            {
+                static const DataRow<double (* const)()> DATA[] =
+                {
+                    //LINE       INPUT           OUTPUT  DESC
+                    //---------- -----           ------  ----
+
+                    { __LINE__,  dummyDoubleFunction, 0, "function pointer" },
+                };
+
+                TestDriver::testCase3<double (* const)()>(&output,
+                                                    DATA,
+                                                    format);
+            }
+
+            // volatile function pointers
+            {
+                static const DataRow<void (* volatile)()> DATA[] =
+                {
+                    //LINE       INPUT         OUTPUT  DESC
+                    //---------- -----         ------  ----
+
+                    { __LINE__,  dummyVoidFunction, 0, "function pointer" },
+                };
+
+                TestDriver::testCase3<void (* volatile)()>(&output,
+                                                  DATA,
+                                                  format);
+            }
+
+            {
+                static const DataRow<int (* volatile)()> DATA[] =
+                {
+                    //LINE       INPUT         OUTPUT  DESC
+                    //---------- -----         ------  ----
+
+                    { __LINE__,  dummyIntFunction,  0, "function pointer" },
+                };
+
+                TestDriver::testCase3<int (* volatile)()>(&output,
+                                                 DATA,
+                                                 format);
+            }
+
+            {
+                static const DataRow<double (* volatile)()> DATA[] =
+                {
+                    //LINE       INPUT           OUTPUT  DESC
+                    //---------- -----           ------  ----
+
+                    { __LINE__,  dummyDoubleFunction, 0, "function pointer" },
+                };
+
+                TestDriver::testCase3<double (* volatile)()>(&output,
+                                                    DATA,
+                                                    format);
+            }
+
+            // Const volatile function pointers
+            {
+                static const DataRow<void (* const volatile)()> DATA[] =
+                {
+                    //LINE       INPUT         OUTPUT  DESC
+                    //---------- -----         ------  ----
+
+                    { __LINE__,  dummyVoidFunction, 0, "function pointer" },
+                };
+
+                TestDriver::testCase3<void (* const volatile)()>(&output,
+                                                  DATA,
+                                                  format);
+            }
+
+            {
+                static const DataRow<int (* const volatile)()> DATA[] =
+                {
+                    //LINE       INPUT         OUTPUT  DESC
+                    //---------- -----         ------  ----
+
+                    { __LINE__,  dummyIntFunction,  0, "function pointer" },
+                };
+
+                TestDriver::testCase3<int (* const volatile)()>(&output,
+                                                 DATA,
+                                                 format);
+            }
+
+            {
+                static const DataRow<double (* const volatile)()> DATA[] =
+                {
+                    //LINE       INPUT           OUTPUT  DESC
+                    //---------- -----           ------  ----
+
+                    { __LINE__,  dummyDoubleFunction, 0, "function pointer" },
+                };
+
+                TestDriver::testCase3<double (* const volatile)()>(&output,
+                                                    DATA,
+                                                    format);
+            }
+        }
+        
 
       } break;
       case 2: {

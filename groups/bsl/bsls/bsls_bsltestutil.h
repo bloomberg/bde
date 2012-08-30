@@ -224,6 +224,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  obj = MyType<9>
 //..
+
+#include <stdint.h> // uintptr_t
+
                        // =================
                        // Macro Definitions
                        // =================
@@ -399,6 +402,17 @@ void debugprint(const void *v);
 void debugprint(const volatile void *v);
     // Print to the console the specified memory address, 'v', formatted as
     // a hexadecimal integer.
+
+void debugprinthelper(uintptr_t v);
+    // Print to the console the specified memory address, 'v', formatted as a
+    // hexadecimal integer.  Note that 'v' is an unsigned integer large enough
+    // to hold an address, not a native pointer type.
+
+template <typename RESULT>
+void debugprint(RESULT (*v)())
+{
+	debugprinthelper(reinterpret_cast<uintptr_t>(v));
+}
 
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
