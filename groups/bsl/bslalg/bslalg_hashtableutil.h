@@ -1,6 +1,5 @@
 // bslalg_hashtableutil.h                                             -*-C++-*-
 #ifndef INCLUDED_BSLALG_HASHTABLEUTIL
-
 #define INCLUDED_BSLALG_HASHTABLEUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
@@ -8,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a hash table data structure for unordered containers 
+//@PURPOSE: Provide a hash table data structure for unordered containers
 //
 //@CLASSES:
 //         bslimp::HashTable: hash-table that manages externally allocated nodes
@@ -43,7 +42,11 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_HASHTABLEBUCKET
+#ifndef INCLUDED_BSLALG_HASHTABLEANCHOR
+#include <bslalg_hashtableanchor.h>
+#endif
+
+ #ifndef INCLUDED_BSLALG_HASHTABLEBUCKET
 #include <bslalg_hashtablebucket.h>
 #endif
 
@@ -65,7 +68,7 @@ namespace BloombergLP
 
 namespace bslalg
 {
-using std::size_t;
+
                           // ===================
                           // class HashTableUtil
                           // ===================
@@ -73,9 +76,8 @@ using std::size_t;
 struct HashTableUtil {
   private:
     static
-    HashTableBucket *bucketForHashCode(HashTableBucket *buckets,
-                                       int              nBuckets,
-                                       size_t           hashCode);
+    HashTableBucket *bucketForHashCode(const HashTableAnchor& anchor,
+                                       std::size_t            hashCode);
 
     static
     void spliceSegmentIntoBucket(BidirectionalLink  *cursor,
@@ -85,48 +87,41 @@ struct HashTableUtil {
         // Consider moving this 'private' method into an implemention-private
         // utility class with an '_' in the name, in order to be accissible for
         // testing in the test driver.
-      
+
   public:
     static
-    size_t bucketNumberForHashCode(size_t hashCode, size_t numBuckets);
+    std::size_t bucketNumberForHashCode(std::size_t hashCode,
+                                        std::size_t numBuckets);
 
     static
-    void insertAtFrontOfBucket(BidirectionalLink  *newNode,
-                               size_t              hashCode,
-                               BidirectionalLink **listRoot,
-                               HashTableBucket    *buckets,
-                               int                 nBuckets);
+    void insertAtFrontOfBucket(HashTableAnchor    *anchor,
+                               BidirectionalLink  *newNode,
+                               std::size_t         hashCode);
 
     static
-    void insertDuplicateAtPosition(BidirectionalLink  *newNode,
-                                   size_t              hashCode,
-                                   BidirectionalLink  *location,
-                                   BidirectionalLink **listRoot,
-                                   HashTableBucket    *buckets,
-                                   int                 nBuckets);
+    void insertDuplicateAtPosition(HashTableAnchor    *anchor,
+                                   BidirectionalLink  *newNode,
+                                   std::size_t         hashCode,
+                                   BidirectionalLink  *location);
 
     static
-    void removeNodeFromTable(BidirectionalLink  *position,
-                             size_t              hashCode,
-                             BidirectionalLink **listRoot,
-                             HashTableBucket    *buckets,
-                             int                 nBuckets);
+    void removeNodeFromTable(HashTableAnchor   *anchor,
+                             BidirectionalLink *position,
+                             std::size_t        hashCode);
 
     // lookup
     template <class VALUE_POLICY, class KEY_EQUAL, class KEY_TYPE>
     static
     BidirectionalLink *find(const KEY_EQUAL&       keyComparator,
-                            const HashTableBucket *buckets,
-                            int                    nBuckets,
+                            const HashTableAnchor& anchor,
                             const KEY_TYPE&        key,
-                            size_t                 hashCode);
+                            std::size_t            hashCode);
 
     template <class VALUE_POLICY, class HASHER>
     static
-    BidirectionalLink *rehash(HashTableBucket   *newBuckets,
-                              int                newBucketCount,
-                              BidirectionalLink *oldRoot,
-                              const HASHER&      hash);
+    void rehash(HashTableAnchor   *newAnchor,
+                BidirectionalLink *oldRoot,
+                const HASHER&      hash);
         // Note that this function is not exception safe in the presence of a
         // throwing 'hash' functor.  This issue is easily alleviated if the
         // hash code is cached in each hashtable node, allowing this method
@@ -149,19 +144,22 @@ struct HashTableUtil {
                         //--------------------
 
 inline
-HashTableBucket *HashTableUtil::bucketForHashCode(HashTableBucket *buckets,
-                                                  int              nBuckets,
-                                                  size_t           hashCode)
+HashTableBucket *HashTableUtil::bucketForHashCode(
+                                               const HashTableAnchor& anchor,
+                                               std::size_t            hashCode)
 {
-    BSLS_ASSERT_SAFE(buckets);
-    BSLS_ASSERT_SAFE(nBuckets);
-    return
-          &buckets[HashTableUtil::bucketNumberForHashCode(hashCode, nBuckets)];
+    BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
+    BSLS_ASSERT_SAFE(anchor.arraySize());
+
+    std::size_t value = HashTableUtil::bucketNumberForHashCode(
+                                                           hashCode,
+                                                           anchor.arraySize());
+    return &(anchor.bucketArrayAddress()[value]);
 }
 
 inline
-size_t HashTableUtil::bucketNumberForHashCode(size_t hashCode,
-                                              size_t numBuckets)
+std::size_t HashTableUtil::bucketNumberForHashCode(std::size_t hashCode,
+                                                   std::size_t numBuckets)
 {
     BSLS_ASSERT_SAFE(0 != numBuckets);
     return hashCode % numBuckets;
@@ -170,20 +168,20 @@ size_t HashTableUtil::bucketNumberForHashCode(size_t hashCode,
     // lookup
 template <class VALUE_POLICY, class KEY_EQUAL, class KEY_TYPE>
 BidirectionalLink *HashTableUtil::find(const KEY_EQUAL&       keyComparator,
-                                       const HashTableBucket *buckets,
-                                       int                    nBuckets,
+                                       const HashTableAnchor& anchor,
                                        const KEY_TYPE&        key,
-                                       size_t                 hashCode)
+                                       std::size_t            hashCode)
 {
-    BSLS_ASSERT_SAFE(0 != buckets);
-    BSLS_ASSERT_SAFE(0 != nBuckets);
+    BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
+    BSLS_ASSERT_SAFE(anchor.arraySize());
 
-    //const size_t hashCode = hashPolicy.hashValue(key);
-    const size_t bucketId = bucketNumberForHashCode(hashCode, nBuckets);
-    const HashTableBucket& bucket = buckets[bucketId];
+    const std::size_t bucketId = bucketNumberForHashCode(hashCode,
+                                                    anchor.arraySize());
+    const HashTableBucket& bucket = anchor.bucketArrayAddress()[bucketId];
 
     // Odd loop structure as we must test on both first/last before terminating
     // the loop as not-found.
+
     if (BidirectionalLink *cursor = bucket.first()) {
         for ( ; ; cursor = cursor->next() ) {
             if (keyComparator(key, VALUE_POLICY::extractKey(cursor))) {
@@ -199,13 +197,11 @@ BidirectionalLink *HashTableUtil::find(const KEY_EQUAL&       keyComparator,
 }
 
 template <class VALUE_POLICY, class HASHER>
-BidirectionalLink *HashTableUtil::rehash(HashTableBucket   *newBuckets,
-                                         int                newBucketCount,
-                                         BidirectionalLink *oldRoot,
-                                         const HASHER&      hash)
+void HashTableUtil::rehash(HashTableAnchor    *newAnchor,
+                           BidirectionalLink  *oldRoot,
+                           const HASHER&       hash)
 {
-    BSLS_ASSERT_SAFE(newBuckets);
-    BSLS_ASSERT_SAFE(newBucketCount);
+    BSLS_ASSERT_SAFE(newAnchor);
     BSLS_ASSERT_SAFE(oldRoot);           // empty lists do not need a rehash
     BSLS_ASSERT_SAFE(!oldRoot->prev());  // otherwise, not a 'root'
 
@@ -215,8 +211,7 @@ BidirectionalLink *HashTableUtil::rehash(HashTableBucket   *newBuckets,
         BidirectionalLink   *cursor  = oldRoot;
 
         HashTableBucket *bucket  = bucketForHashCode(
-                                       newBuckets,
-                                       newBucketCount,
+                                       *newAnchor,
                                        hash(VALUE_POLICY::extractKey(cursor)));
 
         BidirectionalLink *nextCursor  = cursor;
@@ -224,8 +219,7 @@ BidirectionalLink *HashTableUtil::rehash(HashTableBucket   *newBuckets,
         // This will advance the list extraction point *before* we splice
         while ((oldRoot  = oldRoot->next()) &&
                 bucket == bucketForHashCode(
-                                    newBuckets,
-                                    newBucketCount,
+                                    *newAnchor,
                                     hash(VALUE_POLICY::extractKey(oldRoot)))) {
              nextCursor = oldRoot;
         }
@@ -235,7 +229,7 @@ BidirectionalLink *HashTableUtil::rehash(HashTableBucket   *newBuckets,
     while (oldRoot);
 
 BSLS_ASSERT_SAFE(!newRoot->prev());  // otherwise, not a 'root' - postcondition assertion during dev.
-    return newRoot;
+    newAnchor->setListRootAddress(newRoot);
 }
 } // namespace BloombergLP::bslalg
 

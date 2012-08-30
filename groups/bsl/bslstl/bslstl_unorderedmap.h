@@ -383,6 +383,7 @@ operator!=(const unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& a,
                         // class unordered_map
                         //--------------------
 
+// CREATORS
 // construct/destroy/copy
 template <class KEY_TYPE,
           class MAPPED_TYPE,

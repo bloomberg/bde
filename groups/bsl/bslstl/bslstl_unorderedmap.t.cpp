@@ -115,8 +115,8 @@ void testConstEmptyContainer(const CONTAINER& x)
     typedef CONTAINER TestType;
 
     ASSERT(x.empty());
-    ASSERT(0 == x.size());
-    ASSERT(0.f == x.load_factor());
+    LOOP_ASSERT(x.size(), 0 == x.size());
+    LOOP_ASSERT(x.load_factor(), 0.f == x.load_factor());
 
     ASSERT(x.begin() == x.end());
     ASSERT(x.cbegin() == x.cend());

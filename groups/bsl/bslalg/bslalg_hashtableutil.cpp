@@ -4,6 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslalg_hashtableanchor.h>
 #include <bslalg_bidirectionallistutil.h>
 
 #include <bsls_types.h>
@@ -16,21 +17,18 @@ namespace BloombergLP
 namespace bslalg
 {
 
-void HashTableUtil::removeNodeFromTable(BidirectionalLink  *position,
-                                        size_t              hashCode,
-                                        BidirectionalLink **listRoot,
-                                        HashTableBucket    *buckets,
-                                        int                 nBuckets)
+void HashTableUtil::removeNodeFromTable(HashTableAnchor   *anchor,
+                                        BidirectionalLink *position,
+                                        size_t             hashCode)
 {
     BSLS_ASSERT_SAFE(position);
-    BSLS_ASSERT_SAFE(listRoot);
-    BSLS_ASSERT_SAFE(*listRoot);
-    BSLS_ASSERT_SAFE(nBuckets);
-    BSLS_ASSERT_SAFE(position->prev() || *listRoot == position);
+    BSLS_ASSERT_SAFE(anchor);
+    BSLS_ASSERT_SAFE(
+                    position->prev() || anchor->listRootAddress() == position);
 
     // Note that we must update the bucket *before* we unlink from the list,
     // as otherwise we will lose our next/prev pointers.
-    HashTableBucket *bucket = bucketForHashCode(buckets, nBuckets, hashCode);
+    HashTableBucket *bucket = bucketForHashCode(*anchor, hashCode);
     if (bucket->first() == position) {
         if (bucket->last() == position) {
             bucket->clear();
@@ -43,26 +41,21 @@ void HashTableUtil::removeNodeFromTable(BidirectionalLink  *position,
         bucket->setLast(position->prev());
     }
 
-    if (position == *listRoot) {
-        *listRoot = position->next();
+    if (position == anchor->listRootAddress()) {
+        anchor->setListRootAddress(position->next());
     }
 
     BidirectionalListUtil::unlink(position);
 }
 
-void HashTableUtil::insertDuplicateAtPosition(BidirectionalLink  *newNode,
+void HashTableUtil::insertDuplicateAtPosition(HashTableAnchor    *anchor,
+                                              BidirectionalLink  *newNode,
                                               size_t              hashCode,
-                                              BidirectionalLink  *location,
-                                              BidirectionalLink **listRoot,
-                                              HashTableBucket    *buckets,
-                                              int                 nBuckets)
+                                              BidirectionalLink  *location)
 {
+    BSLS_ASSERT_SAFE(anchor);
     BSLS_ASSERT_SAFE(newNode);
     BSLS_ASSERT_SAFE(location);
-    BSLS_ASSERT_SAFE(listRoot);
-    BSLS_ASSERT_SAFE(*listRoot);
-    BSLS_ASSERT_SAFE(buckets);
-    BSLS_ASSERT_SAFE(nBuckets);
 
     // Why are these conditions are so important?
     // Stated assumptions about our specific implementation, but don't see a need for guarantee
@@ -71,45 +64,42 @@ void HashTableUtil::insertDuplicateAtPosition(BidirectionalLink  *newNode,
 
     BidirectionalListUtil::inserLinkInHead(newNode, location);
 
-    HashTableBucket *bucket = bucketForHashCode(buckets, nBuckets, hashCode);
+    HashTableBucket *bucket = bucketForHashCode(*anchor, hashCode);
     if (location == bucket->first()) {
         bucket->setFirst(newNode);
     }
 
-    if (location == *listRoot) {
-        *listRoot = newNode;
+    if (location == anchor->listRootAddress()) {
+        anchor->setListRootAddress(newNode);
     }
 }
 
-void HashTableUtil::insertAtFrontOfBucket(BidirectionalLink  *newNode,
-                                          size_t              hashCode,
-                                          BidirectionalLink **listRoot,
-                                          HashTableBucket    *buckets,
-                                          int                 nBuckets)
+void HashTableUtil::insertAtFrontOfBucket(HashTableAnchor   *anchor,
+                                          BidirectionalLink *newNode,
+                                          size_t             hashCode)
 {
     BSLS_ASSERT_SAFE(newNode);
-    BSLS_ASSERT_SAFE(listRoot);
-    BSLS_ASSERT_SAFE(buckets);
-    BSLS_ASSERT_SAFE(nBuckets);
+    BSLS_ASSERT_SAFE(anchor);
 
     // Why are these conditions are so important?
     BSLS_ASSERT_SAFE(!newNode->next());
     BSLS_ASSERT_SAFE(!newNode->prev());
 
-    HashTableBucket *bucket = bucketForHashCode(buckets, nBuckets, hashCode);
+    HashTableBucket *bucket = bucketForHashCode(*anchor, hashCode);
     BSLS_ASSERT_SAFE(bucket);
 
     if (bucket->first()) {
         BidirectionalListUtil::inserLinkInHead(newNode, bucket->first());
-        if (*listRoot ==  bucket->first()) {
-            *listRoot = newNode;
+        if (anchor->listRootAddress() == bucket->first()) {
+            anchor->setListRootAddress(newNode);
         }
         bucket->setFirst(newNode);
     }
     else {
         // New bucket required
-        BidirectionalListUtil::inserLinkInHead(newNode, *listRoot);
-        *listRoot = newNode;   // New buckets prepend to the front of the list
+        BidirectionalListUtil::inserLinkInHead(newNode, 
+                                               anchor->listRootAddress());
+        anchor->setListRootAddress(newNode);   // New buckets prepend to the front of the list
         bucket->setFirstLast(newNode);
     }
 }
