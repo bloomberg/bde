@@ -149,20 +149,28 @@ class basic_ostringstream
     basic_ostringstream(const StringType&     initialString,
                         ios_base::openmode    modeBitMask,
                         const allocator_type& allocator = allocator_type());
-        // Create a 'basic_ostringstream' object.  Optionally
-        // specify a 'modeBitmask' indicating whether the underlying
-        // stream-buffer may also be read from ('rdbuf' is created using
-        // 'modeBitMask | ios_base::out').  Optionally specify 'initialString'
-        // indicating the value that will be returned by a call to 'str' prior
-        // to any streaming operations performed on this object.  Optionally
-        // specify 'allocator' used to supply memory.  If 'allocator' is not
-        // supplied, a default-constructed object of the parameterized
-        // 'ALLOCATOR' type is used.  If the template parameter 'ALLOCATOR'
-        // argument is of type 'bsl::allocator' (the default) then 'allocator',
-        // if supplied, shall be convertible to 'bslma::Allocator *'.  If the
+        // Create a 'basic_ostringstream' object.  Optionally specify a
+        // 'modeBitMask' indicating whether the underlying stream-buffer may
+        // also be read from ('rdbuf' is created using
+        // 'modeBitMask | ios_base::out').  If 'modeBitMask' is not supplied
+        // 'rdbuf' will be created using 'ios_base::out'.  Optionally specify
+        // 'initialString' indicating the value that will be returned by a call
+        // to 'str' prior to any streaming operations performed on this object.
+        // If 'initialString' is not supplied 'str' will initially return an
+        // empty strinng.  Optionally specify 'allocator' used to supply
+        // memory.  If 'allocator' is not supplied, a default-constructed
+        // object of the parameterized 'ALLOCATOR' type is used.  If the
         // template parameter 'ALLOCATOR' argument is of type 'bsl::allocator'
-        // and 'allocator' is not supplied, the currently installed default
-        // allocator will be used to supply memory.
+        // (the default) then 'allocator', if supplied, shall be convertible to
+        // 'bslma::Allocator *'.  If the template parameter 'ALLOCATOR'
+        // argument is of type 'bsl::allocator' and 'allocator' is not
+        // supplied, the currently installed default allocator will be used to
+        // supply memory.
+
+    // MANIPULATORS
+    void str(const StringType& value);
+        // Reset the internally buffered sequence of characters maintained by
+        // this 'ostringstream' object to the specified 'value'.
 
     // ACCESSORS
     StringType str() const;
@@ -174,11 +182,13 @@ class basic_ostringstream
         // internally used by this string stream to buffer the formatted
         // characters.
 
-    // MANIPULATORS
-    void str(const StringType& value);
-        // Reset the internally buffered sequence of characters maintained by
-        // this 'ostringstream' object to the specified 'value'.
 };
+
+// STANDARD TYPEDEFS
+typedef basic_ostringstream<char, char_traits<char>, allocator<char> > 
+                                                                 ostringstream;
+typedef basic_ostringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
+                                                                wostringstream;
 
 // ==========================================================================
 //                       TEMPLATE FUNCTION DEFINITIONS

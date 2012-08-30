@@ -19,12 +19,45 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_sstream.h>' instead.
 //
-// This component provides 'bsl::basic_istringstream' class template
-// parameterized with a character type and two specializations: one for 'char'
-// and another for 'wchar_t'.  'bsl::basic_istringstream' implements the
-// functionality of the standard class 'std::basic_istream' for reading from
-// 'bsl::basic_string' objects.  It's a 'bsl' replacement for the standard
-// 'std::basic_istringstream' class.
+// This component defines a class template 'bsl::basic_istringstream',
+// implementing a standard input stream that provides a constructor (as well as
+// a manipulator) allowing clients to set the sequence of characters
+// from which input is streamed to a supplied 'bsl::basic_string'.  This
+// component also defines two standard aliases, 'bsl::istringstream' and
+// 'bsl::wistringstream', that refer to specializations of the
+// 'bsl::basic_istringstream' template for 'char' and 'wchar_t' types
+// respectively.  The 'bsl::basic_istringstream' template has three
+// parameters, 'CHAR_TYPE', 'CHAR_TRAITS', and 'ALLOCATOR'.  The 'CHAR_TYPE'
+// and 'CHAR_TRAITS' parameters respectively define the character type for the
+// string-stream and a type providing a set of operations the string-stream
+// will use to manipulate characters of that type, which must meet the
+// character traits requirements defined by the C++11 standard, 21.2
+// [char.traits].  The 'ALLOCATOR' template parameter is described in the 
+// "Memory Allocation" section below.
+//
+///Memory Allocation
+///-----------------
+// The type supplied as a string-stream's 'ALLOCATOR' template parameter
+// determines how that string-stream will allocate memory.  The
+// 'basic_ostringstream' template supports allocators meeting the requirements
+// of the C++11 standard [17.6.3.5], in addition it supports scoped-allocators
+// derived from the 'bslma::Allocator' memory allocation protocol.  Clients
+// intending to use 'bslma' style allocators should use 'bsl::allocator', which
+// provides a C++11 standard-compatible adapter for a 'bslma::Allocator'
+// object.  Note that the standard aliases 'bsl::ostringstream' and
+// 'bsl::wostringstream' both use 'bsl::allocator'.
+//
+///'bslma'-Style Allocators
+/// - - - - - - - - - - - -
+// If the parameterized 'ALLOCATOR' type of an 'ostringstream' instantiation is
+// 'bsl::allocator', then objects of that string-stream type will conform to
+// the standard behavior of a 'bslma'-allocator-enabled type.  Such a
+// string-stream accepts an optional 'bslma::Allocator' argument at
+// construction.  If the address of a 'bslma::Allocator' object is explicitly
+// supplied at construction, it will be used to supply memory for the
+// string-stream throughout its lifetime; otherwise, the string-stream will use
+// the default allocator installed at the time of the string-stream's
+// construction (see 'bslma_default').
 //
 ///Usage
 ///-----
@@ -107,34 +140,56 @@ class basic_istringstream
 
     // CREATORS
     explicit
-    basic_istringstream(const allocator_type& alloc = allocator_type());
+    basic_istringstream(const allocator_type& allocator = allocator_type());
     explicit
-    basic_istringstream(ios_base::openmode which,
-                        const allocator_type& alloc = allocator_type());
+    basic_istringstream(ios_base::openmode    modeBitMask,
+                        const allocator_type& allocator = allocator_type());
     explicit
-    basic_istringstream(const StringType& str,
-                        const allocator_type& alloc = allocator_type());
+    basic_istringstream(const StringType&     initialString,
+                        const allocator_type& allocator = allocator_type());
     explicit
-    basic_istringstream(const StringType& str,
-                        ios_base::openmode which,
-                        const allocator_type& alloc = allocator_type());
-        // Create an 'istringstream' object with an optionally specified
-        // 'alloc' allocator, with the 'which' open mode, and the initial 'str'
-        // string.
+    basic_istringstream(const StringType&     initialString,
+                        ios_base::openmode    modeBitMask,
+                        const allocator_type& allocator = allocator_type());
+        // Create a 'basic_istringstream' object.  Optionally specify a
+        // 'modeBitMask' indicating whether the underlying stream-buffer may
+        // also be read from ('rdbuf' is created using
+        // 'modeBitMask | ios_base::in').  If 'modeBitMask' is not supplied
+        // 'rdbuf' will be created using 'ios_base::in'.  Optionally specify
+        // 'initialString' indicating the sequence of characters from which
+        // input will be streamed.  If 'initialString' is not supplied, there
+        // will not be data to stream (until a subsequent call to the 'str'
+        // manipulator).  Optionally specify 'allocator' used to supply
+        // memory.  If 'allocator' is not supplied, a default-constructed
+        // object of the parameterized 'ALLOCATOR' type is used.  If the
+        // template parameter 'ALLOCATOR' argument is of type 'bsl::allocator'
+        // (the default) then 'allocator', if supplied, shall be convertible to
+        // 'bslma::Allocator *'.  If the template parameter 'ALLOCATOR'
+        // argument is of type 'bsl::allocator' and 'allocator' is not
+        // supplied, the currently installed default allocator will be used to
+        // supply memory.
+
+    // MANIPULATORS
+    void str(const StringType& value);
+        // Reset the internally buffered sequence of characters maintained by
+        // this 'ostringstream' object to the specified 'value'.
 
     // ACCESSORS
     StringType str() const;
-        // Return the intput string of this 'istringstream' object.
+        // Return the sequence of characters that have been written to this
+        // stream object.
 
-    StreamBufType * rdbuf() const;
-        // Return the modifiable pointer to the 'stringbuf' object that
-        // performs the unformatted input for this 'istringstream' object.
-
-    // MANIPULATORS
-    void str(const StringType& s);
-        // Initialize this 'istringstream' object with the specified string
-        // 's'.
+    StreamBufType *rdbuf() const;
+        // Return the address of the 'basic_stringbuf' object that is
+        // internally used by this string stream to buffer the formatted
+        // characters.
 };
+
+// STANDARD TYPEDEFS
+typedef basic_ostringstream<char, char_traits<char>, allocator<char> > 
+                                                                 ostringstream;
+typedef basic_ostringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
+                                                                wostringstream;
 
 // ==========================================================================
 //                       TEMPLATE FUNCTION DEFINITIONS
