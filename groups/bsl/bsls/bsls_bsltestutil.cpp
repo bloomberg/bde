@@ -146,6 +146,16 @@ void debugprint(volatile char *v)
     }
 }
 
+void debugprint(void *v)
+{
+    printf("%p", v);
+}
+
+void debugprint(volatile void *v)
+{
+    printf("%p", v);
+}
+
 void debugprint(const void *v)
 {
     printf("%p", v);

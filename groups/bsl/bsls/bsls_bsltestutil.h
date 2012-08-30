@@ -393,6 +393,8 @@ void debugprint(volatile char *v);
     // characters ("), unless 'v' is null, in which case print '(null)'
     // (without quotes of any kind).
 
+void debugprint(void *v);
+void debugprint(volatile void *v);
 void debugprint(const void *v);
 void debugprint(const volatile void *v);
     // Print to the console the specified memory address, 'v', formatted as
