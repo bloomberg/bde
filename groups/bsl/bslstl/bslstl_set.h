@@ -1112,7 +1112,7 @@ inline
 set<KEY, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
                                                   const COMPARATOR& comparator,
                                                   const ALLOCATOR&  allocator)
-: Comparator(comparator)
+: ::bsl::set<KEY, COMPARATOR, ALLOCATOR>::Comparator(comparator)
 , d_pool(allocator)
 {
 }
