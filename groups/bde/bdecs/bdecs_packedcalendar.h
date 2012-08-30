@@ -97,9 +97,9 @@ BDES_IDENT("$Id: $")
 // States, a calendar having a range after 1940 can use a single weekend-days
 // transition on January 1, 0001 containing Saturday and Sunday.
 //
-// On construction, a calendar does contains no weekend-days transitions.  The
-// 'addWeekendDaysTransition' method adds a new weekend-days transition.  The
-// 'addWeekendDay' and 'addWeekendDays' methods create a weekend-days
+// On construction, a calendar does not contain any weekend-days transitions.
+// The 'addWeekendDaysTransition' method adds a new weekend-days transition.
+// The 'addWeekendDay' and 'addWeekendDays' methods create a weekend-days
 // transition at January 1, 0001, if one doesn't already exist, and update the
 // set of weekend days for that transition.  'addWeekendDay' and
 // 'addWeekendDays' should be only used for calendars having a consistent set
