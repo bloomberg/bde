@@ -70,116 +70,209 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-struct bdeat_TypeTraitBasicChoice {
+template <class TYPE>
+struct bdeat_IsBasicChoice :
+        bslmf::DetectNestedTrait<TYPE, bdeat_IsBasicChoice>::type
+{
     // This trait may be declared for "choice" types.
 };
 
-struct bdeat_TypeTraitBasicSequence {
+template <class TYPE>
+struct bdeat_IsBasicSequence :
+        bslmf::DetectNestedTrait<TYPE, bdeat_IsBasicSequence>::type
+{
     // This trait may be declared for "sequence" types.
 };
 
-struct bdeat_TypeTraitBasicEnumeration {
+template <class TYPE>
+struct bdeat_IsBasicEnumeration :
+        bslmf::DetectNestedTrait<TYPE, bdeat_IsBasicEnumeration>::type
+{
     // This trait may be declared for "enumeration" types.
 };
 
-struct bdeat_TypeTraitBasicCustomizedType {
+template <class TYPE>
+struct bdeat_IsBasicCustomizedType :
+        bslmf::DetectNestedTrait<TYPE, bdeat_IsBasicCustomizedType>::type
+{
     // This trait may be declared for "customized type" types.
+};
+
+template <class TYPE>
+struct bdeat_BasicEnumerationWrapper;
+    // This template has no definition for most types.  However for types that
+    // meet the requirements of 'BasicEnumeration', this template is
+    // specialized to inherit from the wrapper class that defines functions
+    // like 'toString' and 'toInt'.  The specialization should also define the
+    // typee 'Wrapper' to be the name of the wrapper class.
+
+struct bdeat_TypeTraitBasicChoice {
+    // Legacy adaptor for bdeat_IsBasicChoice.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bdeat_IsBasicChoice>
+    {
+        // This class template ties the 'bdeat_TypeTraitBasicChoice'
+        // trait tag to the 'bdeat_IsBasicChoice' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bdeat_IsBasicChoice<TYPE>::type { };
+};
+
+struct bdeat_TypeTraitBasicSequence {
+    // Legacy adaptor for bdeat_IsBasicSequence.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bdeat_IsBasicSequence>
+    {
+        // This class template ties the 'bdeat_TypeTraitBasicSequence'
+        // trait tag to the 'bdeat_IsBasicSequence' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bdeat_IsBasicSequence<TYPE>::type { };
+};
+
+struct bdeat_TypeTraitBasicEnumeration {
+    // Legacy adaptor for bdeat_IsBasicEnumeration.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bdeat_IsBasicEnumeration>
+    {
+        // This class template ties the 'bdeat_TypeTraitBasicEnumeration'
+        // trait tag to the 'bdeat_IsBasicEnumeration' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bdeat_IsBasicEnumeration<TYPE>::type { };
+};
+
+struct bdeat_TypeTraitBasicCustomizedType {
+    // Legacy adaptor for bdeat_IsBasicCustomizedType.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bdeat_IsBasicCustomizedType>
+    {
+        // This class template ties the 'bdeat_TypeTraitBasicCustomizedType'
+        // trait tag to the 'bdeat_IsBasicCustomizedType' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bdeat_IsBasicCustomizedType<TYPE>::type { };
 };
 
 // Macros defined to facilitate declaring traits for generated code.
 
 #define BDEAT_DECL_CHOICE_TRAITS(ClassName)                                   \
     template <>                                                               \
-    struct bslalg_TypeTraits<ClassName> : bdeat_TypeTraitBasicChoice,         \
-                                          bdeu_TypeTraitHasPrintMethod {      \
-    };                                                                        \
+    struct bdeat_IsBasicChoice<ClassName> : bslmf::true_type { };             \
+    template <>                                                               \
+    struct bdeu_HasPrintMethod<ClassName> : bslmf::true_type { };
 
 #define BDEAT_DECL_CHOICE_WITH_ALLOCATOR_TRAITS(ClassName)                    \
-    template <>                                                               \
-    struct bslalg_TypeTraits<ClassName> : bdeat_TypeTraitBasicChoice,         \
-                                          bslalg_TypeTraitUsesBslmaAllocator, \
-                                          bdeu_TypeTraitHasPrintMethod {      \
-    };                                                                        \
+    namespace bslma {                                                         \
+        template <>                                                           \
+        struct UsesBslmaAllocator<ClassName> : bslmf::true_type { };          \
+    }                                                                         \
+    BDEAT_DECL_CHOICE_TRAITS(ClassName)
 
 #define BDEAT_DECL_CHOICE_WITH_BITWISEMOVEABLE_TRAITS(ClassName)              \
-    template <>                                                               \
-    struct bslalg_TypeTraits<ClassName> : bdeat_TypeTraitBasicChoice,         \
-                                          bslalg_TypeTraitBitwiseMoveable,    \
-                                          bdeu_TypeTraitHasPrintMethod {      \
-    };                                                                        \
+    namespace bslmf {                                                         \
+        template <>                                                           \
+        struct IsBitwiseMoveable<ClassName> : bslmf::true_type { };           \
+    }                                                                         \
+    BDEAT_DECL_CHOICE_TRAITS(ClassName)
 
 #define BDEAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(ClassName)    \
-    template <>                                                               \
-    struct bslalg_TypeTraits<ClassName> : bdeat_TypeTraitBasicChoice,         \
-                                          bslalg_TypeTraitBitwiseMoveable,    \
-                                          bslalg_TypeTraitUsesBslmaAllocator, \
-                                          bdeu_TypeTraitHasPrintMethod {      \
-    };                                                                        \
+    namespace bslma {                                                         \
+        template <>                                                           \
+        struct UsesBslmaAllocator<ClassName> : bslmf::true_type { };          \
+    }                                                                         \
+    namespace bslmf {                                                         \
+        template <>                                                           \
+        struct IsBitwiseMoveable<ClassName> : bslmf::true_type { };           \
+    }                                                                         \
+    BDEAT_DECL_CHOICE_TRAITS(ClassName)
 
 #define BDEAT_DECL_SEQUENCE_TRAITS(ClassName)                                 \
     template <>                                                               \
-    struct bslalg_TypeTraits<ClassName> : bdeat_TypeTraitBasicSequence,       \
-                                          bdeu_TypeTraitHasPrintMethod {      \
-    };                                                                        \
+    struct bdeat_IsBasicSequence<ClassName> : bslmf::true_type { };           \
+    template <>                                                               \
+    struct bdeu_HasPrintMethod<ClassName> : bslmf::true_type { };
 
 #define BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(ClassName)                  \
-    template <>                                                               \
-    struct bslalg_TypeTraits<ClassName> : bdeat_TypeTraitBasicSequence,       \
-                                          bslalg_TypeTraitUsesBslmaAllocator, \
-                                          bdeu_TypeTraitHasPrintMethod {      \
-    };                                                                        \
+    namespace bslma {                                                         \
+        template <>                                                           \
+        struct UsesBslmaAllocator<ClassName> : bslmf::true_type { };          \
+    }                                                                         \
+    BDEAT_DECL_SEQUENCE_TRAITS(ClassName)
 
 #define BDEAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(ClassName)            \
-    template <>                                                               \
-    struct bslalg_TypeTraits<ClassName> : bdeat_TypeTraitBasicSequence,       \
-                                          bslalg_TypeTraitBitwiseMoveable,    \
-                                          bdeu_TypeTraitHasPrintMethod {      \
-    };                                                                        \
+    namespace bslmf {                                                         \
+        template <>                                                           \
+        struct IsBitwiseMoveable<ClassName> : bslmf::true_type { };           \
+    }                                                                         \
+    BDEAT_DECL_SEQUENCE_TRAITS(ClassName)
 
 #define BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(ClassName)  \
-    template <>                                                               \
-    struct bslalg_TypeTraits<ClassName> : bdeat_TypeTraitBasicSequence,       \
-                                          bslalg_TypeTraitBitwiseMoveable,    \
-                                          bslalg_TypeTraitUsesBslmaAllocator, \
-                                          bdeu_TypeTraitHasPrintMethod {      \
-    };                                                                        \
+    namespace bslma {                                                         \
+        template <>                                                           \
+        struct UsesBslmaAllocator<ClassName> : bslmf::true_type { };          \
+    }                                                                         \
+    namespace bslmf {                                                         \
+        template <>                                                           \
+        struct IsBitwiseMoveable<ClassName> : bslmf::true_type { };           \
+    }                                                                         \
+    BDEAT_DECL_SEQUENCE_TRAITS(ClassName)
 
 #define BDEAT_DECL_ENUMERATION_TRAITS(ClassName)                              \
+    namespace bslmf {                                                         \
+        template <>                                                           \
+        struct IsBitwiseMoveable<ClassName::Value> : bslmf::true_type { };    \
+    }                                                                         \
     template <>                                                               \
-    struct bslalg_TypeTraits<ClassName::Value>                                \
-                                        : bdeat_TypeTraitBasicEnumeration,    \
-                                          bslalg_TypeTraitBitwiseMoveable {   \
+    struct bdeat_IsBasicEnumeration<ClassName::Value> : bslmf::true_type { }; \
+    template <>                                                               \
+    struct bdeat_BasicEnumerationWrapper<ClassName::Value> : ClassName {      \
         typedef ClassName Wrapper;                                            \
-    };                                                                        \
+    };
 
 #define BDEAT_DECL_CUSTOMIZEDTYPE_TRAITS(ClassName)                           \
     template <>                                                               \
-    struct bslalg_TypeTraits<ClassName> : bdeat_TypeTraitBasicCustomizedType, \
-                                          bdeu_TypeTraitHasPrintMethod {      \
-    };                                                                        \
+    struct bdeat_IsBasicCustomizedType<ClassName> : bslmf::true_type { };     \
+    template <>                                                               \
+    struct bdeu_HasPrintMethod<ClassName> : bslmf::true_type { };
 
 #define BDEAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(ClassName)            \
-    template <>                                                               \
-    struct bslalg_TypeTraits<ClassName> : bdeat_TypeTraitBasicCustomizedType, \
-                                          bslalg_TypeTraitUsesBslmaAllocator, \
-                                          bdeu_TypeTraitHasPrintMethod {      \
-    };                                                                        \
+    namespace bslma {                                                         \
+        template <>                                                           \
+        struct UsesBslmaAllocator<ClassName> : bslmf::true_type { };          \
+    }                                                                         \
+    BDEAT_DECL_CUSTOMIZEDTYPE_TRAITS(ClassName)
 
 #define BDEAT_DECL_CUSTOMIZEDTYPE_WITH_BITWISEMOVEABLE_TRAITS(ClassName)      \
-    template <>                                                               \
-    struct bslalg_TypeTraits<ClassName> : bdeat_TypeTraitBasicCustomizedType, \
-                                          bslalg_TypeTraitBitwiseMoveable,    \
-                                          bdeu_TypeTraitHasPrintMethod {      \
-    };                                                                        \
+    namespace bslmf {                                                         \
+        template <>                                                           \
+        struct IsBitwiseMoveable<ClassName> : bslmf::true_type { };           \
+    }                                                                         \
+    BDEAT_DECL_CUSTOMIZEDTYPE_TRAITS(ClassName)
 
 #define                                                                       \
    BDEAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(ClassName) \
-    template <>                                                               \
-    struct bslalg_TypeTraits<ClassName> : bdeat_TypeTraitBasicCustomizedType, \
-                                          bslalg_TypeTraitBitwiseMoveable,    \
-                                          bslalg_TypeTraitUsesBslmaAllocator, \
-                                          bdeu_TypeTraitHasPrintMethod {      \
-    };                                                                        \
+    namespace bslma {                                                         \
+        template <>                                                           \
+        struct UsesBslmaAllocator<ClassName> : bslmf::true_type { };          \
+    }                                                                         \
+    namespace bslmf {                                                         \
+        template <>                                                           \
+        struct IsBitwiseMoveable<ClassName> : bslmf::true_type { };           \
+    }                                                                         \
+    BDEAT_DECL_CUSTOMIZEDTYPE_TRAITS(ClassName)
 
 }  // close namespace BloombergLP
 
