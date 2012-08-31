@@ -166,36 +166,9 @@ void debugprint(const volatile void *v)
     printf("%p", v);
 }
 
-// typedef void (*funcptr)();
-
-// void debugprinthelper(unsigned int v);
-// {
-//     const char *format = "[function pointer of unknown size]";
-
-//     if (sizeof(funcptr) == sizeof(int)) {
-//         format = "%x";
-//     } else if (sizeof(funcptr) == sizeof(long)) {
-//         format = "%lx";
-//     } else if (sizeof(funcptr) == sizeof(long long)) {
-//         format = "%llx";
-//     }
-
-//     printf(format, v);
-// }
-
-void debugprinthelper(unsigned int v)
-{
-    printf("%0*x", sizeof(v) * 2, v);
-}
-
 void debugprinthelper(unsigned long long v)
 {
-    printf("%0*llx", sizeof(v) * 2, v);
-}
-
-void debugprinterror(const char *message)
-{
-    printf("[ERROR: %s]", message);
+    printf("%0*llx", sizeof(void (*)()) * 2, v);
 }
 
 }  // close package namespace

@@ -401,63 +401,68 @@ void debugprint(const volatile void *v);
     // Print to the console the specified memory address, 'v', formatted as
     // a hexadecimal integer.
 
-template <int PTR_SIZE> 
+template <int SIZE> 
 struct BslTestUtil_UintPtr;
+    // Provide a facility for storing and identifying the type of an unsigned
+    // integral value with size equal to the specified (template parameter)
+    // 'SIZE'.  There are two instantiations for this template, for two
+    // integral types that might match the size of a function pointer:
+    // 'unsigned int' and 'unsigned long long'.  The underlying assumptions
+    // are:
+    //: o 'sizeof(unsigned int) < sizeof(unsigned long long)' on all reasonable
+    //:   platforms.
+    //: o Pointers will be the same size as either 'unsigned int' or 'unsigned
+    //:   long long' on all reasonable platforms.
 
 template <>
-struct BslTestUtil_UintPtr<sizeof(int)> {
+struct BslTestUtil_UintPtr<sizeof(unsigned int)> {
     typedef unsigned int address_t;
-    address_t d_address;
+        // Representation of an unsigned integer value with the same size as an
+        // 'unsigned int', for use on platforms where an 'unsigned int' is
+        // large enough to contain a memory address.
+
+    address_t d_address;  // storage for a memory address
 };
 
 template <>
-struct BslTestUtil_UintPtr<sizeof(long long)> {
+struct BslTestUtil_UintPtr<sizeof(unsigned long long)> {
     typedef unsigned long long address_t;
-    address_t d_address;
+        // Representation of an unsigned integer value with the same size as an
+        // 'unsigned long long', for use on platforms where an 'unsigned int'
+        // is too small to contain a memory address.
+
+    address_t d_address;  // storage for a memory address
 };
 
-void debugprinthelper(unsigned int v);
 void debugprinthelper(unsigned long long v);
     // Print to the console the specified memory address, 'v', formatted as a
-    // hexadecimal integer.  Note that 'v' is an unsigned integer large enough
+    // hexadecimal integer. Note that 'v' is an unsigned integer large enough
     // to hold an address, not a native pointer type.
-
-void debugprinterror(const char *message);
-    // Print an error message to the console.
 
 template <typename RESULT>
 void debugprint(RESULT (*v)())
     // Print to the console the specified function pointer, 'v', formatted as a
-    // hexidecimal integer.  On some platforms (notably Windows), a function
+    // hexidecimal integer. On some platforms (notably Windows), a function
     // pointer is treated differently from an object pointer, and the compiler
     // will not be able to determine which 'void *' overload of 'debugprint'
-    // should be used for a function pointer.  Therefore an overload of
-    // 'debugprint' is provided specifically for function pointers.  Because
-    // the type signature of a function pointer varies with its return type as
-    // well as with its argument list, a template is used, which converts
-    // function pointers with any return type to a single integral type and
-    // delegates the actual output to a function that operates on that type.
+    // should be used for a function pointer. Therefore an overload of
+    // 'debugprint' is provided specifically for function pointers. Because the
+    // type signature of a function pointer varies with its return type as well
+    // as with its argument list, a template function is used, to provide
+    // matches for all return types.
 {
-#if 0
-    if (sizeof(unsigned int) == sizeof(RESULT (*)())) {
-        unsigned int address = reinterpret_cast<unsigned int>(v);
-        debugprinthelper(address);
-    } else if (sizeof(unsigned long) == sizeof(RESULT (*)())) {
-        unsigned long address = reinterpret_cast<unsigned long>(v);
-        debugprinthelper(address);
-    } else if (sizeof(unsigned long long) == sizeof(RESULT (*)())) {
-        unsigned long long address = reinterpret_cast<unsigned long long>(v);
-        debugprinthelper(address);
-    } else {
-        debugprinterror(
-                "Failed to find compatible integer type for function pointer");
-    }
-#else
     typedef BslTestUtil_UintPtr<sizeof(RESULT (*)())> UintPtr;
+
+        // (At compile time) find an integral type that is the same size as a
+        // function pointer.
+
     UintPtr address;
+
     address.d_address = reinterpret_cast<typename UintPtr::address_t>(v);
+
+        // Convert the function pointer to an integral type.
+
     debugprinthelper(address.d_address);
-#endif
 }
 
 // ===========================================================================
