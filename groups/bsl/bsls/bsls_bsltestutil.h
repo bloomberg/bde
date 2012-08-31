@@ -225,8 +225,6 @@ BSLS_IDENT("$Id: $")
 //  obj = MyType<9>
 //..
 
-#include <stdint.h> // uintptr_t
-
                        // =================
                        // Macro Definitions
                        // =================
@@ -403,10 +401,32 @@ void debugprint(const volatile void *v);
     // Print to the console the specified memory address, 'v', formatted as
     // a hexadecimal integer.
 
-void debugprinthelper(uintptr_t v);
+template <int PTR_SIZE>
+struct UintPtr {
+};
+
+template <>
+struct UintPtr<sizeof(int)> {
+    typedef unsigned int address_type;
+    address_type d_address;
+};
+
+template <>
+struct UintPtr<sizeof(long long)> {
+    typedef unsigned long long address_type;
+    address_type d_address;
+};
+
+void debugprinthelper(unsigned long long v);
     // Print to the console the specified memory address, 'v', formatted as a
     // hexadecimal integer.  Note that 'v' is an unsigned integer large enough
     // to hold an address, not a native pointer type.
+
+void debugprinterror(const char *message);
+    // Print to the console the specified memory address, 'v', formatted as a
+    // hexadecimal integer.  Note that 'v' is an unsigned integer large enough
+    // to hold an address, not a native pointer type.
+
 
 template <typename RESULT>
 void debugprint(RESULT (*v)())
@@ -421,7 +441,25 @@ void debugprint(RESULT (*v)())
     // function pointers with any return type to a single integral type and
     // delegates the actual output to a function that operates on that type.
 {
-    debugprinthelper(reinterpret_cast<uintptr_t>(v));
+#if 0
+    if (sizeof(unsigned int) == sizeof(RESULT (*)())) {
+        unsigned int address = reinterpret_cast<unsigned int>(v);
+        debugprinthelper(address);
+    } else if (sizeof(unsigned long) == sizeof(RESULT (*)())) {
+        unsigned long address = reinterpret_cast<unsigned long>(v);
+        debugprinthelper(address);
+    } else if (sizeof(unsigned long long) == sizeof(RESULT (*)())) {
+        unsigned long long address = reinterpret_cast<unsigned long long>(v);
+        debugprinthelper(address);
+    } else {
+        debugprinterror(
+                "Failed to find compatible integer type for function pointer");
+    }
+#else
+    UintPtr<sizeof(RESULT (*)())> address;
+    address.d_address = reinterpret_cast<typename UintPtr<sizeof(RESULT (*)())>::address_type>(v);
+    debugprinthelper(address.d_address);
+#endif
 }
 
 // ===========================================================================
