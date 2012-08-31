@@ -440,7 +440,7 @@ void debugprinthelper(unsigned long long v);
     // to hold an address, not a native pointer type.
 
 template <typename RESULT>
-void debugprint(RESULT (*v)())
+void debugprint(RESULT (*v)());
     // Print to the console the specified function pointer, 'v', formatted as a
     // hexidecimal integer. On some platforms (notably Windows), a function
     // pointer is treated differently from an object pointer, and the compiler
@@ -450,20 +450,6 @@ void debugprint(RESULT (*v)())
     // type signature of a function pointer varies with its return type as well
     // as with its argument list, a template function is used, to provide
     // matches for all return types.
-{
-    typedef BslTestUtil_UintPtr<sizeof(RESULT (*)())> UintPtr;
-
-        // (At compile time) find an integral type that is the same size as a
-        // function pointer.
-
-    UintPtr address;
-
-    address.d_address = reinterpret_cast<typename UintPtr::address_t>(v);
-
-        // Convert the function pointer to an integral type.
-
-    debugprinthelper(address.d_address);
-}
 
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -492,6 +478,26 @@ void BslTestUtil::callDebugprint(const TYPE& obj,
 }
 
 }  // close package namespace
+
+// FREE FUNCTIONS
+
+template <typename RESULT>
+void bsls::debugprint(RESULT (*v)())
+{
+    typedef BslTestUtil_UintPtr<sizeof(RESULT (*)())> UintPtr;
+
+        // (At compile time) find an integral type that is the same size as a
+        // function pointer.
+
+    UintPtr address;
+
+    address.d_address = reinterpret_cast<typename UintPtr::address_t>(v);
+
+        // Convert the function pointer to an integral type.
+
+    debugprinthelper(address.d_address);
+}
+
 }  // close enterprise namespace
 
 #endif
