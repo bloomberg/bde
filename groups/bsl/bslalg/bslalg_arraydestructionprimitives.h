@@ -34,8 +34,57 @@ BSLS_IDENT("$Id: $")
 //..
 ///Usage
 ///-----
-// This component is for use by the 'bslstl' package.  Other clients should use
-// STL algorithms (in headers '<algorithm>' and '<memory>').
+// In this section we show intended use of this component.  Note that this
+// component is for use by the 'bslstl' package.  Other clients should use the
+// STL algorithms (in header '<algorithm>' and '<memory>').
+//
+///Example 1: Destroy Arrays of Integers
+///- - - - - - - - - - - - - - - - - - -
+// In this example, we will use 'bslalg::ArrayDestructionPrimitives' to destroy
+// both an array of integer scalars and an array of 'MyInteger' objects.
+//
+// First, we define a 'MyInteger' class that contains an integer value:
+//..
+//  class MyInteger
+//      // This class represents an integer value.
+//  {
+//      int d_intValue;  // integer value
+//
+//    public:
+//      // CREATORS
+//      MyInteger();
+//          // Create a 'MyInteger' object having integer value '0'.
+//
+//      explicit MyInteger(int value);
+//          // Create a 'MyInteger' object having the specified 'value'.
+//
+//      ~MyInteger();
+//          // Destroy this object.
+//
+//      // ACCESSORS
+//      int getValue() const;
+//          // Return the integer value contained in this object.
+//  };
+//..
+// Then, we create an array of 'MyInteger' objects:
+//..
+//  bsls::ObjectBuffer<MyInteger> arrayBuffer[5];
+//  MyInteger *myIntegers = &arrayBuffer[0].object();
+//  for (int i = 0;i < 5; ++i) {
+//      new (myIntegers + i) MyInteger(i);
+//  }
+//..
+// Now, we define a primitive integer array:
+//..
+//  int scalarIntegers[] = { 0, 1, 2, 3, 4 };
+//..
+// Finally, we use the uniform 'bslalg::ArrayDestructionPrimitives:destroy'
+// method to destroy both 'myIntegers' and 'scalarIntegers':
+//..
+//   bslalg::ArrayDestructionPrimitives::destroy(myIntegers, myIntegers + 5);
+//   bslalg::ArrayDestructionPrimitives::destroy(scalarIntegers,
+//                                               scalarIntegers + 5);
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
