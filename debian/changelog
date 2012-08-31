@@ -1,6 +1,6 @@
-bde-core (2.15.0.201209v00.0) unstable; urgency=low
+bde-core (2.15.0.0) unstable; urgency=low
 
-  * Update for BSL 2.15.0
+  * Preparing 2.15.0 release
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 29 Aug 2012 13:59:00 -0400
 

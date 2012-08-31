@@ -4,7 +4,8 @@ MAKE_JOBS:=4
 PATH:=/bbshr/bde/bde-tools/bin:/usr/bin:/bin
 TMPDIR:=/tmp
 SHELL:=/bin/bash
-RSSUITE:=$(shell cat debian/RSSUITE.version)
+RSSUITE_TOOLS=/bbsrc/rssuite-tools
+RSSUITE:=$(shell cat $(RSSUITE_TOOLS)/RSSUITE.version)
 PRODUCEMAKE:=/bbsrc/bin/prod/bin/producemake
 UNAME:=$(shell uname)
 ifeq ($(UNAME),HP-UX)
@@ -35,6 +36,7 @@ empty:=
 space:= $(empty) $(empty)
 
 clean:
+	cat debian/control.in | perl -pi -e 's/\$$\{shlib\:RSSUITE\}/$(RSSUITE)/g' > debian/control
 	rm -rf debian/lib{bae,bce,bde,bsl,bte}-dev debian/libbsl-rs
 	rm -f debian/*files debian/files
 	rm -f debian/build-stamp
