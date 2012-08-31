@@ -1,4 +1,6 @@
 // bdem_berutil.cpp                                                   -*-C++-*-
+#include <bdem_berutil.h>
+
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdem_berutil_cpp,"$Id$ $CSID$")
 
@@ -98,9 +100,6 @@ BDES_IDENT_RCSID(bdem_berutil_cpp,"$Id$ $CSID$")
 //    is added to the exponent and the mantissa shifted by the opposite amount.
 // 5. The bias value is added to the exponent to get its final value.
 // 6. Assemble the double value from the mantissa, exponent, and sign values.
-
-#include <bdem_berutil.h>
-
 #include <bdeimp_prolepticdateutil.h>
 
 #include <bdepu_iso8601.h>
@@ -409,7 +408,7 @@ bsls_Types::Int64 getSerialDatetimeValue(const bdet_Datetime& value)
     return serialDatetime;
 }
 
-}  // close anonymous namespace
+}  // close unnamed namespace
 
                             // -------------------
                             // struct bdem_BerUtil

@@ -316,12 +316,13 @@ struct bdem_BerUtil_Imp {
 
     struct BinaryDateTimeFormat {
         // This 'struct' provides a function that specifies the maximum length
-        // required to encode an object in the binary BER (octet string) format.
+        // required to encode an object in the binary BER (octet string)
+        // format.
 
         template <typename TYPE>
         static int maxLength();
-            // Return the maximum length, in bytes, required to encode an object
-            // of the templated 'TYPE' in the binary ber format.
+            // Return the maximum length, in bytes, required to encode an
+            // object of the templated 'TYPE' in the binary ber format.
     };
 
     struct StringDateTimeFormat {
@@ -331,8 +332,8 @@ struct bdem_BerUtil_Imp {
 
         template <typename TYPE>
         static int maxLength();
-            // Return the maximum length, in bytes, required to encode an object
-            // of the templated 'TYPE' in the ISO 8601 format.
+            // Return the maximum length, in bytes, required to encode an
+            // object of the templated 'TYPE' in the ISO 8601 format.
     };
 
   public:
