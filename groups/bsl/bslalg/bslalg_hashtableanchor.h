@@ -218,14 +218,13 @@ bool operator!=(const HashTableAnchor& lhs,
 
 //bsl::ostream& operator<<(bsl::ostream&                     stream,
 //                         const bslalg::HashTableAnchor& object);
-//    // Write the value of the specified 'object' to the specified
-//    // output 'stream' in a single-line format, and return a reference
-//    // providing modifiable access to 'stream'.  If 'stream' is not valid on
-//    // entry, this operation has no effect.  Note that this human-readable
-//    // format is not fully specified and can change without notice.  Also note
-//
-//    // that this method has the same behavior as 'object.print(stream, 0, -1)',
-//    // but with the attribute names elided.
+// Write the value of the specified 'object' to the specified
+// output 'stream' in a single-line format, and return a reference
+// providing modifiable access to 'stream'.  If 'stream' is not valid on
+// entry, this operation has no effect.  Note that this human-readable
+// format is not fully specified and can change without notice.  Also note
+// that this method has the same behavior as 'object.print(stream, 0, -1)',
+// but with the attribute names elided.
 
 // FREE FUNCTIONS
 void swap(HashTableAnchor& a, HashTableAnchor& b);
@@ -253,7 +252,7 @@ HashTableAnchor::HashTableAnchor()
 
 inline
 HashTableAnchor::HashTableAnchor(HashTableBucket   *bucketArrayAddress,
-                                 std::size_t        arraySize,
+                                std::size_t        arraySize,
                                  BidirectionalLink *listRootAddress)
 : d_bucketArrayAddress(bucketArrayAddress)
 , d_arraySize(arraySize)
@@ -331,6 +330,13 @@ HashTableBucket *HashTableAnchor::bucketArrayAddress() const
 
 // FREE OPERATORS
 inline
+void bslalg::swap(bslalg::HashTableAnchor& a,
+                  bslalg::HashTableAnchor& b)
+{
+    a.swap(b);
+}
+
+inline
 bool bslalg::operator==(const bslalg::HashTableAnchor& lhs,
                         const bslalg::HashTableAnchor& rhs)
 {
@@ -346,13 +352,6 @@ bool bslalg::operator!=(const bslalg::HashTableAnchor& lhs,
     return lhs.bucketArrayAddress() != rhs.bucketArrayAddress()
         || lhs.arraySize()          != rhs.arraySize()
         || lhs.listRootAddress()    != rhs.listRootAddress();
-}
-
-// FREE FUNCTIONS
-inline
-void bslalg::swap(bslalg::HashTableAnchor& a, bslalg::HashTableAnchor& b)
-{
-    a.swap(b);
 }
 
 }  // close enterprise namespace

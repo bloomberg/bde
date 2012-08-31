@@ -652,7 +652,6 @@ cout << "<<I>>" << endl;
 
         
         testContainerHasData(x, 2, dataSamples, MAX_SAMPLE);
-        if(veryVeryVeryVerbose) debugPrint(x);
 cout << "<<J>>" << endl;
 
         TestType mZ = x;

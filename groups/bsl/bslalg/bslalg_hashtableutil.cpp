@@ -57,12 +57,7 @@ void HashTableUtil::insertDuplicateAtPosition(HashTableAnchor    *anchor,
     BSLS_ASSERT_SAFE(newNode);
     BSLS_ASSERT_SAFE(location);
 
-    // Why are these conditions are so important?
-    // Stated assumptions about our specific implementation, but don't see a need for guarantee
-    BSLS_ASSERT_SAFE(!newNode->next());
-    BSLS_ASSERT_SAFE(!newNode->prev());
-
-    BidirectionalListUtil::inserLinkInHead(newNode, location);
+    BidirectionalListUtil::insertLinkInHead(newNode, location);
 
     HashTableBucket *bucket = bucketForHashCode(*anchor, hashCode);
     if (location == bucket->first()) {
@@ -81,25 +76,25 @@ void HashTableUtil::insertAtFrontOfBucket(HashTableAnchor   *anchor,
     BSLS_ASSERT_SAFE(newNode);
     BSLS_ASSERT_SAFE(anchor);
 
-    // Why are these conditions are so important?
-    BSLS_ASSERT_SAFE(!newNode->next());
-    BSLS_ASSERT_SAFE(!newNode->prev());
-
     HashTableBucket *bucket = bucketForHashCode(*anchor, hashCode);
     BSLS_ASSERT_SAFE(bucket);
 
     if (bucket->first()) {
-        BidirectionalListUtil::inserLinkInHead(newNode, bucket->first());
+        BidirectionalListUtil::insertLinkInHead(newNode, bucket->first());
         if (anchor->listRootAddress() == bucket->first()) {
             anchor->setListRootAddress(newNode);
         }
         bucket->setFirst(newNode);
     }
     else {
-        // New bucket required
-        BidirectionalListUtil::inserLinkInHead(newNode, 
+        // New bucket is required.
+       
+        BidirectionalListUtil::insertLinkInHead(newNode, 
                                                anchor->listRootAddress());
-        anchor->setListRootAddress(newNode);   // New buckets prepend to the front of the list
+
+        // New buckets are inserted in front of the list.
+        
+        anchor->setListRootAddress(newNode);   
         bucket->setFirstLast(newNode);
     }
 }

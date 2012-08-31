@@ -506,7 +506,7 @@ bool
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::empty() const
                                                                 BSLSTL_NOEXCEPT
 {
-    return d_impl.empty();
+    return d_impl.isEmpty();
 }
 
 template <class KEY_TYPE,
@@ -532,7 +532,7 @@ typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::max_size() const
                                                                 BSLSTL_NOEXCEPT
 {
-    return d_impl.max_size();
+    return d_impl.maxSize();
 }
 
     // iterators
@@ -771,7 +771,7 @@ void
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::clear()
                                                                 BSLSTL_NOEXCEPT
 {
-    d_impl.destroyListValues();
+    d_impl.clear();
 }
 
 template <class KEY_TYPE,
@@ -943,13 +943,14 @@ inline
 typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::mapped_type&
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::at(const key_type& k)
 {
-    if (HashTableLink *target = d_impl.find(k)) {
-        BSLS_ASSERT(k == ListPolicy::extractValue(target).first);
-        return ListPolicy::extractValue(target).second;
-    }
-    else {
+    HashTableLink *target = d_impl.find(k);
+    
+    if (!target) {
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("Boo!");
     }
+   
+    BSLS_ASSERT(k == ListPolicy::extractValue(target).first);
+    return ListPolicy::extractValue(target).second;
 }
 
 template <class KEY_TYPE,

@@ -370,7 +370,7 @@ template <class KEY_TYPE,
 bool
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::empty() const
 {
-    return d_impl.empty();
+    return d_impl.isEmpty();
 }
 
 template <class KEY_TYPE,
@@ -390,7 +390,7 @@ template <class KEY_TYPE,
 typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::max_size() const
 {
-    return d_impl.max_size();
+    return d_impl.maxSize();
 }
 
     // iterators
@@ -611,7 +611,7 @@ template <class KEY_TYPE,
 void
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::clear()
 {
-    d_impl.destroyListValues();
+    d_impl.clear();
 }
 
 template <class KEY_TYPE,

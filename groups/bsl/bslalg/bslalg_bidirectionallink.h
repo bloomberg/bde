@@ -89,6 +89,9 @@ class BidirectionalLink {
         // Set the successor of this node to be the specified 'next' link.  If
         // 'next' is 0, then this node will be the root of the list.
 
+    void reset();
+        // Set the 'next' and 'prev' attributes of this value to 0. 
+    
     // ACCESSORS
     BidirectionalLink *next() const;
         // Return the address of next node linked from this node.
@@ -117,6 +120,13 @@ inline
 void BidirectionalLink::setPrev(BidirectionalLink *prev)
 {
     d_prev_p = prev;
+}
+
+inline
+void BidirectionalLink::reset()
+{
+    d_prev_p = 0;
+    d_next_p = 0;
 }
 
 // ACCESSORS

@@ -492,7 +492,7 @@ void testBuckets(CONTAINER& mX)
     for (unsigned i = 0; i != bucketCount; ++i ) {
         const unsigned count = x.bucket_size(i);
         if (0 == count) {
-            if (veryVeryVerbose) cout << i << "\t(EMPTY)" << endl;
+            // if (veryVeryVerbose) cout << i << "\t(EMPTY)" << endl;
 
             LOOP_ASSERT(i, x.begin(i) == x.end(i));
             LOOP_ASSERT(i, mX.begin(i) == mX.end(i));
