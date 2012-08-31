@@ -611,9 +611,9 @@ void testDestroy(bool bitwiseCopyableFlag)
 namespace UsageExample {
 ///Usage
 ///-----
-// In this section we show intended use of this component.  Notice that this
-// component is for use by the 'bslstl' package.  Other clients should use
-// the STL algorithms (in header '<algorithm>' and '<memory>').
+// In this section we show intended use of this component.  Note that this
+// component is for use by the 'bslstl' package.  Other clients should use the
+// STL algorithms (in header '<algorithm>' and '<memory>').
 //
 ///Example 1: Destroy Integers
 ///- - - - - - - - - - - - - -
@@ -701,7 +701,7 @@ int main(int argc, char *argv[])
     MyInteger *myInteger = &buffer.object();
     new (myInteger) MyInteger(1);
 //..
-// Now, we define a scalar integer:
+// Now, we define a primitive integer:
 //..
     int scalarInteger = 2;
 //..

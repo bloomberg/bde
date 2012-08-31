@@ -35,9 +35,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended use of this component.  Notice that this
-// component is for use by the 'bslstl' package.  Other clients should use
-// the STL algorithms (in header '<algorithm>' and '<memory>').
+// In this section we show intended use of this component.  Note that this
+// component is for use by the 'bslstl' package.  Other clients should use the
+// STL algorithms (in header '<algorithm>' and '<memory>').
 //
 ///Example 1: Destroy Integers
 ///- - - - - - - - - - - - - -
@@ -72,7 +72,7 @@ BSLS_IDENT("$Id: $")
 //  MyInteger *myInteger = &buffer.object();
 //  new (myInteger) MyInteger(1);
 //..
-// Now, we define a scalar integer:
+// Now, we define a primitive integer:
 //..
 //  int scalarInteger = 2;
 //..
