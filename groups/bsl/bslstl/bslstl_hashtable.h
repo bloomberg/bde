@@ -52,8 +52,8 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_bidirectionallink.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLISTNODE
-#include <bslalg_bidirectionallistnode.h>
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKLISTNODE
+#include <bslalg_bidirectionallinklistnode.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_FUNCTORADAPTER
@@ -124,10 +124,10 @@ class HashTable : private bslalg::FunctorAdapter<HASH>::Type
                 , private bslalg::FunctorAdapter<EQUAL>::Type
 {
   public:
-    typedef typename VALUE_POLICY::ValueType         ValueType;
-    typedef typename VALUE_POLICY::KeyType           KeyType;
-    typedef ALLOC                                    AllocatorType;
-    typedef bslalg::BidirectionalListNode<ValueType> NodeType;
+    typedef typename VALUE_POLICY::ValueType             ValueType;
+    typedef typename VALUE_POLICY::KeyType               KeyType;
+    typedef ALLOC                                        AllocatorType;
+    typedef bslalg::BidirectionalLinkListNode<ValueType> NodeType;
 
 
     typedef typename ALLOC::size_type            size_type; // should find via allocator_traits?

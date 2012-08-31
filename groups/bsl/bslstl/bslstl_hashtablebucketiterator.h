@@ -59,10 +59,6 @@ in BSL_OVERRIDES_STD mode"
 #include <bslalg_bidirectionallink.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLISTNODE
-#include <bslalg_bidirectionallistnode.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_HASHTABLEBUCKET
 #include <bslalg_hashtablebucket.h>
 #endif

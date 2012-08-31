@@ -35,8 +35,8 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_bidirectionallink.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLISTNODE
-#include <bslalg_bidirectionallistnode.h>
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKLISTNODE
+#include <bslalg_bidirectionallinklistnode.h>
 #endif
 
 namespace BloombergLP
@@ -81,7 +81,7 @@ BidirectionalLinkTranslatorForSets<VALUE_TYPE>::extractValue(
 {
     BSLS_ASSERT_SAFE(link);
 
-    return static_cast<BidirectionalListNode<VALUE_TYPE> *>(link)->value();
+    return static_cast<BidirectionalLinkListNode<VALUE_TYPE> *>(link)->value();
 }
 
 template <class VALUE_TYPE>
@@ -93,7 +93,7 @@ BidirectionalLinkTranslatorForSets<VALUE_TYPE>::extractValue(
     BSLS_ASSERT_SAFE(link);
 
     return
-         static_cast<const BidirectionalListNode<VALUE_TYPE> *>(link)->value();
+     static_cast<const BidirectionalLinkListNode<VALUE_TYPE> *>(link)->value();
 }
 
 template <class VALUE_TYPE>
