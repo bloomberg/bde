@@ -504,29 +504,28 @@ Allocator         |                       |                         |
  provide functions for reading the data as language-specific types, e.g.,
  'getInt', 'getString', and so on.
 
- Suppose we wanted to write an ODBC/JDBC-like driver for legacy files, so
- that application could access these data files with the same API used for
- accessing DBMS-stored data.  Which memory manager would be best?
+ Suppose we wanted to write an ODBC/JDBC-like driver for legacy files, so that
+ application could access these data files with the same API used for accessing
+ DBMS-stored data.  Which memory manager would be best?
 
  ODBC drivers return C++ types, and initially this indicates use of a memory
- manager that will provide properly-aligned addresses for storing those
- types.  This example will in fact use such a manager, illustrating alignment
+ manager that will provide properly-aligned addresses for storing those types.
+ This example will in fact use such a manager, illustrating alignment
  considerations.
 
  But note that an alternative design would store the returned data in the
- character-sequence form in which they are stored in the file, and convert
- them to type-correct values *only* when the client *asks* for a particular
- item.  This kind of lazy evaluation would be more effective in scenarios
- where clients read fields at most once (i.e., sometimes not at all).  In
- such a design, a non-aligning manager would do.
+ character-sequence form in which they are stored in the file, and convert them
+ to type-correct values *only* when the client *asks* for a particular item.
+ This kind of lazy evaluation would be more effective in scenarios where
+ clients read fields at most once (i.e., sometimes not at all).  In such a
+ design, a non-aligning manager would do.
 
  We cannot know in advance how long a client will want to hold onto a result
- set (the data returned from a SQL query).  But because we are implementing
- in C++, the language provides a construct whose semantics correspond
- directly to the notion of "no longer needing an object" -- i.e., a
- destructor.  If we make our result set a class, invocation of the destructor
- will serve as our indication that the client no longer needs the result set
- contents.
+ set (the data returned from a SQL query).  But because we are implementing in
+ C++, the language provides a construct whose semantics correspond directly to
+ the notion of "no longer needing an object" -- i.e., a destructor.  If we make
+ our result set a class, invocation of the destructor will serve as our
+ indication that the client no longer needs the result set contents.
 
  There are two available aligning managers: the sequential pool (with its
  wrapper, 'bslma::SequentialAllocator') and the multipool (with its wrapper,
