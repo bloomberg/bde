@@ -3182,16 +3182,24 @@ int main(int argc, char *argv[])
                        "\n------------------------------------\n");
             }
 
-            const char *format = 0;
+            const char *metaformat = 0;
+            char format[8];
 
             if (sizeof(&dummyVoidFunction) == sizeof(int)) {
-                format = "%x";
+                metaformat = "%%0%dx";
             } else if (sizeof(&dummyVoidFunction) == sizeof(long)) {
-                format = "%lx";
+                metaformat = "%%0%dlx";
             } else if (sizeof(&dummyVoidFunction) == sizeof(long long)) {
-                format = "%llx";
+                metaformat = "%%0%dllx";
             }
 
+            int rcode = snprintf(format, 
+                                 sizeof(format), 
+                                 metaformat, 
+                                 sizeof(&dummyVoidFunction) * 2);
+
+            ASSERT(sizeof(format) > rcode);
+            ASSERT(0 <= rcode);
             ASSERT(format);
 
             // Normal function pointers

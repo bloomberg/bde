@@ -185,12 +185,17 @@ void debugprint(const volatile void *v)
 
 void debugprinthelper(unsigned int v)
 {
-    printf("%x", v);
+    printf("%0*x", sizeof(v) * 2, v);
 }
 
 void debugprinthelper(unsigned long long v)
 {
-    printf("%llx", v);
+    printf("%0*llx", sizeof(v) * 2, v);
+}
+
+void debugprinterror(const char *message)
+{
+    printf("[ERROR: %s]", message);
 }
 
 }  // close package namespace
