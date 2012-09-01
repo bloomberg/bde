@@ -268,7 +268,7 @@
  the allocator is intended to be part of a chain (or other grouping) of
  allocators, or is an "end-point" allocator.  The former kind support the
  'bslma::Allocator' protocol.  "End-point" allocators, such as 'bslma_Pool',
- (XXX) are designed for minimizing the runtime overhead of allocation and
+ (TBD) are designed for minimizing the runtime overhead of allocation and
  deallocation on a call-by-call basis.  This essentially corresponds to
  inlining the 'allocate' and 'deallocate' methods.
 
@@ -387,7 +387,7 @@
 /Type and Origination
 /--------------------
  Most managers provide variable-sized, untyped (i.e., 'void *') memory.  Only
- the 'bslma_Pool' (XXX) works with fixed-size chunks.
+ the 'bslma_Pool' (TBD) works with fixed-size chunks.
 
  The different components manage memory in different ways, but they necessarily
  *obtain* the memory that they manage from one of the two usual sources: the
@@ -529,10 +529,9 @@ Allocator         |                       |                         |
 
  There are two available aligning managers: the sequential pool (with its
  wrapper, 'bslma::SequentialAllocator') and the multipool (with its wrapper,
- the 'bslma::XXXXXX').  We will use a separate memory manager for
- each result set, allowing us to deallocate all memory at once in the
- destructor.  This design allows us to use the slightly more efficient
- 'bslma::SequentialAllocator'.
+ the 'bslma::TBD').  We will use a separate memory manager for each result set,
+ allowing us to deallocate all memory at once in the destructor.  This design
+ allows us to use the slightly more efficient 'bslma::SequentialAllocator'.
 
  (Most ODBC/JDBC drivers provide separate classes representing a database
  connection, an SQL statement, a query result set, and so on.  We simplify
@@ -552,13 +551,13 @@ Allocator         |                       |                         |
   #include <bslma_sequentialallocator.h>
   #include <bsl_vector.h>
   #include <bsl_string.h>
-  
+
   using namespace BloombergLP;
-  
+
   // The following (de-facto struct) holds:
   //: 1 metadata defining a column, and
   //: 2 a container to hold column contents.
-  
+
   class Column {
 
       enum TypeCode {
@@ -570,28 +569,28 @@ Allocator         |                       |                         |
       bsl::string         d_columnName; // Name of the "column" in the query
       TypeCode            d_typeCode;   // C++ type for this column
       bsl::vector<void *> d_items;      // Pointers to column data
-  
+
       friend class MyResultSet;
   };
-  
+
   class MyResultSet {
 
       enum { SUCCESS = 0, FAILURE = 1 };
-  
+
       bslma::SequentialAllocator d_memSource;  // <=********
           // The memory source for storing database-retrieved items.
-  
+
       bsl::vector<Column> d_columns;
       int                 d_cursor;    // specifies the row being accessed
-  
+
       int findIndexForName(const char *columnName);
           // Return the index in the 'd_columns' vector of the column with the
           // specified 'columnName'.
-  
+
     public:
       MyResultSet(void);
       ~MyResultSet(void);
-  
+
       bool fakeExecute(const char *sqlQuery);
           // Simulate the exection of the specified 'sqlQuery'.  Return 'true'
           // if successful, and 'false' otherwise.
@@ -599,7 +598,7 @@ Allocator         |                       |                         |
       bool next(void);
           // Move the result cursor to the next row.  Return 'true' if
           // successful, and 'false' otherwise.
-  
+
       // ODBC "PROTOCOL" -- DATA EXTRACTION ROUTINES
       int getInt   (int         *result, const char *columnName);
       int getString(bsl::string *result, const char *columnName);
@@ -626,25 +625,25 @@ Allocator         |                       |                         |
  returned.
 ..
   enum { SUCCESS = 0, FAILURE = 1 };
-  
+
   MyResultSet::MyResultSet(void)
   : d_memSource(bslma::Default::defaultAllocator())  // <=******
   , d_cursor(-1)
   {
       d_columns.reserve(20);  // few queries request more than 20 columns
   }
-  
+
   MyResultSet::~MyResultSet(void)
   {
       d_memSource.release();  // <= ******
   }
-  
+
   bool MyResultSet::fakeExecute(const char *sqlQuery)
   {
       // This block simulates a 'char' sequence that might be returned
       // from the file.  It simulates a legacy file that stores the data
       // as '@'-separated fields.
-      // 
+      //
       // The query being simulated appears in 'main', below.
 
       char *fileData =
@@ -653,10 +652,10 @@ Allocator         |                       |                         |
      "McLaughlin@Java & XML@0596001975@44.95@"
      "Leung@Professional XML Development with Apache Tools@0764543555@39.99@"
      "Rago@UNIX System V Network Programming@0201563185@47.50@";
-  
+
       const int numRows = 5;  // would be computed
       const int numCols = 4;  // would be parsed from query
-  
+
       // Set up 'MyResultSet' metadata
 
       Column rsmd;
@@ -676,16 +675,16 @@ Allocator         |                       |                         |
       rsmd.d_columnName = "PRICE";
       rsmd.d_typeCode   = Column::DOUBLE;
       d_columns.push_back(rsmd);
-  
+
       const char *endOfWord = fileData;
       for (int i = 0; i < numRows; i++) {
           for (int j = 0; j < numCols; ++j) {
-  
+
               // Find the start and end of next column's data
 
               const char *startOfWord = endOfWord;
               endOfWord = strchr(endOfWord, '@');
-  
+
               // Because of our simulation, the "file-returned block"
               // is stored in const memory.  We can't replace the '@' signs
               // with the needed NULL directly in const memory, so we  make
@@ -697,18 +696,18 @@ Allocator         |                       |                         |
 
               strncpy(scratchSpace, startOfWord, hackLen);
               scratchSpace[hackLen] = 0;
-  
+
               int    *iMemBlock;  // define these outside the switch
               double *dMemBlock;  // to silence erroneous compiler
               char   *sMemBlock;  // errors
-  
+
               // Extract the data, storing in allocated memory.
 
               switch (d_columns[j].d_typeCode) {
                 case Column::INT:
                   iMemBlock = static_cast<int *>  // <=**********
                                          (d_memSource.allocate(sizeof(int)));
-  
+
                   *iMemBlock = atoi(scratchSpace);   // SAFE because aligned!
                   d_columns[j].d_items.push_back(iMemBlock);
                   break;
@@ -734,48 +733,48 @@ Allocator         |                       |                         |
       }
       return true;
   }
-  
+
   bool MyResultSet::next(void)
   {
       if (++d_cursor >= d_columns[0].d_items.size()) {
           // All columns have the same number of items, so it suffices to
           // ask about 'd_columns[0]'.
-  
+
           return false;
       }
-  
+
       return true;
   }
-  
+
   int MyResultSet::getInt(int *result, const char *columnName)
   {
       int index = findIndexForName(columnName);
       if (-1 == index) {
           return FAILURE;
       }
-  
+
       *result = *(int *)(d_columns[index].d_items[d_cursor]);
       return SUCCESS;
   }
-  
+
   int MyResultSet::getString(bsl::string *result, const char *columnName)
   {
       int index = findIndexForName(columnName);
       if (-1 == index) {
           return FAILURE;
       }
-  
+
       *result = (char *)(d_columns[index].d_items[d_cursor]);
       return SUCCESS;
   }
-  
+
   int MyResultSet::getDouble(double *result, const char *columnName)
   {
       int index = findIndexForName(columnName);
       if (-1 == index) {
           return FAILURE;
       }
-  
+
       *result = *(double *)(d_columns[index].d_items[d_cursor]);
       return SUCCESS;
   }
@@ -794,20 +793,20 @@ Allocator         |                       |                         |
  The 'main' procedure is then coded as expected:
 ..
   using namespace BloombergLP;
-  
+
   int myMain1()
   {
       MyResultSet rs;
       rs.fakeExecute("SELECT author, title, isbn, price "
                      "FROM <table list> "
                      "WHERE <join criteria>");
-  
+
       // Walk through entire result set and print out entries.
       bsl::string author;
       bsl::string title;
       int         isbn;
       double      price;
-  
+
       while (rs.next()) {  // position at the next row
           rs.getString(&author, "AUTHOR");
           rs.getString(&title,  "TITLE");
@@ -819,7 +818,7 @@ Allocator         |                       |                         |
           bsl::cout << "ISBN #: " << isbn   << bsl::endl;
           bsl::cout << "Price : " << price  << bsl::endl << bsl::endl;
       }
-  
+
       return 0;
   }
 ..
@@ -834,7 +833,7 @@ Allocator         |                       |                         |
       // ....
   };
 
-  int myMain2() 
+  int myMain2()
   {
       {
           bsl::vector<MyLargeObject> someLocalVariable;

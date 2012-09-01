@@ -12,3 +12,20 @@
  by inspection of appropriate '.o' files.  Note that, except for the package
  name, this version functionality is repeated in every package group within the
  BDE library suite.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bslscm' has 2 components having 2 levels of physical dependency.
+..
+  2. bslscm_version
+
+  1. bslscm_versiontag
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bslscm'.
+..
+  'bslscm_version'      - statically defined version symbols
+  'bslscm_versiontag'   - macros defining BDE version number
+..

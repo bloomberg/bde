@@ -29,34 +29,34 @@
 ..
   12. bslalg_dequeprimitives
       bslalg_rbtreeutil
-  
+
   11. bslalg_arrayprimitives
-  
+
   10. bslalg_autoarraymovedestructor
-  
+
    9. bslalg_autoarraydestructor
-  
+
    8. bslalg_arraydestructionprimitives
       bslalg_constructorproxy
       bslalg_dequeiterator
-  
+
    7. bslalg_scalarprimitives
-  
+
    6. bslalg_autoscalardestructor
       bslalg_rangecompare
-  
+
    5. bslalg_bitwiseeqpassthroughtrait
       bslalg_passthroughtrait
       bslalg_scalardestructionprimitives
       bslalg_selecttrait
-  
+
    4. bslalg_hastrait
-  
+
    3. bslalg_typetraits
-  
+
    2. bslalg_rbtreeanchor
       bslalg_typetraitsgrouppod
-  
+
    1. bslalg_dequeimputil
       bslalg_functoradapter
       bslalg_rbtreenode
@@ -108,7 +108,8 @@
                                          comparisons
   'bslalg_rbtreeanchor'                - encapsulate root of red-black tree
   'bslalg_rbtreenode'                  - base class for red-black tree nodes
-  'bslalg_rbtreeutil'                  - primitive algorithms on red-black trees
+  'bslalg_rbtreeutil'                  - primitive algorithms on red-black
+                                         trees
   'bslalg_scalardestructionprimitives' - primitives for destroying scalars
   'bslalg_scalarprimitives'            - customized and traits-aware
                                          primitives for manipulating scalars

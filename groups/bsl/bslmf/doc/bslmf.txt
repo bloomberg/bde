@@ -6,7 +6,7 @@
 
 @AUTHOR: Herve Bronnimann (hbronnim)
 
-@DESCRIPTION: The 'bdemf' package provides meta-function equivalents of 
+@DESCRIPTION: The 'bdemf' package provides meta-function equivalents of
  certain useful coding constructs.  A meta-function is a template-based,
  compile-time construct that behaves like a (runtime) function in that it
  "evaluates" arguments and does something different based on the input
@@ -58,15 +58,15 @@
  'bslmf' currently has 26 components having 8 levels of physical dependency.
 ..
   8. bslmf_enableif
-  
+
   7. bslmf_forwardingtype
      bslmf_ispolymorphic
-  
+
   6. bslmf_functionpointertraits
      bslmf_isclass
      bslmf_isenum
      bslmf_memberfunctionpointertraits
-  
+
   5. bslmf_addreference
      bslmf_arraytopointer
      bslmf_if
@@ -74,7 +74,7 @@
      bslmf_removereference
      bslmf_switch
      bslmf_typelist
-  
+
   4. bslmf_isarray
      bslmf_isfundamental
      bslmf_ispointer
@@ -82,11 +82,11 @@
      bslmf_issame
      bslmf_isvoid
      bslmf_nil
-  
+
   3. bslmf_metaint
-  
+
   2. bslmf_tag
-  
+
   1. bslmf_anytype
      bslmf_assert
      bslmf_removecvq
@@ -103,7 +103,7 @@
   'bslmf_anytype'           - a type convertible from any type
   'bslmf_arraytopointer'    - type transformation decaying arrays to pointers
   'bslmf_assert'            - compile-time assertion
-  'bslmf_forwardingtype'    - type transformation 
+  'bslmf_forwardingtype'    - type transformation
   'bslmf_enableif'          - remove candiate from overload sets
   'bslmf_functionpointertraits'
                             - extracting return and argument types from a
