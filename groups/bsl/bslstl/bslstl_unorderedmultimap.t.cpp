@@ -5,6 +5,12 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_bsltestutil.h>
+
+#include <bsltf_templatetestfacility.h>
+#include <bsltf_testvaluesarray.h>
+#include <bsltf_stdtestallocator.h>
+
 #include <algorithm>
 #include <climits>
 #include <cstdlib>
@@ -93,6 +99,37 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                              TEST SUPPORT
 //-----------------------------------------------------------------------------
+namespace bsl {
+
+// set-specific print function.
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void debugPrint(const bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOC>& s)
+{
+    if (s.empty()) {
+        printf("<empty>");
+    }
+    else {
+        typedef bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOC> TObj;
+        typedef typename TObj::const_iterator CIter;
+        typedef typename TObj::const_local_iterator LCIter;
+
+        for (size_t n = 0; n < s.bucket_count(); ++n) {
+            if (s.cbegin(n) == s.cend(n)) {
+                continue;
+            }
+            printf("\nBucket [%d]: ", n);
+            for (LCIter lci = s.cbegin(n); lci != s.cend(n); ++lci) {
+                printf("[%d, %d], ", lci->first, lci->second); 
+//                bsls::BslTestUtil::callDebugprint(
+//           static_cast<char>(bsltf::TemplateTestFacility::getIdentifier(*lci)));
+            }
+            printf("\n");
+        }
+    }
+    fflush(stdout);
+}
+
+} // close namespace bsl
 
 bool g_verbose;
 bool g_veryVerbose;
@@ -185,9 +222,9 @@ void testEmptyContainer(CONTAINER& x)
 
 template <class CONTAINER>
 void testContainerHasData(const CONTAINER& x,
-                          int              nCopies,
+                          size_t              nCopies,
                           const typename CONTAINER::value_type *data,
-                          int              size)
+                          size_t              size)
 {
     typedef CONTAINER TestType;
     typedef typename TestType::const_iterator TestIterator;
@@ -195,11 +232,13 @@ void testContainerHasData(const CONTAINER& x,
     LOOP2_ASSERT(x.size(),   nCopies * size,
                  x.size() == nCopies * size);
 
-    for (int i = 0; i != size; ++i) {
+    for (size_t i = 0; i != size; ++i) {
         TestIterator it = x.find(keyForValue<CONTAINER>(data[i]));
         ASSERT(x.end() != it);
         ASSERT(*it == data[i]);
-        ASSERT(x.count(keyForValue<CONTAINER>(data[i])) == nCopies);
+        LOOP2_ASSERT(keyForValue<CONTAINER>(data[i]),
+                     x.count(keyForValue<CONTAINER>(data[i])),  
+                     nCopies == x.count(keyForValue<CONTAINER>(data[i])));
 
         bsl::pair<TestIterator, TestIterator> range =
                                 x.equal_range(keyForValue<CONTAINER>(data[i]));
@@ -216,9 +255,9 @@ void testContainerHasData(const CONTAINER& x,
 }
 
 template <class CONTAINER>
-void fillContainerWithData(CONTAINER& x,
+void fillContainerWithData(CONTAINER&                            x,
                            const typename CONTAINER::value_type *data,
-                           int       size)
+                           size_t                                size)
 {
     typedef CONTAINER TestType;
 
@@ -226,7 +265,7 @@ void fillContainerWithData(CONTAINER& x,
     x.insert(data, data + size);
     ASSERT(x.size() == initialSize + size);
 
-    for (int i = 0; i != size; ++i) {
+    for (size_t i = 0; i != size; ++i) {
         typename TestType::iterator it = x.find(keyForValue<CONTAINER>(data[i]));
         ASSERT(x.end() != it);
         ASSERT(data[i] == *it);
@@ -280,9 +319,9 @@ void testBuckets(CONTAINER& mX)
 
     const CONTAINER &x = mX;
 
-    unsigned bucketCount = x.bucket_count();
-    unsigned int collisions = 0;
-    unsigned int itemCount  = 0;
+    size_t bucketCount = x.bucket_count();
+    size_t collisions = 0;
+    size_t itemCount  = 0;
 
     for (unsigned i = 0; i != bucketCount; ++i ) {
         const unsigned count = x.bucket_size(i);
@@ -337,7 +376,7 @@ void testErase(CONTAINER& mX)
     typedef typename CONTAINER::const_iterator const_iterator;
 
     const CONTAINER& x = mX;
-    int size = x.size();
+    size_t size = x.size();
 
     // test empty sub-ranges
     ASSERT(x.begin() == mX.erase(x.cbegin(), x.cbegin()));
@@ -356,7 +395,7 @@ void testErase(CONTAINER& mX)
     const_iterator cIter = x.begin();
     bsl::advance(cIter, x.size()/10);
     typename CONTAINER::key_type key = keyForValue<CONTAINER>(*cIter);
-    int duplicates = x.count(key);
+    size_t duplicates = x.count(key);
     ASSERT(0 != duplicates);  // already tested, just a sanity check
     bsl::pair<const_iterator, const_iterator> valRange = x.equal_range(key);
     ASSERT(valRange.second != x.end());  // or else container is *tiny*
@@ -477,6 +516,25 @@ void testErase(CONTAINER& mX)
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
+namespace {
+    template <class TYPE>
+    struct MyHashFunctor {
+        std::size_t operator()(const TYPE& value) const
+        {
+            return static_cast<std::size_t>(value);
+        }
+
+    };
+
+    template <>
+    struct MyHashFunctor<int> {
+        std::size_t operator()(int value) const
+        {
+            return static_cast<std::size_t>(value);
+            // return static_cast<std::size_t>(bdeu_HashUtil::hash1(value));
+        }
+    };
+}
 
 int main(int argc, char *argv[])
 {
@@ -493,7 +551,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator testAlloc("A");
+    bslma_TestAllocator testAlloc("ta", veryVeryVeryVerbose);
     bslma_Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
@@ -518,7 +576,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        typedef bsl::unordered_multimap<int, int> TestType;
+        typedef bsl::unordered_multimap<int, int > TestType;
 
         TestType mX;
         const TestType &x = mX;
@@ -537,7 +595,7 @@ cout << "<<A>>" << endl;
         validateIteration(mX);
 cout << "<<B>>" << endl;
         typedef TestType::value_type BaseValue;
-        const int MAX_SAMPLE = 10000;
+        const int MAX_SAMPLE = 1000;
         BaseValue *dataSamples = new BaseValue[MAX_SAMPLE];
         for(int i = 0; i != MAX_SAMPLE; ++i) {
             new(&dataSamples[i]) BaseValue(i, i*i);  // inplace-new needed to
@@ -592,6 +650,7 @@ cout << "<<H>>" << endl;
         validateIteration(mX);
 cout << "<<I>>" << endl;
 
+        
         testContainerHasData(x, 2, dataSamples, MAX_SAMPLE);
 cout << "<<J>>" << endl;
 

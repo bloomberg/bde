@@ -2,6 +2,7 @@ bslstl_allocator
 bslstl_allocatorproxy
 bslstl_allocatortraits
 bslstl_bidirectionaliterator
+bslstl_bidirectionalnodepool
 bslstl_bitset
 bslstl_containerbase
 bslstl_deque

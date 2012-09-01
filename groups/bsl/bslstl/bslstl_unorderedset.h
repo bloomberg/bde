@@ -1,3 +1,4 @@
+
 // bslstl_unorderedset.h                                              -*-C++-*-
 #ifndef INCLUDED_BSLSTL_UNORDEREDSET
 #define INCLUDED_BSLSTL_UNORDEREDSET
@@ -423,7 +424,7 @@ template <class KEY_TYPE,
 ALLOC
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::get_allocator() const
 {
-    return d_impl.get_allocator();
+    return d_impl.allocator();
 }
 
     // size and capacity
@@ -434,7 +435,7 @@ template <class KEY_TYPE,
 bool
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::empty() const
 {
-    return d_impl.empty();
+    return d_impl.isEmpty();
 }
 
 template <class KEY_TYPE,
@@ -454,7 +455,7 @@ template <class KEY_TYPE,
 typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::max_size() const
 {
-    return d_impl.max_size();
+    return d_impl.maxSize();
 }
 
     // iterators
@@ -662,7 +663,7 @@ template <class KEY_TYPE,
 void
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::clear()
 {
-    d_impl.destroyListValues();
+    d_impl.clear();
 }
 
 template <class KEY_TYPE,
@@ -797,7 +798,7 @@ inline
 typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::bucket_count() const
 {
-    return d_impl.bucket_count();
+    return d_impl.numOfBuckets();
 }
 
 template <class KEY_TYPE,
@@ -808,7 +809,7 @@ inline
 typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::max_bucket_count() const
 {
-    return d_impl.max_bucket_count();
+    return d_impl.maxNumOfBuckets();
 }
 
 template <class KEY_TYPE,
@@ -846,7 +847,7 @@ typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::local_iterator
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::begin(size_type n)
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return local_iterator(d_impl.begin(n));
+    return local_iterator(&d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -858,7 +859,7 @@ typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::begin(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator(d_impl.begin(n));
+    return const_local_iterator(&d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -870,7 +871,7 @@ typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::local_iterator
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::end(size_type n)
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return local_iterator();
+    return local_iterator(0, &d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -883,7 +884,7 @@ typename
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::end(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator();
+    return const_local_iterator(0, &d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -896,7 +897,8 @@ typename
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::cbegin(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator(d_impl.begin(n));
+    //SP: invoke begin(n) ?
+    return const_local_iterator(&d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -908,7 +910,8 @@ typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::cend(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator();
+    // invoke end(n) ? 
+    return const_local_iterator(0, &d_impl.getBucket(n));
 }
 
     // hash policy

@@ -15,18 +15,29 @@ namespace BloombergLP
 namespace bslalg
 {
 
-void BidirectionalLinkListUtil::insertLinkBeforeTail(BidirectionalLink *newNode,
-                                                     BidirectionalLink *tail)
+void BidirectionalListUtil::insertLinkAfter(BidirectionalLink *newNode,
+                                            BidirectionalLink *head)
 {
-//    BSLS_ASSERT(tail);
+    BSLS_ASSERT_SAFE(newNode);
+    BSLS_ASSERT_SAFE(head);
+
+    if (BidirectionalLink *next = head->next()) {
+        next->setPrev(newNode);
+    }
+    head->setNext(newNode);
+    
+    newNode->setPrev(head);
+    newNode->setNext(next);
+} 
+
+void BidirectionalListUtil::insertLinkInHead(BidirectionalLink  *newNode,
+                                             BidirectionalLink  *tail)
+{
     BSLS_ASSERT(newNode);
-    // newNode must be in an unlinked state
-    BSLS_ASSERT(!newNode->next());
-    BSLS_ASSERT(!newNode->prev());
+
 
     if (!tail) {  // Prepending before an empty list is *explicitly* *allowed*
-//        newNode->setPrev(0);  // redundant with pre-condition
-//        newNode->setNext(0);
+        newNode->reset();  // redundant with pre-condition
     }
     else if (BidirectionalLink *prev = tail->prev()) {  // decode this value only once
         newNode->setPrev(prev);
@@ -36,7 +47,7 @@ void BidirectionalLinkListUtil::insertLinkBeforeTail(BidirectionalLink *newNode,
     }
     else {
         // newNode CANNOT be end-of-bucket, as 'tail' is in the same bucket
-//        newNode->setPrev(0);  // asserted precondition
+        newNode->setPrev(0);  // asserted precondition
         newNode->setNext(tail);
         tail->setPrev(newNode);
     }

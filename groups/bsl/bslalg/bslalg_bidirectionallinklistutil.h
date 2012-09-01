@@ -42,14 +42,21 @@ class BidirectionalLink;
 
 struct BidirectionalLinkListUtil {
     static
-    void insertLinkBeforeTail(BidirectionalLink *newNode,
-                              BidirectionalLink *tail);
+    void insertLinkInHead(BidirectionalLink *newNode,
+                          BidirectionalLink *tail);
        // Insert the specified 'newNode' into the doubly-linked list before the
        // specified 'tail' node.  If 'tail' is null, then 'newNode' becomes an
        // entire list, and this function has no observable effect.  The
        // behavior is undefined unless 'newNode' is not currently linked into
        // any list, such as having a null pointer for both 'next' and 'prev'
        // addresses.
+       // specified 'tail' node.
+    
+    static
+    void insertLinkAfter(BidirectionalLink *newNode,
+                         BidirectionalLink *head);
+       // Insert the specified 'newNode' into the doubly-linked list after the
+       // specified 'head' node.
 
     static
     void spliceListBeforeLink(BidirectionalLink *first,

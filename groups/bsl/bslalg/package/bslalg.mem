@@ -14,6 +14,7 @@ bslalg_dequeimputil
 bslalg_dequeiterator
 bslalg_dequeprimitives
 bslalg_functoradapter
+bslalg_hashtableanchor
 bslalg_hashtablebucket
 bslalg_hashtableutil
 bslalg_hashutil

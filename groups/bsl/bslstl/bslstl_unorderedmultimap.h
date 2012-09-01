@@ -370,7 +370,7 @@ template <class KEY_TYPE,
 ALLOC
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::get_allocator() const
 {
-    return d_impl.get_allocator();
+    return d_impl.allocator();
 }
 
     // size and capacity
@@ -382,7 +382,7 @@ template <class KEY_TYPE,
 bool
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::empty() const
 {
-    return d_impl.empty();
+    return d_impl.isEmpty();
 }
 
 template <class KEY_TYPE,
@@ -404,7 +404,7 @@ template <class KEY_TYPE,
 typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::max_size() const
 {
-    return d_impl.max_size();
+    return d_impl.maxSize();
 }
 
     // iterators
@@ -484,7 +484,17 @@ inline
 typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::insert(const value_type& obj)
 {
-    return iterator(d_impl.doEmplace(obj));
+    // I think that we should have insert_unique, insert_multi: what's the
+    // semantic of the table? what are its invariant?
+
+    iterator it = iterator(d_impl.find(obj.first));
+    if(end() == it) {
+        it = iterator(d_impl.doEmplace(obj));
+    }
+    else {
+        it = iterator(d_impl.insertValueBefore(obj, it.node()));
+    }
+    return it;
 }
 
 template <class KEY_TYPE,
@@ -623,7 +633,7 @@ template <class KEY_TYPE,
 void
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::clear()
 {
-    d_impl.destroyListValues();
+    d_impl.clear();
 }
 
 template <class KEY_TYPE,
@@ -780,7 +790,7 @@ typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 bucket_count() const
 {
-    return d_impl.bucket_count();
+    return d_impl.numOfBuckets();
 }
 
 template <class KEY_TYPE,
@@ -794,7 +804,7 @@ typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 max_bucket_count() const
 {
-    return d_impl.max_bucket_count();
+    return d_impl.maxNumOfBuckets();
 }
 
 template <class KEY_TYPE,
@@ -837,7 +847,7 @@ unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 begin(size_type n)
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return local_iterator(d_impl.begin(n));
+    return local_iterator(&d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -852,7 +862,7 @@ unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 begin(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator(d_impl.begin(n));
+    return const_local_iterator(&d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -866,7 +876,7 @@ typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::end(size_type n)
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return local_iterator();
+    return local_iterator(0, &d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -876,13 +886,13 @@ template <class KEY_TYPE,
           class ALLOC>
 inline
 typename
- unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
                                                            const_local_iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 end(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator();
+    return const_local_iterator(0, &d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -892,13 +902,13 @@ template <class KEY_TYPE,
           class ALLOC>
 inline
 typename
- unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
                                                            const_local_iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 cbegin(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator(d_impl.begin(n));
+    return const_local_iterator(&d_impl.getBucket(n));
 }
 
 template <class KEY_TYPE,
@@ -913,7 +923,7 @@ unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 cend(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator();
+    return const_local_iterator(0, &d_impl.getBucket(n));
 }
 
     // hash policy
