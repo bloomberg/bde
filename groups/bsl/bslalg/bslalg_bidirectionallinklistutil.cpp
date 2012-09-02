@@ -15,23 +15,25 @@ namespace BloombergLP
 namespace bslalg
 {
 
-void BidirectionalListUtil::insertLinkAfter(BidirectionalLink *newNode,
-                                            BidirectionalLink *head)
+void BidirectionalLinkListUtil::insertLinkAfter(BidirectionalLink *newNode,
+                                                BidirectionalLink *head)
 {
     BSLS_ASSERT_SAFE(newNode);
     BSLS_ASSERT_SAFE(head);
 
-    if (BidirectionalLink *next = head->next()) {
+    BidirectionalLink *next = head->next();
+
+    head->setNext(newNode);
+    if (next) {
         next->setPrev(newNode);
     }
-    head->setNext(newNode);
-    
+
     newNode->setPrev(head);
     newNode->setNext(next);
 } 
 
-void BidirectionalListUtil::insertLinkInHead(BidirectionalLink  *newNode,
-                                             BidirectionalLink  *tail)
+void BidirectionalLinkListUtil::insertLinkInHead(BidirectionalLink  *newNode,
+                                                 BidirectionalLink  *tail)
 {
     BSLS_ASSERT(newNode);
 

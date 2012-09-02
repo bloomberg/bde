@@ -57,7 +57,7 @@ void HashTableUtil::insertDuplicateAtPosition(HashTableAnchor    *anchor,
     BSLS_ASSERT_SAFE(newNode);
     BSLS_ASSERT_SAFE(location);
 
-    BidirectionalListUtil::insertLinkInHead(newNode, location);
+    BidirectionalLinkListUtil::insertLinkInHead(newNode, location);
 
     HashTableBucket *bucket = bucketForHashCode(*anchor, hashCode);
     if (location == bucket->first()) {
@@ -80,7 +80,7 @@ void HashTableUtil::insertAtFrontOfBucket(HashTableAnchor   *anchor,
     BSLS_ASSERT_SAFE(bucket);
 
     if (bucket->first()) {
-        BidirectionalListUtil::insertLinkInHead(newNode, bucket->first());
+        BidirectionalLinkListUtil::insertLinkInHead(newNode, bucket->first());
         if (anchor->listRootAddress() == bucket->first()) {
             anchor->setListRootAddress(newNode);
         }
@@ -89,8 +89,8 @@ void HashTableUtil::insertAtFrontOfBucket(HashTableAnchor   *anchor,
     else {
         // New bucket is required.
        
-        BidirectionalListUtil::insertLinkInHead(newNode, 
-                                               anchor->listRootAddress());
+        BidirectionalLinkListUtil::insertLinkInHead(newNode, 
+                                                    anchor->listRootAddress());
 
         // New buckets are inserted in front of the list.
         
@@ -112,9 +112,9 @@ void HashTableUtil::spliceSegmentIntoBucket(BidirectionalLink  *cursor,
     // splice the array segment
     if (!bucket->first()) {
         bucket->setFirstLast(cursor, nextCursor);
-        BidirectionalListUtil::spliceListBeforeLink(cursor,
-                                                    nextCursor,
-                                                    *newRoot);
+        BidirectionalLinkListUtil::spliceListBeforeLink(cursor,
+                                                        nextCursor,
+                                                        *newRoot);
         *newRoot = cursor;
     }
     else {

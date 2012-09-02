@@ -4,7 +4,7 @@
 #include <bslstl_allocator.h>
 
 #include <bslalg_bidirectionallink.h>
-#include <bslalg_bidirectionallistnode.h>
+#include <bslalg_bidirectionallinklistnode.h>
 
 #include <bslma_allocator.h>
 #include <bslma_testallocator.h>
@@ -126,7 +126,7 @@ static bool veryVeryVeryVerbose;
 //-----------------------------------------------------------------------------
 
 typedef bslalg::BidirectionalLink Link;
-typedef bslalg::BidirectionalListNode<int> IntNode;
+typedef bslalg::BidirectionalLinkListNode<int> IntNode;
 
 namespace {
 
@@ -252,7 +252,7 @@ class TestDriver {
 
     typedef bsltf::StdTestAllocator<VALUE> StlAlloc;
 
-    typedef bslalg::BidirectionalListNode<VALUE> ValueNode;
+    typedef bslalg::BidirectionalLinkListNode<VALUE> ValueNode;
 
   private:
     // PRIVATE CLASS METHODS
@@ -1211,7 +1211,7 @@ int main(int argc, char *argv[])
 
             typedef AllocatingIntType AllocType;
             typedef BidirectionalNodePool<AllocType, bsl::allocator<AllocType> > Obj;
-            typedef bslalg::BidirectionalListNode<AllocatingIntType> Node;
+            typedef bslalg::BidirectionalLinkListNode<AllocatingIntType> Node;
 
             bslma::TestAllocator da, ta;
             bslma::DefaultAllocatorGuard daGuard(&da);
