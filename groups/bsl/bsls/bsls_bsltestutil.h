@@ -484,18 +484,18 @@ void BslTestUtil::callDebugprint(const TYPE& obj,
 template <typename RESULT>
 void bsls::debugprint(RESULT (*v)())
 {
-    typedef BslTestUtil_UintPtr<sizeof(RESULT (*)())> UintPtr;
+    //typedef BslTestUtil_UintPtr<sizeof(RESULT (*)())> UintPtr;
 
         // (At compile time) find an integral type that is the same size as a
         // function pointer.
 
-    UintPtr address;
+    unsigned long long address;
 
-    address.d_address = reinterpret_cast<typename UintPtr::address_t>(v);
+    address = reinterpret_cast<unsigned long long>(v);
 
         // Convert the function pointer to an integral type.
 
-    debugprinthelper(address.d_address);
+    debugprinthelper(address);
 }
 
 }  // close enterprise namespace
