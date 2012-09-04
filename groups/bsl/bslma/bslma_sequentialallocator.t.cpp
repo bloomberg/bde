@@ -1,19 +1,21 @@
 // bslma_sequentialallocator.t.cpp                                    -*-C++-*-
 
 #include <bslma_sequentialallocator.h>
+
 #include <bslma_allocator.h>          // for testing only
 #include <bslma_bufferallocator.h>    // for testing only
 #include <bslma_default.h>            // for testing only
 #include <bslma_sequentialpool.h>     // for testing only
 #include <bslma_testallocator.h>      // for testing only
 
-#include <climits>
-#include <cstdlib>     // atoi()
-#include <cstring>     // memcpy()
-#include <iostream>
+#include <bsls_bsltestutil.h>
+
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                  TEST PLAN
@@ -60,44 +62,50 @@ using namespace std;
 // [8] USAGE EXAMPLE
 
 //=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+static void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define TAB cout << '\t';
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 typedef bslma::SequentialAllocator         Obj;
 typedef bslma::SequentialPool              Pool;
@@ -225,6 +233,7 @@ class my_DoubleStackIter {
     const double& operator()() const { return d_stack_p[d_index]; }
 };
 
+#if 0
 ostream& operator<<(ostream& stream, const my_DoubleStack& stack)
 {
     stream << "(top) [";
@@ -233,6 +242,16 @@ ostream& operator<<(ostream& stream, const my_DoubleStack& stack)
     }
     return stream << " ] (bottom)" << flush;
 }
+#else
+void debugprint(const my_DoubleStack& value)
+{
+    printf("(top) [");
+    for (my_DoubleStackIter it(value); it; ++it) {
+        printf(" %g", it());
+    }
+    printf(" ] (bottom)");
+}
+#endif
 
 enum { INITIAL_BUF_SIZE = 256 };
 
@@ -247,7 +266,7 @@ int main(int argc, char *argv[])
     // int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
       case 8: {
@@ -259,8 +278,8 @@ int main(int argc, char *argv[])
         //   Ensure usage example compiles and works.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE TEST" << endl
-                                  << "==========" << endl;
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
         {
             bslma::SequentialAllocator myA;
             bslma::Allocator& a = myA;
@@ -270,7 +289,7 @@ int main(int argc, char *argv[])
             s.push(1.75);
 
             if (verbose) {
-                cout << "\t\t" << s << endl;
+                T_ T_ P(s);
             }
         }
       } break;
@@ -371,10 +390,10 @@ int main(int argc, char *argv[])
         //   void reserveCapacity(numBytes);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "RESERVECAPACITY TEST" << endl
-                                  << "====================" << endl;
+        if (verbose) printf("\nRESERVECAPACITY TEST"
+                            "\n====================\n");
 
-        if (verbose) cout << "Testing 'reserveCapacity'." << endl;
+        if (verbose) printf("Testing 'reserveCapacity'.\n");
 
         const int DATA[] = { 0, 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -422,10 +441,10 @@ int main(int argc, char *argv[])
         //   void deallocate(address);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "DEALLOCATE TEST" << endl
-                                  << "===============" << endl;
+        if (verbose) printf("\nDEALLOCATE TEST"
+                            "\n===============\n");
 
-        if (verbose) cout << "Testing 'deallocate'." << endl;
+        if (verbose) printf("Testing 'deallocate'.\n");
 
         const int DATA[] = { 0, 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -467,10 +486,10 @@ int main(int argc, char *argv[])
         //   ~bslma::SequentialAllocator();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "CONSTRUCTOR TEST" << endl
-                                  << "================" << endl;
+        if (verbose) printf("\nCONSTRUCTOR TEST"
+                            "\n================\n");
 
-        if (verbose) cout << "Testing 'default constructor'." << endl;
+        if (verbose) printf("Testing 'default constructor'.\n");
 
         AlignStrategy MAX = BufferAllocator::MAXIMUM_ALIGNMENT;
         AlignStrategy NAT = BufferAllocator::NATURAL_ALIGNMENT;
@@ -693,11 +712,11 @@ int main(int argc, char *argv[])
         //   void release();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BASIC TEST" << endl
-                                  << "==========" << endl;
+        if (verbose) printf("\nBASIC TEST"
+                            "\n==========\n");
 
-        if (verbose) cout << "Testing 'allocate', 'deallocate' and 'release'."
-                          << endl;
+        if (verbose) printf(
+                          "Testing 'allocate', 'deallocate' and 'release'.\n");
 
         const int DATA[] = { 0, 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -725,14 +744,15 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 
