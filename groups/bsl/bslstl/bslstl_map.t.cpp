@@ -3240,6 +3240,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
         { L_,   "ABC",        "ABC",       true },
         { L_,   "ABCD",       "ABCD",      true },
         { L_,   "ABCDE",      "ABCDE",     true },
+        { L_,   "AABCCDDDE",  "ABCDE",     true },
         { L_,   "DABEC",      "ABCDE",    false },
         { L_,   "EDCBACBA",   "ABCDE",    false },
         { L_,   "ABCDEABCD",  "ABCDE",    false }
@@ -3317,8 +3318,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
                 ASSERTV(LINE, CONFIG, &oa == X.get_allocator());
 
                 if (ORDERED && LENGTH > 0) {
-                    ASSERTV(LINE, CONFIG, LENGTH - 1, X.key_comp().count(),
-                            LENGTH - 1 == X.key_comp().count());
+                    const size_t SPECLEN = strlen(DATA[ti].d_spec);
+                    ASSERTV(LINE, CONFIG, (SPECLEN - 1) * 2,
+                            X.key_comp().count(),
+                            (SPECLEN - 1) * 2 == X.key_comp().count());
                 }
                 // Verify no allocation from the non-object allocator.
 

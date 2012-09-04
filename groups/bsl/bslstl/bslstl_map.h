@@ -67,14 +67,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Memory Allocation
 ///-----------------
-// The map's (template paramater) type 'ALLOCATOR' determines how that map will
-// allocate memory.  The 'map' template supports allocators meeting the
-// requirements of the C++11 standard [17.6.3.5].  In addition, it supports
-// scoped-allocators derived from the 'bslma::Allocator' memory allocation
-// protocol.  Clients intending to use 'bslma' style allocators should use the
-// template's default 'ALLOCATOR' type: The default type for the 'ALLOCATOR'
-// template parameter, 'bsl::allocator', provides a C++11 standard-compatible
-// adapter for a 'bslma::Allocator' object.
+// The type supplied as a map's 'ALLOCATOR' template parameter determines how
+// that map will allocate memory.  The 'map' template supports allocators
+// meeting the requirements of the C++11 standard [17.6.3.5].  In addition, it
+// supports scoped-allocators derived from the 'bslma::Allocator' memory
+// allocation protocol.  Clients intending to use 'bslma' style allocators
+// should use the template's default 'ALLOCATOR' type: The default type for the
+// 'ALLOCATOR' template parameter, 'bsl::allocator', provides a C++11
+// standard-compatible adapter for a 'bslma::Allocator' object.
 //
 ///'bslma'-Style Allocators
 /// - - - - - - - - - - - -
@@ -566,7 +566,7 @@ class map {
         // This nested class defines a mechanism for comparing two objects of
         // 'value_type' using the (template parameter) type 'COMPARATOR'.  Note
         // that this class exactly matches its definition in the C++11 standard
-        // [23.4.4.1]; otherwise, we would have implemented a separate
+        // [23.4.4.1]; otherwise we would have implemented it as a separate
         // component-local class.
 
         // FRIENDS
@@ -1285,18 +1285,21 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(INPUT_ITERATOR    first,
             // The values are not in order, so insert them normally.
 
             const value_type& value = *first;
-            if (!this->comparator()(*prevNode, value.first)) {
+            if (this->comparator()(value.first, *prevNode)) {
                 insert(value);
                 insert(++first, last);
                 break;
             }
-            BloombergLP::bslalg::RbTreeNode *node = nodeFactory().createNode(
-                                                                        value);
-            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                                      prevNode,
-                                                      false,
-                                                      node);
-            prevNode = node;
+
+            if (this->comparator()(*prevNode, value.first)) {
+                BloombergLP::bslalg::RbTreeNode *node =
+                                               nodeFactory().createNode(value);
+                BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                          prevNode,
+                                                          false,
+                                                          node);
+                prevNode = node;
+            }
         }
         proctor.release();
     }
