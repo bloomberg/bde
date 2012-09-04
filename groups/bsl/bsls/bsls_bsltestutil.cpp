@@ -166,11 +166,6 @@ void debugprint(const volatile void *v)
     printf("%p", v);
 }
 
-void debugprinthelper(unsigned long long v)
-{
-    printf("%0*llx", sizeof(void (*)()) * 2, v);
-}
-
 }  // close package namespace
 }  // close enterprise namespace
 

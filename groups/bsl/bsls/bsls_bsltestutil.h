@@ -401,44 +401,6 @@ void debugprint(const volatile void *v);
     // Print to the console the specified memory address, 'v', formatted as
     // a hexadecimal integer.
 
-template <int SIZE> 
-struct BslTestUtil_UintPtr;
-    // Provide a facility for storing and identifying the type of an unsigned
-    // integral value with size equal to the specified (template parameter)
-    // 'SIZE'.  There are two instantiations for this template, for two
-    // integral types that might match the size of a function pointer:
-    // 'unsigned int' and 'unsigned long long'.  The underlying assumptions
-    // are:
-    //: o 'sizeof(unsigned int) < sizeof(unsigned long long)' on all reasonable
-    //:   platforms.
-    //: o Pointers will be the same size as either 'unsigned int' or 'unsigned
-    //:   long long' on all reasonable platforms.
-
-template <>
-struct BslTestUtil_UintPtr<sizeof(unsigned int)> {
-    typedef unsigned int address_t;
-        // Representation of an unsigned integer value with the same size as an
-        // 'unsigned int', for use on platforms where an 'unsigned int' is
-        // large enough to contain a memory address.
-
-    address_t d_address;  // storage for a memory address
-};
-
-template <>
-struct BslTestUtil_UintPtr<sizeof(unsigned long long)> {
-    typedef unsigned long long address_t;
-        // Representation of an unsigned integer value with the same size as an
-        // 'unsigned long long', for use on platforms where an 'unsigned int'
-        // is too small to contain a memory address.
-
-    address_t d_address;  // storage for a memory address
-};
-
-void debugprinthelper(unsigned long long v);
-    // Print to the console the specified memory address, 'v', formatted as a
-    // hexadecimal integer. Note that 'v' is an unsigned integer large enough
-    // to hold an address, not a native pointer type.
-
 template <typename RESULT>
 void debugprint(RESULT (*v)());
     // Print to the console the specified function pointer, 'v', formatted as a
@@ -484,18 +446,7 @@ void BslTestUtil::callDebugprint(const TYPE& obj,
 template <typename RESULT>
 void bsls::debugprint(RESULT (*v)())
 {
-    //typedef BslTestUtil_UintPtr<sizeof(RESULT (*)())> UintPtr;
-
-        // (At compile time) find an integral type that is the same size as a
-        // function pointer.
-
-    unsigned long long address;
-
-    address = reinterpret_cast<unsigned long long>(v);
-
-        // Convert the function pointer to an integral type.
-
-    debugprinthelper(address);
+    debugprint(reinterpret_cast<void *>(v));
 }
 
 }  // close enterprise namespace

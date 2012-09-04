@@ -3182,25 +3182,7 @@ int main(int argc, char *argv[])
                        "\n------------------------------------\n");
             }
 
-            const char *metaformat = 0;
-            char format[8];
-
-            if (sizeof(&dummyVoidFunction) == sizeof(int)) {
-                metaformat = "%%0%dx";
-            } else if (sizeof(&dummyVoidFunction) == sizeof(long)) {
-                metaformat = "%%0%dlx";
-            } else if (sizeof(&dummyVoidFunction) == sizeof(long long)) {
-                metaformat = "%%0%dllx";
-            }
-
-            int rcode = snprintf(format, 
-                                 sizeof(format), 
-                                 metaformat, 
-                                 sizeof(&dummyVoidFunction) * 2);
-
-            ASSERT(sizeof(format) > rcode);
-            ASSERT(0 <= rcode);
-            ASSERT(format);
+            const char *format = "%p";
 
             // Normal function pointers
             {
