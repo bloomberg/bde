@@ -605,8 +605,7 @@ class bcep_MultiQueueThreadPool {
         // queues, and wait until all queues are empty.  Then, delete all
         // queues, and shut down the thread pool if the thread pool is owned
         // by this object.  This method will block if any thread is executing
-        // 'start' or 'stop' at the time of the call.  Note that no queue will
-        // be deleted unless 'deleteQueue' was called previously.
+        // 'start' or 'stop' at the time of the call.
 
     // MANIPULATORS
     int createQueue();
@@ -676,15 +675,21 @@ class bcep_MultiQueueThreadPool {
         // the thread pool may be either enabled or disabled when this method
         // is called.  This method may be called on a stopped or started thread
         // pool.  This method will block if any thread is executing 'start',
-        // 'stop', or 'shutdown' at the time of the call.
+        // 'stop', or 'shutdown' at the time of the call.  Note that 'drain'
+        // does not attempt to delete queues directly.  However as a
+        // side-effect of emptying all queues, any queue for which
+        // 'deleteQueue' was called previously will be deleted before 'drain'
+        // unblocks.
 
     void stop();
-        // Disable queuing on all queues, and wait until all queues are
-        // empty.  Then, stop the thread pool if the thread pool is owned by
-        // this object.  This method will block if any thread is executing
-        // 'start' or 'drain' or 'shutdown' at the time of the call.  Note
-        // that no queue will be deleted unless 'deleteQueue' was called
-        // previously.
+        // Disable queuing on all queues, and wait until all queues are empty.
+        // Then, stop the thread pool if the thread pool is owned by this
+        // object.  This method will block if any thread is executing 'start'
+        // or 'drain' or 'shutdown' at the time of the call.  Note that 'stop'
+        // does not attempt to delete queues directly.  However as a
+        // side-effect of emptying all queues, any queue for which
+        // 'deleteQueue' was called previously will be deleted before 'stop'
+        // unblocks.
 
     void shutdown();
         // Disable queuing on all queues, and wait until all queues are
