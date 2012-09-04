@@ -391,7 +391,7 @@ int main(int argc, char *argv[])
         const int BLKSZ = sizeof(InfrequentDeleteBlock)
                                                        - U::BSLS_MAX_ALIGNMENT;
 
-        if (veryVerbose) { T_ P_(BLKSZ); P(U::BSLS_MAX_ALIGNMENT); }
+        if (veryVerbose) { T_ P_(BLKSZ); P((int)U::BSLS_MAX_ALIGNMENT); }
 
         struct {
             int d_line;      // line number
