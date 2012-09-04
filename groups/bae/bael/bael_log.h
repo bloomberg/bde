@@ -631,10 +631,11 @@ BDES_IDENT("$Id: $")
 
 #define BAEL_LOG_FATAL BAEL_LOG_STREAM(bael_Severity::BAEL_FATAL)
 
-#define BAEL_LOG_END bsl::ends;                                            \
+#define BAEL_LOG_REAL_END bsl::ends;                                       \
         }                                                                  \
     }                                                                      \
 }
+#define BAEL_LOG_END BAEL_LOG_REAL_END
 
                // ========================================
                // C++ stream-based macros using a callback
