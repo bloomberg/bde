@@ -20,16 +20,17 @@ BSLS_IDENT("$Id: $")
 // over a binary tree of 'bslstl::TreeNode' objects.  The requirements of a
 // bidirectional STL iterator are outlined in the C++11 standard in section
 // [24.2.6] under the tag [bidirectional.iterators].  A 'TreeIterator' object
-// is parameterized on 'VALUE', 'NODE', and 'DIFFERENCE'.  The parameterized
-// 'VALUE' indicates the type of the value value to which this iterator
-// provides a references, and may be const-qualified for const-iterators.  The
-// parameterized 'NODE' indicates the type of the node objects in this tree.
-// Note that 'NODE' is not necessarily 'TreeNode<VALUE>' as 'VALUE' may be
-// const-qualified.  Finally, the parameterized 'DIFFERENCE' determines the,
-// standard required, 'difference_type' for the iterator.  'NODE' must derives
-// from 'bslalg::RbTreeNode', and contains a 'value' method that returns a
-// reference providing modifiable access to a type that is convertible to the
-// parameterized 'VALUE' (e.g., a 'bslstl::TreeNode' object).
+// is parameterized on 'VALUE', 'NODE', and 'DIFFERENCE_TYPE'.  The
+// parameterized 'VALUE' indicates the type of the value value to which this
+// iterator provides a references, and may be const-qualified for
+// const-iterators.  The parameterized 'NODE' indicates the type of the node
+// objects in this tree.  Note that 'NODE' is not necessarily 'TreeNode<VALUE>'
+// as 'VALUE' may be const-qualified.  Finally, the parameterized
+// 'DIFFERENCE_TYPE' determines the, standard required, 'difference_type' for
+// the iterator.  'NODE' must derives from 'bslalg::RbTreeNode', and contains a
+// 'value' method that returns a reference providing modifiable access to a
+// type that is convertible to the parameterized 'VALUE' (e.g., a
+// 'bslstl::TreeNode' object).
 //
 ///Usage
 ///-----
@@ -166,7 +167,7 @@ namespace bslstl {
                      // class TreeIterator
                      // ==================
 
-template <class VALUE, class NODE, class DIFFERENCE>
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 class TreeIterator
 #ifdef BSLS_PLATFORM__OS_SOLARIS
     : public std::iterator<std::bidirectional_iterator_tag, VALUE>
@@ -179,20 +180,20 @@ class TreeIterator
     // [24.2.6 bidirectional.iterators] of the C++11 standard).  A
     // 'TreeIterator' provides access to values of the parameterized 'VALUE',
     // over a binary tree composed of nodes of the parameterized 'NODE' (which
-    // must derive from 'bslalg::RbTreeNode').  The parameterized 'DIFFERENCE'
-    // determines the standard required 'difference_type' of the iterator,
-    // without requiring access to the allocator-traits for the node.  The
-    // behavior of the 'operator*' method is undefined unless the iterator is
-    // at a valid position in the tree (i.e., not the 'end') and the referenced
-    // element has not been removed since the iterator was constructed.  'NODE'
-    // must derives from 'bslalg::RbTreeNode', and contains a 'value' method
-    // that returns a reference providing modifiable access to a type that is
-    // convertible to the parameterized 'VALUE' (e.g., a 'bslstl::TreeNode'
-    // object).
+    // must derive from 'bslalg::RbTreeNode').  The parameterized
+    // 'DIFFERENCE_TYPE' determines the standard required 'difference_type' of
+    // the iterator, without requiring access to the allocator-traits for the
+    // node.  The behavior of the 'operator*' method is undefined unless the
+    // iterator is at a valid position in the tree (i.e., not the 'end') and
+    // the referenced element has not been removed since the iterator was
+    // constructed.  'NODE' must derives from 'bslalg::RbTreeNode', and
+    // contains a 'value' method that returns a reference providing modifiable
+    // access to a type that is convertible to the parameterized 'VALUE' (e.g.,
+    // a 'bslstl::TreeNode' object).
 
     // PRIVATE TYPES
     typedef typename BloombergLP::bslmf_RemoveCvq<VALUE>::Type NcType;
-    typedef TreeIterator<NcType, NODE, DIFFERENCE>      NcIter;
+    typedef TreeIterator<NcType, NODE, DIFFERENCE_TYPE>      NcIter;
 
     // DATA
     bslalg::RbTreeNode *d_node_p;  // current iterator position
@@ -206,14 +207,14 @@ class TreeIterator
     friend bool operator!=(const TreeIterator<VALUE1, NODEPTR, DIFF>&,
                            const TreeIterator<VALUE2, NODEPTR, DIFF>&);
 
-    template <class OTHER_VALUE, class OTHER_NODE, class OTHER_DIFFERENCE>
+    template <class OTHER_VALUE, class OTHER_NODE, class OTHER_DIFFERENCE_TYPE>
     friend class TreeIterator;
 
   public:
     // PUBLIC TYPES
     typedef bsl::bidirectional_iterator_tag iterator_category;
     typedef NcType                          value_type;
-    typedef DIFFERENCE                      difference_type;
+    typedef DIFFERENCE_TYPE                      difference_type;
     typedef VALUE*                          pointer;
     typedef VALUE&                          reference;
         // Standard iterator defined types [24.4.2].
@@ -300,16 +301,16 @@ bool operator!=(const TreeIterator<VALUE1, NODEPTR, DIFF>& lhs,
     // refer or the position in that tree.
 
 
-template <class VALUE, class NODE, class DIFFERENCE>
-TreeIterator<VALUE, NODE, DIFFERENCE>
-operator++(TreeIterator<VALUE, NODE, DIFFERENCE>& iter, int);
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
+TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>
+operator++(TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>& iter, int);
     // Move the specified 'iter' to the next element in the tree and return the
     // value of 'iter' prior to this call.  The behavior is undefined unless
     // the iterator refers to an element in the tree.
 
-template <class VALUE, class NODE, class DIFFERENCE>
-TreeIterator<VALUE, NODE, DIFFERENCE>
-operator--(TreeIterator<VALUE, NODE, DIFFERENCE>& iter, int);
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
+TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>
+operator--(TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>& iter, int);
     // Move the specified 'iter' to the previous element in the tree and return
     // the value of 'iter' prior to this call.  The behavior is undefined
     // unless the iterator refers to the past-the-end or the non-leftmost
@@ -324,69 +325,69 @@ operator--(TreeIterator<VALUE, NODE, DIFFERENCE>& iter, int);
                      // ------------------
 
 // CREATORS
-template <class VALUE, class NODE, class DIFFERENCE>
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 inline
-TreeIterator<VALUE, NODE, DIFFERENCE>::TreeIterator()
+TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::TreeIterator()
 : d_node_p(0)
 {
 }
 
-template <class VALUE, class NODE, class DIFFERENCE>
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 inline
-TreeIterator<VALUE, NODE, DIFFERENCE>::
+TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::
 TreeIterator(const bslalg::RbTreeNode *node)
 : d_node_p(const_cast<bslalg::RbTreeNode *>(node))
 {
 }
 
-template <class VALUE, class NODE, class DIFFERENCE>
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 inline
-TreeIterator<VALUE, NODE, DIFFERENCE>::
+TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::
 TreeIterator(const NcIter& original)
 : d_node_p(original.d_node_p)
 {
 }
 
 // MANIPULATORS
-template <class VALUE, class NODE, class DIFFERENCE>
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 inline
-TreeIterator<VALUE, NODE, DIFFERENCE>&
-TreeIterator<VALUE, NODE, DIFFERENCE>::operator++()
+TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>&
+TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::operator++()
 {
     d_node_p = bslalg::RbTreeUtil::next(d_node_p);
     return *this;
 }
 
-template <class VALUE, class NODE, class DIFFERENCE>
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 inline
-TreeIterator<VALUE, NODE, DIFFERENCE>&
-TreeIterator<VALUE, NODE, DIFFERENCE>::operator--()
+TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>&
+TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::operator--()
 {
     d_node_p = bslalg::RbTreeUtil::previous(d_node_p);
     return *this;
 }
 
 // ACCESSORS
-template <class VALUE, class NODE, class DIFFERENCE>
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 inline
-typename TreeIterator<VALUE, NODE, DIFFERENCE>::reference
-TreeIterator<VALUE, NODE, DIFFERENCE>::operator*() const
+typename TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::reference
+TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::operator*() const
 {
     return static_cast<NODE *>(d_node_p)->value();
 }
 
-template <class VALUE, class NODE, class DIFFERENCE>
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 inline
-typename TreeIterator<VALUE, NODE, DIFFERENCE>::pointer
-TreeIterator<VALUE, NODE, DIFFERENCE>::operator->() const
+typename TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::pointer
+TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::operator->() const
 {
     return bsls_Util::addressOf(static_cast<NODE *>(d_node_p)->value());
 }
 
-template <class VALUE, class NODE, class DIFFERENCE>
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 inline
 const bslalg::RbTreeNode*
-TreeIterator<VALUE, NODE, DIFFERENCE>::node() const
+TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::node() const
 {
     return d_node_p;
 }
@@ -408,22 +409,22 @@ bool operator!=(const TreeIterator<VALUE1, NODEPTR, DIFF>& lhs,
     return lhs.d_node_p != rhs.d_node_p;
 }
 
-template <class VALUE, class NODE, class DIFFERENCE>
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 inline
-TreeIterator<VALUE, NODE, DIFFERENCE>
-operator++(TreeIterator<VALUE, NODE, DIFFERENCE>& iter, int)
+TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>
+operator++(TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>& iter, int)
 {
-    TreeIterator<VALUE, NODE, DIFFERENCE> temp = iter;
+    TreeIterator<VALUE, NODE, DIFFERENCE_TYPE> temp = iter;
     ++iter;
     return temp;
 }
 
-template <class VALUE, class NODE, class DIFFERENCE>
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 inline
-TreeIterator<VALUE, NODE, DIFFERENCE>
-operator--(TreeIterator<VALUE, NODE, DIFFERENCE>& iter, int)
+TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>
+operator--(TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>& iter, int)
 {
-    TreeIterator<VALUE, NODE, DIFFERENCE> temp = iter;
+    TreeIterator<VALUE, NODE, DIFFERENCE_TYPE> temp = iter;
     --iter;
     return temp;
 }
