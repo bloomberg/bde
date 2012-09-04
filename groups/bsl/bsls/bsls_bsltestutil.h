@@ -446,7 +446,8 @@ void BslTestUtil::callDebugprint(const TYPE& obj,
 template <typename RESULT>
 void bsls::debugprint(RESULT (*v)())
 {
-    debugprint(reinterpret_cast<void *>(v));
+    const unsigned long long address = reinterpret_cast<unsigned long long>(v);
+    debugprint(reinterpret_cast<void *>(address));
 }
 
 }  // close enterprise namespace
