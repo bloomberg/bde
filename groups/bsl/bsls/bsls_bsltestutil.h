@@ -225,6 +225,12 @@ BSLS_IDENT("$Id: $")
 //  obj = MyType<9>
 //..
 
+#if defined(_MSC_VER)
+#include <stddef.h>
+#else
+#include <stdint.h>
+#endif
+
                        // =================
                        // Macro Definitions
                        // =================
@@ -446,7 +452,7 @@ void BslTestUtil::callDebugprint(const TYPE& obj,
 template <typename RESULT>
 void bsls::debugprint(RESULT (*v)())
 {
-    const unsigned long long address = reinterpret_cast<unsigned long long>(v);
+    uintptr_t address = reinterpret_cast<uintptr_t>(v);
     debugprint(reinterpret_cast<void *>(address));
 }
 
