@@ -1269,7 +1269,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(INPUT_ITERATOR    first,
 , d_tree()
 {
     if (first != last) {
-        BloombergLP::bslalg::RbTreeUtil_TreeProctor<NodeFactory> proctor(
+        BloombergLP::bslalg::RbTreeUtilTreeProctor<NodeFactory> proctor(
                                                                &d_tree,
                                                                &nodeFactory());
 
