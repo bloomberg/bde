@@ -12,12 +12,12 @@ namespace BloombergLP
 namespace bslalg
 {
 
-int HashTableBucket::size() const
+native_std::size_t HashTableBucket::countElements() const
 {
     if (BidirectionalLink *cursor = d_first_p) {
-        int result = 1;
+        native_std::size_t result = 1;
         while (cursor != d_last_p) {
-            cursor = cursor->nextLink()();
+            cursor = cursor->nextLink();
             ++result;
         }
         return result;

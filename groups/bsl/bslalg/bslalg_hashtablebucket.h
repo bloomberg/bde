@@ -31,8 +31,16 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include <cstddef>
 #endif
 
 namespace BloombergLP
@@ -116,21 +124,15 @@ void HashTableBucket::setLast(BidirectionalLink *node)
 }
 
 inline
-void HashTableBucket::setFirstLast(BidirectionalLink *node)
-{
-    d_first_p = d_last_p = node;
-}
-
-inline
-void HashTableBucket::setFirstLast(BidirectionalLink *first,
-                                   BidirectionalLink *last)
+void HashTableBucket::setFirstAndLast(BidirectionalLink *first,
+                                      BidirectionalLink *last)
 {
     d_first_p = first;
     d_last_p  = last;
 }
 
 inline
-void HashTableBucket::clear()
+void HashTableBucket::reset()
 {
     d_first_p = d_last_p = 0;
 }

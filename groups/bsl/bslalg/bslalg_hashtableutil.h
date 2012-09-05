@@ -1,6 +1,6 @@
 // bslalg_hashtableutil.h                                             -*-C++-*-
-#ifndef INCLUDED_BSLALG_HASHTABLEUTIL
-#define INCLUDED_BSLALG_HASHTABLEUTIL
+#ifndef INCLUDED_BSLALG_HASHTABLEIMPUTIL
+#define INCLUDED_BSLALG_HASHTABLEIMPUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -54,6 +54,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_bidirectionallink.h>
 #endif
 
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -70,7 +74,7 @@ namespace bslalg
 {
 
                           // ===================
-                          // class HashTableUtil
+                          // class HashTableImpUtil
                           // ===================
 
 struct HashTableImpUtil {
@@ -81,7 +85,7 @@ struct HashTableImpUtil {
 
     static
     void spliceSegmentIntoBucket(BidirectionalLink  *cursor,
-                                 BidirectionalLink  *nextLink()Cursor,
+                                 BidirectionalLink  *nextCursor,
                                  HashTableBucket    *bucket,
                                  BidirectionalLink **newRoot);
         // Consider moving this 'private' method into an implemention-private
@@ -90,32 +94,31 @@ struct HashTableImpUtil {
 
   public:
     static
-    std::size_t computeBucketNumber(std::size_t hashCode,
-                                    std::size_t numBuckets);
+    native_std::size_t computeBucketNumber(native_std::size_t hashCode,
+                                           native_std::size_t numBuckets);
 
     static
     void insertAtFrontOfBucket(HashTableAnchor    *anchor,
                                BidirectionalLink  *newNode,
-                               std::size_t         hashCode);
+                               native_std::size_t  hashCode);
 
     static
     void insertDuplicateAtPosition(HashTableAnchor    *anchor,
                                    BidirectionalLink  *newNode,
-                                   std::size_t         hashCode,
+                                   native_std::size_t  hashCode,
                                    BidirectionalLink  *location);
 
     static
-    void removeNode(HashTableAnchor   *anchor,
-                    BidirectionalLink *position,
-                    std::size_t        hashCode);
+    void removeNode(HashTableAnchor    *anchor,
+                    BidirectionalLink  *position,
+                    native_std::size_t  hashCode);
 
-    // lookup
     template <class VALUE_POLICY, class KEY_EQUAL, class KEY_TYPE>
     static
     BidirectionalLink *find(const HashTableAnchor& anchor,
                             const KEY_EQUAL&       keyComparator,
                             const KEY_TYPE&        key,
-                            std::size_t            hashCode);
+                            native_std::size_t     hashCode);
 
     template <class VALUE_POLICY, class HASHER>
     static
@@ -140,26 +143,27 @@ struct HashTableImpUtil {
 // comprehensive component test driver serves the same purpose.
 
                         //--------------------
-                        // class HashTableUtil
+                        // class HashTableImpUtil
                         //--------------------
 
 inline
-HashTableBucket *HashTableUtil::bucketForHashCode(
+HashTableBucket *HashTableImpUtil::findBucketForHashCode(
                                                const HashTableAnchor& anchor,
-                                               std::size_t            hashCode)
+                                               native_std::size_t     hashCode)
 {
     BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
-    BSLS_ASSERT_SAFE(anchor.arraySize());
+    BSLS_ASSERT_SAFE(anchor.bucketArraySize());
 
-    std::size_t value = HashTableUtil::bucketNumberForHashCode(
-                                                           hashCode,
-                                                           anchor.arraySize());
-    return &(anchor.bucketArrayAddress()[value]);
+    native_std::size_t bucketId = HashTableImpUtil::computeBucketNumber(
+                                                     hashCode,
+                                                     anchor.bucketArraySize());
+    return &(anchor.bucketArrayAddress()[bucketId]);
 }
 
 inline
-std::size_t HashTableUtil::bucketNumberForHashCode(std::size_t hashCode,
-                                                   std::size_t numBuckets)
+native_std::size_t HashTableImpUtil::computeBucketNumber(
+                                                 native_std::size_t hashCode,
+                                                 native_std::size_t numBuckets)
 {
     BSLS_ASSERT_SAFE(0 != numBuckets);
     return hashCode % numBuckets;
@@ -167,23 +171,23 @@ std::size_t HashTableUtil::bucketNumberForHashCode(std::size_t hashCode,
 
     // lookup
 template <class VALUE_POLICY, class KEY_EQUAL, class KEY_TYPE>
-BidirectionalLink *HashTableUtil::find(const KEY_EQUAL&       keyComparator,
-                                       const HashTableAnchor& anchor,
-                                       const KEY_TYPE&        key,
-                                       std::size_t            hashCode)
+BidirectionalLink *HashTableImpUtil::find(const HashTableAnchor& anchor,
+                                          const KEY_EQUAL&       keyComparator,
+                                          const KEY_TYPE&        key,
+                                          native_std::size_t     hashCode)
 {
     BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
-    BSLS_ASSERT_SAFE(anchor.arraySize());
+    BSLS_ASSERT_SAFE(anchor.bucketArraySize());
 
-    const std::size_t bucketId = bucketNumberForHashCode(hashCode,
-                                                    anchor.arraySize());
+    const native_std::size_t bucketId = computeBucketNumber(hashCode,
+                                                     anchor.bucketArraySize());
     const HashTableBucket& bucket = anchor.bucketArrayAddress()[bucketId];
 
     // Odd loop structure as we must test on both first/last before terminating
     // the loop as not-found.
 
     if (BidirectionalLink *cursor = bucket.first()) {
-        for ( ; ; cursor = cursor->nextLink()() ) {
+        for ( ; ; cursor = cursor->nextLink() ) {
             if (keyComparator(key, VALUE_POLICY::extractKey(cursor))) {
                 return cursor;
             }
@@ -197,34 +201,33 @@ BidirectionalLink *HashTableUtil::find(const KEY_EQUAL&       keyComparator,
 }
 
 template <class VALUE_POLICY, class HASHER>
-void HashTableUtil::rehash(HashTableAnchor    *newAnchor,
-                           BidirectionalLink  *oldRoot,
-                           const HASHER&       hash)
+void HashTableImpUtil::rehash(HashTableAnchor    *newAnchor,
+                              BidirectionalLink  *oldRoot,
+                              const HASHER&       hash)
 {
     BSLS_ASSERT_SAFE(newAnchor);
     BSLS_ASSERT_SAFE(oldRoot);           // empty lists do not need a rehash
     BSLS_ASSERT_SAFE(!oldRoot->previousLink());  // otherwise, not a 'root'
 
-    BidirectionalLink   *newRoot = 0;
+    BidirectionalLink *newRoot = 0;
 
     do {
-        BidirectionalLink   *cursor  = oldRoot;
-
-        HashTableBucket *bucket  = bucketForHashCode(
+        BidirectionalLink *cursor = oldRoot;
+        HashTableBucket   *bucket = findBucketForHashCode(
                                        *newAnchor,
                                        hash(VALUE_POLICY::extractKey(cursor)));
 
-        BidirectionalLink *nextLink()Cursor  = cursor;
+        BidirectionalLink *nextCursor  = cursor;
         // Walk list of nodes that will rehash to the same bucket
         // This will advance the list extraction point *before* we splice
-        while ((oldRoot  = oldRoot->nextLink()()) &&
-                bucket == bucketForHashCode(
+        while ((oldRoot = oldRoot->nextLink()) &&
+                bucket == findBucketForHashCode(
                                     *newAnchor,
                                     hash(VALUE_POLICY::extractKey(oldRoot)))) {
-             nextLink()Cursor = oldRoot;
+             nextCursor = oldRoot;
         }
 
-        spliceSegmentIntoBucket(cursor, nextLink()Cursor, bucket, &newRoot);
+        spliceSegmentIntoBucket(cursor, nextCursor, bucket, &newRoot);
     }
     while (oldRoot);
 

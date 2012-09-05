@@ -2,20 +2,6 @@
 
 #include <bslalg_hashutil.h>
 
-//#include <bsls_platformutil.h>
-#include <bsls_stopwatch.h>
-
-#if 0
-#include <bsl_algorithm.h>
-#include <bsl_iostream.h>
-#include <bsl_iomanip.h>
-#include <bsl_limits.h>
-#include <bsl_string.h>
-#include <bsl_vector.h>
-
-#include <bsl_cmath.h>
-#include <bsl_cstring.h>
-#else
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -27,14 +13,14 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <limits.h>  // INT_MAX
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#endif
 
 using namespace BloombergLP;
 using bslalg::HashUtil;
@@ -875,9 +861,9 @@ int main(int argc, char *argv[])
         time_computeHash((unsigned int)0x12345678, "unsigned int");
         time_computeHash((long)0x12345678, "long");
         time_computeHash((unsigned long)0x12345678, "unsigned long");
-        time_computeHash((long long)0x12345678, "bsls_PlatformUtil::Int64");
+        time_computeHash((long long)0x12345678, "bsls_Types::Int64");
         time_computeHash((unsigned long long)0x12345678,
-                         "bsls_PlatformUtil::Uint64");
+                         "bsls_Types::Uint64");
         time_computeHash((float)3.1415926536, "float");
         time_computeHash((double)3.14159265358979323844, "double");
 #ifdef BSLS_PLATFORM__CPU_64_BIT

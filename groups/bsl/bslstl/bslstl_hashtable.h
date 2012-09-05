@@ -346,8 +346,7 @@ void HashTable_Util<ALLOCATOR>::initAnchor(bslalg::HashTableAnchor *anchor,
     
     native_std::fill_n(data, size, HashTableBucket());
   
-    anchor->setBucketArrayAddress(data);
-    anchor->setArraySize(size);
+    anchor->setBucketArrayAddressAndSize(data, size);
 }
 
 template <class ALLOCATOR>
@@ -433,7 +432,8 @@ HashTable(const HASH&          hash,
 , d_maxLoadFactor(1.0)
 {
     if(0 == initialBucketCount) {
-        d_anchor.setBucketArrayAddress(&HashTable_StaticBucket::s_bucket);
+        d_anchor.setBucketArrayAddress(&HashTable_StaticBucket::s_bucket, 
+                                       1);
     }
     else {
         HashTable_Util<ALLOCATOR>::initAnchor(&d_anchor, initialBucketCount, a);
@@ -516,7 +516,9 @@ HashTable(const HashTable& other, const AllocatorType& a)
         }
     }
     else {
-        d_anchor.setBucketArrayAddress(&HashTable_StaticBucket::s_bucket);
+        d_anchor.setBucketArrayAddressAndSize(
+                                             &HashTable_StaticBucket::s_bucket,
+                                             1);
     }
 }
 

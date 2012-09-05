@@ -65,31 +65,6 @@ unsigned int compute_reverse_hash(const char *data, int length)
 }
 #endif
 
-static
-unsigned int computeHash(const char *data, int length)
-{
-    BSLS_ASSERT(0 <= length);
-    BSLS_ASSERT(data || 0 == length);
-
-    typedef unsigned char Ub1;
-    typedef unsigned int  Ub4;
-
-    const Ub1 *k    = reinterpret_cast<const Ub1 *>(data);
-    Ub4        hash = 0;
-
-    for (int i = 0; i < length; ++i) {
-        hash += k[i];
-        hash += (hash << 10);
-        hash ^= (hash >>  6);
-    }
-
-    hash += (hash <<  3);
-    hash ^= (hash >> 11);
-    hash += (hash << 15);
-
-    return hash;
-}
-
                             // ---------------
                             // struct HashUtil
                             // ---------------

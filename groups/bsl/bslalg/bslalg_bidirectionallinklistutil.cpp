@@ -66,9 +66,9 @@ void BidirectionalLinkListUtil::spliceListBeforeTarget
 
     // unlink from existing list
     if (BidirectionalLink* prev = first->previousLink()) {
-        prev->setNextLink()(last->nextLink()());
+        prev->setNextLink(last->nextLink());
     }
-    if (BidirectionalLink* next = last->nextLink()()) {
+    if (BidirectionalLink* next = last->nextLink()) {
         next->setPreviousLink(first->previousLink());
     }
 

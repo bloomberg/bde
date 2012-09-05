@@ -101,29 +101,28 @@ class HashTableAnchor {
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
     // For terminology see 'bsldoc_glossary'.
-
+       
     // DATA
-    HashTableBucket     *d_bucketArrayAddress; // address of the array of
-                                               // buckets of the hash table 
+    HashTableBucket     *d_bucketArrayAddress_p; // address of the array of
+                                                 // buckets of the hash table 
+                                                 // (held not owned)
 
-    native_std::size_t   d_bucketArraySize;  // size of 'd_bucketArray'
+    native_std::size_t   d_bucketArraySize;      // size of 'd_bucketArray'
 
-    BidirectionalLink   *d_listRootAddress;  // head of the list of elements of
-                                             // the hash table
-
+    BidirectionalLink   *d_listRootAddress_p;  // head of the list of elements
+                                               // of the hash table (held not
+                                               // owned)
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(HashTableAnchor,
-                                  TypeTraitUsesBslmaAllocator,
-                                  TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(HashTableAnchor, TypeTraitBitwiseCopyable);
 
     // CREATORS
-    HashTableAnchor(HashTableBucket   *bucketArrayAddress,
-                    native_std::size_t        bucketArraySize,
-                    BidirectionalLink *listRootAddress);
+    HashTableAnchor(HashTableBucket    *bucketArrayAddress,
+                    native_std::size_t  bucketArraySize,
+                    BidirectionalLink  *listRootAddress);
         // Create a 'bslalg::HashTableAnchor' object having the specified
-        // 'bucketArrayAddress', 'bucketArraySize', and 'listRootAddress' attribute.  TBD
-        // wording for NULL pointers.
+        // 'bucketArrayAddress', 'bucketArraySize', and 'listRootAddress'
+        // attribute.
     
     HashTableAnchor(const HashTableAnchor&  original);
         // Create a 'bslalg::HashTableAnchor' object having the same value
@@ -138,7 +137,8 @@ class HashTableAnchor {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    void setBucketArray(HashTableBucket *array, native_std::size_t arraySize);
+    void setBucketArrayAndSize(HashTableBucket    *array, 
+                               native_std::size_t  size);
     
     void setListRootAddress(BidirectionalLink *value);
         // Set the 'listRootAddress' attribute of this object to the
@@ -156,7 +156,7 @@ class HashTableAnchor {
         // Return the value of the 'bucketArrayAddress' attribute of this
         // object.
 
-    std::size_t bucketArraySize() const;
+    native_std::size_t bucketArraySize() const;
         // Return the value of the 'bucketArraySize' attribute of this object.
 
     BidirectionalLink *listRootAddress() const;
@@ -189,35 +189,28 @@ void swap(HashTableAnchor& a, HashTableAnchor& b);
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // --------------------------------
-                        // class bslalg::HashTableAnchor
-                        // --------------------------------
+                        // ---------------------
+                        // class HashTableAnchor
+                        // ---------------------
 
 // CREATORS
 inline
-HashTableAnchor::HashTableAnchor()
-: d_bucketArrayAddress(static_cast<HashTableBucket *>(0))
-, d_arraySize(0)
-, d_listRootAddress(static_cast<BidirectionalLink *>(0))
+HashTableAnchor::HashTableAnchor(HashTableBucket    *bucketArrayAddress,
+                                 native_std::size_t  bucketArraySize,
+                                 BidirectionalLink  *listRootAddress)
+: d_bucketArrayAddress_p(bucketArrayAddress)
+, d_bucketArraySize(bucketArraySize)
+, d_listRootAddress_p(listRootAddress)
 {
-}
-
-inline
-HashTableAnchor::HashTableAnchor(HashTableBucket   *bucketArrayAddress,
-                                std::size_t        bucketArraySize,
-                                 BidirectionalLink *listRootAddress)
-: d_bucketArrayAddress(bucketArrayAddress)
-, d_arraySize(bucketArraySize)
-, d_listRootAddress(listRootAddress)
-{
-    // TBD how do we check undefined behavior?
+    BSLS_ASSERT_SAFE(bucketArrayAddress);
+    BSLS_ASSERT_SAFE(0 < bucketArraySize);
 }
 
 inline
 HashTableAnchor::HashTableAnchor(const HashTableAnchor& original)
-: d_bucketArrayAddress(original.d_bucketArrayAddress)
-, d_arraySize(original.d_arraySize)
-, d_listRootAddress(original.d_listRootAddress)
+: d_bucketArrayAddress_p(original.d_bucketArrayAddress_p)
+, d_bucketArraySize(original.d_bucketArraySize)
+, d_listRootAddress_p(original.d_listRootAddress_p)
 {
 }
 
@@ -225,28 +218,27 @@ HashTableAnchor::HashTableAnchor(const HashTableAnchor& original)
 inline
 HashTableAnchor& HashTableAnchor::operator=(const HashTableAnchor& rhs)
 {
-    d_bucketArrayAddress = rhs.d_bucketArrayAddress;
-    d_arraySize          = rhs.d_arraySize;
-    d_listRootAddress   = rhs.d_listRootAddress; 
+    d_bucketArrayAddress_p = rhs.d_bucketArrayAddress_p;
+    d_bucketArraySize   = rhs.d_bucketArraySize;
+    d_listRootAddress_p    = rhs.d_listRootAddress_p; 
     return *this;
+}
+
+inline
+void HashTableAnchor::setBucketArrayAndSize(HashTableBucket    *array, 
+                                            native_std::size_t  size)
+{
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 < size);
+    
+    d_bucketArrayAddress_p = array;
+    d_bucketArraySize   = size;
 }
 
 inline
 void HashTableAnchor::setListRootAddress(BidirectionalLink *value)
 {
-    d_listRootAddress = value;
-}
-
-inline
-void HashTableAnchor::setAArraySize(std::size_t value)
-{
-    d_arraySize = value;
-}
-
-inline
-void HashTableAnchor::setBucketArrayAddress(HashTableBucket *value)
-{
-    d_bucketArrayAddress = value;
+    d_listRootAddress_p = value;
 }
 
                                   // Aspects
@@ -254,36 +246,35 @@ void HashTableAnchor::setBucketArrayAddress(HashTableBucket *value)
 inline
 void HashTableAnchor::swap(HashTableAnchor& other)
 {
-    SwapUtil::swap(&d_arraySize,          &other.d_arraySize);
-    SwapUtil::swap(&d_bucketArrayAddress, &other.d_bucketArrayAddress);
-    SwapUtil::swap(&d_listRootAddress,    &other.d_listRootAddress);
+    SwapUtil::swap(&d_bucketArrayAddress_p, &other.d_bucketArrayAddress_p);
+    SwapUtil::swap(&d_bucketArraySize,   &other.d_bucketArraySize);
+    SwapUtil::swap(&d_listRootAddress_p,    &other.d_listRootAddress_p);
 }
 
 // ACCESSORS
 inline
 BidirectionalLink *HashTableAnchor::listRootAddress() const
 {
-    return d_listRootAddress;
+    return d_listRootAddress_p;
 }
 
 inline
 std::size_t HashTableAnchor::bucketArraySize() const
 {
-    return d_arraySize;
+    return d_bucketArraySize;
 }
 
 inline
 HashTableBucket *HashTableAnchor::bucketArrayAddress() const
 {
-    return d_bucketArrayAddress;
+    return d_bucketArrayAddress_p;
 }
 
 } // end namespace bslalg
 
 // FREE OPERATORS
 inline
-void bslalg::swap(bslalg::HashTableAnchor& a,
-                  bslalg::HashTableAnchor& b)
+void bslalg::swap(bslalg::HashTableAnchor& a, bslalg::HashTableAnchor& b)
 {
     a.swap(b);
 }
@@ -293,7 +284,7 @@ bool bslalg::operator==(const bslalg::HashTableAnchor& lhs,
                         const bslalg::HashTableAnchor& rhs)
 {
     return lhs.bucketArrayAddress() == rhs.bucketArrayAddress()
-        && lhs.bucketArraySize()          == rhs.bucketArraySize()
+        && lhs.bucketArraySize()    == rhs.bucketArraySize()
         && lhs.listRootAddress()    == rhs.listRootAddress();
 }
 
@@ -302,7 +293,7 @@ bool bslalg::operator!=(const bslalg::HashTableAnchor& lhs,
                         const bslalg::HashTableAnchor& rhs)
 {
     return lhs.bucketArrayAddress() != rhs.bucketArrayAddress()
-        || lhs.bucketArraySize()          != rhs.bucketArraySize()
+        || lhs.bucketArraySize()    != rhs.bucketArraySize()
         || lhs.listRootAddress()    != rhs.listRootAddress();
 }
 

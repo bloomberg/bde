@@ -121,7 +121,7 @@ class BidirectionalLink {
 inline
 void BidirectionalLink::setNextLink(BidirectionalLink *next)
 {
-    d_next_p = nextLink();
+    d_next_p = next;
 }
 
 inline
