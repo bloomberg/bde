@@ -22,20 +22,30 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
 
 template <typename TYPE>
-struct is_reference : false_type
+struct is_lvalue_reference : false_type
 {};
 
 template <typename TYPE>
-struct is_reference<TYPE &> : true_type
+struct is_lvalue_reference<TYPE &> : true_type
+{};
+
+template <typename TYPE>
+struct is_rvalue_reference : false_type
 {};
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
 template <typename TYPE>
-struct is_reference<TYPE &&> : true_type
+struct is_rvalue_reference<TYPE &&> : true_type
 {};
 
 #endif
+
+template <typename TYPE>
+struct is_reference : integer_constant<bool,
+                                       is_lvalue_reference<TYPE>::value
+                                       || is_rvalue_reference<TYPE>::value>
+{};
 
 }
 

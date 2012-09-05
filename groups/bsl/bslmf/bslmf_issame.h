@@ -53,6 +53,22 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
+#include <bslmf_integerconstant.h>
+#endif
+
+namespace bsl {
+
+template <typename TYPE1, typename TYPE2>
+struct is_same : false_type
+{};
+
+template <typename TYPE>
+struct is_same<TYPE, TYPE> : true_type
+{};
+
+}
+
 namespace BloombergLP {
 
 namespace bslmf {
@@ -62,16 +78,9 @@ namespace bslmf {
                             // =============
 
 template <typename U, typename V>
-struct IsSame : MetaInt<0>
+struct IsSame : MetaInt<bsl::is_same<U, V>::value>
 {
     // Meta function with 'VALUE == 0' unless 'U' and 'V' are the same type.
-};
-
-template <typename U>
-struct IsSame<U, U> : MetaInt<1>
-{
-    // Specialization of meta function with 'VALUE == 1' if instantiated with
-    // to parameters of the same type.
 };
 
 }  // close package namespace
