@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
 //
-//@SEE_ALSO: bslstl_hashtable, bslalg_hashtableutil
+//@SEE_ALSO: bslstl_hashtable, bslalg_hashtableimputil
 //
 //@listRootAddress: This component provides a single, simply constrained
 // *in*-*core* (value-semantic) attribute class, 'bslalg::HashTableAnchor',
@@ -137,8 +137,8 @@ class HashTableAnchor {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    void setBucketArrayAndSize(HashTableBucket    *array, 
-                               native_std::size_t  size);
+    void setBucketArrayAddressAndSize(HashTableBucket    *array, 
+                                      native_std::size_t  size);
     
     void setListRootAddress(BidirectionalLink *value);
         // Set the 'listRootAddress' attribute of this object to the
@@ -219,14 +219,14 @@ inline
 HashTableAnchor& HashTableAnchor::operator=(const HashTableAnchor& rhs)
 {
     d_bucketArrayAddress_p = rhs.d_bucketArrayAddress_p;
-    d_bucketArraySize   = rhs.d_bucketArraySize;
+    d_bucketArraySize      = rhs.d_bucketArraySize;
     d_listRootAddress_p    = rhs.d_listRootAddress_p; 
     return *this;
 }
 
 inline
-void HashTableAnchor::setBucketArrayAndSize(HashTableBucket    *array, 
-                                            native_std::size_t  size)
+void HashTableAnchor::setBucketArrayAddressAndSize(HashTableBucket    *array, 
+                                                   native_std::size_t  size)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 < size);
@@ -247,7 +247,7 @@ inline
 void HashTableAnchor::swap(HashTableAnchor& other)
 {
     SwapUtil::swap(&d_bucketArrayAddress_p, &other.d_bucketArrayAddress_p);
-    SwapUtil::swap(&d_bucketArraySize,   &other.d_bucketArraySize);
+    SwapUtil::swap(&d_bucketArraySize,      &other.d_bucketArraySize);
     SwapUtil::swap(&d_listRootAddress_p,    &other.d_listRootAddress_p);
 }
 

@@ -1,6 +1,6 @@
-// bslalg_bidirectionallinktranslatorformaps.h                        -*-C++-*-
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKTRANSLATORFORMAPS
-#define INCLUDED_BSLALG_BIDIRECTIONALLINKTRANSLATORFORMAPS
+// bslstl_unorderedmapkeypolicy.h                        -*-C++-*-
+#ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYPOLICY
+#define INCLUDED_BSLSTL_UNORDEREDMAPKEYPOLICY
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,11 +10,11 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a hash table data structure for unordered containers 
 //
 //@CLASSES:
-//   bslalg::BidirectionalLinkTranslatorForMaps : Node holding a value in a bidirectional list
+//   bslalg::UnorderedMapKeyPolicy :
 //
-//@SEE_ALSO: bslalg_hashtableutil
+//@SEE_ALSO: bslalg_hashtableimputil
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
+//@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
 //
 //@DESCRIPTION: This component provides ...
 //-----------------------------------------------------------------------------
@@ -27,16 +27,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
 #include <bslalg_bidirectionallink.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKLISTNODE
-#include <bslalg_bidirectionalnode.h>
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 namespace BloombergLP
@@ -44,9 +40,9 @@ namespace BloombergLP
 namespace bslstl
 {
 
-                          // ===============================
-                          // Hashing policy implemenatations
-                          // ===============================
+                          // ============================
+                          // struct UnorderedMapKeyPolicy
+                          // ============================
 
 template <class VALUE_TYPE>
 struct UnorderedMapKeyPolicy { 
@@ -57,8 +53,10 @@ struct UnorderedMapKeyPolicy {
     // Choosing to implement for each policy, to reduce the template mess.
     // With only two policies, not much is saved using a shared dependent base
     // class to provide a common implementation.
-    // This is the key abstraction, turning 'BidirectionalLink*' into 'VALUE_TYPE&'
+    // This is the key abstraction, turning 'bslalg::BidirectionalLink*' into
+    // 'VALUE_TYPE&'
     
+    // CLASS METHODS
     static const KeyType& extractKey(const VALUE_TYPE& obj);
 };
 
@@ -69,71 +67,18 @@ struct UnorderedMapKeyPolicy {
 
 
                   //-----------------------------------------
-                  // class BidirectionalLinkTranslatorForMaps
+                  // class UnorderedMapKeyPolicy
                   //-----------------------------------------
 
+// CLASS METHODS
 template <class VALUE_TYPE>
 inline
-typename BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::ValueType&
-BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::extractValue(
-                                                       BidirectionalLink *link)
-{
-    BSLS_ASSERT_SAFE(link);
-
-    return static_cast<BidirectionalNode<VALUE_TYPE> *>(link)->value();
-}
-
-template <class VALUE_TYPE>
-inline
-const typename BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::ValueType&
-BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::extractValue(
-                                                 const BidirectionalLink *link)
-{
-    BSLS_ASSERT_SAFE(link);
-
-    return
-     static_cast<const BidirectionalNode<VALUE_TYPE> *>(link)->value();
-}
-
-template <class VALUE_TYPE>
-inline
-const typename BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::KeyType&
-BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::extractKey(
-                                                 const BidirectionalLink *link)
-{
-    BSLS_ASSERT_SAFE(link);
-
-    return extractValue(link).first;
-}
-
-// NEW
-
-template <class VALUE_TYPE>
-inline
-typename BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::MappedType& 
-BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::extractMappedValue(
-                                                               VALUE_TYPE& obj)
-{
-    return obj.second;
-}
-
-template <class VALUE_TYPE>
-inline
-const typename BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::MappedType& 
-BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::extractMappedValue(
-                                                         const VALUE_TYPE& obj)
-{
-    return obj.second;
-}
-
-template <class VALUE_TYPE>
-inline
-const typename BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::KeyType& 
-BidirectionalLinkTranslatorForMaps<VALUE_TYPE>::extractKey(
-                                                         const VALUE_TYPE& obj)
+const typename UnorderedMapKeyPolicy<VALUE_TYPE>::KeyType& 
+UnorderedMapKeyPolicy<VALUE_TYPE>::extractKey(const VALUE_TYPE& obj)
 {
     return obj.first;
 }
+
 } // namespace BloombergLP::bslalg
 
 } // namespace BloombergLP

@@ -14,7 +14,7 @@ namespace bslstl
 bslalg::HashTableBucket HashTable_StaticBucket::s_bucket = 
                                                      bslalg::HashTableBucket();
 
-native_std::size_t HashTable_GrowthUtil::nextPrime(native_std::size_t n)
+native_std::size_t HashTable_PrimeUtil::nextPrime(native_std::size_t n)
 {   // An abbreviated list of prime numbers in the domain of 32-bit
     // unsigned integers.  Essentially, a subset where each successive
     // element is the next prime after doubling.
