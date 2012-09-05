@@ -312,7 +312,7 @@ typedef bsls::Types::UintPtr UintPtr;
 #if !defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BDE_BUILD_TARGET_DBG)
 enum { CAN_FIND_SYMBOLS = 1 };
 #else
-enum { CAN_FIND_SYMBOLS = 1 };
+enum { CAN_FIND_SYMBOLS = 0 };
 #endif
 
 }  // close unnamed namespace
@@ -504,9 +504,6 @@ bsl::string getCaptain(const char *fileName)
 // calling global 'new' & 'delete' quite a bit, even when passed an allocator,
 // and there's not anything this component can do about it.
 
-// We retool new and 'delete' to make sure they aren't being called directly
-// anywhere.
-
 static int numGlobalNewCalls    = 0;
 static int numGlobalDeleteCalls = 0;
 
@@ -545,13 +542,37 @@ void my_assertHandlerLongJmp(const char *,  // text
                              const char *,  // fail
                              int         )  // lineo
 {
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    // setjmp / longjmp is flaky on Windows
+
+    ASSERT(0);
+#endif
+
     longjmp(my_setJmpBuf, true);
 }
 
 void my_failureHandlerLongJmp()
 {
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    // setjmp / longjmp is flaky on Windows
+
+    ASSERT(0);
+#endif
+
     longjmp(my_setJmpBuf, true);
 }
+
+bool my_failureHandlerFlag = false;
+void my_failureHandlerSetFlag()
+{
+    my_failureHandlerFlag = true;
+}
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+enum { ABORT_LIMIT = 1 };
+#else
+enum { ABORT_LIMIT = 2 };
+#endif
 
 // ============================================================================
 // There is a problem with some of the optimizers being *VERY* clever about
@@ -604,11 +625,6 @@ VoidFunc voidNullTransform(VoidFunc func)
     nullTransform(&u.d_uintPtr);
     ASSERT(u.d_func == func);
     return u.d_func;
-}
-
-void my_assertHandler(const char *, const char *, int)
-{
-    longjmp(my_setJmpBuf, true);
 }
 
 enum my_SegmentHeaderMagic {
@@ -1139,7 +1155,8 @@ int main(int argc, char *argv[])
         }
         ss.str("");
 
-        bsls::Assert::setFailureHandler(my_assertHandler);
+#if !defined(BSLS_PLATFORM__OS_WINDOWS)
+        bsls::Assert::setFailureHandler(my_assertHandlerLongJmp);
 
         bool caught = false;
         if (setjmp(my_setJmpBuf)) {
@@ -1162,6 +1179,7 @@ int main(int argc, char *argv[])
             ASSERT(0 && "Didn't catch too few num recorded frames");
         }
         ASSERT(caught);
+#endif
 
         ASSERT(ss.str().empty());
       }  break;
@@ -1339,6 +1357,9 @@ int main(int argc, char *argv[])
 
         // Initialize the 'd_len', 'd_align', and 'd_fill' fields.
 
+        const int ptrAlign = bsls::AlignmentUtil::calculateAlignmentFromSize(
+                                                               sizeof(void *));
+
         memset(segments, 0, sizeof(segments));
         for (int i = 0; i < MAX_NUM_SEGMENTS; ++i) {
             Segment& s = segments[i];
@@ -1350,6 +1371,7 @@ int main(int argc, char *argv[])
                       ? 8
                       : bsls::AlignmentUtil::calculateAlignmentFromSize(
                                                                       s.d_len);
+            s.d_align = bsl::max<int>(s.d_align, ptrAlign);
 
             // verify one bit of alignment set
 
@@ -1594,7 +1616,7 @@ int main(int argc, char *argv[])
 
         if (verbose) Q(Coninuous Underruns);
         {
-            for (int a = 0; a < 2; ++a) {
+            for (int a = 0; a < ABORT_LIMIT; ++a) {
                 const bool ABORT = a;
 
                 for (unsigned u = 1; u <= 4 * sizeof(void *); ++u) {
@@ -1620,11 +1642,13 @@ int main(int argc, char *argv[])
                         else {
                             ta.setFailureHandler(ABORT
                                                  ? &my_failureHandlerLongJmp
-                                                 : &Obj::failureHandlerNoop);
+                                                 : &my_failureHandlerSetFlag);
+                            my_failureHandlerFlag = false;
 
                             ta.deallocate(ptr);
 
                             ASSERT(!ABORT);
+                            ASSERT(my_failureHandlerFlag);
                         }
 
                         ta.setFailureHandler(&Obj::failureHandlerAbort);
@@ -1651,7 +1675,7 @@ int main(int argc, char *argv[])
 
         if (verbose) Q(Single-byte Underruns);
         {
-            for (int a = 0; a < 2; ++a) {
+            for (int a = 0; a < ABORT_LIMIT; ++a) {
                 const bool ABORT = a;
 
                 for (int i = 1; i <= (int) sizeof(void *); ++i) {
@@ -1676,11 +1700,14 @@ int main(int argc, char *argv[])
                         else {
                             ta.setFailureHandler(ABORT
                                                  ? &my_failureHandlerLongJmp
-                                                 : &Obj::failureHandlerNoop);
+                                                 : &my_failureHandlerSetFlag);
+
+                            my_failureHandlerFlag = false;
 
                             ta.deallocate(ptr);
 
                             ASSERT(!ABORT);
+                            ASSERT(my_failureHandlerFlag);
                         }
 
                         ta.setFailureHandler(&Obj::failureHandlerAbort);
@@ -1770,7 +1797,7 @@ int main(int argc, char *argv[])
         bsl::stringstream oss2;
         Obj ta2(&oss2);
 
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < ABORT_LIMIT; ++i) {
             const bool ABORT = i;
 
             ASSERT(oss.str().empty());
@@ -1796,7 +1823,7 @@ int main(int argc, char *argv[])
                 }
                 else {
                     tba.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                                : &Obj::failureHandlerNoop);
+                                                : &my_failureHandlerSetFlag);
 
                     void *ptr = tba.allocate(6);
 
@@ -1805,12 +1832,14 @@ int main(int argc, char *argv[])
                     tba.deallocate(ptr);
 
                     tbaBlocks = (unsigned) tba.numBlocksInUse();
+                    my_failureHandlerFlag = false;
 
                     tba.deallocate(ptr);
 
                     if (veryVerbose) Q(NoAbort: dealloc same segment twice);
 
                     ASSERT(!ABORT);
+                    ASSERT(my_failureHandlerFlag);
                 }
 
                 tba.setFailureHandler(Obj::failureHandlerAbort);
@@ -1841,7 +1870,7 @@ int main(int argc, char *argv[])
                 }
                 else {
                     ta.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                               : &Obj::failureHandlerNoop);
+                                               : &my_failureHandlerSetFlag);
 
                     ASSERT(oss. str().empty());
                     ASSERT(oss2.str().empty());
@@ -1850,11 +1879,14 @@ int main(int argc, char *argv[])
 
                     taBlocks = (unsigned) ta.numBlocksInUse();
 
+                    my_failureHandlerFlag = false;
+
                     ta.deallocate(ptr);
 
                     if (veryVerbose) Q(NoAbort: deallocating by wrong alloc);
 
                     ASSERT(!ABORT);
+                    ASSERT(my_failureHandlerFlag);
                 }
 
                 ta.setFailureHandler(Obj::failureHandlerAbort);
@@ -1891,19 +1923,21 @@ int main(int argc, char *argv[])
                 }
                 else {
                     ta.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                               : &Obj::failureHandlerNoop);
+                                               : &my_failureHandlerSetFlag);
 
                     ASSERT(oss.str().empty());
 
                     ptr = malloc(100);
 
                     taBlocks = (unsigned) ta.numBlocksInUse();
+                    my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
 
                     if (veryVerbose) Q(NoAbort: freeing malloced);
 
                     ASSERT(!ABORT);
+                    ASSERT(my_failureHandlerFlag);
                 }
 
                 ta.setFailureHandler(Obj::failureHandlerAbort);
@@ -1932,19 +1966,21 @@ int main(int argc, char *argv[])
                 }
                 else {
                     ta.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                               : &Obj::failureHandlerNoop);
+                                               : &my_failureHandlerSetFlag);
 
                     ASSERT(oss.str().empty());
 
                     ptr = new char[100];
 
                     taBlocks = (unsigned) ta.numBlocksInUse();
+                    my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
 
                     if (veryVerbose) Q(NoAbort: freeing newed);
 
                     ASSERT(!ABORT);
+                    ASSERT(my_failureHandlerFlag);
                 }
 
                 ta.setFailureHandler(Obj::failureHandlerAbort);
@@ -1973,19 +2009,21 @@ int main(int argc, char *argv[])
                 }
                 else {
                     ta.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                               : &Obj::failureHandlerNoop);
+                                               : &my_failureHandlerSetFlag);
 
                     ASSERT(oss.str().empty());
 
                     ptr = new int;
 
                     taBlocks = (unsigned) ta.numBlocksInUse();
+                    my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
 
                     if (veryVerbose) Q(NoAbort: freeing newed);
 
                     ASSERT(!ABORT);
+                    ASSERT(my_failureHandlerFlag);
                 }
 
                 ta.setFailureHandler(Obj::failureHandlerAbort);
@@ -2013,19 +2051,21 @@ int main(int argc, char *argv[])
                 }
                 else {
                     ta.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                               : &Obj::failureHandlerNoop);
+                                               : &my_failureHandlerSetFlag);
 
                     ASSERT(oss.str().empty());
 
                     ptr = taBsl.allocate(100);
 
                     numBlocks = (unsigned) ta.numBlocksInUse();
+                    my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
 
                     if (veryVerbose) Q(NoAbort: freeing bslma TAed);
 
                     ASSERT(!ABORT);
+                    ASSERT(my_failureHandlerFlag);
                 }
 
                 ta.setFailureHandler(Obj::failureHandlerAbort);
@@ -2055,19 +2095,21 @@ int main(int argc, char *argv[])
                 }
                 else {
                     ta.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                               : &Obj::failureHandlerNoop);
+                                               : &my_failureHandlerSetFlag);
 
                     ASSERT(oss.str().empty());
 
                     ptr = taBce.allocate(100);
 
                     numBlocks = (unsigned) ta.numBlocksInUse();
+                    my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
 
                     if (veryVerbose) Q(NoAbort: freeing bcema TAed);
 
                     ASSERT(!ABORT);
+                    ASSERT(my_failureHandlerFlag);
                 }
 
                 ta.setFailureHandler(Obj::failureHandlerAbort);
@@ -2098,18 +2140,20 @@ int main(int argc, char *argv[])
                         ASSERT(ABORT);
                     }
                     else {
-                        ta.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                                   : &Obj::failureHandlerNoop);
+                        ta.setFailureHandler(ABORT ?&my_failureHandlerLongJmp
+                                                   :&my_failureHandlerSetFlag);
 
                         ASSERT(oss.str().empty());
 
                         numBlocks = (unsigned) ta.numBlocksInUse();
+                        my_failureHandlerFlag = false;
 
                         ta.deallocate(cPtr + offset);
 
                         if (veryVerbose) Q(NoAbort: freeing misaligned TAed);
 
                         ASSERT(!ABORT);
+                        ASSERT(my_failureHandlerFlag);
                     }
 
                     ta.setFailureHandler(Obj::failureHandlerAbort);
@@ -2266,6 +2310,7 @@ int main(int argc, char *argv[])
             }
         }
 
+#ifndef BSLS_PLATFORM__OS_WINDOWS
         if (verbose) Q(Longjmp on destruction with segments outstanding);
         {
             bsl::stringstream ss;
@@ -2319,6 +2364,7 @@ int main(int argc, char *argv[])
                 ASSERT(ss.str().empty());
             }
         }
+#endif
       }  break;
       case 12: {
         //---------------------------------------------------------------------
@@ -2861,7 +2907,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ssTa;
 
         if (verbose) Q("Loop to exercise all c'tors");
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < 2 * ABORT_LIMIT; ++i) {
             const bool CLEAN_DESTROY   = i %  2;
             const bool FAILURE_LONGJMP = i >= 2;
 
@@ -2997,12 +3043,15 @@ int main(int argc, char *argv[])
                         ta.setFailureHandler(&my_failureHandlerLongJmp);
                     }
                     else {
-                        ta.setFailureHandler(&Obj::failureHandlerNoop);
+                        ta.setFailureHandler(&my_failureHandlerSetFlag);
                     }
 
+                    my_failureHandlerFlag = false;
                     ota.deleteObject(pta);
 
                     LOOP2_ASSERT(i, c, CLEAN_DESTROY || !FAILURE_LONGJMP);
+                    ASSERT(my_failureHandlerFlag == (!CLEAN_DESTROY &&
+                                                            !FAILURE_LONGJMP));
                     LOOP_ASSERT(ota.numBlocksInUse(),
                                                     0 == ota.numBlocksInUse());
                 }
@@ -3126,7 +3175,7 @@ int main(int argc, char *argv[])
 
             {
                 baesu_StackTraceTestAllocator ta("TestAlloc1",
-                                                 &out,
+                                                 (veryVerbose ? &cout : &out),
                                                  maxDepths[d]);
                 leakTwiceAllocator = &ta;
                 (*voidNullTransform(&leakTwiceA))();
