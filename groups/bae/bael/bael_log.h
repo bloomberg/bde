@@ -631,6 +631,10 @@ BDES_IDENT("$Id: $")
 
 #define BAEL_LOG_FATAL BAEL_LOG_STREAM(bael_Severity::BAEL_FATAL)
 
+// We indirectly define 'BAEL_LOG_END' to 'bsl::ends' because the 'BAEL_LOG_*'
+// (except 'BAEL_LOG_STREAM') also have indirect definition by forwarding to
+// 'BAEL_LOG_STREAM'.  This symetric enables correct intellisense in
+// development tools like Visual Studio.
 #define BAEL_LOG_REAL_END bsl::ends;                                       \
         }                                                                  \
     }                                                                      \
@@ -663,10 +667,15 @@ BDES_IDENT("$Id: $")
 
 #define BAEL_LOGCB_FATAL(CB) BAEL_LOGCB_STREAM(bael_Severity::BAEL_FATAL, CB)
 
-#define BAEL_LOGCB_END bsl::ends;                                          \
+// We indirectly define 'BAEL_LOGCB_END' to 'bsl::ends' because the
+// 'BAEL_LOGCB_*' (except 'BAEL_LOGCB_STREAM') also have indirect definition by
+// forwarding to 'BAEL_LOGCB_STREAM'.  This symetric enables correct
+// intellisense in development tools like Visual Studio.
+#define BAEL_LOGCB_REAL_END bsl::ends;                                     \
         }                                                                  \
     }                                                                      \
 }
+#define BAEL_LOGCB_END BAEL_LOGCB_REAL_END
 
                        // =====================
                        // 'printf'-style macros
