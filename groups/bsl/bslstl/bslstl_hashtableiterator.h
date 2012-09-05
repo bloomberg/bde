@@ -133,8 +133,8 @@ class HashTableIterator
         // non-dereferenceable iterators into the same empty range.  They do
         // not have a singular value.
 
-    explicit HashTableIterator(bslalg::BidirectionalLink *node);
-        // Create an iterator referring to the specified 'node'.  The behavior
+    explicit hashtableiterator(bslalg::bidirectionallink *node);
+        // create an iterator referring to the specified 'node'.  the behavior
         // is undefined unless 'node' is of the parameterized 'NODE', which
         // is derived from 'bslalg::BidirectionalLink'.  Note that this
         // constructor is an implementation detail and is not part of the C++
