@@ -1,5 +1,5 @@
 // bslalg_bidirectionallinklistnode.cpp                               -*-C++-*-
-#include <bslalg_bidirectionallinklistnode.h>
+#include <bslalg_bidirectionalnode.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

@@ -532,11 +532,11 @@ unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::insert(const value_type& obj)
 {
     typedef bsl::pair<iterator, bool> ResultType;
 
-    if (HashTableLink *result = d_impl.find(obj)) {
-        return ResultType(iterator(result), false);
-    }
+    bool isInsertedFlag = false;
+    
+    HashTableLink *result = d_impl.insertIfMissing(&isInsertedFlag, obj);
 
-    return ResultType(iterator(d_impl.doEmplace(obj)), true);
+    return ResultType(iterator(result), isInsertedFlag);
 }
 
 template <class KEY_TYPE,

@@ -36,37 +36,37 @@ namespace bslalg
 
 class BidirectionalLink;
 
-                          // ===================
-                          // class HashTableUtil
-                          // ===================
+                          // ===============================
+                          // class BidirectionalLinkListUtil
+                          // ===============================
 
 struct BidirectionalLinkListUtil {
     static
-    void insertLinkInHead(BidirectionalLink *newNode,
-                          BidirectionalLink *tail);
+    void insertLinkBeforeTarget(BidirectionalLink *newNode,
+                                BidirectionalLink *target);
        // Insert the specified 'newNode' into the doubly-linked list before the
        // specified 'tail' node.  If 'tail' is null, then 'newNode' becomes an
        // entire list, and this function has no observable effect.  The
        // behavior is undefined unless 'newNode' is not currently linked into
-       // any list, such as having a null pointer for both 'next' and 'prev'
+       // any list, such as having a null pointer for both 'nextLink()' and 'prev'
        // addresses.
        // specified 'tail' node.
     
     static
-    void insertLinkAfter(BidirectionalLink *newNode,
-                         BidirectionalLink *head);
+    void insertLinkAfterTarget(BidirectionalLink *newNode,
+                               BidirectionalLink *target);
        // Insert the specified 'newNode' into the doubly-linked list after the
        // specified 'head' node.
 
     static
-    void spliceListBeforeLink(BidirectionalLink *first,
-                              BidirectionalLink *last,
-                              BidirectionalLink *before);
+    void spliceListBeforeTarget(BidirectionalLink *first,
+                                BidirectionalLink *last,
+                                BidirectionalLink *target);
     // Splice the segment of a doubly-linked list specified by the closed range
     // '[first, last]' out of its original list and into the doubly-linked
     // target list before the specified 'before' node.  If 'before' is null,
     // then the splice is extracted and becomes a whole list in its own right,
-    // so that 'first->prev()' and 'last->next()' will both return null
+    // so that 'first->previousLink()' and 'last->nextLink()()' will both return null
     // pointers.  The behavior is undefined unless both 'first' and 'last' are
     // members of the same linked list, and that 'first' precedes last in the
     // list, or 'first == last'.
@@ -74,21 +74,13 @@ struct BidirectionalLinkListUtil {
     static
     void unlink(BidirectionalLink *node);
         // Unlink the specified 'node' from the linked list it is a member of.
-        // Note that this method does *not* change the 'next' and 'prev'
+        // Note that this method does *not* change the 'nextLink()' and 'prev'
         // attributes of 'node' itself, just those of the adjacent nodes in
         // the original list.  The behavior is undefined unless 'node' is a
         // member of a linked list.  Note that a list having only will element
-        // would be represented by a node having 'prev()' == 0 == 'next()', so
+        // would be represented by a node having 'previousLink()' == 0 == 'nextLink()()', so
         // this is well defined.
 };
-
-// ===========================================================================
-//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
-
-                        //--------------------
-                        // class HashTableUtil
-                        //--------------------
 
 } // namespace BloombergLP::bslalg
 

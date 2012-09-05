@@ -231,7 +231,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKLISTNODE
-#include <bslalg_bidirectionallinklistnode.h>
+#include <bslalg_bidirectionalnode.h>
 #endif
 
 namespace BloombergLP {
@@ -250,7 +250,7 @@ class BidirectionalNodePool {
     // optimization in the case where the base-class has 0 size (as may the
     // case if the parameterized 'ALLOCATOR' is not a 'bslma::Allocator').
 
-    typedef SimplePool<bslalg::BidirectionalLinkListNode<VALUE>, ALLOCATOR>
+    typedef SimplePool<bslalg::BidirectionalNode<VALUE>, ALLOCATOR>
                                                                           Pool;
         // Alias for the memory pool allocator.
 
@@ -340,7 +340,7 @@ BidirectionalNodePool<VALUE, ALLOCATOR>::BidirectionalNodePool(
 // MANIPULATORS
 template <class VALUE, class ALLOCATOR>
 inline
-typename SimplePool<bslalg::BidirectionalLinkListNode<VALUE>, ALLOCATOR>::
+typename SimplePool<bslalg::BidirectionalNode<VALUE>, ALLOCATOR>::
                                                                  AllocatorType&
 BidirectionalNodePool<VALUE, ALLOCATOR>::allocator()
 {
@@ -352,7 +352,7 @@ inline
 bslalg::BidirectionalLink *
 BidirectionalNodePool<VALUE, ALLOCATOR>::createNode()
 {
-    bslalg::BidirectionalLinkListNode<VALUE> *node = d_pool.allocate();
+    bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
     bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
 
     AllocatorTraits::construct(allocator(),
@@ -367,7 +367,7 @@ inline
 bslalg::BidirectionalLink *
 BidirectionalNodePool<VALUE, ALLOCATOR>::createNode(const VALUE& value)
 {
-    bslalg::BidirectionalLinkListNode<VALUE> *node = d_pool.allocate();
+    bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
     bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
 
     AllocatorTraits::construct(allocator(),
@@ -384,7 +384,7 @@ BidirectionalNodePool<VALUE, ALLOCATOR>::createNode(
                                      const bslalg::BidirectionalLink& original)
 {
     return createNode(
-                  static_cast<const bslalg::BidirectionalLinkListNode<VALUE>&>
+                  static_cast<const bslalg::BidirectionalNode<VALUE>&>
                                                            (original).value());
 }
 
@@ -395,8 +395,8 @@ void BidirectionalNodePool<VALUE, ALLOCATOR>::deleteNode(
 {
     BSLS_ASSERT(node);
 
-    bslalg::BidirectionalLinkListNode<VALUE> *treeNode =
-                 static_cast<bslalg::BidirectionalLinkListNode<VALUE> *>(node);
+    bslalg::BidirectionalNode<VALUE> *treeNode =
+                 static_cast<bslalg::BidirectionalNode<VALUE> *>(node);
     AllocatorTraits::destroy(allocator(),
                              BSLS_UTIL_ADDRESSOF(treeNode->value()));
     d_pool.deallocate(treeNode);
@@ -426,7 +426,7 @@ void BidirectionalNodePool<VALUE, ALLOCATOR>::swap(
 template <class VALUE, class ALLOCATOR>
 inline
 const typename 
-              SimplePool<bslalg::BidirectionalLinkListNode<VALUE>, ALLOCATOR>::
+              SimplePool<bslalg::BidirectionalNode<VALUE>, ALLOCATOR>::
                                                                  AllocatorType&
 BidirectionalNodePool<VALUE, ALLOCATOR>::allocator() const
 {

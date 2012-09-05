@@ -26,18 +26,17 @@ BSLS_IDENT("$Id: $")
 ///Attributes
 ///----------
 //..
-//  Name                Type                Default  Constraints
-//  ------------        -----------------   -------  --------------------------
-//  bucketArrayAddress  HashTableBucket *      0     The element of the array
-//                                                   must refer to elements
-//                                                   reachable from
-//                                                   'listRootAddress'.
+//  Name                Type                Constraints
+//  ------------------  -----------------   --------------------------
+//  bucketArrayAddress  HashTableBucket *   Each bucket of the array must refer
+//                                          to elements reachable from
+//                                          'listRootAddress' or must be empty.
 //
-//  arraySize    size_t                        0     Must be the size of the
-//                                                   memory referred to by
-//                                                   'bucketArrayAddress'.
+//  bucketArraySize           size_t              Must be the size of the 
+//                                          memory referred to by
+//                                          'bucketArrayAddress'.
 //
-//  listRootAddress     BidirectionalLink *    0           none
+//  listRootAddress     BidirectionalLink *       none
 //
 //: o 'listRootAddress': Address of the head of the linked list of nodes
 //                       holding the elements contained in a hash table.
@@ -47,7 +46,8 @@ BSLS_IDENT("$Id: $")
 //:                         the elements of the hash table referred by 
 //:                         'listRootAddress'.
 //:
-//: o 'arraySize': the size of the array starting at 'bucketArrayAddress'. 
+//
+//: o 'bucketArraySize': the size of the array starting at 'bucketArrayAddress'. 
 //
 ///Usage
 ///-----
@@ -103,13 +103,13 @@ class HashTableAnchor {
     // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    HashTableBucket   *d_bucketArrayAddress;  // address of the array of buckets
-                                              // of the hash table 
+    HashTableBucket     *d_bucketArrayAddress; // address of the array of
+                                               // buckets of the hash table 
 
-    std::size_t        d_arraySize;  // size of 'd_bucketArray'
+    native_std::size_t   d_bucketArraySize;  // size of 'd_bucketArray'
 
-    BidirectionalLink *d_listRootAddress;  // head of the list of elements of
-                                           // the hash table
+    BidirectionalLink   *d_listRootAddress;  // head of the list of elements of
+                                             // the hash table
 
   public:
     // TRAITS
@@ -118,20 +118,11 @@ class HashTableAnchor {
                                   TypeTraitBitwiseCopyable);
 
     // CREATORS
-    explicit HashTableAnchor();
-        // Create a 'bslalg::HashTableAnchor' object having the (default)
-        // attribute values:
-        //..
-        //  bucketArrayAddress() == 0
-        //  arraySize()   == 0
-        //  listRootAddress()    == 0
-        //..
-
     HashTableAnchor(HashTableBucket   *bucketArrayAddress,
-                    std::size_t        arraySize,
+                    native_std::size_t        bucketArraySize,
                     BidirectionalLink *listRootAddress);
         // Create a 'bslalg::HashTableAnchor' object having the specified
-        // 'bucketArrayAddress', 'arraySize', and 'listRootAddress' attribute.  TBD
+        // 'bucketArrayAddress', 'bucketArraySize', and 'listRootAddress' attribute.  TBD
         // wording for NULL pointers.
     
     HashTableAnchor(const HashTableAnchor&  original);
@@ -147,15 +138,7 @@ class HashTableAnchor {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    void setBucketArrayAddress(HashTableBucket *value);
-        // Set the 'bucketArrayAddress' attribute of this object to the
-        // specified 'value'.
-
-    void setArraySize(std::size_t value);
-        // Set the 'arraySize' attribute of this object to the specified
-        // 'value'.  The behavior is undefined unless the specified 'value'
-        // represent the number of elements contained in the sequence of
-        // elements starting at 'bucketArrayAddress'.
+    void setBucketArray(HashTableBucket *array, native_std::size_t arraySize);
     
     void setListRootAddress(BidirectionalLink *value);
         // Set the 'listRootAddress' attribute of this object to the
@@ -173,58 +156,27 @@ class HashTableAnchor {
         // Return the value of the 'bucketArrayAddress' attribute of this
         // object.
 
-    std::size_t arraySize() const;
-        // Return the value of the 'arraySize' attribute of this object.
+    std::size_t bucketArraySize() const;
+        // Return the value of the 'bucketArraySize' attribute of this object.
 
     BidirectionalLink *listRootAddress() const;
         // Return the value 'listRootAddress' attribute of this object.
-
-
-                                  // Aspects
-
-    // bsl::ostream& print(bsl::ostream& stream,
-    //                  int           level = 0,
-    //                  int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in
-        // a human-readable format, and return a reference to 'stream'.
-        // Optionally specify an initial indentation 'level', whose absolute
-        // value is incremented recursively for nested objects.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', whose absolute
-        // value indicates the number of spaces per indentation level for this
-        // and all of its nested objects.  If 'level' is negative, suppress
-        // indentation of the first line.  If 'spacesPerLevel' is negative,
-        // format the entire output on one line, suppressing all but the
-        // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that the
-        // format is not fully specified, and can change without notice.
 };
 
 // FREE OPERATORS
-bool operator==(const HashTableAnchor& lhs,
-                const HashTableAnchor& rhs);
+bool operator==(const HashTableAnchor& lhs, const HashTableAnchor& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'bslalg::HashTableAnchor' objects
     // have the same value if all of the corresponding values of their
-    // 'bucketArrayAddress', 'arraySize', and 'listRootAddress' attributes
+    // 'bucketArrayAddress', 'bucketArraySize', and 'listRootAddress' attributes
     // are the same.
 
-bool operator!=(const HashTableAnchor& lhs,
-                const HashTableAnchor& rhs);
+bool operator!=(const HashTableAnchor& lhs, const HashTableAnchor& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'bslalg::HashTableAnchor'
     // objects do not have the same value if any of the corresponding values of
-    // their 'bucketArrayAddress', 'arraySize', or 'listRootAddress'
+    // their 'bucketArrayAddress', 'bucketArraySize', or 'listRootAddress'
     // attributes are not the same.
-
-//bsl::ostream& operator<<(bsl::ostream&                     stream,
-//                         const bslalg::HashTableAnchor& object);
-// Write the value of the specified 'object' to the specified
-// output 'stream' in a single-line format, and return a reference
-// providing modifiable access to 'stream'.  If 'stream' is not valid on
-// entry, this operation has no effect.  Note that this human-readable
-// format is not fully specified and can change without notice.  Also note
-// that this method has the same behavior as 'object.print(stream, 0, -1)',
-// but with the attribute names elided.
 
 // FREE FUNCTIONS
 void swap(HashTableAnchor& a, HashTableAnchor& b);
@@ -252,10 +204,10 @@ HashTableAnchor::HashTableAnchor()
 
 inline
 HashTableAnchor::HashTableAnchor(HashTableBucket   *bucketArrayAddress,
-                                std::size_t        arraySize,
+                                std::size_t        bucketArraySize,
                                  BidirectionalLink *listRootAddress)
 : d_bucketArrayAddress(bucketArrayAddress)
-, d_arraySize(arraySize)
+, d_arraySize(bucketArraySize)
 , d_listRootAddress(listRootAddress)
 {
     // TBD how do we check undefined behavior?
@@ -286,7 +238,7 @@ void HashTableAnchor::setListRootAddress(BidirectionalLink *value)
 }
 
 inline
-void HashTableAnchor::setArraySize(std::size_t value)
+void HashTableAnchor::setAArraySize(std::size_t value)
 {
     d_arraySize = value;
 }
@@ -315,7 +267,7 @@ BidirectionalLink *HashTableAnchor::listRootAddress() const
 }
 
 inline
-std::size_t HashTableAnchor::arraySize() const
+std::size_t HashTableAnchor::bucketArraySize() const
 {
     return d_arraySize;
 }
@@ -341,7 +293,7 @@ bool bslalg::operator==(const bslalg::HashTableAnchor& lhs,
                         const bslalg::HashTableAnchor& rhs)
 {
     return lhs.bucketArrayAddress() == rhs.bucketArrayAddress()
-        && lhs.arraySize()          == rhs.arraySize()
+        && lhs.bucketArraySize()          == rhs.bucketArraySize()
         && lhs.listRootAddress()    == rhs.listRootAddress();
 }
 
@@ -350,7 +302,7 @@ bool bslalg::operator!=(const bslalg::HashTableAnchor& lhs,
                         const bslalg::HashTableAnchor& rhs)
 {
     return lhs.bucketArrayAddress() != rhs.bucketArrayAddress()
-        || lhs.arraySize()          != rhs.arraySize()
+        || lhs.bucketArraySize()          != rhs.bucketArraySize()
         || lhs.listRootAddress()    != rhs.listRootAddress();
 }
 

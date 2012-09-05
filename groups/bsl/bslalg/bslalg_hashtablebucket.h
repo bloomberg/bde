@@ -46,8 +46,8 @@ class BidirectionalLink;
                           // class HashTableBucket
                           // =====================
 
-class HashTableBucket {
-  private:
+struct HashTableBucket {
+  public:
     // DATA
     BidirectionalLink *d_first_p;
     BidirectionalLink *d_last_p;
@@ -58,11 +58,11 @@ class HashTableBucket {
 
   public:
     // CREATORS
-    HashTableBucket();
+    //HashTableBucket();
         // Create a 'HashTableBucket' object having the 'first' and 'last'
         // attributes set to 0.
 
-    HashTableBucket(BidirectionalLink *first, BidirectionalLink *last);
+   // HashTableBucket(BidirectionalLink *first, BidirectionalLink *last);
         // Create a 'HashTableBucket' object having the specified 'first' and
         // 'last' attributes.
 
@@ -74,15 +74,11 @@ class HashTableBucket {
 
     void setLast(BidirectionalLink *node);
 
-    void setFirstLast(BidirectionalLink *first, BidirectionalLink *last);
+    void setFirstAndLast(BidirectionalLink *first, BidirectionalLink *last);
         // Set 'first' and 'last' to the specified values.  Behavior is
         // undefined unless this bucket is empty.
 
-    void setFirstLast(BidirectionalLink *node);
-        // Set 'first' and 'last' to the specified 'node'.  Behavior is
-        // undefined unless this bucket is empty.
-
-    void clear();
+    void reset();
         // Set 'first' and 'last' to a null pointer value.
 
     // ACCESSORS
@@ -94,7 +90,7 @@ class HashTableBucket {
         // Return the address of the last element in this hash bucket, or a
         // null pointer value if the bucket is empty.
 
-    int size() const;
+    native_std::size_t countElements() const;
         // Return the number of nodes in this hash bucket.
 };
 
@@ -105,22 +101,6 @@ class HashTableBucket {
                         //----------------------
                         // class HashTableBucket
                         //----------------------
-
-// CREATORS
-inline
-HashTableBucket::HashTableBucket()
-: d_first_p()
-, d_last_p()
-{
-}
-
-inline
-HashTableBucket::HashTableBucket(BidirectionalLink *first,
-                                 BidirectionalLink *last)
-: d_first_p(first)
-, d_last_p(last)
-{
-}
 
 // MANIPULATORS
 inline

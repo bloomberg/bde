@@ -462,16 +462,8 @@ template <class KEY_TYPE,
 inline
 typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::insert(const value_type& obj)
-{   // needs to insert contiguously in the bucket with any matching values
-    // 'doEmplace' meekly inserts to front of the bucket every time when no
-    // matching element is found.  For multicontainers, we must 'emplaceBefore'
-    // the link found with the matching (key)value.
-    if (HashTableLink *existing = d_impl.find(obj)) {
-        return iterator(d_impl.insertValueBefore(obj, existing));
-    }
-    else {
-        return iterator(d_impl.doEmplace(obj));
-    }
+{   
+    return iterator(d_impl.insertContiguous(obj));
 }
 
 template <class KEY_TYPE,

@@ -1,3 +1,4 @@
+
 // bslstl_unorderedmap.h                                              -*-C++-*-
 #ifndef INCLUDED_BSLSTL_UNORDEREDMAP
 #define INCLUDED_BSLSTL_UNORDEREDMAP
@@ -633,11 +634,11 @@ unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::insert(
 {
     typedef bsl::pair<iterator, bool> ResultType;
 
-    if (HashTableLink *result = d_impl.find(obj.first)) {
-        return ResultType(iterator(result), false);
-    }
+    bool isInsertedFlag = false;
+    
+    HashTableLink *result = d_impl.insertIfMissing(&isInsertedFlag, obj);
 
-    return ResultType(iterator(d_impl.doEmplace(obj)), true);
+    return ResultType(iterator(result), isInsertedFlag);
 }
 
 template <class KEY_TYPE,

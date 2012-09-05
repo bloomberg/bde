@@ -1,5 +1,5 @@
 // bslalg_bidirectionallinklistnode.t.cpp                             -*-C++-*-
-#include <bslalg_bidirectionallinklistnode.h>
+#include <bslalg_bidirectionalnode.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -146,10 +146,10 @@ int main(int argc, char *argv[])
         //: 3 Accessor is declared const.
         //
         // Plan:
-        //: 1 Create a 'BidirectionalLinkListNode' with 'VALUE_TYPE' as 'int' and set 'value'
+        //: 1 Create a 'BidirectionalNode' with 'VALUE_TYPE' as 'int' and set 'value'
         //:   distinct numbers.  Verify the values are set with the accessor.
         //:
-        //: 2 Create a 'BidirectionalLinkListNode' with a type that has a constructor that can
+        //: 2 Create a 'BidirectionalNode' with a type that has a constructor that can
         //:   be verified if it has been invoked.  Verify that the constructor
         //:   is invoked when 'allocator_traits::construct' is used.
         //
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting manipulator and accessor for 'int'.\n");
         {
             typedef int Type;
-            typedef bslalg::BidirectionalLinkListNode<Type> Obj;
+            typedef bslalg::BidirectionalNode<Type> Obj;
 
             //typedef bsl::allocator<Obj>          Alloc;
             //typedef bsl::allocator_traits<Alloc> AllocTraits;
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
                          "\nTesting manipulator and accessor for 'string'.\n");
         {
             //typedef bsl::string    Type;
-            typedef BidirectionalLinkListNode<Type> Obj;
+            typedef BidirectionalNode<Type> Obj;
 
             //typedef bsl::allocator<Obj>          Alloc;
             //typedef bsl::allocator_traits<Alloc> AllocTraits;
@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator da("default");
         bslma::DefaultAllocatorGuard defaultGuard(&da);
 
-        typedef bslalg::BidirectionalLinkListNode<int> Obj;
+        typedef bslalg::BidirectionalNode<int> Obj;
         Obj *xPtr = static_cast<Obj *>(da.allocate(sizeof(Obj)));
         Obj& mX = *xPtr; const Obj& X = mX;
 

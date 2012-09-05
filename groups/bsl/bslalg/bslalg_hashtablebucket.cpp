@@ -17,7 +17,7 @@ int HashTableBucket::size() const
     if (BidirectionalLink *cursor = d_first_p) {
         int result = 1;
         while (cursor != d_last_p) {
-            cursor = cursor->next();
+            cursor = cursor->nextLink()();
             ++result;
         }
         return result;

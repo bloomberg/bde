@@ -1,4 +1,4 @@
-// bslalg_bidirectionallinklistnode.h                                 -*-C++-*-
+// bslalg_bidirectionalnode.h                                 -*-C++-*-
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKLISTNODE
 #define INCLUDED_BSLALG_BIDIRECTIONALLINKLISTNODE
 
@@ -10,23 +10,23 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a node holding a value in a doubly-linked list.
 //
 //@CLASSES:
-//   bslalg::BidirectionalLinkListNode : Node holding a value in a linked list
+//   bslalg::BidirectionalNode : Node holding a value in a linked list
 //
 //@SEE_ALSO: bslalg_bidirectionallistutil, bslalg_hashtableutil
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
 //@DESCRIPTION: This component provides a single POD-like class,
-// 'bslalg::BidirectionalLinkListNode', used to represent a node in a doubly-
-// linked (bidirectional) list holding a value of a parameterized type.  A
-// 'bslalg::BidirectionalLinkListNode' publicly derives from
+// 'bslalg::BidirectionalNode', used to represent a node in a doubly-linked
+// (bidirectional) list holding a value of a parameterized type.  A
+// 'bslalg::BidirectionalNode' publicly derives from
 // 'bslalg::BidirectionalLink', so it may be used with
 // 'bslalg::BidirectionalListUtil' functions, and adds an attribute 'value' of
 // the parameterized 'VALUE_TYPE'.  The following inheritance hierarchy diagram
 // shows the classes involved and their methods:
 //..
 //    ,---------------------------------.
-//   ( bslalg::BidirectionalLinkListNode )
+//   ( bslalg::BidirectionalNode         )
 //    `---------------------------------'
 //                  |      value
 //                  V
@@ -35,9 +35,9 @@ BSLS_IDENT("$Id: $")
 //     `-------------------------'
 //                         ctor
 //                         dtor
-//                         setNext
+//                         setNextLink()
 //                         setPrev
-//                         next
+//                         nextLink()
 //                         prev
 //..
 // This class is "POD-like" to facilitate efficient allocation and use in the
@@ -68,11 +68,11 @@ namespace bslalg
 {
 
                         // ===============================
-                        // class BidirectionalLinkListNode
+                        // class BidirectionalNode
                         // ===============================
 
 template <class VALUE_TYPE>
-class BidirectionalLinkListNode : public bslalg::BidirectionalLink {
+class BidirectionalNode: public bslalg::BidirectionalLink {
     // This POD-like 'class' describes a node suitable for use in a red-black
     // binary search tree of values of the parameterized 'VALUE'.  This class
     // is a "POD-like" to facilitate efficient allocation and use in the
@@ -87,14 +87,14 @@ class BidirectionalLinkListNode : public bslalg::BidirectionalLink {
 
   private:
     // The following functions are not defined because a
-    // 'BidirectionalLinkListNode' should never be constructed, destructed, or
+    // 'BidirectionalNode' should never be constructed, destructed, or
     // assigned.  The 'd_value' member should be separately constructed and
     // destroyed using an appropriate 'bsl::allocator_traits' object.
 
-    BidirectionalLinkListNode();                            // Declared but not defined
-    BidirectionalLinkListNode(const BidirectionalLinkListNode&);             // Declared but not defined
-    BidirectionalLinkListNode& operator=(const BidirectionalLinkListNode&);  // Declared but not defined
-    ~BidirectionalLinkListNode();                           // Declared but not defined
+    BidirectionalNode();                            // Declared but not defined
+    BidirectionalNode(const BidirectionalNode&);             // Declared but not defined
+    BidirectionalNode& operator=(const BidirectionalNode&);  // Declared but not defined
+    ~BidirectionalNode();                           // Declared but not defined
 
   public:
     typedef VALUE_TYPE    ValueType;  // 
@@ -115,19 +115,19 @@ class BidirectionalLinkListNode : public bslalg::BidirectionalLink {
 // ===========================================================================
 
                         // -------------------------------
-                        // class BidirectionalLinkListNode
+                        // class BidirectionalNode
                         // -------------------------------
 
 template <class VALUE_TYPE>
 inline
-VALUE_TYPE& BidirectionalLinkListNode<VALUE_TYPE>::value()
+VALUE_TYPE& BidirectionalNode<VALUE_TYPE>::value()
 {
     return d_value;
 }
 
 template <class VALUE_TYPE>
 inline
-const VALUE_TYPE& BidirectionalLinkListNode<VALUE_TYPE>::value() const
+const VALUE_TYPE& BidirectionalNode<VALUE_TYPE>::value() const
 {
     return d_value;
 }

@@ -61,7 +61,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKLISTNODE
-#include <bslalg_bidirectionallinklistnode.h>
+#include <bslalg_bidirectionalnode.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_FUNCTORADAPTER
@@ -118,6 +118,14 @@ namespace bslstl {
                     // class HashTable_Util
                     // =====================
 
+struct HashTable_StaticBucket
+{
+  public:
+    // CLASS DATA
+    static bslalg::HashTableBucket s_bucket;
+};
+
+// TBD movve after class definition
 template<class ALLOCATOR>
 struct HashTable_Util {
     // This class provides a mechanism for managing an in-place array of
@@ -145,18 +153,17 @@ struct HashTable_Util {
                            const ALLOCATOR&         allocator);
         // Create an array of the specified 'size' of the parameterized type
         // 'bslalg::HashTableBucket', using the default constructor of 'TYPE'
-        // to initialize the individual elements in the array.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless '0 <= size'.  Note that if
-        // 'size' is 0, no memory is required for this instantiation.
+        // to initialize the individual elements in the array.  
     
     static void destroyBucketArray(bslalg::HashTableBucket *data,
                                    size_type                size,
                                    const ALLOCATOR&         allocator);
-
+    
  };
 
+struct HashTable_PrimeUtil {
+    static size_t nextPrime(size_t n);
+}
                     // ===============
                     // class HashTable
                     // ===============
@@ -166,6 +173,7 @@ struct HashTable_Util {
 // provides all the user-friendly defaults, and explicitly pass down what is
 // needed.
 template <class VALUE_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+// TBD look at bslstl_map, add the allocator to the EBO
 class HashTable : private bslalg::FunctorAdapter<HASH>::Type
                 , private bslalg::FunctorAdapter<EQUAL>::Type
 {
@@ -173,15 +181,13 @@ class HashTable : private bslalg::FunctorAdapter<HASH>::Type
     typedef typename VALUE_POLICY::ValueType             ValueType;
     typedef typename VALUE_POLICY::KeyType               KeyType;
     typedef ALLOCATOR                                    AllocatorType;
-    typedef bslalg::BidirectionalLinkListNode<ValueType> NodeType;
-
-    typedef typename ALLOCATOR::size_type                size_type; // should find via allocator_traits?
+    typedef bslalg::BidirectionalNode<ValueType> NodeType;
+    typedef typename ::bsl::allocator_traits<ALLOCATOR>::size_type SizeType;
   private:
     // PRIVATE TYPES
     typedef typename ::bsl::allocator_traits<ALLOCATOR>::template
                                         rebind_traits<NodeType>::allocator_type
                                                                  NodeAllocator;
-
 
     typedef BidirectionalNodePool<ValueType, NodeAllocator> NodeFactory;
 
@@ -193,13 +199,11 @@ class HashTable : private bslalg::FunctorAdapter<HASH>::Type
     bslalg::HashTableAnchor d_anchor;
     size_type               d_size;
     NodeFactory             d_nodeFactory;
-    size_t                  d_loadLimit;  // Rehash if d_data.size() > d_loadLimit.
-    double                  d_maxLoadFactor; // preserve rounding in d_loadLimit.
+    size_t                  d_capacity;  // Rehash if d_data.size() > d_capacity.
+    double                  d_maxLoadFactor; // preserve rounding in d_capacity.
 
   private:
-    // this type is not copyable/clonable
-    // an efficient clone should be implemented before a production release.
-    HashTable(const HashTable&);
+    // TBD implement assignment
     HashTable& operator=(const HashTable&);
 
   private:
@@ -208,15 +212,26 @@ class HashTable : private bslalg::FunctorAdapter<HASH>::Type
     bslalg::HashTableBucket *getBucketAddress(size_type bucketNumber);
 
     void clearAndDeallocate();
+    
+    void expandTable();
+    
+    bslalg::BidirectionalLink *findEndOfRange(
+                                       bslalg::BidirectionalLink *first) const;
+        // Return the address of the first node in the total sequence of the
+        // hash table following the specified 'first' node that holds a value
+        // with a key that does not have the same value as the key stored in
+        // the node pointed to by 'first'.
+
   public:
     // CREATORS
     HashTable(const HASH&          hash,
               const EQUAL&         compare,
               size_type            initialBucketCount,
-              const AllocatorType& a);
+              const AllocatorType& a = AllocatorType());
         // Behavior is undefined unless '0 < intialBucketCount'.
 
-    HashTable(const HashTable& other, const AllocatorType& a);
+    HashTable(const HashTable& other, 
+              const AllocatorType& a = AllocatorType());
         // Copy the specified 'other' using the specified allocator 'a'.
 
     ~HashTable();
@@ -224,6 +239,7 @@ class HashTable : private bslalg::FunctorAdapter<HASH>::Type
     // ACCESSORS
     AllocatorType allocator() const;
         // TBD..
+    
     bool isEmpty() const;
         // TBD..
 
@@ -234,61 +250,48 @@ class HashTable : private bslalg::FunctorAdapter<HASH>::Type
         // TBD..
 
     //SP: we must find a better name, can't think of anything right now.
-    bslalg::BidirectionalLink *begin() const;
+    bslalg::BidirectionalLink *listRoot() const;
 
     // MANIPULATORS
-    void clear();
-
+    void removeAll();
+    
     template <class SOURCE_TYPE>
-    bslalg::BidirectionalLink *doEmplace(const SOURCE_TYPE& obj);
-    bslalg::BidirectionalLink *insertValueBefore(
-                                            const ValueType&           obj,
-                                            bslalg::BidirectionalLink *before);
+    bslalg::BidirectionalLink *insertIfMissing(bool              *isFoundFlag,
+                                               const SOURCE_TYPE& obj);
+    template <class SOURCE_TYPE>
+    bslalg::BidirectionalLink *insertContiguous(const SOURCE_TYPE&  obj);
 
-    bslalg::BidirectionalLink *eraseNode(bslalg::BidirectionalLink *node);
+    bslalg::BidirectionalLink *remove(bslalg::BidirectionalLink *node);
 
-    void expandTable();
+    void swap(HashTable& other);
 
-    void swap(HashTable&);
-
-    // observers
+    // OBSERVERS
     const HASH& hasher()     const;
     const EQUAL& comparator() const;
 
-    // lookup
+    // ACCESSORS
     bslalg::BidirectionalLink *find(const KeyType& k) const;
 
-    void findKeyRange(bslalg::BidirectionalLink **first,
-                      bslalg::BidirectionalLink **last,
-                      const KeyType&              k) const;
-
-    bslalg::BidirectionalLink *findEndOfRange(
-                                       bslalg::BidirectionalLink *first) const;
-        // Return the address of the first node in the total sequence of the
-        // hash table following the specified 'first' node that holds a value
-        // with a key that does not have the same value as the key stored in
-        // the node pointed to by 'first'.
+    void findRange(bslalg::BidirectionalLink **first,
+                   bslalg::BidirectionalLink **last,
+                   const KeyType&              k) const;
 
     // bucket interface
-    size_type numOfBuckets() const;
-    size_type maxNumOfbuckets() const;
-    size_type bucket_size(size_type n) const;
+    size_type numBuckets() const;
+    size_type maxNumBuckets() const;
+    size_type countElementsInBucket(size_type n) const;
 
-    template<class key_type> // hope to determine from existing policy when done
-    size_type bucket(const key_type& k) const;
+    size_type computeBucketIndex(const KeyType& k) const;
 
-    const bslalg::HashTableBucket& getBucket(size_type n) const;
+    const bslalg::HashTableBucket& bucketAtIndex(size_type n) const;
         // Return a reference to the 'n'th non-modifiable bucket in the
         // sequence of buckets.  The behavior is undefined unless 'n < TBD'.
 
     // hash policy
-    float load_factor() const;
-    float max_load_factor() const;
-    void max_load_factor(float z);
+    float loadFactor() const;
+    float maxLoadFactor() const;
     void rehash(size_type n);
-    void reserve(size_type n);
-
-    bool hasSameValue(const HashTable& other) const;
+    void reserve(size_type n);  // maybe??
 };
 
 template <class VALUE_TYPE, class HASH, class EQUAL, class ALLOCATOR>
@@ -315,10 +318,6 @@ struct HashTable_IterUtil {
         // Return 0 if InputIterator really is limitted to the standard
         // input-iterator category, otherwise return the distance from first
         // to last.
-};
-
-struct HashTable_GrowthUtil {
-    static size_t nextPrime(size_t n);
 };
 
 // ============================================================================
@@ -430,11 +429,15 @@ HashTable(const HASH&          hash,
 , d_anchor()
 , d_size()
 , d_nodeFactory(a)
-, d_loadLimit(initialBucketCount)
+, d_capacity(initialBucketCount)
 , d_maxLoadFactor(1.0)
 {
-    BSLS_ASSERT_SAFE(0 < initialBucketCount);
-    HashTable_Util<ALLOCATOR>::initAnchor(&d_anchor, initialBucketCount, a);
+    if(0 == initialBucketCount) {
+        d_anchor.setBucketArrayAddress(&HashTable_StaticBucket::s_bucket);
+    }
+    else {
+        HashTable_Util<ALLOCATOR>::initAnchor(&d_anchor, initialBucketCount, a);
+    }
 }
 
 template <class VALUE_POLICY, class HASH, class EQUAL, class ALLOCATOR>
@@ -446,40 +449,40 @@ HashTable(const HashTable& other, const AllocatorType& a)
 , d_anchor()
 , d_size(other.d_size)
 , d_nodeFactory(a)
-, d_loadLimit(other.d_loadLimit)
+, d_capacity(other.d_capacity)
 , d_maxLoadFactor(other.d_maxLoadFactor)
 {
     using bslalg::BidirectionalLink;
     using bslalg::HashTableBucket;
     using bslalg::HashTableUtil;
     
-    HashTable_Util<ALLOCATOR>::initAnchor(&d_anchor, 
-                                          other.d_anchor.arraySize(), 
-                                          a);
+    if(0 != other.d_size) {
+        HashTable_Util<ALLOCATOR>::initAnchor(&d_anchor, 
+                                              other.d_anchor.arraySize(), 
+                                              a);
     
-    if (other.d_anchor.listRootAddress()) {
         BidirectionalLink *prevNode   = 0;
         size_type          prevBucketNumber = 0;
         try {
             for (const BidirectionalLink *cursor = 
-                                              other.d_anchor.listRootAddress();
-                 cursor;
-                 cursor = cursor->next())
+                    other.d_anchor.listRootAddress();
+                    cursor;
+                    cursor = cursor->next())
             {
                 BidirectionalLink *curNode = d_nodeFactory.createNode(*cursor);
 
                 // After this point, no operations can throw
                 size_type curBucketNumber =
-                             HashTableUtil::bucketNumberForHashCode(
-                                                      hashCodeForNode(curNode),
-                                                      d_anchor.arraySize());
- 
+                    HashTableUtil::bucketNumberForHashCode(
+                            hashCodeForNode(curNode),
+                            d_anchor.arraySize());
+
                 HashTableBucket *curBucket = this->getBucketAddress(
-                                                      curBucketNumber);
-                
+                        curBucketNumber);
+
                 HashTableBucket *lastBucket = this->getBucketAddress(
-                                                             prevBucketNumber);
- 
+                        prevBucketNumber);
+
                 // APPEND 'next' after 'prevNode', and update any buckets or 
                 // end-markers.
 
@@ -511,6 +514,9 @@ HashTable(const HashTable& other, const AllocatorType& a)
 
             throw;
         }
+    }
+    else {
+        d_anchor.setBucketArrayAddress(&HashTable_StaticBucket::s_bucket);
     }
 }
 
@@ -578,10 +584,79 @@ template <class VALUE_POLICY, class HASH, class EQUAL, class ALLOCATOR>
 template <class SOURCE_TYPE>
 inline
 bslalg::BidirectionalLink *
+HashTable<VALUE_POLICY, HASH, EQUAL, ALLOCATOR>::insertIfMissing(
+                                               bool               *isInserted,
+                                               const SOURCE_TYPE&  obj)
+{
+    using bslalg::BidirectionalLink;
+    using bslalg::HashTableUtil;
+    
+    const KeyType& k = VALUE_POLICY::extractKey(obj);
+
+    BidirectionalLink *position = this->find(k);
+    *isInserted = (!position);
+    
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->expandTable();
+        }
+
+        position = d_nodeFactory.createNode(obj);
+        HashTableUtil::insertAtFrontOfBucket(&d_anchor,
+                                             position,
+                                             hashCodeForNode(position));
+        ++d_size;
+    }
+
+    return position;
+}
+
+template <class VALUE_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class SOURCE_TYPE>
+inline
+bslalg::BidirectionalLink *
+HashTable<VALUE_POLICY, HASH, EQUAL, ALLOCATOR>::insertContiguous(
+                                                       const SOURCE_TYPE&  obj)
+{
+    using bslalg::BidirectionalLink;
+    using bslalg::HashTableUtil;
+    
+    const KeyType& k = VALUE_POLICY::extractKey(obj);
+
+    BidirectionalLink *position = this->find(k);
+    
+    if (d_size >= d_capacity) {
+        this->expandTable();
+    }
+    
+    if(!position) {
+        position = d_nodeFactory.createNode(obj);
+        HashTableUtil::insertAtFrontOfBucket(&d_anchor,
+                                             position,
+                                             hashCodeForNode(position));
+    }
+    else {
+        BidirectionalLink *newNode = d_nodeFactory.createNode(obj);
+        HashTableUtil::insertDuplicateAtPosition(&d_anchor,
+                                                 newNode,
+                                                 hashCodeForNode(newNode),
+                                                 position);
+        position = newNode;
+    }
+        
+    ++d_size;
+
+    return position;
+}
+
+template <class VALUE_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class SOURCE_TYPE>
+inline
+bslalg::BidirectionalLink *
 HashTable<VALUE_POLICY, HASH, EQUAL, ALLOCATOR>::doEmplace(
                                                         const SOURCE_TYPE& obj)
 {
-    if (d_size >= d_loadLimit) {
+    if (d_size >= d_capacity) {
         this->expandTable();
     }
 
@@ -601,7 +676,7 @@ insertValueBefore(const ValueType& obj, bslalg::BidirectionalLink *before)
 {
     BSLS_ASSERT(before);
 
-    if (d_size >= d_loadLimit) {
+    if (d_size >= d_capacity) {
         this->expandTable();
     }
 
@@ -707,7 +782,7 @@ HashTable<VALUE_POLICY, HASH, EQUAL, ALLOCATOR>::swap(HashTable& other)
     swap(d_anchor,        other.d_anchor);
     swap(d_size,          other.d_size); 
     swap(d_nodeFactory,   other.d_nodeFactory); 
-    swap(d_loadLimit,     other.d_loadLimit);
+    swap(d_capacity,     other.d_capacity);
     swap(d_maxLoadFactor, other.d_maxLoadFactor);
 }
 
@@ -843,8 +918,8 @@ template <class VALUE_POLICY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void HashTable<VALUE_POLICY, HASH, EQUAL, ALLOCATOR>::max_load_factor(float z) { 
     d_maxLoadFactor = z;
-    d_loadLimit = this->numOfBuckets() * z;
-    if (d_loadLimit < this->size()) {
+    d_capacity = this->numOfBuckets() * z;
+    if (d_capacity < this->size()) {
         this->reserve(this->size());
     }
 }
@@ -862,7 +937,7 @@ HashTable<VALUE_POLICY, HASH, EQUAL, ALLOCATOR>::rehash(size_type n)
     n = HashTable_GrowthUtil::nextPrime(n);
     
     if (n > this->numOfBuckets()) {
-        d_loadLimit = n * this->max_load_factor();
+        d_capacity = n * this->max_load_factor();
         
         HashTableAnchor newAnchor;
         HashTable_Util<ALLOCATOR>::initAnchor(&newAnchor, 

@@ -73,15 +73,15 @@ namespace bslalg
                           // class HashTableUtil
                           // ===================
 
-struct HashTableUtil {
+struct HashTableImpUtil {
   private:
     static
-    HashTableBucket *bucketForHashCode(const HashTableAnchor& anchor,
-                                       std::size_t            hashCode);
+    HashTableBucket *findBucketForHashCode(const HashTableAnchor& anchor,
+                                           native_std::size_t     hashCode);
 
     static
     void spliceSegmentIntoBucket(BidirectionalLink  *cursor,
-                                 BidirectionalLink  *nextCursor,
+                                 BidirectionalLink  *nextLink()Cursor,
                                  HashTableBucket    *bucket,
                                  BidirectionalLink **newRoot);
         // Consider moving this 'private' method into an implemention-private
@@ -90,8 +90,8 @@ struct HashTableUtil {
 
   public:
     static
-    std::size_t bucketNumberForHashCode(std::size_t hashCode,
-                                        std::size_t numBuckets);
+    std::size_t computeBucketNumber(std::size_t hashCode,
+                                    std::size_t numBuckets);
 
     static
     void insertAtFrontOfBucket(HashTableAnchor    *anchor,
@@ -105,15 +105,15 @@ struct HashTableUtil {
                                    BidirectionalLink  *location);
 
     static
-    void removeNodeFromTable(HashTableAnchor   *anchor,
-                             BidirectionalLink *position,
-                             std::size_t        hashCode);
+    void removeNode(HashTableAnchor   *anchor,
+                    BidirectionalLink *position,
+                    std::size_t        hashCode);
 
     // lookup
     template <class VALUE_POLICY, class KEY_EQUAL, class KEY_TYPE>
     static
-    BidirectionalLink *find(const KEY_EQUAL&       keyComparator,
-                            const HashTableAnchor& anchor,
+    BidirectionalLink *find(const HashTableAnchor& anchor,
+                            const KEY_EQUAL&       keyComparator,
                             const KEY_TYPE&        key,
                             std::size_t            hashCode);
 
@@ -183,7 +183,7 @@ BidirectionalLink *HashTableUtil::find(const KEY_EQUAL&       keyComparator,
     // the loop as not-found.
 
     if (BidirectionalLink *cursor = bucket.first()) {
-        for ( ; ; cursor = cursor->next() ) {
+        for ( ; ; cursor = cursor->nextLink()() ) {
             if (keyComparator(key, VALUE_POLICY::extractKey(cursor))) {
                 return cursor;
             }
@@ -203,7 +203,7 @@ void HashTableUtil::rehash(HashTableAnchor    *newAnchor,
 {
     BSLS_ASSERT_SAFE(newAnchor);
     BSLS_ASSERT_SAFE(oldRoot);           // empty lists do not need a rehash
-    BSLS_ASSERT_SAFE(!oldRoot->prev());  // otherwise, not a 'root'
+    BSLS_ASSERT_SAFE(!oldRoot->previousLink());  // otherwise, not a 'root'
 
     BidirectionalLink   *newRoot = 0;
 
@@ -214,21 +214,21 @@ void HashTableUtil::rehash(HashTableAnchor    *newAnchor,
                                        *newAnchor,
                                        hash(VALUE_POLICY::extractKey(cursor)));
 
-        BidirectionalLink *nextCursor  = cursor;
+        BidirectionalLink *nextLink()Cursor  = cursor;
         // Walk list of nodes that will rehash to the same bucket
         // This will advance the list extraction point *before* we splice
-        while ((oldRoot  = oldRoot->next()) &&
+        while ((oldRoot  = oldRoot->nextLink()()) &&
                 bucket == bucketForHashCode(
                                     *newAnchor,
                                     hash(VALUE_POLICY::extractKey(oldRoot)))) {
-             nextCursor = oldRoot;
+             nextLink()Cursor = oldRoot;
         }
 
-        spliceSegmentIntoBucket(cursor, nextCursor, bucket, &newRoot);
+        spliceSegmentIntoBucket(cursor, nextLink()Cursor, bucket, &newRoot);
     }
     while (oldRoot);
 
-BSLS_ASSERT_SAFE(!newRoot->prev());  // otherwise, not a 'root' - postcondition assertion during dev.
+BSLS_ASSERT_SAFE(!newRoot->previousLink());  // otherwise, not a 'root' - postcondition assertion during dev.
     newAnchor->setListRootAddress(newRoot);
 }
 } // namespace BloombergLP::bslalg

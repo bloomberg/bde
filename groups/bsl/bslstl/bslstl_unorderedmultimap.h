@@ -482,19 +482,10 @@ template <class KEY_TYPE,
           class ALLOC>
 inline
 typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::insert(const value_type& obj)
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::insert(
+                                                         const value_type& obj)
 {
-    // I think that we should have insert_unique, insert_multi: what's the
-    // semantic of the table? what are its invariant?
-
-    iterator it = iterator(d_impl.find(obj.first));
-    if(end() == it) {
-        it = iterator(d_impl.doEmplace(obj));
-    }
-    else {
-        it = iterator(d_impl.insertValueBefore(obj, it.node()));
-    }
-    return it;
+    return iterator(d_impl.insertContiguous(obj));
 }
 
 template <class KEY_TYPE,

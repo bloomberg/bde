@@ -15,79 +15,81 @@ namespace BloombergLP
 namespace bslalg
 {
 
-void BidirectionalLinkListUtil::insertLinkAfter(BidirectionalLink *newNode,
-                                                BidirectionalLink *head)
+void BidirectionalLinkListUtil::insertLinkAfterTarget(
+                                                    BidirectionalLink *newNode,
+                                                    BidirectionalLink *target)
 {
     BSLS_ASSERT_SAFE(newNode);
-    BSLS_ASSERT_SAFE(head);
+    BSLS_ASSERT_SAFE(target);
 
-    BidirectionalLink *next = head->next();
+    BidirectionalLink *next = target->nextLink();
 
-    head->setNext(newNode);
+    target->setNextLink(newNode);
     if (next) {
-        next->setPrev(newNode);
+        next->setPreviousLink(newNode);
     }
 
-    newNode->setPrev(head);
-    newNode->setNext(next);
+    newNode->setPreviousLink(target);
+    newNode->setNextLink(next);
 } 
 
-void BidirectionalLinkListUtil::insertLinkInHead(BidirectionalLink  *newNode,
-                                                 BidirectionalLink  *tail)
+void BidirectionalLinkListUtil::insertLinkBeforeTarget(
+                                                   BidirectionalLink  *newNode,
+                                                   BidirectionalLink  *target)
 {
     BSLS_ASSERT(newNode);
 
 
-    if (!tail) {  // Prepending before an empty list is *explicitly* *allowed*
-        newNode->reset();  // redundant with pre-condition
+    if (!target) {  // Prepending before an empty list is *explicitly* *allowed*
+        newNode->reset();
     }
-    else if (BidirectionalLink *prev = tail->prev()) {  // decode this value only once
-        newNode->setPrev(prev);
-        prev->setNext(newNode);
-        newNode->setNext(tail);
-        tail->setPrev(newNode);
+    else if (BidirectionalLink *prev = target->previousLink()) {  
+        newNode->setPreviousLink(prev);
+        prev->setNextLink(newNode);
+        newNode->setNextLink(target);
+        target->setPreviousLink(newNode);
     }
     else {
-        // newNode CANNOT be end-of-bucket, as 'tail' is in the same bucket
-        newNode->setPrev(0);  // asserted precondition
-        newNode->setNext(tail);
-        tail->setPrev(newNode);
+        newNode->setPreviousLink(0);  // asserted precondition
+        newNode->setNextLink(target);
+        target->setPreviousLink(newNode);
     }
 }
 
-void BidirectionalLinkListUtil::spliceListBeforeLink(BidirectionalLink *first,
-                                                     BidirectionalLink *last,
-                                                     BidirectionalLink *before)
+void BidirectionalLinkListUtil::spliceListBeforeTarget
+                                                   (BidirectionalLink *first,
+                                                    BidirectionalLink *last,
+                                                    BidirectionalLink *target)
 {
     BSLS_ASSERT(first);
     BSLS_ASSERT(last);
 
     // unlink from existing list
-    if (BidirectionalLink* prev = first->prev()) {
-        prev->setNext(last->next());
+    if (BidirectionalLink* prev = first->previousLink()) {
+        prev->setNextLink()(last->nextLink()());
     }
-    if (BidirectionalLink* next = last->next()) {
-        next->setPrev(first->prev());
+    if (BidirectionalLink* next = last->nextLink()()) {
+        next->setPreviousLink(first->previousLink());
     }
 
     // update into spliced location:
-    if (!before) {
-        // Prepending before an empty list is *explicitly* *allowed*
+    if (!target) {
+        // Prepending target an empty list is *explicitly* *allowed*
         // The "spliced" segment is still extracted from the original list
-        first->setPrev(0);  // redundant with pre-condition
-        last->setNext(0);
+        first->setPreviousLink(0);  // redundant with pre-condition
+        last->setNextLink(0);
     }
     else {
-        if (BidirectionalLink *prev = before->prev()) {
-            first->setPrev(prev);
-            prev->setNext(first);
+        if (BidirectionalLink *prev = target->previousLink()) {
+            first->setPreviousLink(prev);
+            prev->setNextLink(first);
         }
         else {
-            first->setPrev(0);
+            first->setPreviousLink(0);
         }
 
-        last->setNext(before);
-        before->setPrev(last);
+        last->setNextLink(target);
+        target->setPreviousLink(last);
     }
 }
 
@@ -96,17 +98,17 @@ void BidirectionalLinkListUtil::unlink(BidirectionalLink *node)
 {
     BSLS_ASSERT_SAFE(node);
 
-    if (BidirectionalLink *prev = node->prev()) {
-        if (BidirectionalLink *next = node->next()) {
-            next->setPrev(prev);
-            prev->setNext(next);
+    if (BidirectionalLink *prev = node->previousLink()) {
+        if (BidirectionalLink *next = node->nextLink()) {
+            next->setPreviousLink(prev);
+            prev->setNextLink(next);
         }
         else {
-            prev->setNext(0);
+            prev->setNextLink(0);
         }
     }
-    else if(BidirectionalLink *next = node->next()) {
-        next->setPrev(0);
+    else if(BidirectionalLink *next = node->nextLink()) {
+        next->setPreviousLink(0);
     }
 }
 

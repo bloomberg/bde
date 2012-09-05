@@ -69,7 +69,7 @@ class BidirectionalLink {
 
   private:
     // DATA
-    BidirectionalLink *d_next_p;  // The next node in a list traversal
+    BidirectionalLink *d_next_p;  // The nextLink() node in a list traversal
     BidirectionalLink *d_prev_p;  // The preceding node in a list traversal
 
   public:
@@ -91,22 +91,20 @@ class BidirectionalLink {
         // members of the specified 'rhs' object, and return a reference
         // providing modifiable access to this object.
 
-    void setNext(BidirectionalLink *next);
-        // Set the successor of this node to be the specified 'next' link.  If
-        // 'next' is 0, then this node will terminate a list.
+    void setNextLink(BidirectionalLink *next);
+        // Set the successor of this node to be the specified 'nextLink()' link. 
 
-    void setPrev(BidirectionalLink *prev);
+    void setPreviousLink(BidirectionalLink *previous);
         // Set the predecessor of this node to be the specified 'prev' link.
-        // If 'prev' is 0, then this node will be the root of a list.
-
+   
     void reset();
-        // Set the 'next' and 'prev' attributes of this value to 0. 
+        // Set the 'nextLink()' and 'prev' attributes of this value to 0. 
     
     // ACCESSORS
-    BidirectionalLink *next() const;
-        // Return the address of the next node linked from this node.
+    BidirectionalLink *nextLink() const;
+        // Return the address of the nextLink() node linked from this node.
 
-    BidirectionalLink *prev() const;
+    BidirectionalLink *previousLink() const;
         // Return the address of the preceding node linked from this node.
 
 };
@@ -121,15 +119,15 @@ class BidirectionalLink {
 
 // MANIPULATORS
 inline
-void BidirectionalLink::setNext(BidirectionalLink *next)
+void BidirectionalLink::setNextLink(BidirectionalLink *next)
 {
-    d_next_p = next;
+    d_next_p = nextLink();
 }
 
 inline
-void BidirectionalLink::setPrev(BidirectionalLink *prev)
+void BidirectionalLink::setPreviousLink(BidirectionalLink *previous)
 {
-    d_prev_p = prev;
+    d_prev_p = previous;
 }
 
 inline
@@ -141,13 +139,13 @@ void BidirectionalLink::reset()
 
 // ACCESSORS
 inline
-BidirectionalLink *BidirectionalLink::next() const
+BidirectionalLink *BidirectionalLink::nextLink() const
 {
     return d_next_p;
 }
 
 inline
-BidirectionalLink *BidirectionalLink::prev() const
+BidirectionalLink *BidirectionalLink::previousLink() const
 {
     return d_prev_p;
 }
