@@ -1,6 +1,6 @@
-// bslalg_bidirectionalnode.h                                 -*-C++-*-
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKLISTNODE
-#define INCLUDED_BSLALG_BIDIRECTIONALLINKLISTNODE
+// bslalg_bidirectionalnode.h                                         -*-C++-*-
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
+#define INCLUDED_BSLALG_BIDIRECTIONALNODE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -35,10 +35,10 @@ BSLS_IDENT("$Id: $")
 //     `-------------------------'
 //                         ctor
 //                         dtor
-//                         setNextLink()
-//                         setPrev
-//                         nextLink()
-//                         prev
+//                         setNextLink
+//                         setPreviousLink
+//                         nextLink
+//                         previousLink
 //..
 // This class is "POD-like" to facilitate efficient allocation and use in the
 // context of container implementations.  In order to meet the essential
@@ -97,7 +97,7 @@ class BidirectionalNode: public bslalg::BidirectionalLink {
     ~BidirectionalNode();                           // Declared but not defined
 
   public:
-    typedef VALUE_TYPE    ValueType;  // 
+    typedef VALUE_TYPE    ValueType;  //
 
     // MANIPULATORS
     ValueType& value();

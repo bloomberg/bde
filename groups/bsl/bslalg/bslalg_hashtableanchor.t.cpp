@@ -384,8 +384,8 @@ int main(int argc, char *argv[]) {
                 Obj *mR = &(mX = Z);
                 ASSERTV(ti, tj, mR, &mX, mR == &mX);
 
-                ASSERTV(ti, tj, Z.arraySize(), mX.arraySize(), Z == mX);
-                ASSERTV(ti, tj, Z.arraySize(), ZZ.arraySize(), Z == ZZ);
+                ASSERTV(ti, tj, Z.bucketArraySize(), mX.bucketArraySize(), Z == mX);
+                ASSERTV(ti, tj, Z.bucketArraySize(), ZZ.bucketArraySize(), Z == ZZ);
             }
         }
 
@@ -406,8 +406,8 @@ int main(int argc, char *argv[]) {
             Obj *mR = &(mX = Z);
             ASSERTV(ti, mR, &mX, mR == &mX);
 
-            ASSERTV(ti, Z.arraySize(), mX.arraySize(), Z == mX);
-            ASSERTV(ti, Z.arraySize(), ZZ.arraySize(), Z == ZZ);
+            ASSERTV(ti, Z.bucketArraySize(), mX.bucketArraySize(), Z == mX);
+            ASSERTV(ti, Z.bucketArraySize(), ZZ.bucketArraySize(), Z == ZZ);
         }
 
       } break;
@@ -475,8 +475,8 @@ int main(int argc, char *argv[]) {
 
             const Obj X(Z);
 
-            ASSERTV(Z.arraySize(), X.arraySize(), Z == X);
-            ASSERTV(Z.arraySize(), ZZ.arraySize(), Z == ZZ);
+            ASSERTV(Z.bucketArraySize(), X.bucketArraySize(), Z == X);
+            ASSERTV(Z.bucketArraySize(), ZZ.bucketArraySize(), Z == ZZ);
         }
 
       } break;
@@ -577,8 +577,8 @@ int main(int argc, char *argv[]) {
             Obj mX(EXP_ADD, EXP_SIZE, EXP_ROOT); const Obj& X = mX;
 
             // Ensure an object compares correctly with itself (alias test).
-            ASSERTV(X.arraySize(),   X == X);
-            ASSERTV(X.arraySize(), !(X != X));
+            ASSERTV(X.bucketArraySize(),   X == X);
+            ASSERTV(X.bucketArraySize(), !(X != X));
 
             for (int tj = 0; tj < NUM_VALUES; ++tj) {
                 const int LINE2 = VALUES[tj].d_line;
@@ -599,15 +599,15 @@ int main(int argc, char *argv[]) {
                 ASSERTV(X.bucketArrayAddress(), 
                         Y.bucketArrayAddress(), 
                         EXP,  (EXP == (X == Y)));
-                ASSERTV(X.arraySize(), Y.arraySize(), EXP,  (EXP == (X == Y)));
+                ASSERTV(X.bucketArraySize(), Y.bucketArraySize(), EXP,  (EXP == (X == Y)));
                 ASSERTV(X.listRootAddress(), Y.listRootAddress(), EXP,  (EXP == (X == Y)));
                 
                 ASSERTV(X.bucketArrayAddress(), Y.bucketArrayAddress(), EXP,  (EXP == (Y == X)));
-                ASSERTV(X.arraySize(), Y.arraySize(), EXP,  (EXP == (Y == X)));
+                ASSERTV(X.bucketArraySize(), Y.bucketArraySize(), EXP,  (EXP == (Y == X)));
                 ASSERTV(X.listRootAddress(), Y.listRootAddress(), EXP,  (EXP == (Y == X)));
 
-                ASSERTV(X.arraySize(), Y.arraySize(), EXP, (!EXP == (X != Y)));
-                ASSERTV(X.arraySize(), Y.arraySize(), EXP, (!EXP == (Y != X)));
+                ASSERTV(X.bucketArraySize(), Y.bucketArraySize(), EXP, (!EXP == (X != Y)));
+                ASSERTV(X.bucketArraySize(), Y.bucketArraySize(), EXP, (!EXP == (Y != X)));
             }
         }
 
@@ -641,7 +641,7 @@ int main(int argc, char *argv[]) {
         //:   value.  (C-1, 2)
         //
         // Testing:
-        //   int arraySize() const;
+        //   int bucketArraySize() const;
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -649,10 +649,10 @@ int main(int argc, char *argv[]) {
                    "\n===============\n");
 
         Obj mX; const Obj& X = mX;
-        ASSERTV(X.arraySize(), 0 == X.arraySize());
+        ASSERTV(X.bucketArraySize(), 0 == X.bucketArraySize());
 
         mX.setArraySize(1);
-        ASSERTV(X.arraySize(), 1 == X.arraySize());
+        ASSERTV(X.bucketArraySize(), 1 == X.bucketArraySize());
 
       } break;
       case 3: {
@@ -700,7 +700,7 @@ int main(int argc, char *argv[]) {
             Obj mX(EXP_ADD, EXP_SIZE, EXP_ROOT); const Obj& X = mX;
 
             ASSERTV(EXP_ADD  == X.bucketArrayAddress());
-            ASSERTV(EXP_SIZE == X.arraySize());
+            ASSERTV(EXP_SIZE == X.bucketArraySize());
             ASSERTV(EXP_ROOT == X.listRootAddress());
         }
       } break;
@@ -746,13 +746,13 @@ int main(int argc, char *argv[]) {
         const size_t B = SIZE_T_MIN;
 
         Obj mX; const Obj& X = mX;
-        ASSERTV(X.arraySize(), D == X.arraySize());
+        ASSERTV(X.bucketArraySize(), D == X.bucketArraySize());
 
         mX.setArraySize(A);
-        ASSERTV(X.arraySize(), A == X.arraySize());
+        ASSERTV(X.bucketArraySize(), A == X.bucketArraySize());
 
         mX.setArraySize(B);
-        ASSERTV(X.arraySize(), B == X.arraySize());
+        ASSERTV(X.bucketArraySize(), B == X.bucketArraySize());
 
 
 
@@ -777,13 +777,13 @@ int main(int argc, char *argv[]) {
                             "\n==============\n");
 
         Obj X;
-        ASSERT(X.arraySize() == 0);
+        ASSERT(X.bucketArraySize() == 0);
 
         X.setArraySize(1);
-        ASSERT(X.arraySize() == 1);
+        ASSERT(X.bucketArraySize() == 1);
 
         Obj Y(0, 2, 0);
-        ASSERT(Y.arraySize() == 2);
+        ASSERT(Y.bucketArraySize() == 2);
 
         Obj Z(Y);
         ASSERT(Z == Y);

@@ -31,7 +31,7 @@ void BidirectionalLinkListUtil::insertLinkAfterTarget(
 
     newNode->setPreviousLink(target);
     newNode->setNextLink(next);
-} 
+}
 
 void BidirectionalLinkListUtil::insertLinkBeforeTarget(
                                                    BidirectionalLink  *newNode,
@@ -43,7 +43,7 @@ void BidirectionalLinkListUtil::insertLinkBeforeTarget(
     if (!target) {  // Prepending before an empty list is *explicitly* *allowed*
         newNode->reset();
     }
-    else if (BidirectionalLink *prev = target->previousLink()) {  
+    else if (BidirectionalLink *prev = target->previousLink()) {
         newNode->setPreviousLink(prev);
         prev->setNextLink(newNode);
         newNode->setNextLink(target);

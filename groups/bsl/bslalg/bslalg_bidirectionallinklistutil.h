@@ -51,7 +51,7 @@ struct BidirectionalLinkListUtil {
        // any list, such as having a null pointer for both 'nextLink()' and 'prev'
        // addresses.
        // specified 'tail' node.
-    
+
     static
     void insertLinkAfterTarget(BidirectionalLink *newNode,
                                BidirectionalLink *target);

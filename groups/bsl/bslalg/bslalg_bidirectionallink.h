@@ -92,14 +92,14 @@ class BidirectionalLink {
         // providing modifiable access to this object.
 
     void setNextLink(BidirectionalLink *next);
-        // Set the successor of this node to be the specified 'nextLink()' link. 
+        // Set the successor of this node to be the specified 'nextLink()' link.
 
     void setPreviousLink(BidirectionalLink *previous);
         // Set the predecessor of this node to be the specified 'prev' link.
-   
+
     void reset();
-        // Set the 'nextLink()' and 'prev' attributes of this value to 0. 
-    
+        // Set the 'nextLink' and 'previousLink' attributes of this value to 0.
+
     // ACCESSORS
     BidirectionalLink *nextLink() const;
         // Return the address of the nextLink() node linked from this node.

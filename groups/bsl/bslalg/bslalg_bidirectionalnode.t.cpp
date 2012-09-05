@@ -1,4 +1,4 @@
-// bslalg_bidirectionallinklistnode.t.cpp                             -*-C++-*-
+// bslalg_bidirectionalnode.t.cpp                                     -*-C++-*-
 #include <bslalg_bidirectionalnode.h>
 
 #include <bslma_allocator.h>
@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
             ASSERTV(0 == oa.numBlocksInUse());
         }
       } break;
-#endif 
+#endif
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST

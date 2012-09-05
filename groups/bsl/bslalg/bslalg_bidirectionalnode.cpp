@@ -1,4 +1,4 @@
-// bslalg_bidirectionallinklistnode.cpp                               -*-C++-*-
+// bslalg_bidirectionalnode.cpp                                       -*-C++-*-
 #include <bslalg_bidirectionalnode.h>
 
 #include <bsls_ident.h>
