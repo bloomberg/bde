@@ -11,6 +11,7 @@
 #include <bdeu_random.h>
 #include <bdeu_string.h>
 
+#include <bslma_bufferallocator.h>
 #include <bslma_deallocatorguard.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -1776,45 +1777,56 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Check deallocating same segment twice);
             {
-                unsigned taBlocks;
+                // We use a special underlying allocator in this place, because
+                // if the underlying OS writes over freed memory, we cannot
+                // detect redundant frees as such.  We use a
+                // 'bslma::BufferAllocator' because it won't actually write
+                // over a freed segment, nor will it turn it over to the
+                // underlying OS which may do uncontrollable things with it.
+
+                char buffer[4 * 1000];
+                bslma::BufferAllocator ba(buffer, sizeof(buffer));
+                Obj tba("beta", &oss, 8, true, &ba);
+
+                unsigned tbaBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: deallocating same segment twice);
 
                     ASSERT(ABORT);
                 }
                 else {
-                    ta.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                               : &Obj::failureHandlerNoop);
+                    tba.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
+                                                : &Obj::failureHandlerNoop);
 
-                    void *ptr = ta.allocate(6);
+                    void *ptr = tba.allocate(6);
 
                     ASSERT(oss.str().empty());
 
-                    ta.deallocate(ptr);
+                    tba.deallocate(ptr);
 
-                    taBlocks = (unsigned) ta.numBlocksInUse();
+                    tbaBlocks = (unsigned) tba.numBlocksInUse();
 
-                    ta.deallocate(ptr);
+                    tba.deallocate(ptr);
 
                     if (veryVerbose) Q(NoAbort: dealloc same segment twice);
 
                     ASSERT(!ABORT);
                 }
 
-                ta.setFailureHandler(Obj::failureHandlerAbort);
+                tba.setFailureHandler(Obj::failureHandlerAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 // Make sure nothing was freed before the failure handler
                 // was called.
 
-                ASSERT(taBlocks  == ta.numBlocksInUse());
+                ASSERT(tbaBlocks  == tba.numBlocksInUse());
 
                 // Make sure a report was written.
 
                 ASSERT(!oss.str().empty());
 
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
-                                    "freed second time by allocator 'alpha'"));
+                                     "freed second time by allocator 'beta'"));
                 oss.str("");
             }
 
