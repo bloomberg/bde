@@ -22,10 +22,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integerconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
 #endif

@@ -370,10 +370,6 @@ BDES_IDENT("$Id: $")
 #include <bslalg_hastrait.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
-#include <bslalg_passthroughtrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SELECTTRAIT
 #include <bslalg_selecttrait.h>
 #endif

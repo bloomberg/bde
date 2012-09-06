@@ -31,6 +31,8 @@ BDES_IDENT_RCSID(bael_fileobserver2_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bslstl_stringref.h>
+
 #include <bsl_cstdio.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
@@ -348,7 +350,8 @@ void bael_FileObserver2::logRecordDefault(bsl::ostream&      stream,
     stream << buffer;
     stream << fixedFields.category();
     stream << ' ';
-    stream << fixedFields.message();
+    bslstl_StringRef message = fixedFields.messageRef();
+    stream.write(message.data(), message.length());
     stream << ' ';
 
     const bdem_List& userFields = record.userFields();

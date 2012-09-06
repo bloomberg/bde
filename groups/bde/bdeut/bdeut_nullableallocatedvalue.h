@@ -140,12 +140,6 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-struct bdeut_NullableAllocatedValue_Traits
-                                          : bslalg_TypeTraitUsesBslmaAllocator,
-                                             bdeu_TypeTraitHasPrintMethod
-{
-};
-
                   // ========================================
                   // class bdeut_NullableAllocatedValue<TYPE>
                   // ========================================
@@ -163,8 +157,10 @@ class bdeut_NullableAllocatedValue {
     typedef TYPE ValueType;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdeut_NullableAllocatedValue,
-                                 bdeut_NullableAllocatedValue_Traits);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_NullableAllocatedValue,
+                                   bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_NullableAllocatedValue,
+                                   bdeu_HasPrintMethod);
 
     // CREATORS
     explicit bdeut_NullableAllocatedValue(bslma_Allocator *basicAllocator = 0);

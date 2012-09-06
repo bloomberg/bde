@@ -106,10 +106,6 @@ BDES_IDENT("$Id: $")
 #include <bdeimp_bitwisecopy.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
-#include <bslalg_passthroughtrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
 #include <bslalg_typetraitbitwisemoveable.h>
 #endif

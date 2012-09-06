@@ -626,6 +626,77 @@ void populateMessage(bcema_Blob      *msg,
 
 
 //-----------------------------------------------------------------------------
+// CASE 39
+//-----------------------------------------------------------------------------
+
+namespace CASE39 {
+
+btemt_ChannelPool *d_pool_p = 0;
+bteso_IPv4Address  d_peerAddress;
+
+void poolStateCb(int state, int source, int severity)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Pool state callback called with"
+                  << " State: " << state
+                  << " Source: "  << source
+                  << " Severity: " << severity << bsl::endl;
+    }
+}
+
+void channelStateCb(int              channelId,
+                    int              serverId,
+                    int              state,
+                    void            *arg,
+                    int             *id,
+                    bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Channel state callback called with"
+                  << " Channel Id: " << channelId
+                  << " Server Id: "  << serverId
+                  << " State: " << state << bsl::endl;
+    }
+    if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
+        *id = channelId;
+        d_pool_p->getPeerAddress(&d_peerAddress, channelId);
+        barrier->wait();
+    }
+    else if (btemt_ChannelPool::BTEMT_CHANNEL_DOWN == state) {
+        bteso_IPv4Address peer;
+        d_pool_p->getPeerAddress(&peer, channelId);
+        ASSERT(d_peerAddress != peer);
+        barrier->wait();
+    }
+}
+
+void blobBasedReadCb(int             *needed,
+                     bcema_Blob      *msg,
+                     int              channelId,
+                     void            *arg,
+                     bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Blob Based Read Cb called with"
+                  << " Channel Id: " << channelId
+                  << " of length: "  << msg->length() << bsl::endl;
+    }
+    *needed = 1;
+
+    bteso_IPv4Address peer;
+    d_pool_p->getPeerAddress(&peer, channelId);
+    LOOP2_ASSERT(d_peerAddress, peer, d_peerAddress == peer);
+
+    msg->removeAll();
+}
+
+}
+
+
+//-----------------------------------------------------------------------------
 // CASE 42
 //-----------------------------------------------------------------------------
 
@@ -8119,7 +8190,7 @@ class TestDriver {
         // TBD: Doc
 
     static void testCase39();
-        // TBD: Doc
+        // Test that 'peerAddress' returns the correct IP address.
 
     static void testCase38();
         // Test that 'disableRead' when called from dispatcher thread stops
@@ -8488,7 +8559,108 @@ void TestDriver::testCase40()
 
 void TestDriver::testCase39()
 {
-    // TBD: Update when test cases are merged.
+        // --------------------------------------------------------------------
+        // Testing 'peerAddress' is correctly returned
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   DRQS 20535695
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING 'peerAddress' is correctly returned"
+                 << "\n==========================================="
+                 << endl;
+
+        using namespace CASE39;
+
+        btemt_ChannelPoolConfiguration config;
+        config.setMaxThreads(1);
+        config.setWriteCacheWatermarks(0, 1024 * 1024);
+        config.setReadTimeout(0);        // in seconds
+        if (verbose) {
+            P(config);
+        }
+
+        bcemt_Barrier   channelCbBarrier(2);
+        int             channelId;
+        btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                                       bdef_BindUtil::bind(&channelStateCb,
+                                                         _1, _2, _3, _4,
+                                                         &channelId,
+                                                         &channelCbBarrier));
+
+        btemt_ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
+
+        bcemt_Barrier dataCbBarrier(2);
+
+        btemt_ChannelPool::BlobBasedReadCallback dataCb(
+                                     bdef_BindUtil::bind(&blobBasedReadCb,
+                                                         _1, _2, _3, _4,
+                                                         &dataCbBarrier));
+
+        btemt_ChannelPool pool(channelCb, dataCb, poolCb, config);
+        d_pool_p = &pool;
+
+        ASSERT(0 == pool.start());
+
+        const bteso_IPv4Address ADDRESS("127.0.0.1", 0);
+
+        enum {
+            SERVER_ID           = 1013410001,
+            BACKLOG             = 100
+        };
+
+        int rc = pool.listen(ADDRESS, BACKLOG, SERVER_ID);
+        LOOP_ASSERT(rc, !rc);
+
+        const bteso_IPv4Address SA = *pool.serverAddress(SERVER_ID);
+
+        typedef bteso_StreamSocket<bteso_IPv4Address>            Socket;
+        typedef btesos_TcpChannel                                Channel;
+        typedef bteso_InetStreamSocketFactory<bteso_IPv4Address> Factory;
+
+        Factory factory;
+
+        Socket  *socket = factory.allocate();
+        Channel  channel(socket);
+
+        rc = socket->connect(SA);
+        ASSERT(!rc);
+
+        channelCbBarrier.wait();
+        ASSERT(-1 != channelId);
+
+        bteso_IPv4Address exp;  const bteso_IPv4Address& EXP = exp;
+        rc = pool.getPeerAddress(&exp, channelId);
+        ASSERT(!rc);
+
+        const char data[] = "socket";
+        rc = socket->write(data, sizeof data);
+        ASSERT(rc);
+
+        bteso_IPv4Address peer;  const bteso_IPv4Address& PEER = peer;
+        rc = pool.getPeerAddress(&peer, channelId);
+        ASSERT(!rc);
+        LOOP2_ASSERT(EXP, PEER, EXP == PEER);
+
+        rc = socket->write(data, sizeof data);
+        ASSERT(rc);
+
+        rc = pool.getPeerAddress(&peer, channelId);
+        ASSERT(!rc);
+        LOOP2_ASSERT(EXP, PEER, EXP == PEER);
+
+        rc = socket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+        ASSERT(!rc);
+
+        bteso_IPv4Address other;  const bteso_IPv4Address& OTHER = other;
+        rc = pool.getPeerAddress(&other, channelId);
+
+        channelCbBarrier.wait();
 }
 
 void TestDriver::testCase38()

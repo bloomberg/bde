@@ -59,7 +59,9 @@ namespace BloombergLP {
 namespace bslalg {
 
 template <typename TYPE>
-struct HasStlIterators : bsl::false_type {};
+struct HasStlIterators : bslmf::DetectNestedTrait<TYPE, HasStlIterators>
+{
+};
 
                         //================================
                         // struct TypeTraitHasStlIterators
