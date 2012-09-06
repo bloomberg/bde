@@ -807,7 +807,7 @@ void Functor::allocOne()
 void Functor::nest4()
 {
     if (++d_nestDepth > 10) {
-        return;
+        return;                                                       // RETURN
     }
 
     FuncPtr allocOnePtr = s_funcPtrs[s_allocOneIdx];
@@ -832,7 +832,7 @@ void Functor::nest4()
 void Functor::nest3()
 {
     if (++d_nestDepth > 10) {
-        return;
+        return;                                                       // RETURN
     }
 
     (this->*s_funcPtrs[s_nest4Idx])();
@@ -843,7 +843,7 @@ void Functor::nest3()
 void Functor::nest2()
 {
     if (++d_nestDepth > 10) {
-        return;
+        return;                                                       // RETURN
     }
 
     (this->*s_funcPtrs[s_nest3Idx])();
@@ -854,7 +854,7 @@ void Functor::nest2()
 void Functor::nest1()
 {
     if (++d_nestDepth > 10) {
-        return;
+        return;                                                       // RETURN
     }
 
     (this->*s_funcPtrs[s_nest2Idx])();
@@ -897,7 +897,7 @@ static
 void leakTwiceB()
 {
     if (++leakTwiceCount > 10) {
-        return;
+        return;                                                       // RETURN
     }
 
     (*voidFuncs[idxVoidFuncLeakTwiceC])();
@@ -909,7 +909,7 @@ static
 void leakTwiceA()
 {
     if (++leakTwiceCount > 10) {
-        return;
+        return;                                                       // RETURN
     }
 
     ASSERT(leakTwiceAllocator);
@@ -1542,7 +1542,7 @@ int main(int argc, char *argv[])
         //   are detected by this magic number being perterbed.  The data
         //   before this magic number consists of pointers, so we cannot
         //   guarantee that corruption of these pointers will be detectable.
-        //  
+        //
         //   The most likely garbage bytes to occur, therefore the most likely
         //   bytes to be accidentally written in an underrun, are '0', '1', and
         //   '0xff'.  Therefore all continuous underruns and wild writes will
@@ -3181,6 +3181,7 @@ int main(int argc, char *argv[])
                 ASSERT(npos != (pos = outStr.find("leakTwiceA", pos)));
                 LOOP_ASSERT(maxDepths[d], npos !=
                                (pos = outStr.find("leakTwiceA", pos + 1)));
+                pos = 0;
                 ASSERT(npos != (pos = outStr.find("main",       pos)));
             }
             if (testStatus > 0) P(outStr);
