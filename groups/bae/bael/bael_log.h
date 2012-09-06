@@ -631,10 +631,12 @@ BDES_IDENT("$Id: $")
 
 #define BAEL_LOG_FATAL BAEL_LOG_STREAM(bael_Severity::BAEL_FATAL)
 
-// We indirectly define 'BAEL_LOG_END' to 'bsl::ends' because the 'BAEL_LOG_*'
-// (except 'BAEL_LOG_STREAM') also have indirect definition by forwarding to
-// 'BAEL_LOG_STREAM'.  This symetric enables correct intellisense in
-// development tools like Visual Studio.
+// We indirectly define the macro for ending a 'BAEL_LOG_*' block because the
+// 'BAEL_LOG_[LEVEL]' macros that most often begin such a block (e.g.,
+// 'BAEL_LOG_ERROR') indirectly forward to 'BAEL_LOG_STREAM'.  This symmetry
+// enables Microsoft intellisense to reasonably parse code following a use of
+// this macro.
+
 #define BAEL_LOG_REAL_END bsl::ends;                                       \
         }                                                                  \
     }                                                                      \
@@ -667,10 +669,12 @@ BDES_IDENT("$Id: $")
 
 #define BAEL_LOGCB_FATAL(CB) BAEL_LOGCB_STREAM(bael_Severity::BAEL_FATAL, CB)
 
-// We indirectly define 'BAEL_LOGCB_END' to 'bsl::ends' because the
-// 'BAEL_LOGCB_*' (except 'BAEL_LOGCB_STREAM') also have indirect definition by
-// forwarding to 'BAEL_LOGCB_STREAM'.  This symetric enables correct
-// intellisense in development tools like Visual Studio.
+// We indirectly define the macro for ending a 'BAEL_LOGCB_*' block because the
+// 'BAEL_LOGCB_[LEVEL]' macros that most often begin such a block (e.g.,
+// 'BAEL_LOGCB_ERROR') indirectly forward to 'BAEL_LOGCB_STREAM'.  This
+// symmetry enables Microsoft intellisense to reasonably parse code following a
+// use of this macro.
+
 #define BAEL_LOGCB_REAL_END bsl::ends;                                     \
         }                                                                  \
     }                                                                      \
