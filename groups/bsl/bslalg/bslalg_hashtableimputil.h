@@ -1,4 +1,4 @@
-// bslalg_hashtableutil.h                                             -*-C++-*-
+// bslalg_hashtableimputil.h                                             -*-C++-*-
 #ifndef INCLUDED_BSLALG_HASHTABLEIMPUTIL
 #define INCLUDED_BSLALG_HASHTABLEIMPUTIL
 
@@ -73,9 +73,9 @@ namespace BloombergLP
 namespace bslalg
 {
 
-                          // ===================
+                          // ======================
                           // class HashTableImpUtil
-                          // ===================
+                          // ======================
 
 struct HashTableImpUtil {
   private:
@@ -94,8 +94,8 @@ struct HashTableImpUtil {
 
   public:
     static
-    native_std::size_t computeBucketNumber(native_std::size_t hashCode,
-                                           native_std::size_t numBuckets);
+    native_std::size_t computeBucketIndex(native_std::size_t hashCode,
+                                          native_std::size_t numBuckets);
 
     static
     void insertAtFrontOfBucket(HashTableAnchor    *anchor,
@@ -154,14 +154,14 @@ HashTableBucket *HashTableImpUtil::findBucketForHashCode(
     BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
     BSLS_ASSERT_SAFE(anchor.bucketArraySize());
 
-    native_std::size_t bucketId = HashTableImpUtil::computeBucketNumber(
+    native_std::size_t bucketId = HashTableImpUtil::computeBucketIndex(
                                                      hashCode,
                                                      anchor.bucketArraySize());
     return &(anchor.bucketArrayAddress()[bucketId]);
 }
 
 inline
-native_std::size_t HashTableImpUtil::computeBucketNumber(
+native_std::size_t HashTableImpUtil::computeBucketIndex(
                                                  native_std::size_t hashCode,
                                                  native_std::size_t numBuckets)
 {
@@ -179,7 +179,7 @@ BidirectionalLink *HashTableImpUtil::find(const HashTableAnchor& anchor,
     BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
     BSLS_ASSERT_SAFE(anchor.bucketArraySize());
 
-    const native_std::size_t bucketId = computeBucketNumber(hashCode,
+    const native_std::size_t bucketId = computeBucketIndex(hashCode,
                                                      anchor.bucketArraySize());
     const HashTableBucket& bucket = anchor.bucketArrayAddress()[bucketId];
 

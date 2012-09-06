@@ -1,6 +1,6 @@
-// bslalg_hashtableutil.t.cpp                                         -*-C++-*-
+// bslalg_hashtableimputil.t.cpp                                         -*-C++-*-
 
-#include <bslalg_hashtableutil.h>
+#include <bslalg_hashtableimputil.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>

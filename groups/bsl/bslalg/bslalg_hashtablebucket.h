@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bslalg::HashTableBucket : hash-table that manages externally allocated nodes
 //
-//@SEE_ALSO: bslalg_hashtableutil
+//@SEE_ALSO: bslalg_hashtableimputil
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //

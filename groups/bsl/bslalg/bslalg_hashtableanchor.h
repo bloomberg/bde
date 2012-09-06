@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
 //
-//@SEE_ALSO: bslstl_hashtable, bslalg_hashtableutil
+//@SEE_ALSO: bslstl_hashtable, bslalg_hashtableimputil
 //
 //@DESCRIPTION: This component provides a single, simply constrained
 // *in*-*core* (value-semantic) attribute class, 'bslalg::HashTableAnchor',
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: ...
-///- - - - - - - 
+///- - - - - - -
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -146,8 +146,8 @@ class HashTableAnchor {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    void setBucketArrayAndSize(HashTableBucket    *array,
-                               native_std::size_t  size);
+    void setBucketArrayAddressAndSize(HashTableBucket    *array,
+                                      native_std::size_t  size);
 
     void setListRootAddress(BidirectionalLink *value);
         // Set the 'listRootAddress' attribute of this object to the
@@ -235,8 +235,8 @@ HashTableAnchor& HashTableAnchor::operator=(const HashTableAnchor& rhs)
 }
 
 inline
-void HashTableAnchor::setBucketArrayAndSize(HashTableBucket    *array,
-                                            native_std::size_t  size)
+void HashTableAnchor::setBucketArrayAddressAndSize(HashTableBucket    *array,
+                                                   native_std::size_t  size)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 < size);

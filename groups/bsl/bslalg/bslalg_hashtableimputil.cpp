@@ -1,5 +1,5 @@
-// bslalg_hashtableutil.cpp                                           -*-C++-*-
-#include <bslalg_hashtableutil.h>
+// bslalg_hashtableimputil.cpp                                           -*-C++-*-
+#include <bslalg_hashtableimputil.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

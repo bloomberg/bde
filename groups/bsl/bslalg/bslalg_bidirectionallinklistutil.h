@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::BidirectionalLinkListUtil: utilities to maintain linked lists
 //
-//@SEE_ALSO: bslalg_bidirectionallink, bslalg_hashtableutil
+//@SEE_ALSO: bslalg_bidirectionallink, bslalg_hashtableimputil
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //

@@ -374,7 +374,7 @@ int main(int argc, char *argv[]) {
             size_t EXP_SIZE = VALUES[ti].d_arraySize;
             Link *EXP_ROOT = VALUES[ti].d_listRootAddress;
 
-            if (veryVerbose) { 
+            if (veryVerbose) {
                 T_ P_(LINE1) P_(EXP_ADD) P_(EXP_SIZE) P(EXP_ROOT)
             }
 
@@ -407,7 +407,7 @@ int main(int argc, char *argv[]) {
             size_t EXP_SIZE = VALUES[ti].d_arraySize;
             Link *EXP_ROOT = VALUES[ti].d_listRootAddress;
 
-            if (veryVerbose) { 
+            if (veryVerbose) {
                 T_ P_(LINE) P_(EXP_ADD) P_(EXP_SIZE) P(EXP_ROOT)
             }
 
@@ -478,7 +478,7 @@ int main(int argc, char *argv[]) {
             size_t EXP_SIZE = VALUES[ti].d_arraySize;
             Link *EXP_ROOT = VALUES[ti].d_listRootAddress;
 
-            if (veryVerbose) { 
+            if (veryVerbose) {
                 T_ P_(LINE) P_(EXP_ADD) P_(EXP_SIZE) P(EXP_ROOT)
             }
 
@@ -582,7 +582,7 @@ int main(int argc, char *argv[]) {
             size_t EXP_SIZE = VALUES[ti].d_arraySize;
             Link *EXP_ROOT = VALUES[ti].d_listRootAddress;
 
-            if (veryVerbose) { 
+            if (veryVerbose) {
                 T_ P_(LINE1) P_(EXP_ADD) P_(EXP_SIZE) P(EXP_ROOT)
             }
 
@@ -600,20 +600,20 @@ int main(int argc, char *argv[]) {
 
                 bool EXP = ti == tj;
 
-                if (veryVerbose) { 
+                if (veryVerbose) {
                     T_ P_(LINE2) P_(EXP_ADD2) P_(EXP_SIZE2) P(EXP_ROOT2)
                 }
 
                 Obj mY(EXP_ADD2, EXP_SIZE2, EXP_ROOT2); const Obj& Y = mY;
-                
+
                 // Verify value, commutativity
 
-                ASSERTV(X.bucketArrayAddress(), 
-                        Y.bucketArrayAddress(), 
+                ASSERTV(X.bucketArrayAddress(),
+                        Y.bucketArrayAddress(),
                         EXP,  (EXP == (X == Y)));
                 ASSERTV(X.bucketArraySize(), Y.bucketArraySize(), EXP,  (EXP == (X == Y)));
                 ASSERTV(X.listRootAddress(), Y.listRootAddress(), EXP,  (EXP == (X == Y)));
-                
+
                 ASSERTV(X.bucketArrayAddress(), Y.bucketArrayAddress(), EXP,  (EXP == (Y == X)));
                 ASSERTV(X.bucketArraySize(), Y.bucketArraySize(), EXP,  (EXP == (Y == X)));
                 ASSERTV(X.listRootAddress(), Y.listRootAddress(), EXP,  (EXP == (Y == X)));
@@ -706,7 +706,7 @@ int main(int argc, char *argv[]) {
             size_t    EXP_SIZE = VALUES[ti].d_arraySize;
             Link     *EXP_ROOT = VALUES[ti].d_listRootAddress;
 
-            if (veryVerbose) { 
+            if (veryVerbose) {
                 T_ P_(LINE1) P_(EXP_ADD) P_(EXP_SIZE) P(EXP_ROOT)
             }
 
@@ -757,7 +757,7 @@ int main(int argc, char *argv[]) {
         bslalg::HashTableBucket ARRAY_D[1] = {};
         bslalg::HashTableBucket ARRAY_A[2] = {};
         bslalg::HashTableBucket ARRAY_B[5] = {};
- 
+
         bslalg::BidirectionalLink LIST_A;
         LIST_A.reset();
 

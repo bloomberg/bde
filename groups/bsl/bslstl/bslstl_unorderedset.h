@@ -110,7 +110,7 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKTRANSLATORFORSETS
-#include <bslalg_bidirectionallinktranslatorforsets.h>
+#include <bslstl_unorderedsetkeypolicy.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
@@ -201,22 +201,20 @@ class unordered_set
     typedef typename AllocatorTraits::const_pointer    const_pointer;
 
   private:
-    typedef ::BloombergLP::bslalg::BidirectionalLink             HashTableLink;
-    typedef ::BloombergLP::bslalg::BidirectionalLinkTranslatorForSets<value_type>
-                                                                    ListPolicy;
+    typedef ::BloombergLP::bslalg::BidirectionalLink        HashTableLink;
 
-    typedef BSTL::HashTable<ListPolicy, HASH, EQUAL, ALLOC>   Impl;
+    typedef BSTL::UnorderedSetKeyPolicy<value_type>         ListPolicy;
+    typedef BSTL::HashTable<ListPolicy, HASH, EQUAL, ALLOC> Impl;
 
   public:
-    typedef BSTL::HashTableIterator<value_type, difference_type, ListPolicy>
+    typedef BSTL::HashTableIterator<value_type, difference_type>
                                                                       iterator;
     typedef iterator                                            const_iterator;
-    typedef BSTL::HashTableBucketIterator<value_type, difference_type, ListPolicy>
+    typedef BSTL::HashTableBucketIterator<value_type, difference_type>
                                                                 local_iterator;
     typedef local_iterator                                const_local_iterator;
 
   private:
-//    enum { DEFAULT_BUCKET_COUNT = 127 };  // 127 is a prime number
     enum { DEFAULT_BUCKET_COUNT = 13 };  // 13 is a prime number
 
     // DATA
@@ -466,7 +464,7 @@ template <class KEY_TYPE,
 typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::begin()
 {
-    return iterator(d_impl.begin());
+    return iterator(d_impl.elementListRoot());
 }
 
 template <class KEY_TYPE,
@@ -476,7 +474,7 @@ template <class KEY_TYPE,
 typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::const_iterator
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::begin() const
 {
-    return const_iterator(d_impl.begin());
+    return const_iterator(d_impl.elementListRoot());
 }
 
 
@@ -507,7 +505,7 @@ template <class KEY_TYPE,
 typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::const_iterator
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::cbegin() const
 {
-    return const_iterator(d_impl.begin());
+    return const_iterator(d_impl.elementListRoot());
 }
 
 template <class KEY_TYPE,
@@ -586,7 +584,7 @@ typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::erase(const_iterator position)
 {
     BSLS_ASSERT(position != this->end());
-    return iterator(d_impl.eraseNode(position.node()));
+    return iterator(d_impl.remove(position.node()));
 }
 
 template <class KEY_TYPE,
@@ -597,7 +595,7 @@ typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::erase(const key_type& k)
 {
     if (HashTableLink *target = d_impl.find(k)) {
-        d_impl.eraseNode(target);
+        d_impl.remove(target);
         return 1;
     }
     else {
@@ -663,7 +661,7 @@ template <class KEY_TYPE,
 void
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::clear()
 {
-    d_impl.clear();
+    d_impl.removeAll();
 }
 
 template <class KEY_TYPE,
@@ -798,7 +796,7 @@ inline
 typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::bucket_count() const
 {
-    return d_impl.numOfBuckets();
+    return d_impl.numBuckets();
 }
 
 template <class KEY_TYPE,
@@ -822,7 +820,7 @@ unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::
 bucket_size(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return d_impl.bucket_size(n);
+    return d_impl.countElementsInBucket(n);
 }
 
 template <class KEY_TYPE,
@@ -835,7 +833,7 @@ unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::
 bucket(const key_type& k) const
 {
     BSLS_ASSERT_SAFE(this->bucket_count() > 0);
-    return d_impl.bucket(k);
+    return d_impl.computeBucketIndexForKey(k);
 }
 
 template <class KEY_TYPE,
@@ -847,7 +845,7 @@ typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::local_iterator
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::begin(size_type n)
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return local_iterator(&d_impl.getBucket(n));
+    return local_iterator(&d_impl.bucketAtIndex(n));
 }
 
 template <class KEY_TYPE,
@@ -859,7 +857,7 @@ typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::begin(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator(&d_impl.getBucket(n));
+    return const_local_iterator(&d_impl.bucketAtIndex(n));
 }
 
 template <class KEY_TYPE,
@@ -871,7 +869,7 @@ typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::local_iterator
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::end(size_type n)
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return local_iterator(0, &d_impl.getBucket(n));
+    return local_iterator(0, &d_impl.bucketAtIndex(n));
 }
 
 template <class KEY_TYPE,
@@ -884,7 +882,7 @@ typename
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::end(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator(0, &d_impl.getBucket(n));
+    return const_local_iterator(0, &d_impl.bucketAtIndex(n));
 }
 
 template <class KEY_TYPE,
@@ -898,7 +896,7 @@ unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::cbegin(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
     //SP: invoke begin(n) ?
-    return const_local_iterator(&d_impl.getBucket(n));
+    return const_local_iterator(&d_impl.bucketAtIndex(n));
 }
 
 template <class KEY_TYPE,
@@ -911,7 +909,7 @@ unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::cend(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
     // invoke end(n) ? 
-    return const_local_iterator(0, &d_impl.getBucket(n));
+    return const_local_iterator(0, &d_impl.bucketAtIndex(n));
 }
 
     // hash policy
@@ -922,7 +920,7 @@ template <class KEY_TYPE,
 inline
 float unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::load_factor() const
 {
-    return d_impl.load_factor();
+    return d_impl.loadFactor();
 }
 
 template <class KEY_TYPE,
@@ -932,7 +930,7 @@ template <class KEY_TYPE,
 inline
 float unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::max_load_factor() const
 {
-    return d_impl.max_load_factor();
+    return d_impl.maxLoadFactor();
 }
 
 template <class KEY_TYPE,
@@ -942,7 +940,7 @@ template <class KEY_TYPE,
 inline
 void unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::max_load_factor(float z)
 {
-    d_impl.max_load_factor(z);
+    d_impl.maxLoadFactor(z);
 }
 
 template <class KEY_TYPE,

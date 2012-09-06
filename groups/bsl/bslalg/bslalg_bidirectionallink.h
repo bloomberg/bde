@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bslalg::BidirectionalLink : A node in a doubly-linked list
 //
-//@SEE_ALSO: bslalg_bidirectionallinklistutil, bslalg_hashtableutil
+//@SEE_ALSO: bslalg_bidirectionallinklistutil, bslalg_hashtableimputil
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
