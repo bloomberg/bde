@@ -1,4 +1,4 @@
-// bslalg_hashtableimputil.h                                             -*-C++-*-
+// bslalg_hashtableimputil.h                                          -*-C++-*-
 #ifndef INCLUDED_BSLALG_HASHTABLEIMPUTIL
 #define INCLUDED_BSLALG_HASHTABLEIMPUTIL
 

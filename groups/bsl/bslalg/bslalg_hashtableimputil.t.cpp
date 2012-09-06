@@ -1,4 +1,4 @@
-// bslalg_hashtableimputil.t.cpp                                         -*-C++-*-
+// bslalg_hashtableimputil.t.cpp                                      -*-C++-*-
 
 #include <bslalg_hashtableimputil.h>
 

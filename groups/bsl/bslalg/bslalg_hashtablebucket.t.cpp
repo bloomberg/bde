@@ -1,4 +1,4 @@
-// bslalg_hashtablelink.t.cpp                                         -*-C++-*-
+// bslalg_hashtablebucket.t.cpp                                       -*-C++-*-
 #include <bslalg_hashtablebucket.h>
 
 #include <bsls_asserttest.h>

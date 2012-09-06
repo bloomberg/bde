@@ -1,4 +1,4 @@
-// bslalg_hashtableanchor.t.cpp                                   -*-C++-*-
+// bslalg_hashtableanchor.t.cpp                                       -*-C++-*-
 
 #include <bslalg_hashtableanchor.h>
 
