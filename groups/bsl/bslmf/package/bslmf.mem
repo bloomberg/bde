@@ -1,6 +1,8 @@
 bslmf_addconst
+bslmf_addcv
 bslmf_addpointer
 bslmf_addreference
+bslmf_addvolatile
 bslmf_anytype
 bslmf_arraytopointer
 bslmf_assert
@@ -28,6 +30,7 @@ bslmf_issame
 bslmf_istriviallycopyable
 bslmf_istriviallydefaultconstructible
 bslmf_isvoid
+bslmf_isvolatile
 bslmf_memberfunctionpointertraits
 bslmf_metaint
 bslmf_nestedtraitdeclaration
