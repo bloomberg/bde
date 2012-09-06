@@ -22,34 +22,34 @@ BSLS_IDENT("$Id: $")
 // This component defines a class template 'bsl::basic_istringstream',
 // implementing a standard input stream that provides a constructor (as well as
 // a manipulator) allowing clients to set the sequence of characters
-// from which input is streamed to a supplied 'bsl::basic_string'.  This
-// component also defines two standard aliases, 'bsl::istringstream' and
-// 'bsl::wistringstream', that refer to specializations of the
-// 'bsl::basic_istringstream' template for 'char' and 'wchar_t' types
-// respectively.  The 'bsl::basic_istringstream' template has three
-// parameters, 'CHAR_TYPE', 'CHAR_TRAITS', and 'ALLOCATOR'.  The 'CHAR_TYPE'
-// and 'CHAR_TRAITS' parameters respectively define the character type for the
-// string-stream and a type providing a set of operations the string-stream
-// will use to manipulate characters of that type, which must meet the
-// character traits requirements defined by the C++11 standard, 21.2
-// [char.traits].  The 'ALLOCATOR' template parameter is described in the 
-// "Memory Allocation" section below.
+// from which input is streamed into a supplied 'bsl::basic_string' (see
+// 27.8.3 [istringstream] of the C++11 standard).  This component also defines
+// two standard aliases, 'bsl::istringstream' and 'bsl::wistringstream', that
+// refer to specializations of the 'bsl::basic_istringstream' template for
+// 'char' and 'wchar_t' types respectively.  The 'bsl::basic_istringstream'
+// template has three parameters, 'CHAR_TYPE', 'CHAR_TRAITS', and 'ALLOCATOR'.
+// The 'CHAR_TYPE' and 'CHAR_TRAITS' parameters respectively define the
+// character type for the string-stream and a type providing a set of
+// operations the string-stream will use to manipulate characters of that type,
+// which must meet the character traits requirements defined by the C++11
+// standard, 21.2 [char.traits].  The 'ALLOCATOR' template parameter is
+// described in the "Memory Allocation" section below.
 //
 ///Memory Allocation
 ///-----------------
 // The type supplied as a string-stream's 'ALLOCATOR' template parameter
 // determines how that string-stream will allocate memory.  The
-// 'basic_ostringstream' template supports allocators meeting the requirements
+// 'basic_istringstream' template supports allocators meeting the requirements
 // of the C++11 standard [17.6.3.5], in addition it supports scoped-allocators
 // derived from the 'bslma::Allocator' memory allocation protocol.  Clients
 // intending to use 'bslma' style allocators should use 'bsl::allocator', which
 // provides a C++11 standard-compatible adapter for a 'bslma::Allocator'
-// object.  Note that the standard aliases 'bsl::ostringstream' and
-// 'bsl::wostringstream' both use 'bsl::allocator'.
+// object.  Note that the standard aliases 'bsl::istringstream' and
+// 'bsl::wistringstream' both use 'bsl::allocator'.
 //
 ///'bslma'-Style Allocators
 /// - - - - - - - - - - - -
-// If the parameterized 'ALLOCATOR' type of an 'ostringstream' instantiation is
+// If the parameterized 'ALLOCATOR' type of an 'istringstream' instantiation is
 // 'bsl::allocator', then objects of that string-stream type will conform to
 // the standard behavior of a 'bslma'-allocator-enabled type.  Such a
 // string-stream accepts an optional 'bslma::Allocator' argument at
@@ -171,13 +171,12 @@ class basic_istringstream
 
     // MANIPULATORS
     void str(const StringType& value);
-        // Reset the internally buffered sequence of characters maintained by
-        // this 'ostringstream' object to the specified 'value'.
+        // Reset the internally buffered sequence of characaters provided as
+        // input by this stream to the specified 'value'.
 
     // ACCESSORS
     StringType str() const;
-        // Return the sequence of characters that have been written to this
-        // stream object.
+        // Return the sequence of characters refered to by this stream object.
 
     StreamBufType *rdbuf() const;
         // Return the address of the 'basic_stringbuf' object that is
@@ -186,10 +185,10 @@ class basic_istringstream
 };
 
 // STANDARD TYPEDEFS
-typedef basic_ostringstream<char, char_traits<char>, allocator<char> > 
-                                                                 ostringstream;
-typedef basic_ostringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
-                                                                wostringstream;
+typedef basic_istringstream<char, char_traits<char>, allocator<char> > 
+                                                                 istringstream;
+typedef basic_istringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
+                                                                wistringstream;
 
 // ==========================================================================
 //                       TEMPLATE FUNCTION DEFINITIONS

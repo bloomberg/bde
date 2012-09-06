@@ -22,15 +22,16 @@ BSLS_IDENT("$Id: $")
 // This component defines a class template 'bsl::basic_ostringstream',
 // implementing a standard output stream that provides a method for obtaining a
 // 'bsl::basic_string', which contains the characters that have been written to
-// the stream.  This component also defines two standard aliases,
-// 'bsl::ostringstream' and 'bsl::wostringstream', that refer to
-// specializations of the 'bsl::basic_ostringstream' template for 'char' and
-// 'wchar_t' types respectively.  The 'bsl::basic_ostringstream' template has
-// three parameters, 'CHAR_TYPE', 'CHAR_TRAITS', and 'ALLOCATOR'.  The
-// 'CHAR_TYPE' and 'CHAR_TRAITS' parameters respectively define the character
-// type for the string-stream and a type providing a set of operations the
-// string-stream will use to manipulate characters of that type, which must
-// meet the character traits requirements defined by the C++11 standard, 21.2
+// the stream (see 27.8.4 [ostringstream] of the C++11 standard).  This
+// component also defines two standard aliases, 'bsl::ostringstream' and
+// 'bsl::wostringstream', that refer to specializations of the
+// 'bsl::basic_ostringstream' template for 'char' and 'wchar_t' types
+// respectively.  The 'bsl::basic_ostringstream' template has three parameters,
+// 'CHAR_TYPE', 'CHAR_TRAITS', and 'ALLOCATOR'.  The 'CHAR_TYPE' and
+// 'CHAR_TRAITS' parameters respectively define the character type for the
+// string-stream and a type providing a set of operations the string-stream
+// will use to manipulate characters of that type, which must meet the
+// character traits requirements defined by the C++11 standard, 21.2
 // [char.traits].  The 'ALLOCATOR' template parameter is described in the
 // "Memory Allocation" section below.
 //
@@ -170,7 +171,7 @@ class basic_ostringstream
     // MANIPULATORS
     void str(const StringType& value);
         // Reset the internally buffered sequence of characters maintained by
-        // this 'ostringstream' object to the specified 'value'.
+        // this stream object to the specified 'value'.
 
     // ACCESSORS
     StringType str() const;
@@ -181,7 +182,6 @@ class basic_ostringstream
         // Return the address of the 'basic_stringbuf' object that is
         // internally used by this string stream to buffer the formatted
         // characters.
-
 };
 
 // STANDARD TYPEDEFS
