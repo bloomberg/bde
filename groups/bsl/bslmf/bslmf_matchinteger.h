@@ -388,10 +388,10 @@ namespace bslmf {
                         // class MatchInteger
                         // ==================
 struct MatchInteger {
-    // This copy-constructible mechanism provides can be used as a formal
-    // parameter for functions where an integral type can be confused with an
-    // iterator type.  A copy-constructbile mechanism is needed so that such
-    // objects can be used as function arguments.
+    // This copy-constructible mechanism can be used as a formal parameter for
+    // functions where an integral type can be confused with an iterator type.
+    // A copy-constructbile mechanism is needed so that such objects can be
+    // used as function arguments.
     //
     // Note that if a type has a user-defined conversion to integral value,
     // this will *not* match because passing such an object would require two

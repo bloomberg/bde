@@ -629,8 +629,9 @@ int main(int argc, char *argv[])
         // INTEGRAL CONVERIBILITY
         //
         // Concerns:
-        //: 1 Every C++ integral type and the floating point types can be
-        //:   implicitly converted to a 'bslmf::MatchInteger' object.
+        //: 1 Every C++ integral type and every C++ floating point type, each
+        //:   with and without cv-qualifications, can be implicitly converted
+        //:   to a 'bslmf::MatchInteger' object.
         //
         // Plan:
         //: 1 Define 'acceptObj', a function specifying a parameter of type
@@ -649,6 +650,9 @@ int main(int argc, char *argv[])
                             "\n======================\n");
 
         IntegralConveribility<                    bool  >::implicitlyConvert();
+
+        IntegralConveribility<                    char  >::implicitlyConvert();
+        IntegralConveribility<                   wchar_t>::implicitlyConvert();
 
         IntegralConveribility<  signed            char  >::implicitlyConvert();
         IntegralConveribility<  signed      short int   >::implicitlyConvert();
@@ -677,10 +681,9 @@ int main(int argc, char *argv[])
         //: 1 The non-'explicit' constructor will safely construct an object
         //:   for an arbitrary 'int' value.
         //:
-        //: 2 The object can be (compiler-generated) copy-constructed and used
-        //:   a function argument.
+        //: 2 The object can be copy-constructed and used a function argument.
         //:
-        //: 3 The (compiler-generated) destructor, safely destroys the object.
+        //: 3 The destructor, safely destroys the object.
         //
         // Plan:
         //: 1 Construct an object 'obj' of type 'bslmf::MatchInteger' using an
