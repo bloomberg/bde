@@ -3039,13 +3039,14 @@ int main(int argc, char *argv[])
 
                 ASSERT(report.empty() == !OSS_REPORT);
                 if (OSS_REPORT) {
-                    ASSERT(npos != report.find("main"));
                     ASSERT(npos != report.find("1 segment(s) in use"));
                     ASSERT(npos != report.find("Error: memory leaked"));
                     ASSERT((c >= 'f') ==
                                         (npos != report.find("my_allocator")));
-                    ASSERT(!CAN_FIND_SYMBOLS ||
-                                              npos != report.find("allocate"));
+                    if (CAN_FIND_SYMBOLS) {
+                        ASSERT(npos != report.find("main"));
+                        ASSERT(npos != report.find("allocate"));
+                    }
                 }
 
                 if (!CLEAN_DESTROY && FAILURE_LONGJMP) {
