@@ -43,11 +43,11 @@ using namespace BloombergLP;
 //
 // MANIPULATORS
 // [ 7] BidirectionalLink& operator=(const BidirectionalLink& rhs);
-// [ 2] void setNextLink()(BidirectionalLink *nextLink());
-// [ 2] void setPreviousLink(BidirectionalLink *prev);
+// [ 2] void setNextLink(BidirectionalLink *next);
+// [ 2] void setPreviousLink(BidirectionalLink *previous);
 //
 // ACCESSORS
-// [ 4] BidirectionalLink *nextLink()() const;
+// [ 4] BidirectionalLink *nextLink() const;
 // [ 4] BidirectionalLink *previousLink() const;
 //
 // ----------------------------------------------------------------------------
@@ -124,19 +124,21 @@ namespace bslalg {
 
 void debugprint(const Obj& val)
 {
-    printf("prev=0x%p, nextLink()=0x%p", val.previousLink(), val.nextLink()());
+    printf("{ previousLink=0x%p, nextLink=0x%p }",
+           val.previousLink(),
+           val.nextLink());
 }
 
 }  // close namespace bslalg
 }  // close enterprise namespace
 
-static Obj& gg(Obj *result, Obj *prev, Obj *nextLink())
-    // Initialize the specified 'result' with the specified 'prev', and 'nextLink()'.
+static Obj& gg(Obj *result, Obj *prev, Obj *next)
+    // Initialize the specified 'result' with the specified 'prev', and 'next'.
 {
     ASSERT(result);
 
     result->setPreviousLink(prev);
-    result->setNextLink()(nextLink());
+    result->setNextLink(next);
     return *result;
 }
 
@@ -145,7 +147,7 @@ static bool operator==(const Obj& lhs, const Obj& rhs)
     // the same value as the attributes of the specified 'rhs'.
 {
     return (lhs.previousLink() == rhs.previousLink()
-         && lhs.nextLink()() == rhs.nextLink()());
+         && lhs.nextLink() == rhs.nextLink());
 }
 
 static bool operator!=(const Obj& lhs, const Obj& rhs)
@@ -164,7 +166,7 @@ static bool operator!=(const Obj& lhs, const Obj& rhs)
 struct DefaultDataRow {
     int    d_line;           // source line number
     Obj *  d_prevNode;
-    Obj *  d_nextLink()Node;
+    Obj *  d_nextNode;
 };
 
 Obj *const PTR1 = (Obj *)0xbaadf00ddeadc0deULL;
@@ -178,11 +180,11 @@ const DefaultDataRow DEFAULT_DATA[] =
 
     { L_,         0,          0 },
 
-    // 'prev'
+    // 'previousLink'
     { L_,  (Obj *)4,          0 },
     { L_,  PTR2,              0 },
 
-    // 'nextLink()'
+    // 'nextLink'
     { L_,         0,   (Obj *)4 },
     { L_,         0,       PTR2 },
 
@@ -324,7 +326,7 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  LINE1 = DATA[ti].d_line;
             Obj *const PREV1 = DATA[ti].d_prevNode;
-            Obj *const NEXT1 = DATA[ti].d_nextLink()Node;
+            Obj *const NEXT1 = DATA[ti].d_nextNode;
 
             Obj  mZ; gg( &mZ, PREV1, NEXT1);
             const Obj& Z = mZ;
@@ -336,7 +338,7 @@ int main(int argc, char *argv[])
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int  LINE2 = DATA[tj].d_line;
                 Obj *const PREV2 = DATA[tj].d_prevNode;
-                Obj *const NEXT2 = DATA[tj].d_nextLink()Node;
+                Obj *const NEXT2 = DATA[tj].d_nextNode;
 
                 Obj mX; const Obj& X = gg(&mX, PREV2, NEXT2);
 
@@ -423,7 +425,7 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_line;
             Obj *const  PREV  = DATA[ti].d_prevNode;
-            Obj *const  NEXT  = DATA[ti].d_nextLink()Node;
+            Obj *const  NEXT  = DATA[ti].d_nextNode;
 
             Obj  mZ;  const Obj  Z = gg( &mZ, PREV, NEXT);
             Obj mZZ;  const Obj ZZ = gg(&mZZ, PREV, NEXT);
@@ -498,7 +500,7 @@ int main(int argc, char *argv[])
         // Attribute Types
 
         typedef Obj * T1;  // 'prev'
-        typedef Obj * T2;  // 'nextLink()'
+        typedef Obj * T2;  // 'next'
 
         if (verbose) printf("\nEstablish suitable attribute values.\n");
 
@@ -507,7 +509,7 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------
 
         const T1 D1 = 0;    // 'prev'
-        const T2 D2 = 0;    // 'nextLink()'
+        const T2 D2 = 0;    // 'next'
 
         // -------------------------------------------------------
         // 'A' values: Boundary values.
@@ -524,13 +526,13 @@ int main(int argc, char *argv[])
                      "\nVerify all basic accessors report expected values.\n");
         {
             ASSERTV(D1, X.previousLink(), D1 == X.previousLink());
-            ASSERTV(D2, X.nextLink()(), D2 == X.nextLink()());
+            ASSERTV(D2, X.nextLink(),     D2 == X.nextLink());
         }
 
         if (verbose) printf(
                  "\nApply primary manipulators and verify expected values.\n");
 
-        if (veryVerbose) { T_ Q(prev) }
+        if (veryVerbose) { T_ Q(previousLink) }
         {
             mX.setPreviousLink(A1);
 
@@ -538,12 +540,12 @@ int main(int argc, char *argv[])
             ASSERTV(A1, prev, A1 == prev);
         }
 
-        if (veryVerbose) { T_ Q(nextLink()) }
+        if (veryVerbose) { T_ Q(nextLink) }
         {
-            mX.setNextLink()(A2);
+            mX.setNextLink(A2);
 
-            const Obj *const nextLink() = X.nextLink()();
-            ASSERTV(A2, nextLink(), A2 == nextLink());
+            const Obj *const next = X.nextLink();
+            ASSERTV(A2, next, A2 == next);
         }
       } break;
       case 3: {
@@ -593,7 +595,7 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE   = DATA[ti].d_line;
             Obj *const  LEFT   = DATA[ti].d_prevNode;
-            Obj *const  RIGHT  = DATA[ti].d_nextLink()Node;
+            Obj *const  RIGHT  = DATA[ti].d_nextNode;
 
             if (veryVerbose) { T_ P_(LEFT) P_(RIGHT) }
 
@@ -606,7 +608,7 @@ int main(int argc, char *argv[])
             // -------------------------------------
 
             ASSERTV(LINE, LEFT,  X.previousLink(), LEFT  == X.previousLink());
-            ASSERTV(LINE, RIGHT, X.nextLink()(), RIGHT == X.nextLink()());
+            ASSERTV(LINE, RIGHT, X.nextLink(),     RIGHT == X.nextLink());
         }
       } break;
       case 2: {
@@ -657,7 +659,7 @@ int main(int argc, char *argv[])
         //   BidirectionalLink();
         //   ~BidirectionalLink();
         //   void setPreviousLink(BidirectionalLink *address)
-        //   void setNextLink()(BidirectionalLink *address)
+        //   void setNextLink(BidirectionalLink *address)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nDEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR"
@@ -668,7 +670,7 @@ int main(int argc, char *argv[])
         // 'D' values: These are the default-constructed values.
 
         Obj *const  D1 = 0;          // 'prev'
-        Obj *const  D2 = 0;          // 'nextLink()'
+        Obj *const  D2 = 0;          // 'next'
 
         // 'A' values.
 
@@ -692,10 +694,10 @@ int main(int argc, char *argv[])
         // -------------------------------------
 
         mX.setPreviousLink(D1);
-        mX.setNextLink()(D2);
+        mX.setNextLink(D2);
 
-        ASSERTV(D1, X.previousLink(),  D1 == X.previousLink());
-        ASSERTV(D2, X.nextLink()(),  D2 == X.nextLink()());
+        ASSERTV(D1, X.previousLink(), D1 == X.previousLink());
+        ASSERTV(D2, X.nextLink(),     D2 == X.nextLink());
 
         if (verbose) printf(
                     "Verify that each attribute is independently settable.\n");
@@ -706,32 +708,32 @@ int main(int argc, char *argv[])
         {
             mX.setPreviousLink(A1);
             ASSERT(A1 == X.previousLink());
-            ASSERT(D2 == X.nextLink()());
+            ASSERT(D2 == X.nextLink());
 
             mX.setPreviousLink(B1);
             ASSERT(B1 == X.previousLink());
-            ASSERT(D2 == X.nextLink()());
+            ASSERT(D2 == X.nextLink());
 
             mX.setPreviousLink(D1);
             ASSERT(D1 == X.previousLink());
-            ASSERT(D2 == X.nextLink()());
+            ASSERT(D2 == X.nextLink());
         }
 
         // ------------
-        // 'nextLink()'
+        // 'next'
         // ------------
         {
-            mX.setNextLink()(A2);
+            mX.setNextLink(A2);
             ASSERT(D1 == X.previousLink());
-            ASSERT(A2 == X.nextLink()());
+            ASSERT(A2 == X.nextLink());
 
-            mX.setNextLink()(B2);
+            mX.setNextLink(B2);
             ASSERT(D1 == X.previousLink());
-            ASSERT(B2 == X.nextLink()());
+            ASSERT(B2 == X.nextLink());
 
-            mX.setNextLink()(D2);
+            mX.setNextLink(D2);
             ASSERT(D1 == X.previousLink());
-            ASSERT(D2 == X.nextLink()());
+            ASSERT(D2 == X.nextLink());
         }
 
         if (verbose) printf("Corroborate attribute independence.\n");
@@ -741,10 +743,10 @@ int main(int argc, char *argv[])
             // ---------------------------------------
 
             mX.setPreviousLink(A1);
-            mX.setNextLink()(A2);
+            mX.setNextLink(A2);
 
             ASSERT(A1 == X.previousLink());
-            ASSERT(A2 == X.nextLink()());
+            ASSERT(A2 == X.nextLink());
 
 
             // ---------------------------------------
@@ -753,11 +755,11 @@ int main(int argc, char *argv[])
 
             mX.setPreviousLink(B1);
             ASSERT(B1 == X.previousLink());
-            ASSERT(A2 == X.nextLink()());
+            ASSERT(A2 == X.nextLink());
 
-            mX.setNextLink()(B2);
+            mX.setNextLink(B2);
             ASSERT(B1 == X.previousLink());
-            ASSERT(B2 == X.nextLink()());
+            ASSERT(B2 == X.nextLink());
 
         }
       } break;
@@ -783,14 +785,14 @@ int main(int argc, char *argv[])
         // Attribute Types
 
         typedef Obj * T1;  // 'prev'
-        typedef Obj * T2;  // 'nextLink()'
+        typedef Obj * T2;  // 'next'
 
         // Attribute 1 Values: 'prev'
 
         const T1 D1 = 0;        // default value
         const T1 A1 = PTR2;
 
-        // Attribute 2 Values: 'nextLink()'
+        // Attribute 2 Values: 'next'
 
         const T2 D2 = 0;        // default value
         const T2 A2 = PTR2;
@@ -802,13 +804,13 @@ int main(int argc, char *argv[])
 
         Obj mW;  const Obj& W = mW;
         mW.setPreviousLink(D1);
-        mW.setNextLink()(D2);
+        mW.setNextLink(D2);
 
         if (veryVerbose) printf("\ta. Check initial value of 'w'.\n");
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.previousLink());
-        ASSERT(D2 == W.nextLink()());
+        ASSERT(D2 == W.nextLink());
 
         if (veryVerbose) printf(
                                "\tb. Try equality operators: 'w' <op> 'w'.\n");
@@ -825,7 +827,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(D1 == X.previousLink());
-        ASSERT(D2 == X.nextLink()());
+        ASSERT(D2 == X.nextLink());
 
 
         if (veryVerbose) printf(
@@ -840,13 +842,13 @@ int main(int argc, char *argv[])
                     "\n Set 'X' with values 'A' (value distinct from 'D').\n");
 
         mX.setPreviousLink(A1);
-        mX.setNextLink()(A2);
+        mX.setNextLink(A2);
 
         if (veryVerbose) printf("\ta. Check new value of 'x'.\n");
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.previousLink());
-        ASSERT(A2 == X.nextLink()());
+        ASSERT(A2 == X.nextLink());
 
 
         if (veryVerbose) printf(
@@ -866,7 +868,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == Y.previousLink());
-        ASSERT(A2 == Y.nextLink()());
+        ASSERT(A2 == Y.nextLink());
 
 
         if (veryVerbose) printf(

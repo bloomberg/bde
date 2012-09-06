@@ -784,17 +784,17 @@ int main(int argc, char *argv[]) {
 
         // 'bucketArrayAddress' and 'bucketArraySize'
         {
-            mX.setBucketArrayAndSize(A1, A2);
+            mX.setBucketArrayAddressAndSize(A1, A2);
             ASSERTV(A1, X.bucketArrayAddress(), A1 == X.bucketArrayAddress());
             ASSERTV(A2, X.bucketArraySize(),    A2 == X.bucketArraySize());
             ASSERTV(D3, X.listRootAddress(),    D3 == X.listRootAddress());
 
-            mX.setBucketArrayAndSize(B1, B2);
+            mX.setBucketArrayAddressAndSize(B1, B2);
             ASSERTV(B1, X.bucketArrayAddress(), B1 == X.bucketArrayAddress());
             ASSERTV(B2, X.bucketArraySize(),    B2 == X.bucketArraySize());
             ASSERTV(D3, X.listRootAddress(),    D3 == X.listRootAddress());
 
-            mX.setBucketArrayAndSize(D1, D2);
+            mX.setBucketArrayAddressAndSize(D1, D2);
             ASSERTV(D1, X.bucketArrayAddress(), D1 == X.bucketArrayAddress());
             ASSERTV(D2, X.bucketArraySize(),    D2 == X.bucketArraySize());
             ASSERTV(D3, X.listRootAddress(),    D3 == X.listRootAddress());
@@ -823,7 +823,7 @@ int main(int argc, char *argv[]) {
 
             // Set all attributes to their 'A' values.
 
-            mX.setBucketArrayAndSize(A1, A2);
+            mX.setBucketArrayAddressAndSize(A1, A2);
             mX.setListRootAddress(A3);
             ASSERTV(A1, X.bucketArrayAddress(), A1 == X.bucketArrayAddress());
             ASSERTV(A2, X.bucketArraySize(),    A2 == X.bucketArraySize());
@@ -831,7 +831,7 @@ int main(int argc, char *argv[]) {
 
             // Set all attributes to their 'B' values.
 
-            mX.setBucketArrayAndSize(B1, B2);
+            mX.setBucketArrayAddressAndSize(B1, B2);
             ASSERTV(B1, X.bucketArrayAddress(), B1 == X.bucketArrayAddress());
             ASSERTV(B2, X.bucketArraySize(),    B2 == X.bucketArraySize());
             ASSERTV(A3, X.listRootAddress(),    A3 == X.listRootAddress());
@@ -851,9 +851,9 @@ int main(int argc, char *argv[]) {
             if (veryVerbose)
                           printf("\tbucketArrayAddress and bucketArraySize\n");
             {
-                ASSERT_SAFE_FAIL(obj.setBucketArrayAndSize( 0, A2));
-                ASSERT_SAFE_FAIL(obj.setBucketArrayAndSize(A1,  0));
-                ASSERT_SAFE_PASS(obj.setBucketArrayAndSize(A1, A2));
+                ASSERT_SAFE_FAIL(obj.setBucketArrayAddressAndSize( 0, A2));
+                ASSERT_SAFE_FAIL(obj.setBucketArrayAddressAndSize(A1,  0));
+                ASSERT_SAFE_PASS(obj.setBucketArrayAddressAndSize(A1, A2));
 
                 ASSERT_SAFE_FAIL(Obj obj2( 0, A2, A3));
                 ASSERT_SAFE_FAIL(Obj obj2(A1,  0, A3));
@@ -900,7 +900,7 @@ int main(int argc, char *argv[]) {
         Obj X(array1, 1, 0);
         ASSERT(X.bucketArraySize() == 1);
 
-        X.setBucketArrayAndSize(array2, 2);
+        X.setBucketArrayAddressAndSize(array2, 2);
         ASSERT(X.bucketArraySize() == 2);
 
         Obj Y(array1, 1, 0);

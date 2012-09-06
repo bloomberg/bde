@@ -69,7 +69,7 @@ class BidirectionalLink {
 
   private:
     // DATA
-    BidirectionalLink *d_next_p;  // The nextLink() node in a list traversal
+    BidirectionalLink *d_next_p;  // The next node in a list traversal
     BidirectionalLink *d_prev_p;  // The preceding node in a list traversal
 
   public:
@@ -92,7 +92,7 @@ class BidirectionalLink {
         // providing modifiable access to this object.
 
     void setNextLink(BidirectionalLink *next);
-        // Set the successor of this node to be the specified 'nextLink()' link.
+        // Set the successor of this node to be the specified 'next' link.
 
     void setPreviousLink(BidirectionalLink *previous);
         // Set the predecessor of this node to be the specified 'prev' link.
@@ -102,7 +102,7 @@ class BidirectionalLink {
 
     // ACCESSORS
     BidirectionalLink *nextLink() const;
-        // Return the address of the nextLink() node linked from this node.
+        // Return the address of the next node linked from this node.
 
     BidirectionalLink *previousLink() const;
         // Return the address of the preceding node linked from this node.
