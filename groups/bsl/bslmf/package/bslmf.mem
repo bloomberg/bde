@@ -1,11 +1,14 @@
 bslmf_addconst
 bslmf_addcv
 bslmf_addpointer
+bslmf_addlvaluereference
 bslmf_addreference
+bslmf_addrvaluereference
 bslmf_addvolatile
 bslmf_anytype
 bslmf_arraytopointer
 bslmf_assert
+bslmf_conditional
 bslmf_detectnestedtrait
 bslmf_enableif
 bslmf_forwardingtype

@@ -107,21 +107,9 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nil.h>
 #endif
 
-namespace bsl {
-
-template <bool COND, typename TRUE_TYPE, typename FALSE_TYPE>
-struct conditional
-{
-    typedef TRUE_TYPE type;
-};
-
-template <typename TRUE_TYPE, typename FALSE_TYPE>
-struct conditional<false, TRUE_TYPE, FALSE_TYPE>
-{
-    typedef FALSE_TYPE type;
-};
-
-}
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
 
 namespace BloombergLP {
 
@@ -161,7 +149,7 @@ struct If {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

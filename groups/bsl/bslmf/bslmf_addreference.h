@@ -130,69 +130,9 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
+#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
+#include <bslmf_addlvaluereference.h>
 #endif
-
-namespace bsl {
-
-template <typename TYPE>
-struct add_lvalue_reference
-{
-    typedef TYPE& type;
-};
-
-template <typename TYPE>
-struct add_lvalue_reference<TYPE&>
-{
-    typedef TYPE& type;
-};
-
-#define BSL_DEFINE_ADD_LVALUE_REFERENCE(TYPE, REF_TYPE) \
-template <>                                             \
-struct add_lvalue_reference<TYPE>                       \
-{                                                       \
-    typedef REF_TYPE type;                              \
-}                                                       \
-
-BSL_DEFINE_ADD_LVALUE_REFERENCE(void, void);
-BSL_DEFINE_ADD_LVALUE_REFERENCE(const void, const void);
-BSL_DEFINE_ADD_LVALUE_REFERENCE(volatile void, volatile void);
-BSL_DEFINE_ADD_LVALUE_REFERENCE(const volatile void, const volatile void);
-
-#undef BSL_DEFINE_ADD_LVALUE_REFERENCE
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-
-template <typename TYPE>
-struct add_lvalue_reference<TYPE&&>
-{
-    typedef TYPE& type;
-};
-
-template <typename TYPE>
-struct add_rvalue_reference
-{
-    typedef TYPE&& type;
-};
-
-#define BSL_DEFINE_ADD_RVALUE_REFERENCE(TYPE, REF_TYPE) \
-template <>                                             \
-struct add_rvalue_reference<TYPE>                       \
-{                                                       \
-    typedef REF_TYPE type;                              \
-}                                                       \
-
-BSL_DEFINE_ADD_RVALUE_REFERENCE(void, void);
-BSL_DEFINE_ADD_RVALUE_REFERENCE(const void, const void);
-BSL_DEFINE_ADD_RVALUE_REFERENCE(volatile void, volatile void);
-BSL_DEFINE_ADD_RVALUE_REFERENCE(const volatile void, const volatile void);
-
-#undef BSL_DEFINE_ADD_RVALUE_REFERENCE
-
-#endif
-
-}
 
 namespace BloombergLP {
 
