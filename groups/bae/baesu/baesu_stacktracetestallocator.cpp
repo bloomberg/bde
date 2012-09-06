@@ -45,23 +45,21 @@ struct Max {
     enum { VALUE = A > B ? A : B };
 };
 
-enum SegmentHeaderMagic {
-    // Magic number stored in every 'SegmentHeader', reflecting 3 possible
-    // states.
+}  // close unnamed namespace
 
-#ifdef BSLS_PLATFORM__CPU_32_BIT
-    HIGH_ONES = 0,
+// Magic number.  I wanted to make this into an enum, but I also want it to be
+// the size of a pointer, and AIX does not support 64 bit enums.
+
+#ifdef BSLS_PLATFORM__CPU_64_BIT
+static
+const UintPtr HIGH_ONES = (UintPtr) 1111111111 * 10 * 1000 * 1000 * 1000;
 #else
-    HIGH_ONES = (UintPtr) 111111111 * 10 * 1000 * 1000 * 1000,
+static
+const UintPtr HIGH_ONES = 0;
 #endif
 
-    UNFREED_SEGMENT_MAGIC = (UintPtr) 1222222221 + HIGH_ONES,
-    FREED_SEGMENT_MAGIC   = (UintPtr) 1999999991 + HIGH_ONES
-};
-
-BSLMF_ASSERT(sizeof(SegmentHeaderMagic) == sizeof(void *));
-
-}  // close unnamed namespace
+static const UintPtr UNFREED_SEGMENT_MAGIC = 1222222221 + HIGH_ONES;
+static const UintPtr FREED_SEGMENT_MAGIC   = 1999999991 + HIGH_ONES;
 
                             // ----------------
                             // static functions
@@ -122,7 +120,7 @@ struct baesu_StackTraceTestAllocator::SegmentHeader {
 
     baesu_StackTraceTestAllocator *d_allocator_p; // creator of segment
 
-    SegmentHeaderMagic             d_magic;       // Magic number -- has
+    UintPtr                        d_magic;       // Magic number -- has
                                                   // different values for
                                                   // an unfreed segment, a
                                                   // freed segment, or the
@@ -132,11 +130,12 @@ struct baesu_StackTraceTestAllocator::SegmentHeader {
     SegmentHeader(SegmentHeader                 *next,
                   SegmentHeader                **prevNext,
                   baesu_StackTraceTestAllocator *stackTraceTestAllocator,
-                  SegmentHeaderMagic             magic);
+                  UintPtr                        magic);
         // Create a segment hear, populating the fields with the specified
         // 'next', 'prevNext', 'stackTraceTestAllocator', and 'magic'
         // arguments.
 };
+
 
 // CREATORS
 inline
@@ -144,12 +143,14 @@ baesu_StackTraceTestAllocator::SegmentHeader::SegmentHeader(
                         SegmentHeader                 *next,
                         SegmentHeader                **prevNext,
                         baesu_StackTraceTestAllocator *stackTraceTestAllocator,
-                        SegmentHeaderMagic             magic)
+                        UintPtr                        magic)
 : d_next_p(next)
 , d_prevNext_p(prevNext)
 , d_allocator_p(stackTraceTestAllocator)
 , d_magic(magic)
-{}
+{
+    BSLMF_ASSERT(sizeof(SegmentHeader) == 4 * sizeof(void *));
+}
 
                         // -----------------------------
                         // baesu_StackTraceTestAllocator

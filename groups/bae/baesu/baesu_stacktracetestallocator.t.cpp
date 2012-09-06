@@ -14,6 +14,7 @@
 #include <bslma_bufferallocator.h>
 #include <bslma_deallocatorguard.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_mallocfreeallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocatorexception.h>  // for testing only
@@ -27,6 +28,7 @@
 #include <bsl_set.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_vector.h>
 
 #include <malloc.h>
 #include <setjmp.h>
@@ -64,83 +66,6 @@ using bsl::flush;
 //: o numBlocksInUse
 //: o reportBlocksInUse
 //
-// Things to test:
-//
-// Already tested:
-//: o That a stack trace can be done which and prints out the names of the
-//:   expected routines (note that we observe that mangled names on all
-//:   platforms include relevant namespace names and actual function names
-//:   as substrings, though the '::' are not represented as such).
-//: o That the expected names come out in the expected order.
-//: o That the stack traces go to at least the depth specified to the
-//:   allocator c'tor
-//: o That if no memory is leaked, the destructor will finish without writing
-//:   anything to the 'ostream' associated with it at construction.
-//: o That all combinations of args / optional args passed to c'tors work
-//: o That if a stream is specified to 'reportBlocksInUse', its output goes
-//:   to that stream.
-//: o That the value of 'isNoAbort' is false at construction, and after that
-//:   reflects the latest value passed to 'setNoAbort'.
-//: o That if 'noAbort' is set, destruction of the alloctor will not cause
-//:   an abort.
-//: o That the allocator will cope with multiple outstanding segments being
-//:   allocated / deallocated in random order, rather than just having the
-//:   most recently allocated segment freed, or having segments freed in the
-//:   order in which they were allocated.
-//: o That 'numBlocksInUse' accurately reflects the number of outstanding
-//:   segments.
-//: o That reports of segments in use properly reflect the number of segments.
-//: o That the allocator is thread-safe.
-//: o That 'release', if called, releases all allocated segments.
-//: o That multiple frees of the same segment are correctly reported, and don't
-//:   result in an abort if 'noAbort' is set.
-//: o That freeing a segment allocated by one stack trace test allocator by
-//:   another stack trace test allocator is correctly reported, and will not
-//:   result in an abort if 'noAbort' is set.
-//: o That the default allocator is not used by this class (it defaults to
-//:   using the malloc free allocator singleton if no allocator is specified).
-//-----------------------------------------------------------------------------
-// Already Semi Tested:
-//: o That if no stream is specified to 'reportBlocksInUse', its output goes to
-//:   the stream specified to the allocator's c'tor (already indirectly tested
-//:   if you know the d'tor calls 'reportBlocksInUse this way).
-//: o At least configured stack trace depth is respected (already tested in
-//:   breathing test, test again somewhere else).
-//-----------------------------------------------------------------------------
-// Testing not done yet.
-//: o Test check for 'numRecordedFrames >= 2'.
-//: o That multiple frees of the same segment result in an abort if 'noAbort'
-//:   is not set.
-//: o That freeing a segment allocated by one stack trace test allocator by
-//:   another stack trace test allocator will result in an abort if 'noAbort'
-//:   is not set.
-//: o That attempting to free a segment allocated with 'bslma::TestAllocator'
-//:   will be detected, reported, and result in aborts appropriately depending
-//:   on 'isNoAbort()'.
-//: o ???? Should we do a test where we attempt to free segments created by
-//:   'malloc' and 'NewDeleteAllocator' with the stack trace test allocator?
-//:   Such an action would offend purify, and we can't guarantee the result,
-//:   though the odds against failure are astronomical.
-//: o That a slight buffer (by up to the size of 4 pointers) underrun is
-//:   correctly detected, and will result in an abort (but only if 'isNoAbort'
-//:   is 'false').  Test should be run for all lengths of overwrite from 1
-//:   byte to the size of 4 ptrs.
-//: o That 'demanglingPreferredFlag' is respected.  Have to #ifdef, demangling
-//:   always happens on Windows and never on Solaris.
-//: o That allocated segments are properly aligned.
-//: o That attempting to deallocate a pointer that doesn't meet the minimum
-//:   alignment requirements of this allocator (and therefore known not to have
-//:   been allocated by this allocator) is properly reported and results in
-//:   abort depending on 'isNoAbort'.
-//: o That segments returned really are of at least the requested size.
-//: o Is exception-safe if the underlying allocator throws exceptions.
-//-----------------------------------------------------------------------------
-// Rejected as stupid:
-// [21] * test all meaningful combos of c'tor args, ie 'name == 0'
-//        'name == 0' condition tested in [20]
-// [21] * test out of memory condition (aborts or throws) -- maybe not do this?
-//        this is really a function of the underlying allocator.  Already
-//        tested having underlying bslma::TestAllocator that throws.
 //-----------------------------------------------------------------------------
 // [23] o usage example
 // [22] o segment header test -- use 'my_SegmentHeader' to test
@@ -247,6 +172,36 @@ using bsl::flush;
 // [ 1] Breathing test
 //      o use 'leakTwiceA', verify order of 'leakTwice{C,B,A}' in trace.
 //-----------------------------------------------------------------------------
+//
+//                        ----------------------------
+//                        Note on 'setjmp' / 'longjmp'
+//                        ----------------------------
+//
+// It was hoped that having failure handlers and assert handlers that do
+// 'longjmp's would provide a flexible, portable testing mechanism that would
+// work even when exceptions were disabled.  This turned out to work very well
+// on Unix, but on Windows 'longjmp' turned out to be very flaky and caused
+// unpredictable crashes, so we had to go through the test driver and
+// disable the many places 'longjmp' was called on Windows.  Fortunately,
+// 'setjmp' by itself turned out to be reasonably benign and we did not have
+// to circumvent the 'setjmp' calls on Windows.
+//
+// It is inadvisable to use 'setjmp' / 'longjmp' in future test drivers.
+//
+//                      ---------------------------------
+//                      Note on Foiling compiler inlining
+//                      ---------------------------------
+//
+// Optimizing compilers have a tendency to inline function calls, which will
+// cause these test cases to fail when expected function names are missing from
+// stack traces.  To foil this, function pointers are stored in arrays of
+// function pointers and looked up at run time.
+//
+// There is also a problem where if a function call is the last thing in a
+// function, the compiler may replace a call to a function to a chaining jump
+// to the beginning of a a function.  To foil this we put a little activity
+// after the function calls in functions that we want to appear in stack
+// traces.
 
 //=============================================================================
 // STANDARD BDE ASSERT TEST MACRO
@@ -580,66 +535,29 @@ enum { ABORT_LIMIT = 2 };
 // through the pointer,
 // ============================================================================
 
-inline
-void nullTransform(UintPtr *funcPtr)
-    // Do a complex transform on a function pointer that leaves the ptr
-    // ultimately unchanged in such a way that no optimizer is going to be able
-    // to figure out that the transform does not change.
-    //
-    // This is done by toggling the 4 bits 0xf000, each bit being toggled
-    // twice.  This is done by iterating through the loop 5 times.
-{
-    UintPtr uip = *funcPtr;
+typedef void (*VoidFuncPtr)();
 
-    enum { FIRST       = 1 << 12,
-           TOGGLE_MASK = 7 << 12 };
+// Note bsl::vector has a bug with storing function pointers that is being
+// fixed on a separate branch as this is being written.
 
-    // Toggle will be (1 << 12) * { 1, 3, 6, 4, 0 } and terminate on 0,
-    // what this mean is that each bit in the function pointer that gets
-    // modified gets toggled exactly twice, but the optimizer can't figure
-    // out that the value returned equals the value passed in.  And we only
-    // waste 4 iterations before we stop.
+VoidFuncPtr voidFuncs[10];
+unsigned voidFuncsSize = 0;
 
-    for (UintPtr toggle = FIRST; 0 != toggle; ) {
-        uip ^= toggle;
+unsigned idxVoidFuncRecurser;
+unsigned idxVoidFuncLeakTwiceA;
+unsigned idxVoidFuncLeakTwiceB;
+unsigned idxVoidFuncLeakTwiceC;
 
-        toggle = (FIRST == toggle) ? 3 * toggle : (toggle << 1);
-        toggle &= TOGGLE_MASK;
-    }
-
-    ASSERT(uip == *funcPtr);     // The optimizer doesn't know what ASSERT
-                                 // means.
-
-    *funcPtr = uip;
-}
-
-typedef void (*VoidFunc)();
-VoidFunc voidNullTransform(VoidFunc func)
-{
-    union {
-        VoidFunc d_func;
-        UintPtr  d_uintPtr;
-    } u;
-
-    u.d_func = func;
-    nullTransform(&u.d_uintPtr);
-    ASSERT(u.d_func == func);
-    return u.d_func;
-}
-
-enum my_SegmentHeaderMagic {
-    // Magic number stored in every 'SegmentHeader', reflecting 3 possible
-    // states.
-
-#ifdef BSLS_PLATFORM__CPU_32_BIT
-    my_HIGH_ONES = 0,
+#ifdef BSLS_PLATFORM__CPU_64_BIT
+static
+const UintPtr my_HIGH_ONES = (UintPtr) 1111111111 * 10 * 1000 * 1000 * 1000;
 #else
-    my_HIGH_ONES = (UintPtr) 111111111 * 10 * 1000 * 1000 * 1000,
+static
+const UintPtr my_HIGH_ONES = 0;
 #endif
 
-    my_UNFREED_SEGMENT_MAGIC = (UintPtr) 1222222221 + my_HIGH_ONES,
-    my_FREED_SEGMENT_MAGIC   = (UintPtr) 1999999991 + my_HIGH_ONES
-};
+static const UintPtr my_UNFREED_SEGMENT_MAGIC = 1222222221 + my_HIGH_ONES;
+static const UintPtr my_FREED_SEGMENT_MAGIC   = 1999999991 + my_HIGH_ONES;
 
 struct my_SegmentHeader {
     // It was felt that we should go totally white box and test the internal
@@ -661,7 +579,7 @@ struct my_SegmentHeader {
 
     baesu_StackTraceTestAllocator *d_allocator_p; // creator of segment
 
-    my_SegmentHeaderMagic          d_magic;       // Magic number -- has
+    UintPtr                        d_magic;       // Magic number -- has
                                                   // different values for
                                                   // an unfreed segment, a
                                                   // freed segment, or the
@@ -682,7 +600,7 @@ int recurseDepth;
 void recurser()
 {
     if (--recurseDepth >= 0) {
-        (*voidNullTransform(&recurser))();
+        (*voidFuncs[idxVoidFuncRecurser])();
     }
     else {
         (void) recurserAllocator->allocate(100);
@@ -770,37 +688,37 @@ struct Functor {
     typedef void (Functor::*FuncPtr)();
 
     // DATA
+    static FuncPtr          s_funcPtrs[10];
+    static const unsigned   s_nest1Idx    = 1;
+    static const unsigned   s_nest2Idx    = 2;
+    static const unsigned   s_nest3Idx    = 3;
+    static const unsigned   s_nest4Idx    = 4;
+    static const unsigned   s_allocOneIdx = 5;
+    static const unsigned   s_freeSomeIdx = 6;
+
     static bsls::AtomicInt  s_threadRand;
     static bcemt_Barrier    s_startBarrier;
     static bcemt_Barrier    s_underwayBarrier;
 
     bsl::vector<int *>      d_alloced;
     int                     d_randNum;
-    int                     d_64;
+    int                     d_nestDepth;
     int                     d_numAllocations;
     bslma::Allocator       *d_allocator_p;
 
     // CLASS METHODS
     static
-    FuncPtr localNullTransform(FuncPtr func)
-        // Do an identity transform on 'func' and return it.  This function is
-        // guaranteed to return the same value that it's passed, but the
-        // optimizer cannot figure that out.  Calling functions through a
-        // pointer passed through this routine prevents the optimizer from
-        // having any temptation to inline the call.
-        //
-        // Note that for some reason when you take a pointer to a member
-        // function, you have to full qualify the name, mentioning even the
-        // namespace and class name.
+    void initFuncPtrs()
     {
-        union {
-            FuncPtr d_func;
-            UintPtr d_uintPtr;
-        } u;
+        // We must fully specify names of methods when taking pointers to
+        // them -- major nuisance.
 
-        u.d_func = func;
-        nullTransform(&u.d_uintPtr);
-        return u.d_func;
+        s_funcPtrs[s_nest1Idx]    = &MultiThreadedTest::Functor::nest1;
+        s_funcPtrs[s_nest2Idx]    = &MultiThreadedTest::Functor::nest2;
+        s_funcPtrs[s_nest3Idx]    = &MultiThreadedTest::Functor::nest3;
+        s_funcPtrs[s_nest4Idx]    = &MultiThreadedTest::Functor::nest4;
+        s_funcPtrs[s_allocOneIdx] = &MultiThreadedTest::Functor::allocOne;
+        s_funcPtrs[s_freeSomeIdx] = &MultiThreadedTest::Functor::freeSome;
     }
 
     // CREATORS
@@ -867,9 +785,10 @@ struct Functor {
   public:
     void operator()();
 };
-bsls::AtomicInt Functor::s_threadRand(0);
-bcemt_Barrier   Functor::s_startBarrier(NUM_THREADS);
-bcemt_Barrier   Functor::s_underwayBarrier(NUM_THREADS + 1);
+Functor::FuncPtr Functor::s_funcPtrs[10];
+bsls::AtomicInt  Functor::s_threadRand(0);
+bcemt_Barrier    Functor::s_startBarrier(NUM_THREADS);
+bcemt_Barrier    Functor::s_underwayBarrier(NUM_THREADS + 1);
 
 void Functor::allocOne()
 {
@@ -887,10 +806,12 @@ void Functor::allocOne()
 
 void Functor::nest4()
 {
-    FuncPtr allocOnePtr = localNullTransform(
-                                        &MultiThreadedTest::Functor::allocOne);
-    FuncPtr freeSomePtr = localNullTransform(
-                                        &MultiThreadedTest::Functor::freeSome);
+    if (++d_nestDepth > 10) {
+        return;
+    }
+
+    FuncPtr allocOnePtr = s_funcPtrs[s_allocOneIdx];
+    FuncPtr freeSomePtr = s_funcPtrs[s_freeSomeIdx];
     for (int i = 0; i < 3000; ++i) {
         for (int j = 0; j < 2; ++j) {
             (this->*allocOnePtr)();
@@ -904,28 +825,52 @@ void Functor::nest4()
             // the other threads continue to thrash.
         }
     }
+
+    --d_nestDepth;                    // Guarantee routine calls, not chaining
 }
 
 void Functor::nest3()
 {
-    (this->*localNullTransform(&MultiThreadedTest::Functor::nest4))();
+    if (++d_nestDepth > 10) {
+        return;
+    }
+
+    (this->*s_funcPtrs[s_nest4Idx])();
+
+    --d_nestDepth;                    // Guarantee routine calls, not chaining
 }
 
 void Functor::nest2()
 {
-    (this->*localNullTransform(&MultiThreadedTest::Functor::nest3))();
+    if (++d_nestDepth > 10) {
+        return;
+    }
+
+    (this->*s_funcPtrs[s_nest3Idx])();
+
+    --d_nestDepth;                    // Guarantee routine calls, not chaining
 }
 
 void Functor::nest1()
 {
-    (this->*localNullTransform(&MultiThreadedTest::Functor::nest2))();
+    if (++d_nestDepth > 10) {
+        return;
+    }
+
+    (this->*s_funcPtrs[s_nest2Idx])();
+
+    --d_nestDepth;                    // Guarantee routine calls, not chaining
 }
 
 void Functor::operator()()
 {
     ASSERT(0 == d_alloced.size());
 
-    (this->*localNullTransform(&MultiThreadedTest::Functor::nest1))();
+    d_nestDepth = 0;
+
+    (this->*s_funcPtrs[s_nest1Idx])();
+
+    ASSERT(!d_nestDepth);
 }
 
 }  // close namespace MultiThreadedTest
@@ -936,6 +881,7 @@ void Functor::operator()()
 
 static
 bslma_Allocator *leakTwiceAllocator = 0;
+int leakTwiceCount;
 
 static
 void leakTwiceC()
@@ -947,19 +893,32 @@ void leakTwiceC()
 
 // not static
 
+static
 void leakTwiceB()
 {
-    (*voidNullTransform(&leakTwiceC))();
+    if (++leakTwiceCount > 10) {
+        return;
+    }
+
+    (*voidFuncs[idxVoidFuncLeakTwiceC])();
+
+    --leakTwiceCount;                 // force routine call instead of chaining
 }
 
 static
 void leakTwiceA()
 {
+    if (++leakTwiceCount > 10) {
+        return;
+    }
+
     ASSERT(leakTwiceAllocator);
 
     leakTwiceAllocator->allocate(25);        // leak in first place
 
-    (*voidNullTransform(&leakTwiceB))();
+    (*voidFuncs[idxVoidFuncLeakTwiceB])();
+
+    --leakTwiceCount;                 // force routine call instead of chaining
 }
 
 //=============================================================================
@@ -981,6 +940,17 @@ int main(int argc, char *argv[])
     memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
     int expectedDefaultAllocations = 0;
+
+    idxVoidFuncRecurser   = 0;
+    idxVoidFuncLeakTwiceA = 1;
+    idxVoidFuncLeakTwiceB = 2;
+    idxVoidFuncLeakTwiceC = 3;
+    voidFuncs[idxVoidFuncRecurser]   = &recurser;
+    voidFuncs[idxVoidFuncLeakTwiceA] = &leakTwiceA;
+    voidFuncs[idxVoidFuncLeakTwiceB] = &leakTwiceB;
+    voidFuncs[idxVoidFuncLeakTwiceC] = &leakTwiceC;
+
+    ASSERT(voidFuncsSize <= sizeof voidFuncs / sizeof *voidFuncs);
 
     switch (test) { case 0:
       case 22: {
@@ -1155,7 +1125,7 @@ int main(int argc, char *argv[])
         }
         ss.str("");
 
-#if !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_ASSERT_IS_ACTIVE) && !defined(BSLS_PLATFORM__OS_WINDOWS)
         bsls::Assert::setFailureHandler(my_assertHandlerLongJmp);
 
         bool caught = false;
@@ -1230,6 +1200,8 @@ int main(int argc, char *argv[])
             recurserAllocator = &ta;
             recurseDepth = depth;
             recurser();
+
+            ASSERT(depth == recurseDepth);
 
             ASSERT(ss.str().empty());
 
@@ -1630,7 +1602,8 @@ int main(int argc, char *argv[])
 
                         unsigned char *ptr =(unsigned char *) ta.allocate(100);
 
-                        const unsigned numBlocks = ta.numBlocksInUse();
+                        const unsigned numBlocks = (unsigned)
+                                                           ta.numBlocksInUse();
 
                         char saveBuffer[4 * sizeof(void *)];
                         memcpy(saveBuffer, ptr - u, u);
@@ -1689,7 +1662,7 @@ int main(int argc, char *argv[])
 
                         unsigned char *ptr =(unsigned char *) ta.allocate(100);
 
-                        const int numBlocks = ta.numBlocksInUse();
+                        const int numBlocks = (int) ta.numBlocksInUse();
 
                         unsigned char saveChar = ptr[-i];
                         ptr[-i] = *pu;
@@ -2419,6 +2392,8 @@ int main(int argc, char *argv[])
 
         bslma_TestAllocator bslta("bsl_ta");
         TC::TouchyAllocator touchy(&bslta);
+
+        TC::Functor::initFuncPtrs();
 
         bsl::stringstream ss(&touchy);
 
@@ -3162,7 +3137,7 @@ int main(int argc, char *argv[])
 
         bslma::NewDeleteAllocator otherTa;
 
-        int maxDepths[] = { 100, 10, 5, 4, 3 };
+        int maxDepths[] = { 100, 10, 5, 4 };
         enum { NUM_MAX_DEPTHS = sizeof maxDepths / sizeof *maxDepths };
 
         for (int d = 0; d < NUM_MAX_DEPTHS; ++d) {
@@ -3178,7 +3153,11 @@ int main(int argc, char *argv[])
                                                  (veryVerbose ? &cout : &out),
                                                  maxDepths[d]);
                 leakTwiceAllocator = &ta;
-                (*voidNullTransform(&leakTwiceA))();
+                leakTwiceCount = 0;
+
+                (*voidFuncs[idxVoidFuncLeakTwiceA])();                // RETURN
+
+                ASSERT(!leakTwiceCount);
 
                 if (!veryVerbose) {
                     ta.setFailureHandler(&Obj::failureHandlerNoop);
@@ -3199,18 +3178,14 @@ int main(int argc, char *argv[])
                 ASSERT(npos != (pos = outStr.find("leakTwiceB", pos)));
                 pos = 0;
                 ASSERT(npos != (pos = outStr.find("leakTwiceA", pos)));
-                ASSERT((maxDepths[d] > 3) == (npos !=
-                               (pos = outStr.find("leakTwiceA", pos + 1))));
-                pos = 0;
+                LOOP_ASSERT(maxDepths[d], npos !=
+                               (pos = outStr.find("leakTwiceA", pos + 1)));
                 ASSERT(npos != (pos = outStr.find("main",       pos)));
-                if (maxDepths[d] > 4) {
-                    ASSERT(npos !=
-                               (pos = outStr.find("main",       pos + 1)));
-                }
             }
+            if (testStatus > 0) P(outStr);
 
             if (verbose) {
-                cout << outStr;
+                P_(maxDepths[d]);    P(outStr);
             }
         }
       }  break;
