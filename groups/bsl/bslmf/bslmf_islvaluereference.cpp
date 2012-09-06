@@ -1,5 +1,5 @@
-// bslmf_isrvaluereference.cpp                                        -*-C++-*-
-#include <bslmf_isrvaluereference.h>
+// bslmf_islvaluereference.cpp                                        -*-C++-*-
+#include <bslmf_islvaluereference.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

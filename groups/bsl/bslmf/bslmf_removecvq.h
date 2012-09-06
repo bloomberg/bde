@@ -95,6 +95,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
@@ -110,49 +114,6 @@ struct Remove_NonCvPointer<TYPE *>
 {
     typedef TYPE Type;
 };
-
-}
-
-}
-
-namespace bsl {
-
-template <typename TYPE>
-struct remove_const
-{
-    typedef TYPE type;
-};
-
-template <typename TYPE>
-struct remove_const<TYPE const>
-{
-    typedef TYPE type;
-};
-
-template <typename TYPE>
-struct remove_volatile
-{
-    typedef TYPE type;
-};
-
-template <typename TYPE>
-struct remove_volatile<TYPE volatile>
-{
-    typedef TYPE type;
-};
-
-template <typename TYPE>
-struct remove_cv
-{
-    typedef typename remove_const<typename remove_volatile<TYPE>::type>::type
-        type;
-};
-
-}
-
-namespace BloombergLP {
-
-namespace bslmf {
 
                               // ================
                               // struct RemoveCvq

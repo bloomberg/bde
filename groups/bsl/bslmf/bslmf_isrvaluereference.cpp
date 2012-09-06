@@ -1,4 +1,4 @@
-// bslmf_isrvaluereference.cpp                                        -*-C++-*-
+// bslmf_isreference.cpp                                              -*-C++-*-
 #include <bslmf_isrvaluereference.h>
 
 #include <bsls_ident.h>

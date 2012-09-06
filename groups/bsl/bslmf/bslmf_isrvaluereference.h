@@ -1,6 +1,6 @@
-// bslmf_isreference.h                                                -*-C++-*-
-#ifndef INCLUDED_BSLMF_ISREFERENCE
-#define INCLUDED_BSLMF_ISREFERENCE
+// bslmf_isrvaluereference.h                                          -*-C++-*-
+#ifndef INCLUDED_BSLMF_ISRVALUEREFERENCE
+#define INCLUDED_BSLMF_ISRVALUEREFERENCE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -19,21 +19,19 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integerconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISLVALUEREFERENCE
-#include <bslmf_islvaluereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISRVALUEREFERENCE
-#include <bslmf_isrvaluereference.h>
-#endif
-
 namespace bsl {
 
 template <typename TYPE>
-struct is_reference : integer_constant<bool,
-                                       is_lvalue_reference<TYPE>::value
-                                       || is_rvalue_reference<TYPE>::value>
+struct is_rvalue_reference : false_type
 {};
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
+template <typename TYPE>
+struct is_rvalue_reference<TYPE &&> : true_type
+{};
+
+#endif
 
 }
 
