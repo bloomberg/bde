@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::map: STL-compliant map template
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@SEE_ALSO: bslstl_multimap, bslstl_set
+//
+//@AUTHOR: Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component defines a single class template 'map',
 // implementing the standard container holding an ordered sequence of key-value
@@ -689,7 +689,7 @@ class map {
 
     // CREATORS
     explicit map(const COMPARATOR& comparator = COMPARATOR(),
-                 const ALLOCATOR&  allocator  = ALLOCATOR());
+                 const ALLOCATOR&  allocator  = ALLOCATOR())
         // Construct an empty map.  Optionally specify a 'comparator' used to
         // order key-value pairs contained in this object.  If 'comparator' is
         // not supplied, a default-constructed object of the parameterized
@@ -702,6 +702,15 @@ class map {
         // 'ALLOCATOR' argument is of type 'bsl::allocator' and 'allocator' is
         // not supplied, the currently installed default allocator will be used
         // to supply memory.
+    : d_compAndAlloc(comparator, allocator)
+    , d_tree()
+    {
+        // The implementation is placed here in the class definition to
+        // workaround an AIX compiler bug, where the constructor can fail to
+        // compile because it is unable to find the definition of the default
+        // argument.  This occurs when a templatized class wraps around the
+        // container and the comparator is defined after the new class.
+    }
 
     explicit map(const ALLOCATOR& allocator);
         // Construct an empty map that will use the specified 'allocator' to
@@ -1179,7 +1188,7 @@ inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
                                                   const COMPARATOR& comparator,
                                                   const ALLOCATOR&  allocator)
-: Comparator(comparator)
+: ::bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR>::Comparator(comparator)
 , d_pool(allocator)
 {
 }
@@ -1251,15 +1260,6 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::comparator() const
 }
 
 // CREATORS
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const COMPARATOR& comparator,
-                                            const ALLOCATOR&  allocator)
-: d_compAndAlloc(comparator, allocator)
-, d_tree()
-{
-}
-
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const ALLOCATOR& allocator)

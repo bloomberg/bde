@@ -77,11 +77,11 @@
  Bloomberg currently provides its own implementation for eighteen class
  templates:
 ..
-  o vector    o pair(*)     o map             o hash_set (**)
-  o string    o set         o priority_queue  o hash_multimap (**)
-  o deque     o multiset    o bitset          o hash_multiset (**)
-  o list      o multimap    o stringstream
-  o queue     o stack       o hash_map (**)
+  vector    pair(*)     map             hash_set (**)
+  string    set         priority_queue  hash_multimap (**)
+  deque     multiset    bitset          hash_multiset (**)
+  list      multimap    stringstream
+  queue     stack       hash_map (**)
 ..
 
  (*) Note that Bloomberg provides an implementation of 'pair', but not
@@ -127,21 +127,21 @@
            |  libs & .h  |                   |  libs & .h  |
            |_____________|                   |_____________|
 
-                 (a)                             (b)
-
- (a) Libraries should already be compiled, headers should include standard STL
-     headers, and source code should use 'std::' when referring to the standard
-     library components.
-
- (b) Libraries should be compiled in Native-STL mode, headers should include
-     Bloomberg's STL headers, and source code should use 'bsl::' when referring
-     to Bloomberg's implementation of standard library components.  If the
-     Bloomberg library needs to pass a standard library object to the
-     third-party library, the standard library object needs to be converted to
-     the compiler vendor supplied version first (e.g., 'bsl::vector' needs to
-     be converted to 'std::vector' first since these are different types under
-     Native-STL mode) before passing the object through.
+                 (1)                             (2)
 ..
+
+: 1 Libraries should already be compiled, headers should include standard STL
+:   headers, and source code should use 'std::' when referring to the standard
+:   library components.
+:
+: 2 Libraries should be compiled in Native-STL mode, headers should include
+:   Bloomberg's STL headers, and source code should use 'bsl::' when referring
+:   to Bloomberg's implementation of standard library components.  If the
+:   Bloomberg library needs to pass a standard library object to the
+:   third-party library, the standard library object needs to be converted to
+:   the compiler vendor supplied version first (e.g., 'bsl::vector' needs to be
+:   converted to 'std::vector' first since these are different types under
+:   Native-STL mode) before passing the object through.
 
  Note that the BSL package group itself is built in native STL mode (i.e.,
  'BSL_OVERRIDES_STD' is *not* defined).  BSL needs to use 'bslstl' headers,
@@ -345,11 +345,13 @@
 
 /Other Design Discussions
 /------------------------
- o Some C header files are meant to be included multiple times, such as
- 'time.h', 'math.h', etc.  These header files contain preprocessor logic that
- brings in different section of the code depending on how the header is
- included.  Therefore, the include guards in those files do not guard the
- entire file.
+: o Some C header files are meant to be included multiple times, such as
+:   'time.h', 'math.h', etc.  These header files contain preprocessor logic
+:   that brings in different section of the code depending on how the header is
+:   included.  Therefore, the include guards in those files do not guard the
+:   entire file.
+:
+: o '.SUNWCCh' files are needed to override the native STL include files on
+:   Sun.  The file extension tells the Sun compiler that it is an STL header
+:   file.
 
- o '.SUNWCCh' files are needed to override the native STL include files on Sun.
- The file extension tells the Sun compiler that it is an STL header file.

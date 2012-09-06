@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::set: STL-compatible set template
 //
-//@AUTHOR:  Henry Verschell (hverschell)
-//
 //@SEE_ALSO: bslstl_multiset, bslstl_map
+//
+//@AUTHOR:  Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component defines a single class template 'set',
 // implementing the standard container holding an ordered sequence of
@@ -652,7 +652,7 @@ class set {
 
     // CREATORS
     explicit set(const COMPARATOR& comparator = COMPARATOR(),
-                 const ALLOCATOR&  allocator  = ALLOCATOR());
+                 const ALLOCATOR&  allocator  = ALLOCATOR())
         // Construct an empty set.  Optionally specify a 'comparator' used to
         // order keys contained in this object.  If 'comparator' is not
         // supplied, a default-constructed object of the parameterized
@@ -665,6 +665,15 @@ class set {
         // 'ALLOCATOR' argument is of type 'bsl::allocator' and 'allocator' is
         // not supplied, the currently installed default allocator will be used
         // to supply memory.
+    : d_compAndAlloc(comparator, allocator)
+    , d_tree()
+    {
+        // The implementation is placed here in the class definition to
+        // workaround an AIX compiler bug, where the constructor can fail to
+        // compile because it is unable to find the definition of the default
+        // argument.  This occurs when a templatized class wraps around the
+        // container and the comparator is defined after the new class.
+    }
 
     explicit set(const ALLOCATOR& allocator);
         // Construct an empty set that will use the specified 'allocator' to
@@ -1103,7 +1112,7 @@ inline
 set<KEY, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
                                                   const COMPARATOR& comparator,
                                                   const ALLOCATOR&  allocator)
-: Comparator(comparator)
+: ::bsl::set<KEY, COMPARATOR, ALLOCATOR>::Comparator(comparator)
 , d_pool(allocator)
 {
 }
@@ -1156,15 +1165,6 @@ set<KEY, COMPARATOR, ALLOCATOR>::comparator() const
 }
 
 // CREATORS
-template <class KEY, class COMPARATOR, class ALLOCATOR>
-inline
-set<KEY, COMPARATOR, ALLOCATOR>::set(const COMPARATOR& comparator,
-                                     const ALLOCATOR&  allocator)
-: d_compAndAlloc(comparator, allocator)
-, d_tree()
-{
-}
-
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class INPUT_ITERATOR>
 inline

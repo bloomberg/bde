@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::RawDeleterGuard: guard to unconditionally manage an object
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@SEE_ALSO: bslma_rawdeleterproctor, bslma_autorawdeleter
+//
+//@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a guard class template to
 // unconditionally manage an (otherwise-unmanaged) object of parameterized

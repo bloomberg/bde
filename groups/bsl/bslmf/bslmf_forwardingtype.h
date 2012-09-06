@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::ForwardingType: meta-function to determine optimal forwarding type
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@SEE_ALSO: bslmf_removecvq
+//
+//@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides a meta function determining the most
 // efficient forwarding type for a given template type 'TYPE'.

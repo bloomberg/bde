@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::multiset: STL-compatible multiset template
 //
-//@AUTHOR:  Henry Verschell (hverschell)
-//
 //@SEE_ALSO: bslstl_set, bslstl_multimap
+//
+//@AUTHOR:  Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component defines a single class template 'multiset',
 // implementing the standard container holding an ordered sequence of possibly
@@ -599,7 +599,7 @@ class multiset {
 
     // CREATORS
     explicit multiset(const COMPARATOR&  comparator = COMPARATOR(),
-                      const ALLOCATOR& allocator = ALLOCATOR());
+                      const ALLOCATOR& allocator = ALLOCATOR())
         // Construct an empty multiset.  Optionally specify a 'comparator' used
         // to order keys contained in this object.  If 'comparator' is not
         // supplied, a default-constructed object of the parameterized
@@ -612,6 +612,15 @@ class multiset {
         // 'ALLOCATOR' argument is of type 'bsl::allocator' and 'allocator' is
         // not supplied, the currently installed default allocator will be used
         // to supply memory.
+    : d_compAndAlloc(comparator, allocator)
+    , d_tree()
+    {
+        // The implementation is placed here in the class definition to
+        // workaround an AIX compiler bug, where the constructor can fail to
+        // compile because it is unable to find the definition of the default
+        // argument.  This occurs when a templatized class wraps around the
+        // container and the comparator is defined after the new class.
+    }
 
     explicit multiset(const ALLOCATOR& allocator);
         // Construct an empty multiset that will use the specified 'allocator'
@@ -1045,7 +1054,7 @@ inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
                                                   const COMPARATOR& comparator,
                                                   const ALLOCATOR&  allocator)
-: Comparator(comparator)
+: ::bsl::multiset<KEY, COMPARATOR, ALLOCATOR>::Comparator(comparator)
 , d_pool(allocator)
 {
 }
@@ -1098,15 +1107,6 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::comparator() const
 }
 
 // CREATORS
-template <class KEY, class COMPARATOR, class ALLOCATOR>
-inline
-multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const COMPARATOR& comparator,
-                                               const ALLOCATOR&  allocator)
-: d_compAndAlloc(comparator, allocator)
-, d_tree()
-{
-}
-
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class INPUT_ITERATOR>
 inline

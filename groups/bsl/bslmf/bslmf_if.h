@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::If: meta-function for compile-time selection of one of two types
 //
-//@AUTHOR: Oleg Grunin (ogrunin)
-//
 //@SEE_ALSO: bslmf_assert, bslmf_nil
+//
+//@AUTHOR: Oleg Grunin (ogrunin)
 //
 //@DESCRIPTION: This component contains the template class meta-function
 // 'bslmf::If' that is parameterized on three arguments.  The first argument is

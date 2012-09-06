@@ -1,5 +1,5 @@
-// bslstl_exfunctional.cpp                                            -*-C++-*-
-#include <bslstl_exfunctional.h>
+// bslstp_exfunctional.cpp                                            -*-C++-*-
+#include <bslstp_exfunctional.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

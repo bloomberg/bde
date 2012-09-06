@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 // BSL_NATIVE_CPP_DEPRECATED_HEADER(filename),
 // BSL_NATIVE_C_LIB_HEADER(filename)
 //
-//@SEE_ALSO:
-//
 //@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: [!PRIVATE!] This component is intended for use only by other

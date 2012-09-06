@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template 'struct',
 // 'bslmf::AddReference', that is used to define a reference type from the type
 // supplied as its single template type parameter.  Types that are 'void' or

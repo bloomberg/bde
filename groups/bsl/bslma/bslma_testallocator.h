@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN: macro to begin testing exceptions
 //  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END:   macro to end testing exceptions
 //
-//@SEE_ALSO bslma_newdeleteallocator, bslma_mallocfreeallocator
+//@SEE_ALSO: bslma_newdeleteallocator, bslma_mallocfreeallocator
 //
 //@AUTHOR: John Lakos (jlakos)
 //

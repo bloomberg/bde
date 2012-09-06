@@ -16,10 +16,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides performance hints for the compiler or
 // hardware.  There are currently two types of hints that are supported:
-//..
-//  o branch prediction
-//  o data cache prefetching
-//..
+//: o branch prediction
+//: o data cache prefetching
+//
 ///Branch Prediction
 ///-----------------
 // The three macros provided, 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY',

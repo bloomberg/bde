@@ -34,8 +34,6 @@ BSLS_IDENT("$Id: $")
 //  bslmf::TypeList19: Typelist of 19 types
 //  bslmf::TypeList20: Typelist of 20 types
 //
-//@SEE_ALSO:
-//
 //@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: 'bslmf::TypeList' provides a compile time list that holds up to

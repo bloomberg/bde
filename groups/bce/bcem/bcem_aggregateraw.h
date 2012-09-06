@@ -2777,6 +2777,8 @@ void bdeat_enumToInt(int *result, const bcem_AggregateRaw& value)
 {
     const bdem_EnumerationDef *enumDef = value.enumerationConstraint();
     if (! enumDef) {
+        BSLS_ASSERT_OPT(!"Schema Error");
+        *result = bdetu_Unset<int>::unsetValue();
         return;                                                       // RETURN
     }
 

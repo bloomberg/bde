@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::multimap STL-compatible multimap template
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@SEE_ALSO: bslstl_map, bslstl_multiset
+//
+//@AUTHOR: Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component defines a single class template 'multimap',
 // implementing the standard container holding an ordered sequence of key-value
@@ -712,7 +712,7 @@ class multimap {
 
     // CREATORS
     explicit multimap(const COMPARATOR& comparator = COMPARATOR(),
-                      const ALLOCATOR&  allocator  = ALLOCATOR());
+                      const ALLOCATOR&  allocator  = ALLOCATOR())
         // Construct an empty multimap.  Optionally specify a 'comparator' used
         // to order key-value pairs contained in this object.  If 'comparator'
         // is not supplied, a default-constructed object of the parameterized
@@ -725,6 +725,15 @@ class multimap {
         // 'ALLOCATOR' argument is of type 'bsl::allocator' and 'allocator' is
         // not supplied, the currently installed default allocator will be used
         // to supply memory.
+    : d_compAndAlloc(comparator, allocator)
+    , d_tree()
+    {
+        // The implementation is placed here in the class definition to
+        // workaround an AIX compiler bug, where the constructor can fail to
+        // compile because it is unable to find the definition of the default
+        // argument.  This occurs when a templatized class wraps around the
+        // container and the comparator is defined after the new class.
+    }
 
     explicit multimap(const ALLOCATOR& allocator);
         // Construct an empty multimap that will use the specified 'allocator'
@@ -1176,7 +1185,7 @@ inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
                                                   const COMPARATOR& comparator,
                                                   const ALLOCATOR&  allocator)
-: Comparator(comparator)
+: ::bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::Comparator(comparator)
 , d_pool(allocator)
 {
 }
@@ -1229,16 +1238,6 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::comparator() const
 }
 
 // CREATORS
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
-                                                  const COMPARATOR& comparator,
-                                                  const ALLOCATOR&  allocator)
-: d_compAndAlloc(comparator, allocator)
-, d_tree()
-{
-}
-
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class INPUT_ITERATOR>
 inline

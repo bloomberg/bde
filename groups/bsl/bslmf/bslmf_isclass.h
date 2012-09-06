@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Clay Wilson (cwilson9)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's parameter is a 'class', 'struct', or 'union',
 // optionally qualified with 'const' or 'volatile'.  'bslmf::IsClass' defines a

@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::IsFundamental: meta-function for fundamental type checking
 //
-//@AUTHOR: Shawn Edwards (sedwards)
-//
 //@SEE_ALSO: bslmf_isenum, bslmf_ispointer
+//
+//@AUTHOR: Shawn Edwards (sedwards)
 //
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's parameter is a fundamental type.
