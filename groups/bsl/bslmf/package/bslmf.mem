@@ -1,4 +1,5 @@
 bslmf_addconst
+bslmf_addpointer
 bslmf_addreference
 bslmf_anytype
 bslmf_arraytopointer
@@ -32,6 +33,7 @@ bslmf_metaint
 bslmf_nestedtraitdeclaration
 bslmf_nil
 bslmf_removecvq
+bslmf_removepointer
 bslmf_removereference
 bslmf_switch
 bslmf_selecttrait

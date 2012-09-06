@@ -148,14 +148,6 @@ struct remove_cv
         type;
 };
 
-template <typename TYPE>
-struct remove_pointer
-{
-    typedef typename BloombergLP::bslmf::Remove_NonCvPointer<
-                typename remove_cv<TYPE>::type>::Type
-        type;
-};
-
 }
 
 namespace BloombergLP {
@@ -178,8 +170,9 @@ struct RemovePtrCvq
     // const, and T volatile.  Thus, 'RemoveCvq', below, is implemented
     // indirectly in terms of 'RemovePtrCvq'.
 {
-    typedef typename bsl::remove_cv<TYPE>::type      Type;
-    typedef typename bsl::remove_pointer<TYPE>::type ValueType;
+    typedef typename bsl::remove_cv<TYPE>::type                      Type;
+    typedef typename Remove_NonCvPointer<typename bsl::remove_cv<TYPE>::type>::Type
+                                                                     ValueType;
 };
 
                            // ================
