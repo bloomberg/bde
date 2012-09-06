@@ -19,8 +19,8 @@
 #include <bsls_platform.h>
 #include <bsls_bsltestutil.h>
 
-#include <limits>
-#include <cstddef>
+#include <stdio.h>
+#include <stdlib.h>
 
 // ============================================================================
 //                          ADL SWAP TEST HELPER
@@ -189,13 +189,17 @@ static bool veryVeryVeryVerbose;
 // ============================================================================
 //                     GLOBAL CONSTANTS USED FOR TESTING
 // ----------------------------------------------------------------------------
-const size_t SIZE_T_MAX = std::numeric_limits<std::size_t>::max();
-const size_t SIZE_T_MIN = std::numeric_limits<std::size_t>::min();
+// size_t is an unsigned type
+const size_t SIZE_T_MAX = size_t(0)-1;
+const size_t SIZE_T_MIN = 1;  // actually, minimum valid array length
 
 typedef bslalg::HashTableAnchor   Obj;
 typedef bslalg::HashTableBucket   Bucket;
 typedef bslalg::BidirectionalLink Link;
 typedef std::size_t               size_t;
+
+static Link DefaultLink1;
+static Link DefaultLink2;
 
 struct DefaultValueRow {
     int          d_line;  // source line number
@@ -211,20 +215,26 @@ const DefaultValueRow DEFAULT_VALUES[] =
     //----     ------------------  --------- ---------------
 
     // default (must be first)
-    { L_,     (Bucket *)         0,           0, (Link *)           0},
+    { L_,     (Bucket *) 0xd3adb33f, SIZE_T_MIN, (Link *)    0 },
 
     // 'data'
-    { L_,     (Bucket *) 0xd3adb33f, SIZE_T_MIN, (Link *)  0xb33fc45e},
-    { L_,     (Bucket *) 0xf33db33f,          1, (Link *)  0xb33fc45e},
-    { L_,     (Bucket *) 0x00000000,          2, (Link *)  0xb33fc45e},
-    { L_,     (Bucket *) 0xd3adb33f,          3, (Link *)  0xb33fc45e},
-    { L_,     (Bucket *) 0xd3adb33f, SIZE_T_MAX, (Link *)  0xb33fc45e},
-    { L_,     (Bucket *) 0xd3adb33f,          4, (Link *)  0xd3adb33f},
-    { L_,     (Bucket *) 0xd3adb33f,          5, (Link *)  0},
+    { L_,     (Bucket *) 0xd3adb33f, SIZE_T_MIN, &DefaultLink1 },
+    { L_,     (Bucket *) 0xf33db33f,          2, &DefaultLink1 },
+    { L_,     (Bucket *) 0xd3adb33f,          3, &DefaultLink1 },
+    { L_,     (Bucket *) 0xd3adb33f, SIZE_T_MAX, &DefaultLink1 },
+    { L_,     (Bucket *) 0xd3adb33f,          4, &DefaultLink2 },
+    { L_,     (Bucket *) 0xd3adb33f,          5, (Link *)    0 },
 };
 
 const int DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES;
 
+void initializeGlobalData()
+{
+    // This function must be called from 'main' in order to perform any
+    // runtime initialization of objects addressed in the default test tables.
+    DefaultLink1.reset();
+    DefaultLink2.reset();
+}
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -249,6 +259,8 @@ int main(int argc, char *argv[]) {
     bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
+
+    initializeGlobalData();
 
     // CONCERN: No memory is ever allocated.
 
@@ -648,12 +660,13 @@ int main(int argc, char *argv[]) {
             printf("\nBASIC ACCESSORS"
                    "\n===============\n");
 
+#if 0
         Obj mX; const Obj& X = mX;
         ASSERTV(X.bucketArraySize(), 0 == X.bucketArraySize());
 
         mX.setArraySize(1);
         ASSERTV(X.bucketArraySize(), 1 == X.bucketArraySize());
-
+#endif
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -706,14 +719,14 @@ int main(int argc, char *argv[]) {
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // DEFAULT CTOR & PRIMARY MANIPULATORS
+        // VALUE CTOR & PRIMARY MANIPULATORS
         //   Ensure that we can use the default constructor to create an object
         //   (having the default constructed value).  Also ensure that we can
         //   use the primary manipulators to put that object into any state
         //   relevant for thorough testing.
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
+        //: 1 An object created with the value constructor has the
         //:   contractually specified default value.
         //:
         //: 2 Each attribute can be set to represent any value that does not
@@ -738,24 +751,129 @@ int main(int argc, char *argv[]) {
         //   void setArraySize(int value);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nDEFAULT CTOR & PRIMARY MANIPULATORS"
-                            "\n===================================\n");
+        if (verbose) printf("\nVALUE CTOR & PRIMARY MANIPULATORS"
+                            "\n=================================\n");
 
-        const size_t D = 0;
-        const size_t A = SIZE_T_MAX;
-        const size_t B = SIZE_T_MIN;
+        bslalg::HashTableBucket ARRAY_D[1] = {};
+        bslalg::HashTableBucket ARRAY_A[2] = {};
+        bslalg::HashTableBucket ARRAY_B[5] = {};
+ 
+        bslalg::BidirectionalLink LIST_A;
+        LIST_A.reset();
 
-        Obj mX; const Obj& X = mX;
-        ASSERTV(X.bucketArraySize(), D == X.bucketArraySize());
+        bslalg::BidirectionalLink LIST_B;
+        LIST_B.reset();
 
-        mX.setArraySize(A);
-        ASSERTV(X.bucketArraySize(), A == X.bucketArraySize());
+        bslalg::HashTableBucket   *const D1 = ARRAY_D;
+        const size_t                     D2 = 1;
+        bslalg::BidirectionalLink *const D3 = 0;
 
-        mX.setArraySize(B);
-        ASSERTV(X.bucketArraySize(), B == X.bucketArraySize());
+        bslalg::HashTableBucket   *const A1 = ARRAY_A;
+        const size_t                     A2 = 2;
+        bslalg::BidirectionalLink *const A3 = &LIST_A;
+
+        bslalg::HashTableBucket   *const B1 = ARRAY_B;
+        const size_t                     B2 = 5;
+        bslalg::BidirectionalLink *const B3 = &LIST_B;
 
 
+        Obj mX(D1, D2, D3); const Obj& X = mX;
+        ASSERTV(D1, X.bucketArrayAddress(), D1 == X.bucketArrayAddress());
+        ASSERTV(D2, X.bucketArraySize(),    D2 == X.bucketArraySize());
+        ASSERTV(D3, X.listRootAddress(),    D3 == X.listRootAddress());
 
+        // 'bucketArrayAddress' and 'bucketArraySize'
+        {
+            mX.setBucketArrayAndSize(A1, A2);
+            ASSERTV(A1, X.bucketArrayAddress(), A1 == X.bucketArrayAddress());
+            ASSERTV(A2, X.bucketArraySize(),    A2 == X.bucketArraySize());
+            ASSERTV(D3, X.listRootAddress(),    D3 == X.listRootAddress());
+
+            mX.setBucketArrayAndSize(B1, B2);
+            ASSERTV(B1, X.bucketArrayAddress(), B1 == X.bucketArrayAddress());
+            ASSERTV(B2, X.bucketArraySize(),    B2 == X.bucketArraySize());
+            ASSERTV(D3, X.listRootAddress(),    D3 == X.listRootAddress());
+
+            mX.setBucketArrayAndSize(D1, D2);
+            ASSERTV(D1, X.bucketArrayAddress(), D1 == X.bucketArrayAddress());
+            ASSERTV(D2, X.bucketArraySize(),    D2 == X.bucketArraySize());
+            ASSERTV(D3, X.listRootAddress(),    D3 == X.listRootAddress());
+        }
+
+        // 'listRootAddress'
+        {
+            mX.setListRootAddress(A3);
+            ASSERTV(D1, X.bucketArrayAddress(), D1 == X.bucketArrayAddress());
+            ASSERTV(D2, X.bucketArraySize(),    D2 == X.bucketArraySize());
+            ASSERTV(A3, X.listRootAddress(),    A3 == X.listRootAddress());
+
+            mX.setListRootAddress(B3);
+            ASSERTV(D1, X.bucketArrayAddress(), D1 == X.bucketArrayAddress());
+            ASSERTV(D2, X.bucketArraySize(),    D2 == X.bucketArraySize());
+            ASSERTV(B3, X.listRootAddress(),    B3 == X.listRootAddress());
+
+            mX.setListRootAddress(D3);
+            ASSERTV(D1, X.bucketArrayAddress(), D1 == X.bucketArrayAddress());
+            ASSERTV(D2, X.bucketArraySize(),    D2 == X.bucketArraySize());
+            ASSERTV(D3, X.listRootAddress(),    D3 == X.listRootAddress());
+        }
+
+        // Corroborate attribute independence.
+        {
+
+            // Set all attributes to their 'A' values.
+
+            mX.setBucketArrayAndSize(A1, A2);
+            mX.setListRootAddress(A3);
+            ASSERTV(A1, X.bucketArrayAddress(), A1 == X.bucketArrayAddress());
+            ASSERTV(A2, X.bucketArraySize(),    A2 == X.bucketArraySize());
+            ASSERTV(A3, X.listRootAddress(),    A3 == X.listRootAddress());
+
+            // Set all attributes to their 'B' values.
+
+            mX.setBucketArrayAndSize(B1, B2);
+            ASSERTV(B1, X.bucketArrayAddress(), B1 == X.bucketArrayAddress());
+            ASSERTV(B2, X.bucketArraySize(),    B2 == X.bucketArraySize());
+            ASSERTV(A3, X.listRootAddress(),    A3 == X.listRootAddress());
+
+            mX.setListRootAddress(B3);
+            ASSERTV(B1, X.bucketArrayAddress(), B1 == X.bucketArrayAddress());
+            ASSERTV(B2, X.bucketArraySize(),    B2 == X.bucketArraySize());
+            ASSERTV(B3, X.listRootAddress(),    B3 == X.listRootAddress());
+        }
+
+        if (verbose) printf("\nNegative Testing.\n");
+        {
+            bsls::AssertTestHandlerGuard handlerGuard;
+
+            Obj obj(D1, D2, D3);
+
+            if (veryVerbose)
+                          printf("\tbucketArrayAddress and bucketArraySize\n");
+            {
+                ASSERT_SAFE_FAIL(obj.setBucketArrayAndSize( 0, A2));
+                ASSERT_SAFE_FAIL(obj.setBucketArrayAndSize(A1,  0));
+                ASSERT_SAFE_PASS(obj.setBucketArrayAndSize(A1, A2));
+
+                ASSERT_SAFE_FAIL(Obj obj2( 0, A2, A3));
+                ASSERT_SAFE_FAIL(Obj obj2(A1,  0, A3));
+                ASSERT_SAFE_PASS(Obj obj2(A1, A2, A3));
+            }
+
+            if (veryVerbose) printf("\tlistRootAddress\n");
+            {
+                bslalg::BidirectionalLink LIST_ERR;
+                bslalg::BidirectionalLink *const BAD_PTR = &LIST_ERR;
+                LIST_ERR.setNextLink(0);
+                LIST_ERR.setPreviousLink(BAD_PTR);
+
+                ASSERT_SAFE_FAIL(obj.setListRootAddress(BAD_PTR));
+                ASSERT_SAFE_PASS(obj.setListRootAddress(A3));
+
+                ASSERT_SAFE_FAIL(Obj obj2(A1, A2, BAD_PTR));
+                ASSERT_SAFE_PASS(Obj obj2(A1, A2, A3));
+            }
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -776,14 +894,17 @@ int main(int argc, char *argv[]) {
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        Obj X;
-        ASSERT(X.bucketArraySize() == 0);
+        bslalg::HashTableBucket array1[1] = {};
+        bslalg::HashTableBucket array2[2] = {};
 
-        X.setArraySize(1);
+        Obj X(array1, 1, 0);
         ASSERT(X.bucketArraySize() == 1);
 
-        Obj Y(0, 2, 0);
-        ASSERT(Y.bucketArraySize() == 2);
+        X.setBucketArrayAndSize(array2, 2);
+        ASSERT(X.bucketArraySize() == 2);
+
+        Obj Y(array1, 1, 0);
+        ASSERT(Y.bucketArraySize() == 1);
 
         Obj Z(Y);
         ASSERT(Z == Y);
@@ -793,6 +914,12 @@ int main(int argc, char *argv[]) {
         ASSERT(Z == Y);
         ASSERT(X == Y);
 
+        bslalg::BidirectionalLink root;
+        root.reset();
+
+        Z.setListRootAddress(&root);
+        ASSERT(Z != Y);
+        ASSERT(X == Y);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

@@ -56,8 +56,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Converting Between UTC and Local Times
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: ...
+///- - - - - - - 
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -67,8 +67,8 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_bidirectionallink.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
-#include <bslalg_swaputil.h>
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include <bslalg_scalarprimitives.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -258,9 +258,7 @@ void HashTableAnchor::setListRootAddress(BidirectionalLink *value)
 inline
 void HashTableAnchor::swap(HashTableAnchor& other)
 {
-    SwapUtil::swap(&d_bucketArrayAddress_p, &other.d_bucketArrayAddress_p);
-    SwapUtil::swap(&d_bucketArraySize,      &other.d_bucketArraySize);
-    SwapUtil::swap(&d_listRootAddress_p,    &other.d_listRootAddress_p);
+    bslalg::ScalarPrimitives::swap(*this, other);
 }
 
 // ACCESSORS
