@@ -7,11 +7,10 @@
 @AUTHOR: Herve Bronnimann (hbronnim), Arthur Chiu (achiu21)
 
 @DESCRIPTION: This package mainly provides replacement classes for STL
- constructs that required substantial modification to (inter)operate with
- BDE libraries.  In addition to STL replacement classes, this package also
- provides helper components for the STL implementation classes.  Finally, SGI
- extensions that are widely used within Bloomberg can also be found in this
- package.
+ constructs that required substantial modification to (inter)operate with BDE
+ libraries.  In addition to STL replacement classes, this package also provides
+ helper components for the STL implementation classes.  Finally, SGI extensions
+ that are widely used within Bloomberg can also be found in this package.
 
  In general, the components in this package conform to the STL interface.
  However, the components (and hence the headers) are intended for private use

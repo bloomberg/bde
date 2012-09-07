@@ -73,13 +73,13 @@
  (**) - Note that the 'bslstp' package, though physically separate from the
  'bslstl' package, is logically equivalent in terms of physical hierarchy.
  Both packages provide implementations of standard c++ containers.  The only
- reason they are separated is that 'bslstp' contains modified source code
- from stlport, where 'bslstl' contains only code written by Bloomberg.
+ reason they are separated is that 'bslstp' contains modified source code from
+ stlport, where 'bslstl' contains only code written by Bloomberg.
 
 /Package Synopsis
 /----------------
- The following is a brief synopsis of the content of each package in 'bde'.
- A more detailed description can be found in the Package Overview section
+ The following is a brief synopsis of the content of each package in 'bde'.  A
+ more detailed description can be found in the Package Overview section
  immediately following this synopsis.  Capitalized letters indicate the
  mnemonic for the package name suffix to the 'bde' package group name.
 ..
@@ -113,21 +113,21 @@
  'bslalg' provides a variety of lower-level algorithms, comparisons, and
  traits.
 
-/'bsldoc'  
+/'bsldoc'
 / - - - -
  'bsldoc' documents key terminology and concepts used throughout BDE
  documentation.  Note that the components in this package consist entirely of
  comments, no code.
 
-/'bslfwd'  
+/'bslfwd'
 / - - - -
  'bslfwd' provides code snippets to aid clients who made forward references to
  classes in 'bsl' when those classes were defined in the legacy, single-level
  namespace.  All clients must now be written to use the current two-level
  namespace.
 
-/'bslim'   
-/- - - - 
+/'bslim'
+/- - - -
  'bslim' provides implementation mechanisms for features that must have
  identical syntax and semantics in many disparate classes.
 
@@ -160,8 +160,8 @@
  versioning information for the package group.  Users may use the
  'bslscm_version' facilities to query a particular 'bsl' library for its
  version information.  The second component defines macros that can be used for
- conditional-compilation based on 'bsl' version information.
- See '{BP BDE_SCM <GO>}' for a detailed specification for this package.
+ conditional-compilation based on 'bsl' version information.  See
+ '{BP BDE_SCM <GO>}' for a detailed specification for this package.
 
 /'bslstl'
 / - - - -

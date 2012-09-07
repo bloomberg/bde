@@ -8,8 +8,8 @@
 
 @DESCRIPTION: The 'bslim' package provides implementation mechanisms that are
  typically used to implement functionality provided by other components.  For
- example, 'bslim_printer' greatly simplifies the implementation of standard
- BDE 'print' methods having this interface:
+ example, 'bslim_printer' greatly simplifies the implementation of standard BDE
+ 'print' methods having this interface:
 ..
   bsl::ostream& print(bsl::ostream& stream,
                       int           level          = 0,

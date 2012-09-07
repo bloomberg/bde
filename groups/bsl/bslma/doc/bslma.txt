@@ -268,11 +268,10 @@
  The *BDE* allocators have two more differentiating properties.  First, whether
  the allocator is intended to be part of a chain (or other grouping) of
  allocators, or is an "end-point" allocator.  The former kind support the
- 'bslma::Allocator' protocol.  "End-point" allocators,
- such as 'bslma::SequentialPool',
- are designed for minimizing the runtime overhead of allocation and
- deallocation on a call-by-call basis.  This essentially corresponds to
- inlining the 'allocate' and 'deallocate' methods.
+ 'bslma::Allocator' protocol.  "End-point" allocators, such as
+ 'bslma::SequentialPool', are designed for minimizing the runtime overhead of
+ allocation and deallocation on a call-by-call basis.  This essentially
+ corresponds to inlining the 'allocate' and 'deallocate' methods.
 
  Supporting a common protocol (the 'bslma::Allocator' protocol) allows passing
  conformant allocators to BDE (and other) objects requiring an allocator at
@@ -533,10 +532,10 @@ Allocator         |                       |                         |
  result in the result set.
 
  (Most ODBC/JDBC drivers provide separate classes representing a database
- connection, an SQL statement, a query result set, and so on.  We simplify
- the example by defining one class, 'MyResultSet', that executes the query as
- well as returning the results; query execution in a real driver would
- typically belong to a 'Statement' class.
+ connection, an SQL statement, a query result set, and so on.  We simplify the
+ example by defining one class, 'MyResultSet', that executes the query as well
+ as returning the results; query execution in a real driver would typically
+ belong to a 'Statement' class.
 
  Note that the use of allocators in this example is similar to the use in the
  previous example -- allocation when needed, and the performance-enhancing
@@ -607,21 +606,20 @@ Allocator         |                       |                         |
           // value otherwise.
   };
 ..
- We simplify this example by only implementing data retrieval for three
- types.  (A real driver, of course, would define an API for each supported
- type.)  Note also that the function signature style conforms to BDE design
- -- rather than returning the data as the *return* *result* of the function
- call, we return it by placing it into the variable whose address we are
- passed as the first function argument, the *output* parameter.  We reserve
- the return value for indicating error status.
+ We simplify this example by only implementing data retrieval for three types.
+ (A real driver, of course, would define an API for each supported type.)  Note
+ also that the function signature style conforms to BDE design -- rather than
+ returning the data as the *return* *result* of the function call, we return it
+ by placing it into the variable whose address we are passed as the first
+ function argument, the *output* parameter.  We reserve the return value for
+ indicating error status.
 
  We further simplify the example by *simulating* query execution, so that the
  example code can be extracted from this file and executed.  The simulation
- involves including a (const) sequence of 'char's representing a data block
- as it would come back from the read file, a block which our code then
- parses.  This simplification necessarily also involves hard-coding metadata
- that would also be obtained by computation, such as how many records were
- returned.
+ involves including a (const) sequence of 'char's representing a data block as
+ it would come back from the read file, a block which our code then parses.
+ This simplification necessarily also involves hard-coding metadata that would
+ also be obtained by computation, such as how many records were returned.
 ..
   enum { SUCCESS = 0, FAILURE = 1 };
 
@@ -824,8 +822,8 @@ Allocator         |                       |                         |
 
 /Example 2: Sketch Use of 'bslma::BufferAllocator'
 /- - - - - - - - - - - - - - - - - - - - - - - - -
- Clients can take advantage of the faster and cheaper memory originating on
- the stack for use with objects (wanting allocators) that are used as *local*
+ Clients can take advantage of the faster and cheaper memory originating on the
+ stack for use with objects (wanting allocators) that are used as *local*
  *variables* within some procedure.
 ..
   class MyLargeObject {
@@ -846,7 +844,7 @@ Allocator         |                       |                         |
  We can often speed up such local use by grabbing sufficient stack space and
  passing it in to the local object, wrapped in a 'bslma::_BufferAllocator'.
 
-The code above might look like
+ The code above might look like
 ..
       {
           int                        initSize = 10;
@@ -857,11 +855,10 @@ The code above might look like
                                                        &allocator);
       }
 ..
- The safest use passes the 'bslma::BufferAllocator' a "fallback" to use,
- should the stack space we grabbed prove insufficient.  The fallback must be
- a (pointer to a) function that accepts an 'int' (the requested number of
- bytes) and returns a 'void *' (the presumed pointer to an allocated memory
- block).
+ The safest use passes the 'bslma::BufferAllocator' a "fallback" to use, should
+ the stack space we grabbed prove insufficient.  The fallback must be a
+ (pointer to a) function that accepts an 'int' (the requested number of bytes)
+ and returns a 'void *' (the presumed pointer to an allocated memory block).
 
  We write a simple fallback function as follows:
 ..

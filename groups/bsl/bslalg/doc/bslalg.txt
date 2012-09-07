@@ -6,17 +6,17 @@
 
 @AUTHOR: Herve Bronnimann (hbronnim)
 
-@DESCRIPTION:  The 'bsl' library relies on several traits to identify
- properties of types, such as whether they use a memory allocator to supply
- memory resources, have a trivial default constructor, are POD types, etc.
- This package provides distinct traits types used to tag user-defined (client)
- types according to these properties and to select implementation of primitive
+@DESCRIPTION: The 'bsl' library relies on several traits to identify properties
+ of types, such as whether they use a memory allocator to supply memory
+ resources, have a trivial default constructor, are POD types, etc.  This
+ package provides distinct traits types used to tag user-defined (client) types
+ according to these properties and to select implementation of primitive
  algorithms customized to these properties.
 
  In addition to the various traits "tag" types, this package also provide
  implementations of said primitive algorithms (used to implement STL containers
- and other standard components in the 'bslstl' and 'bslstp' packages) that
- take advantage of these traits.
+ and other standard components in the 'bslstl' and 'bslstp' packages) that take
+ advantage of these traits.
 
  This package group documentation is a stem.  It should be expanded with a
  lesson in the usage of type traits.  For now, please consult the individual

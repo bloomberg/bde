@@ -6,8 +6,8 @@
 
 @AUTHOR: Herve Bronnimann (hbronnim)
 
-@DESCRIPTION: The 'bsls' package provides a variety of system utilities
- for use by the 'bsl' library.  These utilities include:
+@DESCRIPTION: The 'bsls' package provides a variety of system utilities for use
+ by the 'bsl' library.  These utilities include:
 
 : o Various buffer types with different alignment properties.
 : o Uniform exception handling, even for non-exception build targets.
@@ -124,11 +124,12 @@
 /'bsls_alignedbuffer'
 / - - - - - - - - - -
  This component provides a templated buffer type with a user-specified
- compile-time size and user-specified alignment. Typically, such a type is used
- in situations where it is desirable to allocate a block of properly-aligned
- raw memory from somewhere other than the heap, e.g., on the stack or within an
- aggregate object, including within a union.  It is a convenient way to create
- a small heap from which one or more objects are allocated at run-time.
+ compile-time size and user-specified alignment.  Typically, such a type is
+ used in situations where it is desirable to allocate a block of
+ properly-aligned raw memory from somewhere other than the heap, e.g., on the
+ stack or within an aggregate object, including within a union.  It is a
+ convenient way to create a small heap from which one or more objects are
+ allocated at run-time.
 
 /'bsls_alignment'
 / - - - - - - - -
@@ -142,27 +143,28 @@
 
 /'bsls_alignmentfromtype'
 / - - - - - - - - - - - -
- TBD
+ This component provides a meta-function that provides the alignment for the
+ parameterized 'TYPE'.
 
 /'bsls_alignmentimp'
 /- - - - - - - - - -
- TBD
-
-/'bsls_alignment'
-/ - - - - - - - -
- TBD
+ This component provides a suite of template meta-functions that can be used to
+ compute (at compile-time) various platform-dependent alignment information.
 
 /'bsls_alignmenttotype'
 / - - - - - - - - - - -
- TBD
+ This component provides a meta-function that provides a primitive type with an
+ alignment matching the parameterized 'ALLIGNMENT'.
 
 /'bsls_alignmentutil'
 / - - - - - - - - - -
- TBD
+ This component provides a suite of template meta-functions that can be used to
+ compute (at compile-time) various platform-dependent alignment information.
 
 /'bsls_annotation'
 /- - - - - - - - -
- TBD
+ This component provides a suite of preprocessor macros that define
+ compiler-specific compile-time annotations.
 
 /'bsls_assert'
 /- - - - - - -
@@ -177,54 +179,65 @@
 
 /'bsls_asserttest'
 /- - - - - - - - -
- TBD
+ This component provides a facility to test that 'BSLS_ASSERT_*' macros are
+ used as intended, in the appropriate build modes, and have the expected
+ effects.
 
 /'bsls_asserttestexception'
 / - - - - - - - - - - - - -
- TBD
+ This component implements an exception class, 'bsls::AssertTestException',
+ that provides a mechanism to convey context information from a failing
+ assertion to a test handler.
 
 /'bsls_atomic'
 /- - - - - - -
- TBD
+ This component provides classes with atomic operations for 'int', 'Int64', and
+ pointer types.
 
 /'bsls_atomicoperations'
 /- - - - - - - - - - - -
- TBD
+ This utility provides a set of platform-independent atomic operations for
+ fundamental data types, such as 32-bit and 64-bit integer and pointer.
 
 /'bsls_blockgrowth'
 / - - - - - - - - -
- TBD
+ This component enumerates the supported block growth strategies.
 
 /'bsls_bsltestutil'
 / - - - - - - - - -
- TBD
+ This component provides the standard printing macros used in BDE-style test
+ drivers.
 
 /'bsls_buildtarget'
 / - - - - - - - - -
- This component defines types and runtime constants for identifying the
- build target information (usually specified to the compiler via a set of
- 'BDE_BUILD_*' macros).  This is mostly useful for retrieving such
- information from a linkable or executable binary.
+ This component defines types and runtime constants for identifying the build
+ target information (usually specified to the compiler via a set of
+ 'BDE_BUILD_*' macros).  This is mostly useful for retrieving such information
+ from a linkable or executable binary.
 
 /'bsls_byteorder'
 / - - - - - - - -
- TBD
+ This component provides a set host-to-network and network-to-host byte-order
+ manipulation macros.
 
 /'bsls_compilerfeatures'
 /- - - - - - - - - - - -
- TBD
+ This component provides a suite of preprocessor macros to identify
+ compiler-specific support of language features that may not be available on
+ all compilers in use across an organization.
 
 /'bsls_exceptionutil'
 / - - - - - - - - - -
  This component provides macros to replace 'try', 'throw' and 'catch'.  These
- macros expand to normal exception constructs when exceptions are
- enabled and to reasonable alternatives (usually no-ops) when exceptions are
- disabled, allowing code that uses 'try', 'throw' and 'catch' constructs to
- compile even if exceptions are disabled using a compiler switch.
+ macros expand to normal exception constructs when exceptions are enabled and
+ to reasonable alternatives (usually no-ops) when exceptions are disabled,
+ allowing code that uses 'try', 'throw' and 'catch' constructs to compile even
+ if exceptions are disabled using a compiler switch.
 
 /'bsls_ident'
 / - - - - - -
- TBD
+ This component provides macros for inserting SCM (Source Control Management)
+ Ids into source files.
 
 /'bsls_int64'
 / - - - - - -
@@ -235,15 +248,19 @@
 
 /'bsls_macroincrement'
 /- - - - - - - - - - -
- TBD
+ This component provides a macro, 'BSLS_MACROINCREMENT(NUMBER)', that produces
+ the preprocessor number equal to the number succeeding the supplied argument.
 
 /'bsls_nativestd'
 / - - - - - - - -
- TBD
+ This component defines a namespace alias, 'native_std', that serves as an
+ alias for the 'std' namespace.
 
 /'bsls_nullptr'
 / - - - - - - -
- TBD
+ This component provides a limited emulation of the C++11 type,
+ 'std::nullptr_t', which can be used as a function parameter type to create an
+ overload set where null pointer literals are handled specially.
 
 /'bsls_objectbuffer'
 /- - - - - - - - - -
@@ -258,21 +275,21 @@
 
 /'bsls_performancehint'
 / - - - - - - - - - - -
- TBD
+ This component provides performance hints for the compiler or hardware.
 
 /'bsls_platform'
 /- - - - - - - -
- This component defines preprocessor macros that identify and
- describe platform-specific attributes (at compile time).  These attributes
- consist of the types and versions of operating system, processor(s), and
- compiler that comprise the platform.
+ This component defines preprocessor macros that identify and describe
+ platform-specific attributes (at compile time).  These attributes consist of
+ the types and versions of operating system, processor(s), and compiler that
+ comprise the platform.
 
 /'bsls_platformutil'
 /- - - - - - - - - -
- This component provides a namespace for a collection of typedefs and pure
+ This component provides a namespace for a collection of 'typedef's and pure
  procedures that would otherwise have platform-dependent interfaces.  For
  example, it defines the preferred fundamental types denoting signed and
- unsigned 64-bit integers,  the preferred integral type denoting a number of
+ unsigned 64-bit integers, the preferred integral type denoting a number of
  elements in allocators and containers, provides the capability of determining
  whether a machine is big or little endian across all supported platforms, and
  defines a set of macros replacing the standard 'htonl', 'htons', 'ntohl', and
@@ -300,12 +317,17 @@
 
 /'bsls_types'
 / - - - - - -
- TBD
+ This component provides a namespace for a set of 'typedef's that provide a
+ stable, portable interface to platform-dependent types.
 
 /'bsls_unspecifiedbool'
 / - - - - - - - - - - -
- TBD
+ This component provides a class template that can be used to manufacture an
+ "unspecified boolean type" that is distinct for each class that instantiates
+ it.  *Not* for use outside the 'bsl' package.
 
 /'bsls_util'
 /- - - - - -
- TBD
+ This component provides pure functions that supply essential low-level support
+ for implementing portable generic facilities such as might be found the the
+ C++ standard library.

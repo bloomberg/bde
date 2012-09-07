@@ -6,15 +6,15 @@
 
 @AUTHOR: Herve Bronnimann (hbronnim)
 
-@DESCRIPTION: The 'bdemf' package provides meta-function equivalents of
- certain useful coding constructs.  A meta-function is a template-based,
- compile-time construct that behaves like a (runtime) function in that it
- "evaluates" arguments and does something different based on the input
- it is passed (in the case of templates, the input it is instantiated with).
- 'bslmf' provides metafunctions to evaluate (at compile time) constructs such
- as the following: an 'if'-statement equivalent, whether a (template) argument
- is a fundamental type, whether an argument is an 'enum' type, whether two
- arguments have the same type, and more.
+@DESCRIPTION: The 'bdemf' package provides meta-function equivalents of certain
+ useful coding constructs.  A meta-function is a template-based, compile-time
+ construct that behaves like a (runtime) function in that it "evaluates"
+ arguments and does something different based on the input it is passed (in the
+ case of templates, the input it is instantiated with).  'bslmf' provides
+ metafunctions to evaluate (at compile time) constructs such as the following:
+ an 'if'-statement equivalent, whether a (template) argument is a fundamental
+ type, whether an argument is an 'enum' type, whether two arguments have the
+ same type, and more.
 
  The "return value" of that function is generally a compile-time constant under
  the form of a nested 'enum' 'VALUE', or in some cases a nested 'Type', or
@@ -107,7 +107,7 @@
   'bslmf_arraytopointer'    - type transformation decaying arrays to pointers
   'bslmf_assert'            - compile-time assertion
   'bslmf_forwardingtype'    - type transformation
-  'bslmf_enableif'          - remove candiate from overload sets
+  'bslmf_enableif'          - remove candidate from overload sets
   'bslmf_functionpointertraits'
                             - extracting return and argument types from a
                               function type

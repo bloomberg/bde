@@ -7,8 +7,8 @@
 @AUTHOR: Chen He (che2), Raymond Seehei Chiu (schiu49)
 
 @DESCRIPTION: This package mainly provides a set test types and utilities that
-operates on those types, which can help simplify, particularly for templates,
-the implementation of test drivers.
+ operates on those types, which can help simplify, particularly for templates,
+ the implementation of test drivers.
 
 /Hierarchical Synopsis
 /---------------------
