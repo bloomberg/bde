@@ -4,5 +4,4 @@ bdealg_typetraithaspointersemantics
 bdealg_typetraithastrivialdefaultconstructor
 bdealg_typetraitnil
 bdealg_typetraits
-bdealg_typetraitsgrouppod
 bdealg_typetraitusesbdemaallocator

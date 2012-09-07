@@ -20,7 +20,6 @@ BDES_IDENT("$Id: $")
 //  bdealg_TypeTraitHasTrivialDefaultConstructor: has trivial default ctor
 //                          bdealg_TypeTraitPair: for 'bsl::pair'-like classes
 //            bdealg_TypeTraitUsesBdemaAllocator: uses 'bdema' allocators
-//                     bdealg_TypeTraitsGroupPod: POD trait
 //
 //                             bdealg_TypeTraits: default trait computation
 //
@@ -376,10 +375,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPPOD
-#include <bslalg_typetraitsgrouppod.h>
 #endif
 
 // The following were formerly guarded by 'BDE_DONT_ALLOW_TRANSITIVE_INCLUDES'.

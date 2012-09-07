@@ -20,7 +20,6 @@ using namespace bsl;
 #define bdealg_HasTrait bslalg_HasTrait
 #define BDEALG_DECLARE_NESTED_TRAITS(T, TRAITS)                               \
     BSLALG_DECLARE_NESTED_TRAITS(T, TRAITS)
-#define bdealg_TypeTraitsGroupPod bslalg_TypeTraitsGroupPod
 #endif
 
 //=============================================================================
@@ -185,8 +184,9 @@ template <class T>
 struct my_Class2
 {
     // Class template that has nested type traits
-    BDEALG_DECLARE_NESTED_TRAITS(my_Class2,
-                                 BloombergLP::bdealg_TypeTraitsGroupPod);
+    BDEALG_DECLARE_NESTED_TRAITS2(my_Class2,
+                    BloombergLP::bdealg_TypeTraitIsBitwiseCopyable,
+                    BloombergLP::bdealt_TypeTraitHasTrivialDefaultConstructor);
 };
 
 struct my_Class3
