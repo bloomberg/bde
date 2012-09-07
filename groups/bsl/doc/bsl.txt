@@ -25,40 +25,45 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bsl' currently has 12 packages forming 11 levels of physical dependency,
+ The 'bsl' package group is the foundation of the firm-wide BDE library and has
+ no dependencies beyond the allowed OS and runtime environment dependencies.
+
+ The 'bsl' package group currently has 13 packages forming 11 levels of
+ physical dependency.  The table below shows the hierarchical ordering of the
+ packages.  The order of components within each level is not architecturally
+ significant, just alphabetical.
+
  Note that required source control package 'bslscm' depends on 'bsls'; this
  behavior is unique to 'bsl', although it is temporarily also in 'bde' for
  historic reasons, since logically *every* other package should depend on
  'bslscm'.  See {BP BDE_SCM <GO>} for a detailed specification for 'bdescm',
  the previous name for 'bslscm'; the explanations therein apply equally to
- 'bslscm'.  The table below shows the physical dependency hierarchy among the
- packages of 'bsl'.
+ 'bslscm'.
 ..
-   Level 11: bsltst, bsl+apache
+  11. bslim
 
-   Level 10: bsl+stdhdrs(*)
+  10. bsl+stdhdrs(*)
 
-   Level  9: bsl+bslhdrs
+   9. bsl+bslhdrs
 
-   Level  8: bslstp(**)
+   8. bslstp(**)
 
-   Level  7: bslstl
+   7. bslstl
 
-   Level  6: bsltf
+   6. bsltf
 
-   Level  5: bslalg
+   5. bslalg
 
-   Level  4: bslma
+   4. bslma
 
-   Level  3: bslmf
+   3. bsldoc
+      bslmf
 
-   Level  2: bslscm
+   2. bslscm
 
-   Level  1: bsls
+   1. bslfwd
+      bsls
 ..
- The 'bsl' package group is the foundation of the firm-wide BDE library and has
- no dependencies beyond the allowed OS and runtime environment dependencies.
-
  (*) - Note that the 'bsl+stdhdrs' package is only a compatibility layer for
  Bloomberg managed code.  It is not an essential package for the rest of the
  BDE libraries (i.e., all other package groups above bsl will compile and
@@ -79,6 +84,9 @@
  mnemonic for the package name suffix to the 'bde' package group name.
 ..
    'bslalg'  - comparisons and other ALGorithms for containers
+   'bsldoc'  - documentation of terms and concepts
+   'bslfwd'  - DEPRECATED: compatibility clients using single-level namespace
+   'bslim'   - implementation mechanisms
    'bslma'   - Memory Allocation
    'bslmf'   - MetaFunctions and traits
    'bsls'    - platform-neutral System definitions (platform-specific imps)
@@ -86,9 +94,7 @@
    'bslstl'  - Bloomberg provided STL container implementations
    'bslstp'  - modified STlPort implementations of stl containers
    'bsltf'   - testing facilities
-   'bsltst'  - breathing TeSTs for stl containers
 
-   'bsl+apache'  - APACHE test suites for testing the stl
    'bsl+bslhdrs' - BSL versions of standard HeaDeRS (e.g., 'bsl_vector.h')
    'bsl+stdhdrs' - compatibility layer of STandarD HeaDeRS (e.g., 'vector')
 ..
@@ -106,6 +112,24 @@
 / - - - -
  'bslalg' provides a variety of lower-level algorithms, comparisons, and
  traits.
+
+/'bsldoc'  
+/ - - - -
+ 'bsldoc' documents key terminology and concepts used throughout BDE
+ documentation.  Note that the components in this package consist entirely of
+ comments, no code.
+
+/'bslfwd'  
+/ - - - -
+ 'bslfwd' provides code snippets to aid clients who made forward references to
+ classes in 'bsl' when those classes were defined in the legacy, single-level
+ namespace.  All clients must now be written to use the current two-level
+ namespace.
+
+/'bslim'   
+/- - - - 
+ 'bslim' provides implementation mechanisms for features that must have
+ identical syntax and semantics in many disparate classes.
 
 /'bslma'
 /- - - -
@@ -151,23 +175,11 @@
  library by modifying source code originally from stlport to adapt to the
  'bslma' memory allocation model.
 
-/'bsltst'
-/ - - - -
- 'bsltst' provides a breathing test for the C++ standard containers implemented
- in 'bslstl' and 'bslstp'.  Tests in this package also test to make sure
- 'bsl::*' and 'std::*' container types are different (equivalent) when compiled
- under the 'BDE-STL' mode (or not).
-
 /'bsltf'
 /- - - -
-'bsltf' provides a set test types and utilities that operates on those types,
-which can help simplify, particularly for template, the implementation of test
-drivers.
-
-/'bsl+apache'
-/ - - - - - -
- 'bsl+apache' provides extensive test coverage of the C++ standard library
- using the third-party apache test suite.
+ 'bsltf' provides a set test types and utilities that operates on those types,
+ which can help simplify, particularly for template, the implementation of test
+ drivers.
 
 /'bsl+bslhdrs'
 /- - - - - - -

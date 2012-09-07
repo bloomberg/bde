@@ -20,7 +20,10 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bslstl' currently has 36 components having 7 levels of physical dependency.
+ The 'bslstl' package currently has 36 components having 7 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
 ..
   7. bslstl_map
      bslstl_multimap
@@ -76,7 +79,7 @@
                                'std::allocator' implementation using
                                'bslma_Allocator'
   'bslstl_allocatorproxy'    - proxy allocator for 'bslstl_containerbase'
-  'bslstl_allocatortraits'   - TBD
+  'bslstl_allocatortraits'   - uniform interface to standard allocator types
   'bslstl_bidirectionaliterator'
                              - adapts an iterator to STL-compliant
                                bidirectional iterator interface
@@ -88,25 +91,28 @@
                                iterator interface
   'bslstl_hash'              - hash functors for fundamental types
   'bslstl_iterator'          - basic iterator traits, adaptors, and utilities
-  'bslstl_list'              - TBD
-  'bslstl_map'               - TBD
-  'bslstl_mapcomparator'     - TBD
-  'bslstl_multimap'          - TBD
-  'bslstl_multiset'          - TBD
+  'bslstl_list'              - conforming 'std::list' implementation
+  'bslstl_map'               - conforming 'std::map' implementation
+  'bslstl_mapcomparator'     - adaptor comparator of key type objects to
+                               comparator of node holding key-value pair
+  'bslstl_multimap'          - conforming 'std::multimap' implementation
+  'bslstl_multiset'          - conforming 'std::multiset' implementation
   'bslstl_pair'              - conforming 'std::pair' implementation
-  'bslstl_priorityqueue'     - TBD
-  'bslstl_queue'             - TBD
+  'bslstl_priorityqueue'     - conforming 'std::priority_queue' implementation
+  'bslstl_queue'             - conforming 'std::queue' implementation
   'bslstl_randomaccessiterator'
                              - adapts an iterator to STL-compliant random
                                access iterator interface
-  'bslstl_set'               - TBD
-  'bslstl_setcomparator'     - TBD
-  'bslstl_simplepool'        - TBD
-  'bslstl_stack'             - TBD
-  'bslstl_stdexceptutil'     - TBD
+  'bslstl_set'               - conforming 'std::set' implementation
+  'bslstl_setcomparator'     - adapt comparator of key to comparator of node
+                               holding a key
+  'bslstl_simplepool'        - provide memory blocks of a uniform,
+                               parameterized size
+  'bslstl_stack'             - conforming 'std::stack' implementation
+  'bslstl_stdexceptutil'     - functions for throwing standard exceptions
   'bslstl_string'            - conforming 'std::string' implementation
-  'bslstl_stringref'         - TBD
-  'bslstl_stringrefdata'     - TBD
+  'bslstl_stringref'         - reference wrapper to 'const' strings
+  'bslstl_stringrefdata'     - attribute class referencing a sub-string
   'bslstl_traitsgroupstlassociativecontainer'
                              - traits group attached to STL ordered containers
                                ('set', 'map', etc.).
@@ -116,9 +122,9 @@
   'bslstl_traitsgroupstlunorderedcontainer'
                              - traits group attached to STL unordered
                                containers ('hash_set', 'hash_map', etc.).
-  'bslstl_treeiterator'      - TBD
-  'bslstl_treenode'          - TBD
-  'bslstl_treenodepool'      - TBD
+  'bslstl_treeiterator'      - STL compliant bidirectional binary tree iterator
+  'bslstl_treenode'          - POD-like node for red-black binary tree
+  'bslstl_treenodepool'      - efficient memory manager of tree notes
   'bslstl_util'              - utilities for STL functionality
   'bslstl_vector'            - conforming 'std::vector' implementation
 ..

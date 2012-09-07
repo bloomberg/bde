@@ -24,8 +24,10 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bslalg' currently has 32 components having 12 levels of physical dependency.
- The table below shows the hierarchical ordering of the components.
+ The 'bslalg' package currently has 32 components having 12 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
 ..
   12. bslalg_dequeprimitives
       bslalg_rbtreeutil

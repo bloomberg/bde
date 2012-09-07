@@ -1,6 +1,6 @@
  bslfwd.txt
 
-@PURPOSE: Provide system-level utilities for 'bsl'.
+@PURPOSE: Provide compatibility for clients using single-level namespace
 
 @DEPRECATED:  Do not use.
 
@@ -13,8 +13,8 @@
  'bslfwd_bslma_allocator' defines a forward reference to the type defined in
  'bslma_allocator').  If 'BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES' is defined,
  the forward declaration will refer the 'bsl' type in the two-level namespace;
- otherwise, it will refer to the type in the legacy one-level namespace (e.g.,
- 'bslma::Allocator' versus 'bslma_Allocator', both in the 'BloombergLP'
+ otherwise, it will refer to the type in the legacy single-level namespace
+ (e.g., 'bslma::Allocator' versus 'bslma_Allocator', both in the 'BloombergLP'
  namespace).
 
  The components in this package are provided to provide backward compatibility
@@ -23,7 +23,10 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bsls' currently has 59 components having 2 levels of physical dependency.
+ The 'bsls' package currently has 59 components having 2 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
 ..
   2. bslfwd_bslalg_arraydestructionprimitives
      bslfwd_bslalg_arrayprimitives

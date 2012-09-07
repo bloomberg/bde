@@ -20,7 +20,8 @@
 /---------------------
  The 'bslma' package currently has 19 components having 6 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
- components.
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
 ..
   6. bslma_autorawdeleter
      bslma_destructorproctor
@@ -267,8 +268,9 @@
  The *BDE* allocators have two more differentiating properties.  First, whether
  the allocator is intended to be part of a chain (or other grouping) of
  allocators, or is an "end-point" allocator.  The former kind support the
- 'bslma::Allocator' protocol.  "End-point" allocators, such as 'bslma_Pool',
- (TBD) are designed for minimizing the runtime overhead of allocation and
+ 'bslma::Allocator' protocol.  "End-point" allocators,
+ such as 'bslma::SequentialPool',
+ are designed for minimizing the runtime overhead of allocation and
  deallocation on a call-by-call basis.  This essentially corresponds to
  inlining the 'allocate' and 'deallocate' methods.
 
@@ -386,8 +388,7 @@
 
 /Type and Origination
 /--------------------
- Most managers provide variable-sized, untyped (i.e., 'void *') memory.  Only
- the 'bslma_Pool' (TBD) works with fixed-size chunks.
+ Most managers provide variable-sized, untyped (i.e., 'void *') memory.
 
  The different components manage memory in different ways, but they necessarily
  *obtain* the memory that they manage from one of the two usual sources: the
@@ -525,13 +526,11 @@ Allocator         |                       |                         |
  C++, the language provides a construct whose semantics correspond directly to
  the notion of "no longer needing an object" -- i.e., a destructor.  If we make
  our result set a class, invocation of the destructor will serve as our
- indication that the client no longer needs the result set contents.
-
- There are two available aligning managers: the sequential pool (with its
- wrapper, 'bslma::SequentialAllocator') and the multipool (with its wrapper,
- the 'bslma::TBD').  We will use a separate memory manager for each result set,
- allowing us to deallocate all memory at once in the destructor.  This design
- allows us to use the slightly more efficient 'bslma::SequentialAllocator'.
+ indication that the client no longer needs the result set contents.  We use
+ this knowledge in our design by giving each result set object a unique memory
+ allocator (a 'bslma::SequentialAllocator') and have the destructor of the
+ result object release in a single operation all memory acquired for each
+ result in the result set.
 
  (Most ODBC/JDBC drivers provide separate classes representing a database
  connection, an SQL statement, a query result set, and so on.  We simplify

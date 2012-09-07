@@ -20,8 +20,10 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bsls' currently has 33 components having 11 levels of physical dependency.
- The table below shows the hierarchical ordering of the components.
+ The 'bsls' package currently has 33 components having 11 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
 ..
   11. bsls_alignedbuffer
       bsls_alignment
@@ -307,9 +309,3 @@
 /'bsls_util'
 /- - - - - -
  TBD
-
-/Usage
-/-----
- This package provides disparate functionality close to the system layer.
- There is no natural usage example for the entire package.  It is best to refer
- to the usage examples for each individual component.

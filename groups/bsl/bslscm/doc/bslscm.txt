@@ -15,7 +15,10 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bslscm' has 2 components having 2 levels of physical dependency.
+ The 'bslscm' package has 2 components having 2 levels of physical dependency.
+ The table below shows the hierarchical ordering of the components.  The order
+ of components within each level is not architecturally significant, just
+ alphabetical.
 ..
   2. bslscm_version
 

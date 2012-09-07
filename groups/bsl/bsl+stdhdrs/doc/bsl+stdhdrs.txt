@@ -32,17 +32,13 @@
 ..
   'bsl_stdhdrs_prologue.h' - provides the setup needed before including a
                              native STL header.
-
   'bsl_stdhdrs_epilogue.h' - provides the clean up needed after including a
                              native STL header.
-
-  bsl_stdhdrs_epilogue_recursive.h'
-                           - TBD
-
+  'bsl_stdhdrs_epilogue_recursive.h'
+                           - recursive part of 'bsl_stdhdrs_epilogue.h'
   'bsl_stdhdrs_incpaths.h' - provides macros producing the relative path needed
                              to access a native STL header.
-
-  *all other headers*      - provide corresponding C++ standard headers
+  *all* *other* headers*   - provide corresponding C++ standard headers
 ..
 
 /Supported Modes

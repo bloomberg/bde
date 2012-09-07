@@ -12,25 +12,27 @@ the implementation of test drivers.
 
 /Hierarchical Synopsis
 /---------------------
- 'bsltf' currently has 14 components having 3 levels of physical dependency.
- The table below shows the hierarchical ordering of the components.
+ The 'bsltf' package currently has 14 components having 3 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
 ..
-  Level 3:  bsltf_testvaluesarray
+  3. bsltf_testvaluesarray
 
-  Level 2:  bsltf_templatetestfacility
+  2. bsltf_templatetestfacility
 
-  Level 1:  bsltf_alloctesttype
-            bsltf_allocbitwisemoveabletesttype
-            bsltf_bitwisemoveabletesttype
-            bsltf_enumerationtesttype
-            bsltf_nonassignabletesttype
-            bsltf_noncopyconstructibletesttype
-            bsltf_nondefaultconstructibletesttype
-            bsltf_nonequalcomparabletesttype
-            bsltf_nontypicaloverloadstesttype
-            bsltf_simpletesttype
-            bsltf_stdtestallocator
-            bsltf_uniontesttype
+  1. bsltf_allocbitwisemoveabletesttype
+     bsltf_alloctesttype
+     bsltf_bitwisemoveabletesttype
+     bsltf_enumeratedtesttype
+     bsltf_nonassignabletesttype
+     bsltf_noncopyconstructibletesttype
+     bsltf_nondefaultconstructibletesttype
+     bsltf_nonequalcomparabletesttype
+     bsltf_nontypicaloverloadstesttype
+     bsltf_simpletesttype
+     bsltf_stdtestallocator
+     bsltf_uniontesttype
 ..
 
 /Component Synopsis
@@ -40,55 +42,44 @@ the implementation of test drivers.
  primary types that the component provides.  We remind the reader that, in
  general, the distinction between a component and a class is important.
 ..
-  'bsltf_alloctesttype'   - class that allocates memory, defines the
-                            'bslalg_TypeTraitUsesBslmaAllocator' trait, and
-                            ensures it is not bitwise
-                            moved
-
   'bsltf_allocbitwisemoveabletesttype'
                           - class that allocates memory, is bitwisemoveable,
                             and defines the
                             'bslalg_TypeTraitUsesBslmaAllocator' and
                             'bslalg_TypeTraitBitwiseMoveable' traits
-
+  'bsltf_alloctesttype'   - class that allocates memory, defines the
+                            'bslalg_TypeTraitUsesBslmaAllocator' trait, and
+                            ensures it is not bitwise
+                            moved
   'bsltf_bitwisemoveabletesttype'
                           - class that allocates memory, is bitwisemoveable,
                             and defines the
                             'bslalg_TypeTraitUsesBslmaAllocator' and
                             'bslalg_TypeTraitBitwiseMoveable' traits
-
   'bsltf_enumerationtesttype'
                           - enumeration type
-
   'bsltf_nonassignabletesttype'
                           - class with no assignment operator
-
   'bsltf_noncopyconstructibletesttype'
                           - class without a copy constructor
-
   'bsltf_nondefaultconstructibletesttype'
                           - class without a default constructor
-
   'bsltf_nonequalcomparabletesttype'
                           - class without equality comparison operators
-
   'bsltf_nontypicaloverloadstesttype'
                           - class that defines and assert on invocation of
                             certain non-typically-overloaded operators
                             ('operator new', 'operator delete', 'operator&') to
                             ensure that they are not called
-
   'bsltf_stdtestallocator'
                           - C++ standard compliant allocator that delegates its
                             operators to a configurable static
                             'bslma_Allocator'
-
   'bsltf_templatetestfacility'
                           - utilities to help testing templates that allows the
                             creation and comparison of various types defined in
                             the 'bsltf' package group through a uniform
                             interface
-
   'bsltf_testvaluesarray' - container for values that may be non-default
                             constructible
 ..

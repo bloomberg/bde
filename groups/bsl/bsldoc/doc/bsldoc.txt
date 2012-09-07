@@ -11,8 +11,8 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bsldoc' currently has 1 component having 1 level of physical dependency.
- The table below shows the hierarchical ordering of the component.
+ The 'bsldoc' package currently has 1 component (having 1 level of physical
+ dependency).
 ..
   1. bsldoc_glossary
 ..
@@ -24,11 +24,10 @@
   'bsldoc_glossary' - glossary of terms used throughout BDE documentation.
 ..
 
+/Component Overview
+/------------------
+ This section summarizes the components that are available in 'bsldoc'.
+
 /'bsldoc_glossary'
 /- - - - - - - - -
  This component provides a glossary of terms used throughout BDE documentation.
-
-/Usage
-/-----
- This package has no Usage examples, as yet.  It consists only of (strictly
- non-executable) documentation.
