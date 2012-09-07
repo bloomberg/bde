@@ -922,6 +922,7 @@ unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 operator[](const key_type& k)
 {   // paying search cost twice when inserting
     // do not think this is used in the benchmarks that show double-cost though
+#if 0
     HashTableLink *node = d_impl.find(k);
     if (!node) {
         node = d_impl.doEmplace(value_type(k, mapped_type()));
@@ -929,6 +930,10 @@ operator[](const key_type& k)
 
     BSLS_ASSERT(k == ListPolicy::extractValue(node).first);
     return ListPolicy::extractValue(node).second;
+#else
+    HashTableLink *node = d_impl.findOrInsertDefault(k);
+    return ListPolicy::extractValue(node).second;
+#endif
 }
 
 

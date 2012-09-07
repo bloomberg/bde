@@ -156,6 +156,8 @@ class HashTable_Parameters : private bslalg::FunctorAdapter<HASH>::Type
                          const EQUAL&         compare,
                          const AllocatorType& allocator);
 
+    HashTable_Parameters(const HashTable_Parameters& other);
+
     // MANIPULATORS
     NodeFactory& nodeFactory();
 
@@ -429,6 +431,16 @@ HashTable_Parameters(const HASH&          hash,
 : HasherBaseType(hash)
 , ComparatorBaseType(compare)
 , d_nodeFactory(allocator)
+{
+}
+
+template <class VALUE_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+HashTable_Parameters<VALUE_POLICY, HASH, EQUAL, ALLOCATOR>::
+HashTable_Parameters(const HashTable_Parameters& other)
+: HasherBaseType(static_cast<const HasherBaseType&>(other))
+, ComparatorBaseType(static_cast<const ComparatorBaseType&>(other))
+, d_nodeFactory(other.d_nodeFactory.allocator())
 {
 }
 
