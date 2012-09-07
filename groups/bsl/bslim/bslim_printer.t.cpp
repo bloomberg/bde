@@ -187,7 +187,7 @@ struct HasPrint {
         d_level = level;
         d_spacesPerLevel = spacesPerLevel;
         Obj printer(&stream, level, spacesPerLevel);
-        printer.print(d_data, "HasPrint:data");
+        printer.printAttribute("HasPrint:data", d_data);
         return stream;
     }
 };
@@ -216,7 +216,7 @@ struct NoPrintUtil {
                                int            spacesPerLevel = 4)
     {
         Obj printer(&stream, level, spacesPerLevel);
-        printer.print(obj.get(), 0);
+        printer.printValue(obj.get());
         return stream;
     }
 };
@@ -516,6 +516,8 @@ bsl::ostream& MyClass::print(bsl::ostream& stream,
     return stream;
 }
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 // EXAMPLE 4
 //
 class DateTz {
@@ -576,6 +578,8 @@ bsl::ostream& DateTz::print(bsl::ostream& stream,
    return stream << bsl::flush;
 }
 
+#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -589,6 +593,8 @@ int main(int argc, char *argv[])
     int veryVeryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
+
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 24: {
@@ -2137,6 +2143,7 @@ int main(int argc, char *argv[])
         }
       } break;
       case 10: {
+#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
         // --------------------------------------------------------------------
         // TESTING 'print' (null pointers)
         //
@@ -2229,8 +2236,10 @@ int main(int argc, char *argv[])
 
             }
         }
+#endif  // #if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
       } break;
       case 9: {
+#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
         // --------------------------------------------------------------------
         // TESTING 'print' (non-null pointer types)
         //
@@ -2527,8 +2536,10 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
             }
         }
+#endif  // #if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
       } break;
       case 8: {
+#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
         // --------------------------------------------------------------------
         // TESTING 'print' (user-defined types and specializations)
         //
@@ -2957,9 +2968,10 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
             }
         }
-
+#endif  // #if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
       } break;
       case 7: {
+#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
         // --------------------------------------------------------------------
         // TESTING 'print' (fundamental types)
         //
@@ -3215,8 +3227,10 @@ int main(int argc, char *argv[])
                 }
             }
         }
+#endif  // #if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
       } break;
       case 6: {
+#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
         // --------------------------------------------------------------------
         // TESTING 'print' (indentation and name)
         //
@@ -3280,6 +3294,7 @@ int main(int argc, char *argv[])
             }
             LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
         }
+#endif  // #if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -3606,7 +3621,7 @@ int main(int argc, char *argv[])
                                   << "==============" << endl;
         ostringstream out;
         int data = 4892;
-        Obj p(&out, 0, 4); p.print(data, 0);
+        Obj p(&out, 0, 4); p.printValue(data);
 
         const bsl::string EXPECTED("    4892\n");
         const bsl::string& ACTUAL = out.str();
@@ -3623,6 +3638,8 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
     if (testStatus > 0) {
         bsl::cerr << "Error, non-zero test status = " << testStatus << "."

@@ -175,6 +175,10 @@ BSLS_IDENT("$Id: $")
 // will be reported via standard test driver assertions (i.e., the standard
 // 'ASSERT' macro).
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 #ifndef INCLUDED_CSTDIO
 #define INCLUDED_CSTDIO
 #include <cstdio>
@@ -754,6 +758,7 @@ bool ProtocolTest<BSLS_TESTIMP>::lastStatus() const
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -769,6 +774,7 @@ bool ProtocolTest<BSLS_TESTIMP>::lastStatus() const
 #endif
 #define bsls_ProtocolTestImp bsls::ProtocolTestImp
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

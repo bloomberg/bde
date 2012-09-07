@@ -1176,6 +1176,10 @@ BSLS_IDENT("$Id: $")
 //
 //..
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
 #endif
@@ -1455,12 +1459,11 @@ class AssertFailureHandlerGuard {
 
 }  // close package namespace
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
+#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
                         // =========================
                         // BDE_ASSERT_H (deprecated)
                         // =========================
@@ -1503,11 +1506,15 @@ typedef bsls::AssertFailureHandlerGuard AssertFailureHandlerGuard;
 
 #endif
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
+
 typedef bsls::Assert bsls_Assert;
     // This alias is defined for backward compatibility.
 
 typedef bsls::AssertFailureHandlerGuard bsls_AssertFailureHandlerGuard;
     // This alias is defined for backward compatibility.
+
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS

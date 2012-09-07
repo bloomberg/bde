@@ -18,6 +18,10 @@ BDES_IDENT_PRAGMA_ONCE
 // HTTP start line, as defined in RFC 2616.  It is essentially a choice between
 // 'baenet_HttpRequestLine' and 'baenet_HttpStatusLine'.
 
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif

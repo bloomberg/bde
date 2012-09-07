@@ -24,6 +24,10 @@ BSLS_IDENT("$Id: $")
 // defining the 'BDE_BUILD_TARGET_NO_MT' macro).  The types defined by this
 // component should not be used directly.
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -157,6 +161,7 @@ namespace {
 }
 #endif
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -172,6 +177,7 @@ namespace {
 #endif
 #define bsls_MtBuildTarget bsls::MtBuildTarget
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

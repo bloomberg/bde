@@ -114,6 +114,10 @@ BSLS_IDENT("$Id: $")
 //  assert(3 == p->bitpos());
 //..
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bsls {
@@ -185,12 +189,14 @@ BSLS_TYPE *Util::addressOf(BSLS_TYPE& obj)
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::Util bsls_Util;
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

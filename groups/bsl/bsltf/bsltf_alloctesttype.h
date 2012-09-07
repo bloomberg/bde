@@ -77,6 +77,10 @@ BSLS_IDENT("$Id: $")
 //  Type does not define bslalg::TypeTraitBitwiseMoveable.
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif

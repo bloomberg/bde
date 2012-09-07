@@ -74,6 +74,7 @@ struct IsSame<U, U> : MetaInt<1>
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -83,6 +84,7 @@ struct IsSame<U, U> : MetaInt<1>
 #endif
 #define bslmf_IsSame bslmf::IsSame
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

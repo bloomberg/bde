@@ -16,6 +16,10 @@ BDES_IDENT_PRAGMA_ONCE
 // 'baenet_HttpTransferEncoding::Value' for all the possible HTTP transfer
 // encodings, as defined in RFC 2616.
 
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif

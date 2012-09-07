@@ -2,6 +2,8 @@
 
 #include <bsls_platformutil.h>
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #include <bsls_alignmentutil.h> // for testing only
 #include <bsls_platform.h>      // for testing only
 
@@ -876,6 +878,16 @@ if (verbose)
     }
     return testStatus;
 }
+
+#else
+
+int main(int argc, char *argv[])
+{
+    return 0;
+}
+
+#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 
 // ---------------------------------------------------------------------------
 // NOTICE:

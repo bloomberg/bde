@@ -136,6 +136,10 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 #ifndef __cplusplus
 #error This header should not be included in non-C++ compilation units.
 #endif
@@ -943,6 +947,8 @@ struct Platform {
 
 }  // close package namespace
 
+
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
                       // ======================
@@ -1122,6 +1128,7 @@ typedef bsls::Platform Platform;
 
 typedef bsls::Platform bsls_Platform;
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

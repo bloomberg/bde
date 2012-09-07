@@ -660,10 +660,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeF(&ta, &x1, checkArgumentValues9, &a1,
                                     &a2, &a3, &a4, &a5, &a6, &a7, &a8, &a9);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
             }
 
             if (verbose) cout << "Testing 'makeC'" << endl;
@@ -676,11 +676,11 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeC(&ta, &x1, cbObj,
                                     &CbClass::checkArgumentValues9, &a1, &a2,
                                     &a3, &a4, &a5, &a6, &a7, &a8, &a9);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
 
@@ -694,11 +694,11 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeM(&ta, &x1, &cbObj,
                                     &CbClass::checkArgumentValues9, &a1, &a2,
                                     &a3, &a4, &a5, &a6, &a7, &a8, &a9);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
         }
@@ -899,10 +899,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeF(&ta, &x1, checkArgumentValues8, &a1,
                                     &a2, &a3, &a4, &a5, &a6, &a7, &a8);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
             }
 
             if (verbose) cout << "Testing 'makeC'" << endl;
@@ -915,11 +915,11 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeC(&ta, &x1, cbObj,
                                     &CbClass::checkArgumentValues8, &a1, &a2,
                                     &a3, &a4, &a5, &a6, &a7, &a8);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
 
@@ -933,11 +933,11 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeM(&ta, &x1, &cbObj,
                                     &CbClass::checkArgumentValues8, &a1, &a2,
                                     &a3, &a4, &a5, &a6, &a7, &a8);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
         }
@@ -1134,10 +1134,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeF(&ta, &x1, checkArgumentValues7, &a1,
                                     &a2, &a3, &a4, &a5, &a6, &a7);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
             }
 
             if (verbose) cout << "Testing 'makeC'" << endl;
@@ -1150,11 +1150,11 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeC(&ta, &x1, cbObj,
                                     &CbClass::checkArgumentValues7, &a1, &a2,
                                     &a3, &a4, &a5, &a6, &a7);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
 
@@ -1168,11 +1168,11 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeM(&ta, &x1, &cbObj,
                                     &CbClass::checkArgumentValues7, &a1, &a2,
                                     &a3, &a4, &a5, &a6, &a7);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
         }
@@ -1365,10 +1365,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeF(&ta, &x1, checkArgumentValues6, &a1,
                                     &a2, &a3, &a4, &a5, &a6);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
             }
 
             if (verbose) cout << "Testing 'makeC'" << endl;
@@ -1381,11 +1381,11 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeC(&ta, &x1, cbObj,
                                     &CbClass::checkArgumentValues6, &a1, &a2,
                                     &a3, &a4, &a5, &a6);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
 
@@ -1399,11 +1399,11 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeM(&ta, &x1, &cbObj,
                                     &CbClass::checkArgumentValues6, &a1, &a2,
                                     &a3, &a4, &a5, &a6);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
         }
@@ -1592,10 +1592,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeF(&ta, &x1, checkArgumentValues5, &a1,
                                     &a2, &a3, &a4, &a5);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
             }
 
             if (verbose) cout << "Testing 'makeC'" << endl;
@@ -1608,11 +1608,11 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeC(&ta, &x1, cbObj,
                                     &CbClass::checkArgumentValues5, &a1, &a2,
                                     &a3, &a4, &a5);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
 
@@ -1626,11 +1626,11 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeM(&ta, &x1, &cbObj,
                                     &CbClass::checkArgumentValues5, &a1, &a2,
                                     &a3, &a4, &a5);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
         }
@@ -1815,10 +1815,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeF(&ta, &x1, checkArgumentValues4, &a1,
                                     &a2, &a3, &a4);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
             }
 
             if (verbose) cout << "Testing 'makeC'" << endl;
@@ -1831,11 +1831,11 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeC(&ta, &x1, cbObj,
                                     &CbClass::checkArgumentValues4, &a1, &a2,
                                     &a3, &a4);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
 
@@ -1849,11 +1849,11 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeM(&ta, &x1, &cbObj,
                                     &CbClass::checkArgumentValues4, &a1, &a2,
                                     &a3, &a4);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
         }
@@ -2032,10 +2032,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeF(&ta, &x1, checkArgumentValues3, &a1,
                                     &a2, &a3);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
             }
 
             if (verbose) cout << "Testing 'makeC'" << endl;
@@ -2048,11 +2048,11 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeC(&ta, &x1, cbObj,
                                     &CbClass::checkArgumentValues3, &a1, &a2,
                                     &a3);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
 
@@ -2066,11 +2066,11 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeM(&ta, &x1, &cbObj,
                                     &CbClass::checkArgumentValues3, &a1, &a2,
                                     &a3);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
         }
@@ -2242,9 +2242,9 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeF(&ta, &x1, checkArgumentValues2, &a1, &a2);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
             }
 
             if (verbose) cout << "Testing 'makeC'" << endl;
@@ -2256,10 +2256,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeC(&ta, &x1, cbObj,
                                     &CbClass::checkArgumentValues2, &a1, &a2);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
 
@@ -2272,10 +2272,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeM(&ta, &x1, &cbObj,
                                     &CbClass::checkArgumentValues2, &a1, &a2);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
         }
@@ -2449,9 +2449,9 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeF(&ta, &x1, checkArgumentValues1, &a1);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
             }
 
             if (verbose) cout << "Testing 'makeC'" << endl;
@@ -2463,10 +2463,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeC(&ta, &x1, cbObj,
                                     &CbClass::checkArgumentValues1, &a1);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
 
@@ -2479,10 +2479,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeM(&ta, &x1, &cbObj,
                                     &CbClass::checkArgumentValues1, &a1);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
         }
@@ -2586,9 +2586,9 @@ int main(int argc, char *argv[])
                 ASSERT(ARG0_PLUS1 == a0_global);
                 a0_global = ARG0;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeF(&ta, &x1, checkVfunc0ExecutionF);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
             }
 
             if (verbose) cout << "Testing 'makeC'" << endl;
@@ -2600,10 +2600,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG0_PLUS1 == a0_global);
                 a0_global = ARG0;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeC(&ta, &x1, cbObj,
                                      &CbClass::checkVfunc0ExecutionC);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
             }
 
             if (verbose) cout << "Testing 'makeM'" << endl;
@@ -2615,10 +2615,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG0_PLUS1 == a0_global);
                 a0_global = ARG0;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeM(&ta, &x1, &cbObj,
                                      &CbClass::checkVfunc0ExecutionM);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
             }
 
             if (verbose)
@@ -2628,9 +2628,9 @@ int main(int argc, char *argv[])
                 bcefu_Vfunc0::makeNull(&ta, &x1);
                 x1();
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeNull(&ta, &x1);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
             }
         }
 
@@ -2649,9 +2649,9 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeF(&ta, &x1, checkArgumentValues1, &a1);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
             }
 
             if (verbose) cout << "Testing 'makeC'" << endl;
@@ -2663,10 +2663,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeC(&ta, &x1, cbObj,
                                     &CbClass::checkArgumentValues1, &a1);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
 
@@ -2679,10 +2679,10 @@ int main(int argc, char *argv[])
                 ASSERT(ARG1_PLUS1 == a1);
                 a1 = ARG1;
 
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 bcefu_Vfunc0::makeM(&ta, &x1, &cbObj,
                                     &CbClass::checkArgumentValues1, &a1);
-                ASSERT(++numDeallocations == ta.numDeallocation());
+                ASSERT(++numDeallocations == ta.numDeallocations());
 
             }
         }

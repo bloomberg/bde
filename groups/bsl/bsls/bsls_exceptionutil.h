@@ -118,6 +118,10 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif

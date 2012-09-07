@@ -2,6 +2,8 @@
 
 #include <bslalg_typetraitpair.h>
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #include <cstdio>
 #include <cstdlib>
 
@@ -135,6 +137,15 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+#else
+
+int main(int argc, char *argv[])
+{
+    return 0;
+}
+
+#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

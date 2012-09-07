@@ -607,6 +607,7 @@ class TestAllocator : public Allocator {
         // not been set.
 
 // TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
     void *lastAllocateAddress() const;
         // Return the allocated memory address of the most recent memory
         // request.  Return 0 if the request was invalid (e.g., allocate non-
@@ -649,6 +650,7 @@ class TestAllocator : public Allocator {
         //
         // DEPRECATED: use 'numDeallocations' instead.
 // TBD #endif
+#endif // BDE_TRANSITIONAL
 };
 
 }  // close package namespace
@@ -963,6 +965,7 @@ bsls::Types::Int64 TestAllocator::numMismatches() const
 }
 
 // TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
 inline
 void *TestAllocator::lastAllocateAddress() const
 {
@@ -1001,16 +1004,19 @@ bsls::Types::Int64 TestAllocator::numDeallocation() const
     return numDeallocations();
 }
 
+// TBD #endif
+#endif // BDE_TRANSITIONAL
+
 }  // close package namespace
 
-// TBD #endif
-
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::TestAllocator bslma_TestAllocator;
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

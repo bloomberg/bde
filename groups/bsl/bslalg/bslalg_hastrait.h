@@ -129,6 +129,7 @@ struct HasTrait<TYPE, TypeTraitBitwiseCopyable> {
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -138,6 +139,7 @@ struct HasTrait<TYPE, TypeTraitBitwiseCopyable> {
 #endif
 #define bslalg_HasTrait bslalg::HasTrait
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

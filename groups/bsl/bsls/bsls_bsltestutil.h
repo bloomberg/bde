@@ -186,6 +186,10 @@ BSLS_IDENT("$Id: $")
                        // Macro Definitions
                        // =================
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 #define BSLS_BSLTESTUTIL_ASSERT(X)                                            \
     { aSsErT(!(X), #X, __LINE__); }
 

@@ -7082,7 +7082,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
 
-        bsls_Types::Int64 numDeallocation = da.numDeallocation();
+        bsls_Types::Int64 numDeallocation = da.numDeallocations();
         numDeletes = 0;
         {
             SS *p = new (da) SS(&numDeletes);
@@ -7093,15 +7093,15 @@ int main(int argc, char *argv[])
             SSObj s(p);
             ChObj c(pc);
 
-            ASSERT(da.numDeallocation() == numDeallocation);
+            ASSERT(da.numDeallocations() == numDeallocation);
             c.loadAlias(s, &p->d_buf[5]);
-            ASSERT(da.numDeallocation() == numDeallocation + 1);
+            ASSERT(da.numDeallocations() == numDeallocation + 1);
 
             ASSERT(!s); // should not be testing operator! until test 13
 
             ASSERT(!std::strcmp(c.ptr(), "meow"));
         }
-        ASSERT(da.numDeallocation() == numDeallocation + 2);
+        ASSERT(da.numDeallocations() == numDeallocation + 2);
       } break;
       case 11: {
         // --------------------------------------------------------------------

@@ -868,6 +868,7 @@ struct Switch9<8, T0, T1, T2, T3, T4, T5, T6, T7, T8> {
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -925,6 +926,7 @@ struct Switch9<8, T0, T1, T2, T3, T4, T5, T6, T7, T8> {
 #endif
 #define bslmf_Switch4 bslmf::Switch4
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

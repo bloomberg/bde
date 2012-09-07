@@ -2,6 +2,8 @@
 
 #include <bsls_int64.h>
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #include <bsls_platform.h>  // for testing only
 
 #include <cstddef>     // offsetof()
@@ -580,6 +582,16 @@ int main(int argc, char *argv[]) {
     }
     return testStatus;
 }
+
+#else
+
+int main(int argc, char *argv[])
+{
+    return 0;
+}
+
+#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 
 // ---------------------------------------------------------------------------
 // NOTICE:

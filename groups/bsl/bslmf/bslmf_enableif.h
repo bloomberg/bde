@@ -412,6 +412,10 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
@@ -439,6 +443,7 @@ struct EnableIf <false, BSLMA_TYPE> {
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -448,6 +453,7 @@ struct EnableIf <false, BSLMA_TYPE> {
 #endif
 #define bslmf_EnableIf bslmf::EnableIf
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

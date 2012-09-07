@@ -575,6 +575,7 @@ int AutoRawDeleter<TYPE, ALLOCATOR>::length() const
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -584,6 +585,7 @@ int AutoRawDeleter<TYPE, ALLOCATOR>::length() const
 #endif
 #define bslma_AutoRawDeleter bslma::AutoRawDeleter
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

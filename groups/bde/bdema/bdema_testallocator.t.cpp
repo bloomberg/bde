@@ -1020,12 +1020,12 @@ int main(int argc, char *argv[])
         ASSERT(0 == a.numBytesMax());
         ASSERT(0 == a.numBlocksTotal());
         ASSERT(0 == a.numBytesTotal());
-        ASSERT(0 == a.lastAllocateNumBytes());
-        ASSERT(0 == a.lastAllocateAddress());
-        ASSERT(0 == a.lastDeallocateNumBytes());
-        ASSERT(0 == a.lastDeallocateAddress());
-        ASSERT(0 == a.numAllocation());
-        ASSERT(0 == a.numDeallocation());
+        ASSERT(0 == a.lastAllocatedNumBytes());
+        ASSERT(0 == a.lastAllocatedAddress());
+        ASSERT(0 == a.lastDeallocatedNumBytes());
+        ASSERT(0 == a.lastDeallocatedAddress());
+        ASSERT(0 == a.numAllocations());
+        ASSERT(0 == a.numDeallocations());
 
         if (verbose) cout << "Make sure name is correct."
                           << endl;
@@ -1452,12 +1452,12 @@ int main(int argc, char *argv[])
         //   int numBytesTotal() const;
         //   int numBlocksTotal() const;
         //   int numMismatches() const;
-        //   int lastAllocateNumBytes() const;
-        //   int lastDeallocateNumBytes() const;
-        //   void *lastAllocateAddress() const;
-        //   void *lastDeallocateAddress() const;
-        //   int numAllocation() const;
-        //   int numDeallocation() const;
+        //   int lastAllocatedNumBytes() const;
+        //   int lastDeallocatedNumBytes() const;
+        //   void *lastAllocatedAddress() const;
+        //   void *lastDeallocatedAddress() const;
+        //   int numAllocations() const;
+        //   int numDeallocations() const;
         //
         //   Make sure that global operators new and delete are *not* called.
         // --------------------------------------------------------------------
@@ -1489,12 +1489,12 @@ int main(int argc, char *argv[])
         ASSERT(0 == p->isNoAbort());
         ASSERT(0 == p->isVerbose());
         ASSERT(0 == p->status());
-        ASSERT(0 == p->lastAllocateNumBytes());
-        ASSERT(0 == p->lastAllocateAddress());
-        ASSERT(0 == p->lastDeallocateNumBytes());
-        ASSERT(0 == p->lastDeallocateAddress());
-        ASSERT(0 == p->numAllocation());
-        ASSERT(0 == p->numDeallocation());
+        ASSERT(0 == p->lastAllocatedNumBytes());
+        ASSERT(0 == p->lastAllocatedAddress());
+        ASSERT(0 == p->lastDeallocatedNumBytes());
+        ASSERT(0 == p->lastDeallocatedAddress());
+        ASSERT(0 == p->numAllocations());
+        ASSERT(0 == p->numDeallocations());
 
         if (verbose) cout << "\nCreate an allocator" << endl;
 
@@ -1512,12 +1512,12 @@ int main(int argc, char *argv[])
         ASSERT(0 == a.numBytesMax());
         ASSERT(0 == a.numBlocksTotal());
         ASSERT(0 == a.numBytesTotal());
-        ASSERT(0 == a.lastAllocateNumBytes());
-        ASSERT(0 == a.lastAllocateAddress());
-        ASSERT(0 == a.lastDeallocateNumBytes());
-        ASSERT(0 == a.lastDeallocateAddress());
-        ASSERT(0 == a.numAllocation());
-        ASSERT(0 == a.numDeallocation());
+        ASSERT(0 == a.lastAllocatedNumBytes());
+        ASSERT(0 == a.lastAllocatedAddress());
+        ASSERT(0 == a.lastDeallocatedNumBytes());
+        ASSERT(0 == a.lastDeallocatedAddress());
+        ASSERT(0 == a.numAllocations());
+        ASSERT(0 == a.numDeallocations());
 
         if (verbose) cout << "\tallocate 1" << endl;
         globalNewCalledCountIsEnabled = 1;
@@ -1529,12 +1529,12 @@ int main(int argc, char *argv[])
         ASSERT(1 == a.numBytesMax());
         ASSERT(1 == a.numBlocksTotal());
         ASSERT(1 == a.numBytesTotal());
-        ASSERT(1 == a.lastAllocateNumBytes());
-        ASSERT(addr1 == a.lastAllocateAddress());
-        ASSERT(0 == a.lastDeallocateNumBytes());
-        ASSERT(0 == a.lastDeallocateAddress());
-        ASSERT(1 == a.numAllocation());
-        ASSERT(0 == a.numDeallocation());
+        ASSERT(1 == a.lastAllocatedNumBytes());
+        ASSERT(addr1 == a.lastAllocatedAddress());
+        ASSERT(0 == a.lastDeallocatedNumBytes());
+        ASSERT(0 == a.lastDeallocatedAddress());
+        ASSERT(1 == a.numAllocations());
+        ASSERT(0 == a.numDeallocations());
 
         if (verbose) cout << "\tallocate 20" << endl;
         globalNewCalledCountIsEnabled = 1;
@@ -1546,12 +1546,12 @@ int main(int argc, char *argv[])
         ASSERT(21 == a.numBytesMax());
         ASSERT( 2 == a.numBlocksTotal());
         ASSERT(21 == a.numBytesTotal());
-        ASSERT(20 == a.lastAllocateNumBytes());
-        ASSERT(addr2 == a.lastAllocateAddress());
-        ASSERT( 0 == a.lastDeallocateNumBytes());
-        ASSERT( 0 == a.lastDeallocateAddress());
-        ASSERT( 2 == a.numAllocation());
-        ASSERT( 0 == a.numDeallocation());
+        ASSERT(20 == a.lastAllocatedNumBytes());
+        ASSERT(addr2 == a.lastAllocatedAddress());
+        ASSERT( 0 == a.lastDeallocatedNumBytes());
+        ASSERT( 0 == a.lastDeallocatedAddress());
+        ASSERT( 2 == a.numAllocations());
+        ASSERT( 0 == a.numDeallocations());
 
         if (verbose) cout << "\tdeallocate 20" << endl;
         globalDeleteCalledCountIsEnabled = 1;
@@ -1563,12 +1563,12 @@ int main(int argc, char *argv[])
         ASSERT(21 == a.numBytesMax());
         ASSERT( 2 == a.numBlocksTotal());
         ASSERT(21 == a.numBytesTotal());
-        ASSERT(20 == a.lastAllocateNumBytes());
-        ASSERT(addr2 == a.lastAllocateAddress());
-        ASSERT(20 == a.lastDeallocateNumBytes());
-        ASSERT(addr2 == a.lastDeallocateAddress());
-        ASSERT( 2 == a.numAllocation());
-        ASSERT( 1 == a.numDeallocation());
+        ASSERT(20 == a.lastAllocatedNumBytes());
+        ASSERT(addr2 == a.lastAllocatedAddress());
+        ASSERT(20 == a.lastDeallocatedNumBytes());
+        ASSERT(addr2 == a.lastDeallocatedAddress());
+        ASSERT( 2 == a.numAllocations());
+        ASSERT( 1 == a.numDeallocations());
 
         if (verbose) cout << "\tallocate 300" << endl;
         globalNewCalledCountIsEnabled = 1;
@@ -1580,12 +1580,12 @@ int main(int argc, char *argv[])
         ASSERT(301 == a.numBytesMax());
         ASSERT(  3 == a.numBlocksTotal());
         ASSERT(321 == a.numBytesTotal());
-        ASSERT(300 == a.lastAllocateNumBytes());
-        ASSERT(addr3 == a.lastAllocateAddress());
-        ASSERT(20 == a.lastDeallocateNumBytes());
-        ASSERT(addr2 == a.lastDeallocateAddress());
-        ASSERT(  3 == a.numAllocation());
-        ASSERT(  1 == a.numDeallocation());
+        ASSERT(300 == a.lastAllocatedNumBytes());
+        ASSERT(addr3 == a.lastAllocatedAddress());
+        ASSERT(20 == a.lastDeallocatedNumBytes());
+        ASSERT(addr2 == a.lastDeallocatedAddress());
+        ASSERT(  3 == a.numAllocations());
+        ASSERT(  1 == a.numDeallocations());
 
         if (verbose) cout << "\tdeallocate 300" << endl;
         globalDeleteCalledCountIsEnabled = 1;
@@ -1597,12 +1597,12 @@ int main(int argc, char *argv[])
         ASSERT(301 == a.numBytesMax());
         ASSERT(  3 == a.numBlocksTotal());
         ASSERT(321 == a.numBytesTotal());
-        ASSERT(300 == a.lastAllocateNumBytes());
-        ASSERT(addr3 == a.lastAllocateAddress());
-        ASSERT(300 == a.lastDeallocateNumBytes());
-        ASSERT(addr3 == a.lastDeallocateAddress());
-        ASSERT(  3 == a.numAllocation());
-        ASSERT(  2 == a.numDeallocation());
+        ASSERT(300 == a.lastAllocatedNumBytes());
+        ASSERT(addr3 == a.lastAllocatedAddress());
+        ASSERT(300 == a.lastDeallocatedNumBytes());
+        ASSERT(addr3 == a.lastDeallocatedAddress());
+        ASSERT(  3 == a.numAllocations());
+        ASSERT(  2 == a.numDeallocations());
 
         if (verbose) cout << "\tdeallocate 1" << endl;
         globalDeleteCalledCountIsEnabled = 1;
@@ -1614,12 +1614,12 @@ int main(int argc, char *argv[])
         ASSERT(301 == a.numBytesMax());
         ASSERT(  3 == a.numBlocksTotal());
         ASSERT(321 == a.numBytesTotal());
-        ASSERT(300 == a.lastAllocateNumBytes());
-        ASSERT(addr3 == a.lastAllocateAddress());
-        ASSERT(1 == a.lastDeallocateNumBytes());
-        ASSERT(addr1 == a.lastDeallocateAddress());
-        ASSERT(  3 == a.numAllocation());
-        ASSERT(  3 == a.numDeallocation());
+        ASSERT(300 == a.lastAllocatedNumBytes());
+        ASSERT(addr3 == a.lastAllocatedAddress());
+        ASSERT(1 == a.lastDeallocatedNumBytes());
+        ASSERT(addr1 == a.lastDeallocatedAddress());
+        ASSERT(  3 == a.numAllocations());
+        ASSERT(  3 == a.numDeallocations());
 
         if (verbose) cout << "\nMake sure allocate/deallocate invalid "
                           << "size/address is recorded." << endl;
@@ -1628,39 +1628,39 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tallocate 0" << endl;
         a.allocate(0);
-        ASSERT(0 == a.lastAllocateNumBytes());
-        ASSERT(0 == a.lastAllocateAddress());
-        ASSERT(1 == a.lastDeallocateNumBytes());
-        ASSERT(addr1 == a.lastDeallocateAddress());
-        ASSERT(4 == a.numAllocation());
-        ASSERT(3 == a.numDeallocation());
+        ASSERT(0 == a.lastAllocatedNumBytes());
+        ASSERT(0 == a.lastAllocatedAddress());
+        ASSERT(1 == a.lastDeallocatedNumBytes());
+        ASSERT(addr1 == a.lastDeallocatedAddress());
+        ASSERT(4 == a.numAllocations());
+        ASSERT(3 == a.numDeallocations());
 
         if (verbose) cout << "\tallocate -1" << endl;
         void *addr5 = a.allocate(-1);
-        ASSERT(-1 == a.lastAllocateNumBytes());
-        ASSERT( 0 == a.lastAllocateAddress());
-        ASSERT( 1 == a.lastDeallocateNumBytes());
-        ASSERT(addr1 == a.lastDeallocateAddress());
-        ASSERT( 5 == a.numAllocation());
-        ASSERT( 3 == a.numDeallocation());
+        ASSERT(-1 == a.lastAllocatedNumBytes());
+        ASSERT( 0 == a.lastAllocatedAddress());
+        ASSERT( 1 == a.lastDeallocatedNumBytes());
+        ASSERT(addr1 == a.lastDeallocatedAddress());
+        ASSERT( 5 == a.numAllocations());
+        ASSERT( 3 == a.numDeallocations());
 
         if (verbose) cout << "\tdeallocate -1" << endl;
         a.deallocate(addr5);
-        ASSERT(-1 == a.lastAllocateNumBytes());
-        ASSERT( 0 == a.lastAllocateAddress());
-        ASSERT( 0 == a.lastDeallocateNumBytes());
-        ASSERT( 0 == a.lastDeallocateAddress());
-        ASSERT( 5 == a.numAllocation());
-        ASSERT( 4 == a.numDeallocation());
+        ASSERT(-1 == a.lastAllocatedNumBytes());
+        ASSERT( 0 == a.lastAllocatedAddress());
+        ASSERT( 0 == a.lastDeallocatedNumBytes());
+        ASSERT( 0 == a.lastDeallocatedAddress());
+        ASSERT( 5 == a.numAllocations());
+        ASSERT( 4 == a.numDeallocations());
 
         if (verbose) cout << "\tallocate 0" << endl;
         a.deallocate(addr5);
-        ASSERT(-1 == a.lastAllocateNumBytes());
-        ASSERT( 0 == a.lastAllocateAddress());
-        ASSERT( 0 == a.lastDeallocateNumBytes());
-        ASSERT( 0 == a.lastDeallocateAddress());
-        ASSERT( 5 == a.numAllocation());
-        ASSERT( 5 == a.numDeallocation());
+        ASSERT(-1 == a.lastAllocatedNumBytes());
+        ASSERT( 0 == a.lastAllocatedAddress());
+        ASSERT( 0 == a.lastDeallocatedNumBytes());
+        ASSERT( 0 == a.lastDeallocatedAddress());
+        ASSERT( 5 == a.numAllocations());
+        ASSERT( 5 == a.numDeallocations());
 
         if (verbose) cout << "\nEnsure new and delete are not called." << endl;
         ASSERT(0 == globalNewCalledCount);

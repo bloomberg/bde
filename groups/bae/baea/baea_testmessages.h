@@ -29,6 +29,10 @@ BDES_IDENT_PRAGMA_ONCE
 //:
 //: o This @DESCRIPTION section is added.
 
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
+#endif
+
 #ifndef INCLUDED_BCEM_AGGREGATE
 #include <bcem_aggregate.h>
 #endif

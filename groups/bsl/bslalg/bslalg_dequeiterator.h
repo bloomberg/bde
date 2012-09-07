@@ -845,6 +845,7 @@ bool bslalg::operator<(const DequeIterator<VALUE_TYPE, 1>& lhs,
     return lhs.d_blockPtr_p < rhs.d_blockPtr_p;
 }
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -854,6 +855,7 @@ bool bslalg::operator<(const DequeIterator<VALUE_TYPE, 1>& lhs,
 #endif
 #define bslalg_DequeIterator bslalg::DequeIterator
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

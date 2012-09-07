@@ -30,6 +30,8 @@
 #ifndef INCLUDED_BSLSTP_HASHTABLE
 #define INCLUDED_BSLSTP_HASHTABLE
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #ifndef INCLUDED_BSLSTP_ALLOC
 #include <bslstp_alloc.h>
 #endif
@@ -1044,6 +1046,8 @@ void hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>
 // mode:C++
 // End:
 // END FORMER CONTENTS OF bslstp_hashtable.c
+
+#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif /* INCLUDED_BSLSTP_HASHTABLE */
 

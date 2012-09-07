@@ -32,6 +32,10 @@
 // Note that there are no include guards.  THIS FILE IS INTENDED FOR MULTIPLE
 // INCLUSION.
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 // Prevent accidental inclusion from anywhere but 'bsl_stdhdrs_epilogue.h'.
 #if !defined(USE_BSL_STDHDRS_EPILOGUE_RECURSIVE)
 #error "this header can only be included from bsl_stdhdrs_epilogue.h"

@@ -122,6 +122,10 @@ BSLS_IDENT("$Id: $")
 // Notice that 'SimplePtr' objects behave as native pointers.  They should be
 // tested before dereferencing (as they could be null).
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bsls {
@@ -192,6 +196,7 @@ UnspecifiedBool<BSLS_HOST_TYPE>::makeValue(bool predicate)
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -201,6 +206,7 @@ UnspecifiedBool<BSLS_HOST_TYPE>::makeValue(bool predicate)
 #endif
 #define bsls_UnspecifiedBool bsls::UnspecifiedBool
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

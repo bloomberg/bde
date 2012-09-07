@@ -171,6 +171,10 @@ BSLS_IDENT("$Id: $")
 // the same order in which they were pushed, due to the first-in-first-out
 // property of the queue.
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>
 #endif

@@ -164,6 +164,10 @@ BSLS_IDENT("$Id: $")
 // internally-managed buffers.  For an example, see the 'bslma_bufferimputil'
 // component.
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
@@ -365,12 +369,14 @@ bool Alignment::is8ByteAligned(const void *address)
 
 #endif
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::Alignment bsls_Alignment;
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

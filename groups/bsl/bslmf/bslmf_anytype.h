@@ -142,6 +142,7 @@ struct TypeRep<TYPE&> {
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -154,6 +155,7 @@ struct TypeRep<TYPE&> {
 
 typedef bslmf::AnyType bslmf_AnyType;
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

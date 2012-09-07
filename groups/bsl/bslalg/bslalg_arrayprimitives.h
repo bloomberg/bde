@@ -950,6 +950,7 @@ struct ArrayPrimitives_Imp {
                         // bslalg_ArrayPrimitives_RemovePtr
                         // ================================
 
+//#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
 template <typename NON_PTR_TYPE>
 struct ArrayPrimitives_RemovePtr {
     // Given a template parameter 'T*', yield 'Type == T'.  Given a template
@@ -984,7 +985,7 @@ struct ArrayPrimitives_RemovePtr<const volatile TARGET_TYPE *> {
 
     typedef TARGET_TYPE Type;
 };
-
+//#endif // BDE_TRANSITIONAL
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -2745,12 +2746,14 @@ bool ArrayPrimitives_Imp::isInvalidRange(TARGET_TYPE *begin,
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslalg::ArrayPrimitives bslalg_ArrayPrimitives;
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

@@ -158,6 +158,7 @@ struct IsFundamental<TYPE&>
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -167,6 +168,7 @@ struct IsFundamental<TYPE&>
 #endif
 #define bslmf_IsFundamental bslmf::IsFundamental
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

@@ -27,6 +27,7 @@ bsls_blockgrowth
 bsls_bsltestutil
 bsls_buildtarget
 bsls_byteorder
+bsls_codebase
 bsls_compilerfeatures
 bsls_exceptionutil
 bsls_ident

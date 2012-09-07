@@ -7,6 +7,8 @@
 #endif
 BSLS_IDENT("$Id: $")
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 namespace std {
 
 template <typename CHAR_TYPE> struct char_traits;
@@ -52,6 +54,8 @@ typedef basic_stringstream <wchar_t, std::char_traits<wchar_t>,
                                            allocator<wchar_t> >  wstringstream;
 
 }  // close namespace bsl
+
+#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

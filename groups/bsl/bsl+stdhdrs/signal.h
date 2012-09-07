@@ -23,6 +23,10 @@ BSLS_IDENT("$Id: $")
 // places them in the 'std' namespace.
 */
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 /*
 // Note that 'signal.h' is meant for multiple inclusion on linux - therefore
 // only the ident is protected by the guard.

@@ -12,6 +12,8 @@ BSLS_IDENT("$Id: $")
 //@DEPRECATED: Use 'bsls_alignmentutil', 'bsls_byteorder', 'bsls_platform', and
 // 'bsls_types' instead.
 //
+//@BDE_TRANSITIONAL
+//
 //@CLASSES:
 //  bsls::PlatformUtil: namespace for platform-neutral type names and API
 //
@@ -99,6 +101,12 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that in the above usage example, either the macros or the functions can
 // be used to test whether a platform is big- or little-endian.
+
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
 
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
@@ -288,14 +296,18 @@ int PlatformUtil::roundUpToMaximalAlignment(int size)
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::PlatformUtil bsls_PlatformUtil;
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
+
+#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

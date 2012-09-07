@@ -47,6 +47,10 @@ BSLS_IDENT("$Id: $")
 //  native_std::string s2;  // guaranteed to be the compiler's native string
 //..
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif

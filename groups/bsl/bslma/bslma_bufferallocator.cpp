@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #include <bslmf_assert.h>
 #include <bsls_alignment.h>
 #include <bsls_alignmentutil.h>
@@ -201,6 +203,8 @@ void BufferAllocator::print() const
 }  // close package namespace
 
 }  // close enterprise namespace
+
+#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

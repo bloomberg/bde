@@ -118,6 +118,10 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ALIGNMENTTOTYPE
 #include <bsls_alignmenttotype.h>
 #endif
@@ -197,6 +201,7 @@ const char *AlignedBuffer<SIZE, ALIGNMENT>::buffer() const
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -206,6 +211,7 @@ const char *AlignedBuffer<SIZE, ALIGNMENT>::buffer() const
 #endif
 #define bsls_AlignedBuffer bsls::AlignedBuffer
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

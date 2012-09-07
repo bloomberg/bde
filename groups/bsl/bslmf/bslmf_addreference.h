@@ -194,6 +194,7 @@ struct AddReference<const volatile void> {
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -203,6 +204,7 @@ struct AddReference<const volatile void> {
 #endif
 #define bslmf_AddReference bslmf::AddReference
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

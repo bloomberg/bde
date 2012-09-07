@@ -54,6 +54,8 @@ BSLS_IDENT("$Id: $")
 // This component is for use by the 'bsl+stdhdrs' package.  Use 'algorithm'
 // directly.
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
@@ -166,6 +168,8 @@ using native_std::count_if;
 #endif  // BSLS_PLATFORM__CMP_SUN && !BDE_BUILD_TARGET_STLPORT
 
 }  // close namespace bsl
+
+#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

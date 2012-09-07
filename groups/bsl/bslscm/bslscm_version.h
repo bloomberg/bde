@@ -50,23 +50,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_versiontag.h> // BSL_VERSION_MAJOR, BSL_VERSION_MINOR
 #endif
 
-#ifndef BSL_LEGACY
-#define BSL_LEGACY 1
-    // This macro controls whether we allow features which we must continue to
-    // support for our clients but do not want to rely on in our own code base.
-    // Clients who want to continue using these features should define
-    // 'BSL_LEGACY' as 1, which is the default unless it is already defined.
-    // In order to make sure an entire code base does not rely on these
-    // features, recompile with this macro set to 0.  Examples of such features
-    // are: including '<stdheader>' as opposed to '<bsl_stdheader.h>', or using
-    // 'DEBUG' instead of 'BAEL_DEBUG'.
-#elif BSL_LEGACY == 0
-#define BDE_DONT_ALLOW_TRANSITIVE_INCLUDES 1
-    // When we don't want to rely on legacy features, we also want to make sure
-    // we are not picking up macros or type aliases via (direct or transitive)
-    // includes of headers that have migrated from 'bde' to 'bsl' libraries.
-#endif
-
 namespace BloombergLP {
 
 namespace bslscm {
@@ -118,12 +101,14 @@ namespace {
 }
 #endif
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslscm::Version bslscm_Version;
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

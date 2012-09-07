@@ -27,6 +27,8 @@
 #ifndef INCLUDED_BSLSTP_SLISTBASE
 #define INCLUDED_BSLSTP_SLISTBASE
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for std::size_t
 #define INCLUDED_CSTDDEF
@@ -180,6 +182,8 @@ _Sl_global<_Dummy>::size(_Slist_node_base* __node)
 // mode:C++
 // End:
 // END FORMER CONTENTS OF bslstp_slistbase.c
+
+#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif /* INCLUDED_BSLSTP_SLISTBASE */
 

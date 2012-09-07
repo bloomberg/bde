@@ -169,6 +169,10 @@ BSLS_IDENT("$Id: $")
 // would have an actual (and therefore natural) alignment of 4 on a 64-bit
 // platform when using default compiler settings.
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
 #endif
@@ -440,12 +444,14 @@ std::size_t AlignmentUtil::roundUpToMaximalAlignment(std::size_t size)
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::AlignmentUtil bsls_AlignmentUtil;
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

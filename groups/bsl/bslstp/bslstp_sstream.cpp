@@ -18,6 +18,8 @@
 //#include <bslstp_stlport_prefix.h>
 #include <bslstp_sstream.h>
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 namespace bsl {
 
 // Force instantiation of stringstream classes.
@@ -32,6 +34,8 @@ template class basic_istringstream<wchar_t, ::std::char_traits<wchar_t>, allocat
 template class basic_stringstream<wchar_t, ::std::char_traits<wchar_t>, allocator<wchar_t> >;
 
 }  // close namespace bsl
+
+#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 // Local Variables:
 // mode:C++

@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DEPRECATED: Use component 'bsls_types' instead.
 //
+//@BDE_TRANSITIONAL
+//
 //@CLASSES:
 //  bsls_Int64: namespace for platform-dependent 64-bit integer types
 //
@@ -36,6 +38,12 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // Do not use this component; use 'bsls_types' instead.
+
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
@@ -65,6 +73,8 @@ struct bsls_Int64 {
 };
 
 }  // close enterprise namespace
+
+#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

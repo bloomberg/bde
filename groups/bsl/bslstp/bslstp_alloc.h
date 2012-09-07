@@ -27,6 +27,8 @@
 #ifndef INCLUDED_BSLSTP_ALLOC
 #define INCLUDED_BSLSTP_ALLOC
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #ifndef INCLUDED_BSLSTL_ALLOCATORPROXY
 #include <bslstl_allocatorproxy.h>
 #endif
@@ -62,5 +64,7 @@ public:
 };
 
 }  // close namespace bsl
+
+#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif  // INCLUDED_BSLSTP_ALLOC

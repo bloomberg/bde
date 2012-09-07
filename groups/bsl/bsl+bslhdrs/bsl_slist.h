@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DEPRECATED: Do not use.
 //
+//@BDE_TRANSITIONAL
+//
 //@SEE_ALSO: package bsl+stdhdrs
 //
 //@AUTHOR: Arthur Chiu (achiu21)
@@ -21,11 +23,19 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
 
 #include <bslstp_slist.h>
+
+#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

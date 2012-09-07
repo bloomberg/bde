@@ -37,6 +37,8 @@ BDES_IDENT("$Id: $")
 ///-----
 // Do not use this component; use 'bsls_types' instead.
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>  // required by 'bdes'
 #endif
@@ -56,6 +58,8 @@ typedef bsls_Int64 bdes_Int64;
     // integers.
 
 }  // close namespace BloombergLP
+
+#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

@@ -632,6 +632,7 @@ int AutoDeallocator<ALLOCATOR>::length() const
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -641,6 +642,7 @@ int AutoDeallocator<ALLOCATOR>::length() const
 #endif
 #define bslma_AutoDeallocator bslma::AutoDeallocator
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

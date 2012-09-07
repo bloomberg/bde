@@ -49,6 +49,10 @@ BSLS_IDENT("$Id: $")
 //  assert(X != Y); // This will not compile
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif

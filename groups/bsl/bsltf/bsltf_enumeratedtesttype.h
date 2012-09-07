@@ -38,6 +38,10 @@ BSLS_IDENT("$Id: $")
 // assert(static_cast<int>(last) == 127);
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif

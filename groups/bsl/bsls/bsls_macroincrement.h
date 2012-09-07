@@ -49,6 +49,10 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 #define BSLS_MACROINCREMENT(MACRO_VALUE) \
     BSLS_MACROINCREMENT_IMPL(MACRO_VALUE)
 

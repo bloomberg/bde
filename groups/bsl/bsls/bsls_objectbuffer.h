@@ -210,6 +210,10 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
 #endif
@@ -309,11 +313,11 @@ const char *ObjectBuffer<TYPE>::buffer() const
 
 }  // close package namespace
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-
 // ===========================================================================
 //                          BACKWARD COMPATIBILITY
 // ===========================================================================
+
+#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
 #ifdef bdes_ObjectBuffer
 #undef bdes_ObjectBuffer
@@ -323,11 +327,15 @@ const char *ObjectBuffer<TYPE>::buffer() const
 
 #endif
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
+
 #ifdef bsls_ObjectBuffer
 #undef bsls_ObjectBuffer
 #endif
 #define bsls_ObjectBuffer bsls::ObjectBuffer
     // This alias is defined for backward compatibility.
+
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

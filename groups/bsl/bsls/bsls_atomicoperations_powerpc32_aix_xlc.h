@@ -14,6 +14,10 @@
 // classes are for private use only.  See 'bsls_atomicoperations' and
 // 'bsls_atomic' for the public inteface to atomics.
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif

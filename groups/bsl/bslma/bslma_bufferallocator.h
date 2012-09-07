@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DEPRECATED: Use 'bdema_bufferedsequentialallocator' instead.
 //
+//@BDE_TRANSITIONAL_CANCELLED
+//
 //@CLASSES:
 //  bslma::BufferAllocator: memory allocator from user-supplied buffer
 //
@@ -201,6 +203,8 @@ BSLS_IDENT("$Id: $")
 // because 'bslma::BufferAllocator::allocate' internally performs alignment for
 // each requested memory block based on the allocator's alignment strategy.
 
+//#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
@@ -369,14 +373,18 @@ void BufferAllocator::deallocate(void *)
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::BufferAllocator bslma_BufferAllocator;
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
+
+//#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

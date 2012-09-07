@@ -2,6 +2,8 @@
 
 #include <bslma_sequentialpool.h>
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #include <bslma_allocator.h>                    // for testing only
 #include <bslma_bufferallocator.h>              // for testing only
 #include <bslma_infrequentdeleteblocklist.h>    // for testing only
@@ -1318,7 +1320,7 @@ int main(int argc, char *argv[])
                     numBlocksInUse[reqNum] = ta.numBlocksInUse();
                     numBytesInUse[reqNum] = ta.numBytesInUse();
                     int offset = ((char *) returnAddr -
-                                  (char *) ta.lastAllocateAddress());
+                                  (char *) ta.lastAllocatedAddress());
                     offsetInBlock[reqNum] = offset;
 
                     if (veryVerbose) {
@@ -1350,7 +1352,7 @@ int main(int argc, char *argv[])
                                  numBytesInUse[reqNum], ta.numBytesInUse(),
                                  numBytesInUse[reqNum] == ta.numBytesInUse());
                     int offset = ((char *) returnAddr -
-                                  (char *) ta.lastAllocateAddress());
+                                  (char *) ta.lastAllocatedAddress());
                     LOOP4_ASSERT(LINE, reqNum,
                                  offsetInBlock[reqNum], offset,
                                  offsetInBlock[reqNum] == offset);
@@ -1867,7 +1869,7 @@ int main(int argc, char *argv[])
 
                 // Starting address of the pool's internal buffer.
 
-                const char *const HEAD = (char *) TA.lastAllocateAddress()
+                const char *const HEAD = (char *) TA.lastAllocatedAddress()
                     + sizeof(InfrequentDeleteBlock)
                     - bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
                 if (veryVerbose) { T_ A(buffer); T_ A(HEAD); }
@@ -1935,7 +1937,7 @@ int main(int argc, char *argv[])
             // if the first 'SIZE' is 0, the allocator's 'allocate' is never
             // called, thus, 'lastAllocatedSize' will return -1 instead of 0.
 
-            const int EXP = i || SIZE ? a.lastAllocateNumBytes() : 0;
+            const int EXP = i || SIZE ? a.lastAllocatedNumBytes() : 0;
 
             if (veryVerbose) { T_ P_(SIZE); T_ P_(blkSize); T_ P(EXP); }
             LOOP_ASSERT(i, EXP == blkSize);
@@ -1952,6 +1954,16 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
+
+#else
+
+int main(int argc, char *argv[])
+{
+    return 0;
+}
+
+#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 
 // ---------------------------------------------------------------------------
 // NOTICE:

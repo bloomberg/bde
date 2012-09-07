@@ -2,6 +2,8 @@
 
 #include <bslma_bufferallocator.h>
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #include <bslma_allocator.h>    // for testing only
 
 #include <bsls_types.h>  // for testing only
@@ -1227,6 +1229,16 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
+
+#else
+
+int main(int argc, char *argv[])
+{
+    return 0;
+}
+
+#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 
 // ---------------------------------------------------------------------------
 // NOTICE:

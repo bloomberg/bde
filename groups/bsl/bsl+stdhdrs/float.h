@@ -23,6 +23,10 @@ BSLS_IDENT("$Id: $")
 // places them in the 'std' namespace.
 */
 
+#ifndef INCLUDED_BSLS_CODEBASE
+#include <bsls_codebase.h>
+#endif
+
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
 
 #   ifndef INCLUDED_BSL_STDHDRS_INCPATHS

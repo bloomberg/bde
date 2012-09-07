@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #include <bslma_testallocator.h>         // for testing only
 
 #include <bsls_alignmentutil.h>
@@ -53,6 +55,8 @@ void InfrequentDeleteBlockList::release()
 }  // close package namespace
 
 }  // close enterprise namespace
+
+#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

@@ -46,6 +46,8 @@
 #ifndef INCLUDED_BSLSTP_HASHSET
 #define INCLUDED_BSLSTP_HASHSET
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
@@ -484,6 +486,8 @@ public:
 #undef BSLSTP_DEFINE_STD
 #define std bsl
 #endif
+
+#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif /* INCLUDED_BSLSTP_HASHSET */
 

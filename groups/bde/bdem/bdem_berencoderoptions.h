@@ -12,6 +12,10 @@ BDES_IDENT_PRAGMA_ONCE
 //
 //@AUTHOR: Rohan BHINDWALE (rbhindwale@bloomberg.net)
 
+#ifndef INCLUDED_BDESCM_VERSION
+#include <bdescm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif

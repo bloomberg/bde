@@ -66,6 +66,10 @@ struct TypeTraitUsesBslmaAllocator {
 }  // close package namespace
 
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
                  //==========================================
@@ -77,12 +81,12 @@ typedef bslalg::TypeTraitUsesBslmaAllocator bdealg_TypeTraitUsesBdemaAllocator;
 
 #endif
 
-// ===========================================================================
-//                           BACKWARD COMPATIBILITY
-// ===========================================================================
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 
 typedef bslalg::TypeTraitUsesBslmaAllocator bslalg_TypeTraitUsesBslmaAllocator;
     // This alias is defined for backward compatibility.
+
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

@@ -949,7 +949,7 @@ int main(int argc, char *argv[])
                                        T8, T9> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 ObjBase *x = new(ta) Obj(checkParameterTypes9, a1, a2, a3,
                                           a4, a5, a6, a7, a8, a9, &ta);
@@ -957,8 +957,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG9 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -969,7 +969,7 @@ int main(int argc, char *argv[])
                                        T3, T4, T5, T6, T7, T8, T9> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(cbObject,
@@ -979,8 +979,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG9 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -991,7 +991,7 @@ int main(int argc, char *argv[])
                                        T5, T6, T7, T8, T9> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(&cbObject,
@@ -1001,8 +1001,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG9 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
         }
       } break;
@@ -1188,7 +1188,7 @@ int main(int argc, char *argv[])
                                        T8> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 ObjBase *x = new(ta) Obj(checkParameterTypes8, a1, a2, a3,
                                           a4, a5, a6, a7, a8, &ta);
@@ -1196,8 +1196,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG8 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -1208,7 +1208,7 @@ int main(int argc, char *argv[])
                                        T3, T4, T5, T6, T7, T8> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(cbObject,
@@ -1218,8 +1218,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG8 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -1230,7 +1230,7 @@ int main(int argc, char *argv[])
                                        T5, T6, T7, T8> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(&cbObject,
@@ -1240,8 +1240,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG8 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
         }
       } break;
@@ -1423,7 +1423,7 @@ int main(int argc, char *argv[])
                                        T7> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 ObjBase *x = new(ta) Obj(checkParameterTypes7, a1, a2, a3,
                                           a4, a5, a6, a7, &ta);
@@ -1431,8 +1431,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG7 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -1443,7 +1443,7 @@ int main(int argc, char *argv[])
                                        T3, T4, T5, T6, T7> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(cbObject,
@@ -1453,8 +1453,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG7 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -1465,7 +1465,7 @@ int main(int argc, char *argv[])
                                        T5, T6, T7> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(&cbObject,
@@ -1475,8 +1475,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG7 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
         }
       } break;
@@ -1653,7 +1653,7 @@ int main(int argc, char *argv[])
                 typedef bcefi_Vfunc0F6<CbFuncF6, T1, T2, T3, T4, T5, T6> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 ObjBase *x = new(ta) Obj(checkParameterTypes6, a1, a2, a3,
                                           a4, a5, a6, &ta);
@@ -1661,8 +1661,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG6 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -1673,7 +1673,7 @@ int main(int argc, char *argv[])
                                        T3, T4, T5, T6> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(cbObject,
@@ -1683,8 +1683,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG6 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -1695,7 +1695,7 @@ int main(int argc, char *argv[])
                                        T5, T6> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(&cbObject,
@@ -1705,8 +1705,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG6 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
         }
       } break;
@@ -1876,7 +1876,7 @@ int main(int argc, char *argv[])
                 typedef bcefi_Vfunc0F5<CbFuncF5, T1, T2, T3, T4, T5> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 ObjBase *x = new(ta) Obj(checkParameterTypes5, a1, a2, a3,
                                           a4, a5, &ta);
@@ -1884,8 +1884,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG5 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -1896,7 +1896,7 @@ int main(int argc, char *argv[])
                                        T3, T4, T5> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(cbObject,
@@ -1906,8 +1906,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG5 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -1918,7 +1918,7 @@ int main(int argc, char *argv[])
                                        T5> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(&cbObject,
@@ -1928,8 +1928,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG5 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
         }
       } break;
@@ -2097,7 +2097,7 @@ int main(int argc, char *argv[])
                 typedef bcefi_Vfunc0F4<CbFuncF4, T1, T2, T3, T4> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 ObjBase *x = new(ta) Obj(checkParameterTypes4,
                                           a1, a2, a3, a4, &ta);
@@ -2105,8 +2105,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG4 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -2117,7 +2117,7 @@ int main(int argc, char *argv[])
                                        T3, T4> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(cbObject,
@@ -2127,8 +2127,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG4 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -2138,7 +2138,7 @@ int main(int argc, char *argv[])
                 typedef bcefi_Vfunc0M4<CbClass, CbFuncM4, T1, T2, T3, T4> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(&cbObject,
@@ -2148,8 +2148,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG4 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
         }
       } break;
@@ -2314,7 +2314,7 @@ int main(int argc, char *argv[])
                 typedef bcefi_Vfunc0F3<CbFuncF3, T1, T2, T3> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 ObjBase *x = new(ta) Obj(checkParameterTypes3, a1,
                                           a2, a3, &ta);
@@ -2322,8 +2322,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG3 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -2334,7 +2334,7 @@ int main(int argc, char *argv[])
                                        T3> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(cbObject,
@@ -2344,8 +2344,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG3 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -2355,7 +2355,7 @@ int main(int argc, char *argv[])
                 typedef bcefi_Vfunc0M3<CbClass, CbFuncM3, T1, T2, T3> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(&cbObject,
@@ -2365,8 +2365,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG3 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
         }
       } break;
@@ -2528,15 +2528,15 @@ int main(int argc, char *argv[])
                 typedef bcefi_Vfunc0F2<CbFuncF2, T1, T2> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 ObjBase *x = new(ta) Obj(checkParameterTypes2, a1, a2, &ta);
                 x->execute();
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG2 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -2546,7 +2546,7 @@ int main(int argc, char *argv[])
                 typedef bcefi_Vfunc0C2<CbClass, CbFuncC2, T1, T2> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(cbObject,
@@ -2556,8 +2556,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG2 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -2567,7 +2567,7 @@ int main(int argc, char *argv[])
                 typedef bcefi_Vfunc0M2<CbClass, CbFuncM2, T1, T2> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(&cbObject,
@@ -2577,8 +2577,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG2 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
         }
       } break;
@@ -2756,15 +2756,15 @@ int main(int argc, char *argv[])
                 typedef bcefi_Vfunc0F1<CbFuncF1, T1> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 ObjBase *x = new(ta) Obj(checkParameterTypes1, a1, &ta);
                 x->execute();
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG1 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -2774,7 +2774,7 @@ int main(int argc, char *argv[])
                 typedef bcefi_Vfunc0C1<CbClass, CbFuncC1, T1> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(cbObject,
@@ -2784,8 +2784,8 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG1 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
@@ -2795,7 +2795,7 @@ int main(int argc, char *argv[])
                 typedef bcefi_Vfunc0M1<CbClass, CbFuncM1, T1> Obj;
                 dcEnabled = 0;
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 CbClass cbObject;
                 ObjBase *x = new(ta) Obj(&cbObject,
@@ -2805,22 +2805,22 @@ int main(int argc, char *argv[])
                 dcEnabled = 1;
                 ObjBase::deleteObject(x);
                 ASSERT(DESTRUCTOR_FLAG1 == destructorCheck);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose)
                 cout << "\nTesting bcefi_Vfunc0Null object." << endl;
             {
                 destructorCheck = 0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
 
                 typedef bcefi_Vfunc0Null Obj;
                 ObjBase *x = new(ta) Obj(&ta);
                 x->execute();
                 ObjBase::deleteObject(x);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
         }
 
@@ -2835,7 +2835,7 @@ int main(int argc, char *argv[])
             typedef void (CbClass::*CbFuncC0)() const;
             typedef bcefr_Vfunc0 ObjBase;
 
-            int numDeallocations = ta.numDeallocation();
+            int numDeallocations = ta.numDeallocations();
 
             if (verbose) cout << "\t'bcefi_Vfunc0F0' object." << endl;
             {
@@ -2850,10 +2850,10 @@ int main(int argc, char *argv[])
                 x->execute();
                 ASSERT(ARG0_PLUS1 == a0_global);
                 a0_global = ARG0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 ObjBase::deleteObject(x);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose) cout << "\t'bcefi_Vfunc0C0' object." << endl;
@@ -2867,10 +2867,10 @@ int main(int argc, char *argv[])
                 x->execute();
                 ASSERT(ARG0_PLUS1 == a0_global);
                 a0_global = ARG0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 ObjBase::deleteObject(x);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
 
             if (verbose) cout << "\t'bcefi_Vfunc0M0' object." << endl;
@@ -2886,10 +2886,10 @@ int main(int argc, char *argv[])
                 x->execute();
                 ASSERT(ARG0_PLUS1 == a0_global);
                 a0_global = ARG0;
-                numDeallocations = ta.numDeallocation();
+                numDeallocations = ta.numDeallocations();
                 ObjBase::deleteObject(x);
-                ASSERT(numDeallocations + 1 == ta.numDeallocation());
-                ASSERT(sizeof(Obj) == ta.lastAllocateNumBytes());
+                ASSERT(numDeallocations + 1 == ta.numDeallocations());
+                ASSERT(sizeof(Obj) == ta.lastAllocatedNumBytes());
             }
         }
       } break;

@@ -182,6 +182,7 @@ struct IsPolymorphic<TYPE&> : IsPolymorphic_Imp<TYPE>::Type {
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -191,6 +192,7 @@ struct IsPolymorphic<TYPE&> : IsPolymorphic_Imp<TYPE>::Type {
 #endif
 #define bslmf_IsPolymorphic bslmf::IsPolymorphic
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

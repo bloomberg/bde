@@ -2,6 +2,8 @@
 
 #include <bslma_infrequentdeleteblocklist.h>
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #include <bslma_allocator.h>          // for testing only
 #include <bslma_testallocator.h>      // for testing only
 
@@ -429,10 +431,10 @@ int main(int argc, char *argv[])
             Obj mX(&a);
             void *p = mX.allocate(SIZE);
             int offset = U::calculateAlignmentOffset(p, U::BSLS_MAX_ALIGNMENT);
-            const void *EXP_P = p ? (char *) a.lastAllocateAddress() + BLKSZ
+            const void *EXP_P = p ? (char *) a.lastAllocatedAddress() + BLKSZ
                                   : 0;
 
-            int numBytes = a.lastAllocateNumBytes();
+            int numBytes = a.lastAllocatedNumBytes();
             if (veryVerbose) { TAB;
             P_(SIZE); P_(numBytes); P_(EXP_SZ); P_(p); P_(EXP_P); P(offset);
             }
@@ -453,6 +455,16 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
+
+#else
+
+int main(int argc, char *argv[])
+{
+    return 0;
+}
+
+#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 
 // ---------------------------------------------------------------------------
 // NOTICE:

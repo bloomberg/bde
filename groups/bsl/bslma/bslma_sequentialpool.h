@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DEPRECATED: Use 'bdema_sequentialpool' instead.
 //
+//@BDE_TRANSITIONAL
+//
 //@CLASSES:
 //  bslma::SequentialPool: fast variable-size memory pool
 //
@@ -365,6 +367,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
@@ -672,12 +676,14 @@ void SequentialPool::deleteObject(const TYPE *object)
 
 }  // close package namespace
 
+#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::SequentialPool bslma_SequentialPool;
     // This alias is defined for backward compatibility.
+#endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 
@@ -758,6 +764,7 @@ void operator delete(void *, BloombergLP::bslma::SequentialPool&)
     // NOTE: there is no deallocation from this allocation mechanism.
 }
 
+#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 
