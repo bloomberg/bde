@@ -18,7 +18,6 @@ namespace BloombergLP {
 // Correspondingly, the 32-bit return value should be put into %o0, and the
 // 64-bit return value - into (%o0, %o1) register pair.
 
-static
 void bsls_AtomicOperations_Sparc32_AssemblyContainer()
 {
     // *** 64 bit operations ***

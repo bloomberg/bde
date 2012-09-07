@@ -10,7 +10,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-static
 void bsls_AtomicOperations_Sparc64_AssemblyContainer()
 {
         // *** 64 bit operations ***

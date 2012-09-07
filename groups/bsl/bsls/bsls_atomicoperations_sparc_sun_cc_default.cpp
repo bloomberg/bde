@@ -17,7 +17,6 @@ namespace BloombergLP {
 // acquire/release semantics.  See http://g.oswego.edu/dl/jmm/cookbook.html and
 // the SPARC V9 manual for details.
 
-static
 void bsls_AtomicOperations_Sparc_AssemblyContainer()
 {
     // int bsls_AtomicOperations_Sparc_GetInt(const volatile int*);
