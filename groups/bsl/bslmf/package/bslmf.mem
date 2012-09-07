@@ -25,6 +25,9 @@ bslmf_isconvertible
 bslmf_isenum
 bslmf_isfundamental
 bslmf_islvaluereference
+bslmf_ismemberfunctionpointer
+bslmf_ismemberobjectpointer
+bslmf_ismemberpointer
 bslmf_ispair
 bslmf_ispointer
 bslmf_ispointertomember
