@@ -629,9 +629,9 @@ int main(int argc, char *argv[])
         // INTEGRAL CONVERIBILITY
         //
         // Concerns:
-        //: 1 Every C++ integral type and every C++ floating point type, each
-        //:   with and without cv-qualifications, can be implicitly converted
-        //:   to a 'bslmf::MatchInteger' object.
+        //: 1 Every C++ arithmetic type, each with and without
+        //:   cv-qualifications, can be implicitly converted to a
+        //:   'bslmf::MatchInteger' object.
         //
         // Plan:
         //: 1 Define 'acceptObj', a function specifying a parameter of type
