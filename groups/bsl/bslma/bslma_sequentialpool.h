@@ -367,7 +367,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bslma_sequentialpool is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -763,8 +765,6 @@ void operator delete(void *, BloombergLP::bslma::SequentialPool&)
 {
     // NOTE: there is no deallocation from this allocation mechanism.
 }
-
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

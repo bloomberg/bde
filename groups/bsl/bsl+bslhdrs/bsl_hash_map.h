@@ -23,7 +23,9 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bsl_hash_map is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -42,8 +44,6 @@ BSLS_IDENT("$Id: $")
 #include <hash_map>
 
 #endif  // BSL_OVERRIDES_STD
-
-#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif  // INCLUDED_BSL_HASH_MAP
 

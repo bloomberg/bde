@@ -27,7 +27,9 @@
 #ifndef INCLUDED_BSLSTP_SLISTBASE
 #define INCLUDED_BSLSTP_SLISTBASE
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bslstp_slistbase is deprecated"
+#endif
 
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for std::size_t
@@ -182,8 +184,6 @@ _Sl_global<_Dummy>::size(_Slist_node_base* __node)
 // mode:C++
 // End:
 // END FORMER CONTENTS OF bslstp_slistbase.c
-
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif /* INCLUDED_BSLSTP_SLISTBASE */
 

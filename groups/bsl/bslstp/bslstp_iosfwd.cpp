@@ -1,5 +1,9 @@
 // bslstp_iosfwd.cpp                                                  -*-C++-*-
+#ifndef BSL_PUBLISHED
+
 #include <bslstp_iosfwd.h>
+
+#endif  // #ifndef BSL_PUBLISHED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

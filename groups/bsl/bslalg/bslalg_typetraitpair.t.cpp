@@ -1,8 +1,8 @@
 // bslalg_typetraitpair.t.cpp                                         -*-C++-*-
 
-#include <bslalg_typetraitpair.h>
+#ifndef BSL_PUBLISHED
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#include <bslalg_typetraitpair.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#endif  // #ifndef BSL_PUBLISHED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

@@ -1,10 +1,10 @@
 // bslma_infrequentdeleteblocklist.cpp                                -*-C++-*-
+#ifndef BSL_PUBLISHED
+
 #include <bslma_infrequentdeleteblocklist.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
-
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #include <bslma_testallocator.h>         // for testing only
 
@@ -56,7 +56,7 @@ void InfrequentDeleteBlockList::release()
 
 }  // close enterprise namespace
 
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#endif // #ifndef BSL_PUBLISHED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

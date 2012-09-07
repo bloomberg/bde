@@ -1,8 +1,12 @@
 // bslstp_exfunctional.cpp                                            -*-C++-*-
+#ifndef BSL_PUBLISHED
+
 #include <bslstp_exfunctional.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#endif  // #ifndef BSL_PUBLISHED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

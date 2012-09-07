@@ -1,8 +1,8 @@
 // bsls_int64.t.cpp                                                   -*-C++-*-
 
-#include <bsls_int64.h>
+#ifndef BSL_PUBLISHED
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#include <bsls_int64.h>
 
 #include <bsls_platform.h>  // for testing only
 
@@ -590,7 +590,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#endif  // #ifndef BSL_PUBLISHED
 
 
 // ---------------------------------------------------------------------------

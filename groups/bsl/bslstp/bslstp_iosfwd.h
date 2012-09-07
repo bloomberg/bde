@@ -7,7 +7,9 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bslstp_iosfwd is deprecated"
+#endif
 
 namespace std {
 
@@ -54,8 +56,6 @@ typedef basic_stringstream <wchar_t, std::char_traits<wchar_t>,
                                            allocator<wchar_t> >  wstringstream;
 
 }  // close namespace bsl
-
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

@@ -1,10 +1,10 @@
 // bslma_sequentialpool.cpp                                           -*-C++-*-
+#ifndef BSL_PUBLISHED
+
 #include <bslma_sequentialpool.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
-
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #include <bslma_bufferallocator.h>
 #include <bslma_testallocator.h>       // for testing only
@@ -367,7 +367,7 @@ int SequentialPool::truncate(void *address,
 
 }  // close enterprise namespace
 
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#endif // #ifndef BSL_PUBLISHED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

@@ -1,6 +1,6 @@
-#include <bslstp_hashtable.h>
+#ifndef BSL_PUBLISHED
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#include <bslstp_hashtable.h>
 
 namespace bsl {
 
@@ -9,4 +9,4 @@ template class _Stl_prime<bool>;
 
 }  // close namespace
 
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#endif // #ifndef BSL_PUBLISHED

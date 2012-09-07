@@ -1,5 +1,9 @@
 // bslstp_exfunctional.t.cpp                                          -*-C++-*-
+#ifndef BSL_PUBLISHED
+
 #include <bslstp_exfunctional.h>
+
+#endif  // #ifndef BSL_PUBLISHED
 
 int main() { return -1; }   // empty test driver
 

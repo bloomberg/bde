@@ -148,7 +148,9 @@ BSLS_IDENT("$Id: $")
 // its 'bslma::InfrequentDeleteBlockList' member object is also destroyed,
 // which in turn automatically deallocates all of its managed memory blocks.
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bslma_infrequentdeleteblocklist is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -255,8 +257,6 @@ typedef bslma::InfrequentDeleteBlockList bslma_InfrequentDeleteBlockList;
 #endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
-
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

@@ -203,7 +203,9 @@ BSLS_IDENT("$Id: $")
 // because 'bslma::BufferAllocator::allocate' internally performs alignment for
 // each requested memory block based on the allocator's alignment strategy.
 
-//#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+//#error "bslma_bufferallocator is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -383,8 +385,6 @@ typedef bslma::BufferAllocator bslma_BufferAllocator;
 #endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
-
-//#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

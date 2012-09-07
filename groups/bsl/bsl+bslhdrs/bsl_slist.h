@@ -23,7 +23,9 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bsl_slist is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -34,8 +36,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #include <bslstp_slist.h>
-
-#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

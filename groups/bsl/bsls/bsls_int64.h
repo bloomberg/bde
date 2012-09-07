@@ -39,7 +39,9 @@ BSLS_IDENT("$Id: $")
 ///-----
 // Do not use this component; use 'bsls_types' instead.
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bsls_int64 is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLS_CODEBASE
 #include <bsls_codebase.h>
@@ -73,8 +75,6 @@ struct bsls_Int64 {
 };
 
 }  // close enterprise namespace
-
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

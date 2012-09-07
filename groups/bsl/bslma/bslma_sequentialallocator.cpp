@@ -1,10 +1,10 @@
 // bslma_sequentialallocator.cpp                                      -*-C++-*-
+#ifndef BSL_PUBLISHED
+
 #include <bslma_sequentialallocator.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
-
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #include <bslma_default.h>            // for testing only
 #include <bslma_testallocator.h>      // for testing only
@@ -26,7 +26,7 @@ SequentialAllocator::~SequentialAllocator()
 
 }  // close enterprise namespace
 
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#endif // #ifndef BSL_PUBLISHED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

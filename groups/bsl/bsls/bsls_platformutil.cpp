@@ -1,8 +1,12 @@
 // bsls_platformutil.cpp                                              -*-C++-*-
+#ifndef BSL_PUBLISHED
+
 #include <bsls_platformutil.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#endif  // #ifndef BSL_PUBLISHED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

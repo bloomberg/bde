@@ -102,7 +102,9 @@ BSLS_IDENT("$Id: $")
 // Note that in the above usage example, either the macros or the functions can
 // be used to test whether a platform is big- or little-endian.
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bsls_platformutil is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLS_CODEBASE
 #include <bsls_codebase.h>
@@ -306,8 +308,6 @@ typedef bsls::PlatformUtil bsls_PlatformUtil;
 #endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
-
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

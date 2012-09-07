@@ -27,7 +27,9 @@
 #ifndef INCLUDED_BSLSTP_ALLOC
 #define INCLUDED_BSLSTP_ALLOC
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bslstp_alloc is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSTL_ALLOCATORPROXY
 #include <bslstl_allocatorproxy.h>
@@ -64,7 +66,5 @@ public:
 };
 
 }  // close namespace bsl
-
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif  // INCLUDED_BSLSTP_ALLOC

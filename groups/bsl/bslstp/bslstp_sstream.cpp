@@ -15,10 +15,10 @@
  * modified is included with the above copyright notice.
  *
  */
+#ifndef BSL_PUBLISHED
+
 //#include <bslstp_stlport_prefix.h>
 #include <bslstp_sstream.h>
-
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 namespace bsl {
 
@@ -35,7 +35,7 @@ template class basic_stringstream<wchar_t, ::std::char_traits<wchar_t>, allocato
 
 }  // close namespace bsl
 
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#endif // #ifndef BSL_PUBLISHED
 
 // Local Variables:
 // mode:C++

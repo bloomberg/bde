@@ -37,7 +37,9 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that 'first' and 'second' are *not* member functions, but data members.
 
-//#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+//#error "bslalg_typetraitpair is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -73,8 +75,6 @@ typedef bslalg::TypeTraitPair bslalg_TypeTraitPair;
 #endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
-
-//#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

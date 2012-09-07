@@ -58,7 +58,9 @@ BSLS_IDENT("$Id: $")
 // This component is for use by the 'bsl+stdhdrs' package.  Use 'functional'
 // directly.
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bslstp_exfunctional is deprecated"
+#endif
 
 // Prevent 'bslstp' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -310,8 +312,6 @@ struct ComparatorSelector<const char *>
 };
 
 }  // close namespace bsl
-
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

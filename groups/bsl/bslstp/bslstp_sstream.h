@@ -44,7 +44,9 @@
 #ifndef INCLUDED_BSLSTP_SSTREAM
 #define INCLUDED_BSLSTP_SSTREAM
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bslstp_sstream is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -1201,8 +1203,6 @@ extern template class bsl::basic_stringstream<wchar_t>;
 //# undef __BSB_pos_type__
 
 // END FORMER CONTENTS OF bslstp_stl_sstream.c
-
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif /* INCLUDED_BSLSTP_SSTREAM */
 

@@ -41,7 +41,9 @@
 #ifndef INCLUDED_BSLSTP_SLIST
 #define INCLUDED_BSLSTP_SLIST
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bslstp_slist is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -986,8 +988,6 @@ public:
 //#  include <bslstp_stl_epilog.h>
 //#  undef _STLP_OUTERMOST_HEADER_ID
 //# endif
-
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif /* INCLUDED_BSLSTP_SLIST */
 

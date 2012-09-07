@@ -1,10 +1,10 @@
 // bslma_bufferallocator.cpp                                          -*-C++-*-
+#ifndef BSL_PUBLISHED
+
 #include <bslma_bufferallocator.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
-
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #include <bslmf_assert.h>
 #include <bsls_alignment.h>
@@ -204,7 +204,7 @@ void BufferAllocator::print() const
 
 }  // close enterprise namespace
 
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#endif // #ifndef BSL_PUBLISHED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

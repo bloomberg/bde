@@ -1,4 +1,6 @@
 // bslim_printer.t.cpp                                                -*-C++-*-
+#ifndef BSL_PUBLISHED
+
 #include <bslim_printer.h>
 
 #include <bslma_testallocator.h>
@@ -516,7 +518,7 @@ bsl::ostream& MyClass::print(bsl::ostream& stream,
     return stream;
 }
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#ifndef BSL_PUBLISHED
 
 // EXAMPLE 4
 //
@@ -578,7 +580,7 @@ bsl::ostream& DateTz::print(bsl::ostream& stream,
    return stream << bsl::flush;
 }
 
-#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#endif  // #ifndef BSL_PUBLISHED
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -594,7 +596,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#ifndef BSL_PUBLISHED
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 24: {
@@ -3639,7 +3641,7 @@ int main(int argc, char *argv[])
       }
     }
 
-#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#endif  // #ifndef BSL_PUBLISHED
 
     if (testStatus > 0) {
         bsl::cerr << "Error, non-zero test status = " << testStatus << "."
@@ -3647,6 +3649,14 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
+#else
+
+int main (int argc, char *argv[])
+{
+    return -1;
+}
+
+#endif  // #ifndef BSL_PUBLISHED
 
 // ----------------------------------------------------------------------------
 // NOTICE:

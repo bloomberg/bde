@@ -46,7 +46,9 @@
 #ifndef INCLUDED_BSLSTP_HASHSET
 #define INCLUDED_BSLSTP_HASHSET
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bslstp_hashset is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -486,8 +488,6 @@ public:
 #undef BSLSTP_DEFINE_STD
 #define std bsl
 #endif
-
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif /* INCLUDED_BSLSTP_HASHSET */
 

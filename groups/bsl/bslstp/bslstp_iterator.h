@@ -30,7 +30,9 @@
 #ifndef INCLUDED_BSLSTP_ITERATOR
 #define INCLUDED_BSLSTP_ITERATOR
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bslstp_iterator is deprecated"
+#endif
 
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>
@@ -59,8 +61,6 @@ struct _Nonconst_traits {
 };
 
 }  // close namespace bsl
-
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif /* INCLUDED_BSLSTP_ITERATOR */
 

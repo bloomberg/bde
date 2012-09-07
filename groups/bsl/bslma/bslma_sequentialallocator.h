@@ -260,7 +260,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#if defined(BSL_PUBLISHED)
+#error "bslma_sequentialallocator is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -654,8 +656,6 @@ typedef bslma::SequentialAllocator bslma_SequentialAllocator;
 #endif // BDE_BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
-
-#endif // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
 
 #endif
 

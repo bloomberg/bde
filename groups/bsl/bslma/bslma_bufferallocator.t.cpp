@@ -1,8 +1,8 @@
 // bslma_bufferallocator.t.cpp                                        -*-C++-*-
 
-#include <bslma_bufferallocator.h>
+#ifndef BSL_PUBLISHED
 
-#if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#include <bslma_bufferallocator.h>
 
 #include <bslma_allocator.h>    // for testing only
 
@@ -1237,7 +1237,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-#endif  // #if !defined(BSL_PUBLISHED) || 1 == BSL_PUBLISHED
+#endif  // #ifndef BSL_PUBLISHED
 
 
 // ---------------------------------------------------------------------------

@@ -1,8 +1,12 @@
 // bslstp_exalgorithm.cpp                                             -*-C++-*-
+#ifndef BSL_PUBLISHED
+
 #include <bslstp_exalgorithm.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#endif  // #ifndef BSL_PUBLISHED
 
 // ---------------------------------------------------------------------------
 // NOTICE:
