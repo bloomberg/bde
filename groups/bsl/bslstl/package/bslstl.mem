@@ -12,7 +12,6 @@ bslstl_hash
 bslstl_hashtable
 bslstl_hashtablebucketiterator
 bslstl_hashtableiterator
-bslstl_hashtablenodefactory
 bslstl_iterator
 bslstl_list
 bslstl_map

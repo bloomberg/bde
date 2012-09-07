@@ -326,7 +326,7 @@ advance()
         this->d_node_p = 0;
     }
     else {
-        this->d_node_p = this->d_node_p->next();
+        this->d_node_p = this->d_node_p->nextLink();
     }
 }
 
@@ -405,8 +405,9 @@ HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>::bucket() const
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator==(const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
-                        const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
+bool bslstl::operator==(
+              const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
+              const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
 
@@ -415,8 +416,9 @@ bool bslstl::operator==(const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYP
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator==(const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
-                        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
+bool bslstl::operator==(
+        const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >&       lhs,
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
 
@@ -425,8 +427,9 @@ bool bslstl::operator==(const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYP
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator==(const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
-                        const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
+bool bslstl::operator==(
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
+        const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >&       rhs)
 {
     BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
 
@@ -435,8 +438,9 @@ bool bslstl::operator==(const HashTableBucketIterator<const VALUE_TYPE, DIFFEREN
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator==(const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
-                        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
+bool bslstl::operator==(
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
 
@@ -445,8 +449,9 @@ bool bslstl::operator==(const HashTableBucketIterator<const VALUE_TYPE, DIFFEREN
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator!=(const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
-                        const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
+bool bslstl::operator!=(
+              const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
+              const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
 
@@ -455,8 +460,9 @@ bool bslstl::operator!=(const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYP
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator!=(const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
-                        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
+bool bslstl::operator!=(
+        const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >&       lhs,
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
 
@@ -465,8 +471,9 @@ bool bslstl::operator!=(const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYP
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator!=(const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
-                        const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
+bool bslstl::operator!=(
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
+        const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >&       rhs)
 {
     BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
 
@@ -475,8 +482,9 @@ bool bslstl::operator!=(const HashTableBucketIterator<const VALUE_TYPE, DIFFEREN
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator!=(const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
-                        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
+bool bslstl::operator!=(
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
 

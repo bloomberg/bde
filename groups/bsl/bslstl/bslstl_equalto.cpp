@@ -1,4 +1,4 @@
-// bslstl_equalto.cpp                                                -*-C++-*-
+// bslstl_equalto.cpp                                                 -*-C++-*-
 #include <bslstl_equalto.h>
 
 #include <bsls_ident.h>

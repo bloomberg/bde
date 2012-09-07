@@ -1,4 +1,3 @@
-
 // bslstl_unorderedset.h                                              -*-C++-*-
 #ifndef INCLUDED_BSLSTL_UNORDEREDSET
 #define INCLUDED_BSLSTL_UNORDEREDSET
@@ -152,7 +151,7 @@ BSL_OVERRIDES_STD mode"
 
 namespace BloombergLP
 {
-namespace bslalg { struct BidirectionalLink; }
+namespace bslalg { class BidirectionalLink; }
 }
 
 namespace bsl {
@@ -308,7 +307,7 @@ class unordered_set
     friend // must be defined inline, as no syntax to declare out-of-line
     bool operator==(const unordered_set& lhs, const unordered_set& rhs) {
         // operator== yields ambiguities in the base classes?
-        return lhs.d_impl.hasSameValue(rhs.d_impl);
+        return lhs.d_impl == rhs.d_impl;
     }
 
 };
@@ -318,8 +317,8 @@ void swap(unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>& x,
           unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>& y);
 
 template <class KEY_TYPE, class HASH, class EQUAL, class ALLOC>
-bool operator!=(const unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>& a,
-                const unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>& b);
+bool operator!=(const unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>& lhs,
+                const unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>& rhs);
 
 
 // ===========================================================================
@@ -820,7 +819,7 @@ unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::
 bucket_size(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return d_impl.countElementsInBucket(n);
+    return d_impl.numElementsInBucket(n);
 }
 
 template <class KEY_TYPE,
@@ -833,7 +832,7 @@ unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::
 bucket(const key_type& k) const
 {
     BSLS_ASSERT_SAFE(this->bucket_count() > 0);
-    return d_impl.computeBucketIndexForKey(k);
+    return d_impl.bucketIndexForKey(k);
 }
 
 template <class KEY_TYPE,

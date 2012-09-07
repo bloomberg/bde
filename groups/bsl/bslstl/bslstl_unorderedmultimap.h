@@ -1,4 +1,4 @@
-// bslstl_unorderedmultimap.h                                        -*-C++-*-
+// bslstl_unorderedmultimap.h                                         -*-C++-*-
 #ifndef INCLUDED_BSLSTL_UNORDEREDMULTIMAP
 #define INCLUDED_BSLSTL_UNORDEREDMULTIMAP
 
@@ -92,7 +92,7 @@ BSL_OVERRIDES_STD mode"
 
 namespace BloombergLP
 {
-namespace bslalg { struct BidirectionalLink; }
+namespace bslalg { class BidirectionalLink; }
 }
 
 namespace bsl {
@@ -253,14 +253,22 @@ class unordered_multimap
     }
 };
 
-template <class KEY_TYPE, class MAPPED_TYPE, class HASH, class EQUAL, class ALLOC>
+template <class KEY_TYPE,
+          class MAPPED_TYPE,
+          class HASH,
+          class EQUAL,
+          class ALLOC>
 void swap(unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& x,
           unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& y);
 
-template <class KEY_TYPE, class MAPPED_TYPE, class HASH, class EQUAL, class ALLOC>
-bool operator!=(const unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& a,
-                const unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& b);
-
+template <class KEY_TYPE,
+          class MAPPED_TYPE,
+          class HASH,
+          class EQUAL,
+          class ALLOC>
+bool operator!=(
+     const unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& lhs,
+     const unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& rhs);
 
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -808,7 +816,7 @@ unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 bucket_size(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return d_impl.countElementsInBucket(n);
+    return d_impl.numElementsInBucket(n);
 }
 
 template <class KEY_TYPE,
@@ -822,7 +830,7 @@ typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 bucket(const key_type& k) const
 {
-    return d_impl.computeBucketIndexForKey(k);
+    return d_impl.bucketIndexForKey(k);
 }
 
 template <class KEY_TYPE,
@@ -992,8 +1000,9 @@ template <class KEY_TYPE,
           class ALLOC>
 inline
 void
-bsl::swap(bsl::unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& x,
-          bsl::unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& y)
+bsl::swap(
+         bsl::unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& x,
+         bsl::unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& y)
 {
     x.swap(y);
 }
@@ -1008,14 +1017,14 @@ bool
 bsl::operator!=(const bsl::unordered_multimap<KEY_TYPE,
                                               MAPPED_TYPE,
                                               HASH, EQUAL,
-                                              ALLOC>& a,
+                                              ALLOC>& lhs,
                 const bsl::unordered_multimap<KEY_TYPE,
                                               MAPPED_TYPE,
                                               HASH,
                                               EQUAL,
-                                              ALLOC>& b)
+                                              ALLOC>& rhs)
 {
-    return !(a == b);
+    return !(lhs == rhs);
 }
 
 #endif

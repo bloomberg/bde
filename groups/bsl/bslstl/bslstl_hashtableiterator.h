@@ -83,7 +83,7 @@ namespace bslstl
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 class HashTableIterator
 #ifdef BSLS_PLATFORM__OS_SOLARIS
-: public std::iterator<bsl::forward_iterator_tag, VALUE_TYPE>
+: public native_std::iterator<native_std::forward_iterator_tag, VALUE_TYPE>
 // On Solaris just to keep studio12-v4 happy, since algorithms takes only
 // iterators inheriting from 'std::iterator'.
 #endif
@@ -133,7 +133,7 @@ class HashTableIterator
         // non-dereferenceable iterators into the same empty range.  They do
         // not have a singular value.
 
-    explicit hashtableiterator(bslalg::bidirectionallink *node);
+    explicit HashTableIterator(bslalg::BidirectionalLink *node);
         // create an iterator referring to the specified 'node'.  the behavior
         // is undefined unless 'node' is of the parameterized 'NODE', which
         // is derived from 'bslalg::BidirectionalLink'.  Note that this
@@ -273,7 +273,7 @@ void HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>::advance()
 {
     BSLS_ASSERT_SAFE(d_node_p);
 
-    this->d_node_p = this->d_node_p->next();
+    this->d_node_p = this->d_node_p->nextLink();
 }
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
@@ -335,64 +335,72 @@ HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>::node() const
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator==(const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
-                        const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& rhs)
+bool bslstl::operator==(
+                     const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
+                     const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& rhs)
 {
     return lhs.node() == rhs.node();
 }
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator==(const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
-                        const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs)
+bool bslstl::operator==(
+               const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>&       lhs,
+               const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs)
 {
     return lhs.node() == rhs.node();
 }
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator==(const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
-                        const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& rhs)
+bool bslstl::operator==(
+               const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
+               const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>&       rhs)
 {
     return lhs.node() == rhs.node();
 }
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator==(const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
-                        const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs)
+bool bslstl::operator==(
+               const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
+               const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs)
 {
     return lhs.node() == rhs.node();
 }
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator!=(const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
-                        const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& rhs)
+bool bslstl::operator!=(
+                     const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
+                     const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& rhs)
 {
     return lhs.node() != rhs.node();
 }
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator!=(const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
-                        const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs)
+bool bslstl::operator!=(
+               const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>&       lhs,
+               const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs)
 {
     return lhs.node() != rhs.node();
 }
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator!=(const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
-                        const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& rhs)
+bool bslstl::operator!=(
+               const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
+               const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>&       rhs)
 {
     return lhs.node() != rhs.node();
 }
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
-bool bslstl::operator!=(const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
-                        const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs)
+bool bslstl::operator!=(
+               const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
+               const HashTableIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs)
 {
     return lhs.node() != rhs.node();
 }

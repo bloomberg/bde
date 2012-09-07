@@ -1,4 +1,4 @@
-// bslstl_treenodepool.t.cpp                                          -*-C++-*-
+// bslstl_bidirectionalnodepool.t.cpp                                 -*-C++-*-
 #include <bslstl_bidirectionalnodepool.h>
 
 #include <bslstl_allocator.h>

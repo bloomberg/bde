@@ -97,7 +97,7 @@ BSL_OVERRIDES_STD mode"
 
 namespace BloombergLP
 {
-namespace bslalg { struct BidirectionalLink; }
+namespace bslalg { class BidirectionalLink; }
 }
 
 namespace bsl {
@@ -241,7 +241,7 @@ class unordered_multiset
     friend // must be defined inline, as no syntax to declare out-of-line
     bool operator==(const unordered_multiset& lhs,
                     const unordered_multiset& rhs) {
-        return lhs.d_impl.hasSameValue(rhs.d_impl);
+        return lhs.d_impl == rhs.d_impl;
     }
     
 };
@@ -251,8 +251,8 @@ void swap(unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& x,
           unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& y);
 
 template <class KEY_TYPE, class HASH, class EQUAL, class ALLOC>
-bool operator!=(const unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& a,
-                const unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& b);
+bool operator!=(const unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& lhs,
+                const unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& rhs);
 
 
 // ===========================================================================
@@ -497,17 +497,10 @@ insert(InputIterator first, InputIterator last)
         this->reserve(this->size() + maxInsertions);
     }
 
+    // Typically will create an un-necessary temporary dereferencing each
+    // iterator and casting to a reference of 'const value_type&'.
     while (first != last) {
-        // Use the appropriate reference type to avoid making a temporary.
-        // Be sure to dereference the iterator exactly once on each iteration.
-        typename std::iterator_traits<InputIterator>::reference obj = *first;
-        if (HashTableLink *existing = d_impl.find(obj)) {
-            d_impl.insertValueBefore(obj, existing);
-        }
-        else {
-            d_impl.doEmplace(obj);
-        }
-        ++first;
+        this->insert(*first++);
     }
 }
 
@@ -760,7 +753,7 @@ unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
 bucket_size(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return d_impl.countElementsInBucket(n);
+    return d_impl.numElementsInBucket(n);
 }
 
 template <class KEY_TYPE,
@@ -772,7 +765,7 @@ typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
 bucket(const key_type& k) const
 {
-    return d_impl.computeBucketIndexForKey(k);
+    return d_impl.bucketIndexForKey(k);
 }
 
 template <class KEY_TYPE,

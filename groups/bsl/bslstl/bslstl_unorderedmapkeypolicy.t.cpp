@@ -1,4 +1,4 @@
-// bslstl_unorderedmapkeypolicy.t.cpp                    -*-C++-*-
+// bslstl_unorderedmapkeypolicy.t.cpp                                 -*-C++-*-
 #include <bslstl_unorderedmapkeypolicy.h>
 
 #include <bsls_asserttest.h>

@@ -164,7 +164,7 @@ BSL_OVERRIDES_STD mode"
 
 namespace BloombergLP
 {
-namespace bslalg { struct BidirectionalLink; }
+namespace bslalg { class BidirectionalLink; }
 }
 
 namespace bsl {
@@ -367,9 +367,9 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-bool
-operator!=(const unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& a,
-           const unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& b);
+bool operator!=(
+          const unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& lhs,
+          const unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& rhs);
 
 
 // ===========================================================================
@@ -1011,7 +1011,7 @@ unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 bucket_size(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return d_impl.countElementsInBucket(n);
+    return d_impl.numElementsInBucket(n);
 }
 
 template <class KEY_TYPE,
@@ -1024,7 +1024,7 @@ typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 bucket(const key_type& k) const
 {
-    return d_impl.computeBucketIndexForKey(k);
+    return d_impl.bucketIndexForKey(k);
 }
 
 template <class KEY_TYPE,
@@ -1204,10 +1204,11 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 inline
-bool bsl::operator!=(const bsl::unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& a,
-                     const bsl::unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& b)
+bool bsl::operator!=(
+      const bsl::unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& lhs,
+      const bsl::unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>& rhs)
 {
-    return !(a == b);
+    return !(lhs == rhs);
 }
 
 #endif

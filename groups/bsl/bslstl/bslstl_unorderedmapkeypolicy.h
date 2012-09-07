@@ -1,4 +1,4 @@
-// bslstl_unorderedmapkeypolicy.h                        -*-C++-*-
+// bslstl_unorderedmapkeypolicy.h                                     -*-C++-*-
 #ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYPOLICY
 #define INCLUDED_BSLSTL_UNORDEREDMAPKEYPOLICY
 
@@ -25,14 +25,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
-#include <bslalg_bidirectionallink.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
 #endif
 
 namespace BloombergLP

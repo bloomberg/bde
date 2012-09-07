@@ -1,4 +1,4 @@
-// bslstl_bidirectionalnodepool.cpp                               -*-C++-*-
+// bslstl_bidirectionalnodepool.cpp                                   -*-C++-*-
 #include <bslstl_bidirectionalnodepool.h>
 
 #include <bsls_ident.h>

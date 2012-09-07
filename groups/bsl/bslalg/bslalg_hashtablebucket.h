@@ -61,8 +61,7 @@ struct HashTableBucket {
     BidirectionalLink *d_last_p;
     
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(HashTableBucket,
-                                 TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(HashTableBucket, bslalg::TypeTraitsGroupPod);
 
   public:
     // CREATORS
@@ -79,12 +78,26 @@ struct HashTableBucket {
 
     // MANIPULATORS
     void setFirst(BidirectionalLink *node);
+       // Set the 'first' element of this bucket to the specified 'node'.  The
+       // behavior is undefined unless 'node' is an element from the same
+       // birectional list as the 'last' element in this bucket, and 'node'
+       // either precedes 'last' in that list, or is the same node, or this
+       // bucket is empty and 'node' has a null pointer value.
 
     void setLast(BidirectionalLink *node);
+       // Set the 'last' element of this bucket to the specified 'node'.  The
+       // behavior is undefined unless 'node' is an element from the same
+       // birectional list as the 'first' element in this bucket, and 'node'
+       // either follows 'first' in that list, or is the same node, or this
+       // bucket is empty and 'node' has a null pointer value.
+
 
     void setFirstAndLast(BidirectionalLink *first, BidirectionalLink *last);
         // Set 'first' and 'last' to the specified values.  Behavior is
-        // undefined unless this bucket is empty.
+        // undefined unless unless 'first == last', or unless 'first' and
+        // 'last' are links from the same list, where 'first' precedes 'last'
+        // in the list.  Note that 'first' and 'last' may both have a null
+        // pointer value, indicating an empty bucket.
 
     void reset();
         // Set 'first' and 'last' to a null pointer value.
