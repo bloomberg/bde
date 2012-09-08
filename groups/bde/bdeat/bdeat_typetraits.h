@@ -10,10 +10,11 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide compile-time traits for generated types.
 //
 //@CLASSES:
-//  bdeat_TypeTraitBasicChoice:         trait for generated "choice" types
-//  bdeat_TypeTraitBasicSequence:       trait for generated "sequence" types
-//  bdeat_TypeTraitBasicEnumeration:    trait for generated "enumeration" types
-//  bdeat_TypeTraitBasicCustomizedType: trait for generated "customized" types
+//  bdeat_IsBasicChoice<TYPE>:           true for generated "choice" types
+//  bdeat_IsBasicSequence<TYPE>:         true for generated "sequence" types
+//  bdeat_IsBasicEnumeration<TYPE>:      true for generated "enumeration" types
+//  bdeat_BasicEnumerationWrapper<TYPE>: chararacteristics of enumeration type
+//  bdeat_IsBasicCustomizedType<TYPE>:   true for generated "customized" types
 //
 //@MACROS:
 //  BDEAT_DECL_CHOICE_TRAITS(ClassName)
@@ -37,9 +38,9 @@ BDES_IDENT("$Id: $")
 //@CONTACT: Rohan Bhindwale (rbhindwa)
 //
 //@DESCRIPTION: This component provides compile-time traits that pertain to
-// generated types.  The four traits provided, 'bdeat_TypeTraitBasicChoice',
-// 'bdeat_TypeTraitBasicSequence', 'bdeat_TypeTraitBasicEnumeration',
-// 'bdeat_TypeTraitBasicCustomizedType' are used for generated "choice" types,
+// generated types.  The four traits provided, 'bdeat_IsBasicChoice',
+// 'bdeat_IsBasicSequence', 'bdeat_IsBasicEnumeration',
+// 'bdeat_IsBasicCustomizedType' are used for generated "choice" types,
 // "sequence" types, "enumeration", and "customized type" types respectively.
 //
 ///Usage
@@ -104,7 +105,7 @@ struct bdeat_BasicEnumerationWrapper;
     // meet the requirements of 'BasicEnumeration', this template is
     // specialized to inherit from the wrapper class that defines functions
     // like 'toString' and 'toInt'.  The specialization should also define the
-    // typee 'Wrapper' to be the name of the wrapper class.
+    // type 'Wrapper' to be the name of the wrapper class.
 
 struct bdeat_TypeTraitBasicChoice {
     // Legacy adaptor for bdeat_IsBasicChoice.

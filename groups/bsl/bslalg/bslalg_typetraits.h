@@ -486,9 +486,6 @@ namespace BloombergLP {
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
-#define bdealg_TypeTraits bslalg_TypeTraits
-    // This alias is defined for backward compatibility.
-
 #define BDEALG_DECLARE_NESTED_TRAITS(T, TRAITS)                               \
     BSLALG_DECLARE_NESTED_TRAITS(T, TRAITS)
     // This alias is defined for backward compatibility.
