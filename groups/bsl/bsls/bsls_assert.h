@@ -13,6 +13,11 @@ BSLS_IDENT("$Id: $")
 //  bsls::Assert: namespace for "assert" management functions
 //  bsls::AssertFailureHandlerGuard: scoped guard for changing handlers safely
 //
+//@MACROS:
+// BSLS_ASSERT: inexpensive optional runtime check
+// BSLS_ASSERT_SAFE: expensive optional runtime check
+// BSLS_ASSERT_OPT: negligible optional rutime check
+//
 //@SEE_ALSO: bsls_buildtarget
 //
 //@AUTHOR: Tom Marshall (tmarshal), John Lakos (jlakos)
