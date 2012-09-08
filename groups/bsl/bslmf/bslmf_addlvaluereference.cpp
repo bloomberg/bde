@@ -1,12 +1,8 @@
-// bslmf_isrvaluereference.cpp                                        -*-C++-*-
-#include <bslmf_isrvaluereference.h>
+// bslmf_addlvaluereference.cpp                                       -*-C++-*-
+#include <bslmf_addlvaluereference.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
-
-namespace BloombergLP {
-
-} // Close namespace BloombergLP
 
 // ---------------------------------------------------------------------------
 // NOTICE:

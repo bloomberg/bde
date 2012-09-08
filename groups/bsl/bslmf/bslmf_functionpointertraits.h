@@ -71,6 +71,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
+#include <bslmf_integerconstant.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_TYPELIST
 #include <bslmf_typelist.h>
 #endif
@@ -101,13 +105,32 @@ struct FunctionPointerTraits {
     enum { IS_FUNCTION_POINTER = 0 };
 };
 
+}  // close package namespace
+
+}  // close enterprise namespace
+
+namespace bsl {
+
+template <typename TYPE>
+struct is_function
+    : integer_constant<bool,
+                       BloombergLP::bslmf::FunctionPointerTraits<TYPE>
+                            ::IS_FUNCTION_POINTER>
+{};
+
+}
+
+namespace BloombergLP {
+
+namespace bslmf {
+
                    // =======================
                    // class IsFunctionPointer
                    // =======================
 
 template <class PROTOTYPE>
 struct IsFunctionPointer
-: MetaInt<FunctionPointerTraits<PROTOTYPE>::IS_FUNCTION_POINTER> {
+: MetaInt<bsl::is_function<PROTOTYPE>::value> {
     // This template determines if the specified 'PROTOTYPE' is a free (i.e.,
     // non-member) function pointer.  VALUE is defined as 1 if the specified
     // 'PROTOTYPE' is a function pointer type, and a zero value otherwise.

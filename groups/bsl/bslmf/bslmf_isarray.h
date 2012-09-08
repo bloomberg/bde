@@ -44,6 +44,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
+#include <bslmf_integerconstant.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>       // 'std::size_t'
 #define INCLUDED_CSTDDEF
@@ -58,6 +62,26 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
+namespace bsl {
+
+template <typename TYPE>
+struct is_array : false_type
+{};
+
+template <typename TYPE, std::size_t NUM_ELEMENTS>
+struct is_array<TYPE [NUM_ELEMENTS]> : true_type
+{};
+
+template <typename TYPE>
+struct is_array<TYPE []> : true_type
+{};
+
+template <typename TYPE>
+struct is_array<TYPE &> : is_array<TYPE>::type
+{};
+
+}
+
 namespace BloombergLP {
 
 namespace bslmf {
@@ -67,20 +91,8 @@ namespace bslmf {
                          // ==============
 
 template <typename TYPE>
-struct IsArray  : MetaInt<0> {
-};
-
-template <typename TYPE, std::size_t NUM_ELEMENTS>
-struct IsArray<TYPE [NUM_ELEMENTS]> : MetaInt<1> {
-};
-
-template <typename TYPE>
-struct IsArray<TYPE []> : MetaInt<1> {
-};
-
-template <typename TYPE>
-struct IsArray<TYPE &> : IsArray<TYPE>::Type {
-};
+struct IsArray  : MetaInt<bsl::is_array<TYPE>::value>
+{};
 
 }  // close package namespace
 

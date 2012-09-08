@@ -44,25 +44,51 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-namespace BloombergLP {
-
-namespace bslmf {
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
 
                          // ======================
                          // struct RemoveReference
                          // ======================
 
+namespace bsl {
+
 template <typename TYPE>
-struct RemoveReference {
-    typedef TYPE Type;
+struct remove_reference
+{
+    typedef TYPE type;
 };
 
 template <typename TYPE>
-struct RemoveReference<TYPE&> {
-    typedef TYPE Type;
+struct remove_reference<TYPE &>
+{
+    typedef TYPE type;
+};
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
+template <typename TYPE>
+struct remove_reference<TYPE &&>
+{
+    typedef TYPE type;
+};
+
+#endif
+
+}
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <typename TYPE>
+struct RemoveReference
+{
+    typedef typename bsl::remove_reference<TYPE>::type Type;
 };
 
 }  // close package namespace
+}  // close enterprise namespace
 
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
@@ -73,8 +99,6 @@ struct RemoveReference<TYPE&> {
 #endif
 #define bslmf_RemoveReference bslmf::RemoveReference
     // This alias is defined for backward compatibility.
-
-}  // close enterprise namespace
 
 #endif
 

@@ -55,6 +55,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
+#include <bslmf_integerconstant.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
 #endif
@@ -73,49 +77,53 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bslmf {
-
-typedef char ISCLASS_TYPE;
-
-struct ISNOTCLASS_TYPE {
-    char padding[8];
-};
-
-template <class TYPE>
-ISCLASS_TYPE IsClass_Tester(int TYPE::*);
-
-template <class TYPE>
-ISNOTCLASS_TYPE IsClass_Tester(...);
-
-                       // ==================
-                       // struct IsClass_Imp
-                       // ==================
 
 template <typename TYPE>
 struct IsClass_Imp
-: MetaInt<sizeof(IsClass_Tester<TYPE>(0)) == sizeof(ISCLASS_TYPE)>
 {
+    typedef struct { char a; }    YesType;
+    typedef struct { char a[2]; } NoType;
+
+    template <typename TEST_TYPE>
+    static
+    YesType test(int TEST_TYPE::*);
+
+    template <typename TEST_TYPE>
+    static
+    NoType test(...);
+
+    enum { Value = (sizeof(test<TYPE>(0)) == sizeof(YesType)) };
 };
+
+}  // close package namespace
+}  // close enterprise namespace
+
+namespace bsl {
+
+template <typename TYPE>
+struct is_class : integer_constant<bool,
+                                   BloombergLP::bslmf::IsClass_Imp<
+                                        typename remove_cv<
+                                            typename remove_reference<TYPE>::type>
+                                                ::type>::Value>
+{};
+
+}
+
+namespace BloombergLP {
+namespace bslmf {
 
                          // ==============
                          // struct IsClass
                          // ==============
 
 template <typename TYPE>
-struct IsClass
-: IsClass_Imp<typename RemoveCvq<TYPE>::Type>::Type {
+struct IsClass : MetaInt<bsl::is_class<TYPE>::value>
     // This metafunction derives from 'MetaInt<1>' if the specified 'TYPE' is a
     // class type, or is a reference to a class type, and from 'MetaInt<0>'
     // otherwise.
-};
-
-template <typename TYPE>
-struct IsClass<TYPE &> : IsClass<TYPE>::Type {
-    // This metafunction derives from 'MetaInt<1>' if the specified 'TYPE' is a
-    // class type, or is a reference to a class type, and from 'MetaInt<0>'
-    // otherwise.
-};
+{};
 
 }  // close package namespace
 

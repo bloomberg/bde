@@ -95,6 +95,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
@@ -110,57 +114,6 @@ struct Remove_NonCvPointer<TYPE *>
 {
     typedef TYPE Type;
 };
-
-}
-
-}
-
-namespace bsl {
-
-template <typename TYPE>
-struct remove_const
-{
-    typedef TYPE type;
-};
-
-template <typename TYPE>
-struct remove_const<TYPE const>
-{
-    typedef TYPE type;
-};
-
-template <typename TYPE>
-struct remove_volatile
-{
-    typedef TYPE type;
-};
-
-template <typename TYPE>
-struct remove_volatile<TYPE volatile>
-{
-    typedef TYPE type;
-};
-
-template <typename TYPE>
-struct remove_cv
-{
-    typedef typename remove_const<typename remove_volatile<TYPE>::type>::type
-        type;
-};
-
-template <typename TYPE>
-struct remove_pointer
-{
-    typedef typename BloombergLP::bslmf::Remove_NonCvPointer<
-                typename remove_cv<TYPE>::type>::Type
-        type;
-};
-
-}
-
-namespace BloombergLP {
-
-namespace bslmf {
 
                               // ================
                               // struct RemoveCvq
@@ -178,8 +131,9 @@ struct RemovePtrCvq
     // const, and T volatile.  Thus, 'RemoveCvq', below, is implemented
     // indirectly in terms of 'RemovePtrCvq'.
 {
-    typedef typename bsl::remove_cv<TYPE>::type      Type;
-    typedef typename bsl::remove_pointer<TYPE>::type ValueType;
+    typedef typename bsl::remove_cv<TYPE>::type                      Type;
+    typedef typename Remove_NonCvPointer<typename bsl::remove_cv<TYPE>::type>::Type
+                                                                     ValueType;
 };
 
                            // ================
