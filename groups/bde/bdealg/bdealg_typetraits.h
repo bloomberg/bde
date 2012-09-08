@@ -51,15 +51,6 @@ BDES_IDENT("$Id: $")
 //..
 //  Entity                                    Description
 //  ------                                    -----------
-//  bdealg_TypeTraitNil                       The nil trait.  Types with no
-//                                            other traits have the nil trait.
-//
-//  bdealg_TypeTraits<T>                      Traits for type 'T'.  The general
-//                                            definition computes the nested
-//                                            and implied traits.  A user can
-//                                            specialize it to a combination of
-//                                            one or more of the following:
-//
 //  bdealg_TypeTraitBitwiseMoveable          (See the corresponding class-level
 //  bdealg_TypeTraitBitwiseCopyable                             documentation.)
 //  bdealg_TypeTraitBitwiseEqualityComparable
@@ -78,12 +69,6 @@ BDES_IDENT("$Id: $")
 //                                            whether the parameterized 'TYPE'
 //                                            possesses the parameterized
 //                                            'TRAIT'.
-//
-//  bdealg_PassthroughTrait<TYPE, TRAIT>      This macro selects the
-//                                            parameterized 'TRAIT' if the
-//                                            parameterized 'TYPE' possesses
-//                                            it, and a distinct and otherwise
-//                                            unused trait otherwise.
 //
 //  bdealg_SelectTrait<T, TRAIT1, ...>        This meta-function selects the
 //                                            first trait possessed by the

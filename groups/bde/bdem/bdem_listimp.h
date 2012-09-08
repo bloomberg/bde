@@ -154,9 +154,6 @@ class bdem_ListImp {
     // class is *used* *by* the 'bdem_list' class implementation.  Clients
     // should use 'bdem_list', and should not use this class in place.
 
-    // PRIVATE TYPES
-    typedef bslalg_PassthroughTrait<bdem_RowData,
-                                    bslalg_TypeTraitBitwiseMoveable> MoveTrait;
     // DATA
     // NOTE: Do *NOT* change the order of the data members.  The implementation
     // relies on them being declared in this order.
@@ -186,10 +183,12 @@ class bdem_ListImp {
     bdem_ListImp(const bdem_ListImp&);
 
   public:
+
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bdem_ListImp,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
-                                  MoveTrait);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdem_ListImp,
+                                bslmf::IsBitwiseMoveable,
+                                bslmf::IsBitwiseMoveable<bdem_RowData>::value);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdem_ListImp, bslma::UsesBslmaAllocator);
 
     // TYPES
     class InitialMemory {

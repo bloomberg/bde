@@ -44,15 +44,6 @@ BSLS_IDENT("$Id: $")
 //..
 //  Entity                                    Description
 //  ------                                    -----------
-//  bslalg::TypeTraitNil                      The nil trait.  Types with no
-//                                            other traits have the nil trait.
-//
-//  bslalg_TypeTraits<T>                      Traits for type 'T'.  The general
-//                                            definition computes the nested
-//                                            and implied traits.  A user can
-//                                            specialize it to a combination of
-//                                            one or more of the following:
-//
 //  bslalg::TypeTraitBitwiseMoveable         (See the corresponding class-level
 //  bslalg::TypeTraitBitwiseCopyable                            documentation.)
 //  bslalg::TypeTraitBitwiseEqualityComparable
@@ -71,12 +62,6 @@ BSLS_IDENT("$Id: $")
 //                                            whether the parameterized 'TYPE'
 //                                            possesses the parameterized
 //                                            'TRAIT'.
-//
-//  bslalg::PassthroughTrait<TYPE, TRAIT>     This macro selects the
-//                                            parameterized 'TRAIT' if the
-//                                            parameterized 'TYPE' possesses
-//                                            it, and a distinct and otherwise
-//                                            unused trait otherwise.
 //
 //  bslalg::SelectTrait<T, TRAIT1, ...>       This meta-function selects the
 //                                            first trait possessed by the
