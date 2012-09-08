@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::AutoDestructor: range proctor to manage an array of objects
 //
-//@AUTHOR: Shao-wei Hung (shung1), Arthur Chiu (achiu21)
-//
 //@SEE_ALSO: bslma_destructorguard, bslma_destructorproctor
+//
+//@AUTHOR: Shao-wei Hung (shung1), Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component provides a range proctor class template to
 // manage an array of (otherwise-unmanaged) objects of parameterized 'TYPE'

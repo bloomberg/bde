@@ -16,8 +16,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template structure used to map
 // an integral constant to a C++ type.  'bslmf::MetaInt<int>' defines a
 // different type for each distinct compile-time constant integral parameter.

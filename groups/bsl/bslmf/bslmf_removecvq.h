@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::RemoveCvq: meta-function for stripping 'const'/'volatile' qualifiers
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template structure used to
 // strip of any top-level 'const'/'volatile' qualifiers from it's single
 // template parameter.  The un-qualified type can be accessed via the 'Type'

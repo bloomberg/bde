@@ -148,6 +148,10 @@ BDES_IDENT("$Id: $")
 #include <bdex_outstreamfunctions.h>
 #endif
 
+#ifndef INCLUDED_BDEUT_VARIANT
+#include <bdeut_variant.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -307,6 +311,12 @@ class bdem_BerUniversalTagNumber_Imp {
                                                        // (held, not owned)
     int                           d_alternateTag;      // alternate tag
 
+    // PRIVATE MANIPULATORS
+    TagVal selectForDateAndTimeTypes();
+        // Return the universal tag number for date and time types and load
+        // into the internal 'alternateTag' data member the any alternative
+        // tag numbers corresponding to those types.
+
   public:
     bdem_BerUniversalTagNumber_Imp(int                           fm,
                                    const bdem_BerEncoderOptions *options = 0)
@@ -360,6 +370,10 @@ class bdem_BerUniversalTagNumber_Imp {
     TagVal select(const bdet_Time& object, bdeat_TypeCategory::Simple);
 
     TagVal select(const bdet_TimeTz& object, bdeat_TypeCategory::Simple);
+
+    template <typename TYPE, typename TYPETZ>
+    TagVal select(const bdeut_Variant2<TYPE, TYPETZ>& object,
+                  bdeat_TypeCategory::Simple);
 
     TagVal select(const bsl::vector<char>& object, bdeat_TypeCategory::Array);
 
@@ -549,6 +563,26 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
                  // -----------------------------------------
                  // struct bdem_BerUniversalTagNumber_Imp
                  // -----------------------------------------
+
+// PRIVATE MANIPULATORS
+inline
+bdem_BerUniversalTagNumber::Value
+bdem_BerUniversalTagNumber_Imp::selectForDateAndTimeTypes()
+{
+    BSLS_ASSERT_SAFE(
+          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+
+    if (d_options_p) {
+        return d_options_p->encodeDateAndTimeTypesAsBinary()
+             ? bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING
+             : bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
+    }
+    else {
+        d_alternateTag = bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
+
+        return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
+    }
+}
 
 // --- By Type ----------------------------------------------------------------
 
@@ -748,19 +782,7 @@ bdem_BerUniversalTagNumber::Value
 bdem_BerUniversalTagNumber_Imp::select(const bdet_Date&,
                                        bdeat_TypeCategory::Simple)
 {
-    BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
-
-    if (d_options_p) {
-        return d_options_p->encodeDateAndTimeTypesAsBinary()
-             ? bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING
-             : bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    }
-    else {
-        d_alternateTag = bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
-
-        return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    }
+    return selectForDateAndTimeTypes();
 }
 
 inline
@@ -768,19 +790,7 @@ bdem_BerUniversalTagNumber::Value
 bdem_BerUniversalTagNumber_Imp::select(const bdet_DateTz&,
                                        bdeat_TypeCategory::Simple)
 {
-    BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
-
-    if (d_options_p) {
-        return d_options_p->encodeDateAndTimeTypesAsBinary()
-             ? bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING
-             : bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    }
-    else {
-        d_alternateTag = bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
-
-        return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    }
+    return selectForDateAndTimeTypes();
 }
 
 inline
@@ -788,19 +798,7 @@ bdem_BerUniversalTagNumber::Value
 bdem_BerUniversalTagNumber_Imp::select(const bdet_Datetime&,
                                        bdeat_TypeCategory::Simple)
 {
-    BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
-
-    if (d_options_p) {
-        return d_options_p->encodeDateAndTimeTypesAsBinary()
-             ? bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING
-             : bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    }
-    else {
-        d_alternateTag = bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
-
-        return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    }
+    return selectForDateAndTimeTypes();
 }
 
 inline
@@ -808,19 +806,7 @@ bdem_BerUniversalTagNumber::Value
 bdem_BerUniversalTagNumber_Imp::select(const bdet_DatetimeTz&,
                                        bdeat_TypeCategory::Simple)
 {
-    BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
-
-    if (d_options_p) {
-        return d_options_p->encodeDateAndTimeTypesAsBinary()
-             ? bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING
-             : bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    }
-    else {
-        d_alternateTag = bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
-
-        return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    }
+    return selectForDateAndTimeTypes();
 }
 
 inline
@@ -828,19 +814,7 @@ bdem_BerUniversalTagNumber::Value
 bdem_BerUniversalTagNumber_Imp::select(const bdet_Time&,
                                        bdeat_TypeCategory::Simple)
 {
-    BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
-
-    if (d_options_p) {
-        return d_options_p->encodeDateAndTimeTypesAsBinary()
-             ? bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING
-             : bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    }
-    else {
-        d_alternateTag = bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
-
-        return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    }
+    return selectForDateAndTimeTypes();
 }
 
 inline
@@ -848,19 +822,23 @@ bdem_BerUniversalTagNumber::Value
 bdem_BerUniversalTagNumber_Imp::select(const bdet_TimeTz&,
                                        bdeat_TypeCategory::Simple)
 {
-    BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+    return selectForDateAndTimeTypes();
+}
 
-    if (d_options_p) {
-        return d_options_p->encodeDateAndTimeTypesAsBinary()
-             ? bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING
-             : bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    }
-    else {
-        d_alternateTag = bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
+template <typename TYPE, typename TYPETZ>
+inline
+bdem_BerUniversalTagNumber::Value
+bdem_BerUniversalTagNumber_Imp::select(const bdeut_Variant2<TYPE, TYPETZ>&,
+                                       bdeat_TypeCategory::Simple)
+{
+    BSLMF_ASSERT((bslmf_IsSame<bdet_Date, TYPE>::VALUE
+               && bslmf_IsSame<bdet_DateTz, TYPETZ>::VALUE)
+              || (bslmf_IsSame<bdet_Time, TYPE>::VALUE
+               && bslmf_IsSame<bdet_TimeTz, TYPETZ>::VALUE)
+              || (bslmf_IsSame<bdet_Datetime, TYPE>::VALUE
+               && bslmf_IsSame<bdet_DatetimeTz, TYPETZ>::VALUE));
 
-        return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    }
+    return selectForDateAndTimeTypes();
 }
 
 inline

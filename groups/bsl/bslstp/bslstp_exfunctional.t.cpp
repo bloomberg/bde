@@ -1,5 +1,5 @@
-// bslstl_exfunctional.t.cpp                                          -*-C++-*-
-#include <bslstl_exfunctional.h>
+// bslstp_exfunctional.t.cpp                                          -*-C++-*-
+#include <bslstp_exfunctional.h>
 
 int main() { return -1; }   // empty test driver
 

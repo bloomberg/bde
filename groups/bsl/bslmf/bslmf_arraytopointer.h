@@ -13,9 +13,9 @@ BSLS_IDENT("$Id: $")
 //  bslmf::ArrayToPointer: convert an array type to a pointer type
 //  bslmf::ArrayToConstPointer: convert an array type to a 'const' pointer type
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@SEE_ALSO: bslmf_isarray, bslmf_forwardingtype
+//
+//@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides a meta function for converting array
 // types to pointer types.  The utility is generally used for in templates that

@@ -36,9 +36,9 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 1: {
-        ASSERT((is_same<typename remove_volatile<int volatile>::type, int>::value));
-        ASSERT((is_same<typename remove_volatile<int * volatile>::type, int *>::value));
-        ASSERT((is_same<typename remove_volatile<volatile int *>::type, volatile int *>::value));
+        ASSERT((is_same<remove_volatile<int volatile>::type, int>::value));
+        ASSERT((is_same<remove_volatile<int * volatile>::type, int *>::value));
+        ASSERT((is_same<remove_volatile<volatile int *>::type, volatile int *>::value));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

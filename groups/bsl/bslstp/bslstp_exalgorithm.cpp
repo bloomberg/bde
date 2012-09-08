@@ -1,5 +1,5 @@
-// bslstl_exalgorithm.cpp                                             -*-C++-*-
-#include <bslstl_exalgorithm.h>
+// bslstp_exalgorithm.cpp                                             -*-C++-*-
+#include <bslstp_exalgorithm.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

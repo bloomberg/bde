@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 1: {
-        ASSERT((is_same<typename conditional<true, int, char>::type, int>::value));
-        ASSERT((is_same<typename conditional<false, int, char>::type, char>::value));
+        ASSERT((is_same<conditional<true, int, char>::type, int>::value));
+        ASSERT((is_same<conditional<false, int, char>::type, char>::value));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

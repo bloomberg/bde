@@ -12,9 +12,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bslalg::RbTreeAnchor: (in-core) node-addresses and node count
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@SEE_ALSO: bslalg_rbtreenode, bslalg_rbtreeutil
+//
+//@AUTHOR: Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component defines a single class, 'RbTreeAnchor',
 // providing access to the addresses of the root, first, and sentinel nodes of

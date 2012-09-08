@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::DeleterHelper: non-primitive pure procedures for deleting objects
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@SEE_ALSO: bslma_rawdeleterguard, bslmf_ispolymporphic
+//
+//@AUTHOR: Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component provides non-primitive procedures used to delete
 // objects of parameterized 'TYPE' by first calling the destructor of the

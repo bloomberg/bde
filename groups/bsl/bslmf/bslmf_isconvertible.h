@@ -14,6 +14,8 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_metaint, bslmf_integerconstant
 //
+//@AUTHOR: Paul Staniforth (pstaniforth)
+//
 //@DESCRIPTION: This component defines a meta-function (i.e., a compile-time
 // function using the C++ type system) for checking whether a conversion exists
 // from one C++ type to another.  'bslmf::IsConvertible' is a template struct
