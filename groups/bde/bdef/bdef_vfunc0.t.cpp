@@ -1,17 +1,15 @@
-// bdef_vfunc0.t.cpp              -*-C++-*-
+// bdef_vfunc0.t.cpp                                                  -*-C++-*-
 
 #include <bdef_vfunc0.h>
 
-#include <bslma_testallocator.h>                // for testing only
 #include <bslma_default.h>
+#include <bslma_testallocator.h>                // for testing only
 
 #include <bsl_iostream.h>
 #include <bsl_c_stdlib.h>     // atoi()
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
-
-
 
 //=============================================================================
 //                             TEST PLAN

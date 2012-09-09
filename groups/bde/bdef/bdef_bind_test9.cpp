@@ -1,10 +1,10 @@
-// bdef_bind_test9.cpp               -*-C++-*-
+// bdef_bind_test9.cpp                                                -*-C++-*-
 
 #include <bdef_bind_test9.h>
 
-#include <bdef_placeholder.h>  // for testing only
-#include <bdef_bind_test.h>    // for testing only
 #include <bdef_bind.h>         // for testing only
+#include <bdef_bind_test.h>    // for testing only
+#include <bdef_placeholder.h>  // for testing only
 
 // ---------------------------------------------------------------------------
 // NOTICE:

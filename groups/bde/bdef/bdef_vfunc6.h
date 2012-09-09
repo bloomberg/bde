@@ -1,4 +1,4 @@
-// bdef_vfunc6.h                -*-C++-*-
+// bdef_vfunc6.h                                                      -*-C++-*-
 #ifndef INCLUDED_BDEF_VFUNC6
 #define INCLUDED_BDEF_VFUNC6
 
@@ -108,7 +108,8 @@ class bdef_Vfunc6 {
         // Create an uninitialized functor.  The resulting functor cannot be
         // invoked, but may subsequently be assigned an invokable value.
 
-    bdef_Vfunc6(bdefr_Vfunc6<A1, A2, A3, A4, A5, A6> *representation);
+    bdef_Vfunc6(bdefr_Vfunc6<A1, A2, A3, A4, A5, A6>
+                                                  *representation); // IMPLICIT
         // Create a functor that assumes shared ownership of the specified,
         // dynamically allocated, reference-counted representation.  If 0 is
         // specified, the functor is created in a null state (i.e., cannot be
@@ -119,7 +120,7 @@ class bdef_Vfunc6 {
         // components (see 'bdefu_vfunc6') to create an appropriate
         // representation and load it into an existing functor.
 
-    bdef_Vfunc6(const bdef_Vfunc6<A1, A2, A3, A4, A5, A6>& functionObject);
+    bdef_Vfunc6(const bdef_Vfunc6& functionObject);
         // Create a copy of the specified 'functionObject'.  If
         // 'functionObject' is null, an independent null functor is created.
         // Otherwise, both functors will share ownership of the same internal
@@ -133,7 +134,7 @@ class bdef_Vfunc6 {
 
     // MANIPULATORS
     bdef_Vfunc6<A1, A2, A3, A4, A5, A6>& operator=(
-        const bdef_Vfunc6<A1, A2, A3, A4, A5, A6>& functionObject);
+                                            const bdef_Vfunc6& functionObject);
         // Assign the value of the specified 'functionObject' to this object.
         // If 'functionObject' is not null, both functors will share ownership
         // of the same internal representation; otherwise, both functors will
@@ -168,8 +169,8 @@ inline bdef_Vfunc6<A1, A2, A3, A4, A5, A6>::bdef_Vfunc6()
 template <class A1, class A2, class A3, class A4, class A5, class A6>
 inline
 bdef_Vfunc6<A1, A2, A3, A4, A5, A6>::bdef_Vfunc6(
-    bdefr_Vfunc6<A1, A2, A3, A4, A5, A6> *rep)
-: d_rep_p(rep)
+                          bdefr_Vfunc6<A1, A2, A3, A4, A5, A6> *representation)
+: d_rep_p(representation)
 {
     if (d_rep_p) {
         d_rep_p->increment();
@@ -179,8 +180,8 @@ bdef_Vfunc6<A1, A2, A3, A4, A5, A6>::bdef_Vfunc6(
 template <class A1, class A2, class A3, class A4, class A5, class A6>
 inline
 bdef_Vfunc6<A1, A2, A3, A4, A5, A6>::bdef_Vfunc6(
-    const bdef_Vfunc6& functor)
-: d_rep_p(functor.d_rep_p)
+                                             const bdef_Vfunc6& functionObject)
+: d_rep_p(functionObject.d_rep_p)
 {
     if (d_rep_p) {
         d_rep_p->increment();
@@ -198,13 +199,13 @@ inline bdef_Vfunc6<A1, A2, A3, A4, A5, A6>::~bdef_Vfunc6()
 template <class A1, class A2, class A3, class A4, class A5, class A6> inline
 bdef_Vfunc6<A1, A2, A3, A4, A5, A6>&
 bdef_Vfunc6<A1, A2, A3, A4, A5, A6>::operator=(
-    const bdef_Vfunc6<A1, A2, A3, A4, A5, A6>& rhs)
+                                             const bdef_Vfunc6& functionObject)
 {
-    if (d_rep_p != rhs.d_rep_p) {
+    if (d_rep_p != functionObject.d_rep_p) {
         if (d_rep_p && 0 == d_rep_p->decrement()) {
             bdefr_Vfunc6<A1, A2, A3, A4, A5, A6>::deleteObject(d_rep_p);
         }
-        d_rep_p = rhs.d_rep_p;
+        d_rep_p = functionObject.d_rep_p;
         if (d_rep_p) {
             d_rep_p->increment();
         }

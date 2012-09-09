@@ -185,11 +185,11 @@ BDES_IDENT_RCSID(bdef_function_cpp,"$Id$ $CSID$")
 // deallocation/reallocation that would still be done when the 'FUNC' type is
 // not-assignable and not in-place.
 
-#include <bsl_algorithm.h>
-
 #include <bdef_memfn.h>            // for testing only
 
 #include <bsls_assert.h>
+
+#include <bsl_algorithm.h>
 
 namespace BloombergLP {
                           // ------------------------

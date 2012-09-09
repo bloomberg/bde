@@ -1,4 +1,4 @@
-// bdef_function.t.cpp             -*-C++-*-
+// bdef_function.t.cpp                                                -*-C++-*-
 
 #include <bdef_function.h>
 #include <bdef_memfn.h>                         // for testing only
@@ -3353,8 +3353,8 @@ int main(int argc, char *argv[])
                     if (veryVerbose) {                                        \
                         cout << "\t\t\tafter loading: ";                      \
                         if (U.getAllocator() == Z[0]) cout << "ua = 0";       \
-                        if (U.getAllocator() == Z[1]) cout << "ua = ta";      \
-                        if (U.getAllocator() == Z[2]) cout << "ua = tb";      \
+                        if (U.getAllocator() == Z[1]) cout << "ua = tb";      \
+                        if (U.getAllocator() == &ta)  cout << "ua = ta";      \
                         cout << endl;                                         \
                     }                                                         \
                     LOOP2_ASSERT(ui, ua, functionsHaveSameValue(UU, U));      \

@@ -1,4 +1,4 @@
-// bdef_memfn.cpp                  -*-C++-*-
+// bdef_memfn.cpp                                                     -*-C++-*-
 #include <bdef_memfn.h>
 
 #include <bdes_ident.h>

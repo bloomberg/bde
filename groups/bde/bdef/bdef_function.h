@@ -538,7 +538,7 @@ class bdef_Function_Rep {
     };
 
     // CREATORS
-    bdef_Function_Rep(bslma_Allocator *allocator = 0);
+    explicit bdef_Function_Rep(bslma_Allocator *allocator = 0);
         // Create an unset functor using the specified 'allocator' to supply
         // memory.  If 'allocator' is 0, the currently installed default
         // allocator is used.
@@ -948,7 +948,7 @@ class bdef_Function {
         // Assign to this object the invocable of the specified 'rhs' and
         // return a reference to this modifiable function object.
 
-    template <typename FUNC>
+    template <class FUNC>
     bdef_Function<PROTOTYPE>& operator=(const FUNC& func);
         // Assign to this function object the 'func' invocable object of the
         // parameterized 'FUNC' type, and return a reference to this modifiable
@@ -2225,7 +2225,7 @@ bdef_Function<PROTOTYPE>::operator=(const bdef_Function<PROTOTYPE>& rhs)
 }
 
 template <class PROTOTYPE>
-template <typename FUNC>
+template <class FUNC>
 inline
 bdef_Function<PROTOTYPE>&
 bdef_Function<PROTOTYPE>::operator=(const FUNC& func)
