@@ -1,4 +1,4 @@
-// bdef_placeholder.t.cpp          -*-C++-*-
+// bdef_placeholder.t.cpp                                             -*-C++-*-
 
 #include <bdef_placeholder.h>
 

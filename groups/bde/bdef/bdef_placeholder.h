@@ -1,4 +1,4 @@
-// bdef_placeholder.h              -*-C++-*-
+// bdef_placeholder.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDEF_PLACEHOLDER
 #define INCLUDED_BDEF_PLACEHOLDER
 

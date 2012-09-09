@@ -1,4 +1,4 @@
-// bdef_vfunc6.cpp                -*-C++-*-
+// bdef_vfunc6.cpp                                                    -*-C++-*-
 #include <bdef_vfunc6.h>
 
 #include <bdes_ident.h>

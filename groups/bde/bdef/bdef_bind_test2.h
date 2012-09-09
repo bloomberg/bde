@@ -1,4 +1,4 @@
-// bdef_bind_test2.h       -*-C++-*-
+// bdef_bind_test2.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDEF_BIND_TEST2
 #define INCLUDED_BDEF_BIND_TEST2
 

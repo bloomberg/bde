@@ -1,4 +1,4 @@
-// bdef_bind_test.cpp               -*-C++-*-
+// bdef_bind_test.cpp                                                 -*-C++-*-
 #include <bdef_bind_test.h>
 
 #include <bdes_ident.h>

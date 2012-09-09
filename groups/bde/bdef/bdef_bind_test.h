@@ -1,4 +1,4 @@
-// bdef_bind_test.h       -*-C++-*-
+// bdef_bind_test.h                                                   -*-C++-*-
 #ifndef INCLUDED_BDEF_BIND_TEST
 #define INCLUDED_BDEF_BIND_TEST
 
@@ -310,7 +310,7 @@ namespace BloombergLP {
                       // class bdef_Bind_TestSlots
                       // =========================
 
-template <typename VALUE>
+template <class VALUE>
 struct bdef_Bind_TestSlotsBase {
     // This 'struct' defines an array of 'VALUE' to keep track (in conjunction
     // with the 'bdef_Bind_TestTypeNoAlloc' or 'bdef_Bind_TestTypeAlloc'
@@ -370,7 +370,7 @@ class bdef_Bind_TestArgNoAlloc {
 
   public:
     // CREATORS
-    bdef_Bind_TestArgNoAlloc(int value);
+    bdef_Bind_TestArgNoAlloc(int value);                            // IMPLICIT
         // Create an object having the specified 'value'.
 
     // MANIPULATORS
@@ -457,7 +457,7 @@ class bdef_Bind_TestTypeNoAlloc {
     };
 
     // CREATORS
-    bdef_Bind_TestTypeNoAlloc(Arg1  a1  = N1, Arg2  a2  = N1, Arg3  a3  = N1,
+    explicit bdef_Bind_TestTypeNoAlloc(Arg1  a1  = N1, Arg2  a2  = N1, Arg3  a3  = N1,
               Arg4  a4  = N1, Arg5  a5  = N1, Arg6  a6  = N1, Arg7  a7  = N1,
               Arg8  a8  = N1, Arg9  a9  = N1, Arg10 a10 = N1, Arg11 a11 = N1,
               Arg12 a12 = N1, Arg13 a13 = N1, Arg14 a14 = N1);
@@ -668,7 +668,7 @@ struct bdef_Bind_TestFunctionsNoAlloc {
                       // class bdef_Bind_TestSlotsAllocBase
                       // ==================================
 
-template <typename AllocPtr>
+template <class AllocPtr>
 struct bdef_Bind_TestSlotsAllocBase
 {
     // The point of this base class is that we would like it to be a class
@@ -741,10 +741,11 @@ class bdef_Bind_TestArgAlloc {
 #if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
     // TBD: This is probably an IBM xlC compiler bug.  Reproduce in a small
     // test case later.
-    bdef_Bind_TestArgAlloc(int value);
+    bdef_Bind_TestArgAlloc(int value);                               // IMPLICT
     bdef_Bind_TestArgAlloc(int value, bslma_Allocator *allocator);
 #else
-    bdef_Bind_TestArgAlloc(int value, bslma_Allocator *allocator = 0);
+    bdef_Bind_TestArgAlloc(int value,
+                           bslma_Allocator *allocator = 0);         // IMPLICIT
 #endif
         // Create an object having the specified 'value'.  Use the specified
         // 'allocator' to supply memory.  If 'allocator' is 0, use the
@@ -857,7 +858,7 @@ class bdef_Bind_TestTypeAlloc {
                                  bslalg_TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    bdef_Bind_TestTypeAlloc(bslma_Allocator *allocator = 0,
+    explicit bdef_Bind_TestTypeAlloc(bslma_Allocator *allocator = 0,
             Arg1  a1  = N1, Arg2  a2  = N1, Arg3  a3  = N1,
             Arg4  a4  = N1, Arg5  a5  = N1, Arg6  a6  = N1,
             Arg7  a7  = N1, Arg8  a8  = N1, Arg9  a9  = N1,
@@ -1669,127 +1670,128 @@ bool operator!=(const bdef_Bind_TestTypeNoAlloc& lhs,
 
 // CLASS METHODS
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func0(bdef_Bind_TestTypeNoAlloc *o)
+int bdef_Bind_TestFunctionsNoAlloc::func0(bdef_Bind_TestTypeNoAlloc *object)
 {
-    return o->testFunc0();
+    return object->testFunc0();
 }
 
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func1(bdef_Bind_TestTypeNoAlloc *o,
+int bdef_Bind_TestFunctionsNoAlloc::func1(bdef_Bind_TestTypeNoAlloc *object,
         Arg1 const& a1)
 {
-    return o->testFunc1(a1);
+    return object->testFunc1(a1);
 }
 
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func2(bdef_Bind_TestTypeNoAlloc *o,
+int bdef_Bind_TestFunctionsNoAlloc::func2(bdef_Bind_TestTypeNoAlloc *object,
         Arg1 const& a1, Arg2 const& a2)
 {
-    return o->testFunc2(a1, a2);
+    return object->testFunc2(a1, a2);
 }
 
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func3(bdef_Bind_TestTypeNoAlloc *o,
+int bdef_Bind_TestFunctionsNoAlloc::func3(bdef_Bind_TestTypeNoAlloc *object,
         Arg1 const& a1, Arg2 const& a2, Arg3 const& a3)
 {
-    return o->testFunc3(a1, a2, a3);
+    return object->testFunc3(a1, a2, a3);
 }
 
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func4(bdef_Bind_TestTypeNoAlloc *o,
+int bdef_Bind_TestFunctionsNoAlloc::func4(bdef_Bind_TestTypeNoAlloc *object,
         Arg1 const& a1, Arg2 const& a2, Arg3 const& a3, Arg4 const& a4)
 {
-    return o->testFunc4(a1, a2, a3, a4);
+    return object->testFunc4(a1, a2, a3, a4);
 }
 
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func5(bdef_Bind_TestTypeNoAlloc *o,
+int bdef_Bind_TestFunctionsNoAlloc::func5(bdef_Bind_TestTypeNoAlloc *object,
         Arg1 const& a1, Arg2 const& a2, Arg3 const& a3, Arg4 const& a4,
         Arg5 const& a5)
 {
-    return o->testFunc5(a1, a2, a3, a4, a5);
+    return object->testFunc5(a1, a2, a3, a4, a5);
 }
 
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func6(bdef_Bind_TestTypeNoAlloc *o,
+int bdef_Bind_TestFunctionsNoAlloc::func6(bdef_Bind_TestTypeNoAlloc *object,
         Arg1 const& a1, Arg2 const& a2, Arg3 const& a3, Arg4 const& a4,
         Arg5 const& a5, Arg6 const& a6)
 {
-    return o->testFunc6(a1, a2, a3, a4, a5, a6);
+    return object->testFunc6(a1, a2, a3, a4, a5, a6);
 }
 
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func7(bdef_Bind_TestTypeNoAlloc *o,
+int bdef_Bind_TestFunctionsNoAlloc::func7(bdef_Bind_TestTypeNoAlloc *object,
         Arg1 const& a1, Arg2 const& a2, Arg3 const& a3, Arg4 const& a4,
         Arg5 const& a5, Arg6 const& a6, Arg7 const& a7)
 {
-    return o->testFunc7(a1, a2, a3, a4, a5, a6, a7);
+    return object->testFunc7(a1, a2, a3, a4, a5, a6, a7);
 }
 
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func8(bdef_Bind_TestTypeNoAlloc *o,
+int bdef_Bind_TestFunctionsNoAlloc::func8(bdef_Bind_TestTypeNoAlloc *object,
         Arg1 const& a1, Arg2 const& a2, Arg3 const& a3, Arg4 const& a4,
         Arg5 const& a5, Arg6 const& a6, Arg7 const& a7, Arg8 const& a8)
 {
-    return o->testFunc8(a1, a2, a3, a4, a5, a6, a7, a8);
+    return object->testFunc8(a1, a2, a3, a4, a5, a6, a7, a8);
 }
 
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func9(bdef_Bind_TestTypeNoAlloc *o,
+int bdef_Bind_TestFunctionsNoAlloc::func9(bdef_Bind_TestTypeNoAlloc *object,
         Arg1 const& a1, Arg2 const& a2, Arg3 const& a3, Arg4 const& a4,
         Arg5 const& a5, Arg6 const& a6, Arg7 const& a7, Arg8 const& a8,
         Arg9 const& a9)
 {
-    return o->testFunc9(a1, a2, a3, a4, a5, a6, a7, a8, a9);
+    return object->testFunc9(a1, a2, a3, a4, a5, a6, a7, a8, a9);
 }
 
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func10(bdef_Bind_TestTypeNoAlloc *o,
+int bdef_Bind_TestFunctionsNoAlloc::func10(bdef_Bind_TestTypeNoAlloc *object,
         Arg1  const& a1,  Arg2  const& a2, Arg3  const& a3,  Arg4  const& a4,
         Arg5  const& a5,  Arg6  const& a6, Arg7  const& a7,  Arg8  const& a8,
         Arg9  const& a9,  Arg10 const& a10)
 {
-    return o->testFunc10(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+    return object->testFunc10(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
 }
 
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func11(bdef_Bind_TestTypeNoAlloc *o,
+int bdef_Bind_TestFunctionsNoAlloc::func11(bdef_Bind_TestTypeNoAlloc *object,
         Arg1  const& a1,  Arg2  const& a2,  Arg3  const& a3,  Arg4  const& a4,
         Arg5  const& a5,  Arg6  const& a6,  Arg7  const& a7,  Arg8  const& a8,
         Arg9  const& a9,  Arg10 const& a10, Arg11 const& a11)
 {
-    return o->testFunc11(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+    return object->testFunc11(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
 }
 
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func12(bdef_Bind_TestTypeNoAlloc *o,
+int bdef_Bind_TestFunctionsNoAlloc::func12(bdef_Bind_TestTypeNoAlloc *object,
         Arg1  const& a1,  Arg2  const& a2,  Arg3  const& a3,  Arg4  const& a4,
         Arg5  const& a5,  Arg6  const& a6,  Arg7  const& a7,  Arg8  const& a8,
         Arg9  const& a9,  Arg10 const& a10, Arg11 const& a11, Arg12 const& a12)
 {
-    return o->testFunc12(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
+    return object->testFunc12(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
+                              a12);
 }
 
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func13(bdef_Bind_TestTypeNoAlloc *o,
+int bdef_Bind_TestFunctionsNoAlloc::func13(bdef_Bind_TestTypeNoAlloc *object,
         Arg1  const& a1,  Arg2  const& a2,  Arg3  const& a3,  Arg4  const& a4,
         Arg5  const& a5,  Arg6  const& a6,  Arg7  const& a7,  Arg8  const& a8,
         Arg9  const& a9,  Arg10 const& a10, Arg11 const& a11, Arg12 const& a12,
         Arg13 const& a13)
 {
-    return o->testFunc13(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
-            a13);
+    return object->testFunc13(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
+                              a12, a13);
 }
 
 inline
-int bdef_Bind_TestFunctionsNoAlloc::func14(bdef_Bind_TestTypeNoAlloc *o,
+int bdef_Bind_TestFunctionsNoAlloc::func14(bdef_Bind_TestTypeNoAlloc *object,
         Arg1  const& a1,  Arg2  const& a2,  Arg3  const& a3,  Arg4  const& a4,
         Arg5  const& a5,  Arg6  const& a6,  Arg7  const& a7,  Arg8  const& a8,
         Arg9  const& a9,  Arg10 const& a10, Arg11 const& a11, Arg12 const& a12,
         Arg13 const& a13, Arg14 const& a14)
 {
-    return o->testFunc14(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
-            a13, a14);
+    return object->testFunc14(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
+                              a12, a13, a14);
 }
 
                       // ----------------------------------

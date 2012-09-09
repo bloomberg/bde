@@ -1,9 +1,9 @@
-// bdef_vfunc4.t.cpp              -*-C++-*-
+// bdef_vfunc4.t.cpp                                                  -*-C++-*-
 
 #include <bdef_vfunc4.h>
 
-#include <bslma_testallocator.h>                // for testing only
 #include <bslma_default.h>
+#include <bslma_testallocator.h>                // for testing only
 
 #include <bsl_iostream.h>
 #include <bsl_c_stdlib.h>     // atoi()

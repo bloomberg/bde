@@ -312,7 +312,7 @@ namespace BDEF_BIND_TEST_CASE_5 {
         return 1;
     }
 
-    template <typename T>
+    template <class T>
     class ReferenceWrapper {
         T *d_ref;
 
@@ -324,14 +324,14 @@ namespace BDEF_BIND_TEST_CASE_5 {
         operator T&() const { return *d_ref; }
     };
 
-    template <typename T>
+    template <class T>
     inline
     const ReferenceWrapper<T> ref(T& t)
     {
         return ReferenceWrapper<T>(t);
     }
 
-    template <typename T>
+    template <class T>
     inline
     const ReferenceWrapper<const T> cref(const T& t)
     {
@@ -357,7 +357,7 @@ namespace BDEF_BIND_TEST_CASE_5 {
             return 2;
         }
 
-        template <typename T>
+        template <class T>
         int operator()(const T& x) const
         {
             return 3;
@@ -711,13 +711,13 @@ AllocTestArg14 const&
 namespace BDEF_BIND_TEST_CASE_3 {
 
 template <// Types of bound arguments, could be I1-14, or placeholder.
-          typename B1,  typename B2,  typename B3,  typename B4,  typename B5,
-          typename B6,  typename B7,  typename B8,  typename B9,  typename B10,
-          typename B11, typename B12, typename B13, typename B14,
+          class B1,  class B2,  class B3,  class B4,  class B5,
+          class B6,  class B7,  class B8,  class B9,  class B10,
+          class B11, class B12, class B13, class B14,
           // Types of invocation arguments, could be I1-14, or (int)N1.
-          typename A1,  typename A2,  typename A3,  typename A4,  typename A5,
-          typename A6,  typename A7,  typename A8,  typename A9,  typename A10,
-          typename A11, typename A12, typename A13, typename A14>
+          class A1,  class A2,  class A3,  class A4,  class A5,
+          class A6,  class A7,  class A8,  class A9,  class A10,
+          class A11, class A12, class A13, class A14>
 void testPlaceHolder(
         // Bound arguments follow.
         B1 b1,  B2 b2,  B3 b3,   B4  b4,  B5  b5,  B6  b6,  B7  b7,

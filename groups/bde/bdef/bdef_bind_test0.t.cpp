@@ -1,4 +1,4 @@
-// bdef_bind_test0.t.cpp         -*-C++-*-
+// bdef_bind_test0.t.cpp                                              -*-C++-*-
 
 #include <bdef_bind_test0.h>
 

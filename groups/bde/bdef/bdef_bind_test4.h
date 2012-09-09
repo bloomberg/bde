@@ -1,4 +1,4 @@
-// bdef_bind_test4.h       -*-C++-*-
+// bdef_bind_test4.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDEF_BIND_TEST4
 #define INCLUDED_BDEF_BIND_TEST4
 

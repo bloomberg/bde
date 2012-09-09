@@ -1,4 +1,4 @@
-// bdef_memfn.h                    -*-C++-*-
+// bdef_memfn.h                                                       -*-C++-*-
 #ifndef INCLUDED_BDEF_MEMFN
 #define INCLUDED_BDEF_MEMFN
 
@@ -977,10 +977,10 @@ template <class PROTOTYPE, class INSTANCE>
 inline
 bdef_MemFnInstance<PROTOTYPE, INSTANCE>::bdef_MemFnInstance(
                                                PROTOTYPE        func,
-                                               const INSTANCE&  obj,
+                                               const INSTANCE&  object,
                                                bslma_Allocator *basicAllocator)
 : d_func_p(func)
-, d_obj(obj, bslma_Default::allocator(basicAllocator))
+, d_obj(object, bslma_Default::allocator(basicAllocator))
 {
 }
 

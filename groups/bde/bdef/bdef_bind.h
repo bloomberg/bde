@@ -1775,7 +1775,7 @@ class bdef_Bind_TupleValue {
     {
     }
 
-    bdef_Bind_TupleValue(TYPE value)
+    bdef_Bind_TupleValue(TYPE value)                                // IMPLICIT
         // Create a 'bdef_Bind_TupleValue' object holding a copy of the
         // specified 'value'.
     : d_value(value)
@@ -1810,7 +1810,7 @@ class bdef_Bind_TupleValue<TYPE&> {
     {
     }
 
-    bdef_Bind_TupleValue(TYPE& value)
+    bdef_Bind_TupleValue(TYPE& value)                               // IMPLICIT
         // Create a 'bdef_Bind_TupleValue' object holding the address of the
         // specified 'value'.
     : d_value(&value)
@@ -1845,7 +1845,7 @@ class bdef_Bind_TupleValue<TYPE const&> {
     {
     }
 
-    bdef_Bind_TupleValue(const TYPE& value)
+    bdef_Bind_TupleValue(const TYPE& value)                         // IMPLICIT
         // Create a 'bdef_Bind_TupleValue' object holding the address of the
         // specified 'value'.
     : d_value(&value)
@@ -1895,7 +1895,7 @@ struct bdef_Bind_Tuple1 : public bslmf_TypeList1<A1>
     {
     }
 
-    bdef_Bind_Tuple1(FA1 a1)
+    explicit bdef_Bind_Tuple1(FA1 a1)
     : d_a1(a1)
     {
     }
