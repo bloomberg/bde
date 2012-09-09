@@ -41,12 +41,13 @@ void HashTableImpUtil::removeNode(HashTableAnchor    *anchor,
     else if (bucket->last() == position) {
         bucket->setLast(position->previousLink());
     }
+        
+    BidirectionalLink *next = position->nextLink();
+    BidirectionalLinkListUtil::unlink(position);
 
     if (position == anchor->listRootAddress()) {
-        anchor->setListRootAddress(position->nextLink());
+        anchor->setListRootAddress(next);
     }
-
-    BidirectionalLinkListUtil::unlink(position);
 }
 
 void HashTableImpUtil::insertDuplicateAtPosition(HashTableAnchor    *anchor,

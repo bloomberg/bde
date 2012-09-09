@@ -214,7 +214,7 @@ class unordered_set
     typedef local_iterator                                const_local_iterator;
 
   private:
-    enum { DEFAULT_BUCKET_COUNT = 13 };  // 13 is a prime number
+    enum { DEFAULT_BUCKET_COUNT = 0 };
 
     // DATA
     Impl           d_impl;

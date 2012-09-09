@@ -2923,7 +2923,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
             ASSERTV(LENGTH, CONFIG, &oa == X.get_allocator());
 
-#if 0
             // Verify no allocation from the object/non-object allocators.
             // NOTE THAT THIS QoI TEST IS STILL AN OPEN DESIGN ISSUE
 
@@ -2931,10 +2930,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                     0 ==  oa.numBlocksTotal());
             ASSERTV(LENGTH, CONFIG, noa.numBlocksTotal(),
                     0 == noa.numBlocksTotal());
-#endif
             ASSERTV(LENGTH, CONFIG, 0 == X.size());
             ASSERTV(LENGTH, CONFIG, X.cbegin() == X.cend());
-            ASSERTV(LENGTH, CONFIG, 0 < X.bucket_count());
+
+            // If default constructed, only the the static bucket is present.
+            // QOI test that exactly 1 bucket is present.
+    
+            ASSERTV(LENGTH, CONFIG, X.bucket_count(), 1 == X.bucket_count());
 
             // ----------------------------------------------------------------
 
@@ -2946,6 +2948,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                 }
 
                 for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
+                    if (veryVeryVeryVerbose) {
+                       printf("\t\t\t\t Inserting: ");
+                       P(VALUES[tj]);
+                    }
                     bsl::pair<Iter, bool> RESULT = mX.insert(VALUES[tj]);
                     ASSERTV(LENGTH, tj, CONFIG, true       == RESULT.second);
                     ASSERTV(LENGTH, tj, CONFIG, VALUES[tj] == *(RESULT.first));
@@ -2957,11 +2963,18 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                     P(X);
                 }
 
+                if(veryVerbose) {
+                    printf("\t\t Testing allocator exceptions\n");
+                }
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     ExceptionGuard<Obj> guard(&X, L_, &scratch);
 
+                    if (veryVeryVeryVerbose) {
+                       printf("\t\t\t\t Inserting: ");
+                       P(VALUES[LENGTH - 1]);
+                    }
                     bslma::TestAllocatorMonitor tam(&oa);
                     bsl::pair<Iter, bool> RESULT =
                                                  mX.insert(VALUES[LENGTH - 1]);
@@ -2999,7 +3012,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
                 {
                     bool *foundValues = new bool[X.size()];
-                    for (int j = 0;j != X.size(); ++j) {
+                    for (size_t j = 0;j != X.size(); ++j) {
                         foundValues[j] = false;
                     }
 
@@ -3016,7 +3029,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                         while (++j != X.size());
                     }
                     size_t missing = 0;
-                    for (int j = 0; j != X.size(); ++j) {
+                    for (size_t j = 0; j != X.size(); ++j) {
                         if (!foundValues[j]) { ++missing; }
                     }
                     ASSERTV(LENGTH, CONFIG, missing, 0 == missing);
@@ -3028,10 +3041,17 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
                 // Verify behavior when element already exist in the object
 
+                if(veryVerbose) {
+                    printf("\t\t Verifying already inserted values\n");
+                }
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
+                    if (veryVeryVeryVerbose) {
+                       printf("\t\t\t\t Inserting: ");
+                       P(VALUES[tj]);
+                    }
                     bsl::pair<Iter, bool> RESULT = mX.insert(VALUES[tj]);
-                    ASSERTV(LENGTH, tj, CONFIG, false      == RESULT.second);
-                    ASSERTV(LENGTH, tj, CONFIG, VALUES[tj] == *(RESULT.first));
+                    ASSERTV(LENGTH, tj, CONFIG, RESULT.second, false      == RESULT.second);
+                    ASSERTV(LENGTH, tj, CONFIG, *(RESULT.first), VALUES[tj] == *(RESULT.first));
                 }
             }
 

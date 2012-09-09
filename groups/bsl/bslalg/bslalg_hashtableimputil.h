@@ -54,6 +54,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_bidirectionallink.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
+#include <bslalg_bidirectionalnode.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -93,6 +97,15 @@ struct HashTableImpUtil {
         // testing in the test driver.
 
   public:
+    template<class KEY_POLICY>
+    static 
+    const typename KEY_POLICY::KeyType& extractKey(
+                                                const BidirectionalLink *link);
+
+    template <class KEY_POLICY>
+    static
+    typename KEY_POLICY::ValueType& extractValue(BidirectionalLink *link);
+    
     static
     native_std::size_t computeBucketIndex(native_std::size_t hashCode,
                                           native_std::size_t numBuckets);
@@ -113,14 +126,14 @@ struct HashTableImpUtil {
                     BidirectionalLink  *position,
                     native_std::size_t  hashCode);
 
-    template <class VALUE_POLICY, class KEY_EQUAL, class KEY_TYPE>
+    template <class KEY_POLICY, class KEY_EQUAL, class KEY_TYPE>
     static
     BidirectionalLink *find(const HashTableAnchor& anchor,
                             const KEY_EQUAL&       keyComparator,
                             const KEY_TYPE&        key,
                             native_std::size_t     hashCode);
 
-    template <class VALUE_POLICY, class HASHER>
+    template <class KEY_POLICY, class HASHER>
     static
     void rehash(HashTableAnchor   *newAnchor,
                 BidirectionalLink *oldRoot,
@@ -142,9 +155,9 @@ struct HashTableImpUtil {
 // contracts.  They would not be present in any final release, as the
 // comprehensive component test driver serves the same purpose.
 
-                        //--------------------
+                        //-----------------------
                         // class HashTableImpUtil
-                        //--------------------
+                        //-----------------------
 
 inline
 HashTableBucket *HashTableImpUtil::findBucketForHashCode(
@@ -168,9 +181,32 @@ native_std::size_t HashTableImpUtil::computeBucketIndex(
     BSLS_ASSERT_SAFE(0 != numBuckets);
     return hashCode % numBuckets;
 }
+    
+template<class KEY_POLICY>
+inline
+typename KEY_POLICY::ValueType& HashTableImpUtil::extractValue(
+                                                       BidirectionalLink *link)
+{
+    BSLS_ASSERT_SAFE(link);
+    
+    typedef BidirectionalNode<typename KEY_POLICY::ValueType> BNode;
+    return static_cast<BNode *>(link)->value();
+}
+
+template<class KEY_POLICY>
+inline
+const typename KEY_POLICY::KeyType& HashTableImpUtil::extractKey(
+                                                 const BidirectionalLink *link)
+{
+    BSLS_ASSERT_SAFE(link);
+    typedef BidirectionalNode<typename KEY_POLICY::ValueType> BNode;
+    const BNode *node = static_cast<const BNode *>(link);
+    return KEY_POLICY::extractKey(node->value());
+}
 
     // lookup
-template <class VALUE_POLICY, class KEY_EQUAL, class KEY_TYPE>
+template <class KEY_POLICY, class KEY_EQUAL, class KEY_TYPE>
+inline
 BidirectionalLink *HashTableImpUtil::find(const HashTableAnchor& anchor,
                                           const KEY_EQUAL&       keyComparator,
                                           const KEY_TYPE&        key,
@@ -188,7 +224,7 @@ BidirectionalLink *HashTableImpUtil::find(const HashTableAnchor& anchor,
 
     if (BidirectionalLink *cursor = bucket.first()) {
         for ( ; ; cursor = cursor->nextLink() ) {
-            if (keyComparator(key, VALUE_POLICY::extractKey(cursor))) {
+            if (keyComparator(key, extractKey<KEY_POLICY>(cursor))) {
                 return cursor;
             }
             if (cursor == bucket.last()) {
@@ -200,10 +236,11 @@ BidirectionalLink *HashTableImpUtil::find(const HashTableAnchor& anchor,
     return 0;
 }
 
-template <class VALUE_POLICY, class HASHER>
-void HashTableImpUtil::rehash(HashTableAnchor    *newAnchor,
-                              BidirectionalLink  *oldRoot,
-                              const HASHER&       hash)
+template <class KEY_POLICY, class HASHER>
+inline
+void HashTableImpUtil::rehash(HashTableAnchor   *newAnchor,
+                              BidirectionalLink *oldRoot,
+                              const HASHER&      hash)
 {
     BSLS_ASSERT_SAFE(newAnchor);
     BSLS_ASSERT_SAFE(oldRoot);           // empty lists do not need a rehash
@@ -215,7 +252,7 @@ void HashTableImpUtil::rehash(HashTableAnchor    *newAnchor,
         BidirectionalLink *cursor = oldRoot;
         HashTableBucket   *bucket = findBucketForHashCode(
                                        *newAnchor,
-                                       hash(VALUE_POLICY::extractKey(cursor)));
+                                       hash(extractKey<KEY_POLICY>(cursor)));
 
         BidirectionalLink *nextCursor  = cursor;
         // Walk list of nodes that will rehash to the same bucket
@@ -223,7 +260,7 @@ void HashTableImpUtil::rehash(HashTableAnchor    *newAnchor,
         while ((oldRoot = oldRoot->nextLink()) &&
                 bucket == findBucketForHashCode(
                                     *newAnchor,
-                                    hash(VALUE_POLICY::extractKey(oldRoot)))) {
+                                    hash(extractKey<KEY_POLICY>(oldRoot)))) {
              nextCursor = oldRoot;
         }
 

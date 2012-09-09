@@ -155,7 +155,7 @@ class unordered_multimap
                                                           const_local_iterator;
 
   private:
-    enum { DEFAULT_BUCKET_COUNT = 127 };  // 127 is a prime number
+    enum { DEFAULT_BUCKET_COUNT = 0 };
 
     // DATA
     Impl d_impl;
@@ -560,10 +560,13 @@ unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::erase(const key_t
     // "slice" list from the underlying table, and now need merely:
     //   iterate each node, destroying the associated value
     //   reclaim each node (potentially returning to a node-pool)
+    typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
     if (HashTableLink *target = d_impl.find(k)) {
         target = d_impl.remove(target);
         size_type result = 1;
-        while (target && this->key_eq()(k, ListPolicy::extractKey(target))) {
+        while (target && this->key_eq()(
+              k, 
+              ListPolicy::extractKey(static_cast<BNode *>(target)->value()))) {
             target = d_impl.remove(target);
             ++result;
         }
@@ -711,16 +714,18 @@ typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 count(const key_type& k) const
 {
+    typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
+    
     size_type result = 0;
     for (HashTableLink *cursor = d_impl.find(k);
          cursor;
          ++result, cursor = cursor->nextLink())
     {
-        if (!this->key_eq()(k, ListPolicy::extractKey(cursor))) {
+        BNode *cursorNode = static_cast<BNode *>(cursor);
+        if (!this->key_eq()(k, ListPolicy::extractKey(cursorNode->value()))) {
             break;
         }
     }
-
     return  result;
 }
 

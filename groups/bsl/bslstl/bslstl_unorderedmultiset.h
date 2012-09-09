@@ -85,6 +85,14 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_pair.h>  // result type of 'equal_range' method
 #endif
 
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
+#include <bslalg_bidirectionallink.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
+#include <bslalg_bidirectionalnode.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for 'std::size_t'
 #define INCLUDED_CSTDDEF
@@ -146,8 +154,7 @@ class unordered_multiset
     typedef local_iterator                                const_local_iterator;
 
   private:
-//    enum { DEFAULT_BUCKET_COUNT = 127 };  // 127 is a prime number
-    enum { DEFAULT_BUCKET_COUNT = 13 };  // 13 is a prime number
+    enum { DEFAULT_BUCKET_COUNT = 0 };  // 13 is a prime number
 
     // DATA
     Impl d_impl;
@@ -526,10 +533,14 @@ unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::erase(const key_type& k)
     // "slice" list from the underlying table, and now need merely:
     //   iterate each node, destroying the associated value
     //   reclaim each node (potentially returning to a node-pool)
+    typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
+    
     if (HashTableLink *target = d_impl.find(k)) {
         target = d_impl.remove(target);
         size_type result = 1;
-        while (target && this->key_eq()(k, ListPolicy::extractValue(target))) {
+        while (target && this->key_eq()(
+              k, 
+              ListPolicy::extractKey(static_cast<BNode *>(target)->value()))) {
             target = d_impl.remove(target);
             ++result;
         }
@@ -662,16 +673,18 @@ typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
 count(const key_type& k) const
 {
+    typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
+    
     size_type result = 0;
     for (HashTableLink *cursor = d_impl.find(k);
          cursor;
          ++result, cursor = cursor->nextLink()) {
         
-        if (!this->key_eq()(k, ListPolicy::extractKey(cursor))) {
+        BNode *cursorNode = static_cast<BNode *>(cursor);
+        if (!this->key_eq()(k, ListPolicy::extractKey(cursorNode->value()))) {
             break;
         }
     }
-
     return result;
 }
 

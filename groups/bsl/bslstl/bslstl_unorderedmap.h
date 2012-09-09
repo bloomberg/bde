@@ -211,10 +211,11 @@ class unordered_map
     typedef typename AllocatorTraits::const_pointer    const_pointer;
 
   private:
-    typedef ::BloombergLP::bslalg::BidirectionalLink        HashTableLink;
-    
     typedef BSTL::UnorderedMapKeyPolicy<value_type>         ListPolicy;
-    typedef BSTL::HashTable<ListPolicy, HASH, EQUAL, ALLOC> Impl;
+    typedef BSTL::HashTable<ListPolicy, HASH, EQUAL, ALLOC> HashTable;
+    typedef ::BloombergLP::bslalg::BidirectionalLink        HashTableLink;
+    typedef typename HashTable::NodeType                    HashTableNode;
+    
 
   public:
     typedef BSTL::HashTableIterator<value_type, difference_type>
@@ -227,10 +228,10 @@ class unordered_map
                                                           const_local_iterator;
 
   private:
-    enum { DEFAULT_BUCKET_COUNT = 127 };  // 127 is a prime number
+    enum { DEFAULT_BUCKET_COUNT = 0 };  // 127 is a prime number
 
     // DATA
-    Impl d_impl;
+    HashTable d_impl;
 
   public:
     // CREATORS
@@ -920,20 +921,9 @@ inline
 typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::mapped_type&
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 operator[](const key_type& k)
-{   // paying search cost twice when inserting
-    // do not think this is used in the benchmarks that show double-cost though
-#if 0
-    HashTableLink *node = d_impl.find(k);
-    if (!node) {
-        node = d_impl.doEmplace(value_type(k, mapped_type()));
-    }
-
-    BSLS_ASSERT(k == ListPolicy::extractValue(node).first);
-    return ListPolicy::extractValue(node).second;
-#else
+{   
     HashTableLink *node = d_impl.findOrInsertDefault(k);
-    return ListPolicy::extractValue(node).second;
-#endif
+    return static_cast<HashTableNode *>(node)->value().second;
 }
 
 
@@ -946,14 +936,13 @@ inline
 typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::mapped_type&
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::at(const key_type& k)
 {
-    HashTableLink *target = d_impl.find(k);
+    HashTableLink *node = d_impl.find(k);
     
-    if (!target) {
+    if (!node) {
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("Boo!");
     }
    
-    BSLS_ASSERT(k == ListPolicy::extractValue(target).first);
-    return ListPolicy::extractValue(target).second;
+    return static_cast<HashTableNode *>(node)->value().second;
 }
 
 template <class KEY_TYPE,
@@ -967,11 +956,9 @@ const typename
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::at(const key_type& k)
                                                                           const
 {
-    typedef typename ::BloombergLP::bslalg::BidirectionalNode<value_type>
-                                                                         BNode;
     if (HashTableLink *target = d_impl.find(k)) {
-        BSLS_ASSERT(k == ListPolicy::extractKey(target));
-        return static_cast<BNode *>(target)->value().second;
+        BSLS_ASSERT(k == static_cast<HashTableNode *>(target)->value().first);
+        return static_cast<HashTableNode *>(target)->value().second;
     }
     else {
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("Boo!");
