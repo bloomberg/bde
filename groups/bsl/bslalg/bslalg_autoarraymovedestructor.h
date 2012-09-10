@@ -96,15 +96,12 @@ class AutoArrayMoveDestructor {
     OBJECT_TYPE *d_end_p;    // first address beyond last (moved) element in
                              // guarded range
 
-    // CLASS INVARIANT
-    BSLMF_ASSERT((HasTrait<OBJECT_TYPE,
-                  TypeTraitBitwiseMoveable>::VALUE));
+    BSLMF_ASSERT((HasTrait<OBJECT_TYPE, TypeTraitBitwiseMoveable>::VALUE));
 
-    // NOT IMPLEMENTED
   private:
+    // NOT IMPLEMENTED
     AutoArrayMoveDestructor(const AutoArrayMoveDestructor&);
-    AutoArrayMoveDestructor&
-    operator=(const AutoArrayMoveDestructor&);
+    AutoArrayMoveDestructor& operator=(const AutoArrayMoveDestructor&);
 
   public:
     // CREATORS
@@ -172,7 +169,11 @@ AutoArrayMoveDestructor<OBJECT_TYPE>::AutoArrayMoveDestructor(
     BSLS_ASSERT_SAFE(destination || begin == middle);
     BSLS_ASSERT_SAFE(begin  <= middle);
     BSLS_ASSERT_SAFE(middle <= end);
-    BSLS_ASSERT_SAFE(destination < begin || end <= destination);
+
+    typedef const char CChar;
+    std::size_t numBytes = (CChar *) d_end_p - (CChar *) d_middle_p;
+    BSLS_ASSERT_SAFE((CChar *) destination + numBytes <= (CChar *) begin ||
+                                       (CChar *) end <= (CChar *) destination);
 }
 
 template <class OBJECT_TYPE>
@@ -204,8 +205,18 @@ void AutoArrayMoveDestructor<OBJECT_TYPE>::advance()
     ++d_middle_p;
     ++d_dst_p;
 
-    BSLS_ASSERT_SAFE(d_dst_p != d_begin_p || d_middle_p == d_end_p);
- }
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    if (d_dst_p <= d_end_p) {
+        if (d_middle_p != d_end_p) {
+            BSLS_ASSERT_SAFE(d_middle_p <  d_end_p);
+            BSLS_ASSERT_SAFE(d_dst_p    <  d_begin_p);
+        }
+        else {
+            BSLS_ASSERT_SAFE(d_dst_p    <= d_begin_p);
+        }
+    }
+#endif
+}
 
 // ACCESSORS
 template <class OBJECT_TYPE>

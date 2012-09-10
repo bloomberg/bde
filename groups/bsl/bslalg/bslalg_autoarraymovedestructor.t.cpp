@@ -55,13 +55,16 @@ using namespace BloombergLP;
 int testStatus = 0;
 
 namespace {
-    void aSsErT(int c, const char *s, int i) {
+
+void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-}
+
+}  // close unnamed namespace
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //=============================================================================
@@ -136,6 +139,7 @@ class TestType {
                                   bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
+    explicit
     TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
     , d_allocator_p(bslma::Default::allocator(ba))
@@ -145,6 +149,7 @@ class TestType {
         *d_data_p = '?';
     }
 
+    explicit
     TestType(char c, bslma::Allocator *ba = 0)
     : d_data_p(0)
     , d_allocator_p(bslma::Default::allocator(ba))
@@ -165,7 +170,8 @@ class TestType {
     }
     }
 
-    ~TestType() {
+    ~TestType()
+    {
         ++numDestructorCalls;
         *d_data_p = '_';
         d_allocator_p->deallocate(d_data_p);
@@ -186,14 +192,10 @@ class TestType {
         return *this;
     }
 
-    void setDatum(char c) {
-        *d_data_p = c;
-    }
+    void setDatum(char c) { *d_data_p = c; }
 
     // ACCESSORS
-    char datum() const {
-        return *d_data_p;
-    }
+    char datum() const { return *d_data_p; }
 
     void print() const
     {
