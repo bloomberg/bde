@@ -110,16 +110,16 @@ namespace bsl {
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 class basic_istringstream
-    : private basic_stringbuf_container<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
+    : private StringbufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
     , public native_std::basic_istream<CHAR_TYPE, CHAR_TRAITS> {
     // This class implements a standard input stream that provides a
-    // constructor and maniputor for setting the sequence of characters from
+    // constructor and manipulator for setting the sequence of characters from
     // which input is streamed to a supplied 'bsl::basic_string'.
 
   private:
     // PRIVATE TYPES
     typedef basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>   StreamBufType;
-    typedef basic_stringbuf_container<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
+    typedef StringbufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
                                                                  BaseType;
     typedef bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> StringType;
     typedef native_std::basic_istream<CHAR_TYPE, CHAR_TRAITS>    BaseStream;
@@ -175,12 +175,12 @@ class basic_istringstream
 
     // MANIPULATORS
     void str(const StringType& value);
-        // Reset the internally buffered sequence of characaters provided as
+        // Reset the internally buffered sequence of characters provided as
         // input by this stream to the specified 'value'.
 
     // ACCESSORS
     StringType str() const;
-        // Return the sequence of characters refered to by this stream object.
+        // Return the sequence of characters referred to by this stream object.
 
     StreamBufType *rdbuf() const;
         // Return the address of the 'basic_stringbuf' object that is
@@ -189,7 +189,7 @@ class basic_istringstream
 };
 
 // STANDARD TYPEDEFS
-typedef basic_istringstream<char, char_traits<char>, allocator<char> > 
+typedef basic_istringstream<char, char_traits<char>, allocator<char> >
                                                                  istringstream;
 typedef basic_istringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
                                                                 wistringstream;
@@ -263,8 +263,8 @@ basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
-typename 
-       basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StreamBufType *
+typename
+basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StreamBufType *
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::rdbuf() const
 {
     return this->BaseType::rdbuf();

@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // '<bsl_sstream.h>' instead.
 //
 // This component defines a class template 'bsl::basic_stringstream',
-// implementing a standard stream that provides a contructor and
+// implementing a standard stream that provides a constructor and
 // manipulator ('str') that allow clients to directly set the internal sequence
 // of characters that is accessed (or modified) by the stream, as well as an
 // accessor ('str') for obtaining a string having the same sequence of
@@ -116,7 +116,7 @@ namespace bsl {
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 class basic_stringstream
-    : private basic_stringbuf_container<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
+    : private StringbufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
     , public native_std::basic_iostream<CHAR_TYPE, CHAR_TRAITS> {
     // This class implements a standard stream providing operations using
     // 'bsl::basic_string' for modifying or accessing the sequence of
@@ -125,7 +125,7 @@ class basic_stringstream
   private:
     // PRIVATE TYPES
     typedef basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>   StreamBufType;
-    typedef basic_stringbuf_container<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
+    typedef StringbufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
                                                                  BaseType;
     typedef bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> StringType;
     typedef native_std::basic_iostream<CHAR_TYPE, CHAR_TRAITS>   BaseStream;
@@ -162,11 +162,11 @@ class basic_stringstream
         // 'modeBitMask' indicating whether the underlying stream-buffer may
         // be read, written to, or both ('rdbuf' is created using
         // 'modeBitMask').  If 'modeBitMask' is not supplied 'rdbuf' will be
-        // created using 'ios_base::in | ios_base::out'.  Optionally specify 
+        // created using 'ios_base::in | ios_base::out'.  Optionally specify
         // 'initialString' indicating the initial sequence of characters that
         // this stream may access or manipulate.  If 'initialString' is not
         // supplied, the initial sequence of characters will be empty.
-        // Optionally specify 'allocator' used to supply  memory.  If
+        // Optionally specify 'allocator' used to supply memory.  If
         // 'allocator' is not supplied, a default-constructed object of the
         // parameterized 'ALLOCATOR' type is used.  If the template parameter
         // 'ALLOCATOR' argument is of type 'bsl::allocator' (the default) then
@@ -185,7 +185,7 @@ class basic_stringstream
 
     // ACCESSORS
     StringType str() const;
-        // Return the sequence of characters refered to by this stream object.
+        // Return the sequence of characters referred to by this stream object.
 
     StreamBufType *rdbuf() const;
         // Return the address of the 'basic_stringbuf' object that is
@@ -194,7 +194,7 @@ class basic_stringstream
 };
 
 // STANDARD TYPEDEFS
-typedef basic_stringstream<char, char_traits<char>, allocator<char> > 
+typedef basic_stringstream<char, char_traits<char>, allocator<char> >
                                                                   stringstream;
 typedef basic_stringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
                                                                  wstringstream;

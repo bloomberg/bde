@@ -109,16 +109,16 @@ namespace bsl {
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 class basic_ostringstream
-    : private basic_stringbuf_container<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
+    : private StringbufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
     , public native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> {
     // This class implements a standard output stream that provides an accessor
-    // for obtaining a 'bsl::basic_string' containing the sequence of 
+    // for obtaining a 'bsl::basic_string' containing the sequence of
     // characters that have been written to the stream.
 
   private:
     // PRIVATE TYPES
     typedef basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>   StreamBufType;
-    typedef basic_stringbuf_container<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
+    typedef StringbufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
                                                                  BaseType;
     typedef bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> StringType;
     typedef native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>    BaseStream;
@@ -158,7 +158,7 @@ class basic_ostringstream
         // 'initialString' indicating the value that will be returned by a call
         // to 'str' prior to any streaming operations performed on this object.
         // If 'initialString' is not supplied 'str' will initially return an
-        // empty strinng.  Optionally specify 'allocator' used to supply
+        // empty string.  Optionally specify 'allocator' used to supply
         // memory.  If 'allocator' is not supplied, a default-constructed
         // object of the parameterized 'ALLOCATOR' type is used.  If the
         // template parameter 'ALLOCATOR' argument is of type 'bsl::allocator'
@@ -188,7 +188,7 @@ class basic_ostringstream
 };
 
 // STANDARD TYPEDEFS
-typedef basic_ostringstream<char, char_traits<char>, allocator<char> > 
+typedef basic_ostringstream<char, char_traits<char>, allocator<char> >
                                                                  ostringstream;
 typedef basic_ostringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
                                                                 wostringstream;

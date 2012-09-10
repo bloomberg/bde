@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 //
 // This component defines a class template 'bsl::basic_stringbuf' which
 // implements a standard string buffer, providing an unformatted character
-// input sequence and an unformatted character output sequence that 
+// input sequence and an unformatted character output sequence that
 // may be initialized or accessed using a string value (see 27.8.2 [stringbuf]
 // of the C++11 standard).  As with any stream buffer class,
 // 'bsl::basic_stringbuf' is rarely used directly.  Stream buffers provide
@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 // the necessary protected virtual methods.  This way 'bsl::basic_stringbuf'
 // customizes the behavior of 'std::basic_streambuf' to redirect the reading
 // and writing of characters to an internally maintained sequence of characters
-// that can be initilized or accessed using a 'bsl::basic_string'.  Note that
+// that can be initialized or accessed using a 'bsl::basic_string'.  Note that
 // although this implementation currently also uses 'bsl::basic_string' as the
 // its internal representation for the buffered character sequence, that is
 // not mandated by the standard (and may change in the future).
@@ -151,14 +151,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_STRING
-#include <bslstl_string.h>
-#define INCLUDED_BSLSTL_STRING
-#endif
-
 #ifndef INCLUDED_BSLSTL_IOSFWD
 #include <bslstl_iosfwd.h>
-#define INCLUDED_BSLSTL_IOSFWD
+#endif
+
+#ifndef INCLUDED_BSLSTL_STRING
+#include <bslstl_string.h>
 #endif
 
 #ifndef INCLUDED_ALGORITHM
@@ -194,7 +192,7 @@ class basic_stringbuf
     : public native_std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS> {
     // This class implements a standard stream buffer providing an unformatted
     // character input sequence and an unformatted character output sequence
-    // that  may be initialized or accessed using a string value.
+    // that may be initialized or accessed using a string value.
 
   private:
     // PRIVATE TYPES
@@ -223,7 +221,7 @@ class basic_stringbuf
                                 // the current length of the character
                                 // sequence available for input.  Extending
                                 // the size of 'd_str' and updating 'epptr'
-                                // (the end-of-output pointer) allows the 
+                                // (the end-of-output pointer) allows the
                                 // parent stream type to write additional
                                 // characters without 'overflow'ing.  However,
                                 // care must be taken to keep
@@ -247,9 +245,9 @@ class basic_stringbuf
         // representation, 'd_str', the current position of the input sequence,
         // 'gptr', to the specified  'currentInputPosition', and the address
         // past the end of the accessible sequence, 'egptr', to the last
-        // a character in 'd_ptr' ('&d_ptr[0] + d_lastWrittenChar').  
+        // a character in 'd_ptr' ('&d_ptr[0] + d_lastWrittenChar').
         // Return the offset of the current position of the input sequence
-        // from the start of the sequence. The behavior is undefined unless
+        // from the start of the sequence.  The behavior is undefined unless
         // this buffer is in input-mode, and 'currentInputPosition' is within
         // the range of accessible characters in 'd_ptr'.
 
@@ -257,14 +255,14 @@ class basic_stringbuf
         // Update the output pointers (pback, pptr, epptr) of this string
         // buffer, assigning the beginning of the output sequence, 'pback', to
         // the address of the first character of the internal string
-        // representation, 'd_str', the current position of the ouput sequence,
-        // 'pptr', to the specified  'currentOutputPosition', and the address
-        // past the end of the accessible sequence, 'ppptr', to the last
-        // accessible character in 'd_ptr' ('&d_ptr[0] + d_ptr.size()'). Return
-        // the offset of the current position of the ouput sequence from the
-        // start of the sequence. The behavior is undefined unless this buffer
-        // is in output-mode, and 'currentOutputPosition' is within the range
-        // of accessible characters in 'd_ptr'.
+        // representation, 'd_str', the current position of the output
+        // sequence, 'pptr', to the specified 'currentOutputPosition', and the
+        // address past the end of the accessible sequence, 'pptr', to the
+        // last accessible character in 'd_ptr' ('&d_ptr[0] + d_ptr.size()').
+        // Return the offset of the current position of the output sequence
+        // from the start of the sequence.  The behavior is undefined unless
+        // this buffer is in output-mode, and 'currentOutputPosition' is within
+        // the range of accessible characters in 'd_ptr'.
 
     void updateStreamPositions(off_type inputOffset  = 0,
                                off_type outputOffset = 0);
@@ -273,18 +271,18 @@ class basic_stringbuf
         // representation 'd_ptr'.  Optionally specify 'inputOffset' indicating
         // the current input position's offset from the beginning of the
         // sequence.  Optionally specify 'outputOffset' indicating the current
-        // output position's offset from the beginning of the sequence. If
+        // output position's offset from the beginning of the sequence.  If
         // this buffer is in input mode, assign the beginning of the input
         // sequence, 'eback', to the address of the first character of
-        // 'd_ptr', the current input position, 'gptr', to 
+        // 'd_ptr', the current input position, 'gptr', to
         // 'eback + inputoffset', and the end of the input sequence to the
-        // last written character in 'd_str' 
-        // ('&d_ptr[0] + d_lastWrittenChar'). If this buffer is in ouput 
+        // last written character in 'd_str'
+        // ('&d_ptr[0] + d_lastWrittenChar').  If this buffer is in output
         // mode, assign the beginning of the output sequence, 'pback', to the
         // address of the first character of 'd_ptr', the current output
         // position, 'pptr', to 'pback + outputOffset', and the end of the
         // output sequence to the last accessible character in 'd_str'
-        // ('&d_ptr[0] + d_ptr.size()'). 
+        // ('&d_ptr[0] + d_ptr.size()').
 
     bool extendInputArea();
         // Attempt to expand sequence of characters available for input
@@ -298,6 +296,7 @@ class basic_stringbuf
         // area (using 'pbase', 'pptr', and 'epptr') without calling any
         // methods of this object.
 
+    // PRIVATE ACCESSORS
     pos_type streamSize() const;
         // Return the number of characters currently in the buffer.  Note this
         // may not be 'd_str.size()', as this implementation resizes 'd_str'
@@ -321,7 +320,7 @@ class basic_stringbuf
         // indicated 'offset' from the beginning of the stream, if 'whence' is
         // 'ios_bas::end' set the current position to the indicated 'offset'
         // from the end of the stream, and if 'whence' is 'ios_bas::cur' set
-        // the current input or ouput position to the indicated 'offset' from
+        // the current input or output position to the indicated 'offset' from
         // the current input or output position.  If 'whence' is
         // 'ios_bas::cur' then 'modeBitMask' may be either 'ios_bas::in' or
         // 'ios_base::out', but not both.  Return the new offset from the
@@ -333,7 +332,7 @@ class basic_stringbuf
              ios_base::openmode modeBitMask = ios_base::in | ios_base::out);
         // Set the current input position or the current output position (or
         // both) to the specified 'absoluteOffset' from the beginning of the
-        // stream.  Optionally specifcy 'modeBitMask' indicating whether
+        // stream.  Optionally specify 'modeBitMask' indicating whether
         // to set the current input position, output position, or
         // both.  Return the new offset from the beginning of the file on
         // success, and 'pos_type(off_type(-1))' otherwise.
@@ -355,7 +354,7 @@ class basic_stringbuf
         // of the input area, 'egptr', if additional characters are available
         // (as may occur if additional characters have been written to the
         // string buffer).  Note that this operation is similar to 'uflow',
-        // but does not advance the current input position. 
+        // but does not advance the current input position.
 
     virtual int_type uflow();
         // Return the character at the current input position and advance the
@@ -364,7 +363,7 @@ class basic_stringbuf
         // input area, 'egptr', if additional characters are available (as may
         // occur if additional characters have been written to the string
         // buffer).  Note that this operation is similar to 'underflow', but
-        // advances the current input position. 
+        // advances the current input position.
 
     virtual int_type pbackfail(int_type character = traits_type::eof());
         // Put back the specified 'character' into the input sequence so that
@@ -396,7 +395,7 @@ class basic_stringbuf
         // stream buffer at the current output position ('pptr'), and advance
         // the output position one character forward.  Possibly update the
         // end of output area ('epptr') to allow for additional writes (e.g.,
-        // by the base type 'basic_streambuf') to the output sequence without 
+        // by the base type 'basic_streambuf') to the output sequence without
         // calling a method on this type.  Return the written character on
         // success, and 'traits_type::eof()' if 'character' is
         // 'traits_type::eof()' or this stream buffer was not opened for
@@ -423,11 +422,11 @@ class basic_stringbuf
         // Create a 'basic_stringbuf' object.  Optionally specify a
         // 'modeBitMask' indicating whether this buffer may be read, written
         // to, or both.  If 'modeBitMask' is not supplied this buffer is
-        // created with 'ios_base::in | ios_base::out'.  Optionally specify  
+        // created with 'ios_base::in | ios_base::out'.  Optionally specify
         // 'initialString' indicating the initial sequence of characters that
         // this buffer will access or manipulate.  If 'initialString' is not
         // supplied, the initial sequence of characters will be empty.
-        // Optionally specify 'allocator' used to supply  memory.  If
+        // Optionally specify 'allocator' used to supply memory.  If
         // 'allocator' is not supplied, a default-constructed object of the
         // parameterized 'ALLOCATOR' type is used.  If the template parameter
         // 'ALLOCATOR' argument is of type 'bsl::allocator' (the default) then
@@ -455,56 +454,63 @@ class basic_stringbuf
 
 // STANDARD TYPEDEFS
 typedef basic_stringbuf<char, char_traits<char>, allocator<char> >   stringbuf;
-typedef basic_stringbuf<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >  
+typedef basic_stringbuf<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
                                                                     wstringbuf;
 
-                      // ================================
-                      // struct basic_stringbuf_container
-                      // ================================
+                      // =========================
+                      // struct StringbufContainer
+                      // =========================
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-class basic_stringbuf_container
-    // This class is intended to decouple stringbuf from stringstream classes.
-    // It is private and should be used only in the implementation of
-    // streamstring classes.  In order for stringbuf to initialize before any
-    // members of a stringstream class, the stringstream class privately
-    // derives from the stringbuf_container.  The stringbuf_container in turn
-    // contains an object of the stringbuf class which gets initialized before
-    // any members of the stringstream class.
-{
+class StringbufContainer {
+    // This class is intended to enable the implementation of string-stream
+    // types by providing a trivial type containing a 'basic_stringbuf' that
+    // is suitable as a (private) base class for a string-stream.
+    // String-stream implementations typically (privately) inherit from a
+    // 'basic_stringbuf' to ensure that that string-buffer is initialized
+    // before the stream's public base-class (e.g., 'basic_stream'), because
+    // the string buffer is passed to the constructor of parent stream type.
+    // However, if a string-stream implementation were to directly inherit
+    // from 'basic_streambuf', then virtual methods defined in that
+    // string-stream (e.g., 'undeflow') might incorrectly override those in the
+    // 'basic_stringbuf' implementation.  Inheriting from 'StringbufContainer'
+    // allows the string-stream to ensure the order of initialization of its
+    // contained 'basic_stringbuf' without potentially overriding virtual
+    // methods in the 'basic_stringbuf' type.
+
   private:
     // TYPES
     typedef basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> StreamBufType;
+    typedef bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> StringType;
 
     // DATA
-    StreamBufType d_bufObj;
+    StreamBufType d_bufObj;  // contained 'basic_stringbuf'
 
   public:
     // CREATORS
     explicit
-    basic_stringbuf_container(const ALLOCATOR& alloc)
-        : d_bufObj(alloc)
+    StringbufContainer(const ALLOCATOR& allocator)
+    : d_bufObj(allocator)
     {}
 
-    basic_stringbuf_container(ios_base::openmode mode,
-                              const ALLOCATOR& alloc)
-        : d_bufObj(mode, alloc)
+    StringbufContainer(ios_base::openmode modeBitMask,
+                       const ALLOCATOR&   allocator)
+    : d_bufObj(modeBitMask, allocator)
     {}
 
-    basic_stringbuf_container(
-            const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str,
-            const ALLOCATOR& alloc)
-        : d_bufObj(str, alloc)
+    StringbufContainer(const StringType& initialString,
+                       const ALLOCATOR&  allocator)
+    : d_bufObj(initialString, allocator)
     {}
 
-    basic_stringbuf_container(
-            const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str,
-            ios_base::openmode mode,
-            const ALLOCATOR& alloc)
-        : d_bufObj(str, mode, alloc)
+    StringbufContainer(const StringType&  initialString,
+                       ios_base::openmode modeBitMask,
+                       const ALLOCATOR&   allocator)
+    : d_bufObj(initialString, modeBitMask, allocator)
     {}
 
-    StreamBufType * rdbuf() const
+    // ACCESSORS
+    StreamBufType *rdbuf() const
     {
         return const_cast<StreamBufType *>(&d_bufObj);
     }
@@ -564,13 +570,14 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 
     if (d_mode & ios_base::in) {
         // Update the input position.
-        this->setg(dataPtr, 
-                   dataPtr + inputOffset, 
+
+        this->setg(dataPtr,
+                   dataPtr + inputOffset,
                    dataPtr + d_lastWrittenChar);
     }
 
     if (d_mode & ios_base::out) {
-        // Update the output position. 
+        // Update the output position.
 
         native_std::size_t dataSize = d_str.size();
         this->setp(dataPtr, dataPtr + dataSize);
@@ -587,11 +594,11 @@ bool basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::extendInputArea()
 
     if (d_mode & ios_base::out && this->pptr() > this->egptr()) {
         off_type currentOutputCharacter = this->pptr() - this->pbase();
-        d_lastWrittenChar = native_std::max(d_lastWrittenChar, 
+        d_lastWrittenChar = native_std::max(d_lastWrittenChar,
                                             currentOutputCharacter);
 
         updateInputPointers(this->gptr());
-        return true;
+        return true;                                                  // RETURN
     }
 
     return false;
@@ -613,17 +620,19 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::seekoff(
-                  off_type           offset,
-                  ios_base::seekdir  whence,
-                  ios_base::openmode modeBitMask) {
+                                               off_type           offset,
+                                               ios_base::seekdir  whence,
+                                               ios_base::openmode modeBitMask)
+{
 
-    // when setting both input and output positions,
-    // allow them to be relative only to 'beg' and 'end'
+    // If 'whence' is 'ios_base::cur' (the current position), 'modeBitMask'
+    // may not be both input and output mode.
+
     if ((modeBitMask & (ios_base::in | ios_base::out))
                     == (ios_base::in | ios_base::out)
         && !(whence == ios_base::beg || whence == ios_base::end))
     {
-        return pos_type(off_type(-1));
+        return pos_type(off_type(-1));                                // RETURN
     }
 
     pos_type newPos(off_type(-1));
@@ -647,11 +656,12 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
             BSLS_ASSERT(false && "invalid seekdir argument");
         }
 
-        if (inputPtr < this->eback() 
+        if (inputPtr < this->eback()
          || inputPtr > this->eback() + streamSize())
         {
-            // out of range
-            return pos_type(off_type(-1));
+            // 'inputPtr' is outside the valid range of the string buffer.
+
+            return pos_type(off_type(-1));                            // RETURN
         }
 
         newPos = updateInputPointers(inputPtr);
@@ -679,8 +689,9 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
         if (outputPtr < this->pbase()
          || outputPtr > this->pbase() + streamSize())
         {
-            // out of range
-            return pos_type(off_type(-1));
+            // 'inputPtr' is outside the valid range of the string buffer.
+
+            return pos_type(off_type(-1));                            // RETURN
         }
 
         newPos = updateOutputPointers(outputPtr);
@@ -692,10 +703,10 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::seekpos(
-            pos_type pos,
-            ios_base::openmode modeBitMask)
+                                             pos_type           absoluteOffset,
+                                             ios_base::openmode modeBitMask)
 {
-    return basic_stringbuf::seekoff(off_type(pos),
+    return basic_stringbuf::seekoff(off_type(absoluteOffset),
                                     ios_base::beg,
                                     modeBitMask);
 }
@@ -703,23 +714,26 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 native_std::streamsize
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::xsgetn(
-            char_type *s,
-            native_std::streamsize n)
+                                          char_type              *result,
+                                          native_std::streamsize numCharacters)
 {
     if (this->gptr() != this->egptr()) {
-        // characters available
-        native_std::streamsize available(this->egptr() - this->gptr());
-        native_std::streamsize readChars(native_std::min(available, n));
+        // There are characters available in this buffer.
 
-        traits_type::copy(s, this->gptr(), readChars);
+        native_std::streamsize available(this->egptr() - this->gptr());
+        native_std::streamsize readChars(native_std::min(available,
+                                                         numCharactersn));
+
+        traits_type::copy(result, this->gptr(), readChars);
         this->gbump(readChars);
 
-        return readChars;
+        return readChars;                                             // RETURN
     }
 
     if (extendInputArea()) {
-        // characters may become available after the input area is extended
-        return this->basic_stringbuf::xsgetn(s, n);
+        // Characters may become invalid after
+
+        return this->basic_stringbuf::xsgetn(result, numCharacters);  // RETURN
     }
 
     return 0;
@@ -730,13 +744,16 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::underflow()
 {
     if (this->gptr() != this->egptr()) {
-        // characters available
-        return traits_type::to_int_type(*this->gptr());
+        // There are characters available in this buffer.
+
+        return traits_type::to_int_type(*this->gptr());               // RETURN
     }
 
     if (extendInputArea()) {
-        // characters may become available after the input area is extended
-        return this->basic_stringbuf::underflow();
+        // Additional characters may become available after the input area is
+        // extended.
+
+        return this->basic_stringbuf::underflow();                    // RETURN
     }
 
     return traits_type::eof();
@@ -747,15 +764,18 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::uflow()
 {
     if (this->gptr() != this->egptr()) {
-        // characters available
+        // There are characters available in this buffer.
+
         int_type c = traits_type::to_int_type(*this->gptr());
         this->gbump(1);
-        return c;
+        return c;                                                     // RETURN
     }
 
     if (extendInputArea()) {
-        // characters may become available after the input area is extended
-        return this->basic_stringbuf::uflow();
+        // Additional characters may become available after the input area is
+        // extended.
+
+        return this->basic_stringbuf::uflow();                        // RETURN
     }
 
     return traits_type::eof();
@@ -767,8 +787,10 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
                                                             int_type character)
 {
     if (this->gptr() == this->eback()) {
-        // at the start of the buffer, cannot put back
-        return traits_type::eof();
+        // The current position is at the start of the buffer, cannot push
+        // back a character.
+
+        return traits_type::eof();                                    // RETURN
     }
 
     if (traits_type::eq_int_type(character, traits_type::eof())
@@ -776,20 +798,22 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
                 character,
                 traits_type::to_int_type(*(this->gptr() - 1))))
     {
-        // putting back eof or the previous char,
-        // just adjust the input pointer
+        // If 'character' is 'eof' or the previous input character,
+        // simply move the current position back 1.
+
         this->gbump(-1);
-        return traits_type::to_int_type(*this->gptr());
+        return traits_type::to_int_type(*this->gptr());               // RETURN
     }
 
     if (d_mode & ios_base::out) {
-        // in out mode allow overwriting the previous char
+        // In output mode, if 'character' is not the previous input character,
+        // overwrite the previous input character.
+
         this->gbump(-1);
         *this->gptr() = traits_type::to_char_type(character);
-        return character;
+        return character;                                             // RETURN
     }
 
-    // otherwise, cannot put back
     return traits_type::eof();
 }
 
@@ -799,34 +823,42 @@ native_std::streamsize
                                          const char_type        *inputString,
                                          native_std::streamsize  numCharacters)
 {
-    // check if the stream is writeable
     if ((d_mode & ios_base::out) == 0) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
-    // compute required space
+    // Compute the space required.
+
     native_std::streamsize spaceLeft(
             d_str.data() + d_str.size() - this->pptr());
-    native_std::ptrdiff_t toOverwrite = native_std::min(spaceLeft, 
+    native_std::ptrdiff_t toOverwrite = native_std::min(spaceLeft,
                                                         numCharacters);
 
-    // overwrite
+    // Append the portion of 'inputString' that can be written without
+    // resizing 'd_ptr'.
+
     traits_type::copy(this->pptr(), inputString, toOverwrite);
 
     off_type inputOffset(this->gptr() - this->eback());
 
     if (numCharacters == toOverwrite) {
-        // update stream positions
+        // If all of 'inputString' has been written, just update the stream
+        // positions.
+
         off_type newhigh = numCharacters + this->pptr() - this->pbase();
         d_lastWrittenChar = native_std::max(d_lastWrittenChar, newhigh);
 
         updateStreamPositions(inputOffset, newhigh);
     }
     else {
-        // append
+        // If some characters remain to be written, append them to 'd_str'
+        // (resizing 'd_str' in the process'.
+
         d_str.append(inputString + toOverwrite, inputString + numCharacters);
 
-        // update stream positions
+        // Update the last written character cache, and the input stream
+        // positions.
+
         d_lastWrittenChar = d_str.size();
         updateStreamPositions(inputOffset, d_lastWrittenChar);
     }
@@ -839,19 +871,21 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::overflow(
                                                             int_type character)
 {
-    // check if we can write to stream
     if ((d_mode & ios_base::out) == 0) {
-        return traits_type::eof();
+        return traits_type::eof();                                    // RETURN
     }
 
     if (traits_type::eq_int_type(character, traits_type::eof())) {
-        // nothing to write, just return success
-        return traits_type::not_eof(character);
+        // Nothing to write, so just return success.
+
+        return traits_type::not_eof(character);                       // RETURN
     }
 
     char_type ch = traits_type::to_char_type(character);
     if (this->pptr() != this->epptr()) {
-        // space is available, no need to expand the storage
+        // Additional space is available in 'd_str', so no need to resize the
+        // buffer.
+
         *this->pptr() = ch;
         this->pbump(1);
 
@@ -859,13 +893,19 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
                               d_lastWrittenChar, this->pptr() - this->pbase());
     }
     else {
-        // store the input position to restore later
+        // Store the input offset so it can be used to restore the input and
+        // output positions after the next resize.
+
         off_type inputOffset(this->gptr() - this->eback());
 
-        // expand the storage
+        // Append the character, and expand the buffer.
+
         d_str.push_back(ch);
 
-        // update stream positions
+        // Update the input sequence, restoring the current input position
+        // fron 'inputOffset', and updating the output sequence to reflect the
+        // newly resized buffer.
+
         d_lastWrittenChar = d_str.size();
         updateStreamPositions(inputOffset, d_lastWrittenChar);
     }
@@ -967,8 +1007,6 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
 {
     return StringType(d_str.begin(), d_str.begin() + streamSize());
 }
-
-
 
 }  // close namespace bsl
 
