@@ -15,12 +15,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isreference.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
-#include <bslmf_functionpointertraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISVOLATILE
 #include <bslmf_isvolatile.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNCTION
+#include <bslmf_isfunction.h>
 #endif
 
 namespace BloombergLP {

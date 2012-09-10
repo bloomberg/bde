@@ -105,32 +105,14 @@ struct FunctionPointerTraits {
     enum { IS_FUNCTION_POINTER = 0 };
 };
 
-}  // close package namespace
-
-}  // close enterprise namespace
-
-namespace bsl {
-
-template <typename TYPE>
-struct is_function
-    : integer_constant<bool,
-                       BloombergLP::bslmf::FunctionPointerTraits<TYPE>
-                            ::IS_FUNCTION_POINTER>
-{};
-
-}
-
-namespace BloombergLP {
-
-namespace bslmf {
-
                    // =======================
                    // class IsFunctionPointer
                    // =======================
 
 template <class PROTOTYPE>
 struct IsFunctionPointer
-: MetaInt<bsl::is_function<PROTOTYPE>::value> {
+: MetaInt<BloombergLP::bslmf::FunctionPointerTraits<PROTOTYPE>
+                                                       ::IS_FUNCTION_POINTER> {
     // This template determines if the specified 'PROTOTYPE' is a free (i.e.,
     // non-member) function pointer.  VALUE is defined as 1 if the specified
     // 'PROTOTYPE' is a function pointer type, and a zero value otherwise.

@@ -23,6 +23,7 @@ bslmf_isclass
 bslmf_isconst
 bslmf_isconvertible
 bslmf_isenum
+bslmf_isfunction
 bslmf_isfundamental
 bslmf_islvaluereference
 bslmf_ismemberfunctionpointer
