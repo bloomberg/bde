@@ -56,6 +56,9 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isfundamental.h>
 #endif
 
+#include <bslmf_removecv.h>
+#include <bslmf_removereference.h>
+
 #ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
 #endif
@@ -98,36 +101,16 @@ struct IsEnum_AnyArithmeticType {
         // be ambiguous.
 };
 
-}  // close package namespace
-
-}  // close enterprise namespace
-
-namespace bsl {
-
-template <typename TYPE>
-struct is_enum
-    : integer_constant<
-        bool,
-        !is_fundamental<TYPE>::value
-           && is_convertible<
-                        TYPE,
-                        BloombergLP::bslmf::IsEnum_AnyArithmeticType>::value>
-{
-};
-
-}
-
-namespace BloombergLP {
-
-namespace bslmf {
-
                         // ============
                         // class IsEnum
                         // ============
 
 template <class TYPE>
 struct IsEnum
-    : MetaInt<bsl::is_enum<TYPE>::value>
+    : MetaInt<
+        !bsl::is_fundamental<typename bsl::remove_reference<
+                             typename bsl::remove_cv<TYPE>::type>::type>::value
+        && bsl::is_convertible<TYPE, IsEnum_AnyArithmeticType>::value>
     // This struct provides a meta-function that computes, at compile time,
     // whether 'TYPE' is of enumeration type.  It derives from 'MetaInt<1>' if
     // 'TYPE' is an enumeration type, or from 'MetaInt<0>' otherwise.
@@ -142,6 +125,21 @@ struct IsEnum
 
 }  // close package namespace
 
+}  // close enterprise namespace
+
+namespace bsl {
+
+template <typename TYPE>
+struct is_enum
+    : integer_constant<
+        bool,
+        !is_fundamental<typename remove_cv<TYPE>::type>::value
+        && is_convertible<TYPE,
+                          BloombergLP::bslmf::IsEnum_AnyArithmeticType>::value>
+{};
+
+}
+
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -151,8 +149,6 @@ struct IsEnum
 #endif
 #define bslmf_IsEnum bslmf::IsEnum
     // This alias is defined for backward compatibility.
-
-}  // close enterprise namespace
 
 #endif
 
