@@ -12,6 +12,11 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::Platform: namespace for platform traits
 //
+//@MACROS:
+//  BSLS_PLATFORM__OS_*: operating system type, sub-type, and version
+//  BSLS_PLATFORM__CPU_* instruction set, instruction width, and version
+//  BSLS_PLATFORM__CMP_*: compiler vendor, and version
+//
 //@AUTHOR: John Lakos (jlakos)
 //
 //@DESCRIPTION: This component implements a suite of preprocessor macros

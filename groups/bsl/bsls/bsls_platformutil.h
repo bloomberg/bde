@@ -15,6 +15,14 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::PlatformUtil: namespace for platform-neutral type names and API
 //
+//@MACROS:
+//  BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN: flag set on little-endian platforms
+//  BSLS_PLATFORMUTIL__IS_BIG_ENDIAN:    flag set on    big-endian platforms
+//  BSLS_PLATFORMUTIL__HTONS(x): convert 16-bit from host to network byte order
+//  BSLS_PLATFORMUTIL__HTONL(x): convert 32-bit from host to network byte order
+//  BSLS_PLATFORMUTIL__NTOHS(x): convert 16-bit from network to host byte order
+//  BSLS_PLATFORMUTIL__NTOHL(x): convert 32-bit from network to host byte order
+//
 //@SEE_ALSO: bsls_platform, bsls_types
 //
 //@AUTHOR: John Lakos (jlakos)
