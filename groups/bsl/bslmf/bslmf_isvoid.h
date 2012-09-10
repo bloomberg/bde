@@ -50,32 +50,30 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integerconstant.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <typename TYPE>
+struct IsVoid_Imp : bsl::false_type
+{};
+
+template <>
+struct IsVoid_Imp<void> : bsl::true_type
+{};
+
+}
+}
+
 namespace bsl {
 
 template <typename TYPE>
-struct is_void : false_type
-{
-};
-
-template <>
-struct is_void<void> : true_type
-{
-};
-
-template <>
-struct is_void<const void> : true_type
-{
-};
-
-template <>
-struct is_void<volatile void> : true_type
-{
-};
-
-template <>
-struct is_void<const volatile void> : true_type
-{
-};
+struct is_void : BloombergLP::bslmf::IsVoid_Imp<
+                                          typename remove_cv<TYPE>::type>::type
+{};
 
 }  // close namespace bsl
 

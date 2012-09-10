@@ -75,8 +75,20 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
+#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
+#include <bslmf_integerconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISARITHMETIC
+#include <bslmf_isarithmetic.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISVOID
+#include <bslmf_isvoid.h>
 #endif
 
 namespace BloombergLP {
@@ -135,6 +147,27 @@ template <> struct IsFundamental_Imp<long double>
 template <> struct IsFundamental_Imp<void>
     : bsl::true_type { };
 
+                         // ====================
+                         // struct IsFundamental
+                         // ====================
+
+template <typename TYPE>
+struct IsFundamental
+    : MetaInt<IsFundamental_Imp<typename bsl::remove_cv<TYPE>::type>::value>
+{
+    // This class implements a meta-function for checking if a type is
+    // fundamental.  The static constant 'VALUE' member will be 1 if 'TYPE' is
+    // fundamental and 0 otherwise.
+};
+
+template <typename TYPE>
+struct IsFundamental<TYPE&>
+    : MetaInt<IsFundamental_Imp<typename bsl::remove_cv<TYPE>::type>::value>
+{
+    // This specialization of 'IsFundamental' causes references to be treated
+    // as their underlying (non-reference) types.
+};
+
 }  // close package namespace
 
 }  // close enterprise namespace
@@ -143,39 +176,16 @@ namespace bsl {
 
 template <typename TYPE>
 struct is_fundamental
-    : BloombergLP::bslmf::IsFundamental_Imp<typename remove_cv<TYPE>::type>
+    : integer_constant<bool,
+                       is_arithmetic<TYPE>::value
+                       || is_void<TYPE>::value>
 {
     // This class implements a meta-function for checking if a type is
-    // fundamental.
-};
-
-template <typename TYPE>
-struct is_fundamental<TYPE&>
-    : BloombergLP::bslmf::IsFundamental_Imp<typename remove_cv<TYPE>::type>
-{
-    // This specialization of 'is_fundamental' causes references to be treated
-    // as their underlying (non-reference) types.
+    // fundamental as defined in C++11 section 3.9.1 [basic.fundamental] with
+    // the exception of 'nullptr_t' which is not supported yet.
 };
 
 }
-
-namespace BloombergLP {
-
-namespace bslmf {
-
-                         // ====================
-                         // struct IsFundamental
-                         // ====================
-
-template <typename TYPE>
-struct IsFundamental : MetaInt<bsl::is_fundamental<TYPE>::value>
-{
-    // This class implements a meta-function for checking if a type is
-    // fundamental.  The static constant 'VALUE' member will be 1 if 'TYPE' is
-    // fundamental and 0 otherwise.
-};
-
-}  // close package namespace
 
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
@@ -186,8 +196,6 @@ struct IsFundamental : MetaInt<bsl::is_fundamental<TYPE>::value>
 #endif
 #define bslmf_IsFundamental bslmf::IsFundamental
     // This alias is defined for backward compatibility.
-
-}  // close enterprise namespace
 
 #endif
 

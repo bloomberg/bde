@@ -16,6 +16,7 @@ bslmf_functionpointertraits
 bslmf_haspointersemantics
 bslmf_if
 bslmf_integerconstant
+bslmf_isarithmetic
 bslmf_isarray
 bslmf_isbitwiseequalitycomparable
 bslmf_isbitwisemoveable
@@ -23,8 +24,10 @@ bslmf_isclass
 bslmf_isconst
 bslmf_isconvertible
 bslmf_isenum
+bslmf_isfloatingpoint
 bslmf_isfunction
 bslmf_isfundamental
+bslmf_isintegral
 bslmf_islvaluereference
 bslmf_ismemberfunctionpointer
 bslmf_ismemberobjectpointer
