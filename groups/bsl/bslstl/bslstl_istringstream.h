@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // This component defines a class template 'bsl::basic_istringstream',
 // implementing a standard input stream that provides a constructor (as well as
 // a manipulator) allowing clients to set the sequence of characters
-// from which input is streamed into a supplied 'bsl::basic_string' (see
+// from which input is streamed to a supplied 'bsl::basic_string' (see
 // 27.8.3 [istringstream] of the C++11 standard).  This component also defines
 // two standard aliases, 'bsl::istringstream' and 'bsl::wistringstream', that
 // refer to specializations of the 'bsl::basic_istringstream' template for
@@ -111,10 +111,11 @@ namespace bsl {
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 class basic_istringstream
     : private basic_stringbuf_container<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
-    , public native_std::basic_istream<CHAR_TYPE, CHAR_TRAITS>
-    // This class implements the 'istream' interface to manipulate
-    // 'bsl::string' objects as input streams of data.
-{
+    , public native_std::basic_istream<CHAR_TYPE, CHAR_TRAITS> {
+    // This class implements a standard input stream that provides a
+    // constructor and maniputor for setting the sequence of characters from
+    // which input is streamed to a supplied 'bsl::basic_string'.
+
   private:
     // PRIVATE TYPES
     typedef basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>   StreamBufType;
@@ -135,8 +136,8 @@ class basic_istringstream
 
     // TYPETRAITS
     BSLALG_DECLARE_NESTED_TRAITS(
-            basic_istringstream,
-            BloombergLP::bslalg::TypeTraitUsesBslmaAllocator);
+                             basic_istringstream,
+                             BloombergLP::bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
@@ -168,6 +169,9 @@ class basic_istringstream
         // argument is of type 'bsl::allocator' and 'allocator' is not
         // supplied, the currently installed default allocator will be used to
         // supply memory.
+
+    //! ~basic_istringstream() = default;
+        // Destroy this object.
 
     // MANIPULATORS
     void str(const StringType& value);
@@ -202,8 +206,8 @@ typedef basic_istringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-    basic_istringstream(const allocator_type& alloc)
-: BaseType(ios_base::in, alloc)
+basic_istringstream(const allocator_type& allocator)
+: BaseType(ios_base::in, allocator)
 , BaseStream(this->rdbuf())
 {
 }
@@ -211,9 +215,9 @@ basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-    basic_istringstream(ios_base::openmode which,
-                        const allocator_type& alloc)
-: BaseType(which, alloc)
+basic_istringstream(ios_base::openmode    modeBitMask,
+                    const allocator_type& allocator)
+: BaseType(modeBitMask, allocator)
 , BaseStream(this->rdbuf())
 {
 }
@@ -221,9 +225,9 @@ basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-    basic_istringstream(const StringType& str,
-                        const allocator_type& alloc)
-: BaseType(str, ios_base::in, alloc)
+basic_istringstream(const StringType&     initialString,
+                    const allocator_type& allocator)
+: BaseType(initialString, ios_base::in, allocator)
 , BaseStream(this->rdbuf())
 {
 }
@@ -231,38 +235,39 @@ basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-    basic_istringstream(const StringType& str,
-                        ios_base::openmode which,
-                        const allocator_type& alloc)
-: BaseType(str, which, alloc)
+basic_istringstream(const StringType&     initialString,
+                    ios_base::openmode    modeBitMask,
+                    const allocator_type& allocator)
+: BaseType(initialString, modeBitMask, allocator)
 , BaseStream(this->rdbuf())
 {
-}
-
-// ACCESSORS
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-inline
-typename basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
-    basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
-{
-    return this->rdbuf()->str();
-}
-
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-inline
-typename basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StreamBufType *
-    basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::rdbuf() const
-{
-    return this->BaseType::rdbuf();
 }
 
 // MANIPULATORS
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 void basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
-        const StringType& s)
+    const StringType& s)
 {
     this->rdbuf()->str(s);
+}
+
+// ACCESSORS
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+inline
+typename basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
+basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
+{
+    return this->rdbuf()->str();
+}
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+inline
+typename 
+       basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StreamBufType *
+basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::rdbuf() const
+{
+    return this->BaseType::rdbuf();
 }
 
 }  // close namespace bsl

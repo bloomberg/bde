@@ -111,9 +111,9 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 class basic_ostringstream
     : private basic_stringbuf_container<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
     , public native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> {
-    // This class implements an output stream capable of creating a
-    // 'basic_string' containing the characters that have been written to the
-    // stream.
+    // This class implements a standard output stream that provides an accessor
+    // for obtaining a 'bsl::basic_string' containing the sequence of 
+    // characters that have been written to the stream.
 
   private:
     // PRIVATE TYPES
@@ -135,8 +135,8 @@ class basic_ostringstream
 
     // TYPETRAITS
     BSLALG_DECLARE_NESTED_TRAITS(
-            basic_ostringstream,
-            BloombergLP::bslalg::TypeTraitUsesBslmaAllocator);
+                             basic_ostringstream,
+                             BloombergLP::bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
@@ -167,6 +167,9 @@ class basic_ostringstream
         // argument is of type 'bsl::allocator' and 'allocator' is not
         // supplied, the currently installed default allocator will be used to
         // supply memory.
+
+    //! ~basic_ostringstream() = default;
+        // Destroy this object.
 
     // MANIPULATORS
     void str(const StringType& value);
@@ -239,6 +242,15 @@ basic_ostringstream(const StringType&     initialString,
 {
 }
 
+// MANIPULATORS
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+inline
+void basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
+                                                       const StringType& value)
+{
+    this->rdbuf()->str(value);
+}
+
 // ACCESSORS
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
@@ -255,15 +267,6 @@ typename
 basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::rdbuf() const
 {
     return this->BaseType::rdbuf();
-}
-
-// MANIPULATORS
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-inline
-void basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
-                                                       const StringType& value)
-{
-    this->rdbuf()->str(value);
 }
 
 }  // close namespace bsl

@@ -118,9 +118,9 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 class basic_stringstream
     : private basic_stringbuf_container<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
     , public native_std::basic_iostream<CHAR_TYPE, CHAR_TRAITS> {
-    // This class implements a stream providing manipulators and accessors for
-    // setting and accessing the internal buffer refered to by the stream
-    // using a string.
+    // This class implements a standard stream providing operations using
+    // 'bsl::basic_string' for modifying or accessing the sequence of
+    // characters read-from, or written-to, the stream.
 
   private:
     // PRIVATE TYPES
@@ -142,8 +142,8 @@ class basic_stringstream
 
     // TYPETRAITS
     BSLALG_DECLARE_NESTED_TRAITS(
-            basic_stringstream,
-            BloombergLP::bslalg::TypeTraitUsesBslmaAllocator);
+                             basic_stringstream,
+                             BloombergLP::bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
@@ -174,6 +174,9 @@ class basic_stringstream
         // *'.  If the template parameter 'ALLOCATOR' argument is of type
         // 'bsl::allocator' and 'allocator' is not supplied, the currently
         // installed default allocator will be used to supply memory.
+
+    //! ~basic_stringstream() = default;
+        // Destroy this object.
 
     // MANIPULATORS
     void str(const StringType& value);
@@ -209,7 +212,7 @@ typedef basic_stringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-    basic_stringstream(const allocator_type& allocator)
+basic_stringstream(const allocator_type& allocator)
 : BaseType(ios_base::in | ios_base::out, allocator)
 , BaseStream(this->rdbuf())
 {
@@ -228,8 +231,8 @@ basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-    basic_stringstream(const StringType&     initialString,
-                       const allocator_type& allocator)
+basic_stringstream(const StringType&     initialString,
+                   const allocator_type& allocator)
 : BaseType(initialString, ios_base::in | ios_base::out, allocator)
 , BaseStream(this->rdbuf())
 {
@@ -238,29 +241,12 @@ basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-    basic_stringstream(const StringType&     initialString,
-                       ios_base::openmode    modeBitMask,
-                       const allocator_type& allocator)
+basic_stringstream(const StringType&     initialString,
+                   ios_base::openmode    modeBitMask,
+                   const allocator_type& allocator)
 : BaseType(initialString, modeBitMask, allocator)
 , BaseStream(this->rdbuf())
 {
-}
-
-// ACCESSORS
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-inline
-typename basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
-    basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
-{
-    return this->rdbuf()->str();
-}
-
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-inline
-typename basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StreamBufType *
-    basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::rdbuf() const
-{
-    return this->BaseType::rdbuf();
 }
 
 // MANIPULATORS
@@ -270,6 +256,24 @@ void basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
                                                        const StringType& value)
 {
     this->rdbuf()->str(value);
+}
+
+
+// ACCESSORS
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+inline
+typename basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
+basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
+{
+    return this->rdbuf()->str();
+}
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+inline
+typename basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StreamBufType *
+basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::rdbuf() const
+{
+    return this->BaseType::rdbuf();
 }
 
 }  // close namespace bsl
