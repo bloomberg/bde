@@ -103,8 +103,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integerconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVEREFERENCE

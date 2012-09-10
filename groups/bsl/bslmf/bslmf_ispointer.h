@@ -42,37 +42,34 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <typename TYPE>
+struct IsPointer_Imp : bsl::false_type
+{};
+
+template <typename TYPE>
+struct IsPointer_Imp<TYPE *> : bsl::true_type
+{};
+
+}
+}
+
 namespace bsl {
 
 template <typename TYPE>
-struct is_pointer : false_type
-{
-};
+struct is_pointer
+    : BloombergLP::bslmf::IsPointer_Imp<typename remove_cv<TYPE>::type>::type
+{};
 
-template <typename TYPE>
-struct is_pointer<TYPE *> : true_type
-{
-};
-
-template <typename TYPE>
-struct is_pointer<TYPE * const> : true_type
-{
-};
-
-template <typename TYPE>
-struct is_pointer<TYPE * volatile> : true_type
-{
-};
-
-template <typename TYPE>
-struct is_pointer<TYPE * const volatile> : true_type
-{
-};
-
-}  // close namespace bsl
+}
 
 namespace BloombergLP {
-
 namespace bslmf {
 
                          // ================
@@ -87,6 +84,7 @@ struct IsPointer : MetaInt<bsl::is_pointer<T>::value>
 };
 
 }  // close package namespace
+}  // close enterprise namespace
 
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
@@ -97,8 +95,6 @@ struct IsPointer : MetaInt<bsl::is_pointer<T>::value>
 #endif
 #define bslmf_IsPointer bslmf::IsPointer
     // This alias is defined for backward compatibility.
-
-}  // close enterprise namespace
 
 #endif
 

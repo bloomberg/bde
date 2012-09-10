@@ -33,9 +33,9 @@ struct add_rvalue_reference<TYPE>                       \
 }                                                       \
 
 BSL_DEFINE_ADD_RVALUE_REFERENCE(void, void);
-BSL_DEFINE_ADD_RVALUE_REFERENCE(const void, const void);
-BSL_DEFINE_ADD_RVALUE_REFERENCE(volatile void, volatile void);
-BSL_DEFINE_ADD_RVALUE_REFERENCE(const volatile void, const volatile void);
+BSL_DEFINE_ADD_RVALUE_REFERENCE(void const, void const);
+BSL_DEFINE_ADD_RVALUE_REFERENCE(void volatile, void volatile);
+BSL_DEFINE_ADD_RVALUE_REFERENCE(void const volatile, void const volatile);
 
 #undef BSL_DEFINE_ADD_RVALUE_REFERENCE
 
