@@ -36,17 +36,17 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 1: {
-        ASSERT((is_same<typename remove_cv<int const>::type, int>::value));
-        ASSERT((is_same<typename remove_cv<int * const>::type, int *>::value));
-        ASSERT((is_same<typename remove_cv<const int *>::type, const int *>::value));
+        ASSERT((is_same<remove_cv<int const>::type, int>::value));
+        ASSERT((is_same<remove_cv<int * const>::type, int *>::value));
+        ASSERT((is_same<remove_cv<const int *>::type, const int *>::value));
 
-        ASSERT((is_same<typename remove_cv<int volatile>::type, int>::value));
-        ASSERT((is_same<typename remove_cv<int * volatile>::type, int *>::value));
-        ASSERT((is_same<typename remove_cv<volatile int *>::type, volatile int *>::value));
+        ASSERT((is_same<remove_cv<int volatile>::type, int>::value));
+        ASSERT((is_same<remove_cv<int * volatile>::type, int *>::value));
+        ASSERT((is_same<remove_cv<volatile int *>::type, volatile int *>::value));
 
-        ASSERT((is_same<typename remove_cv<int const volatile>::type, int>::value));
-        ASSERT((is_same<typename remove_cv<int * const volatile>::type, int *>::value));
-        ASSERT((is_same<typename remove_cv<const volatile int *>::type, const volatile int *>::value));
+        ASSERT((is_same<remove_cv<int const volatile>::type, int>::value));
+        ASSERT((is_same<remove_cv<int * const volatile>::type, int *>::value));
+        ASSERT((is_same<remove_cv<const volatile int *>::type, const volatile int *>::value));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

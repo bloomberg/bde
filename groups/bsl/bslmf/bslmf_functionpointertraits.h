@@ -15,9 +15,9 @@ BSLS_IDENT("$Id: $")
 //  bslmf::IsFunctionPointer: meta-function to determine if a type is a
 //                            function pointer
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@SEE_ALSO: bslmf_memberfunctionpointertraits
+//
+//@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides meta-functions for determining whether
 // a type is a pointer to either a free function or a class method (but not to

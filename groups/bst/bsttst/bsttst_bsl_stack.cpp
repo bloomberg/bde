@@ -1,9 +1,12 @@
-// bslfwd_bslalg_typetraitsgrouppod.cpp                               -*-C++-*-
-#include <bslfwd_bslalg_typetraitsgrouppod.h>
+// bsttst_bsl_stack.cpp                                               -*-C++-*-
+#include <bsttst_bsl_stack.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
+//      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

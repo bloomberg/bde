@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template 'struct' used to
 // evaluate whether its parameter is a 'void' type.  'bslmf::IsVoid' defines a
 // member, 'VALUE', whose value is initialized (at compile-time) to 1 if the

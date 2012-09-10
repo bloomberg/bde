@@ -12,9 +12,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bslalg::RbTreeUtil: namespace for red-black tree functions
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@SEE_ALSO: bslalg_rbtreenode
+//
+//@AUTHOR: Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component provides a variety of algorithms that operate
 // on nodes forming a red-black binary search tree.

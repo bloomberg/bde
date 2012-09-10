@@ -20,7 +20,6 @@ BSLS_IDENT("$Id: $")
 //  bslalg::TypeTraitHasTrivialDefaultConstructor: has trivial default ctor
 //  bslalg::TypeTraitPair: for 'std::pair'-like classes
 //  bslalg::TypeTraitUsesBslmaAllocator: uses 'bslma' allocators
-//  bslalg::TypeTraitsGroupPod: POD trait
 //  bslalg::TypeTraitsGroupStlSequence: for STL sequence containers
 //  bslalg::TypeTraitsGroupStlOrdered: for STL ordered containers
 //  bslalg::TypeTraitsGroupStlUnordered: for STL unordered containers
@@ -45,15 +44,6 @@ BSLS_IDENT("$Id: $")
 //..
 //  Entity                                    Description
 //  ------                                    -----------
-//  bslalg::TypeTraitNil                      The nil trait.  Types with no
-//                                            other traits have the nil trait.
-//
-//  bslalg_TypeTraits<T>                      Traits for type 'T'.  The general
-//                                            definition computes the nested
-//                                            and implied traits.  A user can
-//                                            specialize it to a combination of
-//                                            one or more of the following:
-//
 //  bslalg::TypeTraitBitwiseMoveable         (See the corresponding class-level
 //  bslalg::TypeTraitBitwiseCopyable                            documentation.)
 //  bslalg::TypeTraitBitwiseEqualityComparable
@@ -72,12 +62,6 @@ BSLS_IDENT("$Id: $")
 //                                            whether the parameterized 'TYPE'
 //                                            possesses the parameterized
 //                                            'TRAIT'.
-//
-//  bslalg::PassthroughTrait<TYPE, TRAIT>     This macro selects the
-//                                            parameterized 'TRAIT' if the
-//                                            parameterized 'TYPE' possesses
-//                                            it, and a distinct and otherwise
-//                                            unused trait otherwise.
 //
 //  bslalg::SelectTrait<T, TRAIT1, ...>       This meta-function selects the
 //                                            first trait possessed by the
@@ -412,6 +396,8 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
+// All headers below here are not really needed, but are kept here in case
+// legacy code is depending on a transitive include.
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -454,60 +440,6 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-// FORWARD DECLARATIONS
-
-#if 0 // TODO legacy traits
-
-namespace bslalg {
-
-struct TypeTraits_NestedYes;
-template <class TYPE> struct TypeTraits_AutoDetectIndex;
-template <class TYPE> struct TypeTraits_NestedProbe;
-template <int PRIORITY> struct TypeTraits_OverloadPriority;
-template <int INDEX, class TYPE> struct TypeTraits_AutoDetect;
-
-template <typename TRAIT1, typename TRAIT2>
-struct TypeTraits_MakeGroup2;
-template <typename TRAIT1, typename TRAIT2, typename TRAIT3>
-struct TypeTraits_MakeGroup3;
-template <typename TRAIT1, typename TRAIT2, typename TRAIT3, typename TRAIT4>
-struct TypeTraits_MakeGroup4;
-template <typename TRAIT1, typename TRAIT2, typename TRAIT3, typename TRAIT4,
-          typename TRAIT5>
-struct TypeTraits_MakeGroup5;
-
-}  // close package namespace
-
-namespace bslalg_TypeTraits_ImpliedTraits {
-}  // close namespace bslalg_TypeTraits_Impliedtraits
-
-                          // =======================
-                          // class bslalg_TypeTraits
-                          // =======================
-
-template<typename T>
-struct bslalg_TypeTraits : bslalg::TypeTraits_AutoDetect<
-                       bslalg::TypeTraits_AutoDetectIndex<T>::VALUE, T>::Type {
-    // This 'struct' provides a mechanism to automatically detect traits for
-    // fundamental types, pointers, enums, and types which have declared their
-    // traits using the 'BSLALG_DECLARE_NESTED_TRAITS' macro.  Traits can be
-    // assigned to other types either by defining a specialization of this
-    // template or by using the 'BSLALG_DECLARE_NESTED_TRAITS' macro.  For all
-    // other types, including all reference types, the default trait is
-    // 'bslalg::TypeTraitNil'.  This 'struct' serves as the default traits
-    // class for any type which does not have an explicit specialization of
-    // 'BloombergLP::bslalg_TypeTraits'.
-};
-
-template <class T>
-struct bslalg_TypeTraits {
-    // TBD: Stub
-    template <class TYPE> struct NestedTraitDeclaration { };
-    template <class TYPE> struct Metafunction : bslmf::false_type { };
-};    
-
-#endif // legacy traits
-
                     // ========================================
                     // macros BSLALG_DECLARE_NESTED_TRAITS[1-5]
                     // ========================================
@@ -548,179 +480,11 @@ struct bslalg_TypeTraits {
     BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT5)
     // Like 'BSLALG_DECLARE_NESTED_TRAITS', but for five traits.
 
-#if 0 // TODO autodetect
-
-namespace bslalg {
-                         //===========================
-                         // class TypeTraits_NestedYes
-                         //===========================
-
-struct TypeTraits_NestedYes {
-    // Private type returned by a successful probe for nested traits.
-
-    static bslmf::MetaInt<1> match(TypeTraits_NestedYes&);
-    template <typename T> static bslmf::MetaInt<0> match(const T&);
-    template <typename T> static bslmf::MetaInt<0> match(const volatile T&);
-        // Return 'bslmf::MetaInt<1>' if called on an argument of type
-        // 'TypeTraits_NestedYes' and 'bslmf::MetaInt<0>' otherwise.
-};
-
-                     // ==========================
-                     // struct TypeTraits_NotTrait
-                     // ==========================
-
-template <typename TRAIT> struct TypeTraits_NotTrait {
-    // Private class: Given a trait, this template produces a unique type which
-    // is NOT the trait type and is not a trait at all.
-};
-
-                     // ============================
-                     // struct TypeTraits_AutoDetect
-                     // ============================
-
-template<int U, typename T> struct TypeTraits_AutoDetect {
-    // This meta-function is used to assign traits for the templatized type 'T'
-    // using the templatized index 'U'.  The index is determined by the
-    // meta-function 'TypeTraits_AutoDetectIndex' for 4 different types:
-    //..
-    // Index|  Types                          |     Traits
-    // =====+=================================+================================
-    //  0   |references                       | no implied traits
-    //  1   |fundamental type (int, pointers, | POD traits, equality comparable
-    //      |                  enum... etc.)  |
-    //  2   |nested traits                    | traits declared within class
-    //  3   |convertible to 'bslma::Allocator'| usesBslmaAllocator trait
-    //  4   |bslmf::Nil                       | bitwise copyable trait
-    //..
-    //
-    // This default implementation of the auto-trait detection mechanism does
-    // not assign any trait to its nested 'Type'.
-
-    typedef TypeTraitNil   Type;
-};
-
-// PARTIAL SPECIALIZATIONS
-template<typename T> struct TypeTraits_AutoDetect<1,T> {
-    // This implementation of the auto-detected traits for builtin POD types
-    // (fundamental, pointer, enum) assigns the 'TypeTraitsGroupPod' and
-    // 'TypeTraitBitwiseEqualityComparable' traits to its nested 'Type'.  It
-    // matches the auto-index 1.
-
-    struct Type :
-        TypeTraitsGroupPod,
-        TypeTraitBitwiseEqualityComparable {};
-};
-
-template<typename T> struct TypeTraits_AutoDetect<2, T> {
-    // This implementation of the auto-detected traits detects and assigns to
-    // its nested 'Type' the nested type 'T::TypeTraits', if any.  It matches
-    // the auto-index 2.
-
-    typedef typename T::NestedTypeTraits Type;
-};
-
-template<typename T> struct TypeTraits_AutoDetect<3,T> {
-    // Auto-detected traits for types constructible from 'bslma::Allocator*'.
-    // It matches the auto-index 3.
-
-  private:
-    // IMPLEMENTATION NOTE: This meta-function is only evaluated if all other
-    // attempts to sniff the traits for 'T' have failed.  Thus, problematic
-    // calls to 'bslmf::IsConvertible' are minimized.
-
-    typedef struct UniqueType {
-        // A class convertible from this type must have a templated constructor
-        // which makes it convertible from EVERY type.
-    } *UniquePtrType;
-
-    enum {
-        // If a pointer to 'UniqueType' is convertible to 'T', it can only mean
-        // that ANY POINTER is convertible to 'T'.
-
-        ANY_POINTER = bslmf::IsConvertible<UniqueType*, T>::VALUE
-    };
-
-    enum {
-        // Test for conversion from 'bslma::Allocator*'.  If 'ANY_POINTER' is
-        // true, then 'bslma::Allocator*' is just like any other pointer and
-        // its convertibility to 'T' does not imply that 'T' uses bslma
-        // allocators.
-
-        USES_BSLMA = !ANY_POINTER &&
-                              bslmf::IsConvertible<bslma::Allocator*, T>::VALUE
-    };
-
-  public:
-    typedef typename bslmf::If<USES_BSLMA,
-                              TypeTraitUsesBslmaAllocator,
-                              TypeTraitNil>::Type Type;
-};
-
-template <typename T> struct TypeTraits_AutoDetect<4, T> {
-    // Auto-detect and assign bitwise copyable traits for 'bslmf::Nil'.  It
-    // matches auto-index 4.
-    struct Type : TypeTraitBitwiseCopyable
-    {
-    };
-};
-
-                  // ================================
-                  // class TypeTraits_AutoDetectIndex
-                  // ================================
-
-template <typename T>
-struct TypeTraits_AutoDetectIndex {
-    // Compute the index of auto-detected traits.  This is used to map an index
-    // to 5 different types:
-    //..
-    //  0. no traits (including references)
-    //  1. fundamental types (int, pointers, enum... etc.)
-    //  2. nested traits
-    //  3. convertible to 'bslma::Allocator'
-    //  4. bslmf::Nil
-    //..
-    // This index value maps to the traits defined in 'TypeTraits_AutoDetect'
-
-  public:
-    enum { VALUE = (bslmf::IsFundamental<T>::VALUE      ? 1 :
-                    bslmf::IsPointer<T>::VALUE          ? 1 :
-                    bslmf::IsPointerToMember<T>::VALUE  ? 1 :
-                    bslmf::IsEnum<T>::VALUE             ? 1 :
-                    TypeTraits_NestedTest<T>::VALUE     ? 2 :
-                    3)
-    };
-};
-
-// PARTIAL SPECIALIZATIONS
-template <typename T> struct TypeTraits_AutoDetectIndex<T&> {
-    // This partial specialization of 'TypeTraits_AutoDetectIndex' matches
-    // reference types, and assigns an auto-index 0 (nil traits).
-
-    enum { VALUE = 0 };
-};
-
-template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
-    // This partial specialization of 'TypeTraits_AutoDetectIndex' matches
-    // 'bslmf::Nil' type, and assigns an auto-index 4 (bitwise copyable
-    // traits).  The use of auto detect index is necessary since 'bslmf::Nil'
-    // is defined in the 'bslmf' package, which is below 'bslalg'.
-
-    enum { VALUE = 4 };
-};
-
-}  // close package namespace
-
-#endif // autodetect
-
-
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
-
-#define bdealg_TypeTraits bslalg_TypeTraits
-    // This alias is defined for backward compatibility.
 
 #define BDEALG_DECLARE_NESTED_TRAITS(T, TRAITS)                               \
     BSLALG_DECLARE_NESTED_TRAITS(T, TRAITS)
@@ -748,75 +512,13 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
 #define bdealg_HasTrait bslalg::HasTrait
     // This alias is defined for backward compatibility.
 
-#if 0 // TODO old traits
-
-#ifdef bdealg_PassthroughTrait
-#undef bdealg_PassthroughTrait
-#endif
-#define bdealg_PassthroughTrait bslalg::PassthroughTrait
-    // This alias is defined for backward compatibility.
-
-#ifdef bdealg_Passthrough_BdemaAllocator
-#undef bdealg_Passthrough_BdemaAllocator
-#endif
-#define bdealg_Passthrough_BdemaAllocator bslalg::Passthrough_BslmaAllocator
-    // This alias is defined for backward compatibility.
-
-#ifdef bdealg_PassthroughTraitBdemaAllocator
-#undef bdealg_PassthroughTraitBdemaAllocator
-#endif
-#define bdealg_PassthroughTraitBdemaAllocator bslalg::Passthrough_BslmaAllocator
-    // This alias is defined for backward compatibility.
-
-#ifdef bdealg_TypeTraitsGroupPod
-#undef bdealg_TypeTraitsGroupPod
-#endif
-#define bdealg_TypeTraitsGroupPod bslalg::TypeTraitsGroupPod
-    // This alias is defined for backward compatibility.
-
-#ifdef bdealg_TypeTraitsGroupStlSequence
-#undef bdealg_TypeTraitsGroupStlSequence
-#endif
-#define bdealg_TypeTraitsGroupStlSequence bslalg::TypeTraitsGroupStlSequence
-    // This alias is defined for backward compatibility.
-
-#ifdef bdealg_TypeTraitsGroupStlOrdered
-#undef bdealg_TypeTraitsGroupStlOrdered
-#endif
-#define bdealg_TypeTraitsGroupStlOrdered bslalg::TypeTraitsGroupStlOrdered
-    // This alias is defined for backward compatibility.
-
-#ifdef bdealg_TypeTraitsGroupStlHashed
-#undef bdealg_TypeTraitsGroupStlHashed
-#endif
-#define bdealg_TypeTraitsGroupStlHashed bslalg::TypeTraitsGroupStlUnordered
-    // This alias is defined for backward compatibility.
-
-#ifdef bdealg_TypeTraitsGroupStlUnordered
-#undef bdealg_TypeTraitsGroupStlUnordered
-#endif
-#define bdealg_TypeTraitsGroupStlUnordered bslalg::TypeTraitsGroupStlUnordered
-    // This alias is defined for backward compatibility.
-
-#endif // 0 old traits
-
 #ifdef bdealg_SelectTrait
 #undef bdealg_SelectTrait
 #endif
 #define bdealg_SelectTrait bslalg::SelectTrait
     // This alias is defined for backward compatibility.
 
-#endif
-
-#if 0 // TODO old traits
-
-#ifdef bslalg_TypeTraits_NotTrait
-#undef bslalg_TypeTraits_NotTrait
-#endif
-#define bslalg_TypeTraits_NotTrait bslalg::TypeTraits_NotTrait
-    // This alias is defined for backward compatibility.
-
-#endif // 0 old traits
+#endif // !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
 }  // close enterprise namespace
 
@@ -824,7 +526,7 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
+//      Copyright (C) Bloomberg L.P., 2008-2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

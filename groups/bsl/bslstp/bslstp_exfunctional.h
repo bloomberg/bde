@@ -1,6 +1,6 @@
-// bslstl_exfunctional.h                                              -*-C++-*-
-#ifndef INCLUDED_BSLSTL_EXFUNCTIONAL
-#define INCLUDED_BSLSTL_EXFUNCTIONAL
+// bslstp_exfunctional.h                                              -*-C++-*-
+#ifndef INCLUDED_BSLSTP_EXFUNCTIONAL
+#define INCLUDED_BSLSTP_EXFUNCTIONAL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -58,10 +58,10 @@ BSLS_IDENT("$Id: $")
 // This component is for use by the 'bsl+stdhdrs' package.  Use 'functional'
 // directly.
 
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// Prevent 'bslstp' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_functional.h> instead of <bslstl_exfunctional.h> in \
+#error "include <bsl_functional.h> instead of <bslstp_exfunctional.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
 

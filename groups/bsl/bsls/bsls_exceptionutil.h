@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::ExceptionUtil: namespace for exception utility functions
 //
-//@SEE_ALSO:
-//
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: Code that uses 'try', 'throw' and 'catch' constructs will

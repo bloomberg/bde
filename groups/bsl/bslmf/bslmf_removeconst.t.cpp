@@ -36,9 +36,9 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 1: {
-        ASSERT((is_same<typename remove_const<int const>::type, int>::value));
-        ASSERT((is_same<typename remove_const<int * const>::type, int *>::value));
-        ASSERT((is_same<typename remove_const<const int *>::type, const int *>::value));
+        ASSERT((is_same<remove_const<int const>::type, int>::value));
+        ASSERT((is_same<remove_const<int * const>::type, int *>::value));
+        ASSERT((is_same<remove_const<const int *>::type, const int *>::value));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

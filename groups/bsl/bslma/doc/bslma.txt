@@ -233,15 +233,20 @@
 
  Characteristics differentiating among 'bslma' memory-allocation objects *in*
  *general* are:
-..
-    * Whether or not the object isA 'bslma_Allocator'.
-    * Whether or not the allocator supports memory reuse.
-    * Whether allocation requests consume the exact amount of memory requested,
-      an additive number of additional bytes, or a non-additive number of
-      additional bytes (e.g., the smallest power of two that can satisfy the
-      request).
-    * Whether or not the allocator supports multi-threading.
-..
+
+: o Whether or not the object isA 'bslma_Allocator'.
+:
+: o Whether or not the allocator supports memory reuse.
+:
+: o Whether allocation requests consume the exact amount of memory requested,
+:   an additive number of additional bytes, or a non-additive number of
+:   additional bytes (e.g., the smallest power of two that can satisfy the
+:   request).
+:
+: o Whether allocation requests consume the exact amount of memory requested,
+:
+: o Whether or not the allocator supports multi-threading.
+
  All 'bslma' allocators are thread-safe but not thread-enabled (see the 'bcema'
  package-level documentation for information on thread-enabled allocators).
  In BDE terminology, a class is thread-safe if distinct threads can safely
@@ -347,13 +352,14 @@
  'struct's, and other non-'char' types.
 
  A number of the 'bslma' memory managers *do* align.  They do so by:
-..
-     1. Inferring the needed alignment from the size of the request, and
-        returning a NATURALLY aligned address for it, or
-     2. Returning a chunk of memory aligned to an address that would serve as
-        a properly-aligned address for a type with the largest possible
-        alignment needs, i.e., returning a MAXIMALLY aligned address.
-..
+
+: 1 Inferring the needed alignment from the size of the request, and returning
+:   a NATURALLY aligned address for it, or
+:
+: 2 Returning a chunk of memory aligned to an address that would serve as a
+:   properly-aligned address for a type with the largest possible alignment
+:   needs, i.e., returning a MAXIMALLY aligned address.
+
  The cost of obtaining aligned addresses is twofold: an increase in the memory
  used (allocators returning aligned addresses do so by skipping bytes that
  could otherwise be used, so as to return an appropriate address), and

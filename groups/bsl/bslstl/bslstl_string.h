@@ -447,12 +447,13 @@ class basic_string
     // C++ (2003).  Note that the parameterized 'CHAR_TYPE' must be *equal* to
     // 'ALLOCATOR::value_type'.  In addition, this implementation offers strong
     // exception guarantees (see below), with the general rules that:
-    //..
-    //   (1) any method that would result in a string of length larger than the
-    //       size returned by 'max_size' throws 'std::length_error', and
-    //   (2) any method that attempts to access a position outside the valid
-    //       range of a string throws 'std::out_of_range'.
-    //..
+    //
+    //: 1 any method that would result in a string of length larger than the
+    //:   size returned by 'max_size' throws 'std::length_error', and
+    //:
+    //: 2 any method that attempts to access a position outside the valid range
+    //:   of a string throws 'std::out_of_range'.
+    //
     // Circumstances where a method throws 'bsl::length_error' (1) are clear
     // and not repeated in the individual function-level documentations below.
     //

@@ -122,7 +122,7 @@ namespace bsl {
 // the Bloomberg supplied standard header file.
 
 #ifndef BSL_OVERRIDES_STD
-#include <bslstl_exalgorithm.h>
+#include <bslstp_exalgorithm.h>
 #endif
 
 #endif

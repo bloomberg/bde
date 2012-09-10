@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Oleg Grunin (ogrunin)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template structure used to
 // strip reference-ness from its single template type parameter.  Types that
 // are not reference types are unmodified.  The "de-referenced" type can be

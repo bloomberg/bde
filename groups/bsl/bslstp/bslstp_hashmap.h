@@ -54,6 +54,10 @@
 #include <bslstp_alloc.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_EXFUNCTIONAL
+#include <bslstp_exfunctional.h>
+#endif
+
 #ifndef INCLUDED_BSLSTP_ITERATOR
 #include <bslstp_iterator.h>
 #endif
@@ -64,10 +68,6 @@
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_EXFUNCTIONAL
-#include <bslstl_exfunctional.h>
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL

@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsltf::BitwiseMoveableTestType: bitwise-moveable test class
 //
-//@AUTHOR: Chen He (che2)
+//@SEE_ALSO: bsltf_templatetestfacility
 //
-//@SEE ALSO: bsltf_templatetestfacility
+//@AUTHOR: Chen He (che2)
 //
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'BitwiseMoveableTestType', that is

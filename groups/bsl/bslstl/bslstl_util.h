@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //  bslstl::Util: namespace for utility functions
 //  bslstl::UtilIterator: discriminates integral formal parameters
 //
-//@SEE_ALSO:
-//
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component defines a class, 'bslstl::Util', that provides a

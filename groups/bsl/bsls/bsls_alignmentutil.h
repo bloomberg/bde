@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::AlignmentUtil: namespace for alignment functions, types, and constants
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwa)
-//
 //@SEE_ALSO: bslma_bufferimputil
+//
+//@AUTHOR: Rohan Bhindwale (rbhindwa)
 //
 //@DESCRIPTION: This component defines a 'struct', 'bsls::AlignmentUtil', which
 // serves as a namespace for compile-time constants, types, and operations

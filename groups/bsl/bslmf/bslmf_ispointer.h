@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::IsPointer: meta-function for determining pointer types
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's parameter is a pointer.  'bslmf::IsPointer' defines a
 // member, 'VALUE', whose value is initialized (at compile-time) to 1 if the

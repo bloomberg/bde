@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::SwapUtil: namespace for the 'swap' utility function.
 //
-//@SEE_ALSO: bsl_algorithm.h
+//@SEE_ALSO: bsl_algorithm
 //
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
