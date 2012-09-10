@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide the C++03 compatible stringbuf class.
 //
 //@CLASSES:
-//  bsl::streambuf: C++03-compatible stringbuf class
+//  bsl::streambuf: a C++03-compatible stringbuf class
 //
 //@SEE_ALSO: bslstl_stringstream, bslstl_ostringstream, bslstl_istringstream
 //
@@ -23,23 +23,27 @@ BSLS_IDENT("$Id: $")
 // implements a standard string buffer, providing an unformatted character
 // input sequence and an unformatted character output sequence that
 // may be initialized or accessed using a string value (see 27.8.2 [stringbuf]
-// of the C++11 standard).  As with any stream buffer class,
-// 'bsl::basic_stringbuf' is rarely used directly.  Stream buffers provide
-// low-level unformatted input/output.  They are usually plugged into
-// 'std::basic_stream' classes to provide higher-level formatted input and
-// output via 'operator<<' and 'operator>>'.   'bsl::basic_stringbuf' is used
-// in 'bsl::basic_stringstream' family of classes and users should prefer
-// 'bsl::basic_stringstream' classes instead of directly using
-// 'bsl::basic_stringbuf'.
+// of the C++11 standard).  This component also defines two standard aliases,
+// 'bsl::stringbuf' and 'bsl::wstringbuf', that refer to specializations of the
+// 'bsl::basic_stringbuf' template for 'char' and 'wchar_t' types
+// respectively.  As with any stream buffer class, 'bsl::basic_stringbuf' is
+// rarely used directly.  Stream buffers provide low-level unformatted
+// input/output.  They are usually plugged into 'std::basic_stream' classes to
+// provide higher-level formatted input and output via 'operator<<' and
+// 'operator>>'.  'bsl::basic_stringbuf' is used in 'bsl::basic_stringstream'
+// family of classes and users should prefer 'bsl::basic_stringstream' classes
+// instead of directly using 'bsl::basic_stringbuf'.
 //
 // 'bsl::basic_stringbuf' derives from 'std::basic_streambuf' and implements
 // the necessary protected virtual methods.  This way 'bsl::basic_stringbuf'
 // customizes the behavior of 'std::basic_streambuf' to redirect the reading
 // and writing of characters to an internally maintained sequence of characters
 // that can be initialized or accessed using a 'bsl::basic_string'.  Note that
-// although this implementation currently also uses 'bsl::basic_string' as the
-// its internal representation for the buffered character sequence, that is
-// not mandated by the standard (and may change in the future).
+// althrough the standard mandates functions that access and modify the
+// buffered sequence using a 'basic_string' it does not mandate that a
+// 'basic_stringbuf' internally store this buffer in a 'basic_string'; this
+// implementation currently uses a 'basic_string' as its internal bufer, but
+// that is subject to change without warning.
 //
 // The 'bsl::stringbuf' template has three parameters, 'CHAR_TYPE',
 // 'CHAR_TRAITS', and 'ALLOCATOR'.  The 'CHAR_TYPE' and 'CHAR_TRAITS'
@@ -59,12 +63,12 @@ BSLS_IDENT("$Id: $")
 // derived from the 'bslma::Allocator' memory allocation protocol.  Clients
 // intending to use 'bslma' style allocators should use 'bsl::allocator', which
 // provides a C++11 standard-compatible adapter for a 'bslma::Allocator'
-// object.  Note that the standard aliases 'bsl::ostringstream' and
-// 'bsl::wostringstream' both use 'bsl::allocator'.
+// object.  Note that the standard aliases 'bsl::stringbuf' and
+// 'bsl::wstringbuf' both use 'bsl::allocator'.
 //
 ///'bslma'-Style Allocators
 /// - - - - - - - - - - - -
-// If the parameterized 'ALLOCATOR' type of an 'ostringstream' instantiation is
+// If the parameterized 'ALLOCATOR' type of an 'stringbuf' instantiation is
 // 'bsl::allocator', then objects of that stream buffer type will conform to
 // the standard behavior of a 'bslma'-allocator-enabled type.  Such a
 // stream buffer accepts an optional 'bslma::Allocator' argument at
@@ -73,7 +77,6 @@ BSLS_IDENT("$Id: $")
 // stream buffer throughout its lifetime; otherwise, the stream buffer will use
 // the default allocator installed at the time of the stream buffer's
 // construction (see 'bslma_default').
-//
 //
 ///Usage
 ///-----
@@ -223,9 +226,9 @@ class basic_stringbuf
                                 // the size of 'd_str' and updating 'epptr'
                                 // (the end-of-output pointer) allows the
                                 // parent stream type to write additional
-                                // characters without 'overflow'ing.  However,
-                                // care must be taken to keep
-                                // 'd_lastWrittenChar' up to date as the parent
+                                // characters without 'overflow'.  However,
+                                // care must be taken to refresh the cached
+                                // 'd_lastWrittenChar' value as the parent
                                 // stream will update the current output
                                 // position 'pptr', without calling a method
                                 // on this type.
@@ -248,7 +251,7 @@ class basic_stringbuf
         // a character in 'd_ptr' ('&d_ptr[0] + d_lastWrittenChar').
         // Return the offset of the current position of the input sequence
         // from the start of the sequence.  The behavior is undefined unless
-        // this buffer is in input-mode, and 'currentInputPosition' is within
+        // this buffer is in input-mode and 'currentInputPosition' is within
         // the range of accessible characters in 'd_ptr'.
 
     pos_type updateOutputPointers(char_type *currentOutputPosition);
@@ -317,15 +320,14 @@ class basic_stringbuf
         // location.  Optionally specify 'modeBitMask' indicating whether to
         // set the current input position, output position, or both.  If
         // 'whence' is 'ios_bas::beg' set the current position to the
-        // indicated 'offset' from the beginning of the stream, if 'whence' is
+        // indicated 'offset' from the beginning of the stream; if 'whence' is
         // 'ios_bas::end' set the current position to the indicated 'offset'
-        // from the end of the stream, and if 'whence' is 'ios_bas::cur' set
+        // from the end of the stream; and if 'whence' is 'ios_bas::cur' set
         // the current input or output position to the indicated 'offset' from
-        // the current input or output position.  If 'whence' is
-        // 'ios_bas::cur' then 'modeBitMask' may be either 'ios_bas::in' or
-        // 'ios_base::out', but not both.  Return the new offset from the
-        // beginning of the file on success, and 'pos_type(off_type(-1))'
-        // otherwise.
+        // its current position.  If 'whence' is 'ios_bas::cur' then
+        // 'modeBitMask' may be either 'ios_bas::in' or 'ios_base::out', but
+        // not both.  Return the new offset from the beginning of the file on
+        // success, and 'pos_type(off_type(-1))' otherwise.
 
     virtual pos_type seekpos(
              pos_type           absoluteOffset,
@@ -340,13 +342,13 @@ class basic_stringbuf
     virtual native_std::streamsize xsgetn(
                                         char_type              *result,
                                         native_std::streamsize  numCharacters);
-        // Read up to the specified 'numCharacter' from this 'stringbuf' object
-        // and store them in the specified 'result' array.  Return the number
-        // of loaded into 'result'.  Note that if fewer than 'numCharacters'
-        // characters are available in the buffer, all available characters
-        // are loaded into 'result'.  The behavior is undefined unless
-        // 'result' refers to a contiguous sequence of characters of at least
-        // 'numCharacters'.
+        // Read up to the specified 'numCharacters' from this 'stringbuf'
+        // object and store them in the specified 'result' array.  Return the
+        // number of characters loaded into 'result'.  Note that if fewer than
+        // 'numCharacters' characters are available in the buffer, all
+        // available characters are loaded into 'result'.  The behavior is
+        // undefined unless 'result' refers to a contiguous sequence of
+        // characters of at least 'numCharacters'.
 
     virtual int_type underflow();
         // Return the character at the current input position, if a character
@@ -358,8 +360,8 @@ class basic_stringbuf
 
     virtual int_type uflow();
         // Return the character at the current input position and advance the
-        // input position.  If no character is available at the current input
-        // position, return 'traits_type::eof()'.   Update the end of the
+        // input position by 1.  If no character is available at the current
+        // input position, return 'traits_type::eof()'.   Update the end of the
         // input area, 'egptr', if additional characters are available (as may
         // occur if additional characters have been written to the string
         // buffer).  Note that this operation is similar to 'underflow', but
@@ -368,11 +370,11 @@ class basic_stringbuf
     virtual int_type pbackfail(int_type character = traits_type::eof());
         // Put back the specified 'character' into the input sequence so that
         // the next character read from the input sequence will be
-        // 'character'.  If 'character' is either 'traits_type::eof()' or the
-        // same as the previously read character from the input sequence, then
-        // adjust the current input position, 'gptr', back one position.  If
-        // 'character' is neither 'traits_type::eof()' nor the previously read
-        // character from the input sequence, but this string buffer was
+        // 'character'.  If 'character' is either 'traits_type::eof()' or is
+        // the same as the previously read character from the input sequence,
+        // then adjust the current input position, 'gptr', back one position.
+        // If 'character' is neither 'traits_type::eof()' nor the previously
+        // read character from the input sequence, but this string buffer was
         // opened for writing ('ios_base::out'), then adjust the input
         // sequence back one position and write 'character' to that position.
         // Return the character that was put back on success and
@@ -385,7 +387,7 @@ class basic_stringbuf
                                         const char_type        *inputString,
                                         native_std::streamsize  numCharacters);
         // Append the specified 'numCharacters' from the specified
-        // 'inputString' the output sequence starting at the current output
+        // 'inputString' to the output sequence starting at the current output
         // position ('pptr').  Update the current output position of this
         // string buffer to refer to the last appended character.  Return the
         // number of characters that were appended.
@@ -393,11 +395,11 @@ class basic_stringbuf
     virtual int_type overflow(int_type character = traits_type::eof());
         // Append the specified character 'c' to the output sequence of this
         // stream buffer at the current output position ('pptr'), and advance
-        // the output position one character forward.  Possibly update the
-        // end of output area ('epptr') to allow for additional writes (e.g.,
-        // by the base type 'basic_streambuf') to the output sequence without
-        // calling a method on this type.  Return the written character on
-        // success, and 'traits_type::eof()' if 'character' is
+        // the output position one character forward.  This operation may
+        // update the end of output area ('epptr') to allow for additional
+        // writes (e.g., by the base 'basic_streambuf' type) to the output
+        // sequence without calling a method on this type.  Return the written
+        // character on success, and 'traits_type::eof()' if 'character' is
         // 'traits_type::eof()' or this stream buffer was not opened for
         // writing.
 
@@ -465,18 +467,19 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 class StringbufContainer {
     // This class is intended to enable the implementation of string-stream
     // types by providing a trivial type containing a 'basic_stringbuf' that
-    // is suitable as a (private) base class for a string-stream.
-    // String-stream implementations typically (privately) inherit from a
-    // 'basic_stringbuf' to ensure that that string-buffer is initialized
-    // before the stream's public base-class (e.g., 'basic_stream'), because
-    // the string buffer is passed to the constructor of parent stream type.
-    // However, if a string-stream implementation were to directly inherit
-    // from 'basic_streambuf', then virtual methods defined in that
-    // string-stream (e.g., 'undeflow') might incorrectly override those in the
-    // 'basic_stringbuf' implementation.  Inheriting from 'StringbufContainer'
-    // allows the string-stream to ensure the order of initialization of its
-    // contained 'basic_stringbuf' without potentially overriding virtual
-    // methods in the 'basic_stringbuf' type.
+    // is suitable as a (private) base class for a string-stream.  Inheriting
+    // from 'StringbufContainer' allows the string-stream to ensure that the
+    // contained 'basic_stringbuf' is initialized before initializing other
+    // base-classes or data memenbers, without potentially overriding virtual
+    // methods in the 'basic_stringbuf' type.  Note that implementations of
+    // string-stream types must pass the address of a string-buffer to their
+    // public base-class (e.g., 'basic_stream') and so the string-stream must
+    // ensure (using private inheritence) that the string-buffer is
+    // initialized before constructing the public base-class, however if a
+    // string-stream  implementation were to directly inherit from
+    // 'basic_streambuf', then virtual methods defined in that string-stream
+    // (e.g., 'undeflow') might incorrectly override those in the
+    // basic_stringbuf' implementation.
 
   private:
     // TYPES
