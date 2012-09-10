@@ -1003,7 +1003,7 @@ unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 bucket_size(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return d_impl.numElementsInBucket(n);
+    return d_impl.countElementsInBucket(n);
 }
 
 template <class KEY_TYPE,
@@ -1168,7 +1168,7 @@ inline
 void
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::reserve(size_type n)
 {
-    return d_impl.reserve(n);
+    return d_impl.rehashForNumElements(n);
 }
 
 }  // close namespace bsl
