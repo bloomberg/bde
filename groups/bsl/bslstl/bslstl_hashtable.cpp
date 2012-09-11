@@ -6,6 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_nativestd.h>
 
+#include <algorithm>
 #include <cstddef>
 
 namespace BloombergLP
@@ -19,9 +20,9 @@ namespace bslstl
 
 bslalg::HashTableBucket *HashTable_StaticBucket::getDefaultBucketAddress()
 {
-    static bslalg::HashTableBucket s_bucket = {}; // Aggregative initialization of a
-                                           // POD should be thread-safe static
-                                           // initialization.
+    static bslalg::HashTableBucket s_bucket = {}; // Aggregative initialization
+                                                  // of a POD should be thread-
+                                                  // safe static initialization
     return &s_bucket;
 }
 

@@ -10,13 +10,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a hash-container with support for duplicate values
 //
 //@CLASSES:
-//   bslimp::HashTable : hashed-map container
+//   bslimp::HashTable : hashed-table container for user-supplied object types
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
-//@DESCRIPTION: This component provides an implementation of the container,
+//@DESCRIPTION: This component provides an implementation of a container,
 // 'HashTable', specified by the C++11 standard.
 //
 // This implementation will use a single, bidirectional list, indexed by
@@ -112,9 +112,9 @@ namespace BloombergLP {
 
 namespace bslstl {
 
-                           // ===============
-                           // class HashTable
-                           // ===============
+                           // ==========================
+                           // class HashTable_Parameters
+                           // ==========================
 
 template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
 class HashTable_Parameters : private bslalg::FunctorAdapter<HASH>::Type
@@ -204,10 +204,6 @@ class HashTable {
     double                  d_maxLoadFactor; // maximum load factor
 
   private:
-    // TBD implement assignment
-    HashTable& operator=(const HashTable&);
-
-  private:
     // PRIVATE MANIPULATORS
     void removeAllImp();
         // Erase all the nodes in this table and deallocate their memory via
@@ -243,6 +239,9 @@ class HashTable {
         // Copy the specified 'other' using the specified allocator 'a'.
 
     ~HashTable();
+
+    // TBD implement assignment
+    HashTable& operator=(const HashTable&);
 
     // ACCESSORS
     ALLOCATOR allocator() const;
@@ -362,6 +361,66 @@ struct HashTable_IterUtil {
 };
 
                     // ============================
+                    // class HashTable_ArrayProctor
+                    // ============================
+
+template <class ALLOCATOR>
+class HashTable_ArrayProctor {
+    // This class probably already exists in 'bslalg'
+  private:
+    // DATA
+    ALLOCATOR                      d_allocator;
+    bslalg::HashTableBucket       *d_array;
+    typename ALLOCATOR::size_type  d_size;
+
+  private:
+    // NOT IMPLEMNENTED
+    HashTable_ArrayProctor(const HashTable_ArrayProctor&);
+    HashTable_ArrayProctor& operator == (const HashTable_ArrayProctor&);
+
+  public:
+    HashTable_ArrayProctor(const ALLOCATOR&               allocator,
+                           const bslalg::HashTableAnchor& array);
+
+    ~HashTable_ArrayProctor();
+
+    void dismiss();
+};
+
+                    // ===========================
+                    // class HashTable_ListProctor
+                    // ===========================
+
+template <class FACTORY>
+class HashTable_ListProctor {
+  private:
+    // DATA
+    FACTORY                   *d_factory;
+    bslalg::BidirectionalLink *d_root;
+
+  private:
+    // NOT IMPLEMNENTED
+    HashTable_ListProctor(const HashTable_ListProctor&);
+    HashTable_ListProctor& operator == (const HashTable_ListProctor&);
+
+  public:
+    HashTable_ListProctor(FACTORY                   *factory,
+                          bslalg::BidirectionalLink *listRoot);
+
+    ~HashTable_ListProctor();
+
+    void dismiss();
+};
+
+                    // =========================
+                    // class HashTable_PrimeUtil
+                    // =========================
+
+struct HashTable_PrimeUtil {
+    static size_t nextPrime(size_t n);
+};
+
+                    // ============================
                     // class HashTable_StaticBucket
                     // ============================
 
@@ -406,17 +465,68 @@ struct HashTable_Util {
                                    const ALLOCATOR&         allocator);
 };
 
-                    // =========================
-                    // class HashTable_PrimeUtil
-                    // =========================
-
-struct HashTable_PrimeUtil {
-    static size_t nextPrime(size_t n);
-};
-
 // ============================================================================
 //                      TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+template <class FACTORY>
+inline
+HashTable_ListProctor<FACTORY>::HashTable_ListProctor(
+                                           FACTORY                   *factory,
+                                           bslalg::BidirectionalLink *listRoot)
+: d_factory(factory)
+, d_root(listRoot)
+{
+    BSLS_ASSERT_SAFE(factory);
+}
+
+template <class FACTORY>
+inline
+HashTable_ListProctor<FACTORY>::~HashTable_ListProctor()
+{
+    while (d_root) {
+        bslalg::BidirectionalLink *next = d_root->nextLink();
+        d_factory->deleteNode(d_root);
+        d_root = next;
+    }
+}
+
+template <class FACTORY>
+inline
+void HashTable_ListProctor<FACTORY>::dismiss()
+{
+    d_root = 0;
+}
+
+
+template <class ALLOCATOR>
+inline
+HashTable_ArrayProctor<ALLOCATOR>::HashTable_ArrayProctor(
+                                      const ALLOCATOR&               allocator,
+                                      const bslalg::HashTableAnchor& anchor)
+: d_allocator(allocator)
+, d_array(anchor.bucketArrayAddress())
+, d_size(anchor.bucketArraySize())
+{
+}
+
+template <class ALLOCATOR>
+inline
+HashTable_ArrayProctor<ALLOCATOR>::~HashTable_ArrayProctor()
+{
+    if (d_array) {
+        HashTable_Util<ALLOCATOR>::destroyBucketArray(d_array,
+                                                      d_size,
+                                                      d_allocator);
+    }
+}
+
+template <class ALLOCATOR>
+inline
+void HashTable_ArrayProctor<ALLOCATOR>::dismiss()
+{
+    d_array = 0;
+}
 
                     // --------------------------
                     // class HashTable_Parameters
@@ -622,100 +732,6 @@ HashTable(const HASH&      hash,
     }
 }
 
-template <class FACTORY>
-class HashTable_ListProctor {
-  private:
-    // DATA
-    FACTORY                   *d_factory;
-    bslalg::BidirectionalLink *d_root;
-
-  public:
-    HashTable_ListProctor(FACTORY                   *factory,
-                          bslalg::BidirectionalLink *listRoot);
-
-    ~HashTable_ListProctor();
-
-    void dismiss();
-};
-
-template <class ALLOCATOR>
-class HashTable_ArrayProctor {
-    // This class probably already exists in 'bslalg'
-  private:
-    // DATA
-    ALLOCATOR                      d_allocator;
-    bslalg::HashTableBucket       *d_array;
-    typename ALLOCATOR::size_type  d_size;
-
-  public:
-    HashTable_ArrayProctor(const ALLOCATOR&               allocator,
-                          bslalg::HashTableBucket       *array,
-                          typename ALLOCATOR::size_type  size);
-
-    ~HashTable_ArrayProctor();
-
-    void dismiss();
-};
-
-
-template <class FACTORY>
-inline
-HashTable_ListProctor<FACTORY>::HashTable_ListProctor(
-                                           FACTORY                   *factory,
-                                           bslalg::BidirectionalLink *listRoot)
-: d_factory(factory)
-, d_root(listRoot)
-{
-    BSLS_ASSERT_SAFE(factory);
-}
-
-template <class FACTORY>
-HashTable_ListProctor<FACTORY>::~HashTable_ListProctor()
-{
-    while (d_root) {
-        bslalg::BidirectionalLink *next = d_root->nextLink();
-        d_factory->deleteNode(d_root);
-        d_root = next;
-    }
-}
-
-template <class FACTORY>
-inline
-void HashTable_ListProctor<FACTORY>::dismiss()
-{
-    d_root = 0;
-}
-
-
-template <class ALLOCATOR>
-inline
-HashTable_ArrayProctor<ALLOCATOR>::HashTable_ArrayProctor(
-                                      const ALLOCATOR&               allocator,
-                                      bslalg::HashTableBucket       *array,
-                                      typename ALLOCATOR::size_type  size)
-: d_allocator(allocator)
-, d_array(array)
-, d_size(size)
-{
-}
-
-template <class ALLOCATOR>
-HashTable_ArrayProctor<ALLOCATOR>::~HashTable_ArrayProctor()
-{
-    if (d_array) {
-        HashTable_Util<ALLOCATOR>::destroyBucketArray(d_array,
-                                                      d_size,
-                                                      d_allocator);
-    }
-}
-
-template <class ALLOCATOR>
-inline
-void HashTable_ArrayProctor<ALLOCATOR>::dismiss()
-{
-    d_array = 0;
-}
-
 template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
 HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::
 HashTable(const HashTable& other, const ALLOCATOR& allocator)
@@ -734,23 +750,20 @@ HashTable(const HashTable& other, const ALLOCATOR& allocator)
                              native_std::ceil(d_size / this->d_maxLoadFactor));
 
     HashTable_Util<ALLOCATOR>::initAnchor(&d_anchor, numBuckets, allocator);
+    // create a proctor for d_anchor's allocated array
+    HashTable_ArrayProctor<ALLOCATOR> arrayProctor(allocator, d_anchor);
+
     d_capacity = numBuckets * this->d_maxLoadFactor;
         
-    // create a proctor for d_anchor's allocated array
-    HashTable_ArrayProctor<ALLOCATOR> arrayProctor(allocator,
-                                                 d_anchor.bucketArrayAddress(),
-                                                   d_anchor.bucketArraySize());
-
     const bslalg::BidirectionalLink *cursor = other.d_anchor.listRootAddress();
-
     bslalg::BidirectionalLink *newNode =
                                 d_parameters.nodeFactory().createNode(*cursor);
-    newNode->reset();
-    d_anchor.setListRootAddress(newNode);
 
-    // create a proctor for the root of the list
+    newNode->reset();  // must terminate list before creating proctor
     HashTable_ListProctor<typename ImplParameters::NodeFactory>
                              listProctor(&d_parameters.nodeFactory(), newNode);
+
+    d_anchor.setListRootAddress(newNode);
 
     // After this point, no operations can throw
     SizeType curBucketIndex = bslalg::HashTableImpUtil::computeBucketIndex(
@@ -808,6 +821,16 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::~HashTable()
     // additional beyond clear needed there.
     this->removeAllAndDeallocate();
 }
+
+template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>&
+HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::operator=(const HashTable& rhs)
+{
+    HashTable(rhs, this->allocator()).swap(*this);
+    return *this;
+}
+
 
 // PRIVATE MANIPULATORS
 template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
@@ -988,7 +1011,6 @@ void HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::removeAllAndDeallocate()
 }
 
 template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
-inline
 bslalg::BidirectionalLink *
 HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::remove(
                                                bslalg::BidirectionalLink *node)
@@ -1184,7 +1206,6 @@ void HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::setMaxLoadFactor(
 }
 
 template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
-inline
 void
 HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::rehashForNumBuckets(
                                                         SizeType newNumBuckets)
