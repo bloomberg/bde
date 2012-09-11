@@ -175,10 +175,6 @@ BSLS_IDENT("$Id: $")
 // will be reported via standard test driver assertions (i.e., the standard
 // 'ASSERT' macro).
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #ifndef INCLUDED_CSTDIO
 #define INCLUDED_CSTDIO
 #include <cstdio>

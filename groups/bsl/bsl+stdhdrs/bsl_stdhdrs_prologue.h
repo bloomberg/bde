@@ -18,10 +18,6 @@
 // Note that only part of this file is protected by include guards.  THIS FILE
 // IS INTENDED FOR MULTIPLE INCLUSION.
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #ifndef BSL_OVERRIDES_STD
 # error "Prologue shouldn't be included in native stl mode"
 #endif

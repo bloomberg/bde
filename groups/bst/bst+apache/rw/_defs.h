@@ -18,10 +18,6 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: Minimal set of _RW definitions necessary to compile the test
 // drivers for non-RW libraries.
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #ifndef TEST_RW_EXTENSIONS
    // if non-zero, tests Apache/RW extensions to the library.
 #  define  TEST_RW_EXTENSIONS 0

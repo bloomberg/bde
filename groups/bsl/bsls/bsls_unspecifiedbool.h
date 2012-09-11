@@ -122,10 +122,6 @@ BSLS_IDENT("$Id: $")
 // Notice that 'SimplePtr' objects behave as native pointers.  They should be
 // tested before dereferencing (as they could be null).
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 namespace BloombergLP {
 
 namespace bsls {

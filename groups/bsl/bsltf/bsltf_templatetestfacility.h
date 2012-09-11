@@ -448,10 +448,6 @@ BSLS_IDENT("$Id: $")
 //  } break;
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
-#endif
-
 #ifndef INCLUDED_BSLTF_ALLOCBITWISEMOVEABLETESTTYPE
 #include <bsltf_allocbitwisemoveabletesttype.h>
 #endif

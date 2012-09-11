@@ -19,10 +19,6 @@
 // Note that there are no include guards.  THIS FILE IS INTENDED FOR MULTIPLE
 // INCLUSION.
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #ifndef BSL_OVERRIDES_STD
 #error "Epilogue should not be included in native STL mode"
 #endif

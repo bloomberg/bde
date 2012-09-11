@@ -136,10 +136,6 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #ifndef __cplusplus
 #error This header should not be included in non-C++ compilation units.
 #endif

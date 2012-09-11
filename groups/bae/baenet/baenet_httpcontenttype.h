@@ -17,10 +17,6 @@ BDES_IDENT_PRAGMA_ONCE
 //@DESCRIPTION:  This component provides a value-semantic type for representing
 // the HTTP Content-Type field value, as described in RFC 2616.
 
-#ifndef INCLUDED_BAESCM_VERSION
-#include <baescm_version.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif

@@ -164,10 +164,6 @@ BSLS_IDENT("$Id: $")
 // internally-managed buffers.  For an example, see the 'bslma_bufferimputil'
 // component.
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE

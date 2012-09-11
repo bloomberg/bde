@@ -169,10 +169,6 @@ BSLS_IDENT("$Id: $")
 // would have an actual (and therefore natural) alignment of 4 on a 64-bit
 // platform when using default compiler settings.
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
 #endif

@@ -17,10 +17,6 @@
 ///-----
 //
 
-#ifndef INCLUDED_BDESCM_VERSION
-#include <bdescm_version.h>
-#endif
-
 
 #include <string>
 

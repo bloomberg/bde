@@ -333,10 +333,6 @@ BSLS_IDENT("$Id: $")
 //  assert(2 == set.numElements());
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
-#endif
-
 #ifndef BSLALG_RBTREENODE
 #include <bslalg_rbtreenode.h>
 #endif

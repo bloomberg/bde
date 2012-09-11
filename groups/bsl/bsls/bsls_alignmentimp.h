@@ -207,10 +207,6 @@ BSLS_IDENT("$Id: $")
 //  assert(B_ALIGNMENT   == sizeof(ThatAlignType));
 //..
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif

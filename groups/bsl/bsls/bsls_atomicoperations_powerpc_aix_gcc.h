@@ -18,10 +18,6 @@
 // provided for the sole purpose of passing cscheckin validation tests
 // performed on AIX with the GCC compiler.
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif

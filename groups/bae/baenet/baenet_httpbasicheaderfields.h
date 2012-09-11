@@ -19,10 +19,6 @@ BDES_IDENT_PRAGMA_ONCE
 // HTTP General fields and the fields from the HTTP Entity fields (as defined
 // in RFC 2616).
 
-#ifndef INCLUDED_BAESCM_VERSION
-#include <baescm_version.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif

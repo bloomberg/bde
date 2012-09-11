@@ -132,10 +132,6 @@ BSLS_IDENT("$Id: $")
 //  Node value: 4
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>
 #endif

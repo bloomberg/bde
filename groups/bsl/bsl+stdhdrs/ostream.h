@@ -11,10 +11,6 @@
 // includes the corresponding C++ header and provides any additional symbols
 // that the STLPort header would define via transitive includes.
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #include <bsl_ostream.h>
 
 using std::basic_ostream;

@@ -114,10 +114,6 @@ BSLS_IDENT("$Id: $")
 //  assert(3 == p->bitpos());
 //..
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 namespace BloombergLP {
 
 namespace bsls {

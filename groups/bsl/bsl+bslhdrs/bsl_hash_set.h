@@ -27,10 +27,6 @@ BSLS_IDENT("$Id: $")
 #error "bsl_hash_set is deprecated"
 #endif
 
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
-#endif
-
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif

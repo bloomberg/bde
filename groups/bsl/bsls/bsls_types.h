@@ -69,10 +69,6 @@ BSLS_IDENT("$Id: $")
 //            << std::numeric_limits<bsls::Types::Int64>::max() << std::endl;
 //..
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif

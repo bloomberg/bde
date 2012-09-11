@@ -82,10 +82,6 @@ BSLS_IDENT("$Id: $")
 //  const double t5w = s.accumulatedWallTime();    assert(0.0 == t5w);
 //..
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #ifndef INCLUDED_BSLS_TIMEUTIL
 #include <bsls_timeutil.h>
 #endif

@@ -19,10 +19,6 @@ BDES_IDENT_PRAGMA_ONCE
 // 'bdem' schema.  This in-core representation of the schema
 // is used to validate XML configuration data used to initialize the service.
 
-#ifndef INCLUDED_BDESCM_VERSION
-#include <bdescm_version.h>
-#endif
-
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
 #define INCLUDED_BSL_OSTREAM

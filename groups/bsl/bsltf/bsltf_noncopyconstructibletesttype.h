@@ -49,10 +49,6 @@ BSLS_IDENT("$Id: $")
 //  NonCopyConstructibleTestType Y(X); // This will not compile
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
-#endif
-
 namespace BloombergLP {
 namespace bsltf {
 

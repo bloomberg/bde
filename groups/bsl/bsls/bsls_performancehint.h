@@ -323,10 +323,6 @@ BSLS_IDENT("$Id: $")
 // far away from the data use, the data might be removed from the cache before
 // it is looked at and the prefetch is wasted.
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif

@@ -43,10 +43,6 @@ BSLS_IDENT("$Id: $")
 #error "bsls_int64 is deprecated"
 #endif
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif

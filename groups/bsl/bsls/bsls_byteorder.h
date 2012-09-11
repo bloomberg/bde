@@ -137,10 +137,6 @@ BSLS_IDENT("$Id: $")
 //..
 // The other macros can be used in a similar manner.
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif

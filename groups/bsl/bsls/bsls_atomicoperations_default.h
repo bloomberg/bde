@@ -279,10 +279,6 @@
 // This component is a private implementation type of 'bsls_atomicoperations';
 // see 'bsls_atomicoperations' for a usage example.
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif

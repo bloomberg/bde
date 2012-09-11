@@ -23,10 +23,6 @@ BSLS_IDENT("$Id: $")
 // places them in the 'std' namespace.
 */
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 /*
 // Note that 'math.h' is meant for multiple inclusion on ibm - therefore only
 // the ident is protected by the guard.

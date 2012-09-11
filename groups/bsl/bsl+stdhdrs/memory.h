@@ -11,10 +11,6 @@
 // includes the corresponding C++ header and provides any additional symbols
 // that the STLPort header would define via transitive includes.
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 /* Coppied from stlport */
 /* The header <memory.h> is not part of either the C or C++ standards, but is
  * in widespread use none the less.  It contains a portion of what is included

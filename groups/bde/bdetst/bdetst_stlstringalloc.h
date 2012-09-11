@@ -16,10 +16,6 @@
 ///-----
 //
 
-#ifndef INCLUDED_BDESCM_VERSION
-#include <bdescm_version.h>
-#endif
-
 // header files needed by the test driver.
 #ifndef INCLUDED_BDEMA_TESTALLOCATOR
 #include <bdema_testallocator.h>

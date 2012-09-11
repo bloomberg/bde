@@ -19,10 +19,6 @@ BSLS_IDENT("$Id: $")
 // _iterbase.h file to allow the Apache tests to compile.
 //
 
-#ifndef INCLUDED_BSLS_CODEBASE
-#include <bsls_codebase.h>
-#endif
-
 #include <iterator>
 
 #endif // ! defined(INCLUDED__ITERBASE)
