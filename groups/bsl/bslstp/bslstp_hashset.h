@@ -47,7 +47,7 @@
 #define INCLUDED_BSLSTP_HASHSET
 
 #if defined(BSL_PUBLISHED)
-#error "bslstp_hashset is deprecated"
+#error "bslstp_hashset is not for publication"
 #endif
 
 #ifndef INCLUDED_BSLSCM_VERSION

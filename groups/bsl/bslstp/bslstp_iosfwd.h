@@ -8,7 +8,7 @@
 BSLS_IDENT("$Id: $")
 
 #if defined(BSL_PUBLISHED)
-#error "bslstp_iosfwd is deprecated"
+#error "bslstp_iosfwd is not for publication"
 #endif
 
 namespace std {

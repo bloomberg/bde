@@ -47,7 +47,7 @@
 #define INCLUDED_BSLSTP_HASHMAP
 
 #if defined(BSL_PUBLISHED)
-#error "bslstp_hashmap is deprecated"
+#error "bslstp_hashmap is not for publication"
 #endif
 
 #ifndef INCLUDED_BSLSCM_VERSION

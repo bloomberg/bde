@@ -72,6 +72,7 @@ namespace bsl
     using native_std::unary_negate;
 }
 
+#ifndef BSL_PUBLISHED
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's
 // implementation, in which case the implementation file will be included by
@@ -81,6 +82,7 @@ namespace bsl
 #include <bslstp_exfunctional.h>
 #include <bslstl_hash.h>
 #endif
+#endif  // #ifndef BSL_PUBLISHED
 
 #endif
 

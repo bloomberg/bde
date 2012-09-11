@@ -28,7 +28,7 @@
 #define INCLUDED_BSLSTP_SLISTBASE
 
 #if defined(BSL_PUBLISHED)
-#error "bslstp_slistbase is deprecated"
+#error "bslstp_slistbase is not for publication"
 #endif
 
 #ifndef INCLUDED_CSTDDEF

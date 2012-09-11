@@ -48,6 +48,7 @@
 #error "potential infinite inclusion of the recursive epilogue detected"
 #endif
 
+#ifndef BSL_PUBLISHED
 // First start with STLPort containers, which may include native headers.  The
 // 'BSL_INCLUDE_*' macros are defined in the standard headers inside the
 // 'bsl+stdhdrs' package.
@@ -97,6 +98,7 @@
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
+#endif  // #ifndef BSL_PUBLISHED
 
 // 'bslstl' containers go here.
 
@@ -222,6 +224,7 @@
 # endif
 #endif
 
+#ifndef BSL_PUBLISHED
 // If '<functional>' was included, then include SGI extension to functional.
 #ifdef INCLUDED_NATIVE_FUNCTIONAL
 # ifndef INCLUDED_BSLSTP_EXFUNCTIONAL
@@ -233,6 +236,7 @@
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
+#endif  // #ifndef BSL_PUBLISHED
 
 // If '<memory>' was included, then include our implementation of allocators.
 #ifdef INCLUDED_NATIVE_MEMORY

@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 // directly.
 
 #if defined(BSL_PUBLISHED)
-#error "bslstp_exfunctional is deprecated"
+#error "bslstp_exfunctional is not for publication"
 #endif
 
 // Prevent 'bslstp' headers from being included directly in 'BSL_OVERRIDES_STD'

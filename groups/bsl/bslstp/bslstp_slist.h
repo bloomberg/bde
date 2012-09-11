@@ -42,7 +42,7 @@
 #define INCLUDED_BSLSTP_SLIST
 
 #if defined(BSL_PUBLISHED)
-#error "bslstp_slist is deprecated"
+#error "bslstp_slist is not for publication"
 #endif
 
 #ifndef INCLUDED_BSLSCM_VERSION

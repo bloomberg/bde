@@ -31,7 +31,7 @@
 #define INCLUDED_BSLSTP_ITERATOR
 
 #if defined(BSL_PUBLISHED)
-#error "bslstp_iterator is deprecated"
+#error "bslstp_iterator is not for publication"
 #endif
 
 #ifndef INCLUDED_CSTDDEF

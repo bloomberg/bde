@@ -31,7 +31,7 @@
 #define INCLUDED_BSLSTP_HASHTABLE
 
 #if defined(BSL_PUBLISHED)
-#error "bslstp_hashtable is deprecated"
+#error "bslstp_hashtable is not for publication"
 #endif
 
 #ifndef INCLUDED_BSLSTP_ALLOC

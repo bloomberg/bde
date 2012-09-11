@@ -45,7 +45,7 @@
 #define INCLUDED_BSLSTP_SSTREAM
 
 #if defined(BSL_PUBLISHED)
-#error "bslstp_sstream is deprecated"
+#error "bslstp_sstream is not for publication"
 #endif
 
 #ifndef INCLUDED_BSLSCM_VERSION

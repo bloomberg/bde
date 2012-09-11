@@ -28,7 +28,7 @@
 #define INCLUDED_BSLSTP_ALLOC
 
 #if defined(BSL_PUBLISHED)
-#error "bslstp_alloc is deprecated"
+#error "bslstp_alloc is not for publication"
 #endif
 
 #ifndef INCLUDED_BSLSTL_ALLOCATORPROXY
