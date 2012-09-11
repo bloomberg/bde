@@ -400,7 +400,7 @@ class priority_queue
         // default-constructed comparator of the (template parameter) type
         // 'COMPARATOR' to order priorities of elements.
 
-    priority_queue(const COMPARATOR& comparator);
+    explicit priority_queue(const COMPARATOR& comparator);
         // Create an empty priority queue, adapting a default-constructed
         // container of the parameterized 'CONTAINER' type, and having the
         // sepcified 'comparator' of the (template parameter) type 'COMPARATOR'
