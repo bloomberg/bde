@@ -350,12 +350,12 @@ class reverse_iterator :
         // reverse iterator has the past-the-end value for a reverse iterator
         // over the underlying sequence.
 
-    reverse_iterator& operator+=(difference_type offset);
-        // Increment by the specified 'offset' number of elements in the
-        // reverse iteration sequence and return a reference providing
-        // modifiable access to this reverse iterator.  The behavior is
-        // undefined unless this reverse iterator, after incrementing by
-        // 'offset', is within the bounds of the underlying sequence.
+    reverse_iterator& operator+=(difference_type n);
+        // Increment by the specified 'n' number of elements in the reverse
+        // iteration sequence and return a reference providing modifiable
+        // access to this reverse iterator.  The behavior is undefined unless
+        // this reverse iterator, after incrementing by 'n', is within the
+        // bounds of the underlying sequence.
 
     reverse_iterator& operator--();
         // Decrement to the previous element in the reverse iteration sequence
@@ -371,27 +371,27 @@ class reverse_iterator :
         // reverse iterator has the same value as a reverse iterator to the
         // start of the underlying sequence.
 
-    reverse_iterator& operator-=(difference_type offset);
-        // Decrement by the specified 'offset' number of elements in the
-        // reverse iteration sequence and return a reference providing
-        // modifiable access to this reverse iterator.  The behavior is
-        // undefined unless this reverse iterator, after decrementing by
-        // 'offset', is within the bounds of the underlying sequence.
+    reverse_iterator& operator-=(difference_type n);
+        // Decrement by the specified 'n' number of elements in the reverse
+        // iteration sequence and return a reference providing modifiable
+        // access to this reverse iterator.  The behavior is undefined unless
+        // this reverse iterator, after decrementing by 'n', is within the
+        // bounds of the underlying sequence.
 
     // ACCESSORS
     reverse_iterator operator+(difference_type n) const;
         // Return a reverse iterator having the same value as that of
-        // incrementing this reverse iterator by the specified 'offset' number
-        // of elements in the reverse iteration sequence.  The behaivor is
-        // undefined unless this reverse iterator, if increments by 'offset',
-        // would be within the bounds of the underlying sequence.
+        // incrementing this reverse iterator by the specified 'n' number of
+        // elements in the reverse iteration sequence.  The behaivor is
+        // undefined unless this reverse iterator, if increments by 'n', would
+        // be within the bounds of the underlying sequence.
 
     reverse_iterator operator-(difference_type n) const;
         // Return a reverse iterator having the same value as that of
-        // decrementing this reverse iterator by the specified 'offset' number
-        // of elements in the reverse iteration sequence.  The behaivor is
-        // undefined unless this reverse iterator, if decrements by 'offset',
-        // would be within the bounds of the underlying sequence.
+        // decrementing this reverse iterator by the specified 'n' number of
+        // elements in the reverse iteration sequence.  The behaivor is
+        // undefined unless this reverse iterator, if decrements by 'n', would
+        // be within the bounds of the underlying sequence.
 };
 
 // FREE OPERATORS
@@ -555,26 +555,42 @@ struct IteratorDistanceImp {
                             FWD_ITER         start,
                             FWD_ITER         finish,
                             input_iterator_tag);
-        // TBD
+        // Return in the specified '*ret' the distance from the specified
+        // 'start' iterator to the specified 'finish' iterator.  The behavior
+        // is undefined unless 'start' and 'finish' both have the
+        // 'input_iterator_tag' into the same underlying sequence, and 'start'
+        // is before 'finish' in that sequence.
 
     template <class FWD_ITER, class DIFFERENCE_TYPE>
     static void getDistance(DIFFERENCE_TYPE *ret,
                             FWD_ITER         start,
                             FWD_ITER         finish,
                             forward_iterator_tag);
-        // TBD
+        // Return in the specified '*ret' the distance from the specified
+        // 'start' iterator to the specified 'finish' iterator.  The behavior
+        // is undefined unless 'start' and 'finish' both have the
+        // 'forward_iterator_tag' into the same underlying sequence, and
+        // 'start' is before 'finish' in that sequence.
 
     template <class RANDOM_ITER, class DIFFERENCE_TYPE>
     static void getDistance(DIFFERENCE_TYPE *ret,
                             RANDOM_ITER      start,
                             RANDOM_ITER      finish,
                             random_access_iterator_tag);
-        // TBD
+        // Return in the specified '*ret' the distance from the specified
+        // 'start' iterator to the specified 'finish' iterator.  The behavior
+        // is undefined unless 'start' and 'finish' both have the
+        // 'random_access_iterator_tag' into the same underlying sequence.
+        // Note that the result might be negative.
 };
 
 template <class ITER>
 typename iterator_traits<ITER>::difference_type
 distance(ITER start, ITER finish);
+    // Return the distance from the specified 'start' iterator to the specified
+    // 'finish' iterator.  The behavior is undefined unless 'start' and
+    // 'finish' are both into the same underlying sequence, and 'start' is
+    // before 'finish' in that sequence.
 
 #else
 
@@ -642,9 +658,9 @@ reverse_iterator<ITER>::operator++(int)
 template <class ITER>
 inline
 reverse_iterator<ITER>&
-reverse_iterator<ITER>::operator+=(difference_type offset)
+reverse_iterator<ITER>::operator+=(difference_type n)
 {
-    Base::operator+=(offset);
+    Base::operator+=(n);
     return *this;
 }
 
@@ -670,9 +686,9 @@ reverse_iterator<ITER>::operator--(int)
 template <class ITER>
 inline
 reverse_iterator<ITER>&
-reverse_iterator<ITER>::operator-=(difference_type offset)
+reverse_iterator<ITER>::operator-=(difference_type n)
 {
-    Base::operator-=(offset);
+    Base::operator-=(n);
     return *this;
 }
 
