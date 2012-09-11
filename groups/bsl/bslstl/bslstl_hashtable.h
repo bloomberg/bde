@@ -88,6 +88,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
+#endif
+
 #ifndef INCLUDED_ALGORITHM
 #include <algorithm>  // for swap
 #define INCLUDED_ALGORITHM
@@ -187,6 +191,8 @@ class HashTable {
     // PRIVATE TYPES
     typedef HashTable_Parameters<KEY_POLICY, HASH, EQUAL, ALLOCATOR>
                                                                 ImplParameters;
+    typedef typename ImplParameters::AllocatorTraits AllocatorTraits;
+
   public:
     typedef typename ImplParameters::KeyType   KeyType;
     typedef typename ImplParameters::ValueType ValueType;
@@ -205,6 +211,14 @@ class HashTable {
 
   private:
     // PRIVATE MANIPULATORS
+    void copyDataStructure(const bslalg::BidirectionalLink *cursor);
+
+    void quickSwap(HashTable *other);
+        // Efficiently exchange the value and comparator of this object with
+        // the value of the specified '*other' object.  This method provides
+        // the no-throw exception-safety guarantee.  The behavior is undefined
+        // unless this object was created with the same allocator as '*other'.
+
     void removeAllImp();
         // Erase all the nodes in this table and deallocate their memory via
         // the node factory, without performing the necessary bookkeeping to
@@ -234,9 +248,13 @@ class HashTable {
               const ALLOCATOR& allocator = ALLOCATOR());
         // Behavior is undefined unless '0 < intialBucketCount'.
 
-    HashTable(const HashTable& other,
-              const ALLOCATOR& allocator = ALLOCATOR());
-        // Copy the specified 'other' using the specified allocator 'a'.
+    HashTable(const HashTable& original);
+        // Copy the specified 'other' using the allocator specified by
+        // 'bsl::allocator_traits<ALLOCATOR>::select_on_container_copy_construction
+
+    HashTable(const HashTable& original,
+              const ALLOCATOR& allocator);
+        // Copy the specified 'other' using the specified 'allocator'.
 
     ~HashTable();
 
@@ -280,19 +298,34 @@ class HashTable {
 
     void setMaxLoadFactor(float loadFactor);
     void swap(HashTable& other);
+        // Exchange the value of this object as well as its comparator with
+        // those of the specified 'other' object.  Additionally if
+        // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
+        // 'true' then exchange the allocator of this object with that of the
+        // 'other' object, and do not modify either allocator otherwise.  This
+        // method provides the no-throw exception-safety guarantee and
+        // guarantees O[1] complexity.  The behavior is undefined is unless
+        // either this object was created with the same allocator as 'other' or
+        // 'propagate_on_container_swap' is 'true'.
 
 
     // ACCESSORS
     SizeType bucketIndexForKey(const KeyType& key) const;
-        // Return the index of the bucket that contains all the elements having
-        // the specified 'key'.
+        // Return the index of the bucket that would contain all the elements
+        // having the specified 'key'.
 
     const bslalg::HashTableBucket& bucketAtIndex(SizeType index) const;
         // Return a reference to the 'n'th non-modifiable bucket in the
-        // sequence of buckets.  The behavior is undefined unless 'n < TBD'.
+        // sequence of buckets.  The behavior is undefined unless
+        // 'index < numBuckets()'.
     
     const EQUAL& comparator() const;
     
+    SizeType countElementsInBucket(SizeType index) const;
+        // Return the number elements contained in the bucket at the specified
+        // index 'index'.  Note that this operation will be linear in the size
+        // of the bucket.
+
     bslalg::BidirectionalLink *find(const KeyType& key) const;
         // Return the first link of the contiguous list of links containing the
         // elements of this table having the same specified 'key'. 
@@ -301,15 +334,24 @@ class HashTable {
                    bslalg::BidirectionalLink **last,
                    const KeyType&              k) const;
     
-    const HASH& hasher()     const;
-   
 
     bslalg::BidirectionalLink *findEndOfRange(
                                        bslalg::BidirectionalLink *first) const;
         // Return the address of the first node in the total sequence of the
         // hash table following the specified 'first' node that holds a value
         // with a key that does not have the same value as the key stored in
-        // the node pointed to by 'first'.
+        // the node pointed to by 'first', or a null pointer value all the
+        // following nodes hold a key that has the same value as the key stored
+        // in the node pointed to by 'first'.  The behavior is undefined unless
+        // 'first' points to a link in the list owned by this hash table.
+
+    const HASH& hasher()     const;
+   
+    float loadFactor() const;
+        // Return the current load factor for this table.  The load factor is
+        // the statical mean number of elements per bucket.
+    
+    float maxLoadFactor() const;
 
     SizeType maxNumBuckets() const;
         // Return the maximum number of buckets that can be contained in this
@@ -317,15 +359,6 @@ class HashTable {
     
     SizeType numBuckets() const;
         // Return the number of buckets contained in this hash table.
-   
-    SizeType countElementsInBucket(SizeType index) const;
-        // Return the number elements contained in the bucket at the specified
-        // index 'index'.
-
-    float loadFactor() const;
-    
-    float maxLoadFactor() const;
-    
 };
 
 template <class VALUE_TYPE, class HASH, class EQUAL, class ALLOCATOR>
@@ -335,6 +368,14 @@ void swap(HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& x,
 template <class VALUE_TYPE, class HASH, class EQUAL, class ALLOCATOR>
 bool operator==(const HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& lhs,
                 const HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'HashTable' objects have the same
+    // value if they have the same number of keys, and each key that is
+    // contained in one of the objects is also contained in the other object.
+    // This method requires that the parameterized 'KEY' type be
+    // "equality-comparable" (see {Requirements on 'KEY'}).  Note that
+    // 'operator==' is used to compare keys, and *not* the 'EQUAL' functor
+    // stored in the hash table.
 
 template <class VALUE_TYPE, class HASH, class EQUAL, class ALLOCATOR>
 bool operator!=(const HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& lhs,
@@ -380,7 +421,7 @@ class HashTable_ArrayProctor {
 
   public:
     HashTable_ArrayProctor(const ALLOCATOR&               allocator,
-                           const bslalg::HashTableAnchor& array);
+                           const bslalg::HashTableAnchor& anchor);
 
     ~HashTable_ArrayProctor();
 
@@ -732,30 +773,71 @@ HashTable(const HASH&      hash,
     }
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::
-HashTable(const HashTable& other, const ALLOCATOR& allocator)
-: d_parameters(other.d_parameters, allocator)
-, d_anchor(HashTable_StaticBucket::getDefaultBucketAddress(), 1, 0)
-, d_size(other.d_size)
-, d_capacity(0)
-, d_maxLoadFactor(other.d_maxLoadFactor)
-{
-    if (0 == d_size) {
-        return;                                                       // RETURN
-    }
 
+template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::
+HashTable(const HashTable& original)
+: d_parameters(
+  original.d_parameters,
+  AllocatorTraits::select_on_container_copy_construction(original.allocator()))
+, d_anchor(HashTable_StaticBucket::getDefaultBucketAddress(), 1, 0)
+, d_size(original.d_size)
+, d_capacity(0)
+, d_maxLoadFactor(original.d_maxLoadFactor)
+{
+    if (d_size > 0) {
+        this->copyDataStructure(original.d_anchor.listRootAddress());
+    }
+}
+
+template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::
+HashTable(const HashTable& original, const ALLOCATOR& allocator)
+: d_parameters(original.d_parameters, allocator)
+, d_anchor(HashTable_StaticBucket::getDefaultBucketAddress(), 1, 0)
+, d_size(original.d_size)
+, d_capacity(0)
+, d_maxLoadFactor(original.d_maxLoadFactor)
+{
+    if (d_size > 0) {
+        this->copyDataStructure(original.d_anchor.listRootAddress());
+    }
+}
+
+template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::~HashTable()
+{
+    // This is overly expensive, as we need only reclaim memory, and need not
+    // update bucket indices and other sentries.  We might also want to reclaim
+    // any leading sentinel node.
+    // We can factor 'clear' into a two-part implementation later.
+    // Note that the 'vector' member will reclaim its own memory, so nothing
+    // additional beyond clear needed there.
+    this->removeAllAndDeallocate();
+}
+
+// PRIVATE MANIPULATORS
+template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+void
+HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::copyDataStructure(
+                                       const bslalg::BidirectionalLink *cursor)
+{
     // Allocate an appropriate number of buckets
     SizeType numBuckets = HashTable_PrimeUtil::nextPrime(
                              native_std::ceil(d_size / this->d_maxLoadFactor));
 
-    HashTable_Util<ALLOCATOR>::initAnchor(&d_anchor, numBuckets, allocator);
+    HashTable_Util<ALLOCATOR>::initAnchor(&d_anchor,
+                                          numBuckets,
+                                          this->allocator());
     // create a proctor for d_anchor's allocated array
-    HashTable_ArrayProctor<ALLOCATOR> arrayProctor(allocator, d_anchor);
+    HashTable_ArrayProctor<ALLOCATOR> arrayProctor(this->allocator(),
+                                                   d_anchor);
 
     d_capacity = numBuckets * this->d_maxLoadFactor;
         
-    const bslalg::BidirectionalLink *cursor = other.d_anchor.listRootAddress();
     bslalg::BidirectionalLink *newNode =
                                 d_parameters.nodeFactory().createNode(*cursor);
 
@@ -810,30 +892,6 @@ HashTable(const HashTable& other, const ALLOCATOR& allocator)
 }
 
 template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::~HashTable()
-{
-    // This is overly expensive, as we need only reclaim memory, and need not
-    // update bucket indices and other sentries.  We might also want to reclaim
-    // any leading sentinel node.
-    // We can factor 'clear' into a two-part implementation later.
-    // Note that the 'vector' member will reclaim its own memory, so nothing
-    // additional beyond clear needed there.
-    this->removeAllAndDeallocate();
-}
-
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>&
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::operator=(const HashTable& rhs)
-{
-    HashTable(rhs, this->allocator()).swap(*this);
-    return *this;
-}
-
-
-// PRIVATE MANIPULATORS
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
 void
 HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::removeAllImp()
 {
@@ -851,6 +909,23 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::removeAllImp()
         }
         while((root = next));
     }
+}
+
+template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+void
+HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::quickSwap(HashTable *other)
+{
+    BSLS_ASSERT_SAFE(other);
+    BSLS_ASSERT_SAFE(this->allocator() == other->allocator());
+
+    d_parameters.swap(other->d_parameters);
+
+    using native_std::swap;  // otherwise it is hidden by this very definition!
+
+    swap(d_anchor,        other->d_anchor);
+    swap(d_size,          other->d_size);
+    swap(d_capacity,      other->d_capacity);
+    swap(d_maxLoadFactor, other->d_maxLoadFactor);
 }
 
 template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
@@ -936,6 +1011,30 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::findOrInsertDefault(
 }
 
 // MANIPULATORS 
+template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>&
+HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::operator=(const HashTable& rhs)
+{
+    typedef typename ImplParameters::AllocatorTraits AllocatorTraits;
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
+
+        if (AllocatorTraits::propagate_on_container_copy_assignment::VALUE) {
+            HashTable other(rhs, rhs.allocator());
+            bslalg::SwapUtil::swap(
+                                &this->d_parameters.nodeFactory().allocator(),
+                                &other.d_parameters.nodeFactory().allocator());
+            quickSwap(&other);
+        }
+        else {
+            HashTable other(rhs, this->allocator());
+            quickSwap(&other);
+        }
+    }
+    return *this;
+}
+
 template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
 template <class SOURCE_TYPE>
 bslalg::BidirectionalLink *
@@ -1047,18 +1146,32 @@ template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
 void
 HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::swap(HashTable& other)
 {
-    // assert that allocators are compatible
-    // TBD: We do not yet support allocator propagation by allocator traits
-    BSLS_ASSERT(this->allocator() == other.allocator());
+    typedef typename ImplParameters::AllocatorTraits AllocatorTraits;
 
-    d_parameters.swap(other.d_parameters);
+    if (AllocatorTraits::propagate_on_container_swap::VALUE) {
+        bslalg::SwapUtil::swap(&this->d_parameters.nodeFactory().allocator(),
+                               &other.d_parameters.nodeFactory().allocator());
+        quickSwap(&other);
+    }
+    else {
+        // C++11 behavior: undefined for unequal allocators
+        // BSLS_ASSERT(allocator() == other.allocator());
 
-    using native_std::swap;  // otherwise it is hidden by this very definition!
+        // backward compatible behavior: swap with copies
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+               d_parameters.nodeFactory().allocator() ==
+               other.d_parameters.nodeFactory().allocator())) {
+            quickSwap(&other);
+        }
+        else {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            HashTable thisCopy(*this, other.allocator());
+            HashTable otherCopy(other, this->allocator());
 
-    swap(d_anchor,        other.d_anchor);
-    swap(d_size,          other.d_size);
-    swap(d_capacity,      other.d_capacity);
-    swap(d_maxLoadFactor, other.d_maxLoadFactor);
+            quickSwap(&otherCopy);
+            other.quickSwap(&thisCopy);
+        }
+    }
 }
 
 // observers
