@@ -39,10 +39,10 @@ BSLS_IDENT("$Id: $")
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
-//#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
-//#error "<bslstl_XXX.h> header can't be included directly in
-//BSL_OVERRIDES_STD mode"
-//#endif
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "<bslstl_hashtable.h> header can't be included directly in
+BSL_OVERRIDES_STD mode"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -810,12 +810,6 @@ template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::~HashTable()
 {
-    // This is overly expensive, as we need only reclaim memory, and need not
-    // update bucket indices and other sentries.  We might also want to reclaim
-    // any leading sentinel node.
-    // We can factor 'clear' into a two-part implementation later.
-    // Note that the 'vector' member will reclaim its own memory, so nothing
-    // additional beyond clear needed there.
     this->removeAllAndDeallocate();
 }
 
