@@ -20,9 +20,9 @@ namespace bslstl
 
 bslalg::HashTableBucket *HashTable_StaticBucket::getDefaultBucketAddress()
 {
-    static bslalg::HashTableBucket s_bucket = {}; // Aggregative initialization
-                                                  // of a POD should be thread-
-                                                  // safe static initialization
+    static bslalg::HashTableBucket s_bucket = {0}; // Aggregative initialization
+                                                   // of a POD should be thread-
+                                                   // safe static initialization
     return &s_bucket;
 }
 

@@ -48,6 +48,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_ALLOCATOR
+#include <bslstl_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
 #include <bslstl_allocatortraits.h>
 #endif
@@ -185,7 +189,10 @@ class HashTable_Parameters : private bslalg::FunctorAdapter<HASH>::Type
 // instantiated and used from the public interface of a std container that
 // provides all the user-friendly defaults, and explicitly pass down what is
 // needed.
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_POLICY, 
+          class HASH, 
+          class EQUAL, 
+          class ALLOCATOR = ::bsl::allocator<typename KEY_POLICY::ValueType> >
 class HashTable {
   private:
     // PRIVATE TYPES
@@ -288,7 +295,6 @@ class HashTable {
     bslalg::BidirectionalLink *insertContiguous(const SOURCE_TYPE& obj);
 
     bslalg::BidirectionalLink *remove(bslalg::BidirectionalLink *node);
-
     bslalg::BidirectionalLink *findOrInsertDefault(const KeyType& key);
     
     void rehashForNumBuckets(SizeType newNumBuckets);
