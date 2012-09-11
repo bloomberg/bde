@@ -277,7 +277,6 @@ class HashTable {
     bslalg::BidirectionalLink *insertContiguous(const SOURCE_TYPE& obj);
 
     bslalg::BidirectionalLink *remove(bslalg::BidirectionalLink *node);
-
     bslalg::BidirectionalLink *findOrInsertDefault(const KeyType& key);
     
     void rehashForNumBuckets(SizeType newNumBuckets);

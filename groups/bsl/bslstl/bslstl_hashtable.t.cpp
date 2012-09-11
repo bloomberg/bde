@@ -335,7 +335,9 @@ void TestDriver<KEY_POLICY, HASHER, EQUAL, ALLOCATOR> ::testCase1(
 
        for (size_t i = 0; i < numValues; ++i) {
            bool isInsertedFlag = false;
-           o1.insertIfMissing(&isInsertedFlag, Value(testKeys[i], testValues[i]));
+           o1.insertIfMissing(&isInsertedFlag, 
+                              Value(testKeys[i], 
+                              testValues[i]));
            ASSERTV(isInsertedFlag, true == isInsertedFlag);
        }
        ASSERTV(numValues == O1.size());
@@ -466,7 +468,7 @@ void TestDriver<KEY_POLICY, HASHER, EQUAL, ALLOCATOR> ::testCase1(
             ASSERTV(  X != Z);
             const Value& V = ImpUtil::extractValue<KEY_POLICY>(
                                            z.findOrInsertDefault(testKeys[i]));
-            ASSERTV(Value() == V);
+            ASSERTV(Value(testKeys[i], typename KEY_POLICY::MappedType()) == V);
             //z[testKeys[i]] = testValues[i];
             //ASSERTV(testValues[i] == z[testKeys[i]]);
             //ASSERTV( (X == Z));
@@ -480,22 +482,11 @@ void TestDriver<KEY_POLICY, HASHER, EQUAL, ALLOCATOR> ::testCase1(
             ASSERTV(X == Y);
             ASSERTV(!(X != Y));
         }
-//
-//        ASSERTV(0 != objectAllocator.numBytesInUse());
-//        ASSERTV(0 == defaultAllocator.numBytesInUse());
-//        // Verify sorted order of elements.
-//
-//        {
-//            const_iterator last = X.begin();
-//            const_iterator it   = ++(X.begin());
-//            while (it != X.end()) {
-//                ASSERTV(comparator(last->first, it->first));
-//                ASSERTV(comparator((*last).first, (*it).first));
-//
-//                last = it;
-//                ++it;
-//            }
-//        }
+
+        ASSERTV(0 != objectAllocator.numBytesInUse());
+        ASSERTV(0 == defaultAllocator.numBytesInUse());
+        // Verify sorted order of elements.
+
 //
 //        // Test iterators.
 //        {
@@ -549,99 +540,71 @@ void TestDriver<KEY_POLICY, HASHER, EQUAL, ALLOCATOR> ::testCase1(
 //            ASSERTV(rcci == X.rend());
 //            ASSERTV(ri   == x.rend());
 //        }
-//
-//        // Use erase(iterator) on all the elements.
-//        for (size_t i = 0; i < numValues; ++i) {
-//            const_iterator it     = x.find(testKeys[i]);
-//            const_iterator nextIt = it;
-//            ++nextIt;
-//
-//            ASSERTV(X.end()       != it);
-//            ASSERTV(testKeys[i]   == it->first);
-//            ASSERTV(testValues[i] == it->second);
-//
-//            const_iterator resIt     = x.erase(it);
-//            ASSERTV(resIt             == nextIt);
-//            ASSERTV(numValues - i - 1 == X.size());
-//            if (resIt != X.end()) {
-//                ASSERTV(comparator(testKeys[i], resIt->first));
-//            }
-//        }
+
+        // Use erase(iterator) on all the elements.
+        for (size_t i = 0; i < numValues; ++i) {
+            Link *it     = x.find(testKeys[i]);
+            Link *nextIt = it->nextLink();
+
+            ASSERTV(0       != it);
+            ASSERTV(testKeys[i]   == ImpUtil::extractKey<KEY_POLICY>(it));
+            ASSERTV(Value(testKeys[i], testValues[i]) ==
+                                        ImpUtil::extractValue<KEY_POLICY>(it));
+            Link *resIt = x.remove(it);
+            ASSERTV(resIt == nextIt);
+            
+            Link *resFind = x.find(testKeys[i]);
+            ASSERTV(0 == resFind);
+           
+            ASSERTV(numValues - i - 1 == X.size());
+        }
     } while (native_std::next_permutation(testKeys,
                                           testKeys + numValues));
+//
+//    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+    native_std::random_shuffle(testKeys,  testKeys + numValues);
+    if (veryVerbose) {
+        printf("Test 'erase(const key_type&)'.\n");
+    }
+    {
+        Obj x(HASHER(), EQUAL(), 0, &objectAllocator); const Obj& X = x;
+        for (size_t i = 0; i < numValues; ++i) {
+            Value value(testKeys[i], testValues[i]);
+            Link *result1 = x.insertContiguous(value);
+            ASSERTV(0 != result1);
+            Link *result2 = x.insertContiguous(value);
+            ASSERTV(0 != result2);
+            ASSERTV(result1 != result2);
+            ASSERTV(2 * (i + 1) == X.size());
+            
+            Link *start;
+            Link *end;
+            x.findRange(&start, &end, testKeys[i]);
+            ASSERTV(ImpUtil::extractKey<KEY_POLICY>(start) == testKeys[i]);
+            ASSERTV(ImpUtil::extractKey<KEY_POLICY>(start->nextLink()) == 
+                                                                  testKeys[i]);
+            ASSERTV(start->nextLink()->nextLink() == end);
+        }
+            
+        for (size_t i = 0; i < numValues; ++i) {
+            KeyType key = ImpUtil::extractKey<KEY_POLICY>(x.elementListRoot());
+            Link *resIt1 = x.remove(x.elementListRoot());
+            ASSERTV(x.find(key) == resIt1);
+            ASSERTV(X.size(), (2 * numValues - (2 * (i + 1) - 1)) == X.size());
+            Link *resIt2 = x.remove(x.elementListRoot());
+            ASSERTV( x.find(key) == 0);
+            ASSERTV(X.size(), (2 * numValues - 2 * (i + 1)) == X.size());
+        }
+    }
+
+    if (veryVerbose) {
+        printf("Test 'equal' and 'hasher'\n");
+    }
+   
 }
-//
-//    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//
-//    native_std::sort(testKeys, testKeys + numValues, comparator);
-//    if (veryVerbose) {
-//        printf("Test 'lower_bound' and 'upper_bound'.\n");
-//    }
-//    {
-//        Obj x(comparator, &objectAllocator); const Obj& X = x;
-//
-//        // Insert every other value into the map.
-//        for (size_t i = 0; i < numValues; ++i) {
-//            if (i % 2) {
-//                Value value(testKeys[i], testValues[i]);
-//                x.insert(value);
-//            }
-//        }
-//
-//        for (size_t i = 0; i < numValues; ++i) {
-//            iterator       li = x.lower_bound(testKeys[i]);
-//            const_iterator LI = X.lower_bound(testKeys[i]);
-//            iterator       ui = x.upper_bound(testKeys[i]);
-//            const_iterator UI = X.upper_bound(testKeys[i]);
-//
-//            ASSERTV(li == LI);
-//            ASSERTV(ui == UI);
-//
-//            // If test value 'i' was inserted in the map then 'lower_bound'
-//            // will return an iterator to that value; otherwise, 'lower_bound'
-//            // will return an iterator to the subsequent inserted value if one
-//            // exists, and the end iterator otherwise.
-//            const_iterator EXP_LOWER = i % 2
-//                                       ? X.find(testKeys[i])
-//                                       : i + 1 < numValues
-//                                             ? X.find(testKeys[i+1])
-//                                             : X.end();
-//
-//            // If test value 'i' was inserted in the map, then 'upper_bound'
-//            // should return an iterator to the subsequent value as
-//            // 'lower_bound', and the same iterator otherwise.
-//            const_iterator EXP_UPPER = EXP_LOWER;
-//            if (i % 2) {
-//                ++EXP_UPPER;
-//            }
-//
-//            ASSERTV(EXP_LOWER == li);
-//            ASSERTV(EXP_LOWER == LI);
-//            ASSERTV(EXP_UPPER == ui);
-//            ASSERTV(EXP_UPPER == UI);
-//        }
-//    }
-//
-//    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//
-//    native_std::random_shuffle(testKeys,  testKeys + numValues);
-//    if (veryVerbose) {
-//        printf("Test 'erase(const key_type&)'.\n");
-//    }
-//    {
-//        Obj x(comparator, &objectAllocator); const Obj& X = x;
-//        for (size_t i = 0; i < numValues; ++i) {
-//            Value value(testKeys[i], testValues[i]);
-//            InsertResult result = x.insert(value);
-//        }
-//
-//        for (size_t i = 0; i < numValues; ++i) {
-//            ASSERTV(1 == x.erase(testKeys[i]));
-//            ASSERTV(0 == x.erase(testKeys[i]));
-//            ASSERTV(numValues - i - 1 == X.size());
-//        }
-//    }
-//
+
 //    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
 //    if (veryVerbose) {
