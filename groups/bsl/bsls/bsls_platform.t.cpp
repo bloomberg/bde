@@ -112,6 +112,249 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 4: {
+        // --------------------------------------------------------------------
+        // DUMPING VALUES OF OLD '__' LITERALS 
+        //
+        // Concerns:
+        //   It is hard to tell which old literals are enabled and which
+        //   aren't.
+        //
+        // Plan:
+        //   Dump them out.
+        // --------------------------------------------------------------------
+
+        #ifdef BSLS_PLATFORM__CMP_AIX
+          printf("BSLS_PLATFORM__CMP_AIX == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CMP_AIX == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CMP_CLANG
+          printf("BSLS_PLATFORM__CMP_CLANG == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CMP_CLANG == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CMP_EDG
+          printf("BSLS_PLATFORM__CMP_EDG == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CMP_EDG == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CMP_GNU
+          printf("BSLS_PLATFORM__CMP_GNU == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CMP_GNU == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CMP_HP
+          printf("BSLS_PLATFORM__CMP_HP == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CMP_HP == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CMP_IBM
+          printf("BSLS_PLATFORM__CMP_IBM == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CMP_IBM == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CMP_MSVC
+          printf("BSLS_PLATFORM__CMP_MSVC == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CMP_MSVC == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CMP_SUN
+          printf("BSLS_PLATFORM__CMP_SUN == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CMP_SUN == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CMP_VERSION
+          printf("BSLS_PLATFORM__CMP_VERSION == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CMP_VERSION == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CMP_VER_MAJOR
+          printf("BSLS_PLATFORM__CMP_VER_MAJOR == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CMP_VER_MAJOR == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_32_BIT
+          printf("BSLS_PLATFORM__CPU_32_BIT == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_32_BIT == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_64_BIT
+          printf("BSLS_PLATFORM__CPU_64_BIT == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_64_BIT == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_88000
+          printf("BSLS_PLATFORM__CPU_88000 == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_88000 == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_ALPHA
+          printf("BSLS_PLATFORM__CPU_ALPHA == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_ALPHA == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_HPPA
+          printf("BSLS_PLATFORM__CPU_HPPA == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_HPPA == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_IA64
+          printf("BSLS_PLATFORM__CPU_IA64 == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_IA64 == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_INTEL
+          printf("BSLS_PLATFORM__CPU_INTEL == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_INTEL == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_MIPS
+          printf("BSLS_PLATFORM__CPU_MIPS == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_MIPS == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_POWERPC
+          printf("BSLS_PLATFORM__CPU_POWERPC == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_POWERPC == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_SPARC
+          printf("BSLS_PLATFORM__CPU_SPARC == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_SPARC == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_SPARC_32
+          printf("BSLS_PLATFORM__CPU_SPARC_32 == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_SPARC_32 == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_SPARC_V9
+          printf("BSLS_PLATFORM__CPU_SPARC_V9 == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_SPARC_V9 == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_VER_MAJOR
+          printf("BSLS_PLATFORM__CPU_VER_MAJOR == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_VER_MAJOR == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_VER_MINOR
+          printf("BSLS_PLATFORM__CPU_VER_MINOR == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_VER_MINOR == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_X86
+          printf("BSLS_PLATFORM__CPU_X86 == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_X86 == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__CPU_X86_64
+          printf("BSLS_PLATFORM__CPU_X86_64 == 1\n");
+        #else
+          printf("BSLS_PLATFORM__CPU_X86_64 == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__IS_BIG_ENDIAN
+          printf("BSLS_PLATFORM__IS_BIG_ENDIAN == 1\n");
+        #else
+          printf("BSLS_PLATFORM__IS_BIG_ENDIAN == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__IS_LITTLE_ENDIAN
+          printf("BSLS_PLATFORM__IS_LITTLE_ENDIAN == 1\n");
+        #else
+          printf("BSLS_PLATFORM__IS_LITTLE_ENDIAN == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__NO_64_BIT_LITERALS
+          printf("BSLS_PLATFORM__NO_64_BIT_LITERALS == 1\n");
+        #else
+          printf("BSLS_PLATFORM__NO_64_BIT_LITERALS == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_AIX
+          printf("BSLS_PLATFORM__OS_AIX == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_AIX == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_CYGWIN
+          printf("BSLS_PLATFORM__OS_CYGWIN == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_CYGWIN == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_DARWIN
+          printf("BSLS_PLATFORM__OS_DARWIN == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_DARWIN == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_FREEBSD
+          printf("BSLS_PLATFORM__OS_FREEBSD == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_FREEBSD == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_HPUX
+          printf("BSLS_PLATFORM__OS_HPUX == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_HPUX == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_LINUX
+          printf("BSLS_PLATFORM__OS_LINUX == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_LINUX == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_SOLARIS
+          printf("BSLS_PLATFORM__OS_SOLARIS == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_SOLARIS == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_SUBTYPE_COUNT
+          printf("BSLS_PLATFORM__OS_SUBTYPE_COUNT == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_SUBTYPE_COUNT == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_SUNOS
+          printf("BSLS_PLATFORM__OS_SUNOS == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_SUNOS == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_UNIX
+          printf("BSLS_PLATFORM__OS_UNIX == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_UNIX == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_VER_MAJOR
+          printf("BSLS_PLATFORM__OS_VER_MAJOR == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_VER_MAJOR == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_VER_MINOR
+          printf("BSLS_PLATFORM__OS_VER_MINOR == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_VER_MINOR == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_WIN2K
+          printf("BSLS_PLATFORM__OS_WIN2K == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_WIN2K == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_WIN9X
+          printf("BSLS_PLATFORM__OS_WIN9X == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_WIN9X == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_WINDOWS
+          printf("BSLS_PLATFORM__OS_WINDOWS == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_WINDOWS == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_WINNT
+          printf("BSLS_PLATFORM__OS_WINNT == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_WINNT == 0\n");
+        #endif
+        #ifdef BSLS_PLATFORM__OS_WINXP
+          printf("BSLS_PLATFORM__OS_WINXP == 1\n");
+        #else
+          printf("BSLS_PLATFORM__OS_WINXP == 0\n");
+        #endif
+      }  break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING 64-BIT LITERALS:
