@@ -413,7 +413,7 @@ class bdema_Pool {
         // pool object.  Note that all blocks dispensed by this pool have the
         // same size.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     int objectSize() const;
         // Return the size (in bytes) of the memory blocks allocated from this
@@ -549,7 +549,7 @@ int bdema_Pool::blockSize() const
     return d_blockSize;
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int bdema_Pool::objectSize() const

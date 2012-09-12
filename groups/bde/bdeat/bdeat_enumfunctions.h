@@ -304,7 +304,7 @@ namespace bdeat_EnumFunctions {
     // information.
 
     // META-FUNCTIONS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
     bslmf_MetaInt<0> isEnumerationMetaFunction(const TYPE&);
@@ -326,7 +326,7 @@ namespace bdeat_EnumFunctions {
         enum {
             VALUE = bslalg_HasTrait<TYPE,
                                     bdeat_TypeTraitBasicEnumeration>::VALUE
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isEnumerationMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
 #endif

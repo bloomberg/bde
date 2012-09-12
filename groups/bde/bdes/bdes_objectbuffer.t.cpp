@@ -12,10 +12,10 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-// Disable test for backwards compatibility macro if 'BSL_LEGACY' is 0.
-#if BSL_LEGACY == 0
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#else
 #define bdes_ObjectBuffer bsls_ObjectBuffer
-#endif
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 //=============================================================================
 //                             TEST PLAN

@@ -89,7 +89,7 @@ struct bdet_DayOfWeek {
         BDET_FRI = 6, BDET_FRIDAY    = BDET_FRI,
         BDET_SAT = 7, BDET_SATURDAY  = BDET_SAT
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SUN       = BDET_SUN
       , MON       = BDET_MON
       , TUE       = BDET_TUE

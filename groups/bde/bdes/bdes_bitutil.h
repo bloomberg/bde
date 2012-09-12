@@ -514,11 +514,12 @@ struct bdes_BitUtil {
         BDES_INT64_SIZE     = sizeof(Int64),
         BDES_BITS_PER_INT   = CHAR_BIT * BDES_WORD_SIZE,
         BDES_BITS_PER_INT64 = CHAR_BIT * BDES_INT64_SIZE
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+      , BDES_BITS_PER_BYTE  = CHAR_BIT
+      , BDES_BITS_PER_WORD  = BDES_BITS_PER_INT
+#endif  // BDE_OMIT_TRANSITIONAL
 
-      , BDES_BITS_PER_BYTE  = CHAR_BIT           // TBD should be BSL_LEGACY
-      , BDES_BITS_PER_WORD  = BDES_BITS_PER_INT  // TBD should be BSL_LEGACY
-
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , WORD_SIZE           = BDES_WORD_SIZE
       , INT64_SIZE          = BDES_INT64_SIZE
       , BITS_PER_BYTE       = CHAR_BIT
@@ -1297,7 +1298,7 @@ struct bdes_BitUtil {
         // component to document the valid range of input for which functional
         // behavior is defined.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     static int findBit0AtLargestIndex(int srcInteger);
     static int findBit0AtLargestIndex64(Int64 srcInteger);
@@ -3878,7 +3879,7 @@ int bdes_BitUtil::sizeInBits(TYPE)
     return CHAR_BIT * sizeof(TYPE);
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int bdes_BitUtil::findBit0AtLargestIndex(int srcInteger)

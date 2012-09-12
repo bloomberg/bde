@@ -415,7 +415,7 @@ struct bteso_SocketImpUtil {
             // fixed maximum length).
         BTESO_SOCKET_RAW = SOCK_RAW
             // Provides raw network protocol access.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SOCKET_STREAM   = BTESO_SOCKET_STREAM
       , SOCKET_DATAGRAM = BTESO_SOCKET_DATAGRAM
       , SOCKET_RAW      = BTESO_SOCKET_RAW
@@ -435,7 +435,7 @@ struct bteso_SocketImpUtil {
         BTESO_SHUTDOWN_BOTH
             // shut down both halves of the full-duplex connection associated
             // with the specified 'socket'.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SHUTDOWN_RECEIVE = BTESO_SHUTDOWN_RECEIVE
       , SHUTDOWN_SEND    = BTESO_SHUTDOWN_SEND
       , SHUTDOWN_BOTH    = BTESO_SHUTDOWN_BOTH
@@ -844,7 +844,7 @@ struct bteso_SocketImpUtil_Util {
     enum {
         BTESO_INVALID_SOCKET_HANDLE = -1
 #endif
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INVALID_SOCKET_HANDLE = BTESO_INVALID_SOCKET_HANDLE
 #endif
     };

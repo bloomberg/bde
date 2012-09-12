@@ -165,7 +165,7 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #if defined(BSLS_PLATFORM__CMP_MSVC) && defined(PASSTHROUGH)
     // Note: on Windows -> WinGDI.h:#define PASSTHROUGH 19
 #undef PASSTHROUGH
@@ -192,7 +192,7 @@ struct bael_Transmission {
         BAEL_MANUAL_PUBLISH_ALL = 4,  // manually publish all records
         BAEL_END                = 5   // end flag for asynchronous publication
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , PASSTHROUGH        = BAEL_PASSTHROUGH
       , TRIGGER            = BAEL_TRIGGER
       , TRIGGER_ALL        = BAEL_TRIGGER_ALL

@@ -249,7 +249,7 @@ struct bdetu_Time {
         // '0 <= hour < 24', '0 <= minute < 60', '0 <= second < 60', and
         // '0 <= millisecond < 1000', or '240000000 == timeValue'.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     static bdet_Time currentTime();
         // Return the current time in the UTC timezone.
         //

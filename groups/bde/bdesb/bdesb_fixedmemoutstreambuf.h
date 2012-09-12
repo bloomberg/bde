@@ -281,7 +281,7 @@ class bdesb_FixedMemOutStreamBuf : public bsl::streambuf {
         // call to 'seekpos' or 'seekoff' and reset to zero by a call to
         // 'pubsetbuf'.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     bsl::streamsize bufSize() const;
         // Return the number of characters in the buffer held by this
@@ -357,7 +357,7 @@ bsl::streamsize bdesb_FixedMemOutStreamBuf::length() const
     return pptr() - pbase();
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 bsl::streamsize bdesb_FixedMemOutStreamBuf::bufSize() const

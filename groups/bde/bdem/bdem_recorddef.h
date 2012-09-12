@@ -410,7 +410,7 @@ class bdem_RecordDef {
                                           // distinct from that of any valid
                                           // field id.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     static const int NullFieldId;
         // The value of 'NullFieldId' is distinct from that of any valid field
         // id.  Note that the value of 'NullFieldId' is

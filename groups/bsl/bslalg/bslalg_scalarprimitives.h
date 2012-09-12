@@ -564,7 +564,7 @@ struct ScalarPrimitives {
         // argument, then 'allocator' is passed to the 'TARGET_TYPE'
         // constructor in the last position.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     template <typename TARGET_TYPE>
     static void destruct(TARGET_TYPE *object,
                          void        *allocator);
@@ -2002,7 +2002,7 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
 
                           // *** destruct overloads: ***
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bslalg {
 

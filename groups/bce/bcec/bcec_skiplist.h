@@ -711,7 +711,7 @@ class bcec_SkipList {
         BCEC_NOT_FOUND = 1,
         BCEC_DUPLICATE = 2,
         BCEC_INVALID   = 3
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , RET_SUCCESS    = BCEC_SUCCESS
       , RET_NOT_FOUND  = BCEC_NOT_FOUND
       , RET_DUPLICATE  = BCEC_DUPLICATE

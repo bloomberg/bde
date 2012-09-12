@@ -192,7 +192,7 @@ struct bdem_BerUtil {
         BDEM_INDEFINITE_LENGTH = -1  // used to indicate that the length is
                                      // indefinite
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INDEFINITE_LENGTH = BDEM_INDEFINITE_LENGTH
 #endif
     };

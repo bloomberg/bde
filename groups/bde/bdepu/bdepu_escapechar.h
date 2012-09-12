@@ -102,7 +102,7 @@ class bdepu_EscapeChar {
         BDEPU_BACKSLASH,        // '\\', as in "\\\\"
         BDEPU_ENDLINE           // 0, as in '\0'
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ERROR           = BDEPU_ERROR
       , ALERT           = BDEPU_ALERT
       , BACKSPACE       = BDEPU_BACKSPACE

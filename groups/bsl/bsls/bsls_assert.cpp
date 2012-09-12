@@ -47,7 +47,7 @@ extern "C" {
 
 namespace BloombergLP {
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // We want to print the error message to 'stderr', not 'stdout'.   The old
 // documentation for 'printError' is:
 //..
@@ -139,7 +139,7 @@ void Assert::failAbort(const char *text, const char *file, int line)
 {
     printError(text, file, line);
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // See DRQS 8923441: The following is a work-around for a Fortran compiler bug.
 #endif
 
@@ -154,7 +154,7 @@ void Assert::failAbort(const char *text, const char *file, int line)
     #endif
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // See DRQS 13882128: Note that (according to Oleg) the first line alone may be
 // sufficient.
 #endif

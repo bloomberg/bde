@@ -674,7 +674,7 @@ BDES_IDENT("$Id: $")
 #include <bcemt_threadutil.h>
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 // Transitive inclusions depended on by some Robo code.
 

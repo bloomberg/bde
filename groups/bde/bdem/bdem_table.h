@@ -1281,7 +1281,7 @@ class bdem_Table {
         // the initial indentation (as governed by 'level').  If 'stream' is
         // not valid on entry, this operation has no effect.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     static int maxSupportedVersion();
         // Return the most current 'bdex' streaming version number supported by
@@ -1503,7 +1503,7 @@ void bdem_Table::appendNullRows(int numRows)
     insertNullRows(this->numRows(), numRows);
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 void bdem_Table::appendRow(const bdem_Row& srcRow)
 {
@@ -2179,7 +2179,7 @@ bsl::ostream& bdem_Table::print(bsl::ostream& stream,
     return d_tableImp.print(stream, level, spacesPerLevel);
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int bdem_Table::maxSupportedVersion()

@@ -83,7 +83,7 @@ struct bdesu_MemoryUtil {
                                    = BDESU_ACCESS_READ | BDESU_ACCESS_WRITE
                                    | BDESU_ACCESS_EXECUTE
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ACCESS_READ               = BDESU_ACCESS_READ
       , ACCESS_WRITE              = BDESU_ACCESS_WRITE
       , ACCESS_EXECUTE            = BDESU_ACCESS_EXECUTE

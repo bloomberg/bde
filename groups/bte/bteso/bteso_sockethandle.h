@@ -68,7 +68,7 @@ struct bteso_SocketHandle {
             // was transferred.
         BTESO_ERROR_TIMEDOUT      = -7
             // A system call timed out.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ERROR_EOF          = BTESO_ERROR_EOF
       , ERROR_UNCLASSIFIED = BTESO_ERROR_UNCLASSIFIED
       , ERROR_CONNDEAD     = BTESO_ERROR_CONNDEAD

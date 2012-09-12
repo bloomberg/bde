@@ -831,7 +831,7 @@ class btemt_ChannelPool {
                                                    // write cache hi watermark
         BTEMT_CHANNEL_DOWN_READ    = 8,
         BTEMT_CHANNEL_DOWN_WRITE   = 9
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CHANNEL_DOWN       = BTEMT_CHANNEL_DOWN
       , CHANNEL_UP         = BTEMT_CHANNEL_UP
       , READ_TIMEOUT       = BTEMT_READ_TIMEOUT
@@ -855,7 +855,7 @@ class btemt_ChannelPool {
 
         BTEMT_RESOLVE_AT_EACH_ATTEMPT = 1   // perform resolution prior to each
                                             // connect attempt
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , RESOLVE_ONCE            = BTEMT_RESOLVE_ONCE
       , RESOLVE_AT_EACH_ATTEMPT = BTEMT_RESOLVE_AT_EACH_ATTEMPT
 #endif
@@ -871,7 +871,7 @@ class btemt_ChannelPool {
         BTEMT_KEEP_HALF_OPEN     = 1   // keep either part alive, if the other
                                        // half senses a closed connection by
                                        // the peer
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CLOSE_BOTH     = BTEMT_CLOSE_BOTH
       , KEEP_HALF_OPEN = BTEMT_KEEP_HALF_OPEN
 #endif
@@ -882,7 +882,7 @@ class btemt_ChannelPool {
 
         BTEMT_IMMEDIATE = 0  // The channel is terminated immediately, all
                              // pending messages are discarded.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , IMMEDIATE = BTEMT_IMMEDIATE
 #endif
     };
@@ -895,7 +895,7 @@ class btemt_ChannelPool {
 
         BTEMT_ALERT     = 1  // An alerting condition occurred and the channel
                              // pool can operate normally.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CRITICAL = BTEMT_CRITICAL
       , ALERT    = BTEMT_ALERT
 #endif

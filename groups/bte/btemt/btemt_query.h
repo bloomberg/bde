@@ -350,7 +350,7 @@ class btemt_QueryResponse {
         BTEMT_SUCCESS,
         BTEMT_TIMEOUT,
         BTEMT_FAILURE
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SUCCESS = BTEMT_SUCCESS
       , TIMEOUT = BTEMT_TIMEOUT
       , FAILURE = BTEMT_FAILURE

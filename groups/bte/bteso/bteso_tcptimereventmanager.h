@@ -280,7 +280,7 @@ class bteso_TcpTimerEventManager : public bteso_TimerEventManager
 
         BTESO_INFREQUENT_REGISTRATION  // the (de)registrations will be
                                        // infrequent
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NO_HINT                 = BTESO_NO_HINT
       , INFREQUENT_REGISTRATION = BTESO_INFREQUENT_REGISTRATION
 #endif

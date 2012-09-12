@@ -337,7 +337,7 @@ class bdet_TimeInterval {
         // package-level documentation for more information on 'bdex' streaming
         // of value-semantic types and containers.)
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     static int maxSupportedVersion();
         // Return the most current 'bdex' streaming version number supported by
@@ -577,7 +577,7 @@ STREAM& bdet_TimeInterval::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int bdet_TimeInterval::maxSupportedVersion()

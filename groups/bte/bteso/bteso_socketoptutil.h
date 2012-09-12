@@ -221,7 +221,7 @@ struct bteso_SocketOptUtil {
         // and the name of the option must be specified.
         BTESO_SOCKETLEVEL    = SOL_SOCKET,    // System socket level
         BTESO_TCPLEVEL       = IPPROTO_TCP    // Protocol level (TCP)
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SOCKETLEVEL = BTESO_SOCKETLEVEL
       , TCPLEVEL    = BTESO_TCPLEVEL
 #endif
@@ -260,7 +260,7 @@ struct bteso_SocketOptUtil {
             // get the type of the socket (get only)
         BTESO_SOCKETERROR    = SO_ERROR
             // get and clear error on the socket (get only)
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , DEBUGINFO      = BTESO_DEBUGINFO
       , REUSEADDRESS   = BTESO_REUSEADDRESS
       , KEEPALIVE      = BTESO_KEEPALIVE
@@ -287,7 +287,7 @@ struct bteso_SocketOptUtil {
         // the Nagle algorithm.  To disable this behavior, applications
         // can enable TCP_NODELAY to force TCP to always send data
         // immediately.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , TCPNODELAY = BTESO_TCPNODELAY
 #endif
     };

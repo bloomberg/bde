@@ -799,7 +799,7 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 #define bdealg_TypeTraits bslalg_TypeTraits
     // This alias is defined for backward compatibility.

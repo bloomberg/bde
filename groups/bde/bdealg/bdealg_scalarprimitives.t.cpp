@@ -1042,7 +1042,7 @@ template <typename TARGET_TYPE>
 inline
 void legacyDestruct(TARGET_TYPE *object)
 {
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     bslalg_ScalarPrimitives::destruct(object);
 #else
     bslalg_ScalarDestructionPrimitives::destroy(object);
@@ -1244,7 +1244,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Value and allocator testing.\n");
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         // my_Class                   Expected
         //      #      Operation     Val Alloc
         //      == ================= === =====

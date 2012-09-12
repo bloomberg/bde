@@ -164,7 +164,7 @@ BSLS_IDENT("$Id: $")
 // internally-managed buffers.  For an example, see the 'bslma_bufferimputil'
 // component.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
@@ -225,7 +225,7 @@ struct Alignment {
             // two that evenly divides the size (in bytes) of the block.
     };
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     enum {
         // Define the minimum alignment that satisfies all types.
         //
@@ -263,7 +263,7 @@ struct Alignment {
         //  NATURAL
         //..
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     static int calculateAlignmentFromSize(int size);
         // Calculate a usable alignment for an object of specified 'size' bytes
         // in the absence of compile-time knowledge of the object's alignment
@@ -317,7 +317,7 @@ struct Alignment {
 
 }  // close package namespace
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bsls {
 

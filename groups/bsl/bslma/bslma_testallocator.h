@@ -606,7 +606,6 @@ class TestAllocator : public Allocator {
         // define the criteria for an abort at destruction if quiet mode has
         // not been set.
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 #ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
     void *lastAllocateAddress() const;
         // Return the allocated memory address of the most recent memory
@@ -964,7 +963,6 @@ bsls::Types::Int64 TestAllocator::numMismatches() const
     return d_numMismatches;
 }
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 #ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
 inline
 void *TestAllocator::lastAllocateAddress() const

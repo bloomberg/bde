@@ -317,7 +317,7 @@ class baecs_Journal {
 
     enum {
         BAECS_INVALID_RECORD_HANDLE = 0xFFFFFFFF
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INVALID_RECORD_HANDLE = BAECS_INVALID_RECORD_HANDLE
 #endif
     };
@@ -333,7 +333,7 @@ class baecs_Journal {
         BAECS_PARANOID           = 8,  // extra checks (for testing only)
         BAECS_RESERVE            = 16  // preallocate disk space
                                        // (deprecated, now always enabled)
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , MODE_READONLY      = BAECS_READONLY
       , MODE_READWRITE     = BAECS_READWRITE
       , MODE_FAST          = BAECS_FAST
@@ -349,7 +349,7 @@ class baecs_Journal {
         BAECS_PRIORITY_DATA     = 0,
         BAECS_PRIORITY_METADATA = 1,
         BAECS_NUM_PRIORITIES    = BAECS_PRIORITY_METADATA + 1
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , PRIORITY_DATA     = BAECS_PRIORITY_DATA
       , PRIORITY_METADATA = BAECS_PRIORITY_METADATA
       , NUM_PRIORITIES    = BAECS_NUM_PRIORITIES
@@ -378,7 +378,7 @@ class baecs_Journal {
         BAECS_INVALID_HANDLE_ERROR            = -11,
         BAECS_VALIDATION_ERROR                = -12,
         BAECS_UNABLE_TO_LOCK_ERROR            = -13
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , WRITE_ACCESS_REQUIRED_ERROR = BAECS_WRITE_ACCESS_REQUIRED_ERROR
       , IO_ERROR                    = BAECS_IO_ERROR
       , MMAP_ERROR                  = BAECS_MMAP_ERROR

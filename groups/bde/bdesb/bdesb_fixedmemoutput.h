@@ -198,7 +198,7 @@ class bdesb_FixedMemOutput {
         // Return the current default locale.  Note that locales are not
         // supported by this component.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     bsl::streamsize bufSize() const;
         // Return the number of characters in the buffer held by this stream
@@ -328,7 +328,7 @@ bsl::streamsize bdesb_FixedMemOutput::length() const
     return bsl::streamsize(d_pos);
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 bsl::streamsize bdesb_FixedMemOutput::bufSize() const

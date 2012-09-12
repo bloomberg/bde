@@ -198,7 +198,7 @@ struct bdem_BerUniversalTagNumber {
         BDEM_LENGTH = 8  // the number of enumerations in the 'Value'
                          // enumeration
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NUM_ENUMERATORS = BDEM_LENGTH
 #endif
     };

@@ -471,7 +471,7 @@ struct bdeat_TypeCategory {
         BDEAT_SEQUENCE_CATEGORY        = 6,
         BDEAT_SIMPLE_CATEGORY          = 7
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , DYNAMIC_CATEGORY         = BDEAT_DYNAMIC_CATEGORY
       , ARRAY_CATEGORY           = BDEAT_ARRAY_CATEGORY
       , CHOICE_CATEGORY          = BDEAT_CHOICE_CATEGORY
@@ -523,7 +523,7 @@ struct bdeat_TypeCategory {
                     : BDEAT_IS_SEQUENCE        ? BDEAT_SEQUENCE_CATEGORY
                     : BDEAT_SIMPLE_CATEGORY
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
           , SELECTION = BDEAT_SELECTION
 #endif
 

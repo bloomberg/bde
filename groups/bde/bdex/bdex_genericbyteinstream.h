@@ -749,7 +749,7 @@ class bdex_GenericByteInStream {
 };
 
 // FREE OPERATORS
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <class StreamBuf, typename VALUE>
 inline
@@ -771,7 +771,7 @@ bdex_GenericByteInStream<StreamBuf>& operator>>(
     // which case this operator calls the appropriate 'get' method from this
     // component.
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -1967,7 +1967,7 @@ bdex_GenericByteInStream<StreamBuf>::operator const void *() const
 }
 
 // FREE OPERATORS
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <class StreamBuf, typename OBJECT>
 inline
@@ -1977,7 +1977,7 @@ bdex_GenericByteInStream<StreamBuf>&
     return bdex_InStreamMethodsUtil::streamInVersionAndObject(stream, object);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 }  // close namespace BloombergLP
 

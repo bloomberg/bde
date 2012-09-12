@@ -356,7 +356,7 @@ class bcep_FixedThreadPool {
       , BCEP_RUN
       , BCEP_SUSPEND
       , BCEP_DRAIN
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , TP_STOP    = BCEP_STOP
       , TP_RUN     = BCEP_RUN
       , TP_SUSPEND = BCEP_SUSPEND

@@ -70,7 +70,7 @@ struct baexml_EncodingStyle {
     enum Value {
         BAEXML_COMPACT = 0
       , BAEXML_PRETTY  = 1
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , COMPACT = BAEXML_COMPACT
       , PRETTY  = BAEXML_PRETTY
 #endif

@@ -65,7 +65,7 @@ struct bdex_FieldCode {
         BDEX_FLOAT64  =  BDEX_OFFSET + 17,
         BDEX_INVALID  =  BDEX_OFFSET + 18   // last entry -- see 'LENGTH' below
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INT8    = BDEX_INT8
       , UINT8   = BDEX_UINT8
       , INT16   = BDEX_INT16

@@ -4558,7 +4558,7 @@ static void testCase34(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
 static void testCase33(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 {
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // --------------------------------------------------------------------
     // TESTING 'isUnset':
     //

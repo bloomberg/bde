@@ -343,7 +343,7 @@ struct bdepu_TypesParserImpUtil {
                                  // value indicates that the parsed character
                                  // contains an escape sequence.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , HAS_ESCAPE = BDEPU_HAS_ESCAPE
 #endif
     };
@@ -366,7 +366,7 @@ struct bdepu_TypesParserImpUtil {
         BDEPU_MAX_INT64_STRLEN   = BDEPU_MAX_INT64_STRLEN2,
         BDEPU_MAX_SCALAR_STRLEN  = BDEPU_MAX_SCALAR_STRLEN2
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , MAX_SHORT_STRLEN2  = BDEPU_MAX_SHORT_STRLEN2
       , MAX_INT_STRLEN2    = BDEPU_MAX_INT_STRLEN2
       , MAX_INT64_STRLEN2  = BDEPU_MAX_INT64_STRLEN2
@@ -394,7 +394,7 @@ struct bdepu_TypesParserImpUtil {
         BDEPU_MAX_LONGDOUBLE_STRLEN10 = 16,// sx.xxxxxxEsxxxx\0, s=+/-, x=[0-9]
         BDEPU_MAX_SCALAR_STRLEN10     = BDEPU_MAX_INT64_STRLEN10
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , MAX_SHORT_STRLEN10      = BDEPU_MAX_SHORT_STRLEN10
       , MAX_INT_STRLEN10        = BDEPU_MAX_INT_STRLEN10
       , MAX_INT64_STRLEN10      = BDEPU_MAX_INT64_STRLEN10
@@ -419,7 +419,7 @@ struct bdepu_TypesParserImpUtil {
         BDEPU_MAX_INT64_STRLEN16  = 18,
         BDEPU_MAX_SCALAR_STRLEN16 = BDEPU_MAX_INT64_STRLEN
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , MAX_SHORT_STRLEN16  = BDEPU_MAX_SHORT_STRLEN16
       , MAX_INT_STRLEN16    = BDEPU_MAX_INT_STRLEN16
       , MAX_INT64_STRLEN16  = BDEPU_MAX_INT64_STRLEN16

@@ -402,7 +402,7 @@ class bael_CategoryHolder {
     enum {
         BAEL_UNINITIALIZED_CATEGORY = 256, // indicates no logger manager
         BAEL_DYNAMIC_CATEGORY       = 257  // corresponding category is dynamic
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , UNINITIALIZED_CATEGORY = BAEL_UNINITIALIZED_CATEGORY
       , DYNAMIC_CATEGORY       = BAEL_DYNAMIC_CATEGORY
 

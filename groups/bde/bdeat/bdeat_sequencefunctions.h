@@ -618,7 +618,7 @@ namespace bdeat_SequenceFunctions {
     // information.
 
     // META-FUNCTIONS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
     bslmf_MetaInt<0> isSequenceMetaFunction(const TYPE&);
@@ -639,7 +639,7 @@ namespace bdeat_SequenceFunctions {
 
         enum {
             VALUE = bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isSequenceMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
 #endif

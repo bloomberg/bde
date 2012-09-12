@@ -35,7 +35,7 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #undef UNIVERSAL
 #undef APPLICATION
 #undef CONTEXT_SPECIFIC
@@ -58,7 +58,7 @@ struct bdem_BerConstants {
         BDEM_CONTEXT_SPECIFIC  = 0x80,  // the context-specific tag class
         BDEM_PRIVATE           = 0xC0   // the private tag class
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , UNIVERSAL        = BDEM_UNIVERSAL
       , APPLICATION      = BDEM_APPLICATION
       , CONTEXT_SPECIFIC = BDEM_CONTEXT_SPECIFIC
@@ -72,7 +72,7 @@ struct bdem_BerConstants {
         BDEM_PRIMITIVE   = 0x00,  // the primitive tag type
         BDEM_CONSTRUCTED = 0x20   // the constructed tag type
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , PRIMITIVE   = BDEM_PRIMITIVE
       , CONSTRUCTED = BDEM_CONSTRUCTED
 #endif

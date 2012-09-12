@@ -512,7 +512,7 @@ namespace bdeat_CustomizedTypeFunctions {
     // documentation for more information.
 
     // META-FUNCTIONS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
     bslmf_MetaInt<0> isCustomizedTypeMetaFunction(const TYPE&);
@@ -534,7 +534,7 @@ namespace bdeat_CustomizedTypeFunctions {
         enum {
             VALUE = bslalg_HasTrait<TYPE,
                                     bdeat_TypeTraitBasicCustomizedType>::VALUE
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isCustomizedTypeMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
 #endif

@@ -313,7 +313,7 @@ const char *ObjectBuffer<TYPE>::buffer() const
 //                          BACKWARD COMPATIBILITY
 // ===========================================================================
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifdef bdes_ObjectBuffer
 #undef bdes_ObjectBuffer

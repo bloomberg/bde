@@ -78,7 +78,7 @@ struct bdet_MonthOfYear {
         BDET_NOV,     BDET_NOVEMBER       = BDET_NOV,
         BDET_DEC,     BDET_DECEMBER       = BDET_DEC
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , JAN = BDET_JAN
       , FEB = BDET_FEB
       , MAR = BDET_MAR
@@ -109,7 +109,7 @@ struct bdet_MonthOfYear {
     enum {
          BDET_LENGTH = BDET_DEC
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
        , LENGTH      = BDET_LENGTH
 #endif
     };

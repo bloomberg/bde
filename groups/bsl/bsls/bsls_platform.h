@@ -175,7 +175,7 @@ struct bsls_Platform_Assert;
     #define BSLS_PLATFORM__CMP_IBM 1
     #define BSLS_PLATFORM__CMP_VERSION __xlC__
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     #define BSLS_PLATFORM__CMP_AIX 1
          // DEPRECATED: use 'BSLS_PLATFORM__CMP_IBM' instead.
 #endif
@@ -943,9 +943,8 @@ struct Platform {
 
 }  // close package namespace
 
-
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
                       // ======================
                       // BACKWARD COMPATIBILITY

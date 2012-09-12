@@ -627,7 +627,7 @@ class bdem_Row {
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     static int maxSupportedVersion();
         // Return the most current 'bdex' streaming version number supported by
@@ -1383,7 +1383,7 @@ const bdem_Table& bdem_Row::theTable(int index) const
     return *static_cast<const bdem_Table *>(elemData(index));
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int bdem_Row::maxSupportedVersion()

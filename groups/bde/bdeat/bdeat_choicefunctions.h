@@ -495,13 +495,13 @@ namespace bdeat_ChoiceFunctions {
     enum {
         BDEAT_UNDEFINED_SELECTION_ID = -1  // indicates selection not made
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , UNDEFINED_SELECTION_ID = BDEAT_UNDEFINED_SELECTION_ID
 #endif
     };
 
     // META-FUNCTIONS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
     bslmf_MetaInt<0> isChoiceMetaFunction(const TYPE&);
@@ -521,7 +521,7 @@ namespace bdeat_ChoiceFunctions {
 
         enum {
             VALUE = bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isChoiceMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
 #endif

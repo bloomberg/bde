@@ -70,7 +70,7 @@ struct TypeTraitUsesBslmaAllocator {
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
                  //==========================================
                  // struct bdealg_TypeTraitUsesBdemaAllocator

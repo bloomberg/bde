@@ -496,7 +496,7 @@ struct bdetu_Datetime {
         // will cause the conversion to fail.  Note that time zones are
         // irrelevant for this conversion.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     static const bdet_Datetime& epoch();
         // Return a reference to the non-modifiable epoch time of midnight on
         // January 1, 1970.  Note that this value exists before any code is
@@ -562,7 +562,7 @@ int bdetu_Datetime::convertFromTm(bdet_Datetime  *result,
 }
 
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 const bdet_Datetime& bdetu_Datetime::epoch()
 {

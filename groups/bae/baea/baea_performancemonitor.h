@@ -268,7 +268,7 @@ typedef bsls_Platform::OsHpUx OsType;
         BAEA_NUM_PAGEFAULTS,    // number of pagefaults (major + minor)
         BAEA_VIRTUAL_SIZE,      // number of MBs in the heap
         BAEA_NUM_MEASURES
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CPU_TIME        = BAEA_CPU_TIME
       , CPU_TIME_USER   = BAEA_CPU_TIME_USER
       , CPU_TIME_SYSTEM = BAEA_CPU_TIME_SYSTEM

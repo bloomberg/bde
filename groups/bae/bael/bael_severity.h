@@ -107,7 +107,7 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #if defined(BSLS_PLATFORM__CMP_MSVC)
     // Note: on Windows -> WinGDI.h:#define ERROR 0
 
@@ -146,7 +146,7 @@ struct bael_Severity {
         BAEL_TRACE = 192,  // execution trace data
         BAEL_NONE  = 224   // !DEPRECATED! Do not use
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , OFF   = BAEL_OFF
       , FATAL = BAEL_FATAL
       , ERROR = BAEL_ERROR

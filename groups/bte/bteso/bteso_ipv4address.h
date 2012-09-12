@@ -135,7 +135,7 @@ class bteso_IPv4Address {
                                     // for the same implication.
         BTESO_ANY_PORT    = 0       // Indicate that it is up to the service
                                     // provider to assign an appropriate port.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ANY_ADDRESS = BTESO_ANY_ADDRESS
       , ANY_PORT    = BTESO_ANY_PORT
 #endif

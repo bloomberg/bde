@@ -277,7 +277,7 @@ class baexml_ElementAttribute {
             // Set this bit if this attribute represents a XML schema instance
             // declaration.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTR_NO_FLAGS   = BAEXML_ATTR_NO_FLAGS
       , ATTR_IS_DEFAULT = BAEXML_ATTR_IS_DEFAULT
       , ATTR_IS_NSDECL  = BAEXML_ATTR_IS_NSDECL

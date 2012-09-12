@@ -86,7 +86,7 @@ struct bdeat_FormattingMode {
         BDEAT_LIST           = 0x00100000,  // use list format (for arrays)
         BDEAT_FLAGS_MASK     = 0x001F0000   // mask for formatting flags
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , DEFAULT           = BDEAT_DEFAULT
       , DEC               = BDEAT_DEC
       , HEX               = BDEAT_HEX

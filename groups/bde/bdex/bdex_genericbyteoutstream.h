@@ -555,7 +555,7 @@ bdex_GenericByteOutStream<StreamBuf>&
     // Provide support for all manipulator functions on this stream, e.g.,
     // 'bdexFlush'.
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <class StreamBuf, typename OBJECT>
 inline
@@ -571,7 +571,7 @@ bdex_GenericByteOutStream<StreamBuf>&
     // which case this operator calls the appropriate 'put' method from this
     // component.
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -1305,7 +1305,7 @@ bdex_GenericByteOutStream<StreamBuf>&
     return (*pf)(stream);
 }
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <class StreamBuf, typename VALUE>
 inline
@@ -1315,7 +1315,7 @@ bdex_GenericByteOutStream<StreamBuf>&
     return bdex_OutStreamMethodsUtil::streamOutVersionAndObject(stream, value);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 }  // close namespace BloombergLP
 

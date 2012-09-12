@@ -218,7 +218,7 @@ BDES_IDENT("$Id: $")
 #include <bslfwd_bslma_allocator.h>
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #if defined(BSLS_PLATFORM__CMP_MSVC) && defined(PASSTHROUGH)
     // Note: on Windows -> WinGDI.h:#define PASSTHROUGH 19
 #undef PASSTHROUGH

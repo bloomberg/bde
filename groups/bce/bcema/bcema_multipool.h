@@ -712,7 +712,7 @@ class bcema_Multipool {
         // where 'numPools' is either specified at construction, or an
         // implementation-defined value.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     int maxPooledObjectSize() const;
         // [!DEPRECATED!] Return the maximum size of memory blocks that are
         // pooled by this multipool object.  Note that the maximum value is
@@ -762,7 +762,7 @@ int bcema_Multipool::maxPooledBlockSize() const
     return d_maxBlockSize;
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 int bcema_Multipool::maxPooledObjectSize() const
 {

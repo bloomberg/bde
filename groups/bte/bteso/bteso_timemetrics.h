@@ -120,7 +120,7 @@ class bteso_TimeMetrics {
                               // is executing CPU-bound block of code
 
         BTESO_MIN_NUM_CATEGORIES = BTESO_CPU_BOUND + 1
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , IO_BOUND           = BTESO_IO_BOUND
       , CPU_BOUND          = BTESO_CPU_BOUND
       , MIN_NUM_CATEGORIES = BTESO_MIN_NUM_CATEGORIES

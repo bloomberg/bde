@@ -326,13 +326,13 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
 
         BTEMT_INFREQUENT_REGISTRATION  // The (de)registrations will likely be
                                        // infrequent.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NO_HINT                 = BTEMT_NO_HINT
       , INFREQUENT_REGISTRATION = BTEMT_INFREQUENT_REGISTRATION
 #endif
     };
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     typedef bcef_Vfunc0                   Callback;
         // DEPRECATED: Use 'bteso_TimerEventManager::Callback' instead.
 #endif

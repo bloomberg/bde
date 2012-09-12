@@ -491,7 +491,7 @@ class bdecs_Calendar {
     typedef bdecs_PackedCalendar::WeekendDaysTransitionConstIterator
                                             WeekendDaysTransitionConstIterator;
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     typedef BusinessDayConstIterator        BusinessDayIterator;
     typedef HolidayConstIterator            HolidayIterator;
     typedef HolidayCodeConstIterator        HolidayCodeIterator;
@@ -1103,7 +1103,7 @@ class bdecs_Calendar_BusinessDayConstIter {
     typedef bsl::bidirectional_iterator_tag iterator_category;
 
     // CREATORS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     bdecs_Calendar_BusinessDayConstIter();
         // Create an uninitialized iterator.
 #endif
@@ -1144,7 +1144,7 @@ class bdecs_Calendar_BusinessDayConstIter {
         // iterator.
 };
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 typedef bdecs_Calendar_BusinessDayConstIter bdecs_CalendarBusinessDayIter;
 #endif
 
@@ -1664,7 +1664,7 @@ void swap(bdecs_Calendar& a, bdecs_Calendar& b)
                     // -----------------------------------------
 
 // CREATORS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 bdecs_Calendar_BusinessDayConstIter::bdecs_Calendar_BusinessDayConstIter()
 {

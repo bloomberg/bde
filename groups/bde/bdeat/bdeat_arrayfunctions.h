@@ -306,7 +306,7 @@ namespace bdeat_ArrayFunctions {
         // This meta-function should contain a typedef 'Type' that specifies
         // the type of element stored in an array of the parameterized 'TYPE'.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
     bslmf_MetaInt<0> isArrayMetaFunction(const TYPE&);
@@ -328,7 +328,7 @@ namespace bdeat_ArrayFunctions {
 
         enum {
             VALUE = 0
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isArrayMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
 #endif

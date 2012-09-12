@@ -77,7 +77,7 @@ struct bbedc_DayCountConvention {
         BBEDC_PSA_30_360_EOM     = 6,
         BBEDC_SIA_30_360_EOM     = 7,
         BBEDC_SIA_30_360_NEOM    = 8
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ACTUAL_360         = BBEDC_ACTUAL_360
       , ACTUAL_365_FIXED   = BBEDC_ACTUAL_365_FIXED
       , ICMA_ACTUAL_ACTUAL = BBEDC_ICMA_ACTUAL_ACTUAL

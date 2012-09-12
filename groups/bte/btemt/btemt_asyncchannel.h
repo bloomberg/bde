@@ -68,7 +68,7 @@ class btemt_AsyncChannel {
                               // operation.
 
         , BTEMT_CANCELED = 4  // The asynchronous read request was canceled.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         , SUCCESS  = BTEMT_SUCCESS
         , TIMEOUT  = BTEMT_TIMEOUT
         , CLOSED   = BTEMT_CLOSED

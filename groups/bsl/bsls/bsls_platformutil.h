@@ -160,7 +160,7 @@ struct PlatformUtil {
         //
         // DEPRECATED: Use 'Types::Int64' and 'Types::Uint64' instead.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     typedef AlignmentUtil::MaxAlignedType MaxAlign;
         // The alias 'MaxAlign' refers to a type that is maximally-aligned on
         // the current platform.
@@ -224,7 +224,7 @@ struct PlatformUtil {
        // defined in 'bsls_platform' instead.
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 #if defined(BSLS_PLATFORMUTIL__IS_BIG_ENDIAN)
 #define BSLS_PLATFORMUTIL__HTONL(x) (x)

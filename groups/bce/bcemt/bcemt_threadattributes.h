@@ -280,7 +280,7 @@ class bcemt_ThreadAttributes {
         BCEMT_CREATE_JOINABLE = 0,  // create a joinable thread
         BCEMT_CREATE_DETACHED = 1   // create a non-joinable thread
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CREATE_JOINABLE = BCEMT_CREATE_JOINABLE
       , CREATE_DETACHED = BCEMT_CREATE_DETACHED
 #endif

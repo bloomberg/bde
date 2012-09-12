@@ -276,7 +276,7 @@ class baexml_Formatter {
                                      // indentation, the tags do not share
                                      // their respective lines with data
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , PRESERVE_WHITESPACE = BAEXML_PRESERVE_WHITESPACE
       , WORDWRAP            = BAEXML_WORDWRAP
       , WORDWRAP_INDENT     = BAEXML_WORDWRAP_INDENT

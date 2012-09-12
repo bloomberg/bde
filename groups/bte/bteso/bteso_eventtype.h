@@ -37,7 +37,7 @@ struct bteso_EventType {
         BTESO_CONNECT = 1,
         BTESO_READ    = 2,
         BTESO_WRITE   = 3
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ACCEPT  = BTESO_ACCEPT
       , CONNECT = BTESO_CONNECT
       , READ    = BTESO_READ

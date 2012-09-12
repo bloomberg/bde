@@ -313,7 +313,7 @@ class bdeimp_Fuzzy {
         // tolerance value is valid and effectively suppresses that aspect of
         // fuzzy comparison.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
      static int fuzzyCompare(double a, double b, double relTol, double absTol);
         // Return 0 if the specified 'a' and 'b' have fuzzy equality (denoted
@@ -472,7 +472,7 @@ bool bdeimp_Fuzzy::ge(double a, double b, double relTol, double absTol)
     return compare(a, b, relTol, absTol) >= 0;
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int bdeimp_Fuzzy::fuzzyCompare(double a,

@@ -288,7 +288,7 @@ struct bdem_ElemType {
         // package-group-level documentation for more information on 'bdex'
         // streaming of container types).
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     static int maxSupportedVersion();
         // Return the most current 'bdex' streaming version number supported by
@@ -368,7 +368,7 @@ STREAM& bdem_ElemType::bdexStreamOut(STREAM&             stream,
     return stream;
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int bdem_ElemType::maxSupportedVersion()

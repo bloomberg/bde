@@ -714,11 +714,11 @@ int main(int argc, char *argv[])
                                                d_8BytesAlignedType; };
 #endif
 
-#if BSL_LEGACY == 0
-    typedef bsls_AlignmentUtil::MaxAlignedType LegacyMaxAlign;
-#else
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     typedef U::MaxAlign                        LegacyMaxAlign;
-#endif
+#else
+    typedef bsls_AlignmentUtil::MaxAlignedType LegacyMaxAlign;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
         struct MaxAlignAlign    { char c; LegacyMaxAlign d_maxAlign;};
 

@@ -180,7 +180,7 @@ class baexml_NamespaceRegistry {
         BAEXML_BDEM,               // http://bloomberg.com/schemas/bdem
 
         BAEXML_PREDEF_MAX
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NSID_NO_NAMESPACE       = BAEXML_NO_NAMESPACE
       , NSID_PREDEF_MIN         = BAEXML_PREDEF_MIN
       , NSID_XML                = BAEXML_XML

@@ -296,7 +296,7 @@ namespace bdeat_NullableValueFunctions {
     // information.
 
     // META-FUNCTIONS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
     bslmf_MetaInt<0> isNullableValueMetaFunction(const TYPE&);
@@ -317,7 +317,7 @@ namespace bdeat_NullableValueFunctions {
 
         enum {
             VALUE = 0
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isNullableValueMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
 #endif

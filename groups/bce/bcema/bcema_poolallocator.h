@@ -726,7 +726,7 @@ class bcema_PoolAllocator : public bslma_Allocator {
         // allocator.  Note that all blocks dispensed by this allocator have
         // the same size.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     int objectSize() const;
         // Return the size (in bytes) of the memory blocks allocated from this
@@ -753,7 +753,7 @@ int bcema_PoolAllocator::blockSize() const
     return d_blockSize;
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int bcema_PoolAllocator::objectSize() const

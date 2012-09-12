@@ -77,9 +77,9 @@ struct TypeTraitBitwiseCopyable {
 
 typedef bslalg::TypeTraitBitwiseCopyable bslalg_TypeTraitBitwiseCopyable;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
 
 }  // close enterprise namespace
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
 
 #endif
 

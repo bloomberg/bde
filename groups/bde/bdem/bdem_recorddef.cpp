@@ -128,7 +128,7 @@ class AutoEraseName {
 
 // CONSTANTS
 const int bdem_RecordDef::BDEM_NULL_FIELD_ID = INT_MIN;
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 const int bdem_RecordDef::NullFieldId = INT_MIN;
 #endif
 

@@ -725,7 +725,7 @@ native_std::streamsize
 
         native_std::streamsize available(this->egptr() - this->gptr());
         native_std::streamsize readChars(native_std::min(available,
-                                                         numCharactersn));
+                                                         numCharacters));
 
         traits_type::copy(result, this->gptr(), readChars);
         this->gbump(readChars);
