@@ -18,12 +18,12 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // 'bsls_exceptionutil' provides macros that define 'try', 'catch', and
 // 'throw' statements in exception enabled builds, but define, respectively,
-// unconditionally executed if-statements, call the assert handler, and
+// unconditionally executed if-statements, calls to the assert handler, and
 // unconditionally non-executed else-statements, in non-exception enabled
 // builds.  Because this component defines many elements that depend on the
-// build mode, the tests performed vary on the build mode, and the test-driver
-// must be run in both exception and non-exception build modes in order to
-// test the full range of functionality for the component.
+// build mode, the tests performed vary with the build mode, and the
+// test-driver must be run in both exception and non-exception build modes in
+// order to test the full range of functionality for the component.
 //
 // For exception enabled builds, we do not attempt to exhaustively test
 // language behavior, but simply verify 'BSLS_TRY', 'BSLS_CATCH',
@@ -32,12 +32,12 @@ using namespace BloombergLP;
 // testing 'BSLS_TRY', with direct use of 'throw' and 'catch'.
 //
 // For non-exception builds, 'BSLS_TRY' and 'BSLS_CATCH' either define
-// executed, or non-executed, blocks of code, and are fairly straight forward
+// executed, or non-executed, blocks of code, and are fairly straightforward
 // to test.  'BSLS_THROW' and 'BSLS_RETHROW' invoke the 'bsls_assert'
 // assert-handler, unfortunately as this is in a non-exception build we cannot
 // throw an exception from the assert handler, and
-// 'bsls_Assert::invokeHandler' is marked no-throw so we cannot simply define
-// an assert-handler that returns.  Instead this component defines a
+// 'bsls_Assert::invokeHandler' is marked 'noreturn' so we cannot simply define
+// an assert-handler that returns.  Instead, this component defines an
 // assert-handler function that records its arguments and aborts, and also
 // defines 'BEGIN_ABORT_TEST' and 'END_ABORT_TEST_AND_ASSERT' macros that use
 // set-jump and long-jump to recover from a potential abort, and then
@@ -304,8 +304,8 @@ struct DummyAllocator {
 // 'bsls_exceptionutil' component to both throw and catch exceptions in a way
 // that will allow the code to compile in non-exception enabled builds.
 //
-// First, we define a couple example exception classes (note that we cannot use
-//'bsl::exception' in this example, as this component is defined below
+// First, we define a couple of example exception classes (note that we cannot
+// use 'bsl::exception' in this example, as this component is defined below
 //'bsl_exception.h'):
 //..
     class my_ExClass1
@@ -331,7 +331,7 @@ struct DummyAllocator {
 // will be present in exception enabled builds, and elided in non-exception
 // builds:
 //..
-    int doThrowSome(int i) BSLS_EXCEPTION_SPEC((my_ExClass1, my_ExClass2))
+    int mightThrowFunc(int i) BSLS_EXCEPTION_SPEC((my_ExClass1, my_ExClass2))
     {
         switch (i) {
           case 0: break;
@@ -341,13 +341,18 @@ struct DummyAllocator {
         return i;
     }
 //..
-// Then, we define a 'testMain' function, and use code dependent on the
-// exception-build flag 'BDE_BUILD_TARGET_EXC' to initialize the number of
-// iterations we will later perform to 3 (for exception enabled builds) or 1
-// (for non-exception enabled builds):
+// Then, we start the definition of a 'testMain' function:
 //..
     int testMain()
     {
+//..
+// Next, we use the 'BDE_BUILD_TARGET_EXC' exception build flag to determine,
+// at compile time, whether to initialize 'ITERATIONS' to 3 (for exception
+// enabled builds) or 1 (for non-exception enabled builds).  The different
+// values of the 'ITERATOR' ensure the subsequent for-loop calls
+// 'mightThrowFunc' in a way that generates expections for only exception
+// enabled builds:
+//..
     #ifdef BDE_BUILD_TARGET_EXC
         const int ITERATIONS = 3;
     #else
@@ -356,9 +361,9 @@ struct DummyAllocator {
 //
         for (int i = 0; i < ITERATIONS; ++i) {
 //..
-// Next, we use a pair of nested 'try' blocks constructed using
-// 'BSLS_TRY', so that the code will compile and run whether or not exceptions
-// are enabled (note that the curly brace placement is identical to normal
+// Then, we use a pair of nested 'try' blocks constructed using
+// 'BSLS_TRY', so that the code will compile whether or not exceptions are
+// enabled (note that the curly brace placement is identical to normal 
 // 'try' and 'catch' constructs):
 //..
             int caught = -1;
@@ -366,12 +371,19 @@ struct DummyAllocator {
 //
                 BSLS_TRY {
                     noThrowFunc();
-                    doThrowSome(i);
-//
+                    mightThrowFunc(i);
+//..
+// Notice that this example is careful to call 'mightThrowFunc' in a way that
+// it will not throw in non-exceptioin builds.  Although the use 'BSLS_TRY',
+// 'BSLS_THROW', and 'BSLS_CATCH' ensures the code *compiles* in both
+// exception, and non-exception enabled builds, attempting to 'BSLS_THROW' an
+// exception in a non- exception enabled build will invoke the assert handler
+// and will typically abort the task.
+//..
                     caught = 0; // Got here if no throw
                 }
 //..
-// Then we use 'BSLS_CATCH' to defined blocks for handling exceptions that may
+// Next, we use 'BSLS_CATCH' to defined blocks for handling exceptions that may
 // have been thrown from the preceding 'BSLS_TRY':
 //..
                 BSLS_CATCH(my_ExClass1) {
@@ -516,11 +528,11 @@ int main(int argc, char *argv[])
             bool caughtException = false;
             try {
                 try {
-                    executedTest = true;
                     throw TestExceptionClass();
                     ASSERT(false);
                 }
                 catch (const TestExceptionClass&) {
+                    executedTest = true;
                     BSLS_RETHROW;
                     ASSERT(false);
                 }
@@ -583,7 +595,7 @@ int main(int argc, char *argv[])
                             "\n==================\n");
 
         if (verbose) {
-            printf("Verify BSLS_CATCH does not execute withoout a 'throw'\n");
+            printf("Verify BSLS_CATCH does not execute without a 'throw'\n");
         }
         {
             BSLS_TRY {
@@ -838,17 +850,17 @@ int main(int argc, char *argv[])
                 ASSERT(false);
             }
             END_ABORT_TEST_AND_ASSERT(ABORT_OCCURRED);
-            ASSERT(executedTest);        }
+            ASSERT(executedTest);        
+        }
 
         if (verbose) {
             printf("Verify lexical scope\n");
         }
         {
             int duplicate = 0;
-            BEGIN_ABORT_TEST {
+            BEGIN_ABORT_TEST 
                 int duplicate = 1;
                 ASSERT(1 == duplicate);
-            }
             END_ABORT_TEST_AND_ASSERT(NO_ABORT_OCCURRED);
             ASSERT(0 == duplicate);
         }
@@ -939,7 +951,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
