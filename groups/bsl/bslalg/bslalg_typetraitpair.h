@@ -9,9 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide facilities for identifying 'std::pair'-like classes.
 //
-//@DEPRECATED: Do not use.
-//
-//@BDE_TRANSITIONAL_CANCELLED
+//@INTERNAL_DEPRECATED: Do not use.
 //
 //@CLASSES:
 //  bslalg::TypeTraitPair: for 'std::pair'-like classes
@@ -38,7 +36,7 @@ BSLS_IDENT("$Id: $")
 // Note that 'first' and 'second' are *not* member functions, but data members.
 
 #if defined(BSL_PUBLISHED)
-//#error "bslalg_typetraitpair is deprecated"
+#error "bslalg_typetraitpair is deprecated"
 #endif
 
 #ifndef INCLUDED_BSLSCM_VERSION

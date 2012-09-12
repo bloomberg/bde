@@ -9,10 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide consistent interface for platform-dependent functionality.
 //
-//@DEPRECATED: Use 'bsls_alignmentutil', 'bsls_byteorder', 'bsls_platform', and
-// 'bsls_types' instead.
-//
-//@BDE_TRANSITIONAL
+//@INTERNAL_DEPRECATED: Use 'bsls_alignmentutil', 'bsls_byteorder',
+// 'bsls_platform', and 'bsls_types' instead.
 //
 //@CLASSES:
 //  bsls::PlatformUtil: namespace for platform-neutral type names and API

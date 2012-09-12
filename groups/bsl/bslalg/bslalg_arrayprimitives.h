@@ -950,7 +950,7 @@ struct ArrayPrimitives_Imp {
                         // bslalg_ArrayPrimitives_RemovePtr
                         // ================================
 
-//#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
+#ifndef BDE_OMIT_TRANSITIONAL
 template <typename NON_PTR_TYPE>
 struct ArrayPrimitives_RemovePtr {
     // Given a template parameter 'T*', yield 'Type == T'.  Given a template
@@ -985,7 +985,7 @@ struct ArrayPrimitives_RemovePtr<const volatile TARGET_TYPE *> {
 
     typedef TARGET_TYPE Type;
 };
-//#endif // BDE_TRANSITIONAL
+#endif  // BDE_OMIT_TRANSITIONAL
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS

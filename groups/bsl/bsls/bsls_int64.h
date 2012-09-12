@@ -9,9 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide namespace for platform-dependent 64-bit integer types.
 //
-//@DEPRECATED: Use component 'bsls_types' instead.
-//
-//@BDE_TRANSITIONAL
+//@INTERNAL_DEPRECATED: Use component 'bsls_types' instead.
 //
 //@CLASSES:
 //  bsls_Int64: namespace for platform-dependent 64-bit integer types

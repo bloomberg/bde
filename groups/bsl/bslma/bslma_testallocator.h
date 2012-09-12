@@ -607,7 +607,7 @@ class TestAllocator : public Allocator {
         // not been set.
 
 // TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
+#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
     void *lastAllocateAddress() const;
         // Return the allocated memory address of the most recent memory
         // request.  Return 0 if the request was invalid (e.g., allocate non-
@@ -650,7 +650,7 @@ class TestAllocator : public Allocator {
         //
         // DEPRECATED: use 'numDeallocations' instead.
 // TBD #endif
-#endif // BDE_TRANSITIONAL
+#endif  // BDE_OMIT_TRANSITIONAL
 };
 
 }  // close package namespace
@@ -965,7 +965,7 @@ bsls::Types::Int64 TestAllocator::numMismatches() const
 }
 
 // TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
+#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
 inline
 void *TestAllocator::lastAllocateAddress() const
 {
@@ -1005,7 +1005,7 @@ bsls::Types::Int64 TestAllocator::numDeallocation() const
 }
 
 // TBD #endif
-#endif // BDE_TRANSITIONAL
+#endif  // BDE_OMIT_TRANSITIONAL
 
 }  // close package namespace
 

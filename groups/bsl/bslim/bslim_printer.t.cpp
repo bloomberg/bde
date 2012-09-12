@@ -2145,7 +2145,7 @@ int main(int argc, char *argv[])
         }
       } break;
       case 10: {
-#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
+#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
         // --------------------------------------------------------------------
         // TESTING 'print' (null pointers)
         //
@@ -2238,10 +2238,10 @@ int main(int argc, char *argv[])
 
             }
         }
-#endif  // #if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
+#endif  // BDE_OMIT_TRANSITIONAL
       } break;
       case 9: {
-#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
+#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
         // --------------------------------------------------------------------
         // TESTING 'print' (non-null pointer types)
         //
@@ -2538,10 +2538,10 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
             }
         }
-#endif  // #if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
+#endif  // BDE_OMIT_TRANSITIONAL
       } break;
       case 8: {
-#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
+#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
         // --------------------------------------------------------------------
         // TESTING 'print' (user-defined types and specializations)
         //
@@ -2970,10 +2970,10 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
             }
         }
-#endif  // #if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
+#endif  // BDE_OMIT_TRANSITIONAL
       } break;
       case 7: {
-#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
+#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
         // --------------------------------------------------------------------
         // TESTING 'print' (fundamental types)
         //
@@ -3229,10 +3229,10 @@ int main(int argc, char *argv[])
                 }
             }
         }
-#endif  // #if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
+#endif  // BDE_OMIT_TRANSITIONAL
       } break;
       case 6: {
-#if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
+#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
         // --------------------------------------------------------------------
         // TESTING 'print' (indentation and name)
         //
@@ -3296,7 +3296,7 @@ int main(int argc, char *argv[])
             }
             LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
         }
-#endif  // #if defined(BDE_TRANSITIONAL) && 1 == BDE_TRANSITIONAL
+#endif  // BDE_OMIT_TRANSITIONAL
       } break;
       case 5: {
         // --------------------------------------------------------------------

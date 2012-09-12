@@ -9,9 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide fast variable-size memory pool with allocation methods.
 //
-//@DEPRECATED: Use 'bdema_sequentialpool' instead.
-//
-//@BDE_TRANSITIONAL
+//@INTERNAL_DEPRECATED: Use 'bdema_sequentialpool' instead.
 //
 //@CLASSES:
 //  bslma::SequentialPool: fast variable-size memory pool
