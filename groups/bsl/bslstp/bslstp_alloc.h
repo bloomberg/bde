@@ -27,7 +27,7 @@
 #ifndef INCLUDED_BSLSTP_ALLOC
 #define INCLUDED_BSLSTP_ALLOC
 
-#if defined(BSL_PUBLISHED)
+#ifdef BDE_OSS_TEST
 #error "bslstp_alloc is not for publication"
 #endif
 

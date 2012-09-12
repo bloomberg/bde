@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-#if defined(BSL_PUBLISHED)
+#ifdef BDE_OSS_TEST
 #error "bslstp_iosfwd is not for publication"
 #endif
 

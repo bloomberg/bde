@@ -46,7 +46,7 @@
 #ifndef INCLUDED_BSLSTP_HASHMAP
 #define INCLUDED_BSLSTP_HASHMAP
 
-#if defined(BSL_PUBLISHED)
+#ifdef BDE_OSS_TEST
 #error "bslstp_hashmap is not for publication"
 #endif
 

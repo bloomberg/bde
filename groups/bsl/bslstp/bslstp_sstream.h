@@ -44,7 +44,7 @@
 #ifndef INCLUDED_BSLSTP_SSTREAM
 #define INCLUDED_BSLSTP_SSTREAM
 
-#if defined(BSL_PUBLISHED)
+#ifdef BDE_OSS_TEST
 #error "bslstp_sstream is not for publication"
 #endif
 

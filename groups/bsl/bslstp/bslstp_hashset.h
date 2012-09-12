@@ -46,7 +46,7 @@
 #ifndef INCLUDED_BSLSTP_HASHSET
 #define INCLUDED_BSLSTP_HASHSET
 
-#if defined(BSL_PUBLISHED)
+#ifdef BDE_OSS_TEST
 #error "bslstp_hashset is not for publication"
 #endif
 

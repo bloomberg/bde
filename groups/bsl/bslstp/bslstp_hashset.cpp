@@ -1,5 +1,5 @@
-#ifndef BSL_PUBLISHED
+#ifndef BDE_OSS_TEST
 
 #include <bslstp_hashset.h>
 
-#endif  // #ifndef BSL_PUBLISHED
+#endif  // #ifndef BDE_OSS_TEST

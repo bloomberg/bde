@@ -1,5 +1,5 @@
 // bslim_printer.t.cpp                                                -*-C++-*-
-#ifndef BSL_PUBLISHED
+#ifndef BDE_OSS_TEST
 
 #include <bslim_printer.h>
 
@@ -518,7 +518,7 @@ bsl::ostream& MyClass::print(bsl::ostream& stream,
     return stream;
 }
 
-#ifndef BSL_PUBLISHED
+#ifndef BDE_OSS_TEST
 
 // EXAMPLE 4
 //
@@ -580,7 +580,7 @@ bsl::ostream& DateTz::print(bsl::ostream& stream,
    return stream << bsl::flush;
 }
 
-#endif  // #ifndef BSL_PUBLISHED
+#endif  // #ifndef BDE_OSS_TEST
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -596,7 +596,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-#ifndef BSL_PUBLISHED
+#ifndef BDE_OSS_TEST
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 24: {
@@ -3641,7 +3641,7 @@ int main(int argc, char *argv[])
       }
     }
 
-#endif  // #ifndef BSL_PUBLISHED
+#endif  // #ifndef BDE_OSS_TEST
 
     if (testStatus > 0) {
         bsl::cerr << "Error, non-zero test status = " << testStatus << "."
@@ -3656,7 +3656,7 @@ int main (int argc, char *argv[])
     return -1;
 }
 
-#endif  // #ifndef BSL_PUBLISHED
+#endif  // #ifndef BDE_OSS_TEST
 
 // ----------------------------------------------------------------------------
 // NOTICE:

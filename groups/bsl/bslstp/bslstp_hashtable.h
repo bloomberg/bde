@@ -30,7 +30,7 @@
 #ifndef INCLUDED_BSLSTP_HASHTABLE
 #define INCLUDED_BSLSTP_HASHTABLE
 
-#if defined(BSL_PUBLISHED)
+#ifdef BDE_OSS_TEST
 #error "bslstp_hashtable is not for publication"
 #endif
 

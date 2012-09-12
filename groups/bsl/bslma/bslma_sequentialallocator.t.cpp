@@ -1,6 +1,6 @@
 // bslma_sequentialallocator.t.cpp                                    -*-C++-*-
 
-#ifndef BSL_PUBLISHED
+#ifndef BDE_OSS_TEST
 
 #include <bslma_sequentialallocator.h>
 
@@ -746,7 +746,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-#endif  // #ifndef BSL_PUBLISHED
+#endif  // #ifndef BDE_OSS_TEST
 
 
 // ---------------------------------------------------------------------------

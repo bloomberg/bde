@@ -1,5 +1,5 @@
 // bslma_bufferallocator.cpp                                          -*-C++-*-
-#ifndef BSL_PUBLISHED
+#ifndef BDE_OSS_TEST
 
 #include <bslma_bufferallocator.h>
 
@@ -204,7 +204,7 @@ void BufferAllocator::print() const
 
 }  // close enterprise namespace
 
-#endif // #ifndef BSL_PUBLISHED
+#endif // #ifndef BDE_OSS_TEST
 
 // ---------------------------------------------------------------------------
 // NOTICE:

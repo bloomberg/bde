@@ -1,4 +1,4 @@
-#ifndef BSL_PUBLISHED
+#ifndef BDE_OSS_TEST
 //#include <bsl_hash_map.h>
 #ifdef std
 #   error std was not expected to be a macro
@@ -7,4 +7,4 @@ namespace std { }
 int main() { return 0; }
 #else
 int main() { return -1; }
-#endif  // #ifndef BSL_PUBLISHED
+#endif  // #ifndef BDE_OSS_TEST

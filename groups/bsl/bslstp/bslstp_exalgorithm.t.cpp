@@ -1,9 +1,9 @@
 // bslstp_exalgorithm.t.cpp                                           -*-C++-*-
-#ifndef BSL_PUBLISHED
+#ifndef BDE_OSS_TEST
 
 #include <bslstp_exalgorithm.h>
 
-#endif  // #ifndef BSL_PUBLISHED
+#endif  // #ifndef BDE_OSS_TEST
 
 int main() { return -1; }  // empty test driver
 

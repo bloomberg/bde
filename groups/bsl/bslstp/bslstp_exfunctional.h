@@ -58,7 +58,7 @@ BSLS_IDENT("$Id: $")
 // This component is for use by the 'bsl+stdhdrs' package.  Use 'functional'
 // directly.
 
-#if defined(BSL_PUBLISHED)
+#ifdef BDE_OSS_TEST
 #error "bslstp_exfunctional is not for publication"
 #endif
 

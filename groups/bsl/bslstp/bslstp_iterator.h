@@ -30,7 +30,7 @@
 #ifndef INCLUDED_BSLSTP_ITERATOR
 #define INCLUDED_BSLSTP_ITERATOR
 
-#if defined(BSL_PUBLISHED)
+#ifdef BDE_OSS_TEST
 #error "bslstp_iterator is not for publication"
 #endif
 

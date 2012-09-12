@@ -15,7 +15,7 @@
  * modified is included with the above copyright notice.
  *
  */
-#ifndef BSL_PUBLISHED
+#ifndef BDE_OSS_TEST
 
 //#include <bslstp_stlport_prefix.h>
 #include <bslstp_sstream.h>
@@ -35,7 +35,7 @@ template class basic_stringstream<wchar_t, ::std::char_traits<wchar_t>, allocato
 
 }  // close namespace bsl
 
-#endif // #ifndef BSL_PUBLISHED
+#endif // #ifndef BDE_OSS_TEST
 
 // Local Variables:
 // mode:C++

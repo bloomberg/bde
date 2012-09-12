@@ -1,5 +1,5 @@
 // bslma_sequentialpool.cpp                                           -*-C++-*-
-#ifndef BSL_PUBLISHED
+#ifndef BDE_OSS_TEST
 
 #include <bslma_sequentialpool.h>
 
@@ -367,7 +367,7 @@ int SequentialPool::truncate(void *address,
 
 }  // close enterprise namespace
 
-#endif // #ifndef BSL_PUBLISHED
+#endif // #ifndef BDE_OSS_TEST
 
 // ---------------------------------------------------------------------------
 // NOTICE:

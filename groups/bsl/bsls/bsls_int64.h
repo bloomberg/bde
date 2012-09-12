@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // Do not use this component; use 'bsls_types' instead.
 
-#if defined(BSL_PUBLISHED)
+#ifdef BDE_OSS_TEST
 #error "bsls_int64 is deprecated"
 #endif
 

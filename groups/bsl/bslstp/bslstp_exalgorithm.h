@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 // This component is for use by the 'bsl+stdhdrs' package.  Use 'algorithm'
 // directly.
 
-#if defined(BSL_PUBLISHED)
+#ifdef BDE_OSS_TEST
 #error "bslstp_exalgorithm is not for publication"
 #endif
 
