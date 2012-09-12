@@ -140,7 +140,7 @@ struct Tag {
 
 #define BSLMF_TAG_TO_BOOL(BSLMF_EXPR) (BSLMF_TAG_TO_INT(BSLMF_EXPR) != 0)
 
-#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -150,7 +150,7 @@ struct Tag {
 #endif
 #define bslmf_Tag bslmf::Tag
     // This alias is defined for backward compatibility.
-#endif // BDE_BACKWARD_COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
 
 }  // close enterprise namespace
 

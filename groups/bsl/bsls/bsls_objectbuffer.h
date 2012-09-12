@@ -323,7 +323,7 @@ const char *ObjectBuffer<TYPE>::buffer() const
 
 #endif
 
-#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 
 #ifdef bsls_ObjectBuffer
 #undef bsls_ObjectBuffer
@@ -331,7 +331,7 @@ const char *ObjectBuffer<TYPE>::buffer() const
 #define bsls_ObjectBuffer bsls::ObjectBuffer
     // This alias is defined for backward compatibility.
 
-#endif // BDE_BACKWARD_COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
 
 }  // close enterprise namespace
 

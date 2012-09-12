@@ -197,7 +197,7 @@ const char *AlignedBuffer<SIZE, ALIGNMENT>::buffer() const
 
 }  // close package namespace
 
-#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -207,7 +207,7 @@ const char *AlignedBuffer<SIZE, ALIGNMENT>::buffer() const
 #endif
 #define bsls_AlignedBuffer bsls::AlignedBuffer
     // This alias is defined for backward compatibility.
-#endif // BDE_BACKWARD_COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
 
 }  // close enterprise namespace
 

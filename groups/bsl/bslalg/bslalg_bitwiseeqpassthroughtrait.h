@@ -499,7 +499,7 @@ class BitwiseEqPassthroughTrait_Imp<A1, A2, A3, A4, A5, A6, A7, A8,
 
 }  // close package namespace
 
-#if defined(BDE_BACKWARD_COMPATIBILITY) && 1 == BDE_BACKWARD_COMPATIBILITY
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -509,7 +509,7 @@ class BitwiseEqPassthroughTrait_Imp<A1, A2, A3, A4, A5, A6, A7, A8,
 #endif
 #define bslalg_BitwiseEqPassthroughTrait bslalg::BitwiseEqPassthroughTrait
     // This alias is defined for backward compatibility.
-#endif // BDE_BACKWARD_COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
 
 }  // close enterprise namespace
 
