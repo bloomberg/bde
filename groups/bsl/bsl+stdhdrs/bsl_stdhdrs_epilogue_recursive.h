@@ -69,6 +69,7 @@
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
+#endif  // #ifndef BDE_OSS_TEST
 
 #ifdef BSL_INCLUDE_BSL_SSTREAM
 # ifndef INCLUDED_BSLSTL_SSTREAM
@@ -87,6 +88,7 @@
 // Now include those 'bslstl' components corresponding to the 'bsl+stdhdrs'
 // files that have been included.
 
+#ifndef BDE_OSS_TEST
 // If '<algorithm>' was included, then include SGI extension to algorithms.
 #ifdef INCLUDED_NATIVE_ALGORITHM
 # ifndef INCLUDED_BSLSTP_EXALGORITHM
