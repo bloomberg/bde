@@ -1391,7 +1391,7 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::at(const key_type& key)
     BloombergLP::bslalg::RbTreeNode *node =
         BloombergLP::bslalg::RbTreeUtil::find(d_tree, this->comparator(), key);
     if (d_tree.sentinel() == node) {
-        BloombergLP::bslstl_StdExceptUtil::throwOutOfRange(
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                                  "map<...>::at(key_type): invalid key value");
     }
     return toNode(node)->value().second;
@@ -1736,7 +1736,7 @@ const VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::at(
                                                             this->comparator(),
                                                             key);
     if (d_tree.sentinel() == node) {
-        BloombergLP::bslstl_StdExceptUtil::throwOutOfRange(
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                                  "map<...>::at(key_type): invalid key value");
     }
     return toNode(node)->value().second;

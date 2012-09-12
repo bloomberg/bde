@@ -193,8 +193,8 @@ class TreeIterator
     // 'bslstl::TreeNode' object).
 
     // PRIVATE TYPES
-    typedef typename BloombergLP::bslmf_RemoveCvq<BSLSTL_VALUE>::Type NcType;
-    typedef TreeIterator<NcType, BSLSTL_NODE, BSLSTL_DIFFERENCE>      NcIter;
+    typedef typename BloombergLP::bslmf::RemoveCvq<BSLSTL_VALUE>::Type NcType;
+    typedef TreeIterator<NcType, BSLSTL_NODE, BSLSTL_DIFFERENCE>       NcIter;
 
     // DATA
     bslalg::RbTreeNode *d_node_p;  // current iterator position
@@ -385,7 +385,7 @@ inline
 typename TreeIterator<BSLSTL_VALUE, BSLSTL_NODE, BSLSTL_DIFFERENCE>::pointer
 TreeIterator<BSLSTL_VALUE, BSLSTL_NODE, BSLSTL_DIFFERENCE>::operator->() const
 {
-    return bsls_Util::addressOf(static_cast<BSLSTL_NODE *>(d_node_p)->value());
+    return bsls::Util::addressOf(static_cast<BSLSTL_NODE *>(d_node_p)->value());
 }
 
 template <class BSLSTL_VALUE, class BSLSTL_NODE, class BSLSTL_DIFFERENCE>

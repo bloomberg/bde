@@ -285,7 +285,7 @@ int main(int argc, char *argv[]) {
 // to verify it correctly uses a parameterized allocator using only the C++03
 // standard methods:
 //..
-          bslma_TestAllocator oa("object", veryVeryVeryVerbose);
+          bslma::TestAllocator oa("object", veryVeryVeryVerbose);
           Grd stag(&oa);
           {
               typedef MyContainer<int, StdTestAllocator<int> > Obj;
@@ -325,10 +325,10 @@ int main(int argc, char *argv[]) {
         // This part has been copied from bslstl_allocator's test driver and
         // had been originally written by Pablo.
 
-        typedef bslma_Allocator::size_type bsize;
+        typedef bslma::Allocator::size_type bsize;
 
         enum {
-            BSLMA_SIZE_IS_SIGNED = ~bslma_Allocator::size_type(0) < 0,
+            BSLMA_SIZE_IS_SIGNED = ~bslma::Allocator::size_type(0) < 0,
             MAX_NUM_BYTES = ~std::size_t(0) /
             (BSLMA_SIZE_IS_SIGNED ? 2 : 1),
             MAX_ELEMENTS1 = MAX_NUM_BYTES / sizeof(char),
@@ -428,7 +428,7 @@ int main(int argc, char *argv[]) {
         if (verbose) printf("\n'construct' AND 'destroy'"
                             "\n=========================\n");
 
-        bslma_TestAllocator oa;
+        bslma::TestAllocator oa;
         Grd stag(&oa);
 
         StdTestAllocator<TestType> sta;
@@ -478,7 +478,7 @@ int main(int argc, char *argv[]) {
         if (verbose) printf("\n'allocate' AND 'deallocate'"
                             "\n===========================\n");
 
-        bslma_TestAllocator oa;
+        bslma::TestAllocator oa;
         Grd stag(&oa);
 
         Obj sta;
@@ -517,12 +517,12 @@ int main(int argc, char *argv[]) {
         //:     'difference_type' are the right size and verify they are
         //:     unsigned values.  (C-1..2)
         //:
-        //:   2 For all other type aliases, use 'bslmf_IsSame' to verify that
+        //:   2 For all other type aliases, use 'bslmf::IsSame' to verify that
         //:     they are the expected types, except for 'reference' and
         //:     'const_reference' for the instance parameterized on the 'void'
         //:     type.  (C-1)
         //:
-        //:   3 Verify using 'bslmf_IsSame' that 'rebind<U>::other', where 'U'
+        //:   3 Verify using 'bslmf::IsSame' that 'rebind<U>::other', where 'U'
         //:     is the other two aliases defined by P-1, defines the correct
         //:     type.  (C-3)
         //
@@ -564,48 +564,48 @@ int main(int argc, char *argv[]) {
 
         if (verbose) printf("\tTesting 'pointer'.\n");
         {
-            ASSERT((bslmf_IsSame<AI::pointer, int*>::VALUE));
-            ASSERT((bslmf_IsSame<AF::pointer, float*>::VALUE));
-            ASSERT((bslmf_IsSame<AV::pointer, void*>::VALUE));
+            ASSERT((bslmf::IsSame<AI::pointer, int*>::VALUE));
+            ASSERT((bslmf::IsSame<AF::pointer, float*>::VALUE));
+            ASSERT((bslmf::IsSame<AV::pointer, void*>::VALUE));
         }
 
         if (verbose) printf("\tTesting 'const_pointer'.\n");
         {
-            ASSERT((bslmf_IsSame<AI::const_pointer, const int*>::VALUE));
-            ASSERT((bslmf_IsSame<AF::const_pointer, const float*>::VALUE));
-            ASSERT((bslmf_IsSame<AV::const_pointer, const void*>::VALUE));
+            ASSERT((bslmf::IsSame<AI::const_pointer, const int*>::VALUE));
+            ASSERT((bslmf::IsSame<AF::const_pointer, const float*>::VALUE));
+            ASSERT((bslmf::IsSame<AV::const_pointer, const void*>::VALUE));
         }
 
         if (verbose) printf("\tTesting 'reference'.\n");
         {
-            ASSERT((bslmf_IsSame<AI::reference, int&>::VALUE));
-            ASSERT((bslmf_IsSame<AF::reference, float&>::VALUE));
+            ASSERT((bslmf::IsSame<AI::reference, int&>::VALUE));
+            ASSERT((bslmf::IsSame<AF::reference, float&>::VALUE));
         }
 
         if (verbose) printf("\tTesting 'const_reference'.\n");
         {
-            ASSERT((bslmf_IsSame<AI::const_reference, const int&>::VALUE));
-            ASSERT((bslmf_IsSame<AF::const_reference, const float&>::VALUE));
+            ASSERT((bslmf::IsSame<AI::const_reference, const int&>::VALUE));
+            ASSERT((bslmf::IsSame<AF::const_reference, const float&>::VALUE));
         }
 
         if (verbose) printf("\tTesting 'value_type'.\n");
         {
-            ASSERT((bslmf_IsSame<AI::value_type, int>::VALUE));
-            ASSERT((bslmf_IsSame<AF::value_type, float>::VALUE));
-            ASSERT((bslmf_IsSame<AV::value_type, void>::VALUE));
+            ASSERT((bslmf::IsSame<AI::value_type, int>::VALUE));
+            ASSERT((bslmf::IsSame<AF::value_type, float>::VALUE));
+            ASSERT((bslmf::IsSame<AV::value_type, void>::VALUE));
         }
 
         if (verbose) printf("\tTesting 'rebind'.\n");
         {
-            ASSERT((bslmf_IsSame<AI::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf_IsSame<AI::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf_IsSame<AI::rebind<void >::other, AV>::VALUE));
-            ASSERT((bslmf_IsSame<AF::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf_IsSame<AF::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf_IsSame<AF::rebind<void >::other, AV>::VALUE));
-            ASSERT((bslmf_IsSame<AV::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf_IsSame<AV::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf_IsSame<AV::rebind<void >::other, AV>::VALUE));
+            ASSERT((bslmf::IsSame<AI::rebind<int  >::other, AI>::VALUE));
+            ASSERT((bslmf::IsSame<AI::rebind<float>::other, AF>::VALUE));
+            ASSERT((bslmf::IsSame<AI::rebind<void >::other, AV>::VALUE));
+            ASSERT((bslmf::IsSame<AF::rebind<int  >::other, AI>::VALUE));
+            ASSERT((bslmf::IsSame<AF::rebind<float>::other, AF>::VALUE));
+            ASSERT((bslmf::IsSame<AF::rebind<void >::other, AV>::VALUE));
+            ASSERT((bslmf::IsSame<AV::rebind<int  >::other, AI>::VALUE));
+            ASSERT((bslmf::IsSame<AV::rebind<float>::other, AF>::VALUE));
+            ASSERT((bslmf::IsSame<AV::rebind<void >::other, AV>::VALUE));
         }
       } break;
       case 10: {
@@ -815,9 +815,9 @@ int main(int argc, char *argv[]) {
         if (verbose) printf("\n'StdTestAllocatorConfigurationGuard'"
                             "\n==============================");
 
-        bslma_Allocator *original = Conf::delegateAllocator();
+        bslma::Allocator *original = Conf::delegateAllocator();
         {
-            bslma_TestAllocator scratch("object", veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("object", veryVeryVeryVerbose);
             Grd sag(&scratch);
             ASSERT(&scratch == Conf::delegateAllocator());
         }
@@ -861,10 +861,10 @@ int main(int argc, char *argv[]) {
               printf("\n'setDelegateAllocatorRaw' and 'delegateAllocator'"
                      "\n=================================================\n");
 
-          ASSERT(&bslma_NewDeleteAllocator::singleton() ==
+          ASSERT(&bslma::NewDeleteAllocator::singleton() ==
                                                     Conf::delegateAllocator());
 
-          bslma_TestAllocator oa("object", veryVeryVeryVerbose);
+          bslma::TestAllocator oa("object", veryVeryVeryVerbose);
           StdTestAllocatorConfiguration::setDelegateAllocatorRaw(&oa);
 
           ASSERT(&oa == StdTestAllocatorConfiguration::delegateAllocator());
@@ -877,7 +877,7 @@ int main(int argc, char *argv[]) {
           ASSERT(0 == oa.numBytesInUse());
 
           StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
-                                       &bslma_NewDeleteAllocator::singleton());
+                                       &bslma::NewDeleteAllocator::singleton());
 
       } break;
       case 1: {
@@ -899,7 +899,7 @@ int main(int argc, char *argv[]) {
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============");
 
-        bslma_TestAllocator oa("object", veryVeryVeryVerbose);
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
         {
             Grd sag(&oa);
             ASSERT(Conf::delegateAllocator() == &oa);
@@ -911,7 +911,7 @@ int main(int argc, char *argv[]) {
             ASSERT(oa.numBytesInUse() == 0);
         }
 
-        ASSERT(&bslma_NewDeleteAllocator::singleton() ==
+        ASSERT(&bslma::NewDeleteAllocator::singleton() ==
                                                     Conf::delegateAllocator());
 
       } break;
