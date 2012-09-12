@@ -19,15 +19,21 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Herve Bronnimann (hbronnim), Alexei Zakharov (azakhar1)
 //
 //@DESCRIPTION: This component defines a single class template 'basic_string',
-// implementing the standard container that holds a sequence of characters.
+// implementing standard sequential containers, 'std::string' and
+// 'std::wstring', that hold a sequence of characters.
 //
-// A map meets the requirements of an associative container with bidirectional
-// iterators in the C++ standard [23.2.4].  The 'map' implemented here adheres
-// to the C++11 standard, except that it does not have interfaces that take
-// rvalue references, 'initializer_lists', 'emplace', or operations taking a
-// variadic number of template parameters.  Note that excluded C++11 features
-// are those that require (or are greatly simplified by) C++11 compiler
-// support.
+// An instantiation of 'basic_string' is an allocator-aware, value-semantic
+// type whose salient attributes are its size (number of characters) and the
+// sequence of characters the string contains.  The 'basic_string' 'class' is
+// parameterized by the character type, and by that character type's traits.
+//
+// A basic_string meets the requirements of a sequential container with random
+// access iterators as specified in the [basic.string] section of the C++
+// standard [21.4].  The 'basic_string' implemented here adheres to the C++11
+// standard, except that it does not have interfaces that take rvalue
+// references, 'initializer_lists', 'emplace', or operations taking a variadic
+// number of template parameters.  Note that excluded C++11 features are those
+// that require (or are greatly simplified by) C++11 compiler support.
 //
 ///Lexicographical Comparisons
 ///---------------------------
