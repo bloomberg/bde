@@ -219,17 +219,31 @@ class HashTable {
   private:
     // PRIVATE MANIPULATORS
     void copyDataStructure(const bslalg::BidirectionalLink *cursor);
+        // Copy the sequence of elements from the list starting at the
+        // specified 'cursor' and having 'size' elements.  Allocate a bucket
+        // array sufficiently large to store 'size' elements while respecting
+        // the 'maxLoadFactor', and index the copied list into that new array
+        // of hash buckets.  This hash table then takes ownership of the list
+        // and bucket array.  Note that this method is intended to be called
+        // from copy constructors, which will have assigned some initial
+        // values for the 'size' and other attributes that may not be
+        // consistent with the class invariants until after this method is
+        // called.
 
     void quickSwap(HashTable *other);
-        // Efficiently exchange the value and comparator of this object with
-        // the value of the specified '*other' object.  This method provides
-        // the no-throw exception-safety guarantee.  The behavior is undefined
-        // unless this object was created with the same allocator as '*other'.
+        // Efficiently exchange the value and functors of this object with
+        // the value and functors of the specified 'other' object.  This method
+        // provides the no-throw exception-safety guarantee.  The behavior is
+        // undefined unless this object was created with the same allocator as
+        // '*other'.
 
     void removeAllImp();
         // Erase all the nodes in this table and deallocate their memory via
         // the node factory, without performing the necessary bookkeeping to
-        // reflect such change.
+        // reflect such change.  Note that this method is expected to be useful
+        // when the anchor of this hash table is about to be over-written with
+        // a new value, or when the hash table is going out of scope and the
+        // extra bookkeeping is not necessary.
     
     void removeAllAndDeallocate();
         // Erase all the nodes in this table, and deallocate their memory via
@@ -265,57 +279,110 @@ class HashTable {
 
     ~HashTable();
 
-    // TBD implement assignment
+    // MANIPULATORS
     HashTable& operator=(const HashTable&);
 
-    // ACCESSORS
-    ALLOCATOR allocator() const;
-        // TBD..
-
-    bool isEmpty() const;
-        // TBD..
-
-    SizeType size() const;
-        // TBD..
-
-    SizeType maxSize() const;
-        // TBD..
-
-    bslalg::BidirectionalLink *elementListRoot() const;
-
-    // MANIPULATORS
     template <class SOURCE_TYPE>
     bslalg::BidirectionalLink *insertIfMissing
                                            (bool               *isInsertedFlag,
                                             const SOURCE_TYPE&  obj);
-        // ... and load true into the specified 'isInsertedFlag' if the
-        // insertion is performed, and false otherwise.    
+        // Return the address of an element in this hash table having a key
+        // that compares equal to the key of the specified 'obj' using the
+        // 'comparator' functor of this hash table.  If no such element exists,
+        // insert a copy of 'obj' into this hash table and return the address
+        // of that node in this table's list.  Load 'true' into the specified
+        // 'isInsertedFlag' if insertion is performed, and 'false' if an
+        // existing element having a matching key was found.    
     
+    bslalg::BidirectionalLink *remove(bslalg::BidirectionalLink *node);
+    
+    bslalg::BidirectionalLink *findOrInsertDefault(const KeyType& key);
+
     template <class SOURCE_TYPE>
     bslalg::BidirectionalLink *insertContiguous(const SOURCE_TYPE& obj);
+        // Insert the specified 'obj' into this hash table.  If an element
+        // is present in this hash table having a key that compares equal to
+        // 'obj' using this hash table's 'comparator' functor, then 'obj'
+        // will be inserted into this hash table's list immediately preceding
+        // the first such element.
 
-    bslalg::BidirectionalLink *remove(bslalg::BidirectionalLink *node);
-    bslalg::BidirectionalLink *findOrInsertDefault(const KeyType& key);
-    
     void rehashForNumBuckets(SizeType newNumBuckets);
-    void rehashForNumElements(SizeType n);
+        // Allocate a new bucket array having at least the specified
+        // 'newNumBuckets', and re-organize the list of elements owned by this
+        // hash table so that the new buckets index them correctly.  If an
+        // exception is thrown by either of the user suppfied functors used to
+        // configure this hash table, then it will be left in an unspecified
+        // state; no memory will be leaked, but some elements may be destroyed
+        // and erased from the container.  If an exception is thrown allocating
+        // the new bucket array, then this hash table will be left unchanged.
+        // Note that more buckets than requested may be allocated in order to
+        // preserve the bucket allocation strategy of the hash table, but never
+        // fewer.
+
+    void rehashForNumElements(SizeType numElements);
+        // Allocate a new bucket array having at least sufficient buckets to
+        // support a hash table having 'size' elements without exceeding the
+        // 'maxLoadFactor', and re-organize the list of elements owned by this
+        // hash table so that the new buckets index them correctly.  If an
+        // exception is thrown by either of the user suppfied functors used to
+        // configure this hash table, then it will be left in an unspecified
+        // state; no memory will be leaked, but some elements may be destroyed
+        // and erased from the container.  If an exception is thrown allocating
+        // the new bucket array, then this hash table will be left unchanged.
+        // Note that more buckets than requested may be allocated in order to
+        // preserve the bucket allocation strategy of the hash table, but never
+        // fewer.
     
     void removeAll();
+       // Destroy all the elements in this container, reclaim their memory, and
+       // make this hash table empty.
 
     void setMaxLoadFactor(float loadFactor);
+        // Set the maximum load factor permitted by this hash table, where load
+        // factor is the statistical mean number of elements per bucket.  This
+        // hash table will rehash using a larger number of buckets if any
+        // insert operation would cause it to exceed the 'maxLoadFactor'.
+
     void swap(HashTable& other);
-        // Exchange the value of this object as well as its comparator with
-        // those of the specified 'other' object.  Additionally if
+        // Exchange the value of this object, its 'comparator' functor and its
+        // 'hasher' function, with those of the specified 'other' object.
+        // Additionally if
         // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
         // 'true' then exchange the allocator of this object with that of the
         // 'other' object, and do not modify either allocator otherwise.  This
-        // method provides the no-throw exception-safety guarantee and
-        // guarantees O[1] complexity.  The behavior is undefined is unless
-        // either this object was created with the same allocator as 'other' or
-        // 'propagate_on_container_swap' is 'true'.
+        // method provides the no-throw exception-safety guarantee unless any
+        // of the 'comparator' or 'hasher' functors throw when swapped, leaving
+        // both objects in an safely destructible, but otherwise unusable,
+        // state.  The operation guarantees O[1] complexity.  The behavior is
+        // undefined unless either this object was created with the same
+        // allocator as 'other' or 'propagate_on_container_swap' is 'true'.
 
 
     // ACCESSORS
+    bslalg::BidirectionalLink *elementListRoot() const;
+        // Return the address of the first element in this hash table, or a
+        // null pointer value if this hash table is empty.
+
+    bslalg::BidirectionalLink *find(const KeyType& key) const;
+        // Return the first link of the contiguous list of links containing the
+        // elements of this table having the same specified 'key'. 
+
+    SizeType size() const;
+        // Return the number of elements in this hash table.
+
+    ALLOCATOR allocator() const;
+        // Return a copy of the allocator used to construct this hash table.
+        // Note that this is not the allocator used to allocate elements for
+        // this hash table, which is instead a copy of that allocator rebound
+        // to allocate the nodes used by the internal data structure of this
+        // hash table.
+
+    const EQUAL& comparator() const;
+
+    const HASH& hasher()     const;
+
+    float maxLoadFactor() const;
+
     SizeType bucketIndexForKey(const KeyType& key) const;
         // Return the index of the bucket that would contain all the elements
         // having the specified 'key'.
@@ -324,17 +391,11 @@ class HashTable {
         // Return a reference to the 'n'th non-modifiable bucket in the
         // sequence of buckets.  The behavior is undefined unless
         // 'index < numBuckets()'.
-    
-    const EQUAL& comparator() const;
-    
+
     SizeType countElementsInBucket(SizeType index) const;
         // Return the number elements contained in the bucket at the specified
         // index 'index'.  Note that this operation will be linear in the size
         // of the bucket.
-
-    bslalg::BidirectionalLink *find(const KeyType& key) const;
-        // Return the first link of the contiguous list of links containing the
-        // elements of this table having the same specified 'key'. 
 
     void findRange(bslalg::BidirectionalLink **first,
                    bslalg::BidirectionalLink **last,
@@ -351,18 +412,21 @@ class HashTable {
         // in the node pointed to by 'first'.  The behavior is undefined unless
         // 'first' points to a link in the list owned by this hash table.
 
-    const HASH& hasher()     const;
-   
+    bool isEmpty() const;
+        // Return 'true' if this hash table contains no elements, and 'false'
+        // otherwise.
+
     float loadFactor() const;
         // Return the current load factor for this table.  The load factor is
         // the statical mean number of elements per bucket.
-    
-    float maxLoadFactor() const;
 
     SizeType maxNumBuckets() const;
         // Return the maximum number of buckets that can be contained in this
         // hash table.
-    
+
+    SizeType maxSize() const;
+        // TBD..
+
     SizeType numBuckets() const;
         // Return the number of buckets contained in this hash table.
 };
@@ -472,10 +536,6 @@ struct HashTable_PrimeUtil {
                     // ============================
 
 struct HashTable_StaticBucket {
-  public:
-    // CLASS DATA
-    //static bslalg::HashTableBucket s_bucket;
-
     static bslalg::HashTableBucket *getDefaultBucketAddress();
     // TBD add public method to return the address and hide the variable in
     // the cpp
@@ -1104,9 +1164,9 @@ void HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::removeAllAndDeallocate()
 {
     this->removeAllImp();
     HashTable_Util<ALLOCATOR>::destroyBucketArray(
-                                       d_anchor.bucketArrayAddress(),
-                                       d_anchor.bucketArraySize(),
-                                       this->allocator());
+                                                 d_anchor.bucketArrayAddress(),
+                                                 d_anchor.bucketArraySize(),
+                                                 this->allocator());
 }
 
 template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1231,12 +1291,10 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::findEndOfRange(
 {
     BSLS_ASSERT_SAFE(first);
 
-    const KeyType& k = bslalg::HashTableImpUtil::extractKey<KEY_POLICY>(first);
+    typedef bslalg::HashTableImpUtil ImpUtil;
+    const KeyType& k = ImpUtil::extractKey<KEY_POLICY>(first);
     while ((first = first->nextLink()) &&
-           this->comparator()(k,
-                              bslalg::HashTableImpUtil::extractKey<KEY_POLICY>
-                                                                      (first)))
-    {
+           this->comparator()(k,ImpUtil::extractKey<KEY_POLICY>(first))) {
     }
     return first;
 }
@@ -1356,9 +1414,11 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::rehashForNumBuckets(
 template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::rehashForNumElements(SizeType n)
+HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::rehashForNumElements(SizeType
+                                                                   numElements)
 {
-    this->rehashForNumBuckets(native_std::ceil(n / this->maxLoadFactor()));
+    this->rehashForNumBuckets(native_std::ceil(
+                                         numElements / this->maxLoadFactor()));
 }
 
 }  // close namespace BloombergLP::bslstl
