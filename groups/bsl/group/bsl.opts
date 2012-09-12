@@ -22,4 +22,5 @@
 windows			shr	STL_DEFINES	= /D_STLP_DESIGNATED_DLL
 
 # DRQS 29608792: Build windows with BSL_LEGACY=0 to match release process
-windows             _       BDE_CXXFLAGS     = /DBSL_LEGACY=0
+# TREQ 2275517: Salitize BSL code-base: change BSL_LEGACY to BDE_OMIT_INTERNAL_DEPRECATED 
+windows             _       BDE_CXXFLAGS     = /DBDE_OMIT_INTERNAL_DEPRECATED

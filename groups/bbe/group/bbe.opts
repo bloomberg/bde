@@ -3,5 +3,6 @@
 *                       _       OPTS_FILE       = bbe.opts
 
 # Defines
-unix                    _       STL_DEFINES    = -DBSL_LEGACY=0
-windows                 _       STL_DEFINES    = /DBSL_LEGACY=0
+# TREQ 2275517: Salitize BSL code-base: change BSL_LEGACY to BDE_OMIT_INTERNAL_DEPRECATED 
+unix                    _       STL_DEFINES    = -DBDE_OMIT_INTERNAL_DEPRECATED
+windows                 _       STL_DEFINES    = /DBDE_OMIT_INTERNAL_DEPRECATED
