@@ -2328,13 +2328,13 @@ int baecs_Journal::validateImpl(bool verbose) const {
 
     bsl::vector<unsigned> pageMapVector;
     pageMapVector.resize(d_header.numPages(), (unsigned)-1);
-    unsigned *pageMap = &(pageMapVector[0]);
+    unsigned *pageMap = pageMapVector.begin();
     markPageListForValidation(&d_header.fillPages(), pageMap, 1, verbose);
     markPageListForValidation(&d_header.preFillPages(), pageMap, 2, verbose);
 
     bsl::vector<unsigned> mapVector;
     mapVector.resize(numBlocks, (unsigned)-1);
-    unsigned *map = &(mapVector[0]);
+    unsigned *map = mapVector.begin();
     if (verbose) {
         bsl::printf("Validating journal %s (%d pages).\n",
                     d_filename.c_str(),
