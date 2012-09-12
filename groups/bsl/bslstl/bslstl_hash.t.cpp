@@ -301,9 +301,9 @@ int main(int argc, char *argv[])
             size_t     d_hashCode;
         } DATA[] = {
             // LINE    VALUE   HASHCODE
-            {  L_,     0,             0 },
-            {  L_,     13,           13 },
-            {  L_,     42,           42 },
+            {  L_,     0,      bslalg::HashUtil::computeHash(TYPE( 0)) },
+            {  L_,     13,     bslalg::HashUtil::computeHash(TYPE(13)) },
+            {  L_,     42,     bslalg::HashUtil::computeHash(TYPE(42)) },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -425,16 +425,16 @@ int main(int argc, char *argv[])
 
         {
             hash<char> func;
-            ASSERT('A' == func('A'));
-            ASSERT('a' == func('a'));
-            ASSERT('Z' == func('Z'));
+            ASSERT(bslalg::HashUtil::computeHash('A') == func('A'));
+            ASSERT(bslalg::HashUtil::computeHash('a') == func('a'));
+            ASSERT(bslalg::HashUtil::computeHash('Z') == func('Z'));
         }
 
         {
             hash<const int> func;
-            ASSERT( 0 == func( 0));
-            ASSERT( 1 == func( 1));
-            ASSERT(42 == func(42));
+            ASSERT(bslalg::HashUtil::computeHash( 0) == func( 0));
+            ASSERT(bslalg::HashUtil::computeHash( 1) == func( 1));
+            ASSERT(bslalg::HashUtil::computeHash(42) == func(42));
         }
 
       } break;
