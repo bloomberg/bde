@@ -2,9 +2,7 @@
 
 #include <bslalg_rangecompare.h>
 
-#include <bslalg_typetraits.h>                          // for testing only
-#include <bslalg_typetraitbitwiseequalitycomparable.h>  // for testing only
-
+#include <bslmf_isbitwiseequalitycomparable.h>          // for testing only
 #include <bslma_testallocator.h>
 #include <bsls_types.h>
 #include <bsls_stopwatch.h>
@@ -950,10 +948,15 @@ void testEqualNonBitwise(bool verboseFlag, bslma::TestAllocator& testAllocator)
 //-----------------------------------------------------------------------------
 
 struct TestPairType {
-    BSLALG_DECLARE_NESTED_TRAITS(TestPairType,
-                                 bslalg::TypeTraitBitwiseEqualityComparable);
     int first, second;
 };
+
+namespace BloombergLP {
+namespace bslmf {
+template <> struct IsBitwiseEqualityComparable<TestPairType>
+    : bsl::true_type {};
+}
+}
 
 bool operator==(const TestPairType& lhs, const TestPairType& rhs) {
     return lhs.first == rhs.first && lhs.second == rhs.second;

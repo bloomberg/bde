@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // instance, a class having the trait 'bslalg::TypeTraitBitwiseMoveable' may
 // allow resizing an array of objects by simply calling 'std::memcpy' instead
 // of invoking a copy-constructor on every object.  The usage example shows how
-// to use the 'bslalg::TypeTraitUsesBslmaAllocator' to propagate allocators to
+// to use the 'bslma::UsesBslmaAllocator' to propagate allocators to
 // nested instances that may require them.
 //
 // This component should be used in conjunction with other components from the
@@ -40,10 +40,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
@@ -81,51 +77,6 @@ struct HasTrait {
 
     typedef bslmf::MetaInt<VALUE> Type;
 };
-
-#if 0 // implied traits
-
-template <typename TYPE>
-struct HasTrait<TYPE, TypeTraitBitwiseMoveable> {
-    // bitwise copyable                => bitwise moveable
-    // has trivial default constructor => bitwise moveable
-
-  private:
-    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
-    typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
-
-  public:
-    enum {
-        VALUE = bslmf::IsConvertible<NoCvqTraits,
-                                    TypeTraitBitwiseMoveable>::VALUE
-             || bslmf::IsConvertible<NoCvqTraits,
-                                    TypeTraitBitwiseCopyable>::VALUE
-             || bslmf::IsConvertible<NoCvqTraits,
-                           TypeTraitHasTrivialDefaultConstructor>::VALUE
-    };
-
-    typedef bslmf::MetaInt<VALUE> Type;
-};
-
-template <typename TYPE>
-struct HasTrait<TYPE, TypeTraitBitwiseCopyable> {
-    // has trivial default constructor => bitwise copyable
-
-  private:
-    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
-    typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
-
-  public:
-    enum {
-        VALUE = bslmf::IsConvertible<NoCvqTraits,
-                                    TypeTraitBitwiseCopyable>::VALUE
-             || bslmf::IsConvertible<NoCvqTraits,
-                           TypeTraitHasTrivialDefaultConstructor>::VALUE
-    };
-
-    typedef bslmf::MetaInt<VALUE> Type;
-};
-
-#endif // implied traits
 
 }  // close package namespace
 

@@ -88,24 +88,16 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //  Trait                                         English description
 //  --------------------------------------------  -----------------------------
-//  bslalg::TypeTraitPair                         "TYPE has the pair trait", or
-//                                                "TYPE is a pair type"
-//
-//  bslalg::TypeTraitUsesBslmaAllocator           "the 'TYPE' constructor takes
-//                                                an allocator argument", or
-//                                                "'TYPE' supports 'bslma'
-//                                                allocators"
-//
-//  bslalg::TypeTraitHasTrivialDefaultConstructor "TYPE has the trivial default
+//  bsl::is_trivially_default_constructible       "TYPE has the trivial default
 //                                                constructor trait", or
 //                                                "TYPE has a trivial default
 //                                                constructor"
 //
-//  bslalg::TypeTraitBitwiseCopyable              "TYPE has the bit-wise
+//  bsl::is_trivially_copyable                    "TYPE has the bit-wise
 //                                                copyable trait", or
 //                                                "TYPE is bit-wise copyable"
 //
-//  bslalg::TypeTraitBitwiseMoveable              "TYPE has the bit-wise
+//  bslmf::IsBitwiseMoveable                      "TYPE has the bit-wise
 //                                                moveable trait", or
 //                                                "TYPE is bit-wise moveable"
 //..
@@ -129,6 +121,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
 #include <bslalg_arraydestructionprimitives.h>
 #endif
@@ -145,20 +141,12 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslalg_constructorproxy.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
 #include <bslalg_scalardestructionprimitives.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -181,6 +169,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_functionpointertraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
 #endif
@@ -191,6 +183,18 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISSAME
+#include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECVQ
@@ -1007,12 +1011,10 @@ void ArrayPrimitives::defaultConstruct(TARGET_TYPE *begin,
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     enum {
-        VALUE = HasTrait<TARGET_TYPE,
-                                TypeTraitHasTrivialDefaultConstructor
-                               >::VALUE ? Imp::HAS_TRIVIAL_DEFAULT_CTOR_TRAITS
-              : HasTrait<TARGET_TYPE,
-                                TypeTraitBitwiseCopyable
-                               >::VALUE ? Imp::BITWISE_COPYABLE_TRAITS
+        VALUE = bsl::is_trivially_default_constructible<TARGET_TYPE>::value
+              ? Imp::HAS_TRIVIAL_DEFAULT_CTOR_TRAITS
+              : bsl::is_trivially_copyable<TARGET_TYPE>::value
+              ? Imp::BITWISE_COPYABLE_TRAITS
               : Imp::NIL_TRAITS
     };
     ArrayPrimitives_Imp::defaultConstruct(begin,
@@ -1045,8 +1047,7 @@ void ArrayPrimitives::uninitializedFillN(TARGET_TYPE        *begin,
          IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                      (IS_POINTER && !IS_FUNCTION_POINTER),
 
-         IS_BITWISECOPYABLE  = HasTrait<TARGET_TYPE,
-                                       TypeTraitBitwiseCopyable>::VALUE,
+         IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<TARGET_TYPE>::value,
 
          VALUE = IS_FUNDAMENTAL_OR_POINTER ? Imp::IS_FUNDAMENTAL_OR_POINTER
                : IS_BITWISECOPYABLE ?  Imp::BITWISE_COPYABLE_TRAITS
@@ -1073,8 +1074,7 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
         ARE_PTRS_TO_PTRS = bslmf::IsPointer<TARGET_TYPE>::VALUE &&
                            bslmf::IsPointer<FWD_ITER   >::VALUE &&
                            bslmf::IsPointer<FwdTarget  >::VALUE,
-        IS_BITWISECOPYABLE = HasTrait<TARGET_TYPE,
-                                       TypeTraitBitwiseCopyable>::VALUE &&
+        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<TARGET_TYPE>::value &&
                              bslmf::IsConvertible<FWD_ITER,
                                                    const TARGET_TYPE *>::VALUE,
         VALUE = ARE_PTRS_TO_PTRS   ? Imp::IS_POINTER_TO_POINTER
@@ -1101,8 +1101,7 @@ void ArrayPrimitives::destructiveMove(TARGET_TYPE *toBegin,
                                                           fromEnd));
 
     enum {
-        VALUE = HasTrait<TARGET_TYPE,
-                                TypeTraitBitwiseMoveable>::VALUE
+        VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
@@ -1328,12 +1327,10 @@ void ArrayPrimitives::insert(TARGET_TYPE        *toBegin,
     }
 
     enum {
-        VALUE = HasTrait<TARGET_TYPE,
-                                TypeTraitBitwiseCopyable
-                               >::VALUE ? Imp::BITWISE_COPYABLE_TRAITS
-              : HasTrait<TARGET_TYPE,
-                                TypeTraitBitwiseMoveable
-                               >::VALUE ? Imp::BITWISE_MOVEABLE_TRAITS
+        VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+              ? Imp::BITWISE_COPYABLE_TRAITS
+              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
     ArrayPrimitives_Imp::insert(toBegin,
@@ -1362,12 +1359,10 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
         ARE_PTRS_TO_PTRS = bslmf::IsPointer<TARGET_TYPE>::VALUE &&
                            bslmf::IsPointer<FWD_ITER   >::VALUE &&
                            bslmf::IsPointer<FwdTarget  >::VALUE,
-        IS_BITWISEMOVEABLE  = HasTrait<TARGET_TYPE,
-                                       TypeTraitBitwiseMoveable>::VALUE,
+        IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value,
         IS_BITWISECOPYABLE  = bslmf::IsConvertible<FWD_ITER,
-                                                 const TARGET_TYPE *>::VALUE &&
-                              HasTrait<TARGET_TYPE,
-                                              TypeTraitBitwiseCopyable>::VALUE,
+                                                   const TARGET_TYPE *>::VALUE
+                            && bsl::is_trivially_copyable<TARGET_TYPE>::value,
         VALUE = ARE_PTRS_TO_PTRS   ? Imp::IS_POINTER_TO_POINTER
               : IS_BITWISECOPYABLE ? Imp::BITWISE_COPYABLE_TRAITS
               : IS_BITWISEMOVEABLE ? Imp::BITWISE_MOVEABLE_TRAITS
@@ -1393,8 +1388,7 @@ void ArrayPrimitives::moveInsert(TARGET_TYPE  *toBegin,
                                  ALLOCATOR    *allocator)
 {
     enum {
-        VALUE = HasTrait<TARGET_TYPE,
-                                TypeTraitBitwiseMoveable>::VALUE
+        VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
@@ -1426,8 +1420,7 @@ void ArrayPrimitives::erase(TARGET_TYPE *first,
     }
 
     enum {
-        VALUE = HasTrait<TARGET_TYPE,
-                                TypeTraitBitwiseMoveable>::VALUE
+        VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
@@ -1450,8 +1443,7 @@ void ArrayPrimitives::rotate(TARGET_TYPE *first,
                                                           last));
 
     enum {
-        VALUE = HasTrait<TARGET_TYPE,
-                                TypeTraitBitwiseMoveable>::VALUE
+        VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };

@@ -1591,7 +1591,8 @@ namespace BloombergLP {
 namespace bslalg {
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
-struct HasStlIterators<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> > : bsl::true_type
+struct HasStlIterators<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
+    : bsl::true_type
 {};
 
 }

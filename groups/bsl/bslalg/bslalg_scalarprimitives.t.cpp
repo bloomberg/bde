@@ -4,10 +4,6 @@
 
 #include <bslalg_autoscalardestructor.h>
 #include <bslalg_scalardestructionprimitives.h>
-#include <bslalg_typetraitbitwisecopyable.h>
-#include <bslalg_typetraitbitwisemoveable.h>
-#include <bslalg_typetraitpair.h>
-#include <bslalg_typetraitusesbslmaallocator.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -288,8 +284,6 @@ class my_Class4 {
     my_ClassDef d_def;
 
   public:
-    BSLMF_NESTED_TRAIT_DECLARATION(my_Class4, bslma::UsesBslmaAllocator);
-
     // CREATORS
     my_Class4(bslma::Allocator *a = 0) {
         d_def.d_allocator_p = bslma::Default::allocator(a);
@@ -501,10 +495,6 @@ struct my_PairBB {
     // DATA (public for pair types)
     T1 first;
     T2 second;
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(my_PairBB,
-                                 BloombergLP::bslalg::TypeTraitPair);
 
     // CREATORS
     my_PairBB() {}
@@ -1669,7 +1659,7 @@ int main(int argc, char *argv[])
             objPtr->~my_PairAA_4_4();
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-        if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
+        if (verbose) printf("\t...constructing pair with IsPair\n");
 
         const int NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
@@ -1777,7 +1767,7 @@ int main(int argc, char *argv[])
             objPtr->~my_PairAA_4_4();
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-        if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
+        if (verbose) printf("\t...constructing pair with IsPair\n");
 
         const int NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
@@ -1892,7 +1882,7 @@ int main(int argc, char *argv[])
             objPtr->~my_PairAA_4_4();
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-        if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
+        if (verbose) printf("\t...constructing pair with IsPair\n");
 
         const int NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {

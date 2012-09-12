@@ -14,6 +14,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslalg_hastrait.h>
 #include <bslalg_rangecompare.h>
 
 #include <bslmf_issame.h>

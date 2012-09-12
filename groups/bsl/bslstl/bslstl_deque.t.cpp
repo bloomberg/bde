@@ -6,6 +6,7 @@
 #include <bslstl_randomaccessiterator.h>
 #include <bslstl_vector.h>                 // for testing only
 
+#include <bslalg_hastrait.h>
 #include <bslalg_typetraits.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>

@@ -990,7 +990,7 @@ bool operator!=(const SimpleTestType& lhs, const SimpleTestType& rhs)
 class AllocTestType {
     // This unconstrained (value-semantic) attribute class that uses a
     // 'bslma::Allocator' to allocate memory and defines the type trait
-    // 'bslalg::TypeTraitUsesBslmaAllocator'.  See the Attributes section under
+    // 'bslma::UsesBslmaAllocator'.  See the Attributes section under
     // @DESCRIPTION in the component-level documentation for information on the
     // class attributes.
 
@@ -1000,10 +1000,6 @@ class AllocTestType {
     AllocTestType   *d_self_p;       // pointer to self
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(AllocTestType,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     explicit AllocTestType(bslma::Allocator *basicAllocator = 0);
         // Create a 'AllocTestType' object having the (default) attribute
@@ -1043,6 +1039,13 @@ class AllocTestType {
     int data() const;
         // Return the value of the 'data' attribute of this object.
 };
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <> struct UsesBslmaAllocator<AllocTestType> : bsl::true_type {};
+}
+}
 
 // FREE OPERATORS
 bool operator==(const AllocTestType& lhs, const AllocTestType& rhs);

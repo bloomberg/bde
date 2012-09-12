@@ -7,6 +7,7 @@
 #include <bslstl_iterator.h>
 #include <bslstl_forwarditerator.h>
 
+#include <bslalg_hastrait.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>   // for testing only
