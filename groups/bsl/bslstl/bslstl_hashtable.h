@@ -247,15 +247,27 @@ class HashTable {
     
     void removeAllAndDeallocate();
         // Erase all the nodes in this table, and deallocate their memory via
-        // the supplied node factory. Destroy the arry of bucket of this table.
+        // the supplied node factory.  Destroy the array of buckets owned by
+        // this table.  Note that a default constructed hash table does not
+        // own its bucket array, so does not destroy it.
 
     // PRIVATE ACCESSORS
     native_std::size_t hashCodeForNode(bslalg::BidirectionalLink *node) const;
+        // Return the hash code for the element stored in the specified 'node'
+        // using a copy of the hash functor supplied at construction.  The
+        // behavior is undefined unless 'node' points to a list node holding
+        // a value of the same element type as this hash table.
 
     bslalg::BidirectionalLink *find(const KeyType&     key, 
                                     native_std::size_t hashValue) const;
-        // Find ...... The behavior is undefined unless 
-        // 'this->hasher()(key) == hashValue)'
+        // Return the first node in this hash table having a key that compares
+        // equal to the specified 'key' when compared using this hash table's
+        // comparator.  The behavior is undefined unless the specified
+        // 'hashValue' is the hash code for the specified 'key' according to
+        // the 'hasher' functor of this hash table.  Note that this function's
+        // implementation relies on the supplied 'hashValue' rather than
+        // recomputing it, eliminating some redundant computation for the
+        // public methods.
    
     bslalg::HashTableBucket *getBucketAddress(SizeType bucketIndex) const;
         // The behavior is undefined unles 'this->numBuckets()  >=
@@ -380,10 +392,13 @@ class HashTable {
         // hash table.
 
     const EQUAL& comparator() const;
-        // TBD...
+        // Return the 'comparator' functor of this hash table, used to
+        // determine if two element keys have the same value.
 
     const HASH& hasher()     const;
-        // TBD...
+        // Return the 'hasher' functor of this hash table, used to compute
+        // the hash code for the keys of elements to be stored or found in
+        // this hash table.
 
     float maxLoadFactor() const;
         // TBD...
