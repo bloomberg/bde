@@ -1,18 +1,15 @@
-// bslstp_iosfwd.t.cpp                                                -*-C++-*-
-#ifndef BDE_OSS_TEST
+// bslstl_sstream.cpp                                                 -*-C++-*-
+#include <bslstl_sstream.h>
 
-#include <bslstp_iosfwd.h>
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$ $CSID$")
 
-#endif  // #ifndef BDE_OSS_TEST
-
-int main()
-{
-    return -1;
-}
+namespace bsl {
+}  // close namespace bsl
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

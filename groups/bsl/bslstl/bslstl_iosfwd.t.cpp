@@ -1,9 +1,10 @@
-// bslstp_iosfwd.cpp                                                  -*-C++-*-
-#ifndef BDE_OSS_TEST
+// bslstl_iosfwd.t.cpp                                                -*-C++-*-
+#include <bslstl_iosfwd.h>
 
-#include <bslstp_iosfwd.h>
-
-#endif  // #ifndef BDE_OSS_TEST
+int main()
+{
+    return -1;
+}
 
 // ---------------------------------------------------------------------------
 // NOTICE:
