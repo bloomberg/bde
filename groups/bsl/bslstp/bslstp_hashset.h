@@ -54,6 +54,10 @@
 #include <bslstp_exfunctional.h>
 #endif
 
+#ifndef INCLUDED_BSLSTP_HASH
+#include <bslstp_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLSTP_HASHTABLE
 #include <bslstp_hashtable.h>
 #endif
@@ -70,7 +74,9 @@
 
 namespace bsl {
 
-template <class _Value, class _HashFcn = hash<_Value>,
+template <class _Value,
+          class _HashFcn =
+                    typename ::BloombergLP::bslstp::HashSelector<_Value>::Type,
           class _EqualKey = typename bsl::ComparatorSelector<_Value>::Type,
           class _Alloc = bsl::allocator<_Value> >
 class hash_set
@@ -228,7 +234,9 @@ void swap(hash_set<_Value, _HashFcn, _EqualKey, _Alloc>& lhs,
     lhs.swap(rhs);
 }
 
-template <class _Value, class _HashFcn = hash<_Value>,
+template <class _Value,
+          class _HashFcn =
+                    typename ::BloombergLP::bslstp::HashSelector<_Value>::Type,
           class _EqualKey = typename bsl::ComparatorSelector<_Value>::Type,
           class _Alloc = bsl::allocator<_Value> >
 class hash_multiset

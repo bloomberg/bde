@@ -58,12 +58,16 @@
 #include <bslstp_exfunctional.h>
 #endif
 
-#ifndef INCLUDED_BSLSTP_ITERATOR
-#include <bslstp_iterator.h>
+#ifndef INCLUDED_BSLSTP_HASH
+#include <bslstp_hash.h>
 #endif
 
 #ifndef INCLUDED_BSLSTP_HASHTABLE
 #include <bslstp_hashtable.h>
+#endif
+
+#ifndef INCLUDED_BSLSTP_ITERATOR
+#include <bslstp_iterator.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -78,7 +82,9 @@
 namespace bsl {
 
 
-template <class _Key, class _Tp, class _HashFcn = hash<_Key>,
+template <class _Key, class _Tp,
+          class _HashFcn =
+                      typename ::BloombergLP::bslstp::HashSelector<_Key>::Type,
           class _EqualKey = typename bsl::ComparatorSelector<_Key>::Type,
           class _Alloc = bsl::allocator< pair < const _Key, _Tp > > >
 class hash_map
@@ -252,7 +258,9 @@ void swap(hash_map<_Key, _Tp, _HashFcn, _EqualKey, _Alloc>& lhs,
     lhs.swap(rhs);
 }
 
-template <class _Key, class _Tp, class _HashFcn = hash<_Key>,
+template <class _Key, class _Tp,
+          class _HashFcn =
+                      typename ::BloombergLP::bslstp::HashSelector<_Key>::Type,
           class _EqualKey = typename bsl::ComparatorSelector<_Key>::Type,
           class _Alloc = bsl::allocator< pair < const _Key, _Tp> > >
 class hash_multimap
