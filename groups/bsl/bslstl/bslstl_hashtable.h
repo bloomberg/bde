@@ -365,7 +365,9 @@ class HashTable {
 
     bslalg::BidirectionalLink *find(const KeyType& key) const;
         // Return the first link of the contiguous list of links containing the
-        // elements of this table having the same specified 'key'. 
+        // elements of this table having the same specified 'key' according to
+        // the 'comparator' functor of this hash table, or a null pointer value
+        // if no such elements are stored in this hash table.
 
     SizeType size() const;
         // Return the number of elements in this hash table.
@@ -378,16 +380,20 @@ class HashTable {
         // hash table.
 
     const EQUAL& comparator() const;
+        // TBD...
 
     const HASH& hasher()     const;
+        // TBD...
 
     float maxLoadFactor() const;
+        // TBD...
 
     SizeType bucketIndexForKey(const KeyType& key) const;
         // Return the index of the bucket that would contain all the elements
         // having the specified 'key'.
 
     const bslalg::HashTableBucket& bucketAtIndex(SizeType index) const;
+        // TBD...
         // Return a reference to the 'n'th non-modifiable bucket in the
         // sequence of buckets.  The behavior is undefined unless
         // 'index < numBuckets()'.
@@ -400,7 +406,7 @@ class HashTable {
     void findRange(bslalg::BidirectionalLink **first,
                    bslalg::BidirectionalLink **last,
                    const KeyType&              k) const;
-    
+        // TBD...
 
     bslalg::BidirectionalLink *findEndOfRange(
                                        bslalg::BidirectionalLink *first) const;
@@ -425,7 +431,8 @@ class HashTable {
         // hash table.
 
     SizeType maxSize() const;
-        // TBD..
+        // Return the maximum number of elements that can be stored in this
+        // hash table.
 
     SizeType numBuckets() const;
         // Return the number of buckets contained in this hash table.
