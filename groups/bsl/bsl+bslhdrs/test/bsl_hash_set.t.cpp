@@ -1,4 +1,4 @@
-#ifndef BDE_OSS_TEST
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
 //#include <bsl_hash_set.h>
 #ifdef std
 #   error std was not expected to be a macro
@@ -7,4 +7,4 @@ namespace std { }
 int main() { return 0; }
 #else
 int main() { return -1; }
-#endif  // #ifndef BDE_OSS_TEST
+#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED

@@ -365,7 +365,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifdef BDE_OSS_TEST
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
 #error "bslma_sequentialpool is deprecated"
 #endif
 

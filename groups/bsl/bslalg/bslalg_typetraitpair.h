@@ -35,9 +35,9 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that 'first' and 'second' are *not* member functions, but data members.
 
-#ifdef BDE_OSS_TEST
+//#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
 //#error "bslalg_typetraitpair is deprecated"
-#endif
+//#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

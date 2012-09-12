@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 // This component is for use by the 'bsl+stdhdrs' package.  Use 'algorithm'
 // directly.
 
-#ifdef BDE_OSS_TEST
+#ifdef BDE_OMIT_TRANSITIONAL // STP
 #error "bslstp_exalgorithm is not for publication"
 #endif
 

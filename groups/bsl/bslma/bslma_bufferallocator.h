@@ -201,7 +201,7 @@ BSLS_IDENT("$Id: $")
 // because 'bslma::BufferAllocator::allocate' internally performs alignment for
 // each requested memory block based on the allocator's alignment strategy.
 
-#ifdef BDE_OSS_TEST
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
 #error "bslma_bufferallocator is deprecated"
 #endif
 

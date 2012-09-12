@@ -1,5 +1,5 @@
 // bslma_sequentialallocator.cpp                                      -*-C++-*-
-#ifndef BDE_OSS_TEST
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
 
 #include <bslma_sequentialallocator.h>
 
@@ -26,7 +26,7 @@ SequentialAllocator::~SequentialAllocator()
 
 }  // close enterprise namespace
 
-#endif // #ifndef BDE_OSS_TEST
+#endif // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

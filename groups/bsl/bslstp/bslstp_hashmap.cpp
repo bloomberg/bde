@@ -1,5 +1,5 @@
-#ifndef BDE_OSS_TEST
+#ifndef BDE_OMIT_TRANSITIONAL // STP
 
 #include <bslstp_hashmap.h>
 
-#endif  // #ifndef BDE_OSS_TEST
+#endif BDE_OMIT_TRANSITIONAL -- STP

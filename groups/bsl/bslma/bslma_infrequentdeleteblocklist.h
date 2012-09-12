@@ -146,7 +146,7 @@ BSLS_IDENT("$Id: $")
 // its 'bslma::InfrequentDeleteBlockList' member object is also destroyed,
 // which in turn automatically deallocates all of its managed memory blocks.
 
-#ifdef BDE_OSS_TEST
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
 #error "bslma_infrequentdeleteblocklist is deprecated"
 #endif
 

@@ -1,6 +1,6 @@
 // bsls_platformutil.t.cpp                                            -*-C++-*-
 
-#ifndef BDE_OSS_TEST
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
 
 #include <bsls_platformutil.h>
 
@@ -886,7 +886,7 @@ int main(int argc, char *argv[])
     return -1;
 }
 
-#endif  // #ifndef BDE_OSS_TEST
+#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 
 // ---------------------------------------------------------------------------

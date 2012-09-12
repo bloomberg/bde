@@ -1,13 +1,13 @@
 // bsls_int64.cpp                                                     -*-C++-*-
 
-#ifndef BDE_OSS_TEST
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
 
 #include <bsls_int64.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#endif  // #ifndef BDE_OSS_TEST
+#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

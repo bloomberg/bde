@@ -1,12 +1,12 @@
 // bslstp_exalgorithm.cpp                                             -*-C++-*-
-#ifndef BDE_OSS_TEST
+#ifndef BDE_OMIT_TRANSITIONAL // STP
 
 #include <bslstp_exalgorithm.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#endif  // #ifndef BDE_OSS_TEST
+#endif BDE_OMIT_TRANSITIONAL -- STP
 
 // ---------------------------------------------------------------------------
 // NOTICE:

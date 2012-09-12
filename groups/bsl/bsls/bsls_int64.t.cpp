@@ -1,6 +1,6 @@
 // bsls_int64.t.cpp                                                   -*-C++-*-
 
-#ifndef BDE_OSS_TEST
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
 
 #include <bsls_int64.h>
 
@@ -590,7 +590,7 @@ int main(int argc, char *argv[])
     return -1;
 }
 
-#endif  // #ifndef BDE_OSS_TEST
+#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 
 // ---------------------------------------------------------------------------

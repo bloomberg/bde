@@ -1,9 +1,9 @@
 // bslstp_exfunctional.t.cpp                                          -*-C++-*-
-#ifndef BDE_OSS_TEST
+#ifndef BDE_OMIT_TRANSITIONAL // STP
 
 #include <bslstp_exfunctional.h>
 
-#endif  // #ifndef BDE_OSS_TEST
+#endif BDE_OMIT_TRANSITIONAL -- STP
 
 int main() { return -1; }   // empty test driver
 

@@ -100,7 +100,7 @@ BSLS_IDENT("$Id: $")
 // Note that in the above usage example, either the macros or the functions can
 // be used to test whether a platform is big- or little-endian.
 
-#ifdef BDE_OSS_TEST
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
 #error "bsls_platformutil is deprecated"
 #endif
 

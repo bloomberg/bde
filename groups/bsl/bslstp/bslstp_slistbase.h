@@ -27,7 +27,7 @@
 #ifndef INCLUDED_BSLSTP_SLISTBASE
 #define INCLUDED_BSLSTP_SLISTBASE
 
-#ifdef BDE_OSS_TEST
+#ifdef BDE_OMIT_TRANSITIONAL // STP
 #error "bslstp_slistbase is not for publication"
 #endif
 

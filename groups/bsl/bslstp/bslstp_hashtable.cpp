@@ -1,4 +1,4 @@
-#ifndef BDE_OSS_TEST
+#ifndef BDE_OMIT_TRANSITIONAL // STP
 
 #include <bslstp_hashtable.h>
 
@@ -9,4 +9,4 @@ template class _Stl_prime<bool>;
 
 }  // close namespace
 
-#endif // #ifndef BDE_OSS_TEST
+#endif BDE_OMIT_TRANSITIONAL -- STP

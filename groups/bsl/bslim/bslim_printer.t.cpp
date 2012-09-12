@@ -1,5 +1,4 @@
 // bslim_printer.t.cpp                                                -*-C++-*-
-#ifndef BDE_OSS_TEST
 
 #include <bslim_printer.h>
 
@@ -9,12 +8,16 @@
 #include <bsl_cstdio.h>
 #include <bsl_iostream.h>
 #include <bsl_deque.h>
+#ifndef BDE_OMIT_TRANSITIONAL // STP
 #include <bsl_hash_map.h>
 #include <bsl_hash_set.h>
+#endif // BDE_OMIT_TRANSITIONAL -- STP
 #include <bsl_list.h>
 #include <bsl_map.h>
 #include <bsl_set.h>
+#ifndef BDE_OMIT_TRANSITIONAL // STP
 #include <bsl_slist.h>
+#endif // BDE_OMIT_TRANSITIONAL -- STP
 #include <bsl_vector.h>
 #include <bsl_sstream.h>
 #include <bsl_cctype.h>
@@ -518,8 +521,6 @@ bsl::ostream& MyClass::print(bsl::ostream& stream,
     return stream;
 }
 
-#ifndef BDE_OSS_TEST
-
 // EXAMPLE 4
 //
 class DateTz {
@@ -580,8 +581,6 @@ bsl::ostream& DateTz::print(bsl::ostream& stream,
    return stream << bsl::flush;
 }
 
-#endif  // #ifndef BDE_OSS_TEST
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -595,8 +594,6 @@ int main(int argc, char *argv[])
     int veryVeryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
-
-#ifndef BDE_OSS_TEST
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 24: {
@@ -941,6 +938,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
         }
 
+#ifndef BDE_OMIT_TRANSITIONAL // STP
 #if 1
         // This assert will fail once the typetraits in slist are fixed
 
@@ -967,6 +965,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
         }
 #endif
+#endif // BDE_OMIT_TRANSITIONAL -- STP
 
         // We don't seem to have bit_vector
 
@@ -1102,6 +1101,7 @@ int main(int argc, char *argv[])
             }
         }
 
+#ifndef BDE_OMIT_TRANSITIONAL // STP
         {
             bsl::hash_set<int> hs(uniqKeys + 0, uniqKeys + NUM_DATA);
             const bsl::hash_set<int>& HS = hs;
@@ -1231,7 +1231,6 @@ int main(int argc, char *argv[])
             }
         }
 
-
         {
             bsl::hash_multimap<int, int> hmm;
             const bsl::hash_multimap<int, int>& HMM = hmm;
@@ -1277,6 +1276,7 @@ int main(int argc, char *argv[])
                 ASSERT(4 * NUM_DATA + 2 == newlines);
             }
         }
+#endif // BDE_OMIT_TRANSITIONAL -- STP
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -3641,22 +3641,12 @@ int main(int argc, char *argv[])
       }
     }
 
-#endif  // #ifndef BDE_OSS_TEST
-
     if (testStatus > 0) {
         bsl::cerr << "Error, non-zero test status = " << testStatus << "."
                   << bsl::endl;
     }
     return testStatus;
 }
-#else
-
-int main (int argc, char *argv[])
-{
-    return -1;
-}
-
-#endif  // #ifndef BDE_OSS_TEST
 
 // ----------------------------------------------------------------------------
 // NOTICE:

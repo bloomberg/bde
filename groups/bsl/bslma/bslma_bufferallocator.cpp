@@ -1,5 +1,5 @@
 // bslma_bufferallocator.cpp                                          -*-C++-*-
-#ifndef BDE_OSS_TEST
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
 
 #include <bslma_bufferallocator.h>
 
@@ -204,7 +204,7 @@ void BufferAllocator::print() const
 
 }  // close enterprise namespace
 
-#endif // #ifndef BDE_OSS_TEST
+#endif // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

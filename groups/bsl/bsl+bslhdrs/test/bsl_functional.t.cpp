@@ -1,4 +1,3 @@
-#ifndef BDE_OSS_TEST
 #include <bsl_functional.h>
 #include <functional>
 #ifdef std
@@ -6,6 +5,3 @@
 #endif
 namespace std { }
 int main() { return 0; }
-#else
-int main() { return -1; }
-#endif  // #ifndef BDE_OSS_TEST

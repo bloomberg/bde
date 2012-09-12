@@ -1,4 +1,4 @@
-#ifndef BDE_OSS_TEST
+#ifndef BDE_OMIT_TRANSITIONAL // STP
 
 #include <bslstp_alloc.h>
 #include <bslstl_allocator.h>
@@ -11,4 +11,4 @@ template class _STLP_alloc_proxy<char *,char, allocator<char> >;
 
 }  // close namespace bsl
 
-#endif // #ifndef BDE_OSS_TEST
+#endif BDE_OMIT_TRANSITIONAL -- STP
