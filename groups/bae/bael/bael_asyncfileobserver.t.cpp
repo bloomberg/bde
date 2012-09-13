@@ -422,8 +422,7 @@ extern "C" void *workerThread(void *arg)
     BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
     int threadId = *((int*)arg);
     for (int i = 0;i < 10000; ++i) {
-        BAEL_LOG_TRACE << threadId
-                       << ": bael_AsyncFileObserver Concurrency Test "
+        BAEL_LOG_TRACE << "bael_AsyncFileObserver Concurrency Test "
                        << BAEL_LOG_END;
     }
     return 0;
@@ -1493,8 +1492,6 @@ int main(int argc, char *argv[])
 
             bcema_SharedPtr<bael_Record> record(new (ta) bael_Record(&ta),
                                                 &ta);
-            record->fixedFields().setMessage("test");
-
             int logCount  = 8000;
             {
                 bael_LoggerManagerConfiguration configuration;
@@ -1699,7 +1696,6 @@ int main(int argc, char *argv[])
 
             bcema_SharedPtr<bael_Record> record(new (ta) bael_Record(&ta),
                                                 &ta);
-            record->fixedFields().setMessage("test");
 
             BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
@@ -2889,11 +2885,8 @@ int main(int argc, char *argv[])
             mX.startPublicationThread();
             ASSERT(X.isPublicationThreadRunning());
 
-
             bcema_SharedPtr<bael_Record> record(new (ta) bael_Record(&ta),
                                                 &ta);
-            record->fixedFields().setMessage("test");
-
             bael_Context context;
             for (int i = 0;i < 8000; ++i)
                 mX.publish(record, context);
