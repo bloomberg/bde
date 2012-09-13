@@ -148,6 +148,10 @@ class HashTableAnchor {
 
     void setBucketArrayAddressAndSize(HashTableBucket    *array,
                                       native_std::size_t  size);
+        // Set the bucket array address and size attributes of this object to
+        // the specified 'array' and 'size' values.  The behavior is undefined
+        // unless 'size * sizeof(HashTableBucket)' is the length of the memory
+        // referenced by 'array'.
 
     void setListRootAddress(BidirectionalLink *value);
         // Set the 'listRootAddress' attribute of this object to the

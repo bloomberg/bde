@@ -1063,8 +1063,8 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::find(
                                                  size_t         hashValue) const
 {
     return bslalg::HashTableImpUtil::find<KEY_POLICY>(d_anchor,
-                                                      this->comparator(),
                                                       key,
+                                                      this->comparator(),
                                                       hashValue);
 }
 
@@ -1168,10 +1168,10 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::insertContiguous(
     else {
         bslalg::BidirectionalLink *newNode =
                                     d_parameters.nodeFactory().createNode(obj);
-        bslalg::HashTableImpUtil::insertDuplicateAtPosition(&d_anchor,
-                                                            newNode,
-                                                            hashCode,
-                                                            position);
+        bslalg::HashTableImpUtil::insertAtPosition(&d_anchor,
+                                                   newNode,
+                                                   hashCode,
+                                                   position);
         position = newNode;
     }
 
@@ -1200,9 +1200,9 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::remove(
     BSLS_ASSERT_SAFE(node->previousLink()
                   || d_anchor.listRootAddress() == node);
 
-    bslalg::HashTableImpUtil::removeNode(&d_anchor,
-                                         node,
-                                         hashCodeForNode(node));
+    bslalg::HashTableImpUtil::remove(&d_anchor,
+                                     node,
+                                     hashCodeForNode(node));
     --d_size;
 
     bslalg::BidirectionalLink *result = node->nextLink();
@@ -1285,8 +1285,8 @@ bslalg::BidirectionalLink *
 HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::find(const KeyType& key) const
 {
     return bslalg::HashTableImpUtil::find<KEY_POLICY>(d_anchor,
-                                                      this->comparator(),
                                                       key,
+                                                      this->comparator(),
                                                       this->hasher()(key));
 }
 

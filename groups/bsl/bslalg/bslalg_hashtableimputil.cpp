@@ -17,57 +17,68 @@ namespace BloombergLP
 namespace bslalg
 {
 
-void HashTableImpUtil::removeNode(HashTableAnchor    *anchor,
-                                  BidirectionalLink  *position,
-                                  native_std::size_t  hashCode)
+
+void HashTableImpUtil::remove(HashTableAnchor    *anchor,
+                              BidirectionalLink  *link,
+                              native_std::size_t  hashCode)
 {
-    BSLS_ASSERT_SAFE(position);
+    BSLS_ASSERT_SAFE(link);
     BSLS_ASSERT_SAFE(anchor);
     BSLS_ASSERT_SAFE(
-            position->previousLink() || anchor->listRootAddress() == position);
+            link->previousLink() || anchor->listRootAddress() == link);
+
+#ifdef BDE_BUILD_TARGET_SAFE2
+    HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
+    BSLS_ASSERT_SAFE2(bucketContainsLink(bucket, link));
+#endif
 
     // Note that we must update the bucket *before* we unlink from the list,
     // as otherwise we will lose our nextLink()/prev pointers.
     
     HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
-    if (bucket->first() == position) {
-        if (bucket->last() == position) {
+    if (bucket->first() == link) {
+        if (bucket->last() == link) {
             bucket->reset();
         }
         else {
-            bucket->setFirst(position->nextLink());
+            bucket->setFirst(link->nextLink());
         }
     }
-    else if (bucket->last() == position) {
-        bucket->setLast(position->previousLink());
+    else if (bucket->last() == link) {
+        bucket->setLast(link->previousLink());
     }
         
-    BidirectionalLink *next = position->nextLink();
-    BidirectionalLinkListUtil::unlink(position);
+    BidirectionalLink *next = link->nextLink();
+    BidirectionalLinkListUtil::unlink(link);
 
-    if (position == anchor->listRootAddress()) {
+    if (link == anchor->listRootAddress()) {
         anchor->setListRootAddress(next);
     }
 }
 
-void HashTableImpUtil::insertDuplicateAtPosition(HashTableAnchor    *anchor,
-                                                 BidirectionalLink  *newNode,
-                                                 native_std::size_t  hashCode,
-                                                 BidirectionalLink  *location)
+void HashTableImpUtil::insertAtPosition(HashTableAnchor    *anchor,
+                                        BidirectionalLink  *link,
+                                        native_std::size_t  hashCode,
+                                        BidirectionalLink  *position)
 {
     BSLS_ASSERT_SAFE(anchor);
-    BSLS_ASSERT_SAFE(newNode);
-    BSLS_ASSERT_SAFE(location);
-
-    BidirectionalLinkListUtil::insertLinkBeforeTarget(newNode, location);
-
+    BSLS_ASSERT_SAFE(link);
+    BSLS_ASSERT_SAFE(position);
+    
+#ifdef BDE_BUILD_TARGET_SAFE2
     HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
-    if (location == bucket->first()) {
-        bucket->setFirst(newNode);
-    }
+    BSLS_ASSERT_SAFE2(bucketContainsLink(bucket, position));
+#endif
+    
+    HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
+    
+    BidirectionalLinkListUtil::insertLinkBeforeTarget(link, position);
 
-    if (location == anchor->listRootAddress()) {
-        anchor->setListRootAddress(newNode);
+    if (position == bucket->first()) {
+        bucket->setFirst(link);
+    }
+    if (position == anchor->listRootAddress()) {
+        anchor->setListRootAddress(link);
     }
 }
 
@@ -113,7 +124,6 @@ void HashTableImpUtil::spliceSegmentIntoBucket(BidirectionalLink  *cursor,
     BSLS_ASSERT_SAFE(bucket);
     BSLS_ASSERT_SAFE(newRoot);
 
-    // splice the array segment
     if (!bucket->first()) {
         bucket->setFirstAndLast(cursor, nextCursor);
         BidirectionalLinkListUtil::spliceListBeforeTarget(cursor,
@@ -133,6 +143,7 @@ void HashTableImpUtil::spliceSegmentIntoBucket(BidirectionalLink  *cursor,
 }
 
 }  // close namespace BloobmergLP::bslalg
+
 }  // close namespace BloombergLP
 // ---------------------------------------------------------------------------
 // NOTICE:
