@@ -10,6 +10,7 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
@@ -127,7 +128,7 @@ enum { SECOND_LINE = __LINE__ };
 
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    int                 test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;

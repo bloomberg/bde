@@ -669,7 +669,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
         *out_p << cc("User time: ") << sw.accumulatedUserTime() <<
                 cc(", wall time: ") << sw.accumulatedWallTime() << endl;
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(bsls_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__CMP_GNU)
         demangle = false;    // demangling never happens with Sun CC
 #endif
 

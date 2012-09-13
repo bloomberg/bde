@@ -26,6 +26,8 @@
 #include <functional>
 #include <typeinfo>
 
+#include <cstdio>
+#include <cstdlib>
 #include <string.h>
 
 // ============================================================================
