@@ -19,41 +19,39 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component defines a 'struct' templates, 'bsl::is_pointer',
 // that may be used to query whether a type is a pointer type.
 //
-// 'bsl::is_pointer' meets the requirements of the 'is_pointer' template
-// defined in the C++11 standard [meta.unary.cat].  'bsl::is_pointer' provides
-// a single static data member, 'value', which has a integral value 1 if the
-// (template parameter) 'TYPE' is a pointer type (but not a pointer to
-// non-static members), and 0 otherwise.
+// 'bsl::is_pointer' meets the requirement of the 'is_pointer' template defined
+// in the C++11 standard [meta.unary.cat].  'bsl::is_pointer' provides a single
+// static data member, 'value', which has a integral value 1 if the (template
+// parameter) 'TYPE' is a pointer type (but not a pointer to non-static
+// members), and 0 otherwise.
 //
-// This component also provides another struct template, 'bslmf::IsPointer',
-// that is functionality identical to 'bsl::is_pointer', except that the static
-// data member of 'bslmf::IsPointer' is named 'VALUE' instead of 'value'.  Note
+#ifndef BDE_OMIT_TRANSITIONAL // BACKWARD_COMPATIBILITY
+// This component also provides another struct template,
+// 'BloombergLP::bslmf::IsPointer', that is functionality identical to
+// 'bsl::is_pointer', except that the static data member of
+// 'BloombergLP::bslmf::IsPointer' is named 'VALUE' instead of 'value'.  Note
 // that 'bslmf::IsPointer' is provided to preserve backward-compatibility and
 // should not be used in new components.
+#endif // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 //
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Determining Pointer Types
-/// - - - - - - - - - - - - - - - - - -
-// Suppose that we want to determine a particular type is a pointer type.
+///Example 1: Verify Pointer Types
+///- - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is a pointer type.
 //
 // First, we create two 'typedef's -- a pointer type and a non-pointer type:
 //..
-//  typedef int MyType;
-//  typedef int * MyPtrType;
+//  typedef int  MyType;
+//  typedef int *MyPtrType;
 //..
 // Now, we instantiate the 'bsl::is_pointer' template for each of the
-// 'typedef's and print the 'value' static data member of each instantiation:
+// 'typedef's and assert the 'value' static data member of each instantiation:
 //..
-//  printf("MyType is_pointer: %d\n", bsl::is_pointer<MyType>::value);
-//  printf("MyPtrType is_pointer: %d\n", bsl::is_pointer<MyPtrType>::value);
-//..
-// Finally, we observe the following output:
-//..
-//  MyType is_pointer: 0
-//  MyPtrType is_pointer: 1
+//  assert(0 == bsl::is_pointer<MyType>::value);
+//  assert(1 == bsl::is_pointer<MyPtrType>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -80,9 +78,11 @@ namespace bslmf {
 
 template <typename TYPE>
 struct IsPointer_Imp : bsl::false_type {
-// This 'struct' template provides a meta-function to determine whether the
-// (template parameter) 'TYPE' is a non-const and non-volatile qualified
-// pointer type.
+    // This 'struct' template provides a meta-function to determine whether the
+    // (template parameter) 'TYPE' is a non-const and non-volatile qualified
+    // pointer type.  This generic default template's 'value' is 0, additional
+    // specializations are provided who 'value' is true when 'TYPE' are pointer
+    // types.
 };
 
                          // ====================
@@ -91,11 +91,12 @@ struct IsPointer_Imp : bsl::false_type {
 
 template <typename TYPE>
 struct IsPointer_Imp<TYPE *> : bsl::true_type {
-// This is a partial specialization of 'IsPointer_Imp' for pointer types.
+     // This partial specialization of 'IsPointer_Imp' for when the (template
+     // parameter) 'TYPE' has a static data member 'value' that is 1.
 };
 
-}
-}
+}  // close package namespace
+}  // close enterprise namespace
 
 namespace bsl {
                          // =================
@@ -114,7 +115,9 @@ struct is_pointer
 
 };
 
-}
+}  // close namespace bsl
+
+#ifndef BDE_OMIT_TRANSITIONAL // BACKWARD_COMPATIBILITY
 
 namespace BloombergLP {
 namespace bslmf {
@@ -139,6 +142,7 @@ struct IsPointer : MetaInt<bsl::is_pointer<TYPE>::value> {
 
 }  // close package namespace
 }  // close enterprise namespace
+#endif // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
