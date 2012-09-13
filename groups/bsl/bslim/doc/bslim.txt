@@ -26,7 +26,6 @@
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the component in 'bslim'.
-..
-  'bslim_printer' - Provide a mechanism to implement standard 'print' methods.
-..
+: 'bslim_printer':
+:      Provide a mechanism to implement standard 'print' methods.
+

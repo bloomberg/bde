@@ -28,18 +28,56 @@
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the headers in 'bsl+stdhdrs'.
-..
-  'bsl_stdhdrs_prologue.h' - provides the setup needed before including a
-                             native STL header.
-  'bsl_stdhdrs_epilogue.h' - provides the clean up needed after including a
-                             native STL header.
-  'bsl_stdhdrs_epilogue_recursive.h'
-                           - recursive part of 'bsl_stdhdrs_epilogue.h'
-  'bsl_stdhdrs_incpaths.h' - provides macros producing the relative path needed
-                             to access a native STL header.
-  *all* *other* headers*   - provide corresponding C++ standard headers
-..
+: 'bsl_stdhdrs_prologue.h':
+:     Provides the setup needed before including a native STL header.
+:
+: 'bsl_stdhdrs_epilogue.h':
+:     Provides the clean up needed after including a native STL header.
+:
+: 'bsl_stdhdrs_epilogue_recursive.h':
+:    Provides the recursive part of 'bsl_stdhdrs_epilogue.h'.
+:
+: 'bsl_stdhdrs_incpaths.h':
+:    Provides macros for relative paths to native STL headers.
+:
+
+ The other headers of this package fall have one of two purposes:
+
+: o Provide backwards compatibility for STLPort header
+:   o 'exception.h'
+:   o 'fstream.h'
+:   o 'iomanip.h'
+:   o 'iosfwd.h'
+:   o 'ios.h'
+:   o 'iostream.h'
+:   o 'istream.h'
+:   o 'memory.h'
+:   o 'new.h'
+:   o 'ostream.h'
+:   o 'streambuf.h'
+:   o 'strstream.h'
+:   o 'typeinfo.h'
+:
+: o Provide functionality of the corresponding C++ Standard header
+:   o 'assert.h'
+:   o 'ctype.h'
+:   o 'errno.h'
+:   o 'float.h'
+:   o 'iso646.h'
+:   o 'limits.h'
+:   o 'locale.h'
+:   o 'math.h'
+:   o 'pthread.h'
+:   o 'setjmp.h'
+:   o 'signal.h'
+:   o 'stdarg.h'
+:   o 'stddef.h'
+:   o 'stdio.h'
+:   o 'stdlib.h'
+:   o 'string.h'
+:   o 'time.h'
+:   o 'wchar.h'
+:   o 'wctype.h'
 
 /Supported Modes
 /---------------

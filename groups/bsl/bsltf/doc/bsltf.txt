@@ -37,49 +37,45 @@
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bslstf'.  For the sake
- of brevity, we sometimes blur the distinction between a component and the
- primary types that the component provides.  We remind the reader that, in
- general, the distinction between a component and a class is important.
-..
-  'bsltf_allocbitwisemoveabletesttype'
-                          - class that allocates memory, is bitwisemoveable,
-                            and defines the
-                            'bslalg_TypeTraitUsesBslmaAllocator' and
-                            'bslalg_TypeTraitBitwiseMoveable' traits
-  'bsltf_alloctesttype'   - class that allocates memory, defines the
-                            'bslalg_TypeTraitUsesBslmaAllocator' trait, and
-                            ensures it is not bitwise
-                            moved
-  'bsltf_bitwisemoveabletesttype'
-                          - class that allocates memory, is bitwisemoveable,
-                            and defines the
-                            'bslalg_TypeTraitUsesBslmaAllocator' and
-                            'bslalg_TypeTraitBitwiseMoveable' traits
-  'bsltf_enumerationtesttype'
-                          - enumeration type
-  'bsltf_nonassignabletesttype'
-                          - class with no assignment operator
-  'bsltf_noncopyconstructibletesttype'
-                          - class without a copy constructor
-  'bsltf_nondefaultconstructibletesttype'
-                          - class without a default constructor
-  'bsltf_nonequalcomparabletesttype'
-                          - class without equality comparison operators
-  'bsltf_nontypicaloverloadstesttype'
-                          - class that defines and assert on invocation of
-                            certain non-typically-overloaded operators
-                            ('operator new', 'operator delete', 'operator&') to
-                            ensure that they are not called
-  'bsltf_stdtestallocator'
-                          - C++ standard compliant allocator that delegates its
-                            operators to a configurable static
-                            'bslma_Allocator'
-  'bsltf_templatetestfacility'
-                          - utilities to help testing templates that allows the
-                            creation and comparison of various types defined in
-                            the 'bsltf' package group through a uniform
-                            interface
-  'bsltf_testvaluesarray' - container for values that may be non-default
-                            constructible
-..
+: 'bsltf_allocbitwisemoveabletesttype':
+:      Provide a class that allocates memory and is bitwise-moveable.
+:
+: 'bsltf_alloctesttype':
+:      Provide a class for testing that allocates with 'bslma::Allocator'.
+:
+: 'bsltf_bitwisemoveabletesttype':
+:      Provide a bitwise-moveable test class.
+:
+: 'bsltf_enumeratedtesttype':
+:      Provide an enumerated test type.
+:
+: 'bsltf_nonassignabletesttype':
+:      Provide an attribute class to which can not be assigned.
+:
+: 'bsltf_noncopyconstructibletesttype':
+:      Provide an attribute class that is not copy constructable.
+:
+: 'bsltf_nondefaultconstructibletesttype':
+:      Provide an attribute class that is not default constructible.
+:
+: 'bsltf_nonequalcomparabletesttype':
+:      Provide an attribute class that is not equal comparable.
+:
+: 'bsltf_nontypicaloverloadstesttype':
+:      Provide a class that overloads the non-typical operators.
+:
+: 'bsltf_simpletesttype':
+:      Provide a non-allocating test class without type traits.
+:
+: 'bsltf_stdtestallocator':
+:      Provide a minimal standard compliant allocator  .
+:
+: 'bsltf_templatetestfacility':
+:      Provide utilities to help with testing templates.
+:
+: 'bsltf_testvaluesarray':
+:      Provide a container for values used for testing.
+:
+: 'bsltf_uniontesttype':
+:      Provide an union test type.
+

@@ -92,14 +92,11 @@
 
 /Component Synopsis
 /------------------
- The purpose of each component (except one) is identical:
-..
-  Provide a forward-declaration for the corresponding BDE type.
-..
- The single exception is 'bslfwd_buildtarget':
-..
-  Supply a compile-time indicator of whether BSL uses C++ namespaces.
-..
+: o The purpose of each component (except one) is identical:
+:   Provide a forward-declaration for the corresponding BDE type.
+:
+: o The single exception is 'bslfwd_buildtarget':
+:   Supply a compile-time indicator of whether BSL uses C++ namespaces.
 
 /Usage
 /-----

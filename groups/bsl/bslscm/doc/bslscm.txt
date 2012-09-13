@@ -27,8 +27,9 @@
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bslscm'.
-..
-  'bslscm_version'      - statically defined version symbols
-  'bslscm_versiontag'   - macros defining BDE version number
-..
+: 'bslscm_version':
+:      Provide source control management (versioning) information.
+:
+: 'bslscm_versiontag':
+:      Provide versioning information for the 'bsl' package group.
+

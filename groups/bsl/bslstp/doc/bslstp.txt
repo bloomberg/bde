@@ -40,23 +40,36 @@
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bslstp'.  For the sake
- of brevity, we sometimes blur the distinction between a component and the
- primary types that the component provides.  We remind the reader that, in
- general, the distinction between a component and a class is important.
+: 'bslstp_alloc':
+:     allocator-related traits and container base adapter
+:
+: 'bslstp_exalgorithm':
+:     Provide a namespace for algorithm extensions.
+:
+: 'bslstp_exfunctional':
+:     Provide a namespace for functional extensions.
+:
+: 'bslstp_hashmap':
+:     SGI extension of a hash table and multi-hash table
+:
+: 'bslstp_hashset'
+:     SGI extension of a hash set and multi-hash set
+:
+: 'bslstp_hashtable':
+:     generic hash table used to implement 'hashmap' and 'hashset'
+:
+: 'bslstp_iosfwd':
+:     forward declaration of stream classes that use 'bsl::allocator'
+:
+: 'bslstp_iterator'
+:     iterator-related traits
+:
+: 'bslstp_slist'
+:     SGI extension of a singly-linked list
+:
+: 'bslstp_slistbase'    
+:     helper class for implementation of 'slist'
+:
+: 'bslstp_sstream'
+:     conforming 'std::sstream' implementation
 
-..
-  'bslstp_alloc'        - allocator-related traits and container base adapter
-  'bslstp_exalgorithm'  - STLport algorithm extensions
-  'bslstp_exfunctional' - STLport functional extensions
-  'bslstp_hashmap'      - SGI extension of a hash table and multi-hash table
-  'bslstp_hashset'      - SGI extension of a hash set and multi-hash set
-  'bslstp_hashtable'    - generic hash table used to implement 'hashmap' and
-                          'hashset'
-  'bslstp_iosfwd'       - forward declaration of stream classes that use
-                          'bsl::allocator'
-  'bslstp_iterator'     - iterator-related traits
-  'bslstp_slist'        - SGI extension of a singly-linked list
-  'bslstp_slistbase'    - helper class for implementation of 'slist'
-  'bslstp_sstream'      - conforming 'std::sstream' implementation
-..
