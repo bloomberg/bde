@@ -114,10 +114,6 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_UNORDEREDMAPKEYPOLICY
-#include <bslstl_unorderedmapkeypolicy.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>  // Can probably escape with a fwd-decl, but not
 #endif                         // very user friendly
@@ -148,6 +144,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYPOLICY
+#include <bslstl_unorderedmapkeypolicy.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
@@ -294,8 +294,8 @@ class unordered_map
     pair<const_iterator, const_iterator> equal_range(const key_type& k) const;
 
     mapped_type& operator[](const key_type& k);
-    mapped_type& at(const key_type& k);
-    const mapped_type& at(const key_type& k) const;
+    mapped_type& at(const key_type& key);
+    const mapped_type& at(const key_type& key) const;
 
     // bucket interface
     size_type      bucket_count() const BSLSTL_NOEXCEPT;
@@ -934,9 +934,10 @@ template <class KEY_TYPE,
           class ALLOC>
 inline
 typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::mapped_type&
-unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::at(const key_type& k)
+unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+                                                        at(const key_type& key)
 {
-    HashTableLink *node = d_impl.find(k);
+    HashTableLink *node = d_impl.find(key);
     
     if (!node) {
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("Boo!");

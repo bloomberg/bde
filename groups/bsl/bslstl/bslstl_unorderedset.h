@@ -108,10 +108,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKTRANSLATORFORSETS
-#include <bslstl_unorderedsetkeypolicy.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>  // Can probably escape with a fwd-decl, but not
 #endif                         // very user friendly
@@ -142,6 +138,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>  // result type of 'equal_range' method
+#endif
+
+#ifndef INCLUDED_BSLSTL_UNORDEREDSETKEYPOLICY
+#include <bslstl_unorderedsetkeypolicy.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF

@@ -49,10 +49,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKTRANSLATORFORSETS
-#include <bslstl_unorderedsetkeypolicy.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>  // Can probably escape with a fwd-decl, but not
 #endif                         // very user friendly
@@ -83,6 +79,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>  // result type of 'equal_range' method
+#endif
+
+#ifndef INCLUDED_BSLSTL_UNORDEREDSETKEYPOLICY
+#include <bslstl_unorderedsetkeypolicy.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
@@ -480,14 +480,7 @@ typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
 insert(const_iterator hint, const value_type& obj)
 {
-    // To be useful, hint must point to an iterator with an object comparing
-    // equal to 'obj'
-    if (this->end() != hint && d_impl.comparator()(obj, *hint)) {
-        return d_impl.insertValueBefore(obj, hint.node());
-    }
-    else {
-        return this->insert(obj);
-    }
+    return iterator(d_impl.insertWithHint(obj, hint.node()));
 }
 
 template <class KEY_TYPE,

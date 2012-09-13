@@ -145,8 +145,9 @@ class HashTable_Parameters : private bslalg::FunctorAdapter<HASHER>::Type
                          rebind_traits<NodeType>::allocator_type NodeAllocator;
 
     // These two aliases simplify naming the base classes in the constructor
-    typedef typename bslalg::FunctorAdapter<HASHER>::Type  HasherBaseType;
-    typedef typename bslalg::FunctorAdapter<COMPARATOR>::Type ComparatorBaseType;
+    typedef typename bslalg::FunctorAdapter<HASHER>::Type       HasherBaseType;
+    typedef typename bslalg::FunctorAdapter<COMPARATOR>::Type
+                                                            ComparatorBaseType;
 
   public:
     typedef BidirectionalNodePool<ValueType, NodeAllocator>      NodeFactory;
@@ -188,9 +189,9 @@ class HashTable_Parameters : private bslalg::FunctorAdapter<HASHER>::Type
 // instantiated and used from the public interface of a std container that
 // provides all the user-friendly defaults, and explicitly pass down what is
 // needed.
-template <class KEY_CONFIG, 
-          class HASHER, 
-          class COMPARATOR, 
+template <class KEY_CONFIG,
+          class HASHER,
+          class COMPARATOR,
           class ALLOCATOR = ::bsl::allocator<typename KEY_CONFIG::ValueType> >
 class HashTable {
   private:
@@ -340,6 +341,16 @@ class HashTable {
         // 'obj' using this hash table's 'comparator' functor, then 'obj'
         // will be inserted into this hash table's list immediately preceding
         // the first such element.
+
+    bslalg::BidirectionalLink *insertWithHint(
+                                        const ValueType& obj,
+                                        const bslalg::BidirectionalLink *hint);
+        // Insert the specified 'obj' into this hash table.  If the element
+        // stored in the node pointer to by the specified 'hint' has a key
+        // that compares equal to that of 'obj' then 'obj' will be inserted
+        // immediately preceding 'hint' in the list of this hash table.  The
+        // behavior is undefined unless 'hint' points to a node in the list
+        // of elements owned by this hash table.
 
     void rehashForNumBuckets(SizeType newNumBuckets);
         // Allocate a new bucket array having at least the specified
@@ -492,22 +503,23 @@ class HashTable {
         // Return the number of buckets contained in this hash table.
 };
 
-template <class VALUE_TYPE, class HASHER, class COMPARATOR, class ALLOCATOR>
-void swap(HashTable<VALUE_TYPE, HASHER, COMPARATOR, ALLOCATOR>& x,
-          HashTable<VALUE_TYPE, HASHER, COMPARATOR, ALLOCATOR>& y);
-    // Swap both the value and the comparator of the specified 'a' object with
-    // the value and comparator of the specified 'b' object.  Additionally if
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void swap(HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& x,
+          HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& y);
+    // Swap both the value, the hasher and the comparator of the specified 'a'
+    // object with the value, the hasher and the comparator of the specified
+    // 'b' object.  Additionally if
     // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
     // 'true' then exchange the allocator of 'a' with that of 'b', and do not
     // modify either allocator otherwise.  This method provides the no-throw
     // exception-safety guarantee and guarantees O[1] complexity.  The
-    // behavior is undefined is unless either this object was created with the
-    // same allocator as 'other' or 'propagate_on_container_swap' is 'true'.
+    // behavior is undefined unless both objects have the same allocator or
+    // 'propagate_on_container_swap' is 'true'.
 
-template <class VALUE_TYPE, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bool operator==(
-              const HashTable<VALUE_TYPE, HASHER, COMPARATOR, ALLOCATOR>& lhs,
-              const HashTable<VALUE_TYPE, HASHER, COMPARATOR, ALLOCATOR>& rhs);
+              const HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& lhs,
+              const HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'HashTable' objects have the same
     // value if they have the same number of keys, and for each subset of keys
@@ -517,16 +529,16 @@ bool operator==(
     // subset the elements having the same key in one container form a
     // permutation of the corresponding subset of elements in the other
     // container.  This method requires that the 'ValueType' of the
-    // parameterized 'KEY_POLICY' be "equality-comparable" (see {Requirements
-    // on 'KEY_POLICY'}).  Note that 'operator==' is used to compare keys and
-    // elements between hash tables, and *not* the 'EQUAL' functor stored in
-    // the hash table that is used to compare keys between elements in the same
-    // hash table.
+    // parameterized 'KEY_CONFIG' be "equality-comparable" (see {Requirements
+    // on 'KEY_CONFIG'}).  Note that 'operator==' is used to compare keys and
+    // elements between hash tables, and *not* the 'COMPARATOR' functor stored
+    // in the hash table which is used to compare keys between elements in the
+    // same hash table.
 
-template <class VALUE_TYPE, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bool operator!=(
-              const HashTable<VALUE_TYPE, HASHER, COMPARATOR, ALLOCATOR>& lhs,
-              const HashTable<VALUE_TYPE, HASHER, COMPARATOR, ALLOCATOR>& rhs);
+              const HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& lhs,
+              const HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'HashTable' objects do not have
     // the same value if they do not have the same number of elements, or if
@@ -536,11 +548,11 @@ bool operator!=(
     // if any such corresponding pair of subsets are not permutations of each
     // other when the elements stored with those keys are compared using
     // 'operator=='.  This method requires that the 'ValueType' of the
-    // parameterized 'KEY_POLICY' be "equality-comparable" (see {Requirements
-    // on 'KEY_POLICY'}).  Note that 'operator==' is used to compare keys and
-    // elements between hash tables, and *not* the 'EQUAL' functor stored in
-    // the hash table that is used to compare keys between elements in the same
-    // hash table.
+    // parameterized 'KEY_CONFIG' be "equality-comparable" (see {Requirements
+    // on 'KEY_CONFIG'}).  Note that 'operator==' is used to compare keys and
+    // elements between hash tables, and *not* the 'COMPARATOR' functor stored
+    // in the hash table which is used to compare keys between elements in the
+    // same hash table.
 
                     // ========================
                     // class HashTable_IterUtil
@@ -630,8 +642,8 @@ struct HashTable_PrimeUtil {
 
 struct HashTable_StaticBucket {
     static bslalg::HashTableBucket *getDefaultBucketAddress();
-    // TBD add public method to return the address and hide the variable in
-    // the cpp
+    // Return that address of a statically initialized empty bucket that can be
+    // shared as the (un-owned) bucket array by all empty hash tables.
 };
 
                     // ====================
@@ -748,7 +760,7 @@ HashTable_Parameters(const HASHER&          hash,
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
-HashTable_Parameters(const HashTable_Parameters& other, 
+HashTable_Parameters(const HashTable_Parameters& other,
                      const AllocatorType&        allocator)
 : HasherBaseType(static_cast<const HasherBaseType&>(other))
 , ComparatorBaseType(static_cast<const ComparatorBaseType&>(other))
@@ -759,7 +771,8 @@ HashTable_Parameters(const HashTable_Parameters& other,
 // MANIPULATORS
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-typename HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::NodeFactory&
+typename
+  HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::NodeFactory&
 HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::nodeFactory()
 {
     return d_nodeFactory;
@@ -797,15 +810,18 @@ HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasher() const
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 const COMPARATOR&
-HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::comparator() const
+HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+                                                             comparator() const
 {
     return *this;
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-const typename HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::NodeFactory&
-HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>:: nodeFactory() const
+const typename
+  HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::NodeFactory&
+HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+                                                            nodeFactory() const
 {
     return d_nodeFactory;
 }
@@ -904,8 +920,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hashCodeForNode(
                                          bslalg::BidirectionalLink *node) const
 {
     BSLS_ASSERT_SAFE(node);
-    
-    const typename KEY_CONFIG::KeyType& key = 
+
+    const typename KEY_CONFIG::KeyType& key =
                         bslalg::HashTableImpUtil::extractKey<KEY_CONFIG>(node);
     return hasher()(key);
 }
@@ -1133,7 +1149,7 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::find(
-                                                const KeyType& key, 
+                                                const KeyType& key,
                                                 size_t         hashValue) const
 {
     return bslalg::HashTableImpUtil::find<KEY_CONFIG>(d_anchor,
@@ -1255,8 +1271,39 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertContiguous(
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertWithHint(
+                                        const ValueType&                  obj,
+                                        const  bslalg::BidirectionalLink *hint)
+{
+    BSLS_ASSERT(hint);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KeyType& key = KEY_CONFIG::extractKey(obj);
+    if (!this->comparator()(key, ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        return this->insertContiguous(obj);                           // RETURN
+    }
+
+    // Insert logic, first test the hint
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() + 1);
+    }
+
+    bslalg::BidirectionalLink *newNode =
+                                    d_parameters.nodeFactory().createNode(obj);
+    bslalg::HashTableImpUtil::insertAtPosition(&d_anchor,
+                                               newNode,
+                                               this->hasher()(key),
+                                               hint);
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-void 
+void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAllAndDeallocate()
 {
     this->removeAllImp();
@@ -1334,7 +1381,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
 // observers
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-const HASHER& 
+const HASHER&
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasher() const
 {
     return d_parameters.hasher();
@@ -1342,7 +1389,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasher() const
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-const COMPARATOR& 
+const COMPARATOR&
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::comparator() const
 {
     return d_parameters.comparator();
@@ -1350,7 +1397,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::comparator() const
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-ALLOCATOR HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::allocator() const
+ALLOCATOR HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+                                                              allocator() const
 {
     return d_parameters.nodeFactory().allocator();
 }
@@ -1459,7 +1507,7 @@ float HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::loadFactor() const
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-float 
+float
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::maxLoadFactor() const
 {
     return d_maxLoadFactor;
@@ -1508,7 +1556,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
         d_anchor.swap(newAnchor);
         d_capacity = static_cast<native_std::size_t>(native_std::ceil(
                    static_cast<float>(newNumBuckets) * this->maxLoadFactor()));
-        
+
         HashTable_Util<ALLOCATOR>::destroyBucketArray(
                                                 newAnchor.bucketArrayAddress(),
                                                 newAnchor.bucketArraySize(),
@@ -1653,7 +1701,7 @@ bslstl::operator==(
             for (bslalg::BidirectionalLink *scanner = rhsFirst;
                  scanner != rhsLast;
                  scanner = scanner->nextLink()) {
-                if (ImpUtil::extractValue<KEY_CONFIG>(scanner) == 
+                if (ImpUtil::extractValue<KEY_CONFIG>(scanner) ==
                                                                valueAtMarker) {
                     ++matches;
                 }
@@ -1667,7 +1715,7 @@ bslstl::operator==(
                  scanner != endRange;
                  scanner = scanner->nextLink()) {
 
-                if (ImpUtil::extractValue<KEY_CONFIG>(scanner) == 
+                if (ImpUtil::extractValue<KEY_CONFIG>(scanner) ==
                                                                valueAtMarker) {
                     if (!--matches) {  // equal matches, but excluding initial
                         return false;                                 // RETURN

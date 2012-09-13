@@ -49,10 +49,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKTRANSLATORFORMAPS
-#include <bslstl_unorderedmapkeypolicy.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>  // Can probably escape with a fwd-decl, but not
 #endif                         // very user friendly
@@ -85,6 +81,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_pair.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYPOLICY
+#include <bslstl_unorderedmapkeypolicy.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for 'std::size_t'
 #define INCLUDED_CSTDDEF
@@ -97,14 +97,12 @@ namespace bslalg { class BidirectionalLink; }
 
 namespace bsl {
 
-namespace BALG = ::BloombergLP::bslalg;
-namespace BSTL = ::BloombergLP::bslstl;
-
 template <class KEY_TYPE,
           class MAPPED_TYPE,
-          class HASH =  bsl::hash<KEY_TYPE>,
+          class HASH  = bsl::hash<KEY_TYPE>,
           class EQUAL = bsl::equal_to<KEY_TYPE>,
-          class ALLOC = bsl::allocator<bsl::pair<const KEY_TYPE, MAPPED_TYPE> > >
+          class ALLOC =
+                      bsl::allocator<bsl::pair<const KEY_TYPE, MAPPED_TYPE> > >
 class unordered_multimap
 {
     // an unordered sequence of unique keys (of the parameterized type, 'KEY').
@@ -141,17 +139,17 @@ class unordered_multimap
   private:
     typedef ::BloombergLP::bslalg::BidirectionalLink        HashTableLink;
     
-    typedef BSTL::UnorderedMapKeyPolicy<value_type>         ListPolicy;
-    typedef BSTL::HashTable<ListPolicy, HASH, EQUAL, ALLOC> Impl;
+    typedef ::BloombergLP::bslstl::UnorderedMapKeyPolicy<value_type>         ListPolicy;
+    typedef ::BloombergLP::bslstl::HashTable<ListPolicy, HASH, EQUAL, ALLOC> Impl;
 
   public:
-    typedef BSTL::HashTableIterator<value_type, difference_type>
+    typedef ::BloombergLP::bslstl::HashTableIterator<value_type, difference_type>
                                                                       iterator;
-    typedef BSTL::HashTableIterator<const value_type, difference_type>
+    typedef ::BloombergLP::bslstl::HashTableIterator<const value_type, difference_type>
                                                                 const_iterator;
-    typedef BSTL::HashTableBucketIterator<value_type, difference_type>
+    typedef ::BloombergLP::bslstl::HashTableBucketIterator<value_type, difference_type>
                                                                 local_iterator;
-    typedef BSTL::HashTableBucketIterator<const value_type, difference_type>
+    typedef ::BloombergLP::bslstl::HashTableBucketIterator<const value_type, difference_type>
                                                           const_local_iterator;
 
   private:
@@ -504,14 +502,7 @@ typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 insert(const_iterator hint, const value_type& obj)
 {
-    // To be useful, hint must point to an iterator with an object comparing
-    // equal to 'obj'
-    if (this->end() != hint && d_impl.comparator()(obj.first, hint->first)) {
-        return d_impl.insertValueBefore(obj, hint.node());
-    }
-    else {
-        return this->insert(obj);
-    }
+    return iterator(d_impl.insertWithHint(obj, hint.node()));
 }
 
 template <class KEY_TYPE,
@@ -524,7 +515,7 @@ void
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 insert(InputIterator first, InputIterator last)
 {
-    if (size_t maxInsertions = BSTL::HashTable_IterUtil::insertDistance(first,
+    if (size_t maxInsertions = ::BloombergLP::bslstl::HashTable_IterUtil::insertDistance(first,
                                                                        last)) {
         this->reserve(this->size() + maxInsertions);
     }
