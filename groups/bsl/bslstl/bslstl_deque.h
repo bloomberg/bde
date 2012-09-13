@@ -107,16 +107,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_traitsgroupstlsequencecontainer.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
@@ -518,11 +518,11 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // arguments are used only for overload resolution.
 
     template <class INPUT_ITER>
-    void privateInsertDispatch(const_iterator              position,
-                               INPUT_ITER                  first,
-                               INPUT_ITER                  last,
-                               BloombergLP::bslmf::AnyType ,
-                               BloombergLP::bslmf::AnyType );
+    void privateInsertDispatch(const_iterator                   position,
+                               INPUT_ITER                       first,
+                               INPUT_ITER                       last,
+                               BloombergLP::bslmf::MatchAnyType ,
+                               BloombergLP::bslmf::MatchAnyType );
         // Insert the elements in the range specified as '[first, last)' into
         // this deque at the specified 'position'.  The third and fourth
         // arguments are used only for overload resolution so that this
@@ -1441,11 +1441,11 @@ void deque<VALUE_TYPE,ALLOCATOR>::privateInsertDispatch(
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 void deque<VALUE_TYPE,ALLOCATOR>::privateInsertDispatch(
-                                          const_iterator              position,
-                                          INPUT_ITER                  first,
-                                          INPUT_ITER                  last,
-                                          BloombergLP::bslmf::AnyType ,
-                                          BloombergLP::bslmf::AnyType )
+                                     const_iterator                   position,
+                                     INPUT_ITER                       first,
+                                     INPUT_ITER                       last,
+                                     BloombergLP::bslmf::MatchAnyType ,
+                                     BloombergLP::bslmf::MatchAnyType )
 {
     typedef typename iterator_traits<INPUT_ITER>::iterator_category Tag;
 

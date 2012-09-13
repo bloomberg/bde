@@ -91,16 +91,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_traitsgroupstlsequencecontainer.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
@@ -640,12 +640,13 @@ class basic_string
         // Match integral type for 'INPUT_ITER'.
 
     template <typename INPUT_ITER>
-    basic_string& privateReplaceDispatch(size_type                   position,
-                                         size_type                   numChars,
-                                         INPUT_ITER                  first,
-                                         INPUT_ITER                  last,
-                                         BloombergLP::bslmf::AnyType ,
-                                         BloombergLP::bslmf::AnyType );
+    basic_string& privateReplaceDispatch(
+                                     size_type                        position,
+                                     size_type                        numChars,
+                                     INPUT_ITER                       first,
+                                     INPUT_ITER                       last,
+                                     BloombergLP::bslmf::MatchAnyType ,
+                                     BloombergLP::bslmf::MatchAnyType );
         // Match non-integral type for 'INPUT_ITER'.
 
     template <typename INPUT_ITER>
@@ -2447,12 +2448,12 @@ template <typename INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceDispatch(
-                                          size_type                   position,
-                                          size_type                   numChars,
-                                          INPUT_ITER                  first,
-                                          INPUT_ITER                  last,
-                                          BloombergLP::bslmf::AnyType ,
-                                          BloombergLP::bslmf::AnyType )
+                                     size_type                        position,
+                                     size_type                        numChars,
+                                     INPUT_ITER                       first,
+                                     INPUT_ITER                       last,
+                                     BloombergLP::bslmf::MatchAnyType ,
+                                     BloombergLP::bslmf::MatchAnyType )
 {
     typename iterator_traits<INPUT_ITER>::iterator_category tag;
     return privateReplace(position, numChars, first, last, tag);

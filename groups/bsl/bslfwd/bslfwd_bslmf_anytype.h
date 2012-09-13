@@ -24,10 +24,10 @@
 
 namespace BloombergLP {
     namespace bslmf {
-        class AnyType;
+        class MatchAnyType;
     }
 
-    typedef bslmf::AnyType bslmf_AnyType;
+    typedef bslmf::MatchAnyType bslmf_AnyType;
 }
 
 #else

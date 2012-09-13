@@ -265,11 +265,11 @@ BSLS_IDENT("$Id: $")
 //          // only for overload resolution.
 //
 //      template <class INPUT_ITER>
-//      void privateInitDispatch(INPUT_ITER                   first,
-//                               INPUT_ITER                   last,
-//                               const char                  *message,
-//                               BloombergLP::bslmf::AnyType  ,
-//                               BloombergLP::bslmf::AnyType  );
+//      void privateInitDispatch(INPUT_ITER                        first,
+//                               INPUT_ITER                        last,
+//                               const char                       *message,
+//                               BloombergLP::bslmf::MatchAnyType  ,
+//                               BloombergLP::bslmf::MatchAnyType  );
 //          // Initialize a 'MyContainer' object containing the values in the
 //          // range starting at the specified 'first' and ending immediately
 //          // before the specified 'last' iterators of the type 'INPUT_ITER',
@@ -277,7 +277,7 @@ BSLS_IDENT("$Id: $")
 //          // two arguments are used only for overload resolution.
 //..
 // Notice that the first overload has strict requirements on the last two
-// arguments, but the second overload (accepting 'bslmf::AnyType' in those
+// arguments, but the second overload (accepting 'bslmf::MatchAnyType' in those
 // positions) will match all contexts in which the first fails to match.
 //
 // Then, we implement the two 'privateInitDispatch' overloads so that
@@ -307,11 +307,12 @@ BSLS_IDENT("$Id: $")
 //
 //  template <class VALUE_TYPE>
 //  template <class INPUT_ITER>
-//  void MyContainer<VALUE_TYPE>::privateInitDispatch(INPUT_ITER      first,
-//                                                    INPUT_ITER      last,
-//                                                    const char     *message,
-//                                                    bslmf::AnyType  ,
-//                                                    bslmf::AnyType  )
+//  void MyContainer<VALUE_TYPE>::privateInitDispatch(
+//                                                INPUT_ITER           first,
+//                                                INPUT_ITER           last,
+//                                                const char          *message,
+//                                                bslmf::MatchAnyType  ,
+//                                                bslmf::MatchAnyType  )
 //  {
 //      privateInit(first, last, message);
 //  }

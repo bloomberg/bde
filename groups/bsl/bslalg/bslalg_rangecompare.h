@@ -40,12 +40,12 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -189,7 +189,7 @@ struct RangeCompare_Imp {
                       INPUT_ITER        end1,
                       INPUT_ITER        start2,
                       const VALUE_TYPE&,
-                      bslmf::AnyType);
+                      bslmf::MatchAnyType);
     template <typename INPUT_ITER, typename VALUE_TYPE>
     static bool equal(INPUT_ITER start1,
                       INPUT_ITER end1,
@@ -256,7 +256,7 @@ struct RangeCompare_Imp {
     static int lexicographical(INPUT_ITER           start1,
                                INPUT_ITER           end1,
                                INPUT_ITER           start2,
-                               bslmf::AnyType);
+                               bslmf::MatchAnyType);
     template <typename INPUT_ITER>
     static int lexicographical(INPUT_ITER start1,
                                INPUT_ITER end1,
@@ -450,7 +450,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER         start1,
                              INPUT_ITER         end1,
                              INPUT_ITER         start2,
                              const VALUE_TYPE&,
-                             bslmf::AnyType)
+                             bslmf::MatchAnyType)
 {
     for ( ; start1 != end1; ++start1, ++start2) {
         if (! (*start1 == *start2)) {
@@ -498,7 +498,7 @@ bool RangeCompare_Imp::equalBitwiseEqualityComparable(
 {
     // We can't be as optimized as above.
 
-    return equal(start1, end1, start2, *start1, bslmf::AnyType(0));
+    return equal(start1, end1, start2, *start1, bslmf::MatchAnyType(0));
 }
 
                      // *** lexicographical overloads: ***
@@ -594,7 +594,7 @@ template <typename INPUT_ITER>
 int RangeCompare_Imp::lexicographical(INPUT_ITER start1,
                                       INPUT_ITER end1,
                                       INPUT_ITER start2,
-                                      bslmf::AnyType)
+                                      bslmf::MatchAnyType)
 {
     for ( ; start1 != end1; ++start1, ++start2) {
         if (*start1 < *start2) {

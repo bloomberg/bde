@@ -90,10 +90,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_default.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
 #endif
@@ -104,6 +100,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
@@ -430,8 +430,8 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
     void privateInsertDispatch(const_iterator              position,
                                INPUT_ITER                  first,
                                INPUT_ITER                  last,
-                               BloombergLP::bslmf::AnyType ,
-                               BloombergLP::bslmf::AnyType );
+                               BloombergLP::bslmf::MatchAnyType ,
+                               BloombergLP::bslmf::MatchAnyType );
         // Match non-integral type for 'INPUT_ITER'.
 
     template <class INPUT_ITER>
@@ -1686,8 +1686,8 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
                                           const_iterator              position,
                                           INPUT_ITER                  first,
                                           INPUT_ITER                  last,
-                                          BloombergLP::bslmf::AnyType ,
-                                          BloombergLP::bslmf::AnyType )
+                                          BloombergLP::bslmf::MatchAnyType ,
+                                          BloombergLP::bslmf::MatchAnyType )
 {
     // Dispatch based on iterator category.
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
@@ -2235,11 +2235,12 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator position,
     // should call 'insert(position, first, last)', where 'first' is actually a
     // misnamed count, and 'last' is a misnamed value.  We can assume that any
     // fundamental type passed to this function is integral or else compilation
-    // errors will result.  The extra argument, 0, is to avoid an overloading
-    // ambiguity: In case 'first' is an integral type, it would be convertible
-    // both to 'bslmf::MatchArithmeticType' and 'bslmf::AnyType'; but the 0
-    // will be an exact match to 'int', so the overload with
-    // 'bslmf::MatchArithmeticType' will be preferred.
+    // errors will result.  The extra argument, 'bslmf::Nil()', is to avoid an
+    // overloading ambiguity: In case 'first' is an integral type, it would be
+    // convertible both to 'bslmf::MatchArithmeticType' and
+    // 'bslmf::MatchAnyType'; but the 'bslmf::Nil()' will be an exact match to
+    // 'bslmf::Nil', so the overload with 'bslmf::MatchArithmeticType' will be
+    // preferred.
 
     privateInsertDispatch(position,
                           first,
