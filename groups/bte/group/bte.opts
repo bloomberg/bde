@@ -3,7 +3,7 @@
 *                       _       OPTS_FILE        = bte.opts
 
 # Defines
-# TREQ 2275517: Salitize BSL code-base: change BSL_LEGACY to BDE_OMIT_INTERNAL_DEPRECATED 
+# TREQ 2275517: Sanitize BSL code-base: change BSL_LEGACY to BDE_OMIT_INTERNAL_DEPRECATED 
 #unix                    _       STL_DEFINES    = -DBDE_OMIT_INTERNAL_DEPRECATED
 #windows                 _       STL_DEFINES    = /DBDE_OMIT_INTERNAL_DEPRECATED /DFD_SETSIZE=256
 windows                 _       STL_DEFINES    = /DFD_SETSIZE=256
@@ -24,3 +24,4 @@ windows                 _       STL_DEFINES    = /DFD_SETSIZE=256
 !! unix-SunOS-i386-5.10-cc-5.8	_	RETRY_ON_SIGNAL =
 
 #==============================================================================
+

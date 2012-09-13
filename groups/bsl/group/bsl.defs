@@ -27,7 +27,7 @@ windows             _       STL_DEFINES     = /D_STLP_USE_STATIC_LIB /D_STLP_HAS
 !! windows          shr     STL_DEFINES     = $(BSL_STD_FLAG) /D_STLP_USE_DYNAMIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
 
 # DRQS 29608792: Build windows with BSL_LEGACY=0 to match release process
-# TREQ 2275517: Salitize BSL code-base: change BSL_LEGACY to BDE_OMIT_INTERNAL_DEPRECATED 
+# TREQ 2275517: Sanitize BSL code-base: change BSL_LEGACY to BDE_OMIT_INTERNAL_DEPRECATED 
 windows             _       STL_DEFINES     = /DBDE_OMIT_INTERNAL_DEPRECATED
 
 # enable/disable STLport debug
@@ -78,3 +78,4 @@ unix-SunOS-*-*-cc-5.2 	_ 	BDE_EXTRALIBS = -lsunmath
 -- *			_	BDE_ENDLDFLAGS = $(BSL_EXTRALIBS)
 
 #==============================================================================
+

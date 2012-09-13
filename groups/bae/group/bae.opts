@@ -3,9 +3,10 @@
 *                       _       OPTS_FILE       = bae.opts
 
 # Defines
-# TREQ 2275517: Salitize BSL code-base: change BSL_LEGACY to BDE_OMIT_INTERNAL_DEPRECATED 
+# TREQ 2275517: Sanitize BSL code-base: change BSL_LEGACY to BDE_OMIT_INTERNAL_DEPRECATED 
 #unix                    _       STL_DEFINES    = -DBDE_OMIT_INTERNAL_DEPRECATED
 #windows                 _       STL_DEFINES    = /DBDE_OMIT_INTERNAL_DEPRECATED
 
 # Force tests to run serially
 !! *               _       ALLTEST_PARALLEL = -s
+
