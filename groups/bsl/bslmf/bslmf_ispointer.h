@@ -10,29 +10,28 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time check for pointer types.
 //
 //@CLASSES:
-//  bsl::is_pointer: meta-function for determining pointer types
+//  bsl::is_pointer: standard meta-function for determining pointer types
+//  bsl::IsPointer: meta-function for determining pointer types
 //
 //@SEE_ALSO: bslmf_integerconstant
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a 'struct' templates, 'bsl::is_pointer',
-// that may be used to query whether a type is a pointer type.
+//@DESCRIPTION: This component defines two meta-functions, 'bsl::is_pointer'
+// and 'BloombergLP::bslmf::IsPointer', both of which may be used to query
+// whether a type is a pointer type.
 //
 // 'bsl::is_pointer' meets the requirement of the 'is_pointer' template defined
-// in the C++11 standard [meta.unary.cat].  'bsl::is_pointer' provides a single
-// static data member, 'value', which has a integral value 1 if the (template
-// parameter) 'TYPE' is a pointer type (but not a pointer to non-static
-// members), and 0 otherwise.
+// in the C++11 standard [meta.unary.cat], while 'bslmf::IsPointer' was devised
+// before standardization.
 //
-#ifndef BDE_OMIT_TRANSITIONAL // BACKWARD_COMPATIBILITY
-// This component also provides another struct template,
-// 'BloombergLP::bslmf::IsPointer', that is functionality identical to
-// 'bsl::is_pointer', except that the static data member of
-// 'BloombergLP::bslmf::IsPointer' is named 'VALUE' instead of 'value'.  Note
-// that 'bslmf::IsPointer' is provided to preserve backward-compatibility and
-// should not be used in new components.
-#endif // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+// Both meta-functions are functionally equivalent.  The major difference
+// between them is that the result for 'bsl::is_pointer' is indicated by the
+// class member 'value', while the result for 'bslmf::IsPointer' is indicated
+// by the class member 'VALUE'.
+//
+// Note that 'bsl::is_pointer' is preferred over 'bslmf::IsPointer', and in
+// general, should be used by new components.
 //
 ///Usage
 ///-----
@@ -50,8 +49,8 @@ BSLS_IDENT("$Id: $")
 // Now, we instantiate the 'bsl::is_pointer' template for each of the
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
-//  assert(0 == bsl::is_pointer<MyType>::value);
-//  assert(1 == bsl::is_pointer<MyPtrType>::value);
+//  assert(false == bsl::is_pointer<MyType>::value);
+//  assert(true == bsl::is_pointer<MyPtrType>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -80,9 +79,9 @@ template <typename TYPE>
 struct IsPointer_Imp : bsl::false_type {
     // This 'struct' template provides a meta-function to determine whether the
     // (template parameter) 'TYPE' is a non-const and non-volatile qualified
-    // pointer type.  This generic default template's 'value' is 0, additional
-    // specializations are provided who 'value' is true when 'TYPE' are pointer
-    // types.
+    // pointer type.  This generic default template derives from
+    // 'bsl::false_type', a template specialization is provided that derives
+    // from 'bsl::true_type'.
 };
 
                          // ====================
@@ -92,7 +91,7 @@ struct IsPointer_Imp : bsl::false_type {
 template <typename TYPE>
 struct IsPointer_Imp<TYPE *> : bsl::true_type {
      // This partial specialization of 'IsPointer_Imp' for when the (template
-     // parameter) 'TYPE' has a static data member 'value' that is 1.
+     // parameter) 'TYPE' derives from 'bsl::true_type'.
 };
 
 }  // close package namespace
@@ -106,18 +105,16 @@ namespace bsl {
 template <typename TYPE>
 struct is_pointer
     : BloombergLP::bslmf::IsPointer_Imp<typename remove_cv<TYPE>::type>::type {
-    // This 'struct' template implements the 'is_pointer' template defined in
-    // the C++11 standard [meta.unary.cat] to determine if the (template
-    // parameter) 'TYPE' is a pointer.  This 'struct' contains a single static
-    // data member, 'value', which has a integral value 1 if the (template
-    // parameter) 'TYPE' is a pointer type (but not a pointer to non-static
-    // members), and 0 otherwise.
+    // This 'struct' template implements the 'is_pointer' meta-function defined
+    // in the C++11 standard [meta.unary.cat] to determine if the (template
+    // parameter) 'TYPE' is a pointer.  This 'struct' derives from
+    // 'bsl::true_type' if the (template parameter) 'TYPE' is a pointer type
+    // (but not a pointer to non-static members), and 'bsl::false_type'
+    // otherwise.
 
 };
 
 }  // close namespace bsl
-
-#ifndef BDE_OMIT_TRANSITIONAL // BACKWARD_COMPATIBILITY
 
 namespace BloombergLP {
 namespace bslmf {
@@ -129,20 +126,17 @@ namespace bslmf {
 template <typename TYPE>
 struct IsPointer : MetaInt<bsl::is_pointer<TYPE>::value> {
     // This 'struct' template implements a meta-function to determine if the
-    // (template parameter) 'TYPE' is a pointer type.  This 'struct' contains a
-    // single static data member, 'VALUE', which has a integral value 1 if the
-    // (template parameter) 'TYPE' is a pointer type (but not a pointer to
-    // non-static members), and 0 otherwise.
+    // (template parameter) 'TYPE' is a pointer type.  This 'struct' derives
+    // from 'bslmf::MetaInt<1>' if the (template parameter) 'TYPE' is a pointer
+    // type (but not a pointer to non-static members), and 'bslmf::MetaInt<0>'
+    // otherwise.
     //
-    // Note that this 'struct' is functionality identical to 'bsl::is_pointer',
-    // except that the static data member of this 'struct' is named 'VALUE'
-    // instead of 'value'.  Also note that this 'struct' is mainly provided for
-    // backward-compatibility and new components should use 'bsl::is_pointer'..
+    // Note that although this 'struct' is functionality identical to
+    // 'bsl::is_pointer', the use of 'bsl::is_pointer' is preferred.
 };
 
 }  // close package namespace
 }  // close enterprise namespace
-#endif // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
