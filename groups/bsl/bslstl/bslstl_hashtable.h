@@ -124,9 +124,9 @@ namespace bslstl {
                            // class HashTable_Parameters
                            // ==========================
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
-class HashTable_Parameters : private bslalg::FunctorAdapter<HASH>::Type
-                           , private bslalg::FunctorAdapter<EQUAL>::Type
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+class HashTable_Parameters : private bslalg::FunctorAdapter<HASHER>::Type
+                           , private bslalg::FunctorAdapter<COMPARATOR>::Type
 {
     // This class holds all the parameterized parts of a 'HashTable' class,
     // efficiently exploiting the empty base optimization without adding
@@ -135,8 +135,8 @@ class HashTable_Parameters : private bslalg::FunctorAdapter<HASH>::Type
   public:
     typedef ALLOCATOR                              AllocatorType;
     typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
-    typedef typename KEY_POLICY::KeyType           KeyType;
-    typedef typename KEY_POLICY::ValueType         ValueType;
+    typedef typename KEY_CONFIG::KeyType           KeyType;
+    typedef typename KEY_CONFIG::ValueType         ValueType;
     typedef bslalg::BidirectionalNode<ValueType>   NodeType;
     typedef typename AllocatorTraits::size_type    SizeType;
 
@@ -146,8 +146,8 @@ class HashTable_Parameters : private bslalg::FunctorAdapter<HASH>::Type
                          rebind_traits<NodeType>::allocator_type NodeAllocator;
 
     // These two aliases simplify naming the base classes in the constructor
-    typedef typename bslalg::FunctorAdapter<HASH>::Type  HasherBaseType;
-    typedef typename bslalg::FunctorAdapter<EQUAL>::Type ComparatorBaseType;
+    typedef typename bslalg::FunctorAdapter<HASHER>::Type  HasherBaseType;
+    typedef typename bslalg::FunctorAdapter<COMPARATOR>::Type ComparatorBaseType;
 
   public:
     typedef BidirectionalNodePool<ValueType, NodeAllocator>      NodeFactory;
@@ -163,8 +163,8 @@ class HashTable_Parameters : private bslalg::FunctorAdapter<HASH>::Type
 
   public:
     // CREATORS
-    HashTable_Parameters(const HASH&          hash,
-                         const EQUAL&         compare,
+    HashTable_Parameters(const HASHER&          hash,
+                         const COMPARATOR&         compare,
                          const AllocatorType& allocator);
 
     HashTable_Parameters(const HashTable_Parameters& other, 
@@ -176,8 +176,8 @@ class HashTable_Parameters : private bslalg::FunctorAdapter<HASH>::Type
     void swap(HashTable_Parameters& other);
 
     // OBSERVERS
-    const HASH&        hasher()      const;
-    const EQUAL&       comparator()  const;
+    const HASHER&        hasher()      const;
+    const COMPARATOR&       comparator()  const;
     const NodeFactory& nodeFactory() const;
 };
 
@@ -189,14 +189,14 @@ class HashTable_Parameters : private bslalg::FunctorAdapter<HASH>::Type
 // instantiated and used from the public interface of a std container that
 // provides all the user-friendly defaults, and explicitly pass down what is
 // needed.
-template <class KEY_POLICY, 
-          class HASH, 
-          class EQUAL, 
-          class ALLOCATOR = ::bsl::allocator<typename KEY_POLICY::ValueType> >
+template <class KEY_CONFIG, 
+          class HASHER, 
+          class COMPARATOR, 
+          class ALLOCATOR = ::bsl::allocator<typename KEY_CONFIG::ValueType> >
 class HashTable {
   private:
     // PRIVATE TYPES
-    typedef HashTable_Parameters<KEY_POLICY, HASH, EQUAL, ALLOCATOR>
+    typedef HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>
                                                                 ImplParameters;
     typedef typename ImplParameters::AllocatorTraits AllocatorTraits;
 
@@ -275,8 +275,8 @@ class HashTable {
 
   public:
     // CREATORS
-    HashTable(const HASH&      hash,
-              const EQUAL&     compare,
+    HashTable(const HASHER&      hash,
+              const COMPARATOR&     compare,
               SizeType         initialBucketCount,
               const ALLOCATOR& allocator = ALLOCATOR());
         // Behavior is undefined unless '0 < intialBucketCount'.
@@ -391,11 +391,11 @@ class HashTable {
         // to allocate the nodes used by the internal data structure of this
         // hash table.
 
-    const EQUAL& comparator() const;
+    const COMPARATOR& comparator() const;
         // Return the 'comparator' functor of this hash table, used to
         // determine if two element keys have the same value.
 
-    const HASH& hasher()     const;
+    const HASHER& hasher()     const;
         // Return the 'hasher' functor of this hash table, used to compute
         // the hash code for the keys of elements to be stored or found in
         // this hash table.
@@ -453,25 +453,25 @@ class HashTable {
         // Return the number of buckets contained in this hash table.
 };
 
-template <class VALUE_TYPE, class HASH, class EQUAL, class ALLOCATOR>
-void swap(HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& x,
-          HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& y);
+template <class VALUE_TYPE, class HASHER, class COMPARATOR, class ALLOCATOR>
+void swap(HashTable<VALUE_TYPE, HASHER, COMPARATOR, ALLOCATOR>& x,
+          HashTable<VALUE_TYPE, HASHER, COMPARATOR, ALLOCATOR>& y);
 
-template <class VALUE_TYPE, class HASH, class EQUAL, class ALLOCATOR>
-bool operator==(const HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& lhs,
-                const HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& rhs);
+template <class VALUE_TYPE, class HASHER, class COMPARATOR, class ALLOCATOR>
+bool operator==(const HashTable<VALUE_TYPE, HASHER, COMPARATOR, ALLOCATOR>& lhs,
+                const HashTable<VALUE_TYPE, HASHER, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'HashTable' objects have the same
     // value if they have the same number of keys, and each key that is
     // contained in one of the objects is also contained in the other object.
     // This method requires that the parameterized 'KEY' type be
     // "equality-comparable" (see {Requirements on 'KEY'}).  Note that
-    // 'operator==' is used to compare keys, and *not* the 'EQUAL' functor
+    // 'operator==' is used to compare keys, and *not* the 'COMPARATOR' functor
     // stored in the hash table.
 
-template <class VALUE_TYPE, class HASH, class EQUAL, class ALLOCATOR>
-bool operator!=(const HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& lhs,
-                const HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& rhs);
+template <class VALUE_TYPE, class HASHER, class COMPARATOR, class ALLOCATOR>
+bool operator!=(const HashTable<VALUE_TYPE, HASHER, COMPARATOR, ALLOCATOR>& lhs,
+                const HashTable<VALUE_TYPE, HASHER, COMPARATOR, ALLOCATOR>& rhs);
 
 // Move this to its own component, and avoid 'iterator' dependency
 // This is used only in higher level components anyway - does not belong.
@@ -662,11 +662,11 @@ void HashTable_ArrayProctor<ALLOCATOR>::dismiss()
                     // --------------------------
 
 // CREATORS
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-HashTable_Parameters<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::
-HashTable_Parameters(const HASH&          hash,
-                     const EQUAL&         compare,
+HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+HashTable_Parameters(const HASHER&          hash,
+                     const COMPARATOR&         compare,
                      const AllocatorType& allocator)
 : HasherBaseType(hash)
 , ComparatorBaseType(compare)
@@ -674,9 +674,9 @@ HashTable_Parameters(const HASH&          hash,
 {
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-HashTable_Parameters<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::
+HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
 HashTable_Parameters(const HashTable_Parameters& other, 
                      const AllocatorType&        allocator)
 : HasherBaseType(static_cast<const HasherBaseType&>(other))
@@ -686,18 +686,18 @@ HashTable_Parameters(const HashTable_Parameters& other,
 }
 
 // MANIPULATORS
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-typename HashTable_Parameters<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::NodeFactory&
-HashTable_Parameters<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::nodeFactory()
+typename HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::NodeFactory&
+HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::nodeFactory()
 {
     return d_nodeFactory;
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 void
-HashTable_Parameters<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::
+HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
 swap(HashTable_Parameters& other)
 {
     using native_std::swap;    // otherwise it is hidden by this very definition!
@@ -715,27 +715,26 @@ swap(HashTable_Parameters& other)
 
 
 // OBSERVERS
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-const HASH&
-HashTable_Parameters<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::hasher() const
+const HASHER&
+HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasher() const
 {
     return *this;
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-const EQUAL&
-HashTable_Parameters<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::comparator() const
+const COMPARATOR&
+HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::comparator() const
 {
     return *this;
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-const typename HashTable_Parameters<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::
-                                                                   NodeFactory&
-HashTable_Parameters<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::nodeFactory() const
+const typename HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::NodeFactory&
+HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>:: nodeFactory() const
 {
     return d_nodeFactory;
 }
@@ -827,25 +826,25 @@ native_std::size_t HashTable_IterUtil::insertDistance(InputIterator first,
                         // class HashTable
                         //----------------
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 native_std::size_t
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::hashCodeForNode(
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hashCodeForNode(
                                          bslalg::BidirectionalLink *node) const
 {
     BSLS_ASSERT_SAFE(node);
     
-    const typename KEY_POLICY::KeyType& key = 
-                        bslalg::HashTableImpUtil::extractKey<KEY_POLICY>(node);
+    const typename KEY_CONFIG::KeyType& key = 
+                        bslalg::HashTableImpUtil::extractKey<KEY_CONFIG>(node);
     return hasher()(key);
 }
 
 // CREATORS
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::
-HashTable(const HASH&      hash,
-          const EQUAL&     compare,
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+HashTable(const HASHER&      hash,
+          const COMPARATOR&     compare,
           SizeType         initialBucketCount,
           const ALLOCATOR& allocator)
 : d_parameters(hash, compare, allocator)
@@ -862,9 +861,9 @@ HashTable(const HASH&      hash,
 }
 
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
 HashTable(const HashTable& original)
 : d_parameters(
   original.d_parameters,
@@ -879,9 +878,9 @@ HashTable(const HashTable& original)
     }
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
 HashTable(const HashTable& original, const ALLOCATOR& allocator)
 : d_parameters(original.d_parameters, allocator)
 , d_anchor(HashTable_StaticBucket::getDefaultBucketAddress(), 1, 0)
@@ -894,17 +893,17 @@ HashTable(const HashTable& original, const ALLOCATOR& allocator)
     }
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::~HashTable()
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::~HashTable()
 {
     this->removeAllAndDeallocate();
 }
 
 // PRIVATE MANIPULATORS
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::copyDataStructure(
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
                                        const bslalg::BidirectionalLink *cursor)
 {
     // Allocate an appropriate number of buckets
@@ -973,9 +972,9 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::copyDataStructure(
     arrayProctor.dismiss();
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::removeAllImp()
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAllImp()
 {
     using bslalg::BidirectionalLink;
     using bslalg::HashTableBucket;
@@ -993,9 +992,10 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::removeAllImp()
     }
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::quickSwap(HashTable *other)
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::quickSwap(
+                                                              HashTable *other)
 {
     BSLS_ASSERT_SAFE(other);
     BSLS_ASSERT_SAFE(this->allocator() == other->allocator());
@@ -1010,44 +1010,44 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::quickSwap(HashTable *other)
     swap(d_maxLoadFactor, other->d_maxLoadFactor);
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 bool
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::isEmpty() const
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::isEmpty() const
 {
     return !d_size;
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-typename HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::SizeType
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::size() const
+typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::size() const
 {
     return d_size;
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-typename HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::SizeType
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::maxSize() const
+typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::maxSize() const
 {
     return native_std::numeric_limits<SizeType>::max();
 }
  
     // iterators
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 bslalg::BidirectionalLink *
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::elementListRoot() const
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::elementListRoot() const
 {
     return d_anchor.listRootAddress();
 }
 
 // PRIVATE ACCESSORS
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 bslalg::HashTableBucket *
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::getBucketAddress(
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::getBucketAddress(
                                                     SizeType bucketIndex) const
 {
     BSLS_ASSERT_SAFE(bucketIndex < this->numBuckets());
@@ -1055,22 +1055,22 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::getBucketAddress(
     return d_anchor.bucketArrayAddress() + bucketIndex;
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 bslalg::BidirectionalLink *
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::find(
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::find(
                                                  const KeyType& key, 
                                                  size_t         hashValue) const
 {
-    return bslalg::HashTableImpUtil::find<KEY_POLICY>(d_anchor,
+    return bslalg::HashTableImpUtil::find<KEY_CONFIG>(d_anchor,
                                                       key,
                                                       this->comparator(),
                                                       hashValue);
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bslalg::BidirectionalLink *
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::findOrInsertDefault(
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findOrInsertDefault(
                                                             const KeyType& key)
 {
     size_t hashCode = this->hasher()(key);
@@ -1093,10 +1093,11 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::findOrInsertDefault(
 }
 
 // MANIPULATORS 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>&
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::operator=(const HashTable& rhs)
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>&
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::operator=(
+                                                          const HashTable& rhs)
 {
     typedef typename ImplParameters::AllocatorTraits AllocatorTraits;
 
@@ -1117,14 +1118,14 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::operator=(const HashTable& rhs)
     return *this;
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class SOURCE_TYPE>
 bslalg::BidirectionalLink *
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::insertIfMissing(
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
                                                bool               *isInserted,
                                                const SOURCE_TYPE&  obj)
 {
-    const KeyType& key = KEY_POLICY::extractKey(obj);
+    const KeyType& key = KEY_CONFIG::extractKey(obj);
     size_t hashCode = this->hasher()(key);
     bslalg::BidirectionalLink *position = this->find(key, hashCode);
 
@@ -1145,13 +1146,13 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::insertIfMissing(
     return position;
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class SOURCE_TYPE>
 bslalg::BidirectionalLink *
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::insertContiguous(
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertContiguous(
                                                        const SOURCE_TYPE&  obj)
 {
-    const KeyType& key = KEY_POLICY::extractKey(obj);
+    const KeyType& key = KEY_CONFIG::extractKey(obj);
     size_t hashCode = this->hasher()(key);
     bslalg::BidirectionalLink *position = this->find(key, hashCode);
 
@@ -1180,9 +1181,10 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::insertContiguous(
     return position;
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-void HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::removeAllAndDeallocate()
+void 
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAllAndDeallocate()
 {
     this->removeAllImp();
     HashTable_Util<ALLOCATOR>::destroyBucketArray(
@@ -1191,9 +1193,9 @@ void HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::removeAllAndDeallocate()
                                                  this->allocator());
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bslalg::BidirectionalLink *
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::remove(
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::remove(
                                                bslalg::BidirectionalLink *node)
 {
     BSLS_ASSERT_SAFE(node);
@@ -1211,9 +1213,9 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::remove(
     return result;
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::removeAll()
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAll()
 {
     this->removeAllImp();
     native_std::memset(d_anchor.bucketArrayAddress(),
@@ -1224,9 +1226,9 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::removeAll()
     d_size = 0;
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::swap(HashTable& other)
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
 {
     typedef typename ImplParameters::AllocatorTraits AllocatorTraits;
 
@@ -1257,43 +1259,46 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::swap(HashTable& other)
 }
 
 // observers
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-const HASH& HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::hasher() const
+const HASHER& 
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasher() const
 {
     return d_parameters.hasher();
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-const EQUAL& HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::comparator() const
+const COMPARATOR& 
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::comparator() const
 {
     return d_parameters.comparator();
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-ALLOCATOR HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::allocator() const
+ALLOCATOR HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::allocator() const
 {
     return d_parameters.nodeFactory().allocator();
 }
 
 // lookup
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 bslalg::BidirectionalLink *
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::find(const KeyType& key) const
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::find(
+                                                      const KeyType& key) const
 {
-    return bslalg::HashTableImpUtil::find<KEY_POLICY>(d_anchor,
+    return bslalg::HashTableImpUtil::find<KEY_CONFIG>(d_anchor,
                                                       key,
                                                       this->comparator(),
                                                       this->hasher()(key));
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 void
-HashTable< KEY_POLICY, HASH, EQUAL, ALLOCATOR>::findRange(
+HashTable< KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findRange(
                                            bslalg::BidirectionalLink **first,
                                            bslalg::BidirectionalLink **last,
                                            const KeyType&              k) const
@@ -1306,52 +1311,52 @@ HashTable< KEY_POLICY, HASH, EQUAL, ALLOCATOR>::findRange(
           : 0;
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bslalg::BidirectionalLink *
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::findEndOfRange(
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findEndOfRange(
                                         bslalg::BidirectionalLink *first) const
 {
     BSLS_ASSERT_SAFE(first);
 
     typedef bslalg::HashTableImpUtil ImpUtil;
-    const KeyType& k = ImpUtil::extractKey<KEY_POLICY>(first);
+    const KeyType& k = ImpUtil::extractKey<KEY_CONFIG>(first);
     while ((first = first->nextLink()) &&
-           this->comparator()(k,ImpUtil::extractKey<KEY_POLICY>(first))) {
+           this->comparator()(k,ImpUtil::extractKey<KEY_CONFIG>(first))) {
     }
     return first;
 }
 
 // bucket interface
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-typename HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::SizeType
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::numBuckets() const
+typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::numBuckets() const
 {
     return d_anchor.bucketArraySize();
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-typename HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::SizeType
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::maxNumBuckets() const
+typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::maxNumBuckets() const
 {
     return this->max_size();
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-typename HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::SizeType
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::countElementsInBucket(
+typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::countElementsInBucket(
                                                           SizeType index) const
 {
     BSLS_ASSERT_SAFE(index < this->numBuckets());
     return bucketAtIndex(index).countElements();
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-typename HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::SizeType
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::bucketIndexForKey(
+typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::bucketIndexForKey(
                                                       const KeyType& key) const
 {
     size_t hashCode = this->hasher()(key);
@@ -1360,34 +1365,35 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::bucketIndexForKey(
                                                    d_anchor.bucketArraySize());
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 const bslalg::HashTableBucket&
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::bucketAtIndex(SizeType index)
-                                                                          const
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::bucketAtIndex(
+                                                          SizeType index) const
 {
     BSLS_ASSERT_SAFE(index < this->numBuckets());
 
     return d_anchor.bucketArrayAddress()[index];
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-float HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::loadFactor() const
+float HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::loadFactor() const
 {
     return (double)size() / this->numBuckets();
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-float HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::maxLoadFactor() const
+float 
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::maxLoadFactor() const
 {
     return d_maxLoadFactor;
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-void HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::setMaxLoadFactor(
+void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
                                                               float loadFactor)
 {
     d_maxLoadFactor = loadFactor;
@@ -1399,9 +1405,9 @@ void HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::setMaxLoadFactor(
     }
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::rehashForNumBuckets(
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
                                                         SizeType newNumBuckets)
 {
     // compute a "good" number of buckets, e.g., pick a prime number
@@ -1420,7 +1426,7 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::rehashForNumBuckets(
                                               this->allocator());
 
         if (d_anchor.listRootAddress()) {
-            bslalg::HashTableImpUtil::rehash<KEY_POLICY>(
+            bslalg::HashTableImpUtil::rehash<KEY_CONFIG>(
                                                     &newAnchor,
                                                     d_anchor.listRootAddress(),
                                                     hasher());
@@ -1435,11 +1441,11 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::rehashForNumBuckets(
     }
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 void
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::rehashForNumElements(SizeType
-                                                                   numElements)
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumElements(
+                                                          SizeType numElements)
 {
     this->rehashForNumBuckets(native_std::ceil(
                      static_cast<float>(numElements) / this->maxLoadFactor()));
@@ -1451,20 +1457,20 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::rehashForNumElements(SizeType
 //                  free functions and opterators
 //----------------------------------------------------------------------------
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 void
-bslstl::swap(bslstl::HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>& x,
-             bslstl::HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>& y)
+bslstl::swap(bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& x,
+             bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& y)
 {
     x.swap(y);
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bool
 bslstl::operator==(
-            const bslstl::HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>& lhs,
-            const bslstl::HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>& rhs)
+       const bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& lhs,
+       const bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& rhs)
 {
     // The template bloat of this function can be significantly reduced
     // What matters is that the two hash tables:
@@ -1473,10 +1479,10 @@ bslstl::operator==(
     //      element's 'operator=='
     // This means that the implementation should be independant of all four
     // template parameters, but will depend on VALUE_TYPE deduced from the
-    // KEY_POLICY.  Otherwise, after the initial size comparison, the rest
+    // KEY_CONFIG.  Otherwise, after the initial size comparison, the rest
     // depends only on the anchors.
-    typedef typename KEY_POLICY::KeyType   KeyType;
-    typedef typename KEY_POLICY::ValueType ValueType;
+    typedef typename KEY_CONFIG::KeyType   KeyType;
+    typedef typename KEY_CONFIG::ValueType ValueType;
     typedef typename ::bsl::allocator_traits<ALLOCATOR>::size_type SizeType;
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -1493,7 +1499,7 @@ bslstl::operator==(
 
     while (cursor) {
         bslalg::BidirectionalLink *rhsFirst =
-                             rhs.find(ImpUtil::extractKey<KEY_POLICY>(cursor));
+                             rhs.find(ImpUtil::extractKey<KEY_CONFIG>(cursor));
         if (!rhsFirst) {
             return false;  // no matching key                         // RETURN
         }
@@ -1525,8 +1531,8 @@ bslstl::operator==(
         // values in nodes is tested using 'operator==' and not the
         // key-equality comparator stored in the hash table.
         while (cursor != endRange &&
-                 (ImpUtil::extractValue<KEY_POLICY>(cursor) ==
-                  ImpUtil::extractValue<KEY_POLICY>(rhsFirst)))
+                 (ImpUtil::extractValue<KEY_CONFIG>(cursor) ==
+                  ImpUtil::extractValue<KEY_CONFIG>(rhsFirst)))
         {
             cursor   = cursor->nextLink();
             rhsFirst = rhsFirst->nextLink();
@@ -1554,12 +1560,12 @@ bslstl::operator==(
              marker = marker->nextLink())
         {
             const ValueType& valueAtMarker =
-                                    ImpUtil::extractValue<KEY_POLICY>(marker);
+                                    ImpUtil::extractValue<KEY_CONFIG>(marker);
 
             if (cursor != marker) {  // skip on first pass only
                 bslalg::BidirectionalLink *scanner = cursor;
                 while (scanner != marker &&
-                   ImpUtil::extractValue<KEY_POLICY>(scanner) == valueAtMarker)
+                   ImpUtil::extractValue<KEY_CONFIG>(scanner) == valueAtMarker)
                                                                               {
                     scanner = scanner->nextLink();
                 }
@@ -1573,7 +1579,7 @@ bslstl::operator==(
             for (bslalg::BidirectionalLink *scanner = rhsFirst;
                  scanner != rhsLast;
                  scanner = scanner->nextLink()) {
-                if (ImpUtil::extractValue<KEY_POLICY>(scanner) == 
+                if (ImpUtil::extractValue<KEY_CONFIG>(scanner) == 
                                                                valueAtMarker) {
                     ++matches;
                 }
@@ -1587,7 +1593,7 @@ bslstl::operator==(
                  scanner != endRange;
                  scanner = scanner->nextLink()) {
 
-                if (ImpUtil::extractValue<KEY_POLICY>(scanner) == 
+                if (ImpUtil::extractValue<KEY_CONFIG>(scanner) == 
                                                                valueAtMarker) {
                     if (!--matches) {  // equal matches, but excluding initial
                         return false;                                 // RETURN
@@ -1603,12 +1609,12 @@ bslstl::operator==(
     return true;
 }
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 bool
 bslstl::operator!=(
-            const bslstl::HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>& lhs,
-            const bslstl::HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>& rhs)
+       const bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& lhs,
+       const bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& rhs)
 {
     return !(lhs == rhs);
 }

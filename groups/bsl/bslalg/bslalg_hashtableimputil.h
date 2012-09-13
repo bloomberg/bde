@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // definitons.
 //
 //..
-//   FIG. 1 Hash table with an array of 4 buckets, two of which non empty.
+//   FIG. 1 Hash table anchor with an array of 4 buckets, two of which non empty.
 //             
 //             0<--+-+<--+-+<--+-+<--+-+<--+-+
 //                 |1|   |7|   |3|   |0|   |9|
