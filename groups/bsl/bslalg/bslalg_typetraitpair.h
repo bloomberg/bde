@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide facilities for identifying 'std::pair'-like classes.
 //
-//@INTERNAL_DEPRECATED: Do not use.
+//@DEPRECATED: Do not use.
 //
 //@CLASSES:
 //  bslalg::TypeTraitPair: for 'std::pair'-like classes
