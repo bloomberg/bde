@@ -952,11 +952,11 @@ template <class KEY_TYPE,
           class ALLOC>
 inline
 const typename
-         unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::mapped_type&
-unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::at(const key_type& k)
-                                                                          const
+unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::mapped_type&
+unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::at(
+                                                     const key_type& key) const
 {
-    HashTableLink *target != d_impl.find(k);
+    HashTableLink *target = d_impl.find(key);
     if (!target ){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("Boo!");
     }
