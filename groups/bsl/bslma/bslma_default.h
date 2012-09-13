@@ -822,7 +822,7 @@ typedef bslma::Default bdema_Default;
     // the default and global allocator pointers.  This alias is defined for
     // backward compatibility.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 

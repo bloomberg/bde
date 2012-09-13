@@ -636,7 +636,7 @@ class bdem_Row {
         //
         // DEPRECATED: Use 'maxSupportedBdexVersion' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // FREE OPERATORS
@@ -1391,7 +1391,7 @@ int bdem_Row::maxSupportedVersion()
     return maxSupportedBdexVersion();
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE OPERATORS
 inline

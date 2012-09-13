@@ -189,7 +189,7 @@ class baem_StopwatchScopedGuard {
       , MICROSECONDS = BAEM_MICROSECONDS
       , MILLISECONDS = BAEM_MILLISECONDS
       , SECONDS      = BAEM_SECONDS
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

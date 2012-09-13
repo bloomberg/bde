@@ -207,7 +207,7 @@ class bdesb_FixedMemOutput {
         //
         // DEPRECATED:  Use the 'capacity' method instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -336,7 +336,7 @@ bsl::streamsize bdesb_FixedMemOutput::bufSize() const
     return d_capacity;
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // closing namespace BloombergLP
 

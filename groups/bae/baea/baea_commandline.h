@@ -820,7 +820,7 @@ BDES_IDENT("$Id: $")
 #undef OPTIONAL
 #endif
 #endif
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 
@@ -869,7 +869,7 @@ class baea_CommandLineOccurrenceInfo {
       , REQUIRED = BAEA_REQUIRED
       , OPTIONAL = BAEA_OPTIONAL
       , HIDDEN   = BAEA_HIDDEN
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // TRAITS
@@ -1722,7 +1722,7 @@ struct baea_CommandLineOptionInfo {
       , FLAG       = BAEA_FLAG
       , OPTION     = BAEA_OPTION
       , NON_OPTION = BAEA_NON_OPTION
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // PUBLIC DATA

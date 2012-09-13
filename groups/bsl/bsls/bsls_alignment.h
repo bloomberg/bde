@@ -198,7 +198,7 @@ BSLS_IDENT("$Id: $")
 #define bsls_AlignmentOf bsls::AlignmentFromType
 #endif
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 
@@ -247,7 +247,7 @@ struct Alignment {
 
         MaxAlignedType d_align;
     };
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CLASS METHODS
     static const char *toAscii(Alignment::Strategy value);
@@ -312,7 +312,7 @@ struct Alignment {
         // and 'false' otherwise.
         //
         // DEPRECATED: Replaced by 'AlignmentUtil::is8ByteAligned'.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 }  // close package namespace
@@ -363,7 +363,7 @@ bool Alignment::is8ByteAligned(const void *address)
 
 }  // close package namespace
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================

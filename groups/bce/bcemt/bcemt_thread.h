@@ -682,7 +682,7 @@ BDES_IDENT("$Id: $")
 #include <bdetu_systemtime.h>
 #endif
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef bcemt_Attribute
 #define bcemt_Attribute bcemt_ThreadAttributes

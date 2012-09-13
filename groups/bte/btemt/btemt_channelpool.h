@@ -843,7 +843,7 @@ class btemt_ChannelPool {
       , WRITE_CACHE_HIWAT  = BTEMT_WRITE_CACHE_HIWAT
       , CHANNEL_DOWN_READ  = BTEMT_CHANNEL_DOWN_READ
       , CHANNEL_DOWN_WRITE = BTEMT_CHANNEL_DOWN_WRITE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum ConnectResolutionMode {
@@ -858,7 +858,7 @@ class btemt_ChannelPool {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , RESOLVE_ONCE            = BTEMT_RESOLVE_ONCE
       , RESOLVE_AT_EACH_ATTEMPT = BTEMT_RESOLVE_AT_EACH_ATTEMPT
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum KeepHalfOpenMode {
@@ -874,7 +874,7 @@ class btemt_ChannelPool {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CLOSE_BOTH     = BTEMT_CLOSE_BOTH
       , KEEP_HALF_OPEN = BTEMT_KEEP_HALF_OPEN
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum ShutdownMode {
@@ -884,7 +884,7 @@ class btemt_ChannelPool {
                              // pending messages are discarded.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , IMMEDIATE = BTEMT_IMMEDIATE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum Severity {
@@ -898,7 +898,7 @@ class btemt_ChannelPool {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CRITICAL = BTEMT_CRITICAL
       , ALERT    = BTEMT_ALERT
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     struct HandleInfo {

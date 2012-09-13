@@ -556,7 +556,7 @@ struct bteso_EventManagerTester {
       , VERY_VERY_VERBOSE = BTESO_VERY_VERY_VERBOSE
       , ABORT             = BTESO_ABORT
       , DRY_RUN           = BTESO_DRY_RUN
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     static int gg(bteso_EventManager         *eventManager,

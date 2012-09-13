@@ -169,7 +169,7 @@ class btemt_QueryProcessorEvent {
       , QUERY_SUBMITTED    = BTEMT_QUERY_SUBMITTED
       , UNMATCHED_RESPONSE = BTEMT_UNMATCHED_RESPONSE
       , UNKNOWN            = BTEMT_UNKNOWN
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
   private:
     int               d_processorId;

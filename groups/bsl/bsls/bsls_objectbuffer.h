@@ -321,7 +321,7 @@ const char *ObjectBuffer<TYPE>::buffer() const
 #define bdes_ObjectBuffer bsls::ObjectBuffer
     // This alias is defined for backward compatibility.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 

@@ -532,7 +532,7 @@ struct bdetu_Unset {
         //..
         // DEPRECATED: use 'makeUnset' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -786,7 +786,7 @@ void bdetu_Unset<TYPE>::setUnset(TYPE *value)
     makeUnset(value);
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

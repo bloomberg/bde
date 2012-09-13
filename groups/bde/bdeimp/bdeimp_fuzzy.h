@@ -339,7 +339,7 @@ class bdeimp_Fuzzy {
         //
         // DEPRECATED: use 'compare' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -483,7 +483,7 @@ int bdeimp_Fuzzy::fuzzyCompare(double a,
     return compare(a, b, relTol, absTol);
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

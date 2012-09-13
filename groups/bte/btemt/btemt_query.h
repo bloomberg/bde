@@ -354,7 +354,7 @@ class btemt_QueryResponse {
       , SUCCESS = BTEMT_SUCCESS
       , TIMEOUT = BTEMT_TIMEOUT
       , FAILURE = BTEMT_FAILURE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
   private:
     typedef bsls_PlatformUtil::Int64 Int64;

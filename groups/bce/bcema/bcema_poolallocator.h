@@ -735,7 +735,7 @@ class bcema_PoolAllocator : public bslma_Allocator {
         //
         // DEPRECATED: Use 'blockSize' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // ============================================================================
@@ -761,7 +761,7 @@ int bcema_PoolAllocator::objectSize() const
     return blockSize();
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

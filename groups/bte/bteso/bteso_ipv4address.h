@@ -138,7 +138,7 @@ class bteso_IPv4Address {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ANY_ADDRESS = BTESO_ANY_ADDRESS
       , ANY_PORT    = BTESO_ANY_PORT
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS METHODS

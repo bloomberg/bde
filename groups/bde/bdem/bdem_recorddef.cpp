@@ -130,7 +130,7 @@ class AutoEraseName {
 const int bdem_RecordDef::BDEM_NULL_FIELD_ID = INT_MIN;
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 const int bdem_RecordDef::NullFieldId = INT_MIN;
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // PRIVATE MANIPULATORS
 template <typename CONSTRAINT_TYPE>

@@ -168,7 +168,7 @@ namespace bdex_VersionFunctions {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NO_VERSION_NUMBER = BDEX_NO_VERSION_NUMBER
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
 #ifdef BSLS_PLATFORM__CMP_MSVC

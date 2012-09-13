@@ -630,7 +630,7 @@ namespace bdeat_SequenceFunctions {
         // This function is *DEPRECATED*.  User's should specialize the
         // 'IsSequence' meta-function.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     template <typename TYPE>
     struct IsSequence {
         // This 'struct' should be specialized for third-party types that need
@@ -642,7 +642,7 @@ namespace bdeat_SequenceFunctions {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isSequenceMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
 

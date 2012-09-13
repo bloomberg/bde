@@ -260,7 +260,7 @@ struct bdetu_Time {
         // timezone.  The behavior is undefined unless 'result' is non-zero.
         //
         // DEPRECATED: See 'bdetu_systemtime'.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // ===========================================================================

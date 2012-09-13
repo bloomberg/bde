@@ -297,7 +297,7 @@ struct bdem_ElemType {
         //
         // DEPRECATED: replaced by 'maxSupportedBdexVersion()'
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // FREE OPERATORS
@@ -376,7 +376,7 @@ int bdem_ElemType::maxSupportedVersion()
     return maxSupportedBdexVersion();
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE OPERATORS
 inline

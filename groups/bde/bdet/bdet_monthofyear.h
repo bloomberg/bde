@@ -103,7 +103,7 @@ struct bdet_MonthOfYear {
       , OCTOBER   = BDET_OCTOBER
       , NOVEMBER  = BDET_NOVEMBER
       , DECEMBER  = BDET_DECEMBER
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
@@ -111,7 +111,7 @@ struct bdet_MonthOfYear {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
        , LENGTH      = BDET_LENGTH
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // Define 'LENGTH' to be the number of consecutively valued enumerators
         // in the range '[ BDET_JAN .. BDET_DEC ]'.

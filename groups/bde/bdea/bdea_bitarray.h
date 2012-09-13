@@ -485,7 +485,7 @@ class bdea_BitArray {
         , BITS_PER_BYTE = BDEA_BITS_PER_BYTE
         , BYTES_PER_INT = BDEA_BYTES_PER_INT
         , BITS_PER_INT  = BDEA_BITS_PER_INT
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     };
 
@@ -1252,7 +1252,7 @@ class bdea_BitArray {
         //
         // DEPRECATED: Use 'maxSupportedBdexVersion' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // FREE OPERATORS
@@ -1768,7 +1768,7 @@ int bdea_BitArray::maxSupportedVersion()
     return maxSupportedBdexVersion();
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE OPERATORS
 inline

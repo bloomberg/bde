@@ -4694,7 +4694,7 @@ static void testCase33(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 #else
     if (verbose) tst::cout << "\n(nil test case)"
                            << "\n===============" << bsl::endl;
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 }
 
 static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)

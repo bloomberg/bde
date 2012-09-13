@@ -85,7 +85,7 @@ struct bdex_FieldCode {
       , FLOAT32 = BDEX_FLOAT32
       , FLOAT64 = BDEX_FLOAT64
       , INVALID = BDEX_INVALID
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum { BDEX_LENGTH = BDEX_INVALID + 1 - BDEX_OFFSET };

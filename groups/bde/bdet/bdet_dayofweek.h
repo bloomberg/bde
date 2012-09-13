@@ -104,7 +104,7 @@ struct bdet_DayOfWeek {
       , THURSDAY  = BDET_THURSDAY
       , FRIDAY    = BDET_FRIDAY
       , SATURDAY  = BDET_SATURDAY
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS METHODS

@@ -105,7 +105,7 @@ struct bdeat_FormattingMode {
       , BDEAT_IS_SIMPLE_CONTENT = BDEAT_SIMPLE_CONTENT
       , BDEAT_IS_NILLABLE       = BDEAT_NILLABLE
       , BDEAT_IS_LIST           = BDEAT_LIST
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 };
 

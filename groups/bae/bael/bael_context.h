@@ -223,7 +223,7 @@ BDES_IDENT("$Id: $")
     // Note: on Windows -> WinGDI.h:#define PASSTHROUGH 19
 #undef PASSTHROUGH
 #endif
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 

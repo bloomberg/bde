@@ -318,7 +318,7 @@ namespace bdeat_ArrayFunctions {
         // This function is *DEPRECATED*.  User's should specialize the
         // 'IsArray' meta-function.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
     struct IsArray {
@@ -331,7 +331,7 @@ namespace bdeat_ArrayFunctions {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isArrayMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
 
         typedef bslmf_MetaInt<VALUE> Type;

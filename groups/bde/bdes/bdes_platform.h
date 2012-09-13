@@ -225,7 +225,7 @@ BDES_IDENT("$Id: $")
     char assertion[0];                         // stop non-compliant compilers
 #endif
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 

@@ -1671,7 +1671,7 @@ void testH(int test)
                 ASSERT(Util::max32(sum, vy) == Util::max32(vy, sum));
             }
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         const Int64 VALUES_B[] = { 0, 1, 2, 3, 4, 7, 8, 17, 27, 93, 127, 128,
                                  129, 254, 255, 256, 257, 258, 347, 749, 1000,
@@ -1738,7 +1738,7 @@ void testH(int test)
                 ASSERT(Util::max64(sum, vy) == Util::max64(vy, sum));
             }
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 38: {
         // --------------------------------------------------------------------
@@ -1816,7 +1816,7 @@ void testH(int test)
 
         ASSERT(64 == Util::numBits(myInt64));
         ASSERT(64 == Util::numBits(myUint64));
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 37: {
         // --------------------------------------------------------------------
@@ -1977,7 +1977,7 @@ void testH(int test)
                 }
             }
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
                 << "Testing numSetOne64, numSetZero64,\n"
@@ -2188,7 +2188,7 @@ void testH(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing find1AtSmallestIndexXX64 functions" << endl
@@ -2301,7 +2301,7 @@ void testH(int test)
             }
             LOOP_ASSERT(LINE, DATA_B[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       default: {
         LOOP_ASSERT(test, 0 && "test not found");
@@ -2447,7 +2447,7 @@ void testG(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing find0AtSmallestIndexXX64 functions" << endl
@@ -2568,7 +2568,7 @@ void testG(int test)
             LOOP3_ASSERT(LINE, DATA_B[i].d_expectedLT, result,
                                              DATA_B[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 34: {
         // --------------------------------------------------------------------
@@ -2704,7 +2704,7 @@ void testG(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing find1AtLargestIndexXX64 functions" << endl
@@ -2817,7 +2817,7 @@ void testG(int test)
             }
             LOOP_ASSERT(LINE, DATA_B[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 33: {
         // --------------------------------------------------------------------
@@ -2953,7 +2953,7 @@ void testG(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing find0AtLargestIndexXX64 functions" << endl
@@ -3074,7 +3074,7 @@ void testG(int test)
             LOOP4_ASSERT(LINE, spec, DATA_B[i].d_expectedLT, result,
                                              DATA_B[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 32: {
         // --------------------------------------------------------------------
@@ -3202,7 +3202,7 @@ void testG(int test)
                 }
                 LOOP_ASSERT(LINE, DATA[i].d_expected == result);
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
             if (verbose) cout << "\tTesting find1AtLargestIndex64" << endl;
 
@@ -3263,7 +3263,7 @@ void testG(int test)
                                  EXPECTED == result);
                 }
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         }
 
         if (verbose) cout << "\tTesting find0AtLargestIndex" << endl;
@@ -3340,7 +3340,7 @@ void testG(int test)
                 }
                 LOOP_ASSERT(LINE, DATA[i].d_expected == result);
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
             if (verbose) cout << "\tTesting find0AtLargestIndex64" << endl;
 
@@ -3401,7 +3401,7 @@ void testG(int test)
                                  EXPECTED == result);
                 }
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         }
 
         if (verbose) cout << "\tTesting find1AtSmallestIndex" << endl;
@@ -3478,7 +3478,7 @@ void testG(int test)
                 }
                 LOOP_ASSERT(LINE, DATA[i].d_expected == result);
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
             if (verbose) cout << "\tTesting find1AtSmallestIndex64" << endl;
 
@@ -3541,7 +3541,7 @@ void testG(int test)
                                  EXPECTED == result);
                 }
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         }
 
         if (verbose) cout << "\tTesting find0AtSmallestIndex" << endl;
@@ -3618,7 +3618,7 @@ void testG(int test)
                 }
                 LOOP_ASSERT(LINE, DATA[i].d_expected == result);
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
             if (verbose) cout << "\tTesting find0AtSmallestIndex64" << endl;
 
@@ -3682,7 +3682,7 @@ void testG(int test)
                                  EXPECTED == result);
                 }
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         }
       } break;
       case 31: {
@@ -10086,7 +10086,7 @@ void testF26()
 
             LOOP_ASSERT(LINE, DATA_A[di].d_extract1 == resA);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing extractZero64 and extractOne64 Functions" << endl
@@ -11277,7 +11277,7 @@ void testE23()
 
             LOOP_ASSERT(LINE, DATA_A[di].d_isSet1 == resA);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing isSetZero64 and isSetOne64 Functions" << endl
@@ -12745,7 +12745,7 @@ void testD19()
 
             LOOP_ASSERT(LINE, DATA_A[di].d_result1 == dstA);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing 64-bit setBit and replaceBit Functions" << endl
@@ -14675,7 +14675,7 @@ void testC(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[di].d_remove1 == dst1A);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
                   << "Testing removeZero64 and removeOne64 Functions" << endl
@@ -15140,7 +15140,7 @@ void testB(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[di].d_insert1 == dst);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
                   << "Testing insertZero64 and insertOne64 Functions" << endl
@@ -15431,7 +15431,7 @@ void testB(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[di].d_res1 == resA);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
                   << "Testing 64 bit set and replace Functions" << endl
@@ -15639,7 +15639,7 @@ void testB(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[di].d_isAnySet1 == resA);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing 'isAnySetZero64' and 'isAnySetOne64' Functions\n"
@@ -16027,7 +16027,7 @@ void testB(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[di].d_range1 == resA);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << "Testing 'rangeZero64' and 'rangeOne64'\n"
                              "======================================\n";
@@ -16240,7 +16240,7 @@ void testA(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[di].d_mask1 == resA);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
              << "Testing 'maskZero64' and 'maskOne64' Function" << endl

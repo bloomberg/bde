@@ -524,7 +524,7 @@ namespace bdeat_CustomizedTypeFunctions {
         // This function is *DEPRECATED*.  User's should specialize the
         // 'IsCustomizedType' meta-function.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     template <typename TYPE>
     struct IsCustomizedType {
         // This 'struct' should be specialized for third-party types that need
@@ -537,7 +537,7 @@ namespace bdeat_CustomizedTypeFunctions {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isCustomizedTypeMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
 

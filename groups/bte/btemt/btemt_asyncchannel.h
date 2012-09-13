@@ -74,7 +74,7 @@ class btemt_AsyncChannel {
         , CLOSED   = BTEMT_CLOSED
         , FAILURE  = BTEMT_FAILURE
         , CANCELED = BTEMT_CANCELED
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     typedef bdef_Function<void (*)(int ,int*, int*, const btemt_DataMsg&)>

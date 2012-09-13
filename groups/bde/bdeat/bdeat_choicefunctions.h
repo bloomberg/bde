@@ -497,7 +497,7 @@ namespace bdeat_ChoiceFunctions {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , UNDEFINED_SELECTION_ID = BDEAT_UNDEFINED_SELECTION_ID
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // META-FUNCTIONS
@@ -512,7 +512,7 @@ namespace bdeat_ChoiceFunctions {
         //
         // *DEPRECATED*: Specialize the 'IsChoice' meta-function instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     template <typename TYPE>
     struct IsChoice {
         // This 'struct' should be specialized for third-party types that need
@@ -524,7 +524,7 @@ namespace bdeat_ChoiceFunctions {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isChoiceMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
 

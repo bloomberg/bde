@@ -55,7 +55,7 @@ namespace BloombergLP {
 //  processes will send standard output to a log file.)
 //..
 // TBD: find out whether 'stderr' goes to 'act.log'.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 static
 void printError(const char *text, const char *file, int line)
@@ -141,7 +141,7 @@ void Assert::failAbort(const char *text, const char *file, int line)
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // See DRQS 8923441: The following is a work-around for a Fortran compiler bug.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifdef BSLS_PLATFORM__OS_AIX
     sigset_t newset;
@@ -157,7 +157,7 @@ void Assert::failAbort(const char *text, const char *file, int line)
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // See DRQS 13882128: Note that (according to Oleg) the first line alone may be
 // sufficient.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
     // The following configures the runtime library on how to report asserts,

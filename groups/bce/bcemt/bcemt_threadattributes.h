@@ -283,7 +283,7 @@ class bcemt_ThreadAttributes {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CREATE_JOINABLE = BCEMT_CREATE_JOINABLE
       , CREATE_DETACHED = BCEMT_CREATE_DETACHED
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum SchedulingPolicy {

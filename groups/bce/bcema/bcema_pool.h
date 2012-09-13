@@ -472,7 +472,7 @@ class bcema_Pool {
         // same size.
         //
         // DEPRECATED: use 'blockSize' instead.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -591,7 +591,7 @@ int bcema_Pool::objectSize() const
 {
     return d_blockSize;
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

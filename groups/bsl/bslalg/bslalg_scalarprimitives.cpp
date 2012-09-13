@@ -18,7 +18,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // these reasons, we have retained the trait and support it in the
 // implementations of 'bslalg::ScalarPrimitives::construct' and
 // 'copyConstruct'.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

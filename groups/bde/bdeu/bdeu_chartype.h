@@ -361,7 +361,7 @@ struct bdeu_CharType {
       , ALUND  = BDEU_ALUND
       , ALL    = BDEU_ALL
       , NONE   = BDEU_NONE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum { BDEU_NUM_CATEGORIES = BDEU_NONE + 1 };

@@ -716,7 +716,7 @@ class bcec_SkipList {
       , RET_NOT_FOUND  = BCEC_NOT_FOUND
       , RET_DUPLICATE  = BCEC_DUPLICATE
       , RET_INVALID    = BCEC_INVALID
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // TYPES

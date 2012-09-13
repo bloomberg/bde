@@ -767,7 +767,7 @@ struct bdeimp_DateUtil {
         //
         // DEPRECATED: Use 'yd2weekday' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -984,7 +984,7 @@ int bdeimp_DateUtil::yj2weekday(int year, int julianDay)
     return yd2weekday(year, julianDay);
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

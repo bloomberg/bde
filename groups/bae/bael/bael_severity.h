@@ -124,7 +124,7 @@ BDES_IDENT("$Id: $")
 #endif
 
 #endif
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 
@@ -155,7 +155,7 @@ struct bael_Severity {
       , DEBUG = BAEL_DEBUG
       , TRACE = BAEL_TRACE
       , NONE  = BAEL_NONE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum { BAEL_LENGTH = 8 };

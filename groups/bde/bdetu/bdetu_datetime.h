@@ -504,7 +504,7 @@ struct bdetu_Datetime {
         // exits.
         //
         // DEPRECATED: use 'bdetu_Epoch::epoch()' instead.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // ===========================================================================
@@ -568,7 +568,7 @@ const bdet_Datetime& bdetu_Datetime::epoch()
 {
     return bdetu_Epoch::epoch();
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

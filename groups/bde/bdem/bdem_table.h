@@ -1302,7 +1302,7 @@ class bdem_Table {
         // 'insertRow(int dstIndex, const bdem_Table& table, int index)'
         // instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // FREE OPERATORS
@@ -1509,7 +1509,7 @@ void bdem_Table::appendRow(const bdem_Row& srcRow)
 {
     insertRow(numRows(), srcRow);
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 void bdem_Table::appendRow(const bdem_List& srcList)
@@ -2194,7 +2194,7 @@ void bdem_Table::insertRow(int dstIndex, const bdem_Row& srcRow)
                          reinterpret_cast<const bdem_RowData&>(srcRow));
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE OPERATORS
 inline

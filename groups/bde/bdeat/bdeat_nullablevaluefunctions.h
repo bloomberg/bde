@@ -308,7 +308,7 @@ namespace bdeat_NullableValueFunctions {
         // This function is *DEPRECATED*.  User's should specialize the
         // 'IsNullableValue' meta-function.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     template <typename TYPE>
     struct IsNullableValue {
         // This 'struct' should be specialized for third-party types that need
@@ -320,7 +320,7 @@ namespace bdeat_NullableValueFunctions {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isNullableValueMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
 

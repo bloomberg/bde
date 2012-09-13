@@ -191,7 +191,7 @@ class baexml_NamespaceRegistry {
       , NSID_WSDL_SOAP          = BAEXML_WSDL_SOAP
       , NSID_BDEM               = BAEXML_BDEM
       , NSID_PREDEF_MAX         = BAEXML_PREDEF_MAX
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CREATORS

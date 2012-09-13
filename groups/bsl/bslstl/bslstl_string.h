@@ -207,7 +207,7 @@ BSL_OVERRIDES_STD mode"
 
 #endif
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bsl {
 

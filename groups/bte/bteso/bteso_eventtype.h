@@ -42,7 +42,7 @@ struct bteso_EventType {
       , CONNECT = BTESO_CONNECT
       , READ    = BTESO_READ
       , WRITE   = BTESO_WRITE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum { BTESO_LENGTH = BTESO_WRITE + 1 };

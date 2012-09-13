@@ -200,7 +200,7 @@ struct bdem_BerUniversalTagNumber {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NUM_ENUMERATORS = BDEM_LENGTH
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS METHODS

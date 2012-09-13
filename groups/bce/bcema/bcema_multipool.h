@@ -722,7 +722,7 @@ class bcema_Multipool {
         //..
         // where 'numPools' is either specified at construction, or an
         // implementation-defined value.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -768,7 +768,7 @@ int bcema_Multipool::maxPooledObjectSize() const
 {
     return d_maxBlockSize;
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

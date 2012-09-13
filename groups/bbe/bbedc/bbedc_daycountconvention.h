@@ -87,7 +87,7 @@ struct bbedc_DayCountConvention {
       , PSA_30_360_EOM     = BBEDC_PSA_30_360_EOM
       , SIA_30_360_EOM     = BBEDC_SIA_30_360_EOM
       , SIA_30_360_NEOM    = BBEDC_SIA_30_360_NEOM
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS METHODS

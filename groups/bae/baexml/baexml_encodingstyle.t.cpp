@@ -140,11 +140,11 @@ int main(int argc, char *argv[])
                 {  L_,     Obj::BAEXML_COMPACT,         "COMPACT"         },
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 {  L_,     Obj::COMPACT,                "COMPACT"         },
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
                 {  L_,     Obj::BAEXML_PRETTY,          "PRETTY"          },
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 {  L_,     Obj::PRETTY,                 "PRETTY"          },
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

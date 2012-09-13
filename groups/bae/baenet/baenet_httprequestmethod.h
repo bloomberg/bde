@@ -65,7 +65,7 @@ BDES_IDENT_PRAGMA_ONCE
 #endif
 
 #endif
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 

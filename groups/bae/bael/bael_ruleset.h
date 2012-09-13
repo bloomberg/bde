@@ -133,7 +133,7 @@ class bael_RuleSet {
            // The maximum number of rules managed by this object.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , MAX_NUM_RULES = BAEL_MAX_NUM_RULES
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

@@ -124,7 +124,7 @@ class bteso_TimeMetrics {
       , IO_BOUND           = BTESO_IO_BOUND
       , CPU_BOUND          = BTESO_CPU_BOUND
       , MIN_NUM_CATEGORIES = BTESO_MIN_NUM_CATEGORIES
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CREATORS

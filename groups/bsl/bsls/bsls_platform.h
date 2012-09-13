@@ -178,7 +178,7 @@ struct bsls_Platform_Assert;
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     #define BSLS_PLATFORM__CMP_AIX 1
          // DEPRECATED: use 'BSLS_PLATFORM__CMP_IBM' instead.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // which OS -- this compiler should only be used on AIX
     #define BSLS_PLATFORM__OS_UNIX 1
@@ -1119,7 +1119,7 @@ typedef bsls::Platform Platform;
 #define bdes_Platform bdes::Platform
     // This alias is defined for backward compatibility.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 typedef bsls::Platform bsls_Platform;
     // This alias is defined for backward compatibility.

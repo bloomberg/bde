@@ -329,13 +329,13 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NO_HINT                 = BTEMT_NO_HINT
       , INFREQUENT_REGISTRATION = BTEMT_INFREQUENT_REGISTRATION
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     typedef bcef_Vfunc0                   Callback;
         // DEPRECATED: Use 'bteso_TimerEventManager::Callback' instead.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
   private:
     // PRIVATE TYPES

@@ -290,7 +290,7 @@ class bdesb_FixedMemOutStreamBuf : public bsl::streambuf {
         //
         // DEPRECATED:  Use 'capacity()' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -365,7 +365,7 @@ bsl::streamsize bdesb_FixedMemOutStreamBuf::bufSize() const
     return capacity();
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

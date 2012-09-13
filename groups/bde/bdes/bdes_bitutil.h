@@ -525,7 +525,7 @@ struct bdes_BitUtil {
       , BITS_PER_BYTE       = CHAR_BIT
       , BITS_PER_WORD       = BDES_BITS_PER_WORD
       , BITS_PER_INT64      = BDES_BITS_PER_INT64
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     };
 
@@ -1784,7 +1784,7 @@ struct bdes_BitUtil {
         //
         // DEPRECATED: Use 'sizeInBits' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // ===========================================================================
@@ -4350,7 +4350,7 @@ int bdes_BitUtil::numBits(TYPE value)
     return sizeInBits(value);
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

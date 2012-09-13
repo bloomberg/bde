@@ -45,7 +45,7 @@ void bdetu_Time::loadCurrentTime(bdet_Time *result)
     result->setMillisecond(currentDateTime.millisecond());
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

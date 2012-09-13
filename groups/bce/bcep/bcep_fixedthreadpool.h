@@ -361,7 +361,7 @@ class bcep_FixedThreadPool {
       , TP_RUN     = BCEP_RUN
       , TP_SUSPEND = BCEP_SUSPEND
       , TP_DRAIN   = BCEP_DRAIN
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

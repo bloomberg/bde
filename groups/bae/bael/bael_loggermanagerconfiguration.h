@@ -316,7 +316,7 @@ class bael_LoggerManagerConfiguration {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , FIFO = BAEL_FIFO
       , LIFO = BAEL_LIFO
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum TriggerMarkers {
@@ -336,7 +336,7 @@ class bael_LoggerManagerConfiguration {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NO_MARKERS        = BAEL_NO_MARKERS
       , BEGIN_END_MARKERS = BAEL_BEGIN_END_MARKERS
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

@@ -480,7 +480,7 @@ struct bdeat_TypeCategory {
       , NULLABLE_VALUE_CATEGORY  = BDEAT_NULLABLE_VALUE_CATEGORY
       , SEQUENCE_CATEGORY        = BDEAT_SEQUENCE_CATEGORY
       , SIMPLE_CATEGORY          = BDEAT_SIMPLE_CATEGORY
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // META-FUNCTION
@@ -525,7 +525,7 @@ struct bdeat_TypeCategory {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
           , SELECTION = BDEAT_SELECTION
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         };
 

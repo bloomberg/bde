@@ -419,7 +419,7 @@ struct bteso_SocketImpUtil {
       , SOCKET_STREAM   = BTESO_SOCKET_STREAM
       , SOCKET_DATAGRAM = BTESO_SOCKET_DATAGRAM
       , SOCKET_RAW      = BTESO_SOCKET_RAW
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum ShutDownType {
@@ -439,7 +439,7 @@ struct bteso_SocketImpUtil {
       , SHUTDOWN_RECEIVE = BTESO_SHUTDOWN_RECEIVE
       , SHUTDOWN_SEND    = BTESO_SHUTDOWN_SEND
       , SHUTDOWN_BOTH    = BTESO_SHUTDOWN_BOTH
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     template <class ADDRESS>
@@ -846,7 +846,7 @@ struct bteso_SocketImpUtil_Util {
 #endif
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INVALID_SOCKET_HANDLE = BTESO_INVALID_SOCKET_HANDLE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // The platform-specific value returned by a socket call that creates
         // a new socket indicating failure to create a socket.

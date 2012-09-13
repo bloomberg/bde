@@ -603,7 +603,7 @@ class bdet_Datetime {
         //
         // DEPRECATED: Use 'print' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -1078,7 +1078,7 @@ bsl::ostream& bdet_Datetime::streamOut(bsl::ostream& stream) const
     return stream << *this;
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE OPERATORS
 inline

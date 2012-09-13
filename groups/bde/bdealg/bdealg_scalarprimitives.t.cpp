@@ -1046,7 +1046,7 @@ void legacyDestruct(TARGET_TYPE *object)
     bslalg_ScalarPrimitives::destruct(object);
 #else
     bslalg_ScalarDestructionPrimitives::destroy(object);
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 }
 
 //=============================================================================
@@ -1279,7 +1279,7 @@ int main(int argc, char *argv[])
             ASSERT(DI == my_ClassFussy::destructorInvocations);
             if (veryVerbose) { P_(rawBuf.d_value); PP(rawBuf.d_allocator_p); }
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 6: {
         // --------------------------------------------------------------------

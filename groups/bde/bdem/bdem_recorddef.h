@@ -415,7 +415,7 @@ class bdem_RecordDef {
         // The value of 'NullFieldId' is distinct from that of any valid field
         // id.  Note that the value of 'NullFieldId' is
         // 'bdetu_Unset<int>::unsetValue()'.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // TYPES
     enum RecordType {

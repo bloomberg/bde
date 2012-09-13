@@ -89,7 +89,7 @@ struct bdem_AggregateOption {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , OWN_ALLOCATOR_FLAG = BDEM_OWN_ALLOCATOR_FLAG
       , NODESTRUCT_FLAG    = BDEM_NODESTRUCT_FLAG
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum AllocationStrategy {
@@ -130,7 +130,7 @@ struct bdem_AggregateOption {
       , WRITE_MANY   = BDEM_WRITE_MANY
       , WRITE_ONCE   = BDEM_WRITE_ONCE
       , SUBORDINATE  = BDEM_SUBORDINATE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 };
 

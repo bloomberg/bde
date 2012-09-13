@@ -406,7 +406,7 @@ class bael_CategoryHolder {
       , UNINITIALIZED_CATEGORY = BAEL_UNINITIALIZED_CATEGORY
       , DYNAMIC_CATEGORY       = BAEL_DYNAMIC_CATEGORY
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // This enumeration defines distinguished values for category holder
         // threshold levels.  Note that these values are intentionally outside

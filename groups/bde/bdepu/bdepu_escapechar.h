@@ -118,7 +118,7 @@ class bdepu_EscapeChar {
       , OCTAL           = BDEPU_OCTAL
       , BACKSLASH       = BDEPU_BACKSLASH
       , ENDLINE         = BDEPU_ENDLINE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     static const unsigned char *escapeCodes(void);

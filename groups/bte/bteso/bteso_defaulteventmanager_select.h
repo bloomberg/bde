@@ -175,7 +175,7 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
                                             // event manager (of this type)
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , MAX_NUM_HANDLES = BTESO_MAX_NUM_HANDLES
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

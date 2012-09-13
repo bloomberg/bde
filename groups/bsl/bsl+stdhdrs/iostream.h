@@ -24,7 +24,7 @@ using std::ifstream;
 using std::istream;
 using std::ofstream;
 using std::ostream;
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 using std::cin;
 using std::cout;

@@ -182,7 +182,7 @@ class bdesb_MemOutStreamBuf : public bsl::streambuf {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INITIAL_BUFFER_SIZE = BDESB_INITIAL_BUFFER_SIZE
       , GROWTH_FACTOR       = BDESB_GROWTH_FACTOR
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // DATA

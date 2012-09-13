@@ -91,7 +91,7 @@ struct bteso_IoUtil {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BLOCKING    = BTESO_BLOCKING
       , NONBLOCKING = BTESO_NONBLOCKING
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum AsyncMode {
@@ -100,7 +100,7 @@ struct bteso_IoUtil {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SYNCHRONOUS  = BTESO_SYNCHRONOUS
       , ASYNCHRONOUS = BTESO_ASYNCHRONOUS
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     static int setBlockingMode(bteso_SocketHandle::Handle handle,

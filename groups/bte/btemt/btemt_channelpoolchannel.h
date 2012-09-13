@@ -90,7 +90,7 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , DATAMSG_BASED = BTEMT_DATAMSG_BASED
       , BLOB_BASED    = BTEMT_BLOB_BASED
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     struct ReadQueueEntry {

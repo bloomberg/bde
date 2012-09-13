@@ -57,7 +57,7 @@ struct bteso_Flag {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ASYNC_INTERRUPT = BTESO_ASYNC_INTERRUPT
       , NFLAGS          = BTESO_NFLAGS
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum BlockingMode {
@@ -68,7 +68,7 @@ struct bteso_Flag {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BLOCKING_MODE    = BTESO_BLOCKING_MODE
       , NONBLOCKING_MODE = BTESO_NONBLOCKING_MODE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum ShutdownType {
@@ -86,7 +86,7 @@ struct bteso_Flag {
       , SHUTDOWN_RECEIVE = BTESO_SHUTDOWN_RECEIVE
       , SHUTDOWN_SEND    = BTESO_SHUTDOWN_SEND
       , SHUTDOWN_BOTH    = BTESO_SHUTDOWN_BOTH
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum IOWaitType {
@@ -100,7 +100,7 @@ struct bteso_Flag {
       , IO_READ  = BTESO_IO_READ
       , IO_WRITE = BTESO_IO_WRITE
       , IO_RW    = BTESO_IO_RW
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS METHODS

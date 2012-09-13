@@ -215,7 +215,7 @@ class bdede_Crc32 {
         // Return the current value of this checksum.
         //
         // DEPRECATED: use method 'checksum' instead.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -336,7 +336,7 @@ unsigned int bdede_Crc32::view() const
 {
     return d_crc ^ 0xffffffff;
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE OPERATORS
 inline

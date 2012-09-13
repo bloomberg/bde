@@ -283,7 +283,7 @@ class bteso_TcpTimerEventManager : public bteso_TimerEventManager
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NO_HINT                 = BTESO_NO_HINT
       , INFREQUENT_REGISTRATION = BTESO_INFREQUENT_REGISTRATION
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

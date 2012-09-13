@@ -1207,7 +1207,7 @@ struct bdeu_BitstringUtil {
         //
         // DEPRECATED: Use 'swapRaw' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -1682,7 +1682,7 @@ void bdeu_BitstringUtil::swapBits(int *lhsArray,
     swapRaw(lhsArray, lhsArrayIndex, rhsArray, rhsArrayIndex, numBits);
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

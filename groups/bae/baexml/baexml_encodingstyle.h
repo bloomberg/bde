@@ -73,7 +73,7 @@ struct baexml_EncodingStyle {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , COMPACT = BAEXML_COMPACT
       , PRETTY  = BAEXML_PRETTY
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {

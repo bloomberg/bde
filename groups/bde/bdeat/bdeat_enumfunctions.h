@@ -316,7 +316,7 @@ namespace bdeat_EnumFunctions {
         // This function is *DEPRECATED*.  User's should specialize the
         // 'IsEnumeration' meta-function.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     template <typename TYPE>
     struct IsEnumeration {
         // This 'struct' should be specialized for third-party types that need
@@ -329,7 +329,7 @@ namespace bdeat_EnumFunctions {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isEnumerationMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
 

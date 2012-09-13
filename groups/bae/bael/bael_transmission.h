@@ -170,7 +170,7 @@ BDES_IDENT("$Id: $")
     // Note: on Windows -> WinGDI.h:#define PASSTHROUGH 19
 #undef PASSTHROUGH
 #endif
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 
@@ -198,7 +198,7 @@ struct bael_Transmission {
       , TRIGGER_ALL        = BAEL_TRIGGER_ALL
       , MANUAL_PUBLISH     = BAEL_MANUAL_PUBLISH
       , MANUAL_PUBLISH_ALL = BAEL_MANUAL_PUBLISH_ALL
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum { BAEL_LENGTH = BAEL_MANUAL_PUBLISH_ALL + 1 };

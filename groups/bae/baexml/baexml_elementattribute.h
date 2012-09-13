@@ -281,7 +281,7 @@ class baexml_ElementAttribute {
       , ATTR_NO_FLAGS   = BAEXML_ATTR_NO_FLAGS
       , ATTR_IS_DEFAULT = BAEXML_ATTR_IS_DEFAULT
       , ATTR_IS_NSDECL  = BAEXML_ATTR_IS_NSDECL
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // TRAITS

@@ -576,7 +576,7 @@ struct ScalarPrimitives {
     static void destruct(TARGET_TYPE *object);
         // DEPRECATED.
         // Use 'ScalarDestructionPrimitives::destroy' instead.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename LHS_TYPE, typename RHS_TYPE>
     static void swap(LHS_TYPE& lhs, RHS_TYPE& rhs);
@@ -2022,7 +2022,7 @@ void ScalarPrimitives::destruct(TARGET_TYPE *address)
 
 }  // close package namespace
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bslalg {
 

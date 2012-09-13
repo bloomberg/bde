@@ -463,7 +463,7 @@ class bcema_MultipoolAllocator : public bslma_ManagedAllocator {
         //..
         // where 'numPools' is either specified at construction, or an
         // implementation-defined value.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -579,7 +579,7 @@ int bcema_MultipoolAllocator::maxPooledObjectSize() const
 {
     return d_multipool.maxPooledBlockSize();
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

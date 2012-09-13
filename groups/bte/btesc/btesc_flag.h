@@ -67,7 +67,7 @@ struct btesc_Flag {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ASYNC_INTERRUPT = BTESC_ASYNC_INTERRUPT
       , RAW             = BTESC_RAW
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum { BTESC_LENGTH = 2 };

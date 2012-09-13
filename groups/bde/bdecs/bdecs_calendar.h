@@ -499,7 +499,7 @@ class bdecs_Calendar {
     typedef BusinessDayConstReverseIterator BusinessDayReverseIterator;
     typedef HolidayConstReverseIterator     HolidayReverseIterator;
     typedef HolidayCodeConstReverseIterator HolidayCodeReverseIterator;
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CLASS METHODS
     static int maxSupportedBdexVersion();
@@ -1106,7 +1106,7 @@ class bdecs_Calendar_BusinessDayConstIter {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     bdecs_Calendar_BusinessDayConstIter();
         // Create an uninitialized iterator.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     bdecs_Calendar_BusinessDayConstIter(
                           const bdecs_Calendar_BusinessDayConstIter& original);
@@ -1146,7 +1146,7 @@ class bdecs_Calendar_BusinessDayConstIter {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 typedef bdecs_Calendar_BusinessDayConstIter bdecs_CalendarBusinessDayIter;
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE OPERATORS
 bool operator==(const bdecs_Calendar_BusinessDayConstIter& lhs,
@@ -1669,7 +1669,7 @@ inline
 bdecs_Calendar_BusinessDayConstIter::bdecs_Calendar_BusinessDayConstIter()
 {
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 bdecs_Calendar_BusinessDayConstIter::bdecs_Calendar_BusinessDayConstIter(

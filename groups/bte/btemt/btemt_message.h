@@ -291,13 +291,13 @@ class btemt_ChannelMsg {
       , AUTO_READ_DISABLED = BTEMT_AUTO_READ_DISABLED
       , WRITE_CACHE_LOWWAT = BTEMT_WRITE_CACHE_LOWWAT
       , WRITE_CACHE_HIWAT  = BTEMT_WRITE_CACHE_HIWAT
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
     enum {
         BTEMT_INVALID_ID = -1     // invalid channel and channel allocator ID
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INVALID_ID = BTEMT_INVALID_ID
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -495,13 +495,13 @@ class btemt_PoolMsg {
       , ERROR_CONNECTING = BTEMT_ERROR_CONNECTING
       , CHANNEL_LIMIT    = BTEMT_CHANNEL_LIMIT
       , CAPACITY_LIMIT   = BTEMT_CAPACITY_LIMIT
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
     enum {
         BTEMT_INVALID_ID = -1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INVALID_ID = BTEMT_INVALID_ID
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -582,7 +582,7 @@ class btemt_TimerMsg {
         BTEMT_INVALID_ID = -1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INVALID_ID = BTEMT_INVALID_ID
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -651,7 +651,7 @@ class btemt_UserMsg {
       , INVALID_INT_DATA     = BTEMT_INVALID_INT_DATA
       , INVALID_VOID_DATA    = BTEMT_INVALID_VOID_DATA
       , INVALID_MESSAGE_TYPE = BTEMT_INVALID_MESSAGE_TYPE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
   private:
     enum {
@@ -769,7 +769,7 @@ class btemt_Message {
       , POOL_STATE    = BTEMT_POOL_STATE
       , USER_DATA     = BTEMT_USER_DATA
       , BLOB          = BTEMT_BLOB
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

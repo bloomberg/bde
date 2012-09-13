@@ -345,7 +345,7 @@ struct bdepu_TypesParserImpUtil {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , HAS_ESCAPE = BDEPU_HAS_ESCAPE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum MaxBinaryStringLengths {
@@ -375,7 +375,7 @@ struct bdepu_TypesParserImpUtil {
       , MAX_INT_STRLEN     = BDEPU_MAX_INT_STRLEN
       , MAX_INT64_STRLEN   = BDEPU_MAX_INT64_STRLEN
       , MAX_SCALAR_STRLEN  = BDEPU_MAX_SCALAR_STRLEN
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum MaxDecimalStringLengths{
@@ -402,7 +402,7 @@ struct bdepu_TypesParserImpUtil {
       , MAX_DOUBLE_STRLEN10     = BDEPU_MAX_DOUBLE_STRLEN10
       , MAX_LONGDOUBLE_STRLEN10 = BDEPU_MAX_LONGDOUBLE_STRLEN10
       , MAX_SCALAR_STRLEN10     = BDEPU_MAX_SCALAR_STRLEN10
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum MaxHexadecimalStringLengths {
@@ -424,7 +424,7 @@ struct bdepu_TypesParserImpUtil {
       , MAX_INT_STRLEN16    = BDEPU_MAX_INT_STRLEN16
       , MAX_INT64_STRLEN16  = BDEPU_MAX_INT64_STRLEN16
       , MAX_SCALAR_STRLEN16 = BDEPU_MAX_SCALAR_STRLEN16
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS METHODS

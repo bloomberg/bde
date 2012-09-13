@@ -265,7 +265,7 @@ class bdem_FieldDef {
         // Return the same result as that returned by 'recordConstraint'.
         //
         // DEPRECATED: Use 'recordConstraint' or 'enumerationConstraint'.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     const bdem_EnumerationDef *enumerationConstraint() const;
         // Return the address of this field's non-modifiable enumeration
@@ -396,7 +396,7 @@ const bdem_RecordDef *bdem_FieldDef::constraint() const
 {
     return recordConstraint();
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 const bdem_RecordDef *bdem_FieldDef::recordConstraint() const

@@ -93,7 +93,7 @@ struct bdetu_TimeInterval {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NANOSECS_PER_MILLISEC       = BDETU_NANOSECS_PER_MILLISEC
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   public:

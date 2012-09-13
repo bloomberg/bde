@@ -42,7 +42,7 @@ BDES_IDENT("$Id: $")
 #undef PRIVATE
 #undef PRIMITIVE
 #undef CONSTRUCTED
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 
@@ -63,7 +63,7 @@ struct bdem_BerConstants {
       , APPLICATION      = BDEM_APPLICATION
       , CONTEXT_SPECIFIC = BDEM_CONTEXT_SPECIFIC
       , PRIVATE          = BDEM_PRIVATE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum TagType {
@@ -75,7 +75,7 @@ struct bdem_BerConstants {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , PRIMITIVE   = BDEM_PRIMITIVE
       , CONSTRUCTED = BDEM_CONSTRUCTED
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 };
 

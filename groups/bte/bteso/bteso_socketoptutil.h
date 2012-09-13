@@ -224,7 +224,7 @@ struct bteso_SocketOptUtil {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SOCKETLEVEL = BTESO_SOCKETLEVEL
       , TCPLEVEL    = BTESO_TCPLEVEL
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // For level = BTESO_SOCKETLEVEL
@@ -276,7 +276,7 @@ struct bteso_SocketOptUtil {
       , RECEIVETIMEOUT = BTESO_RECEIVETIMEOUT
       , TYPE           = BTESO_TYPE
       , SOCKETERROR    = BTESO_SOCKETERROR
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // For level = BTESO_TCPLEVEL
@@ -289,7 +289,7 @@ struct bteso_SocketOptUtil {
         // immediately.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , TCPNODELAY = BTESO_TCPNODELAY
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     template <class T>

@@ -280,7 +280,7 @@ typedef bsls_Platform::OsHpUx OsType;
       , NUM_PAGEFAULTS  = BAEA_NUM_PAGEFAULTS
       , VIRTUAL_SIZE    = BAEA_VIRTUAL_SIZE
       , NUM_MEASURES    = BAEA_NUM_MEASURES
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     class Statistics {

@@ -166,7 +166,7 @@ struct PlatformUtil {
         // the current platform.
         //
         // DEPRECATED: Use 'AlignmentUtil::MaxAlignedType' instead.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CLASS METHODS
     static bool isBigEndian();
@@ -250,7 +250,7 @@ struct PlatformUtil {
 #define BSLS_PLATFORMUTIL__HTONS(x) BSLS_PLATFORMUTIL__NTOHS(x)
 #endif
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bsls {
 
