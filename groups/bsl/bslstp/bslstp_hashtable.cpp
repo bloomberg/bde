@@ -9,4 +9,4 @@ template class _Stl_prime<bool>;
 
 }  // close namespace
 
-#endif BDE_OMIT_TRANSITIONAL -- STP
+#endif  // BDE_OMIT_TRANSITIONAL -- STP

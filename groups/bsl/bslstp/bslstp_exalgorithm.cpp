@@ -6,7 +6,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#endif BDE_OMIT_TRANSITIONAL -- STP
+#endif  // BDE_OMIT_TRANSITIONAL -- STP
 
 // ---------------------------------------------------------------------------
 // NOTICE:

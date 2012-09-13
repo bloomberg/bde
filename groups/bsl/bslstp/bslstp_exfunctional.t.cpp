@@ -3,7 +3,7 @@
 
 #include <bslstp_exfunctional.h>
 
-#endif BDE_OMIT_TRANSITIONAL -- STP
+#endif  // BDE_OMIT_TRANSITIONAL -- STP
 
 int main() { return -1; }   // empty test driver
 

@@ -2,4 +2,4 @@
 
 #include <bslstp_hashmap.h>
 
-#endif BDE_OMIT_TRANSITIONAL -- STP
+#endif  // BDE_OMIT_TRANSITIONAL -- STP
