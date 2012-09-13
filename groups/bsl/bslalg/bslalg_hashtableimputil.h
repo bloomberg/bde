@@ -28,12 +28,29 @@ BSLS_IDENT("$Id: $")
 // of elements.  The model of hash table in question includes the concept of
 // *array* *of* *buckets*.  The array of buckets is an array that provides
 // access, at each index of the array, to all the elements contained in the
-// table whose *extended* *hash* *value* is equal to the index.  Before
+// table whose *adjusted* *hash* *value* is equal to the index.  Before
 // continuing we need to explain some details to remove confusion on the
 // definitons.
 //
-///Hash Function And Extended Hash Function
-///----------------------------------------
+//..
+//   FIG. 1 Hash table with an array of 4 buckets, two of which non empty.
+//             
+//             0<--+-+<--+-+<--+-+<--+-+<--+-+
+//                 |1|   |7|   |3|   |0|   |9|
+//                 +-+-->+-+-->+-+-->+-+-->+-+-->0
+//                   ^    ^     ^            ^
+//                   \    /      \_________   \
+//                    \  /                  \  \
+//                    | |                    \  \
+//                 +--+-+--+--x-x--+--x-x--+--+-+--+--+-+--+
+//                 |  * *  |  * *  |  * *  |  * *  |  * *  |     
+//                 +-------+-------+-------+-------+-------+     
+//                     0       1       2       3       4
+//..
+//
+//
+///Hash Function And Adjsuted Hash Value
+///-------------------------------------
 // The C++11 standard defines a hash function as the application of a 'HASHER'
 // functor type to a 'KEY' type, returning a value between 0 and
 // 'numeric_limits<std::size_t>::max'.  At the same time, in literature, the
@@ -45,10 +62,6 @@ BSLS_IDENT("$Id: $")
 // as the C++11 standard, and we define *extended* *hash* *value* the value
 // obtained by composing the standard hash function with another function that
 // return values between 0 and N-1. 
-//
-///Buckets 
-///-------
-// According to the defintion given for *extended* *hash* *value*
 //
 ///Well Formed Anchor
 ///------------------

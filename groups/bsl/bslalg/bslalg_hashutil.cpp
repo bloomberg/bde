@@ -37,10 +37,33 @@ namespace BloombergLP
 namespace bslalg
 {
 // STATIC HELPER FUNCTIONS
-
-#ifdef BSLS_PLATFORM__IS_LITTLE_ENDIAN
 static
-unsigned int compute_reverse_hash(const char *data, int length)
+unsigned int hash(const char *data, int length)
+{
+    BSLS_ASSERT(0 <= length);
+    BSLS_ASSERT(data || 0 == length);
+
+    typedef unsigned char Ub1;
+    typedef unsigned int  Ub4;
+
+    const Ub1 *k    = reinterpret_cast<const Ub1 *>(data);
+    Ub4        hash = 0;
+
+    for (int i = 0; i < length; ++i) {
+        hash += k[i];
+        hash += (hash << 10);
+        hash ^= (hash >>  6);
+    }
+
+    hash += (hash <<  3);
+    hash ^= (hash >> 11);
+    hash += (hash << 15);
+
+    return hash;
+}
+
+static
+unsigned int reverse_hash(const char *data, int length)
 {
     BSLS_ASSERT(0 <= length);
     BSLS_ASSERT(data || 0 == length);
@@ -63,7 +86,6 @@ unsigned int compute_reverse_hash(const char *data, int length)
 
     return hash;
 }
-#endif
 
                             // ---------------
                             // struct HashUtil
@@ -71,9 +93,9 @@ unsigned int compute_reverse_hash(const char *data, int length)
 
 // CLASS METHODS
 #ifdef BSLS_PLATFORM__IS_BIG_ENDIAN
-  #define HASH2(KEY)  compute_hash((const char *)&KEY, sizeof KEY)
+  #define HASH2(KEY)  hash((const char *)&KEY, sizeof KEY)
 #else
-  #define HASH2(KEY)  compute_reverse_hash((const char *)&KEY, sizeof KEY)
+  #define HASH2(KEY)  reverse_hash((const char *)&KEY, sizeof KEY)
 #endif
 
 unsigned int HashUtil::computeHash(char key)

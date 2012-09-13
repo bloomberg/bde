@@ -418,7 +418,7 @@ struct Hash<long long> {
 };
 
 template <>
-struct hash<unsigned long long> {
+struct Hash<unsigned long long> {
     // Specialization of 'Hash' for 'unsigned' 'long long' values.
 
     // TRAITS
