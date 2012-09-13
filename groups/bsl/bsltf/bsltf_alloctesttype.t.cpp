@@ -1,8 +1,6 @@
 // bsltf_alloctesttype.t.cpp                                          -*-C++-*-
 #include <bsltf_alloctesttype.h>
 
-#include <bslalg_hastrait.h>
-
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -219,8 +217,8 @@ int main(int argc, char *argv[]) {
 //..
 // Finally, we observe the console output:
 //..
-//  Type defines bslalg::TypeTraitUsesBslmaAllocator.
-//  Type does not define bslalg::TypeTraitBitwiseMoveable.
+//  Type defines bslma::UsesBslmaAllocator.
+//  Type does not define bslmf::IsBitwiseMoveable.
 //..
       } break;
       case 12: {
@@ -280,9 +278,7 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   CONCERN: The object has the necessary type traits
         // --------------------------------------------------------------------
-        BSLMF_ASSERT((1 ==
-                      bslalg::HasTrait<Obj,
-                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
       } break;
       case 10: {
         // --------------------------------------------------------------------

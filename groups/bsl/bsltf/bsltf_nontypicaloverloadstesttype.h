@@ -51,10 +51,6 @@ BSLS_IDENT("$Id: $")
 //  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete obj);
 //..
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
