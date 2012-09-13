@@ -40,8 +40,8 @@ BSLS_IDENT("$Id: $")
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "<bslstl_hashtable.h> header can't be included directly in
-BSL_OVERRIDES_STD mode"
+#error "<bslstl_hashtable.h> header can't be included directly in \
+        BSL_OVERRIDES_STD mode"
 #endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -909,7 +909,7 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::copyDataStructure(
 {
     // Allocate an appropriate number of buckets
     SizeType numBuckets = HashTable_PrimeUtil::nextPrime(
-                             native_std::ceil(d_size / this->d_maxLoadFactor));
+         native_std::ceil(static_cast<float>(d_size) / this->d_maxLoadFactor));
 
     HashTable_Util<ALLOCATOR>::initAnchor(&d_anchor,
                                           numBuckets,
@@ -1391,7 +1391,8 @@ void HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::setMaxLoadFactor(
                                                               float loadFactor)
 {
     d_maxLoadFactor = loadFactor;
-    d_capacity = this->numBuckets() * loadFactor;
+    d_capacity = native_std::ceil(
+                          static_cast<float>(this->numBuckets()) * loadFactor);
 
     if (d_capacity < this->size()) {
         this->rehashForNumElements(this->size());
@@ -1425,7 +1426,8 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::rehashForNumBuckets(
                                                     hasher());
         }
         d_anchor.swap(newAnchor);
-        d_capacity = newNumBuckets * this->maxLoadFactor();
+        d_capacity = native_std::ceil(
+                    static_cast<float>(newNumBuckets) * this->maxLoadFactor());
         HashTable_Util<ALLOCATOR>::destroyBucketArray(
                                                 newAnchor.bucketArrayAddress(),
                                                 newAnchor.bucketArraySize(),
@@ -1440,7 +1442,7 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::rehashForNumElements(SizeType
                                                                    numElements)
 {
     this->rehashForNumBuckets(native_std::ceil(
-                                         numElements / this->maxLoadFactor()));
+                     static_cast<float>(numElements) / this->maxLoadFactor()));
 }
 
 }  // close namespace BloombergLP::bslstl

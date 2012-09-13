@@ -956,13 +956,11 @@ const typename
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::at(const key_type& k)
                                                                           const
 {
-    if (HashTableLink *target = d_impl.find(k)) {
-        BSLS_ASSERT(k == static_cast<HashTableNode *>(target)->value().first);
-        return static_cast<HashTableNode *>(target)->value().second;
-    }
-    else {
+    HashTableLink *target != d_impl.find(k);
+    if (!target ){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("Boo!");
     }
+    return static_cast<HashTableNode *>(target)->value().second;
 }
 
     // bucket interface
