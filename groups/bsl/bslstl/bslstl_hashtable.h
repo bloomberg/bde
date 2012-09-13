@@ -29,8 +29,6 @@ BSLS_IDENT("$Id: $")
 // basic exception guarantee.  There are similar concerns for the 'equal_to'
 // predicate.
 //
-// Currently not implemented:
-//   copy assignment operator
 //-----------------------------------------------------------------------------
 //..
 //
@@ -205,6 +203,7 @@ class HashTable {
     typedef typename ImplParameters::ValueType ValueType;
     typedef typename ImplParameters::NodeType  NodeType;
     typedef typename ImplParameters::SizeType  SizeType;
+
   private:
     // DATA
     ImplParameters          d_parameters;
@@ -270,8 +269,9 @@ class HashTable {
         // public methods.
    
     bslalg::HashTableBucket *getBucketAddress(SizeType bucketIndex) const;
-        // The behavior is undefined unles 'this->numBuckets()  >=
-        // bucketIndex'.
+        // Return the address of the bucket at the specified 'bucketIndex' in
+        // bucket array of this hash table.  The behavior is undefined unless
+        // 'bucketIndex < this->numBuckets()'.
 
   public:
     // CREATORS
@@ -290,9 +290,21 @@ class HashTable {
         // Copy the specified 'other' using the specified 'allocator'.
 
     ~HashTable();
+        // Destroy this object.
 
     // MANIPULATORS
-    HashTable& operator=(const HashTable&);
+    HashTable& operator=(const HashTable& rhs);
+        // Assign to this object the value and functors of the specified
+        // 'rhs' object, and if the 'ALLOCATOR' type has the trait
+        // 'propagate_on_container_copy_assignment' replace the allocator of
+        // this object with the allocator of 'rhs'.  Return a reference
+        // providing modifiable access to this object.  This method requires
+        // that the parameterized 'HASH' and 'EQUAL' types be
+        // "copy-constructible" (see {Requirements on 'KEY'}).  The behavior is
+        // undefined unless this object's allocator and the alloctor of 'rhs'
+        // have the same value, or the 'ALLOCATOR' type has the trait
+        // 'propagate_on_container_copy_assignment'.
+
 
     template <class SOURCE_TYPE>
     bslalg::BidirectionalLink *insertIfMissing
@@ -307,8 +319,10 @@ class HashTable {
         // existing element having a matching key was found.    
     
     bslalg::BidirectionalLink *remove(bslalg::BidirectionalLink *node);
+        // TBD...
     
     bslalg::BidirectionalLink *findOrInsertDefault(const KeyType& key);
+        // TBD...
 
     template <class SOURCE_TYPE>
     bslalg::BidirectionalLink *insertContiguous(const SOURCE_TYPE& obj);
@@ -456,33 +470,53 @@ class HashTable {
 template <class VALUE_TYPE, class HASH, class EQUAL, class ALLOCATOR>
 void swap(HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& x,
           HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& y);
+    // Swap both the value and the comparator of the specified 'a' object with
+    // the value and comparator of the specified 'b' object.  Additionally if
+    // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
+    // 'true' then exchange the allocator of 'a' with that of 'b', and do not
+    // modify either allocator otherwise.  This method provides the no-throw
+    // exception-safety guarantee and guarantees O[1] complexity.  The
+    // behavior is undefined is unless either this object was created with the
+    // same allocator as 'other' or 'propagate_on_container_swap' is 'true'.
+
 
 template <class VALUE_TYPE, class HASH, class EQUAL, class ALLOCATOR>
 bool operator==(const HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& lhs,
                 const HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'HashTable' objects have the same
-    // value if they have the same number of keys, and each key that is
-    // contained in one of the objects is also contained in the other object.
-    // This method requires that the parameterized 'KEY' type be
-    // "equality-comparable" (see {Requirements on 'KEY'}).  Note that
-    // 'operator==' is used to compare keys, and *not* the 'EQUAL' functor
-    // stored in the hash table.
+    // value if they have the same number of keys, and for each set of keys
+    // that compare equal with each other according to that hash table's
+    // 'comparator' functor, a corresponding set of keys exists in the other
+    // hash table, having the same number of keys, and that the set of elements
+    // having the same key in one container form a permutation of the
+    // corresponding set of elements in the other container.  This method
+    // requires that the parameterized 'VALUE_TYPE' type be
+    // "equality-comparable" (see {Requirements on 'VALUE_TYPE'}).  Note that
+    // 'operator==' is used to compare keys and elementes between containers,
+    // and *not* the 'EQUAL' functor stored in the hash table that is used to
+    // compare keys between elements in the same container.
 
 template <class VALUE_TYPE, class HASH, class EQUAL, class ALLOCATOR>
 bool operator!=(const HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& lhs,
                 const HashTable<VALUE_TYPE, HASH, EQUAL, ALLOCATOR>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'HashTable' objects do not have
+    // the same value if ...
+    // TBD finish operator!= doc
+
+                    // ========================
+                    // class HashTable_IterUtil
+                    // ========================
 
 // Move this to its own component, and avoid 'iterator' dependency
 // This is used only in higher level components anyway - does not belong.
 // Generally useful for all container implementations, probably already exists
 // somewhere in bslalg.
                     
-                    // ========================
-                    // class HashTable_IterUtil
-                    // ========================
-
 struct HashTable_IterUtil {
+    // This utility struct provides a namespace for functions on iterators that
+    // are useful when implementing a hash table.
 
     // generic utility that needs a non-template hosted home
     template <class InputIterator>
@@ -827,19 +861,6 @@ native_std::size_t HashTable_IterUtil::insertDistance(InputIterator first,
                         // class HashTable
                         //----------------
 
-template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-native_std::size_t
-HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::hashCodeForNode(
-                                         bslalg::BidirectionalLink *node) const
-{
-    BSLS_ASSERT_SAFE(node);
-    
-    const typename KEY_POLICY::KeyType& key = 
-                        bslalg::HashTableImpUtil::extractKey<KEY_POLICY>(node);
-    return hasher()(key);
-}
-
 // CREATORS
 template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
 inline
@@ -855,9 +876,11 @@ HashTable(const HASH&      hash,
 , d_maxLoadFactor(1.0)
 {
     if (0 != initialBucketCount) {
-        HashTable_Util<ALLOCATOR>::initAnchor(&d_anchor,
-                                              initialBucketCount,
-                                              allocator);
+
+        HashTable_Util<ALLOCATOR>::initAnchor(
+                                 &d_anchor,
+                                 HashTable_PrimeUtil::nextPrime(newNumBuckets),
+                                 allocator);
     }
 }
 
@@ -1090,6 +1113,19 @@ HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::findOrInsertDefault(
         ++d_size;
     }
     return position;
+}
+
+template <class KEY_POLICY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+native_std::size_t
+HashTable<KEY_POLICY, HASH, EQUAL, ALLOCATOR>::hashCodeForNode(
+                                         bslalg::BidirectionalLink *node) const
+{
+    BSLS_ASSERT_SAFE(node);
+    
+    const typename KEY_POLICY::KeyType& key = 
+                        bslalg::HashTableImpUtil::extractKey<KEY_POLICY>(node);
+    return this->hasher()(key);
 }
 
 // MANIPULATORS 
