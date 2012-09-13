@@ -106,12 +106,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_issame.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_NIL
-#include <bslmf_nil.h>
+#ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
+#include <bslmf_matcharithmetictype.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_MATCHINTEGER
-#include <bslmf_matchinteger.h>
+#ifndef INCLUDED_BSLMF_NIL
+#include <bslmf_nil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -418,11 +418,12 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
     // PRIVATE MANIPULATORS
     template <class INPUT_ITER>
-    void privateInsertDispatch(const_iterator                   position,
-                               INPUT_ITER                       count,
-                               INPUT_ITER                       value,
-                               BloombergLP::bslmf::MatchInteger ,
-                               int                              );
+    void privateInsertDispatch(
+                              const_iterator                          position,
+                              INPUT_ITER                              count,
+                              INPUT_ITER                              value,
+                              BloombergLP::bslmf::MatchArithmeticType ,
+                              BloombergLP::bslmf::Nil                 );
         // Match integral type for 'INPUT_ITER'.
 
     template <class INPUT_ITER>
@@ -1664,11 +1665,11 @@ template <typename VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
-                                     const_iterator                   position,
-                                     INPUT_ITER                       count,
-                                     INPUT_ITER                       value,
-                                     BloombergLP::bslmf::MatchInteger ,
-                                     int                              )
+                              const_iterator                          position,
+                              INPUT_ITER                              count,
+                              INPUT_ITER                              value,
+                              BloombergLP::bslmf::MatchArithmeticType ,
+                              BloombergLP::bslmf::Nil                 )
 {
     // 'count' and 'value' are integral types that just happen to be the same.
     // They are not iterators, so we call 'insert(position, count, value)'.
@@ -2236,10 +2237,15 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator position,
     // fundamental type passed to this function is integral or else compilation
     // errors will result.  The extra argument, 0, is to avoid an overloading
     // ambiguity: In case 'first' is an integral type, it would be convertible
-    // both to 'MatchIntegral' and 'bslmf::AnyType'; but the 0 will be an exact
-    // match to 'int', so the overload with 'MatchIntegral' will be preferred.
+    // both to 'bslmf::MatchArithmeticType' and 'bslmf::AnyType'; but the 0
+    // will be an exact match to 'int', so the overload with
+    // 'bslmf::MatchArithmeticType' will be preferred.
 
-    privateInsertDispatch(position, first, last, first, 0);
+    privateInsertDispatch(position,
+                          first,
+                          last,
+                          first,
+                          BloombergLP::bslmf::Nil());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>

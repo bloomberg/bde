@@ -103,8 +103,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_issame.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_MATCHINTEGER
-#include <bslmf_matchinteger.h>
+#ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
+#include <bslmf_matcharithmetictype.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NIL
+#include <bslmf_nil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNEDBUFFER
@@ -627,12 +631,12 @@ class basic_string
 
     template <typename INPUT_ITER>
     basic_string& privateReplaceDispatch(
-                                    size_type                        position,
-                                    size_type                        numChars,
-                                    INPUT_ITER                       first,
-                                    INPUT_ITER                       last,
-                                    BloombergLP::bslmf::MatchInteger ,
-                                    int                              );
+                              size_type                               position,
+                              size_type                               numChars,
+                              INPUT_ITER                              first,
+                              INPUT_ITER                              last,
+                              BloombergLP::bslmf::MatchArithmeticType ,
+                              BloombergLP::bslmf::Nil                 );
         // Match integral type for 'INPUT_ITER'.
 
     template <typename INPUT_ITER>
@@ -2044,7 +2048,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
                                   begin,
                                   end,
                                   begin,
-                                  end);  // disambiguate overloads
+                                  BloombergLP::bslmf::Nil()); // disambiguate
+                                                              // overloads
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -2163,7 +2168,8 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInitDispatch(
                            begin,
                            end,
                            begin,
-                           end);  // disambiguate overloads
+                           BloombergLP::bslmf::Nil());  // disambiguate
+                                                        // overloads
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -2213,7 +2219,12 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertDispatch(
                                                        INPUT_ITER     last)
 {
     size_type pos = position - cbegin();
-    privateReplaceDispatch(pos, size_type(0), first, last, first, last);
+    privateReplaceDispatch(pos,
+                           size_type(0),
+                           first,
+                           last,
+                           first,
+                           BloombergLP::bslmf::Nil());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -2421,12 +2432,12 @@ template <typename INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceDispatch(
-                                     size_type                        position,
-                                     size_type                        numChars,
-                                     INPUT_ITER                       first,
-                                     INPUT_ITER                       last,
-                                     BloombergLP::bslmf::MatchInteger ,
-                                     int                              )
+                              size_type                               position,
+                              size_type                               numChars,
+                              INPUT_ITER                              first,
+                              INPUT_ITER                              last,
+                              BloombergLP::bslmf::MatchArithmeticType ,
+                              BloombergLP::bslmf::Nil                 )
 {
     return replace(position, numChars, (size_type)first, (CHAR_TYPE)last);
 }

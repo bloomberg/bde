@@ -119,8 +119,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_issame.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_MATCHINTEGER
-#include <bslmf_matchinteger.h>
+#ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
+#include <bslmf_matcharithmetictype.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NIL
+#include <bslmf_nil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -501,11 +505,12 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // may call it for a temporary object).
 
     template <class INTEGER_TYPE>
-    void privateInsertDispatch(const_iterator                   position,
-                               INTEGER_TYPE                     numElements,
-                               INTEGER_TYPE                     value,
-                               BloombergLP::bslmf::MatchInteger ,
-                               int                              );
+    void privateInsertDispatch(
+                           const_iterator                          position,
+                           INTEGER_TYPE                            numElements,
+                           INTEGER_TYPE                            value,
+                           BloombergLP::bslmf::MatchArithmeticType ,
+                           BloombergLP::bslmf::Nil                 );
         // Insert the specified 'numElements' copies of the specified 'value'
         // into this deque at the specified 'position'.  This overload matches
         // 'privateInsert' when the second and third arguments are of the same
@@ -1422,11 +1427,11 @@ template <class VALUE_TYPE, class ALLOCATOR>
 template <class INTEGRAL_TYPE>
 inline
 void deque<VALUE_TYPE,ALLOCATOR>::privateInsertDispatch(
-                                  const_iterator                   position,
-                                  INTEGRAL_TYPE                    numElements,
-                                  INTEGRAL_TYPE                    value,
-                                  BloombergLP::bslmf::MatchInteger ,
-                                  int                              )
+                           const_iterator                          position,
+                           INTEGRAL_TYPE                           numElements,
+                           INTEGRAL_TYPE                           value,
+                           BloombergLP::bslmf::MatchArithmeticType ,
+                           BloombergLP::bslmf::Nil                 )
 {
     insert(position,
            static_cast<size_type>(numElements),
@@ -2360,7 +2365,11 @@ void deque<VALUE_TYPE,ALLOCATOR>::insert(const_iterator position,
     BSLS_ASSERT_SAFE(position >= this->begin());
     BSLS_ASSERT_SAFE(position <= this->end());
 
-    privateInsertDispatch(position, first, last, first, 0);
+    privateInsertDispatch(position,
+                          first,
+                          last,
+                          first,
+                          BloombergLP::bslmf::Nil());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>

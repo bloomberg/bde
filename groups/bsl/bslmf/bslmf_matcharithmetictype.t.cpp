@@ -1,6 +1,5 @@
-// bslmf_matchinteger.t.cpp                                           -*-C++-*-
-
-#include <bslmf_matchinteger.h>
+// bslmf_matcharithmetictype.t.cpp                                    -*-C++-*-
+#include <bslmf_matcharithmetictype.h>
 
 #include <bslmf_anytype.h>               // testing only (Usage)
 #include <bslmf_nil.h>                   // testing only (Usage)
@@ -18,19 +17,19 @@ using namespace std;
 //                             Overview
 //                             --------
 // The implicity convertibility of integral and floating point types to
-// 'bslmf::MatchInteger' is confirmed by creating an object for each type of
-// interest, and then using it a context where implicit conversion is required:
-// i.e., as an argument to a function expecting an argument of type
-// 'bslmf::MatchInteger'.  Successful compilation is the indicator of success.
-// Correspondingly, a manually driven test case is supplied to allow
+// 'bslmf::MatchArithmeticType' is confirmed by creating an object for each
+// type of interest, and then using it a context where implicit conversion is
+// required: i.e., as an argument to a function expecting an argument of type
+// 'bslmf::MatchArithmeticType'.  Successful compilation is the indicator of
+// success.  Correspondingly, a manually driven test case is supplied to allow
 // confirmation that inappropriate types are *not* converted.
 // Failure-to-compile is indication of success for that case.
 //
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 1] MatchInteger(int);
-// [ 1] MatchInteger(const MatchInteger&);
-// [ 1] ~MatchInteger();
+// [ 1] MatchArithmeticType(int);
+// [ 1] MatchArithmeticType(const MatchArithmeticType&);
+// [ 1] ~MatchArithmeticType();
 // ----------------------------------------------------------------------------
 // [ 2] INTEGRAL CONVERIBILITY
 // [ 3] USAGE EXAMPLE
@@ -68,7 +67,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bslmf::MatchInteger Obj;
+typedef bslmf::MatchArithmeticType Obj;
 
 // ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -80,7 +79,7 @@ static int globalVerbose = 0;
 //                  GLOBAL HELPER CLASSES
 // ----------------------------------------------------------------------------
 
-void acceptObj(bslmf::MatchInteger)
+void acceptObj(bslmf::MatchArithmeticType)
 {
 }
 
@@ -100,8 +99,9 @@ struct IntegralConveribility
         //: o 'volatile TYPE&'
         //: o 'const volatile TYPE'
         //: o 'const volatile TYPE&'
-        // for the parameterized 'TYPE' to 'bslmf::MatchInteger' objects, and
-        // write to standard output a human-readable representation of 'TYPE'.
+        // for the parameterized 'TYPE' to 'bslmf::MatchArithmeticType'
+        // objects, and write to standard output a human-readable
+        // representation of 'TYPE'.
 
 };
 
@@ -309,8 +309,8 @@ namespace usageExample1 {
 // Instead, we redesign our class ('MyContainer' is the redesigned class) so
 // that the calls to the range constructor with two 'int' arguments (or pairs
 // of the same integer types) are routed to the repeated value constructor.
-// The 'bslmf::MatchInteger' class is used to distinguish between integer types
-// and other types.
+// The 'bslmf::MatchArithmeticType' class is used to distinguish between
+// integer types and other types.
 //
 // USAGE: END: SLICE 2 of 10
 //..
@@ -385,11 +385,11 @@ namespace usageExample1 {
 // see, they exist only to guide overload resolution at compile-time.
 //..
         template <class INTEGER_TYPE>
-        void privateInitDispatch(INTEGER_TYPE         numElements,
-                                 INTEGER_TYPE         value,
-                                 const char          *message,
-                                 bslmf::MatchInteger  ,
-                                 bslmf::Nil           );
+        void privateInitDispatch(INTEGER_TYPE                numElements,
+                                 INTEGER_TYPE                value,
+                                 const char                 *message,
+                                 bslmf::MatchArithmeticType  ,
+                                 bslmf::Nil                  );
             // Initialize a 'MyContainer' object containing the specified
             // 'numElements' of the specified 'value', and write to standard
             // output the specified 'message'.  The last two arguments are used
@@ -481,11 +481,11 @@ namespace usageExample1 {
     template <class VALUE_TYPE>
     template <class INTEGER_TYPE>
     void MyContainer<VALUE_TYPE>::privateInitDispatch(
-                                            INTEGER_TYPE         numElements,
-                                            INTEGER_TYPE         value,
-                                            const char          *message,
-                                            bslmf::MatchInteger  ,
-                                            bslmf::Nil           )
+                                       INTEGER_TYPE                numElements,
+                                       INTEGER_TYPE                value,
+                                       const char                 *message,
+                                       bslmf::MatchArithmeticType  ,
+                                       bslmf::Nil                  )
     {
         (void)message;
 
@@ -526,7 +526,7 @@ namespace usageExample1 {
 // constructor of 'MyContainer'.  Note that we always supply a 'bslmf::Nil'
 // object (an exact type match) as the final argument, the choice of overload
 // will be govered according to the type of 'first'.  Consequently, if 'first'
-// is implicitly convertible to 'bslmf::MatchInteger', then the overload
+// is implicitly convertible to 'bslmf::MatchArithmeticType', then the overload
 // leading to repeated value construction is used; otherwise, the overload
 // leading to range construction is used.
 //..
@@ -542,7 +542,7 @@ namespace usageExample1 {
 // Notice that this design is safe for iterators that themselves happen to have
 // a conversion to 'int'.  Such types would require two user-defined
 // conversions, which are disallowed by the C++ compiler, to match the
-// 'bslmf::MatchInteger' parameter of the "strict" 'privateInitDispatch'
+// 'bslmf::MatchArithmeticType' parameter of the "strict" 'privateInitDispatch'
 // overload.
 //
 // USAGE: END: SLICE 8 of 10
@@ -631,14 +631,14 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Every C++ arithmetic type, each with and without
         //:   cv-qualifications, can be implicitly converted to a
-        //:   'bslmf::MatchInteger' object.
+        //:   'bslmf::MatchArithmeticType' object.
         //
         // Plan:
         //: 1 Define 'acceptObj', a function specifying a parameter of type
-        //:   'bslmf::MatchInteger', and 'IntegralConvertability' a structure
-        //:   templated on 'TYPE' whose 'implicityConvert' method has multipled
-        //:   invocations of 'acceptObj' providing and object 'TYPE' with
-        //:   different qualifications: e.g., by value, by reference, by
+        //:   'bslmf::MatchArithmeticType', and 'IntegralConvertability' a
+        //:   structure templated on 'TYPE' whose 'implicityConvert' method has
+        //:   multipled invocations of 'acceptObj' providing and object 'TYPE'
+        //:   with different qualifications: e.g., by value, by reference, by
         //:   'const'-reference, by 'volatile'-'const'-reference.  Successful
         //:   compilation indicates success.  (C-1)
         //
@@ -686,19 +686,19 @@ int main(int argc, char *argv[])
         //: 3 The destructor, safely destroys the object.
         //
         // Plan:
-        //: 1 Construct an object 'obj' of type 'bslmf::MatchInteger' using an
-        //:   arbitrary integer value.  (C-1)
+        //: 1 Construct an object 'obj' of type 'bslmf::MatchArithmeticType'
+        //:   using an arbitrary integer value.  (C-1)
         //:
         //: 2 Pass the constructed 'obj' to 'accepObj' to a locally defined
-        //:   function with a formal parameter of 'MatchInteger', and confirm
-        //:   that the correct function was called.  (C-2)
+        //:   function with a formal parameter of 'MatchArithmeticType', and
+        //:   confirm that the correct function was called.  (C-2)
         //:
         //: 3 Allow the constructed object to go out of scope.  (C-3)
         //
         // Testing:
-        //   MatchInteger(int);
-        //   MatchInteger(const MatchInteger&);
-        //   ~MatchInteger();
+        //   MatchArithmeticType(int);
+        //   MatchArithmeticType(const MatchArithmeticType&);
+        //   ~MatchArithmeticType();
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nVALUE CTOR, COPY CTOR, and DTOR"
@@ -726,26 +726,27 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // NON-CONVERTIBLE
         //   This manually driven test case demonstrates how the
-        //   'bslmf::MatchInteger' class disallows implicit conversion from
-        //   inappropriate types.  Each 'BSLSTL_DISAMBIGUATOR_NON_CONVERT_*'
-        //   preprocessor symbol should in turn be defined and compiler
-        //   failure (success for the case) confirmed.
+        //   'bslmf::MatchArithmeticType' class disallows implicit conversion
+        //   from inappropriate types.  Each
+        //   'BSLSTL_DISAMBIGUATOR_NON_CONVERT_*' preprocessor symbol should in
+        //   turn be defined and compiler failure (success for the case)
+        //   confirmed.
         //
         // Concerns:
         //: 1 Classes convertible to 'int' are not implicitly convertible to
-        //:   'bslmf::MatchInteger'.
+        //:   'bslmf::MatchArithmeticType'.
         //:
         //: 2 Pointers are are not implicitly convertible to
-        //:   'bslmf::MatchInteger'.
+        //:   'bslmf::MatchArithmeticType'.
         //
         // Plan:
         //: 1 Create an object of 'MyConvertibleToInt' class and attempt
         //:   to use it in a context that requires implicit conversion to a
-        //:   'bslmf::MatchInteger' object.  (C-1)
+        //:   'bslmf::MatchArithmeticType' object.  (C-1)
         //:
         //: 2 Create a 'int *' object and attempt to use it n a context
         //:   to use it in a context requiring implicit conversion to a
-        //:   'bslmf::MatchInteger' object.
+        //:   'bslmf::MatchArithmeticType' object.
         //
         // Testing:
         //   NON-CONVERTIBLE

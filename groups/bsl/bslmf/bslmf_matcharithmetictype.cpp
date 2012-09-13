@@ -1,5 +1,5 @@
-// bslmf_matchinteger.cpp                                             -*-C++-*-
-#include <bslmf_matchinteger.h>
+// bslmf_matcharithmetictype.cpp                                      -*-C++-*-
+#include <bslmf_matcharithmetictype.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

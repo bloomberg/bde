@@ -1,6 +1,6 @@
-// bslmf_matchinteger.h                                               -*-C++-*-
-#ifndef INCLUDED_BSLMF_MATCHINTEGER
-#define INCLUDED_BSLMF_MATCHINTEGER
+// bslmf_matcharithmetictype.h                                        -*-C++-*-
+#ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
+#define INCLUDED_BSLMF_MATCHARITHMETICTYPE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,16 +10,17 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a class supporting "do-the-right-thing clause" dispatch.
 //
 //@CLASSES:
-//  bslmf::MatchInteger: implicit conversion of integral types
+//  bslmf::MatchArithmeticType: implicit conversion of integral types
 //
 //@SEE_ALSO: bslstl_deque, bslstl_string, bslstl_vector
 //
 //@AUTHOR: Pablo Halpern (phalpern), Steven Breitstein (sbreitstein)
 //
-//@DESCRIPTION: This component defines a class, 'bslmf::MatchInteger', to which
-// any integral type can be implicitly converted.  A class with that conversion
-// property is useful for meeting the certain requirements of the standard
-// sequential containers (e.g., 'bsl::vector', 'bsl::deque', 'bsl::string').
+//@DESCRIPTION: This component defines a class, 'bslmf::MatchArithmeticType',
+// to which any integral type can be implicitly converted.  A class with that
+// conversion property is useful for meeting the certain requirements of the
+// standard sequential containers (e.g., 'bsl::vector', 'bsl::deque',
+// 'bsl::string').
 //
 // Sequential containers have several overloaded method templates that accept a
 // pair of input iterators (e.g., constructors, 'insert' and 'append' methods),
@@ -30,8 +31,8 @@ BSLS_IDENT("$Id: $")
 // informally known as the "do-the-right-thing clause".  See
 // 'http://gcc.gnu.org/onlinedocs/libstdc++/ext/lwg-defects.html#438'.
 //
-// The convertibility of arguments to 'bslmf::MatchInteger' is used to dispatch
-// calls with integral arguments to the appropriate methods.
+// The convertibility of arguments to 'bslmf::MatchArithmeticType' is used to
+// dispatch calls with integral arguments to the appropriate methods.
 //
 ///Usage
 ///-----
@@ -163,8 +164,8 @@ BSLS_IDENT("$Id: $")
 // Instead, we redesign our class ('MyContainer' is the redesigned class) so
 // that the calls to the range constructor with two 'int' arguments (or pairs
 // of the same integer types) are routed to the repeated value constructor.
-// The 'bslmf::MatchInteger' class is used to distinguish between integer types
-// and other types.
+// The 'bslmf::MatchArithmeticType' class is used to distinguish between
+// integer types and other types.
 //
 // First, we define the 'MyContainer' class to have constructors taking
 // the same arguments as the constructors of 'MyProblematicContainer':
@@ -253,11 +254,11 @@ BSLS_IDENT("$Id: $")
 // see, they exist only to guide overload resolution at compile-time.
 //..
 //      template <class INTEGER_TYPE>
-//      void privateInitDispatch(INTEGER_TYPE         numElements,
-//                               INTEGER_TYPE         value,
-//                               const char          *message,
-//                               bslmf::MatchInteger  ,
-//                               bslmf::Nil           );
+//      void privateInitDispatch(INTEGER_TYPE                numElements,
+//                               INTEGER_TYPE                value,
+//                               const char                 *message,
+//                               bslmf::MatchArithmeticType  ,
+//                               bslmf::Nil                  );
 //          // Initialize a 'MyContainer' object containing the specified
 //          // 'numElements' of the specified 'value', and write to standard
 //          // output the specified 'message'.  The last two arguments are used
@@ -291,11 +292,11 @@ BSLS_IDENT("$Id: $")
 //  template <class VALUE_TYPE>
 //  template <class INTEGER_TYPE>
 //  void MyContainer<VALUE_TYPE>::privateInitDispatch(
-//                                          INTEGER_TYPE         numElements,
-//                                          INTEGER_TYPE         value,
-//                                          const char          *message,
-//                                          bslmf::MatchInteger  ,
-//                                          bslmf::Nil           )
+//                                     INTEGER_TYPE                numElements,
+//                                     INTEGER_TYPE                value,
+//                                     const char                 *message,
+//                                     bslmf::MatchArithmeticType  ,
+//                                     bslmf::Nil                  )
 //  {
 //      (void)message;
 //
@@ -319,7 +320,7 @@ BSLS_IDENT("$Id: $")
 // constructor of 'MyContainer'.  Note that we always supply a 'bslmf::Nil'
 // object (an exact type match) as the final argument, the choice of overload
 // will be govered according to the type of 'first'.  Consequently, if 'first'
-// is implicitly convertible to 'bslmf::MatchInteger', then the overload
+// is implicitly convertible to 'bslmf::MatchArithmeticType', then the overload
 // leading to repeated value construction is used; otherwise, the overload
 // leading to range construction is used.
 //..
@@ -335,7 +336,7 @@ BSLS_IDENT("$Id: $")
 // Notice that this design is safe for iterators that themselves happen to have
 // a conversion to 'int'.  Such types would require two user-defined
 // conversions, which are disallowed by the C++ compiler, to match the
-// 'bslmf::MatchInteger' parameter of the "strict" 'privateInitDispatch'
+// 'bslmf::MatchArithmeticType' parameter of the "strict" 'privateInitDispatch'
 // overload.
 //
 // Then, we implement the repeated value constructor using a direct call
@@ -384,10 +385,11 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-                        // ==================
-                        // class MatchInteger
-                        // ==================
-struct MatchInteger {
+                        // =========================
+                        // class MatchArithmeticType
+                        // =========================
+
+class MatchArithmeticType {
     // This copy-constructible mechanism can be used as a formal parameter for
     // functions where an integral type can be confused with an iterator type.
     // A copy-constructbile mechanism is needed so that such objects can be
@@ -397,25 +399,26 @@ struct MatchInteger {
     // this will *not* match because passing such an object would require two
     // user-defined conversions.
 
+  public:
     // CREATORS
-    MatchInteger(int);                                              // IMPLICIT
+    MatchArithmeticType(int);                                       // IMPLICIT
         // Conversion constructor.  Does nothing.
 
-    //! MatchInteger(const MatchInteger&) = default
-        // Create a 'MatchInteger' object.  Note that as 'MatchInteger' is an
-        // empty (stateless) type, this operation has no observable effect.
+    //! MatchArithmeticType(const MatchArithmeticType&) = default
+        // Create a 'MatchArithmeticType' object.  Note that as
+        // 'MatchArithmeticType' is an empty (stateless) type, this operation
+        // has no observable effect.
 
-    //! ~MatchInteger() = default;
+    //! ~MatchArithmeticType() = default;
         // Destroy this object.
 };
-
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
 inline
-MatchInteger::MatchInteger(int)
+MatchArithmeticType::MatchArithmeticType(int)
 {
 }
 
