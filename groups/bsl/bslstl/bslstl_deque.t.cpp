@@ -164,7 +164,8 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i) {
+void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
@@ -294,32 +295,57 @@ const int NUM_INTERNAL_STATE_TEST = 10;
 
 // Fundamental-type-specific print functions.
 inline
-void dbg_print(char c) { printf("%c", c); fflush(stdout); }
+void dbg_print(char c)
+{
+    printf("%c", c); fflush(stdout);
+}
 inline
-void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
+void dbg_print(unsigned char c)
+{
+    printf("%c", c); fflush(stdout);
+}
 inline
-void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
+void dbg_print(signed char c)
+{
+    printf("%c", c); fflush(stdout);
+}
 inline
-void dbg_print(short val) { printf("%d", (int)val); fflush(stdout); }
-inline
-void dbg_print(unsigned short val) {
+void dbg_print(short val)
+{
     printf("%d", (int)val); fflush(stdout);
 }
 inline
-void dbg_print(int val) { printf("%d", val); fflush(stdout); }
+void dbg_print(unsigned short val)
+{
+    printf("%d", (int)val); fflush(stdout);
+}
 inline
-void dbg_print(bsls::Types::Int64 val) {
+void dbg_print(int val)
+{
+    printf("%d", val); fflush(stdout);
+}
+inline
+void dbg_print(bsls::Types::Int64 val)
+{
     printf("%lld", val); fflush(stdout);
 }
 #if defined(BSLS_PLATFORM__OS_AIX)
 inline
-void dbg_print(unsigned int val) { printf("%d", val); fflush(stdout); }
+void dbg_print(unsigned int val)
+{
+    printf("%d", val);
+    fflush(stdout);
+}
 #endif
 inline
-void dbg_print(size_t val) { printf("%llu", (Uint64) val);
-                                    fflush(stdout); }
+void dbg_print(size_t val)
+{
+    printf("%llu", (Uint64) val);
+    fflush(stdout);
+}
 inline
-void dbg_print(float val) {
+void dbg_print(float val)
+{
     printf("'%f'", (double)val); fflush(stdout);
 }
 inline
@@ -418,6 +444,7 @@ class LaundryQueue {
 
   public:
     // CREATORS
+    explicit
     LaundryQueue(bslma::Allocator *basicAllocator = 0);
         // Create a 'LaundryQueue' object using the specified 'basicAllocator'.
         // If 'basicAllocator' is not provided, use the default allocator.
@@ -465,7 +492,7 @@ void LaundryQueue::expeditedPush(const bsl::string& customerName)
 bsl::string LaundryQueue::next()
 {
     if (d_queue.empty()) {
-        return "(* empty *)";
+        return "(* empty *)";                                         // RETURN
     }
 
     bsl::string ret = d_queue.front();   // note constant time
@@ -482,7 +509,7 @@ bool LaundryQueue::find(const bsl::string& customerName)
 
     for (size_t i = 0; i < d_queue.size(); ++i) {
         if (customerName == d_queue[i]) {    // note '[]' is constant time
-            return true;
+            return true;                                              // RETURN
         }
     }
 
@@ -492,6 +519,10 @@ bool LaundryQueue::find(const bsl::string& customerName)
                               // ===============
                               // Usage Example 2
                               // ===============
+
+// It was decided to eliminate this second usage example from the .h file as it
+// was too long, it is being kept as a test case, and perhaps here it may
+// inform someone trying to familiarize themselves with the component.
 
 ///Usage
 ///-----
@@ -1204,8 +1235,8 @@ class LimitAllocator : public ALLOC {
     : AllocBase(mechanism), d_limit(-1) { }
 
     explicit
-    LimitAllocator(const ALLOC& rhs)
-    : AllocBase((const AllocBase&) rhs), d_limit(-1) { }
+    LimitAllocator(const ALLOC& alloc)
+    : AllocBase((const AllocBase&) alloc), d_limit(-1) { }
 
     ~LimitAllocator() { }
 
@@ -8094,7 +8125,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nUsage Example 1\n"
                               "===============\n");
-        
+
         // Then, we define (and default construct) our laundry queue:
 
         bslma_TestAllocator ta;
@@ -8138,7 +8169,7 @@ int main(int argc, char *argv[])
             if ("(* empty *)" == customerName) {
                 break;
             }
-        
+
             printf("Next: %s\n", customerName.c_str());
         }
 
