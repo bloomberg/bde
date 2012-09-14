@@ -223,7 +223,8 @@ int main(int argc, char *argv[])
     char tmpDirName[] = "/tmp";
 #endif
 
-    ASSERT(FileUtil::exists(tmpDirName) && FileUtil::isDirectory(tmpDirName));
+    ASSERT(FileUtil::exists(tmpDirName) && FileUtil::isDirectory(tmpDirName,
+                                                                 true));
 
     bslma_TestAllocator ta;
     bslma_DefaultAllocatorGuard guard(&ta);
