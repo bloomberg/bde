@@ -56,8 +56,17 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isfundamental.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include <bslmf_isreference.h>
+#endif
 
 #ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
@@ -134,6 +143,7 @@ struct is_enum
     : integer_constant<
         bool,
         !is_fundamental<typename remove_cv<TYPE>::type>::value
+        && !is_reference<TYPE>::value
         && is_convertible<TYPE,
                           BloombergLP::bslmf::IsEnum_AnyArithmeticType>::value>
 {};

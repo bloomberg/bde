@@ -6,7 +6,6 @@
 #include <cstdlib>
 #include <climits>
 
-using namespace BloombergLP;
 using namespace std;
 
 //=============================================================================
@@ -47,8 +46,8 @@ using namespace std;
 // TYPES:
 // [ 3] type
 // [ 3] value_type
-// [ 4] bslmf::false_type
-// [ 4] bslmf::true_type
+// [ 4] bsl::false_type
+// [ 4] bsl::true_type
 //
 // CREATORS
 // [ 3] integer_constant();
@@ -238,7 +237,7 @@ template <class T> inline bool isConst(const T&) { return true; }
       #include <bslmf_integerconstant.h>
   
       template <class T>
-      int doSomethingImp(T *t, bslmf::true_type)
+      int doSomethingImp(T *t, bsl::true_type)
       {
           // slow, generic implementation
           // ...
@@ -247,7 +246,7 @@ template <class T> inline bool isConst(const T&) { return true; }
       }
   
       template <class T>
-      int doSomethingImp(T *t, bslmf::false_type)
+      int doSomethingImp(T *t, bsl::false_type)
       {
           // fast implementation that works only for some types of T
           // ...
@@ -260,7 +259,7 @@ template <class T> inline bool isConst(const T&) { return true; }
       {
           // Dispatch to an implementation depending on the (compile-time)
           // value of 'IsSlow'.
-          return doSomethingImp(t, bslmf::integer_constant<bool, IsSlow>());
+          return doSomethingImp(t, bsl::integer_constant<bool, IsSlow>());
       }
 //..
 // For some parameter types, the fast version of 'doSomethingImp' is not
@@ -292,10 +291,10 @@ template <class T> inline bool isConst(const T&) { return true; }
 // than with values.  For example, the following metafunction can be used at
 // compile time to determine whether a type is a floating point type:
 //..
-      template <class TYPE> struct IsFloatingPoint    : bslmf::false_type { };
-      template <> struct IsFloatingPoint<float>       : bslmf::true_type { };
-      template <> struct IsFloatingPoint<double>      : bslmf::true_type { };
-      template <> struct IsFloatingPoint<long double> : bslmf::true_type { };
+      template <class TYPE> struct IsFloatingPoint    : bsl::false_type { };
+      template <> struct IsFloatingPoint<float>       : bsl::true_type { };
+      template <> struct IsFloatingPoint<double>      : bsl::true_type { };
+      template <> struct IsFloatingPoint<long double> : bsl::true_type { };
 //..
 // The value 'IsFloatingPoint<int>::value' is false and
 // 'IsFloatingPoint<double>::value' is true.  The 'integer_constant' base
@@ -313,7 +312,7 @@ template <class T> inline bool isConst(const T&) { return true; }
       {
           // Automatically detect whether to use slow or fast imp.
           const bool isSlow = IsFloatingPoint<T>::value;
-          return doSomethingImp(t, bslmf::integer_constant<bool, isSlow>());
+          return doSomethingImp(t, bsl::integer_constant<bool, isSlow>());
       }
   
       int usageExample2()
@@ -352,7 +351,7 @@ void fullTest(const char TYPENAME[])
         printf(">()\n");
     }
 
-    typedef bslmf::integer_constant<TYPE, VAL> Obj;
+    typedef bsl::integer_constant<TYPE, VAL> Obj;
 
     if (verbose) printf("\tTest 'value' static member constant\n");
     LOOP2_ASSERT(TYPENAME, VAL, isConst(Obj::value));
@@ -437,17 +436,17 @@ int main(int argc, char *argv[])
         //:   'true_type'.  (C-1..2)
         //
         // Testing:
-        //   bslmf::false_type
-        //   bslmf::true_type
+        //   bsl::false_type
+        //   bsl::true_type
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting false_type and true_type"
                             "\n================================\n");
 
-        ASSERT((IsSameType<bslmf::false_type,
-                           bslmf::integer_constant<bool, false> >::VALUE));
-        ASSERT((IsSameType<bslmf::true_type,
-                           bslmf::integer_constant<bool, true> >::VALUE));
+        ASSERT((IsSameType<bsl::false_type,
+                           bsl::integer_constant<bool, false> >::VALUE));
+        ASSERT((IsSameType<bsl::true_type,
+                           bsl::integer_constant<bool, true> >::VALUE));
         
       } break;
       case 3: {
@@ -695,7 +694,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        using namespace BloombergLP::bslmf;
+        using namespace bsl;
 
         if (verbose) printf("... With 'bool' type\n");
         {

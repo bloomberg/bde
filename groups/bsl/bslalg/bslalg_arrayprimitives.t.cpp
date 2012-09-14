@@ -897,18 +897,17 @@ template <int FOOTPRINT>
 struct UsesBslmaAllocator<LargeBitwiseMoveableTestType<FOOTPRINT> >
     : bsl::true_type {};
 }
+
 namespace bslmf {
 template <int FOOTPRINT>
 struct IsBitwiseMoveable<LargeBitwiseMoveableTestType<FOOTPRINT> >
-    : true_type {};
+    : bsl::true_type {};
 }
 }
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-
 
 template <class TYPE>
 class CleanupGuard {

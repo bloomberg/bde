@@ -109,22 +109,22 @@ inline void dbg_print(float val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 
-template <class TYPE> struct IsBool : bslmf::false_type { };
-template <> struct IsBool<bool>     : bslmf::true_type { };
+template <class TYPE> struct IsBool : bsl::false_type { };
+template <> struct IsBool<bool>     : bsl::true_type { };
 
-template <class TYPE> struct IsChar : bslmf::false_type { };
-template <> struct IsChar<char>     : bslmf::true_type { };
+template <class TYPE> struct IsChar : bsl::false_type { };
+template <> struct IsChar<char>     : bsl::true_type { };
 
-template <class TYPE> struct IsShort : bslmf::false_type { };
-template <> struct IsShort<short>    : bslmf::true_type { };
+template <class TYPE> struct IsShort : bsl::false_type { };
+template <> struct IsShort<short>    : bsl::true_type { };
 
-template <class TYPE> struct IsLong : bslmf::false_type { };
-template <> struct IsLong<long>     : bslmf::true_type { };
+template <class TYPE> struct IsLong : bsl::false_type { };
+template <> struct IsLong<long>     : bsl::true_type { };
 
-template <class TYPE> struct IsFloat : bslmf::false_type { };
-template <> struct IsFloat<float>    : bslmf::true_type { };
+template <class TYPE> struct IsFloat : bsl::false_type { };
+template <> struct IsFloat<float>    : bsl::true_type { };
 
-int whichTrait(bslmf::false_type)                   { return 0; }
+int whichTrait(bsl::false_type)                   { return 0; }
 template <class TYPE> int whichTrait(IsBool<TYPE>)  { return 1; }
 template <class TYPE> int whichTrait(IsChar<TYPE>)  { return 2; }
 template <class TYPE> int whichTrait(IsShort<TYPE>) { return 3; }
@@ -247,13 +247,13 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // First, we create three traits metafunctions to replace the three legacy
 // traits used above:
 //..
-    template <class TYPE> struct UsesBslmaAllocator : bslmf::false_type { };
-    template <class TYPE> struct IsBitwiseCopyable : bslmf::false_type { };
-    template <class TYPE> struct IsPair : bslmf::false_type { };
+    template <class TYPE> struct UsesBslmaAllocator : bsl::false_type { };
+    template <class TYPE> struct IsBitwiseCopyable : bsl::false_type { };
+    template <class TYPE> struct IsPair : bsl::false_type { };
 //..
 // Note that these definitions are simplified to avoid excess dependencies; A
 // proper traits definition would inherit from 'bslmf::DetectNestedTrait'
-// instead of from 'bslmf::false_type'.
+// instead of from 'bsl::false_type'.
 //
 // Next, we forward-declare 'bslma::Allocator' and
 // 'bslalg::scalarprimitives::copyConstruct':
@@ -390,7 +390,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     };
 
     template <> struct UsesBslmaAllocator<TypeWithAllocator>
-        : bslmf::true_type { };
+        : bsl::true_type { };
 //..
 // The second class is associated with the 'IsBitwiseCopyiable' trait:
 //..
@@ -402,7 +402,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     };
 
     template <> struct IsBitwiseCopyable<BitwiseCopyableType>
-        : bslmf::true_type { };
+        : bsl::true_type { };
 //..
 // The third class is associated with the 'IsPair' trait:
 //..
@@ -413,7 +413,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         PairType(int a, int b) : first(a), second(b) { }
     };
 
-    template <> struct IsPair<PairType> : bslmf::true_type { };
+    template <> struct IsPair<PairType> : bsl::true_type { };
 //..
 // The fourth class is associated with both the the 'IsPair' and
 // 'IsBitwiseCopyiable' traits:
@@ -425,9 +425,9 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         BitwiseCopyablePairType(int a, int b) : first(a), second(b) { }
     };
 
-    template <> struct IsPair<BitwiseCopyablePairType> : bslmf::true_type { };
+    template <> struct IsPair<BitwiseCopyablePairType> : bsl::true_type { };
     template <> struct IsBitwiseCopyable<BitwiseCopyablePairType>
-        : bslmf::true_type { };
+        : bsl::true_type { };
 //..
 // The fifth class is not associated with any explicit traits:
 //..

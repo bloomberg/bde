@@ -26,9 +26,9 @@ template <typename TYPE>
 struct IsFloatingPoint_Imp : bsl::false_type
 {};
 
-template <> struct IsFloatingPoint_Imp<float> : true_type {};
-template <> struct IsFloatingPoint_Imp<double> : true_type {};
-template <> struct IsFloatingPoint_Imp<long double> : true_type {};
+template <> struct IsFloatingPoint_Imp<float> : bsl::true_type {};
+template <> struct IsFloatingPoint_Imp<double> : bsl::true_type {};
+template <> struct IsFloatingPoint_Imp<long double> : bsl::true_type {};
 
 }
 }

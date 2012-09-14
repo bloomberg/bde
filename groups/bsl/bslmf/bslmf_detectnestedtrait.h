@@ -60,7 +60,7 @@ class DetectNestedTrait_Imp {
     DetectNestedTrait_Imp();
     DetectNestedTrait_Imp(const DetectNestedTrait_Imp&);
     ~DetectNestedTrait_Imp();
-    
+
   public:
     // PUBLIC CONSTANTS
 
@@ -68,7 +68,7 @@ class DetectNestedTrait_Imp {
         // Non-zero if 'TRAIT' is associated with 'TYPE' using the nested type
         // trait mechanism; otherwise zero.
 
-    typedef integer_constant<bool, VALUE> Type;
+    typedef bsl::integer_constant<bool, VALUE> Type;
         // Type representing the result of this metafunction.  Equivalent to
         // 'true_type' if 'TRAIT' is associated with 'TYPE' using the nested
         // type trait mechanism; otherwise 'false_type'.

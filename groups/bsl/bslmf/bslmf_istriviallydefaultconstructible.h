@@ -50,8 +50,9 @@ namespace BloombergLP {
 namespace bslmf {
 
 template <typename TYPE>
-struct IsTriviallyDefaultConstructible_Imp :
-    integer_constant<bool,
+struct IsTriviallyDefaultConstructible_Imp
+: bsl::integer_constant<
+                     bool,
                      !bsl::is_reference<TYPE>::value
                      && (  IsFundamental<TYPE>::value
                         || IsEnum<TYPE>::value

@@ -215,10 +215,12 @@ bool operator<(const my_Class2& lhs, const my_Class2& rhs)
 
 // TRAITS
 namespace BloombergLP {
-    namespace bslmf {
-        template <>
-        struct IsBitwiseEqualityComparable<my_Class2> : true_type { };
-    } // close namespace bslmf
+namespace bslmf {
+
+template <>
+struct IsBitwiseEqualityComparable<my_Class2> : bsl::true_type { };
+
+}  // close namespace bslmf
 }  // close enterprise namespace
 
                               // ===============

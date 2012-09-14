@@ -45,12 +45,12 @@ namespace bslma {
                         // ========================
 
 template <class TYPE, bool IS_NESTED>
-struct UsesBslmaAllocator_Imp : bslmf::integer_constant<bool, IS_NESTED>
+struct UsesBslmaAllocator_Imp : bsl::integer_constant<bool, IS_NESTED>
 {
 };
 
 template <class TYPE>
-struct UsesBslmaAllocator_Imp<TYPE, false> : bslmf::false_type
+struct UsesBslmaAllocator_Imp<TYPE, false> : bsl::false_type
 {
 private:
     typedef struct UniqueType {

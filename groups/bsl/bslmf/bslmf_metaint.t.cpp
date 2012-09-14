@@ -20,9 +20,9 @@ using namespace bslmf;
 // [ 1] VALUE
 // [ 2] operator int() const;
 // [ 2] operator bool() const;
-// [ 3] implicit upcast to bslmf::integer_constant<int, INT_VALUE>
-// [ 3] operator bslmf::false_type() const
-// [ 3] operator bslmf::true_type() const
+// [ 3] implicit upcast to bsl::integer_constant<int, INT_VALUE>
+// [ 3] operator bsl::false_type() const
+// [ 3] operator bsl::true_type() const
 // [ 4] conversion constructors
 //-----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
@@ -111,7 +111,7 @@ struct AnyType
 };
 
 template <int VALUE>
-bool matchIntConstant(bslmf::integer_constant<int, VALUE>)
+bool matchIntConstant(bsl::integer_constant<int, VALUE>)
     // Return true when called with an 'integer_constant' of the specified
     // 'VALUE'.  Does not participate in overload resolution for
     // 'integer_constant's with a 'value' other than 'VALUE'.
@@ -130,32 +130,32 @@ bool matchIntConstant(AnyType)
     return false;
 }
 
-int dispatchOnIntConstant(int, const char*, bslmf::integer_constant<int, 0>)
+int dispatchOnIntConstant(int, const char*, bsl::integer_constant<int, 0>)
 {
     return 0;
 }
 
-int dispatchOnIntConstant(int, const char*, bslmf::integer_constant<int, 1>)
+int dispatchOnIntConstant(int, const char*, bsl::integer_constant<int, 1>)
 {
     return 1;
 }
 
-int dispatchOnIntConstant(int, const char*, bslmf::integer_constant<int, -1>)
+int dispatchOnIntConstant(int, const char*, bsl::integer_constant<int, -1>)
 {
     return -1;
 }
 
-int dispatchOnIntConstant(int, const char*, bslmf::integer_constant<int, 999>)
+int dispatchOnIntConstant(int, const char*, bsl::integer_constant<int, 999>)
 {
     return 999;
 }
 
-int dispatchOnBoolConstant(float, bslmf::false_type)
+int dispatchOnBoolConstant(float, bsl::false_type)
 {
     return 1;
 }
 
-int dispatchOnBoolConstant(float, bslmf::true_type)
+int dispatchOnBoolConstant(float, bsl::true_type)
 {
     return 2;
 }
@@ -287,8 +287,8 @@ int main(int argc, char *argv[])
         //:   'MetaInt<X>'.
         //:
         //: 3 Given two function overloads with identical parameters such
-        //:   that the first takes an argument of type 'bslmf::false_type' and
-        //:   the second takes an argument of type 'bslmf::true_type', passing
+        //:   that the first takes an argument of type 'bsl::false_type' and
+        //:   the second takes an argument of type 'bsl::true_type', passing
         //:   an argument of type 'MetaInt<0>' will dispatch to the first and
         //:   passing an argument of type 'MetaInt<1>' will dispatch t the
         //:   second.
@@ -330,10 +330,10 @@ int main(int argc, char *argv[])
         //:   argument and verify that it returns 2. (C-4)
         //
         // Testing:
-        //      implicit upcast to bslmf::integer_constant<int, INT_VALUE>
-        //      inheritence from bslmf::integer_constant<int, INT_VALUE>
-        //      operator bslmf::false_type() const;  // MetaInt<0> only
-        //      operator bslmf::true_type() const;   // MetaInt<1> only
+        //      implicit upcast to bsl::integer_constant<int, INT_VALUE>
+        //      inheritence from bsl::integer_constant<int, INT_VALUE>
+        //      operator bsl::false_type() const;  // MetaInt<0> only
+        //      operator bsl::true_type() const;   // MetaInt<1> only
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CONVERSION TO integer_constant"
@@ -381,8 +381,8 @@ int main(int argc, char *argv[])
         //:   'integer_constant<int, X>'.
         //:
         //: 4 Given two function overloads with identical parameters such
-        //:   that the first takes an argument of type 'bslmf::false_type' and
-        //:   the second takes an argument of type 'bslmf::true_type', passing
+        //:   that the first takes an argument of type 'bsl::false_type' and
+        //:   the second takes an argument of type 'bsl::true_type', passing
         //:   an argument of type 'MetaInt<0>' will dispatch to the first and
         //:   passing an argument of type 'MetaInt<1>' will dispatch t the
         //:   second.
@@ -423,10 +423,10 @@ int main(int argc, char *argv[])
         //:   argument and verify that it returns 2. (C-4)
         //
         // Testing:
-        //      implicit upcast to bslmf::integer_constant<int, INT_VALUE>
-        //      inheritence from bslmf::integer_constant<int, INT_VALUE>
-        //      operator bslmf::false_type() const;  // MetaInt<0> only
-        //      operator bslmf::true_type() const;   // MetaInt<1> only
+        //      implicit upcast to bsl::integer_constant<int, INT_VALUE>
+        //      inheritence from bsl::integer_constant<int, INT_VALUE>
+        //      operator bsl::false_type() const;  // MetaInt<0> only
+        //      operator bsl::true_type() const;   // MetaInt<1> only
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CONVERSION TO integer_constant"
