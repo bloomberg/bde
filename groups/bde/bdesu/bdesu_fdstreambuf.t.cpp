@@ -192,7 +192,7 @@ int digits(bsls_Types::Int64 n)
 
     for (int i = 9; i >= 0; --i) {
         if (n >= TENS[i].d_cutOff) {
-            return TENS[i].d_digits;
+            return TENS[i].d_digits;                                  // RETURN
         }
     }
 
@@ -2891,7 +2891,7 @@ int main(int argc, char *argv[])
                 mileStone += deltaMileStone;
             }
         }
-        
+
         ASSERT(!sb.clear());
 
         LOOP2_ASSERT(bytesWritten, FileUtil::getFileSize(fn),
@@ -2921,7 +2921,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(0 == FileUtil::close(fd));
-        
+
         FileUtil::remove(fn);
       } break;
       case -4: {
