@@ -126,6 +126,10 @@ int main(int argc, char *argv[])
 // when applied to references to enumeration types:
 //..
      ASSERT(1 == bslmf::IsEnum<const Enum&>::VALUE);
+     printf("bslmf::IsEnum<const Enum&>::VALUE: %d\n",
+            bslmf::IsEnum<const Enum&>::VALUE);
+     printf("bsl::is_enum<const Enum&>::value: %d\n",
+            bsl::is_enum<const Enum&>::value);
 //..
 
       } break;
