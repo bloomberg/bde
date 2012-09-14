@@ -374,7 +374,7 @@ operator*() const
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
 typename
- HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>::pointer
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>::pointer
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>::
 operator->() const
 {
@@ -491,7 +491,7 @@ bool bslstl::operator!=(
     return lhs.node() != rhs.node();
 }
 
-} // namespace BloombergLP
+} // close namespace BloombergLP
 
 #endif
 

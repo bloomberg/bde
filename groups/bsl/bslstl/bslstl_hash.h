@@ -7,17 +7,17 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a namespace for hash functions
+//@PURPOSE: Provide a namespace for hash functions.
 //
 //@CLASSES:
-//  bsl::hash: hash function for primitive types
+//  bsl::hash: hash function for fundamental types
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
 //@AUTHOR: Arthur Chiu (achiu21), Alisdair Meredith (ameredith1)
 //
 //@DESCRIPTION: This component provides a namespace for hash functions used by
-// 'hash_map', 'hash_set' and 'hashtable'.
+// 'unordered_map', 'unordered_set' and 'hashtable'.
 //
 //..
 //
@@ -59,7 +59,8 @@ namespace bsl {
                           // class bslstl::hash
                           // ==================
 
-template <class BSLSTL_KEY> struct hash;
+template <class BSLSTL_KEY>
+struct hash;
     // Empty base class for hashing.  No general hash struct defined, each type
     // requires a specialization.  Leaving this struct declared but undefined
     // will generate error messages that are more clear when someone tries to

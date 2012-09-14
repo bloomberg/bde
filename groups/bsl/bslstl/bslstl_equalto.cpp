@@ -4,10 +4,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-namespace BloombergLP
+namespace bsl
 {
 
-}  // close BloombergLP
+}  // close namespace bsl
 
 // ---------------------------------------------------------------------------
 // NOTICE:

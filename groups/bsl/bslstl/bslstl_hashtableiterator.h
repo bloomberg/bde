@@ -51,12 +51,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_iterator.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
-#include <bslalg_bidirectionalnode.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
 #include <bslalg_bidirectionallink.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
+#include <bslalg_bidirectionalnode.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECVQ
@@ -92,7 +92,7 @@ class HashTableIterator
     // STL-conforming forward iterator over a list of
     // 'bslalg::BidirectionalLink' objects (see section 24.2.5
     // [forward.iterators] of the C++11 standard).  A 'HashTableIterator'
-    // provides access to values of the parameterized 'VALUE_TYPE', 
+    // provides access to values of the parameterized 'VALUE_TYPE',
     // stored in a hash table composed of 'bslalg::BidirectionalLink' nodes
     // additional storing objects of the parameterized 'VALUE_TYPE' which are
     // made accessible through the 'extractValue' static member function of the
@@ -331,7 +331,7 @@ HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>::node() const
     return d_node_p;
 }
 
-} // namespace BloombergLP::bslstl
+}  // close namespace BloombergLP::bslstl
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
@@ -406,7 +406,7 @@ bool bslstl::operator!=(
 }
 
 
-} // namespace BloombergLP
+}  // close namespace BloombergLP
 
 #endif
 
