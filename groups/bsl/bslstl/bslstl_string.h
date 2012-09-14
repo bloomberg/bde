@@ -3022,7 +3022,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                               const CHAR_TYPE *characterString,
                                               size_type        numChars)
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                            numChars > max_size() - length())) {
