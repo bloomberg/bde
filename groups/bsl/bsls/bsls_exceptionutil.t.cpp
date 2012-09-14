@@ -129,10 +129,11 @@ void resetAssertHandler()
 void assertHandler(const char *message, const char *file, int line)
     // Call 'abort' and record the specified 'message' to 'g_assertMessage',
     // the specified 'file' to 'g_assertFile', and the specified 'line' to
-    // 'g_line'.  Note that the assert handle invoker is marked 'noreturn', so
+    // 'g_line'.  Note that 'Assert::invokeHandler' (which will be configured
+    // by this test driver to call this function) is marked 'noreturn', so
     // this function cannot return; throwing an exception is also not an
-    // option as it will assert-handler is called by this component in
-    // non-exception builds.
+    // option as this function is called by this test-driver in non-exception
+    // builds.
 {
     g_assertMessage = message;
     g_assertFile    = file;
@@ -201,7 +202,7 @@ void removeAbortHandler() {
     volatile bool _abortOccurred = false;                                     \
     installAbortHandler();                                                    \
     _abortOccurred = setJump(g_jumpBuffer);                                   \
-    if (!_abortOccurred) {                                                    
+    if (!_abortOccurred) {
 
 
 static const bool ABORT_OCCURRED    = true;
@@ -363,7 +364,7 @@ struct DummyAllocator {
 //..
 // Then, we use a pair of nested 'try' blocks constructed using
 // 'BSLS_TRY', so that the code will compile whether or not exceptions are
-// enabled (note that the curly brace placement is identical to normal 
+// enabled (note that the curly brace placement is identical to normal
 // 'try' and 'catch' constructs):
 //..
             int caught = -1;
@@ -850,7 +851,7 @@ int main(int argc, char *argv[])
                 ASSERT(false);
             }
             END_ABORT_TEST_AND_ASSERT(ABORT_OCCURRED);
-            ASSERT(executedTest);        
+            ASSERT(executedTest);
         }
 
         if (verbose) {
@@ -858,7 +859,7 @@ int main(int argc, char *argv[])
         }
         {
             int duplicate = 0;
-            BEGIN_ABORT_TEST 
+            BEGIN_ABORT_TEST
                 int duplicate = 1;
                 ASSERT(1 == duplicate);
             END_ABORT_TEST_AND_ASSERT(NO_ABORT_OCCURRED);

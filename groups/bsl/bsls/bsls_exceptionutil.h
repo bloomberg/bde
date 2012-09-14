@@ -79,7 +79,7 @@ BSLS_IDENT("$Id: $")
 //              return d_begin_p[index];                              // RETURN
 //          }
 //..
-// Now, we use 'BSLS_THROW' the an 'out_of_range' exception:
+// Now, we use 'BSLS_THROW' to thrown an 'out_of_range' exception:
 //..
 //          BSLS_THROW(out_of_range(/* ... */));
 //      }
@@ -158,7 +158,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we use a pair of nested 'try' blocks constructed using
 // 'BSLS_TRY', so that the code will compile whether or not exceptions are
-// enabled (note that the curly brace placement is identical to normal 
+// enabled (note that the curly brace placement is identical to normal
 // 'try' and 'catch' constructs):
 //..
 //          int caught = -1;
@@ -168,17 +168,17 @@ BSLS_IDENT("$Id: $")
 //                  noThrowFunc();
 //                  mightThrowFunc(i);
 //..
-// Notice that this example is careful to call 'mightThrowFunc' in a way that
-// it will not throw in non-exceptioin builds.  Although the use 'BSLS_TRY',
-// 'BSLS_THROW', and 'BSLS_CATCH' ensures the code *compiles* in both
-// exception, and non-exception enabled builds, attempting to 'BSLS_THROW' an
-// exception in a non- exception enabled build will invoke the assert handler
-// and will typically abort the task.
+// Notice that this example is careful to call 'mightThrowFunc' in such a way
+// that it will not throw in non-exception builds.  Although the use of
+// 'BSLS_TRY', 'BSLS_THROW', and 'BSLS_CATCH' ensures the code *compiles* in
+// both exception, and non-exception enabled builds, attempting to
+// 'BSLS_THROW' an exception in a non-exception enabled build will invoke the
+// assert handler and will typically abort the task.
 //..
 //                  caught = 0; // Got here if no throw
 //              }
 //..
-// Next, we use 'BSLS_CATCH' to defined blocks for handling exceptions that may
+// Next, we use 'BSLS_CATCH' to define blocks for handling exceptions that may
 // have been thrown from the preceding 'BSLS_TRY':
 //..
 //              BSLS_CATCH(my_ExClass1) {
@@ -196,7 +196,7 @@ BSLS_IDENT("$Id: $")
 //              caught = 2;
 //          }
 //          BSLS_CATCH(...) {
-//              ASSERT("Should not get here" && 0);
+//              assert("Should not get here" && 0);
 //          } // end outer try-catch
 //
 //          if (0 != caught) {
@@ -207,7 +207,7 @@ BSLS_IDENT("$Id: $")
 //              if (verbose)
 //              printf("Caught no exceptions: %d\n", caught);
 //          }
-//          ASSERT(i == caught);
+//          assert(i == caught);
 //
 //      } // end for (i)
 //
@@ -305,7 +305,7 @@ namespace BloombergLP
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
