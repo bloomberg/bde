@@ -14,20 +14,20 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's parameter is a pointer.  'bslmf::IsPointer' defines a
-// member, 'VALUE', whose value is initialized (at compile-time) to 1 if the
+// member, 'value', whose value is initialized (at compile-time) to 1 if the
 // parameter is a pointer (to anything) (ignoring any 'const' or 'volatile'
 // qualification), and 0 if it is not.  For example:
 //..
 //  struct MyType {};
 //  typedef MyType* PMT;
 //
-//  static const int a1 = bslmf::IsPointer<int *        >::VALUE; // a1 == 1
-//  static const int a2 = bslmf::IsPointer<int *const   >::VALUE; // a2 == 1
-//  static const int a3 = bslmf::IsPointer<int *volatile>::VALUE; // a3 == 1
-//  static const int a4 = bslmf::IsPointer<int          >::VALUE; // a4 == 0
-//  static const int a5 = bslmf::IsPointer<MyType       >::VALUE; // a5 == 0
-//  static const int a6 = bslmf::IsPointer<MyType*      >::VALUE; // a6 == 1
-//  static const int a7 = bslmf::IsPointer<PMT          >::VALUE; // a7 == 1
+//  static const int a1 = bslmf::IsPointer<int *        >::value; // a1 == 1
+//  static const int a2 = bslmf::IsPointer<int *const   >::value; // a2 == 1
+//  static const int a3 = bslmf::IsPointer<int *volatile>::value; // a3 == 1
+//  static const int a4 = bslmf::IsPointer<int          >::value; // a4 == 0
+//  static const int a5 = bslmf::IsPointer<MyType       >::value; // a5 == 0
+//  static const int a6 = bslmf::IsPointer<MyType*      >::value; // a6 == 1
+//  static const int a7 = bslmf::IsPointer<PMT          >::value; // a7 == 1
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -77,7 +77,7 @@ namespace bslmf {
                          // ================
 
 template <typename T>
-struct IsPointer : MetaInt<bsl::is_pointer<T>::value>
+struct IsPointer : bsl::is_pointer<T>::type
 {
     // This class implements a meta-function for checking if a type is a
     // pointer.

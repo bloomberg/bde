@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's single type parameter is of enumeration type.
-// 'bslmf::IsEnum' defines a 'VALUE' enumerator that is initialized (at
+// 'bslmf::IsEnum' defines a 'value' enumerator that is initialized (at
 // compile-time) to 1 if the parameter is of enumeration type, and to 0
 // otherwise.
 //
@@ -29,15 +29,15 @@ BSLS_IDENT("$Id: $")
 //  enum Enum { MY_ENUMERATOR = 5 };
 //  class Class { Class(Enum); };
 //
-//  assert(1 == bslmf::IsEnum<Enum>::VALUE);
-//  assert(0 == bslmf::IsEnum<Class>::VALUE);
-//  assert(0 == bslmf::IsEnum<int>::VALUE);
-//  assert(0 == bslmf::IsEnum<int *>::VALUE);
+//  assert(1 == bslmf::IsEnum<Enum>::value);
+//  assert(0 == bslmf::IsEnum<Class>::value);
+//  assert(0 == bslmf::IsEnum<int>::value);
+//  assert(0 == bslmf::IsEnum<int *>::value);
 //..
 // Note that the 'bslmf::IsEnum' meta-function also evaluates to true (i.e., 1)
 // when applied to references to enumeration types:
 //..
-//  assert(1 == bslmf::IsEnum<const Enum&>::VALUE);
+//  assert(1 == bslmf::IsEnum<const Enum&>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -116,13 +116,14 @@ struct IsEnum_AnyArithmeticType {
 
 template <class TYPE>
 struct IsEnum
-    : MetaInt<
+    : bsl::integer_constant<
+        bool,
         !bsl::is_fundamental<typename bsl::remove_reference<
                              typename bsl::remove_cv<TYPE>::type>::type>::value
         && bsl::is_convertible<TYPE, IsEnum_AnyArithmeticType>::value>
     // This struct provides a meta-function that computes, at compile time,
-    // whether 'TYPE' is of enumeration type.  It derives from 'MetaInt<1>' if
-    // 'TYPE' is an enumeration type, or from 'MetaInt<0>' otherwise.
+    // whether 'TYPE' is of enumeration type.  It derives from 'bsl::true_type'
+    // if 'TYPE' is an enumeration type, or from 'bsl::false_type' otherwise.
     //
     // Enumeration types are the only user-defined types that have the
     // characteristics of a native arithmetic type (i.e., they can be promoted

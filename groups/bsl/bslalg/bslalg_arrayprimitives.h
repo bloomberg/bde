@@ -1008,14 +1008,14 @@ void ArrayPrimitives::defaultConstruct(TARGET_TYPE *begin,
                                        ALLOCATOR   *allocator)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     enum {
         VALUE = bsl::is_trivially_default_constructible<TARGET_TYPE>::value
               ? Imp::HAS_TRIVIAL_DEFAULT_CTOR_TRAITS
               : bsl::is_trivially_copyable<TARGET_TYPE>::value
-              ? Imp::BITWISE_COPYABLE_TRAITS
-              : Imp::NIL_TRAITS
+                  ? Imp::BITWISE_COPYABLE_TRAITS
+                  : Imp::NIL_TRAITS
     };
     ArrayPrimitives_Imp::defaultConstruct(begin,
                                           numElements,
@@ -1031,7 +1031,7 @@ void ArrayPrimitives::uninitializedFillN(TARGET_TYPE        *begin,
                                          ALLOCATOR          *allocator)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     enum {
          // We provide specialized overloads of 'uninitializedFillN' for
@@ -1320,7 +1320,7 @@ void ArrayPrimitives::insert(TARGET_TYPE        *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;                                                       // RETURN
@@ -1330,8 +1330,8 @@ void ArrayPrimitives::insert(TARGET_TYPE        *toBegin,
         VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
               ? Imp::BITWISE_COPYABLE_TRAITS
               : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
-              ? Imp::BITWISE_MOVEABLE_TRAITS
-              : Imp::NIL_TRAITS
+                  ? Imp::BITWISE_MOVEABLE_TRAITS
+                  : Imp::NIL_TRAITS
     };
     ArrayPrimitives_Imp::insert(toBegin,
                                 toEnd,
@@ -1470,7 +1470,7 @@ void ArrayPrimitives_Imp::defaultConstruct(
                   bslmf::MetaInt<HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset((void *)begin, 0, sizeof(TARGET_TYPE) * numElements);
 }
@@ -1484,7 +1484,7 @@ void ArrayPrimitives_Imp::defaultConstruct(
                           bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     ScalarPrimitives::defaultConstruct(begin, allocator);
     bitwiseFillN((char *)begin,
@@ -1500,7 +1500,7 @@ void ArrayPrimitives_Imp::defaultConstruct(
                                        bslmf::MetaInt<NIL_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     AutoArrayDestructor<TARGET_TYPE> guard(begin, begin);
 
@@ -1523,7 +1523,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset((char *)begin, (char)value, numElements);
 }
@@ -1537,7 +1537,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset(begin, value, numElements);
 }
@@ -1551,7 +1551,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset(begin, value, numElements);
 }
@@ -1565,7 +1565,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset(begin, value, numElements);
 }
@@ -1579,7 +1579,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::wmemset(begin, value, numElements);
 }
@@ -1593,7 +1593,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     uninitializedFillN(
                       (short *)begin, (short)value, numElements,
@@ -1609,7 +1609,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     uninitializedFillN(
                       (int *)begin, (int)value, numElements,
@@ -1625,7 +1625,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 #if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
     uninitializedFillN((bsls::Types::Int64 *)begin,
@@ -1649,7 +1649,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 #if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
     uninitializedFillN(
@@ -1673,7 +1673,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     uninitializedFillN((bsls::Types::Int64 *)begin,
                        (bsls::Types::Uint64)value,
@@ -1692,7 +1692,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // Note: 'const'-correctness is respected because the next overload picks
     // up the 'const TARGET_TYPE' and will be a better match.  Note that we
@@ -1718,7 +1718,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // While it seems that this overload is subsumed by the previous template,
     // SunPro does not detect it.
@@ -1739,7 +1739,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                           bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;
@@ -1777,7 +1777,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                                        bslmf::MetaInt<NIL_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;                                                       // RETURN
@@ -1917,7 +1917,7 @@ void ArrayPrimitives_Imp::insert(
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // Key to the transformation diagrams:
     //..
@@ -1976,7 +1976,7 @@ void ArrayPrimitives_Imp::insert(
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // Key to the transformation diagrams:
     //..
@@ -2057,7 +2057,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // Key to the transformation diagrams:
     //..
@@ -2212,7 +2212,7 @@ void ArrayPrimitives_Imp::insert(
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
                                                           fromEnd));
     BSLS_ASSERT_SAFE(fromBegin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     BSLS_ASSERT_SAFE(fromBegin + numElements == fromEnd);
     BSLS_ASSERT_SAFE(fromEnd <= toBegin || toEnd + numElements <= fromBegin);
@@ -2252,7 +2252,7 @@ void ArrayPrimitives_Imp::insert(
     // 'TARGET_TYPE' is bit-wise moveable.
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;                                                       // RETURN
@@ -2341,7 +2341,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;                                                       // RETURN
@@ -2451,7 +2451,7 @@ void ArrayPrimitives_Imp::moveInsert(
                                                           toEnd));
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, last));
     BSLS_ASSERT_SAFE(first || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
     BSLS_ASSERT_SAFE(lastPtr);
 
     // Functionally indistinguishable from this:
@@ -2477,7 +2477,7 @@ void ArrayPrimitives_Imp::moveInsert(TARGET_TYPE                 *toBegin,
                                                           toEnd));
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, last));
     BSLS_ASSERT_SAFE(first || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
     BSLS_ASSERT_SAFE(lastPtr);
 
     // There isn't any advantage at destroying [first,last) one by one as we're

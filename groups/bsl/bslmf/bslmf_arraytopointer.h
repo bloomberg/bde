@@ -34,11 +34,11 @@ BSLS_IDENT("$Id: $")
 // For example:
 //..
 //  assert(1 == bslmf::IsSame<bslmf::ArrayToPointer<int[5]>::Type
-//                          , int *>::VALUE);
+//                          , int *>::value);
 //  assert(1 == bslmf::IsSame<bslmf::ArrayToPointer<int *>::Type
-//                          , int *>::VALUE);
+//                          , int *>::value);
 //  assert(0 == bslmf::IsSame<bslmf::ArrayToPointer<int (*)[5]>::Type]
-//                          , int **>::VALUE);
+//                          , int **>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION

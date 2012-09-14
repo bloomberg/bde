@@ -65,25 +65,25 @@ BSLS_IDENT("$Id: $")
 // Finally, check that they match:
 //..
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T1>::Type,
-//                             EXP1>::VALUE));
+//                             EXP1>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T2>::Type,
-//                             EXP2>::VALUE));
+//                             EXP2>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T3>::Type,
-//                             EXP3>::VALUE));
+//                             EXP3>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T4>::Type,
-//                             EXP4>::VALUE));
+//                             EXP4>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T5>::Type,
-//                             EXP5>::VALUE));
+//                             EXP5>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T6>::Type,
-//                             EXP6>::VALUE));
+//                             EXP6>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T7>::Type,
-//                             EXP7>::VALUE));
+//                             EXP7>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T8>::Type,
-//                             EXP8>::VALUE));
+//                             EXP8>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T9>::Type,
-//                             EXP9>::VALUE));
+//                             EXP9>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T10>::Type,
-//                             EXP10>::VALUE));
+//                             EXP10>::value));
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -138,12 +138,12 @@ struct ForwardingType {
 
     enum { BSLMF_FORWARDING_TYPE__ID = 1 };  // For testing only.
     enum {
-        IS_BASIC_TYPE = IsFundamental<TYPE>::VALUE ||
-                        IsPointerToMember<TYPE>::VALUE ||
-                        IsMemberFunctionPointer<TYPE>::VALUE ||
-                        IsFunctionPointer<TYPE>::VALUE ||
-                        IsFunctionPointer<TYPE*>::VALUE ||
-                        IsEnum<TYPE>::VALUE
+        IS_BASIC_TYPE = IsFundamental<TYPE>::value ||
+                        IsPointerToMember<TYPE>::value ||
+                        IsMemberFunctionPointer<TYPE>::value ||
+                        IsFunctionPointer<TYPE>::value ||
+                        IsFunctionPointer<TYPE*>::value ||
+                        IsEnum<TYPE>::value
     };
 
     typedef typename
@@ -160,12 +160,12 @@ struct ForwardingType<const TYPE&> {
 
     enum { BSLMF_FORWARDING_TYPE__ID = 2 };  // For testing only.
     enum {
-        IS_BASIC_TYPE = IsFundamental<TYPE>::VALUE ||
-                        IsPointerToMember<TYPE>::VALUE ||
-                        IsMemberFunctionPointer<TYPE>::VALUE ||
-                        IsFunctionPointer<TYPE>::VALUE ||
-                        IsFunctionPointer<TYPE*>::VALUE ||
-                        IsEnum<TYPE>::VALUE
+        IS_BASIC_TYPE = IsFundamental<TYPE>::value ||
+                        IsPointerToMember<TYPE>::value ||
+                        IsMemberFunctionPointer<TYPE>::value ||
+                        IsFunctionPointer<TYPE>::value ||
+                        IsFunctionPointer<TYPE*>::value ||
+                        IsEnum<TYPE>::value
     };
 
     typedef typename

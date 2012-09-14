@@ -173,7 +173,7 @@ void DeleterHelper::deleteObject(const TYPE *object,
 
     if (0 != object) {
         void *address = DeleterHelper_Helper<
-                            bslmf::IsPolymorphic<TYPE>::VALUE>::caster(object);
+                            bslmf::IsPolymorphic<TYPE>::value>::caster(object);
         BSLS_ASSERT_OPT(address);
 
 #ifndef BSLS_PLATFORM__CMP_SUN

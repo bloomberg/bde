@@ -117,21 +117,21 @@ int main(int argc, char *argv[])
        typedef int    INT;
        typedef double DOUBLE;
 //
-       const int I = bslmf::IsSame<INT, INT>::VALUE;            ASSERT(1 == I);
-       const int J = bslmf::IsSame<INT, DOUBLE>::VALUE;         ASSERT(0 == J);
+       const int I = bslmf::IsSame<INT, INT>::value;            ASSERT(1 == I);
+       const int J = bslmf::IsSame<INT, DOUBLE>::value;         ASSERT(0 == J);
 //..
 // Note that a 'const'-qualified type is considered distinct from the
 // non-'const' (but otherwise identical) type:
 //..
        typedef       short       SHORT;
        typedef const short CONST_SHORT;
-       const int K = bslmf::IsSame<SHORT, CONST_SHORT>::VALUE;  ASSERT(0 == K);
+       const int K = bslmf::IsSame<SHORT, CONST_SHORT>::value;  ASSERT(0 == K);
 //..
 // Similarly, a 'TYPE' and a reference to 'TYPE' ('TYPE&') are distinct:
 //..
        typedef int  INT;
        typedef int& INT_REF;
-       const int L = bslmf::IsSame<INT, INT_REF>::VALUE;        ASSERT(0 == L);
+       const int L = bslmf::IsSame<INT, INT_REF>::value;        ASSERT(0 == L);
 //..
 
         } break;
@@ -145,76 +145,76 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "bslmf::IsSame" << endl
                                   << "=============" << endl;
 
-        ASSERT(1 == (bslmf::IsSame<int, int>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<short, short>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<int, short>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<short, int>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<int, unsigned>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<int&, int>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<float, double>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<float, float&>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<int, int>::value));
+        ASSERT(1 == (bslmf::IsSame<short, short>::value));
+        ASSERT(0 == (bslmf::IsSame<int, short>::value));
+        ASSERT(0 == (bslmf::IsSame<short, int>::value));
+        ASSERT(0 == (bslmf::IsSame<int, unsigned>::value));
+        ASSERT(0 == (bslmf::IsSame<int&, int>::value));
+        ASSERT(0 == (bslmf::IsSame<float, double>::value));
+        ASSERT(0 == (bslmf::IsSame<float, float&>::value));
 
-        ASSERT(1 == (bslmf::IsSame<int const, int const>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<const int, int const>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<int, int const>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<int volatile, int>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<int const volatile, int const>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<int const, int const>::value));
+        ASSERT(1 == (bslmf::IsSame<const int, int const>::value));
+        ASSERT(0 == (bslmf::IsSame<int, int const>::value));
+        ASSERT(0 == (bslmf::IsSame<int volatile, int>::value));
+        ASSERT(0 == (bslmf::IsSame<int const volatile, int const>::value));
 
-        ASSERT(1 == (bslmf::IsSame<Enum1, Enum1>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<Enum3, Enum3>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<Enum1, Enum2>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<Enum3, Enum1>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<int, Enum1>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<Enum1, unsigned>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<long, Enum1>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<Enum1, unsigned long>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<Enum1, Enum1>::value));
+        ASSERT(1 == (bslmf::IsSame<Enum3, Enum3>::value));
+        ASSERT(0 == (bslmf::IsSame<Enum1, Enum2>::value));
+        ASSERT(0 == (bslmf::IsSame<Enum3, Enum1>::value));
+        ASSERT(0 == (bslmf::IsSame<int, Enum1>::value));
+        ASSERT(0 == (bslmf::IsSame<Enum1, unsigned>::value));
+        ASSERT(0 == (bslmf::IsSame<long, Enum1>::value));
+        ASSERT(0 == (bslmf::IsSame<Enum1, unsigned long>::value));
 
-        ASSERT(1 == (bslmf::IsSame<char *, char *>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<void *, void *>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<const char *, const char *>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<const char *, char *>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<char *, char *const>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<char *, void *>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<int *, char *>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<char *, char *>::value));
+        ASSERT(1 == (bslmf::IsSame<void *, void *>::value));
+        ASSERT(1 == (bslmf::IsSame<const char *, const char *>::value));
+        ASSERT(0 == (bslmf::IsSame<const char *, char *>::value));
+        ASSERT(0 == (bslmf::IsSame<char *, char *const>::value));
+        ASSERT(0 == (bslmf::IsSame<char *, void *>::value));
+        ASSERT(0 == (bslmf::IsSame<int *, char *>::value));
 
-        ASSERT(1 == (bslmf::IsSame<Struct1, Struct1>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<Struct3, Struct3>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<Struct1, Struct2>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<Struct3, Struct1>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<Struct1, Struct1>::value));
+        ASSERT(1 == (bslmf::IsSame<Struct3, Struct3>::value));
+        ASSERT(0 == (bslmf::IsSame<Struct1, Struct2>::value));
+        ASSERT(0 == (bslmf::IsSame<Struct3, Struct1>::value));
 
-        ASSERT(1 == (bslmf::IsSame<Base, Base>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<const Base *, const Base *>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<Derived&, Derived&>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<Base&, Base>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<Base&, Derived&>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<Derived *, Base *>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<void *, Base *>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<Base, Base>::value));
+        ASSERT(1 == (bslmf::IsSame<const Base *, const Base *>::value));
+        ASSERT(1 == (bslmf::IsSame<Derived&, Derived&>::value));
+        ASSERT(0 == (bslmf::IsSame<Base&, Base>::value));
+        ASSERT(0 == (bslmf::IsSame<Base&, Derived&>::value));
+        ASSERT(0 == (bslmf::IsSame<Derived *, Base *>::value));
+        ASSERT(0 == (bslmf::IsSame<void *, Base *>::value));
 
-        ASSERT(1 == (bslmf::IsSame<int Base::*, int Base::*>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<int Struct3::*, int Struct3::*>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<int Base::*, int Class::*>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<int Base::*, int Derived::*>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<int Derived::*, int Base::*>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<int Base::*, int Base::*>::value));
+        ASSERT(1 == (bslmf::IsSame<int Struct3::*, int Struct3::*>::value));
+        ASSERT(0 == (bslmf::IsSame<int Base::*, int Class::*>::value));
+        ASSERT(0 == (bslmf::IsSame<int Base::*, int Derived::*>::value));
+        ASSERT(0 == (bslmf::IsSame<int Derived::*, int Base::*>::value));
 
-        ASSERT(1 == (bslmf::IsSame<INT_TYPE, INT_TYPE>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<INT_TYPE, Class::INT_TYPE>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<NS::INT_TYPE, Class::INT_TYPE>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<INT_TYPE, NS::INT_TYPE>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<INT_TYPE, INT_TYPE>::value));
+        ASSERT(1 == (bslmf::IsSame<INT_TYPE, Class::INT_TYPE>::value));
+        ASSERT(1 == (bslmf::IsSame<NS::INT_TYPE, Class::INT_TYPE>::value));
+        ASSERT(1 == (bslmf::IsSame<INT_TYPE, NS::INT_TYPE>::value));
 
-        ASSERT(1 == (bslmf::IsSame<char [1], char [1]>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<const int [5], const int [5]>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<char, char [1]>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<int [5], char [5]>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<int [2][4], int [4][2]>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<char [1], char [1]>::value));
+        ASSERT(1 == (bslmf::IsSame<const int [5], const int [5]>::value));
+        ASSERT(0 == (bslmf::IsSame<char, char [1]>::value));
+        ASSERT(0 == (bslmf::IsSame<int [5], char [5]>::value));
+        ASSERT(0 == (bslmf::IsSame<int [2][4], int [4][2]>::value));
 
-        ASSERT(1 == (bslmf::IsSame<F, F>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<Fv, F>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<Fi, Fi>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<PFi, PFi>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<Fe, Fi>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<Fe, Fie>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<Fie, Fi>::VALUE));
-        ASSERT(0 == (bslmf::IsSame<PFi, Fi>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<F, F>::value));
+        ASSERT(1 == (bslmf::IsSame<Fv, F>::value));
+        ASSERT(1 == (bslmf::IsSame<Fi, Fi>::value));
+        ASSERT(1 == (bslmf::IsSame<PFi, PFi>::value));
+        ASSERT(0 == (bslmf::IsSame<Fe, Fi>::value));
+        ASSERT(0 == (bslmf::IsSame<Fe, Fie>::value));
+        ASSERT(0 == (bslmf::IsSame<Fie, Fi>::value));
+        ASSERT(0 == (bslmf::IsSame<PFi, Fi>::value));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

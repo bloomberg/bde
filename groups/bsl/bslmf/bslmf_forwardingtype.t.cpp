@@ -51,7 +51,7 @@ static void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                           // current Line number
 #define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
 
-#define ASSERT_SAME(X, Y) ASSERT(1 == (bslmf::IsSame<X, Y>::VALUE))
+#define ASSERT_SAME(X, Y) ASSERT(1 == (bslmf::IsSame<X, Y>::value))
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -115,25 +115,25 @@ void usageExample()
     typedef MyType*                EXP10;
 
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T1>::Type,
-                               EXP1>::VALUE));
+                               EXP1>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T2>::Type,
-                               EXP2>::VALUE));
+                               EXP2>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T3>::Type,
-                               EXP3>::VALUE));
+                               EXP3>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T4>::Type,
-                               EXP4>::VALUE));
+                               EXP4>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T5>::Type,
-                               EXP5>::VALUE));
+                               EXP5>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T6>::Type,
-                               EXP6>::VALUE));
+                               EXP6>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T7>::Type,
-                               EXP7>::VALUE));
+                               EXP7>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T8>::Type,
-                               EXP8>::VALUE));
+                               EXP8>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T9>::Type,
-                               EXP9>::VALUE));
+                               EXP9>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T10>::Type,
-                               EXP10>::VALUE));
+                               EXP10>::value));
 }
 
 //=============================================================================
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ConstForwardingType<Struct& >::Type, Struct&);
         ASSERT_SAME(bslmf::ConstForwardingType<Union   >::Type, const Union&);
         ASSERT_SAME(bslmf::ConstForwardingType<Union&  >::Type, Union&);
-        ASSERT(0 == bslmf::IsArray<Class>::VALUE);
+        ASSERT(0 == bslmf::IsArray<Class>::value);
         ASSERT_SAME(bslmf::ConstForwardingType<Class   >::Type,const Class&);
         if (verbose)
             P(bslmf::ConstForwardingType<Class>::BSLMF_FORWARDING_TYPE__ID);
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ForwardingType<Struct&     >::Type, Struct&);
         ASSERT_SAME(bslmf::ForwardingType<Union       >::Type, const Union&);
         ASSERT_SAME(bslmf::ForwardingType<Union&      >::Type, Union&);
-        ASSERT(0 == bslmf::IsArray<Class>::VALUE);
+        ASSERT(0 == bslmf::IsArray<Class>::value);
         ASSERT_SAME(bslmf::ForwardingType<Class       >::Type, const Class&);
         if (verbose)
             P(bslmf::ForwardingType<Class>::BSLMF_FORWARDING_TYPE__ID);

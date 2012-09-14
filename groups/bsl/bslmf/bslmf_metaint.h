@@ -176,6 +176,9 @@ struct MetaInt<0> : public bsl::integer_constant<int, 0> {
     MetaInt(bsl::integer_constant<int, 0>);
         // Convert from a 'bsl::integer_constant<int, 0>'.
 
+    MetaInt(bsl::false_type);
+        // Convert from a 'bsl::false_type'.
+
     //! MetaInt(const MetaInt&) = default;
     //! MetaInt& operator=(const MetaInt&) = default;
     //! ~MetaInt() = default;
@@ -216,6 +219,9 @@ struct MetaInt<1> : public bsl::integer_constant<int, 1> {
 
     MetaInt(bsl::integer_constant<int, 1>);
         // Convert from a 'bsl::integer_constant<int, 1>'.
+
+    MetaInt(bsl::true_type);
+        // Convert from a 'bsl::true_type'.
 
     //! MetaInt(const MetaInt&) = default;
     //! MetaInt& operator=(const MetaInt&) = default;
@@ -289,12 +295,22 @@ MetaInt<0>::MetaInt(bsl::integer_constant<int, 0>)
 }
 
 inline
+MetaInt<0>::MetaInt(bsl::false_type)
+{
+}
+
+inline
 MetaInt<1>::MetaInt()
 {
 }
 
 inline
 MetaInt<1>::MetaInt(bsl::integer_constant<int, 1>)
+{
+}
+
+inline
+MetaInt<1>::MetaInt(bsl::true_type)
 {
 }
 

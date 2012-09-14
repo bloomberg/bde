@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::IsConvertible: compile-time type conversion checker
 //
-//@SEE_ALSO: bslmf_metaint, bslmf_integerconstant
+//@SEE_ALSO: bslmf_integerconstant
 //
 //@AUTHOR: Paul Staniforth (pstaniforth)
 //
@@ -24,8 +24,8 @@ BSLS_IDENT("$Id: $")
 // value of '0' otherwise.  For example, a conversion exists from an 'int' to a
 // 'char', but one does not exists from an 'int' to an 'char' pointer.
 //..
-//  static const int A = bslmf::IsConvertible<int, char >::VALUE; // A is 1
-//  static const int B = bslmf::IsConvertible<int, char*>::VALUE; // B is 0
+//  static const int A = bslmf::IsConvertible<int, char >::value; // A is 1
+//  static const int B = bslmf::IsConvertible<int, char*>::value; // B is 0
 //..
 // Note that the result is undefined if either parameter is 'void'.  Note also
 // that 'bslmf::IsConvertible' can produce compiler errors if the conversion is
@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 //  struct C : public A {};
 //  struct D : public B, public C {};
 //
-//  static int const C = bslmf::IsConvertible<D*, A*>::VALUE; // ERROR!
+//  static int const C = bslmf::IsConvertible<D*, A*>::value; // ERROR!
 //..
 ///Usage
 ///-----
@@ -68,7 +68,7 @@ BSLS_IDENT("$Id: $")
 //  void createObj(T *space, MyAllocator *, bslmf::MetaInt<1>)
 //  {
 //     // Use the type's default constructor if
-//     // bslmf::IsConvertible<MyAllocator*, T>::VALUE == 0 -- i.e., there is
+//     // bslmf::IsConvertible<MyAllocator*, T>::value == 0 -- i.e., there is
 //     // no conversion from a MyAllocator pointer to a T.
 //
 //     new (space) T();
@@ -78,7 +78,7 @@ BSLS_IDENT("$Id: $")
 //  void createObj(T *space, MyAllocator *alloc, bslmf::MetaInt<0>)
 //  {
 //     // Use the type's constructor that takes a pointer to an allocator if
-//     // bslmf::IsConvertible<MyAllocator*, T>::VALUE == 1, i.e., there is
+//     // bslmf::IsConvertible<MyAllocator*, T>::value == 1, i.e., there is
 //     // a conversion from a MyAllocator pointer to a T.
 //
 //     new (space) T(alloc);
@@ -124,10 +124,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECV
@@ -216,8 +212,8 @@ struct IsConvertible_Match {
 
 template <typename FROM_TYPE, typename TO_TYPE
 #if defined(BSLS_PLATFORM__CMP_GNU)
-         , int IS_FROM_FUNDAMENTAL = IsFundamental<FROM_TYPE>::VALUE
-         , int IS_TO_FUNDAMENTAL   = IsFundamental<TO_TYPE>::VALUE
+         , int IS_FROM_FUNDAMENTAL = IsFundamental<FROM_TYPE>::value
+         , int IS_TO_FUNDAMENTAL   = IsFundamental<TO_TYPE>::value
 #endif
          >
 struct IsConvertible_Imp {
@@ -251,16 +247,16 @@ struct IsConvertible_Imp {
         // on the right.  If 'FROM_TYPE' is convertible to 'TO_TYPE', the comma
         // will return 'IsConvertible_Match' and cause a match, otherwise it
         // will return 'FROM_TYPE', which does not match.
-        VALUE = (sizeof(IsConvertible_Match::yes_type) ==
+        value = (sizeof(IsConvertible_Match::yes_type) ==
                  sizeof(IsConvertible_Match::match(
                            (TypeRep<Test>::rep(), TypeRep<FROM_TYPE>::rep()))))
-            // 'VALUE' will be true if 'FROM_TYPE' is convertible to 'TO_TYPE'.
+            // 'value' will be true if 'FROM_TYPE' is convertible to 'TO_TYPE'.
     };
 #ifdef BSLS_PLATFORM__CMP_MSVC
 #   pragma warning(pop)
 #endif
 
-    typedef bsl::integer_constant<bool, VALUE> type;
+    typedef bsl::integer_constant<bool, value> type;
         // 'bsl::true_type' if 'FROM_TYPE' is convertible to 'TO_TYPE', else
         // 'bsl::false_type'.
 };
@@ -279,9 +275,9 @@ struct IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND>                        \
     : bsl::integer_constant<bool, VALUE> {};
     // Define a partial specialization of 'bslmf::IsConvertible_Imp' in terms
     // of a single template parameter 'TYPE', defined as
-    // 'bslmf::MetaInt<VALUE>' for the specified macro argument 'VALUE'.  The
-    // specified macro arguments 'FROM' and 'TO' are cv-qualified type
-    // expressions constructed out of 'TYPE'.
+    // 'bsl::integer_constant<bool, VALUE>' for the specified macro argument
+    // 'VALUE'.  The specified macro arguments 'FROM' and 'TO' are cv-qualified
+    // type expressions constructed out of 'TYPE'.
 
 #define BSLMF_ISCONVERTIBLE_VALUE(VALUE, FROM, TO, FROM_FUND, TO_FUND)        \
 template <typename FROM_TYPE, typename TO_TYPE>                               \
@@ -289,9 +285,10 @@ struct IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND>                        \
     : bsl::integer_constant<bool, VALUE> {};
     // Define a partial specialization of 'bslmf::IsConvertible_Imp' in terms
     // of two template parameters 'FROM_TYPE' and 'TO_TYPE', defined as
-    // 'bslmf::MetaInt<VALUE>' for the specified macro argument 'VALUE'.  The
-    // specified macro arguments 'FROM' and 'TO' are cv-qualified type
-    // expression constructed out of 'FROM_TYPE' and 'TO_TYPE', respectively.
+    // 'bsl::integer_constant<bool, VALUE>' for the specified macro argument
+    // 'VALUE'.  The specified macro arguments 'FROM' and 'TO' are cv-qualified
+    // type expression constructed out of 'FROM_TYPE' and 'TO_TYPE',
+    // respectively.
 
 #define BSLMF_ISCONVERTIBLE_FORWARD(FROM, TO, FROM_FUND, TO_FUND)             \
 template <typename FROM_TYPE, typename TO_TYPE>                               \
@@ -551,7 +548,7 @@ namespace bslmf {
                          // ====================
 
 template <typename FROM_TYPE, typename TO_TYPE>
-struct IsConvertible : MetaInt<bsl::is_convertible<FROM_TYPE, TO_TYPE>::value>
+struct IsConvertible : bsl::is_convertible<FROM_TYPE, TO_TYPE>::type
 {
 };
 

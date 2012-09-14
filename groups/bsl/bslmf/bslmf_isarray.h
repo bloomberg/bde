@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's single type parameter is of array type.
-// 'bslmf::IsArray' defines a 'VALUE' member that is initialized (at
+// 'bslmf::IsArray' defines a 'value' member that is initialized (at
 // compile-time) to 1 if the parameter is an array type, or is a
 // reference-to-array type, and to 0 otherwise.
 //
@@ -24,14 +24,14 @@ BSLS_IDENT("$Id: $")
 ///-----
 // For example:
 //..
-//  assert(1 == bslmf::IsArray<int    [5]>::VALUE);
-//  assert(0 == bslmf::IsArray<int  *    >::VALUE);
-//  assert(0 == bslmf::IsArray<int (*)[5]>::VALUE);
+//  assert(1 == bslmf::IsArray<int    [5]>::value);
+//  assert(0 == bslmf::IsArray<int  *    >::value);
+//  assert(0 == bslmf::IsArray<int (*)[5]>::value);
 //..
 // Note that the 'bslmf::IsArray' meta-function also evaluates to true (i.e.,
 // 1) when applied to references to arrays:
 //..
-//  assert(1 == bslmf::IsArray<int (&)[5]>::VALUE);
+//  assert(1 == bslmf::IsArray<int (&)[5]>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -89,7 +89,7 @@ namespace bslmf {
                          // ==============
 
 template <typename TYPE>
-struct IsArray  : MetaInt<bsl::is_array<TYPE>::value>
+struct IsArray  : bsl::is_array<TYPE>::type
 {};
 
 }  // close package namespace

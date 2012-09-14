@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a simple template 'struct' used to
 // evaluate whether its parameter is a 'void' type.  'bslmf::IsVoid' defines a
-// member, 'VALUE', whose value is initialized (at compile-time) to 1 if the
+// member, 'value', whose value is initialized (at compile-time) to 1 if the
 // parameter is a 'void' type (ignoring any 'const' or 'volatile'
 // qualification), and 0 if it is not.
 //
@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-// Example 1: using ::VALUE...
+// Example 1: using ::value...
 // - - - - - - - - - - - - - -
 //
 //
@@ -85,10 +85,10 @@ namespace bslmf
              // ===================
 
 template<class TYPE>
-struct IsVoid : MetaInt<bsl::is_void<TYPE>::value>
-    // This metafunction struct contains a nested 'VALUE' which converts to
+struct IsVoid : bsl::is_void<TYPE>::type
+    // This metafunction struct contains a nested 'value' which converts to
     // 'true' if 'BSLMF_TYPE' is type 'void' and to 'false' otherwise, and
-    // a nested type alias 'TYPE' corresponding to 'bslmf::MetaInt<VALUE>'.
+    // a nested type alias 'TYPE' corresponding to 'bsl::integer_constant'.
 {
 };
 

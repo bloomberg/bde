@@ -50,35 +50,35 @@ static void aSsErT(int c, const char *s, int i) {
 struct TestType {};
 
 enum {
-    C00 = 1 + bslmf::IsPointer<int*>::VALUE,                               // 2
-    C01 = 1 + bslmf::IsPointer<int *const>::VALUE,                         // 2
-    C02 = 1 + bslmf::IsPointer<int *volatile>::VALUE,                      // 2
-    C03 = 1 + bslmf::IsPointer<int *const volatile>::VALUE,                // 2
-    C04 = 1 + bslmf::IsPointer<const int*>::VALUE,                         // 2
-    C05 = 1 + bslmf::IsPointer<const int *const>::VALUE,                   // 2
-    C06 = 1 + bslmf::IsPointer<const int *volatile>::VALUE,                // 2
-    C07 = 1 + bslmf::IsPointer<const int *const volatile>::VALUE,          // 2
-    C08 = 1 + bslmf::IsPointer<volatile int*>::VALUE,                      // 2
-    C09 = 1 + bslmf::IsPointer<volatile int *const>::VALUE,                // 2
-    C10 = 1 + bslmf::IsPointer<volatile int *volatile>::VALUE,             // 2
-    C11 = 1 + bslmf::IsPointer<volatile int *const volatile>::VALUE,       // 2
-    C12 = 1 + bslmf::IsPointer<const volatile int*>::VALUE,                // 2
-    C13 = 1 + bslmf::IsPointer<const volatile int *const>::VALUE,          // 2
-    C14 = 1 + bslmf::IsPointer<const volatile int *volatile>::VALUE,       // 2
-    C15 = 1 + bslmf::IsPointer<const volatile int *const volatile>::VALUE, // 2
-    C16 = 1 + bslmf::IsPointer<TestType *>::VALUE,                         // 2
+    C00 = 1 + bslmf::IsPointer<int*>::value,                               // 2
+    C01 = 1 + bslmf::IsPointer<int *const>::value,                         // 2
+    C02 = 1 + bslmf::IsPointer<int *volatile>::value,                      // 2
+    C03 = 1 + bslmf::IsPointer<int *const volatile>::value,                // 2
+    C04 = 1 + bslmf::IsPointer<const int*>::value,                         // 2
+    C05 = 1 + bslmf::IsPointer<const int *const>::value,                   // 2
+    C06 = 1 + bslmf::IsPointer<const int *volatile>::value,                // 2
+    C07 = 1 + bslmf::IsPointer<const int *const volatile>::value,          // 2
+    C08 = 1 + bslmf::IsPointer<volatile int*>::value,                      // 2
+    C09 = 1 + bslmf::IsPointer<volatile int *const>::value,                // 2
+    C10 = 1 + bslmf::IsPointer<volatile int *volatile>::value,             // 2
+    C11 = 1 + bslmf::IsPointer<volatile int *const volatile>::value,       // 2
+    C12 = 1 + bslmf::IsPointer<const volatile int*>::value,                // 2
+    C13 = 1 + bslmf::IsPointer<const volatile int *const>::value,          // 2
+    C14 = 1 + bslmf::IsPointer<const volatile int *volatile>::value,       // 2
+    C15 = 1 + bslmf::IsPointer<const volatile int *const volatile>::value, // 2
+    C16 = 1 + bslmf::IsPointer<TestType *>::value,                         // 2
 
-    D00 = 1 + bslmf::IsPointer<TestType *const>::VALUE,                    // 2
-    D01 = 1 + bslmf::IsPointer<TestType *volatile>::VALUE,                 // 2
-    D02 = 1 + bslmf::IsPointer<TestType *const volatile>::VALUE,           // 2
-    D03 = 1 + bslmf::IsPointer<int>::VALUE,                                // 1
-    D04 = 1 + bslmf::IsPointer<int const>::VALUE,                          // 1
-    D05 = 1 + bslmf::IsPointer<int volatile>::VALUE,                       // 1
-    D06 = 1 + bslmf::IsPointer<int const volatile>::VALUE,                 // 1
-    D07 = 1 + bslmf::IsPointer<TestType>::VALUE,                           // 1
-    D08 = 1 + bslmf::IsPointer<TestType const>::VALUE,                     // 1
-    D09 = 1 + bslmf::IsPointer<TestType volatile>::VALUE,                  // 1
-    D10 = 1 + bslmf::IsPointer<TestType const volatile>::VALUE             // 1
+    D00 = 1 + bslmf::IsPointer<TestType *const>::value,                    // 2
+    D01 = 1 + bslmf::IsPointer<TestType *volatile>::value,                 // 2
+    D02 = 1 + bslmf::IsPointer<TestType *const volatile>::value,           // 2
+    D03 = 1 + bslmf::IsPointer<int>::value,                                // 1
+    D04 = 1 + bslmf::IsPointer<int const>::value,                          // 1
+    D05 = 1 + bslmf::IsPointer<int volatile>::value,                       // 1
+    D06 = 1 + bslmf::IsPointer<int const volatile>::value,                 // 1
+    D07 = 1 + bslmf::IsPointer<TestType>::value,                           // 1
+    D08 = 1 + bslmf::IsPointer<TestType const>::value,                     // 1
+    D09 = 1 + bslmf::IsPointer<TestType volatile>::value,                  // 1
+    D10 = 1 + bslmf::IsPointer<TestType const volatile>::value             // 1
 };
 
 // from component doc
@@ -86,17 +86,17 @@ enum {
 struct MyType {};
 typedef MyType* PMT;
 
-static const int a00 = bslmf::IsPointer<int *                >::VALUE;// a00==1
-static const int a01 = bslmf::IsPointer<int *const           >::VALUE;// a01==1
-static const int a02 = bslmf::IsPointer<int *volatile        >::VALUE;// a02==1
-static const int a03 = bslmf::IsPointer<int *const volatile  >::VALUE;// a03==1
-static const int a04 = bslmf::IsPointer<int                  >::VALUE;// a04==0
-static const int a05 = bslmf::IsPointer<MyType               >::VALUE;// a05==0
-static const int a06 = bslmf::IsPointer<MyType*              >::VALUE;// a06==1
-static const int a07 = bslmf::IsPointer<MyType*const         >::VALUE;// a07==1
-static const int a08 = bslmf::IsPointer<MyType*volatile      >::VALUE;// a08==1
-static const int a09 = bslmf::IsPointer<MyType*const volatile>::VALUE;// a09==1
-static const int a10 = bslmf::IsPointer<PMT                  >::VALUE;// a10==1
+static const int a00 = bslmf::IsPointer<int *                >::value;// a00==1
+static const int a01 = bslmf::IsPointer<int *const           >::value;// a01==1
+static const int a02 = bslmf::IsPointer<int *volatile        >::value;// a02==1
+static const int a03 = bslmf::IsPointer<int *const volatile  >::value;// a03==1
+static const int a04 = bslmf::IsPointer<int                  >::value;// a04==0
+static const int a05 = bslmf::IsPointer<MyType               >::value;// a05==0
+static const int a06 = bslmf::IsPointer<MyType*              >::value;// a06==1
+static const int a07 = bslmf::IsPointer<MyType*const         >::value;// a07==1
+static const int a08 = bslmf::IsPointer<MyType*volatile      >::value;// a08==1
+static const int a09 = bslmf::IsPointer<MyType*const volatile>::value;// a09==1
+static const int a10 = bslmf::IsPointer<PMT                  >::value;// a10==1
 
 //=============================================================================
 //                              MAIN PROGRAM

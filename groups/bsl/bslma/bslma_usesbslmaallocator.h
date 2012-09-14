@@ -86,7 +86,7 @@ public:
 
 template <class TYPE>
 struct UsesBslmaAllocator : UsesBslmaAllocator_Imp<TYPE,
-    bslmf::DetectNestedTrait<TYPE, UsesBslmaAllocator>::value>::type
+    bslmf::DetectNestedTrait<TYPE, UsesBslmaAllocator>::VALUE>::type
 {
     // This metafunction is derived from 'true_type' if 'TYPE' adheres to the
     // 'bslma' allocator usage idiom and 'false_type' otherwise.  Note that

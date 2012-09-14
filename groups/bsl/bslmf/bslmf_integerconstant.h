@@ -173,6 +173,10 @@ struct integer_constant {
     // ACCESSORS
     operator value_type() const;
         // Return 'VAL'.
+
+    // COMPATIBILITY MEMBERS
+    typedef integer_constant Type;
+    static const TYPE VALUE = VAL;
 };
 
                         // ===============

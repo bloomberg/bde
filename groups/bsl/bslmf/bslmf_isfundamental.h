@@ -18,12 +18,12 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's parameter is a fundamental type.
-// 'bslmf::IsFundamental' defines a member, 'VALUE', whose value is initialized
+// 'bslmf::IsFundamental' defines a member, 'value', whose value is initialized
 // (at compile-time) to 1 if the parameter is a fundamental type (ignoring any
 // 'const' or 'volatile' qualification), and 0 if it is not.  Instantiating
 // 'bslmf::IsFundamental' on a reference type is the same as instantiating it
 // under underlying (non-reference) type.  Instantiating 'bslmf::IsFundamental'
-// on a pointer type yields a 'VALUE' of zero.  (Pointers are not fundamental
+// on a pointer type yields a 'value' of zero.  (Pointers are not fundamental
 // types, but see 'bslmf_ispointer'.)
 //
 // The C++ fundamental types are described in the C++ standard, section 3.9.1
@@ -59,20 +59,16 @@ BSLS_IDENT("$Id: $")
 //..
 //  struct MyType {};
 //
-//  static const int a1 = bslmf::IsFundamental<int>::VALUE;          // a1 == 1
-//  static const int a1 = bslmf::IsFundamental<int&>::VALUE;         // a1 == 1
-//  static const int a2 = bslmf::IsFundamental<const int>::VALUE;    // a2 == 1
-//  static const int a3 = bslmf::IsFundamental<volatile int>::VALUE; // a3 == 1
-//  static const int a4 = bslmf::IsFundamental<int *>::VALUE;        // a4 == 0
-//  static const int a5 = bslmf::IsFundamental<MyType>::VALUE;       // a5 == 0
+//  static const int a1 = bslmf::IsFundamental<int>::value;          // a1 == 1
+//  static const int a1 = bslmf::IsFundamental<int&>::value;         // a1 == 1
+//  static const int a2 = bslmf::IsFundamental<const int>::value;    // a2 == 1
+//  static const int a3 = bslmf::IsFundamental<volatile int>::value; // a3 == 1
+//  static const int a4 = bslmf::IsFundamental<int *>::value;        // a4 == 0
+//  static const int a5 = bslmf::IsFundamental<MyType>::value;       // a5 == 0
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_INTEGERCONSTANT
@@ -153,16 +149,16 @@ template <> struct IsFundamental_Imp<void>
 
 template <typename TYPE>
 struct IsFundamental
-    : MetaInt<IsFundamental_Imp<typename bsl::remove_cv<TYPE>::type>::value>
+    : IsFundamental_Imp<typename bsl::remove_cv<TYPE>::type>::type
 {
     // This class implements a meta-function for checking if a type is
-    // fundamental.  The static constant 'VALUE' member will be 1 if 'TYPE' is
+    // fundamental.  The static constant 'value' member will be 1 if 'TYPE' is
     // fundamental and 0 otherwise.
 };
 
 template <typename TYPE>
 struct IsFundamental<TYPE&>
-    : MetaInt<IsFundamental_Imp<typename bsl::remove_cv<TYPE>::type>::value>
+    : IsFundamental_Imp<typename bsl::remove_cv<TYPE>::type>::type
 {
     // This specialization of 'IsFundamental' causes references to be treated
     // as their underlying (non-reference) types.

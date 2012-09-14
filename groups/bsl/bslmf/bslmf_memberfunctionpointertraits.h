@@ -47,27 +47,27 @@ BSLS_IDENT("$Id: $")
 //  template <class TYPE>
 //  void checkNotMemberFunctionPointer(TYPE object)
 //  {
-//      assert(0 == bslmf::IsMemberFunctionPointer<TYPE>::VALUE);
+//      assert(0 == bslmf::IsMemberFunctionPointer<TYPE>::value);
 //  }
 //
 //  template <class BSLMF_RETURN, class ARGS, class TYPE>
 //  void checkMemberFunctionPointer(TYPE object)
 //  {
-//      assert(1 == bslmf::IsMemberFunctionPointer<TYPE>::VALUE);
+//      assert(1 == bslmf::IsMemberFunctionPointer<TYPE>::value);
 //      typedef typename bslmf::MemberFunctionPointerTraits<TYPE>::ResultType
 //          ResultType;
 //      typedef typename bslmf::MemberFunctionPointerTraits<TYPE>::ArgumentList
 //          ArgumentList;
-//      assert(1 == (bslmf::IsSame<ResultType, BSLMF_RETURN>::VALUE));
-//      assert(1 == (bslmf::IsSame<ArgumentList, ARGS>::VALUE));
+//      assert(1 == (bslmf::IsSame<ResultType, BSLMF_RETURN>::value));
+//      assert(1 == (bslmf::IsSame<ArgumentList, ARGS>::value));
 //  }
 //..
 // The following program should compile and run without errors:
 //..
 //  void usageExample()
 //  {
-//      assert(0 == bslmf::IsMemberFunctionPointer<int>::VALUE);
-//      assert(0 == bslmf::IsMemberFunctionPointer<int>::VALUE);
+//      assert(0 == bslmf::IsMemberFunctionPointer<int>::value);
+//      assert(0 == bslmf::IsMemberFunctionPointer<int>::value);
 //
 //      checkNotMemberFunctionPointer(&MyTestClass::voidFunc0);
 //      checkMemberFunctionPointer<int, bslmf::TypeList1<int> >(
@@ -81,12 +81,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_IF
-#include <bslmf_if.h>
+#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
+#include <bslmf_integerconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
+#ifndef INCLUDED_BSLMF_IF
+#include <bslmf_if.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPELIST
@@ -115,11 +115,13 @@ struct MemberFunctionPointerTraits
                     // =============================
 
 template <class PROTOTYPE>
-struct IsMemberFunctionPointer : MetaInt<
-        MemberFunctionPointerTraits<PROTOTYPE>::IS_MEMBER_FUNCTION_PTR> {
+struct IsMemberFunctionPointer
+    : bsl::integer_constant<
+            bool,
+            MemberFunctionPointerTraits<PROTOTYPE>::IS_MEMBER_FUNCTION_PTR> {
     // This template determines if the specified 'PROTOTYPE' is a member
-    // function pointer.  VALUE is defined as 1 if the specified 'PROTOTYPE' is
-    // a member function, and a zero value otherwise.
+    // function pointer.  'value' is defined as 1 if the specified 'PROTOTYPE'
+    // is a member function, and a zero value otherwise.
 };
 
 // ---- Anything below this line is implementation specific.  Do not use. ----
