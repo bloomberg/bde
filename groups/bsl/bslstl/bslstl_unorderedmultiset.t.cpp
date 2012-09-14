@@ -2,15 +2,6 @@
 
 #include <bslstl_unorderedmultiset.h>
 
-#include <bslma_default.h>
-#include <bslma_testallocator.h>
-
-#include <algorithm>
-#include <climits>
-#include <cstdlib>
-#include <iostream>
-#include <sstream>
-
 #include <bslalg_rangecompare.h>
 
 #include <bslma_default.h>
@@ -24,9 +15,15 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
-#include <bsltf_stdtestallocator.h>
+
+#include <algorithm>
+#include <climits>
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
 
 // ============================================================================
 //                          ADL SWAP TEST HELPER
@@ -332,7 +329,7 @@ void testContainerHasData(const CONTAINER& x,
 
         bsl::pair<TestIterator, TestIterator> range =
                               x.equal_range(keyForValue<CONTAINER>(testValue));
-        const int rangeDist = std::distance(range.first, range.second);
+        const int rangeDist = native_std::distance(range.first, range.second);
         LOOP2_ASSERT(countValues,   rangeDist,
                      countValues == rangeDist);
 
