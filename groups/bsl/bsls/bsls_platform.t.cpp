@@ -124,6 +124,11 @@ int main(int argc, char *argv[])
         //   Dump them out.
         // --------------------------------------------------------------------
 
+        if (verbose) cout << "Dump out BSLS_PLATFORM__*\n"
+                             "=========================\n";
+
+        if (!verbose) break;
+
         #ifdef BSLS_PLATFORM__CMP_AIX
           printf("BSLS_PLATFORM__CMP_AIX == 1\n");
         #else
