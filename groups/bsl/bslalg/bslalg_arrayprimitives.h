@@ -2324,7 +2324,7 @@ void ArrayPrimitives_Imp::insert(
         AutoArrayDestructor<TARGET_TYPE> endGuard2(destBegin, destEnd);
 
         //..
-        //  Transformation: tuvwx__[ABCDE] => tuvwx[yzABCDE].
+        //  Transformation: tuvwx[]__[ABCDE] => tuvwx[yz][ABCDE].
         //..
 
         for (; toEnd != destBegin; ++fromBegin) {
