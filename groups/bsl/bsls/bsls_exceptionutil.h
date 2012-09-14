@@ -79,7 +79,7 @@ BSLS_IDENT("$Id: $")
 //              return d_begin_p[index];                              // RETURN
 //          }
 //..
-// Now, we use 'BSLS_THROW' to thrown an 'out_of_range' exception:
+// Now, we use 'BSLS_THROW' to throw an 'out_of_range' exception:
 //..
 //          BSLS_THROW(out_of_range(/* ... */));
 //      }
