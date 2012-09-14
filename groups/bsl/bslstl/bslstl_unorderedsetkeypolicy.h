@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a hash table data structure for unordered containers 
+//@PURPOSE: Provide a policy class to use a whole object as its own key.
 //
 //@CLASSES:
 //
@@ -37,7 +37,7 @@ namespace bslstl
                           // ============================
 
 template <class VALUE_TYPE>
-struct UnorderedSetKeyPolicy { 
+struct UnorderedSetKeyPolicy {
   public:
     typedef VALUE_TYPE ValueType;
     typedef ValueType  KeyType;
@@ -45,7 +45,7 @@ struct UnorderedSetKeyPolicy {
     // Choosing to implement for each policy, to reduce the template mess.
     // With only two policies, not much is saved using a shared dependent base
     // class to provide a common implementation.
-    
+
     // CLASS METHODS
     static const KeyType& extractKey(const VALUE_TYPE& obj);
 };
@@ -61,7 +61,7 @@ struct UnorderedSetKeyPolicy {
 
 template <class VALUE_TYPE>
 inline
-const typename UnorderedSetKeyPolicy<VALUE_TYPE>::KeyType& 
+const typename UnorderedSetKeyPolicy<VALUE_TYPE>::KeyType&
 UnorderedSetKeyPolicy<VALUE_TYPE>::extractKey(const VALUE_TYPE& obj)
 {
     return obj;

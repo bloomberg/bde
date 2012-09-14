@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a hash-container with support for duplicate values 
+//@PURPOSE: Provide an STL-compliant unordered_multimap class.
 //
 //@CLASSES:
 //   bsl::unordered_multimap : hashed-map container
@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 //   o one pointer per bucket (no. buckets determined by max_load_factor)
 //   o one additional (empty) sentinel node
 // As we do not cache the hashed value, if any hash function throws we will
-// either do nothing and allow the exception to propogate, or, if some change
+// either do nothing and allow the exception to propagate, or, if some change
 // of state has already been made, clear the whole container to provide the
 // basic exception guarantee.  There are similar concerns for the 'equal_to'
 // predicate.
@@ -138,7 +138,7 @@ class unordered_multimap
 
   private:
     typedef ::BloombergLP::bslalg::BidirectionalLink        HashTableLink;
-    
+
     typedef ::BloombergLP::bslstl::UnorderedMapKeyPolicy<value_type>         ListPolicy;
     typedef ::BloombergLP::bslstl::HashTable<ListPolicy, HASH, EQUAL, ALLOC> Impl;
 
@@ -556,7 +556,7 @@ unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::erase(const key_t
         target = d_impl.remove(target);
         size_type result = 1;
         while (target && this->key_eq()(
-              k, 
+              k,
               ListPolicy::extractKey(static_cast<BNode *>(target)->value()))) {
             target = d_impl.remove(target);
             ++result;
@@ -706,7 +706,7 @@ unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 count(const key_type& k) const
 {
     typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
-    
+
     size_type result = 0;
     for (HashTableLink *cursor = d_impl.find(k);
          cursor;
@@ -986,7 +986,7 @@ reserve(size_type n)
 }  // close namespace bsl
 
 //----------------------------------------------------------------------------
-//                  free functions and opterators
+//                  free functions and operators
 //----------------------------------------------------------------------------
 
 template <class KEY_TYPE,

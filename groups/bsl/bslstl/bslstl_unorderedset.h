@@ -967,7 +967,7 @@ unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::reserve(size_type n)
 }  // close namespace bsl
 
 //----------------------------------------------------------------------------
-//                  free functions and opterators
+//                  free functions and operators
 //----------------------------------------------------------------------------
 
 template <class KEY_TYPE,

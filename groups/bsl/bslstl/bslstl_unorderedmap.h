@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE:Provide an STL-compliant unordered_map class.
 //
 //@CLASSES:
-//   bsl::unordered_map : STL-compatible unordered map containerr
+//   bsl::unordered_map : STL-compatible unordered map container
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
@@ -215,7 +215,6 @@ class unordered_map
     typedef BSTL::HashTable<ListPolicy, HASH, EQUAL, ALLOC> HashTable;
     typedef ::BloombergLP::bslalg::BidirectionalLink        HashTableLink;
     typedef typename HashTable::NodeType                    HashTableNode;
-    
 
   public:
     typedef BSTL::HashTableIterator<value_type, difference_type>
@@ -322,7 +321,7 @@ class unordered_map
     template <class... Args>
     iterator emplace_hint(const_iterator position, Args&&... args);
 #else
-    // could supply overloads for a limitted implementation
+    // could supply overloads for a limited implementation
 #endif
 
 #if BDE_BUILD_TARGET_CXX11
@@ -633,7 +632,7 @@ unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::insert(
     typedef bsl::pair<iterator, bool> ResultType;
 
     bool isInsertedFlag = false;
-    
+
     HashTableLink *result = d_impl.insertIfMissing(&isInsertedFlag, obj);
 
     return ResultType(iterator(result), isInsertedFlag);
@@ -921,7 +920,7 @@ inline
 typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::mapped_type&
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 operator[](const key_type& k)
-{   
+{
     HashTableLink *node = d_impl.findOrInsertDefault(k);
     return static_cast<HashTableNode *>(node)->value().second;
 }
@@ -938,11 +937,11 @@ unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
                                                         at(const key_type& key)
 {
     HashTableLink *node = d_impl.find(key);
-    
+
     if (!node) {
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("Boo!");
     }
-   
+
     return static_cast<HashTableNode *>(node)->value().second;
 }
 
@@ -1173,7 +1172,7 @@ unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::reserve(size_type n)
 }  // close namespace bsl
 
 //----------------------------------------------------------------------------
-//                  free functions and opterators
+//                  free functions and operators
 //----------------------------------------------------------------------------
 
 template <class KEY_TYPE,

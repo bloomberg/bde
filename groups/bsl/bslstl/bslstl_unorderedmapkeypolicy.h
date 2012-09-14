@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a hash table data structure for unordered containers 
+//@PURPOSE: Provide a policy class to extract keys as the 'first' attribute.
 //
 //@CLASSES:
 //   bslalg::UnorderedMapKeyPolicy :
@@ -37,7 +37,7 @@ namespace bslstl
                           // ============================
 
 template <class VALUE_TYPE>
-struct UnorderedMapKeyPolicy { 
+struct UnorderedMapKeyPolicy {
   public:
     typedef          VALUE_TYPE             ValueType;
     typedef typename ValueType::first_type  KeyType;
@@ -47,7 +47,7 @@ struct UnorderedMapKeyPolicy {
     // class to provide a common implementation.
     // This is the key abstraction, turning 'bslalg::BidirectionalLink*' into
     // 'VALUE_TYPE&'
-    
+
     // CLASS METHODS
     static const KeyType& extractKey(const VALUE_TYPE& obj);
 };
@@ -65,7 +65,7 @@ struct UnorderedMapKeyPolicy {
 // CLASS METHODS
 template <class VALUE_TYPE>
 inline
-const typename UnorderedMapKeyPolicy<VALUE_TYPE>::KeyType& 
+const typename UnorderedMapKeyPolicy<VALUE_TYPE>::KeyType&
 UnorderedMapKeyPolicy<VALUE_TYPE>::extractKey(const VALUE_TYPE& obj)
 {
     return obj.first;

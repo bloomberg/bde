@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
 //@DESCRIPTION: This component provides a common foundation to implement the
-// four 'unorderd' containers specified by the C++11 standard.  It supplies
+// four 'unordered' containers specified by the C++11 standard.  It supplies
 // a hash table, which stores values in buckets determined by the supplied
 // hashing policy, and iterators to walk the table returning access to said
 // values.
@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 //   o one pointer per bucket (no. buckets determined by max_load_factor)
 //   o one additional (empty) sentinel node
 // As we do not cache the hashed value, if any hash function throws we will
-// either do nothing and allow the exception to propogate, or, if some change
+// either do nothing and allow the exception to propagate, or, if some change
 // of state has already been made, clear the whole container to provide the
 // basic exception guarantee.  There are similar concerns for the 'equal_to'
 // predicate.
@@ -55,12 +55,12 @@ in BSL_OVERRIDES_STD mode"
 #include <bslstl_iterator.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
-#include <bslalg_bidirectionalnode.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
 #include <bslalg_bidirectionallink.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
+#include <bslalg_bidirectionalnode.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_HASHTABLEBUCKET
@@ -96,7 +96,7 @@ class HashTableBucketIterator
 // iterators inheriting from 'std::iterator'.
 #endif
 {
-    
+
     // PRIVATE TYPES
     typedef typename bslmf::RemoveCvq<VALUE_TYPE>::Type NcType;
     typedef HashTableBucketIterator<NcType, DIFFERENCE_TYPE>
@@ -129,14 +129,14 @@ class HashTableBucketIterator
         // not have a singular value.
 
     explicit HashTableBucketIterator(const bslalg::HashTableBucket *bucket);
-        // Create an iterator referring to the specified 'bucket', intially
+        // Create an iterator referring to the specified 'bucket', initially
         // pointing to the first node in that 'bucket', or a past-the-end value
         // if the 'bucket' is empty.  Note that this constructor is an
         // implementation detail and is not part of the C++ standard.
-    
+
     explicit HashTableBucketIterator(bslalg::BidirectionalLink     *node,
                                      const bslalg::HashTableBucket *bucket);
-        // Create an iterator referring to the specified 'bucket', intially
+        // Create an iterator referring to the specified 'bucket', initially
         // pointing to the specified 'node' in that bucket.  The behavior is
         // undefined unless 'node' is part of 'bucket', or 'node' is 0.  Note
         // that this constructor is an implementation detail and is not part of
@@ -199,7 +199,7 @@ class HashTableBucketIterator
         // Return the address of the list-node at which this iterator is
         // positioned, or 0 if this iterator is positioned after the end of a
         // bucket.  Note that this method is an implementation detail intended
-        // for debugging purposes only, and is not part of the C++ standard.  
+        // for debugging purposes only, and is not part of the C++ standard.
 };
 
 // FREE FUNCTIONS AND OPERATORS
@@ -297,7 +297,6 @@ inline
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>::
 HashTableBucketIterator(bslalg::BidirectionalLink     *node,
                         const bslalg::HashTableBucket *bucket)
-                        
 : d_node_p(node)
 , d_bucket_p(bucket)
 {

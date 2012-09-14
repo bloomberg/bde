@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
-//@DESCRIPTION: This component provides an STL-compliant foward iterator over
+//@DESCRIPTION: This component provides an STL-compliant forward iterator over
 // the elements of a hash table.  The requirements of a STL forward iterator
 // are outlined in the C++11 standard in section [24.2.5] under the tag
 // [forward.iterators].  A 'HashTableIterator' object is parameterized on
