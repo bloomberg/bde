@@ -19,21 +19,68 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Herve Bronnimann (hbronnim), Alexei Zakharov (azakhar1)
 //
 //@DESCRIPTION: This component defines a single class template 'basic_string',
-// implementing standard sequential containers, 'std::string' and
-// 'std::wstring', that hold a sequence of characters.
+// implementing standard containers, 'std::string' and 'std::wstring', that
+// hold a sequence of characters.
 //
 // An instantiation of 'basic_string' is an allocator-aware, value-semantic
 // type whose salient attributes are its size (number of characters) and the
 // sequence of characters the string contains.  The 'basic_string' 'class' is
-// parameterized by the character type, and by that character type's traits.
+// parameterized by the character type, 'CHAR_TYPE', that character type's
+// traits, 'CHAR_TRAITS', and an allocator.
 //
 // A basic_string meets the requirements of a sequential container with random
 // access iterators as specified in the [basic.string] section of the C++
 // standard [21.4].  The 'basic_string' implemented here adheres to the C++11
 // standard, except that it does not have interfaces that take rvalue
-// references, 'initializer_lists', 'emplace', or operations taking a variadic
-// number of template parameters.  Note that excluded C++11 features are those
-// that require (or are greatly simplified by) C++11 compiler support.
+// references or 'initializer_lists', the 'shrink_to_fit' method, functions
+// that support numeric conversions, such as 'stoi', 'to_string', and
+// 'to_wstring', and template specializations 'std::u16string' and
+// 'std::u32string'.  Note that excluded C++11 features are those that require
+// (or are greatly simplified by) C++11 compiler support.
+//
+///Requirements on 'CHAR_TRAITS'
+///-----------------------------
+// A 'basic_string' uses the parameterized 'CHAR_TRAITS' type for operations on
+// characters of the parameterized 'CHAR_TYPE'.  The following
+// terminology, adopted from the C++11 standard, is used in the interface of
+// 'basic_string' to describe a function's requirements for the 'CHAR_TRAITS'
+// template parameter.  These terms are also defined in the
+// [char.traits.require] section of the C++11 standard [21.2.1].
+//
+//: "default-constructible": The type provides a default constructor.
+//:
+//: "copy-constructible": The type provides a copy constructor.
+//:
+//: "equality-comparable": The type provides an equality-comparison operator
+//:     that defines an equivalence relationship and is both reflexive and
+//:     transitive.
+//:
+//: "less-than-comparable": The type provides a less-than operator, which
+//:     defines a strict weak ordering relation on values of the type.
+//
+///Memory Allocation
+///-----------------
+// The type supplied as a basic_string's 'ALLOCATOR' template parameter
+// determines how that basic_string will allocate memory.  The 'basic_string'
+// template supports allocators meeting the requirements of the C++03 standard,
+// in addition it supports scoped-allocators derived from the
+// 'bslma::Allocator' memory allocation protocol.  Clients intending to use
+// 'bslma' style allocators should use the template's default 'ALLOCATOR' type:
+// The default type for the 'ALLOCATOR' template parameter, 'bsl::allocator',
+// provides a C++11 standard-compatible adapter for a 'bslma::Allocator'
+// object.
+//
+///'bslma'-Style Allocators
+/// - - - - - - - - - - - -
+// If the (template parameter) type 'ALLOCATOR' of an 'basic_string'
+// instantiation is 'bsl::allocator', then objects of that basic_string type
+// will conform to the standard behavior of a 'bslma'-allocator-enabled type.
+// Such a basic_string accepts an optional 'bslma::Allocator' argument at
+// construction.  If the address of a 'bslma::Allocator' object is explicitly
+// supplied at construction, it will be used to supply memory for the
+// basic_string throughout its lifetime; otherwise, the basic_string will use
+// the default allocator installed at the time of the basic_string's
+// construction (see 'bslma_default').
 //
 ///Lexicographical Comparisons
 ///---------------------------
@@ -46,6 +93,98 @@ BSLS_IDENT("$Id: $")
 // string is declared the smaller.  Lexicographical comparison returns equality
 // only when both strings have the same length and the same character value in
 // each respective position.
+//
+///Operations
+///----------
+// This section describes the run-time complexity of operations on instances
+// of 'basic_string':
+//..
+//  Legend
+//  ------
+//  'V'              - the 'CHAR_TYPE' template parameter type of the
+//                     basic_string
+//  'a', 'b'         - two distinct objects of type 'basic_string<V>'
+//  'n', 'm'         - number of values in 'a' and 'b' respectively
+//  'k'              - an integral number
+//  'al'             - an STL-style memory allocator
+//  'i1', 'i2'       - two iterators defining a sequence of 'VALUE_TYPE'
+//                     objects
+//  'v'              - an object of type 'V'
+//  'p1', 'p2'       - two iterators belonging to 'a'
+//  distance(i1,i2)  - the number of values in the range [i1, i2)
+//
+//  +-----------------------------------------+-------------------------------+
+//  | Operation                               | Complexity                    |
+//  |=========================================+===============================|
+//  | basic_string<V> a (default construction)| O[1]                          |
+//  | basic_string<V> a(al)                   |                               |
+//  |-----------------------------------------+-------------------------------|
+//  | basic_string<V> a(b) (copy construction)| O[1]                          |
+//  | basic_string<V> a(b, al)                |                               |
+//  |-----------------------------------------+-------------------------------|
+//  | basic_string<V> a(i1, i2)               | O[1]                          |
+//  | basic_string<V> a(i1, i2, al)           |                               |
+//  |-----------------------------------------+-------------------------------|
+//  | a.~basic_string<V>()  (destruction)     | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.assign(k, v)                          | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.assign(i1, i2)                        | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | get_allocator()                         | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.begin(), a.end(),                     | O[1]                          |
+//  | a.cbegin(), a.cend(),                   |                               |
+//  | a.rbegin(), a.rend(),                   |                               |
+//  | a.crbegin(), a.crend()                  |                               |
+//  |-----------------------------------------+-------------------------------|
+//  | a.size()                                | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.max_size()                            | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.resize(k)                             | O[1]                          |
+//  | a.resize(k, v)                          |                               |
+//  |-----------------------------------------+-------------------------------|
+//  | a.empty()                               | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.reserve(k)                            | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a[k]                                    | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.at(k)                                 | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.front()                               | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.back()                                | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.push_back()                           | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.pop_back()                            | O[1]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a.insert(p1, v)                         | O[1 + distance(p1, a.end())] |
+//  |-----------------------------------------+-------------------------------|
+//  | a.insert(p1, k, v)                      | O[k + distance(p1, a.end())] |
+//  |-----------------------------------------+-------------------------------|
+//  | a.insert(p1, i1, i2)                    | O[distance(i1, i2)            |
+//  |                                         |      + distance(p1, a.end())] |
+//  |-----------------------------------------+-------------------------------|
+//  | a.erase(p1)                             | O[1 + distance(p1, a.end())]  |
+//  |-----------------------------------------+-------------------------------|
+//  | a.erase(p1, p2)                         | O[distance(p1, p2)            |
+//  |                                         |      + distance(p1, a.end())] |
+//  |-----------------------------------------+-------------------------------|
+//  | a.swap(b), swap(a,b)                    | O[1] if 'a' and 'b' use the   |
+//  |                                         | same allocator, O[n + m]      |
+//  |                                         | otherwise                     |
+//  |-----------------------------------------+-------------------------------|
+//  | a.clear()                               | O[n]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a = b;           (assignment)           | O[n]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a == b, a != b                          | O[n]                          |
+//  |-----------------------------------------+-------------------------------|
+//  | a < b, a <= b, a > b, a >= b            | O[n]                          |
+//  +-----------------------------------------+-------------------------------+
 //
 ///Usage
 ///-----
