@@ -10,21 +10,21 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a class supporting "do-the-right-thing clause" dispatch.
 //
 //@CLASSES:
-//  bslmf::MatchArithmeticType: implicit conversion of integral types
+//  bslmf::MatchArithmeticType: implicit conversion of arithmetic types
 //
 //@SEE_ALSO: bslstl_deque, bslstl_string, bslstl_vector
 //
 //@AUTHOR: Pablo Halpern (phalpern), Steven Breitstein (sbreitstein)
 //
 //@DESCRIPTION: This component defines a class, 'bslmf::MatchArithmeticType',
-// to which any integral type can be implicitly converted.  A class with that
+// to which any arithmetic type can be implicitly converted.  A class with that
 // conversion property is useful for meeting the certain requirements of the
 // standard sequential containers (e.g., 'bsl::vector', 'bsl::deque',
 // 'bsl::string').
 //
 // Sequential containers have several overloaded method templates that accept a
 // pair of input iterators (e.g., constructors, 'insert' and 'append' methods),
-// but which must *not* accept integral types (e.g., 'char', 'short', 'int').
+// but which must *not* accept arithmetic types (e.g., 'char', 'short', 'int').
 // See "ISO/IEC 14882:2011 Programming Language C++" (see
 // 'http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2011/n3242.pdf'),
 // "Section 23.2.3 [sequence.reqmts]", paragraphs 14-15.  This requirement is
@@ -32,7 +32,9 @@ BSLS_IDENT("$Id: $")
 // 'http://gcc.gnu.org/onlinedocs/libstdc++/ext/lwg-defects.html#438'.
 //
 // The convertibility of arguments to 'bslmf::MatchArithmeticType' is used to
-// dispatch calls with integral arguments to the appropriate methods.
+// dispatch calls with arithmetic arguments to the appropriate methods.
+// Note that this technique (called "tag dispatch") does not work for classes
+// that define a conversion operator to 'bslmf::MatchArithmeticType'.
 //
 ///Usage
 ///-----
@@ -153,6 +155,10 @@ BSLS_IDENT("$Id: $")
 // is better than that provided by the repeated value constructor, which
 // requires conversions of two different arguments.
 //
+// Note that, in practice, range constructors, expecting iterators, dereference
+// their arguments, and so fail to compile when instantiated with arithmetic
+// types.
+// 
 // If we are fortunate, range constructor code will fail to compile; otherwise,
 // dereferencing integer values (i.e., using them as pointers) leads to
 // undefined behavior.
@@ -265,11 +271,11 @@ BSLS_IDENT("$Id: $")
 //          // only for overload resolution.
 //
 //      template <class INPUT_ITER>
-//      void privateInitDispatch(INPUT_ITER                        first,
-//                               INPUT_ITER                        last,
-//                               const char                       *message,
-//                               BloombergLP::bslmf::MatchAnyType  ,
-//                               BloombergLP::bslmf::MatchAnyType  );
+//      void privateInitDispatch(INPUT_ITER           first,
+//                               INPUT_ITER           last,
+//                               const char          *message,
+//                               bslmf::MatchAnyType  ,
+//                               bslmf::MatchAnyType  );
 //          // Initialize a 'MyContainer' object containing the values in the
 //          // range starting at the specified 'first' and ending immediately
 //          // before the specified 'last' iterators of the type 'INPUT_ITER',
@@ -392,11 +398,11 @@ namespace bslmf {
 
 class MatchArithmeticType {
     // This copy-constructible mechanism can be used as a formal parameter for
-    // functions where an integral type can be confused with an iterator type.
-    // A copy-constructbile mechanism is needed so that such objects can be
-    // used as function arguments.
+    // functions where an arithmetic type can be confused with an iterator
+    // type.  A copy-constructbile mechanism is needed so that such objects can
+    // be used as function arguments.
     //
-    // Note that if a type has a user-defined conversion to integral value,
+    // Note that if a type has a user-defined conversion to arithmetic value,
     // this will *not* match because passing such an object would require two
     // user-defined conversions.
 

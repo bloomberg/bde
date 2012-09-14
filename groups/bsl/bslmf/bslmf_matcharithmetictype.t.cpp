@@ -31,7 +31,7 @@ using namespace std;
 // [ 1] MatchArithmeticType(const MatchArithmeticType&);
 // [ 1] ~MatchArithmeticType();
 // ----------------------------------------------------------------------------
-// [ 2] INTEGRAL CONVERIBILITY
+// [ 2] ARITHMETIC CONVERIBILITY
 // [ 3] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 // [-1] NON-CONVERTIBLE
@@ -84,7 +84,7 @@ void acceptObj(bslmf::MatchArithmeticType)
 }
 
 template <class TYPE>
-struct IntegralConveribility
+struct ArithmeticConveribility
 {
     // This 'struct' provides a namespace for a simple test method.
 
@@ -106,7 +106,7 @@ struct IntegralConveribility
 };
 
 template <class TYPE>
-void IntegralConveribility<TYPE>::implicitlyConvert()
+void ArithmeticConveribility<TYPE>::implicitlyConvert()
 {
     if (globalVerbose) {
         printf("%s\n", typeid(TYPE).name());
@@ -298,9 +298,9 @@ namespace usageExample1 {
 // is better than that provided by the repeated value constructor, which
 // requires conversions of two different arguments.
 //
-// If we are fortunate, range constructor code will fail to compile; otherwise,
-// dereferencing integer values (i.e., using them as pointers) leads to
-// undefined behavior.
+// Note that, in practice, range constructors, expecting iterators, dereference
+// their arguments, and so fail to compile when instantiated with arithmetic
+// types.
 //
 // Note that, in many other situations, overloading resolution issues can be
 // avoided by function renaming; however, as these are constructors, we do not
@@ -396,11 +396,11 @@ namespace usageExample1 {
             // only for overload resolution.
 
         template <class INPUT_ITER>
-        void privateInitDispatch(INPUT_ITER                        first,
-                                 INPUT_ITER                        last,
-                                 const char                       *message,
-                                 BloombergLP::bslmf::MatchAnyType  ,
-                                 BloombergLP::bslmf::MatchAnyType  );
+        void privateInitDispatch(INPUT_ITER           first,
+                                 INPUT_ITER           last,
+                                 const char          *message,
+                                 bslmf::MatchAnyType  ,
+                                 bslmf::MatchAnyType  );
             // Initialize a 'MyContainer' object containing the values in the
             // range starting at the specified 'first' and ending immediately
             // before the specified 'last' iterators of the type 'INPUT_ITER',
@@ -627,7 +627,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // INTEGRAL CONVERIBILITY
+        // ARITHMETIC CONVERIBILITY
         //
         // Concerns:
         //: 1 Every C++ arithmetic type, each with and without
@@ -636,7 +636,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Define 'acceptObj', a function specifying a parameter of type
-        //:   'bslmf::MatchArithmeticType', and 'IntegralConvertability' a
+        //:   'bslmf::MatchArithmeticType', and 'ArithmeticConvertability' a
         //:   structure templated on 'TYPE' whose 'implicityConvert' method has
         //:   multipled invocations of 'acceptObj' providing and object 'TYPE'
         //:   with different qualifications: e.g., by value, by reference, by
@@ -644,32 +644,32 @@ int main(int argc, char *argv[])
         //:   compilation indicates success.  (C-1)
         //
         // Testing:
-        //   INTEGRAL CONVERIBILITY
+        //   ARITHMETIC CONVERIBILITY
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nINTEGRAL CONVERIBILITY"
+        if (verbose) printf("\nARITHMETIC CONVERIBILITY"
                             "\n======================\n");
 
-        IntegralConveribility<                    bool  >::implicitlyConvert();
+      ArithmeticConveribility<                    bool  >::implicitlyConvert();
 
-        IntegralConveribility<                    char  >::implicitlyConvert();
-        IntegralConveribility<                   wchar_t>::implicitlyConvert();
+      ArithmeticConveribility<                    char  >::implicitlyConvert();
+      ArithmeticConveribility<                   wchar_t>::implicitlyConvert();
 
-        IntegralConveribility<  signed            char  >::implicitlyConvert();
-        IntegralConveribility<  signed      short int   >::implicitlyConvert();
-        IntegralConveribility<  signed            int   >::implicitlyConvert();
-        IntegralConveribility<  signed      long  int   >::implicitlyConvert();
-        IntegralConveribility<  signed long long  int   >::implicitlyConvert();
+      ArithmeticConveribility<  signed            char  >::implicitlyConvert();
+      ArithmeticConveribility<  signed      short int   >::implicitlyConvert();
+      ArithmeticConveribility<  signed            int   >::implicitlyConvert();
+      ArithmeticConveribility<  signed      long  int   >::implicitlyConvert();
+      ArithmeticConveribility<  signed long long  int   >::implicitlyConvert();
 
-        IntegralConveribility<unsigned            char  >::implicitlyConvert();
-        IntegralConveribility<unsigned      short int   >::implicitlyConvert();
-        IntegralConveribility<unsigned            int   >::implicitlyConvert();
-        IntegralConveribility<unsigned      long  int   >::implicitlyConvert();
-        IntegralConveribility<unsigned long long  int   >::implicitlyConvert();
+      ArithmeticConveribility<unsigned            char  >::implicitlyConvert();
+      ArithmeticConveribility<unsigned      short int   >::implicitlyConvert();
+      ArithmeticConveribility<unsigned            int   >::implicitlyConvert();
+      ArithmeticConveribility<unsigned      long  int   >::implicitlyConvert();
+      ArithmeticConveribility<unsigned long long  int   >::implicitlyConvert();
 
-        IntegralConveribility<                    float >::implicitlyConvert();
-        IntegralConveribility<                    double>::implicitlyConvert();
-        IntegralConveribility<              long  double>::implicitlyConvert();
+      ArithmeticConveribility<                    float >::implicitlyConvert();
+      ArithmeticConveribility<                    double>::implicitlyConvert();
+      ArithmeticConveribility<              long  double>::implicitlyConvert();
 
       } break;
       case 1: {
@@ -690,7 +690,7 @@ int main(int argc, char *argv[])
         //: 1 Construct an object 'obj' of type 'bslmf::MatchArithmeticType'
         //:   using an arbitrary integer value.  (C-1)
         //:
-        //: 2 Pass the constructed 'obj' to 'accepObj' to a locally defined
+        //: 2 Pass the constructed 'obj' to 'acceptObj' to a locally defined
         //:   function with a formal parameter of 'MatchArithmeticType', and
         //:   confirm that the correct function was called.  (C-2)
         //:
@@ -729,7 +729,7 @@ int main(int argc, char *argv[])
         //   This manually driven test case demonstrates how the
         //   'bslmf::MatchArithmeticType' class disallows implicit conversion
         //   from inappropriate types.  Each
-        //   'BSLSTL_DISAMBIGUATOR_NON_CONVERT_*' preprocessor symbol should in
+        //   'BSLMF_DISAMBIGUATOR_NON_CONVERT_*' preprocessor symbol should in
         //   turn be defined and compiler failure (success for the case)
         //   confirmed.
         //
@@ -756,8 +756,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nNON-CONVERTIBLE"
                             "\n===============\n");
 
-//#define BSLSTL_DISAMBIGUATOR_NON_CONVERT_MYCONVERTITBLETOINTCLASS
-#ifdef  BSLSTL_DISAMBIGUATOR_NON_CONVERT_MYCONVERTITBLETOINTCLASS
+//#define BSLMF_DISAMBIGUATOR_NON_CONVERT_MYCONVERTITBLETOINTCLASS
+#ifdef  BSLMF_DISAMBIGUATOR_NON_CONVERT_MYCONVERTITBLETOINTCLASS
         MyConvertibleToInt obj;
         if (verbose) {
             printf ("MyConvertibleToInt: %d\n", (int)obj);
@@ -765,8 +765,8 @@ int main(int argc, char *argv[])
         acceptObj(obj);
 #endif
 
-//#define BSLSTL_DISAMBIGUATOR_NON_CONVERT_POINTER
-#ifdef  BSLSTL_DISAMBIGUATOR_NON_CONVERT_POINTER
+//#define BSLMF_DISAMBIGUATOR_NON_CONVERT_POINTER
+#ifdef  BSLMF_DISAMBIGUATOR_NON_CONVERT_POINTER
         int i;
         int *p = &i;
         if (verbose) {

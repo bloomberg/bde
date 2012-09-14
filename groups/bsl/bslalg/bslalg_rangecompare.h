@@ -48,6 +48,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_matchanytype.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>
 #define INCLUDED_CSTDDEF
