@@ -75,6 +75,10 @@ in BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
 #endif
@@ -91,7 +95,7 @@ namespace bslstl
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 class HashTableBucketIterator
 #ifdef BSLS_PLATFORM__OS_SOLARIS
-: public std::iterator<bsl::forward_iterator_tag, VALUE_TYPE>
+: public native_std::iterator<native_std::forward_iterator_tag, VALUE_TYPE>
 // On Solaris just to keep studio12-v4 happy, since algorithms takes only
 // iterators inheriting from 'std::iterator'.
 #endif
@@ -104,11 +108,11 @@ class HashTableBucketIterator
 
   public:
     // PUBLIC TYPES
-    typedef NcType                      value_type;
-    typedef DIFFERENCE_TYPE             difference_type;
-    typedef VALUE_TYPE                 *pointer;
-    typedef VALUE_TYPE&                 reference;
-    typedef bsl::forward_iterator_tag   iterator_category;
+    typedef NcType                            value_type;
+    typedef DIFFERENCE_TYPE                   difference_type;
+    typedef VALUE_TYPE                       *pointer;
+    typedef VALUE_TYPE&                       reference;
+    typedef native_std::forward_iterator_tag  iterator_category;
         // Standard iterator defined types [24.4.2].
 
   private:
@@ -204,66 +208,42 @@ class HashTableBucketIterator
 
 // FREE FUNCTIONS AND OPERATORS
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
-bool operator==(const HashTableBucketIterator<VALUE_TYPE,
-                                        DIFFERENCE_TYPE
-                                        >& lhs,
-                const HashTableBucketIterator<VALUE_TYPE,
-                                        DIFFERENCE_TYPE
-                                        >& rhs);
+bool operator==(
+              const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
+              const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
-bool operator==(const HashTableBucketIterator<VALUE_TYPE,
-                                        DIFFERENCE_TYPE
-                                        >& lhs,
-                const HashTableBucketIterator<const VALUE_TYPE,
-                                        DIFFERENCE_TYPE
-                                        >& rhs);
+bool operator==(
+        const HashTableBucketIterator<      VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
-bool operator==(const HashTableBucketIterator<const VALUE_TYPE,
-                                        DIFFERENCE_TYPE
-                                        >& lhs,
-                const HashTableBucketIterator<VALUE_TYPE,
-                                        DIFFERENCE_TYPE
-                                        >& rhs);
+bool operator==(
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
+        const HashTableBucketIterator<      VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
-bool operator==(const HashTableBucketIterator<const VALUE_TYPE,
-                                        DIFFERENCE_TYPE
-                                        >& lhs,
-                const HashTableBucketIterator<const VALUE_TYPE,
-                                        DIFFERENCE_TYPE
-                                        >& rhs);
+bool operator==(
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and the specified 'rhs' iterators
     // have the same value and 'false' otherwise.  Two iterators have
     // the same value if they refer to the same node in the same hash table, or
     // if both iterators are positioned after the end of a hash table bucket.
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
-bool operator!=(const HashTableBucketIterator<VALUE_TYPE,
-                                              DIFFERENCE_TYPE
-                                              >& lhs,
-                const HashTableBucketIterator<VALUE_TYPE,
-                                              DIFFERENCE_TYPE
-                                              >& rhs);
+bool operator!=(
+              const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
+              const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
-bool operator!=(const HashTableBucketIterator<VALUE_TYPE,
-                                              DIFFERENCE_TYPE
-                                              >& lhs,
-                const HashTableBucketIterator<const VALUE_TYPE,
-                                              DIFFERENCE_TYPE
-                                              >& rhs);
+bool operator!=(
+        const HashTableBucketIterator<      VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
-bool operator!=(const HashTableBucketIterator<const VALUE_TYPE,
-                                              DIFFERENCE_TYPE
-                                              >& lhs,
-                const HashTableBucketIterator<VALUE_TYPE,
-                                              DIFFERENCE_TYPE
-                                              >& rhs);
+bool operator!=(
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
+        const HashTableBucketIterator<      VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
-bool operator!=(const HashTableBucketIterator<const VALUE_TYPE,
-                                              DIFFERENCE_TYPE
-                                              >& lhs,
-                const HashTableBucketIterator<const VALUE_TYPE,
-                                              DIFFERENCE_TYPE
-                                              >& rhs);
+bool operator!=(
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
+        const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and the specified 'rhs' iterators
     // do not have the same value and 'false' otherwise.  Two iterators do not
     // have the same value if they refer to the different nodes in the same
