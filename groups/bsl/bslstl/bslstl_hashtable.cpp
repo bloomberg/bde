@@ -14,11 +14,11 @@ namespace BloombergLP
 namespace bslstl
 {
 
-                    // ----------------------------
-                    // class HashTable_StaticBucket
-                    // ----------------------------
+                    // --------------------------
+                    // class HashTable_ImpDetails
+                    // --------------------------
 
-bslalg::HashTableBucket *HashTable_StaticBucket::getDefaultBucketAddress()
+bslalg::HashTableBucket *HashTable_ImpDetails::getDefaultBucketAddress()
 {
     static bslalg::HashTableBucket s_bucket = {}; // Aggregative initialization
                                                   // of a POD should be thread-
@@ -26,12 +26,7 @@ bslalg::HashTableBucket *HashTable_StaticBucket::getDefaultBucketAddress()
     return &s_bucket;
 }
 
-
-                    // -------------------------
-                    // class HashTable_PrimeUtil
-                    // -------------------------
-
-native_std::size_t HashTable_PrimeUtil::nextPrime(native_std::size_t n)
+native_std::size_t HashTable_ImpDetails::nextPrime(native_std::size_t n)
 {   // An abbreviated list of prime numbers in the domain of 32-bit
     // unsigned integers.  Essentially, a subset where each successive
     // element is the next prime after doubling.
