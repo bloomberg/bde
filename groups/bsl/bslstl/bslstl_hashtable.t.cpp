@@ -98,10 +98,10 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-bool verbose;             
-bool veryVerbose;         
-bool veryVeryVerbose;    
-bool veryVeryVeryVerbose; 
+bool verbose;
+bool veryVerbose;
+bool veryVeryVerbose;
+bool veryVeryVeryVerbose;
 
 typedef bslalg::HashTableImpUtil ImpUtil;
 typedef bslalg::BidirectionalLink Link;
@@ -112,7 +112,7 @@ typedef ::bsl::equal_to<int> TestIntEqual;
 namespace bsl {
 
 template <class FIRST, class SECOND>
-inline void debugprint(const bsl::pair<FIRST, SECOND>& p) 
+inline void debugprint(const bsl::pair<FIRST, SECOND>& p)
 {
     bsls::BslTestUtil::callDebugprint(p.first);
     bsls::BslTestUtil::callDebugprint(p.second);
@@ -120,7 +120,7 @@ inline void debugprint(const bsl::pair<FIRST, SECOND>& p)
 
 // map-specific print function.
 template <class KEY_POLICY, class HASHER, class EQUAL, class ALLOCATOR>
-void debugprint(const bslstl::HashTable<KEY_POLICY, HASHER, EQUAL, ALLOCATOR>& 
+void debugprint(const bslstl::HashTable<KEY_POLICY, HASHER, EQUAL, ALLOCATOR>&
                                                                             t)
 {
     if (t.isEmpty()) {
@@ -129,7 +129,7 @@ void debugprint(const bslstl::HashTable<KEY_POLICY, HASHER, EQUAL, ALLOCATOR>&
     else {
 
         for (Link *it = t.begin(); it != t.end(); ++it) {
-            const typename KEY_POLICY::KeyType& key = 
+            const typename KEY_POLICY::KeyType& key =
                                            ImpUtil::extractKey<KEY_POLICY>(it);
             bsls::BslTestUtil::callDebugprint(static_cast<char>(
                        bsltf::TemplateTestFacility::getIdentifier(key)));
@@ -139,7 +139,7 @@ void debugprint(const bslstl::HashTable<KEY_POLICY, HASHER, EQUAL, ALLOCATOR>&
 }
 
 } // close namespace bsl
-                       
+
 template<class KEY, class MAPPED>
 struct TestMapKeyPolicy
 {
@@ -150,8 +150,8 @@ struct TestMapKeyPolicy
     static const KEY& extractKey(const ValueType& value) {
         return value.first;
     }
-    
-    static const KEY& extractValue(const ValueType& value) {
+
+    static const ValueType& extractValue(const ValueType& value) {
         return value.second;
     }
 };
@@ -176,8 +176,8 @@ class CharToPairConverter {
 };
 
 template <class KEY_POLICY,
-          class HASHER, 
-          class EQUAL, 
+          class HASHER,
+          class EQUAL,
           class ALLOCATOR>
 class TestDriver {
     // This templatized struct provide a namespace for testing the 'map'
@@ -335,8 +335,8 @@ void TestDriver<KEY_POLICY, HASHER, EQUAL, ALLOCATOR> ::testCase1(
 
        for (size_t i = 0; i < numValues; ++i) {
            bool isInsertedFlag = false;
-           o1.insertIfMissing(&isInsertedFlag, 
-                              Value(testKeys[i], 
+           o1.insertIfMissing(&isInsertedFlag,
+                              Value(testKeys[i],
                               testValues[i]));
            ASSERTV(isInsertedFlag, true == isInsertedFlag);
        }
@@ -360,7 +360,7 @@ void TestDriver<KEY_POLICY, HASHER, EQUAL, ALLOCATOR> ::testCase1(
        ASSERTV(0 <  objectAllocator1.numBytesInUse());
        ASSERTV(0 == objectAllocator2.numBytesInUse());
 
-       
+
        if(veryVerbose) printf("Use a different allocator\n");
        {
            bslma::TestAllocatorMonitor monitor(&objectAllocator1);
@@ -372,12 +372,12 @@ void TestDriver<KEY_POLICY, HASHER, EQUAL, ALLOCATOR> ::testCase1(
            ASSERTV(0 <  objectAllocator2.numBytesInUse());
        }
        ASSERTV(0 ==  objectAllocator2.numBytesInUse());
-           
-       
+
+
        if(veryVerbose) printf("Copy construct O2(O1)\n");
-           
+
        Obj o2(O1, &objectAllocator1); const Obj& O2 = o2;
-       
+
        ASSERTV(&objectAllocator1 == O2.allocator().mechanism());
 
        ASSERTV(numValues == O1.size());
@@ -444,7 +444,7 @@ void TestDriver<KEY_POLICY, HASHER, EQUAL, ALLOCATOR> ::testCase1(
             ASSERTV(0             != link);
             ASSERTV(true          == isInsertedFlag);
             ASSERTV(testKeys[i]   == ImpUtil::extractKey<KEY_POLICY>(link));
-            ASSERTV(Value(testKeys[i], testValues[i]) == 
+            ASSERTV(Value(testKeys[i], testValues[i]) ==
                                       ImpUtil::extractValue<KEY_POLICY>(link));
 
             // Test size, empty.
@@ -457,7 +457,7 @@ void TestDriver<KEY_POLICY, HASHER, EQUAL, ALLOCATOR> ::testCase1(
             ASSERTV(i + 1   == X.size());
 
             // Test find, operator[], at.
-            ASSERTV(ImpUtil::extractKey<KEY_POLICY>(link) == 
+            ASSERTV(ImpUtil::extractKey<KEY_POLICY>(link) ==
                          ImpUtil::extractKey<KEY_POLICY>(X.find(testKeys[i])));
             // ASSERTV(testValues[i] == x[testKeys[i]]);
             // ASSERTV(testValues[i] == x.at(testKeys[i]));
@@ -485,61 +485,6 @@ void TestDriver<KEY_POLICY, HASHER, EQUAL, ALLOCATOR> ::testCase1(
 
         ASSERTV(0 != objectAllocator.numBytesInUse());
         ASSERTV(0 == defaultAllocator.numBytesInUse());
-        // Verify sorted order of elements.
-
-//
-//        // Test iterators.
-//        {
-//            const_iterator cbi  = X.begin();
-//            const_iterator ccbi = X.cbegin();
-//            iterator       bi   = x.begin();
-//
-//            const_iterator last = X.begin();
-//            while (cbi != X.end()) {
-//                ASSERTV(cbi == ccbi);
-//                ASSERTV(cbi == bi);
-//
-//                if (cbi != X.begin()) {
-//                    ASSERTV(comparator(last->first, cbi->first));
-//                }
-//                last = cbi;
-//                ++bi; ++ccbi; ++cbi;
-//            }
-//
-//            ASSERTV(cbi  == X.end());
-//            ASSERTV(ccbi == X.end());
-//            ASSERTV(bi   == X.end());
-//            --bi; --ccbi; --cbi;
-//
-//            reverse_iterator       ri   = x.rbegin();
-//            const_reverse_iterator rci  = X.rbegin();
-//            const_reverse_iterator rcci = X.crbegin();
-//
-//            while  (rci != X.rend()) {
-//                ASSERTV(cbi == ccbi);
-//                ASSERTV(cbi == bi);
-//                ASSERTV(rci == rcci);
-//                ASSERTV(ri->first == rcci->first);
-//
-//                if (rci !=  X.rbegin()) {
-//                    ASSERTV(comparator(cbi->first, last->first));
-//                    ASSERTV(comparator(rci->first, last->first));
-//                }
-//
-//                last = cbi;
-//                if (cbi != X.begin()) {
-//                    --bi; --ccbi; --cbi;
-//                }
-//                ++ri; ++rcci; ++rci;
-//            }
-//            ASSERTV(cbi  == X.begin());
-//            ASSERTV(ccbi == X.begin());
-//            ASSERTV(bi   == X.begin());
-//
-//            ASSERTV(rci  == X.rend());
-//            ASSERTV(rcci == X.rend());
-//            ASSERTV(ri   == x.rend());
-//        }
 
         // Use erase(iterator) on all the elements.
         for (size_t i = 0; i < numValues; ++i) {
@@ -552,10 +497,10 @@ void TestDriver<KEY_POLICY, HASHER, EQUAL, ALLOCATOR> ::testCase1(
                                         ImpUtil::extractValue<KEY_POLICY>(it));
             Link *resIt = x.remove(it);
             ASSERTV(resIt == nextIt);
-            
+
             Link *resFind = x.find(testKeys[i]);
             ASSERTV(0 == resFind);
-           
+
             ASSERTV(numValues - i - 1 == X.size());
         }
     } while (native_std::next_permutation(testKeys,
@@ -578,16 +523,16 @@ void TestDriver<KEY_POLICY, HASHER, EQUAL, ALLOCATOR> ::testCase1(
             ASSERTV(0 != result2);
             ASSERTV(result1 != result2);
             ASSERTV(2 * (i + 1) == X.size());
-            
+
             Link *start;
             Link *end;
             x.findRange(&start, &end, testKeys[i]);
             ASSERTV(ImpUtil::extractKey<KEY_POLICY>(start) == testKeys[i]);
-            ASSERTV(ImpUtil::extractKey<KEY_POLICY>(start->nextLink()) == 
+            ASSERTV(ImpUtil::extractKey<KEY_POLICY>(start->nextLink()) ==
                                                                   testKeys[i]);
             ASSERTV(start->nextLink()->nextLink() == end);
         }
-            
+
         for (size_t i = 0; i < numValues; ++i) {
             KeyType key = ImpUtil::extractKey<KEY_POLICY>(x.elementListRoot());
             Link *resIt1 = x.remove(x.elementListRoot());
@@ -602,7 +547,7 @@ void TestDriver<KEY_POLICY, HASHER, EQUAL, ALLOCATOR> ::testCase1(
     if (veryVerbose) {
         printf("Test 'equal' and 'hasher'\n");
     }
-   
+
 }
 
 //    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -806,10 +751,10 @@ void TestDriver<KEY_POLICY, HASHER, EQUAL, ALLOCATOR> ::testCase1(
 int main(int argc, char *argv[])
 {
     int  test                = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose             = argc > 2;
-    bool veryVerbose         = argc > 3;
-    bool veryVeryVerbose     = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -838,9 +783,9 @@ int main(int argc, char *argv[])
             int NUM_INT_VALUES = sizeof(INT_VALUES) / sizeof(*INT_VALUES);
 
             typedef TestMapKeyPolicy<int, int> TestMapIntKeyPolicy;
-            
-            TestDriver<TestMapIntKeyPolicy, 
-                       TestIntHash, 
+
+            TestDriver<TestMapIntKeyPolicy,
+                       TestIntHash,
                        TestIntEqual,
                        StlTestIntAllocator >::testCase1(INT_VALUES,
                                                         INT_VALUES,

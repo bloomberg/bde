@@ -17,7 +17,23 @@ namespace BloombergLP
 namespace bslalg
 {
 
+// PRIVATE CLASS METHODS
+bool HashTableImpUtil::isReachable(const BidirectionalLink *dst,
+                                   const BidirectionalLink *src)
+{
+    BSLS_ASSERT_SAFE(dst);
+    BSLS_ASSERT_SAFE(src);
 
+    while(src) {
+        if(src == dst) {
+            return true;                                              // RETURN
+        }
+        src = src->nextLink();
+    }
+    return false;
+}
+
+// CLASS METHODS
 void HashTableImpUtil::remove(HashTableAnchor    *anchor,
                               BidirectionalLink  *link,
                               native_std::size_t  hashCode)
@@ -34,7 +50,7 @@ void HashTableImpUtil::remove(HashTableAnchor    *anchor,
 
     // Note that we must update the bucket *before* we unlink from the list,
     // as otherwise we will lose our nextLink()/prev pointers.
-    
+
     HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
     if (bucket->first() == link) {
         if (bucket->last() == link) {
@@ -47,7 +63,7 @@ void HashTableImpUtil::remove(HashTableAnchor    *anchor,
     else if (bucket->last() == link) {
         bucket->setLast(link->previousLink());
     }
-        
+
     BidirectionalLink *next = link->nextLink();
     BidirectionalLinkListUtil::unlink(link);
 
@@ -64,14 +80,14 @@ void HashTableImpUtil::insertAtPosition(HashTableAnchor    *anchor,
     BSLS_ASSERT_SAFE(anchor);
     BSLS_ASSERT_SAFE(link);
     BSLS_ASSERT_SAFE(position);
-    
+
 #ifdef BDE_BUILD_TARGET_SAFE2
     HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
     BSLS_ASSERT_SAFE2(bucketContainsLink(bucket, position));
 #endif
-    
+
     HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
-    
+
     BidirectionalLinkListUtil::insertLinkBeforeTarget(link, position);
 
     if (position == bucket->first()) {
@@ -93,7 +109,7 @@ void HashTableImpUtil::insertAtFrontOfBucket(HashTableAnchor    *anchor,
     BSLS_ASSERT_SAFE(bucket);
 
     if (bucket->first()) {
-        BidirectionalLinkListUtil::insertLinkBeforeTarget(newNode, 
+        BidirectionalLinkListUtil::insertLinkBeforeTarget(newNode,
                                                           bucket->first());
         if (anchor->listRootAddress() == bucket->first()) {
             anchor->setListRootAddress(newNode);
@@ -102,14 +118,14 @@ void HashTableImpUtil::insertAtFrontOfBucket(HashTableAnchor    *anchor,
     }
     else {
         // New bucket is required.
-       
+
         BidirectionalLinkListUtil::insertLinkBeforeTarget(
-                                                    newNode, 
+                                                    newNode,
                                                     anchor->listRootAddress());
 
         // New buckets are inserted in front of the list.
-        
-        anchor->setListRootAddress(newNode);   
+
+        anchor->setListRootAddress(newNode);
         bucket->setFirstAndLast(newNode, newNode);
     }
 }

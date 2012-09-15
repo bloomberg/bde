@@ -26,7 +26,7 @@ using std::endl;
 // instantiation and test obvious boundary conditions and iterator stability
 // guarantees.
 //-----------------------------------------------------------------------------
-// [ ] 
+// [ ]
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
 // [ ] USAGE EXAMPLE
@@ -114,7 +114,7 @@ void debugPrint(const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOC>& s) {
             }
             printf("\nBucket [%d]: ", n);
             for (LCIter lci = s.cbegin(n); lci != s.cend(n); ++lci) {
-                printf("[%d, %d], ", lci->first, lci->second); 
+                printf("[%d, %d], ", lci->first, lci->second);
 //                bsls::BslTestUtil::callDebugprint(
 //           static_cast<char>(bsltf::TemplateTestFacility::getIdentifier(*lci)));
             }
@@ -266,7 +266,7 @@ template<typename CONTAINER>
 void validateIteration(CONTAINER &c) {
     typedef typename CONTAINER::iterator       iterator;
     typedef typename CONTAINER::const_iterator const_iterator;
-    
+
     const int size = c.size();
 
     int counter = 0;
@@ -433,7 +433,7 @@ void testErase(CONTAINER& mX)
     key = keyForValue<CONTAINER>(*cIter);
     const_iterator next = cIter;
     while (key == keyForValue<CONTAINER>(*++next)) {
-        cIter = next; 
+        cIter = next;
     }
     key = keyForValue<CONTAINER>(*next);
     while (key == keyForValue<CONTAINER>(*++next)) {}
@@ -458,7 +458,7 @@ void testErase(CONTAINER& mX)
     key = keyForValue<CONTAINER>(*cIter);
     next = cIter;
     while (key == keyForValue<CONTAINER>(*++next)) {
-        cIter = next; 
+        cIter = next;
     }
     key = keyForValue<CONTAINER>(*next);
     while (key == keyForValue<CONTAINER>(*++next)) {}
@@ -466,7 +466,7 @@ void testErase(CONTAINER& mX)
     // cIter/next now point to elements either side of a key-range
     // confirm they are not in the same bucket:
     // LOOP2_ASSERT(
-    //         key, 
+    //         key,
     //         cIter->first,
     //         x.bucket(key) != x.bucket(keyForValue<CONTAINER>(*cIter)));
     // ASSERT(x.bucket(key) != x.bucket(keyForValue<CONTAINER>(*next)));
@@ -567,7 +567,7 @@ void testMapLookup(CONTAINER& mX)
 
     try {
         mapped_type v = x.at(key_type());
-        ASSERT(mapped_type() == v); 
+        ASSERT(mapped_type() == v);
     }
     catch(const std::exception&) {
         ASSERT(false); // default key has been inserted, should not throw
@@ -575,7 +575,7 @@ void testMapLookup(CONTAINER& mX)
 
     try {
         mapped_type v = mX.at(key_type());
-        ASSERT(mapped_type() == v); 
+        ASSERT(mapped_type() == v);
     }
     catch(const std::exception&) {
         ASSERT(false); // default key has been inserted, should not throw
@@ -615,7 +615,7 @@ void testImplicitInsert(CONTAINER& mX)
 
     try {
         mapped_type v = x.at(key_type());
-        ASSERT(mapped_type() == v); 
+        ASSERT(mapped_type() == v);
     }
     catch(const std::exception&) {
         ASSERT(false); // default key has been inserted, should not throw
@@ -623,7 +623,7 @@ void testImplicitInsert(CONTAINER& mX)
 
     try {
         mapped_type v = mX.at(key_type());
-        ASSERT(mapped_type() == v); 
+        ASSERT(mapped_type() == v);
     }
     catch(const std::exception&) {
         ASSERT(false); // default key has been inserted, should not throw

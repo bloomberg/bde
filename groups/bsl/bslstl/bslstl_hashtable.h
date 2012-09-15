@@ -1522,12 +1522,13 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::remove(
     BSLS_ASSERT_SAFE(node->previousLink()
                   || d_anchor.listRootAddress() == node);
 
+    bslalg::BidirectionalLink *result = node->nextLink();
+
     bslalg::HashTableImpUtil::remove(&d_anchor,
                                      node,
                                      hashCodeForNode(node));
     --d_size;
 
-    bslalg::BidirectionalLink *result = node->nextLink();
     d_parameters.nodeFactory().deleteNode((NodeType *)node);
 
     return result;
