@@ -188,9 +188,9 @@ class HashTable_Parameters : private bslalg::FunctorAdapter<HASHER>::Type
 // instantiated and used from the public interface of a std container that
 // provides all the user-friendly defaults, and explicitly pass down what is
 // needed.
-template <class KEY_CONFIG, 
-          class HASHER, 
-          class COMPARATOR, 
+template <class KEY_CONFIG,
+          class HASHER,
+          class COMPARATOR,
           class ALLOCATOR = ::bsl::allocator<typename KEY_CONFIG::ValueType> >
 class HashTable {
   private:
@@ -748,7 +748,7 @@ HashTable_Parameters(const HASHER&          hash,
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
-HashTable_Parameters(const HashTable_Parameters& other, 
+HashTable_Parameters(const HashTable_Parameters& other,
                      const AllocatorType&        allocator)
 : HasherBaseType(static_cast<const HasherBaseType&>(other))
 , ComparatorBaseType(static_cast<const ComparatorBaseType&>(other))
@@ -904,8 +904,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hashCodeForNode(
                                          bslalg::BidirectionalLink *node) const
 {
     BSLS_ASSERT_SAFE(node);
-    
-    const typename KEY_CONFIG::KeyType& key = 
+
+    const typename KEY_CONFIG::KeyType& key =
                         bslalg::HashTableImpUtil::extractKey<KEY_CONFIG>(node);
     return hasher()(key);
 }
@@ -1133,7 +1133,7 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::find(
-                                                const KeyType& key, 
+                                                const KeyType& key,
                                                 size_t         hashValue) const
 {
     return bslalg::HashTableImpUtil::find<KEY_CONFIG>(d_anchor,
@@ -1256,7 +1256,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertContiguous(
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-void 
+void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAllAndDeallocate()
 {
     this->removeAllImp();
@@ -1275,12 +1275,13 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::remove(
     BSLS_ASSERT_SAFE(node->previousLink()
                   || d_anchor.listRootAddress() == node);
 
+    bslalg::BidirectionalLink *result = node->nextLink();
+
     bslalg::HashTableImpUtil::remove(&d_anchor,
                                      node,
                                      hashCodeForNode(node));
     --d_size;
 
-    bslalg::BidirectionalLink *result = node->nextLink();
     d_parameters.nodeFactory().deleteNode((NodeType *)node);
 
     return result;
@@ -1334,7 +1335,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
 // observers
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-const HASHER& 
+const HASHER&
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasher() const
 {
     return d_parameters.hasher();
@@ -1342,7 +1343,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasher() const
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-const COMPARATOR& 
+const COMPARATOR&
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::comparator() const
 {
     return d_parameters.comparator();
@@ -1459,7 +1460,7 @@ float HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::loadFactor() const
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-float 
+float
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::maxLoadFactor() const
 {
     return d_maxLoadFactor;
@@ -1508,7 +1509,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
         d_anchor.swap(newAnchor);
         d_capacity = static_cast<native_std::size_t>(native_std::ceil(
                    static_cast<float>(newNumBuckets) * this->maxLoadFactor()));
-        
+
         HashTable_Util<ALLOCATOR>::destroyBucketArray(
                                                 newAnchor.bucketArrayAddress(),
                                                 newAnchor.bucketArraySize(),
@@ -1653,7 +1654,7 @@ bslstl::operator==(
             for (bslalg::BidirectionalLink *scanner = rhsFirst;
                  scanner != rhsLast;
                  scanner = scanner->nextLink()) {
-                if (ImpUtil::extractValue<KEY_CONFIG>(scanner) == 
+                if (ImpUtil::extractValue<KEY_CONFIG>(scanner) ==
                                                                valueAtMarker) {
                     ++matches;
                 }
@@ -1667,7 +1668,7 @@ bslstl::operator==(
                  scanner != endRange;
                  scanner = scanner->nextLink()) {
 
-                if (ImpUtil::extractValue<KEY_CONFIG>(scanner) == 
+                if (ImpUtil::extractValue<KEY_CONFIG>(scanner) ==
                                                                valueAtMarker) {
                     if (!--matches) {  // equal matches, but excluding initial
                         return false;                                 // RETURN

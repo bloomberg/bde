@@ -12,8 +12,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //         bslalg::HashTableImpUtil: functions used to implement a hash table
 //
-//@SEE_ALSO: bslalg_bidirectionallinklistutil, bslalg_hashtableanchor, 
-//           bslstl_hashtable 
+//@SEE_ALSO: bslalg_bidirectionallinklistutil, bslalg_hashtableanchor,
+//           bslstl_hashtable
 //
 //@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico(spacifico1)
 //
@@ -29,22 +29,22 @@ BSLS_IDENT("$Id: $")
 // *array* *of* *buckets*.  The array of buckets is an array that provides
 // access, at each index of the array, to all the elements contained in the
 // table whose *adjusted* *hash* *value* is equal to the index.  Before
-// continuing we need to explain some details to remove confusion on the
+// continuing we need to explain some details to confusion on the
 // definitons.
 //
 //..
-//   FIG. 1 Hash table anchor with an array of 4 buckets, two of which non empty.
-//             
+// FIG. 1 Hash table anchor with an array of 4 buckets, two of which non empty.
+//
 //             0<--+-+<--+-+<--+-+<--+-+<--+-+
 //                 |1|   |7|   |3|   |0|   |9|
 //                 +-+-->+-+-->+-+-->+-+-->+-+-->0
 //                   ^    ^     ^            ^
-//                   \    /      \_________   \
-//                    \  /                  \  \
-//                    | |                    \  \
+//                   |    |      |_________   |
+//                    |  /                  |  |
+//                    | |                    |  |
 //                 +--+-+--+--x-x--+--x-x--+--+-+--+--+-+--+
-//                 |  * *  |  * *  |  * *  |  * *  |  * *  |     
-//                 +-------+-------+-------+-------+-------+     
+//                 |  * *  |  * *  |  * *  |  * *  |  * *  |
+//                 +-------+-------+-------+-------+-------+
 //                     0       1       2       3       4
 //..
 //
@@ -61,20 +61,20 @@ BSLS_IDENT("$Id: $")
 // distinguish between the two, we adopt the same definition for hash function
 // as the C++11 standard, and we define *extended* *hash* *value* the value
 // obtained by composing the standard hash function with another function that
-// return values between 0 and N-1. 
+// return values between 0 and N-1.
 //
 ///Well Formed Anchor
 ///------------------
 // A 'HashTableAnchor' object holds references to an array of 'HashTableBucket'
 // objects with its size,  and to a null-terminated doubly linked list of
 // 'BidirectionalLink' nodes, instances of template class 'BidirectionalNode',
-// parametrized on the type of value held by the node.  
+// parametrized on the type of value held by the node.
 // A 'HashTableAnchor' value is *well* *formed*, with respect to a given
 // hashing function 'H', if 1) the doubly linked list is well formed, 2) each
 // bucket in the array of buckets points to first and last elements of
 // non-overlappling ranges in the list referenced by the anchor, and 3) every
 // element in a bucket is such that the its extended hash value (see previous
-// section) is equal to the index of the bucket. 
+// section) is equal to the index of the bucket.
 //
 // As we do not cache the hashed value, if any hash function throws we will
 // either do nothing and allow the exception to propogate, or, if some change
@@ -147,15 +147,25 @@ struct HashTableImpUtil {
                                  BidirectionalLink **newRoot);
         // TBD (for Alisdair)
 
-    bool bucketContainsLink(const HashTableBucket *bucket, 
-                            BidirectionalLink     *link);
+    static
+    bool bucketContainsLink(const HashTableBucket&   bucket,
+                            const BidirectionalLink *link);
         // Return true the specified 'link' is contained in the specified
         // 'bucket' and false otherwise.
-  
+
+    static
+    bool isReachable(const BidirectionalLink *dst,
+                     const BidirectionalLink *src);
+        // Return true if the specified 'dst' is found by walking forward in
+        // the the null-terminated doubly linked list from the specified 'src.
+        // 'src .  The behavior is undefined unless 'src' is not part of
+        // a circular linked list and the value of the 'previousLink' attribute
+        // of the first node of the list is 0.
+
   public:
     // CLASS METHODS
     template<class KEY_POLICY>
-    static 
+    static
     const typename KEY_POLICY::KeyType& extractKey(
                                                 const BidirectionalLink *link);
         // Return a reference providing non-modifiable access to the
@@ -171,10 +181,10 @@ struct HashTableImpUtil {
         // 'typename KEY_POLICY::ValueType' value held by the node referenced
         // by the specified 'link'.  The behavior is undefined unless 'link'
         // refereces a node of type 'BidirectionalNode<KEY_POLICY::ValueType>.
-    
+
     template <class KEY_POLICY, class HASHER>
     static
-    bool isWellFormedAnchor(const HashTableAnchor *anchor);
+    bool isWellFormedAnchor(const HashTableAnchor& anchor);
         // Return true if, for the specified 'anchor', all the following
         // conditions are true:
         //
@@ -186,15 +196,15 @@ struct HashTableImpUtil {
         //:   bucket index for 'link' recomputed using the hash genearated by
         //:   the specified parametrized 'KEY_POLICY' and 'HASHER' types is the
         //:   same as the actual bucket index for 'link'.
-        // 
+        //
         // Note that the recomputed bucket index for a 'link' in terms of the
         // parametrized types 'KEY_POLICY' and 'HASHER' has the same value as
         // the one returned by:
         // ..
-        //    'computeBucketIndex(HASHER()(extractKey<KEY_POLICY>(link), 
+        //    'computeBucketIndex(HASHER()(extractKey<KEY_POLICY>(link),
         //                        anchor->bucketArraySize());
-        // ..                                 
-    
+        // ..
+
     static
     native_std::size_t computeBucketIndex(native_std::size_t hashCode,
                                           native_std::size_t numBuckets);
@@ -219,7 +229,7 @@ struct HashTableImpUtil {
         // ..
         //   true == isWellFormedAnchor<KEY_POLICY, HASHER>(anchor);
         // ..
-    
+
     static
     void insertAtPosition(HashTableAnchor    *anchor,
                           BidirectionalLink  *link,
@@ -230,7 +240,8 @@ struct HashTableImpUtil {
         // the specified before the specified 'poistion'.  The behavior is
         // undefined unless 'position' belongs to
         // the bucket corresponding to 'hashCode' in 'anchor', and 'hashCode'
-        // was obtained from 'link' using a 'KEY_POLICY' and 'HASHER' types
+        // was obtained
+        // from 'link' using a 'KEY_POLICY' and 'HASHER' types
         // such that:
         // ..
         //   true == isWellFormedAnchor<KEY_POLICY, HASHER>(anchor);
@@ -241,7 +252,7 @@ struct HashTableImpUtil {
                 BidirectionalLink  *link,
                 native_std::size_t  hashCode);
         // Remove, in the specified hash-table 'anchor', the specified 'link',
-        // from the bucket corresponding to the specified 'hashCode'.  The
+         // from the bucket corresponding to the specified 'hashCode'.  The
         // behavior is undefined unless 'link' belongs to the bucket
         // corresponding to 'hashCode' in 'anchor', and 'hashCode' was obtained
         // from 'link' using a 'KEY_POLICY' and 'HASHER' types such
@@ -265,9 +276,9 @@ struct HashTableImpUtil {
         // the specified 'hashCode'.  Return 0, otherwise.  The behavior is
         // undefined unless 'link' belongs to the bucket corresponding to
         // 'hashCode' in 'anchor', and 'hashCode' was obtained from 'link'
-        // using a 'KEY_POLICY' and 'HASHER' types such that: 
-        // ..  
-        //   true == isWellFormedAnchor<KEY_POLICY, HASHER>(anchor); 
+        // using a 'KEY_POLICY' and 'HASHER' types such that:
+        // ..
+        //   true == isWellFormedAnchor<KEY_POLICY, HASHER>(anchor);
         // ..
 
     template <class KEY_POLICY, class HASHER>
@@ -280,7 +291,7 @@ struct HashTableImpUtil {
         // bucket index using the specified 'hasher' functor on the keys
         // extracted by the specified parametrized 'KEY_POLICY' type.  Note
         // that this function is not exception safe in the presence of a
-        // throwing 'hash' functor. 
+        // throwing 'hash' functor.
 };
 
 // ===========================================================================
@@ -317,27 +328,24 @@ native_std::size_t HashTableImpUtil::computeBucketIndex(
 }
 
 inline
-bool HashTableImpUtil::bucketContainsLink(const HashTableBucket *bucket, 
-                                          BidirectionalLink     *link)
+bool HashTableImpUtil::bucketContainsLink(const HashTableBucket&   bucket,
+                                          const BidirectionalLink *link)
     // Return true the specified 'link' is contained in the specified 'bucket'
     // and false otherwise.
 {
-    if(bucket->first() == link) {
-        return true;
-    }
-    
-    if(bucket->first() == bucket->last()) {
+    BSLS_ASSERT_SAFE(!bucket.first() == !bucket.last());
+
+    if(!bucket.first()) {
         return false;
     }
 
-    const BidirectionalLink *cursor = bucket->first();
-    do {
-        cursor = cursor->nextLink();
+    const BidirectionalLink *cursor = bucket.first();
+    while (bucket.last()->nextLink() != cursor) {
         if (cursor == link) {
             return true;
         }
-    } while (bucket->last() != cursor);
-
+        cursor = cursor->nextLink();
+    }
     return false;
 }
 
@@ -348,7 +356,7 @@ typename KEY_POLICY::ValueType& HashTableImpUtil::extractValue(
                                                        BidirectionalLink *link)
 {
     BSLS_ASSERT_SAFE(link);
-    
+
     typedef BidirectionalNode<typename KEY_POLICY::ValueType> BNode;
     return static_cast<BNode *>(link)->value();
 }
@@ -417,10 +425,10 @@ void HashTableImpUtil::rehash(HashTableAnchor   *newAnchor,
                                        hasher(extractKey<KEY_POLICY>(cursor)));
 
         BidirectionalLink *nextCursor  = cursor;
-        
+
         // Walk list of nodes that will rehash to the same bucket
         // This will advance the list extraction point *before* we splice
-       
+
         while ((oldRoot = oldRoot->nextLink()) &&
                 bucket == findBucketForHashCode(
                                     *newAnchor,
@@ -437,16 +445,55 @@ void HashTableImpUtil::rehash(HashTableAnchor   *newAnchor,
 
 template <class KEY_POLICY, class HASHER>
 inline
-bool HashTableImpUtil::isWellFormedAnchor(const HashTableAnchor *anchor)
+bool HashTableImpUtil::isWellFormedAnchor(const HashTableAnchor& anchor)
 {
-    BSLS_ASSERT_SAFE(anchor);
+    const HashTableBucket   *array = anchor.bucketArrayAddress();
+    native_std::size_t       size  = anchor.bucketArraySize();
+    const BidirectionalLink *root  = anchor.listRootAddress();
 
-    if (anchor->bucketArraySize()) {
-        const BidirectionalLink *cursor = anchor->listRootAddress();
+    // Check that all nodes are in the correct bucket.
+
+    if (size) {
+        const BidirectionalLink *cursor = anchor.listRootAddress();
         while (cursor) {
-            
+            size_t hash  = HASHER()(extractKey<KEY_POLICY>(cursor));
+            size_t index = computeBucketIndex(hash, size);
+            if (!bucketContainsLink(array[index], cursor)) {
+                return false;                                          // RETURN
+            }
+            cursor = cursor->nextLink();
         }
-    } 
+    }
+
+
+    // Check that all the buckets have consistent 'first' and 'last', and that
+    // 'first' and 'last', if not 0, are part of the list of elements.
+
+    for (size_t i = 0; i < size; ++i) {
+
+        const HashTableBucket& bucket = array[i];
+
+        if (!bucket.first() != !bucket.last()) {  // 'first' XOR 'second
+            return false;
+        }
+
+        if (bucket.first()) {
+            if (   !isReachable(bucket.first(), root)
+                || !isReachable(bucket.last(),  root)) {
+                return false;                                         // RETURN
+            }
+            const BidirectionalLink *cursor = bucket.first();
+            while (cursor != bucket.last()->nextLink()) {
+                size_t hash  = HASHER()(extractKey<KEY_POLICY>(cursor));
+                size_t index = computeBucketIndex(hash, size);
+                if (!bucketContainsLink(array[index], cursor)) {
+                    return false;                                      // RETURN
+                }
+            cursor = cursor->nextLink();
+            }
+        }
+    }
+    return true;
 }
 
 } // namespace BloombergLP::bslalg

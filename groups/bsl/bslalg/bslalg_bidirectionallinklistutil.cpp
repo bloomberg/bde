@@ -100,7 +100,7 @@ void BidirectionalLinkListUtil::unlink(BidirectionalLink *node)
 
     if (BidirectionalLink *prev = node->previousLink()) {
         if (BidirectionalLink *next = node->nextLink()) {
-            next->setPreviousLink(prev);
+             next->setPreviousLink(prev);
             prev->setNextLink(next);
         }
         else {

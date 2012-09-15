@@ -375,7 +375,7 @@ template<typename CONTAINER>
 void validateIteration(CONTAINER &c) {
     typedef typename CONTAINER::iterator       iterator;
     typedef typename CONTAINER::const_iterator const_iterator;
-    
+
     const int size = c.size();
 
     int counter = 0;
@@ -544,7 +544,7 @@ void testErase(CONTAINER& mX)
     key = keyForValue<CONTAINER>(*cIter);
     const_iterator next = cIter;
     while (key == keyForValue<CONTAINER>(*++next)) {
-        cIter = next; 
+        cIter = next;
     }
     key = keyForValue<CONTAINER>(*next);
     while (key == keyForValue<CONTAINER>(*++next)) {}
@@ -569,7 +569,7 @@ void testErase(CONTAINER& mX)
     key = keyForValue<CONTAINER>(*cIter);
     next = cIter;
     while (key == keyForValue<CONTAINER>(*++next)) {
-        cIter = next; 
+        cIter = next;
     }
     key = keyForValue<CONTAINER>(*next);
     while (key == keyForValue<CONTAINER>(*++next)) {}
@@ -1689,7 +1689,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                     }
 #endif
 
-#if 0                    
+#if 0
                     // Verify no temporary memory is allocated from the object
                     // allocator.
                     // BROKEN TEST CONDITION

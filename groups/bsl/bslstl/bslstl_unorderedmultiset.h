@@ -7,14 +7,14 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a hash-container with support for duplicate values 
+//@PURPOSE: Provide a hash-container with support for duplicate values
 //
 //@CLASSES:
 //   bsl::unordered_multiset : hashed-map container
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
+//@AUTHOR: Alisdair Meredith (ameredith1) Stefano Pacifico (spacifico1)
 //
 //@DESCRIPTION: This component provides an implementation of the container,
 // 'unordered_multiset', specified by the C++11 standard.
@@ -140,7 +140,7 @@ class unordered_multiset
 
   private:
     typedef ::BloombergLP::bslalg::BidirectionalLink         HashTableLink;
-    
+
     typedef BSTL::UnorderedSetKeyPolicy<value_type>          ListPolicy;
     typedef BSTL::HashTable<ListPolicy, HASH, EQUAL, ALLOC>  Impl;
 
@@ -148,7 +148,7 @@ class unordered_multiset
     typedef BSTL::HashTableIterator<value_type, difference_type>
                                                                       iterator;
     typedef iterator                                            const_iterator;
-    
+
     typedef BSTL::HashTableBucketIterator<value_type, difference_type>
                                                                 local_iterator;
     typedef local_iterator                                const_local_iterator;
@@ -250,7 +250,7 @@ class unordered_multiset
                     const unordered_multiset& rhs) {
         return lhs.d_impl == rhs.d_impl;
     }
-    
+
 };
 
 template <class KEY_TYPE, class HASH, class EQUAL, class ALLOC>
@@ -468,7 +468,7 @@ template <class KEY_TYPE,
 inline
 typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::insert(const value_type& obj)
-{   
+{
     return iterator(d_impl.insertContiguous(obj));
 }
 
@@ -534,12 +534,12 @@ unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::erase(const key_type& k)
     //   iterate each node, destroying the associated value
     //   reclaim each node (potentially returning to a node-pool)
     typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
-    
+
     if (HashTableLink *target = d_impl.find(k)) {
         target = d_impl.remove(target);
         size_type result = 1;
         while (target && this->key_eq()(
-              k, 
+              k,
               ListPolicy::extractKey(static_cast<BNode *>(target)->value()))) {
             target = d_impl.remove(target);
             ++result;
@@ -674,12 +674,12 @@ unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
 count(const key_type& k) const
 {
     typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
-    
+
     size_type result = 0;
     for (HashTableLink *cursor = d_impl.find(k);
          cursor;
          ++result, cursor = cursor->nextLink()) {
-        
+
         BNode *cursorNode = static_cast<BNode *>(cursor);
         if (!this->key_eq()(k, ListPolicy::extractKey(cursorNode->value()))) {
             break;
@@ -840,7 +840,7 @@ typename
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::cbegin(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    //SP: invoke begin(n)? 
+    //SP: invoke begin(n)?
     return const_local_iterator(&d_impl.bucketAtIndex(n));
 }
 
@@ -853,7 +853,7 @@ typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::cend(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    //SP: invoke end(n)? 
+    //SP: invoke end(n)?
     return const_local_iterator(0, &d_impl.bucketAtIndex(n));
 }
 

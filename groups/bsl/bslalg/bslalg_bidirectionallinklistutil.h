@@ -48,15 +48,16 @@ struct BidirectionalLinkListUtil {
        // specified 'tail' node.  If 'tail' is null, then 'newNode' becomes an
        // entire list, and this function has no observable effect.  The
        // behavior is undefined unless 'newNode' is not currently linked into
-       // any list, such as having a null pointer for both 'nextLink()' and 'prev'
-       // addresses.
-       // specified 'tail' node.
+       // any list, such as having a null pointer for both 'nextLink()' and
+       // 'prev' addresses.
 
     static
     void insertLinkAfterTarget(BidirectionalLink *newNode,
                                BidirectionalLink *target);
        // Insert the specified 'newNode' into the doubly-linked list after the
-       // specified 'head' node.
+       // specified 'head' node, and before the node following it.  If the node
+       // following 'target' is 0, then the 'nextLink' attribute of 'newNode'
+       // to 0.
 
     static
     void spliceListBeforeTarget(BidirectionalLink *first,
@@ -66,10 +67,10 @@ struct BidirectionalLinkListUtil {
     // '[first, last]' out of its original list and into the doubly-linked
     // target list before the specified 'before' node.  If 'before' is null,
     // then the splice is extracted and becomes a whole list in its own right,
-    // so that 'first->previousLink()' and 'last->nextLink()()' will both return null
-    // pointers.  The behavior is undefined unless both 'first' and 'last' are
-    // members of the same linked list, and that 'first' precedes last in the
-    // list, or 'first == last'.
+    // so that 'first->previousLink()' and 'last->nextLink()' will both return
+    // null pointers.  The behavior is undefined unless both 'first' and 'last'
+    // are members of the same linked list, and that 'first' precedes last in
+    // the list, or 'first == last'.
 
     static
     void unlink(BidirectionalLink *node);
@@ -77,9 +78,7 @@ struct BidirectionalLinkListUtil {
         // Note that this method does *not* change the 'nextLink()' and 'prev'
         // attributes of 'node' itself, just those of the adjacent nodes in
         // the original list.  The behavior is undefined unless 'node' is a
-        // member of a linked list.  Note that a list having only will element
-        // would be represented by a node having 'previousLink()' == 0 == 'nextLink()()', so
-        // this is well defined.
+        // member of a linked list. 
 };
 
 } // namespace BloombergLP::bslalg
