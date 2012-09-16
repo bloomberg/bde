@@ -4,10 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
-
 namespace BloombergLP
 {
 

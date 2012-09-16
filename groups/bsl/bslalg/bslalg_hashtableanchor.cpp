@@ -1,11 +1,17 @@
 // bslalg_hashtableanchor.cpp                                         -*-C++-*-
 #include <bslalg_hashtableanchor.h>
 
-namespace BloombergLP {
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$ $CSID$")
 
+namespace BloombergLP
+{
 
+namespace bslalg
+{
 
-}  // close enterprise namespace
+}  // close namespace BloombergLP::bslalg
+}  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------
 // NOTICE:
