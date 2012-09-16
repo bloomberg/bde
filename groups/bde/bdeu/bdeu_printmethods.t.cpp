@@ -32,7 +32,7 @@ using namespace bsl;  // automatically added by script
 // [ 4] bdeu_PrintMethods_Imp<TYPE, bdeu_HasPrintMethod>::print(...);
 // [ 6] bdeu_PrintMethods_Imp<TYPE, bslalg::HasStlIterators>::print(...);
 // [ 5] bdeu_PrintMethods_Imp<TYPE, bslmf::IsPair>::print(...);
-// [ 3] bdeu_PrintMethods_Imp<TYPE, bslmf::false_type>::print(...);
+// [ 3] bdeu_PrintMethods_Imp<TYPE, bsl::false_type>::print(...);
 // [ 7] bdeu_PrintMethods::print(..., const TYPE&, ...);
 // [ 2] bdeu_PrintMethods::print(..., const vector<char, ALLOC>, ...);
 //-----------------------------------------------------------------------------
@@ -508,31 +508,31 @@ class TestType_NoTraits {
 namespace BloombergLP {
 
 template <> struct bdeu_HasPrintMethod<TestType_PrintMethod> :
-    bslmf::true_type { };
+    bsl::true_type { };
 template <> struct bdeu_HasPrintMethod<TestType_PrintMethod_Pair> :
-    bslmf::true_type { };
+    bsl::true_type { };
 template <> struct bdeu_HasPrintMethod<TestType_PrintMethod_STLIterators> :
-    bslmf::true_type { };
+    bsl::true_type { };
 template <> struct bdeu_HasPrintMethod<TestType_PrintMethod_STLIterators_Pair>:
-    bslmf::true_type { };
+    bsl::true_type { };
 
 namespace bslalg {
 template <> struct HasStlIterators<TestType_STLIterators> :
-    bslmf::true_type { };
+    bsl::true_type { };
 template <> struct HasStlIterators<TestType_STLIterators_Pair> :
-    bslmf::true_type { };
+    bsl::true_type { };
 template <> struct HasStlIterators<TestType_PrintMethod_STLIterators> :
-    bslmf::true_type { };
+    bsl::true_type { };
 template <> struct HasStlIterators<TestType_PrintMethod_STLIterators_Pair> :
-    bslmf::true_type { };
+    bsl::true_type { };
 }
 
 namespace bslmf {
-template <> struct IsPair<TestType_Pair> : bslmf::true_type { };
-template <> struct IsPair<TestType_STLIterators_Pair> : bslmf::true_type { };
-template <> struct IsPair<TestType_PrintMethod_Pair> : bslmf::true_type { };
+template <> struct IsPair<TestType_Pair> : bsl::true_type { };
+template <> struct IsPair<TestType_STLIterators_Pair> : bsl::true_type { };
+template <> struct IsPair<TestType_PrintMethod_Pair> : bsl::true_type { };
 template <> struct IsPair<TestType_PrintMethod_STLIterators_Pair> :
-    bslmf::true_type { };
+    bsl::true_type { };
 }
 
 }  // close namespace BloombergLP
@@ -2219,7 +2219,7 @@ int main(int argc, char *argv[])
                           << endl;
 
         // false_type == Default == stream operator
-        typedef bslmf::false_type BdeuPrintMethod;
+        typedef bsl::false_type BdeuPrintMethod;
 
         static const struct {
             int         d_lineNum;

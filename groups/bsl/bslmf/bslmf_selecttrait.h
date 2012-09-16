@@ -72,13 +72,13 @@ BSLS_IDENT("$Id: $")
 // First, we create three traits metafunctions to replace the three legacy
 // traits used above:
 //..
-//  template <class TYPE> struct UsesBslmaAllocator : bslmf::false_type { };
-//  template <class TYPE> struct IsBitwiseCopyable : bslmf::false_type { };
-//  template <class TYPE> struct IsPair : bslmf::false_type { };
+//  template <class TYPE> struct UsesBslmaAllocator : bsl::false_type { };
+//  template <class TYPE> struct IsBitwiseCopyable : bsl::false_type { };
+//  template <class TYPE> struct IsPair : bsl::false_type { };
 //..
 // Note that these definitions are simplified to avoid excess dependencies; A
 // proper traits definition would inherit from 'bslmf::DetectNestedTrait'
-// instead of from 'bslmf::false_type'.
+// instead of from 'bsl::false_type'.
 //
 // Next, we forward-declare 'bslma::Allocator' and
 // 'bslalg::scalarprimitives::copyConstruct':
@@ -148,7 +148,7 @@ BSLS_IDENT("$Id: $")
 //      copyConstruct(TARGET_TYPE                             *address,
 //                    const TARGET_TYPE&                       original,
 //                    bslma::Allocator                        *,
-//                    integer_constant<int, BITWISE_COPYABLE_TRAITS>)
+//                    bsl::integer_constant<int, BITWISE_COPYABLE_TRAITS>)
 //      {
 //          std::memcpy(address, &original, sizeof(original));
 //          ++d_counters[BITWISE_COPYABLE_TRAITS];
@@ -159,7 +159,7 @@ BSLS_IDENT("$Id: $")
 //      copyConstruct(TARGET_TYPE                *address,
 //                    const TARGET_TYPE&          original,
 //                    bslma::Allocator           *,
-//                    integer_constant<int, NIL_TRAITS>)
+//                    bsl::integer_constant<int, NIL_TRAITS>)
 //      {
 //          new (address) TARGET_TYPE(original);
 //          ++d_counters[NIL_TRAITS];
@@ -216,7 +216,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  template <> struct UsesBslmaAllocator<TypeWithAllocator>
-//      : bslmf::true_type { };
+//      : bsl::true_type { };
 //..
 // The second class is associated with the 'IsBitwiseCopyiable' trait:
 //..
@@ -228,7 +228,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  template <> struct IsBitwiseCopyable<BitwiseCopyableType>
-//      : bslmf::true_type { };
+//      : bsl::true_type { };
 //..
 // The third class is associated with the 'IsPair' trait:
 //..
@@ -239,7 +239,7 @@ BSLS_IDENT("$Id: $")
 //      PairType(int a, int b) : first(a), second(b) { }
 //  };
 //
-//  template <> struct IsPair<PairType> : bslmf::true_type { };
+//  template <> struct IsPair<PairType> : bsl::true_type { };
 //..
 // The fourth class is associated with both the the 'IsPair' and
 // 'IsBitwiseCopyiable' traits:
@@ -251,9 +251,9 @@ BSLS_IDENT("$Id: $")
 //      BitwiseCopyablePairType(int a, int b) : first(a), second(b) { }
 //  };
 //
-//  template <> struct IsPair<BitwiseCopyablePairType> : bslmf::true_type { };
+//  template <> struct IsPair<BitwiseCopyablePairType> : bsl::true_type { };
 //  template <> struct IsBitwiseCopyable<BitwiseCopyablePairType>
-//      : bslmf::true_type { };
+//      : bsl::true_type { };
 //..
 // The fifth class is not associated with any explicit traits:
 //..
@@ -381,7 +381,7 @@ namespace bslmf {
                         // ========================
 
 template <class TYPE>
-struct SelectTrait_False : false_type
+struct SelectTrait_False : bsl::false_type
 {
     // Metafunction that always returns false.
 };
@@ -405,7 +405,7 @@ struct SelectTrait_Imp
                       TRAIT_EVAL8::value ? 8 :
                       TRAIT_EVAL9::value ? 9 : 0) };
 
-    typedef typename Switch<ORDINAL, false_type,
+    typedef typename Switch<ORDINAL, bsl::false_type,
                             TRAIT_EVAL1, TRAIT_EVAL2, TRAIT_EVAL3, TRAIT_EVAL4,
                             TRAIT_EVAL5, TRAIT_EVAL6, TRAIT_EVAL7, TRAIT_EVAL8,
                             TRAIT_EVAL9>::Type Type;
@@ -442,7 +442,7 @@ public:
     static const int ORDINAL = Imp::ORDINAL;
 
     // Class description
-    typedef integer_constant<int, ORDINAL> OrdinalType;
+    typedef bsl::integer_constant<int, ORDINAL> OrdinalType;
 };
 
 }  // close package namespace

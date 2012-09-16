@@ -27,22 +27,22 @@ namespace BloombergLP {
 namespace bslmf {
 
 template <typename TYPE>
-struct IsIntegral_Imp : false_type
+struct IsIntegral_Imp : bsl::false_type
 {};
 
-template <> struct IsIntegral_Imp<bool> : true_type {};
-template <> struct IsIntegral_Imp<char> : true_type {};
-template <> struct IsIntegral_Imp<wchar_t> : true_type {};
-template <> struct IsIntegral_Imp<signed char> : true_type {};
-template <> struct IsIntegral_Imp<unsigned char> : true_type {};
-template <> struct IsIntegral_Imp<short> : true_type {};
-template <> struct IsIntegral_Imp<unsigned short> : true_type {};
-template <> struct IsIntegral_Imp<int> : true_type {};
-template <> struct IsIntegral_Imp<unsigned int> : true_type {};
-template <> struct IsIntegral_Imp<long int> : true_type {};
-template <> struct IsIntegral_Imp<unsigned long int> : true_type {};
-template <> struct IsIntegral_Imp<bsls::Types::Int64> : true_type {};
-template <> struct IsIntegral_Imp<bsls::Types::Uint64> : true_type {};
+template <> struct IsIntegral_Imp<bool> : bsl::true_type {};
+template <> struct IsIntegral_Imp<char> : bsl::true_type {};
+template <> struct IsIntegral_Imp<wchar_t> : bsl::true_type {};
+template <> struct IsIntegral_Imp<signed char> : bsl::true_type {};
+template <> struct IsIntegral_Imp<unsigned char> : bsl::true_type {};
+template <> struct IsIntegral_Imp<short> : bsl::true_type {};
+template <> struct IsIntegral_Imp<unsigned short> : bsl::true_type {};
+template <> struct IsIntegral_Imp<int> : bsl::true_type {};
+template <> struct IsIntegral_Imp<unsigned int> : bsl::true_type {};
+template <> struct IsIntegral_Imp<long int> : bsl::true_type {};
+template <> struct IsIntegral_Imp<unsigned long int> : bsl::true_type {};
+template <> struct IsIntegral_Imp<bsls::Types::Int64> : bsl::true_type {};
+template <> struct IsIntegral_Imp<bsls::Types::Uint64> : bsl::true_type {};
 
 }
 }

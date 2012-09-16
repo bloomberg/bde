@@ -51,7 +51,7 @@ namespace bslmf {
 
 template <typename TYPE>
 struct IsTriviallyDefaultConstructible_Imp :
-    integer_constant<bool,
+    bsl::integer_constant<bool,
                      !bsl::is_reference<TYPE>::value
                      && (  IsFundamental<TYPE>::value
                         || IsEnum<TYPE>::value

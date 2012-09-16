@@ -55,7 +55,7 @@ struct TypeTraitNil
         // for the nil trait.
     };
 
-    template <class TYPE> struct Metafunction : bslmf::true_type { };
+    template <class TYPE> struct Metafunction : bsl::true_type { };
 };
 
 }  // close package namespace

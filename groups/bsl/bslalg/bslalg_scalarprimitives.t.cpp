@@ -187,7 +187,7 @@ namespace BloombergLP {
 namespace bslma {
 
     template <>
-    struct UsesBslmaAllocator<my_Class2> : bslmf::true_type { };
+    struct UsesBslmaAllocator<my_Class2> : bsl::true_type { };
 
 }  // close namesace bslma
 }  // close enterprise namespace
@@ -331,7 +331,7 @@ class my_Class4 {
 namespace BloombergLP {
     namespace bslma {
         template <>
-        struct UsesBslmaAllocator<my_Class4> : bslmf::true_type { };
+        struct UsesBslmaAllocator<my_Class4> : bsl::true_type { };
     } // Close namespace bslma
 }  // close enterprise namespace
 
@@ -359,12 +359,12 @@ namespace BloombergLP {
 
 namespace bslma {
     template <>
-    struct UsesBslmaAllocator<my_Class5> : bslmf::true_type { };
+    struct UsesBslmaAllocator<my_Class5> : bsl::true_type { };
 }  // close namesace bslma
 
 namespace bslmf {
     template <>
-    struct IsBitwiseMoveable<my_Class5> : bslmf::true_type { };
+    struct IsBitwiseMoveable<my_Class5> : bsl::true_type { };
 }  // close namesace bslmf
 
 }  // close enterprise namespace
@@ -433,7 +433,7 @@ struct my_PairA {
 namespace BloombergLP {
 namespace bslma {
     template <typename T1, typename T2>
-    struct UsesBslmaAllocator<my_PairA<T1, T2> > : bslmf::true_type { };
+    struct UsesBslmaAllocator<my_PairA<T1, T2> > : bsl::true_type { };
 }  // close namespace bslma
 }  // close enterprise namespace
 
@@ -472,7 +472,7 @@ struct my_PairAA {
 namespace BloombergLP {
     namespace bslma {
         template <typename T1, typename T2>
-        struct  UsesBslmaAllocator<my_PairAA<T1, T2> > : bslmf::true_type  { };
+        struct  UsesBslmaAllocator<my_PairAA<T1, T2> > : bsl::true_type  { };
     } // Close namespace bslma
 }  // close enterprise namespace
 
@@ -512,7 +512,7 @@ struct my_PairBB {
 namespace BloombergLP {
     namespace bslmf {
         template <typename T1, typename T2>
-        struct IsPair<my_PairBB<T1, T2> > : bslmf::true_type { };
+        struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
     } // Close namespace bslalg
 }  // close enterprise namespace
 
@@ -764,7 +764,7 @@ namespace BloombergLP {
     namespace bslma {
         template <int ID>
         struct UsesBslmaAllocator<ConstructTestArgAlloc<ID> >
-            : bslmf::true_type { };
+            : bsl::true_type { };
     } // close namespace bslma
 }  // close enterprise namespace
 
@@ -920,7 +920,7 @@ class ConstructTestTypeAlloc {
 namespace BloombergLP {
     namespace bslma {
         template <>
-        struct UsesBslmaAllocator<ConstructTestTypeAlloc> : bslmf::true_type
+        struct UsesBslmaAllocator<ConstructTestTypeAlloc> : bsl::true_type
         { };
     } // Close namespace bslma
 }  // close enterprise namespace

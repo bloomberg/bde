@@ -120,7 +120,7 @@ namespace bslmf {
                            // ==============
 
 template <int INT_VALUE>
-struct MetaInt : public bslmf::integer_constant<int, INT_VALUE> {
+struct MetaInt : public bsl::integer_constant<int, INT_VALUE> {
     // Instantiating this template produces a distinct type for each
     // non-negative integer value.  This template has been deprecated in favor
     // of the standard 'integer_constant' template.
@@ -139,8 +139,8 @@ struct MetaInt : public bslmf::integer_constant<int, INT_VALUE> {
     MetaInt();
         // Does nothing ('MetaInt' is stateless).
 
-    MetaInt(bslmf::integer_constant<int, INT_VALUE>);
-        // Convert from a 'bslmf::integer_constant<int, INT_VALUE>'.
+    MetaInt(bsl::integer_constant<int, INT_VALUE>);
+        // Convert from a 'bsl::integer_constant<int, INT_VALUE>'.
 
     //! MetaInt(const MetaInt&) = default;
     //! MetaInt& operator=(const MetaInt&) = default;
@@ -159,7 +159,7 @@ struct MetaInt : public bslmf::integer_constant<int, INT_VALUE> {
 };
 
 template <>
-struct MetaInt<0> : public bslmf::integer_constant<int, 0> {
+struct MetaInt<0> : public bsl::integer_constant<int, 0> {
     // This specialization of 'MetaInt' has a 'VAL' of zero and is convertible
     // to and from 'bslstt::false_type'.
 
@@ -173,8 +173,8 @@ struct MetaInt<0> : public bslmf::integer_constant<int, 0> {
     MetaInt();
         // Does nothing ('MetaInt' is stateless).
 
-    MetaInt(bslmf::integer_constant<int, 0>);
-        // Convert from a 'bslmf::integer_constant<int, 0>'.
+    MetaInt(bsl::integer_constant<int, 0>);
+        // Convert from a 'bsl::integer_constant<int, 0>'.
 
     //! MetaInt(const MetaInt&) = default;
     //! MetaInt& operator=(const MetaInt&) = default;
@@ -191,8 +191,8 @@ struct MetaInt<0> : public bslmf::integer_constant<int, 0> {
         // would be ill-formed and that 'f(expr).value' is not a compile-time
         // expression.
 
-    operator bslmf::false_type() const;
-        // Convert '*this' to 'bslmf::false_type'.
+    operator bsl::false_type() const;
+        // Convert '*this' to 'bsl::false_type'.
 
     // ACCESSORS
     operator bool() const;
@@ -200,9 +200,9 @@ struct MetaInt<0> : public bslmf::integer_constant<int, 0> {
 };
 
 template <>
-struct MetaInt<1> : public bslmf::integer_constant<int, 1> {
+struct MetaInt<1> : public bsl::integer_constant<int, 1> {
     // This specialization of 'MetaInt' has a 'VAL' of one and is convertible
-    // to and from 'bslmf::true_type'.
+    // to and from 'bsl::true_type'.
 
     // TYPES
     typedef MetaInt<1>    Type;
@@ -214,8 +214,8 @@ struct MetaInt<1> : public bslmf::integer_constant<int, 1> {
     MetaInt();
         // Does nothing ('MetaInt' is stateless).
 
-    MetaInt(bslmf::integer_constant<int, 1>);
-        // Convert from a 'bslmf::integer_constant<int, 1>'.
+    MetaInt(bsl::integer_constant<int, 1>);
+        // Convert from a 'bsl::integer_constant<int, 1>'.
 
     //! MetaInt(const MetaInt&) = default;
     //! MetaInt& operator=(const MetaInt&) = default;
@@ -232,8 +232,8 @@ struct MetaInt<1> : public bslmf::integer_constant<int, 1> {
         // would be ill-formed and that 'f(expr).value' is not a compile-time
         // expression.
 
-    operator bslmf::true_type() const;
-        // Convert '*this' to 'bslmf::true_type'.
+    operator bsl::true_type() const;
+        // Convert '*this' to 'bsl::true_type'.
 
     // ACCESSORS
     operator bool() const;
@@ -276,7 +276,7 @@ bslmf::MetaInt<INT_VALUE>::MetaInt()
 
 template <int INT_VALUE>
 inline
-bslmf::MetaInt<INT_VALUE>::MetaInt(bslmf::integer_constant<int, INT_VALUE>)
+bslmf::MetaInt<INT_VALUE>::MetaInt(bsl::integer_constant<int, INT_VALUE>)
 {
 }
 
@@ -286,7 +286,7 @@ bslmf::MetaInt<0>::MetaInt()
 }
 
 inline
-bslmf::MetaInt<0>::MetaInt(bslmf::integer_constant<int, 0>)
+bslmf::MetaInt<0>::MetaInt(bsl::integer_constant<int, 0>)
 {
 }
 
@@ -296,7 +296,7 @@ bslmf::MetaInt<1>::MetaInt()
 }
 
 inline
-bslmf::MetaInt<1>::MetaInt(bslmf::integer_constant<int, 1>)
+bslmf::MetaInt<1>::MetaInt(bsl::integer_constant<int, 1>)
 {
 }
 
@@ -308,9 +308,9 @@ bslmf::MetaInt<0>::operator bool() const
 }
 
 inline
-bslmf::MetaInt<0>::operator bslmf::false_type() const
+bslmf::MetaInt<0>::operator bsl::false_type() const
 {
-    return bslmf::false_type();
+    return bsl::false_type();
 }
 
 inline
@@ -320,9 +320,9 @@ bslmf::MetaInt<1>::operator bool() const
 }
 
 inline
-bslmf::MetaInt<1>::operator bslmf::true_type() const
+bslmf::MetaInt<1>::operator bsl::true_type() const
 {
-    return bslmf::true_type();
+    return bsl::true_type();
 }
 
 }  // close enterprise namespace

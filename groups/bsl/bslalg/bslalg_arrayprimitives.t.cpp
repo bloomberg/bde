@@ -900,7 +900,7 @@ struct UsesBslmaAllocator<LargeBitwiseMoveableTestType<FOOTPRINT> >
 namespace bslmf {
 template <int FOOTPRINT>
 struct IsBitwiseMoveable<LargeBitwiseMoveableTestType<FOOTPRINT> >
-    : true_type {};
+    : bsl::true_type {};
 }
 }
 

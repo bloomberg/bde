@@ -13,9 +13,6 @@ BSLS_IDENT("$Id: $")
 // bsl::integer_constant<TYPE,VAL>: A compile-time type representing 'VAL'
 // bsl::false_type: 'typedef' for 'integer_constant<bool, false>'
 // bsl::true_type: 'typedef' for 'integer_constant<bool, true>'
-// bslmf::integer_constant<TYPE,VAL>: An alias for 'bsl::integer_constant'
-// bslmf::false_type: An alias for 'bsl::false_type'
-// bslmf::true_type: An alias for 'bsl::true_type'
 //
 //@SEE_ALSO:
 //
@@ -53,7 +50,7 @@ BSLS_IDENT("$Id: $")
 //    #include <bslmf_integerconstant.h>
 //    
 //    template <class T>
-//    int doSomethingImp(T *t, bslmf::true_type)
+//    int doSomethingImp(T *t, bsl::true_type)
 //    {
 //        // slow, generic implementation
 //        // ...
@@ -62,7 +59,7 @@ BSLS_IDENT("$Id: $")
 //    }
 //    
 //    template <class T>
-//    int doSomethingImp(T *t, bslmf::false_type)
+//    int doSomethingImp(T *t, bsl::false_type)
 //    {
 //        // fast implementation that works only for some types of T
 //        // ...
@@ -75,7 +72,7 @@ BSLS_IDENT("$Id: $")
 //    {
 //        // Dispatch to an implementation depending on the (compile-time)
 //        // value of 'IsSlow'.
-//        return doSomethingImp(t, bslmf::integer_constant<bool, IsSlow>());
+//        return doSomethingImp(t, bsl::integer_constant<bool, IsSlow>());
 //    }
 //..
 // For some parameter types, the fast version of 'doSomethingImp' is not
@@ -107,10 +104,10 @@ BSLS_IDENT("$Id: $")
 // than with values.  For example, the following metafunction can be used at
 // compile time to determine whether a type is a floating point type:
 //..
-//    template <class TYPE> struct IsFloatingPoint    : bslmf::false_type { };
-//    template <> struct IsFloatingPoint<float>       : bslmf::true_type { };
-//    template <> struct IsFloatingPoint<double>      : bslmf::true_type { };
-//    template <> struct IsFloatingPoint<long double> : bslmf::true_type { };
+//    template <class TYPE> struct IsFloatingPoint    : bsl::false_type { };
+//    template <> struct IsFloatingPoint<float>       : bsl::true_type { };
+//    template <> struct IsFloatingPoint<double>      : bsl::true_type { };
+//    template <> struct IsFloatingPoint<long double> : bsl::true_type { };
 //..
 // The value 'IsFloatingPoint<int>::value' is false and
 // 'IsFloatingPoint<double>::value' is true.  The 'integer_constant' base
@@ -128,7 +125,7 @@ BSLS_IDENT("$Id: $")
 //    {
 //        // Automatically detect whether to use slow or fast imp.
 //        const bool isSlow = IsFloatingPoint<T>::value;
-//        return doSomethingImp(t, bslmf::integer_constant<bool, isSlow>());
+//        return doSomethingImp(t, bsl::integer_constant<bool, isSlow>());
 //    }
 //    
 //    int main()
@@ -191,17 +188,6 @@ typedef integer_constant<bool, false> false_type;
 typedef integer_constant<bool, true> true_type;
 
 }  // close namespace bsl
-
-namespace BloombergLP {
-namespace bslmf {
-
-    // Import 'bsl' classes into 'BloombergLP::bslmf'
-    using bsl::integer_constant;
-    using bsl::true_type;
-    using bsl::false_type;
-
-}  // close namespace bslmf
-}  // close namespace BloombergLP
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
