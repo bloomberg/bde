@@ -8094,10 +8094,12 @@ class MyMatrix {
              int numColumns,
              bslma::Allocator *basicAllocator = 0);
         // Create a 'MyMatrix' object having the specified 'numRows' and the
-        // specified 'numColumns'.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  The behavior is undefined unless
-        // '0 <= numRows' and '0 <= numColumns'
+        // specified 'numColumns'.  All elements of the (template parameter)
+        // 'TYPE' in the matrix will have the default-constructed value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless '0 <= numRows' and
+        // '0 <= numColumns'
 
     MyMatrix(const MyMatrix& original,
              bslma::Allocator *basicAllocator = 0);
@@ -8118,19 +8120,22 @@ class MyMatrix {
         // Remove all rows and columns from this object.
 
     void insertRow(int rowIndex);
-        // Insert, into this matrix, an empty row at the specified 'rowIndex'.
-        // The behavior is undefined unless '0 <= rowIndex <= numRows()'.
+        // Insert, into this matrix, an row at the specified 'rowIndex'.  All
+        // elements of the (template parameter) 'TYPE' in the row will have the
+        // default-constructed value.  The behavior is undefined unless
+        // '0 <= rowIndex <= numRows()'.
 
     void insertColumn(int columnIndex);
-        // Insert, into this matrix, an empty column at the specified
-        // 'columnIndex'.  The behavior is undefined unless '0 <= columnIndex
-        // <= numColumns()'.
+        // Insert, into this matrix, an column at the specified 'columnIndex'.
+        // All elements of the (template parameter) 'TYPE' in the column will
+        // have the default constructed value.  The behavior is undefined
+        // unless '0 <= columnIndex <= numColumns()'.
 
     TYPE& theModifiableValue(int rowIndex, int columnIndex);
         // Return a reference providing modifiable access to the element at the
         // specified 'rowIndex' and the specified 'columnIndex' in this matrix.
         // The behavior is undefined unless '0 <= rowIndex < numRows()'
-        // and '0 < columnIndex <= numColumns()'.
+        // and '0 <= columnIndex < numColumns()'.
 
     // ACCESSORS
     int numRows() const;
@@ -8151,7 +8156,7 @@ class MyMatrix {
         // Return a reference providing non-modifiable access to the element at
         // the specified 'rowIndex' and the specified 'columnIndex' in this
         // matrix.  The behavior is undefined unless
-        // '0 <= rowIndex < numRows()' and '0 < columnIndex <= numColumns()'.
+        // '0 <= rowIndex < numRows()' and '0 <= columnIndex < numColumns()'.
 };
 //..
 // Then we declare the free operator for 'MyMatrix':
@@ -8209,10 +8214,9 @@ MyMatrix<TYPE>::MyMatrix(const MyMatrix& original,
 }
 //..
 // Notice that we pass the contained 'bsl::vector' ('d_matrix') the allocator
-// specified at construction to supply memory.  If type of the elements
-// contained in the vector has the 'bslalg_TypeTraitUsesBslmaAllocator' trait,
-// this allocator will be passed by the vector to its contained elements as
-// well.
+// specified at construction to supply memory.  If the (template parameter)
+// 'TYPE' of the elements has the 'bslalg_TypeTraitUsesBslmaAllocator' trait,
+// this allocator will be passed by the vector to the elements as well.
 //..
 // MANIPULATORS
 template <class TYPE>
@@ -8242,7 +8246,7 @@ void MyMatrix<TYPE>::insertColumn(int colIndex) {
     for (typename MatrixType::iterator itr = d_matrix.begin();
          itr != d_matrix.end();
          ++itr) {
-        itr->insert(itr->begin() + colIndex, 0);
+        itr->insert(itr->begin() + colIndex, TYPE());
     }
     ++d_numColumns;
 }

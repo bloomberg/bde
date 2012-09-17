@@ -55,11 +55,12 @@ BSLS_IDENT("$Id: $")
 // A 'vector' is a fully "Value-Semantic Type" (see {'bsldoc_glossary'}) only
 // if the supplied 'VALUE_TYPE' template parameter is fully value-semantic.  It
 // is possible to instantiate a 'vector' with 'VALUE_TYPE' parameters that do
-// not a full set of value-semantic operations, but then some methods of the
-// container may not be instantiable.  The following terminology, adopted from
-// the C++11 standard, is used in the function documentation of 'vector' to
-// describe a function's requirements for the 'VALUE_TYPE' template parameter.
-// These terms are also defined in section [17.6.3.1] of the C++11 standard.
+// not have a full set of value-semantic operations, but then some methods of
+// the container may not be instantiable.  The following terminology, adopted
+// from the C++11 standard, is used in the function documentation of 'vector'
+// to describe a function's requirements for the 'VALUE_TYPE' template
+// parameter.  These terms are also defined in section [17.6.3.1] of the C++11
+// standard.
 //
 //: "default-constructible": The type provides a default constructor.
 //:
@@ -95,7 +96,7 @@ BSLS_IDENT("$Id: $")
 // the time of the vector's construction (see 'bslma_default').  In addition to
 // directly allocating memory from the indicated 'bslma::Allocator', a vector
 // supplies that allocator's address to the constructors of contained objects
-// of the (template parameter) type 'VALUE_TYPE', if it define the
+// of the (template parameter) type 'VALUE_TYPE', if it defines the
 // 'bslalg::TypeTraitUsesBslmaAllocator' trait.
 //
 ///Operations
@@ -248,11 +249,13 @@ BSLS_IDENT("$Id: $")
 //               int numColumns,
 //               bslma::Allocator *basicAllocator = 0);
 //          // Create a 'MyMatrix' object having the specified 'numRows' and
-//          // the specified 'numColumns'.  Optionally specify a
+//          // the specified 'numColumns'.  All elements of the (template
+//          // parameter) 'TYPE' in the matrix will have the
+//          // default-constructed value.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //          // 0, the currently installed default allocator is used.  The
-//          // behavior is undefined unless '0 <= numRows' and '0 <=
-//          // numColumns'
+//          // behavior is undefined unless '0 <= numRows' and
+//          // '0 <= numColumns'
 //
 //      MyMatrix(const MyMatrix& original,
 //               bslma::Allocator *basicAllocator = 0);
@@ -274,20 +277,23 @@ BSLS_IDENT("$Id: $")
 //          // Remove all rows and columns from this object.
 //
 //      void insertRow(int rowIndex);
-//          // Insert, into this matrix, an empty row at the specified
-//          // 'rowIndex'.  The behavior is undefined unless '0 <= rowIndex <=
-//          // numRows()'.
+//          // Insert, into this matrix, a row at the specified 'rowIndex'.
+//          // All elements of the (template parameter) 'TYPE' in the row will
+//          // have the default-constructed value.  The behavior is undefined
+//          // unless '0 <= rowIndex <= numRows()'.
 //
 //      void insertColumn(int columnIndex);
-//          // Insert, into this matrix, an empty column at the specified
-//          // 'columnIndex'.  The behavior is undefined unless '0 <=
-//          // columnIndex <= numColumns()'.
+//          // Insert, into this matrix, an column at the specified
+//          // 'columnIndex'.  All elements of the (template parameter) 'TYPE'
+//          // in the column will have the default-constructed value.  The
+//          // behavior is undefined unless '0 <= columnIndex <= numColumns()'.
 //
 //      TYPE& theModifiableValue(int rowIndex, int columnIndex);
 //          // Return a reference providing modifiable access to the element at
 //          // the specified 'rowIndex' and the specified 'columnIndex' in this
-//          // matrix.  The behavior is undefined unless '0 <= rowIndex <
-//          // numRows()' and '0 < columnIndex <= numColumns()'.
+//          // matrix.  The behavior is undefined unless
+//          // '0 <= rowIndex < numRows()' and
+//          // '0 <= columnIndex < numColumns()'.
 //
 //      // ACCESSORS
 //      int numRows() const;
@@ -309,8 +315,8 @@ BSLS_IDENT("$Id: $")
 //          // Return a reference providing non-modifiable access to the
 //          // element at the specified 'rowIndex' and the specified
 //          // 'columnIndex' in this matrix.  The behavior is undefined unless
-//          // '0 <= rowIndex < numRows()' and '0 < columnIndex <=
-//          // numColumns()'.
+//          // '0 <= rowIndex < numRows()' and
+//          // '0 <= columnIndex < numColumns()'.
 //  };
 //..
 // Then we declare the free operator for 'MyMatrix':
@@ -336,8 +342,8 @@ BSLS_IDENT("$Id: $")
 //  MyMatrix<TYPE> operator*(const MyMatrix<TYPE>& lhs,
 //                           const MyMatrix<TYPE>& rhs);
 //      // Return a 'MyMatrix' objects that is the product of the specified
-//      // 'lhs' and 'rhs'.  The behavior is undefined unless 'lhs.numColumns()
-//      // == rhs.numRows()'.
+//      // 'lhs' and 'rhs'.  The behavior is undefined unless
+//      // 'lhs.numColumns() == rhs.numRows()'.
 //..
 // Now, we define the methods of 'MyMatrix':
 //..
@@ -367,10 +373,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Notice that we pass the contained 'bsl::vector' ('d_matrix') the allocator
-// specified at construction to supply memory.  If type of the elements
-// contained in the vector has the 'bslalg_TypeTraitUsesBslmaAllocator' trait,
-// this allocator will be passed by the vector to its contained elements as
-// well.
+// specified at construction to supply memory.  If the (template parameter)
+// 'TYPE' of the elements has the 'bslalg_TypeTraitUsesBslmaAllocator' trait,
+// this allocator will be passed by the vector to the elements as well.
 //..
 //  // MANIPULATORS
 //  template <class TYPE>
@@ -400,7 +405,7 @@ BSLS_IDENT("$Id: $")
 //      for (typename MatrixType::iterator itr = d_matrix.begin();
 //           itr != d_matrix.end();
 //           ++itr) {
-//          itr->insert(itr->begin() + colIndex, 0);
+//          itr->insert(itr->begin() + colIndex, TYPE());
 //      }
 //      ++d_numColumns;
 //  }
@@ -857,9 +862,9 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // constructors.
 
         // DATA
-        VALUE_TYPE          *d_data_p;
-        std::size_t          d_capacity;
-        VectorContainerBase *d_container_p;
+        VALUE_TYPE          *d_data_p;       // array pointer
+        std::size_t          d_capacity;     // capacity of the array
+        VectorContainerBase *d_container_p;  // container base pointer
 
       public:
         // CREATORS
