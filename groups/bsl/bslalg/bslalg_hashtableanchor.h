@@ -7,50 +7,52 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an in-core, simply-coinstrained attribute class.
+//@PURPOSE: Encapsulate the array of buckets and list of values of a hash table
 //
 //@CLASSES:
-//  bslalg::HashTableAnchor : fundamental attributes of a hash table
+// bslalg::HashTableAnchor: (in-core) bucket-array and node list
 //
-//@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
+//@AUTHOR: Alisdair Meredith (ameredit1) Stefano Pacifico (spacifico1)
 //
 //@SEE_ALSO: bslstl_hashtable, bslalg_hashtableimputil
 //
-//@DESCRIPTION: This component provides a single, simply constrained
+//@DESCRIPTION: This component provides a single, complex-constrained
 // *in*-*core* (value-semantic) attribute class, 'bslalg::HashTableAnchor',
-// that is used to hold on to the fundumental attributes of a hash table
-// structure.  This class is consistent with the hash table data structure
-// used in the implementation of BDE 'unordered' container (see
-// 'bslstl_hashtable').
+// that is used to hold (not own) the array of buckets and the list of nodes
+// that form the key data elements of a hash-table.  This class is typically
+// used with the utilities provided in 'bslstl_hashtableimputil'.  Note that
+// the decision to store nodes in a linked list (i.e., resolving collisions
+// through chaining) is intended to facilitate a hash-table implementation
+// meeting the requirements of a C++11 standard unordered container.
 //
 ///Attributes
 ///----------
 //..
-//  Name                Type                  Constraints
-//  ------------------  -------------------   --------------------------
-//  bucketArrayAddress  HashTableBucket *     Each bucket of the array must
-//                                            refer to elements reachable from
-//                                            'listRootAddress' or must be
-//                                            empty.
+//  Name                Type                  Simple Constraints
+//  ------------------  -------------------   ------------------
+//  bucketArrayAddress  HashTableBucket *     none
 //
-//  bucketArraySize     size_t                Must be the length of the array
-//                                            referred to by
-//                                            'bucketArrayAddress'.
+//  bucketArraySize     size_t                none
 //
-//  listRootAddress     BidirectionalLink *   Refers to the root node of
-//                                             bidirectional list, or has a
-//                                             null pointer value.
+//  listRootAddress     BidirectionalLink *   none
 //
-//: o 'listRootAddress': Address of the head of the linked list of nodes
-//                       holding the elements contained in a hash table.
+//
+//  Complex Constraint
+//  ----------------------------------------------------------------------
+//  'bucketArrayAddress' must refer to a contiguous sequence of valid
+//  'bslalg::HashTableBucket' objects of at least the specified
+//  'bucketArraySize'.
+//..
+//
+//: o 'listRootAddress': address of the head of the linked list of nodes
+//:   holding the elements contained in a hash table
 //:
-//: o 'bucketArrayAddress': Address of the first element of the sequence of
-//:                         'HashTableBucket' objects, partitioning in buckets
-//:                         the elements of the hash table referred by
-//:                         'listRootAddress'.
+//: o 'bucketArrayAddress': address of the first element of the sequence of
+//:   'HashTableBucket' objects, each of which refers to the first and last
+//:   node (from 'listRootAddress') in that bucket
 //:
-//
-//: o 'bucketArraySize': the size of the array starting at 'bucketArrayAddress'.
+//: o 'bucketArraySize': the number of (contiguous) buckets in the array of
+//:   buckets at 'bucketArrayAddress'
 //
 ///Usage
 ///-----
@@ -93,35 +95,37 @@ namespace bslalg {
 
 class HashTableBucket;
 
-                        // ================================
+                        // =============================
                         // class bslalg::HashTableAnchor
-                        // ================================
+                        // =============================
 
 class HashTableAnchor {
-    // This simply constrained (value-semantic) attribute class characterizes a
-    // subset of local time values.  See the Attributes section under
-    // @DESCRIPTION in the component-level documentation for information on
-    // the class attributes.  Note that the class invariants are identically
-    // the constraints on the individual attributes.
+    // This  complex constrained *in*-*core* (value-semantic) attribute class
+    // characterizes the key data elements of a hash table.  See the
+    // "Attributes" section under @DESCRIPTION in the component-level
+    // documentation for/ information on the class attributes.  Note that the
+    // class invariant is the identically the complex constraint of this
+    // component.
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
-    //:   o except for 'bdex' serialization
+    //:   o except for 'bdex' serialization and default construction
+    //: o is *in-core*
     //: o is *exception-neutral* (agnostic)
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
     // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    HashTableBucket     *d_bucketArrayAddress_p; // address of the array of
-                                                 // buckets of the hash table
-                                                 // (held not owned)
+    HashTableBucket     *d_bucketArrayAddress_p;  // address of the array of
+                                                  // buckets (held, not owned)
 
-    native_std::size_t   d_bucketArraySize;      // size of 'd_bucketArray'
+    native_std::size_t   d_bucketArraySize;       // size of 'd_bucketArray'
 
-    BidirectionalLink   *d_listRootAddress_p;    // head of the list of elements
-                                                 // of the hash table (held not
-                                                 // owned)
+    BidirectionalLink   *d_listRootAddress_p;     // head of the list of
+                                                  // elements in the hash-table
+                                                  // (held, not owned)
+
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(HashTableAnchor, TypeTraitBitwiseCopyable);
@@ -132,9 +136,11 @@ class HashTableAnchor {
                     BidirectionalLink  *listRootAddress);
         // Create a 'bslalg::HashTableAnchor' object having the specified
         // 'bucketArrayAddress', 'bucketArraySize', and 'listRootAddress'
-        // attribute.
+        // attributes.  The behavior is undefined unless 'bucketArrayAddress'
+        // refers to a contiguous sequence of valid 'bslalg::HashTableBucket'
+        // objects of at least 'bucketArraySize'.
 
-    HashTableAnchor(const HashTableAnchor&  original);
+    HashTableAnchor(const HashTableAnchor& original);
         // Create a 'bslalg::HashTableAnchor' object having the same value
         // as the specified 'original' object.
 
@@ -146,12 +152,13 @@ class HashTableAnchor {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    void setBucketArrayAddressAndSize(HashTableBucket    *array,
-                                      native_std::size_t  size);
-        // Set the bucket array address and size attributes of this object to
-        // the specified 'array' and 'size' values.  The behavior is undefined
-        // unless 'size * sizeof(HashTableBucket)' is the length of the memory
-        // referenced by 'array'.
+    void setBucketArrayAddressAndSize(HashTableBucket    *bucketArrayAddress,
+                                      native_std::size_t  bucketArraySize);
+        // Set the bucket array address and bucket array size attributes of
+        // this object to the specified 'bucketArrayAddress' and
+        // 'bucketArraySize' values.  The behavior is undefined unless
+        // 'bucketArrayAddress' refers to a contiguous sequence of valid
+        // 'bslalg::HashTableBucket' objects of at least 'bucketArraySize'.
 
     void setListRootAddress(BidirectionalLink *value);
         // Set the 'listRootAddress' attribute of this object to the
@@ -161,9 +168,8 @@ class HashTableAnchor {
     void swap(HashTableAnchor& other);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless this
-        // object was created with the same allocator as 'other'.
-
+        // exception-safety guarantee.
+    
     // ACCESSORS
     HashTableBucket *bucketArrayAddress() const;
         // Return the value of the 'bucketArrayAddress' attribute of this
@@ -181,8 +187,8 @@ bool operator==(const HashTableAnchor& lhs, const HashTableAnchor& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'bslalg::HashTableAnchor' objects
     // have the same value if all of the corresponding values of their
-    // 'bucketArrayAddress', 'bucketArraySize', and 'listRootAddress' attributes
-    // are the same.
+    // 'bucketArrayAddress', 'bucketArraySize', and 'listRootAddress'
+    // attributes are the same.
 
 bool operator!=(const HashTableAnchor& lhs, const HashTableAnchor& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
@@ -202,9 +208,9 @@ void swap(HashTableAnchor& a, HashTableAnchor& b);
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ---------------------
-                        // class HashTableAnchor
-                        // ---------------------
+                        // -----------------------------
+                        // class bslalg::HashTableAnchor
+                        // -----------------------------
 
 // CREATORS
 inline
@@ -317,7 +323,7 @@ bool bslalg::operator!=(const bslalg::HashTableAnchor& lhs,
 
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the

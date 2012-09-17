@@ -14,12 +14,18 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_bidirectionallink, bslalg_hashtableimputil
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
+//@AUTHOR: Alisdair Meredith (ameredith1) Stefano Pacifico (spacifico1)
 //
-//@DESCRIPTION: This component provides utilities for...
+//@DESCRIPTION: This component provides a namespace,
+// 'bslalg::BidirectionalLinkListUtil', containing utility functions for
+// operating on 'bslalg::BidirectionalLink' linked-list nodes.  The main
+// operations include insertion and removal of a node from a list of nodes, and
+// the *splicing* of ranges from one list into another one.  Splicing is the
+// operation of moving a sub-list, or range, of elements from one linked list
+// and into a second list, at a specified position.  Note that for the use of
+// these utilities, no assumptions are made on the actual structure of the
+// linked list (e.g., circular, sentinel terminated, null terminated, etc).
 //
-//-----------------------------------------------------------------------------
-//..
 //
 ///Usage
 ///-----
@@ -36,49 +42,71 @@ namespace bslalg
 
 class BidirectionalLink;
 
-                          // ===============================
-                          // class BidirectionalLinkListUtil
-                          // ===============================
+                        // ========================================
+                        // struct bslalg::BidirectionalLinkListUtil
+                        // ========================================
 
 struct BidirectionalLinkListUtil {
+    // This 'struct' provides a namespace for utility functions that manipulate
+    // linked lists based on 'bslalg::BidirectionalLink' nodes, including
+    // insertion, removal, and *splicing*.
+
+    // CLASS METHODS
     static
     void insertLinkBeforeTarget(BidirectionalLink *newNode,
                                 BidirectionalLink *target);
-       // Insert the specified 'newNode' into the doubly-linked list before the
-       // specified 'tail' node.  If 'tail' is null, then 'newNode' becomes an
-       // entire list, and this function has no observable effect.  The
-       // behavior is undefined unless 'newNode' is not currently linked into
-       // any list, such as having a null pointer for both 'nextLink()' and
-       // 'prev' addresses.
+       // Insert the specified 'newNode' before the specified 'target' node in
+       // the linked list that contains 'target'.  If 'target' is 0, then the
+       // value of the attributes 'nextLink' and 'previousLink' of 'newNode' is
+       // set to 0.  The behavior is undefined unless 
+       // '0 == target->previousLink()'
+       // or 'isWellFormedList(target->previousLink(), target)' is true.
 
     static
     void insertLinkAfterTarget(BidirectionalLink *newNode,
                                BidirectionalLink *target);
-       // Insert the specified 'newNode' into the doubly-linked list after the
-       // specified 'head' node, and before the node following it.  If the node
-       // following 'target' is 0, then the 'nextLink' attribute of 'newNode'
-       // to 0.
+       // Insert the specified 'newNode' after the specified 'target' node, and
+       // before the node that follows it, in the linked list that contains
+       // 'target'.  If the node following 'target' is 0, then set the
+       // 'nextLink' attribute of 'newNode' to 0.
+
+    static
+    bool isWellFormedList(BidirectionalLink *head,
+                                           BidirectionalLink *tail);
+        // Return true if the bidirectional list starting from the specified
+        // 'head', and ending with the specified 'tail' is well formed.  A
+        // bidirectional list is well formed if all of the following conditions
+        // are met:
+        //
+        //: 1 'head->nextLink()->previousLink() == head' is true.
+        //:
+        //: 2 'tail->previousLink()->nextLink() == tail' is true.
+        //:
+        //: 3 For each 'link' in the list different than 'head' and 'tail' both
+        //    'link->nextLink()->previousLink() == link' and
+        //    'link->previousLink()->nextLink() == link' are true.
 
     static
     void spliceListBeforeTarget(BidirectionalLink *first,
                                 BidirectionalLink *last,
                                 BidirectionalLink *target);
-    // Splice the segment of a doubly-linked list specified by the closed range
-    // '[first, last]' out of its original list and into the doubly-linked
-    // target list before the specified 'before' node.  If 'before' is null,
-    // then the splice is extracted and becomes a whole list in its own right,
-    // so that 'first->previousLink()' and 'last->nextLink()' will both return
-    // null pointers.  The behavior is undefined unless both 'first' and 'last'
-    // are members of the same linked list, and that 'first' precedes last in
-    // the list, or 'first == last'.
+        // Unlink and move (splice) the elements of a doubly-linked list
+        // included in the closed range '[first, last]' out of their original
+        // list and into another doubly-linked list before the specified
+        // 'target' node.  If 'target' is 0, then the the elements are
+        // extracted and form a new list such that '0 == first->previousLink()'
+        // and '0 == last->nextLink()' will both return null pointers.  The
+        // behavior is undefined unless both 'first' and 'last' are members of
+        // the same linked list, 'first' precedes last in the list, or
+        // 'first == last', and 'isWellFormedList(first, last)' is true.
 
     static
     void unlink(BidirectionalLink *node);
-        // Unlink the specified 'node' from the linked list it is a member of.
-        // Note that this method does *not* change the 'nextLink()' and 'prev'
-        // attributes of 'node' itself, just those of the adjacent nodes in
-        // the original list.  The behavior is undefined unless 'node' is a
-        // member of a linked list. 
+        // Unlink the specified 'node' from the linked list of which it is a
+        // member.  Note that this method does *not* change the value fo the
+        // 'nextLink' and 'previousLink' attributes of 'node'.  The behavior is
+        // undefined unless
+        // 'isWellFormedList(node->previousLink(), node->nextLink())' is true.
 };
 
 } // namespace BloombergLP::bslalg

@@ -14,33 +14,23 @@ namespace BloombergLP
 
 namespace bslalg
 {
-
-void BidirectionalLinkListUtil::insertLinkAfterTarget(
-                                                    BidirectionalLink *newNode,
-                                                    BidirectionalLink *target)
-{
-    BSLS_ASSERT_SAFE(newNode);
-    BSLS_ASSERT_SAFE(target);
-
-    BidirectionalLink *next = target->nextLink();
-
-    target->setNextLink(newNode);
-    if (next) {
-        next->setPreviousLink(newNode);
-    }
-
-    newNode->setPreviousLink(target);
-    newNode->setNextLink(next);
-}
+                        // ----------------------------------------
+                        // struct bslalg::BidirectionalLinkListUtil
+                        // ----------------------------------------
 
 void BidirectionalLinkListUtil::insertLinkBeforeTarget(
                                                    BidirectionalLink  *newNode,
                                                    BidirectionalLink  *target)
 {
     BSLS_ASSERT(newNode);
+#ifdef BDE_BUILD_TARGET_SAFE2
+    BSLS_ASSERT_SAFE2(   !target->previousLink()
+                      || isWellFormedList(target->previousLink(), target));
+#endif
 
+    // Prepending before an empty list is *explicitly* *allowed*
 
-    if (!target) {  // Prepending before an empty list is *explicitly* *allowed*
+    if (!target) {
         newNode->reset();
     }
     else if (BidirectionalLink *prev = target->previousLink()) {
@@ -56,13 +46,63 @@ void BidirectionalLinkListUtil::insertLinkBeforeTarget(
     }
 }
 
+void BidirectionalLinkListUtil::insertLinkAfterTarget(
+                                                    BidirectionalLink *newNode,
+                                                    BidirectionalLink *target)
+{
+    BSLS_ASSERT_SAFE(newNode);
+    BSLS_ASSERT_SAFE(target);
+#ifdef BDE_BUILD_TARGET_SAFE2
+    BSLS_ASSERT_SAFE2(isWellFormedList(target, target->nextLink()));
+#endif
+
+    BidirectionalLink *next = target->nextLink();
+
+    target->setNextLink(newNode);
+    if (next) {
+        next->setPreviousLink(newNode);
+    }
+
+    newNode->setPreviousLink(target);
+    newNode->setNextLink(next);
+}
+
+bool BidirectionalLinkListUtil::isWellFormedList(BidirectionalLink *head,
+                                                 BidirectionalLink *tail)
+{
+    BSLS_ASSERT_SAFE(head);
+
+    if(head->nextLink()->previousLink() != head) {
+        return false;                                                 // RETURN
+    }
+
+    if(tail && (tail->previousLink()->nextLink() != tail)) {
+        return false;                                                 // RETURN
+    }
+
+    const BidirectionalLink *cursor = head->nextLink();
+    while (cursor != tail) {
+        if (   cursor->nextLink()->previousLink() != cursor
+            || cursor->previousLink()->nextLink() != cursor) {
+
+            return false;                                             // RETURN
+        }
+        cursor = cursor->nextLink();
+    }
+
+    return true;
+}
+
 void BidirectionalLinkListUtil::spliceListBeforeTarget
                                                    (BidirectionalLink *first,
                                                     BidirectionalLink *last,
                                                     BidirectionalLink *target)
 {
-    BSLS_ASSERT(first);
-    BSLS_ASSERT(last);
+    BSLS_ASSERT_SAFE(first);
+    BSLS_ASSERT_SAFE(last);
+#ifdef BDE_BUILD_TARGET_SAFE2
+    BSLS_ASSERT_SAFE2(isWellFormedList(first, last));
+#endif
 
     // unlink from existing list
     if (BidirectionalLink* prev = first->previousLink()) {
