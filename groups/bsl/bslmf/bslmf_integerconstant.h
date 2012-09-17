@@ -144,6 +144,12 @@ BSLS_IDENT("$Id: $")
 //    }
 //..
 
+namespace BloombergLP {
+namespace bslmf {
+template <int> struct MetaInt;
+}
+}
+
 namespace bsl {
 
                         // ===============================
@@ -173,10 +179,31 @@ struct integer_constant {
     // ACCESSORS
     operator value_type() const;
         // Return 'VAL'.
+};
+
+template <bool VAL>
+struct integer_constant<bool, VAL> {
+  public:
+    // CREATORS
+    //! integer_constant() = default;
+    //! integer_constant(const integer_constant&) = default;
+    //! integer_constant operator=(const integer_constant&) = default;
+    //! ~integer_constant() = default;
+
+    // PUBLIC TYPES
+    typedef bool             value_type;
+    typedef integer_constant type;
+
+    // PUBLIC CLASS DATA
+    static const bool value = VAL;
+
+    // ACCESSORS
+    operator value_type() const;
+        // Return 'VAL'.
 
     // COMPATIBILITY MEMBERS
-    typedef integer_constant Type;
-    static const TYPE VALUE = VAL;
+    typedef BloombergLP::bslmf::MetaInt<VAL> Type;
+    static const bool VALUE = VAL;
 };
 
                         // ===============
@@ -201,10 +228,20 @@ typedef integer_constant<bool, true> true_type;
 template <class TYPE, TYPE VAL>
 const TYPE bsl::integer_constant<TYPE, VAL>::value;
 
+template <bool VAL>
+const bool bsl::integer_constant<bool, VAL>::value;
+
 // ACCESSORS
 template <class TYPE, TYPE VAL>
 inline
 bsl::integer_constant<TYPE, VAL>::operator TYPE() const
+{
+    return VAL;
+}
+
+template <bool VAL>
+inline
+bsl::integer_constant<bool, VAL>::operator bool() const
 {
     return VAL;
 }

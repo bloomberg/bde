@@ -202,7 +202,7 @@ const bdeat_EnumeratorInfo PolygonType::ENUMERATOR_INFO_ARRAY[] = {
 
 // TYPE TRAITS
 template <>
-struct bdeat_IsBasicEnumeration<geom::PolygonType::Value> : bslmf::true_type
+struct bdeat_IsBasicEnumeration<geom::PolygonType::Value> : bsl::true_type
 {
 };
 

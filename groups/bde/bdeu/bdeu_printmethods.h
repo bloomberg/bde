@@ -423,12 +423,12 @@ struct bdeu_PrintMethods_Imp<TYPE, bslmf::IsPair<TYPE> > {
                                int           spacesPerLevel);
 };
 
-            // -----------------------------------------------------
-            // struct bdeu_PrintMethods_Imp<TYPE, bslmf::false_type>
-            // -----------------------------------------------------
+            // ---------------------------------------------------
+            // struct bdeu_PrintMethods_Imp<TYPE, bsl::false_type>
+            // ---------------------------------------------------
 
 template <typename TYPE>
-struct bdeu_PrintMethods_Imp<TYPE, bslmf::false_type> {
+struct bdeu_PrintMethods_Imp<TYPE, bsl::false_type> {
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of
     // parameterized 'TYPE' that do not declare any of the traits recognized
@@ -596,14 +596,14 @@ print(bsl::ostream& stream,
     return stream << bsl::flush;
 }
 
-            // -----------------------------------------------------
-            // struct bdeu_PrintMethods_Imp<TYPE, bslmf::false_type>
-            // -----------------------------------------------------
+            // ---------------------------------------------------
+            // struct bdeu_PrintMethods_Imp<TYPE, bsl::false_type>
+            // ---------------------------------------------------
 
 // CLASS METHODS
 template <typename TYPE>
 bsl::ostream&
-bdeu_PrintMethods_Imp<TYPE, bslmf::false_type>::
+bdeu_PrintMethods_Imp<TYPE, bsl::false_type>::
 print(bsl::ostream& stream,
       const TYPE&   object,
       int           level,
@@ -662,10 +662,10 @@ bdeu_PrintMethods::print(
 {
     return bdeu_PrintMethods_Imp<
                           bsl::basic_string<CHAR_T, CHAR_TRAITS_T, ALLOC>,
-                          bslmf::false_type>::print(stream,
-                                                    object,
-                                                    level,
-                                                    spacesPerLevel);
+                          bsl::false_type>::print(stream,
+                                                  object,
+                                                  level,
+                                                  spacesPerLevel);
 }
 
 template <typename ALLOC>

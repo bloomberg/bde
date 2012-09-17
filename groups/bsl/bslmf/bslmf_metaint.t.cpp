@@ -119,6 +119,15 @@ bool matchIntConstant(bsl::integer_constant<int, VALUE>)
     return true;
 }
 
+template <bool VALUE>
+bool matchIntConstant(bsl::integer_constant<bool, VALUE>)
+    // Return true when called with an 'integer_constant' of the specified
+    // 'VALUE'.  Does not participate in overload resolution for
+    // 'integer_constant's with a 'value' other than 'VALUE'.
+{
+    return true;
+}
+
 template <int VALUE>
 bool matchIntConstant(AnyType)
     // Return false.  Overload resolution will select this function only when
@@ -130,22 +139,22 @@ bool matchIntConstant(AnyType)
     return false;
 }
 
-int dispatchOnIntConstant(int, const char*, bsl::integer_constant<int, 0>)
+int dispatchOnIntConstant(int, const char*, bslmf::MetaInt<0>)
 {
     return 0;
 }
 
-int dispatchOnIntConstant(int, const char*, bsl::integer_constant<int, 1>)
+int dispatchOnIntConstant(int, const char*, bslmf::MetaInt<1>)
 {
     return 1;
 }
 
-int dispatchOnIntConstant(int, const char*, bsl::integer_constant<int, -1>)
+int dispatchOnIntConstant(int, const char*, bslmf::MetaInt<-1>)
 {
     return -1;
 }
 
-int dispatchOnIntConstant(int, const char*, bsl::integer_constant<int, 999>)
+int dispatchOnIntConstant(int, const char*, bslmf::MetaInt<999>)
 {
     return 999;
 }

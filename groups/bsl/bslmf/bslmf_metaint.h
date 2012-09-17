@@ -159,7 +159,7 @@ struct MetaInt : public bsl::integer_constant<int, INT_VALUE> {
 };
 
 template <>
-struct MetaInt<0> : public bsl::integer_constant<int, 0> {
+struct MetaInt<0> : public bsl::false_type {
     // This specialization of 'MetaInt' has a 'VAL' of zero and is convertible
     // to and from 'bsl::false_type'.
 
@@ -172,9 +172,6 @@ struct MetaInt<0> : public bsl::integer_constant<int, 0> {
     // CREATORS
     MetaInt();
         // Does nothing ('MetaInt' is stateless).
-
-    MetaInt(bsl::integer_constant<int, 0>);
-        // Convert from a 'bsl::integer_constant<int, 0>'.
 
     MetaInt(bsl::false_type);
         // Convert from a 'bsl::false_type'.
@@ -203,7 +200,7 @@ struct MetaInt<0> : public bsl::integer_constant<int, 0> {
 };
 
 template <>
-struct MetaInt<1> : public bsl::integer_constant<int, 1> {
+struct MetaInt<1> : public bsl::true_type {
     // This specialization of 'MetaInt' has a 'VAL' of one and is convertible
     // to and from 'bsl::true_type'.
 
@@ -216,9 +213,6 @@ struct MetaInt<1> : public bsl::integer_constant<int, 1> {
     // CREATORS
     MetaInt();
         // Does nothing ('MetaInt' is stateless).
-
-    MetaInt(bsl::integer_constant<int, 1>);
-        // Convert from a 'bsl::integer_constant<int, 1>'.
 
     MetaInt(bsl::true_type);
         // Convert from a 'bsl::true_type'.
@@ -290,22 +284,12 @@ MetaInt<0>::MetaInt()
 }
 
 inline
-MetaInt<0>::MetaInt(bsl::integer_constant<int, 0>)
-{
-}
-
-inline
 MetaInt<0>::MetaInt(bsl::false_type)
 {
 }
 
 inline
 MetaInt<1>::MetaInt()
-{
-}
-
-inline
-MetaInt<1>::MetaInt(bsl::integer_constant<int, 1>)
 {
 }
 
