@@ -34,6 +34,11 @@ namespace bsl {
     // provided by 'bslstl_pair.h' (but 'make_pair' currently is not):
 
     using native_std::make_pair;
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    using native_std::move;
+    using native_std::forward;
+#endif
 }
 
 // Include Bloomberg's implementation, unless compilation is configured to
