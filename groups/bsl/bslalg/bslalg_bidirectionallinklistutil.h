@@ -58,17 +58,22 @@ struct BidirectionalLinkListUtil {
        // Insert the specified 'newNode' before the specified 'target' node in
        // the linked list that contains 'target'.  If 'target' is 0, then the
        // value of the attributes 'nextLink' and 'previousLink' of 'newNode' is
-       // set to 0.  The behavior is undefined unless 
-       // '0 == target->previousLink()'
-       // or 'isWellFormedList(target->previousLink(), target)' is true.
+       // set to 0.  After successful execution of this function the values of
+       // the 'previousLink' and 'nextLink' attributes of all the links in the
+       // list appropriately reflect the operation.  The behavior is undefined
+       // unless '0 == target->previousLink()' is true or
+       // 'isWellFormedList(target->previousLink(), target)' is true.
 
     static
     void insertLinkAfterTarget(BidirectionalLink *newNode,
                                BidirectionalLink *target);
-       // Insert the specified 'newNode' after the specified 'target' node, and
-       // before the node that follows it, in the linked list that contains
-       // 'target'.  If the node following 'target' is 0, then set the
-       // 'nextLink' attribute of 'newNode' to 0.
+       // Insert the specified 'newNode' after the specified 'target' node in
+       // the linked list that contains 'target'.  If the node following
+       // 'target' is 0, then set the 'nextLink' attribute of 'newNode' to 0.
+       // After successful execution of this function the values of the
+       // 'previousLink' and 'nextLink' attributes of all the links in the list
+       // appropriately reflect the operation.  The behavior is undefined
+       // unless 'isWellFormedList(target, target->nextLink())' is true.
 
     static
     bool isWellFormedList(BidirectionalLink *head,
@@ -95,16 +100,22 @@ struct BidirectionalLinkListUtil {
         // list and into another doubly-linked list before the specified
         // 'target' node.  If 'target' is 0, then the the elements are
         // extracted and form a new list such that '0 == first->previousLink()'
-        // and '0 == last->nextLink()' will both return null pointers.  The
-        // behavior is undefined unless both 'first' and 'last' are members of
-        // the same linked list, 'first' precedes last in the list, or
-        // 'first == last', and 'isWellFormedList(first, last)' is true.
+        // and '0 == last->nextLink()' .  After successful execution of this
+        // function the values of the 'previousLink' and 'nextLink' attributes
+        // of all the links in the origin and destination lists appropriately
+        // reflect the operation.  The behavior is undefined unless both
+        // 'first' and 'last' are members of the same linked list, 'first'
+        // precedes 'last' in the list, or 'first == last', and
+        // 'isWellFormedList(first, last)' is true.
 
     static
     void unlink(BidirectionalLink *node);
         // Unlink the specified 'node' from the linked list of which it is a
-        // member.  Note that this method does *not* change the value fo the
-        // 'nextLink' and 'previousLink' attributes of 'node'.  The behavior is
+        // member.  After successful execution of this function the values of
+        // the 'previousLink' and 'nextLink' attributes of all the links in the
+        // origin and destination lists appropriately reflect the operation
+        // Note that this method does *not* change the value for the 'nextLink'
+        // and 'previousLink' attributes of 'node'.  The behavior is
         // undefined unless
         // 'isWellFormedList(node->previousLink(), node->nextLink())' is true.
 };
