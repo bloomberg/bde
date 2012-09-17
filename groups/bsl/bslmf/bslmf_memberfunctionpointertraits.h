@@ -81,8 +81,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_IF
@@ -116,7 +116,7 @@ struct MemberFunctionPointerTraits
 
 template <class PROTOTYPE>
 struct IsMemberFunctionPointer
-    : bsl::integer_constant<
+    : bsl::integral_constant<
             bool,
             MemberFunctionPointerTraits<PROTOTYPE>::IS_MEMBER_FUNCTION_PTR> {
     // This template determines if the specified 'PROTOTYPE' is a member

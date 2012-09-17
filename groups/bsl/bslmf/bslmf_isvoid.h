@@ -44,8 +44,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECV
@@ -88,7 +88,7 @@ template<class TYPE>
 struct IsVoid : bsl::is_void<TYPE>::type
     // This metafunction struct contains a nested 'value' which converts to
     // 'true' if 'BSLMF_TYPE' is type 'void' and to 'false' otherwise, and
-    // a nested type alias 'TYPE' corresponding to 'bsl::integer_constant'.
+    // a nested type alias 'TYPE' corresponding to 'bsl::integral_constant'.
 {
 };
 

@@ -1,6 +1,6 @@
-// bslmf_integerconstant.cpp                  -*-C++-*-
+// bslmf_integralconstant.cpp                                         -*-C++-*-
 
-#include <bslmf_integerconstant.h>
+#include <bslmf_integralconstant.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

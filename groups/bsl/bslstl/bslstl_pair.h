@@ -639,13 +639,13 @@ namespace bsl {
 
 template <typename T1, typename T2>
 struct is_trivially_copyable<pair<T1, T2> >
-    : bsl::integer_constant<bool, is_trivially_copyable<T1>::value
+    : bsl::integral_constant<bool, is_trivially_copyable<T1>::value
                                   && is_trivially_copyable<T2>::value>
 {};
 
 template <typename T1, typename T2>
 struct is_trivially_default_constructible<bsl::pair<T1, T2> >
-    : bsl::integer_constant<bool, is_trivially_default_constructible<T1>::value
+    : bsl::integral_constant<bool, is_trivially_default_constructible<T1>::value
                                   && is_trivially_default_constructible<T2>::value>
 {};
 
@@ -656,13 +656,13 @@ namespace bslmf {
 
 template <typename T1, typename T2>
 struct IsBitwiseMoveable<bsl::pair<T1, T2> >
-    : bsl::integer_constant<bool, bslmf::IsBitwiseMoveable<T1>::value
+    : bsl::integral_constant<bool, bslmf::IsBitwiseMoveable<T1>::value
                                   && bslmf::IsBitwiseMoveable<T2>::value>
 {};
 
 template <typename T1, typename T2>
 struct IsBitwiseEqualityComparable<bsl::pair<T1, T2> >
-    : bsl::integer_constant<bool, bslmf::IsBitwiseEqualityComparable<T1>::value
+    : bsl::integral_constant<bool, bslmf::IsBitwiseEqualityComparable<T1>::value
                                   && bslmf::IsBitwiseEqualityComparable<T2>::value
                                   && sizeof(T1) + sizeof(T2) == sizeof(bsl::Pair_Imp<T1, T2, 0, 0>)>
 {};
@@ -673,7 +673,7 @@ namespace bslma {
 
 template <typename T1, typename T2>
 struct UsesBslmaAllocator<bsl::pair<T1, T2> >
-    : bsl::integer_constant<bool, bslma::UsesBslmaAllocator<T1>::value
+    : bsl::integral_constant<bool, bslma::UsesBslmaAllocator<T1>::value
                                   || bslma::UsesBslmaAllocator<T2>::value>
 {};
 

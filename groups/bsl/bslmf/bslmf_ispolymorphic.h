@@ -99,8 +99,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECV
@@ -174,11 +174,11 @@ namespace bsl {
 
 template <typename TYPE>
 struct is_polymorphic
-    : integer_constant<bool,
-                       BloombergLP::bslmf::IsPolymorphic_Imp<
-                            typename remove_cv<
-                                typename remove_reference<TYPE>::type>::type>
-                       ::Value>
+    : integral_constant<bool,
+                        BloombergLP::bslmf::IsPolymorphic_Imp<
+                             typename remove_cv<
+                                 typename remove_reference<TYPE>::type>::type>
+                        ::Value>
 {};
 
 }

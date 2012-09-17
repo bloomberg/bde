@@ -71,8 +71,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECV
@@ -172,9 +172,9 @@ namespace bsl {
 
 template <typename TYPE>
 struct is_fundamental
-    : integer_constant<bool,
-                       is_arithmetic<TYPE>::value
-                       || is_void<TYPE>::value>
+    : integral_constant<bool,
+                        is_arithmetic<TYPE>::value
+                        || is_void<TYPE>::value>
 {
     // This class implements a meta-function for checking if a type is
     // fundamental as defined in C++11 section 3.9.1 [basic.fundamental] with

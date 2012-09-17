@@ -76,8 +76,8 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
@@ -113,7 +113,7 @@ struct IsBitwiseMoveable;
 
 template <typename TYPE>
 struct IsBitwiseMoveable_Imp
-    : bsl::integer_constant<bool,
+    : bsl::integral_constant<bool,
                             !bsl::is_reference<TYPE>::value
                          && (  bsl::is_trivially_copyable<TYPE>::value
                             || DetectNestedTrait<TYPE, IsBitwiseMoveable>::value)>

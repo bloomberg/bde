@@ -20,7 +20,7 @@ using namespace bslmf;
 // [ 1] VALUE
 // [ 2] operator int() const;
 // [ 2] operator bool() const;
-// [ 3] implicit upcast to bsl::integer_constant<int, INT_VALUE>
+// [ 3] implicit upcast to bsl::integral_constant<int, INT_VALUE>
 // [ 3] operator bsl::false_type() const
 // [ 3] operator bsl::true_type() const
 // [ 4] conversion constructors
@@ -111,19 +111,19 @@ struct AnyType
 };
 
 template <int VALUE>
-bool matchIntConstant(bsl::integer_constant<int, VALUE>)
-    // Return true when called with an 'integer_constant' of the specified
+bool matchIntConstant(bsl::integral_constant<int, VALUE>)
+    // Return true when called with an 'integral_constant' of the specified
     // 'VALUE'.  Does not participate in overload resolution for
-    // 'integer_constant's with a 'value' other than 'VALUE'.
+    // 'integral_constant's with a 'value' other than 'VALUE'.
 {
     return true;
 }
 
 template <bool VALUE>
-bool matchIntConstant(bsl::integer_constant<bool, VALUE>)
-    // Return true when called with an 'integer_constant' of the specified
+bool matchIntConstant(bsl::integral_constant<bool, VALUE>)
+    // Return true when called with an 'integral_constant' of the specified
     // 'VALUE'.  Does not participate in overload resolution for
-    // 'integer_constant's with a 'value' other than 'VALUE'.
+    // 'integral_constant's with a 'value' other than 'VALUE'.
 {
     return true;
 }
@@ -131,8 +131,8 @@ bool matchIntConstant(bsl::integer_constant<bool, VALUE>)
 template <int VALUE>
 bool matchIntConstant(AnyType)
     // Return false.  Overload resolution will select this function only when
-    // the argument is other than 'integer_constant<int, VALUE>', e.g., when
-    // called with an argument of type integer_constant<int, OTHER_VALUE>',
+    // the argument is other than 'integral_constant<int, VALUE>', e.g., when
+    // called with an argument of type integral_constant<int, OTHER_VALUE>',
     // where 'Other_VALUE' is different from the specified 'VALUE' template
     // parameter.
 {
@@ -287,12 +287,12 @@ int main(int argc, char *argv[])
         // TESTING CONVERSION CONSTRUCTORS
         //
         // Concerns:
-        //: 1 'MetaInt<V>' is constructible from 'integer_constant<int, V>'.
+        //: 1 'MetaInt<V>' is constructible from 'integral_constant<int, V>'.
         //:
         //: 2 Given several function overloads that take an argument of type
         //:   'MetaInt<V>' for different values of 'V' and
         //:   otherwise identical parameters, passing an argument of type
-        //:   'integer_constant<int, X>' will dispatch to overload that takes
+        //:   'integral_constant<int, X>' will dispatch to overload that takes
         //:   'MetaInt<X>'.
         //:
         //: 3 Given two function overloads with identical parameters such
@@ -306,9 +306,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Create a function template, 'matchIntConstant<V>' having two
         //:   overloads: one that takes an argument of type
-        //:   'integer_constant<int, V>' and returns 'true', and another which
+        //:   'integral_constant<int, V>' and returns 'true', and another which
         //:   takes an argument of a type convertible from *any*
-        //:   'integer_constant' and returns 'false'.  For various values 'V',
+        //:   'integral_constant' and returns 'false'.  For various values 'V',
         //:   construct rvalues of type 'MetaInt<V>' and call
         //:   'matchIntConstant<V>', verifying that it returns
         //:   'true'. (C-1)
@@ -319,11 +319,11 @@ int main(int argc, char *argv[])
         //:
         //: 3 Create a set of overloaded functions,
         //:   'dispatchOnIntConstant' taking identical arguments except
-        //:   that the last parameter is of type 'integer_constant<int, V>'
+        //:   that the last parameter is of type 'integral_constant<int, V>'
         //:   for several values of 'V'.  The return value of
         //:   'dispatchOnIntConstant' is an 'int' with value 'V'.  Call
         //:   'dispatchOnIntConstant' several times, each time passing a
-        //:   different instantiation of 'integer_constant<int, V>' and
+        //:   different instantiation of 'integral_constant<int, V>' and
         //:   verifying that the return value is as expected (i.e., that the
         //:   call dispatched to the correct overload).  (C-3)
         //:
@@ -339,13 +339,13 @@ int main(int argc, char *argv[])
         //:   argument and verify that it returns 2. (C-4)
         //
         // Testing:
-        //      implicit upcast to bsl::integer_constant<int, INT_VALUE>
-        //      inheritence from bsl::integer_constant<int, INT_VALUE>
+        //      implicit upcast to bsl::integral_constant<int, INT_VALUE>
+        //      inheritence from bsl::integral_constant<int, INT_VALUE>
         //      operator bsl::false_type() const;  // MetaInt<0> only
         //      operator bsl::true_type() const;   // MetaInt<1> only
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING CONVERSION TO integer_constant"
+        if (verbose) printf("\nTESTING CONVERSION TO integral_constant"
                             "\n======================================\n");
 
         if (veryVerbose) printf("Testing good conversions\n");
@@ -375,19 +375,19 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING CONVERSION TO integer_constant
+        // TESTING CONVERSION TO integral_constant
         //
         // Concerns:
-        //: 1 'MetaInt<V>' is convertible to 'integer_constant<int, V>'.
+        //: 1 'MetaInt<V>' is convertible to 'integral_constant<int, V>'.
         //:
-        //: 2 'MetaInt<V>' is NOT convertible to 'integer_constant<int, X>',
+        //: 2 'MetaInt<V>' is NOT convertible to 'integral_constant<int, X>',
         //:   'X != V'.
         //:
         //: 3 Given several function overloads that take an argument of type
-        //:   'integer_constant<int, V>' for different values of 'V' and
+        //:   'integral_constant<int, V>' for different values of 'V' and
         //:   otherwise identical parameters, passing an argument of type
         //:   'MetaInt<X>' will dispatch to overload that takes
-        //:   'integer_constant<int, X>'.
+        //:   'integral_constant<int, X>'.
         //:
         //: 4 Given two function overloads with identical parameters such
         //:   that the first takes an argument of type 'bsl::false_type' and
@@ -399,9 +399,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Create a function template, 'matchIntConstant<V>' having two
         //:   overloads: one that takes an argument of type
-        //:   'integer_constant<int, V>' and returns 'true', and another which
+        //:   'integral_constant<int, V>' and returns 'true', and another which
         //:   takes an argument of a type convertible from *any*
-        //:   'integer_constant' and returns 'false'.  For various values 'V',
+        //:   'integral_constant' and returns 'false'.  For various values 'V',
         //:   construct rvalues of type 'MetaInt<V>' and call
         //:   'matchIntConstant<V>', verifying that it returns
         //:   'true'. (C-1)
@@ -412,11 +412,11 @@ int main(int argc, char *argv[])
         //:
         //: 3 Create a set of overloaded functions,
         //:   'dispatchOnIntConstant' taking identical arguments except
-        //:   that the last parameter is of type 'integer_constant<int, V>'
+        //:   that the last parameter is of type 'integral_constant<int, V>'
         //:   for several values of 'V'.  The return value of
         //:   'dispatchOnIntConstant' is an 'int' with value 'V'.  Call
         //:   'dispatchOnIntConstant' several times, each time passing a
-        //:   different instantiation of 'integer_constant<int, V>' and
+        //:   different instantiation of 'integral_constant<int, V>' and
         //:   verifying that the return value is as expected (i.e., that the
         //:   call dispatched to the correct overload).  (C-3)
         //:
@@ -432,13 +432,13 @@ int main(int argc, char *argv[])
         //:   argument and verify that it returns 2. (C-4)
         //
         // Testing:
-        //      implicit upcast to bsl::integer_constant<int, INT_VALUE>
-        //      inheritence from bsl::integer_constant<int, INT_VALUE>
+        //      implicit upcast to bsl::integral_constant<int, INT_VALUE>
+        //      inheritence from bsl::integral_constant<int, INT_VALUE>
         //      operator bsl::false_type() const;  // MetaInt<0> only
         //      operator bsl::true_type() const;   // MetaInt<1> only
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING CONVERSION TO integer_constant"
+        if (verbose) printf("\nTESTING CONVERSION TO integral_constant"
                             "\n======================================\n");
 
         if (veryVerbose) printf("Testing good conversions\n");

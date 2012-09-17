@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function to map integral constants to unique types.
 //
-//@DEPRECATED: Use 'bslstt_integer_constant' instead.
+//@DEPRECATED: Use 'bslstt_integral_constant' instead.
 //
 //@CLASSES:
 //  bslmf::MetaInt: meta-function mapping integral constants to C++ types
@@ -107,8 +107,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_tag.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 namespace BloombergLP {
@@ -120,10 +120,10 @@ namespace bslmf {
                            // ==============
 
 template <int INT_VALUE>
-struct MetaInt : public bsl::integer_constant<int, INT_VALUE> {
+struct MetaInt : public bsl::integral_constant<int, INT_VALUE> {
     // Instantiating this template produces a distinct type for each
     // non-negative integer value.  This template has been deprecated in favor
-    // of the standard 'integer_constant' template.
+    // of the standard 'integral_constant' template.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
     static_assert(INT_VALUE >= 0, "INT_VALUE must be non-negative");
@@ -139,8 +139,8 @@ struct MetaInt : public bsl::integer_constant<int, INT_VALUE> {
     MetaInt();
         // Does nothing ('MetaInt' is stateless).
 
-    MetaInt(bsl::integer_constant<int, INT_VALUE>);
-        // Convert from a 'bsl::integer_constant<int, INT_VALUE>'.
+    MetaInt(bsl::integral_constant<int, INT_VALUE>);
+        // Convert from a 'bsl::integral_constant<int, INT_VALUE>'.
 
     //! MetaInt(const MetaInt&) = default;
     //! MetaInt& operator=(const MetaInt&) = default;
@@ -274,7 +274,7 @@ MetaInt<INT_VALUE>::MetaInt()
 
 template <int INT_VALUE>
 inline
-MetaInt<INT_VALUE>::MetaInt(bsl::integer_constant<int, INT_VALUE>)
+MetaInt<INT_VALUE>::MetaInt(bsl::integral_constant<int, INT_VALUE>)
 {
 }
 

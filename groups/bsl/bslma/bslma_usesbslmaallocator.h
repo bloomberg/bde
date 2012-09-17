@@ -45,7 +45,7 @@ namespace bslma {
                         // ========================
 
 template <class TYPE, bool IS_NESTED>
-struct UsesBslmaAllocator_Imp : bsl::integer_constant<bool, IS_NESTED>
+struct UsesBslmaAllocator_Imp : bsl::integral_constant<bool, IS_NESTED>
 {
 };
 

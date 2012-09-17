@@ -1,6 +1,6 @@
-// bslmf_integerconstant.t.cpp                  -*-C++-*-
+// bslmf_integralconstant.t.cpp                                       -*-C++-*-
 
-#include "bslmf_integerconstant.h"
+#include "bslmf_integralconstant.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -50,12 +50,12 @@ using namespace std;
 // [ 4] bsl::true_type
 //
 // CREATORS
-// [ 3] integer_constant();
-// [ 3] integer_constant(const integer_constant&);
-// [ 3] ~integer_constant();
+// [ 3] integral_constant();
+// [ 3] integral_constant(const integral_constant&);
+// [ 3] ~integral_constant();
 //
 // MANIPULATORS
-// [ 3] integer_constant& operator=(const integer_constant&);
+// [ 3] integral_constant& operator=(const integral_constant&);
 //
 // ACCESSORS
 // [ 3] operator TYPE() const;
@@ -231,10 +231,10 @@ template <class T> inline bool isConst(const T&) { return true; }
 // parameterized type allows for such operations, otherwise it will use a more
 // generic and slower implementation (e.g., using the copy constructor).  This
 // example uses the types 'true_type' and 'false_type', which are simple
-// typedefs for 'integer_constant<bool, true>' and
-// 'integer_constant<bool, false>', respectively.
+// typedefs for 'integral_constant<bool, true>' and
+// 'integral_constant<bool, false>', respectively.
 //..
-      #include <bslmf_integerconstant.h>
+      #include <bslmf_integralconstant.h>
   
       template <class T>
       int doSomethingImp(T *t, bsl::true_type)
@@ -259,13 +259,13 @@ template <class T> inline bool isConst(const T&) { return true; }
       {
           // Dispatch to an implementation depending on the (compile-time)
           // value of 'IsSlow'.
-          return doSomethingImp(t, bsl::integer_constant<bool, IsSlow>());
+          return doSomethingImp(t, bsl::integral_constant<bool, IsSlow>());
       }
 //..
 // For some parameter types, the fast version of 'doSomethingImp' is not
 // legal.  The power of this approach is that the compiler will not attempt
 // semantic anlysis on the implementation that does not match the appropriate
-// 'integer_constant' argument.
+// 'integral_constant' argument.
 //..
       int usageExample1()
       {
@@ -284,8 +284,8 @@ template <class T> inline bool isConst(const T&) { return true; }
 //..
 ///Example 2: Base class for metafunctions
 /// - - - - - - - - - - - - - - - - - - - 
-// Hard-coding the value of an 'integer_constant' is not especially useful.
-// Rather, 'integer_constant' is typically used as the base class for
+// Hard-coding the value of an 'integral_constant' is not especially useful.
+// Rather, 'integral_constant' is typically used as the base class for
 // "metafunction" classes, classes that yield the value of compile-time
 // properties, including properties that are associated with types, rather
 // than with values.  For example, the following metafunction can be used at
@@ -297,7 +297,7 @@ template <class T> inline bool isConst(const T&) { return true; }
       template <> struct IsFloatingPoint<long double> : bsl::true_type { };
 //..
 // The value 'IsFloatingPoint<int>::value' is false and
-// 'IsFloatingPoint<double>::value' is true.  The 'integer_constant' base
+// 'IsFloatingPoint<double>::value' is true.  The 'integral_constant' base
 // class has a member type, 'type', that refers to itself and is inherited by
 // 'IsFloatingPoint'. Thus 'IsFloatingPoint<float>::type' is 'true_type' and
 // 'IsFloatingPoint<char>::type' is 'false_type'.  'IsFloatingPoint' is an a
@@ -312,7 +312,7 @@ template <class T> inline bool isConst(const T&) { return true; }
       {
           // Automatically detect whether to use slow or fast imp.
           const bool isSlow = IsFloatingPoint<T>::value;
-          return doSomethingImp(t, bsl::integer_constant<bool, isSlow>());
+          return doSomethingImp(t, bsl::integral_constant<bool, isSlow>());
       }
   
       int usageExample2()
@@ -337,7 +337,7 @@ template <class T> inline bool isConst(const T&) { return true; }
 
 template <class TYPE, TYPE VAL>
 void fullTest(const char TYPENAME[])
-    // Preform the full suite of tests on 'integer_constant' instantiated with
+    // Preform the full suite of tests on 'integral_constant' instantiated with
     // the specified 'TYPE' and 'VAL'.  The specified 'TYPENAME' string
     // contains a printable representation of the name of 'TYPE'.  This
     // function reads the global 'verbose' variable and (if an error is
@@ -351,7 +351,7 @@ void fullTest(const char TYPENAME[])
         printf(">()\n");
     }
 
-    typedef bsl::integer_constant<TYPE, VAL> Obj;
+    typedef bsl::integral_constant<TYPE, VAL> Obj;
 
     if (verbose) printf("\tTest 'value' static member constant\n");
     LOOP2_ASSERT(TYPENAME, VAL, isConst(Obj::value));
@@ -427,9 +427,9 @@ int main(int argc, char *argv[])
         // TESTING false_type AND true_type
         //
         // Concerns:
-        //: 1 'false_type' is identical to 'integer_constant<bool, false>'.
+        //: 1 'false_type' is identical to 'integral_constant<bool, false>'.
         //:
-        //: 2 'true_type' is identical to 'integer_constant<bool, true>'.
+        //: 2 'true_type' is identical to 'integral_constant<bool, true>'.
         //
         // Plan:
         //: 1 Use 'IsSameType' to verify the type of 'false_type' and
@@ -444,9 +444,9 @@ int main(int argc, char *argv[])
                             "\n================================\n");
 
         ASSERT((IsSameType<bsl::false_type,
-                           bsl::integer_constant<bool, false> >::VALUE));
+                           bsl::integral_constant<bool, false> >::VALUE));
         ASSERT((IsSameType<bsl::true_type,
-                           bsl::integer_constant<bool, true> >::VALUE));
+                           bsl::integral_constant<bool, true> >::VALUE));
         
       } break;
       case 3: {
@@ -456,24 +456,24 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'value' type is a const lvalue of type 'TYPE' with value 'VAL'
         //:
-        //: 2 'type' member is the same as 'integer_constant<TYPE, VAL>'
+        //: 2 'type' member is the same as 'integral_constant<TYPE, VAL>'
         //:
         //: 3 'value_type' member is the same as 'TYPE'
         //:
-        //: 4 An 'integer_constant<TYPE, VAL>' object is convertible to an
+        //: 4 An 'integral_constant<TYPE, VAL>' object is convertible to an
         //:   object of type 'TYPE' with a 'value' of 'VAL.
         //:
-        //: 5 'integer_constant<TYPE, VAL>' is default constructible.
+        //: 5 'integral_constant<TYPE, VAL>' is default constructible.
         //:
-        //: 6 'integer_constant<TYPE, VAL>' is copy constructible such that
+        //: 6 'integral_constant<TYPE, VAL>' is copy constructible such that
         //:   the copy constructor has exactly the same behavior as the default
         //:   constructor (i.e., the argument to the copy constructor is
         //:   ignored). 
         //:
-        //: 7 'integer_constant<TYPE, VAL>' is assignable, though the
+        //: 7 'integral_constant<TYPE, VAL>' is assignable, though the
         //:   assignment operator has no effect.
         //:
-        //: 8 'integer_constant<TYPE, VAL>' is destructible.
+        //: 8 'integral_constant<TYPE, VAL>' is destructible.
         //:
         //: 9 All of the above concerns apply to each built-in integer type.
         //:
@@ -487,12 +487,12 @@ int main(int argc, char *argv[])
         //: 2 Use 'IsSameType' verify that the 'type' and 'value_type' are as
         //:   expected. (C-2 and C-3)
         //:
-        //: 3 Construct an object of type 'integer_constant<TYPE, VAL>' and
+        //: 3 Construct an object of type 'integral_constant<TYPE, VAL>' and
         //:   use it to initialize a variable of type 'TYPE'.  Verify that
         //:   the variable compares equal to 'VAL'. (C-4)
         //:
         //: 4 Default construct, copy construct, and assign objects of type
-        //:   'integer_constant<TYPE, VAL>'.  In each case, verify that
+        //:   'integral_constant<TYPE, VAL>'.  In each case, verify that
         //:   converting the result to 'TYPE' yields 'VAL'.  (C5..7)
         //:
         //: 5 The destructor is tested automatically when the objects created
@@ -675,16 +675,16 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The basic functionality of 'integer_constant' works as
+        //: 1 The basic functionality of 'integral_constant' works as
         //:   expected.
         //
         // Plan:
-        //: 1 Instantiate 'integer_constant' with several combinations of
+        //: 1 Instantiate 'integral_constant' with several combinations of
         //:   types and values.  For each combination test that the (static)
         //:   'value' member has the expected value, that the 'type' member
         //:   exists and has the same 'value', that the 'value_type' member
         //:   exists and can hold 'value', and that an object of
-        //:   'integer_constant' can be constructed and is convertible to the
+        //:   'integral_constant' can be constructed and is convertible to the
         //:   specified 'TYPE'.  (C-1)
 	//
         // Testing:
@@ -698,8 +698,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("... With 'bool' type\n");
         {
-            typedef integer_constant<bool, false> TypeFalse;
-            typedef integer_constant<bool, true>  TypeTrue;
+            typedef integral_constant<bool, false> TypeFalse;
+            typedef integral_constant<bool, true>  TypeTrue;
 
             ASSERT(false == TypeFalse::value);
             ASSERT(true  == TypeTrue::value);
@@ -718,8 +718,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("... With 'int' type\n");
         {
-            typedef integer_constant<int, 0>  Type0;
-            typedef integer_constant<int, 99> Type99;
+            typedef integral_constant<int, 0>  Type0;
+            typedef integral_constant<int, 99> Type99;
 
             ASSERT(0  == Type0::value);
             ASSERT(99 == Type99::value);
@@ -738,8 +738,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("... With 'unsigned char' type\n");
         {
-            typedef integer_constant<unsigned char, 0>  Type0;
-            typedef integer_constant<unsigned char, 99> Type99;
+            typedef integral_constant<unsigned char, 0>  Type0;
+            typedef integral_constant<unsigned char, 99> Type99;
 
             ASSERT(0  == Type0::value);
             ASSERT(99 == Type99::value);

@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::IsConvertible: compile-time type conversion checker
 //
-//@SEE_ALSO: bslmf_integerconstant
+//@SEE_ALSO: bslmf_integralconstant
 //
 //@AUTHOR: Paul Staniforth (pstaniforth)
 //
@@ -118,8 +118,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_anytype.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
@@ -256,7 +256,7 @@ struct IsConvertible_Imp {
 #   pragma warning(pop)
 #endif
 
-    typedef bsl::integer_constant<bool, value> type;
+    typedef bsl::integral_constant<bool, value> type;
         // 'bsl::true_type' if 'FROM_TYPE' is convertible to 'TO_TYPE', else
         // 'bsl::false_type'.
 };
@@ -272,20 +272,20 @@ struct IsConvertible_Imp {
 #define BSLMF_ISCONVERTIBLE_SAMETYPEVALUE(VALUE, FROM, TO, FROM_FUND, TO_FUND)\
 template <typename TYPE>                                                      \
 struct IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND>                        \
-    : bsl::integer_constant<bool, VALUE> {};
+    : bsl::integral_constant<bool, VALUE> {};
     // Define a partial specialization of 'bslmf::IsConvertible_Imp' in terms
     // of a single template parameter 'TYPE', defined as
-    // 'bsl::integer_constant<bool, VALUE>' for the specified macro argument
+    // 'bsl::integral_constant<bool, VALUE>' for the specified macro argument
     // 'VALUE'.  The specified macro arguments 'FROM' and 'TO' are cv-qualified
     // type expressions constructed out of 'TYPE'.
 
 #define BSLMF_ISCONVERTIBLE_VALUE(VALUE, FROM, TO, FROM_FUND, TO_FUND)        \
 template <typename FROM_TYPE, typename TO_TYPE>                               \
 struct IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND>                        \
-    : bsl::integer_constant<bool, VALUE> {};
+    : bsl::integral_constant<bool, VALUE> {};
     // Define a partial specialization of 'bslmf::IsConvertible_Imp' in terms
     // of two template parameters 'FROM_TYPE' and 'TO_TYPE', defined as
-    // 'bsl::integer_constant<bool, VALUE>' for the specified macro argument
+    // 'bsl::integral_constant<bool, VALUE>' for the specified macro argument
     // 'VALUE'.  The specified macro arguments 'FROM' and 'TO' are cv-qualified
     // type expression constructed out of 'FROM_TYPE' and 'TO_TYPE',
     // respectively.

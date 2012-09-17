@@ -11,8 +11,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECVQ
@@ -35,9 +35,9 @@ namespace bsl {
 
 template <typename TYPE>
 struct is_member_pointer
-    : integer_constant<bool,
-                       is_member_object_pointer<TYPE>::value
-                       || bsl::is_member_function_pointer<TYPE>::value>
+    : integral_constant<bool,
+                        is_member_object_pointer<TYPE>::value
+                        || bsl::is_member_function_pointer<TYPE>::value>
 {};
 
 }

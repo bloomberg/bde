@@ -15,8 +15,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISLVALUEREFERENCE
@@ -30,9 +30,9 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
 
 template <typename TYPE>
-struct is_reference : integer_constant<bool,
-                                       is_lvalue_reference<TYPE>::value
-                                       || is_rvalue_reference<TYPE>::value>
+struct is_reference : integral_constant<bool,
+                                        is_lvalue_reference<TYPE>::value
+                                        || is_rvalue_reference<TYPE>::value>
 {};
 
 }

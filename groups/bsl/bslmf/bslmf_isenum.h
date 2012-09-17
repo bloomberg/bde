@@ -44,8 +44,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
@@ -116,7 +116,7 @@ struct IsEnum_AnyArithmeticType {
 
 template <class TYPE>
 struct IsEnum
-    : bsl::integer_constant<
+    : bsl::integral_constant<
         bool,
         !bsl::is_fundamental<typename bsl::remove_reference<
                              typename bsl::remove_cv<TYPE>::type>::type>::value
@@ -141,7 +141,7 @@ namespace bsl {
 
 template <typename TYPE>
 struct is_enum
-    : integer_constant<
+    : integral_constant<
         bool,
         !is_fundamental<typename remove_cv<TYPE>::type>::value
         && !is_reference<TYPE>::value

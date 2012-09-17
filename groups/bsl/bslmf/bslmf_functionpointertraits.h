@@ -71,8 +71,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPELIST
@@ -111,8 +111,8 @@ struct FunctionPointerTraits {
 
 template <class PROTOTYPE>
 struct IsFunctionPointer
-: bsl::integer_constant<bool,
-                        BloombergLP::bslmf::FunctionPointerTraits<PROTOTYPE>
+: bsl::integral_constant<bool,
+                         BloombergLP::bslmf::FunctionPointerTraits<PROTOTYPE>
                                                        ::IS_FUNCTION_POINTER> {
     // This template determines if the specified 'PROTOTYPE' is a free (i.e.,
     // non-member) function pointer.  'value' is defined as 1 if the specified

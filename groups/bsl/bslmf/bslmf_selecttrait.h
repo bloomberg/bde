@@ -94,7 +94,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // Next, we implement four overloads of 'Imp::copyConstruct', each taking a
-// different 'bsl::integer_constant' specialization.  For testing purposes, in
+// different 'bsl::integral_constant' specialization.  For testing purposes, in
 // addition to copying the data member, each overload also increments a
 // separate counter.  These implemenations are slightly simplified for
 // readability:
@@ -123,7 +123,7 @@ BSLS_IDENT("$Id: $")
 //      copyConstruct(TARGET_TYPE                                 *address,
 //                    const TARGET_TYPE&                           original,
 //                    bslma::Allocator                            *allocator,
-//                    bsl::integer_constant<int, USES_BSLMA_ALLOCATOR_TRAITS>)
+//                    bsl::integral_constant<int, USES_BSLMA_ALLOCATOR_TRAITS>)
 //      {
 //          new (address) TARGET_TYPE(original, allocator);
 //          ++d_counters[USES_BSLMA_ALLOCATOR_TRAITS];
@@ -134,7 +134,7 @@ BSLS_IDENT("$Id: $")
 //      copyConstruct(TARGET_TYPE                 *address,
 //                    const TARGET_TYPE&           original,
 //                    bslma::Allocator            *allocator,
-//                    bsl::integer_constant<int, PAIR_TRAITS>)
+//                    bsl::integral_constant<int, PAIR_TRAITS>)
 //      {
 //          ScalarPrimitives::copyConstruct(&address->first, original.first,
 //                                          allocator);
@@ -148,7 +148,7 @@ BSLS_IDENT("$Id: $")
 //      copyConstruct(TARGET_TYPE                             *address,
 //                    const TARGET_TYPE&                       original,
 //                    bslma::Allocator                        *,
-//                    bsl::integer_constant<int, BITWISE_COPYABLE_TRAITS>)
+//                    bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
 //      {
 //          std::memcpy(address, &original, sizeof(original));
 //          ++d_counters[BITWISE_COPYABLE_TRAITS];
@@ -159,7 +159,7 @@ BSLS_IDENT("$Id: $")
 //      copyConstruct(TARGET_TYPE                *address,
 //                    const TARGET_TYPE&          original,
 //                    bslma::Allocator           *,
-//                    bsl::integer_constant<int, NIL_TRAITS>)
+//                    bsl::integral_constant<int, NIL_TRAITS>)
 //      {
 //          new (address) TARGET_TYPE(original);
 //          ++d_counters[NIL_TRAITS];
@@ -178,7 +178,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //..
 // We use 'bslmf::SelectTrait' to declare 'Selection' as an instantiation of
-// 'bsl::integer_constant' corresponding to the first match of the specified
+// 'bsl::integral_constant' corresponding to the first match of the specified
 // traits:
 //..
 //      typedef bslmf::SelectTrait<TARGET_TYPE,
@@ -360,12 +360,12 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that using 'SelectTraits' for dispatching using overloading imposes
 // little or no overhead, since the compiler typically generates no code for
-// the constructor or copy constructor of the 'bsl::integer_constant' argument
+// the constructor or copy constructor of the 'bsl::integral_constant' argument
 // to the overloaded functions.  When inlining is in effect, the result is very
 // efficient.
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_SWITCH
@@ -442,7 +442,7 @@ public:
     static const int ORDINAL = Imp::ORDINAL;
 
     // Class description
-    typedef bsl::integer_constant<int, ORDINAL> OrdinalType;
+    typedef bsl::integral_constant<int, ORDINAL> OrdinalType;
 };
 
 }  // close package namespace

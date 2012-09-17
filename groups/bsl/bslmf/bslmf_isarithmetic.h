@@ -11,8 +11,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #include <bslmf_isintegral.h>
@@ -22,9 +22,9 @@ namespace bsl {
 
 template <typename TYPE>
 struct is_arithmetic
-    : integer_constant<bool,
-                       is_integral<TYPE>::value
-                       || is_floating_point<TYPE>::value>
+    : integral_constant<bool,
+                        is_integral<TYPE>::value
+                        || is_floating_point<TYPE>::value>
 {};
 
 

@@ -53,8 +53,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECV
@@ -100,8 +100,8 @@ struct IsClass_Imp
 namespace bsl {
 
 template <typename TYPE>
-struct is_class : integer_constant<bool,
-                                   BloombergLP::bslmf::IsClass_Imp<
+struct is_class : integral_constant<bool,
+                                    BloombergLP::bslmf::IsClass_Imp<
                                         typename remove_cv<
                                             typename remove_reference<TYPE>::type>
                                                 ::type>::Value>
