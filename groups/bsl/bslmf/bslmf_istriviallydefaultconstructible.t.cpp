@@ -12,6 +12,33 @@ using namespace BloombergLP;
 using namespace std;
 
 //=============================================================================
+//                                TEST PLAN
+//-----------------------------------------------------------------------------
+//                                Overview
+//                                --------
+// The object under test is a meta-function,
+// 'bsl::is_trivially_default_constructible', that determines whether a
+// template parameter type is trivially-default-constructible.  The
+// meta-function by defualt support a set of type categories and can be
+// extended to support other type through either template specialization or a
+// macro.
+//
+// Thus, we need to ensure that the natively supported types are correctly
+// identified by the meta-function by testing the meta-function with each
+// possible supported category of types.  We also need to verify that the
+// meta-function can be correctly extended to support other types through
+// either of the 2 supported mechanisms.
+//
+// ----------------------------------------------------------------------------
+// class methods
+// [ 1] bsl::is_trivially_default_constructible::value
+//
+// ----------------------------------------------------------------------------
+// [ 4] USAGE EXAMPLE
+// [ 2] EXTENSION THROUGH TEMPLATE SPECIALIZATION
+// [ 3] EXTENSION THROUGH MACRO
+
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
@@ -97,7 +124,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 2: {
+      case 4: {
           if (verbose) printf("\nUSAGE EXAMPLE"
                               "\n=============\n");
 ///Usage
@@ -169,7 +196,39 @@ int main(int argc, char *argv[])
                                  MyTriviallyDefaultConstructibleType2>::value);
 //..
       } break;
+      case 3: {
+      } break;
+      case 2: {
+      } break;
       case 1: {
+        // --------------------------------------------------------------------
+        // 'bsl::is_trivially_default_constructible::value' template
+        //   Ensure that the static data member 'value' of
+        //   'bsl::is_trivially_default_constructible' instantiations having
+        //   various support (template parameter) 'TYPES' has the correct
+        //   value.
+        //
+        // Concerns:
+        //: 1 'is_pointer::value' is 'false' when 'TYPE' is a primitve type.
+        //
+        //: 2 'is_pointer::value' is 0 when 'TYPE' is a user-defined type (that
+        //:   may be const-qualified or volatile-qualified).
+        //:
+        //: 3 'is_pointer::value' is 0 when 'TYPE' is a pointer to a non-static
+        //:   member (that may be const-qualified or volatile-qualified).
+        //:
+        //: 4 'is_pointer::value' is 1 when 'TYPE' is a pointer type (that may
+        //:   be const-qualified or volatile-qualified) to a type (that may be
+        //:   const-qualified or volatile-qualified).
+        //
+        // Plan:
+        //   Verify that 'bsl::is_pointer::value' has the correct value for
+        //   each (template parameter) 'TYPE' in the concerns.
+        //
+        // Testing:
+        //   bsl::is_pointer::value
+        // --------------------------------------------------------------------
+
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

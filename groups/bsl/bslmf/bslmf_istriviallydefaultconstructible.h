@@ -23,12 +23,12 @@ BSLS_IDENT("$Id: $")
 // whether a type has a trivial default constructor as defined in section
 // 12.1.5 of the C++11 standard [class.ctor].
 //
-// 'bsl::is_trivially_default_constructible' has the same syntax of the
+// 'bsl::is_trivially_default_constructible' has the same syntax as the
 // 'is_trivially_default_constructible' template from the C++11 standard
 // [meta.unary.prop].  However, unlike the template defined in the C++11
 // standard, which can determine the correct value for all types without
 // requiring specialization, 'bsl::is_trivially_default_constructible' can only
-// automatically determine the value for the following type categories:
+// by default determine the value for the following type categories:
 //..
 //  Type Category        Has Trivial Default Constructor
 //  -------------        -------------------------------
@@ -41,11 +41,11 @@ BSLS_IDENT("$Id: $")
 // false, unless the type is explicitly specified to be
 // trivially-default-constructible, which can be done in 2 ways:
 //
-//     1.  The first and preferred way is to define a template specialization
-//         for 'bsl::is_trivially_default_constructible' having the type as the
+//     1.  The preferred way is to define a template specialization for
+//         'bsl::is_trivially_default_constructible' having the type as the
 //         template parameter that inherits directly from 'bsl::true_type'.
 //
-//     2.  The second way is to use the 'BSLMF_NESTED_TRAIT_DECLARATION' macro
+//     2.  The other way is to use the 'BSLMF_NESTED_TRAIT_DECLARATION' macro
 //         to define 'bsl::is_trivially_default_constructible' as the trait in
 //         the class definition of the type.
 //
