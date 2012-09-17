@@ -159,9 +159,6 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_CSTDDEF
 #endif
 
-// Reflect the std interface, although we do not yet require the keyword
-#define BSLSTL_NOEXCEPT
-
 namespace BloombergLP
 {
 namespace bslalg { class BidirectionalLink; }
@@ -253,20 +250,20 @@ class unordered_map
     ~unordered_map();
     unordered_map& operator=(const unordered_map&);
 
-    allocator_type get_allocator() const BSLSTL_NOEXCEPT;
+    allocator_type get_allocator() const;
 
     // size and capacity
-    bool empty() const BSLSTL_NOEXCEPT;
-    size_type size() const BSLSTL_NOEXCEPT;
-    size_type max_size() const BSLSTL_NOEXCEPT;
+    bool empty() const;
+    size_type size() const;
+    size_type max_size() const;
 
     // iterators
-    iterator begin() BSLSTL_NOEXCEPT;
-    const_iterator begin() const BSLSTL_NOEXCEPT;
-    iterator end() BSLSTL_NOEXCEPT;
-    const_iterator end() const BSLSTL_NOEXCEPT;
-    const_iterator cbegin() const BSLSTL_NOEXCEPT;
-    const_iterator cend() const BSLSTL_NOEXCEPT;
+    iterator begin();
+    const_iterator begin() const;
+    iterator end();
+    const_iterator end() const;
+    const_iterator cbegin() const;
+    const_iterator cend() const;
 
     // modifiers
     pair<iterator, bool> insert(const value_type& obj);
@@ -278,7 +275,7 @@ class unordered_map
     iterator erase(const_iterator position);
     size_type erase(const key_type& k);
     iterator erase(const_iterator first, const_iterator last);
-    void clear() BSLSTL_NOEXCEPT;
+    void clear();
     void swap(unordered_map&);
 
     // observers
@@ -297,8 +294,8 @@ class unordered_map
     const mapped_type& at(const key_type& key) const;
 
     // bucket interface
-    size_type      bucket_count() const BSLSTL_NOEXCEPT;
-    size_type      max_bucket_count() const BSLSTL_NOEXCEPT;
+    size_type      bucket_count() const;
+    size_type      max_bucket_count() const;
     size_type      bucket_size(size_type n) const;
     size_type      bucket(const key_type& k) const;
     local_iterator       begin(size_type n);
@@ -309,8 +306,8 @@ class unordered_map
     const_local_iterator cend(size_type n) const;
 
     // hash policy
-    float load_factor() const BSLSTL_NOEXCEPT;
-    float max_load_factor() const BSLSTL_NOEXCEPT;
+    float load_factor() const;
+    float max_load_factor() const;
     void  max_load_factor(float z);
     void  rehash(size_type n);
     void  reserve(size_type n);
@@ -488,7 +485,6 @@ template <class KEY_TYPE,
 inline
 ALLOC
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::get_allocator() const
-                                                                BSLSTL_NOEXCEPT
 {
     return d_impl.allocator();
 }
@@ -502,7 +498,6 @@ template <class KEY_TYPE,
 inline
 bool
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::empty() const
-                                                                BSLSTL_NOEXCEPT
 {
     return d_impl.isEmpty();
 }
@@ -515,7 +510,6 @@ template <class KEY_TYPE,
 inline
 typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size() const
-                                                                BSLSTL_NOEXCEPT
 {
     return d_impl.size();
 }
@@ -528,7 +522,6 @@ template <class KEY_TYPE,
 inline
 typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::max_size() const
-                                                                BSLSTL_NOEXCEPT
 {
     return d_impl.maxSize();
 }
@@ -542,7 +535,6 @@ template <class KEY_TYPE,
 inline
 typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::begin()
-                                                                BSLSTL_NOEXCEPT
 {
     return iterator(d_impl.elementListRoot());
 }
@@ -556,7 +548,6 @@ inline
 typename
        unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_iterator
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::begin() const
-                                                                BSLSTL_NOEXCEPT
 {
     return const_iterator(d_impl.elementListRoot());
 }
@@ -569,7 +560,7 @@ template <class KEY_TYPE,
           class ALLOC>
 inline
 typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
-unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::end() BSLSTL_NOEXCEPT
+unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::end()
 {
     return iterator();
 }
@@ -583,7 +574,6 @@ inline
 typename
        unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_iterator
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::end() const
-                                                                BSLSTL_NOEXCEPT
 {
     return const_iterator();
 }
@@ -597,7 +587,6 @@ inline
 typename
        unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_iterator
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::cbegin() const
-                                                                BSLSTL_NOEXCEPT
 {
     return const_iterator(d_impl.elementListRoot());
 }
@@ -611,7 +600,6 @@ inline
 typename
        unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_iterator
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::cend() const
-                                                                BSLSTL_NOEXCEPT
 {
     return const_iterator();
 }
@@ -767,7 +755,6 @@ template <class KEY_TYPE,
 inline
 void
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::clear()
-                                                                BSLSTL_NOEXCEPT
 {
     d_impl.removeAll();
 }
@@ -971,8 +958,7 @@ template <class KEY_TYPE,
           class ALLOC>
 inline
 typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
-unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::bucket_count()
-                                                          const BSLSTL_NOEXCEPT
+unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::bucket_count() const
 {
     return d_impl.numBuckets();
 }
@@ -985,7 +971,7 @@ template <class KEY_TYPE,
 inline
 typename unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::max_bucket_count()
-                                                          const BSLSTL_NOEXCEPT
+                                                                          const
 {
     return d_impl.maxNumOfBuckets();
 }
@@ -1114,7 +1100,7 @@ template <class KEY_TYPE,
 inline
 float
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
-load_factor() const BSLSTL_NOEXCEPT
+load_factor() const
 {
     return d_impl.loadFactor();
 }
@@ -1127,7 +1113,7 @@ template <class KEY_TYPE,
 inline
 float
 unordered_map<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
-max_load_factor() const BSLSTL_NOEXCEPT
+max_load_factor() const
 {
     return d_impl.maxLoadFactor();
 }
