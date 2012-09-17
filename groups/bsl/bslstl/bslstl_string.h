@@ -38,26 +38,6 @@ BSLS_IDENT("$Id: $")
 // 'std::u32string'.  Note that excluded C++11 features are those that require
 // (or are greatly simplified by) C++11 compiler support.
 //
-///Requirements on 'CHAR_TRAITS'
-///-----------------------------
-// A 'basic_string' uses the parameterized 'CHAR_TRAITS' type for operations on
-// characters of the parameterized 'CHAR_TYPE'.  The following
-// terminology, adopted from the C++11 standard, is used in the interface of
-// 'basic_string' to describe a function's requirements for the 'CHAR_TRAITS'
-// template parameter.  These terms are also defined in the
-// [char.traits.require] section of the C++11 standard [21.2.1].
-//
-//: "default-constructible": The type provides a default constructor.
-//:
-//: "copy-constructible": The type provides a copy constructor.
-//:
-//: "equality-comparable": The type provides an equality-comparison operator
-//:     that defines an equivalence relationship and is both reflexive and
-//:     transitive.
-//:
-//: "less-than-comparable": The type provides a less-than operator, which
-//:     defines a strict weak ordering relation on values of the type.
-//
 ///Memory Allocation
 ///-----------------
 // The type supplied as a basic_string's 'ALLOCATOR' template parameter
@@ -104,11 +84,11 @@ BSLS_IDENT("$Id: $")
 //  'V'              - the 'CHAR_TYPE' template parameter type of the
 //                     basic_string
 //  'a', 'b'         - two distinct objects of type 'basic_string<V>'
-//  'n', 'm'         - number of values in 'a' and 'b' respectively
+//  'n', 'm'         - number of characters in 'a' and 'b' respectively
 //  'k'              - an integral number
 //  'al'             - an STL-style memory allocator
-//  'i1', 'i2'       - two iterators defining a sequence of 'VALUE_TYPE'
-//                     objects
+//  'i1', 'i2'       - two iterators defining a sequence of 'CHAR_TYPE'
+//                     characters
 //  'v'              - an object of type 'V'
 //  'p1', 'p2'       - two iterators belonging to 'a'
 //  distance(i1,i2)  - the number of values in the range [i1, i2)
