@@ -1218,8 +1218,8 @@ void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::quickSwap(multimap& other)
     BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
     nodeFactory().swap(other.nodeFactory());
 
-    // Work around for an IBM compiler bug, which causes it to perform 
-    // a spurious 1-byte swap for empty class.
+    // Work around to avoid the 1-byte swap problem on AIX for an empty class
+    // under empty-base optimization.
 
     if (sizeof(NodeFactory) != sizeof(DataWrapper)) {
         comparator().swap(other.comparator());
