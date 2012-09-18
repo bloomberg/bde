@@ -185,6 +185,7 @@ int parseTime(int         *hour,
               int         *minute,
               int         *second,
               int         *millisecond,
+              int        *leapSecond,    // 0 or 1
               const char **begin,
               const char  *end)
     // Parse a time, represented in "hh:mm:ss[.d+]" format, from the string
@@ -251,6 +252,16 @@ int parseTime(int         *hour,
     }
     else {
         *millisecond = 0;
+    }
+
+    // Parse leapSecond
+
+    if (60 == *second) {
+        *leapSecond = true;
+        *second = 59;
+    }
+    else {
+        *leapSecond = false;
     }
 
     *begin = p;
@@ -684,10 +695,19 @@ int bdepu_Iso8601::parse(bdet_Time  *result,
     // not validate.
 
     bdet_Time localTime;
-    int hour, minute, second, millisecond;
-    if   (0 != parseTime(&hour, &minute, &second, &millisecond, &begin, end)
+    int hour, minute, second, millisecond, leapSecond;
+    if   (0 != parseTime(&hour,
+                         &minute,
+                         &second,
+                         &millisecond,
+                         &leapSecond,
+                         &begin,
+                         end)
        || 0 != localTime.setTimeIfValid(hour, minute, second)) {
         return -1;                                                    // RETURN
+    }
+    if (leapSecond) {
+        localTime.addSeconds(1);
     }
     if (millisecond) {
         localTime.addMilliseconds(millisecond);
@@ -759,14 +779,20 @@ int bdepu_Iso8601::parse(bdet_Datetime *result,
     // might not validate.
 
     bdet_Datetime localDatetime;
-    int hour, minute, second, millisecond;
-    if   (0 != parseTime(&hour, &minute, &second, &millisecond, &begin, end)
+    int hour, minute, second, millisecond, leapSecond;
+    if   (0 != parseTime(&hour,
+                         &minute,
+                         &second,
+                         &millisecond,
+                         &leapSecond,
+                         &begin,
+                         end)
        || 0 != localDatetime.setDatetimeIfValid(year, month, day,
                                                 hour, minute, second)) {
         return -1;                                                    // RETURN
     }
-    if (millisecond) {
-        localDatetime.addTime(0, 0, 0, millisecond);
+    if (millisecond | leapSecond) {
+        localDatetime.addTime(0, 0, leapSecond, millisecond);
     }
 
     // Parse timezone, if any
@@ -862,10 +888,19 @@ int bdepu_Iso8601::parse(bdet_TimeTz *result,
     // else it might not validate.
 
     bdet_Time localTime;
-    int hour, minute, second, millisecond;
-    if   (0 != parseTime(&hour, &minute, &second, &millisecond, &begin, end)
+    int hour, minute, second, millisecond, leapSecond;
+    if   (0 != parseTime(&hour,
+                         &minute,
+                         &second,
+                         &millisecond,
+                         &leapSecond,
+                         &begin,
+                         end)
        || 0 != localTime.setTimeIfValid(hour, minute, second)) {
         return -1;                                                    // RETURN
+    }
+    if (leapSecond) {
+        localTime.addSeconds(1);
     }
     if (millisecond) {
         localTime.addMilliseconds(millisecond);
@@ -933,14 +968,20 @@ int bdepu_Iso8601::parse(bdet_DatetimeTz *result,
     // might not validate.
 
     bdet_Datetime localDatetime;
-    int hour, minute, second, millisecond;
-    if   (0 != parseTime(&hour, &minute, &second, &millisecond, &begin, end)
+    int hour, minute, second, millisecond, leapSecond;
+    if   (0 != parseTime(&hour,
+                         &minute,
+                         &second,
+                         &millisecond,
+                         &leapSecond,
+                         &begin,
+                         end)
        || 0 != localDatetime.setDatetimeIfValid(year, month, day,
                                                 hour, minute, second)) {
         return -1;                                                    // RETURN
     }
-    if (millisecond) {
-        localDatetime.addTime(0, 0, 0, millisecond);
+    if (millisecond | leapSecond) {
+        localDatetime.addTime(0, 0, leapSecond, millisecond);
     }
 
     // Parse timezone, if any

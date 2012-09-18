@@ -164,6 +164,13 @@ static int veryVeryVerbose;
 
 typedef bdepu_Iso8601 Util;
 
+template <typename TYPE>
+int myParse(TYPE *dst, const char *str)
+{
+    const int len = bsl::strlen(str);
+    return Util::parse(dst, str, len);
+}
+
 static char *cloneStr(const char *str, int len)
 {
     char *ret = (char *) malloc(len);
@@ -820,7 +827,7 @@ void testCase3TestingParse()
         0, -90, -240, -720, -1439, 90, 240, 720, 1439,
         UTC_EMPTY_OFFSET, UTC_UCZ_OFFSET, UTC_LCZ_OFFSET
     };
-    static const int NUM_UTC_OFFSETS = sizeof UTC_OFFSETS / sizeof *UTC_OFFSETS;
+    static const int NUM_UTC_OFFSETS = sizeof UTC_OFFSETS /sizeof *UTC_OFFSETS;
 
     static const char *JUNK[] = { "xyz", "?1234", "*zbc", "*", "01", "+",
                                                                      "-" };
@@ -882,7 +889,7 @@ void testCase3TestingParse()
 
                 bdet_Time theTime;
                 bool isValidTime =
-                              0 == theTime.setTimeIfValid(HOUR, MINUTE, SECOND);
+                             0 == theTime.setTimeIfValid(HOUR, MINUTE, SECOND);
                 if (isValidTime && MILLISECOND) {
                     if (HOUR >= 24) {
                         isValidTime = false;
@@ -911,8 +918,8 @@ void testCase3TestingParse()
 
                 bdet_DatetimeTz theDatetimeTz;
                 bool isValidDatetimeTz = isValidDatetime
-                                 && 0 == theDatetimeTz.validateAndSetDatetimeTz(
-                                                       theDatetime, UTC_OFFSET);
+                                && 0 == theDatetimeTz.validateAndSetDatetimeTz(
+                                                      theDatetime, UTC_OFFSET);
 
                 char dateStr[25], timeStr[25], offsetStr[10];
                 bsl::sprintf(dateStr, "%04d-%02d-%02d", YEAR, MONTH, DAY);
@@ -925,12 +932,12 @@ void testCase3TestingParse()
                 }
                 else {
                     bsl::sprintf(offsetStr, "%+03d:%02d",
-                                    UTC_OFFSET / 60, bsl::abs(UTC_OFFSET) % 60);
+                                   UTC_OFFSET / 60, bsl::abs(UTC_OFFSET) % 60);
                 }
 
                 const bool trailFrac = bsl::strlen(FRAC_SECOND) > 1
-                                           && 0 == bsl::strlen(offsetStr)
-                                           && bdeu_CharType::isDigit(*JUNK_STR);
+                                          && 0 == bsl::strlen(offsetStr)
+                                          && bdeu_CharType::isDigit(*JUNK_STR);
 
                 char input[200];
                 int ret;
@@ -945,37 +952,37 @@ void testCase3TestingParse()
                     bsl::strcat(input, JUNK_STR); // not included in length
                     ret = Util::parse(&datetime, input, inputLen);
                     LOOP5_ASSERT(LINE, input, ret, isValidDatetimeTz,
-                                         UTC_OFFSET, isValidDatetimeTz == !ret);
+                                        UTC_OFFSET, isValidDatetimeTz == !ret);
                     if (ret) {
                         LOOP_ASSERT(datetime, initDatetimeTz == datetime);
                     }
                     else {
                         LOOP3_ASSERT(LINE, input, datetime,
-                                                     datetime == theDatetimeTz);
+                                                    datetime == theDatetimeTz);
                         if (carrySecond) {
                             LOOP3_ASSERT(LINE, datetime, SECOND,
                                   datetime.localDatetime().second() ==
-                                                             (SECOND + 1) % 60);
+                                                            (SECOND + 1) % 60);
                             LOOP3_ASSERT(LINE, datetime, SECOND,
-                                   datetime.localDatetime().millisecond() == 0);
+                                  datetime.localDatetime().millisecond() == 0);
                         }
                         else {
                             const bdet_Datetime& dt = datetime.localDatetime();
 
                             LOOP3_ASSERT(LINE, datetime, MILLISECOND,
-                                               dt.millisecond() == MILLISECOND);
+                                              dt.millisecond() == MILLISECOND);
                             LOOP3_ASSERT(LINE, datetime, SECOND,
-                                                         dt.second() == SECOND);
+                                                        dt.second() == SECOND);
                             LOOP3_ASSERT(LINE, datetime, MINUTE,
-                                                         dt.minute() == MINUTE);
+                                                        dt.minute() == MINUTE);
                             LOOP3_ASSERT(LINE, datetime, HOUR,
-                                                             dt.hour() == HOUR);
+                                                            dt.hour() == HOUR);
                             LOOP3_ASSERT(LINE, datetime, DAY,
-                                                               dt.day() == DAY);
+                                                              dt.day() == DAY);
                             LOOP3_ASSERT(LINE, datetime, MONTH,
-                                                           dt.month() == MONTH);
+                                                          dt.month() == MONTH);
                             LOOP4_ASSERT(LINE, input, datetime, YEAR,
-                                                             dt.year() == YEAR);
+                                                            dt.year() == YEAR);
                         }
                     }
                     if (veryVerbose) { T_; P(datetime); }
@@ -985,16 +992,16 @@ void testCase3TestingParse()
                     if (!trailFrac) {
                         datetime = initDatetimeTz;
                         ret = Util::parse(&datetime, input,
-                                                            bsl::strlen(input));
+                                                           bsl::strlen(input));
                         LOOP5_ASSERT(LINE, input, ret, isValidDatetimeTz,
-                                                          UTC_OFFSET, 0 != ret);
+                                                         UTC_OFFSET, 0 != ret);
                         LOOP_ASSERT(datetime, initDatetimeTz == datetime);
                     }
                 }
 
                 {
                     const bdet_Datetime EXP_DATETIME = isValidDatetime ?
-                                  theDatetimeTz.gmtDatetime() : bdet_Datetime();
+                                 theDatetimeTz.gmtDatetime() : bdet_Datetime();
 
                     bdet_Datetime datetime = initDatetime;
                     bsl::strcpy(input, dateStr);
@@ -1010,29 +1017,29 @@ void testCase3TestingParse()
                     }
                     if (isValidDatetime) {
                         LOOP4_ASSERT(LINE, input, datetime, EXP_DATETIME,
-                                                      EXP_DATETIME == datetime);
+                                                     EXP_DATETIME == datetime);
                         if (carrySecond) {
                             LOOP3_ASSERT(LINE, datetime, SECOND,
-                                        datetime.second() == (SECOND + 1) % 60);
+                                       datetime.second() == (SECOND + 1) % 60);
                             LOOP3_ASSERT(LINE, datetime, SECOND,
-                                                   datetime.millisecond() == 0);
+                                                  datetime.millisecond() == 0);
                         }
                         else {
                             LOOP3_ASSERT(LINE, datetime, SECOND,
-                                                   datetime.second() == SECOND);
+                                                  datetime.second() == SECOND);
                             if (0 == UTC_OFFSET % 60) {
                                 LOOP3_ASSERT(LINE, datetime, MINUTE,
-                                                   datetime.minute() == MINUTE);
+                                                  datetime.minute() == MINUTE);
                             }
                             if (0 == UTC_OFFSET) {
                                 LOOP3_ASSERT(LINE, datetime, HOUR,
-                                                       datetime.hour() == HOUR);
+                                                      datetime.hour() == HOUR);
                                 LOOP3_ASSERT(LINE, datetime, DAY,
-                                                         datetime.day() == DAY);
+                                                        datetime.day() == DAY);
                                 LOOP3_ASSERT(LINE, datetime, MONTH,
-                                                     datetime.month() == MONTH);
+                                                    datetime.month() == MONTH);
                                 LOOP3_ASSERT(LINE, datetime, YEAR,
-                                                       datetime.year() == YEAR);
+                                                      datetime.year() == YEAR);
                             }
                         }
                     }
@@ -1045,7 +1052,9 @@ void testCase3TestingParse()
 
                     if (!trailFrac) {
                         datetime = initDatetime;
-                        ret = Util::parse(&datetime, input, bsl::strlen(input));
+                        ret = Util::parse(&datetime,
+                                          input,
+                                          bsl::strlen(input));
                         LOOP3_ASSERT(LINE, input, ret, 0 != ret);
                         LOOP_ASSERT(initDatetime,initDatetime == datetime);
                     }
@@ -1065,11 +1074,11 @@ void testCase3TestingParse()
                     if (isValidDate) {
                         LOOP3_ASSERT(LINE, input, date, date == theDateTz);
                         LOOP3_ASSERT(LINE, date, DAY,
-                                                 date.localDate().day() == DAY);
+                                                date.localDate().day() == DAY);
                         LOOP3_ASSERT(LINE, date, MONTH,
-                                             date.localDate().month() == MONTH);
+                                            date.localDate().month() == MONTH);
                         LOOP3_ASSERT(LINE, date, YEAR,
-                                               date.localDate().year() == YEAR);
+                                              date.localDate().year() == YEAR);
                     }
                     else {
                         LOOP_ASSERT(LINE, initDateTz == date);
@@ -1101,9 +1110,9 @@ void testCase3TestingParse()
                         LOOP3_ASSERT(LINE, input, date, date == theDate);
                         LOOP3_ASSERT(LINE, date, DAY, date.day() == DAY);
                         LOOP3_ASSERT(LINE, date, MONTH,
-                                                         date.month() == MONTH);
+                                                        date.month() == MONTH);
                         LOOP3_ASSERT(LINE, date, YEAR,
-                                                          date.year()  == YEAR);
+                                                         date.year()  == YEAR);
                     }
                     else {
                         LOOP_ASSERT(LINE, initDate == date);
@@ -1137,17 +1146,17 @@ void testCase3TestingParse()
                         if (carrySecond) {
                             LOOP3_ASSERT(LINE, time, SECOND,
                                         time.localTime().second() ==
-                                                             (SECOND + 1) % 60);
+                                                            (SECOND + 1) % 60);
                             LOOP3_ASSERT(LINE, time, SECOND,
-                                           time.localTime().millisecond() == 0);
+                                          time.localTime().millisecond() == 0);
                         }
                         else {
                             LOOP3_ASSERT(LINE, time, SECOND,
-                                           time.localTime().second() == SECOND);
+                                          time.localTime().second() == SECOND);
                             LOOP3_ASSERT(LINE, time, MINUTE,
-                                           time.localTime().minute() == MINUTE);
+                                          time.localTime().minute() == MINUTE);
                             LOOP3_ASSERT(LINE, time, HOUR,
-                                               time.localTime().hour() == HOUR);
+                                              time.localTime().hour() == HOUR);
                         }
                     }
                     else if (! isValidTimeTz) {
@@ -1161,7 +1170,7 @@ void testCase3TestingParse()
                         time = initTimeTz;
                         ret = Util::parse(&time, input,bsl::strlen(input));
                         LOOP5_ASSERT(LINE, input, ret, isValidTimeTz,
-                                                          UTC_OFFSET, 0 != ret);
+                                                         UTC_OFFSET, 0 != ret);
                         LOOP_ASSERT(time, initTimeTz == time);
                     }
                 }
@@ -1182,23 +1191,23 @@ void testCase3TestingParse()
                     }
                     if (isValidTime) {
                         LOOP4_ASSERT(LINE, input, time, EXP_TIME,
-                                                              EXP_TIME == time);
+                                                             EXP_TIME == time);
                         if (carrySecond) {
                             LOOP3_ASSERT(LINE, time, SECOND,
-                                            time.second() == (SECOND + 1) % 60);
+                                           time.second() == (SECOND + 1) % 60);
                             LOOP3_ASSERT(LINE, time, SECOND,
-                                                       time.millisecond() == 0);
+                                                      time.millisecond() == 0);
                         }
                         else {
                             LOOP3_ASSERT(LINE, time, SECOND,
-                                                       time.second() == SECOND);
+                                                      time.second() == SECOND);
                             if (0 == UTC_OFFSET % 60) {
                                 LOOP3_ASSERT(LINE, time, MINUTE,
-                                                       time.minute() == MINUTE);
+                                                      time.minute() == MINUTE);
                             }
                             if (0 == UTC_OFFSET) {
                                 LOOP3_ASSERT(LINE, time, HOUR,
-                                                           time.hour() == HOUR);
+                                                          time.hour() == HOUR);
                             }
                         }
                     }
@@ -1237,7 +1246,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1283,6 +1292,146 @@ int main(int argc, char *argv[])
 // Note that fractions of a second was rounded up to 123 milliseconds and that
 // the offset from UTC was converted to minutes.
 
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING LEAP SECONDS
+        //
+        // Concers:
+        //   That leap seconds are correctly parsed.
+        //
+        // Plan:
+        //   Parse pairs of objects, one with the expected time not parsed as
+        //   a leap second, one as a leap second, and compare them for
+        //   equality.
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "TESTING LEAP SECONDS\n"
+                                  "====================\n";
+
+        int rc;
+
+        if (verbose) Q(bdet_Time);
+        {
+            bdet_Time garbage(17, 42, 37, 972), expected(0), parsed;
+
+            rc = myParse(&parsed, "23:59:60");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsed, expected == parsed);
+
+            rc = expected.setTimeIfValid(15, 48, 0, 345);
+            ASSERT(0 == rc);
+
+            parsed = garbage;
+            rc = myParse(&parsed, "15:47:60.345");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsed, expected == parsed);
+
+            rc = expected.setTimeIfValid(15, 48, 1);
+            ASSERT(0 == rc);
+
+            parsed = garbage;
+            rc = myParse(&parsed, "15:47:60.9996");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsed, expected == parsed);
+
+            rc = expected.setTimeIfValid(15, 48, 0, 345);
+            ASSERT(0 == rc);
+
+            if (verbose) Q(bdet_TimeTz);
+
+            const bdet_TimeTz garbageTz(garbage, 274);
+            bdet_TimeTz expectedTz(bdet_Time(0), 0), parsedTz(garbageTz);
+
+            rc = myParse(&parsedTz, "23:59:60");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsedTz, expectedTz == parsedTz);
+
+            expectedTz.setTimeTz(expected, 0);
+
+            parsedTz = garbageTz;
+            rc = myParse(&parsedTz, "15:47:60.345");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsedTz, expectedTz == parsedTz);
+
+            expected.addHours(3);
+            expectedTz.setTimeTz(expected, 240);
+
+            parsedTz = garbageTz;
+            rc = myParse(&parsedTz, "18:47:60.345+04:00");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsedTz, expectedTz == parsedTz);
+        }
+
+        if (verbose) Q(bdet_Datetime);
+        {
+            const bdet_Datetime garbage(1437, 7, 6, 19, 41, 12, 832);
+            bdet_Datetime expected(1, 1, 1, 1, 0, 0, 0), parsed(garbage);
+
+            rc = myParse(&parsed, "0001-01-01T00:59:60");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsed, expected == parsed);
+
+            expected.addTime(0, 0, 1);
+
+            parsed = garbage;
+            rc = myParse(&parsed, "0001-01-01T00:59:60.9996");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsed, expected == parsed);
+
+            expected.addTime(0, 0, -1, 345);
+
+            rc = myParse(&parsed, "0001-01-01T00:59:60.345");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsed, expected == parsed);
+
+            expected.setDatetime(1, 1, 2, 0);
+
+            parsed = garbage;
+            rc = myParse(&parsed, "0001-01-01T23:59:60");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsed, expected == parsed);
+
+            expected.setDatetime(1, 1, 2, 0, 0, 1);
+
+            rc = myParse(&parsed, "0001-01-01T23:59:60.9996");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsed, expected == parsed);
+
+            expected.setDatetime(1963, 11, 22, 12, 31, 0);
+
+            parsed = garbage;
+            rc = myParse(&parsed, "1963-11-22T12:30:60");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsed, expected == parsed);
+
+            expected.setDatetime(1, 1, 2, 0, 0, 0);
+
+            if (verbose) Q(bdet_Datetime);
+
+            bdet_DatetimeTz garbageTz(garbage, 281);
+            bdet_DatetimeTz expectedTz(expected, 0), parsedTz(garbageTz);
+
+            rc = myParse(&parsedTz, "0001-01-01T23:59:60");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsedTz, expectedTz == parsedTz);
+
+            expected.addTime(0, 0, 0, 345);
+            expectedTz.setDatetimeTz(expected, 120);
+            
+            parsedTz = garbageTz;
+            rc = myParse(&parsedTz, "0001-01-01T23:59:60.345+02:00");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsedTz, expectedTz == parsedTz);
+
+            expected.setDatetime(1, 1, 2, 0, 0, 1, 0);
+            expectedTz.setDatetimeTz(expected, -720);
+
+            parsedTz = garbageTz;
+            rc = myParse(&parsedTz, "0001-01-01T23:59:60.99985-12:00");
+            ASSERT(0 == rc);
+            LOOP_ASSERT(parsedTz, expectedTz == parsedTz);
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------
