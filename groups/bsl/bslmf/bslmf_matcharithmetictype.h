@@ -158,7 +158,7 @@ BSLS_IDENT("$Id: $")
 // Note that, in practice, range constructors, expecting iterators, dereference
 // their arguments, and so fail to compile when instantiated with arithmetic
 // types.
-// 
+//
 // If we are fortunate, range constructor code will fail to compile; otherwise,
 // dereferencing integer values (i.e., using them as pointers) leads to
 // undefined behavior.

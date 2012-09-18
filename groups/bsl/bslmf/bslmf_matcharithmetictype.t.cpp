@@ -1,6 +1,7 @@
 // bslmf_matcharithmetictype.t.cpp                                    -*-C++-*-
 #include <bslmf_matcharithmetictype.h>
 
+#include <bslmf_isconvertible.h>
 #include <bslmf_matchanytype.h>          // testing only (Usage)
 #include <bslmf_nil.h>                   // testing only (Usage)
 
@@ -32,9 +33,10 @@ using namespace std;
 // [ 1] ~MatchArithmeticType();
 // ----------------------------------------------------------------------------
 // [ 2] ARITHMETIC CONVERIBILITY
-// [ 3] USAGE EXAMPLE
+// [ 3] ARITHMETIC NON-CONVERIBILITY
+// [ 4] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
-// [-1] NON-CONVERTIBLE
+// [-1] MANUAL NON-CONVERTIBLE TEST
 
 // ============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -68,6 +70,13 @@ static void aSsErT(int c, const char *s, int i) {
 // ----------------------------------------------------------------------------
 
 typedef bslmf::MatchArithmeticType Obj;
+
+enum    myEnum { MY_VALUE = 0 };
+typedef myEnum enum_t;
+
+void myFunction()
+{
+}
 
 // ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -149,6 +158,10 @@ MyConvertibleToInt::operator int() const
 {
     return 113355;
 }
+
+class MyClass
+{
+};
 
 // ============================================================================
 //                              USAGE EXAMPLES
@@ -600,7 +613,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -623,6 +636,87 @@ int main(int argc, char *argv[])
 
         usageExample1::main1();
         usageExample1::main2();
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // ARITHMETIC NON-CONVERIBILITY
+        //
+        // Concerns:
+        //: 1 Every C++ non-arithmetic type, cannot be implicitly converted to
+        //:   a 'bslmf::MatchArithmeticType' object.
+        //
+        // Plan:
+        //: 1 Confirm that the 'bslmf::IsConvertible' class shows as
+        //:   convertible to 'bslmf::MatchArithmeticType' every type that was
+        //:   examined in case 2.
+        //:
+        //: 2 Use the 'bslmf::IsConvertible' class to confirm at compile-time
+        //:   that none of a representative set of C++ non-arithmetic types
+        //:   is convertible to 'bslmf::MatchArithmeticType'.  (C-1)
+        //
+        // Testing:
+        //   ARITHMETIC NON-CONVERIBILITY
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nARITHMETIC NON-CONVERIBILITY"
+                            "\n============================\n");
+
+        if (verbose) printf("\nConfirm Known Supported Conversion"
+                            "\n==================================\n");
+        {
+  ASSERT(1 == (bslmf::IsConvertible<                    bool  , Obj>::VALUE));
+
+  ASSERT(1 == (bslmf::IsConvertible<                    char  , Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<                   wchar_t, Obj>::VALUE));
+
+  ASSERT(1 == (bslmf::IsConvertible<  signed            char  , Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<  signed      short int   , Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<  signed            int   , Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<  signed      long  int   , Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<  signed long long  int   , Obj>::VALUE));
+
+  ASSERT(1 == (bslmf::IsConvertible<unsigned            char  , Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<unsigned      short int   , Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<unsigned            int   , Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<unsigned      long  int   , Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<unsigned long long  int   , Obj>::VALUE));
+
+  ASSERT(1 == (bslmf::IsConvertible<                    float , Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<                    double, Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<              long  double, Obj>::VALUE));
+
+  ASSERT(1 == (bslmf::IsConvertible<                    myEnum, Obj>::VALUE));
+        }
+
+        if (verbose) printf("\nNon-convertible: 'MyClass'"
+                            "\n==========================\n");
+        {
+          ASSERT(0 == (bslmf::IsConvertible<MyClass, Obj>::VALUE));
+        }
+
+        if (verbose) printf("\nNon-convertible: 'MyConvertibleToInt'"
+                            "\n====================================\n");
+        {
+          ASSERT(0 == (bslmf::IsConvertible<MyConvertibleToInt, Obj>::VALUE));
+        }
+
+        if (verbose) printf("\nNon-convertible: 'int *'"
+                            "\n========================\n");
+        {
+          ASSERT(0 == (bslmf::IsConvertible<int *, Obj>::VALUE));
+        }
+
+        if (verbose) printf("\nNon-convertible: 'void (*)()'"
+                            "\n=============================\n");
+        {
+          ASSERT(0 == (bslmf::IsConvertible<void (*)(), Obj>::VALUE));
+        }
+
+        if (verbose) printf("\nNon-convertible: 'void ()'"
+                            "\n==========================\n");
+        {
+          ASSERT(0 == (bslmf::IsConvertible<void (), Obj>::VALUE));
+        }
 
       } break;
       case 2: {
@@ -648,7 +742,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nARITHMETIC CONVERIBILITY"
-                            "\n======================\n");
+                            "\n========================\n");
 
       ArithmeticConveribility<                    bool  >::implicitlyConvert();
 
@@ -670,6 +764,8 @@ int main(int argc, char *argv[])
       ArithmeticConveribility<                    float >::implicitlyConvert();
       ArithmeticConveribility<                    double>::implicitlyConvert();
       ArithmeticConveribility<              long  double>::implicitlyConvert();
+
+      ArithmeticConveribility<                    myEnum>::implicitlyConvert();
 
       } break;
       case 1: {
@@ -725,7 +821,7 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // NON-CONVERTIBLE
+        // MANUAL NON-CONVERTIBLE TEST
         //   This manually driven test case demonstrates how the
         //   'bslmf::MatchArithmeticType' class disallows implicit conversion
         //   from inappropriate types.  Each
@@ -753,8 +849,8 @@ int main(int argc, char *argv[])
         //   NON-CONVERTIBLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nNON-CONVERTIBLE"
-                            "\n===============\n");
+        if (verbose) printf("\nMANUAL NON-CONVERTIBLE TEST"
+                            "\n===========================\n");
 
 //#define BSLMF_DISAMBIGUATOR_NON_CONVERT_MYCONVERTITBLETOINTCLASS
 #ifdef  BSLMF_DISAMBIGUATOR_NON_CONVERT_MYCONVERTITBLETOINTCLASS
