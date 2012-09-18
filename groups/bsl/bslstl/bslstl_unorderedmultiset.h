@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a hash-container with support for duplicate values
+//@PURPOSE: Provide an STL-compliant unordered_multiset class.
 //
 //@CLASSES:
 //   bsl::unordered_multiset : hashed-map container
@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 //   o one pointer per bucket (no. buckets determined by max_load_factor)
 //   o one additional (empty) sentinel node
 // As we do not cache the hashed value, if any hash function throws we will
-// either do nothing and allow the exception to propogate, or, if some change
+// either do nothing and allow the exception to propagate, or, if some change
 // of state has already been made, clear the whole container to provide the
 // basic exception guarantee.  There are similar concerns for the 'equal_to'
 // predicate.
@@ -47,10 +47,6 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKTRANSLATORFORSETS
-#include <bslstl_unorderedsetkeypolicy.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
@@ -81,8 +77,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_hashtableiterator.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_ITERATORUTIL
+#include <bslstl_iteratorutil.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>  // result type of 'equal_range' method
+#endif
+
+#ifndef INCLUDED_BSLSTL_UNORDEREDSETKEYPOLICY
+#include <bslstl_unorderedsetkeypolicy.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
@@ -109,8 +113,6 @@ namespace bslalg { class BidirectionalLink; }
 }
 
 namespace bsl {
-
-namespace BSTL = ::BloombergLP::bslstl;
 
 template <class KEY_TYPE,
           class HASH  = bsl::hash<KEY_TYPE>,
@@ -139,36 +141,37 @@ class unordered_multiset
     typedef typename AllocatorTraits::const_pointer    const_pointer;
 
   private:
-    typedef ::BloombergLP::bslalg::BidirectionalLink         HashTableLink;
+    typedef ::BloombergLP::bslalg::BidirectionalLink             HashTableLink;
 
-    typedef BSTL::UnorderedSetKeyPolicy<value_type>          ListPolicy;
-    typedef BSTL::HashTable<ListPolicy, HASH, EQUAL, ALLOC>  Impl;
+    typedef ::BloombergLP::bslstl::UnorderedSetKeyPolicy<value_type> 
+                                                                    ListPolicy;
+    typedef ::BloombergLP::bslstl::HashTable<ListPolicy, HASH, EQUAL, ALLOC>
+                                                                          Impl;
 
   public:
-    typedef BSTL::HashTableIterator<value_type, difference_type>
-                                                                      iterator;
+    typedef ::BloombergLP::bslstl::HashTableIterator<value_type,
+                                                     difference_type> iterator;
     typedef iterator                                            const_iterator;
 
-    typedef BSTL::HashTableBucketIterator<value_type, difference_type>
+    typedef ::BloombergLP::bslstl::HashTableBucketIterator<value_type,
+                                                           difference_type>
                                                                 local_iterator;
     typedef local_iterator                                const_local_iterator;
 
   private:
-    enum { DEFAULT_BUCKET_COUNT = 0 };  // 13 is a prime number
-
     // DATA
     Impl d_impl;
 
   public:
     // CREATORS
-    explicit unordered_multiset(size_type n = DEFAULT_BUCKET_COUNT,
+    explicit unordered_multiset(size_type n = 0,
                                 const hasher& hf = hasher(),
                                 const key_equal& eql = key_equal(),
                                 const allocator_type& a = allocator_type());
 
     template <class InputIterator>
     unordered_multiset(InputIterator f, InputIterator l,
-                       size_type n = DEFAULT_BUCKET_COUNT,
+                       size_type n = 0,
                        const hasher& hf = hasher(),
                        const key_equal& eql = key_equal(),
                        const allocator_type& a = allocator_type());
@@ -309,7 +312,7 @@ template <class KEY_TYPE,
           class ALLOC>
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
 unordered_multiset(const allocator_type& a)
-: d_impl(HASH(), EQUAL(), DEFAULT_BUCKET_COUNT, a)
+: d_impl(HASH(), EQUAL(), 0, a)
 {
 }
 
@@ -480,14 +483,7 @@ typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
 insert(const_iterator hint, const value_type& obj)
 {
-    // To be useful, hint must point to an iterator with an object comparing
-    // equal to 'obj'
-    if (this->end() != hint && d_impl.comparator()(obj, *hint)) {
-        return d_impl.insertValueBefore(obj, hint.node());
-    }
-    else {
-        return this->insert(obj);
-    }
+    return iterator(d_impl.insertWithHint(obj, hint.node()));
 }
 
 template <class KEY_TYPE,
@@ -499,8 +495,8 @@ void
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
 insert(InputIterator first, InputIterator last)
 {
-    if (size_t maxInsertions = BSTL::HashTable_IterUtil::insertDistance(first,
-                                                                       last)) {
+    if (size_t maxInsertions =
+            ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)) {
         this->reserve(this->size() + maxInsertions);
     }
 
@@ -913,7 +909,7 @@ unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::reserve(size_type n)
 }  // close namespace bsl
 
 //----------------------------------------------------------------------------
-//                  free functions and opterators
+//                  free functions and operators
 //----------------------------------------------------------------------------
 
 template <class KEY_TYPE,

@@ -38,9 +38,9 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
 
-                       // ==============
-                       // struct EqualTo
-                       // ==============
+                       // ===============
+                       // struct equal_to
+                       // ===============
 
 template<class VALUE_TYPE>
 struct equal_to {

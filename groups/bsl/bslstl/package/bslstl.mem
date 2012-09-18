@@ -13,6 +13,7 @@ bslstl_hashtable
 bslstl_hashtablebucketiterator
 bslstl_hashtableiterator
 bslstl_iterator
+bslstl_iteratorutil
 bslstl_list
 bslstl_map
 bslstl_mapcomparator

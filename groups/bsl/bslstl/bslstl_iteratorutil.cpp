@@ -1,16 +1,17 @@
-// bslstl_hashtable_array.cpp                                         -*-C++-*-
+// bslstl_iteratorutil.cpp                                            -*-C++-*-
+#include <bslstl_iteratorutil.h>
 
-#include <bslstl_hashtable_array.h>
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$ $CSID$")
 
-namespace BloombergLP {
-namespace bslstl {
+namespace bsl
+{
 
-}  // close namespace bslstl
-}  // close namespace BloombergLP
+}  // close namespace bsl
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

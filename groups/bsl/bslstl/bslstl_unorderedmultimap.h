@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a hash-container with support for duplicate values 
+//@PURPOSE: Provide an STL-compliant unordered_multimap class.
 //
 //@CLASSES:
 //   bsl::unordered_multimap : hashed-map container
@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 //   o one pointer per bucket (no. buckets determined by max_load_factor)
 //   o one additional (empty) sentinel node
 // As we do not cache the hashed value, if any hash function throws we will
-// either do nothing and allow the exception to propogate, or, if some change
+// either do nothing and allow the exception to propagate, or, if some change
 // of state has already been made, clear the whole container to provide the
 // basic exception guarantee.  There are similar concerns for the 'equal_to'
 // predicate.
@@ -47,10 +47,6 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKTRANSLATORFORMAPS
-#include <bslstl_unorderedmapkeypolicy.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
@@ -81,8 +77,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_hashtableiterator.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_ITERATORUTIL
+#include <bslstl_iteratorutil.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYPOLICY
+#include <bslstl_unorderedmapkeypolicy.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -97,14 +101,12 @@ namespace bslalg { class BidirectionalLink; }
 
 namespace bsl {
 
-namespace BALG = ::BloombergLP::bslalg;
-namespace BSTL = ::BloombergLP::bslstl;
-
 template <class KEY_TYPE,
           class MAPPED_TYPE,
-          class HASH =  bsl::hash<KEY_TYPE>,
+          class HASH  = bsl::hash<KEY_TYPE>,
           class EQUAL = bsl::equal_to<KEY_TYPE>,
-          class ALLOC = bsl::allocator<bsl::pair<const KEY_TYPE, MAPPED_TYPE> > >
+          class ALLOC =
+                      bsl::allocator<bsl::pair<const KEY_TYPE, MAPPED_TYPE> > >
 class unordered_multimap
 {
     // an unordered sequence of unique keys (of the parameterized type, 'KEY').
@@ -117,7 +119,7 @@ class unordered_multimap
     //: o is 'const' *thread-safe*
     // For terminology see {'bsldoc_glossary'}.
 
-    typedef bsl::allocator_traits<ALLOC>                       AllocatorTraits;
+    typedef bsl::allocator_traits<ALLOC>              AllocatorTraits;
         // This typedef is an alias for the allocator traits type associated
         // with this container.
 
@@ -125,7 +127,7 @@ class unordered_multimap
     // PUBLIC TYPES
     typedef KEY_TYPE    key_type;
     typedef MAPPED_TYPE mapped_type;
-    typedef bsl::pair<const KEY_TYPE, MAPPED_TYPE> value_type;
+    typedef bsl::pair<const KEY_TYPE, MAPPED_TYPE>     value_type;
     typedef HASH        hasher;
     typedef EQUAL       key_equal;
     typedef ALLOC       allocator_type;
@@ -139,37 +141,40 @@ class unordered_multimap
     typedef typename AllocatorTraits::const_pointer    const_pointer;
 
   private:
-    typedef ::BloombergLP::bslalg::BidirectionalLink        HashTableLink;
-    
-    typedef BSTL::UnorderedMapKeyPolicy<value_type>         ListPolicy;
-    typedef BSTL::HashTable<ListPolicy, HASH, EQUAL, ALLOC> Impl;
+    typedef ::BloombergLP::bslalg::BidirectionalLink   HashTableLink;
+
+    typedef ::BloombergLP::bslstl::UnorderedMapKeyPolicy<value_type>
+                                                                    ListPolicy;
+    typedef ::BloombergLP::bslstl::HashTable<ListPolicy, HASH, EQUAL, ALLOC>
+                                                                          Impl;
 
   public:
-    typedef BSTL::HashTableIterator<value_type, difference_type>
-                                                                      iterator;
-    typedef BSTL::HashTableIterator<const value_type, difference_type>
+    typedef ::BloombergLP::bslstl::HashTableIterator<value_type,
+                                                     difference_type> iterator;
+    typedef ::BloombergLP::bslstl::HashTableIterator<const value_type,
+                                                     difference_type>
                                                                 const_iterator;
-    typedef BSTL::HashTableBucketIterator<value_type, difference_type>
+    typedef ::BloombergLP::bslstl::HashTableBucketIterator<value_type,
+                                                           difference_type>
                                                                 local_iterator;
-    typedef BSTL::HashTableBucketIterator<const value_type, difference_type>
+    typedef ::BloombergLP::bslstl::HashTableBucketIterator<const value_type,
+                                                           difference_type>
                                                           const_local_iterator;
 
   private:
-    enum { DEFAULT_BUCKET_COUNT = 0 };
-
     // DATA
     Impl d_impl;
 
   public:
     // CREATORS
-    explicit unordered_multimap(size_type n = DEFAULT_BUCKET_COUNT,
+    explicit unordered_multimap(size_type n = 0,
                                 const hasher& hf = hasher(),
                                 const key_equal& eql = key_equal(),
                                 const allocator_type& a = allocator_type());
 
     template <class InputIterator>
     unordered_multimap(InputIterator f, InputIterator l,
-                       size_type n = DEFAULT_BUCKET_COUNT,
+                       size_type n = 0,
                        const hasher& hf = hasher(),
                        const key_equal& eql = key_equal(),
                        const allocator_type& a = allocator_type());
@@ -331,7 +336,7 @@ template <class KEY_TYPE,
           class ALLOC>
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 unordered_multimap(const allocator_type& a)
-: d_impl(HASH(), EQUAL(), DEFAULT_BUCKET_COUNT, a)
+: d_impl(HASH(), EQUAL(), 0, a)
 {
 }
 
@@ -351,7 +356,8 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::~unordered_multimap()
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+~unordered_multimap()
 {
     // All memory management is handled by the base 'd_impl' member.
 }
@@ -375,7 +381,8 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 ALLOC
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::get_allocator() const
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::get_allocator()
+                                                                          const
 {
     return d_impl.allocator();
 }
@@ -397,7 +404,8 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
+typename 
+       unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size() const
 {
     return d_impl.size();
@@ -408,7 +416,8 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
+typename
+       unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::max_size() const
 {
     return d_impl.maxSize();
@@ -420,7 +429,8 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
+typename
+        unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::begin()
 {
     return iterator(d_impl.elementListRoot());
@@ -431,7 +441,8 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_iterator
+typename
+  unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::begin() const
 {
     return const_iterator(d_impl.elementListRoot());
@@ -443,7 +454,8 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
+typename
+        unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::end()
 {
     return iterator();
@@ -454,7 +466,8 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_iterator
+typename
+  unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::end() const
 {
     return const_iterator();
@@ -465,7 +478,8 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_iterator
+typename
+  unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::cbegin() const
 {
     return const_iterator(d_impl.elementListRoot());
@@ -476,7 +490,8 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_iterator
+typename
+  unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::const_iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::cend() const
 {
     return const_iterator();
@@ -488,7 +503,8 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 inline
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
+typename
+        unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::insert(
                                                          const value_type& obj)
 {
@@ -500,18 +516,12 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
+typename
+        unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 insert(const_iterator hint, const value_type& obj)
 {
-    // To be useful, hint must point to an iterator with an object comparing
-    // equal to 'obj'
-    if (this->end() != hint && d_impl.comparator()(obj.first, hint->first)) {
-        return d_impl.insertValueBefore(obj, hint.node());
-    }
-    else {
-        return this->insert(obj);
-    }
+    return iterator(d_impl.insertWithHint(obj, hint.node()));
 }
 
 template <class KEY_TYPE,
@@ -524,8 +534,8 @@ void
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 insert(InputIterator first, InputIterator last)
 {
-    if (size_t maxInsertions = BSTL::HashTable_IterUtil::insertDistance(first,
-                                                                       last)) {
+    if (size_t maxInsertions =
+            ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)) {
         this->reserve(this->size() + maxInsertions);
     }
 
@@ -541,7 +551,8 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
+typename
+        unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::erase(
                                                        const_iterator position)
 {
@@ -554,8 +565,10 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
-unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::erase(const key_type& k)
+typename
+       unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::erase(
+                                                             const key_type& k)
 {   // As an alternative implementation, the table could return an extracted
     // "slice" list from the underlying table, and now need merely:
     //   iterate each node, destroying the associated value
@@ -565,7 +578,7 @@ unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::erase(const key_t
         target = d_impl.remove(target);
         size_type result = 1;
         while (target && this->key_eq()(
-              k, 
+              k,
               ListPolicy::extractKey(static_cast<BNode *>(target)->value()))) {
             target = d_impl.remove(target);
             ++result;
@@ -582,7 +595,8 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
+typename
+        unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 erase(const_iterator first, const_iterator last)
 {   // bad answer here, need to turn 'first' into a non-const iterator
@@ -715,7 +729,7 @@ unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 count(const key_type& k) const
 {
     typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
-    
+
     size_type result = 0;
     for (HashTableLink *cursor = d_impl.find(k);
          cursor;
@@ -816,7 +830,8 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 inline
-typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
+typename unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
+                                                                      size_type
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 bucket_size(size_type n) const
 {
@@ -995,7 +1010,7 @@ reserve(size_type n)
 }  // close namespace bsl
 
 //----------------------------------------------------------------------------
-//                  free functions and opterators
+//                  free functions and operators
 //----------------------------------------------------------------------------
 
 template <class KEY_TYPE,
