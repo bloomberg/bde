@@ -6944,7 +6944,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
         Obj mX(g("ABCDE"));
         const TYPE *nullStr = 0;
 
-        ASSERT_SAFE_FAIL(mX.insert(1, nullStr, 0));
+        ASSERT_SAFE_PASS(mX.insert(1, nullStr, 0));
         ASSERT_SAFE_FAIL(mX.insert(mX.length() + 1, nullStr, 10));
 
         ASSERT_SAFE_PASS(mX.insert(1, mX.c_str(), mX.length()));
@@ -7277,10 +7277,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
         APPEND_SUBSTRING          = 0,
         APPEND_STRING             = 1,
         APPEND_CSTRING_N          = 2,
-        APPEND_CSTRING            = 3,
-        APPEND_RANGE              = 4,
-        APPEND_CONST_RANGE        = 5,
-        APPEND_STRING_MODE_LAST   = 5
+        APPEND_CSTRING_NULL_0     = 3,
+        APPEND_CSTRING            = 4,
+        APPEND_RANGE              = 5,
+        APPEND_CONST_RANGE        = 6,
+        APPEND_STRING_MODE_LAST   = 6
     };
 
     static const struct {
@@ -7361,7 +7362,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                 for (int ti = 0; ti < NUM_U_DATA; ++ti) {
                     const int     LINE         = U_DATA[ti].d_lineNum;
                     const char   *SPEC         = U_DATA[ti].d_spec;
-                    const int     NUM_ELEMENTS = strlen(SPEC);
+                    const int     NUM_ELEMENTS =
+                      (APPEND_CSTRING_NULL_0 == appendMode) ? 0 : strlen(SPEC);
                     const size_t  LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
 
                     Obj mY(g(SPEC));  const Obj& Y = mY;
@@ -7406,6 +7408,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         // string& append(pos, const C *s, n);
                         Obj &result = mX.append(Y.data(),
                                                 NUM_ELEMENTS);
+                        ASSERT(&result == &mX);
+                      } break;
+                      case APPEND_CSTRING_NULL_0: {
+                        // string& append(pos, const C *s, n);
+                        Obj &result = mX.append(0, NUM_ELEMENTS);
                         ASSERT(&result == &mX);
                       } break;
                       case APPEND_CSTRING: {
@@ -7598,7 +7605,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                 for (int ti = 0; ti < NUM_U_DATA; ++ti) {
                     const int     LINE         = U_DATA[ti].d_lineNum;
                     const char   *SPEC         = U_DATA[ti].d_spec;
-                    const int     NUM_ELEMENTS = strlen(SPEC);
+                    const int     NUM_ELEMENTS =
+                      (APPEND_CSTRING_NULL_0 == appendMode) ? 0 : strlen(SPEC);
                     const size_t  LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
 
                     Obj mY(g(SPEC));  const Obj& Y = mY;
@@ -7631,6 +7639,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                           case APPEND_CSTRING_N: {
                         // string& append(const C *s, n);
                             Obj &result = mX.append(Y.data(), NUM_ELEMENTS);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_CSTRING_NULL_0: {
+                        // string& append(const C *s, n); 's = 0';
+                            Obj &result = mX.append(0, NUM_ELEMENTS);
                             ASSERT(&result == &mX);
                           } break;
                           case APPEND_CSTRING: {
@@ -7733,6 +7746,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                 // string& append(pos, const C *s, n);
                     mX.append(Y.data(), INIT_LENGTH);
                     mY.append(Y.data(), INIT_LENGTH);
+                  } break;
+                  case APPEND_CSTRING_NULL_0: {
+                // string& append(pos, const C *s, n);
+                    mX.append(0, 0);
+                    mY.append(0, 0);
                   } break;
                   case APPEND_CSTRING: {
                 // string& append(const C *s);
@@ -7872,7 +7890,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Negative()
         const TYPE *nullStr = 0;
 
         ASSERT_SAFE_FAIL(mX.append(nullStr));
-        ASSERT_SAFE_FAIL(mX.append(nullStr, 0));
+        ASSERT_SAFE_PASS(mX.append(nullStr, 0));
         ASSERT_SAFE_FAIL(mX.append(nullStr, 10));
         ASSERT_SAFE_FAIL(mX += nullStr);
         ASSERT_SAFE_FAIL(mX + nullStr);
@@ -8995,7 +9013,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Negative()
     {
         Obj mX;
         ASSERT_SAFE_FAIL(mX.assign(0));
-        ASSERT_SAFE_FAIL(mX.assign(0, size_t(0)));
+        ASSERT_SAFE_PASS(mX.assign(0, size_t(0)));
         ASSERT_SAFE_FAIL(mX.assign(0, size_t(10)));
 
         Obj mY(g("ABCD"));
@@ -9850,7 +9868,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Negative()
 
     ASSERT_SAFE_FAIL_RAW(Obj(0));
 
-    ASSERT_SAFE_FAIL_RAW(Obj(0, size_t(0)));
+    ASSERT_SAFE_PASS_RAW(Obj(0, size_t(0)));
     ASSERT_SAFE_FAIL_RAW(Obj(0, size_t(10)));
 
     Obj mY(g("ABCDE"));
