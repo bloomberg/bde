@@ -104,8 +104,9 @@ struct BidirectionalLinkListUtil {
         // function the values of the 'previousLink' and 'nextLink' attributes
         // of all the links in the origin and destination lists appropriately
         // reflect the operation.  The behavior is undefined unless both
-        // 'first' and 'last' are members of the same linked list, 'first'
-        // precedes 'last' in the list, or 'first == last', and
+        // 'first' and 'last' are members of the same linked list; 'first'
+        // precedes 'last' in the list, or 'first == last'; 'target' is not a
+        // node contained in the closed range '[first, last]'; and
         // 'isWellFormedList(first, last)' is true.
 
     static

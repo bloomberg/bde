@@ -72,7 +72,7 @@ bool BidirectionalLinkListUtil::isWellFormedList(BidirectionalLink *head,
 {
     BSLS_ASSERT_SAFE(head);
 
-    if(head->nextLink()->previousLink() != head) {
+    if(head->nextLink() && head->nextLink()->previousLink() != head) {
         return false;                                                 // RETURN
     }
 
@@ -82,7 +82,8 @@ bool BidirectionalLinkListUtil::isWellFormedList(BidirectionalLink *head,
 
     const BidirectionalLink *cursor = head->nextLink();
     while (cursor != tail) {
-        if (   cursor->nextLink()->previousLink() != cursor
+        if (       (cursor->nextLink() 
+               &&  cursor->nextLink()->previousLink() != cursor)
             || cursor->previousLink()->nextLink() != cursor) {
 
             return false;                                             // RETURN
@@ -101,6 +102,11 @@ void BidirectionalLinkListUtil::spliceListBeforeTarget
     BSLS_ASSERT_SAFE(first);
     BSLS_ASSERT_SAFE(last);
 #ifdef BDE_BUILD_TARGET_SAFE2
+    BidirectionalLink *cursor = first;
+    while(cursor != last->nextLink()) {
+        BSLS_ASSERT_SAFE2(cursor == target);
+        cursor = cursor->nextLink();
+    }
     BSLS_ASSERT_SAFE2(isWellFormedList(first, last));
 #endif
 
