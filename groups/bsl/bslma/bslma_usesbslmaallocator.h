@@ -117,6 +117,13 @@ struct UsesBslmaAllocator<const volatile TYPE> : UsesBslmaAllocator<TYPE>
     // TYPE' as with unqualified 'TYPE'.
 };
 
+template <>
+struct UsesBslmaAllocator<Allocator *> : bsl::false_type
+{
+    // Specialization that defines the 'Allocator' pointer as not adhering
+    // to the allocator protocol, because it's the allocator type itself.
+};
+
 // FREE OPERATORS
 
 }  // close package namespace
