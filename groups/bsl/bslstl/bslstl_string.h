@@ -24,14 +24,16 @@ BSLS_IDENT("$Id: $")
 //
 // An instantiation of 'basic_string' is an allocator-aware, value-semantic
 // type whose salient attributes are its size (number of characters) and the
-// sequence of characters the string contains.  The 'basic_string' 'class' is
-// parameterized by the character type, 'CHAR_TYPE', that character type's
-// traits, 'CHAR_TRAITS', and an allocator.
+// sequence of characters that the string contains.  The 'basic_string' 'class'
+// is parameterized by the character type, 'CHAR_TYPE', that character type's
+// traits, 'CHAR_TRAITS', and an allocator, 'ALLOCATOR'.  The traits for each
+// character type provide functions that assign, compare, and copy a sequence
+// of those characters.
 //
-// A basic_string meets the requirements of a sequential container with random
-// access iterators as specified in the [basic.string] section of the C++
-// standard [21.4].  The 'basic_string' implemented here adheres to the C++11
-// standard, except that it does not have interfaces that take rvalue
+// A 'basic_string' meets the requirements of a sequential container with
+// random access iterators as specified in the [basic.string] section of the
+// C++ standard [21.4].  The 'basic_string' implemented here adheres to the
+// C++11 standard, except that it does not have interfaces that take rvalue
 // references or 'initializer_lists', the 'shrink_to_fit' method, functions
 // that support numeric conversions, such as 'stoi', 'to_string', and
 // 'to_wstring', and template specializations 'std::u16string' and
@@ -40,9 +42,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Memory Allocation
 ///-----------------
-// The type supplied as a basic_string's 'ALLOCATOR' template parameter
-// determines how that basic_string will allocate memory.  The 'basic_string'
-// template supports allocators meeting the requirements of the C++03 standard,
+// The type supplied as a 'basic_string's 'ALLOCATOR' template parameter
+// determines how that 'basic_string' will allocate memory.  The 'basic_string'
+// template supports allocators meeting the requirements of the C++11 standard,
 // in addition it supports scoped-allocators derived from the
 // 'bslma::Allocator' memory allocation protocol.  Clients intending to use
 // 'bslma' style allocators should use the template's default 'ALLOCATOR' type:
@@ -53,18 +55,18 @@ BSLS_IDENT("$Id: $")
 ///'bslma'-Style Allocators
 /// - - - - - - - - - - - -
 // If the (template parameter) type 'ALLOCATOR' of an 'basic_string'
-// instantiation is 'bsl::allocator', then objects of that basic_string type
+// instantiation is 'bsl::allocator', then objects of that 'basic_string' type
 // will conform to the standard behavior of a 'bslma'-allocator-enabled type.
-// Such a basic_string accepts an optional 'bslma::Allocator' argument at
+// Such a 'basic_string' accepts an optional 'bslma::Allocator' argument at
 // construction.  If the address of a 'bslma::Allocator' object is explicitly
 // supplied at construction, it will be used to supply memory for the
-// basic_string throughout its lifetime; otherwise, the basic_string will use
-// the default allocator installed at the time of the basic_string's
+// 'basic_string' throughout its lifetime; otherwise, the 'basic_string' will
+// use the default allocator installed at the time of the 'basic_string''s
 // construction (see 'bslma_default').
 //
 ///Lexicographical Comparisons
 ///---------------------------
-// Two strings 'lhs' and 'rhs' are lexicographically compared by first
+// Two 'basic_string's 'lhs' and 'rhs' are lexicographically compared by first
 // determining 'N', the smaller of the lengths of 'lhs' and 'rhs', and
 // comparing characters at each position between 0 and 'N - 1', using
 // 'CHAR_TRAITS::lt' in lexicographical fashion.  If 'CHAR_TRAITS::lt'
@@ -76,15 +78,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Operations
 ///----------
-// This section describes the run-time complexity of operations on instances
-// of 'basic_string':
+// This section describes the run-time complexity of operations on instances of
+// 'basic_string':
 //..
 //  Legend
 //  ------
 //  'V'              - the 'CHAR_TYPE' template parameter type of the
-//                     basic_string
+//                     'basic_string'
 //  'a', 'b'         - two distinct objects of type 'basic_string<V>'
-//  'n', 'm'         - number of characters in 'a' and 'b' respectively
 //  'k'              - an integral number
 //  'al'             - an STL-style memory allocator
 //  'i1', 'i2'       - two iterators defining a sequence of 'CHAR_TYPE'
@@ -99,17 +100,20 @@ BSLS_IDENT("$Id: $")
 //  | basic_string<V> a (default construction)| O[1]                          |
 //  | basic_string<V> a(al)                   |                               |
 //  |-----------------------------------------+-------------------------------|
-//  | basic_string<V> a(b) (copy construction)| O[1]                          |
+//  | basic_string<V> a(b) (copy construction)| O[n]                          |
 //  | basic_string<V> a(b, al)                |                               |
 //  |-----------------------------------------+-------------------------------|
-//  | basic_string<V> a(i1, i2)               | O[1]                          |
+//  | basic_string<V> a(k)                    | O[n]                          |
+//  | basic_string<V> a(k, al)                |                               |
+//  |-----------------------------------------+-------------------------------|
+//  | basic_string<V> a(i1, i2)               | O[distance(i1,i2)]            |
 //  | basic_string<V> a(i1, i2, al)           |                               |
 //  |-----------------------------------------+-------------------------------|
 //  | a.~basic_string<V>()  (destruction)     | O[1]                          |
 //  |-----------------------------------------+-------------------------------|
-//  | a.assign(k, v)                          | O[1]                          |
+//  | a.assign(k, v)                          | O[k]                          |
 //  |-----------------------------------------+-------------------------------|
-//  | a.assign(i1, i2)                        | O[1]                          |
+//  | a.assign(i1, i2)                        | O[distance(i1,i2)]            |
 //  |-----------------------------------------+-------------------------------|
 //  | get_allocator()                         | O[1]                          |
 //  |-----------------------------------------+-------------------------------|
@@ -122,7 +126,7 @@ BSLS_IDENT("$Id: $")
 //  |-----------------------------------------+-------------------------------|
 //  | a.max_size()                            | O[1]                          |
 //  |-----------------------------------------+-------------------------------|
-//  | a.resize(k)                             | O[1]                          |
+//  | a.resize(k)                             | O[k]                          |
 //  | a.resize(k, v)                          |                               |
 //  |-----------------------------------------+-------------------------------|
 //  | a.empty()                               | O[1]                          |
@@ -141,23 +145,22 @@ BSLS_IDENT("$Id: $")
 //  |-----------------------------------------+-------------------------------|
 //  | a.pop_back()                            | O[1]                          |
 //  |-----------------------------------------+-------------------------------|
-//  | a.insert(p1, v)                         | O[1 + distance(p1, a.end())] |
+//  | a.insert(p1, v)                         | O[1 + distance(p1, a.end())]  |
 //  |-----------------------------------------+-------------------------------|
-//  | a.insert(p1, k, v)                      | O[k + distance(p1, a.end())] |
+//  | a.insert(p1, k, v)                      | O[k + distance(p1, a.end())]  |
 //  |-----------------------------------------+-------------------------------|
 //  | a.insert(p1, i1, i2)                    | O[distance(i1, i2)            |
 //  |                                         |      + distance(p1, a.end())] |
 //  |-----------------------------------------+-------------------------------|
 //  | a.erase(p1)                             | O[1 + distance(p1, a.end())]  |
 //  |-----------------------------------------+-------------------------------|
-//  | a.erase(p1, p2)                         | O[distance(p1, p2)            |
-//  |                                         |      + distance(p1, a.end())] |
+//  | a.erase(p1, p2)                         | O[1 + distance(p1, a.end())]  |
 //  |-----------------------------------------+-------------------------------|
 //  | a.swap(b), swap(a,b)                    | O[1] if 'a' and 'b' use the   |
 //  |                                         | same allocator, O[n + m]      |
 //  |                                         | otherwise                     |
 //  |-----------------------------------------+-------------------------------|
-//  | a.clear()                               | O[n]                          |
+//  | a.clear()                               | O[1]                          |
 //  |-----------------------------------------+-------------------------------|
 //  | a = b;           (assignment)           | O[n]                          |
 //  |-----------------------------------------+-------------------------------|
@@ -738,8 +741,10 @@ class basic_string;
 #if defined(BSLS_PLATFORM__CMP_SUN) || defined(BSLS_PLATFORM__CMP_HP)
 template <class ORIGINAL_TRAITS>
 class String_Traits {
-    // Workaround for Sun's 'char_traits::find' returning incorrect results for
-    // any character type that's not 'char' (such as, 'wchar').
+    // This 'class' provides an implementation of the 'find' function for the
+    // parameterized 'ORIGINAL_TRAITS' type.  This is an alternate
+    // representation for Sun's 'char_traits::find' that returns incorrect
+    // results for character types other than 'char' (such as, 'wchar').
 
     // PRIVATE TYPES
     typedef typename ORIGINAL_TRAITS::char_type char_type;
@@ -750,6 +755,7 @@ class String_Traits {
     static const char_type *find(const char_type  *s,
                                  size_type         n,
                                  const char_type&  a);
+        // Return the address of the non-modifiable character 
 };
 
 template <>
