@@ -1239,7 +1239,14 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::quickSwap(map& other)
 {
     BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
     nodeFactory().swap(other.nodeFactory());
-    comparator().swap(other.comparator());
+
+    // Work around for an IBM compiler bug, which causes it to perform 
+    // a spurious 1-byte swap for empty class.
+
+    if (static_cast<void *>(&nodeFactory()) !=
+                                          static_cast<void *>(&comparator())) {
+        comparator().swap(other.comparator());
+    }
 }
 
 // PRIVATE ACCESSORS
