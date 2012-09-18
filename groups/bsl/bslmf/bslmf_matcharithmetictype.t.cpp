@@ -712,12 +712,6 @@ int main(int argc, char *argv[])
           ASSERT(0 == (bslmf::IsConvertible<void (*)(), Obj>::VALUE));
         }
 
-        if (verbose) printf("\nNon-convertible: 'void ()'"
-                            "\n==========================\n");
-        {
-          ASSERT(0 == (bslmf::IsConvertible<void (), Obj>::VALUE));
-        }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
