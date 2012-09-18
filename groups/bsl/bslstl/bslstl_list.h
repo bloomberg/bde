@@ -629,7 +629,7 @@ class List_Iterator
     // Implementation of std::list::iterator
 
     // FRIENDS
-    template <class T, class A>
+    template <class LIST_VALUE, class LIST_ALLOCATOR>
     friend class list;
 
     friend class List_Iterator<const VALUE, NODEPTR, DIFFTYPE>;

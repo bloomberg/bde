@@ -595,13 +595,13 @@ void debugprint(const NonDefaultConstructibleTestType& obj);
     // 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro.
 
 #define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED                    \
-bsltf::EnumeratedTestType::Enum,                                              \
+    bsltf::EnumeratedTestType::Enum,                                          \
     bsltf::UnionTestType,                                                     \
     bsltf::SimpleTestType,                                                    \
     bsltf::AllocTestType,                                                     \
     bsltf::BitwiseMoveableTestType,                                           \
     bsltf::AllocBitwiseMoveableTestType,                                      \
-        bsltf::NonTypicalOverloadsTestType
+    bsltf::NonTypicalOverloadsTestType
     // This macro refers to all of the user-defined test types defined in this
     // package.  Note that the macro can be used as the last argument to the
     // 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro.

@@ -278,7 +278,35 @@ int NUM_SPECIAL_INT_VALUES     =
 //-----------------------------------------------------------------------------
 
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
-#define TEST_TYPES_REGULAR BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+//#define TEST_TYPES_REGULAR BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+
+#ifndef BSLS_PLATFORM__OS_WINDOWS
+# define TEST_TYPES_REGULAR                                                   \
+        signed char,                                                          \
+        size_t,                                                               \
+        bsltf::TemplateTestFacility::ObjectPtr,                               \
+        bsltf::TemplateTestFacility::FunctionPtr,                             \
+        bsltf::TemplateTestFacility::MethodPtr,                               \
+        bsltf::EnumeratedTestType::Enum,                                      \
+        bsltf::SimpleTestType,                                                \
+        bsltf::AllocTestType,                                                 \
+        bsltf::BitwiseMoveableTestType,                                       \
+        bsltf::AllocBitwiseMoveableTestType,                                  \
+        bsltf::NonTypicalOverloadsTestType
+#else
+# define TEST_TYPES_REGULAR                                                   \
+        signed char,                                                          \
+        size_t,                                                               \
+        bsltf::TemplateTestFacility::ObjectPtr,                               \
+        bsltf::TemplateTestFacility::MethodPtr,                               \
+        bsltf::EnumeratedTestType::Enum,                                      \
+        bsltf::SimpleTestType,                                                \
+        bsltf::AllocTestType,                                                 \
+        bsltf::BitwiseMoveableTestType,                                       \
+        bsltf::AllocBitwiseMoveableTestType,                                  \
+        bsltf::NonTypicalOverloadsTestType
+#endif
+
 
 // Fundamental-type-specific print functions.
 inline void dbg_print(bool b) { printf(b ? "true" : "false"); fflush(stdout); }
