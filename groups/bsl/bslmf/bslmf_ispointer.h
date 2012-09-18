@@ -21,17 +21,17 @@ BSLS_IDENT("$Id: $")
 // and 'BloombergLP::bslmf::IsPointer', both of which may be used to query
 // whether a type is a pointer type.
 //
-// 'bsl::is_pointer' meets the requirement of the 'is_pointer' template defined
-// in the C++11 standard [meta.unary.cat], while 'bslmf::IsPointer' was devised
-// before standardization.
+// 'bsl::is_pointer' meets the requirements of the 'is_pointer' template
+// defined in the C++11 standard [meta.unary.cat], while 'bslmf::IsPointer' was
+// devised before 'is_pointer' was standardized.
 //
-// Both meta-functions are functionally equivalent.  The major difference
+// The two meta-functions are functionally equivalent.  The major difference
 // between them is that the result for 'bsl::is_pointer' is indicated by the
 // class member 'value', while the result for 'bslmf::IsPointer' is indicated
 // by the class member 'VALUE'.
 //
-// Note that 'bsl::is_pointer' is preferred over 'bslmf::IsPointer', and in
-// general, should be used by new components.
+// Note that 'bsl::is_pointer' should be preferred over 'bslmf::IsPointer', and
+// in general, should be used by new components.
 //
 ///Usage
 ///-----
@@ -75,23 +75,23 @@ namespace bslmf {
                          // struct IsPointer_Imp
                          // ====================
 
-template <typename TYPE>
+template <class TYPE>
 struct IsPointer_Imp : bsl::false_type {
     // This 'struct' template provides a meta-function to determine whether the
-    // (template parameter) 'TYPE' is a non-const and non-volatile qualified
-    // pointer type.  This generic default template derives from
-    // 'bsl::false_type', a template specialization is provided that derives
-    // from 'bsl::true_type'.
+    // (template parameter) 'TYPE' is a (non-cv-qualified) pointer type.  This
+    // generic default template derives from 'bsl::false_type'.  A template
+    // specialization is provided (below) that derives from 'bsl::true_type'.
 };
 
-                         // ====================
-                         // struct IsPointer_Imp
-                         // ====================
+                         // ============================
+                         // struct IsPointer_Imp<TYPE *>
+                         // ============================
 
-template <typename TYPE>
+template <class TYPE>
 struct IsPointer_Imp<TYPE *> : bsl::true_type {
-     // This partial specialization of 'IsPointer_Imp' for when the (template
-     // parameter) 'TYPE' derives from 'bsl::true_type'.
+     // This partial specialization of 'IsPointer_Imp' derives from
+     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a pointer
+     // type.
 };
 
 }  // close package namespace
@@ -102,15 +102,14 @@ namespace bsl {
                          // struct is_pointer
                          // =================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_pointer
     : BloombergLP::bslmf::IsPointer_Imp<typename remove_cv<TYPE>::type>::type {
     // This 'struct' template implements the 'is_pointer' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is a pointer.  This 'struct' derives from
-    // 'bsl::true_type' if the (template parameter) 'TYPE' is a pointer type
-    // (but not a pointer to non-static members), and 'bsl::false_type'
-    // otherwise.
+    // 'bsl::true_type' if the 'TYPE' is a pointer type (but not a pointer to
+    // non-static member), and 'bsl::false_type' otherwise.
 
 };
 
@@ -123,30 +122,29 @@ namespace bslmf {
                          // struct IsPointer
                          // ================
 
-template <typename TYPE>
+template <class TYPE>
 struct IsPointer : MetaInt<bsl::is_pointer<TYPE>::value> {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 'TYPE' is a pointer type.  This 'struct' derives
-    // from 'bslmf::MetaInt<1>' if the (template parameter) 'TYPE' is a pointer
-    // type (but not a pointer to non-static members), and 'bslmf::MetaInt<0>'
-    // otherwise.
+    // from 'bslmf::MetaInt<1>' if the 'TYPE' is a pointer type (but not a
+    // pointer to non-static member), and 'bslmf::MetaInt<0>' otherwise.
     //
-    // Note that although this 'struct' is functionality identical to
-    // 'bsl::is_pointer', the use of 'bsl::is_pointer' is preferred.
+    // Note that although this 'struct' is functionally identical to
+    // 'bsl::is_pointer', and the use of 'bsl::is_pointer' should be preferred.
 };
 
 }  // close package namespace
 }  // close enterprise namespace
 
 // ===========================================================================
-//                           BACKWARD COMPATIBILITY
+//                           BACKWARD-COMPATIBILITY
 // ===========================================================================
 
 #ifdef bslmf_IsPointer
 #undef bslmf_IsPointer
 #endif
 #define bslmf_IsPointer bslmf::IsPointer
-    // This alias is defined for backward compatibility.
+    // This alias is defined for backward-compatibility.
 
 #endif
 
