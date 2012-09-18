@@ -136,6 +136,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_hashtableiterator.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_ITERATORUTIL
+#include <bslstl_iteratorutil.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>  // result type of 'equal_range' method
 #endif
@@ -155,8 +159,6 @@ namespace bslalg { class BidirectionalLink; }
 }
 
 namespace bsl {
-
-namespace BSTL = ::BloombergLP::bslstl;
 
                         // ===================
                         // class unordered_set
@@ -179,7 +181,7 @@ class unordered_set
     //: o is 'const' *thread-safe*
     // For terminology see {'bsldoc_glossary'}.
 
-    typedef bsl::allocator_traits<ALLOC>                       AllocatorTraits;
+    typedef bsl::allocator_traits<ALLOC>              AllocatorTraits;
         // This typedef is an alias for the allocator traits type associated
         // with this container.
 
@@ -200,35 +202,36 @@ class unordered_set
     typedef typename AllocatorTraits::const_pointer    const_pointer;
 
   private:
-    typedef ::BloombergLP::bslalg::BidirectionalLink        HashTableLink;
+    typedef ::BloombergLP::bslalg::BidirectionalLink   HashTableLink;
 
-    typedef BSTL::UnorderedSetKeyPolicy<value_type>         ListPolicy;
-    typedef BSTL::HashTable<ListPolicy, HASH, EQUAL, ALLOC> Impl;
+    typedef ::BloombergLP::bslstl::UnorderedSetKeyPolicy<value_type>
+                                                                    ListPolicy;
+    typedef ::BloombergLP::bslstl::HashTable<ListPolicy, HASH, EQUAL, ALLOC>
+                                                                          Impl;
 
   public:
-    typedef BSTL::HashTableIterator<value_type, difference_type>
-                                                                      iterator;
+    typedef ::BloombergLP::bslstl::HashTableIterator<value_type,
+                                                     difference_type> iterator;
     typedef iterator                                            const_iterator;
-    typedef BSTL::HashTableBucketIterator<value_type, difference_type>
+    typedef ::BloombergLP::bslstl::HashTableBucketIterator<value_type,
+                                                           difference_type>
                                                                 local_iterator;
     typedef local_iterator                                const_local_iterator;
 
   private:
-    enum { DEFAULT_BUCKET_COUNT = 0 };
-
     // DATA
-    Impl           d_impl;
+    Impl  d_impl;
 
   public:
     // CREATORS
-    explicit unordered_set(size_type n = DEFAULT_BUCKET_COUNT,
+    explicit unordered_set(size_type n = 0,
                            const hasher& hf = hasher(),
                            const key_equal& eql = key_equal(),
                            const allocator_type& a = allocator_type());
 
     template <class InputIterator>
     unordered_set(InputIterator f, InputIterator l,
-                  size_type n = DEFAULT_BUCKET_COUNT,
+                  size_type n = 0,
                   const hasher& hf = hasher(),
                   const key_equal& eql = key_equal(),
                   const allocator_type& a = allocator_type());
@@ -366,7 +369,7 @@ template <class KEY_TYPE,
           class ALLOC>
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::
 unordered_set(const allocator_type& a)
-: d_impl(HASH(), EQUAL(), DEFAULT_BUCKET_COUNT, a)
+: d_impl(HASH(), EQUAL(), 0, a)
 {
 }
 
@@ -562,9 +565,8 @@ void
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::
 insert(InputIterator first, InputIterator last)
 {
-    if (size_t maxInsertions = BSTL::HashTable_IterUtil::insertDistance(first,
-                                                                        last))
-    {
+    if (size_t maxInsertions =
+            ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)) {
         this->reserve(this->size() + maxInsertions);
     }
 
