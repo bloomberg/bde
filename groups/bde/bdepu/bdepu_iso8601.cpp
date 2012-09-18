@@ -185,7 +185,7 @@ int parseTime(int         *hour,
               int         *minute,
               int         *second,
               int         *millisecond,
-              int        *leapSecond,    // 0 or 1
+              int         *leapSecond,    // 0 or 1
               const char **begin,
               const char  *end)
     // Parse a time, represented in "hh:mm:ss[.d+]" format, from the string
@@ -197,7 +197,9 @@ int parseTime(int         *hour,
     // integers (left padded with 0's if necessary) denoting hours, minutes,
     // and seconds, ':' is literally a colon character, and [.d+] is the
     // optional fraction of a second, consisting of a '.' followed by one or
-    // more decimal digits.  If '[.d+]' contains more than 3 digits, the value
+    // more decimal digits.  If '60 == ss', interpret it as a leap second, and
+    // set '*second' to 59 and set '*leapSecond' to 1, otherwise set
+    // '*leapSecond' to 0.  If '[.d+]' contains more than 3 digits, the value
     // will be rounded to the nearest value in milliseconds.  Return 0 on
     // success and a non-zero value if the string being parsed does not match
     // the specified format (including partial representations).  Note that a
