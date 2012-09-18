@@ -8,10 +8,6 @@
 BSLS_IDENT("$Id: $")
 
 // HMV -
-// + Throughout, update the parameter name 'anchor' to be 'hashTable' (makes
-//   doc easier, no purpose restating the type name).
-//
-// + isWellFormedAnchor -> isWellFormed (follows RbTreeUtil & ZoneInfoUtil)
 //
 // + I think 'spliceSegmentIntoBucket' should be updated:
 //   + Its argument order should change (probably [bucket, newRoot, cursor,
@@ -54,61 +50,7 @@ BSLS_IDENT("$Id: $")
 // this component operate on a 'HashTableAnchor', a type encapsulating the key
 // data members of a hash table.
 //
-///-HMV
-// Note that we don't need the 'see HashTableAnchor' obfuscation,
-// HashTableAnchor is not a upward reference.
-//
-// I think a subsection explaining the template policy requirements might be
-// nice.  Don't know its necessary, given the documentation in the functions.
-// Eg., something like:
-//
-///'HASHER', 'KEY_EQUAL' and 'KEY_POLICY' Template Parameters
-///----------------------------------------------------------
-// Several of the operations provided by 'HashTableImpUtil' are template
-// functions.
-//
-///'KEY_POLICY'
-/// - - - - - -
-// The 'KEY_POLICY' template parameter must provide the the following type
-// aliases and functions: 
-//..
-//  typedef <VALUE_TYPE> ValueType;
-//  typedef <KEY_TYPE>   KeyType;
-//  static const KeyType& extractKey(const ValueType& obj);
-//..
-//
 //...
-
-//
-///Hash Table
-///----------
-// The model of hash table that is intended to be implmenented with this
-// 'HashTableImpUtil' component is a a chained hash-table with one single chain
-// of elements.  The model of hash table in question includes the concept of
-// *array* *of* *buckets*.  The array of buckets is an array that provides
-// access, at each index of the array, to all the elements contained in the
-// table whose *adjusted* *hash* *value* is equal to the index.  Before
-// continuing we need to explain some details to confusion on the
-// definitons.
-//..
-// FIG. 1 Hash table anchor with an array of 4 buckets, two of which non empty.
-//
-//             0<--+-+<--+-+<--+-+<--+-+<--+-+
-//                 |1|   |7|   |3|   |0|   |9|
-//                 +-+-->+-+-->+-+-->+-+-->+-+-->0
-//                   ^    ^     ^            ^
-//                   |    |      |_________   |
-//                    |  /                  |  |
-//                    | |                    |  |
-//                 +--+-+--+--x-x--+--x-x--+--+-+--+--+-+--+
-//                 |  * *  |  * *  |  * *  |  * *  |  * *  |
-//                 +-------+-------+-------+-------+-------+
-//                     0       1       2       3       4
-//..
-
-///-HMV
-// My revision:
-//
 ///Hash Table Structure
 ///--------------------
 // The utilities provided by this component are used to create and manipulate
@@ -141,40 +83,7 @@ BSLS_IDENT("$Id: $")
 //  doubly        |---|0|---|0|---|3|---|3|---|3|--|
 //  linked-list       `-'   `-'   `-'   `-'   `-'    
 //..
-
-
 //
-//
-///Hash Function And Adjsuted Hash Value
-///-------------------------------------
-// The C++11 standard defines a hash function as the application of a 'HASHER'
-// functor type to a 'KEY' type, returning a value between 0 and
-// 'numeric_limits<std::size_t>::max'.  At the same time, in literature, the
-// hash function (the functor of type 'HASHER' before) is often defined as that
-// function *h(x)* that applied to an element *x* (corresponding to an element
-// of type 'KEY' in the standard definition) returns a value between 0 and
-// *N-1*, where *N* is the number of buckets of a hash table.  In order to
-// distinguish between the two, we adopt the same definition for hash function
-// as the C++11 standard, and we define *extended* *hash* *value* the value
-// obtained by composing the standard hash function with another function that
-// return values between 0 and N-1. 
-
-///-HMV
-// Note:
-// + Spelling
-//
-// + Title Case ('and' should not be capitalized)
-//
-// + "The C++11 standard defines a hash function..." I know what you mean, but
-// this doesn't particularly map to how the C++ standards defines a hash
-// function (there's no reference to "HASHER" or "KEY" in the standard
-// definition, etc). 
-//
-// + This section defines the term "extend hash value" but the term used
-// elsewhere in the doc (including the title of this section) is "adjusted
-// hash value" (I much prefer "adjusted"). 
-// 
-// My revision:
 ///Hash Function and the Adjusted Hash Value
 ///-----------------------------------------
 // The C++11 standard defines a hash function as a function 'h(k)' returning a
@@ -196,28 +105,6 @@ BSLS_IDENT("$Id: $")
 //
 // [HMV: I'd like to rewrite the "cluster more commonly hased values" bit, but
 // leaving it for now].
-
->>>>>>> origin/review/unordered_container_development-reviewanchor
-//
-///Well Formed Anchor
-///------------------
-// A 'HashTableAnchor' object holds references to an array of 'HashTableBucket'
-// objects with its size,  and to a null-terminated doubly linked list of
-// 'BidirectionalLink' nodes, instances of template class 'BidirectionalNode',
-// parametrized on the type of value held by the node.
-// A 'HashTableAnchor' value is *well* *formed*, with respect to a given
-// hashing function 'H', if 1) the doubly linked list is well formed, 2) each
-// bucket in the array of buckets points to first and last elements of
-// non-overlappling ranges in the list referenced by the anchor, and 3) every
-// element in a bucket is such that the its extended hash value (see previous
-// section) is equal to the index of the bucket.
-//
-//..
-
-///-HMV
-// My revision is below, note the introduction is heavily borrows from
-// rbtreeutil.h, which borrowed heavily from zoneinfoutil (don't write
-// something new, when you can steal something that already exists :)...
 ///
 ///Well-Formed 'HashTableAnchor' Objects
 ///--------------------------------------
@@ -249,20 +136,21 @@ BSLS_IDENT("$Id: $")
 //:   hash value equal to that buckets index.  If no values in the doubly
 //:   linked list have and adjust hash value equal to a bucket's index, then
 //:   the addresses of the first and last links for that bcuket are 0.
-
-
-// As we do not cache the hashed value, if any hash function throws we will
-// either do nothing and allow the exception to propogate, or, if some change
-// of state has already been made, clear the whole container to provide the
-// basic exception guarantee.  There are similar concerns for the 'equal_to'
-// predicate.
-//-----------------------------------------------------------------------------
-
-///-HMV
-// Huh? The above is a bit of a non-sequitar. Is it a note-to-self? (It
-// doesn't read like proper component doc).
 //
-
+///'HASHER', 'KEY_EQUAL' and 'KEY_POLICY' Template Parameters
+///----------------------------------------------------------
+// Several of the operations provided by 'HashTableImpUtil' are template
+// functions.
+//
+///'KEY_POLICY'
+/// - - - - - -
+// The 'KEY_POLICY' template parameter must provide the the following type
+// aliases and functions: 
+//..
+//  typedef <VALUE_TYPE> ValueType;
+//  typedef <KEY_TYPE>   KeyType;
+//  static const KeyType& extractKey(const ValueType& obj);
+//..
 
 //
 ///Usage
@@ -319,13 +207,8 @@ struct HashTableImpUtil {
     static HashTableBucket *findBucketForHashCode(
                                               const HashTableAnchor& hashTable,
                                               native_std::size_t     hashCode);
-        // Return the address of the 'HashTableBucket', in the specified
-        // hash-table 'anchor', having index such that the specified 'hashCode'
-        // maps to that index (see 'computeBucketIndex').
-
-        // HMV
         // Return the address of the 'HashTableBucket' in the array of buckets
-        // referred to by the specified 'hashTable' whose index is the
+        // referred to by the specified hash-table 'anchor' whose index is the
         // adjusted value of the specified 'hashCode' (see
         // 'computeBucketIndex').  The behavior is undefined if 'hashTable'
         // has 0 buckets.
@@ -340,40 +223,24 @@ struct HashTableImpUtil {
         // HMV 
         // See note at the top of the component.
 
-    static bool bucketContainsLink(const HashTableBucket *bucket, 
-                                   BidirectionalLink     *linkAdress);
+    static bool bucketContainsLink(const HashTableBucket& bucket, 
+                                   BidirectionalLink     *linkAddress);
         // Return true the specified 'link' is contained in the specified
         // 'bucket' and false otherwise.
 
     static
     bool isReachable(const BidirectionalLink *dst,
                      const BidirectionalLink *src);
-        // Return true if the specified 'dst' is found by walking forward in
-        // the the null-terminated doubly linked list from the specified 'src.
-        // 'src .  The behavior is undefined unless 'src' is not part of
-        // a circular linked list and the value of the 'previousLink' attribute
-        // of the first node of the list is 0.
-
-
-        // HMV
         // Return 'true' if the specified 'linkAddress' is the address of one
         // of the links between the first and the last links referred 
         // to by the specified 'bucket'.
   
->>>>>>> origin/review/unordered_container_development-reviewanchor
   public:
     // CLASS METHODS
     template<class KEY_POLICY>
     static const typename KEY_POLICY::KeyType& extractKey(
                                                 const BidirectionalLink *link);
         // Return a reference providing non-modifiable access to the
-        // parametrized 'typename KEY_POLICY::KeyType' type property of
-        // the value held by the node referenced by the specified 'link'.  The
-        // behavior is undefined unless 'link' references a node of type
-        // 'BidirectionalNode<KEY_POLICY::ValueType>.
-        
-        // HMV
-        // Return a reference provoding non-modifiable access to the
         // key (of type 'KEY_POLICY::KeyType') held by the specified
         // 'link'.  The behavior is undefined unless 'link' refers to a node
         // of type 'BidirectionalNode<KEY_POLICY::ValueType>'.  'KEY_POLICY'
@@ -387,12 +254,6 @@ struct HashTableImpUtil {
     template <class KEY_POLICY>
     static typename KEY_POLICY::ValueType& extractValue(
                                                       BidirectionalLink *link);
-        // Return a reference providing modifiable access to the parametrized
-        // 'typename KEY_POLICY::ValueType' value held by the node referenced
-        // by the specified 'link'.  The behavior is undefined unless 'link'
-        // refereces a node of type 'BidirectionalNode<KEY_POLICY::ValueType>.
-        
-        // HMV
         // Return a reference provoding non-modifiable access to the
         // value (of type 'KEY_POLICY::ValueType') held by the specified
         // 'link'.  The behavior is undefined unless 'link' refers to a node
@@ -401,7 +262,7 @@ struct HashTableImpUtil {
 
     
     template <class KEY_POLICY, class HASHER>
-    static bool isWellFormed(const HashTableAnchor *hashTable);
+    static bool isWellFormed(const HashTableAnchor& hashTable);
         // Return 'true' if the specified 'hashTable' is well-formed.  For a
         // 'HastTableAnchor' to be considered well-formed for a particular key
         // policy, 'KEY_POLICY', and hash functor, 'HASHER', all of the
@@ -433,13 +294,6 @@ struct HashTableImpUtil {
     static native_std::size_t computeBucketIndex(
                                                 native_std::size_t hashCode,
                                                 native_std::size_t numBuckets);
-        // Return the index of the bucket storing the values that hash,
-        // according to a given hash function, to the specified 'hashCode' in a
-        // hash table having the specified 'numBuckets'.  Bucket indexes are
-        // mapped to hash values following and implementation-specific
-        // strategy.
-
-        // HMV
         // Return the index of the bucket referring to the elements whose
         // adjusted hash codes are the same as the adjusted value of the
         // specified 'hashCode', where 'hashCode' (and the 
@@ -458,7 +312,7 @@ struct HashTableImpUtil {
         // 'anchor->listRootAddress()', and unless 'hashCode' was computed
         // using a 'KEY_POLICY' and 'HASHER' types such that:
         // ..
-        //   true == isWellFormed<KEY_POLICY, HASHER>(anchor);
+        //   true == isWellFormed<KEY_POLICY, HASHER>(hashTable);
         // ..
     
     static void insertAtPosition(HashTableAnchor    *hashTable,
@@ -617,7 +471,7 @@ native_std::size_t HashTableImpUtil::computeBucketIndex(
 
 inline
 bool HashTableImpUtil::bucketContainsLink(const HashTableBucket&   bucket,
-                                          const BidirectionalLink *link)
+                                          BidirectionalLink       *linkAddress)
     // Return true the specified 'link' is contained in the specified 'bucket'
     // and false otherwise.
 {
@@ -629,7 +483,7 @@ bool HashTableImpUtil::bucketContainsLink(const HashTableBucket&   bucket,
 
     const BidirectionalLink *cursor = bucket.first();
     while (bucket.last()->nextLink() != cursor) {
-        if (cursor == link) {
+        if (cursor == linkAddress) {
             return true;
         }
         cursor = cursor->nextLink();
@@ -736,21 +590,21 @@ void HashTableImpUtil::rehash(HashTableAnchor   *newAnchor,
 
 template <class KEY_POLICY, class HASHER>
 inline
-bool HashTableImpUtil::isWellFormed(const HashTableAnchor *anchor)
+bool HashTableImpUtil::isWellFormed(const HashTableAnchor& anchor)
 {
-    const HashTableBucket   *array = anchor.bucketArrayAddress();
-    native_std::size_t       size  = anchor.bucketArraySize();
-    const BidirectionalLink *root  = anchor.listRootAddress();
+    HashTableBucket    *array = anchor.bucketArrayAddress();
+    native_std::size_t  size  = anchor.bucketArraySize();
+    BidirectionalLink  *root  = anchor.listRootAddress();
 
     // Check that all nodes are in the correct bucket.
 
     if (size) {
-        const BidirectionalLink *cursor = anchor.listRootAddress();
+        BidirectionalLink *cursor = anchor.listRootAddress();
         while (cursor) {
             size_t hash  = HASHER()(extractKey<KEY_POLICY>(cursor));
             size_t index = computeBucketIndex(hash, size);
             if (!bucketContainsLink(array[index], cursor)) {
-                return false;                                          // RETURN
+                return false;                                         // RETURN
             }
             cursor = cursor->nextLink();
         }
@@ -762,7 +616,7 @@ bool HashTableImpUtil::isWellFormed(const HashTableAnchor *anchor)
 
     for (size_t i = 0; i < size; ++i) {
 
-        const HashTableBucket& bucket = array[i];
+        HashTableBucket& bucket = array[i];
 
         if (!bucket.first() != !bucket.last()) {  // 'first' XOR 'second
             return false;
@@ -773,12 +627,12 @@ bool HashTableImpUtil::isWellFormed(const HashTableAnchor *anchor)
                 || !isReachable(bucket.last(),  root)) {
                 return false;                                         // RETURN
             }
-            const BidirectionalLink *cursor = bucket.first();
+            BidirectionalLink *cursor = bucket.first();
             while (cursor != bucket.last()->nextLink()) {
                 size_t hash  = HASHER()(extractKey<KEY_POLICY>(cursor));
                 size_t index = computeBucketIndex(hash, size);
                 if (!bucketContainsLink(array[index], cursor)) {
-                    return false;                                      // RETURN
+                    return false;                                     // RETURN
                 }
             cursor = cursor->nextLink();
             }

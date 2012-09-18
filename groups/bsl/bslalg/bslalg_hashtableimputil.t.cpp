@@ -36,7 +36,7 @@ using namespace std;
 // ----------------------------------------------------------------------------
 // [  ] const KeyType& extractKey(const BidirectionalLink *link);
 // [  ] typename ValueType& extractValue(BidirectionalLink *link);
-// [  ] isWellFormedAnchor(const HashTableAnchor& anchor);
+// [  ] isWellFormed(const HashTableAnchor& anchor);
 // [  ] computeBucketIndex(size_t hashCode, size_t numBuckets);
 // [  ] insertAtFrontOfBucket(Anchor *a, BidirectionalLink *l, size_t h);
 // [  ] insertAtPosition(Anchor *a, Link *l, size_t h, Link  *p);
@@ -313,7 +313,7 @@ int main(int argc, char *argv[])
         ASSERTV(om.isInUseSame());
         ASSERTV(dm.isInUseSame());
 
-// [  ] isWellFormedAnchor(const Anchor *anchor);
+// [  ] isWellFormed(const Anchor *anchor);
         if (veryVerbose) printf("\t\t Testing 'isWellFormed'\n");
         {
             if(veryVeryVerbose) printf("\t\t\t Testing malformed anchor 1\n");
@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
             Anchor anchor(badArray, DATA_SIZE, head);
             const Anchor& ANCHOR = anchor;
             const bool IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
 
             ASSERTV(!IS_VALID);
             IntNodeUtil::disposeList(head, &oa);
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
             Anchor anchor(goodArray, DATA_SIZE, 0);
             const Anchor& ANCHOR = anchor;
             const bool IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
 
             ASSERTV(IS_VALID);
         }
@@ -410,7 +410,7 @@ int main(int argc, char *argv[])
             Anchor anchor(goodArray, DATA_SIZE, head);
             const Anchor& ANCHOR = anchor;
             const bool IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
 
             ASSERTV(IS_VALID);
             IntNodeUtil::disposeList(head, &oa);
@@ -451,7 +451,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[0].first() == link);
             ASSERTV(anchor.bucketArrayAddress()[0].last() == link);
             bool IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
             ASSERTV(IS_VALID);
 
             // After insert 0
@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[0].first() == 0);
             ASSERTV(anchor.bucketArrayAddress()[0].last() == 0);
             IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
             ASSERTV(IS_VALID);
 
             // After remove 0
@@ -496,7 +496,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[0].first() == link);
             ASSERTV(anchor.bucketArrayAddress()[0].last() == link);
             IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
             ASSERTV(IS_VALID);
 
             // After insert 0
@@ -524,7 +524,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[1].first() == link2);
             ASSERTV(anchor.bucketArrayAddress()[1].last() == link2);
             IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
             ASSERTV(IS_VALID);
 
             // After insert 1
@@ -556,7 +556,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[1].first() == link3);
             ASSERTV(anchor.bucketArrayAddress()[1].last() == link2);
             IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
             ASSERTV(IS_VALID);
 
             // After insert again 1
@@ -589,7 +589,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[1].first() == link3);
             ASSERTV(anchor.bucketArrayAddress()[1].last() == link3);
             IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
             ASSERTV(IS_VALID);
             IntNodeUtil::destroy(link2, &oa);
 
@@ -622,7 +622,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[1].first() == link4);
             ASSERTV(anchor.bucketArrayAddress()[1].last() == link3);
             IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
             ASSERTV(IS_VALID);
 
             // After insert at position 1
@@ -655,7 +655,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[1].first() == link3);
             ASSERTV(anchor.bucketArrayAddress()[1].last() == link3);
             IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
             ASSERTV(IS_VALID);
 
             // After remove again 1
@@ -695,7 +695,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[1].first() == link3);
             ASSERTV(anchor.bucketArrayAddress()[1].last() == link3);
             IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
             ASSERTV(IS_VALID);
             IntNodeUtil::disposeList(link3, &oa);
         }
@@ -735,7 +735,7 @@ int main(int argc, char *argv[])
             Link *link6 = IntNodeUtil::create(DATA[6], &oa);
 
             bool IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
             ASSERTV(IS_VALID);
 
             Obj::insertAtFrontOfBucket(&anchor, link0, DATA[0]);
@@ -781,7 +781,7 @@ int main(int argc, char *argv[])
             //..
 
             IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
             ASSERTV(IS_VALID);
 
             Bucket newArray[DATA_SIZE];
@@ -805,8 +805,7 @@ int main(int argc, char *argv[])
             ASSERTV(newArray[6].first() == link6);
 
             IS_VALID =
-               Obj::isWellFormedAnchor<TestPolicy, IntTestHasherIdent>(
-                                                                    newAnchor);
+                  Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(newAnchor);
             ASSERTV(IS_VALID);
             IntNodeUtil::disposeList(newAnchor.listRootAddress(), &oa);
         }
