@@ -615,16 +615,20 @@ namespace UsageExample {
 // component is for use by the 'bslstl' package.  Other clients should use the
 // STL algorithms (in header '<algorithm>' and '<memory>').
 //
-///Example 1: Destroy Integers
-///- - - - - - - - - - - - - -
+///Example 1: Destroy 'int' and an Integer Wrapper
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we will use 'bslalg::ScalarDestructionPrimitives' to
-// destroy both a scalar integer and a 'MyInteger' type object.
+// destroy both a scalar integer and a 'MyInteger' type object.  Calling the
+// 'destory' method on a scalar integer is a no-op while calling the 'destroy'
+// method on an object of 'MyInteger' class invokes the destructor of the
+// object.
 //
 // First, we define a 'MyInteger' class that represents an integer value:
 //..
-class MyInteger
+class MyInteger {
     // This class represents an integer value.
-{
+
+    // DATA
     int d_intValue;  // integer value
 
   public:
@@ -694,13 +698,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Usage Example"
                             "\n=====================\n");
         using namespace UsageExample;
-
-// Then, we create a 'MyInteger' object:
+// Then, we create an object, 'myInteger', of type 'MyInteger':
 //..
     bsls::ObjectBuffer<MyInteger> buffer;
     MyInteger *myInteger = &buffer.object();
     new (myInteger) MyInteger(1);
 //..
+// Notice that we use an 'ObjectBuffer' to allow us to safely invoke the
+// destructor explicitly.
+//
 // Now, we define a primitive integer:
 //..
     int scalarInteger = 2;
@@ -708,8 +714,8 @@ int main(int argc, char *argv[])
 // Finally, we use the uniform 'bslalg::ScalarDestructionPrimitives:destroy'
 // method to destroy both 'myInteger' and 'scalarInteger':
 //..
-     bslalg::ScalarDestructionPrimitives::destroy(myInteger);
-     bslalg::ScalarDestructionPrimitives::destroy(&scalarInteger);
+    bslalg::ScalarDestructionPrimitives::destroy(myInteger);
+    bslalg::ScalarDestructionPrimitives::destroy(&scalarInteger);
 //..
       } break;
       case 2: {
