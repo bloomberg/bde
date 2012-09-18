@@ -331,7 +331,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         copyConstruct(TARGET_TYPE                *address,
                       const TARGET_TYPE&          original,
                       bslma::Allocator           *,
-                      false_type)
+                      bsl::false_type)
         {
             new (address) TARGET_TYPE(original);
             ++d_noTraitsCounter;
