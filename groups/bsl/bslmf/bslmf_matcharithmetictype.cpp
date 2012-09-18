@@ -4,6 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslmf_isconvertible.h> // for testing only
 #include <bslmf_matchanytype.h>  // for testing only (Usage)
 #include <bslmf_nil.h>           // for testing only (Usage)
 

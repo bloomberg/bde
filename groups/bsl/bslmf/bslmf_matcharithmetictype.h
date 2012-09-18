@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::MatchArithmeticType: implicit conversion of arithmetic types
 //
-//@SEE_ALSO: bslstl_deque, bslstl_string, bslstl_vector
+//@SEE_ALSO: bslmf_matchanytype, bslstl_deque, bslstl_string, bslstl_vector
 //
 //@AUTHOR: Pablo Halpern (phalpern), Steven Breitstein (sbreitstein)
 //
@@ -24,17 +24,23 @@ BSLS_IDENT("$Id: $")
 //
 // Sequential containers have several overloaded method templates that accept a
 // pair of input iterators (e.g., constructors, 'insert' and 'append' methods),
-// but which must *not* accept arithmetic types (e.g., 'char', 'short', 'int').
-// See "ISO/IEC 14882:2011 Programming Language C++" (see
+// but which must *not* accept arithmetic types (e.g., 'bool', 'char', 'short',
+// 'int', 'double').  See "ISO/IEC 14882:2011 Programming Language C++" (see
 // 'http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2011/n3242.pdf'),
 // "Section 23.2.3 [sequence.reqmts]", paragraphs 14-15.  This requirement is
 // informally known as the "do-the-right-thing clause".  See
 // 'http://gcc.gnu.org/onlinedocs/libstdc++/ext/lwg-defects.html#438'.
 //
 // The convertibility of arguments to 'bslmf::MatchArithmeticType' is used to
-// dispatch calls with arithmetic arguments to the appropriate methods.
-// Note that this technique (called "tag dispatch") does not work for classes
-// that define a conversion operator to 'bslmf::MatchArithmeticType'.
+// dispatch calls with arithmetic arguments to the appropriate methods.  Note
+// that this technique (a variation of "tag dispatch") can be compromised by if
+// one uses a class that defines a conversion operator to
+// 'bslmf::MatchArithmeticType' (or a conversion operator to
+// 'bslmf::MatchAnyType') but otherwise do not behave as arithmetic types.
+//
+// Enumerations (not arithmetic types themselves) are implicitly convertible to
+// 'blsmf::MatchArithmeticType', and will dispatch as some integer (a sub-set
+// of arithmetic) type.
 //
 ///Usage
 ///-----
@@ -155,7 +161,7 @@ BSLS_IDENT("$Id: $")
 // is better than that provided by the repeated value constructor, which
 // requires conversions of two different arguments.
 //
-// Note that, in practice, range constructors, expecting iterators, dereference
+// Note that, in practice, range constructors (expecting iterators) dereference
 // their arguments, and so fail to compile when instantiated with arithmetic
 // types.
 //

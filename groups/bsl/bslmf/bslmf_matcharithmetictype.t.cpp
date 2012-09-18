@@ -1,9 +1,9 @@
 // bslmf_matcharithmetictype.t.cpp                                    -*-C++-*-
 #include <bslmf_matcharithmetictype.h>
 
-#include <bslmf_isconvertible.h>
-#include <bslmf_matchanytype.h>          // testing only (Usage)
-#include <bslmf_nil.h>                   // testing only (Usage)
+#include <bslmf_isconvertible.h> // for testing only
+#include <bslmf_matchanytype.h>  // for testing only (Usage)
+#include <bslmf_nil.h>           // for testing only (Usage)
 
 #include <cstdio>
 #include <cstdlib>
@@ -71,12 +71,7 @@ static void aSsErT(int c, const char *s, int i) {
 
 typedef bslmf::MatchArithmeticType Obj;
 
-enum    myEnum { MY_VALUE = 0 };
-typedef myEnum enum_t;
-
-void myFunction()
-{
-}
+enum  MyEnum { MY_VALUE = 0 };
 
 // ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -91,6 +86,10 @@ static int globalVerbose = 0;
 void acceptObj(bslmf::MatchArithmeticType)
 {
 }
+
+                        // ==============================
+                        // struct ArithmeticConveribility
+                        // ==============================
 
 template <class TYPE>
 struct ArithmeticConveribility
@@ -113,6 +112,10 @@ struct ArithmeticConveribility
         // representation of 'TYPE'.
 
 };
+
+                        // ------------------------------
+                        // struct ArithmeticConveribility
+                        // ------------------------------
 
 template <class TYPE>
 void ArithmeticConveribility<TYPE>::implicitlyConvert()
@@ -146,6 +149,10 @@ void ArithmeticConveribility<TYPE>::implicitlyConvert()
     acceptObj(cvObjRef);
 }
 
+                        // ========================
+                        // class MyConvertibleToInt
+                        // ========================
+
 class MyConvertibleToInt
 {
   public:
@@ -153,15 +160,60 @@ class MyConvertibleToInt
     operator int() const;
 };
 
+                        // ------------------------
+                        // class MyConvertibleToInt
+                        // ------------------------
+
 // ACCESSORS
 MyConvertibleToInt::operator int() const
 {
     return 113355;
 }
 
+                        // ========================================
+                        // class MyConvertibleToMatchArithmeticType
+                        // ========================================
+
+class MyConvertibleToMatchArithmeticType
+{
+  public:
+    // ACCESSORS
+    operator bslmf::MatchArithmeticType() const volatile;
+};
+
+                        // ----------------------------------------
+                        // class MyConvertibleToMatchArithmeticType
+                        // ----------------------------------------
+
+// ACCESSORS
+MyConvertibleToMatchArithmeticType::operator bslmf::MatchArithmeticType()
+                                                                 const volatile
+{
+    return bslmf::MatchArithmeticType(-123);
+}
+
+
+                        // =============
+                        // class MyClass
+                        // =============
+
 class MyClass
 {
+  public:
+    int d_dataMember;
+
+    // MANIPULATOR
+    void manipulator();
+
 };
+
+                        // -------------
+                        // class MyClass
+                        // -------------
+
+void MyClass::manipulator()
+{
+}
 
 // ============================================================================
 //                              USAGE EXAMPLES
@@ -661,8 +713,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nARITHMETIC NON-CONVERIBILITY"
                             "\n============================\n");
 
-        if (verbose) printf("\nConfirm Known Supported Conversion"
-                            "\n==================================\n");
+        if (verbose) printf("\nConfirm Known Supported Conversions"
+                            "\n===================================\n");
         {
   ASSERT(1 == (bslmf::IsConvertible<                    bool  , Obj>::VALUE));
 
@@ -685,7 +737,10 @@ int main(int argc, char *argv[])
   ASSERT(1 == (bslmf::IsConvertible<                    double, Obj>::VALUE));
   ASSERT(1 == (bslmf::IsConvertible<              long  double, Obj>::VALUE));
 
-  ASSERT(1 == (bslmf::IsConvertible<                    myEnum, Obj>::VALUE));
+  ASSERT(1 == (bslmf::IsConvertible<                    MyEnum, Obj>::VALUE));
+
+  ASSERT(1 == (bslmf::IsConvertible<MyConvertibleToMatchArithmeticType,
+                                                                Obj>::VALUE));
         }
 
         if (verbose) printf("\nNon-convertible: 'MyClass'"
@@ -712,6 +767,24 @@ int main(int argc, char *argv[])
           ASSERT(0 == (bslmf::IsConvertible<void (*)(), Obj>::VALUE));
         }
 
+        if (verbose) printf("\nNon-convertible: 'int [5]'"
+                            "\n==========================\n");
+        {
+          ASSERT(0 == (bslmf::IsConvertible<int [5], Obj>::VALUE));
+        }
+
+        if (verbose) printf("\nNon-convertible: 'MyClass::*'"
+                            "\n=============================\n");
+        {
+          ASSERT(0 == (bslmf::IsConvertible<int MyClass::*, Obj>::VALUE));
+        }
+
+        if (verbose) printf("\nNon-convertible: 'int (MyClass::*)()'"
+                            "\n====================================\n");
+        {
+          ASSERT(0 == (bslmf::IsConvertible<int (MyClass::*)(), Obj>::VALUE));
+        }
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -719,6 +792,10 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Every C++ arithmetic type, each with and without
+        //:   cv-qualifications, can be implicitly converted to a
+        //:   'bslmf::MatchArithmeticType' object.
+        //:
+        //: 2 Values of enumerated types, each with and without
         //:   cv-qualifications, can be implicitly converted to a
         //:   'bslmf::MatchArithmeticType' object.
         //
@@ -730,6 +807,10 @@ int main(int argc, char *argv[])
         //:   with different qualifications: e.g., by value, by reference, by
         //:   'const'-reference, by 'volatile'-'const'-reference.  Successful
         //:   compilation indicates success.  (C-1)
+        //:
+        //: 2 Define 'enum MyEnum', then use that arbitrary user-defined
+        //:   enumerated type in the same tests as were used for C++
+        //:   arithmetic types in C-1, and confirm that all tests pass.
         //
         // Testing:
         //   ARITHMETIC CONVERIBILITY
@@ -759,7 +840,10 @@ int main(int argc, char *argv[])
       ArithmeticConveribility<                    double>::implicitlyConvert();
       ArithmeticConveribility<              long  double>::implicitlyConvert();
 
-      ArithmeticConveribility<                    myEnum>::implicitlyConvert();
+      ArithmeticConveribility<                    MyEnum>::implicitlyConvert();
+
+      ArithmeticConveribility<MyConvertibleToMatchArithmeticType>
+                                                         ::implicitlyConvert();
 
       } break;
       case 1: {
@@ -803,7 +887,7 @@ int main(int argc, char *argv[])
                 {
                     return 4321;
                 }
-                static int sink(...) 
+                static int sink(...)
                 {
                     return 5678;
                 }
