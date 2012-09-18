@@ -1221,8 +1221,7 @@ void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::quickSwap(multimap& other)
     // Work around for an IBM compiler bug, which causes it to perform 
     // a spurious 1-byte swap for empty class.
 
-    if (static_cast<void *>(&nodeFactory()) !=
-                                          static_cast<void *>(&comparator())) {
+    if (sizeof(NodeFactory) != sizeof(DataWrapper)) {
         comparator().swap(other.comparator());
     }
 }
