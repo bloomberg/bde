@@ -299,7 +299,7 @@ int PlatformUtil::roundUpToMaximalAlignment(int size)
 
 typedef bsls::PlatformUtil bsls_PlatformUtil;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

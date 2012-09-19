@@ -585,7 +585,7 @@ int AutoRawDeleter<TYPE, ALLOCATOR>::length() const
 #endif
 #define bslma_AutoRawDeleter bslma::AutoRawDeleter
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

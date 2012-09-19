@@ -143,7 +143,7 @@ struct If<0, IF_TRUE_TYPE, IF_FALSE_TYPE> {
 #endif
 #define bslmf_If bslmf::If
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

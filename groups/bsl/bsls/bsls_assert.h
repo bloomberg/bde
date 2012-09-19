@@ -1510,7 +1510,7 @@ typedef bsls::Assert bsls_Assert;
 typedef bsls::AssertFailureHandlerGuard bsls_AssertFailureHandlerGuard;
     // This alias is defined for backward compatibility.
 
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS

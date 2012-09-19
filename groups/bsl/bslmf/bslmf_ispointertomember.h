@@ -508,7 +508,7 @@ struct IsPointerToMember<TYPE&> : MetaInt<0> {
 #endif
 #define bslmf_IsPointerToMemberData bslmf::IsPointerToMemberData
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

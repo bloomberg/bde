@@ -472,7 +472,7 @@ typedef bsls::AlignmentImpMatch bsls_AlignmentImpMatch;
 #endif
 #define bsls_AlignmentImpCalc bsls::AlignmentImpCalc
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

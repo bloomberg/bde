@@ -281,7 +281,7 @@ const CHAR_TYPE *StringRefData<CHAR_TYPE>::end() const
 #endif
 #define bslstl_StringRefData bslstl::StringRefData
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

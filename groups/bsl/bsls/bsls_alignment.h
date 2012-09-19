@@ -372,7 +372,7 @@ bool Alignment::is8ByteAligned(const void *address)
 
 typedef bsls::Alignment bsls_Alignment;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

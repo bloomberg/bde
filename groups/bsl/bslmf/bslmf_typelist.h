@@ -1117,7 +1117,7 @@ typedef bslmf::TypeList0 bslmf_TypeList0;
 #endif
 #define bslmf_TypeListNil bslmf::TypeListNil
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

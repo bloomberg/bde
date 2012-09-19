@@ -35,9 +35,9 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that 'first' and 'second' are *not* member functions, but data members.
 
-//#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
-//#error "bslalg_typetraitpair is deprecated"
-//#endif
+//TDB #ifdef BDE_OMIT_DEPRECATED // DEPRECATED
+//TBD #error "bslalg_typetraitpair is deprecated"
+//TBD #endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -70,7 +70,7 @@ struct TypeTraitPair {
 
 typedef bslalg::TypeTraitPair bslalg_TypeTraitPair;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

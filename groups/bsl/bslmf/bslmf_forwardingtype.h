@@ -288,7 +288,7 @@ struct ForwardingType_Imp<TYPE,1, 0> {
 #endif
 #define bslmf_ForwardingType bslmf::ForwardingType
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

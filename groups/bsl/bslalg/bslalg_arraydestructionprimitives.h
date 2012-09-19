@@ -177,7 +177,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
 
 typedef bslalg::ArrayDestructionPrimitives bslalg_ArrayDestructionPrimitives;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

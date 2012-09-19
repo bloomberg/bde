@@ -834,7 +834,7 @@ typedef bsls::AssertTestHandlerGuard bsls_AssertTestHandlerGuard;
 
 typedef bsls::AssertTest bsls_AssertTest;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

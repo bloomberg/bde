@@ -1,7 +1,5 @@
 // bslalg_typetraitpair.t.cpp                                         -*-C++-*-
 
-//#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
-
 #include <bslalg_typetraitpair.h>
 
 #include <cstdio>
@@ -137,15 +135,6 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
-
-// #else
-//
-// int main(int argc, char *argv[])
-// {
-//     return -1;
-// }
-//
-// #endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

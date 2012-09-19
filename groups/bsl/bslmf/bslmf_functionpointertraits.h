@@ -330,7 +330,7 @@ typedef bslmf::FunctionPointerCLinkage bslmf_FunctionPointerCLinkage;
 #endif
 #define bslmf_IsFunctionPointer bslmf::IsFunctionPointer
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

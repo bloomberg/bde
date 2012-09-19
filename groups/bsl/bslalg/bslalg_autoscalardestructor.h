@@ -135,7 +135,7 @@ void AutoScalarDestructor<OBJECT_TYPE>::reset(OBJECT_TYPE *object)
 #endif
 #define bslalg_AutoScalarDestructor bslalg::AutoScalarDestructor
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

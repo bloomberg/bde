@@ -157,7 +157,7 @@ DestructorGuard<TYPE>::~DestructorGuard()
 #endif
 #define bslma_DestructorGuard bslma::DestructorGuard
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD COMPATIBILITY
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

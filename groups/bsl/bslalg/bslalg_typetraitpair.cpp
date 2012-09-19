@@ -1,7 +1,5 @@
 // bslalg_typetraitpair.cpp                                           -*-C++-*-
-//#indef BDE_OMIT_TRANSITIONAL
 #include <bslalg_typetraitpair.h>
-//#endif // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
