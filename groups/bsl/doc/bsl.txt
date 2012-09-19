@@ -78,26 +78,44 @@
 
 /Package Synopsis
 /----------------
- The following is a brief synopsis of the content of each package in 'bde'.  A
- more detailed description can be found in the Package Overview section
- immediately following this synopsis.  Capitalized letters indicate the
- mnemonic for the package name suffix to the 'bde' package group name.
-..
-   'bslalg'  - comparisons and other ALGorithms for containers
-   'bsldoc'  - documentation of terms and concepts
-   'bslfwd'  - DEPRECATED: compatibility clients using single-level namespace
-   'bslim'   - implementation mechanisms
-   'bslma'   - Memory Allocation
-   'bslmf'   - MetaFunctions and traits
-   'bsls'    - platform-neutral System definitions (platform-specific imps)
-   'bslscm'  - introspective versioning (Source Control Management)
-   'bslstl'  - Bloomberg provided STL container implementations
-   'bslstp'  - modified STlPort implementations of stl containers
-   'bsltf'   - testing facilities
-
-   'bsl+bslhdrs' - BSL versions of standard HeaDeRS (e.g., 'bsl_vector.h')
-   'bsl+stdhdrs' - compatibility layer of STandarD HeaDeRS (e.g., 'vector')
-..
+: 'bsl+bslhdrs':
+:       Provide a compatibility layer to enable BDE-STL mode in Bloomberg.
+:
+: 'bsl+stdhdrs':
+:       Provide a compatibility layer to enable BDE-STL mode in Bloomberg.
+:
+: 'bslalg':
+:       Provide algorithms and traits used by the BDE STL implementation.
+:
+: 'bsldoc':
+:       Provide documentation of terms and concepts used throughout BDE.
+:
+: 'bslfwd':
+:       Provide compatibility for clients using single-level namespace
+:
+: 'bslim':
+:       Provide implementation mechanisms.
+:
+: 'bslma':
+:       Provide allocators, guards, and other memory-management tools.
+:
+: 'bslmf':
+:       Provide meta-function versions of useful coding constructs.
+:
+: 'bsls':
+:       Provide system-level utilities for 'bsl'.
+:
+: 'bslscm':
+:       Provide versioning information for BDE library components.
+:
+: 'bslstl':
+:       Provide replacement classes for STL constructs.
+:
+: 'bslstp':
+:       Provide replacement classes (adopted from STLport) for STL.
+:
+: 'bsltf':
+:       Provide a set of utilities and types to help with testing.
 
 /Package Overview
 /----------------

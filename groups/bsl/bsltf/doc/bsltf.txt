@@ -10,6 +10,9 @@
  operates on those types, which can help simplify, particularly for templates,
  the implementation of test drivers.
 
+ See {'bsltf_templatetestfacility'|DESCRIPTION} for an overview of the
+ facilities in this package and examples of their use.
+
 /Hierarchical Synopsis
 /---------------------
  The 'bsltf' package currently has 14 components having 3 levels of physical
