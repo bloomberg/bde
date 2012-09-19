@@ -40,9 +40,14 @@ namespace bsl {
     using native_std::binary_search;
     using native_std::copy;
     using native_std::copy_backward;
+#ifndef BDE_OMIT_TRANSITIONAL // STP
     // 'count' and 'count_if' are provided by 'bslstl_exalgorithm.h'
     // using native_std::count;
     // using native_std::count_if;
+#else
+    using native_std::count;
+    using native_std::count_if;
+#endif // BDE_OMIT_TRANSITIONAL -- STP
     using native_std::equal;
     using native_std::equal_range;
     using native_std::fill;
