@@ -1217,7 +1217,13 @@ void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::quickSwap(multimap& other)
 {
     BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
     nodeFactory().swap(other.nodeFactory());
-    comparator().swap(other.comparator());
+
+    // Work around to avoid the 1-byte swap problem on AIX for an empty class
+    // under empty-base optimization.
+
+    if (sizeof(NodeFactory) != sizeof(DataWrapper)) {
+        comparator().swap(other.comparator());
+    }
 }
 
 // PRIVATE ACCESSORS
