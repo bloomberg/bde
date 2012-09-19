@@ -509,6 +509,52 @@ class StatefulHash : bsl::hash<KEY> {
     }
 };
 
+template <class KEY, class HASHER = ::bsl::hash<int> >
+class TestFacilityHasher : HASHER { // exploit empty base
+    // This test class provides a mechanism that defines a function-call
+    // operator that provides a hash code for objects of the parameterized
+    // 'KEY'.  The function-call operator is implemented by calling the wrapper
+    // functor, 'HASHER', with integers converted from objects of 'KEY' by the
+    // class method 'TemplateTestFacility::getIdentifier'.
+
+  public:
+    TestFacilityHasher(const HASHER& hash = HASHER())
+    : HASHER(hash)
+    {
+    }
+
+    // ACCESSORS
+    native_std::size_t operator() (const KEY& k) const
+        // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
+    {
+        return HASHER::operator()(
+                           bsltf::TemplateTestFacility::getIdentifier<KEY>(k));
+    }
+};
+
+
+// test support function
+template <class KEY_CONFIG, class HASH, class EQUAL, class ALLOC>
+void insertElement(
+   ::BloombergLP::bslstl::HashTable<KEY_CONFIG, HASH, EQUAL, ALLOC> *hashTable,
+   const typename KEY_CONFIG::ValueType&                             value)
+{
+    hashTable->insertContinuous(value);
+}
+
+#if 0
+// code copied from bslstl_set.t.cpp for inspiration later
+// FREE OPERATORS
+template <class TYPE>
+bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
+    // Return 'true' if the integer representation of the specified 'lhs' is
+    // less than integer representation of the specified 'rhs'.
+{
+    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+         < bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+}
+#endif
+
 }  // close unnamed namespace
 
 // ============================================================================
@@ -657,7 +703,7 @@ struct BasicKeyConfig {
 template <class ELEMENT>
 struct TestDriver_BasicConfiguation {
     typedef TestDriver< BasicKeyConfig<ELEMENT>
-                      , ::bsl::hash<ELEMENT>
+                      , TestFacilityHasher<ELEMENT>
                       , ::bsl::equal_to<ELEMENT>
                       , ::bsl::allocator<ELEMENT>
                       > Type;
@@ -669,7 +715,7 @@ struct TestDriver_BasicConfiguation {
 template <class ELEMENT>
 struct TestDriver_StatefulConfiguation {
     typedef TestDriver< BasicKeyConfig<ELEMENT>
-                      , StatefulHash<ELEMENT>
+                      , TestFacilityHasher<ELEMENT, StatefulHash<int> >
                       , ::bsl::equal_to<ELEMENT>
                       , ::bsl::allocator<ELEMENT>
                       > Type;
@@ -726,7 +772,6 @@ TestDriver<KEY_CONFIG,HASH, EQUAL, ALLOC>::g(const char *spec)
     Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
-
 
 template <class KEY_CONFIG, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
@@ -986,7 +1031,7 @@ void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
                 // expected number of duplicates
                 {
                     int *foundValues = new int[X.size()];
-                    for (int j = 0;j != X.size(); ++j) {
+                    for (typename Obj::SizeType j = 0;j != X.size(); ++j) {
                         foundValues[j] = 0;
                     }
 
@@ -1006,7 +1051,7 @@ void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
                         while (++j != X.size());
                     }
                     size_t missing = 0;
-                    for (int j = 0; j != X.size(); ++j) {
+                    for (typename Obj::SizeType j = 0; j != X.size(); ++j) {
                         if (!foundValues[j]) { ++missing; }
                     }
                     ASSERTV(LENGTH, CONFIG, missing, 0 == missing);
@@ -1187,6 +1232,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
        ASSERTV(0 == objectAllocator2.numBytesInUse());
    }
    {
+#if defined(TESTING_PAIR_FOR_MAP)
        bslma::TestAllocator objectAllocator1("objectAllocator1");
        bslma::TestAllocator objectAllocator2("objectAllocator2");
 
@@ -1194,11 +1240,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
        Obj o1(HASHER(), COMPARATOR(), 0, &objectAllocator1); const Obj& O1 = o1;
        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
 
-#if defined(TESTING_PAIR_FOR_MAP)
        for (size_t i = 0; i < numValues; ++i) {
            o1.findOrInsertDefault(testKeys[i]);
        }
-#endif
+
        ASSERTV(numValues == O1.size());
        ASSERTV(0 <  objectAllocator1.numBytesInUse());
        ASSERTV(0 == objectAllocator2.numBytesInUse());
@@ -1258,6 +1303,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
        ASSERTV(&objectAllocator1 == O2.allocator().mechanism());
        ASSERTV(&objectAllocator1 == O3.allocator().mechanism());
+#endif
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
