@@ -1,4 +1,4 @@
-#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
 //#include <bsl_hash_set.h>
 #ifdef std
 #   error std was not expected to be a macro
