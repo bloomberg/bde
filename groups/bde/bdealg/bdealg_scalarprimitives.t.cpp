@@ -1702,7 +1702,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
 
-        const int NUM_ALLOC1 = testAllocator.numAllocations();
+        const int NUM_ALLOC1 = testAllocator.numAllocation();
         BEGIN_BSLMA_EXCEPTION_TEST {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
@@ -1713,9 +1713,9 @@ int main(int argc, char *argv[])
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
         } END_BSLMA_EXCEPTION_TEST
-        ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
+        ASSERT(NUM_ALLOC1 < testAllocator.numAllocation());
 
-        const int NUM_ALLOC2 = testAllocator.numAllocations();
+        const int NUM_ALLOC2 = testAllocator.numAllocation();
         BEGIN_BSLMA_EXCEPTION_TEST {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
@@ -1726,7 +1726,7 @@ int main(int argc, char *argv[])
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
         } END_BSLMA_EXCEPTION_TEST
-        ASSERT(NUM_ALLOC2 < testAllocator.numAllocations());
+        ASSERT(NUM_ALLOC2 < testAllocator.numAllocation());
 
         if (verbose) printf("Trait selection testing.\n");
         {
@@ -1810,7 +1810,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
 
-        const int NUM_ALLOC1 = testAllocator.numAllocations();
+        const int NUM_ALLOC1 = testAllocator.numAllocation();
         BEGIN_BSLMA_EXCEPTION_TEST {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
@@ -1821,7 +1821,7 @@ int main(int argc, char *argv[])
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
         } END_BSLMA_EXCEPTION_TEST
-        ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
+        ASSERT(NUM_ALLOC1 < testAllocator.numAllocation());
 
         if (verbose) printf("Trait selection testing.\n");
         {
@@ -1925,7 +1925,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
 
-        const int NUM_ALLOC1 = testAllocator.numAllocations();
+        const int NUM_ALLOC1 = testAllocator.numAllocation();
         BEGIN_BSLMA_EXCEPTION_TEST {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
@@ -1936,7 +1936,7 @@ int main(int argc, char *argv[])
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
         } END_BSLMA_EXCEPTION_TEST
-        ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
+        ASSERT(NUM_ALLOC1 < testAllocator.numAllocation());
 
         if (verbose) printf("Trait selection testing.\n");
         {

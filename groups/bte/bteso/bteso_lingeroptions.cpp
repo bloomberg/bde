@@ -27,8 +27,8 @@ bsl::ostream& bteso_LingerOptions::print(bsl::ostream& stream,
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("timeout",    d_timeout);
-    printer.printAttribute("lingerFlag", d_lingerFlag);
+    printer.print(d_timeout,    "timeout");
+    printer.print(d_lingerFlag, "lingerFlag");
     printer.end();
 
     return stream;
@@ -40,8 +40,8 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
 {
     bslim::Printer printer(&stream, 0, -1);
     printer.start();
-    printer.printValue(object.timeout());
-    printer.printValue(object.lingerFlag());
+    printer.print(object.timeout(),    0);
+    printer.print(object.lingerFlag(), 0);
     printer.end();
 
     return stream;

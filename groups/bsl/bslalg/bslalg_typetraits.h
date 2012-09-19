@@ -795,6 +795,8 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -885,8 +887,6 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
     // This alias is defined for backward compatibility.
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 
 #ifdef bslalg_TypeTraits_NotTrait
 #undef bslalg_TypeTraits_NotTrait

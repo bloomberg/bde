@@ -410,7 +410,7 @@ int main(int argc, char *argv[])
             ObjRep *rep1 = new(testAllocator)
                 ParmMatchingFunctorImp(checkParameterMatching,
                                        &a7, &a8, &a9, &testAllocator);
-            int numDeallocations = testAllocator.numDeallocations();
+            int numDeallocations = testAllocator.numDeallocation();
 
             Obj x2(rep1);
             Obj x3(rep1);
@@ -432,11 +432,11 @@ int main(int argc, char *argv[])
 
             if (veryVerbose)
                 cout << "            Decreased to '0'." << endl;
-            ASSERT(numDeallocations == testAllocator.numDeallocations());
+            ASSERT(numDeallocations == testAllocator.numDeallocation());
             x3 = x1;
-            ASSERT(numDeallocations + 1 == testAllocator.numDeallocations());
+            ASSERT(numDeallocations + 1 == testAllocator.numDeallocation());
             ASSERT(sizeof(ParmMatchingFunctorImp) ==
-                   testAllocator.lastAllocatedNumBytes());
+                   testAllocator.lastAllocateNumBytes());
         }
 
         if (verbose) cout << "    Testing an assignment to self." << endl;
@@ -570,12 +570,12 @@ int main(int argc, char *argv[])
             if (veryVerbose)
                 cout << "            When counter decreases to '0'." << endl;
 
-            int numDeallocations = testAllocator.numDeallocations();
+            int numDeallocations = testAllocator.numDeallocation();
             x1 = x3;
             ASSERT(3 == getCount(rep2));
-            ASSERT(numDeallocations + 1 == testAllocator.numDeallocations());
+            ASSERT(numDeallocations + 1 == testAllocator.numDeallocation());
             ASSERT(sizeof(ParmMatchingFunctorImp) ==
-                   testAllocator.lastAllocatedNumBytes());
+                   testAllocator.lastAllocateNumBytes());
         }
 
         if (verbose) cout << "    Testing assignment to self." << endl;
@@ -594,8 +594,8 @@ int main(int argc, char *argv[])
                 ParmMatchingFunctorImp(checkParameterMatching,
                                        &a7, &a8, &a9, &testAllocator);
             Obj x1(rep1);
-            int numAlloc = testAllocator.numAllocations();
-            int numDealloc = testAllocator.numDeallocations();
+            int numAlloc = testAllocator.numAllocation();
+            int numDealloc = testAllocator.numDeallocation();
             x1 = x1;
             if (veryVerbose)
                 cout << "        Testing that ref. counter did not change."
@@ -604,8 +604,8 @@ int main(int argc, char *argv[])
             if (veryVerbose)
                 cout << "        Testing that memory was not newed/deleted."
                      << endl;
-            ASSERT(numAlloc == testAllocator.numAllocations());
-            ASSERT(numDealloc == testAllocator.numDeallocations());
+            ASSERT(numAlloc == testAllocator.numAllocation());
+            ASSERT(numDealloc == testAllocator.numDeallocation());
 
             if (veryVerbose)
               cout << "        Testing that functor initialization is visible."

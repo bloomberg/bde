@@ -1455,6 +1455,8 @@ class AssertFailureHandlerGuard {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -1501,8 +1503,6 @@ typedef bsls::AssertFailureHandlerGuard AssertFailureHandlerGuard;
     // This alias is defined for backward compatibility.
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 
 typedef bsls::Assert bsls_Assert;
     // This alias is defined for backward compatibility.

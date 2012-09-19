@@ -1002,7 +1002,6 @@ bsls::Types::Int64 TestAllocator::numDeallocation() const
     return numDeallocations();
 }
 
-// TBD #endif
 #endif  // BDE_OMIT_TRANSITIONAL
 
 }  // close package namespace

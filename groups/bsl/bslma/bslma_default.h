@@ -808,6 +808,8 @@ Allocator *Default::globalAllocator(Allocator *basicAllocator)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -823,8 +825,6 @@ typedef bslma::Default bdema_Default;
     // backward compatibility.
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 
 typedef bslma::Default bslma_Default;
     // This alias is defined for backward compatibility.
