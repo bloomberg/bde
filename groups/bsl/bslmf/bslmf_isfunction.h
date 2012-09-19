@@ -7,6 +7,37 @@
 #endif
 BSLS_IDENT("$Id: $")
 
+//@PURPOSE: Provide a compile-time check for function types.
+//
+//@CLASSES:
+//  bsl::is_function: standard meta-function for determining function types
+//
+//@SEE_ALSO: bslmf_integralconstant
+//
+//@AUTHOR:
+//
+//@DESCRIPTION: This component defines a meta-functions, 'bsl::is_fucntion',
+// which may be used to query whether a type is a function type.
+//
+// 'bsl::is_function' meets the requirements of the 'is_function' template
+// defined in the C++11 standard [meta.unary.cat].
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Function Types
+/// - - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is a pointer type.
+//
+// Now, we instantiate the 'bsl::is_function' template for a non-function type
+// and a function type, asserting the 'value' static data member of each
+// instantiation:
+//..
+//  assert(false == bsl::is_function<int>::value);
+//  assert(true  == bsl::is_function<int (int)>::value);
+//..
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
