@@ -8128,7 +8128,7 @@ int main(int argc, char *argv[])
 
         // Then, we define (and default construct) our laundry queue:
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         LaundryQueue q(&ta);
 
         // Next, we add a few customers:
