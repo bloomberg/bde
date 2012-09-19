@@ -4,7 +4,8 @@
 
 @MNEMONIC: Basic Standard Library (bsl)
 
-@AUTHOR: Herve Bronnimann (hbronnim), Arthur Chiu (achiu21)
+@AUTHOR: Herve Bronnimann (hbronnim), Arthur Chiu (achiu21),
+         Steven Breitstein (sbreitstein)
 
 @DESCRIPTION: The 'bsl' ("Basic Standard Library") package group contains
  various packages that provide platform-specific classes, meta-functions,
@@ -28,7 +29,7 @@
  The 'bsl' package group is the foundation of the firm-wide BDE library and has
  no dependencies beyond the allowed OS and runtime environment dependencies.
 
- The 'bsl' package group currently has 13 packages forming 11 levels of
+ The 'bsl' package group currently has 11 packages forming 10 levels of
  physical dependency.  The table below shows the hierarchical ordering of the
  packages.  The order of components within each level is not architecturally
  significant, just alphabetical.
@@ -36,17 +37,13 @@
  Note that required source control package 'bslscm' depends on 'bsls'; this
  behavior is unique to 'bsl', although it is temporarily also in 'bde' for
  historic reasons, since logically *every* other package should depend on
- 'bslscm'.  See {BP BDE_SCM <GO>} for a detailed specification for 'bdescm',
- the previous name for 'bslscm'; the explanations therein apply equally to
  'bslscm'.
 ..
-  11. bslim
+  10. bslim
 
-  10. bsl+stdhdrs(*)
+   9. bsl+stdhdrs(*)
 
-   9. bsl+bslhdrs
-
-   8. bslstp(**)
+   8. bsl+bslhdrs
 
    7. bslstl
 
@@ -61,20 +58,13 @@
 
    2. bslscm
 
-   1. bslfwd
-      bsls
+   1. bsls
 ..
  (*) - Note that the 'bsl+stdhdrs' package is only a compatibility layer for
  Bloomberg managed code.  It is not an essential package for the rest of the
- BDE libraries (i.e., all other package groups above bsl will compile and
+ BDE libraries (i.e., all other package groups above 'bsl' will compile and
  function without 'bsl+stdhdrs').  This package implements the logic required
  for 'BDE-STL' mode.
-
- (**) - Note that the 'bslstp' package, though physically separate from the
- 'bslstl' package, is logically equivalent in terms of physical hierarchy.
- Both packages provide implementations of standard c++ containers.  The only
- reason they are separated is that 'bslstp' contains modified source code from
- stlport, where 'bslstl' contains only code written by Bloomberg.
 
 /Package Synopsis
 /----------------
@@ -89,9 +79,6 @@
 :
 : 'bsldoc':
 :       Provide documentation of terms and concepts used throughout BDE.
-:
-: 'bslfwd':
-:       Provide compatibility for clients using single-level namespace
 :
 : 'bslim':
 :       Provide implementation mechanisms.
@@ -111,9 +98,6 @@
 : 'bslstl':
 :       Provide replacement classes for STL constructs.
 :
-: 'bslstp':
-:       Provide replacement classes (adopted from STLport) for STL.
-:
 : 'bsltf':
 :       Provide a set of utilities and types to help with testing.
 
@@ -126,6 +110,21 @@
  brief; see the respective Package Level documents for more details and usage
  examples.
 
+/'bsl+bslhdrs'
+/- - - - - - -
+ 'bsl+bslhdrs' provides the 'bsl' version of the standard C++ library (e.g.,
+ 'bsl_vector.h' instead of 'vector', 'bsl_algorithm.h' instead of 'algorithm').
+ Users of 'bsl' can include these headers to obtain the corresponding C++ STL
+ functionalities.
+
+/'bsl+stdhdrs'
+/- - - - - - -
+ 'bsl+stdhdrs' provides a compatibility layer to for the 'BDE-STL' mode.  When
+ users include standard C++ headers from this directory (e.g., 'vector',
+ 'algorithm'), and use standard STL types such as 'std::vector', 'std::cout',
+ users will be using the corresponding 'bsl' version instead (i.e.,
+ 'std::vector' is the same as 'bsl::vector').
+
 /'bslalg'
 / - - - -
  'bslalg' provides a variety of lower-level algorithms, comparisons, and
@@ -136,13 +135,6 @@
  'bsldoc' documents key terminology and concepts used throughout BDE
  documentation.  Note that the components in this package consist entirely of
  comments, no code.
-
-/'bslfwd'
-/ - - - -
- 'bslfwd' provides code snippets to aid clients who made forward references to
- classes in 'bsl' when those classes were defined in the legacy, single-level
- namespace.  All clients must now be written to use the current two-level
- namespace.
 
 /'bslim'
 /- - - -
@@ -178,8 +170,7 @@
  versioning information for the package group.  Users may use the
  'bslscm_version' facilities to query a particular 'bsl' library for its
  version information.  The second component defines macros that can be used for
- conditional-compilation based on 'bsl' version information.  See
- '{BP BDE_SCM <GO>}' for a detailed specification for this package.
+ conditional-compilation based on 'bsl' version information.
 
 /'bslstl'
 / - - - -
@@ -187,29 +178,8 @@
  library using the 'bslma' memory allocation model, algorithms and traits in
  'bslalg' and meta-functions in 'bslmf'.
 
-/'bslstp'
-/ - - - -
- 'bslstp' provides an implementation of certain containers of the C++ standard
- library by modifying source code originally from stlport to adapt to the
- 'bslma' memory allocation model.
-
 /'bsltf'
 /- - - -
  'bsltf' provides a set test types and utilities that operates on those types,
  which can help simplify, particularly for template, the implementation of test
  drivers.
-
-/'bsl+bslhdrs'
-/- - - - - - -
- 'bsl+bslhdrs' provides the 'bsl' version of the standard C++ library (e.g.,
- 'bsl_vector.h' instead of 'vector', 'bsl_algorithm.h' instead of 'algorithm').
- Users of 'bsl' can include these headers to obtain the corresponding C++ STL
- functionalities.
-
-/'bsl+stdhdrs'
-/- - - - - - -
- 'bsl+stdhdrs' provides a compatibility layer to for the 'BDE-STL' mode.  When
- users include standard C++ headers from this directory (e.g., 'vector',
- 'algorithm'), and use standard STL types such as 'std::vector', 'std::cout',
- users will be using the corresponding 'bsl' version instead (i.e.,
- 'std::vector' is the same as 'bsl::vector').
