@@ -22,6 +22,7 @@
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_iterator.h>
+#include <bsl_limits.h>
 #include <bsl_map.h>
 #include <bsl_set.h>
 #include <bsl_string.h>
