@@ -1684,7 +1684,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase22()
     {
         typedef bsl::map<int, int, std::less<int>, StlAlloc> TestObj;
         TestObj mX;
-        mX.insert(TestObj::value_type(1, 1));
+        mX.insert(typename TestObj::value_type(1, 1));
         TestObj mY;
         mY = mX;
     }
