@@ -409,8 +409,8 @@ BSLS_IDENT("$Id: $")
 //  , d_lastName(lastName.begin(), lastName.end(), basicAllocator)
 //  , d_id(id)
 //  {
-//      BSLS_ASSERT_SAFE(firstName.isBound());
-//      BSLS_ASSERT_SAFE(lastName.isBound());
+//      BSLS_ASSERT_SAFE(!firstName.isEmpty());
+//      BSLS_ASSERT_SAFE(!lastName.isEmpty());
 //  }
 //
 //  inline
@@ -440,7 +440,7 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  void Employee::setFirstName(const bslstl::StringRef& value)
 //  {
-//      BSLS_ASSERT_SAFE(value.isBound());
+//      BSLS_ASSERT_SAFE(!value.isEmpty());
 //
 //      d_firstName.assign(value.begin(), value.end());
 //  }
@@ -448,7 +448,7 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  void Employee::setLastName(const bslstl::StringRef& value)
 //  {
-//      BSLS_ASSERT_SAFE(value.isBound());
+//      BSLS_ASSERT_SAFE(!value.isEmpty());
 //
 //      d_lastName.assign(value.begin(), value.end());
 //  }

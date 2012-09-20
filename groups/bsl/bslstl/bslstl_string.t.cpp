@@ -13283,6 +13283,8 @@ class StringRef {
     // ACCESSORS
     const char *begin() const { return d_begin_p; }
     const char *end() const   { return d_end_p;   }
+
+    bool isEmpty() const { return d_begin_p == d_end_p; }
 };
 
 }
@@ -13437,8 +13439,8 @@ namespace UsageExample {
     , d_lastName(lastName.begin(), lastName.end(), basicAllocator)
     , d_id(id)
     {
-        BSLS_ASSERT_SAFE(firstName.isBound());
-        BSLS_ASSERT_SAFE(lastName.isBound());
+        BSLS_ASSERT_SAFE(!firstName.isEmpty());
+        BSLS_ASSERT_SAFE(!lastName.isEmpty());
     }
 //
     inline
@@ -13468,7 +13470,7 @@ namespace UsageExample {
     inline
     void Employee::setFirstName(const bslstl::StringRef& value)
     {
-        BSLS_ASSERT_SAFE(value.isBound());
+        BSLS_ASSERT_SAFE(!value.isEmpty());
 //
         d_firstName.assign(value.begin(), value.end());
     }
@@ -13476,7 +13478,7 @@ namespace UsageExample {
     inline
     void Employee::setLastName(const bslstl::StringRef& value)
     {
-        BSLS_ASSERT_SAFE(value.isBound());
+        BSLS_ASSERT_SAFE(!value.isEmpty());
 //
         d_lastName.assign(value.begin(), value.end());
     }
