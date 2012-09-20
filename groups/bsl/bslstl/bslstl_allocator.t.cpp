@@ -2,8 +2,6 @@
 
 #include <bslstl_allocator.h>
 
-#include <bslalg_typetraits.h>            // testing only
-#include <bslalg_hastrait.h>              // testing only
 #include <bslma_allocator.h>              // testing only
 #include <bslma_default.h>                // testing only
 #include <bslma_defaultallocatorguard.h>  // testing only
@@ -727,10 +725,10 @@ int main(int argc, char *argv[])
         // Concerns:
         //   That an allocator has the proper traits defined.
         //
-        // Plan:  Since it does not matter what type 'bsl::allocator' is
-        // instantiated with, use 'int' and test for the traits using
-        // 'bslalg::HasTrait'.  Note that 'void' also needs to be tested since
-        // it is a specialization.
+        // Plan: Since it does not matter what type 'bsl::allocator' is
+        // instantiated with, use 'int' and test for each expected trait.
+        // Note that 'void' also needs to be tested since it is a
+        // specialization.
         //
         // Testing:
         //   bslalg::TypeTrait<bsl::allocator>
@@ -739,21 +737,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TRAITS"
                             "\n==============");
 
-        ASSERT((bslalg::HasTrait<bsl::allocator<int>,
-                                 bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT((bslalg::HasTrait<bsl::allocator<int>,
-                                 bslalg::TypeTraitBitwiseCopyable>::VALUE));
-        ASSERT((bslalg::HasTrait<
-                          bsl::allocator<int>,
-                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE));
+        ASSERT((bslmf::IsBitwiseMoveable<bsl::allocator<int> >::value));
+        ASSERT((bsl::is_trivially_copyable<bsl::allocator<int> >::value));
+        ASSERT((bslmf::IsBitwiseEqualityComparable<
+                                                bsl::allocator<int> >::value));
 
-        ASSERT((bslalg::HasTrait<bsl::allocator<void>,
-                                 bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT((bslalg::HasTrait<bsl::allocator<void>,
-                                 bslalg::TypeTraitBitwiseCopyable>::VALUE));
-        ASSERT((bslalg::HasTrait<
-                          bsl::allocator<void>,
-                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE));
+        ASSERT((bslmf::IsBitwiseMoveable<bsl::allocator<void> >::value));
+        ASSERT((bsl::is_trivially_copyable<bsl::allocator<void> >::value));
+        ASSERT((bslmf::IsBitwiseEqualityComparable<
+                                                bsl::allocator<void> >::value));
 
       } break;
 

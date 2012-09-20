@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 // memory from the indicated 'bslma::Allocator', a list supplies that
 // allocator's address to the constructors of contained objects of the
 // (template parameter) 'VALUE' type, if respectively, the parameterized types
-// define the 'bslalg::TypeTraitUsesBslmaAllocator' trait.
+// define the 'bslma::UsesBslmaAllocator' trait.
 //
 ///Operations
 ///----------
@@ -639,9 +639,9 @@ class List_Iterator
                            List_Iterator<T2, NODEP, DIFFT>);
 
     // PRIVATE TYPES
-    typedef typename BloombergLP::bslmf::RemoveCvq<VALUE>::Type  NcType;
-    typedef List_Iterator<NcType, NODEPTR, DIFFTYPE>             NcIter;
-    typedef List_Node<NcType>                                    Node;
+    typedef typename remove_cv<VALUE>::type          NcType;
+    typedef List_Iterator<NcType, NODEPTR, DIFFTYPE> NcIter;
+    typedef List_Node<NcType>                        Node;
 
     // DATA
     NODEPTR d_nodeptr;  // pointer to list node

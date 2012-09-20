@@ -75,20 +75,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_util.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
-#include <bslalg_typetraitbitwisemoveable.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ANYTYPE
@@ -353,9 +349,8 @@ class String_Imp {
                                 // without reallocation
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                String_Imp,
-                                BloombergLP::bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(String_Imp,
+                                   BloombergLP::bslmf::IsBitwiseMoveable);
         // 'CHAR_TYPE' is required to be a POD as per the Standard, which makes
         // 'CHAR_TYPE' bitwise-moveable, so 'String_Imp' is also
         // bitwise-moveable.
@@ -720,8 +715,8 @@ class basic_string
         // 'lhsPosition <= length() - lhsNumChars'.
 
     // INVARIANTS
-    BSLMF_ASSERT((BloombergLP::bslmf::
-                  IsSame<CHAR_TYPE, typename ALLOCATOR::value_type>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<CHAR_TYPE,
+                               typename ALLOCATOR::value_type>::value));
         // This is required by the C++ standard (23.1, clause 1).
 
   public:
@@ -1863,9 +1858,7 @@ struct hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
     // Specialization of 'hash' for 'basic_string'.
 {
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(hash, bsl::is_trivially_copyable);
 
     std::size_t operator()(const basic_string<CHAR_TYPE,
                            CHAR_TRAITS, ALLOCATOR>& str) const

@@ -326,10 +326,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_enableif.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_FUNCTIONAL
 #include <functional>
 #define INCLUDED_FUNCTIONAL
@@ -341,12 +337,17 @@ namespace bslstl {
 
 template <class CONTAINER, class ALLOCATOR>
 struct PriorityQueue_HasAllocatorType {
-    template <typename TYPE>
-    static bslmf_MetaInt<1> match(const typename TYPE::allocator_type *);
-    template <typename TYPE>
-    static bslmf_MetaInt<0> match(...);
+  private:
+    typedef char YesType;
+    struct NoType { char a[2]; };
 
-    enum { VALUE = BSLMF_METAINT_TO_BOOL(match<CONTAINER>(0)) };
+  public:
+    template <typename TYPE>
+    static YesType match(const typename TYPE::allocator_type *);
+    template <typename TYPE>
+    static NoType match(...);
+
+    enum { VALUE = (sizeof(YesType) == sizeof(match<CONTAINER>(0))) };
 };
 
 }  // close package namespace
@@ -429,7 +430,7 @@ class priority_queue
     template <class ALLOCATOR>
     explicit priority_queue(
                            const ALLOCATOR& allocator,
-                           typename BloombergLP::bslmf_EnableIf<
+                           typename enable_if<
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                CONTAINER,
                                                ALLOCATOR>::VALUE>::type * = 0);
@@ -445,7 +446,7 @@ class priority_queue
     template <class ALLOCATOR>
     priority_queue(const COMPARATOR& comparator,
                    const ALLOCATOR& allocator,
-                   typename BloombergLP::bslmf_EnableIf<
+                   typename enable_if<
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                CONTAINER,
                                                ALLOCATOR>::VALUE>::type * = 0);
@@ -463,7 +464,7 @@ class priority_queue
     priority_queue(const COMPARATOR& comparator,
                    const CONTAINER&  container,
                    const ALLOCATOR&  allocator,
-                   typename BloombergLP::bslmf_EnableIf<
+                   typename enable_if<
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                CONTAINER,
                                                ALLOCATOR>::VALUE>::type * = 0);
@@ -477,7 +478,7 @@ class priority_queue
     template <class ALLOCATOR>
     priority_queue(const priority_queue& original,
                    const ALLOCATOR& allocator,
-                   typename BloombergLP::bslmf_EnableIf<
+                   typename enable_if<
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                CONTAINER,
                                                ALLOCATOR>::VALUE>::type * = 0);
@@ -592,7 +593,7 @@ template <class ALLOCATOR>
 inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                            const ALLOCATOR& allocator,
-                           typename BloombergLP::bslmf_EnableIf<
+                           typename enable_if<
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                     CONTAINER,
                                                     ALLOCATOR>::VALUE>::type *)
@@ -607,7 +608,7 @@ inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                            const COMPARATOR& comparator,
                            const ALLOCATOR&  allocator,
-                           typename BloombergLP::bslmf_EnableIf<
+                           typename enable_if<
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                     CONTAINER,
                                                     ALLOCATOR>::VALUE>::type *)
@@ -623,7 +624,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                            const COMPARATOR& comparator,
                            const CONTAINER&  container,
                            const ALLOCATOR&  allocator,
-                           typename BloombergLP::bslmf_EnableIf<
+                           typename enable_if<
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                     CONTAINER,
                                                     ALLOCATOR>::VALUE>::type *)
@@ -640,7 +641,7 @@ inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                            const priority_queue& original,
                            const ALLOCATOR&      allocator,
-                           typename BloombergLP::bslmf_EnableIf<
+                           typename enable_if<
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                     CONTAINER,
                                                     ALLOCATOR>::VALUE>::type *)

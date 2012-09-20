@@ -6,8 +6,6 @@
 #include <bslstl_randomaccessiterator.h>
 #include <bslstl_vector.h>                 // for testing only
 
-#include <bslalg_hastrait.h>
-#include <bslalg_typetraits.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>   // for testing only
@@ -415,8 +413,7 @@ class TestType {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestType, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit
@@ -773,9 +770,10 @@ class BitwiseMoveableTestType : public TestType {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(BitwiseMoveableTestType,
-                                  bslalg::TypeTraitUsesBslmaAllocator,
-                                  bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseMoveableTestType,
+                                   bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseMoveableTestType,
+                                   bslmf::IsBitwiseMoveable);
 
     // CREATORS
     explicit
@@ -808,8 +806,10 @@ class BitwiseCopyableTestType : public SmallTestTypeNoAlloc {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BitwiseCopyableTestType,
-                                 bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseCopyableTestType,
+                                   bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseCopyableTestType,
+                                   bslmf::IsBitwiseEqualityComparable);
 
     // CREATORS
     BitwiseCopyableTestType()
@@ -4430,8 +4430,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_ALLOC = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value;
 
     static const size_t EXTEND[] = {
         0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17
@@ -5537,7 +5536,7 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     //   o That the 'computeNewCapacity' class method does not overflow
     //   o That creating an empty deque does not allocate
     //   o That the allocator is passed through to elements
-    //   o That the deque class has the 'bslalg::TypeTraitUsesBslmaAllocator'
+    //   o That the deque class has the 'bslma::UsesBslmaAllocator'
     //
     // Plan:
     //   We first verify that the 'bsl::deque' class has the traits, and
@@ -5566,10 +5565,9 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     (void)NUM_VALUES;
 
     if (verbose)
-        printf("\nTesting 'bslalg::TypeTraitUsesBslmaAllocator'.\n");
+        printf("\nTesting 'bslma::UsesBslmaAllocator'.\n");
 
-    ASSERT((bslalg::HasTrait<Obj,
-                             bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+    ASSERT((bslma::UsesBslmaAllocator<Obj>::value));
 
     if (verbose)
         printf("\nTesting that empty deque does allocate.\n");
@@ -5581,8 +5579,7 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     if (verbose)
         printf("\nTesting passing allocator through to elements.\n");
 
-    ASSERT((bslalg::HasTrait<TYPE,
-                             bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+    ASSERT((bslma::UsesBslmaAllocator<TYPE>::value));
     {
         Obj mX(1, VALUES[0], &testAllocator);  const Obj& X = mX;
         ASSERT(&testAllocator == X[0].allocator());
@@ -6051,11 +6048,9 @@ void TestDriver<TYPE,ALLOC>::testCase7()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_MOVE  = bslalg::HasTrait<TYPE,
-                                       bslalg::TypeTraitBitwiseMoveable>::VALUE
-                         ? 0 : 1;  // if moveable, moves do not count as allocs
-    const int TYPE_ALLOC = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    // if moveable, moves do not count as allocs
+    const int TYPE_MOVE  = ! bslmf::IsBitwiseMoveable<TYPE>::value;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value;
 
     if (verbose)
         printf("\nTesting parameters: TYPE_ALLOC = %d, TYPE_MOVE = %d.\n",
@@ -7016,11 +7011,9 @@ void TestDriver<TYPE,ALLOC>::testCase2()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_MOVE = bslalg::HasTrait<TYPE,
-                                       bslalg::TypeTraitBitwiseMoveable>::VALUE
-                            ? 0 : 1;
-    const int TYPE_ALLOC  = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    // If bitwise moveable, then move does not count as an alloc
+    const int TYPE_MOVE = ! bslmf::IsBitwiseMoveable<TYPE>::value;
+    const int TYPE_ALLOC  = bslma::UsesBslmaAllocator<TYPE>::value;
 
     if (verbose)
         printf("\tTesting parameters: TYPE_ALLOC = %d, TYPE_MOVE = %d.\n",
@@ -8400,14 +8393,9 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nAdditional tests: traits.\n");
 
-#ifndef BSLS_PLATFORM__CMP_MSVC  // Temporarily does not work
-        ASSERT(  (bslalg::HasTrait<bsl::deque<char>,
-                  bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<bsl::deque<T>,
-                  bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<bsl::deque<bsl::deque<int> >,
-                  bslalg::TypeTraitBitwiseMoveable>::VALUE));
-#endif
+        ASSERT(bslmf::IsBitwiseMoveable<bsl::deque<char> >::value);
+        ASSERT(bslmf::IsBitwiseMoveable<bsl::deque<T> >::value);
+        ASSERT(bslmf::IsBitwiseMoveable<bsl::deque<bsl::deque<int> > >::value);
 
       } break;
       case -1: {

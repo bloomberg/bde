@@ -82,8 +82,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEFAULT
@@ -1347,9 +1347,9 @@ struct Vector_DeduceIteratorCategory<BSLSTL_ITERATOR, true> {
 
 template<class BSLSTL_ITERATOR>
 struct Vector_IsRandomAccessIterator :
-       BloombergLP::bslmf::IsSame<
-         typename Vector_DeduceIteratorCategory<BSLSTL_ITERATOR>::type,
-                                               bsl::random_access_iterator_tag>
+    bsl::is_same<
+        typename Vector_DeduceIteratorCategory<BSLSTL_ITERATOR>::type,
+                                         bsl::random_access_iterator_tag>::type
 {
 };
 
@@ -1359,13 +1359,13 @@ struct Vector_RangeCheck {
     // pair of iterators do *not* form a valid range.  This support is offered
     // only for random access iterators, and identifies only the case of two
     // valid iterators into the same range forming a "reverse" range.  Note
-    // that these two functions declared using 'bslmf::EnableIf' must be
+    // that these two functions declared using 'enable_if' must be
     // defined inline in the class definition due to a bug in the Microsoft
     // C++ compiler (see 'bslmf_enableif').
 
     template<class BSLSTL_ITERATOR>
     static
-    typename BloombergLP::bslmf::EnableIf<
+    typename bsl::enable_if<
            !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
     isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR)
         // Return 'false' as we know of no way to identify an input iterator
@@ -1376,7 +1376,7 @@ struct Vector_RangeCheck {
 
     template<class BSLSTL_ITERATOR>
     static
-    typename BloombergLP::bslmf::EnableIf<
+    typename bsl::enable_if<
            Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
     isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
         // Return 'true' if 'first <= last', and 'false' otherwise.  Behavior

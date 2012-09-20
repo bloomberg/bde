@@ -3,9 +3,6 @@
 #include <bslstl_list.h>
 #include <bslstl_iterator.h>
 
-#include <bslalg_hastrait.h>
-#include <bslalg_typetraits.h>
-
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>   // for testing only
@@ -445,8 +442,7 @@ class TestType {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestType, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit
@@ -1674,12 +1670,10 @@ struct TestDriver {
 
     typedef typename
         bslmf_IsConvertible<bslma_Allocator*,ALLOC>::Type ObjHasBslmaAlloc;
-        // TRUE_TYPE if ALLOC is a bslma allocator type
+        // true_type if ALLOC is a bslma allocator type
 
-    typedef typename
-        bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::Type
-            TypeHasBslmaAlloc;
-        // TRUE_TYPE if TYPE uses a bslma allocator
+    typedef typename bslma::UsesBslmaAllocator<TYPE>::type TypeHasBslmaAlloc;
+        // true_type if TYPE uses a bslma allocator
 
     enum { SCOPED_ALLOC = ObjHasBslmaAlloc::VALUE && TypeHasBslmaAlloc::VALUE};
         // true if both the container shares its allocator with its contained
@@ -3572,11 +3566,11 @@ void TestDriver<TYPE,ALLOC>::testTypeTraits(bool uses_bslma, bool bitwise_moveab
     // TESTING TYPE TRAITS
     //
     // Concerns:
-    //   1. That the list has the 'bslalg_TypeTraitHasStlIterators' trait.
+    //   1. That the list has the 'bslalg::HasStlIterators' trait.
     //   2. Iff instantiated with 'bsl::allocator', then list has the
-    //      'bslalg_TypeTraitUsesBslmaAllocator' trait.
+    //      'bslma::UsesBslmaAllocator' trait.
     //   3. Iff instantiated with an allocator that is bitwise moveable, then
-    //      the list has the 'bslalg_TypeTraitBitwiseMoveable' trait.
+    //      the list has the 'bslmf::IsBitwiseMoveable' trait.
     //
     // Plan:
     //   Test each of the above three traits and compare their value to the
@@ -3584,20 +3578,18 @@ void TestDriver<TYPE,ALLOC>::testTypeTraits(bool uses_bslma, bool bitwise_moveab
     //   'bitwise_moveable' arguments to this function.
     //
     // Testing:
-    //   bslalg_TypeTraitHasStlIterators
-    //   bslalg_TypeTraitUsesBslmaAllocator
-    //   bslalg_TypeTraitBitwiseMoveable
+    //   bslalg::HasStlIterators
+    //   bslma::UsesBslmaAllocator
+    //   bslmf::IsBitwiseMoveable
     // --------------------------------------------------------------------
 
-    ASSERT((bslalg_HasTrait<Obj,bslalg_TypeTraitHasStlIterators>::VALUE));
+    ASSERT(bslalg::HasStlIterators<Obj>::value);
 
-    LOOP_ASSERT(uses_bslma, uses_bslma ==
-                (bslalg_HasTrait<Obj,
-                                 bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+    LOOP_ASSERT(uses_bslma,
+                uses_bslma == bslma::UsesBslmaAllocator<Obj>::value);
 
-    LOOP_ASSERT(bitwise_moveable, bitwise_moveable ==
-                (bslalg_HasTrait<Obj,
-                                 bslalg_TypeTraitBitwiseMoveable>::VALUE));
+    LOOP_ASSERT(bitwise_moveable,
+                bitwise_moveable == bslmf::IsBitwiseMoveable<Obj>::value);
 }
 
 template <class TYPE, class ALLOC>
@@ -6438,7 +6430,7 @@ void TestDriver<TYPE,ALLOC>::testAllocator(bslmf_MetaInt<1>,
     // This template specialization is for containers that use bslma_Allocator.
     //
     // Concerns:
-    //   1. The list class has the 'bslalg_TypeTraitUsesBslmaAllocator'
+    //   1. The list class has the 'bslma::UsesBslmaAllocator'
     //      trait.
     //   2. The allocator is not copied when the list is copy-constructed.
     //   3. The allocator is set with the extended copy-constructor.
@@ -6465,11 +6457,9 @@ void TestDriver<TYPE,ALLOC>::testAllocator(bslmf_MetaInt<1>,
     (void)NUM_VALUES;
 
     if (verbose)
-        printf("\nTesting 'bslalg_TypeTraitUsesBslmaAllocator'.\n");
+        printf("\nTesting 'bslma::UsesBslmaAllocator'.\n");
 
-    LOOP2_ASSERT(t, a,
-                 (bslalg_HasTrait<Obj,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+    LOOP2_ASSERT(t, a, bslma::UsesBslmaAllocator<Obj>::value);
 
     if (verbose)
         printf("\nTesting that empty list allocates one block.\n");
@@ -6505,7 +6495,7 @@ void TestDriver<TYPE,ALLOC>::testAllocator(bslmf_MetaInt<1>,
         printf("\nTesting passing allocator through to elements.\n");
 
     const int DD = OtherAllocatorDefaultImp.numBlocksInUse();
-    if (bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE)
+    if (bslma::UsesBslmaAllocator<TYPE>::value)
     {
         {
             Obj mX(1, VALUES[0], &testAllocator);  const Obj& X = mX;
@@ -6558,7 +6548,7 @@ void TestDriver<TYPE,ALLOC>::testAllocator(bslmf_MetaInt<0>,
     //
     // Concerns:
     //   1. The list class does not have the
-    //      'bslalg_TypeTraitUsesBslmaAllocator' trait.
+    //      'bslma::UsesBslmaAllocator' trait.
     //   2. The allocator is not passed through to elements
     //   3. The allocator is set with the extended copy-constructor.
     //   4. The allocator is copied when the list is copy-constructed.
@@ -6585,11 +6575,9 @@ void TestDriver<TYPE,ALLOC>::testAllocator(bslmf_MetaInt<0>,
     (void)NUM_VALUES;
 
     if (verbose)
-        printf("\nTesting 'bslalg_TypeTraitUsesBslmaAllocator'.\n");
+        printf("\nTesting 'bslma::UsesBslmaAllocator'.\n");
 
-    LOOP2_ASSERT(t, a,
-                 (!bslalg_HasTrait<Obj,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+    LOOP2_ASSERT(t, a, ! bslma::UsesBslmaAllocator<Obj>::value);
 
     if (verbose)
         printf("\nTesting that empty list allocates one block.\n");
@@ -6626,7 +6614,7 @@ void TestDriver<TYPE,ALLOC>::testAllocator(bslmf_MetaInt<0>,
        printf("\nTesting that allocator is not passed through to elements.\n");
 
     const int DD = OtherAllocatorDefaultImp.numBlocksInUse();
-    if (bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE)
+    if (bslma::UsesBslmaAllocator<TYPE>::value)
     {
         // Elements in container should use default allocator while the
         // container itself uses 'testAllocator'.  Set the default allocator
@@ -6702,7 +6690,7 @@ void TestDriver<TYPE,ALLOC>::testAllocator(const char *t, const char *a)
     // Concerns:
     //
     //   For ALLOC that is a bslma_Allocator
-    //   1. The list class has the 'bslalg_TypeTraitUsesBslmaAllocator'
+    //   1. The list class has the 'bslma::UsesBslmaAllocator'
     //      trait.
     //   2. The allocator is not copied when the list is copy-constructed.
     //   3. The allocator is set with the extended copy-constructor.
@@ -6712,7 +6700,7 @@ void TestDriver<TYPE,ALLOC>::testAllocator(const char *t, const char *a)
     //
     //   For ALLOC that is not a bslma allocator
     //   1. The list class does not have the
-    //      'bslalg_TypeTraitUsesBslmaAllocator' trait.
+    //      'bslma::UsesBslmaAllocator' trait.
     //   2. The allocator is not passed through to elements
     //   3. The allocator is set with the extended copy-constructor.
     //   4. The allocator is copied when the list is copy-constructed.
@@ -8903,9 +8891,9 @@ int main(int argc, char *argv[])
         //   See testTypeTraits for a list of specific concerns and a test plan.
         //
         // Testing:
-        //   bslalg_TypeTraitHasStlIterators
-        //   bslalg_TypeTraitUsesBslmaAllocator
-        //   bslalg_TypeTraitBitwiseMoveable
+        //   bslalg::HasStlIterators
+        //   bslma::UsesBslmaAllocator
+        //   bslmf::IsBitwiseMoveable
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting TYPE TRAITS"
@@ -9857,21 +9845,13 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nAdditional tests: traits.\n");
 
-#ifndef BSLS_PLATFORM__CMP_MSVC  // Temporarily does not work for MSVC
-        ASSERT(  (bslalg_HasTrait<list<char>,
-                  bslalg_TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg_HasTrait<list<T>,
-                  bslalg_TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg_HasTrait<list<list<int> >,
-                  bslalg_TypeTraitBitwiseMoveable>::VALUE));
+        ASSERT(  bslmf::IsBitwiseMoveable<list<char> >::value);
+        ASSERT(  bslmf::IsBitwiseMoveable<list<T> >::value);
+        ASSERT(  bslmf::IsBitwiseMoveable<list<list<int> > >::value);
 
-        ASSERT( !(bslalg_HasTrait<list<char>,
-                  bslalg_TypeTraitBitwiseCopyable>::VALUE));
-        ASSERT( !(bslalg_HasTrait<list<T>,
-                  bslalg_TypeTraitBitwiseCopyable>::VALUE));
-        ASSERT( !(bslalg_HasTrait<list<list<int> >,
-                  bslalg_TypeTraitBitwiseCopyable>::VALUE));
-#endif
+        ASSERT(! bsl::is_trivially_copyable<list<char> >::value);
+        ASSERT(! bsl::is_trivially_copyable<list<T> >::value);
+        ASSERT(! bsl::is_trivially_copyable<list<list<int> > >::value);
 
       } break;
       default: {

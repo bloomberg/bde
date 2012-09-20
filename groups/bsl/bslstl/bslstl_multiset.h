@@ -87,7 +87,7 @@ BSLS_IDENT("$Id: $")
 // In addition to directly allocating memory from the indicated
 // 'bslma::Allocator', a multiset supplies that allocator's address to the
 // constructors of contained objects of the parameterized 'KEY' types with the
-// 'bslalg::TypeTraitUsesBslmaAllocator' trait.
+// 'bslma::UsesBslmaAllocator' trait.
 //
 ///Operations
 ///----------
@@ -461,8 +461,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_rbtreeutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL

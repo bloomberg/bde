@@ -30,6 +30,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <bslalg_typetraits.h>
+
 using namespace BloombergLP;
 using namespace std;
 using namespace bslstl;

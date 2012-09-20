@@ -22,6 +22,9 @@
 #include <bsltf_testvaluesarray.h>
 #include <bsltf_stdtestallocator.h>
 
+#include <bslalg_hastrait.h>
+#include <bslalg_typetraits.h>
+
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
