@@ -12,6 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::Util: utility class supplying essential, low-level functionality
 //
+//@MACROS:
+//  BSLS_UTIL_ADDRESSOF(OBJ): address of 'OBJ', even if 'operator&' overloaded
+//
 //@AUTHOR: Pablo Halpern (phalpern), Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component defines a utility 'struct', 'bsls::Util', that

@@ -11,6 +11,10 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //
+//@MACROS
+//  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: flag for 'extern template'
+//  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for 'static_assert'
+//
 //@SEE_ALSO: bsls_platform
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
@@ -28,15 +32,15 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // The following are the macros provided by this component.  Note that they are
 // not defined for all platform/compiler combinations.
-//..
-//  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-//      This macro is defined if 'extern template' is supported by the current
-//      compiler settings for this platform.
 //
-//  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-//      This macro is defined if 'static_assert' is supported by the current
-//      compiler settings for this platform.
-//..
+//: 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'
+//:     This macro is defined if 'extern template' is supported by the current
+//:     compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT'
+//:    This macro is defined if 'static_assert' is supported by the current
+//:    compiler settings for this platform.
+//
 ///Usage
 ///-----
 // The following code snippets illustrate use of this component.

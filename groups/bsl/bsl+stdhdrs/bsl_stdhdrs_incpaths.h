@@ -12,11 +12,11 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Define paths where native headers can be found
 //
 //@MACROS:
-// BSL_NATIVE_CPP_LIB_HEADER(filename),
-// BSL_NATIVE_CPP_RUNTIME_HEADER(filename)
-// BSL_NATIVE_CPP_C_HEADER(filename),
-// BSL_NATIVE_CPP_DEPRECATED_HEADER(filename),
-// BSL_NATIVE_C_LIB_HEADER(filename)
+// BSL_NATIVE_CPP_LIB_HEADER(header):  path to C++ standard header
+// BSL_NATIVE_CPP_RUNTIME_HEADER(header): path to C++ run-time header
+// BSL_NATIVE_CPP_C_HEADER(header): path to C++ versions of C standard header
+// BSL_NATIVE_CPP_DEPRECATED_HEADER(header): path to deprecated C++ STD header
+// BSL_NATIVE_C_LIB_HEADER(header): path to C standard header (end in '.h')
 //
 //@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
 //

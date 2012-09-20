@@ -13,17 +13,17 @@ BSLS_IDENT("$Id: $")
 //  bsls::BslTestUtil: utilities to aid writing 'bsl' test drivers
 //
 //@MACROS:
-//  BSLS_BSLTESTUTIL_LOOP_ASSERT(I, X)
-//  BSLS_BSLTESTUTIL_LOOP2_ASSERT(I, J, X)
-//  BSLS_BSLTESTUTIL_LOOP3_ASSERT(I, J, K, X)
-//  BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, X)
-//  BSLS_BSLTESTUTIL_LOOP5_ASSERT(I, J, K, L, M, X)
-//  BSLS_BSLTESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, X)
-//  BSLS_BSLTESTUTIL_Q(X)
-//  BSLS_BSLTESTUTIL_P(X)
-//  BSLS_BSLTESTUTIL_P_(X)
-//  BSLS_BSLTESTUTIL_L_
-//  BSLS_BSLTESTUTIL_T_
+//  BSLS_BSLTESTUTIL_LOOP_ASSERT(I, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP2_ASSERT(I, J, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP3_ASSERT(I, J, K, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP5_ASSERT(I, J, K, L, M, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_Q(X): quote identifier literally
+//  BSLS_BSLTESTUTIL_P(X): print identifier and value
+//  BSLS_BSLTESTUTIL_P_(X): print identifer and value without '\n'
+//  BSLS_BSLTESTUTIL_L_: current line number
+//  BSLS_BSLTESTUTIL_T_: print tab without '\n'
 //
 //@AUTHOR: Alisdair Meredith (ameredit), Chen He (che2)
 //
