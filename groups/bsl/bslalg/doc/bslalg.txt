@@ -15,8 +15,8 @@
 
  In addition to the various traits "tag" types, this package also provide
  implementations of said primitive algorithms (used to implement STL containers
- and other standard components in the 'bslstl' and 'bslstp' packages) that take
- advantage of these traits.
+ and other standard components in the 'bslstl' package) that take advantage of
+ these traits.
 
  This package group documentation is a stem.  It should be expanded with a
  lesson in the usage of type traits.  For now, please consult the individual

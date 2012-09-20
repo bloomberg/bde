@@ -41,7 +41,7 @@
 :    Provides macros for relative paths to native STL headers.
 :
 
- The other headers of this package fall have one of two purposes:
+ The other headers of this package have one of two purposes:
 
 : o Provide backwards compatibility for STLPort header
 :   o 'exception.h'

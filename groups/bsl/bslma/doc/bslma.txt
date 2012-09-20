@@ -285,7 +285,7 @@
  Characteristics differentiating among 'bslma' memory-allocation objects *in*
  *general* are:
 
-: o Whether or not the object isA 'bslma::Allocator'.
+: o Whether or not the object is a 'bslma::Allocator'.
 :
 : o Whether or not the allocator supports memory reuse.
 :
@@ -531,8 +531,7 @@ Allocator         |                       |                         |
 
 /Usage
 /-----
-: 1 Using 'bslma_SequentialAllocator' for an ODBC/JDBC-like database driver.
-: 2 Sketch use of 'bslma_BufferAllocator'.
+ This section illustrates intended use of this component.
 
 /Example 1: 'bslma_SequentialAllocator' for a Database Driver
 / - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
