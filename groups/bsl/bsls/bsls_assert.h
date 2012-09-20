@@ -14,9 +14,9 @@ BSLS_IDENT("$Id: $")
 //  bsls::AssertFailureHandlerGuard: scoped guard for changing handlers safely
 //
 //@MACROS:
-// BSLS_ASSERT: inexpensive optional runtime check
-// BSLS_ASSERT_SAFE: expensive optional runtime check
-// BSLS_ASSERT_OPT: negligible optional rutime check
+// BSLS_ASSERT: runtime check typically enabled in safe and non-opt build modes
+// BSLS_ASSERT_SAFE: runtime check typically only enabled in safe build modes
+// BSLS_ASSERT_OPT: runtime check typically enabled in all build modes
 //
 //@SEE_ALSO: bsls_buildtarget
 //
