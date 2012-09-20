@@ -9,15 +9,17 @@
 
 #include <bsls_alignedbuffer.h>     // for testing only
 #include <bsls_alignmentutil.h>     // for testing only
+#include <bsls_bsltestutil.h>
 #include <bsls_types.h>      // for testing only
 
-#include <climits>
-#include <cstdlib>                  // atoi()
-#include <cstring>                  // memset(), memcpy()
-#include <iostream>
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <new>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                  TEST PLAN
@@ -89,52 +91,55 @@ using namespace std;
 // [4] Optional Buffer Test
 // [2] Ensure internal buffer grows as specified (goal 2)
 // [1] int blockSize(numBytes);
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
 
+//=============================================================================
+//                  STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+static void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                    STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define A(X) printf( #X " = %p\n", (void *) (X)); // Print address
+#define A_(X) printf( #X " = %p, ", (void *) (X));
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << '\t' << #L << ": " << L << "\n"; \
-              aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                      SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-                                              // Print identifier and pointer.
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
-#define A(X) cout << #X " = " << (void *) (X) << endl; // Print address
-#define A_(X) cout << #X " = " << (void *) (X) << ", " << flush;
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -459,7 +464,7 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
       case 6: {
@@ -470,8 +475,8 @@ int main(int argc, char *argv[])
         //   USAGE TEST - Make sure main usage example compiles and works.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE TEST" << endl
-                                  << "==========" << endl;
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
         bslma::TestAllocator ta(veryVeryVerbose);
         {
@@ -562,14 +567,14 @@ int main(int argc, char *argv[])
         //   void *allocate(int size);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "INITIAL SIZE TEST" << endl
-                                  << "=================" << endl;
+        if (verbose) printf("\nINITIAL SIZE TEST"
+                            "\n=================\n");
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             // Test constructors that used initial size.
 
             if (veryVerbose) {
-               cout << "a.  Initial Size Test." << endl;
+               printf("a.  Initial Size Test.\n");
             }
             struct Block {
                 Block                               *d_next_p;
@@ -638,8 +643,7 @@ int main(int argc, char *argv[])
 
             bslma::SequentialPool mD(sizeD, 2, strategy, &ta);
             cBuffer = (char *)mD.allocate(MB);
-            ASSERT(blockSize(std::abs(ND)) + blockSize(MB)
-                                                        == ta.numBytesInUse());
+            ASSERT(blockSize(abs(ND)) + blockSize(MB) == ta.numBytesInUse());
             mD.release();
 
             int sizeE(NE);
@@ -648,7 +652,7 @@ int main(int argc, char *argv[])
             ASSERT(blockSize(-NE) + blockSize(MA) == ta.numBytesInUse());
             mE.release();
 
-            bslma::SequentialPool mF(sizeE, std::abs(NE) * 4, strategy, &ta);
+            bslma::SequentialPool mF(sizeE, abs(NE) * 4, strategy, &ta);
             cBuffer = (char *)mF.allocate(MA);
             ASSERT(blockSize(-NE) + blockSize(MA) == ta.numBytesInUse());
             mF.release();
@@ -772,8 +776,8 @@ int main(int argc, char *argv[])
         // void *allocate(int size);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "OPTIONAL BUFFER TEST" << endl
-                                  << "====================" << endl;
+        if (verbose) printf("\nOPTIONAL BUFFER TEST"
+                            "\n====================\n");
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
@@ -814,7 +818,7 @@ int main(int argc, char *argv[])
                 // Test the limits of the static buffer.
 
                 if (veryVerbose) {
-                   cout << "a.  Static buffer limits test." << endl;
+                   printf("a.  Static buffer limits test.\n");
                 }
                 {
                     // Allocating 63 bytes, 1 byte under the buffer size.  This
@@ -977,7 +981,7 @@ int main(int argc, char *argv[])
                 // allocator.  The static buffer is 64 bytes.
 
                 if (veryVerbose) {
-                   cout << "b.  Optional buffer constructor test." << endl;
+                   printf("b.  Optional buffer constructor test.\n");
                 }
                 {
                     bslma::SequentialPool mX(buffer,
@@ -1044,9 +1048,8 @@ int main(int argc, char *argv[])
                 // alignment.
 
                 if (veryVerbose) {
-                   cout << "c.  Static buffer test with alignment "
-                        << "considerations."
-                        << endl;
+                   printf("c.  Static buffer test with alignment "
+                          "considerations.\n");
                 }
                 {
                     // Allocate until static buffer is not completely full,
@@ -1153,8 +1156,7 @@ int main(int argc, char *argv[])
                 // pool.
 
                 if (veryVerbose) {
-                   cout << "d.  Large allocation with static buffer test."
-                        << endl;
+                   printf("d.  Large allocation with static buffer test.\n");
                 }
 
                 bslma::SequentialPool seqPool(buffer, bufferSize,
@@ -1172,7 +1174,7 @@ int main(int argc, char *argv[])
                 // though the internal block list.
 
                 if (veryVerbose) {
-                   cout << "e.  Empty static buffer test." << endl;
+                   printf("e.  Empty static buffer test.\n");
                 }
 
                 bslma::SequentialPool seqPool(buffer, 0, strategy, &ta);
@@ -1190,7 +1192,7 @@ int main(int argc, char *argv[])
                 // is destroyed, the static buffer should not be deallocated.
 
                 if (veryVerbose) {
-                   cout << "f.  Don't deallocate static memory test." << endl;
+                   printf("f.  Don't deallocate static memory test.\n");
                 }
 
                 const int NA = 128;
@@ -1221,8 +1223,8 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "RELEASE TEST" << endl
-                                  << "============" << endl;
+        if (verbose) printf("\nRELEASE TEST"
+                            "\n============\n");
 
         typedef bslma::BufferAllocator BA;
 
@@ -1402,8 +1404,8 @@ int main(int argc, char *argv[])
         //   void *allocate(int size);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "ALLOCATE TEST" << endl
-                                  << "=============" << endl;
+        if (verbose) printf("\nALLOCATE TEST"
+                            "\n=============\n");
 
         const int DATA[]   = { 0, 1, 5, 7, 8, 15, 16, 24, 31, 32, 33, 48,
                                63, 64, 65, 66, 127, 128, 129, 255, 256,
@@ -1414,7 +1416,7 @@ int main(int argc, char *argv[])
         AlignStrategy NATURAL_ALIGNMENT = BufferAllocator::NATURAL_ALIGNMENT;
 
         if (verbose) {
-            cout << "\nTesting default constructor" << endl;
+            printf("\nTesting default constructor\n");
         }
         {
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -1446,7 +1448,7 @@ int main(int argc, char *argv[])
                             blockSize(INITIAL_SIZE * 2) == tc.numBytesInUse());
                 }
                 else {
-                    int nextSize = calculateNextSize(std::abs(INITIAL_SIZE),
+                    int nextSize = calculateNextSize(abs(INITIAL_SIZE),
                                                      SIZE);
                     LOOP4_ASSERT(i, SIZE, blockSize(nextSize),
                                  ta.numBytesInUse(),
@@ -1460,7 +1462,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'initialSize' constructor" << endl;
+            printf("\nTesting 'initialSize' constructor\n");
         }
         {
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -1493,14 +1495,14 @@ int main(int argc, char *argv[])
                     mY.allocate(SIZE);
                     mZ.allocate(SIZE);
 
-                    if (SIZE <= std::abs(INITIAL_SIZE)) {
+                    if (SIZE <= abs(INITIAL_SIZE)) {
                         LOOP_ASSERT(i, NA == ta.numBytesInUse());
                         LOOP_ASSERT(i, NB == tb.numBytesInUse());
                         LOOP_ASSERT(i, NC == tc.numBytesInUse());
                     }
                     else if (INITIAL_SIZE < 0) {
                         int nextSize = calculateNextSize(
-                                                 std::abs(INITIAL_SIZE), SIZE);
+                                                      abs(INITIAL_SIZE), SIZE);
                         LOOP3_ASSERT(i, NA + blockSize(nextSize),
                                      ta.numBytesInUse(),
                                      NA + blockSize(nextSize)
@@ -1533,8 +1535,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'initialSize' and 'maxBufferSize' constructor"
-                 << endl;
+           printf("\nTesting 'initialSize' and 'maxBufferSize' constructor\n");
         }
         {
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -1558,9 +1559,9 @@ int main(int argc, char *argv[])
                     const int NUM_MAX_SIZES = 3;
                     int MAX_SIZES[NUM_MAX_SIZES];
                     if (INITIAL_SIZE < 0) {
-                        MAX_SIZES[0] = std::abs(INITIAL_SIZE) * 2;
-                        MAX_SIZES[1] = std::abs(INITIAL_SIZE) * 4;
-                        MAX_SIZES[2] = std::abs(INITIAL_SIZE) * 8;
+                        MAX_SIZES[0] = abs(INITIAL_SIZE) * 2;
+                        MAX_SIZES[1] = abs(INITIAL_SIZE) * 4;
+                        MAX_SIZES[2] = abs(INITIAL_SIZE) * 8;
                     }
                     else {
                         MAX_SIZES[0] = INT_MAX;
@@ -1585,7 +1586,7 @@ int main(int argc, char *argv[])
                         mY.allocate(SIZE);
                         mZ.allocate(SIZE);
 
-                        if (SIZE <= std::abs(INITIAL_SIZE)) {
+                        if (SIZE <= abs(INITIAL_SIZE)) {
                             LOOP_ASSERT(i, NA == ta.numBytesInUse());
                             LOOP_ASSERT(i, NB == tb.numBytesInUse());
                             LOOP_ASSERT(i, NC == tc.numBytesInUse());
@@ -1593,7 +1594,7 @@ int main(int argc, char *argv[])
                         else if (INITIAL_SIZE < 0) {
                             if (SIZE < MAX_SIZE) {
                                 int nextSize = calculateNextSize(
-                                       std::abs(INITIAL_SIZE), SIZE, MAX_SIZE);
+                                            abs(INITIAL_SIZE), SIZE, MAX_SIZE);
                                 LOOP_ASSERT(i, NA + blockSize(nextSize)
                                                         == ta.numBytesInUse());
                                 LOOP_ASSERT(i, NB + blockSize(nextSize)
@@ -1634,7 +1635,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting constructor supplying a buffer" << endl;
+            printf("\nTesting constructor supplying a buffer\n");
         }
         {
             const int BUFFER_SIZE = 2048;
@@ -1678,14 +1679,14 @@ int main(int argc, char *argv[])
                     mY.allocate(SIZE);
                     mZ.allocate(SIZE);
 
-                    if (SIZE <= std::abs(INITIAL_SIZE)) {
+                    if (SIZE <= abs(INITIAL_SIZE)) {
                         LOOP_ASSERT(i, 0 == ta.numBytesInUse());
                         LOOP_ASSERT(i, 0 == tb.numBytesInUse());
                         LOOP_ASSERT(i, 0 == tc.numBytesInUse());
                     }
                     else if (INITIAL_SIZE < 0) {
                         int nextSize = calculateNextSize(
-                                                 std::abs(INITIAL_SIZE), SIZE);
+                                                      abs(INITIAL_SIZE), SIZE);
                         LOOP_ASSERT(i, blockSize(nextSize)
                                                         == ta.numBytesInUse());
                         LOOP_ASSERT(i, blockSize(nextSize)
@@ -1716,8 +1717,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting constructor supplying a buffer"
-                 << " and maxBufferSize" << endl;
+            printf("\nTesting constructor supplying a buffer"
+                   " and maxBufferSize\n");
         }
         {
             const int BUFFER_SIZE = 2048;
@@ -1752,9 +1753,9 @@ int main(int argc, char *argv[])
                     const int NUM_MAX_SIZES = 3;
                     int MAX_SIZES[NUM_MAX_SIZES];
                     if (INITIAL_SIZE < 0) {
-                        MAX_SIZES[0] = std::abs(INITIAL_SIZE) * 2;
-                        MAX_SIZES[1] = std::abs(INITIAL_SIZE) * 4;
-                        MAX_SIZES[2] = std::abs(INITIAL_SIZE) * 8;
+                        MAX_SIZES[0] = abs(INITIAL_SIZE) * 2;
+                        MAX_SIZES[1] = abs(INITIAL_SIZE) * 4;
+                        MAX_SIZES[2] = abs(INITIAL_SIZE) * 8;
                     }
                     else {
                         MAX_SIZES[0] = INT_MAX;
@@ -1779,7 +1780,7 @@ int main(int argc, char *argv[])
                         mY.allocate(SIZE);
                         mZ.allocate(SIZE);
 
-                        if (SIZE <= std::abs(INITIAL_SIZE)) {
+                        if (SIZE <= abs(INITIAL_SIZE)) {
                             LOOP_ASSERT(i, 0 == ta.numBytesInUse());
                             LOOP_ASSERT(i, 0 == tb.numBytesInUse());
                             LOOP_ASSERT(i, 0 == tc.numBytesInUse());
@@ -1787,7 +1788,7 @@ int main(int argc, char *argv[])
                         else if (INITIAL_SIZE < 0) {
                             if (SIZE < MAX_SIZE) {
                                 int nextSize = calculateNextSize(
-                                       std::abs(INITIAL_SIZE), SIZE, MAX_SIZE);
+                                            abs(INITIAL_SIZE), SIZE, MAX_SIZE);
                                 LOOP_ASSERT(i, blockSize(nextSize)
                                                         == ta.numBytesInUse());
                                 LOOP_ASSERT(i, blockSize(nextSize)
@@ -1828,7 +1829,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting the returned buffer" << endl;
+            printf("\nTesting the returned buffer\n");
         }
         {
             typedef bslma::BufferAllocator BA;
@@ -1845,9 +1846,8 @@ int main(int argc, char *argv[])
 
             for (int ai = MAXIMUM_ALIGNMENT; ai <= NATURAL_ALIGNMENT; ++ai) {
                 if (verbose)
-                    cout << "\nTesting 'allocate' w/ "
-                         << (MAXIMUM_ALIGNMENT == ai ? "maximum" : "natural")
-                         << " alignment." << endl;
+                    printf("\nTesting 'allocate' w/ %s alignment.\n",
+                           (MAXIMUM_ALIGNMENT == ai ? "maximum" : "natural"));
 
                 const BA::AlignmentStrategy STRATEGY = MAXIMUM_ALIGNMENT == ai
                     ? BA::MAXIMUM_ALIGNMENT
@@ -1917,10 +1917,10 @@ int main(int argc, char *argv[])
         //   int blockSize(numBytes);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "FILE-STATIC FUNCTION TEST" << endl
-                                  << "=========================" << endl;
+        if (verbose) printf("\nFILE-STATIC FUNCTION TEST"
+                            "\n=========================\n");
 
-        if (verbose) cout << "\nTesting 'blockSize'." << endl;
+        if (verbose) printf("\nTesting 'blockSize'.\n");
 
         const int DATA[] = { 0, 1, 5, 12, 24, 64, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1942,14 +1942,15 @@ int main(int argc, char *argv[])
         }
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 
