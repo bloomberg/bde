@@ -13,12 +13,10 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The objects under test are two meta-functions, 'bsl::is_function' and
-// 'bslmf::IsPointer', that determine whether a template parameter type is a
-// pointer type.  Thus, we need to ensure that the value returned by these
-// meta-functions are correct for each possible category of types.  Since the
-// two meta-functions are functionally equivalent, we will use the same set of
-// types for both.
+// The object under test is a meta-functions, 'bsl::is_function', which
+// determine whether a template parameter type is a function type.  Thus, we
+// need to ensure that the value returned by these meta-functions are correct
+// for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -33,7 +31,8 @@ using namespace BloombergLP;
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -62,13 +61,33 @@ static void aSsErT(int c, const char *s, int i) {
 
 namespace {
 
-struct TestType
-   // This user-defined type is intended to be used during testing as an
+enum   EnumTestType {
+   // This user-defined 'enum' type is intended to be used during testing as an
    // argument for the template parameter 'TYPE' of 'bsl::is_function'.
-{
 };
 
-typedef int (TestType::*MethodPtrTestType) ();
+struct StructTestType {
+   // This user-defined 'struct' type is intended to be used during testing as
+   // an argument for the template parameter 'TYPE' of 'bsl::is_function'.
+};
+
+union  UnionTestType {
+   // This user-defined 'union' type is intended to be used during testing as
+   // an argument for the template parameter 'TYPE' of 'bsl::is_function'.
+};
+
+class  BaseClassTestType {
+   // This user-defined base class type is intended to be used during testing
+   // as an argument for the template parameter 'TYPE' of 'bsl::is_function'.
+};
+
+class  DerivedClassTestType : public BaseClassTestType {
+   // This user-defined derived class type is intended to be used during
+   // testing as an argument for the template parameter 'TYPE' of
+   // 'bsl::is_function'.
+};
+
+typedef int (StructTestType::*MethodPtrTestType) ();
     // This non-static function member type is intended to be used during
     // testing as an argument for the template parameter 'TYPE' of
     // 'bsl::is_function'.
@@ -78,25 +97,41 @@ typedef void (*FunctionPtrTestType) ();
     // argument as an argument for the template parameter 'TYPE' of
     // 'bsl::is_function'.
 
+typedef int StructTestType::* PMD;
+    // This class public data member pointer type is intended to be used during
+    // testing as an argument as an argument for the template parameter 'TYPE'
+    // of 'bsl::is_function'.
+
+struct Incomplete;
+    // This incomplete 'struct' type is intended to be used during testing as
+    // an argument as an argument for the template parameter 'TYPE' of
+    // 'bsl::is_function'.
+
 }  // close unnamed namespace
 
-#define TYPE_ASSERT_PREFIX(TYPE, result)                             \
-    ASSERT(result == bsl::is_function<TYPE>::value);                 \
-    ASSERT(result == bsl::is_function<const TYPE>::value);           \
-    ASSERT(result == bsl::is_function<volatile TYPE>::value);        \
-    ASSERT(result == bsl::is_function<const volatile TYPE>::value);
+#define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result)       \
+    ASSERT(result == META_FUNC<TYPE>::value);                 \
+    ASSERT(result == META_FUNC<const TYPE>::value);           \
+    ASSERT(result == META_FUNC<volatile TYPE>::value);        \
+    ASSERT(result == META_FUNC<const volatile TYPE>::value);
 
-#define TYPE_ASSERT_SUFFIX(TYPE, result)                             \
-    ASSERT(result == bsl::is_function<TYPE>::value);                 \
-    ASSERT(result == bsl::is_function<TYPE const>::value);           \
-    ASSERT(result == bsl::is_function<TYPE volatile>::value);        \
-    ASSERT(result == bsl::is_function<TYPE const volatile>::value);
+#define TYPE_ASSERT_CVQ_SUFFIX(META_FUNC, TYPE, result)       \
+    ASSERT(result == META_FUNC<TYPE>::value);                 \
+    ASSERT(result == META_FUNC<TYPE const>::value);           \
+    ASSERT(result == META_FUNC<TYPE volatile>::value);        \
+    ASSERT(result == META_FUNC<TYPE const volatile>::value);
 
-#define TYPE_ASSERT(TYPE, result)                     \
-    TYPE_ASSERT_PREFIX(TYPE, result);                 \
-    TYPE_ASSERT_PREFIX(TYPE const, result);           \
-    TYPE_ASSERT_PREFIX(TYPE volatile, result);        \
-    TYPE_ASSERT_PREFIX(TYPE const volatile, result);  \
+#define TYPE_ASSERT_CVQ_REF(META_FUNC, TYPE, result)           \
+    ASSERT(result == META_FUNC<TYPE&>::value);                 \
+    ASSERT(result == META_FUNC<TYPE const&>::value);           \
+    ASSERT(result == META_FUNC<TYPE volatile&>::value);        \
+    ASSERT(result == META_FUNC<TYPE const volatile&>::value);
+
+#define TYPE_ASSERT_CVQ(META_FUNC, TYPE, result)                     \
+    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result);                 \
+    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const, result);           \
+    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE volatile, result);        \
+    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const volatile, result);  \
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -118,7 +153,7 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Verify Function Types
 /// - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a pointer type.
+// Suppose that we want to assert whether a particular type is a function type.
 //
 // Now, we instantiate the 'bsl::is_function' template for a non-function type
 // and a function type, and assert the 'value' static data member of each
@@ -137,20 +172,16 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 'is_function::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) primitve type.
+        //:   cv-qualified) primitive type.
         //
         //: 2 'is_function::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) user-defined type.
         //:
-        //: 3 'is_function::value' is 'false' when 'TYPE' is a pointer to a
-        //:   non-static member (that may be const-qualified or
-        //:   volatile-qualifie.
+        //: 3 'is_function::value' is 'false' when 'TYPE' is a (possibly
+        //:   cv-qualified) pointer type.
         //:
-        //: 4 'is_function::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualifie) pointer to a (possibly cv-qualifie) type.
-        //:
-        //: 5 'is_function::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualifie) function type.
+        //: 4 'is_function::value' is 'true' when 'TYPE' is a (possibly
+        //:   cv-qualified) function type.
         //
         // Plan:
         //   Verify that 'bsl::is_function::value' has the correct value for
@@ -165,24 +196,55 @@ int main(int argc, char *argv[])
                           << "======================" << endl;
 
         // C-1
-        TYPE_ASSERT_SUFFIX(int, false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, void, false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, int,  false);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_function, int,  false);
 
         // C-2
-        TYPE_ASSERT_SUFFIX(TestType, false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, EnumTestType,         false);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_function, EnumTestType,         false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, StructTestType,       false);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_function, StructTestType,       false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, UnionTestType,        false);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_function, UnionTestType,        false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, BaseClassTestType,    false);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_function, BaseClassTestType,    false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, DerivedClassTestType, false);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_function, DerivedClassTestType, false);
 
         // C-3
-        TYPE_ASSERT_SUFFIX(MethodPtrTestType, false);
+        TYPE_ASSERT_CVQ(bsl::is_function, int*,                       false);
+        TYPE_ASSERT_CVQ(bsl::is_function, StructTestType*,            false);
+        TYPE_ASSERT_CVQ(bsl::is_function, int StructTestType::*,      false);
+        TYPE_ASSERT_CVQ(bsl::is_function, int StructTestType::* *,    false);
+        TYPE_ASSERT_CVQ(bsl::is_function, UnionTestType*,             false);
+        TYPE_ASSERT_CVQ(bsl::is_function, PMD BaseClassTestType::*,   false);
+        TYPE_ASSERT_CVQ(bsl::is_function, PMD BaseClassTestType::* *, false);
+        TYPE_ASSERT_CVQ(bsl::is_function, BaseClassTestType*,         false);
+        TYPE_ASSERT_CVQ(bsl::is_function, DerivedClassTestType*,      false);
+        TYPE_ASSERT_CVQ(bsl::is_function, Incomplete*,                false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, MethodPtrTestType,   false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, FunctionPtrTestType, false);
+
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, int*,                     false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, StructTestType*,          false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, int StructTestType::*,    false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, int StructTestType::* *,  false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, UnionTestType*,           false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, PMD BaseClassTestType::*, false);
+        TYPE_ASSERT_CVQ_REF(
+                          bsl::is_function, PMD BaseClassTestType::* *, false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, BaseClassTestType*,       false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, DerivedClassTestType*,    false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, Incomplete*,              false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, MethodPtrTestType,        false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, FunctionPtrTestType,      false);
 
         // C-4
-        TYPE_ASSERT(int*, false);
-        TYPE_ASSERT(TestType*, false);
-        TYPE_ASSERT(FunctionPtrTestType*, false);
-
-        // C-5
-        TYPE_ASSERT_PREFIX(int  (int),  true);
-        TYPE_ASSERT_PREFIX(void (void), true);
-        TYPE_ASSERT_PREFIX(int  (void), true);
-        TYPE_ASSERT_PREFIX(void (int),  true);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, int  (int),  true);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, void (void), true);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, int  (void), true);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, void (int),  true);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
@@ -191,9 +253,17 @@ int main(int argc, char *argv[])
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = "
-             << testStatus << "." << endl;
+        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
 
     return testStatus;
 }
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------
