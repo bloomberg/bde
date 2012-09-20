@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a meta-functions, 'bsl::is_function',
+//@DESCRIPTION: This component defines a meta-function, 'bsl::is_function',
 // which may be used to query whether a type is a function type.
 //
 // 'bsl::is_function' meets the requirements of the 'is_function' template
