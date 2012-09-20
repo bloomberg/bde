@@ -9,6 +9,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <new>
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -94,24 +96,222 @@ void aSsErT(bool b, const char *s, int i)
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-#ifdef BSLS_PLATFORM__CPU_32_BIT
-#define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
-#else  // 64_BIT
-#define SUFFICIENTLY_LONG_STRING "12345678901234567890123456789012" \
-                                 "123456789012345678901234567890123"
-#endif
-//BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 
 class TestType1 {
-    static bool s_constructedFlag;
+    // CLASS DATA
+    static int s_numConstructions;
+
+    // DATA
+    int d_value;
 
   public:
-    TestType1() { s_constructedFlag = true; }
-    static bool isConstructed() { return s_constructedFlag; }
-    static void reset() { s_constructedFlag = false; }
+    // CLASS METHODS
+    static int numConstructions() { return s_numConstructions; }
+
+    // CREATORS
+    explicit
+    TestType1(int i) : d_value(i) { ++s_numConstructions; }
+    ~TestType1()                  { --s_numConstructions; }
+
+    // MANIPULATOR
+    void set(int i) { d_value = i; }
+
+    // ACCESSOR
+    int get() const { return d_value; }
 };
 
-bool TestType1::s_constructedFlag = false;
+int TestType1::s_numConstructions = 0;
+
+//=============================================================================
+//                              USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+// Suppose we want to create a linked list template class, it will be called
+// 'MyList'.
+//
+// First, we create the iterator helper class, which will eventually be
+// defined as a nested type within the 'MyList' class.
+
+                            // ===============
+                            // MyList_Iterator
+                            // ===============
+
+template <typename PAYLOAD>
+class MyList_Iterator {
+    // PRIVATE TYPES
+    typedef bslalg::BidirectionalNode<PAYLOAD> Node;
+
+    // DATA
+    Node *d_node;
+
+    // FRIENDS
+    template <typename PL>
+    friend bool operator==(MyList_Iterator<PL>,
+                           MyList_Iterator<PL>);
+
+  public:
+    // CREATORS
+    MyList_Iterator() : d_node(0) {}
+    explicit
+    MyList_Iterator(Node *node) : d_node(node) {}
+    //! MyList_Iterator(const MyList_Iterator& original) = default;
+    //! MyList_Iterator& operator=(const MyList_Iterator& other) = default;
+    //! ~MyList_Iterator() = default;
+
+    // MANIPULATORS
+    MyList_Iterator operator++();
+
+    // ACCESSORS
+    PAYLOAD& operator*() const { return d_node->value(); }
+};
+
+// Then, we define our 'MyList' class, with 'MyList::Iterator' being a public
+// typedef of 'MyList_Iterator'.  For brevity, we will omit a lot of
+// functionality that a full, general-purpose list class would have,
+// implmenting only what we will need for this example.
+
+                                // ======
+                                // MyList
+                                // ======
+
+template <typename PAYLOAD>
+class MyList {
+    // PRIVATE TYPES
+    typedef bslalg::BidirectionalNode<PAYLOAD> Node;
+
+  public:
+    // PUBLIC TYPES
+    typedef PAYLOAD                            ValueType;
+    typedef MyList_Iterator<ValueType>         Iterator;
+
+    // DATA
+    Node             *d_begin;
+    Node             *d_end;
+    bslma::Allocator *d_allocator_p;
+
+  public:
+    // CREATORS
+    explicit
+    MyList(bslma::Allocator *basicAllocator)
+    : d_begin(0)
+    , d_end(0)
+    , d_allocator_p(basicAllocator)
+    {}
+
+    ~MyList();
+
+    // MANIPULATORS
+    Iterator begin();
+    Iterator end();
+    void pushBack(const ValueType& value);
+    void popBack();
+};
+
+// Next, we implment the functions for the iterator type.
+
+                            // ---------------
+                            // MyList_Iterator
+                            // ---------------
+
+// MANIPULATORS
+template <typename PAYLOAD>
+MyList_Iterator<PAYLOAD> MyList_Iterator<PAYLOAD>::operator++()
+{
+    d_node = (Node *) d_node->nextLink();
+    return *this;
+}
+
+template <typename PAYLOAD>
+inline
+bool operator==(MyList_Iterator<PAYLOAD> lhs,
+                MyList_Iterator<PAYLOAD> rhs)
+{
+    return lhs.d_node == rhs.d_node;
+}
+
+template <typename PAYLOAD>
+inline
+bool operator!=(MyList_Iterator<PAYLOAD> lhs,
+                MyList_Iterator<PAYLOAD> rhs)
+{
+    return !(lhs == rhs);
+}
+
+// Then, we implement the functions for the 'MyList' class:
+
+                                // ------
+                                // MyList
+                                // ------
+
+// CREATORS
+template <typename PAYLOAD>
+MyList<PAYLOAD>::~MyList()
+{
+    typedef bslalg::BidirectionalLink BDL;
+
+    for (Node *p = d_begin; p; ) {
+        Node *condemned = p;
+        p = (Node *) p->nextLink();
+
+        condemned->value().~ValueType();
+        d_allocator_p->deleteObjectRaw(static_cast<BDL *>(condemned));
+    }
+}
+
+// MANIPULATORS
+template <typename PAYLOAD>
+typename MyList<PAYLOAD>::Iterator MyList<PAYLOAD>::begin()
+{
+    return Iterator(d_begin);
+}
+
+template <typename PAYLOAD>
+typename MyList<PAYLOAD>::Iterator MyList<PAYLOAD>::end()
+{
+    return Iterator(0);
+}
+
+template <typename PAYLOAD>
+void MyList<PAYLOAD>::pushBack(const PAYLOAD& value)
+{
+    Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
+    node->setNextLink(0);
+    node->setPreviousLink(d_end);
+    new (&node->value()) ValueType(value);
+
+    if (d_end) {
+        BSLS_ASSERT_SAFE(d_begin);
+
+        d_end->setNextLink(node);
+        d_end = node;
+    }
+    else {
+        BSLS_ASSERT_SAFE(0 == d_begin);
+
+        d_begin = d_end = node;
+    }
+}
+
+template <typename PAYLOAD>
+void MyList<PAYLOAD>::popBack()
+{
+    BSLS_ASSERT_SAFE(d_begin && d_end);
+
+    Node *condemned = d_end;
+    d_end = (Node *) d_end->previousLink();
+
+    if (d_begin != condemned) {
+        BSLS_ASSERT_SAFE(0 != d_end);
+        d_end->setNextLink(0);
+    }
+    else {
+        BSLS_ASSERT_SAFE(0 == d_end);
+        d_begin = 0;
+    }
+
+    condemned->value().~ValueType();
+    d_allocator_p->deallocate(condemned);
+}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -121,8 +321,8 @@ int main(int argc, char *argv[])
 {
     int  test                = argc > 1 ? atoi(argv[1]) : 0;
     bool verbose             = argc > 2;
-    bool veryVerbose         = argc > 3;
-    bool veryVeryVerbose     = argc > 4;
+//  bool veryVerbose         = argc > 3;
+//  bool veryVeryVerbose     = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
@@ -133,7 +333,76 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-#if 0
+      case 3: {
+        // --------------------------------------------------------------------
+        // USAGE
+        //
+        // Concern:
+        //   Demonstrate the usefulness of the 'BidirectionalNode' type.
+        //
+        // Plan:
+        //   Use it to build a linked list.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+// Next, we have finished implmenting our 'MyList' class and its 'Iterator'
+// type, we will use one to store a fibonacci sequence of ints.  We declare the
+// memory allocator that we will use:
+
+        bslma::TestAllocator oa("oa");
+
+// Then, we enter a block and declare our list 'fibonacciList' to contain the
+// sequence:
+
+        {
+            MyList<int> fibonacciList(&oa);
+            typedef MyList<int>::Iterator Iterator;
+
+            {
+// Next, we initialize the list to containing the first 2 values, '0' and '1':
+
+                fibonacciList.pushBack(0);
+                fibonacciList.pushBack(1);
+
+// Then, we create iterators 'first' and 'second' and point them to those first
+// two elements:
+
+                Iterator first  = fibonacciList.begin();
+                Iterator second = first;
+                ++second;
+
+                ASSERT(0 == *first);
+                ASSERT(1 == *second);
+
+// Next, we iterate a dozen times, each time adding a new element to the end of
+// the list containing a value that is the sum of the values of the previous
+// two elements:
+
+                for (int i = 0; i < 12; ++i, ++first, ++second) {
+                    fibonacciList.pushBack(*first + *second);
+                }
+            }
+
+// Now, we traverse the list and print out its elements:
+
+            if (verbose) printf("Fibonacci Numbers: ");
+
+            const Iterator begin = fibonacciList.begin();
+            const Iterator end   = fibonacciList.end();
+            for (Iterator it = begin; end != it; ++it) {
+                if (verbose) printf("%s%d", begin == it ? "" : ", ", *it);
+            }
+            if (verbose) printf("\n");
+        }
+
+// Finally, we check the allocator and verify that it's been used, and that
+// the destruction of 'fibonacciList' freed all the memory allocated:
+
+        ASSERT(oa.numBlocksTotal() > 0);
+        ASSERT(0 == oa.numBlocksInUse());
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS AND BASIC ACCESSORS
@@ -146,98 +415,85 @@ int main(int argc, char *argv[])
         //: 3 Accessor is declared const.
         //
         // Plan:
-        //: 1 Create a 'BidirectionalNode' with 'VALUE_TYPE' as 'int' and set 'value'
-        //:   distinct numbers.  Verify the values are set with the accessor.
+        //: 1 Create a 'BidirectionalNode' with 'VALUE_TYPE' as 'int' and set
+        //:   'value' distinct numbers.  Verify the values are set with the
+        //:   accessor.
         //:
-        //: 2 Create a 'BidirectionalNode' with a type that has a constructor that can
-        //:   be verified if it has been invoked.  Verify that the constructor
-        //:   is invoked when 'allocator_traits::construct' is used.
+        //: 2 Create a 'BidirectionalNode' with a type that has a constructor
+        //:   that can be verified if it has been invoked.  Verify that the
+        //:   constructor is invoked when 'allocator_traits::construct' is
+        //:   used.
         //
         // Testing:
         //   VALUE_TYPE& value();
         //   const VALUE_TYPE& value() const;
         // --------------------------------------------------------------------
+
         bslma::TestAllocator da("default");
         bslma::TestAllocator oa("object");
 
         bslma::DefaultAllocatorGuard defaultGuard(&da);
 
-        if (verbose) printf("\nTesting manipulator and accessor for 'int'.\n");
+        if (verbose) printf("\nTesting for payload of 'int'.\n");
         {
-            typedef int Type;
-            typedef bslalg::BidirectionalNode<Type> Obj;
+            typedef bslalg::BidirectionalNode<int> Obj;
 
-            //typedef bsl::allocator<Obj>          Alloc;
-            //typedef bsl::allocator_traits<Alloc> AllocTraits;
+            typedef Obj::ValueType VT;
 
-            Alloc allocator(&oa);
-            Obj *xPtr = AllocTraits::allocate(allocator, 1);
+            Obj *xPtr = (Obj *) oa.allocate(sizeof(Obj));
             Obj& mX = *xPtr; const Obj& X = mX;
 
-            mX.value() = 0;
-            ASSERTV(X.value(), 0 == X.value());
+            ::new (&xPtr->value()) VT(7);
+            ASSERTV(X.value(), 7 == X.value());
 
-            mX.value() = 1;
-            ASSERTV(X.value(), 1 == X.value());
+            mX.value() = 5;
+            ASSERTV(X.value(),  5 == X.value());
 
-            mX.value() = INT_MAX;
-            ASSERTV(X.value(), INT_MAX == X.value());
+            mX.value() = 21;
+            ASSERTV(X.value(), 21 == X.value());
+
+            mX.value() = -3;
+            ASSERTV(X.value(), -3 == X.value());
 
             ASSERTV(0 == da.numBlocksTotal());
             ASSERTV(1 == oa.numBlocksInUse());
 
-            mX.value().~Type();
-            AllocTraits::deallocate(allocator, &mX, 1);
+            mX.value().~VT();
+            oa.deallocate(xPtr);
             ASSERTV(0 == oa.numBlocksInUse());
         }
 
-        if (verbose) printf(
-                         "\nTesting manipulator and accessor for 'string'.\n");
+        if (verbose) printf("\nTesting for payload of 'TestType1'.\n");
         {
-            //typedef bsl::string    Type;
-            typedef BidirectionalNode<Type> Obj;
+            typedef bslalg::BidirectionalNode<TestType1> Obj;
+            typedef Obj::ValueType VT;
 
-            //typedef bsl::allocator<Obj>          Alloc;
-            //typedef bsl::allocator_traits<Alloc> AllocTraits;
-
-            Alloc allocator(&oa);
-            Obj *xPtr = AllocTraits::allocate(allocator, 1);
+            Obj *xPtr = (Obj *) oa.allocate(sizeof(Obj));
             Obj& mX = *xPtr; const Obj& X = mX;
 
-            AllocTraits::construct(allocator,
-                                   bsls::Util::addressOf(mX.value()));
+            ::new (&xPtr->value()) Obj::ValueType(7);
+            ASSERTV(1 == TestType1::numConstructions());
+            ASSERTV(X.value().get(), 7 == X.value().get());
 
-            const char D[] = "";
-            const char A[] = "a_" SUFFICIENTLY_LONG_STRING;
+            mX.value().set(5);
+            ASSERTV(X.value().get(),  5 == X.value().get());
 
-            bslma::TestAllocator scratch("scratch");
-            const bsl::string B("ABC", &scratch);
+            mX.value().set(21);
+            ASSERTV(X.value().get(), 21 == X.value().get());
 
-            Type value(&scratch);
-
-            mX.value() = D;
-            value = X.value();
-            ASSERTV(value, D == value);
-            ASSERTV(1 == oa.numBlocksInUse());
-
-            mX.value() = A;
-            value = X.value();
-            ASSERTV(value, A == value);
-            ASSERTV(2 == oa.numBlocksInUse());
-
-            mX.value() = B;
-            value = X.value();
-            ASSERTV(value, B == value);
-            ASSERTV(2 == oa.numBlocksInUse());
+            mX.value().set(-3);
+            ASSERTV(X.value().get(), -3 == X.value().get());
 
             ASSERTV(0 == da.numBlocksTotal());
+            ASSERTV(1 == oa.numBlocksInUse());
 
-            mX.value().~Type();
-            AllocTraits::deallocate(allocator, &mX, 1);
+            mX.value().~VT();
+            oa.deallocate(&mX);
             ASSERTV(0 == oa.numBlocksInUse());
+
+            ASSERTV(0 == TestType1::numConstructions());
         }
       } break;
-#endif
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -261,7 +517,9 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard defaultGuard(&da);
 
         typedef bslalg::BidirectionalNode<int> Obj;
+
         Obj *xPtr = static_cast<Obj *>(da.allocate(sizeof(Obj)));
+        typedef bslalg::BidirectionalNode<int> Obj;
         Obj& mX = *xPtr; const Obj& X = mX;
 
         mX.value() = 0;
@@ -279,6 +537,8 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    ASSERTV(0 == TestType1::numConstructions());
 
     // CONCERN: In no case is memory allocated from the global allocator.
 
