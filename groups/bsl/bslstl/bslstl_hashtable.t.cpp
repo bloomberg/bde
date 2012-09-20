@@ -240,7 +240,7 @@ bool expectToAllocate(int n)
 
 
 
-template<class CONTAINER, class VALUES>
+template<class KEY_CONFIG, class CONTAINER, class VALUES>
 int verifyContainer(const CONTAINER& container,
                     const VALUES&    expectedValues,
                     size_t           expectedSize)
@@ -249,6 +249,8 @@ int verifyContainer(const CONTAINER& container,
     // Return 0 if 'container' has the expected values, and a non-zero value
     // otherwise.
 {
+    typedef typename KEY_CONFIG::ValueType ValueType;
+
     ASSERTV(expectedSize, container.size(), expectedSize == container.size());
 
     if(expectedSize != container.size()) {
@@ -257,21 +259,20 @@ int verifyContainer(const CONTAINER& container,
 
     // Check to avoid creating an array of length zero.
     if (0 == expectedSize) {
-        ASSERTV(container.empty());
+        ASSERTV(container.isEmpty());
         return 0;                                                     // RETURN
     }
 
-    typedef typename CONTAINER::const_iterator CIter;
-
     BoolArray foundValues(container.size());
     size_t i = 0;
-    for (CIter it = container.cbegin(); it != container.cend(); ++it, ++i) {
-        const int nextId = bsltf::TemplateTestFacility::getIdentifier(*it);
+    for (Link *it = container.elementListRoot(); it; it = it->nextLink(),++i) {
+        const ValueType& element = ImpUtil::extractKey<KEY_CONFIG>(it);
+        const int nextId = bsltf::TemplateTestFacility::getIdentifier(element);
         size_t j = 0;
         do {
             if (bsltf::TemplateTestFacility::getIdentifier(expectedValues[j])
                                                                    == nextId) {
-                ASSERTV(j, expectedValues[j], *it, !foundValues[j]);
+                ASSERTV(j, expectedValues[j], element, !foundValues[j]);
                 foundValues[j] = true;
                 break;
             }
@@ -284,7 +285,7 @@ int verifyContainer(const CONTAINER& container,
     }
 
     size_t missing = 0;
-    for (int j = 0; j != expectedSize; ++j) {
+    for (size_t j = 0; j != expectedSize; ++j) {
         if (!foundValues[j]) {
             ++missing;
         }
@@ -692,6 +693,10 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase4();
+
+    static void testCase3();
+
     static void testCase2();
 
     static void testCase1(KeyType                        *testKeys,
@@ -722,6 +727,10 @@ struct TestDriver_BasicConfiguation {
                       > Type;
 
     // TEST CASES
+    static void testCase4() { Type::testCase4(); }
+
+    static void testCase3() { Type::testCase3(); }
+
     static void testCase2() { Type::testCase2(); }
 };
 
@@ -734,6 +743,10 @@ struct TestDriver_StatefulConfiguation {
                       > Type;
 
     // TEST CASES
+    static void testCase4() { Type::testCase4(); }
+
+    static void testCase3() { Type::testCase3(); }
+
     static void testCase2() { Type::testCase2(); }
 };
 
@@ -741,10 +754,11 @@ struct TestDriver_StatefulConfiguation {
                                // TEST APPARATUS
                                // --------------
 
-template <class KEY_CONFIG, class HASH, class EQUAL, class ALLOC>
-int TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::ggg(Obj        *object,
-                                                    const char *spec,
-                                                    int         verbose)
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+int TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ggg(
+                                                           Obj        *object,
+                                                           const char *spec,
+                                                           int         verbose)
 {
     bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
@@ -753,7 +767,8 @@ int TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::ggg(Obj        *object,
 
     for (int i = 0; spec[i]; ++i) {
         if ('A' <= spec[i] && spec[i] <= 'Z') {
-            object->insert(VALUES[spec[i] - 'A']);
+//            object->insert(VALUES[spec[i] - 'A']);
+            insertElement(object, VALUES[spec[i] - 'A']);
         }
         else {
             if (verbose) {
@@ -769,25 +784,340 @@ int TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::ggg(Obj        *object,
    return SUCCESS;
 }
 
-template <class KEY_CONFIG, class HASH, class EQUAL, class ALLOC>
-bslstl::HashTable<KEY_CONFIG, HASH, EQUAL, ALLOC>&
-TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::gg(Obj        *object,
-                                               const char *spec)
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>&
+TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::gg(Obj        *object,
+                                                          const char *spec)
 {
     ASSERTV(ggg(object, spec) < 0);
     return *object;
 }
 
-template <class KEY_CONFIG, class HASH, class EQUAL, class ALLOC>
-bslstl::HashTable<KEY_CONFIG, HASH, EQUAL, ALLOC>
-TestDriver<KEY_CONFIG,HASH, EQUAL, ALLOC>::g(const char *spec)
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>
+TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::g(const char *spec)
 {
     Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
 
-template <class KEY_CONFIG, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
+{
+    // ------------------------------------------------------------------------
+    // BASIC ACCESSORS
+    //   Ensure each basic accessor:
+    //     - cbegin
+    //     - cend
+    //     - size
+    //     - get_allocator
+    //   properly interprets object state.
+    //
+    // Concerns:
+    //: 1 Each accessor returns the value of the correct property of the
+    //:   object.
+    //:
+    //: 2 Each accessor method is declared 'const'.
+    //:
+    //: 3 No accessor allocates any memory.
+    //:
+    //: 4 The range '[cbegin(), cend())' contains inserted elements, but not
+    //:   necessarily in any give order.
+    //
+    // Plan:
+    //: 1 For each set of 'SPEC' of different length:
+    //:
+    //:   1 Default construct the object with various configuration:
+    //:
+    //:     1 Use the 'gg' function to populate the object based on the SPEC.
+    //:
+    //:     2 Verify the correct allocator is installed with the
+    //:       'get_allocator' method.
+    //:
+    //:     3 Verify the object contains the expected number of elements.
+    //:
+    //:     4 Use 'cbegin' and 'cend' to iterate through all elements and
+    //:       verify the values are as expected.  (C-1..2, 4)
+    //:
+    //:     5 Monitor the memory allocated from both the default and object
+    //:       allocators before and after calling the accessor; verify that
+    //:       there is no change in total memory allocation.  (C-3)
+    //
+    // Testing:
+    //   bslalg::BidirectionalLink *elementListRoot() const;
+    //   bslalg::BidirectionalLink *find(const KeyType& key) const;
+    //   SizeType size() const;
+    //   ALLOCATOR allocator() const;
+    // ------------------------------------------------------------------------
+
+    static const struct {
+        int         d_line;                     // source line number
+        const char *d_spec;                     // specification string
+        const char *d_results;                  // expected results
+    } DATA[] = {
+        //line  spec      result
+        //----  --------  ------
+        { L_,   "",       ""      },
+        { L_,   "A",      "A"     },
+        { L_,   "AB",     "AB"    },
+        { L_,   "ABC",    "ABC"   },
+        { L_,   "ABCD",   "ABCD"  },
+        { L_,   "ABCDE",  "ABCDE" }
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    if (verbose) { printf(
+                "\nCreate objects with various allocator configurations.\n"); }
+    {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE   = DATA[ti].d_line;
+            const char *const SPEC   = DATA[ti].d_spec;
+            const int         LENGTH = strlen(DATA[ti].d_results);
+            const TestValues  EXP(DATA[ti].d_results);
+
+            if (verbose) { P_(LINE) P_(LENGTH) P(SPEC); }
+
+            for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
+                const char CONFIG = cfg;
+
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                bslma::TestAllocator sa1("supplied1",  veryVeryVeryVerbose);
+                bslma::TestAllocator sa2("supplied2",  veryVeryVeryVerbose);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                Obj                 *objPtr;
+                bslma::TestAllocator *objAllocatorPtr;
+
+                switch (CONFIG) {
+                  case 'a': {
+                      objPtr = new (fa) Obj();
+                      objAllocatorPtr = &da;
+                  } break;
+                  case 'b': {
+                      objPtr = new (fa) Obj((bslma::Allocator *)0);
+                      objAllocatorPtr = &da;
+                  } break;
+                  case 'c': {
+                      objPtr = new (fa) Obj(&sa1);
+                      objAllocatorPtr = &sa1;
+                  } break;
+                  case 'd': {
+                      objPtr = new (fa) Obj(&sa2);
+                      objAllocatorPtr = &sa2;
+                  } break;
+                  default: {
+                      ASSERTV(CONFIG, !"Bad allocator config.");
+                  } break;
+                }
+
+                Obj& mX = *objPtr;  const Obj& X = gg(&mX, SPEC);
+                bslma::TestAllocator&  oa = *objAllocatorPtr;
+                bslma::TestAllocator& noa = ('c' == CONFIG || 'd' == CONFIG)
+                                         ? da
+                                         : sa1;
+
+                // --------------------------------------------------------
+
+                // Verify basic accessor
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                ASSERTV(LINE, SPEC, CONFIG, &oa == X.allocator());
+                ASSERTV(LINE, SPEC, CONFIG, LENGTH == (int)X.size());
+
+                ASSERT(0 == verifyContainer<KEY_CONFIG>(X, EXP, LENGTH));
+
+                ASSERT(oam.isTotalSame());
+
+                // --------------------------------------------------------
+
+                // Reclaim dynamically allocated object under test.
+
+                fa.deleteObject(objPtr);
+
+                // Verify no allocation from the non-object allocator.
+
+                ASSERTV(LINE, CONFIG, noa.numBlocksTotal(),
+                        0 == noa.numBlocksTotal());
+
+                // Verify all memory is released on object destruction.
+
+                ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
+                        0 == da.numBlocksInUse());
+                ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                        0 == fa.numBlocksInUse());
+                ASSERTV(LINE, CONFIG, sa1.numBlocksInUse(),
+                        0 == sa1.numBlocksInUse());
+                ASSERTV(LINE, CONFIG, sa2.numBlocksInUse(),
+                        0 == sa2.numBlocksInUse());
+            }
+        }
+    }
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
+{
+    // ------------------------------------------------------------------------
+    // TESTING PRIMITIVE GENERATOR FUNCTIONS gg AND ggg:
+    //   Having demonstrated that our primary manipulators work as expected
+    //   under normal conditions
+    //
+    // Concerns:
+    //: 1 Valid generator syntax produces expected results
+    //:
+    //: 2 Invalid syntax is detected and reported.
+    //
+    // Plan:
+    //: 1 For each of an enumerated sequence of 'spec' values, ordered by
+    //:   increasing 'spec' length:
+    //:
+    //:   1 Use the primitive generator function 'gg' to set the state of a
+    //:     newly created object.
+    //:
+    //:   2 Verify that 'gg' returns a valid reference to the modified argument
+    //:     object.
+    //:
+    //:   3 Use the basic accessors to verify that the value of the object is
+    //:     as expected.  (C-1)
+    //:
+    //: 2 For each of an enumerated sequence of 'spec' values, ordered by
+    //:   increasing 'spec' length, use the primitive generator function 'ggg'
+    //:   to set the state of a newly created object.
+    //:
+    //:   1 Verify that 'ggg' returns the expected value corresponding to the
+    //:     location of the first invalid value of the 'spec'.  (C-2)
+    //
+    // Testing:
+    //   unordered_multiset<K,H,E,A>& gg(unordered_multiset<K,H,E,A> *object, const char *spec);
+    //   int ggg(unordered_multiset<K,H,E,A> *object, const char *spec, int verbose = 1);
+    // ------------------------------------------------------------------------
+
+    bslma::TestAllocator oa(veryVeryVerbose);
+
+    if (verbose) printf("\nTesting generator on valid specs.\n");
+    {
+        static const struct {
+            int         d_line;                 // source line number
+            const char *d_spec;                 // specification string
+            const char *d_results;  // expected element values
+        } DATA[] = {
+            //line  spec      results
+            //----  --------  -------
+            { L_,   "",       ""      },
+            { L_,   "A",      "A"     },
+            { L_,   "B",      "B"     },
+            { L_,   "AB",     "AB"    },
+            { L_,   "CD",     "CD"    },
+            { L_,   "ABC",    "ABC"   },
+            { L_,   "ABCD",   "ABCD"  },
+            { L_,   "ABCDE",  "ABCDE" },
+
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        int oldLen = -1;
+        for (int ti = 0; ti < NUM_DATA ; ++ti) {
+            const int         LINE   = DATA[ti].d_line;
+            const char *const SPEC   = DATA[ti].d_spec;
+            const size_t      LENGTH = strlen(DATA[ti].d_results);
+            const TestValues  EXP(DATA[ti].d_results);
+            const int         curLen = (int)strlen(SPEC);
+
+            Obj mX(&oa);
+            const Obj& X = gg(&mX, SPEC);   // original spec
+
+            Obj mY(&oa);
+            const Obj& Y = gg(&mY, SPEC);    // extended spec
+
+            if (curLen != oldLen) {
+                if (verbose) printf("\tof length %d:\n", curLen);
+                ASSERTV(LINE, oldLen <= curLen);  // non-decreasing
+                oldLen = curLen;
+            }
+
+            if (veryVerbose) {
+                printf("\t\tSpec = \"%s\"\n", SPEC);
+                T_ T_ T_ P(X);
+                T_ T_ T_ P(Y);
+            }
+
+            ASSERTV(LINE, LENGTH == X.size());
+            ASSERTV(LINE, LENGTH == Y.size());
+            ASSERT(0 == verifyContainer<KEY_CONFIG>(X, EXP, LENGTH));
+            ASSERT(0 == verifyContainer<KEY_CONFIG>(Y, EXP, LENGTH));
+        }
+    }
+
+    if (verbose) printf("\nTesting generator on invalid specs.\n");
+    {
+        static const struct {
+            int         d_line;     // source line number
+            const char *d_spec;     // specification string
+            int         d_index;    // offending character index
+        } DATA[] = {
+            //line  spec      index
+            //----  --------  -----
+            { L_,   "",       -1,     }, // control
+
+            { L_,   "A",      -1,     }, // control
+            { L_,   " ",       0,     },
+            { L_,   ".",       0,     },
+            { L_,   "E",       -1,    }, // control
+            { L_,   "a",       0,     },
+            { L_,   "z",       0,     },
+
+            { L_,   "AE",     -1,     }, // control
+            { L_,   "aE",      0,     },
+            { L_,   "Ae",      1,     },
+            { L_,   ".~",      0,     },
+            { L_,   "~!",      0,     },
+            { L_,   "  ",      0,     },
+
+            { L_,   "ABC",    -1,     }, // control
+            { L_,   " BC",     0,     },
+            { L_,   "A C",     1,     },
+            { L_,   "AB ",     2,     },
+            { L_,   "?#:",     0,     },
+            { L_,   "   ",     0,     },
+
+            { L_,   "ABCDE",  -1,     }, // control
+            { L_,   "aBCDE",   0,     },
+            { L_,   "ABcDE",   2,     },
+            { L_,   "ABCDe",   4,     },
+            { L_,   "AbCdE",   1,     }
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        int oldLen = -1;
+        for (int ti = 0; ti < NUM_DATA ; ++ti) {
+            const int         LINE   = DATA[ti].d_line;
+            const char *const SPEC   = DATA[ti].d_spec;
+            const int         INDEX  = DATA[ti].d_index;
+            const size_t      LENGTH = (int)strlen(SPEC);
+
+            Obj mX(&oa);
+
+            if ((int)LENGTH != oldLen) {
+                if (verbose) printf("\tof length %d:\n", LENGTH);
+                 ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
+                oldLen = LENGTH;
+            }
+
+            if (veryVerbose) printf("\t\tSpec = \"%s\"\n", SPEC);
+
+            int RESULT = ggg(&mX, SPEC, veryVerbose);
+
+            ASSERTV(LINE, INDEX == RESULT);
+        }
+    }
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 {
     // ------------------------------------------------------------------------
     // TESTING PRIMARY MANIPULATORS (BOOTSTRAP):
@@ -893,10 +1223,7 @@ void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
     //
     //
     // Testing:
-    //   HashTable(const HASHER&     hash,
-    //             const COMPARATOR& compare,
-    //             SizeType          initialBucketCount,
-    //             const ALLOCATOR&  allocator = ALLOCATOR())
+    //   default constructor (bootstrap) 
     //   ~HashTable();
     //   insertElement  (test driver function, proxy for basic manipulator)
     //   void removeAll();
@@ -939,15 +1266,15 @@ void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
 
             switch (CONFIG) {
               case 'a': {
-                  objPtr = new (fa) Obj(HASH(), EQUAL(), 0u);
+                  objPtr = new (fa) Obj();
                   objAllocatorPtr = &da;
               } break;
               case 'b': {
-                  objPtr = new (fa) Obj(HASH(), EQUAL(), 0u, (bslma::Allocator *)0);
+                  objPtr = new (fa) Obj((bslma::Allocator *)0);
                   objAllocatorPtr = &da;
               } break;
               case 'c': {
-                  objPtr = new (fa) Obj(HASH(), EQUAL(), 0u, &sa);
+                  objPtr = new (fa) Obj(&sa);
                   objAllocatorPtr = &sa;
               } break;
               default: {
@@ -1015,7 +1342,7 @@ void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
 
             ASSERTV(LENGTH, CONFIG, &bucket == &bucket2);
 
-        // ----------------------------------------------------------------
+            // ----------------------------------------------------------------
 
             if (veryVerbose) {
                 printf("\n\tTesting 'insertElement' (bootstrap function).\n");
@@ -1042,14 +1369,17 @@ void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     ExceptionGuard<Obj> guard(&X, L_, &scratch);
 
+                    const typename Obj::SizeType bucketCount = X.numBuckets();
+
                     bslma::TestAllocatorMonitor tam(&oa);
                     Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
 
-#if 0
+                    bool BUCKET_ARRAY_GREW = bucketCount != X.numBuckets();
+#if 1
                     // These tests assume that the object allocator is used
                     // only is stored elements also allocate memory.  This
                     // does not allow for rehashes as the container grows.
-                    if (VALUE_TYPE_USES_ALLOC || expectToAllocate(LENGTH)) {
+                    if (VALUE_TYPE_USES_ALLOC || BUCKET_ARRAY_GREW) {
                         ASSERTV(CONFIG, tam.isTotalUp());
                         ASSERTV(CONFIG, tam.isInUseUp());
                     }
@@ -1126,7 +1456,12 @@ void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
                 mX.removeAll();
 
                 ASSERTV(LENGTH, CONFIG, 0 == X.size());
-//                ASSERTV(LENGTH, CONFIG, X.cbegin() == X.cend());
+                ASSERTV(LENGTH, CONFIG, 0 < X.numBuckets());
+                ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
+                ASSERTV(LENGTH, CONFIG, X.isEmpty());
+                ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
+                ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
+                ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
 
                 const bsls::Types::Int64 AA = oa.numBlocksTotal();
 //                const bsls::Types::Int64 A  = oa.numBlocksInUse();
@@ -1134,21 +1469,9 @@ void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
                 ASSERTV(LENGTH, CONFIG, BB == AA);
 //                ASSERTV(LENGTH, CONFIG, B, A,
 //                        B - (int)LENGTH * TYPE_ALLOC == A);
-
-
-                ASSERTV(LENGTH, CONFIG, 0 == X.size());
-//                ASSERTV(LENGTH, CONFIG, X.cbegin() == X.cend());
-
-                ASSERTV(LENGTH, CONFIG, 0 == X.size());
-                ASSERTV(LENGTH, CONFIG, 0 < X.numBuckets());
-                ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
-                ASSERTV(LENGTH, CONFIG, X.isEmpty());
-                ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
-                ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
-                ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
             }
 
-        // ----------------------------------------------------------------
+            // ----------------------------------------------------------------
 
             const typename Obj::SizeType bucketCount = X.numBuckets();
 
@@ -1180,10 +1503,18 @@ void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
                     bslma::TestAllocatorMonitor tam(&oa);
                     Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
 
-#if 1
+                    // The number of buckets should not have changed, so no
+                    // reason to allocate a fresh bucket array
+                    ASSERTV(LENGTH, CONFIG, bucketCount, X.numBuckets(),
+                            bucketCount == X.numBuckets());
+
                     // These tests assume that the object allocator is used
                     // only if stored elements also allocate memory.  This
                     // does not allow for rehashes as the container grows.
+                    // Hence we run the same test sequence a second time after
+                    // clearing the container, so we can validate knowing that
+                    // no rehashes should be necesssary, and will in fact show
+                    // up as a memory use error.
 //                    if (VALUE_TYPE_USES_ALLOC || expectToAllocate(LENGTH)) {
                     if (VALUE_TYPE_USES_ALLOC) {
                         ASSERTV(CONFIG, tam.isTotalUp());
@@ -1194,10 +1525,9 @@ void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
                         ASSERTV(CONFIG, tam.isInUseSame());
                     }
 
-                    // The number of buckets should not have changed, so no
-                    // reason to allocate a fresh bucket array
+#if 1
                     ASSERTV(LENGTH, CONFIG, oa.numBlocksTotal(),
-                                                           oa.numBlocksInUse(),
+                                            oa.numBlocksInUse(),
                             oa.numBlocksTotal() == oa.numBlocksInUse());
 #endif
 
@@ -1258,7 +1588,12 @@ void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
                 mX.removeAll();
 
                 ASSERTV(LENGTH, CONFIG, 0 == X.size());
-//                ASSERTV(LENGTH, CONFIG, X.cbegin() == X.cend());
+                ASSERTV(LENGTH, CONFIG, bucketCount == X.numBuckets());
+                ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
+                ASSERTV(LENGTH, CONFIG, X.isEmpty());
+                ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
+                ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
+                ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
 
                 const bsls::Types::Int64 AA = oa.numBlocksTotal();
 //                const bsls::Types::Int64 A  = oa.numBlocksInUse();
@@ -1266,18 +1601,6 @@ void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
                 ASSERTV(LENGTH, CONFIG, BB == AA);
 //                ASSERTV(LENGTH, CONFIG, B, A,
 //                        B - (int)LENGTH * TYPE_ALLOC == A);
-
-
-                ASSERTV(LENGTH, CONFIG, 0 == X.size());
-//                ASSERTV(LENGTH, CONFIG, X.cbegin() == X.cend());
-
-                ASSERTV(LENGTH, CONFIG, 0 == X.size());
-                ASSERTV(LENGTH, CONFIG, bucketCount == X.numBuckets());
-                ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
-                ASSERTV(LENGTH, CONFIG, X.isEmpty());
-                ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
-                ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
-                ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
             }
 
             // ----------------------------------------------------------------
@@ -1316,6 +1639,96 @@ void TestDriver<KEY_CONFIG, HASH, EQUAL, ALLOC>::testCase2()
                 }
 
                 ASSERTV(LENGTH, CONFIG, 3 * LENGTH == X.size());
+            }
+
+            // ----------------------------------------------------------------
+
+            const typename Obj::SizeType bucketCountWithDups = X.numBuckets();
+
+            if (veryVerbose) { printf("\n\tTesting 'removeAll'.\n"); }
+            {
+                const bsls::Types::Int64 BB = oa.numBlocksTotal();
+//                const bsls::Types::Int64 B  = oa.numBlocksInUse();
+
+                mX.removeAll();
+
+                ASSERTV(LENGTH, CONFIG, 0 == X.size());
+                ASSERTV(LENGTH, CONFIG, bucketCountWithDups == X.numBuckets());
+                ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
+                ASSERTV(LENGTH, CONFIG, X.isEmpty());
+                ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
+                ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
+                ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
+
+                const bsls::Types::Int64 AA = oa.numBlocksTotal();
+//                const bsls::Types::Int64 A  = oa.numBlocksInUse();
+
+                ASSERTV(LENGTH, CONFIG, BB == AA);
+//                ASSERTV(LENGTH, CONFIG, B, A,
+//                        B - (int)LENGTH * TYPE_ALLOC == A);
+            }
+
+            // ----------------------------------------------------------------
+
+            if (veryVerbose) { printf(
+                                "\n\tRetesting 'insert' duplicated values.\n"); }
+            {
+                Link *ITER[MAX_LENGTH + 1];
+
+                for (size_t tj = 0; tj < LENGTH; ++tj) {
+                    ITER[tj] = insertElement(&mX, VALUES[tj]);
+                    ASSERTV(LENGTH, tj, CONFIG,
+                            VALUES[tj] ==
+                                    ImpUtil::extractKey<KEY_CONFIG>(ITER[tj]));
+                }
+                ITER[LENGTH] = 0;
+
+                ASSERTV(LENGTH, CONFIG, LENGTH == X.size());
+
+                for (size_t tj = 0; tj < LENGTH; ++tj) {
+                    Link *RESULT = insertElement(&mX, VALUES[tj]);
+                    ASSERTV(LENGTH, tj, CONFIG,
+                        VALUES[tj] == ImpUtil::extractKey<KEY_CONFIG>(RESULT));
+                    RESULT = RESULT->nextLink();
+//                    ASSERTV(LENGTH, tj, CONFIG, ITER[tj + 1] == RESULT);
+                }
+
+                ASSERTV(LENGTH, CONFIG, 2 * LENGTH == X.size());
+
+                for (size_t tj = 0; tj < LENGTH; ++tj) {
+                    Link *RESULT = insertElement(&mX, VALUES[tj]);
+                    ASSERTV(LENGTH, tj, CONFIG,
+                        VALUES[tj] == ImpUtil::extractKey<KEY_CONFIG>(RESULT));
+                    RESULT = RESULT->nextLink();
+//                    ASSERTV(LENGTH, tj, CONFIG, ITER[tj + 1] == RESULT);
+                }
+
+                ASSERTV(LENGTH, CONFIG, 3 * LENGTH == X.size());
+            }
+
+            // ----------------------------------------------------------------
+
+            if (veryVerbose) { printf("\n\tTesting 'removeAll'.\n"); }
+            {
+                const bsls::Types::Int64 BB = oa.numBlocksTotal();
+//                const bsls::Types::Int64 B  = oa.numBlocksInUse();
+
+                mX.removeAll();
+
+                ASSERTV(LENGTH, CONFIG, 0 == X.size());
+                ASSERTV(LENGTH, CONFIG, bucketCountWithDups == X.numBuckets());
+                ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
+                ASSERTV(LENGTH, CONFIG, X.isEmpty());
+                ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
+                ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
+                ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
+
+                const bsls::Types::Int64 AA = oa.numBlocksTotal();
+//                const bsls::Types::Int64 A  = oa.numBlocksInUse();
+
+                ASSERTV(LENGTH, CONFIG, BB == AA);
+//                ASSERTV(LENGTH, CONFIG, B, A,
+//                        B - (int)LENGTH * TYPE_ALLOC == A);
             }
 
             // ----------------------------------------------------------------
@@ -1792,9 +2205,41 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 4: {
+        // --------------------------------------------------------------------
+        // BASIC ACCESSORS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Basic Accessors"
+                            "\n=======================\n");
+
+        RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                      testCase4,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                      testCase4,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // GENERATOR FUNCTIONS 'gg' and 'ggg'
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting 'gg'"
+                            "\n============\n");
+
+        RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
       case 2: {
         // --------------------------------------------------------------------
-        // PRIMARY MANIPULATORS
+        // BOOSTSTRAP CONSTRUCTOR AND PRIMARY MANIPULATORS
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Primary Manipulators"

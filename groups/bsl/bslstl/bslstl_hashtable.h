@@ -391,6 +391,14 @@ class HashTable {
 
   public:
     // CREATORS
+    explicit HashTable(const ALLOCATOR& basicAllocator = ALLOCATOR());
+        // Create an empty 'HashTable' object using the default value of the
+        // 'HASHER' and 'COMPARATOR' functors to arrange elements in the table,
+        // having the smallest allowed 'intialBucketCount' number of buckets,
+        // and using the specified 'basicAllocator' to provide memory.  No
+        // memory will be allocated unless the parameterizing 'HASHER' or
+        // 'COMPARATOR' allocate memory in their default constructor.
+
     HashTable(const HASHER&     hash,
               const COMPARATOR& compare,
               SizeType          initialBucketCount,
@@ -1022,6 +1030,18 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hashCodeForNode(
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+HashTable(const ALLOCATOR& basicAllocator)
+: d_parameters(HASHER(), COMPARATOR(), basicAllocator)
+, d_anchor(HashTable_ImpDetails::getDefaultBucketAddress(), 1, 0)
+, d_size()
+, d_capacity()
+, d_maxLoadFactor(1.0)
+{
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
 HashTable(const HASHER&      hash,
           const COMPARATOR&     compare,
           SizeType         initialBucketCount,
@@ -1039,7 +1059,6 @@ HashTable(const HASHER&      hash,
                             allocator);
     }
 }
-
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
