@@ -132,12 +132,12 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_allocatortraits.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
-#include <bslalg_bidirectionallink.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_BIDIRECTIONALNODEPOOL
 #include <bslstl_bidirectionalnodepool.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
+#include <bslalg_bidirectionallink.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
