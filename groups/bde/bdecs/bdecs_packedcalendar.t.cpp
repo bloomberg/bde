@@ -16,6 +16,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_cctype.h>      // isdigit() isupper() islower()
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>
@@ -3858,7 +3859,7 @@ DEFINE_TEST_CASE(15) {
                                  ++d) {
                                 LOOP_ASSERT(d,
                                             X.isWeekendDay(d) ||
-                                            0 < std::count(holidays.begin(),
+                                            0 < bsl::count(holidays.begin(),
                                                            holidays.end(),
                                                            d));
                             }
@@ -3868,7 +3869,7 @@ DEFINE_TEST_CASE(15) {
                         // holiday.
                         LOOP_ASSERT(curDate,
                                     !(X.isWeekendDay(curDate) ||
-                                      0 < std::count(holidays.begin(),
+                                      0 < bsl::count(holidays.begin(),
                                                      holidays.end(),
                                                      curDate)));
 
@@ -3883,7 +3884,7 @@ DEFINE_TEST_CASE(15) {
                         for (bdet_Date d = prevDate + 1; d <= LAST_DATE; ++d) {
                             LOOP_ASSERT(d,
                                         X.isWeekendDay(d) ||
-                                        0 < std::count(holidays.begin(),
+                                        0 < bsl::count(holidays.begin(),
                                                        holidays.end(),
                                                        d));
                         }
