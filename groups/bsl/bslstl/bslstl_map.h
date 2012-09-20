@@ -743,8 +743,9 @@ class map {
         // contain a 'value_type' object with 'key', first insert a new
         // 'value_type' object having 'key' and a default-constructed 'VALUE'
         // object, and return a reference to the mapped value.  This method
-        // requires that the (template parameter) types 'KEY' and 'VALUE' both be
-        // "default-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
+        // requires that the (template parameter) types 'KEY' and 'VALUE' both
+        // be "default-constructible" (see {Requirements on 'KEY' and
+        // 'VALUE'}).
 
     VALUE& at(const key_type& key);
         // Return a reference providing modifiable access to the mapped-value
