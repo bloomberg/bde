@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: This component provide a single, mechanism class,
+//@DESCRIPTION: This component provides a single, mechanism class,
 // 'bslstl::ContainerBase', that can used as a common base class for all
 // STL-style containers.  A container should derive from this class to take
 // advantage of empty-base optimization when a non-'bslma' allocator is used.
@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Creating a Fixed-Size Array with 'bslalg::ContainerBase'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we would like to implement a fixed-size array that allocate memory
+// Suppose we would like to implement a fixed-size array that allocates memory
 // on the heap at construction.
 //
 // First, we define the interface of the container, 'MyFixedSizeArray', that
@@ -40,9 +40,13 @@ BSLS_IDENT("$Id: $")
 //      // 'ALLOCATOR' to allocate memory.  The number of elements is specified
 //      // on construction.
 //  {
+//..
+// Notice that to use this component, a class should derive from
+// 'ContainerBase' in order to take advantage of empty-base optimization.
+//..
 //      // DATA
-//      VALUE *d_array;  // head pointer to the elements
-//      int    d_size;   // fixed size of this container
+//      VALUE     *d_array;  // head pointer to the array of elements
+//      const int  d_size;   // (fixed) number of elements in 'd_array'
 //
 //    public:
 //      // CREATORS
@@ -70,9 +74,6 @@ BSLS_IDENT("$Id: $")
 //          // Return the number of elements contained in this object.
 //  };
 //..
-// Notice that to use this component, a class should derive from
-// 'ContainerBase' in order to take advantage of empty-base optimization.
-//
 // Finally, assuming we have a STL compliant allocator named 'Allocator', we
 // can create a 'MyFixedSizeArray' object and populate it with data.
 //..

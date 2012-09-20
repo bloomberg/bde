@@ -406,9 +406,13 @@ int TestType::s_numDestroy = 0;
         // 'ALLOCATOR' to allocate memory.  The number of elements is specified
         // on construction.
     {
+//..
+// Notice that to use this component, a class should derive from
+// 'ContainerBase' in order to take advantage of empty-base optimization.
+//..
         // DATA
-        VALUE *d_array;  // head pointer to the elements
-        int    d_size;   // fixed size of this container
+        VALUE     *d_array;  // head pointer to the array of elements
+        const int  d_size;   // (fixed) number of elements in 'd_array'
 //
       public:
         // CREATORS
@@ -541,9 +545,6 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-// Notice that to use this component, a class should derive from
-// 'ContainerBase' in order to take advantage of empty-base optimization.
-//
 // Finally, assuming we have a STL compliant allocator named 'Allocator', we
 // can create a 'MyFixedSizeArray' object and populate it with data.
 //..
