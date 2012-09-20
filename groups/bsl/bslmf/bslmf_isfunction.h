@@ -30,8 +30,8 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is a function type.
 //
-// Now, we instantiate the 'bsl::is_function' template for a non-function type
-// and a function type, asserting the 'value' static data member of each
+// Now, we instantiate the 'bsl::is_function' template for both a non-function
+// type and a function type, and assert the 'value' static data member of each
 // instantiation:
 //..
 //  assert(false == bsl::is_function<int>::value);

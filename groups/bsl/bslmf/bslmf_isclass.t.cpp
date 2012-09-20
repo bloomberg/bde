@@ -65,33 +65,33 @@ static void aSsErT(int c, const char *s, int i)
 namespace {
 
 enum   EnumTestType {
-   // This user-defined 'enum' type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::is_class' and
-   // 'bslmf::IsClass'.
+    // This user-defined 'enum' type is intended to be used during testing as
+    // an argument for the template parameter 'TYPE' of 'bsl::is_class' and
+    // 'bslmf::IsClass'.
 };
 
 struct StructTestType {
-   // This user-defined 'struct' type is intended to be used during testing as
-   // an argument for the template parameter 'TYPE' of 'bsl::is_class' and
-   // 'bslmf::IsClass'.
+    // This user-defined 'struct' type is intended to be used during testing as
+    // an argument for the template parameter 'TYPE' of 'bsl::is_class' and
+    // 'bslmf::IsClass'.
 };
 
 union  UnionTestType {
-   // This user-defined 'union' type is intended to be used during testing as
-   // an argument for the template parameter 'TYPE' of 'bsl::is_class' and
-   // 'bslmf::IsClass'.
+    // This user-defined 'union' type is intended to be used during testing as
+    // an argument for the template parameter 'TYPE' of 'bsl::is_class' and
+    // 'bslmf::IsClass'.
 };
 
 class  BaseClassTestType {
-   // This user-defined base class type is intended to be used during testing
-   // as an argument for the template parameter 'TYPE' of 'bsl::is_class' and
-   // 'bslmf::IsClass'.
+    // This user-defined base class type is intended to be used during testing
+    // as an argument for the template parameter 'TYPE' of 'bsl::is_class' and
+    // 'bslmf::IsClass'.
 };
 
 class  DerivedClassTestType : public BaseClassTestType {
-   // This user-defined derived class type is intended to be used during
-   // testing as an argument for the template parameter 'TYPE' of
-   // 'bsl::is_class' and 'bslmf::IsClass'.
+    // This user-defined derived class type is intended to be used during
+    // testing as an argument for the template parameter 'TYPE' of
+    // 'bsl::is_class' and 'bslmf::IsClass'.
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
@@ -141,7 +141,7 @@ struct Incomplete;
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const volatile, result);  \
 
 //=============================================================================
-//                 CLASSES, ETC. FOR TESTING USAGE EXAMPLES
+//                              USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
 ///Usage
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 'IsClass::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
-        //:   primitve type.
+        //:   primitive type.
         //:
         //: 2 'IsClass::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   'enum' type.
@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 'is_class::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) primitve type.
+        //:   cv-qualified) primitive type.
         //:
         //: 2 'is_class::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) 'enum' type.

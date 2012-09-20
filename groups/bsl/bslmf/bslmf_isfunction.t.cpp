@@ -62,29 +62,29 @@ static void aSsErT(int c, const char *s, int i)
 namespace {
 
 enum   EnumTestType {
-   // This user-defined 'enum' type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::is_function'.
+    // This user-defined 'enum' type is intended to be used during testing as
+    // an argument for the template parameter 'TYPE' of 'bsl::is_function'.
 };
 
 struct StructTestType {
-   // This user-defined 'struct' type is intended to be used during testing as
-   // an argument for the template parameter 'TYPE' of 'bsl::is_function'.
+    // This user-defined 'struct' type is intended to be used during testing as
+    // an argument for the template parameter 'TYPE' of 'bsl::is_function'.
 };
 
 union  UnionTestType {
-   // This user-defined 'union' type is intended to be used during testing as
-   // an argument for the template parameter 'TYPE' of 'bsl::is_function'.
+    // This user-defined 'union' type is intended to be used during testing as
+    // an argument for the template parameter 'TYPE' of 'bsl::is_function'.
 };
 
 class  BaseClassTestType {
-   // This user-defined base class type is intended to be used during testing
-   // as an argument for the template parameter 'TYPE' of 'bsl::is_function'.
+    // This user-defined base class type is intended to be used during testing
+    // as an argument for the template parameter 'TYPE' of 'bsl::is_function'.
 };
 
 class  DerivedClassTestType : public BaseClassTestType {
-   // This user-defined derived class type is intended to be used during
-   // testing as an argument for the template parameter 'TYPE' of
-   // 'bsl::is_function'.
+    // This user-defined derived class type is intended to be used during
+    // testing as an argument for the template parameter 'TYPE' of
+    // 'bsl::is_function'.
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();

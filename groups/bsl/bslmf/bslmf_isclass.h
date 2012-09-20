@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // Now, we instantiate the 'bsl::is_class' template for both a non-class type
-// and the defined type 'MyClass', asserting the 'value' static data member of
+// and the defined type 'MyClass', and assert the 'value' static data member of
 // each instantiation:
 //..
 //  assert(false == bsl::is_class<int>::value);
