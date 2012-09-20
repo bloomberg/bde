@@ -714,13 +714,12 @@ class map {
     map(const map& original);
         // Construct a map having the same value as the specified 'original'.
         // Use a copy of 'original.key_comp()' to order the key-value pairs
-        // contained in this map.  Use a default-constructed object of the
-        // parameterized 'ALLOCATOR' type to allocate memory.  If the template
-        // parameter 'ALLOCATOR' argument is of type 'bsl::allocator' (the
-        // default), the currently installed default allocator will be used to
-        // supply memory.  This method requires that the parameterized 'KEY'
-        // and 'VALUE' types both be "copy-constructible" (see {Requirements
-        // on 'KEY' and 'VALUE'}).
+        // contained in this map.  If the parameterized 'ALLOCATOR' is of type
+        // 'bsl::allocator' (the default), the currently installed default
+        // allocator will be used to supply memory.  Use the allocator of
+        // 'original' to supply memory otherwise.  This method requires that
+        // the parameterized 'KEY' and 'VALUE' types both be
+        // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
 
     map(const map& original, const ALLOCATOR& allocator);
         // Construct a map having the same value as that of the specified
