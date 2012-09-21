@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a meta-function,
 // 'bsl::is_member_function_pointer', which may be used to query whether a type
-// is a (non-static) member function pointer type.
+// is a function pointer type to non-static member function.
 //
 // 'bsl::is_member_function_pointer' meets the requirements of the
 // 'is_member_function_pointer' template defined in the C++11 standard

@@ -15,9 +15,9 @@ using namespace BloombergLP;
 //                                --------
 // The object under test is a meta-functions,
 // 'bsl::is_member_function_pointer', which determine whether a template
-// parameter type is a (non-static) member function pointer type.  Thus, we
-// need to ensure that the value returned by these meta-functions are correct
-// for each possible category of types.
+// parameter type is a function pointer type to (non-static) member function.
+// Thus, we need to ensure that the value returned by these meta-functions are
+// correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -93,9 +93,9 @@ class  DerivedClassTestType : public BaseClassTestType {
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_member_function_pointer'.
+    // This function pointer type to non-static member function is intended to
+    // be used during testing as an argument for the template parameter 'TYPE'
+    // of 'bsl::is_member_function_pointer'.
 
 typedef void (*FunctionPtrTestType) ();
     // This function pointer type is intended to be used during testing as an
@@ -171,6 +171,25 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
+                                  << "=============" << endl;
+
 // Now, we create two 'typedef's -- a function pointer type and a member
 // function pointer type:
 //..
