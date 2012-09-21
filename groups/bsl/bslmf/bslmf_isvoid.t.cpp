@@ -15,7 +15,7 @@ using namespace BloombergLP;
 //                                --------
 // The objects under test are two meta-functions, 'bsl::is_void' and
 // 'bslmf::IsVoid', that determine whether a template parameter type is a
-// pointer type.  Thus, we need to ensure that the value returned by these
+// pointer type.  Thus, we need to ensure that the values returned by these
 // meta-functions are correct for each possible category of types.  Since the
 // two meta-functions are functionally equivalent, we will use the same set of
 // types for both.

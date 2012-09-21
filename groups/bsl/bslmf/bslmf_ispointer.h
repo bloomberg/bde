@@ -129,8 +129,8 @@ struct IsPointer : MetaInt<bsl::is_pointer<TYPE>::value> {
     // from 'bslmf::MetaInt<1>' if the 'TYPE' is a pointer type (but not a
     // pointer to non-static member), and 'bslmf::MetaInt<0>' otherwise.
     //
-    // Note that although this 'struct' is functionally identical to
-    // 'bsl::is_pointer', and the use of 'bsl::is_pointer' should be preferred.
+    // Note that although this 'struct' is functionally equivalent to
+    // 'bsl::is_pointer', the use of 'bsl::is_pointer' should be preferred.
 };
 
 }  // close package namespace

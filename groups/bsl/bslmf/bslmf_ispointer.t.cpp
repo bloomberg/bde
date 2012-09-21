@@ -2,6 +2,8 @@
 
 #include <bslmf_ispointer.h>
 
+#include <bsls_bsltestutil.h>
+
 #include <cstdlib>    // atoi()
 #include <cstring>    // strcmp()
 #include <iostream>
@@ -16,45 +18,51 @@ using namespace std;
 //                                --------
 // The objects under test are two meta-functions, 'bsl::is_pointer' and
 // 'bslmf::IsPointer', that determine whether a template parameter type is a
-// pointer type.  Thus, we need to ensure that the value returned by these
+// pointer type.  Thus, we need to ensure that the values returned by these
 // meta-functions are correct for each possible category of types.  Since the
 // two meta-functions are functionally equivalent, we will use the same set of
 // types for both.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 2] BloombergLP::bslmf::IsPointer::value
+// [ 2] BloombergLP::bslmf::IsPointer:VALUE
 // [ 1] bsl::is_pointer::value
 //
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 
 //=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
+//                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+void aSsErT(bool b, const char *s, int i)
+{
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
+# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
 //=============================================================================
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -69,16 +77,40 @@ struct TestType
 };
 
 typedef int (TestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_pointer'.
+    // This pointer to non-static function member type is intended to be used
+    // during testing as an argument for the template parameter 'TYPE' of
+    // 'bsl::is_pointer' and 'bslmf::IsPointer'.
 
 typedef void (*FunctionPtrTestType) ();
     // This function pointer type is intended to be used during testing as an
-    // argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_pointer'.
+    // argument for the template parameter 'TYPE' of
+    // 'bsl::is_pointer' and 'bslmf::IsPointer'.
 
 }  // close unnamed namespace
+
+#define TYPE_ASSERT_CVQ_PREFIX(metaFunc, member, type, result)                \
+    ASSERT(result == metaFunc<type>::member);                                 \
+    ASSERT(result == metaFunc<const type>::member);                           \
+    ASSERT(result == metaFunc<volatile type>::member);                        \
+    ASSERT(result == metaFunc<const volatile type>::member);
+
+#define TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result)                \
+    ASSERT(result == metaFunc<type>::member);                                 \
+    ASSERT(result == metaFunc<type const>::member);                           \
+    ASSERT(result == metaFunc<type volatile>::member);                        \
+    ASSERT(result == metaFunc<type const volatile>::member);
+
+#define TYPE_ASSERT_CVQ_REF(metaFunc, member, type, result)                   \
+    ASSERT(result == metaFunc<type&>::member);                                \
+    ASSERT(result == metaFunc<type const&>::member);                          \
+    ASSERT(result == metaFunc<type volatile&>::member);                       \
+    ASSERT(result == metaFunc<type const volatile&>::member);
+
+#define TYPE_ASSERT_CVQ(metaFunc, member, type, result)                       \
+    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result);                   \
+    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, const type, result);             \
+    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, volatile type, result);          \
+    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, const volatile type, result);
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -88,9 +120,9 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
+    int veryVerbose = argc > 3;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
@@ -118,7 +150,7 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is a pointer type.
 //
-// First, we create two 'typedef's -- a pointer type and a non-pointer type:
+// First, we create two 'typedef's -- a pointer type and another type:
 //..
         typedef int  MyType;
         typedef int *MyPtrType;
@@ -159,96 +191,25 @@ int main(int argc, char *argv[])
         //   bsl::IsPointer::VALUE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "bslmf::IsPointer::VALUE" << endl
-                          << "=======================" << endl;
+        if (verbose) printf("\nbslmf::IsPointer::VALUE\n"
+                            "\n=======================\n");
 
         // C-1
-        ASSERT(0 == bslmf::IsPointer<int>::VALUE);
-        ASSERT(0 == bslmf::IsPointer<int const>::VALUE);
-        ASSERT(0 == bslmf::IsPointer<int volatile>::VALUE);
-        ASSERT(0 == bslmf::IsPointer<int const volatile>::VALUE);
+        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsPointer, VALUE, int, 0);
 
         // C-2
-        ASSERT(0 == bslmf::IsPointer<TestType>::VALUE);
-        ASSERT(0 == bslmf::IsPointer<TestType const>::VALUE);
-        ASSERT(0 == bslmf::IsPointer<TestType volatile>::VALUE);
-        ASSERT(0 == bslmf::IsPointer<TestType const volatile>::VALUE);
+        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsPointer, VALUE, TestType, 0);
 
         // C-3
-        ASSERT(0 == bslmf::IsPointer<MethodPtrTestType>::VALUE);
-        ASSERT(0 == bslmf::IsPointer<MethodPtrTestType const>::VALUE);
-        ASSERT(0 == bslmf::IsPointer<MethodPtrTestType volatile>::VALUE);
-        ASSERT(0 == bslmf::IsPointer<MethodPtrTestType const volatile>::VALUE);
+        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsPointer, VALUE, MethodPtrTestType, 0);
 
         // C-4
-        ASSERT(1 == bslmf::IsPointer<int*>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<int *const>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<int *volatile>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<int *const volatile>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const int*>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const int *const>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const int *volatile>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const int *const volatile>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<volatile int*>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<volatile int *const>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<volatile int *volatile>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<volatile int *const volatile>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const volatile int*>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const volatile int *const>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const volatile int *volatile>::VALUE);
-        ASSERT(1 ==
-                  bslmf::IsPointer<const volatile int *const volatile>::VALUE);
-
-        ASSERT(1 == bslmf::IsPointer<TestType*>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<TestType *const>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<TestType *volatile>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<TestType *const volatile>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const TestType*>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const TestType *const>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const TestType *volatile>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const TestType *const volatile>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<volatile TestType*>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<volatile TestType *const>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<volatile TestType *volatile>::VALUE);
-        ASSERT(1 ==
-                   bslmf::IsPointer<volatile TestType *const volatile>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const volatile TestType*>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const volatile TestType *const>::VALUE);
-        ASSERT(1 ==
-                   bslmf::IsPointer<const volatile TestType *volatile>::VALUE);
-        ASSERT(1 ==
-             bslmf::IsPointer<const volatile TestType *const volatile>::VALUE);
-
-        ASSERT(1 == bslmf::IsPointer<FunctionPtrTestType*>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<FunctionPtrTestType *const>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<FunctionPtrTestType *volatile>::VALUE);
-        ASSERT(1 ==
-                 bslmf::IsPointer<FunctionPtrTestType *const volatile>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const FunctionPtrTestType*>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<const FunctionPtrTestType *const>::VALUE);
-        ASSERT(1 ==
-                 bslmf::IsPointer<const FunctionPtrTestType *volatile>::VALUE);
-        ASSERT(1 ==
-           bslmf::IsPointer<const FunctionPtrTestType *const volatile>::VALUE);
-        ASSERT(1 == bslmf::IsPointer<volatile FunctionPtrTestType*>::VALUE);
-        ASSERT(1 ==
-                 bslmf::IsPointer<volatile FunctionPtrTestType *const>::VALUE);
-        ASSERT(1 ==
-              bslmf::IsPointer<volatile FunctionPtrTestType *volatile>::VALUE);
-        ASSERT(1 ==
-               bslmf::IsPointer<
-                         volatile FunctionPtrTestType *const volatile>::VALUE);
-        ASSERT(1 ==
-                 bslmf::IsPointer<const volatile FunctionPtrTestType*>::VALUE);
-        ASSERT(1 ==
-           bslmf::IsPointer<const volatile FunctionPtrTestType *const>::VALUE);
-        ASSERT(1 ==
-               bslmf::IsPointer<
-                         const volatile FunctionPtrTestType *volatile>::VALUE);
-        ASSERT(1 ==
-               bslmf::IsPointer<
-                   const volatile FunctionPtrTestType *const volatile>::VALUE);
+        TYPE_ASSERT_CVQ(bslmf::IsPointer, VALUE, int *, 1);
+        TYPE_ASSERT_CVQ(bslmf::IsPointer, VALUE, TestType *, 1);
+        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsPointer,
+                               VALUE,
+                               FunctionPtrTestType,
+                               1);
 
       } break;
       case 1: {
@@ -280,107 +241,38 @@ int main(int argc, char *argv[])
         //   bsl::is_pointer::value
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "bsl::is_pointer::value" << endl
-                          << "======================" << endl;
+        if (verbose) printf("\nbsl::is_pointer::value\n"
+                            "\n======================\n");
 
         // C-1
-        ASSERT(false == bsl::is_pointer<int>::value);
-        ASSERT(false == bsl::is_pointer<int const>::value);
-        ASSERT(false == bsl::is_pointer<int volatile>::value);
-        ASSERT(false == bsl::is_pointer<int const volatile>::value);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_pointer, value, int, false);
 
         // C-2
-        ASSERT(false == bsl::is_pointer<TestType>::value);
-        ASSERT(false == bsl::is_pointer<TestType const>::value);
-        ASSERT(false == bsl::is_pointer<TestType volatile>::value);
-        ASSERT(false == bsl::is_pointer<TestType const volatile>::value);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_pointer, value, TestType, false);
 
         // C-3
-        ASSERT(false == bsl::is_pointer<MethodPtrTestType>::value);
-        ASSERT(false == bsl::is_pointer<MethodPtrTestType const>::value);
-        ASSERT(false == bsl::is_pointer<MethodPtrTestType volatile>::value);
-        ASSERT(false ==
-                     bsl::is_pointer<MethodPtrTestType const volatile>::value);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_pointer,
+                               value,
+                               MethodPtrTestType,
+                               false);
 
         // C-4
-        ASSERT(true == bsl::is_pointer<int*>::value);
-        ASSERT(true == bsl::is_pointer<int *const>::value);
-        ASSERT(true == bsl::is_pointer<int *volatile>::value);
-        ASSERT(true == bsl::is_pointer<int *const volatile>::value);
-        ASSERT(true == bsl::is_pointer<const int*>::value);
-        ASSERT(true == bsl::is_pointer<const int *const>::value);
-        ASSERT(true == bsl::is_pointer<const int *volatile>::value);
-        ASSERT(true == bsl::is_pointer<const int *const volatile>::value);
-        ASSERT(true == bsl::is_pointer<volatile int*>::value);
-        ASSERT(true == bsl::is_pointer<volatile int *const>::value);
-        ASSERT(true == bsl::is_pointer<volatile int *volatile>::value);
-        ASSERT(true == bsl::is_pointer<volatile int *const volatile>::value);
-        ASSERT(true == bsl::is_pointer<const volatile int*>::value);
-        ASSERT(true == bsl::is_pointer<const volatile int *const>::value);
-        ASSERT(true == bsl::is_pointer<const volatile int *volatile>::value);
-        ASSERT(true ==
-                   bsl::is_pointer<const volatile int *const volatile>::value);
-
-        ASSERT(true == bsl::is_pointer<TestType*>::value);
-        ASSERT(true == bsl::is_pointer<TestType *const>::value);
-        ASSERT(true == bsl::is_pointer<TestType *volatile>::value);
-        ASSERT(true == bsl::is_pointer<TestType *const volatile>::value);
-        ASSERT(true == bsl::is_pointer<const TestType*>::value);
-        ASSERT(true == bsl::is_pointer<const TestType *const>::value);
-        ASSERT(true == bsl::is_pointer<const TestType *volatile>::value);
-        ASSERT(true == bsl::is_pointer<const TestType *const volatile>::value);
-        ASSERT(true == bsl::is_pointer<volatile TestType*>::value);
-        ASSERT(true == bsl::is_pointer<volatile TestType *const>::value);
-        ASSERT(true == bsl::is_pointer<volatile TestType *volatile>::value);
-        ASSERT(true ==
-                    bsl::is_pointer<volatile TestType *const volatile>::value);
-        ASSERT(true == bsl::is_pointer<const volatile TestType*>::value);
-        ASSERT(true == bsl::is_pointer<const volatile TestType *const>::value);
-        ASSERT(true ==
-                    bsl::is_pointer<const volatile TestType *volatile>::value);
-        ASSERT(true ==
-              bsl::is_pointer<const volatile TestType *const volatile>::value);
-
-        ASSERT(true == bsl::is_pointer<FunctionPtrTestType*>::value);
-        ASSERT(true == bsl::is_pointer<FunctionPtrTestType *const>::value);
-        ASSERT(true == bsl::is_pointer<FunctionPtrTestType *volatile>::value);
-        ASSERT(true ==
-                  bsl::is_pointer<FunctionPtrTestType *const volatile>::value);
-        ASSERT(true == bsl::is_pointer<const FunctionPtrTestType*>::value);
-        ASSERT(true ==
-                     bsl::is_pointer<const FunctionPtrTestType *const>::value);
-        ASSERT(true ==
-                  bsl::is_pointer<const FunctionPtrTestType *volatile>::value);
-        ASSERT(true ==
-            bsl::is_pointer<const FunctionPtrTestType *const volatile>::value);
-        ASSERT(true == bsl::is_pointer<volatile FunctionPtrTestType*>::value);
-        ASSERT(true ==
-                  bsl::is_pointer<volatile FunctionPtrTestType *const>::value);
-        ASSERT(true ==
-               bsl::is_pointer<volatile FunctionPtrTestType *volatile>::value);
-        ASSERT(true ==
-         bsl::is_pointer<volatile FunctionPtrTestType *const volatile>::value);
-        ASSERT(true ==
-                  bsl::is_pointer<const volatile FunctionPtrTestType*>::value);
-        ASSERT(true ==
-            bsl::is_pointer<const volatile FunctionPtrTestType *const>::value);
-        ASSERT(true ==
-         bsl::is_pointer<const volatile FunctionPtrTestType *volatile>::value);
-        ASSERT(true ==
-               bsl::is_pointer<
-                   const volatile FunctionPtrTestType *const volatile>::value);
+        TYPE_ASSERT_CVQ(bsl::is_pointer, value, int *, true);
+        TYPE_ASSERT_CVQ(bsl::is_pointer, value, TestType *, true);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_pointer,
+                               value,
+                               FunctionPtrTestType,
+                               true);
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = "
-             << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
     return testStatus;
 }
