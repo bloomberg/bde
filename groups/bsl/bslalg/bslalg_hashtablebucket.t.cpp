@@ -274,20 +274,8 @@ void MyList<PAYLOAD>::popBack()
 
 void myCheckInvariants(const bslalg::HashTableBucket& bucket)
 {
-    ASSERT(!bucket.first() == !bucket.last());
-
-    ASSERT(bslalg::BidirectionalLinkListUtil::isWellFormedList(bucket.first(),
-                                                               bucket.last()));
-
-    if (bslalg::BidirectionalLink *cursor = bucket.first()) {
-        bslalg::BidirectionalLink *prev   = cursor;
-        while (cursor != bucket.last()) {
-            cursor = cursor->nextLink();
-            ASSERT(cursor);
-            ASSERT(prev == cursor->previousLink());
-            prev = cursor;
-        }
-    }
+    ASSERT(bslalg::BidirectionalLinkListUtil::isWellFormed(bucket.first(),
+                                                           bucket.last()));
 }
 
 //=============================================================================
