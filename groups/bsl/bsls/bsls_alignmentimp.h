@@ -78,8 +78,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates the intended use of this component.
 //
-///Example 1: AlignmentImpCalc Template
-/// - - - - - - - - - - - - - - - - - -
+///Example 1: 'AlignmentImpCalc' Template
+/// - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to write a program that needs to calculate the
 // alignment requirements of both user-defined types and built-in types.
 // Further suppose that the program will run on a platform where the alignment

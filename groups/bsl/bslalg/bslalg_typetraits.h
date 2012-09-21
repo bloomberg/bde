@@ -24,6 +24,15 @@ BSLS_IDENT("$Id: $")
 //  bslalg::TypeTraitsGroupStlUnordered: for STL unordered containers
 //  bslalg_TypeTraits: default trait computation
 //
+//@MACROS:
+//  BSLALG_DECLARE_NESTED_TRAITS: declares a trait in a nested fashion
+//  BSLALG_DECLARE_NESTED_TRAITS2: declares two traits in a nested fashion
+//  BSLALG_DECLARE_NESTED_TRAITS3: declares three traits in a nested fashion
+//  BSLALG_DECLARE_NESTED_TRAITS4: declares four traits in a nested fashion
+//  BSLALG_DECLARE_NESTED_TRAITS5: declares five traits in a nested fashion
+//  BSLALG_IMPLIES_TRAIT: computes a trait by introspection
+//  BSLALG_CHECK_IMPLIED_TRAIT: detects a trait by introspection
+//
 //@SEE_ALSO: bslmf_typetraits, bslalg_constructorproxy, bslalg_scalarprimitives
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
@@ -81,19 +90,6 @@ BSLS_IDENT("$Id: $")
 //                                            first trait possessed by the
 //                                            parameterized 'TYPE' from the
 //                                            ordered list 'TRAIT1', ....
-//..
-//
-///Macro List
-///----------
-// The macros defined in this component are:
-//..
-//   BSLALG_DECLARE_NESTED_TRAITS: declares a trait in a nested fashion
-//  BSLALG_DECLARE_NESTED_TRAITS2: declares two traits in a nested fashion
-//  BSLALG_DECLARE_NESTED_TRAITS3: declares three traits in a nested fashion
-//  BSLALG_DECLARE_NESTED_TRAITS4: declares four traits in a nested fashion
-//  BSLALG_DECLARE_NESTED_TRAITS5: declares five traits in a nested fashion
-//           BSLALG_IMPLIES_TRAIT: computes a trait by introspection
-//     BSLALG_CHECK_IMPLIED_TRAIT: detects a trait by introspection
 //..
 //
 ///Usage

@@ -11,8 +11,10 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bslma::TestAllocator: instrumented 'malloc'/'free' memory allocator
+//
+//@MACROS:
 //  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN: macro to begin testing exceptions
-//  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END:   macro to end testing exceptions
+//  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END: macro to end testing exceptions
 //
 //@SEE_ALSO: bslma_newdeleteallocator, bslma_mallocfreeallocator
 //

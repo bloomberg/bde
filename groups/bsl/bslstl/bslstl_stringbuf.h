@@ -734,7 +734,9 @@ native_std::streamsize
     }
 
     if (extendInputArea()) {
-        // Characters may become invalid after
+        // Additional characters may become available for reading when the
+        // input area is extended to account for any characters newly written
+        // to the output sequence.
 
         return this->basic_stringbuf::xsgetn(result, numCharacters);  // RETURN
     }

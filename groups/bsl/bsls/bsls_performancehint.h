@@ -12,6 +12,12 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::PerformanceHint: namespace for performance optimization hints
 //
+//@MACROS:
+//  BSLS_PERFORMANCEHINT_PREDICT_LIKELY(X): 'X' probably evalues to non-zero
+//  BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(X): 'X' probably evalues to zero
+//  BSLS_PERFORMANCEHINT_PREDICT_EXPECT(X, Y): 'X' probably evalues to 'Y'
+//  BSLS_PERFORMANCEHINT_UNLIKELY_HINT: annote block unlikely to be taken
+//
 //@AUTHOR: Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component provides performance hints for the compiler or

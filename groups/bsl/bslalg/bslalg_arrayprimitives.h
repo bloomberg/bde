@@ -122,8 +122,148 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Usage
 ///-----
-// This component is for use by the 'bslstl' package.  Other clients should use
-// the STL algorithms (found in header '<algorithm>' and '<memory>').
+// In this section we show intended use of this component.
+//
+///Example 1: Defining a Vector-Like Type
+/// - - - - - - - - - - - - - - - - - - -
+// Suppose we want to define a STL-vector-like type.  One requirement is that
+// an object of this vector should forward its allocator to its contained
+// elements when appropriate.  Another requirement is that the vector should
+// take advantage of the optimizations available for certain traits of the
+// contained element type.  For example, if the contained element type has the
+// 'bslalg::TypeTraitBitwiseMoveable' trait, moving an element in a vector can
+// be done using 'memcpy' instead of copy construction.
+//
+// We can utilize the class methods provided by 'bslalg::ArrayPrimitives' to
+// satisfy the above requirements.  Unlike 'bslalg::ScalarPrimitives', which
+// operates on a single element, 'bslalg::ArrayPrimitives' operates on arrays,
+// which will further help simplify our implementation.
+//
+// First, we create an elided definition of the class template 'MyVector':
+//..
+//  template <class TYPE>
+//  class MyVector {
+//      // This class implements a vector of elements of the (template
+//      // parameter) 'TYPE', which must be copy constructable.  Note that for
+//      // the brevity of the usage example, this class does not provide any
+//      // Exception-Safety guarantee.
+//
+//      // DATA
+//      TYPE             *d_array_p;      // pointer to the allocated array
+//
+//      int               d_capacity;     // capacity of the allocated array
+//
+//      int               d_size;         // number of objects
+//
+//      bslma::Allocator *d_allocator_p;  // allocation pointer (held, not
+//                                        // owned)
+//
+//    public:
+//      // ...
+//
+//      MyVector(const MyVector&   original,
+//               bslma::Allocator *basicAllocator = 0);
+//          // Create a 'MyVector' object having the same value as the
+//          // specified 'original' object.  Optionally specify a
+//          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+//          // 0, the currently installed default allocator is used.
+//
+//      // ...
+//
+//      // MANIPULATORS
+//      void reserve(int capacity);
+//          // Change the capacity of this vector to the specified 'capacity'
+//          // if it is greater than the vector's current capacity.
+//
+//      void insert(int dstIndex, int numElements, const TYPE& value);
+//          // Insert, into this vector, the specified 'numElements' of the
+//          // specified 'value' at the specified 'dstIndex'.  The behavior is
+//          // undefined unless '0 <= dstIndex <= size()'.
+//  };
+//..
+// Then, we implement the copy constructor of 'MyVector':
+//..
+//  template <class TYPE>
+//  MyVector<TYPE>::MyVector(const MyVector<TYPE>&  original,
+//                           bslma::Allocator      *basicAllocator)
+//  : d_array_p(0)
+//  , d_capacity(0)
+//  , d_size(0)
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
+//  {
+//      reserve(d_size);
+//..
+// Here, we call the 'bslalg::ArrayPrimitives::copyConstruct' class method to
+// copy each element from 'original.d_array_p' to 'd_array_p' (When
+// appropriate, this class method passes this vector's allocator to the copy
+// constructor of 'TYPE' or uses bit-wise copy.):
+//..
+//      bslalg::ArrayPrimitives::copyConstruct(
+//                                        d_array_p,
+//                                        original.d_array_p,
+//                                        original.d_array_p + original.d_size,
+//                                        d_allocator_p);
+//      d_size = original.d_size;
+//  }
+//..
+// Now, we implement the 'reserve' method of 'MyVector':
+//..
+//  template <class TYPE>
+//  void MyVector<TYPE>::reserve(int capacity)
+//  {
+//      if (d_capacity >= capacity) return;
+//
+//      TYPE *newArrayPtr = static_cast<TYPE*>(d_allocator_p->allocate(
+//         BloombergLP::bslma::Allocator::size_type(capacity * sizeof(TYPE))));
+//
+//      if (d_array_p) {
+//..
+// Here, we call the 'bslalg::ArrayPrimitives::destructiveMove' class method to
+// copy each original element from 'd_array_p' to 'newArrayPtr' and then
+// destroy all the original elements (When appropriate, this class method
+// passes this vector's allocator to the copy constructor of 'TYPE' or uses
+// bit-wise copy.):
+//..
+//          bslalg::ArrayPrimitives::destructiveMove(newArrayPtr,
+//                                                   d_array_p,
+//                                                   d_array_p + d_size,
+//                                                   d_allocator_p);
+//          d_allocator_p->deallocate(d_array_p);
+//      }
+//
+//      d_array_p = newArrayPtr;
+//      d_capacity = capacity;
+//  }
+//..
+// Finally, we implement the 'insert' method of 'MyVector':
+//..
+//  template <class TYPE>
+//  void MyVector<TYPE>::insert(int         dstIndex,
+//                              int         numElements,
+//                              const TYPE& value)
+//  {
+//      int newSize = d_size + numElements;
+//
+//      if (newSize > d_capacity) {
+//          int newCapacity = d_capacity == 0 ? 2 : d_capacity * 2;
+//          reserve(newCapacity);
+//      }
+//..
+// Here, we call the 'bslalg::ArrayPrimitives::insert' class method to first
+// move each element after 'dstIndex' by 'numElements' and then copy construct
+// 'numElements' of 'value' at 'dstIndex'.  (When appropriate, this class
+// method passes this vector's allocator to the copy constructor of 'TYPE' or
+// uses bit-wise copy.):
+//..
+//      bslalg::ArrayPrimitives::insert(d_array_p + dstIndex,
+//                                      d_array_p + d_size,
+//                                      value,
+//                                      numElements,
+//                                      d_allocator_p);
+//
+//      d_size = newSize;
+//  }
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

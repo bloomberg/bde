@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time assertion facility.
 //
 //@CLASSES:
+//
+//@MACROS:
 //  BSLMF_ASSERT: compile-time assert macro
 //
 //@AUTHOR: Shawn Edwards (sedwards)

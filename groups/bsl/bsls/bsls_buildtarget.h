@@ -13,6 +13,10 @@ BSLS_IDENT("$Id: $")
 //  bsls::ExcBuildTarget: type name for identifying exception builds
 //  bsls::MtBuildTarget: type name for identifying multi-threaded builds
 //
+//@MACROS:
+//  BDE_BUILD_TARGET_EXC: flag for exception-enabled builds
+//  BDE_BUILD_TARGET_MT:  flag for multi-threaded builds
+//
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: The purpose of this component is to cause a link-time error
