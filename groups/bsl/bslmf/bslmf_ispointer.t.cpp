@@ -134,6 +134,9 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
+        if (verbose) printf("\nUSAGE EXAMPLE\n"
+                            "\n=============\n");
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.

@@ -16,8 +16,8 @@ using namespace std;
 //                                --------
 // The object under test is a meta-functions, 'bsl::is_integral', that
 // determine whether a template parameter type is a integral type.  Thus, we
-// need to ensure that the values returned by these meta-functions are correct
-// for each possible category of types.
+// need to ensure that the values returned by the meta-function is correct for
+// each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -59,6 +59,10 @@ void aSsErT(bool b, const char *s, int i)
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
+//=============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
 namespace {
 
 struct TestType {
@@ -78,23 +82,15 @@ typedef void (*FunctionPtrTestType) ();
 
 }  // close unnamed namespace
 
-#define TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result)                \
+#define TYPE_ASSERT_CVQ(metaFunc, member, type, result)                       \
     ASSERT(result == metaFunc<type>::member);                                 \
     ASSERT(result == metaFunc<type const>::member);                           \
     ASSERT(result == metaFunc<type volatile>::member);                        \
     ASSERT(result == metaFunc<type const volatile>::member);
 
-#define TYPE_ASSERT_CVQ_REF(metaFunc, member, type, result)                   \
-    ASSERT(result == metaFunc<type&>::member);                                \
-    ASSERT(result == metaFunc<type const&>::member);                          \
-    ASSERT(result == metaFunc<type volatile&>::member);                       \
-    ASSERT(result == metaFunc<type const volatile&>::member);
-
-#define TYPE_ASSERT_CVQ(metaFunc, member, type, result)                       \
-    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result);                   \
-    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, const type, result);             \
-    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, volatile type, result);          \
-    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, const volatile type, result);
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -121,6 +117,9 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE\n"
+                            "\n=============\n");
 
 ///Usage
 ///-----
@@ -168,40 +167,33 @@ int main(int argc, char *argv[])
         //   bsl::is_integral::value
         // --------------------------------------------------------------------
 
+        if (verbose) printf("\nbslmf::IsPointer::VALUE\n"
+                            "\n=======================\n");
 
         // C-1
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral, value, double, false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral, value, long double, false);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, double, false);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, long double, false);
 
         // C-2
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral, value, TestType, false);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, TestType, false);
 
         // C-3
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral, value, bool, true);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral, value, char, true);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral, value, wchar_t, true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, bool, true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, char, true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, wchar_t, true);
 
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral, value, signed char, true);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral, value, short, true);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral, value, int, true);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral, value, long int, true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, signed char, true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, short, true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, int, true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, long int, true);
 
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral, value, unsigned char, true);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral, value, unsigned short, true);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral, value, unsigned int, true);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral,
-                               value,
-                               unsigned long int,
-                               true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, unsigned char, true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, unsigned short, true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, unsigned int, true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, unsigned long int, true);
 
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral,
-                               value,
-                               bsls::Types::Int64,
-                               true);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_integral,
-                               value,
-                               bsls::Types::Uint64,
-                               true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, bsls::Types::Int64, true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, bsls::Types::Uint64, true);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
