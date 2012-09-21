@@ -1776,7 +1776,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
-#if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
     uninitializedFillN((bsls::Types::Int64 *)begin,
                        (bsls::Types::Int64)value,
                        numElements);
@@ -1800,7 +1800,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
-#if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
     uninitializedFillN(
                       (bsls::Types::Int64 *)begin,
                       (bsls::Types::Int64)value,

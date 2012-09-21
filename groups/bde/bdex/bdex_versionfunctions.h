@@ -171,7 +171,7 @@ namespace bdex_VersionFunctions {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma warning(push)
 #pragma warning(disable : 4100)  // VC2008 fails to detect use of 'object'.
 #endif
@@ -190,7 +190,7 @@ namespace bdex_VersionFunctions {
 
         return object.maxSupportedBdexVersion();
     }
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma warning(pop)
 #endif
 

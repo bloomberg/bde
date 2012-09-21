@@ -727,7 +727,7 @@ namespace bdeat_SequenceFunctions {
 
 
 
-#if ! defined(BSLS_PLATFORM__CMP_IBM)
+#if ! defined(BSLS_PLATFORM_CMP_IBM)
     // OVERLOADABLE FUNCTIONS
     // The following functions should be overloaded for other types (in their
     // respective namespaces).  The following functions are the default
@@ -868,7 +868,7 @@ bool bdeat_SequenceFunctions::hasAttribute(const TYPE& object,
          // namespace bdeat_SequenceFunctions (OVERLOADABLE FUNCTIONS)
          // ----------------------------------------------------------
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 namespace bdeat_SequenceFunctions {
     // xlC 6 will not do Koenig (argument-dependent) lookup is the function
     // being called has already been declared in some scope at the point of
@@ -999,7 +999,7 @@ int bdeat_SequenceFunctions::bdeat_sequenceAccessAttributes(
     return object.accessAttributes(accessor);
 }
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma warning( push )
 #pragma warning( disable : 4100 )
 #endif
@@ -1025,7 +1025,7 @@ bool bdeat_SequenceFunctions::bdeat_sequenceHasAttribute(
 
     return 0 != object.lookupAttributeInfo(attributeId);
 }
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma warning( pop )
 #endif
 

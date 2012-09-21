@@ -564,7 +564,7 @@ namespace bdeat_CustomizedTypeFunctions {
         // Load into the specified 'result' the value of the specified
         // 'object'.
 
-#if ! defined(BSLS_PLATFORM__CMP_IBM)
+#if ! defined(BSLS_PLATFORM_CMP_IBM)
     // OVERLOADABLE FUNCTIONS
     // The following functions should be overloaded for other types (in their
     // respective namespaces).  The following functions are the default
@@ -759,7 +759,7 @@ bdeat_CustomizedTypeFunctions::convertToBaseType(const TYPE&  object)
       // namespace bdeat_CustomizedTypeFunctions (OVERLOADABLE FUNCTIONS)
       // ----------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 namespace bdeat_CustomizedTypeFunctions {
     // xlC 6 will not do Koenig (argument-dependent) lookup if the function
     // being called has already been declared in some scope at the point of

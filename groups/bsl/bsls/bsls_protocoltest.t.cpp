@@ -765,7 +765,7 @@ int main(int argc, char *argv[])
                 ASSERT(status.failures() == 0);
                 ASSERT(status.last());
 
-#if !defined(BSLS_PLATFORM__CMP_CLANG)
+#if !defined(BSLS_PLATFORM_CMP_CLANG)
                 // this test is broken on Clang
 
                 if (veryVerbose) printf("\t\tfailure case\n");

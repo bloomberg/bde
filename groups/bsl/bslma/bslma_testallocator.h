@@ -663,7 +663,7 @@ class TestAllocator : public Allocator {
 // The following is a workaround for an intermittent Visual Studio 2005
 // exception-handling failure.
 
-#if defined(BSLS_PLATFORM__CMP_MSVC) && BSLS_PLATFORM__CMP_VER_MAJOR < 1500
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1500
 #define BSLMA_EXCEPTION_TEST_WORKAROUND try {} catch (...) {}
 #else
 #define BSLMA_EXCEPTION_TEST_WORKAROUND

@@ -169,7 +169,7 @@ namespace bslstl {
 
 template <class BSLSTL_VALUE, class BSLSTL_NODE, class BSLSTL_DIFFERENCE>
 class TreeIterator
-#ifdef BSLS_PLATFORM__OS_SOLARIS
+#ifdef BSLS_PLATFORM_OS_SOLARIS
     : public std::iterator<std::bidirectional_iterator_tag, BSLSTL_VALUE>
 // On Solaris just to keep studio12-v4 happy, since algorithms takes only
 // iterators inheriting from 'std::iterator'.

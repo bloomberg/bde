@@ -64,7 +64,7 @@ namespace bsl
     using native_std::tanh;
 
 // C99 math functions are available in namespace std
-#if defined(BSLS_PLATFORM__CMP_GNU) \
+#if defined(BSLS_PLATFORM_CMP_GNU) \
     && defined(_GLIBCXX_USE_C99_MATH) \
     && !defined(_GLIBCXX_USE_C99_FP_MACROS_DYNAMIC)
 

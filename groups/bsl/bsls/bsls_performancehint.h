@@ -333,7 +333,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 
 #ifndef INCLUDED_BUILTINS
 #include <builtins.h>      // for 'dcbt', '__builtin_expect'
@@ -342,7 +342,7 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_HP)
+#if defined(BSLS_PLATFORM_CMP_HP)
 
 #ifndef INCLUDED_MACHINE_SYS_BUILTINS
 #include <machine/sys/builtins.h>
@@ -351,7 +351,7 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
 
 #ifndef INCLUDED_SUN_PREFETCH
 #include <sun_prefetch.h>  // for 'sparc_prefetch_write_many',
@@ -361,7 +361,7 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 
 #ifndef INCLUDED_XMMINTRIN
 #include <xmmintrin.h>     // for '_mm_prefetch', '_MM_HINT_T0'
@@ -380,8 +380,8 @@ namespace BloombergLP {
 // that support '__builtin_expect'.
 
 #if defined(BDE_BUILD_TARGET_OPT) &&                                          \
-   (defined(BSLS_PLATFORM__CMP_GNU) ||                                        \
-   (defined(BSLS_PLATFORM__CMP_IBM) && BSLS_PLATFORM__CMP_VER_MAJOR >= 0x0900))
+   (defined(BSLS_PLATFORM_CMP_GNU) ||                                        \
+   (defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900))
 
     #define BSLS_PERFORMANCEHINT_PREDICT_LIKELY(expr)                         \
                                               __builtin_expect(!!(expr), 1)
@@ -397,10 +397,10 @@ namespace BloombergLP {
 
 #endif
 
-#if defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM_CMP_SUN)
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT                                \
                              BloombergLP::bsls::PerformanceHint::rarelyCalled()
-#elif defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM__CMP_IBM)
+#elif defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM_CMP_IBM)
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT                                \
                              BloombergLP::bsls::PerformanceHint::lowFrequency()
 #else
@@ -438,7 +438,7 @@ struct PerformanceHint {
         // intentionally not inlined.
 
 #if defined(BDE_BUILD_TARGET_OPT)
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
 
 // Pragma to flag the function as rarely called.
 #pragma rarely_called(rarelyCalled)
@@ -449,7 +449,7 @@ struct PerformanceHint {
 // out-of-line function will not trigger a function call.
 #pragma no_side_effect(rarelyCalled)
 
-#endif  // BSLS_PLATFORM__CMP_SUN
+#endif  // BSLS_PLATFORM_CMP_SUN
 #endif  // BDE_BUILD_TARGET_OPT
 
     static void lowFrequency();
@@ -471,24 +471,24 @@ struct PerformanceHint {
 inline
 void PerformanceHint::prefetchForReading(const void *address)
 {
-#if defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU)
 
     __builtin_prefetch(address, 0);
 
-#elif defined(BSLS_PLATFORM__CMP_IBM)
+#elif defined(BSLS_PLATFORM_CMP_IBM)
 
     __dcbt(const_cast<void *>(address));
 
-#elif defined(BSLS_PLATFORM__CMP_SUN)
+#elif defined(BSLS_PLATFORM_CMP_SUN)
 
     sparc_prefetch_read_many(const_cast<void *>(address));
 
-#elif defined(BSLS_PLATFORM__CMP_MSVC)
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
 
     _mm_prefetch(static_cast<const char*>(address), _MM_HINT_T0);
         // '_MM_HINT_T0' fetches data to all levels of cache.
 
-#elif defined(BSLS_PLATFORM__CMP_HP)
+#elif defined(BSLS_PLATFORM_CMP_HP)
 
     _Asm_lfetch(_LFTYPE_NONE, _LFHINT_NTA, address);
 
@@ -502,25 +502,25 @@ void PerformanceHint::prefetchForReading(const void *address)
 inline
 void PerformanceHint::prefetchForWriting(void *address)
 {
-#if defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU)
 
     __builtin_prefetch(address, 1);
 
-#elif (defined(BSLS_PLATFORM__CMP_IBM) &&                                     \
-       BSLS_PLATFORM__CMP_VER_MAJOR >= 0x0900)
+#elif (defined(BSLS_PLATFORM_CMP_IBM) &&                                     \
+       BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900)
 
     __dcbtst(address);
 
-#elif defined(BSLS_PLATFORM__CMP_SUN)
+#elif defined(BSLS_PLATFORM_CMP_SUN)
 
     sparc_prefetch_write_many(address);
 
-#elif defined(BSLS_PLATFORM__CMP_MSVC)
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
 
     _mm_prefetch(static_cast<const char*>(address), _MM_HINT_T0);
         // '_MM_HINT_T0' fetches data to all levels of cache.
 
-#elif defined(BSLS_PLATFORM__CMP_HP)
+#elif defined(BSLS_PLATFORM_CMP_HP)
 
     _Asm_lfetch_excl(_LFTYPE_NONE, _LFHINT_NTA, address);
 
@@ -536,7 +536,7 @@ void PerformanceHint::prefetchForWriting(void *address)
 inline
 void PerformanceHint::lowFrequency()
 {
-#if defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM_CMP_IBM)
 
 #pragma execution_frequency(very_low)
 

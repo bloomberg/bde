@@ -659,7 +659,7 @@ inline
 void SequentialPool::deleteObjectRaw(const TYPE *object)
 {
     if (0 != object) {
-#ifndef BSLS_PLATFORM__CMP_SUN
+#ifndef BSLS_PLATFORM_CMP_SUN
         object->~TYPE();
 #else
         const_cast<TYPE *>(object)->~TYPE();

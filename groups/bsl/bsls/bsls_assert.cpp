@@ -13,15 +13,15 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <cstdlib>
 #include <cstring>
 
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
 #include <signal.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>    // 'sleep'
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <crtdbg.h>    // '_CrtSetReportMode', to suppress pop-ups
 
 typedef unsigned long DWORD;
@@ -39,7 +39,7 @@ extern "C" {
 // access to conforming C++0x compilers.
 //# define BSLS_ASSERT_NORETURN [[noreturn]]
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #   define BSLS_ASSERT_NORETURN __declspec(noreturn)
 #else
 #   define BSLS_ASSERT_NORETURN
@@ -143,7 +143,7 @@ void Assert::failAbort(const char *text, const char *file, int line)
 // See DRQS 8923441: The following is a work-around for a Fortran compiler bug.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
     sigset_t newset;
     sigemptyset(&newset);
     sigaddset(&newset, SIGABRT);
@@ -159,7 +159,7 @@ void Assert::failAbort(const char *text, const char *file, int line)
 // sufficient.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // The following configures the runtime library on how to report asserts,
     // errors, and warnings in order to avoid pop-up windows when 'abort' is
     // called.
@@ -181,9 +181,9 @@ void Assert::failSleep(const char *text, const char *file, int line)
 
     while (1 == sleepDuration) {
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
         sleep(sleepDuration);
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
         Sleep(sleepDuration * 1000);  // milliseconds
 #else
         #error "Do not know how to sleep on this platform."

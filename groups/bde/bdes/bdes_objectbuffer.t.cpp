@@ -75,10 +75,10 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // built-in.
 struct Placement { void *d_ptr; Placement(void *p) : d_ptr(p) { } };
 inline void *operator new(bsl::size_t, Placement p) throw() { return p.d_ptr; }
-#if !defined(BSLS_PLATFORM__CMP_MSVC) && \
-   (!defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 30000)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) && \
+   (!defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VER_MAJOR >= 30000)
 inline void operator delete(void *, Placement) throw() { }
-#elif defined(BSLS_PLATFORM__CMP_MSVC)
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
 // Visual C++ produces an internal compiler error if we provide the delete
 // operator above, but insists on giving us warnings if we don't.  Explicitly
 // disable that warning until the compiler is fixed.  Last tested with VC2008.

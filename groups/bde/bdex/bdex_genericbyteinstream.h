@@ -910,7 +910,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt64(bsls_Types::Int64& variable)
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         d_valid = false;
     }
-#ifdef BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     else {
         T(variable).d_variable =
                          BSLS_BYTEORDER_BE_U64_TO_HOST(T(variable).d_variable);
@@ -929,7 +929,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint64(bsls_Types::Uint64& variable)
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -947,7 +947,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt56(bsls_Types::Int64& variable)
 
     variable = 0x80 & d_streamBuf->sgetc() ? -1 : 0;  // sign extend
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(variable).d_bytes[6] = static_cast<char>(d_streamBuf->sbumpc());
     T(variable).d_bytes[5] = static_cast<char>(d_streamBuf->sbumpc());
     T(variable).d_bytes[4] = static_cast<char>(d_streamBuf->sbumpc());
@@ -971,7 +971,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt56(bsls_Types::Int64& variable)
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -989,7 +989,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint56(bsls_Types::Uint64& variable)
 
     variable = 0;  // zero extend
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(variable).d_bytes[6] = static_cast<char>(d_streamBuf->sbumpc());
     T(variable).d_bytes[5] = static_cast<char>(d_streamBuf->sbumpc());
     T(variable).d_bytes[4] = static_cast<char>(d_streamBuf->sbumpc());
@@ -1013,7 +1013,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint56(bsls_Types::Uint64& variable)
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -1031,7 +1031,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt48(bsls_Types::Int64& variable)
 
     variable = 0x80 & d_streamBuf->sgetc() ? -1 : 0;  // sign extend
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(variable).d_bytes[5] = static_cast<char>(d_streamBuf->sbumpc());
     T(variable).d_bytes[4] = static_cast<char>(d_streamBuf->sbumpc());
     T(variable).d_bytes[3] = static_cast<char>(d_streamBuf->sbumpc());
@@ -1054,7 +1054,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt48(bsls_Types::Int64& variable)
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -1072,7 +1072,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint48(bsls_Types::Uint64& variable)
 
     variable = 0;  // zero extend
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(variable).d_bytes[5] = static_cast<char>(d_streamBuf->sbumpc());
     T(variable).d_bytes[4] = static_cast<char>(d_streamBuf->sbumpc());
     T(variable).d_bytes[3] = static_cast<char>(d_streamBuf->sbumpc());
@@ -1095,7 +1095,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint48(bsls_Types::Uint64& variable)
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -1113,7 +1113,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt40(bsls_Types::Int64& variable)
 
     variable = 0x80 & d_streamBuf->sgetc() ? -1 : 0;  // sign extend
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(variable).d_bytes[4] = static_cast<char>(d_streamBuf->sbumpc());
     T(variable).d_bytes[3] = static_cast<char>(d_streamBuf->sbumpc());
     T(variable).d_bytes[2] = static_cast<char>(d_streamBuf->sbumpc());
@@ -1135,7 +1135,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt40(bsls_Types::Int64& variable)
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -1153,7 +1153,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint40(bsls_Types::Uint64& variable)
 
     variable = 0;  // zero extend
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(variable).d_bytes[4] = static_cast<char>(d_streamBuf->sbumpc());
     T(variable).d_bytes[3] = static_cast<char>(d_streamBuf->sbumpc());
     T(variable).d_bytes[2] = static_cast<char>(d_streamBuf->sbumpc());
@@ -1194,7 +1194,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt32(int& variable)
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         d_valid = false;
     }
-#ifdef BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     else {
         T(variable).d_variable =
                          BSLS_BYTEORDER_BE_U32_TO_HOST(T(variable).d_variable);
@@ -1224,7 +1224,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint32(unsigned int& variable)
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         d_valid = false;
     }
-#ifdef BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     else {
         T(variable).d_variable =
                          BSLS_BYTEORDER_BE_U32_TO_HOST(T(variable).d_variable);
@@ -1235,7 +1235,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint32(unsigned int& variable)
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -1253,7 +1253,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt24(int& variable)
 
     variable = 0x80 & d_streamBuf->sgetc() ? -1 : 0;  // sign extend
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(variable).d_bytes[2] = static_cast<char>(d_streamBuf->sbumpc());
     T(variable).d_bytes[1] = static_cast<char>(d_streamBuf->sbumpc());
 
@@ -1273,7 +1273,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt24(int& variable)
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -1291,7 +1291,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint24(unsigned int& variable)
 
     variable = 0;  // zero extend
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(variable).d_bytes[2] = static_cast<char>(d_streamBuf->sbumpc());
     T(variable).d_bytes[1] = static_cast<char>(d_streamBuf->sbumpc());
 
@@ -1330,7 +1330,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt16(short& variable)
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         d_valid = false;
     }
-#ifdef BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     else {
         T(variable).d_variable =
                          BSLS_BYTEORDER_BE_U16_TO_HOST(T(variable).d_variable);
@@ -1360,7 +1360,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint16(unsigned short& variable)
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         d_valid = false;
     }
-#ifdef BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     else {
         T(variable).d_variable =
                          BSLS_BYTEORDER_BE_U16_TO_HOST(T(variable).d_variable);
@@ -1423,7 +1423,7 @@ bdex_GenericByteInStream<StreamBuf>::getFloat64(double& variable)
 {
     typedef union {
         double             d_variable;
-#ifdef BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
         bsls_Types::Uint64 d_longlong;
 #endif
         char               d_bytes[1];
@@ -1439,7 +1439,7 @@ bdex_GenericByteInStream<StreamBuf>::getFloat64(double& variable)
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         d_valid = false;
     }
-#ifdef BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     else {
         T(variable).d_longlong =
                          BSLS_BYTEORDER_BE_U64_TO_HOST(T(variable).d_longlong);
@@ -1456,7 +1456,7 @@ bdex_GenericByteInStream<StreamBuf>::getFloat32(float& variable)
 {
     typedef union {
         float d_variable;
-#ifdef BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
         int   d_int;
 #endif
         char  d_bytes[1];
@@ -1472,7 +1472,7 @@ bdex_GenericByteInStream<StreamBuf>::getFloat32(float& variable)
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         d_valid = false;
     }
-#ifdef BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     else {
         T(variable).d_int = BSLS_BYTEORDER_BE_U32_TO_HOST(T(variable).d_int);
     }
@@ -1485,7 +1485,7 @@ bdex_GenericByteInStream<StreamBuf>::getFloat32(float& variable)
 ///- - - - - - - - - - - - - - - - -
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -1500,7 +1500,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayInt64(bsls_Types::Int64 *array,
         return *this;                                                 // RETURN
     }
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     const bsls_Types::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt64(*array);
@@ -1516,7 +1516,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayInt64(bsls_Types::Int64 *array,
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -1531,7 +1531,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayUint64(bsls_Types::Uint64 *array,
         return *this;                                                 // RETURN
     }
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     const bsls_Types::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint64(*array);
@@ -1673,7 +1673,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayUint40(bsls_Types::Uint64 *array,
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -1687,7 +1687,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayInt32(int *array, int count)
         return *this;                                                 // RETURN
     }
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     const int *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt32(*array);
@@ -1703,7 +1703,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayInt32(int *array, int count)
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -1718,7 +1718,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayUint32(unsigned int *array,
         return *this;                                                 // RETURN
     }
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     const unsigned int *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint32(*array);
@@ -1775,7 +1775,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayUint24(unsigned int *array,
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -1789,7 +1789,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayInt16(short *array, int count)
         return *this;                                                 // RETURN
     }
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     const short *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt16(*array);
@@ -1805,7 +1805,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayInt16(short *array, int count)
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -1820,7 +1820,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayUint16(unsigned short *array,
         return *this;                                                 // RETURN
     }
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     const unsigned short *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint16(*array);
@@ -1892,7 +1892,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayUint8(unsigned char *array,
 ///- - - - - - - - - - - - - - - - - - - -
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -1906,7 +1906,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayFloat64(double *array, int count)
         return *this;                                                 // RETURN
     }
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     const double *endArray = array + count;
     for (; array < endArray; ++array) {
         getFloat64(*array);
@@ -1922,7 +1922,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayFloat64(double *array, int count)
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
@@ -1936,7 +1936,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayFloat32(float *array, int count)
         return *this;                                                 // RETURN
     }
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     const float *endArray = array + count;
     for (; array < endArray; ++array) {
         getFloat32(*array);

@@ -635,7 +635,7 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #ifndef INCLUDED_BSL_C_LIMITS
 #include <bsl_c_limits.h>      // for IOV_MAX
 #endif
@@ -2022,7 +2022,7 @@ struct btemt_ChannelPool_MessageUtil {
         // indicates the  maximum number of iovecs that can be supplied to
         // 'writev'.
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #ifdef IOV_MAX
 #if IOV_MAX > 32
 // If too big, this would make 'btemt_Channel' really big.

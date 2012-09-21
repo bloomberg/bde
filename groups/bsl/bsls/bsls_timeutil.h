@@ -184,14 +184,14 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     #ifndef INCLUDED_TIME
     #include <time.h>
     #define INCLUDED_TIME
     #endif
 #endif
 
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
     #ifndef INCLUDED_SYS_TIME
     #include <sys/time.h>
     #define INCLUDED_SYS_TIME
@@ -220,17 +220,17 @@ struct TimeUtil {
     // nanoseconds.
 
     // TYPES
-#if   defined BSLS_PLATFORM__OS_SOLARIS
+#if   defined BSLS_PLATFORM_OS_SOLARIS
     typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
-#elif defined BSLS_PLATFORM__OS_AIX
+#elif defined BSLS_PLATFORM_OS_AIX
     typedef timebasestruct_t                  OpaqueNativeTime;
-#elif defined BSLS_PLATFORM__OS_HPUX
+#elif defined BSLS_PLATFORM_OS_HPUX
     typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
-#elif defined BSLS_PLATFORM__OS_LINUX
+#elif defined BSLS_PLATFORM_OS_LINUX
     typedef timespec                          OpaqueNativeTime;
-#elif defined BSLS_PLATFORM__OS_UNIX
+#elif defined BSLS_PLATFORM_OS_UNIX
     typedef timeval                           OpaqueNativeTime;
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
     typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
 #endif
 

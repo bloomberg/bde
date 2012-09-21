@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         const int firstId = Obj::getProcessId();
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         ASSERT(firstId > 0);
 
         const char *tmpFileName = "tmp.processutil.case2.eraseMe.txt";
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == Obj::getProcessName(&name));
             ASSERT(name == firstName);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             FUtil::FileDescriptor fd = FUtil::open(tmpFileName,
                                                    true, false);
             LOOP2_ASSERT(i, fd, fd < 40);

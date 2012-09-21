@@ -57,7 +57,7 @@
 #include <bsl_stack.h>
 #include <bsl_cstdlib.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <crtdbg.h>  // _CrtSetReportMode, to suppress popups
 #endif
 
@@ -7317,7 +7317,7 @@ static void testCase23(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             }
 
             bslma_TestAllocator testAllocator(veryVeryVerbose);
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
          BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
             bslma_TestAllocator alloc(veryVeryVerbose);
@@ -7401,7 +7401,7 @@ static void testCase23(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             else {
                 LOOP_ASSERT(LINE, isUnset(Y.asElemRef()));
             }
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
          } END_BSLMA_EXCEPTION_TEST
 #endif
         }
@@ -8538,7 +8538,7 @@ static void testCase18(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             bslma_TestAllocator testAllocator(veryVeryVerbose);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
           BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
             Obj mX(CRP, &testAllocator); const Obj& X = mX;
@@ -8627,7 +8627,7 @@ static void testCase18(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             mA.removeAllItems();
             ASSERT(0 == A.length());
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
           } END_BSLMA_EXCEPTION_TEST
 #endif
         }
@@ -8808,7 +8808,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 bslma_TestAllocator testAllocator(veryVeryVerbose);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
               BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
                 Obj mX(CRP, &testAllocator); const Obj& X = mX;
@@ -8894,7 +8894,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 mA.removeItems(0, 1);
                 ASSERT(0 == A.length());
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
               } END_BSLMA_EXCEPTION_TEST
 #endif
           }
@@ -8942,7 +8942,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 bslma_TestAllocator testAllocator(veryVeryVerbose);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
               BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
                 Obj mX(CRP, &testAllocator); const Obj& X = mX;
@@ -8985,7 +8985,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 mA.removeItems(0, 1);
                 ASSERT(LEN + 0 == A.length());
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             } END_BSLMA_EXCEPTION_TEST
 #endif
           }
@@ -9168,7 +9168,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 bslma_TestAllocator testAllocator;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
               BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
                 Obj mX(CRP, &testAllocator); const Obj& X = mX;
@@ -9258,7 +9258,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 ASSERT(compareCERefs(VA, B[2].asElemRef()));
                 ASSERT(IS_NULL == B[3].isNul2());
                 ASSERT(Obj::areEquivalent(ret, B[3]));
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
               } END_BSLMA_EXCEPTION_TEST
 #endif
             }
@@ -9309,7 +9309,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 bslma_TestAllocator testAllocator(veryVeryVerbose);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
               BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
                 Obj mX(CRP, &testAllocator); const Obj& X = mX;
@@ -9375,7 +9375,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 ASSERT(IS_NULL == B[LEN + 3].isNul2());
                 ASSERT(Obj::areEquivalent(ret, B[LEN + 3]));
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
               } END_BSLMA_EXCEPTION_TEST
 #endif
             }
@@ -17419,7 +17419,7 @@ int main(int argc, char *argv[])
 
     tst::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // Suppress all windows debugging popups
     _CrtSetReportMode(_CRT_ASSERT, 0);
     _CrtSetReportMode(_CRT_ERROR,  0);

@@ -310,7 +310,7 @@ struct hash<unsigned long> {
     }
 };
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
 template <>
 struct hash<long long> {
     // Specialization of 'hash' for 'long long' values.
@@ -345,7 +345,7 @@ struct hash<unsigned long long> {
     }
 };
 
-#else  // BSLS_PLATFORM__CPU_32_BIT
+#else  // BSLS_PLATFORM_CPU_32_BIT
 
 template <>
 struct hash<long long> {
@@ -380,7 +380,7 @@ struct hash<unsigned long long> {
         return (std::size_t)(x ^ (x >> 32));
     }
 };
-#endif   // BSLS_PLATFORM__CPU_64_BIT
+#endif   // BSLS_PLATFORM_CPU_64_BIT
 
 }  // close namespace bsl
 

@@ -204,7 +204,7 @@ BDES_IDENT("$Id: $")
 //
 //      stackSize += 8192;
 //
-//  #ifdef BSLS_PLATFORM__OS_HPUX
+//  #ifdef BSLS_PLATFORM_OS_HPUX
 //      // The Itanium divides the stack into two sections: a variable stack
 //      // and a control stack.  To make 'stackSize' have the same meaning
 //      // across platforms, we must double it on this platform.

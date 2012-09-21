@@ -358,7 +358,7 @@ namespace bdeat_EnumFunctions {
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
 
-#if ! defined(BSLS_PLATFORM__CMP_IBM)
+#if ! defined(BSLS_PLATFORM_CMP_IBM)
     // OVERLOADABLE FUNCTIONS
     // The following functions should be overloaded for other types (in their
     // respective namespaces).  The following functions are the default
@@ -428,7 +428,7 @@ void bdeat_EnumFunctions::toString(bsl::string *result, const TYPE& value)
            // namespace bdeat_EnumFunctions (OVERLOADABLE FUNCTIONS)
            // ------------------------------------------------------
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 namespace bdeat_EnumFunctions {
     // xlC 6 will not do Koenig (argument-dependent) lookup if the function
     // being called has already been declared in some scope at the point of

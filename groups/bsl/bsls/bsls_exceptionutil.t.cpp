@@ -142,7 +142,7 @@ void assertHandler(const char *message, const char *file, int line)
 }
 
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 typedef jmp_buf JumpBuffer;
 #define setJump(X) setjmp((X))
 #else
@@ -169,7 +169,7 @@ void abortSignalHandler(int x)
 {
     (void *)x;
     if (g_inTest) {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         longjmp(g_jumpBuffer, 1);
 #else
         siglongjmp(g_jumpBuffer, 1);

@@ -405,7 +405,7 @@ BDES_IDENT("$Id: $")
 #include <bslfwd_bslma_allocator.h>
 #endif
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     #ifndef INCLUDED_BSL_C_SIGNAL
     #include <bsl_c_signal.h>
     #endif

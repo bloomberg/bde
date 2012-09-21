@@ -79,7 +79,7 @@ namespace bsl
 #define BloombergLP_std bsl
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
   // Force the SUN compiler to find *.cc files when including native headers.
   // Without this macro, .cc files are included lazily, which is usually AFTER
   // 'std' has been defined as a macro, breaking their compilation.

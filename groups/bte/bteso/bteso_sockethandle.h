@@ -32,7 +32,7 @@ BDES_IDENT("$Id: $")
 #include <bteso_platform.h>
 #endif
 
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
     #ifndef INCLUDED_WINSOCK2
     #include <winsock2.h>
     #define INCLUDED_WINSOCK2
@@ -80,7 +80,7 @@ struct bteso_SocketHandle {
     };
 
     // TYPES
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
     typedef SOCKET Handle;
 #else
     typedef int Handle;

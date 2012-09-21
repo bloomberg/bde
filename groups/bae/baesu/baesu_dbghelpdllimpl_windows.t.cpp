@@ -13,7 +13,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <bcemt_qlock.h>
 
 #include <windows.h>
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "USAGE EXAMPLE\n"
                              "=============\n";
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
         // This test is meaningless unless on Windows with debug enabled
 
         bcemt_QLockGuard guard(&baesu_DbghelpDllImpl_Windows::qLock());
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TEST RESOLVING FUNCTION NAME\n"
                              "============================\n";
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
         // This test is meaningless unless on Windows with debug enabled
 
         bcemt_QLockGuard guard(&baesu_DbghelpDllImpl_Windows::qLock());
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
                                                     | SYMOPT_DEFERRED_LOADS);
 
         enum { MAX_SYMBOL_BUF_NAME_LENGTH = 2000 };
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
         enum { SIZEOF_SEGMENT = sizeof(SYMBOL_INFO) +
                                   MAX_SYMBOL_BUF_NAME_LENGTH * sizeof(TCHAR) };
         SYMBOL_INFO *sym = (SYMBOL_INFO*) ta.allocate(SIZEOF_SEGMENT);
@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
         DWORD64 offsetFromSymbol = 0;
         ZeroMemory(sym, SIZEOF_SEGMENT);
         sym->SizeOfStruct = sizeof(*sym);
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
         sym->MaxNameLen = MAX_SYMBOL_BUF_NAME_LENGTH;
         int rc = baesu_DbghelpDllImpl_Windows::symFromAddr(
                                                       (DWORD64) testFunction(),
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TEST RESOLVING LINE NUMBER\n"
                              "==========================\n";
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
         // This test is meaningless unless on Windows with debug enabled
 
         bcemt_QLockGuard guard(&baesu_DbghelpDllImpl_Windows::qLock());
@@ -293,7 +293,7 @@ int main(int argc, char *argv[])
                              "==================\n";
       }  break;
       case 1: {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         // --------------------------------------------------------------------
         // TEST LOADING OF DLL
         // --------------------------------------------------------------------

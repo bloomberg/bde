@@ -108,7 +108,7 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
     // Note: on Windows -> WinGDI.h:#define ERROR 0
 
 #if defined(DEBUG)

@@ -208,7 +208,7 @@ struct IsConvertible_Match {
 };
 
 template <typename FROM_TYPE, typename TO_TYPE
-#if defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU)
          , int IS_FROM_FUNDAMENTAL = IsFundamental<FROM_TYPE>::VALUE
          , int IS_TO_FUNDAMENTAL   = IsFundamental<TO_TYPE>::VALUE
 #endif
@@ -235,7 +235,7 @@ struct IsConvertible_Imp {
 
   public:
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #   pragma warning(push)
 #   pragma warning(disable: 4244) //loss of precision warning ignored
 #endif
@@ -249,7 +249,7 @@ struct IsConvertible_Imp {
                             (TypeRep<Test>::rep(), TypeRep<FROM_TYPE>::rep())))
             // 'VALUE' will be true if 'FROM_TYPE' is convertible to 'TO_TYPE'.
     };
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #   pragma warning(pop)
 #endif
 
@@ -258,7 +258,7 @@ struct IsConvertible_Imp {
         // 'bdmef_MetaInt<0>'.
 };
 
-#if defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU)
 // Partial specializations when 'TO_TYPE' is a fundamental type.  The sole
 // purpose of these specializations is to remove gcc warnings when converting
 // from 'FLOAT' to 'INT' as above, where 'INT' and 'FLOAT' represent an integer

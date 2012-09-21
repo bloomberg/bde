@@ -106,7 +106,7 @@ const char *Version::version()
 
 // Force linker to pull in this component's object file.
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 static const char **bslscm_version_assertion =
                                             &bslscm::Version::BSLSCM_D_VERSION;
 #else

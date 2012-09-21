@@ -260,7 +260,7 @@ static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
 # define TEST_TYPES_REGULAR(containerArg)                                     \
         containerArg<signed char>,                                            \
         containerArg<size_t>,                                                 \

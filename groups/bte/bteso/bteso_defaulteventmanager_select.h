@@ -109,14 +109,14 @@ BDES_IDENT("$Id: $")
 #include <bteso_platform.h>
 #endif
 
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
   #ifndef INCLUDED_WINSOCK2
     #include <winsock2.h>
     #define INCLUDED_WINSOCK2
   #endif
 #endif
 
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
   #ifndef INCLUDED_SYS_SELECT
     #include <sys/select.h>
     #define INCLUDED_SYS_SELECT

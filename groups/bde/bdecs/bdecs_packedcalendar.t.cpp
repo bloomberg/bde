@@ -25,7 +25,7 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <crtdbg.h>  // '_CrtSetReportMode', to suppress popups
 #endif
 
@@ -9308,7 +9308,7 @@ DEFINE_TEST_CASE(1) {
 
 int main(int argc, char *argv[])
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // Suppress all windows debugging popups
     _CrtSetReportMode(_CRT_ASSERT,0);
     _CrtSetReportMode(_CRT_ERROR, 0);

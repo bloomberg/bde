@@ -16,7 +16,7 @@
 #include <cstring>              // memset(), memcpy(), strlen()
 #include <iostream>
 #include <stdio.h>              // snprintf()
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>             // pipe(), close() and dup().
 #endif
 
@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 // The following code uses pipe() and fork(), so only works on Unix.
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 
         if (verbose) cout << endl << "PRINT TEST" << endl
                                   << "==========" << endl;
@@ -426,7 +426,7 @@ int main(int argc, char *argv[])
             ASSERT(XX == buf[BUF_SZ - 1]);     // Check for overrun.
             ASSERT(0 == memcmp(buf, EXP, BUF_SZ));
         }
-#endif // defined BSLS_PLATFORM__OS_UNIX
+#endif // defined BSLS_PLATFORM_OS_UNIX
       } break;
       case 3: {
         // --------------------------------------------------------------------

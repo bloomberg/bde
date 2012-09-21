@@ -582,7 +582,7 @@ namespace bdeat_ChoiceFunctions {
         // Return the id of the current selection if the selection is defined,
         // and BDEAT_UNDEFINED_SELECTION_ID otherwise.
 
-#if ! defined(BSLS_PLATFORM__CMP_IBM)
+#if ! defined(BSLS_PLATFORM_CMP_IBM)
     // OVERLOADABLE FUNCTIONS
     // The following functions should be overloaded for other types (in their
     // respective namespaces).  The following functions are the default
@@ -698,7 +698,7 @@ int bdeat_ChoiceFunctions::selectionId(const TYPE& object)
           // namespace bdeat_ChoiceFunctions (OVERLOADABLE FUNCTIONS)
           // --------------------------------------------------------
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 namespace bdeat_ChoiceFunctions {
     // xlC 6 will not do Koenig (argument-dependent) lookup is the function
     // being called has already been declared in some scope at the point of
@@ -780,7 +780,7 @@ int bdeat_ChoiceFunctions::bdeat_choiceAccessSelection(const TYPE& object,
 }
 
 // VC2008 does not detect that address is used.
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma warning( push )
 #pragma warning( disable : 4100 )
 #endif
@@ -807,7 +807,7 @@ bool bdeat_ChoiceFunctions::bdeat_choiceHasSelection(const TYPE& object,
     return 0 != object.lookupSelectionInfo(selectionId);
 }
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma warning( pop )
 #endif
 

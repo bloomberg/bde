@@ -782,7 +782,7 @@ int main(int argc, char *argv[])
 // addresses:
 //..
     int rc = cache.resolveAddress(&ipAddresses, "www.bloomberg.com", 1);
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
     // The Windows test machine is not configured resolve external domain name
     // properly.  Disable the ASSERT test to prevent test failure.
 
@@ -795,7 +795,7 @@ int main(int argc, char *argv[])
 //  indicate "www.bloomberg.com" is stored in the cache, but not
 //  "www.businessweek.com":
 //..
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
     ASSERT(0 == cache.lookupAddressRaw(&ipAddresses, "www.bloomberg.com", 1));
     ASSERT(0 != cache.lookupAddressRaw(&ipAddresses,
                                        "www.businessweek.com",
@@ -818,7 +818,7 @@ int main(int argc, char *argv[])
 //..
 // Now, we write the address to stdout:
 //..
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
     if (verbose) bsl::cout << "IP Address: " << ipAddress << std::endl;
 #endif
 //..
@@ -941,7 +941,7 @@ int main(int argc, char *argv[])
         bcema_TestAllocator testAllocator;
 
         enum {
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
             NUM_THREADS = 8    // linux can't do a lot of threads
 #else
             NUM_THREADS = 50
@@ -2031,7 +2031,7 @@ int main(int argc, char *argv[])
             double totalUserTime   = 0;
             double totalWallTime   = 0;
 
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
             setenv("NSORDER", "bind,local", 1);
 #endif
 

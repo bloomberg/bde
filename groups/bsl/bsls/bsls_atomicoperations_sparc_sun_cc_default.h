@@ -28,9 +28,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations_default.h>
 #endif
 
-#if (defined(BSLS_PLATFORM__CPU_SPARC_V9)                                     \
-                                     || defined(BSLS_PLATFORM__CPU_SPARC_32)) \
-    && (defined(BSLS_PLATFORM__CMP_GNU) || defined(BSLS_PLATFORM__CMP_SUN))
+#if (defined(BSLS_PLATFORM_CPU_SPARC_V9)                                     \
+                                     || defined(BSLS_PLATFORM_CPU_SPARC_32)) \
+    && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN))
 
 namespace BloombergLP {
 

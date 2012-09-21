@@ -447,7 +447,7 @@ void setValue(const void **pvs, char ch)
     *pvs = (const void *) (UintPtr) ch;
 }
 
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
 char getValue(void * const& vs)
 {
     return (char) ((UintPtr) vs & 0xff);
@@ -473,7 +473,7 @@ void setValue(const int **pis, char ch)
     *pis = (const int *) (UintPtr) ch;
 }
 
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
 char getValue(int * const& is)
 {
     return (char) ((UintPtr) is & 0xff);

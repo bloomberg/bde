@@ -787,7 +787,7 @@ class bcem_Aggregate {
                            const bcem_ErrorAttributes& errorDescription) const;
     const bcem_Aggregate makeError(bcem_ErrorCode::Code  errorCode,
                                    const char           *msg, ...) const
-#ifdef BSLS_PLATFORM__CMP_GNU
+#ifdef BSLS_PLATFORM_CMP_GNU
         // Declare this function as printf-like in gcc.
         // The 'msg' arg is the 3rd arg, including the implicit 'this'.
         __attribute__ ((__format__ (__printf__, 3, 4)))

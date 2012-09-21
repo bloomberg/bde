@@ -280,7 +280,7 @@ int NUM_SPECIAL_INT_VALUES     =
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 //#define TEST_TYPES_REGULAR BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
 # define TEST_TYPES_REGULAR                                                   \
         signed char,                                                          \
         size_t,                                                               \

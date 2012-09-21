@@ -319,7 +319,7 @@ class DequeIterator<VALUE_TYPE, 1> {
     BlockPtr   *d_blockPtr_p; // pointer to BlockPtr within BlockPtr array
     VALUE_TYPE *d_value_p;    // pointer to element referenced by iterator
 
-#ifdef BSLS_PLATFORM__CMP_SUN
+#ifdef BSLS_PLATFORM_CMP_SUN
     // WARNING: Note that SUN's compiler complains about function "friend
     // declaration is incompatible with function template" when xlC, gcc and
     // windows all accept the form wrapped in the '#else' statement.  Therefore

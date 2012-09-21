@@ -166,7 +166,7 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(PASSTHROUGH)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(PASSTHROUGH)
     // Note: on Windows -> WinGDI.h:#define PASSTHROUGH 19
 #undef PASSTHROUGH
 #endif

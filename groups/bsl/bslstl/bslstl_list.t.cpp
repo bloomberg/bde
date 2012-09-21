@@ -9847,7 +9847,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nAdditional tests: traits.\n");
 
-#ifndef BSLS_PLATFORM__CMP_MSVC  // Temporarily does not work for MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC  // Temporarily does not work for MSVC
         ASSERT(  (bslalg::HasTrait<list<char>,
                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
         ASSERT(  (bslalg::HasTrait<list<T>,

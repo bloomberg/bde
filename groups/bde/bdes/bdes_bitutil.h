@@ -471,14 +471,14 @@ BDES_IDENT("$Id: $")
 #include <bsl_climits.h>
 #endif
 
-#ifdef BSLS_PLATFORM__CMP_IBM
+#ifdef BSLS_PLATFORM_CMP_IBM
 #ifndef INCLUDED_BUILTINS
 #include <builtins.h>
 #define INCLUDED_BUILTINS
 #endif
 #endif
 
-#ifdef BSLS_PLATFORM__CMP_HP
+#ifdef BSLS_PLATFORM_CMP_HP
 #ifndef INCLUDED_MACHINE_SYS_BUILTINS
 #include <machine/sys/builtins.h>
 #define INCLUDED_MACHINE_SYS_BUILTINS
@@ -1951,9 +1951,9 @@ bsls_Types::Int64 bdes_BitUtil::neMask64(int index)
 inline
 int bdes_BitUtil::find1AtLargestIndex(int srcInteger)
 {
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
     return 31 - __cntlz4(srcInteger);
-#elif defined(BSLS_PLATFORM__CMP_GNU)
+#elif defined(BSLS_PLATFORM_CMP_GNU)
     return (31 - __builtin_clz(srcInteger)) | -!srcInteger;
 #else
     return privateFind1AtLargestIndex(srcInteger);
@@ -1963,9 +1963,9 @@ int bdes_BitUtil::find1AtLargestIndex(int srcInteger)
 inline
 int bdes_BitUtil::find1AtLargestIndex64(Int64 srcInteger)
 {
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
     return 63 - __cntlz8(srcInteger);
-#elif defined(BSLS_PLATFORM__CMP_GNU)
+#elif defined(BSLS_PLATFORM_CMP_GNU)
     return (63 - __builtin_clzll(srcInteger))| -static_cast<int>(!srcInteger);
 #else
     return privateFind1AtLargestIndex64(srcInteger);
@@ -1975,9 +1975,9 @@ int bdes_BitUtil::find1AtLargestIndex64(Int64 srcInteger)
 inline
 int bdes_BitUtil::find1AtSmallestIndex(int srcInteger)
 {
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
     return __cnttz4(static_cast<unsigned>(srcInteger));
-#elif defined(BSLS_PLATFORM__CMP_GNU)
+#elif defined(BSLS_PLATFORM_CMP_GNU)
     enum {
         BDES_INT_MASK = BDES_BITS_PER_INT - 1
     };
@@ -1997,9 +1997,9 @@ int bdes_BitUtil::find1AtSmallestIndex(int srcInteger)
 inline
 int bdes_BitUtil::find1AtSmallestIndex64(Int64 srcInteger)
 {
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
     return __cnttz8(static_cast<Uint64>(srcInteger));
-#elif defined(BSLS_PLATFORM__CMP_GNU)
+#elif defined(BSLS_PLATFORM_CMP_GNU)
     enum {
         BDES_INT64_MASK = BDES_BITS_PER_INT64 - 1
       , BDES_INT_MASK   = BDES_BITS_PER_INT  - 1
@@ -2022,9 +2022,9 @@ int bdes_BitUtil::numSetOne(int srcInteger)
 {
     unsigned input = srcInteger;
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
     return __popcnt4(input);
-#elif defined(BSLS_PLATFORM__CMP_GNU)
+#elif defined(BSLS_PLATFORM_CMP_GNU)
     return __builtin_popcount(input);
 #else
 
@@ -2063,9 +2063,9 @@ int bdes_BitUtil::numSetOne64(Int64 srcInteger)
 {
     Uint64 input = srcInteger;
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
     return __popcnt8(input);
-#elif defined(BSLS_PLATFORM__CMP_GNU)
+#elif defined(BSLS_PLATFORM_CMP_GNU)
     return __builtin_popcountll(input);
 #else
 

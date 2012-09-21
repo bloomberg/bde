@@ -113,7 +113,7 @@ typedef bsls::NoMtBuildTarget bsls_NoMtBuildTarget;
 
 #endif
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
 
 namespace bsls {
 
@@ -147,7 +147,7 @@ typedef bsls::No64BitBuildTarget bsls_No64BitBuildTarget;
 
 // Force linker to pull in this component's object file.
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 static const int *bsls_buildtarget_assertion1 =
                                      &bsls::ExcBuildTarget::d_isExcBuildTarget;
 static const int *bsls_buildtarget_assertion2 =

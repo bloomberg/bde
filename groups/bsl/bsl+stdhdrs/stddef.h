@@ -36,8 +36,8 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM__CMP_GNU) && \
-                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_PLATFORM_CMP_GNU) && \
+                                        (BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)
 #     include_next <stddef.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(stddef.h)
@@ -58,8 +58,8 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM__CMP_GNU) && \
-                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_PLATFORM_CMP_GNU) && \
+                                        (BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)
 #     include_next <stddef.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(stddef.h)
@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
 
 // On SUN, 'stddef.h' (a C header) defines 'size_t'.  This odd implementation
 // forces the following 'using' directive.
-#   ifdef BSLS_PLATFORM__CMP_SUN
+#   ifdef BSLS_PLATFORM_CMP_SUN
 
 // This C header file might be included within an 'extern "C"' block.  To avoid
 // defining C++ symbols in an 'extern "C"' block, wrap the C++ code with an
@@ -82,7 +82,7 @@ extern "C++" {
 
 }  // extern "C++"
 
-#   endif  // BSLS_PLATFORM__CMP_SUN
+#   endif  // BSLS_PLATFORM_CMP_SUN
 
 #   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_c_stddef
 #   undef BSL_STDHDRS_EPILOGUE_RUN_BY_c_stddef

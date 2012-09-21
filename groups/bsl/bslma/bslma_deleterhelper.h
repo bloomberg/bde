@@ -176,7 +176,7 @@ void DeleterHelper::deleteObject(const TYPE *object,
                             bslmf::IsPolymorphic<TYPE>::VALUE>::caster(object);
         BSLS_ASSERT_OPT(address);
 
-#ifndef BSLS_PLATFORM__CMP_SUN
+#ifndef BSLS_PLATFORM_CMP_SUN
         object->~TYPE();
 #else
         const_cast<TYPE *>(object)->~TYPE();
@@ -196,7 +196,7 @@ void DeleterHelper::deleteObjectRaw(const TYPE *object,
     if (0 != object) {
         void *address = const_cast<TYPE *>(object);
 
-#ifndef BSLS_PLATFORM__CMP_SUN
+#ifndef BSLS_PLATFORM_CMP_SUN
         object->~TYPE();
 #else
         const_cast<TYPE *>(object)->~TYPE();

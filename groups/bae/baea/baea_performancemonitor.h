@@ -188,19 +188,19 @@ class baea_PerformanceMonitor {
     // bdes_platform component.  This type alias is used to specifically select
     // a particular template specialization of the 'Collector' template.
 
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
     typedef bsls_Platform::OsLinux   OsType;
-#elif defined(BDES_PLATFORM__OS_FREEBSD)
+#elif defined(BDES_PLATFORM_OS_FREEBSD)
     typedef bsls_Platform::OsFreeBsd OsType;
-#elif defined(BDES_PLATFORM__OS_DARWIN)
+#elif defined(BDES_PLATFORM_OS_DARWIN)
     typedef bsls_Platform::OsDarwin OsType;
 /*
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
 typedef bsls_Platform::OsHpUx OsType;
 */
-#elif defined(BSLS_PLATFORM__OS_UNIX)
+#elif defined(BSLS_PLATFORM_OS_UNIX)
     typedef bsls_Platform::OsUnix    OsType;
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
     typedef bsls_Platform::OsWindows OsType;
 #endif
 
