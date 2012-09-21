@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // such a class should *always* be declared 'virtual'.  Therefore another
 // definition of polymorphic is whether a class has a virtual destructor.
 //
-// 'bslmf::IsPolymorphic' defines a 'VALUE' member that is initialized (at
+// 'bslmf::IsPolymorphic' defines a 'value' member that is initialized (at
 // compile-time) to 1 if the parameter is a polymorphic type (or a reference to
 // such a type), and to 0 otherwise.
 //
@@ -60,16 +60,16 @@ BSLS_IDENT("$Id: $")
 //..
 // defines a polymorphic hierarchy.  With these definitions:
 //..
-//  assert(0 == bslmf::IsPolymorphic<MyStruct          >::VALUE);
-//  assert(0 == bslmf::IsPolymorphic<MyStruct         *>::VALUE);
-//  assert(0 == bslmf::IsPolymorphic<MyDerivedStruct&  >::VALUE);
-//  assert(0 == bslmf::IsPolymorphic<MyDerivedStruct  *>::VALUE);
+//  assert(0 == bslmf::IsPolymorphic<MyStruct          >::value);
+//  assert(0 == bslmf::IsPolymorphic<MyStruct         *>::value);
+//  assert(0 == bslmf::IsPolymorphic<MyDerivedStruct&  >::value);
+//  assert(0 == bslmf::IsPolymorphic<MyDerivedStruct  *>::value);
 //
-//  assert(1 == bslmf::IsPolymorphic<      MyClass    >::VALUE);
-//  assert(1 == bslmf::IsPolymorphic<const MyClass&   >::VALUE);
-//  assert(0 == bslmf::IsPolymorphic<      MyClass   *>::VALUE);
-//  assert(1 == bslmf::IsPolymorphic<MyDerivedClass&  >::VALUE);
-//  assert(0 == bslmf::IsPolymorphic<MyDerivedClass  *>::VALUE);
+//  assert(1 == bslmf::IsPolymorphic<      MyClass    >::value);
+//  assert(1 == bslmf::IsPolymorphic<const MyClass&   >::value);
+//  assert(0 == bslmf::IsPolymorphic<      MyClass   *>::value);
+//  assert(1 == bslmf::IsPolymorphic<MyDerivedClass&  >::value);
+//  assert(0 == bslmf::IsPolymorphic<MyDerivedClass  *>::value);
 //..
 //
 // The following class is detected as polymorphic by this component, but should
@@ -83,8 +83,8 @@ BSLS_IDENT("$Id: $")
 //      virtual void virtualMethod();
 //  };
 //
-//  assert(1 == bslmf::IsPolymorphic<MyIncorrectPolymorphicClass&  >::VALUE);
-//  assert(0 == bslmf::IsPolymorphic<MyIncorrectPolymorphicClass  *>::VALUE);
+//  assert(1 == bslmf::IsPolymorphic<MyIncorrectPolymorphicClass&  >::value);
+//  assert(0 == bslmf::IsPolymorphic<MyIncorrectPolymorphicClass  *>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -99,8 +99,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECV
@@ -142,7 +142,7 @@ struct IsPolymorphic_Imp
 
 #else
 
-template <typename TYPE, bool IS_CLASS = is_class<TYPE>::value>
+template <typename TYPE, bool IS_CLASS = bsl::is_class<TYPE>::value>
 struct IsPolymorphic_Imp {
     enum { Value = false };
 };
@@ -174,11 +174,11 @@ namespace bsl {
 
 template <typename TYPE>
 struct is_polymorphic
-    : integer_constant<bool,
-                       BloombergLP::bslmf::IsPolymorphic_Imp<
-                            typename remove_cv<
-                                typename remove_reference<TYPE>::type>::type>
-                       ::Value>
+    : integral_constant<bool,
+                        BloombergLP::bslmf::IsPolymorphic_Imp<
+                             typename remove_cv<
+                                 typename remove_reference<TYPE>::type>::type>
+                        ::Value>
 {};
 
 }
@@ -192,10 +192,11 @@ namespace bslmf {
                          // ====================
 
 template <typename TYPE>
-struct IsPolymorphic : MetaInt<bsl::is_polymorphic<TYPE>::value> {
-    // This metafunction class derives from 'MetaInt<1>' if the specified
+struct IsPolymorphic : bsl::is_polymorphic<TYPE>::type
+    // This metafunction class derives from 'bsl::true_type' if the specified
     // 'TYPE' is a class type (or a reference to a class type) with a v-table,
-    // or from 'MetaInt<0>' otherwise.
+    // or from 'bsl::false_type' otherwise.
+{
 };
 
 }  // close package namespace

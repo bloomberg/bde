@@ -136,14 +136,14 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     namespace BloombergLP {
 
     template <class TYPE>
-    void destructiveMoveArrayImp(TYPE *to, TYPE *from, int size, true_type)
+    void destructiveMoveArrayImp(TYPE *to, TYPE *from, int size, bsl::true_type)
     {
         // Bitwize moveable types can be moved using memcpy
         std::memcpy(to, from, size * sizeof(TYPE));
     }
 
     template <class TYPE>
-    void destructiveMoveArrayImp(TYPE *to, TYPE *from, int size, false_type)
+    void destructiveMoveArrayImp(TYPE *to, TYPE *from, int size, bsl::false_type)
     {
         for (int i = 0; i < size; ++i) {
             ::new(to + i) TYPE(from[i]);
@@ -217,7 +217,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     int MoveableClass1::d_dtorCount = 0;
 
     namespace bslmf {
-        template <> struct IsBitwiseMoveable<MoveableClass1> : true_type { };
+        template <> struct IsBitwiseMoveable<MoveableClass1> : bsl::true_type { };
     }
 //..
 // The third class is also declared to be bitwise moveable, but this time we
@@ -397,7 +397,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
     namespace bslmf {
         template <class TYPE>
-        struct IsBitwiseMoveable<MoveableTemplate1<TYPE> > : true_type { };
+        struct IsBitwiseMoveable<MoveableTemplate1<TYPE> > : bsl::true_type { };
     }
 //..
 // Third, we define 'MoveableTemplate2', which uses the

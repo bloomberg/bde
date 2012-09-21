@@ -3,6 +3,7 @@
 #include <bslstl_list.h>
 #include <bslstl_iterator.h>
 
+#include <bslalg_hastrait.h>
 #include <bslalg_typetraits.h>
 
 #include <bslma_allocator.h>

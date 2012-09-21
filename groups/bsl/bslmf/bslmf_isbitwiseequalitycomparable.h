@@ -7,8 +7,8 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
@@ -48,13 +48,13 @@ struct IsBitwiseEqualityComparable;
 
 template <typename TYPE>
 struct IsBitwiseEqualityComparable_Imp
-    : bsl::integer_constant<bool,
-                            !bsl::is_reference<TYPE>::value
-                         && (  IsFundamental<TYPE>::value
-                            || IsEnum<TYPE>::value
-                            || bsl::is_pointer<TYPE>::value
-                            || bslmf::IsPointerToMember<TYPE>::value
-                            || DetectNestedTrait<TYPE,
+    : bsl::integral_constant<bool,
+                             !bsl::is_reference<TYPE>::value
+                          && (  IsFundamental<TYPE>::value
+                             || IsEnum<TYPE>::value
+                             || bsl::is_pointer<TYPE>::value
+                             || bslmf::IsPointerToMember<TYPE>::value
+                             || DetectNestedTrait<TYPE,
                                           IsBitwiseEqualityComparable>::value)>
 {};
 

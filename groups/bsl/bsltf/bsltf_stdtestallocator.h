@@ -124,10 +124,6 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == oa.numBytesInUse());
 //..
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif

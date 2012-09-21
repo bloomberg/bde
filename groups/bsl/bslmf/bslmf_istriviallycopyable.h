@@ -76,8 +76,8 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
@@ -120,7 +120,7 @@ namespace bslmf {
 
 template <typename TYPE>
 struct IsTriviallyCopyable_Imp
-    : bsl::integer_constant<
+    : bsl::integral_constant<
              bool,
              !bsl::is_reference<TYPE>::value
              && (  IsFundamental<TYPE>::value

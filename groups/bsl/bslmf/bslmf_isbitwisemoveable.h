@@ -76,8 +76,8 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
@@ -113,7 +113,7 @@ struct IsBitwiseMoveable;
 
 template <typename TYPE>
 struct IsBitwiseMoveable_Imp
-    : bsl::integer_constant<bool,
+    : bsl::integral_constant<bool,
                             !bsl::is_reference<TYPE>::value
                          && (  bsl::is_trivially_copyable<TYPE>::value
                             || DetectNestedTrait<TYPE, IsBitwiseMoveable>::value)>
@@ -125,12 +125,12 @@ struct IsBitwiseMoveable_Imp
 
 template <typename TYPE>
 struct IsBitwiseMoveable
-    : IsBitwiseMoveable_Imp<typename bsl::remove_cv<TYPE>::type>
+   : IsBitwiseMoveable_Imp<typename bsl::remove_cv<TYPE>::type>::type
 {
     // Trait metafunction that determines whether the specified parameter
     // 'TYPE' is bit-wise moveable.  If 'IsBitwiseMoveable<TYPE>' is derived
-    // from 'true_type' then 'TYPE' is bit-wise moveable.  Otherwise, bit-wise
-    // moveability cannot be inferred for 'TYPE'.  This trait can be
+    // from 'bsl::true_type' then 'TYPE' is bit-wise moveable.  Otherwise,
+    // bit-wise moveability cannot be inferred for 'TYPE'.  This trait can be
     // associated with a bit-wise moveable user-defined class by specializing
     // this class or by using the 'BSLMF_DECLARE_NESTED_TRAIT' macro.
 };

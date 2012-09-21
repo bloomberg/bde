@@ -4,6 +4,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_usesbslmaallocator.h>
+#include <bslmf_isbitwisemoveable.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
@@ -211,8 +213,8 @@ int main(int argc, char *argv[]) {
 //..
 // Finally, we observe the console output:
 //..
-//  Type does not define bslalg::TypeTraitUsesBslmaAllocator.
-//  Type does not define bslalg::TypeTraitBitwiseMoveable.
+//  Type does not define bslma::UsesBslmaAllocator.
+//  Type does not define bslmf::IsBitwiseMoveable.
 //..
       } break;
       case 10: {

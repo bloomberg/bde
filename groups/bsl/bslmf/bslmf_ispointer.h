@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //  bsl::is_pointer: standard meta-function for determining pointer types
 //  bsl::IsPointer: meta-function for determining pointer types
 //
-//@SEE_ALSO: bslmf_integerconstant
+//@SEE_ALSO: bslmf_integralconstant
 //
 //@AUTHOR:
 //
@@ -57,8 +57,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_METAINT
@@ -123,7 +123,7 @@ namespace bslmf {
                          // ================
 
 template <class TYPE>
-struct IsPointer : MetaInt<bsl::is_pointer<TYPE>::value> {
+struct IsPointer : bsl::is_pointer<TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 'TYPE' is a pointer type.  This 'struct' derives
     // from 'bslmf::MetaInt<1>' if the 'TYPE' is a pointer type (but not a

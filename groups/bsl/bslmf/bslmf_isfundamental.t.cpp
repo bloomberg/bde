@@ -52,22 +52,22 @@ static void aSsErT(int c, const char *s, int i) {
 
 struct TestType {};
 
-static char C0[1 + bslmf::IsFundamental<TestType>::VALUE];          // sz==1
-static char C1[1 + bslmf::IsFundamental<TestType const>::VALUE];    // sz==1
-static char C2[1 + bslmf::IsFundamental<TestType volatile>::VALUE]; // sz==1
-static char C3[1 + bslmf::IsFundamental<int>::VALUE];               // sz==2
-static char C4[1 + bslmf::IsFundamental<int const>::VALUE];         // sz==2
-static char C5[1 + bslmf::IsFundamental<int volatile>::VALUE];      // sz==2
+static char C0[1 + bslmf::IsFundamental<TestType>::value];          // sz==1
+static char C1[1 + bslmf::IsFundamental<TestType const>::value];    // sz==1
+static char C2[1 + bslmf::IsFundamental<TestType volatile>::value]; // sz==1
+static char C3[1 + bslmf::IsFundamental<int>::value];               // sz==2
+static char C4[1 + bslmf::IsFundamental<int const>::value];         // sz==2
+static char C5[1 + bslmf::IsFundamental<int volatile>::value];      // sz==2
 
 // from component doc
 
 struct MyType {};
 
-static const int a1 = bslmf::IsFundamental<int>::VALUE;          // a1 == 1
-static const int a2 = bslmf::IsFundamental<const int>::VALUE;    // a2 == 1
-static const int a3 = bslmf::IsFundamental<volatile int>::VALUE; // a3 == 1
-static const int a4 = bslmf::IsFundamental<int *>::VALUE;        // a4 == 0
-static const int a5 = bslmf::IsFundamental<MyType>::VALUE;       // a5 == 0
+static const int a1 = bslmf::IsFundamental<int>::value;          // a1 == 1
+static const int a2 = bslmf::IsFundamental<const int>::value;    // a2 == 1
+static const int a3 = bslmf::IsFundamental<volatile int>::value; // a3 == 1
+static const int a4 = bslmf::IsFundamental<int *>::value;        // a4 == 0
+static const int a5 = bslmf::IsFundamental<MyType>::value;       // a5 == 0
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -114,139 +114,139 @@ int main(int argc, char *argv[])
         ASSERT(0 == a4);
         ASSERT(0 == a5);
 
-        ASSERT(1 == bslmf::IsFundamental<bool>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<char>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<signed char>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned char>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<wchar_t>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<short>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned short>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<int>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned int>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<long>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned long>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<long long>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned long long>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<bsls::Types::Int64>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<bsls::Types::Uint64>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<float>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<double>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<long double>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<void>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<bsls::Types::Int64>::VALUE);
+        ASSERT(1 == bslmf::IsFundamental<bool>::value);
+        ASSERT(1 == bslmf::IsFundamental<char>::value);
+        ASSERT(1 == bslmf::IsFundamental<signed char>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned char>::value);
+        ASSERT(1 == bslmf::IsFundamental<wchar_t>::value);
+        ASSERT(1 == bslmf::IsFundamental<short>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned short>::value);
+        ASSERT(1 == bslmf::IsFundamental<int>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned int>::value);
+        ASSERT(1 == bslmf::IsFundamental<long>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned long>::value);
+        ASSERT(1 == bslmf::IsFundamental<long long>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned long long>::value);
+        ASSERT(1 == bslmf::IsFundamental<bsls::Types::Int64>::value);
+        ASSERT(1 == bslmf::IsFundamental<bsls::Types::Uint64>::value);
+        ASSERT(1 == bslmf::IsFundamental<float>::value);
+        ASSERT(1 == bslmf::IsFundamental<double>::value);
+        ASSERT(1 == bslmf::IsFundamental<long double>::value);
+        ASSERT(1 == bslmf::IsFundamental<void>::value);
+        ASSERT(1 == bslmf::IsFundamental<bsls::Types::Int64>::value);
 
-        ASSERT(1 == bslmf::IsFundamental<bool const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<char const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<signed char const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned char const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<wchar_t const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<short const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned short const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<int const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned int const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<long const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned long const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<float const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<double const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<long double const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<void const>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<bsls::Types::Int64 const>::VALUE);
+        ASSERT(1 == bslmf::IsFundamental<bool const>::value);
+        ASSERT(1 == bslmf::IsFundamental<char const>::value);
+        ASSERT(1 == bslmf::IsFundamental<signed char const>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned char const>::value);
+        ASSERT(1 == bslmf::IsFundamental<wchar_t const>::value);
+        ASSERT(1 == bslmf::IsFundamental<short const>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned short const>::value);
+        ASSERT(1 == bslmf::IsFundamental<int const>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned int const>::value);
+        ASSERT(1 == bslmf::IsFundamental<long const>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned long const>::value);
+        ASSERT(1 == bslmf::IsFundamental<float const>::value);
+        ASSERT(1 == bslmf::IsFundamental<double const>::value);
+        ASSERT(1 == bslmf::IsFundamental<long double const>::value);
+        ASSERT(1 == bslmf::IsFundamental<void const>::value);
+        ASSERT(1 == bslmf::IsFundamental<bsls::Types::Int64 const>::value);
 
-        ASSERT(1 == bslmf::IsFundamental<bool volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<char volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<signed char volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned char volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<wchar_t volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<short volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned short volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<int volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned int volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<long volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned long volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<float volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<double volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<long double volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<void volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<bsls::Types::Int64 volatile>::VALUE);
+        ASSERT(1 == bslmf::IsFundamental<bool volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<char volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<signed char volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned char volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<wchar_t volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<short volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned short volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<int volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned int volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<long volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned long volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<float volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<double volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<long double volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<void volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<bsls::Types::Int64 volatile>::value);
 
-        ASSERT(1 == bslmf::IsFundamental<const bool volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const char volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const signed char volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const unsigned char volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const wchar_t volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const short volatile>::VALUE);
+        ASSERT(1 == bslmf::IsFundamental<const bool volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<const char volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<const signed char volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<const unsigned char volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<const wchar_t volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<const short volatile>::value);
         ASSERT(1 ==
-               bslmf::IsFundamental<const unsigned short volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const int volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const unsigned int volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const long volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const unsigned long volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const float volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const double volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const long double volatile>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const void volatile>::VALUE);
+               bslmf::IsFundamental<const unsigned short volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<const int volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<const unsigned int volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<const long volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<const unsigned long volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<const float volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<const double volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<const long double volatile>::value);
+        ASSERT(1 == bslmf::IsFundamental<const void volatile>::value);
         ASSERT(1 ==
-               bslmf::IsFundamental<const bsls::Types::Int64 volatile>::VALUE);
+               bslmf::IsFundamental<const bsls::Types::Int64 volatile>::value);
 
-        ASSERT(1 == bslmf::IsFundamental<bool&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<char&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<signed char&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned char&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<wchar_t&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<short&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned short&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<int&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned int&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<long&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<unsigned long&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<float&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<double&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<long double&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<bsls::Types::Int64&>::VALUE);
+        ASSERT(1 == bslmf::IsFundamental<bool&>::value);
+        ASSERT(1 == bslmf::IsFundamental<char&>::value);
+        ASSERT(1 == bslmf::IsFundamental<signed char&>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned char&>::value);
+        ASSERT(1 == bslmf::IsFundamental<wchar_t&>::value);
+        ASSERT(1 == bslmf::IsFundamental<short&>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned short&>::value);
+        ASSERT(1 == bslmf::IsFundamental<int&>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned int&>::value);
+        ASSERT(1 == bslmf::IsFundamental<long&>::value);
+        ASSERT(1 == bslmf::IsFundamental<unsigned long&>::value);
+        ASSERT(1 == bslmf::IsFundamental<float&>::value);
+        ASSERT(1 == bslmf::IsFundamental<double&>::value);
+        ASSERT(1 == bslmf::IsFundamental<long double&>::value);
+        ASSERT(1 == bslmf::IsFundamental<bsls::Types::Int64&>::value);
 
-        ASSERT(1 == bslmf::IsFundamental<const bool volatile&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const char volatile&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const signed char volatile&>::VALUE);
+        ASSERT(1 == bslmf::IsFundamental<const bool volatile&>::value);
+        ASSERT(1 == bslmf::IsFundamental<const char volatile&>::value);
+        ASSERT(1 == bslmf::IsFundamental<const signed char volatile&>::value);
         ASSERT(1 ==
-               bslmf::IsFundamental<const unsigned char volatile&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const wchar_t volatile&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const short volatile&>::VALUE);
+               bslmf::IsFundamental<const unsigned char volatile&>::value);
+        ASSERT(1 == bslmf::IsFundamental<const wchar_t volatile&>::value);
+        ASSERT(1 == bslmf::IsFundamental<const short volatile&>::value);
         ASSERT(1 ==
-               bslmf::IsFundamental<const unsigned short volatile&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const int volatile&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const unsigned int volatile&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const long volatile&>::VALUE);
+               bslmf::IsFundamental<const unsigned short volatile&>::value);
+        ASSERT(1 == bslmf::IsFundamental<const int volatile&>::value);
+        ASSERT(1 == bslmf::IsFundamental<const unsigned int volatile&>::value);
+        ASSERT(1 == bslmf::IsFundamental<const long volatile&>::value);
         ASSERT(1 ==
-               bslmf::IsFundamental<const unsigned long volatile&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const float volatile&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const double volatile&>::VALUE);
-        ASSERT(1 == bslmf::IsFundamental<const long double volatile&>::VALUE);
+               bslmf::IsFundamental<const unsigned long volatile&>::value);
+        ASSERT(1 == bslmf::IsFundamental<const float volatile&>::value);
+        ASSERT(1 == bslmf::IsFundamental<const double volatile&>::value);
+        ASSERT(1 == bslmf::IsFundamental<const long double volatile&>::value);
         ASSERT(1 ==
-              bslmf::IsFundamental<const bsls::Types::Int64 volatile&>::VALUE);
+              bslmf::IsFundamental<const bsls::Types::Int64 volatile&>::value);
 
-        ASSERT(0 == bslmf::IsFundamental<bool *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<char *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<signed char *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<unsigned char *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<wchar_t *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<short *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<unsigned short *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<int *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<unsigned int *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<long *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<unsigned long *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<float *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<double *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<long double *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<void *>::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<bsls::Types::Int64 *>::VALUE);
+        ASSERT(0 == bslmf::IsFundamental<bool *>::value);
+        ASSERT(0 == bslmf::IsFundamental<char *>::value);
+        ASSERT(0 == bslmf::IsFundamental<signed char *>::value);
+        ASSERT(0 == bslmf::IsFundamental<unsigned char *>::value);
+        ASSERT(0 == bslmf::IsFundamental<wchar_t *>::value);
+        ASSERT(0 == bslmf::IsFundamental<short *>::value);
+        ASSERT(0 == bslmf::IsFundamental<unsigned short *>::value);
+        ASSERT(0 == bslmf::IsFundamental<int *>::value);
+        ASSERT(0 == bslmf::IsFundamental<unsigned int *>::value);
+        ASSERT(0 == bslmf::IsFundamental<long *>::value);
+        ASSERT(0 == bslmf::IsFundamental<unsigned long *>::value);
+        ASSERT(0 == bslmf::IsFundamental<float *>::value);
+        ASSERT(0 == bslmf::IsFundamental<double *>::value);
+        ASSERT(0 == bslmf::IsFundamental<long double *>::value);
+        ASSERT(0 == bslmf::IsFundamental<void *>::value);
+        ASSERT(0 == bslmf::IsFundamental<bsls::Types::Int64 *>::value);
 
         // The following typedef's are necessitated by cc-5.2 (Sun).  But they
         // don't help cc-5.5 compilations.
         typedef void    VF  ();
         typedef void (*PVFI)(int);
-        ASSERT(0 == bslmf::IsFundamental< VF >::VALUE);
-        ASSERT(0 == bslmf::IsFundamental<PVFI>::VALUE);
+        ASSERT(0 == bslmf::IsFundamental< VF >::value);
+        ASSERT(0 == bslmf::IsFundamental<PVFI>::value);
 
       } break;
       default: {

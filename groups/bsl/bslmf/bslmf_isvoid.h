@@ -13,6 +13,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::is_void: standard meta-function for determining void types
 //  bslmf::IsVoid: meta-function for determining 'void' types
 //
+//@SEE_ALSO: bslmf_integralconstant
+//
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_void'
@@ -59,8 +61,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECV
@@ -124,7 +126,7 @@ namespace bslmf
                         // ===================
 
 template<class TYPE>
-struct IsVoid : MetaInt<bsl::is_void<TYPE>::value> {
+struct IsVoid : bsl::is_void<TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 'TYPE' is a void type.  This 'struct' derives from
     // 'bslmf::MetaInt<1>' if the 'TYPE' is a pointer type (but not a pointer

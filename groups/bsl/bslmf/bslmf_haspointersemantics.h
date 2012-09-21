@@ -18,8 +18,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
@@ -31,20 +31,17 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bslmf {
 
 template <typename TYPE>
 struct HasPointerSemantics
-    : bsl::integer_constant<bool,
-                            bsl::is_pointer<TYPE>::value
-                            || DetectNestedTrait<TYPE, HasPointerSemantics>::value>
-    //
-{
-};
+    : bsl::integral_constant<bool,
+                             bsl::is_pointer<TYPE>::value
+                             || DetectNestedTrait<TYPE,
+                                                  HasPointerSemantics>::value>
+{};
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

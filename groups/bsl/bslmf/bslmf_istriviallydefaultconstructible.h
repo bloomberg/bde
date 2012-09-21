@@ -117,8 +117,8 @@ BSLS_IDENT("$Id: $")
 //                               MyTriviallyDefaultConstructibleType2>::value);
 //..
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
@@ -160,8 +160,10 @@ namespace BloombergLP {
 namespace bslmf {
 
 template <typename TYPE>
-struct IsTriviallyDefaultConstructible_Imp :
-        integer_constant<bool,
+
+struct IsTriviallyDefaultConstructible_Imp
+: bsl::integral_constant<
+                     bool,
                      !bsl::is_reference<TYPE>::value
                      && (  IsFundamental<TYPE>::value
                         || IsEnum<TYPE>::value

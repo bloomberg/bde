@@ -11,8 +11,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGERCONSTANT
-#include <bslmf_integerconstant.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECV
@@ -26,9 +26,9 @@ template <typename TYPE>
 struct IsFloatingPoint_Imp : bsl::false_type
 {};
 
-template <> struct IsFloatingPoint_Imp<float> : true_type {};
-template <> struct IsFloatingPoint_Imp<double> : true_type {};
-template <> struct IsFloatingPoint_Imp<long double> : true_type {};
+template <> struct IsFloatingPoint_Imp<float> : bsl::true_type {};
+template <> struct IsFloatingPoint_Imp<double> : bsl::true_type {};
+template <> struct IsFloatingPoint_Imp<long double> : bsl::true_type {};
 
 }
 }

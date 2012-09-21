@@ -115,19 +115,19 @@ BSLS_IDENT("$Id: $")
 //
 //  AllocTestType                       class that allocates memory, defines
 //                                      the
-//                                      'bslalg::TypeTraitUsesBslmaAllocator'
+//                                      'bslma::UsesBslmaAllocator'
 //                                      trait, and ensures it is not bitwise
 //                                      moved
 //
 //  BitwiseMoveableTestType             class that is bitwise-moveable and
 //                                      defines the
-//                                      'bslalg::TypeTraitBitwiseMoveable'
+//                                      'bslmf::IsBitwiseMoveable'
 //                                      trait
 //
 //  AllocatingBitwiseMoveableTestType   class that allocates memory, is
 //                                      bitwisemoveable, and defines the
-//                                      'bslalg::TypeTraitUsesBslmaAllocator'
-//                                      and 'bslalg::TypeTraitBitwiseMoveable'
+//                                      'bslma::UsesBslmaAllocator'
+//                                      and 'bslmf::IsBitwiseMoveable'
 //                                      traits
 //
 //  NonTypicalOverloadsTestType         class that defines and assert on

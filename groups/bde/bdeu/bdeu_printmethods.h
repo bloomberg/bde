@@ -366,9 +366,21 @@ namespace bdeu_PrintMethods {
                 // --------------------------------------------
 
 template <typename TYPE, typename SELECTOR>
-struct bdeu_PrintMethods_Imp;
-    // Component-private 'struct'.  Do not use outside of this component.
-    // Specializations on specific 'SELECTOR' values are defined below.
+struct bdeu_PrintMethods_Imp {
+    // Component-private 'struct'.  Do not use outside of this component.  This
+    // 'struct' provides a 'print' function that prints objects of
+    // parameterized 'TYPE' that do not declare any of the traits recognized
+    // by this component.
+
+    // CLASS METHODS
+    static bsl::ostream& print(bsl::ostream& stream,
+                               const TYPE&   object,
+                               int           level,
+                               int           spacesPerLevel);
+        // Print the specified 'object' to the specified 'stream' using its
+        // '<<' output stream operator.  Note that a compiler error will result
+        // if the specified 'TYPE' does not have a '<<' output stream operator.
+};
 
               // --------------------------------------------------------------
               // struct bdeu_PrintMethods_Imp<TYPE, bdeu_HasPrintMethod<TYPE> >
@@ -423,30 +435,40 @@ struct bdeu_PrintMethods_Imp<TYPE, bslmf::IsPair<TYPE> > {
                                int           spacesPerLevel);
 };
 
-            // -----------------------------------------------------
-            // struct bdeu_PrintMethods_Imp<TYPE, bslmf::false_type>
-            // -----------------------------------------------------
-
-template <typename TYPE>
-struct bdeu_PrintMethods_Imp<TYPE, bslmf::false_type> {
-    // Component-private 'struct'.  Do not use outside of this component.  This
-    // 'struct' provides a 'print' function that prints objects of
-    // parameterized 'TYPE' that do not declare any of the traits recognized
-    // by this component.
-
-    // CLASS METHODS
-    static bsl::ostream& print(bsl::ostream& stream,
-                               const TYPE&   object,
-                               int           level,
-                               int           spacesPerLevel);
-        // Print the specified 'object' to the specified 'stream' using its
-        // '<<' output stream operator.  Note that a compiler error will result
-        // if the specified 'TYPE' does not have a '<<' output stream operator.
-};
-
 // ============================================================================
 //                   TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+                // --------------------------------------------
+                // struct bdeu_PrintMethods_Imp<TYPE, SELECTOR>
+                // --------------------------------------------
+
+// CLASS METHODS
+template <typename TYPE, typename SELECTOR>
+bsl::ostream&
+bdeu_PrintMethods_Imp<TYPE, SELECTOR>::
+print(bsl::ostream& stream,
+      const TYPE&   object,
+      int           level,
+      int           spacesPerLevel)
+{
+    if (stream.bad()) {
+        return stream;
+    }
+
+    bdeu_Print::indent(stream, level, spacesPerLevel);
+
+    // A compilation error indicating the next line of code implies the
+    // 'TYPE' parameter does not have the '<<' output stream operator.
+
+    stream << object;
+
+    if (0 <= spacesPerLevel) {
+        stream << '\n';
+    }
+
+    return stream;
+}
 
           // ---------------------------------------------------------------
           // struct bdeu_PrintMethods_Imp<TYPE, bdeu_HasPrintMethod<TYPE> >
@@ -596,37 +618,6 @@ print(bsl::ostream& stream,
     return stream << bsl::flush;
 }
 
-            // -----------------------------------------------------
-            // struct bdeu_PrintMethods_Imp<TYPE, bslmf::false_type>
-            // -----------------------------------------------------
-
-// CLASS METHODS
-template <typename TYPE>
-bsl::ostream&
-bdeu_PrintMethods_Imp<TYPE, bslmf::false_type>::
-print(bsl::ostream& stream,
-      const TYPE&   object,
-      int           level,
-      int           spacesPerLevel)
-{
-    if (stream.bad()) {
-        return stream;
-    }
-
-    bdeu_Print::indent(stream, level, spacesPerLevel);
-
-    // A compilation error indicating the next line of code implies the
-    // 'TYPE' parameter does not have the '<<' output stream operator.
-
-    stream << object;
-
-    if (0 <= spacesPerLevel) {
-        stream << '\n';
-    }
-
-    return stream;
-}
-
                         // ---------------------------
                         // namespace bdeu_PrintMethods
                         // ---------------------------
@@ -662,10 +653,10 @@ bdeu_PrintMethods::print(
 {
     return bdeu_PrintMethods_Imp<
                           bsl::basic_string<CHAR_T, CHAR_TRAITS_T, ALLOC>,
-                          bslmf::false_type>::print(stream,
-                                                    object,
-                                                    level,
-                                                    spacesPerLevel);
+                          bsl::false_type>::print(stream,
+                                                  object,
+                                                  level,
+                                                  spacesPerLevel);
 }
 
 template <typename ALLOC>

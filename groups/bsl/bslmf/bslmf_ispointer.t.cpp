@@ -70,10 +70,9 @@ void aSsErT(bool b, const char *s, int i)
 
 namespace {
 
-struct TestType
+struct TestType {
    // This user-defined type is intended to be used during testing as an
    // argument for the template parameter 'TYPE' of 'bsl::is_pointer'.
-{
 };
 
 typedef int (TestType::*MethodPtrTestType) ();
@@ -87,12 +86,6 @@ typedef void (*FunctionPtrTestType) ();
     // 'bsl::is_pointer' and 'bslmf::IsPointer'.
 
 }  // close unnamed namespace
-
-#define TYPE_ASSERT_CVQ_PREFIX(metaFunc, member, type, result)                \
-    ASSERT(result == metaFunc<type>::member);                                 \
-    ASSERT(result == metaFunc<const type>::member);                           \
-    ASSERT(result == metaFunc<volatile type>::member);                        \
-    ASSERT(result == metaFunc<const volatile type>::member);
 
 #define TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result)                \
     ASSERT(result == metaFunc<type>::member);                                 \

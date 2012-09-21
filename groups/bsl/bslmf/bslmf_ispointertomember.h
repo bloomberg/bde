@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's parameter is a pointer to member, optionally qualified
-// with 'const' or 'volatile'.  'bslmf::IsPointerToMember' defines a 'VALUE'
+// with 'const' or 'volatile'.  'bslmf::IsPointerToMember' defines a 'value'
 // member that is initialized (at compile-time) to 1 if the parameter is a
 // pointer to member (or a reference to such a type), and to 0 otherwise.  The
 // meta-functions 'bslmf::IsPointerToMemberData' and
@@ -39,22 +39,22 @@ BSLS_IDENT("$Id: $")
 //  typedef int (MyClass::* PMFdRi)(double, int&);
 //  typedef int (MyClass::* PMFCe)(MyEnum) const;
 //
-//  assert(0 == bslmf::IsPointerToMember<int             *>::VALUE);
-//  assert(0 == bslmf::IsPointerToMember<    MyStruct    *>::VALUE);
-//  assert(1 == bslmf::IsPointerToMember<int MyStruct::*  >::VALUE);
-//  assert(0 == bslmf::IsPointerToMember<int MyStruct::*& >::VALUE);
-//  assert(0 == bslmf::IsPointerToMember<int MyStruct::* *>::VALUE);
+//  assert(0 == bslmf::IsPointerToMember<int             *>::value);
+//  assert(0 == bslmf::IsPointerToMember<    MyStruct    *>::value);
+//  assert(1 == bslmf::IsPointerToMember<int MyStruct::*  >::value);
+//  assert(0 == bslmf::IsPointerToMember<int MyStruct::*& >::value);
+//  assert(0 == bslmf::IsPointerToMember<int MyStruct::* *>::value);
 //
-//  assert(1 == bslmf::IsPointerToMemberData<int MyStruct::*>::VALUE);
-//  assert(0 == bslmf::IsPointerToMemberData<PMFdRi         >::VALUE);
+//  assert(1 == bslmf::IsPointerToMemberData<int MyStruct::*>::value);
+//  assert(0 == bslmf::IsPointerToMemberData<PMFdRi         >::value);
 //
-//  assert(1 == bslmf::IsPointerToMember<PMFdRi >::VALUE);
-//  assert(0 == bslmf::IsPointerToMember<PMFdRi&>::VALUE);
-//  assert(1 == bslmf::IsPointerToMember<PMFCe  >::VALUE);
-//  assert(0 == bslmf::IsPointerToMember<PMFCe& >::VALUE);
+//  assert(1 == bslmf::IsPointerToMember<PMFdRi >::value);
+//  assert(0 == bslmf::IsPointerToMember<PMFdRi&>::value);
+//  assert(1 == bslmf::IsPointerToMember<PMFCe  >::value);
+//  assert(0 == bslmf::IsPointerToMember<PMFCe& >::value);
 //
-//  assert(1 == bslmf::IsPointerToMemberFunction<PMFdRi        >::VALUE);
-//  assert(0 == bslmf::IsPointerToMemberFunction<int MyClass::*>::VALUE);
+//  assert(1 == bslmf::IsPointerToMemberFunction<PMFdRi        >::value);
+//  assert(0 == bslmf::IsPointerToMemberFunction<int MyClass::*>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -85,8 +85,7 @@ namespace bslmf {
                       // ================================
 
 template <typename TYPE>
-struct IsPointerToMemberFunction
-    : MetaInt<bsl::is_member_function_pointer<TYPE>::value>
+struct IsPointerToMemberFunction : bsl::is_member_function_pointer<TYPE>::type
 {
     // Metafunction to test if 'TYPE' is a pointer to a member function.  Note
     // that the result is false if 'TYPE' is a reference.
@@ -97,8 +96,7 @@ struct IsPointerToMemberFunction
                       // ============================
 
 template <typename TYPE>
-struct IsPointerToMemberData
-    : MetaInt<bsl::is_member_object_pointer<TYPE>::value>
+struct IsPointerToMemberData : bsl::is_member_object_pointer<TYPE>::type
 {
     // Metafunction to test if 'TYPE' is a pointer to a member object.  Note
     // that the result is false if 'TYPE' is a reference.
@@ -109,8 +107,7 @@ struct IsPointerToMemberData
                       // ========================
 
 template <typename TYPE>
-struct IsPointerToMember
-    : MetaInt<bsl::is_member_pointer<TYPE>::value>
+struct IsPointerToMember : bsl::is_member_pointer<TYPE>::type
 {
     // Metafunction to test if 'TYPE' is a pointer to member (function or
     // object).  The result is false if 'TYPE' is a reference.

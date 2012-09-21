@@ -45,12 +45,12 @@ namespace bslma {
                         // ========================
 
 template <class TYPE, bool IS_NESTED>
-struct UsesBslmaAllocator_Imp : bslmf::integer_constant<bool, IS_NESTED>
+struct UsesBslmaAllocator_Imp : bsl::integral_constant<bool, IS_NESTED>
 {
 };
 
 template <class TYPE>
-struct UsesBslmaAllocator_Imp<TYPE, false> : bslmf::false_type
+struct UsesBslmaAllocator_Imp<TYPE, false> : bsl::false_type
 {
 private:
     typedef struct UniqueType {
@@ -86,7 +86,7 @@ public:
 
 template <class TYPE>
 struct UsesBslmaAllocator : UsesBslmaAllocator_Imp<TYPE,
-    bslmf::DetectNestedTrait<TYPE, UsesBslmaAllocator>::value>::type
+    bslmf::DetectNestedTrait<TYPE, UsesBslmaAllocator>::VALUE>::type
 {
     // This metafunction is derived from 'true_type' if 'TYPE' adheres to the
     // 'bslma' allocator usage idiom and 'false_type' otherwise.  Note that
@@ -115,6 +115,13 @@ struct UsesBslmaAllocator<const volatile TYPE> : UsesBslmaAllocator<TYPE>
 {
     // Specialization that associates the same trait with 'const volatile
     // TYPE' as with unqualified 'TYPE'.
+};
+
+template <>
+struct UsesBslmaAllocator<Allocator *> : bsl::false_type
+{
+    // Specialization that defines the 'Allocator' pointer as not adhering
+    // to the allocator protocol, because it's the allocator type itself.
 };
 
 // FREE OPERATORS

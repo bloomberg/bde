@@ -3,6 +3,7 @@
 
 #include <bslstl_allocator.h>
 
+#include <bslalg_hastrait.h>
 #include <bslalg_rbtreenode.h>
 #include <bslalg_rbtreeanchor.h>
 #include <bslalg_rbtreeutil.h>

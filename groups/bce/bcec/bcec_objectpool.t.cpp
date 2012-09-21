@@ -557,6 +557,9 @@ class B
     bslma_Allocator *d_alloc_p;
 
 public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(B, bslalg::TypeTraitUsesBslmaAllocator);
+
     static int constructorCount;
     static int destructorCount;
 
@@ -585,6 +588,7 @@ int B::constructorCount = 0;
 int B::destructorCount = 0;
 
 } // namespace BCEC_OBJECTPOOL_TEST_CASE_11
+
 //=============================================================================
 //                         CASE 10 RELATED ENTITIES
 //-----------------------------------------------------------------------------

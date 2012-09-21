@@ -100,11 +100,11 @@ int main(int argc, char *argv[])
                                             BLOCK_LENGTH> Obj;               \
                                                                              \
                 LOOP_ASSERT(LINE, (bslmf::IsSame<VALUE_TYPE,                 \
-                                                Obj::ValueType>::VALUE));    \
+                                                Obj::ValueType>::value));    \
                                                                              \
                 LOOP_ASSERT(LINE, Obj::BLOCK_BYTES == sizeof(Obj::Block));   \
                 LOOP_ASSERT(LINE, (bslmf::IsSame<Obj::BlockPtr,              \
-                                               Obj::Block *>::VALUE));       \
+                                               Obj::Block *>::value));       \
             }
 
         TEST_DEQUE_IMP(L_, char, 1);
