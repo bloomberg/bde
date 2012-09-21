@@ -3,6 +3,7 @@
 
 #include <bslalg_bidirectionallink.h>
 #include <bslalg_bidirectionalnode.h>
+#include <bslalg_bidirectionallinklistutil.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -274,6 +275,9 @@ void MyList<PAYLOAD>::popBack()
 void myCheckInvariants(const bslalg::HashTableBucket& bucket)
 {
     ASSERT(!bucket.first() == !bucket.last());
+
+    ASSERT(bslalg::BidirectionalLinkListUtil::isWellFormedList(bucket.first(),
+                                                               bucket.last()));
 
     if (bslalg::BidirectionalLink *cursor = bucket.first()) {
         bslalg::BidirectionalLink *prev   = cursor;
