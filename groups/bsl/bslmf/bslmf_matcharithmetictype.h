@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 //
 // The convertibility of arguments to 'bslmf::MatchArithmeticType' is used to
 // dispatch calls with arithmetic arguments to the appropriate methods.  Note
-// that this technique (a variation of "tag dispatch") can be compromised by if
+// that this technique (a variation of "tag dispatch") can be compromised if
 // one uses a class that defines a conversion operator to
 // 'bslmf::MatchArithmeticType' (or a conversion operator to
 // 'bslmf::MatchAnyType') but otherwise do not behave as arithmetic types.
