@@ -7,22 +7,16 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a functor enabling C strings as unordered containers keys.
+//@PURPOSE: Provide a functor ...
 //
 //@CLASSES:
-//  equal_to: functor enabling C strings as 'unordered_map' keys
+//  equal_to: functor ...
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@SEE_ALSO: bslstp_hashmap, bslstp_hashset
 //
-//@DESCRIPTION: This component provides a functor to compare two
-// null-terminated strings using a case-sensitive string comparison, rather
-// than simply comparing the two addresses (as the 'std::equal_to' functor
-// would do).  This comparison functor is suitable for supporting C strings as
-// keys in unordered associative containers.  Note that the container behavior
-// would be undefined if the strings referenced by such pointers were to
-// change value.
+//@DESCRIPTION:
 //
 ///Usage
 ///-----

@@ -29,7 +29,7 @@ using namespace BloombergLP::bslalg;
 // ----------------------------------------------------------------------------
 // [  ] void insertLinkBeforeTarget(Link *newNode, Link* target);
 // [  ] void insertLinkAfterTarget(Link *newNode, Link *target);
-// [  ] bool isWellFormedList(Link *head, Link *tail);
+// [  ] bool isWellFormed(Link *head, Link *tail);
 // [  ] void spliceListBeforeTarget(Link *first, Link *last, Link *target);
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
 
 // [  ] void insertLinkBeforeTarget(Link *newNode, Link* target);
 // [  ] void insertLinkAfterTarget(Link *newNode, Link *target);
-// [  ] bool isWellFormedList(Link *head, Link *tail);
+// [  ] bool isWellFormed(Link *head, Link *tail);
 // [  ] void spliceListBeforeTarget(Link *first, Link *last, Link *target);
         if(veryVerbose) printf("Testing 'insertLinkBeforeTarget'"
                                " and 'unlink'\n");
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
             if(veryVeryVerbose) printf("Create H\n");
             Link head; Link *H = &head;
             head.reset();
-            ASSERTV(Obj::isWellFormedList(H, 0));
+            ASSERTV(Obj::isWellFormed(H, H));
 
             // x-H-x
 
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
             ASSERTV(L1->previousLink() != DEFAULT1);
             ASSERTV(L1->nextLink() == H);
             ASSERTV(L1->previousLink() == 0);
-            ASSERTV(Obj::isWellFormedList(L1, 0));
+            ASSERTV(Obj::isWellFormed(L1, H));
 
             // x-L1-H-x
 
@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
             ASSERTV(L1->previousLink() != DEFAULT1);
             ASSERTV(L1->nextLink() == H);
             ASSERTV(L1->previousLink() == 0);
-            ASSERTV(Obj::isWellFormedList(H, 0));
+            ASSERTV(Obj::isWellFormed(H, H));
 
             // x-H-x
 
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
             ASSERTV(L1->previousLink() != DEFAULT1);
             ASSERTV(L1->nextLink() == H);
             ASSERTV(L1->previousLink() == 0);
-            ASSERTV(Obj::isWellFormedList(L1, 0));
+            ASSERTV(Obj::isWellFormed(L1, H));
 
             // x-L1-H-x
 
@@ -194,7 +194,8 @@ int main(int argc, char *argv[])
             ASSERTV(L2->previousLink() != DEFAULT1);
             ASSERTV(L2->nextLink() == H);
             ASSERTV(L2->previousLink() == L1);
-            ASSERTV(Obj::isWellFormedList(L2, 0));
+            ASSERTV(Obj::isWellFormed(L2, H));
+            ASSERTV(Obj::isWellFormed(L1, H));
 
             // x-L1-L2-H-x
 
@@ -204,7 +205,7 @@ int main(int argc, char *argv[])
             ASSERTV(L2->previousLink() != DEFAULT1);
             ASSERTV(L2->nextLink() == H);
             ASSERTV(L2->previousLink() == L1);
-            ASSERTV(Obj::isWellFormedList(L1, 0));
+            ASSERTV(Obj::isWellFormed(L1, H));
 
             // x-L1-H-x
 
@@ -214,7 +215,8 @@ int main(int argc, char *argv[])
             ASSERTV(L2->previousLink() != DEFAULT1);
             ASSERTV(L2->nextLink() == H);
             ASSERTV(L2->previousLink() == L1);
-            ASSERTV(Obj::isWellFormedList(L2, 0));
+            ASSERTV(Obj::isWellFormed(L2, H));
+            ASSERTV(Obj::isWellFormed(L1, H));
 
             // x-L1-L2-H-x
 
@@ -228,20 +230,20 @@ int main(int argc, char *argv[])
             ASSERTV(L3->previousLink() != DEFAULT1);
             ASSERTV(L3->nextLink() == L1);
             ASSERTV(L3->previousLink() == 0);
-            ASSERTV(Obj::isWellFormedList(L3, 0));
+            ASSERTV(Obj::isWellFormed(L3, H));
 
             // x-L3-L1-L2-H-x
 
             if(veryVeryVerbose) printf("Remove all\n");
             Obj::unlink(H);
-            Obj::isWellFormedList(L3, 0);
-            Obj::isWellFormedList(L1, 0);
-            Obj::isWellFormedList(L2, 0);
+            Obj::isWellFormed(L3, L2);
+            Obj::isWellFormed(L1, L2);
+            Obj::isWellFormed(L2, L2);
             Obj::unlink(L2);
-            Obj::isWellFormedList(L3, 0);
-            Obj::isWellFormedList(L1, 0);
+            Obj::isWellFormed(L3, L1);
+            Obj::isWellFormed(L1, L1);
             Obj::unlink(L1);
-            Obj::isWellFormedList(L3, 0);
+            Obj::isWellFormed(L3, L3);
         }
         ASSERTV(dm.isTotalSame());
         ASSERTV(om.isTotalSame());
@@ -252,7 +254,7 @@ int main(int argc, char *argv[])
             if(veryVeryVerbose) printf("Create H\n");
             Link head; Link *H = &head;
             head.reset();
-            ASSERTV(Obj::isWellFormedList(H, 0));
+            ASSERTV(Obj::isWellFormed(H, H));
 
             // x-H-x
 
@@ -266,7 +268,7 @@ int main(int argc, char *argv[])
             ASSERTV(L1->previousLink() != DEFAULT1);
             ASSERTV(L1->nextLink() == 0);
             ASSERTV(L1->previousLink() == H);
-            ASSERTV(Obj::isWellFormedList(H, 0));
+            ASSERTV(Obj::isWellFormed(H, L1));
 
             // x-H-L1-x
 
@@ -276,7 +278,7 @@ int main(int argc, char *argv[])
             ASSERTV(L1->previousLink() != DEFAULT1);
             ASSERTV(L1->nextLink() == 0);
             ASSERTV(L1->previousLink() == H);
-            ASSERTV(Obj::isWellFormedList(H, 0));
+            ASSERTV(Obj::isWellFormed(H, H));
 
             // x-H-x
 
@@ -286,7 +288,7 @@ int main(int argc, char *argv[])
             ASSERTV(L1->previousLink() != DEFAULT1);
             ASSERTV(L1->nextLink() == 0);
             ASSERTV(L1->previousLink() == H);
-            ASSERTV(Obj::isWellFormedList(H, 0));
+            ASSERTV(Obj::isWellFormed(H, L1));
 
             // x-H-L1-x
 
@@ -300,7 +302,7 @@ int main(int argc, char *argv[])
             ASSERTV(L2->previousLink() != DEFAULT1);
             ASSERTV(L2->nextLink() == L1);
             ASSERTV(L2->previousLink() == H);
-            ASSERTV(Obj::isWellFormedList(H, 0));
+            ASSERTV(Obj::isWellFormed(H, L1));
 
             // x-H-L2-L1-x
 
@@ -310,7 +312,7 @@ int main(int argc, char *argv[])
             ASSERTV(L2->previousLink() != DEFAULT1);
             ASSERTV(L2->nextLink() == L1);
             ASSERTV(L2->previousLink() == H);
-            ASSERTV(Obj::isWellFormedList(L1, 0));
+            ASSERTV(Obj::isWellFormed(H, L1));
 
             // x-H-L1-x
 
@@ -320,7 +322,7 @@ int main(int argc, char *argv[])
             ASSERTV(L2->previousLink() != DEFAULT1);
             ASSERTV(L2->nextLink() == L1);
             ASSERTV(L2->previousLink() == H);
-            ASSERTV(Obj::isWellFormedList(H, 0));
+            ASSERTV(Obj::isWellFormed(H, L1));
 
             // x-H-L2-L1-x
 
@@ -334,20 +336,20 @@ int main(int argc, char *argv[])
             ASSERTV(L3->previousLink() != DEFAULT1);
             ASSERTV(L3->nextLink() == L2);
             ASSERTV(L3->previousLink() == H);
-            ASSERTV(Obj::isWellFormedList(H, 0));
+            ASSERTV(Obj::isWellFormed(H, L1));
 
             // x-H-L3-L2-L1-x
 
             if(veryVeryVerbose) printf("Remove all\n");
             Obj::unlink(H);
-            Obj::isWellFormedList(L3, 0);
-            Obj::isWellFormedList(L1, 0);
-            Obj::isWellFormedList(L2, 0);
+            Obj::isWellFormed(L3, L1);
+            Obj::isWellFormed(L1, L1);
+            Obj::isWellFormed(L2, L1);
             Obj::unlink(L3);
-            Obj::isWellFormedList(L2, 0);
-            Obj::isWellFormedList(L1, 0);
+            Obj::isWellFormed(L2, L1);
+            Obj::isWellFormed(L1, L1);
             Obj::unlink(L2);
-            Obj::isWellFormedList(L1, 0);
+            Obj::isWellFormed(L1, L1);
         }
         ASSERTV(dm.isTotalSame());
         ASSERTV(om.isTotalSame());
@@ -358,41 +360,69 @@ int main(int argc, char *argv[])
 
             Link head1; Link *H1 = &head1;
             head1.reset();
-            ASSERTV(Obj::isWellFormedList(H1, 0));
+            ASSERTV(Obj::isWellFormed(H1, H1));
 
             Link link11; Link link12; Link link13;  // link_listIndex_nodeIndex
             Obj::insertLinkAfterTarget(&link11, H1);
             Obj::insertLinkAfterTarget(&link12, &link11);
             Obj::insertLinkAfterTarget(&link13, &link12);
-            ASSERTV(Obj::isWellFormedList(H1, 0));
+            ASSERTV(Obj::isWellFormed(H1, &link13));
+
+            // x-H1-L11-L12-L13-x
 
             Link head2; Link *H2 = &head2;
             head2.reset();
-            ASSERTV(Obj::isWellFormedList(H2, 0));
+            ASSERTV(Obj::isWellFormed(H2, H2));
 
             Link link21; Link link22; Link link23;  // link_listIndex_nodeIndex
             Obj::insertLinkAfterTarget(&link21, H2);
             Obj::insertLinkAfterTarget(&link22, &link21);
             Obj::insertLinkAfterTarget(&link23, &link22);
-            ASSERTV(Obj::isWellFormedList(H2, 0));
+            ASSERTV(Obj::isWellFormed(H2, &link23));
+
+            // x-H1-L11-L12-L13-x
+            // x-H2-L21-L22-L23-x
 
             Obj::spliceListBeforeTarget(&link21, &link23, 0);
             ASSERTV(H2->nextLink() == 0);
-            ASSERTV(Obj::isWellFormedList(H2, 0));
-            ASSERTV(Obj::isWellFormedList(&link21, 0));
+            ASSERTV(Obj::isWellFormed(H2, H2));
+            ASSERTV(Obj::isWellFormed(&link21, &link23));
+
+            // x-H1-L11-L12-L13-x
+            // x-H2-x
+            // x-L21-L22-L23-x
 
             // Restore original state
 
             Obj::insertLinkBeforeTarget(H2, &link21);
             ASSERTV(H2->nextLink() == &link21);
-            ASSERTV(Obj::isWellFormedList(H2, 0));
-            
+            ASSERTV(Obj::isWellFormed(H2, &link23));
+
+            // x-H1-L11-L12-L13-x
+            // x-H2-L21-L22-L23-x
+
             Obj::spliceListBeforeTarget(&link21, &link22, &link11);
             ASSERTV(H2->nextLink() == &link23);
-            ASSERTV(Obj::isWellFormedList(H2, 0));
+            ASSERTV(Obj::isWellFormed(H2, &link23));
             ASSERTV(H1->nextLink() == &link21);
             ASSERTV(link22.nextLink() == &link11);
-            ASSERTV(Obj::isWellFormedList(H1, 0));
+            ASSERTV(Obj::isWellFormed(H1, &link13));
+
+            // x-H1-L21-L22-L11-L12-L13-x
+            // x-H2-L23-x
+
+            Obj::spliceListBeforeTarget(&link23, &link23, H1);
+            ASSERTV(0 == H2->nextLink());
+            ASSERTV(0 == H2->previousLink());
+            ASSERTV(link23.nextLink() == H1);
+            ASSERTV(link23.previousLink() == 0);
+            ASSERTV(H1->nextLink() == &link21);
+            ASSERTV(H1->previousLink() == &link23);
+            ASSERTV(Obj::isWellFormed(&link23, &link13));
+            ASSERTV(Obj::isWellFormed(H2, H2));
+
+            // x-L23-H1-L21-L22-L11-L12-L13-x
+            // x-H2-x
         }
       } break;
       default: {

@@ -24,8 +24,7 @@ void BidirectionalLinkListUtil::insertLinkBeforeTarget(
 {
     BSLS_ASSERT(newNode);
 #ifdef BDE_BUILD_TARGET_SAFE2
-    BSLS_ASSERT_SAFE2(   !target->previousLink()
-                      || isWellFormedList(target->previousLink(), target));
+    BSLS_ASSERT_SAFE2(isWellFormed(target, target));
 #endif
 
     // Prepending before an empty list is *explicitly* *allowed*
@@ -53,7 +52,7 @@ void BidirectionalLinkListUtil::insertLinkAfterTarget(
     BSLS_ASSERT_SAFE(newNode);
     BSLS_ASSERT_SAFE(target);
 #ifdef BDE_BUILD_TARGET_SAFE2
-    BSLS_ASSERT_SAFE2(isWellFormedList(target, target->nextLink()));
+    BSLS_ASSERT_SAFE2(isWellFormed(target, target->nextLink()));
 #endif
 
     BidirectionalLink *next = target->nextLink();
@@ -67,28 +66,43 @@ void BidirectionalLinkListUtil::insertLinkAfterTarget(
     newNode->setNextLink(next);
 }
 
-bool BidirectionalLinkListUtil::isWellFormedList(BidirectionalLink *head,
-                                                 BidirectionalLink *tail)
+bool BidirectionalLinkListUtil::isWellFormed(BidirectionalLink *head,
+                                             BidirectionalLink *tail)
 {
-    BSLS_ASSERT_SAFE(head);
+    BSLS_ASSERT_SAFE(!head == !tail);
 
-    if(head->nextLink() && head->nextLink()->previousLink() != head) {
-        return false;                                                 // RETURN
+    if (head->previousLink() && head->previousLink()->nextLink() != head) {
+        return false;
+    }
+    if (tail->nextLink() && tail->nextLink()->previousLink() != tail) {
+        return false;
     }
 
-    if(tail && (tail->previousLink()->nextLink() != tail)) {
-        return false;                                                 // RETURN
+    if(head == tail) {
+        return true;                                                  // RETURN
+    }
+
+    // 'head' must have a valid 'nextLink' at this point
+
+    if(head->nextLink()->previousLink() != head) {
+           return false;                                              // RETURN
     }
 
     const BidirectionalLink *cursor = head->nextLink();
+
     while (cursor != tail) {
-        if (       (cursor->nextLink() 
-               &&  cursor->nextLink()->previousLink() != cursor)
+        if (   cursor->nextLink()->previousLink() != cursor
             || cursor->previousLink()->nextLink() != cursor) {
 
             return false;                                             // RETURN
         }
         cursor = cursor->nextLink();
+    }
+
+    // 'tail' must have a valid 'previousLink' at this point
+
+    if(tail->previousLink()->nextLink() != tail) {
+        return false;
     }
 
     return true;
@@ -107,7 +121,7 @@ void BidirectionalLinkListUtil::spliceListBeforeTarget
         BSLS_ASSERT_SAFE2(cursor == target);
         cursor = cursor->nextLink();
     }
-    BSLS_ASSERT_SAFE2(isWellFormedList(first, last));
+    BSLS_ASSERT_SAFE2(isWellFormed(first, last));
 #endif
 
     // unlink from existing list
@@ -139,7 +153,6 @@ void BidirectionalLinkListUtil::spliceListBeforeTarget
     }
 }
 
-
 void BidirectionalLinkListUtil::unlink(BidirectionalLink *node)
 {
     BSLS_ASSERT_SAFE(node);
@@ -158,7 +171,7 @@ void BidirectionalLinkListUtil::unlink(BidirectionalLink *node)
     }
 }
 
-}  // close namespace BloobmergLP::bslalg
+}  // close namespace BloombergLP::bslalg
 }  // close namespace BloombergLP
 // ---------------------------------------------------------------------------
 // NOTICE:

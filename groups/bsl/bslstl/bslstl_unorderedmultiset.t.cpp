@@ -1145,7 +1145,8 @@ TestDriver<KEY, HASH, EQUAL, ALLOC>::gg(Obj        *object,
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
-bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOC> TestDriver<KEY,HASH, EQUAL, ALLOC>::g(const char *spec)
+bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOC>
+TestDriver<KEY,HASH, EQUAL, ALLOC>::g(const char *spec)
 {
     Obj object((bslma::Allocator *)0);
     return gg(&object, spec);

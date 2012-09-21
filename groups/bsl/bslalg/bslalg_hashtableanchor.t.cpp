@@ -84,34 +84,27 @@ using namespace BloombergLP;
 // [11] static bool isValidUtcOffsetInSeconds(int value);
 //
 // CREATORS
-// [ 2] baetzo_LocalTimeDescriptor(bslma_Allocator *bA = 0);
-// [ 3] baetzo_LocalTimeDescriptor(int o, bool f, const SRef& d, *bA = 0);
-// [ 7] baetzo_LocalTimeDescriptor(const baetzo_LTDescriptor& o, *bA = 0);
-// [ 2] ~baetzo_LocalTimeDescriptor();
+// [ 2] HashTableAnchor(HashTableBucket *, size_t, BidirectionalLink *);
+// [ 7] HashTableAnchor(const HashTableAnchor&)
+// [ 2] ~HashTableAnchor();
 //
 // MANIPULATORS
-// [ 9] operator=(const baetzo_LocalTimeDescriptor& rhs);
-// [ 2] setDescription(const StringRef& value);
-// [ 2] setDstInEffectFlag(bool value);
-// [ 2] setUtcOffsetInSeconds(int value);
-//
-// [ 8] void swap(baetzo_LocalTimeDescriptor& other);
+// [ 9] operator=(const HashTableAnchor& rhs);
+// [ 2] setBucketArrayAndSize(HashTableBucket *, size_t);
+// [ 2] setListRootAddress(BidirectionalLink *);
+// [ 8] void swap(HashTableAnchor& other);
 //
 // ACCESSORS
-// [ 4] bslma_Allocator *allocator() const;
-// [ 4] const string& description() const;
-// [ 4] bool dstInEffectFlag() const;
-// [ 4] int utcOffsetInSeconds() const;
-//
-// [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
+// [ 4] const HashTableBucket *bucketArrayAddress() const;
+// [ 4] size_t bucketArraySize() const;
+// [ 4] BidirectionalLink *listRootAddress() const;
 //
 // FREE OPERATORS
-// [ 6] bool operator==(const baetzo_LocalTimeDescriptor& lhs, rhs);
-// [ 6] bool operator!=(const baetzo_LocalTimeDescriptor& lhs, rhs);
-// [ 5] operator<<(ostream& s, const baetzo_LocalTimeDescriptor& d);
+// [ 6] bool operator==(const HashTableAnchor& lhs, rhs);
+// [ 6] bool operator!=(const HashTableAnchor& lhs, rhs);
 //
 // FREE FUNCTIONS
-// [ 8] void swap(baetzo_LocalTimeDescriptor& a, b);
+// [ 8] void swap(HashTableAnchor& a, b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [12] USAGE EXAMPLE
@@ -119,10 +112,6 @@ using namespace BloombergLP;
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ 3] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
 // [ 5] CONCERN: All accessor methods are declared 'const'.
-// [ 3] CONCERN: String arguments can be either 'char *' or 'string'.
-// [ 9] CONCERN: All memory allocation is from the object's allocator.
-// [ 9] CONCERN: All memory allocation is exception neutral.
-// [ 9] CONCERN: Object value is independent of the object allocator.
 // [ 9] CONCERN: There is no temporary allocation from any allocator.
 // [ 8] CONCERN: Precondition violations are detected when enabled.
 // [10] Reserved for 'bslx' streaming.
@@ -396,8 +385,10 @@ int main(int argc, char *argv[]) {
                 Obj *mR = &(mX = Z);
                 ASSERTV(ti, tj, mR, &mX, mR == &mX);
 
-                ASSERTV(ti, tj, Z.bucketArraySize(), mX.bucketArraySize(), Z == mX);
-                ASSERTV(ti, tj, Z.bucketArraySize(), ZZ.bucketArraySize(), Z == ZZ);
+                ASSERTV(ti, tj, Z.bucketArraySize(), mX.bucketArraySize(),
+                        Z == mX);
+                ASSERTV(ti, tj, Z.bucketArraySize(), ZZ.bucketArraySize(),
+                        Z == ZZ);
             }
         }
 
@@ -565,12 +556,12 @@ int main(int argc, char *argv[]) {
 
             // Verify that the signatures and return types are standard.
 
-            // operatorPtr operatorEq = operator==;
+            operatorPtr operatorEq = &bslalg::operator==;
 
-            // operatorPtr operatorNe = operator!=;
+            operatorPtr operatorNe = &bslalg::operator!=;
 
-            // (void)operatorEq;  // quash potential compiler warnings
-            // (void)operatorNe;
+            (void)operatorEq;  // quash potential compiler warnings
+            (void)operatorNe;
         }
 
         const int NUM_VALUES                        = DEFAULT_NUM_VALUES;
@@ -611,15 +602,22 @@ int main(int argc, char *argv[]) {
                 ASSERTV(X.bucketArrayAddress(),
                         Y.bucketArrayAddress(),
                         EXP,  (EXP == (X == Y)));
-                ASSERTV(X.bucketArraySize(), Y.bucketArraySize(), EXP,  (EXP == (X == Y)));
-                ASSERTV(X.listRootAddress(), Y.listRootAddress(), EXP,  (EXP == (X == Y)));
+                ASSERTV(X.bucketArraySize(), Y.bucketArraySize(), EXP,
+                       (EXP == (X == Y)));
+                ASSERTV(X.listRootAddress(), Y.listRootAddress(), EXP,
+                       (EXP == (X == Y)));
 
-                ASSERTV(X.bucketArrayAddress(), Y.bucketArrayAddress(), EXP,  (EXP == (Y == X)));
-                ASSERTV(X.bucketArraySize(), Y.bucketArraySize(), EXP,  (EXP == (Y == X)));
-                ASSERTV(X.listRootAddress(), Y.listRootAddress(), EXP,  (EXP == (Y == X)));
+                ASSERTV(X.bucketArrayAddress(), Y.bucketArrayAddress(), EXP,
+                       (EXP == (Y == X)));
+                ASSERTV(X.bucketArraySize(), Y.bucketArraySize(), EXP,
+                       (EXP == (Y == X)));
+                ASSERTV(X.listRootAddress(), Y.listRootAddress(), EXP,
+                       (EXP == (Y == X)));
 
-                ASSERTV(X.bucketArraySize(), Y.bucketArraySize(), EXP, (!EXP == (X != Y)));
-                ASSERTV(X.bucketArraySize(), Y.bucketArraySize(), EXP, (!EXP == (Y != X)));
+                ASSERTV(X.bucketArraySize(), Y.bucketArraySize(), EXP,
+                       (!EXP == (X != Y)));
+                ASSERTV(X.bucketArraySize(), Y.bucketArraySize(), EXP,
+                       (!EXP == (Y != X)));
             }
         }
 
@@ -660,13 +658,26 @@ int main(int argc, char *argv[]) {
             printf("\nBASIC ACCESSORS"
                    "\n===============\n");
 
-#if 0
-        Obj mX; const Obj& X = mX;
-        ASSERTV(X.bucketArraySize(), 0 == X.bucketArraySize());
+        struct {
+            Bucket  *d_array;
+            size_t   d_size;
+            Link    *d_root;
+        } DATA[] = { // ARRAY             SIZE      ROOT
+                     // ----------------  -------   -----------------
+                   {                   0,       0,                  0 }, 
+                   {(Bucket*) 0xdeadbeef,      13,      &DefaultLink1 },
+                  };
+        const size_t DATA_LEN = sizeof(DATA) / sizeof(*DATA);
 
-        mX.setArraySize(1);
-        ASSERTV(X.bucketArraySize(), 1 == X.bucketArraySize());
-#endif
+        for (size_t i = 0; i < DATA_LEN; ++i) {
+            Bucket* ARRAY = DATA[i].d_array;
+            size_t  SIZE  = DATA[i].d_size;
+            Link*   ROOT  = DATA[i].d_root;
+            Obj mX(ARRAY, SIZE, ROOT); const Obj& X = mX;
+            ASSERTV(X.bucketArrayAddress(), ARRAY == X.bucketArrayAddress());
+            ASSERTV(X.bucketArraySize(),    SIZE == X.bucketArraySize());
+            ASSERTV(X.listRootAddress(),    ROOT == X.listRootAddress());
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------

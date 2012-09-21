@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslalg_hashtableimputil, bslalg_bidirectionallink,
 //           bslalg_bidirectionalnode
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
+//@AUTHOR: Alisdair Meredith (ameredith1) Stefano Pacifico (spacifico1)
 //
 //@DESCRIPTION: This component provides an ability to keep track of a segment
 // of a linked list of 'bslalg::BidirectionalLink' objects.  It contains
