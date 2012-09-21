@@ -149,7 +149,7 @@ void ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
     // Workaround for a bug in Sun's CC whereby destructors cannot be called on
     // 'const' objects of polymorphic types.
 
-    typedef bsl::remove_cv<TARGET_TYPE>::Type NoCvType;
+    typedef bsl::remove_cv<TARGET_TYPE>::type NoCvType;
     const_cast<NoCvType *>(address)->~NoCvType();
 #endif
 }

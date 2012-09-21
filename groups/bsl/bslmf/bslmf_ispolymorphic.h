@@ -142,7 +142,7 @@ struct IsPolymorphic_Imp
 
 #else
 
-template <typename TYPE, bool IS_CLASS = is_class<TYPE>::value>
+template <typename TYPE, bool IS_CLASS = bsl::is_class<TYPE>::value>
 struct IsPolymorphic_Imp {
     enum { Value = false };
 };
