@@ -228,9 +228,9 @@ int main(int argc, char *argv[])
 
         // C-3
         TYPE_ASSERT_CVQ(
-                   bsl::is_reference, value, int*,                       false);
+                   bsl::is_reference, value, int*,                      false);
         TYPE_ASSERT_CVQ(
-                   bsl::is_reference, value, StructTestType*,            false);
+                   bsl::is_reference, value, StructTestType*,           false);
         TYPE_ASSERT_CVQ(
                   bsl::is_reference, value, int StructTestType::*,      false);
         TYPE_ASSERT_CVQ(
