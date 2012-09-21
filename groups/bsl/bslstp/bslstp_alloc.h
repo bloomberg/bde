@@ -27,6 +27,10 @@
 #ifndef INCLUDED_BSLSTP_ALLOC
 #define INCLUDED_BSLSTP_ALLOC
 
+#ifdef BDE_OMIT_TRANSITIONAL // STP
+#error "bslstp_alloc is not for publication"
+#endif
+
 #ifndef INCLUDED_BSLSTL_ALLOCATORPROXY
 #include <bslstl_allocatorproxy.h>
 #endif

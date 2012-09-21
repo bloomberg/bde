@@ -12,6 +12,8 @@ bslstl_hash
 bslstl_hashtable
 bslstl_hashtablebucketiterator
 bslstl_hashtableiterator
+bslstl_iosfwd
+bslstl_istringstream
 bslstl_iterator
 bslstl_iteratorutil
 bslstl_list
@@ -19,6 +21,7 @@ bslstl_map
 bslstl_mapcomparator
 bslstl_multimap
 bslstl_multiset
+bslstl_ostringstream
 bslstl_pair
 bslstl_priorityqueue
 bslstl_queue
@@ -26,11 +29,14 @@ bslstl_randomaccessiterator
 bslstl_set
 bslstl_setcomparator
 bslstl_simplepool
-bslstl_stdexceptutil
 bslstl_stack
+bslstl_sstream
+bslstl_stdexceptutil
 bslstl_string
+bslstl_stringbuf
 bslstl_stringref
 bslstl_stringrefdata
+bslstl_stringstream
 bslstl_traitsgroupstlassociativecontainer
 bslstl_traitsgroupstlsequencecontainer
 bslstl_traitsgroupstlunorderedcontainer

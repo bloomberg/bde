@@ -131,9 +131,9 @@ class bael_RuleSet {
     enum {
         BAEL_MAX_NUM_RULES = 8 * sizeof(MaskType)
            // The maximum number of rules managed by this object.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , MAX_NUM_RULES = BAEL_MAX_NUM_RULES
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

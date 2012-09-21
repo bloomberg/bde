@@ -118,7 +118,7 @@ BDES_IDENT("$Id: $")
 // Bangkok and "Asia/Bangkok" also serves as a relative path (from our "./test"
 // sub-directory) to that data file.
 //..
-//  #ifdef BSLS_PLATFORM__OS_WINDOWS
+//  #ifdef BSLS_PLATFORM_OS_WINDOWS
 //  const char *TEST_DIRECTORY = "test\\Asia";
 //  const char *TEST_FILE      = "test\\Asia\\Bangkok";
 //  #else

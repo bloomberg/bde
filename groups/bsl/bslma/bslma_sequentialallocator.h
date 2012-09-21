@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Support fast memory allocation for objects of varying sizes.
 //
-//@DEPRECATED: Use 'bdema_sequentialallocator' instead.
+//@INTERNAL_DEPRECATED: Use 'bdema_sequentialallocator' instead.
 //
 //@CLASSES:
 //  bslma::SequentialAllocator: fast variable-size memory allocator
@@ -257,6 +257,10 @@ BSLS_IDENT("$Id: $")
 //      d_size = proposedNewSize;                       // we're committed
 //  }
 //..
+
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#error "bslma_sequentialallocator is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -640,12 +644,14 @@ int SequentialAllocator::truncate(void *address,
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::SequentialAllocator bslma_SequentialAllocator;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

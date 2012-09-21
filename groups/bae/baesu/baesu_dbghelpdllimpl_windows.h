@@ -67,7 +67,7 @@ BDES_IDENT("$Id: $")
 // file name where 'main' is.  This code will only work on Windows, and only
 // when compiled in debug mode:
 //..
-//  #if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
+//  #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
 //..
 // First, we lock the mutex:
 //..
@@ -110,7 +110,7 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 #ifndef INCLUDED_BCEMT_QLOCK
 #include <bcemt_qlock.h>
@@ -180,7 +180,7 @@ class baesu_DbghelpDllImpl_Windows {
         // current options are returned.  Finally, note that further details
         // are available at 'http://msdn.com'.
 
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
     // 'symFromAddr' doesn't work on 64-bit, so we conditionally compile and
     // use 'SymFromAddr' on 32-bit and 'SymGetSymFromAddr64' on 64-bit.
 
@@ -280,7 +280,7 @@ bcemt_QLock& baesu_DbghelpDllImpl_Windows::qLock()
 
 }  // close namespace BloombergLP
 
-#endif  // BSLS_PLATFORM__OS_WINDOWS
+#endif  // BSLS_PLATFORM_OS_WINDOWS
 
 #endif
 

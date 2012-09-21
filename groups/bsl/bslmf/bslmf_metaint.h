@@ -138,6 +138,7 @@ struct MetaInt {
     // value, 'true' or 'false', according to the Boolean value of 'V'.  The
     // expression, 'expr', is not evaluated at run-time.
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -147,6 +148,7 @@ struct MetaInt {
 #endif
 #define bslmf_MetaInt bslmf::MetaInt
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

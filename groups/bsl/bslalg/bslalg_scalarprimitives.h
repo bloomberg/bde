@@ -564,7 +564,7 @@ struct ScalarPrimitives {
         // argument, then 'allocator' is passed to the 'TARGET_TYPE'
         // constructor in the last position.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     template <typename TARGET_TYPE>
     static void destruct(TARGET_TYPE *object,
                          void        *allocator);
@@ -576,7 +576,7 @@ struct ScalarPrimitives {
     static void destruct(TARGET_TYPE *object);
         // DEPRECATED.
         // Use 'ScalarDestructionPrimitives::destroy' instead.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename LHS_TYPE, typename RHS_TYPE>
     static void swap(LHS_TYPE& lhs, RHS_TYPE& rhs);
@@ -2002,7 +2002,7 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
 
                           // *** destruct overloads: ***
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bslalg {
 
@@ -2022,7 +2022,7 @@ void ScalarPrimitives::destruct(TARGET_TYPE *address)
 
 }  // close package namespace
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bslalg {
 
@@ -2940,12 +2940,14 @@ void ScalarPrimitives_Imp::swap(LHS_TYPE&                   lhs,
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslalg::ScalarPrimitives bslalg_ScalarPrimitives;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

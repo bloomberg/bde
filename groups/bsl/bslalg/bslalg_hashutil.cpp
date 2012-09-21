@@ -37,6 +37,7 @@ namespace BloombergLP
 namespace bslalg
 {
 // STATIC HELPER FUNCTIONS
+#ifdef BSLS_PLATFORM__IS_BIG_ENDIAN
 static
 unsigned int hash(const char *data, int length)
 {
@@ -61,7 +62,7 @@ unsigned int hash(const char *data, int length)
 
     return hash;
 }
-
+#else
 static
 unsigned int reverse_hash(const char *data, int length)
 {
@@ -86,6 +87,7 @@ unsigned int reverse_hash(const char *data, int length)
 
     return hash;
 }
+#endif
 
                             // ---------------
                             // struct HashUtil

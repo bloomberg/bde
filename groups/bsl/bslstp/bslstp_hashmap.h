@@ -46,6 +46,10 @@
 #ifndef INCLUDED_BSLSTP_HASHMAP
 #define INCLUDED_BSLSTP_HASHMAP
 
+#ifdef BDE_OMIT_TRANSITIONAL // STP
+#error "bslstp_hashmap is not for publication"
+#endif
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif

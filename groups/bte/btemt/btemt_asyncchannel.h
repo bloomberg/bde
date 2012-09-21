@@ -68,13 +68,13 @@ class btemt_AsyncChannel {
                               // operation.
 
         , BTEMT_CANCELED = 4  // The asynchronous read request was canceled.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         , SUCCESS  = BTEMT_SUCCESS
         , TIMEOUT  = BTEMT_TIMEOUT
         , CLOSED   = BTEMT_CLOSED
         , FAILURE  = BTEMT_FAILURE
         , CANCELED = BTEMT_CANCELED
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     typedef bdef_Function<void (*)(int ,int*, int*, const btemt_DataMsg&)>

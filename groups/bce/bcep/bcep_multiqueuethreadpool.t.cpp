@@ -22,6 +22,7 @@
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_iterator.h>
+#include <bsl_limits.h>
 #include <bsl_map.h>
 #include <bsl_set.h>
 #include <bsl_string.h>
@@ -164,7 +165,7 @@ static int veryVeryVerbose = 0;
 static bcemt_Mutex coutMutex;
 
 // windows tends to sleep slightly less time than requested
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     static const double jumpTheGun = 0.0002;
 #else
     static const double jumpTheGun = 0.0;
@@ -654,7 +655,7 @@ int StressJob::s_count = 0;
 namespace BCEP_MULTIQUEUETHREADPOOL_CASE_14 {
 
 enum {
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
     NUM_QUEUES = 9
 #else
     NUM_QUEUES = 5
@@ -866,7 +867,7 @@ int main(int argc, char *argv[]) {
                 "W", "X", "Y", "Z", "1", "2", "3", "4",
                 "5", "6", "7", "8", "9", "0",
             };
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             const bsl::string PATH("/bb/infrastructure/groups/bde/include/");
 #else
             const bsl::string PATH("/bbsrc/bde/releases/latest/include/bde/");
@@ -976,7 +977,7 @@ int main(int argc, char *argv[]) {
         bcema_TestAllocator ta(veryVeryVerbose);
 
         enum {
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
             NUM_QUEUES = 9
 #else
             NUM_QUEUES = 5
@@ -1155,7 +1156,7 @@ int main(int argc, char *argv[]) {
         bcema_TestAllocator ta(veryVeryVerbose);
         {
             enum {
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
                 NUM_QUEUES = 10,
                 NUM_ITERATIONS = 10,
                 NUM_JOBS = 200
@@ -2678,7 +2679,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "Testing 'start' return status\n"
                              "=============================\n";
 
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
         // Only test on 32 bit, so we can easily exhaust the address space.
 
         bcemt_ThreadAttributes attr;

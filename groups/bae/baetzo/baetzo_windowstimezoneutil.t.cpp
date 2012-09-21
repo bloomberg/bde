@@ -12,7 +12,7 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <iomanip>
 #include <iostream>
 #include <windows.h>
@@ -867,7 +867,7 @@ static const unsigned char ASIA_SAIGON_DATA[] = {
 //                                 HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 //
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 static int loadTimezoneObsoleteFlag(bool        *isTimezoneObsoleteFlag,
                                     const HKEY&  zonesKey,
@@ -1120,7 +1120,7 @@ int main(int argc, char *argv[])
 // 'TIME_ZONE_INFORMATION' structure.
 //..
     int                    rc;
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     TIME_ZONE_INFORMATION tzi;
     rc = GetTimeZoneInformation(&tzi);
     ASSERT(TIME_ZONE_ID_UNKNOWN  == rc
@@ -1138,7 +1138,7 @@ int main(int argc, char *argv[])
 // time-zone identifier mapped by this component consists entirely of 7-bit
 // ASCII characters.
 //..
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     bsl::string localTimezone;
 
     {
@@ -1178,7 +1178,7 @@ int main(int argc, char *argv[])
 // practically the same as they overlap for several centuries around the
 // current time.
 //..
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     SYSTEMTIME systemTime;
     GetSystemTime(&systemTime);
 #else
@@ -1241,7 +1241,7 @@ int main(int argc, char *argv[])
                           << "MAPPING TABLE COVERAGE" << endl
                           << "======================" << endl;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         vector<string> timezones;
         int            rc = loadTimezonesFromRegistry(&timezones);
         ASSERT(0 == rc);
@@ -1584,7 +1584,7 @@ int main(int argc, char *argv[])
                           << endl;
 #endif // BDE_BUILD_TARGET_EXC
       } break;
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
       case -1: {
         // --------------------------------------------------------------------
         // WINDOWS PLATFORM CHECKS

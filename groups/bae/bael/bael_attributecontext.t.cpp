@@ -526,7 +526,7 @@ struct WorkerThreadArgs {
 int randomValue(unsigned int *seed)
     // Return a random value based on the specified 'seed'.
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // 'rand' is thread-safe on windows when linked with the multi-threaded
     // CRT (common run-time) library (which we must be doing anyway).
     return rand();

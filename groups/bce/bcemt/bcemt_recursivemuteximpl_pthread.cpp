@@ -4,7 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_recursivemuteximpl_pthread_cpp,"$Id$ $CSID$")
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
 
 namespace BloombergLP {
 

@@ -24,6 +24,15 @@ BSLS_IDENT("$Id: $")
 //  bslalg::TypeTraitsGroupStlUnordered: for STL unordered containers
 //  bslalg_TypeTraits: default trait computation
 //
+//@MACROS:
+//  BSLALG_DECLARE_NESTED_TRAITS: declares a trait in a nested fashion
+//  BSLALG_DECLARE_NESTED_TRAITS2: declares two traits in a nested fashion
+//  BSLALG_DECLARE_NESTED_TRAITS3: declares three traits in a nested fashion
+//  BSLALG_DECLARE_NESTED_TRAITS4: declares four traits in a nested fashion
+//  BSLALG_DECLARE_NESTED_TRAITS5: declares five traits in a nested fashion
+//  BSLALG_IMPLIES_TRAIT: computes a trait by introspection
+//  BSLALG_CHECK_IMPLIED_TRAIT: detects a trait by introspection
+//
 //@SEE_ALSO: bslmf_typetraits, bslalg_constructorproxy, bslalg_scalarprimitives
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
@@ -81,19 +90,6 @@ BSLS_IDENT("$Id: $")
 //                                            first trait possessed by the
 //                                            parameterized 'TYPE' from the
 //                                            ordered list 'TRAIT1', ....
-//..
-//
-///Macro List
-///----------
-// The macros defined in this component are:
-//..
-//   BSLALG_DECLARE_NESTED_TRAITS: declares a trait in a nested fashion
-//  BSLALG_DECLARE_NESTED_TRAITS2: declares two traits in a nested fashion
-//  BSLALG_DECLARE_NESTED_TRAITS3: declares three traits in a nested fashion
-//  BSLALG_DECLARE_NESTED_TRAITS4: declares four traits in a nested fashion
-//  BSLALG_DECLARE_NESTED_TRAITS5: declares five traits in a nested fashion
-//           BSLALG_IMPLIES_TRAIT: computes a trait by introspection
-//     BSLALG_CHECK_IMPLIED_TRAIT: detects a trait by introspection
 //..
 //
 ///Usage
@@ -518,34 +514,51 @@ struct bslalg_TypeTraits : bslalg::TypeTraits_AutoDetect<
     // operator visible in the derived class.
 
 #define BSLALG_DECLARE_NESTED_TRAITS2(T, TRAIT1, TRAIT2)                      \
-    typedef BloombergLP::bslalg::TypeTraits_MakeGroup2<TRAIT1, TRAIT2>        \
+    typedef BloombergLP::bslalg::TypeTraits_MakeGroup2<TRAIT1, TRAIT2 >       \
                                                             NestedTypeTraits; \
     BloombergLP::bslalg::TypeTraits_NestedYes&                                \
         operator,(BloombergLP::bslalg::TypeTraits_NestedProbe<T>)
     // Like 'BSLALG_DECLARE_NESTED_TRAITS', but for two traits.
+    //
+    // WARNING: The space between 'TRAIT2' and '>' in the implementation of
+    // the macro must be preserved, in case 'TRAIT2' expands to a template
+    // instantiation.  Not all preprocessors handle this case correctly.
 
 #define BSLALG_DECLARE_NESTED_TRAITS3(T, TRAIT1, TRAIT2, TRAIT3)              \
     typedef BloombergLP::bslalg::TypeTraits_MakeGroup3<                       \
-                                                      TRAIT1, TRAIT2, TRAIT3> \
+                                                     TRAIT1, TRAIT2, TRAIT3 > \
                                                             NestedTypeTraits; \
     BloombergLP::bslalg::TypeTraits_NestedYes&                                \
         operator,(BloombergLP::bslalg::TypeTraits_NestedProbe<T>)
     // Like 'BSLALG_DECLARE_NESTED_TRAITS', but for three traits.
+    //
+    // WARNING: The space between 'TRAIT3' and '>' in the implementation of
+    // the macro must be preserved, in case 'TRAIT3' expands to a template
+    // instantiation.  Not all preprocessors handle this case correctly.
 
 #define BSLALG_DECLARE_NESTED_TRAITS4(T, TRAIT1, TRAIT2, TRAIT3, TRAIT4)      \
     typedef Bloomberg::bslalg::TypeTraits_MakeGroup4<                         \
-                                              TRAIT1, TRAIT2, TRAIT3, TRAIT4> \
+                                             TRAIT1, TRAIT2, TRAIT3, TRAIT4 > \
                                                             NestedTypeTraits; \
     BloombergLP::bslalg::TypeTraits_NestedYes&                                \
         operator,(BloombergLP::bslalg::TypeTraits_NestedProbe<T>)
     // Like 'BSLALG_DECLARE_NESTED_TRAITS', but for four traits.
+    //
+    // WARNING: The space between 'TRAIT4' and '>' in the implementation of
+    // the macro must be preserved, in case 'TRAIT4' expands to a template
+    // instantiation.  Not all preprocessors handle this case correctly.
 
 #define BSLALG_DECLARE_NESTED_TRAITS5(T, TRAIT1,TRAIT2,TRAIT3,TRAIT4,TRAIT5)  \
     typedef Bloomberg::bslalg::TypeTraits_MakeGroup5<                         \
-                                      TRAIT1, TRAIT2, TRAIT3, TRAIT4, TRAIT5> \
+                                     TRAIT1, TRAIT2, TRAIT3, TRAIT4, TRAIT5 > \
                                                             NestedTypeTraits; \
     BloombergLP::bslalg::TypeTraits_NestedYes&                                \
         operator,(BloombergLP::bslalg::TypeTraits_NestedProbe<T>)
+    // Like 'BSLALG_DECLARE_NESTED_TRAITS', but for five traits.
+    //
+    // WARNING: The space between 'TRAIT5' and '>' in the implementation of
+    // the macro must be preserved, in case 'TRAIT5' expands to a template
+    // instantiation.  Not all preprocessors handle this case correctly.
 
 namespace bslalg {
 
@@ -778,11 +791,13 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
 
 }  // close package namespace
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 #define bdealg_TypeTraits bslalg_TypeTraits
     // This alias is defined for backward compatibility.
@@ -867,13 +882,15 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
 #define bdealg_SelectTrait bslalg::SelectTrait
     // This alias is defined for backward compatibility.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifdef bslalg_TypeTraits_NotTrait
 #undef bslalg_TypeTraits_NotTrait
 #endif
 #define bslalg_TypeTraits_NotTrait bslalg::TypeTraits_NotTrait
     // This alias is defined for backward compatibility.
+
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 
