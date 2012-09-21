@@ -13,11 +13,11 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-functions,
-// 'bsl::is_member_function_pointer', which determine whether a template
-// parameter type is a function pointer type to (non-static) member function.
-// Thus, we need to ensure that the value returned by these meta-functions are
-// correct for each possible category of types.
+// The object under test is a meta-function, 'bsl::is_member_function_pointer',
+// which determine whether a template parameter type is a function pointer type
+// to (non-static) member function.  Thus, we need to ensure that the value
+// returned by this meta-function is correct for each possible category of
+// types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA

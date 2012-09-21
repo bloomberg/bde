@@ -191,6 +191,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
+
 // Now, we instantiate the 'bsl::is_class' template for both a non-class type
 // and the defined type 'MyClass', asserting the 'value' static data member of
 // each instantiation:

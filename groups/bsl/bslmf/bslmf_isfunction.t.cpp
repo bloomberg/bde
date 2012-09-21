@@ -13,10 +13,10 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-functions, 'bsl::is_function', which
+// The object under test is a meta-function, 'bsl::is_function', which
 // determine whether a template parameter type is a function type.  Thus, we
-// need to ensure that the value returned by these meta-functions are correct
-// for each possible category of types.
+// need to ensure that the value returned by this meta-function is correct for
+// each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -147,6 +147,25 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
+                                  << "=============" << endl;
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -173,7 +192,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'is_function::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) primitive type.
-        //
+        //:
         //: 2 'is_function::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) user-defined type.
         //:
