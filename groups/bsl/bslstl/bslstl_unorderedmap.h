@@ -93,8 +93,132 @@ BSLS_IDENT("$Id: $")
 // the constructors of contained objects of the parameterized 'KEY_TYPE' types
 // with the 'bslalg::TypeTraitUsesBslmaAllocator' trait.
 //
+///Operations
+///----------
+// This section describes the run-time complexity of operations on instances
+// of 'unordered_map':
 //..
+//  Legend
+//  ------
+//  'K'             - parameterized 'KEY' type of the map
+//  'V'             - parameterized 'VALUE' type of the map
+//  'a', 'b'        - two distinct objects of type 'map<K, V>'
+//  'n', 'm'        - number of elements in 'a' and 'b' respectively
+//  'value_type'    - map<K, V>::value_type
+//  'c'             - comparator providing an ordering for objects of type 'K'
+//  'al             - an STL-style memory allocator
+//  'i1', 'i2'      - two iterators defining a sequence of 'value_type' objects
+//  'k'             - an object of type 'K'
+//  'v'             - an object of type 'V'
+//  'p1', 'p2'      - two iterators belonging to 'a'
+//  distance(i1,i2) - the number of elements in the range [i1, i2)
 //
+//  +----------------------------------------------------+--------------------+
+//  | Operation                                          | Complexity         |
+//  +====================================================+====================+
+//  | map<K, V> a;    (default construction)             | O[1]               |
+//  | map<K, V> a(al);                                   |                    |
+//  | map<K, V> a(c, al);                                |                    |
+//  +----------------------------------------------------+--------------------+
+//  | map<K, V> a(b); (copy construction)                | Average: O[n]      |
+//  | map<K, V> a(b, al);                                | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//  | map<K, V> a(n);                                    | O[n]               |
+//  | map<K, V> a(n, hf);                                |                    |
+//  | map<K, V> a(n, hf, eq);                            |                    |
+//  | map<K, V> a(n, hf, eq, al);                        |                    |
+//  +----------------------------------------------------+--------------------+
+//  | map<K, V> a(i1, i2);                               | Average: O[        |
+//  | map<K, V> a(i1, i2, n)                             |   distance(p1, p2)]|
+//  | map<K, V> a(i1, i2, n, hf);                        | Worst:   O[n^2]    |
+//  | map<K, V> a(i1, i2, n, hf, eq);                    |                    |
+//  | map<K, V> a(i1, i2, n, hf, eq, al);                |                    |
+//  |                                                    |                    |
+//  | a.~map<K, V>(); (destruction)                      | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a = b;          (assignment)                       | Average: O[n]      |
+//  |                                                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a == b, a != b                                     | Best:  O[n]        |
+//  |                                                    | Worst: O[n^2]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.swap(b), swap(a,b)                               | O[1] if 'a' and    |
+//  |                                                    | 'b' use the same   |
+//  |                                                    | allocator,         |
+//  |                                                    | O[n + m] otherwise |
+//  +----------------------------------------------------+--------------------+
+//  | a.key_eq()                                         | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.hash_function()                                  | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.size()                                           | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_size()                                       | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.empty()                                          | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | get_allocator()                                    | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a[k]                                               | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.at(k)                                            | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(value_type(k, v))                         | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(p1, value_type(k, v))                     | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(i1, i2)                                   | Average O[         |
+//  |                                                    |   distance(p1, p2)]|
+//  |                                                    | Worst:  O[ n *     |
+//  |                                                    |   distance(p1, p2)]|
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1)                                        | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(k)                                         | Average: O[        |
+//  |                                                    |         a.count(k)]|
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1, p2)                                    | Average: O[        |
+//  |                                                    |   distance(p1, p2)]|
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.clear()                                          | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.find(k)                                          | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.count(k)                                         | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.equal_range(k)                                   | Average: O[        |
+//  |                                                    |         a.count(k)]|
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.bucket_count()                                   | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_bucket_count()                               | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.bucket(k)                                        | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.bucket_size(k)                                   | O[a.bucket_size(k)]|
+//  +----------------------------------------------------+--------------------+
+//  | a.load_factor()                                    | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_load_factor()                                | O[1]               |
+//  | a.max_load_factor(z)                               | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.rehash(k)                                        | Average: O[n]      |
+//  |                                                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//  | a.resize(k)                                        | Average: O[n]      |
+//  |                                                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//..
 ///Usage
 ///-----
 
@@ -210,7 +334,7 @@ class unordered_map
     typedef typename AllocatorTraits::const_pointer    const_pointer;
 
   private:
-    typedef ::BloombergLP::bslstl::UnorderedMapKeyPolicy<value_type> 
+    typedef ::BloombergLP::bslstl::UnorderedMapKeyPolicy<value_type>
                                                                     ListPolicy;
     typedef ::BloombergLP::bslstl::HashTable<ListPolicy, HASH, EQUAL, ALLOC>
                                                                      HashTable;
