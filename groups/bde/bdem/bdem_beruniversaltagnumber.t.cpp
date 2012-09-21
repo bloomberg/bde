@@ -2519,6 +2519,9 @@ int main(int argc, char *argv[])
         typedef bsl::vector<char> vectorChar;
         typedef test::CustomizedString CustString;
         typedef test::MyEnumeration::Value MyEnum;
+        typedef bdeut_Variant2<bdet_Date, bdet_DateTz>         DateVariant;
+        typedef bdeut_Variant2<bdet_Time, bdet_TimeTz>         TimeVariant;
+        typedef bdeut_Variant2<bdet_Datetime, bdet_DatetimeTz> DatetimeVariant;
 
         if (veryVerbose) cout << "Testing non-dynamic types with options"
                               << endl;
@@ -2737,6 +2740,18 @@ int main(int argc, char *argv[])
                                  FM::BDEAT_DEFAULT,
                                  Class::BDEM_BER_VISIBLE_STRING,
                                  &otherTag);
+        TEST_SELECT_WITH_ALT_TAG(DateVariant,
+                                 FM::BDEAT_DEFAULT,
+                                 Class::BDEM_BER_VISIBLE_STRING,
+                                 &otherTag);
+        TEST_SELECT_WITH_ALT_TAG(TimeVariant,
+                                 FM::BDEAT_DEFAULT,
+                                 Class::BDEM_BER_VISIBLE_STRING,
+                                 &otherTag);
+        TEST_SELECT_WITH_ALT_TAG(DatetimeVariant,
+                                 FM::BDEAT_DEFAULT,
+                                 Class::BDEM_BER_VISIBLE_STRING,
+                                 &otherTag);
 
         if (veryVerbose) cout << "Testing dynamic types" << endl;
 
@@ -2802,6 +2817,9 @@ int main(int argc, char *argv[])
         typedef bsl::vector<char> vectorChar;
         typedef test::CustomizedString CustString;
         typedef test::MyEnumeration::Value MyEnum;
+        typedef bdeut_Variant2<bdet_Date, bdet_DateTz>         DateVariant;
+        typedef bdeut_Variant2<bdet_Time, bdet_TimeTz>         TimeVariant;
+        typedef bdeut_Variant2<bdet_Datetime, bdet_DatetimeTz> DatetimeVariant;
 
         if (veryVerbose) cout << "Testing non-dynamic types with options"
                               << endl;
@@ -2966,6 +2984,18 @@ int main(int argc, char *argv[])
                                  FM::BDEAT_DEFAULT,
                                  Class::BDEM_BER_VISIBLE_STRING,
                                  &options);
+        TEST_SELECT_WITH_OPTIONS(DateVariant,
+                                 FM::BDEAT_DEFAULT,
+                                 Class::BDEM_BER_VISIBLE_STRING,
+                                 &options);
+        TEST_SELECT_WITH_OPTIONS(TimeVariant,
+                                 FM::BDEAT_DEFAULT,
+                                 Class::BDEM_BER_VISIBLE_STRING,
+                                 &options);
+        TEST_SELECT_WITH_OPTIONS(DatetimeVariant,
+                                 FM::BDEAT_DEFAULT,
+                                 Class::BDEM_BER_VISIBLE_STRING,
+                                 &options);
         TEST_SELECT_WITH_OPTIONS(vectorChar,
                                  FM::BDEAT_DEFAULT,
                                  Class::BDEM_BER_OCTET_STRING,
@@ -3042,6 +3072,18 @@ int main(int argc, char *argv[])
                                  Class::BDEM_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdet_TimeTz,
+                                 FM::BDEAT_DEFAULT,
+                                 Class::BDEM_BER_OCTET_STRING,
+                                 &options);
+        TEST_SELECT_WITH_OPTIONS(DateVariant,
+                                 FM::BDEAT_DEFAULT,
+                                 Class::BDEM_BER_OCTET_STRING,
+                                 &options);
+        TEST_SELECT_WITH_OPTIONS(TimeVariant,
+                                 FM::BDEAT_DEFAULT,
+                                 Class::BDEM_BER_OCTET_STRING,
+                                 &options);
+        TEST_SELECT_WITH_OPTIONS(DatetimeVariant,
                                  FM::BDEAT_DEFAULT,
                                  Class::BDEM_BER_OCTET_STRING,
                                  &options);

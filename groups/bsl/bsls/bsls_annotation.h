@@ -11,6 +11,21 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //
+//@MACROS:
+//  BSLS_ANNOTATION_ALLOC_SIZE(x): optimize when returning memory
+//  BSLS_ANNOTATION_ALLOC_SIZE_MUL(x, y): optimize when returning memory
+//  BSLS_ANNOTATION_ERROR("msg"): emit error message and fail compilation
+//  BSLS_ANNOTATION_WARNING("msg"): emit warning message during compilation
+//  BSLS_ANNOTATION_PRINTF(s, n): validate 'printf' format and arguments
+//  BSLS_ANNOTATION_SCANF(s, n): validate 'scanf' format and arguments
+//  BSLS_ANNOTATION_FORMAT(n): validate 'printf' format in 'n'th argument
+//  BSLS_ANNOTATION_ARG_NON_NULL(...): warn if listed arguments are NULL
+//  BSLS_ANNOTATION_ARGS_NON_NULL: warn if any arguments are NULL
+//  BSLS_ANNOTATION_NULL_TERMINATED: warn if last argument is non-NULL
+//  BSLS_ANNOTATION_NULL_TERMINATED_AT(x): warn if argument at 'x' is non-NULL
+//  BSLS_ANNOTATION_WARN_UNUSED_RESULT: warn if annotated function result used
+//  BSLS_ANNOTATION_DEPRECATED: warn if annotated entity is used
+//
 //@AUTHOR: Andrew Paprocki (apaprock)
 //
 //@DESCRIPTION: This component provides a suite of preprocessor macros that

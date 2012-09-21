@@ -82,8 +82,9 @@ using namespace bsl;
 // CLASS 'bsl::priority_queue'
 //
 // CREATORS
-// [ 2] explicit priority_queue();
 // [12] priority_queue(const COMPARATOR& comp, const CONTAINER& cont);
+// [ 2] explicit priority_queue();
+// [12] priority_queue(const COMPARATOR& comp);
 // [12] priority_queue(INPUT_ITERATOR first, INPUT_ITERATOR last);
 // [12] priority_queue(first, last, comparator, container);
 // [ 7] priority_queue(const priority_queue&);
@@ -283,7 +284,34 @@ int NUM_SPECIAL_INT_VALUES     =
 //-----------------------------------------------------------------------------
 
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
-#define TEST_TYPES_REGULAR BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+//#define TEST_TYPES_REGULAR BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+
+#ifndef BSLS_PLATFORM__OS_WINDOWS
+# define TEST_TYPES_REGULAR                                                   \
+        signed char,                                                          \
+        size_t,                                                               \
+        bsltf::TemplateTestFacility::ObjectPtr,                               \
+        bsltf::TemplateTestFacility::FunctionPtr,                             \
+        bsltf::TemplateTestFacility::MethodPtr,                               \
+        bsltf::EnumeratedTestType::Enum,                                      \
+        bsltf::SimpleTestType,                                                \
+        bsltf::AllocTestType,                                                 \
+        bsltf::BitwiseMoveableTestType,                                       \
+        bsltf::AllocBitwiseMoveableTestType,                                  \
+        bsltf::NonTypicalOverloadsTestType
+#else
+# define TEST_TYPES_REGULAR                                                   \
+        signed char,                                                          \
+        size_t,                                                               \
+        bsltf::TemplateTestFacility::ObjectPtr,                               \
+        bsltf::TemplateTestFacility::MethodPtr,                               \
+        bsltf::EnumeratedTestType::Enum,                                      \
+        bsltf::SimpleTestType,                                                \
+        bsltf::AllocTestType,                                                 \
+        bsltf::BitwiseMoveableTestType,                                       \
+        bsltf::AllocBitwiseMoveableTestType,                                  \
+        bsltf::NonTypicalOverloadsTestType
+#endif
 
 // Fundamental-type-specific print functions.
 inline void dbg_print(bool b) { printf(b ? "true" : "false"); fflush(stdout); }
@@ -1014,8 +1042,9 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase12()
     //:       that its object allocator is properly installed.  (C-2..4)
     //:
     // Testing:
-    //   queue(const CONTAINER& container);
-    //   queue(const CONTAINER& container, const ALLOCATOR& allocator);
+    //  priority_queue(const COMPARATOR& comp);
+    //  priority_queue(const CONTAINER& container);
+    //  priority_queue(const CONTAINER& container, const ALLOCATOR& allocator);
     // ------------------------------------------------------------------------
 
     const int TYPE_ALLOC =
@@ -1088,10 +1117,14 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase12()
                       objAllocatorPtr = &da;
                   } break;
                   case 'f': {
+                      objPtr = new (fa) Obj(comparator);
+                      objAllocatorPtr = &da;
+                  } break;
+                  case 'g': {
                       objPtr = new (fa) Obj(comparator, &sa);
                       objAllocatorPtr = &sa;
                   } break;
-                  case 'g': {
+                  case 'h': {
                       objPtr = new (fa) Obj(comparator, container, &sa);
                       objAllocatorPtr = &sa;
                   } break;
@@ -1106,7 +1139,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase12()
                 if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
 
                 bslma_TestAllocator&  oa = *objAllocatorPtr;
-                bslma_TestAllocator& noa = 'f' > CONFIG ? sa : da;
+                bslma_TestAllocator& noa = 'g' > CONFIG ? sa : da;
 
                 // Ensure the first row of the table contains the
                 // default-constructed value.
@@ -1123,7 +1156,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase12()
 
                 // Verify the expected attributes values.
 
-                if ('d' == CONFIG || 'f' == CONFIG) {
+                if ('d' == CONFIG || 'f' == CONFIG || 'g' == CONFIG) {
                     ASSERTV(LINE, SPEC, LENGTH, CONFIG,
                             0 == verify_object(mX, EXP0, LENGTH0));
                 }
@@ -1138,7 +1171,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase12()
 
                 // Verify no allocation from the non-object allocator.
 
-                if ('g' != CONFIG) {
+                if ('h' != CONFIG) {
                     ASSERTV(LINE, CONFIG, noa.numBlocksTotal(),
                             0 == noa.numBlocksTotal());
                 }

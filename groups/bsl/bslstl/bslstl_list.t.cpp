@@ -21,6 +21,8 @@
 #include <bsls_stopwatch.h>                // for testing only
 #include <bsls_types.h>
 
+#include <bsltf_nonassignabletesttype.h>   // for testing only
+
 #include <stdexcept>  // 'length_error', 'out_of_range'
 #include <algorithm>  // 'next_permutation'
 #include <functional> // 'less'
@@ -9862,6 +9864,16 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
+      case -1: {
+        // This test is used to verify various list constructors do not require
+        // copy-assignable value type as its (template parameter) type 'VALUE'.
+
+        bsltf::NonAssignableTestType value(1);
+        list<bsltf::NonAssignableTestType> firstList(20, value);
+        list<bsltf::NonAssignableTestType> secondList(firstList);
+        list<bsltf::NonAssignableTestType> thirdList(firstList.begin(),
+                                                     firstList.end());
+      }
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

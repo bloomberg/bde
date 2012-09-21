@@ -1,9 +1,15 @@
-// bslstp_iosfwd.cpp                                                  -*-C++-*-
-#include <bslstp_iosfwd.h>
+// bslstl_sstream.cpp                                                 -*-C++-*-
+#include <bslstl_sstream.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$ $CSID$")
+
+namespace bsl {
+}  // close namespace bsl
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
