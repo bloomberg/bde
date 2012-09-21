@@ -1,5 +1,9 @@
 // bslstp_exalgorithm.t.cpp                                           -*-C++-*-
+#ifndef BDE_OMIT_TRANSITIONAL // STP
+
 #include <bslstp_exalgorithm.h>
+
+#endif  // BDE_OMIT_TRANSITIONAL -- STP
 
 int main() { return -1; }  // empty test driver
 

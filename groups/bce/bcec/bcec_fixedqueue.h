@@ -283,7 +283,7 @@ class bcec_FixedQueue_IndexQueue {
         // might want to do this at runtime, but this would add at least one
         // level of indirection.
 
-#ifdef BSLS_PLATFORM__CPU_POWERPC
+#ifdef BSLS_PLATFORM_CPU_POWERPC
         BCEC_PAD = 128 - sizeof(bces_AtomicInt)
 #else
         BCEC_PAD = 64 - sizeof(bces_AtomicInt)

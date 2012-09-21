@@ -1,5 +1,7 @@
 // bslma_infrequentdeleteblocklist.t.cpp                              -*-C++-*-
 
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+
 #include <bslma_infrequentdeleteblocklist.h>
 
 #include <bslma_allocator.h>          // for testing only
@@ -439,10 +441,10 @@ int main(int argc, char *argv[])
             Obj mX(&a);
             void *p = mX.allocate(SIZE);
             int offset = U::calculateAlignmentOffset(p, U::BSLS_MAX_ALIGNMENT);
-            const void *EXP_P = p ? (char *) a.lastAllocateAddress() + BLKSZ
+            const void *EXP_P = p ? (char *) a.lastAllocatedAddress() + BLKSZ
                                   : 0;
 
-            int numBytes = a.lastAllocateNumBytes();
+            int numBytes = a.lastAllocatedNumBytes();
             if (veryVerbose) {
                  T_ P_(SIZE) P_(numBytes) P_(EXP_SZ) P_(p) P_(EXP_P) P(offset);
             }
@@ -461,9 +463,18 @@ int main(int argc, char *argv[])
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
-
     return testStatus;
 }
+
+#else
+
+int main(int argc, char *argv[])
+{
+    return -1;
+}
+
+#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
+
 
 // ---------------------------------------------------------------------------
 // NOTICE:
@@ -473,3 +484,4 @@ int main(int argc, char *argv[])
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
+

@@ -40,9 +40,14 @@ namespace bsl {
     using native_std::binary_search;
     using native_std::copy;
     using native_std::copy_backward;
+#ifndef BDE_OMIT_TRANSITIONAL // STP
     // 'count' and 'count_if' are provided by 'bslstl_exalgorithm.h'
     // using native_std::count;
     // using native_std::count_if;
+#else
+    using native_std::count;
+    using native_std::count_if;
+#endif // BDE_OMIT_TRANSITIONAL -- STP
     using native_std::equal;
     using native_std::equal_range;
     using native_std::fill;
@@ -116,6 +121,7 @@ namespace bsl {
 
 }  // close namespace bsl
 
+#ifndef BDE_OMIT_TRANSITIONAL // STP
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's
 // implementation, in which case the implementation file will be included by
@@ -124,6 +130,7 @@ namespace bsl {
 #ifndef BSL_OVERRIDES_STD
 #include <bslstp_exalgorithm.h>
 #endif
+#endif  // BDE_OMIT_TRANSITIONAL -- STP
 
 #endif
 

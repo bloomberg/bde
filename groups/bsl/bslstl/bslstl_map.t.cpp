@@ -3073,13 +3073,13 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase14()
     if (verbose) printf("Testing 'iterator', 'begin', and 'end',"
                         " and 'const' variants.\n");
     {
-        ASSERTV(1 == (bslmf_IsSame<typename Iter::pointer,
+        ASSERTV(1 == (bslmf::IsSame<typename Iter::pointer,
                                    bsl::pair<const KEY, VALUE>*>::VALUE));
-        ASSERTV(1 == (bslmf_IsSame<typename Iter::reference,
+        ASSERTV(1 == (bslmf::IsSame<typename Iter::reference,
                                    bsl::pair<const KEY, VALUE>&>::VALUE));
-        ASSERTV(1 == (bslmf_IsSame<typename CIter::pointer,
+        ASSERTV(1 == (bslmf::IsSame<typename CIter::pointer,
                                    const bsl::pair<const KEY, VALUE>*>::VALUE));
-        ASSERTV(1 == (bslmf_IsSame<typename CIter::reference,
+        ASSERTV(1 == (bslmf::IsSame<typename CIter::reference,
                                    const bsl::pair<const KEY, VALUE>&>::VALUE));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -3113,9 +3113,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase14()
     if (verbose) printf("Testing 'reverse_iterator', 'rbegin', and 'rend',"
                         " and 'const' variants.\n");
     {
-        ASSERTV(1 == (bslmf_IsSame<RIter,
+        ASSERTV(1 == (bslmf::IsSame<RIter,
                                    bsl::reverse_iterator<Iter> >::VALUE));
-        ASSERTV(1 == (bslmf_IsSame<CRIter,
+        ASSERTV(1 == (bslmf::IsSame<CRIter,
                                    bsl::reverse_iterator<CIter> >::VALUE));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {

@@ -20,7 +20,7 @@ namespace BloombergLP {
 // ACCESSORS
 void bdema_MemoryBlockDescriptor::print() const
 {
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
     std::printf("[%p, %lld]", address(), (long long) size());
 #else
     std::printf("[%p, %d]", address(), size());

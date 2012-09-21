@@ -608,7 +608,7 @@ class TestAllocator : public Allocator {
         // define the criteria for an abort at destruction if quiet mode has
         // not been set.
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
     void *lastAllocateAddress() const;
         // Return the allocated memory address of the most recent memory
         // request.  Return 0 if the request was invalid (e.g., allocate non-
@@ -651,6 +651,7 @@ class TestAllocator : public Allocator {
         //
         // DEPRECATED: use 'numDeallocations' instead.
 // TBD #endif
+#endif  // BDE_OMIT_TRANSITIONAL
 };
 
 }  // close package namespace
@@ -662,7 +663,7 @@ class TestAllocator : public Allocator {
 // The following is a workaround for an intermittent Visual Studio 2005
 // exception-handling failure.
 
-#if defined(BSLS_PLATFORM__CMP_MSVC) && BSLS_PLATFORM__CMP_VER_MAJOR < 1500
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1500
 #define BSLMA_EXCEPTION_TEST_WORKAROUND try {} catch (...) {}
 #else
 #define BSLMA_EXCEPTION_TEST_WORKAROUND
@@ -964,7 +965,7 @@ bsls::Types::Int64 TestAllocator::numMismatches() const
     return d_numMismatches;
 }
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
 inline
 void *TestAllocator::lastAllocateAddress() const
 {
@@ -1003,16 +1004,18 @@ bsls::Types::Int64 TestAllocator::numDeallocation() const
     return numDeallocations();
 }
 
+#endif  // BDE_OMIT_TRANSITIONAL
+
 }  // close package namespace
 
-// TBD #endif
-
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::TestAllocator bslma_TestAllocator;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

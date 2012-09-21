@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide namespace for platform-dependent 64-bit integer types.
 //
-//@DEPRECATED: Use component 'bsls_types' instead.
+//@INTERNAL_DEPRECATED: Use component 'bsls_types' instead.
 //
 //@CLASSES:
 //  bsls_Int64: namespace for platform-dependent 64-bit integer types
@@ -36,6 +36,10 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // Do not use this component; use 'bsls_types' instead.
+
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#error "bsls_int64 is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>

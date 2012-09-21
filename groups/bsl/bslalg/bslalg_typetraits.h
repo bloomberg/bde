@@ -791,11 +791,13 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
 
 }  // close package namespace
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 #define bdealg_TypeTraits bslalg_TypeTraits
     // This alias is defined for backward compatibility.
@@ -880,13 +882,15 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
 #define bdealg_SelectTrait bslalg::SelectTrait
     // This alias is defined for backward compatibility.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifdef bslalg_TypeTraits_NotTrait
 #undef bslalg_TypeTraits_NotTrait
 #endif
 #define bslalg_TypeTraits_NotTrait bslalg::TypeTraits_NotTrait
     // This alias is defined for backward compatibility.
+
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

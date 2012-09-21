@@ -180,10 +180,10 @@ struct bsls_Platform_Assert;
     #define BSLS_PLATFORM_CMP_IBM 1
     #define BSLS_PLATFORM_CMP_VERSION __xlC__
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     #define BSLS_PLATFORM_CMP_AIX 1
          // DEPRECATED: use 'BSLS_PLATFORM_CMP_IBM' instead.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // which OS -- this compiler should only be used on AIX
     #define BSLS_PLATFORM_OS_UNIX 1
@@ -948,7 +948,8 @@ struct Platform {
 
 }  // close package namespace
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
                       // ======================
                       // BACKWARD COMPATIBILITY
@@ -1123,10 +1124,11 @@ typedef bsls::Platform Platform;
 #define bdes_Platform bdes::Platform
     // This alias is defined for backward compatibility.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 typedef bsls::Platform bsls_Platform;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 
@@ -1372,3 +1374,4 @@ typedef bsls::Platform bsls_Platform;
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
+

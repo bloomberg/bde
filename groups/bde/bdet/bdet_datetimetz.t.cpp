@@ -154,7 +154,7 @@ typedef bdex_TestOutStream Out;
      bsl::time_t currentTime = bsl::time(0);
      bsl::tm     gmtTime;
 //
- #if defined(BSLS_PLATFORM__OS_WINDOWS) || ! defined(BDE_BUILD_TARGET_MT)
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) || ! defined(BDE_BUILD_TARGET_MT)
      gmtTime = *bsl::gmtime(&currentTime);
  #else
      gmtime_r(&currentTime, &gmtTime);

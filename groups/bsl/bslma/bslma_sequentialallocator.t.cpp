@@ -1,5 +1,7 @@
 // bslma_sequentialallocator.t.cpp                                    -*-C++-*-
 
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+
 #include <bslma_sequentialallocator.h>
 
 #include <bslma_allocator.h>          // for testing only
@@ -755,6 +757,16 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+#else
+
+int main(int argc, char *argv[])
+{
+    return -1;
+}
+
+#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
+
 
 // ---------------------------------------------------------------------------
 // NOTICE:

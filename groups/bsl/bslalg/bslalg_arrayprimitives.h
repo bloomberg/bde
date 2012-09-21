@@ -1090,6 +1090,7 @@ struct ArrayPrimitives_Imp {
                         // bslalg_ArrayPrimitives_RemovePtr
                         // ================================
 
+//TBD #ifndef BDE_OMIT_DEPRECATED
 template <typename NON_PTR_TYPE>
 struct ArrayPrimitives_RemovePtr {
     // Given a template parameter 'T*', yield 'Type == T'.  Given a template
@@ -1124,7 +1125,7 @@ struct ArrayPrimitives_RemovePtr<const volatile TARGET_TYPE *> {
 
     typedef TARGET_TYPE Type;
 };
-
+//TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -1775,7 +1776,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
-#if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
     uninitializedFillN((bsls::Types::Int64 *)begin,
                        (bsls::Types::Int64)value,
                        numElements);
@@ -1799,7 +1800,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
-#if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
     uninitializedFillN(
                       (bsls::Types::Int64 *)begin,
                       (bsls::Types::Int64)value,
@@ -2885,12 +2886,14 @@ bool ArrayPrimitives_Imp::isInvalidRange(TARGET_TYPE *begin,
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslalg::ArrayPrimitives bslalg_ArrayPrimitives;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

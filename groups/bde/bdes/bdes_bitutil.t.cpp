@@ -1644,7 +1644,7 @@ void testH(int test)
             }
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << "Testing abs32, min32, max32.\n";
 
         for (int vix = -NUM_VALUES_A+1; vix < NUM_VALUES_A; ++vix) {
@@ -1671,7 +1671,7 @@ void testH(int test)
                 ASSERT(Util::max32(sum, vy) == Util::max32(vy, sum));
             }
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         const Int64 VALUES_B[] = { 0, 1, 2, 3, 4, 7, 8, 17, 27, 93, 127, 128,
                                  129, 254, 255, 256, 257, 258, 347, 749, 1000,
@@ -1712,7 +1712,7 @@ void testH(int test)
             }
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << "Testing abs64, min64, max64.\n";
 
         for (int vix = -NUM_VALUES_B+1; vix < NUM_VALUES_B; ++vix) {
@@ -1738,7 +1738,7 @@ void testH(int test)
                 ASSERT(Util::max64(sum, vy) == Util::max64(vy, sum));
             }
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 38: {
         // --------------------------------------------------------------------
@@ -1795,7 +1795,7 @@ void testH(int test)
         ASSERT(64 == Util::sizeInBits(myInt64));
         ASSERT(64 == Util::sizeInBits(myUint64));
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << "Testing numBits.\n";
 
         ASSERT(8 == Util::numBits(myChar));
@@ -1816,7 +1816,7 @@ void testH(int test)
 
         ASSERT(64 == Util::numBits(myInt64));
         ASSERT(64 == Util::numBits(myUint64));
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 37: {
         // --------------------------------------------------------------------
@@ -1957,7 +1957,7 @@ void testH(int test)
             }
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << "Testing numSet0, numSet1.\n";
 
         for (int i = 0; i < DATA_LEN; ++i) {
@@ -1977,7 +1977,7 @@ void testH(int test)
                 }
             }
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
                 << "Testing numSetOne64, numSetZero64,\n"
@@ -2147,7 +2147,7 @@ void testH(int test)
             LOOP_ASSERT(LINE, DATA_A[i].d_expectedLT == result);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << endl
             << "Testing findBit1AtSmallestIndexXX functions" << endl
             << "===========================================" << endl;
@@ -2188,7 +2188,7 @@ void testH(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing find1AtSmallestIndexXX64 functions" << endl
@@ -2260,7 +2260,7 @@ void testH(int test)
             LOOP_ASSERT(LINE, DATA_B[i].d_expectedLT == result);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << endl
             << "Testing findBit1AtSmallestIndexXX64 functions" << endl
             << "=============================================" << endl;
@@ -2301,7 +2301,7 @@ void testH(int test)
             }
             LOOP_ASSERT(LINE, DATA_B[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       default: {
         LOOP_ASSERT(test, 0 && "test not found");
@@ -2406,7 +2406,7 @@ void testG(int test)
             LOOP_ASSERT(LINE, DATA_A[i].d_expectedLT == result);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << endl
             << "Testing findBit0AtSmallestIndexXX functions" << endl
             << "===========================================" << endl;
@@ -2447,7 +2447,7 @@ void testG(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing find0AtSmallestIndexXX64 functions" << endl
@@ -2523,7 +2523,7 @@ void testG(int test)
                                              DATA_B[i].d_expectedLT == result);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << endl
             << "Testing findBit0AtSmallestIndexXX64 functions" << endl
             << "=============================================" << endl;
@@ -2568,7 +2568,7 @@ void testG(int test)
             LOOP3_ASSERT(LINE, DATA_B[i].d_expectedLT, result,
                                              DATA_B[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 34: {
         // --------------------------------------------------------------------
@@ -2663,7 +2663,7 @@ void testG(int test)
             LOOP_ASSERT(LINE, DATA_A[i].d_expectedLT == result);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << endl
             << "Testing findBit1AtLargestIndexXX functions" << endl
             << "==========================================" << endl;
@@ -2704,7 +2704,7 @@ void testG(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing find1AtLargestIndexXX64 functions" << endl
@@ -2776,7 +2776,7 @@ void testG(int test)
             LOOP_ASSERT(LINE, DATA_B[i].d_expectedLT == result);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << endl
             << "Testing findBit1AtLargestIndexXX64 functions" << endl
             << "============================================" << endl;
@@ -2817,7 +2817,7 @@ void testG(int test)
             }
             LOOP_ASSERT(LINE, DATA_B[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 33: {
         // --------------------------------------------------------------------
@@ -2912,7 +2912,7 @@ void testG(int test)
             LOOP_ASSERT(LINE, DATA_A[i].d_expectedLT == result);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << endl
             << "Testing findBit0AtLargestIndexXX functions" << endl
             << "==========================================" << endl;
@@ -2953,7 +2953,7 @@ void testG(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing find0AtLargestIndexXX64 functions" << endl
@@ -3029,7 +3029,7 @@ void testG(int test)
                                              DATA_B[i].d_expectedLT == result);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << endl
             << "Testing findBit0AtLargestIndexXX64 functions" << endl
             << "============================================" << endl;
@@ -3074,7 +3074,7 @@ void testG(int test)
             LOOP4_ASSERT(LINE, spec, DATA_B[i].d_expectedLT, result,
                                              DATA_B[i].d_expectedLT == result);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 32: {
         // --------------------------------------------------------------------
@@ -3188,7 +3188,7 @@ void testG(int test)
                 LOOP_ASSERT(LINE, DATA[i].d_expected == result);
             }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             if (verbose) cout << "\tTesting findBit1AtLargestIndex" << endl;
 
             for (i = 0; i < NUM_DATA; ++i) {
@@ -3202,7 +3202,7 @@ void testG(int test)
                 }
                 LOOP_ASSERT(LINE, DATA[i].d_expected == result);
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
             if (verbose) cout << "\tTesting find1AtLargestIndex64" << endl;
 
@@ -3234,7 +3234,7 @@ void testG(int test)
                 }
             }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             if (verbose) cout << "\tTesting findBit1AtLargestIndex64" << endl;
 
             for (i = 0; i < NUM_DATA; ++i) {
@@ -3263,7 +3263,7 @@ void testG(int test)
                                  EXPECTED == result);
                 }
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         }
 
         if (verbose) cout << "\tTesting find0AtLargestIndex" << endl;
@@ -3326,7 +3326,7 @@ void testG(int test)
                 LOOP_ASSERT(LINE, DATA[i].d_expected == result);
             }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             if (verbose) cout << "\tTesting findBit0AtLargestIndex" << endl;
 
             for (i = 0; i < NUM_DATA; ++i) {
@@ -3340,7 +3340,7 @@ void testG(int test)
                 }
                 LOOP_ASSERT(LINE, DATA[i].d_expected == result);
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
             if (verbose) cout << "\tTesting find0AtLargestIndex64" << endl;
 
@@ -3372,7 +3372,7 @@ void testG(int test)
                 }
             }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             if (verbose) cout << "\tTesting findBit0AtLargestIndex64" << endl;
 
             for (i = 0; i < NUM_DATA; ++i) {
@@ -3401,7 +3401,7 @@ void testG(int test)
                                  EXPECTED == result);
                 }
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         }
 
         if (verbose) cout << "\tTesting find1AtSmallestIndex" << endl;
@@ -3464,7 +3464,7 @@ void testG(int test)
                 LOOP_ASSERT(LINE, DATA[i].d_expected == result);
             }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             if (verbose) cout << "\tTesting findBit1AtSmallestIndex" << endl;
 
             for (i = 0; i < NUM_DATA; ++i) {
@@ -3478,7 +3478,7 @@ void testG(int test)
                 }
                 LOOP_ASSERT(LINE, DATA[i].d_expected == result);
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
             if (verbose) cout << "\tTesting find1AtSmallestIndex64" << endl;
 
@@ -3511,7 +3511,7 @@ void testG(int test)
                 }
             }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             if (verbose) cout << "\tTesting findBit1AtSmallestIndex64" << endl;
 
             for (i = 0; i < NUM_DATA; ++i) {
@@ -3541,7 +3541,7 @@ void testG(int test)
                                  EXPECTED == result);
                 }
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         }
 
         if (verbose) cout << "\tTesting find0AtSmallestIndex" << endl;
@@ -3604,7 +3604,7 @@ void testG(int test)
                 LOOP_ASSERT(LINE, DATA[i].d_expected == result);
             }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             if (verbose) cout << "\tTesting findBit0AtSmallestIndex" << endl;
 
             for (i = 0; i < NUM_DATA; ++i) {
@@ -3618,7 +3618,7 @@ void testG(int test)
                 }
                 LOOP_ASSERT(LINE, DATA[i].d_expected == result);
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
             if (verbose) cout << "\tTesting find0AtSmallestIndex64" << endl;
 
@@ -3651,7 +3651,7 @@ void testG(int test)
                 }
             }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
             if (verbose) cout << "\tTesting findBit0AtSmallestIndex64" << endl;
 
@@ -3682,7 +3682,7 @@ void testG(int test)
                                  EXPECTED == result);
                 }
             }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         }
       } break;
       case 31: {
@@ -10061,7 +10061,7 @@ void testF26()
             LOOP_ASSERT(LINE, DATA_A[di].d_extract1 == resA);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << "Testing extract0, extract1.\n";
 
         for (int di = 0; di < NUM_DATA_A; ++di) {
@@ -10086,7 +10086,7 @@ void testF26()
 
             LOOP_ASSERT(LINE, DATA_A[di].d_extract1 == resA);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing extractZero64 and extractOne64 Functions" << endl
@@ -11253,7 +11253,7 @@ void testE23()
             LOOP_ASSERT(LINE, DATA_A[di].d_isSet1 == resA);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << "Testing isSet0, isSet1.\n";
 
         for (int di = 0; di < NUM_DATA_A; ++di) {
@@ -11277,7 +11277,7 @@ void testE23()
 
             LOOP_ASSERT(LINE, DATA_A[di].d_isSet1 == resA);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing isSetZero64 and isSetOne64 Functions" << endl
@@ -12699,7 +12699,7 @@ void testD19()
             LOOP_ASSERT(LINE, DATA_A[di].d_result1 == dstA);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose)
             cout << "Testing setBit0, setBit1, replaceBit0, replaceBit1.\n";
 
@@ -12745,7 +12745,7 @@ void testD19()
 
             LOOP_ASSERT(LINE, DATA_A[di].d_result1 == dstA);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing 64-bit setBit and replaceBit Functions" << endl
@@ -14651,7 +14651,7 @@ void testC(int test)
             LOOP_ASSERT(LINE, DATA_A[di].d_remove1 == dst1A);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << "Testing remove0, remove1.\n";
 
         for (int di = 0; di < NUM_DATA_A; ++di) {
@@ -14675,7 +14675,7 @@ void testC(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[di].d_remove1 == dst1A);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
                   << "Testing removeZero64 and removeOne64 Functions" << endl
@@ -15115,7 +15115,7 @@ void testB(int test)
             LOOP_ASSERT(LINE, DATA_A[di].d_insert1 == dst);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << "Testing insert0, insert1.\n";
 
         for (int di = 0; di < NUM_DATA_A; ++di) {
@@ -15140,7 +15140,7 @@ void testB(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[di].d_insert1 == dst);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
                   << "Testing insertZero64 and insertOne64 Functions" << endl
@@ -15392,7 +15392,7 @@ void testB(int test)
             LOOP_ASSERT(LINE, DATA_A[di].d_res1 == resA);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << "Testing set0, set1, replace0, replace1.\n";
 
         for (int di = 0; di < NUM_DATA_A; ++di) {
@@ -15431,7 +15431,7 @@ void testB(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[di].d_res1 == resA);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
                   << "Testing 64 bit set and replace Functions" << endl
@@ -15619,7 +15619,7 @@ void testB(int test)
             LOOP_ASSERT(LINE, DATA_A[di].d_isAnySet1 == resA);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << "Testing isAnySet0, isAnySet1.\n";
 
         for (int di = 0; di < NUM_DATA_A; ++di) {
@@ -15639,7 +15639,7 @@ void testB(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[di].d_isAnySet1 == resA);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
             << "Testing 'isAnySetZero64' and 'isAnySetOne64' Functions\n"
@@ -16005,7 +16005,7 @@ void testB(int test)
             LOOP_ASSERT(LINE, DATA_A[di].d_range1 == resA);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << "Testing range0, range1.\n";
 
         for (int di = 0; di < NUM_DATA_A; ++di) {
@@ -16027,7 +16027,7 @@ void testB(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[di].d_range1 == resA);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << "Testing 'rangeZero64' and 'rangeOne64'\n"
                              "======================================\n";
@@ -16212,7 +16212,7 @@ void testA(int test)
             LOOP_ASSERT(LINE, DATA_A[di].d_mask1 == resA);
         }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << "Testing mask0, mask1.\n";
 
         for (int di = 0; di < NUM_DATA_A; ++di) {
@@ -16240,7 +16240,7 @@ void testA(int test)
             }
             LOOP_ASSERT(LINE, DATA_A[di].d_mask1 == resA);
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << endl
              << "Testing 'maskZero64' and 'maskOne64' Function" << endl

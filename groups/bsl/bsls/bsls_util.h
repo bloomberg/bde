@@ -156,7 +156,7 @@ struct Util {
 // (which overloads 'operator&'), but is not provided on UNIX platforms to
 // avoid additional template bloat in the 'big' only to support a class design
 // that is almost certainly an error.
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #   define BSLS_UTIL_ADDRESSOF(OBJ) ::BloombergLP::bsls::Util::addressOf(OBJ)
 
 #   if !defined(BDE_USE_ADDRESSOF)
@@ -188,12 +188,14 @@ BSLS_TYPE *Util::addressOf(BSLS_TYPE& obj)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::Util bsls_Util;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

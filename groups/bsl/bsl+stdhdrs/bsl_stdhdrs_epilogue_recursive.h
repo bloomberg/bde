@@ -44,6 +44,7 @@
 #error "potential infinite inclusion of the recursive epilogue detected"
 #endif
 
+#ifndef BDE_OMIT_TRANSITIONAL // STP
 // First start with STLPort containers, which may include native headers.  The
 // 'BSL_INCLUDE_*' macros are defined in the standard headers inside the
 // 'bsl+stdhdrs' package.
@@ -68,6 +69,7 @@
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
+#endif  // BDE_OMIT_TRANSITIONAL -- STP
 
 #ifdef BSL_INCLUDE_BSL_SSTREAM
 # ifndef INCLUDED_BSLSTL_SSTREAM
@@ -86,6 +88,7 @@
 // Now include those 'bslstl' components corresponding to the 'bsl+stdhdrs'
 // files that have been included.
 
+#ifndef BDE_OMIT_TRANSITIONAL // STP
 // If '<algorithm>' was included, then include SGI extension to algorithms.
 #ifdef INCLUDED_NATIVE_ALGORITHM
 # ifndef INCLUDED_BSLSTP_EXALGORITHM
@@ -93,6 +96,7 @@
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
+#endif  // BDE_OMIT_TRANSITIONAL -- STP
 
 // 'bslstl' containers go here.
 
@@ -218,6 +222,7 @@
 # endif
 #endif
 
+#ifndef BDE_OMIT_TRANSITIONAL // STP
 // If '<functional>' was included, then include SGI extension to functional.
 #ifdef INCLUDED_NATIVE_FUNCTIONAL
 # ifndef INCLUDED_BSLSTP_EXFUNCTIONAL
@@ -229,6 +234,7 @@
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
+#endif  // BDE_OMIT_TRANSITIONAL -- STP
 
 // If '<memory>' was included, then include our implementation of allocators.
 #ifdef INCLUDED_NATIVE_MEMORY

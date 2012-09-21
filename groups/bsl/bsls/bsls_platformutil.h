@@ -9,8 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide consistent interface for platform-dependent functionality.
 //
-//@DEPRECATED: Use 'bsls_alignmentutil', 'bsls_byteorder', 'bsls_platform', and
-// 'bsls_types' instead.
+//@INTERNAL_DEPRECATED: Use 'bsls_alignmentutil', 'bsls_byteorder',
+// 'bsls_platform', and 'bsls_types' instead.
 //
 //@CLASSES:
 //  bsls::PlatformUtil: namespace for platform-neutral type names and API
@@ -108,6 +108,10 @@ BSLS_IDENT("$Id: $")
 // Note that in the above usage example, either the macros or the functions can
 // be used to test whether a platform is big- or little-endian.
 
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#error "bsls_platformutil is deprecated"
+#endif
+
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
 #endif
@@ -164,13 +168,13 @@ struct PlatformUtil {
         //
         // DEPRECATED: Use 'Types::Int64' and 'Types::Uint64' instead.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     typedef AlignmentUtil::MaxAlignedType MaxAlign;
         // The alias 'MaxAlign' refers to a type that is maximally-aligned on
         // the current platform.
         //
         // DEPRECATED: Use 'AlignmentUtil::MaxAlignedType' instead.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CLASS METHODS
     static bool isBigEndian();
@@ -228,7 +232,7 @@ struct PlatformUtil {
        // defined in 'bsls_platform' instead.
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 #if defined(BSLS_PLATFORMUTIL_IS_BIG_ENDIAN)
 #define BSLS_PLATFORMUTIL_HTONL(x) (x)
@@ -254,7 +258,7 @@ struct PlatformUtil {
 #define BSLS_PLATFORMUTIL_HTONS(x) BSLS_PLATFORMUTIL_NTOHS(x)
 #endif
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bsls {
 
@@ -296,12 +300,14 @@ int PlatformUtil::roundUpToMaximalAlignment(int size)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::PlatformUtil bsls_PlatformUtil;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

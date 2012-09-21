@@ -727,6 +727,7 @@ const OBJECT_TYPE& ConstructorProxy<OBJECT_TYPE>::object() const
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -736,6 +737,7 @@ const OBJECT_TYPE& ConstructorProxy<OBJECT_TYPE>::object() const
 #endif
 #define bslalg_ConstructorProxy bslalg::ConstructorProxy
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

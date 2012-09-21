@@ -155,7 +155,7 @@ namespace bsl {
     // define an explicit specialization of the list::swap() member
     // to verify tha the non-member swap function calls the member
 
-#if !defined(BSLS_PLATFORM__CMP_CLANG)
+#if !defined(BSLS_PLATFORM_CMP_CLANG)
 
 _RWSTD_SPECIALIZED_FUNCTION
 void ListType::swap (ListType&)

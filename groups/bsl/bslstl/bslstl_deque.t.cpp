@@ -329,7 +329,7 @@ void dbg_print(bsls::Types::Int64 val)
 {
     printf("%lld", val); fflush(stdout);
 }
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
 inline
 void dbg_print(unsigned int val)
 {
@@ -8128,7 +8128,7 @@ int main(int argc, char *argv[])
 
         // Then, we define (and default construct) our laundry queue:
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         LaundryQueue q(&ta);
 
         // Next, we add a few customers:
@@ -8954,7 +8954,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nAdditional tests: traits.\n");
 
-#ifndef BSLS_PLATFORM__CMP_MSVC  // Temporarily does not work
+#ifndef BSLS_PLATFORM_CMP_MSVC  // Temporarily does not work
         ASSERT(  (bslalg::HasTrait<bsl::deque<char>,
                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
         ASSERT(  (bslalg::HasTrait<bsl::deque<T>,

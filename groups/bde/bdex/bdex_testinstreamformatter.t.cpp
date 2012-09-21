@@ -4394,7 +4394,7 @@ int main(int argc, char *argv[])
 // The g++ 2.95 compiler crashes when compiling the static initialization
 // of a table of ScalarTestTable<char>, so we use ScalarTestTable<uchar>
 // instead, then cast the table to ScalarTestTable<char>*, below.
-#if ! defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 30000
+#if ! defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VER_MAJOR >= 30000
             static const ScalarTestTable<ElemType> DATA[] = {
 #else
             static const ScalarTestTable<unsigned char> DATA[] = {
@@ -4426,7 +4426,7 @@ int main(int argc, char *argv[])
         };
             const int DATA_LEN = sizeof DATA / sizeof *DATA;
 
-#if ! defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 30000
+#if ! defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VER_MAJOR >= 30000
             testGetScalar<ElemType, FuncPtr>(DATA, DATA_LEN, FUNC);
 #else
             // Needed to use ScalarTestTable<uchar> instead of
