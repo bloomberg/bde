@@ -187,6 +187,7 @@ DeallocatorGuard<ALLOCATOR>::~DeallocatorGuard()
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -196,6 +197,7 @@ DeallocatorGuard<ALLOCATOR>::~DeallocatorGuard()
 #endif
 #define bslma_DeallocatorGuard bslma::DeallocatorGuard
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

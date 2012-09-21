@@ -521,7 +521,7 @@ static const char unsigned AMERICA_NEW_YORK_DATA[] = {
     , 0x2e, 0x30, 0x0a
 };
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 static const char *GMT_FILE              = "defaultzictest\\GMT";
 static const char *ETC_UTC_FILE          = "defaultzictest\\Etc\\UTC";
 static const char *AMERICA_NEW_YORK_FILE = "defaultzictest\\America\\New_York";
@@ -574,7 +574,7 @@ int main(int argc, char *argv[])
         defaultAllocator.setVerbose(true);
     }
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     _putenv((char *) "BDE_ZONEINFO_ROOT_PATH=.\\defaultzictest");
 #else
     putenv((char *) "BDE_ZONEINFO_ROOT_PATH=./defaultzictest");
@@ -937,7 +937,7 @@ int main(int argc, char *argv[])
                           << "==============================================="
                           << endl;
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         if (verbose) cout << "Testing with 'BDE_ZONEINFO_ROOT_PATH' set"
                           << endl;
         {
@@ -1083,7 +1083,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(L_, defaultAllocator.numBytesInUse(),
                          DA_NUM_BYTES == defaultAllocator.numBytesInUse());
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             // Make sure 'locations' contains the same number of paths as
             // expected.
 

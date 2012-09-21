@@ -18,7 +18,7 @@
 
 #include <bsl_cstdlib.h>
 
-#if defined(BSLS_PLATFORM__OS_UNIX) && !defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_AIX)
 
 #include <pthread.h>
 
@@ -765,7 +765,7 @@ int main(int argc, char *argv[]) {
             cout << endl
                  << "Breathing Test" << endl
                  << "==============" << endl;
-#if defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_LINUX)
             cout << "INFO: SEM_VALUE_MAX=" << SEM_VALUE_MAX
                  << endl;
 #endif

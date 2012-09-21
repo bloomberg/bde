@@ -12,6 +12,10 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::Tag: map integral constants to C++ types
 //
+//@MACROS:
+//: BSLMF_TAG_TO_INT(EXPR): map tag to integral value
+//: BSLMF_TAG_TO_BOOL(EXPR): map tag to boolean value
+//
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component defines a simple template structure used to map
@@ -140,6 +144,7 @@ struct Tag {
 
 #define BSLMF_TAG_TO_BOOL(BSLMF_EXPR) (BSLMF_TAG_TO_INT(BSLMF_EXPR) != 0)
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -149,6 +154,7 @@ struct Tag {
 #endif
 #define bslmf_Tag bslmf::Tag
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

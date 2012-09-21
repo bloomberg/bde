@@ -82,6 +82,7 @@ struct IsArray<TYPE &> : IsArray<TYPE>::Type {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -91,6 +92,7 @@ struct IsArray<TYPE &> : IsArray<TYPE>::Type {
 #endif
 #define bslmf_IsArray bslmf::IsArray
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

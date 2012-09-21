@@ -13,10 +13,10 @@
 
 #include <bsl_fstream.h>
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Permit reliance on transitive includes within robo.
 #include <iostream.h>
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 using std::basic_filebuf;
 using std::basic_ifstream;

@@ -21,7 +21,7 @@
 
 #include <bsl_c_stdlib.h>     // atoi()
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(disable: 4355) // we often use 'this' in member-initializers
 #endif
 
@@ -1540,7 +1540,7 @@ struct Aggregate {
 };
 
 extern "C"
-int oldsvc_Entry__createService(
+int oldsvc_Entry_createService(
                 SharedPtr               *requestRouter,
                 bassvc::ServiceManifest *manifest,
                 const Aggregate&         configuration,
@@ -1996,7 +1996,7 @@ void testCase19(int argc)
         Aggregate                configuration;
         configuration.d_value = 123;
 
-        int result = oldsvc_Entry__createService(requestRouter,
+        int result = oldsvc_Entry_createService(requestRouter,
                                                  manifest,
                                                  configuration,
                                                  &ta);
@@ -2029,10 +2029,10 @@ void testCase19(int argc)
         int         serviceId = 12345;
         InProcessServiceManager mX;
 
-#ifndef BSLS_PLATFORM__CMP_IBM
+#ifndef BSLS_PLATFORM_CMP_IBM
         result = mX.registerBlobRouter(name,
                                        serviceId,
-                                       &oldsvc_Entry__createService);
+                                       &oldsvc_Entry_createService);
         ASSERT(0 == result);
 #endif
     }

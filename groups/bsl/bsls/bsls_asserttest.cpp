@@ -22,7 +22,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // access to conforming C++0x compilers.
 //# define BSLS_ASSERTTEST_NORETURN [[noreturn]]
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLS_ASSERTTEST_NORETURN __declspec(noreturn)
 #else
 #   define BSLS_ASSERTTEST_NORETURN
@@ -66,7 +66,7 @@ void printError(const char *text, const char *file, int line)
 static
 bool isPathSeparator(char c)
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     static const char pathSeparators[] = { ':', '/', '\\' };
 #else
     static const char pathSeparators[] = { '/' };

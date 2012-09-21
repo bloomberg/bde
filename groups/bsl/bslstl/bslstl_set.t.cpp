@@ -1411,6 +1411,15 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
     }
 
+    // IBM empty class swap bug test
+
+    {
+        typedef bsl::set<int, std::less<int>, StlAlloc> TestObj;
+        TestObj mX;
+        mX.insert(1);
+        TestObj mY;
+        mY = mX;
+    }
 }
 
 template <class KEY, class COMP, class ALLOC>
@@ -3125,6 +3134,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
         { L_,   "AB",         "AB",        true },
         { L_,   "ABC",        "ABC",       true },
         { L_,   "ABCD",       "ABCD",      true },
+        { L_,   "AABCCDDD",     "ABCD",      true },
         { L_,   "ABCDE",      "ABCDE",     true },
         { L_,   "DABEC",      "ABCDE",    false },
         { L_,   "EDCBACBA",   "ABCDE",    false },
@@ -3203,8 +3213,11 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
                 ASSERTV(LINE, CONFIG, &oa == X.get_allocator());
 
                 if (ORDERED && LENGTH > 0) {
-                    ASSERTV(LINE, CONFIG, LENGTH - 1, X.key_comp().count(),
-                            LENGTH - 1 == X.key_comp().count());
+                    const size_t SPECLEN = strlen(DATA[ti].d_spec);
+                    ASSERTV(LINE, CONFIG, (SPECLEN - 1) * 2,
+                            X.key_comp().count(),
+                            (SPECLEN - 1) * 2 == X.key_comp().count());
+
                 }
                 // Verify no allocation from the non-object allocator.
 
@@ -6224,7 +6237,7 @@ int main(int argc, char *argv[])
         // TESTING CONSTRUCTOR OF TEMPLATE WRAPPER
         // --------------------------------------------------------------------
         // KEY doesn't affect the test.  So run test only for 'int'.
-        TestDriver<int>::testCase24;
+        TestDriver<int>::testCase24();
       } break;
       case 23: {
         // --------------------------------------------------------------------

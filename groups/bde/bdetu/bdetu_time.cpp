@@ -20,7 +20,7 @@ BSLMF_ASSERT(4 == sizeof(int));
                              // struct bdetu_Time
                              // =================
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 // CLASS METHODS
 bdet_Time bdetu_Time::currentTime()
@@ -45,7 +45,7 @@ void bdetu_Time::loadCurrentTime(bdet_Time *result)
     result->setMillisecond(currentDateTime.millisecond());
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

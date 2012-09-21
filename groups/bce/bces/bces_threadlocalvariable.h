@@ -213,8 +213,8 @@ BDES_IDENT("$Id: $")
                           // Macro Definitions
                           // =================
 
-#if defined(BSLS_PLATFORM__CMP_SUN)  ||                                       \
-    (defined(BSLS_PLATFORM__CMP_GNU) && !(defined(BSLS_PLATFORM__CPU_SPARC)))
+#if defined(BSLS_PLATFORM_CMP_SUN)  ||                                       \
+    (defined(BSLS_PLATFORM_CMP_GNU) && !(defined(BSLS_PLATFORM_CPU_SPARC)))
 #define BCES_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME,  INITIAL_VALUE) \
 static BCES_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
     // This macro should *not* be used by clients outside of the 'bce'
@@ -238,8 +238,8 @@ static BCES_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
     // 'INITIAL_VALUE' is a *compile* *time* constant value.
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_SUN)  ||                                       \
-    (defined(BSLS_PLATFORM__CMP_GNU) && !(defined(BSLS_PLATFORM__CPU_SPARC)))
+#if defined(BSLS_PLATFORM_CMP_SUN)  ||                                       \
+    (defined(BSLS_PLATFORM_CMP_GNU) && !(defined(BSLS_PLATFORM_CPU_SPARC)))
 #define BCES_THREAD_LOCAL_KEYWORD __thread
 #endif
 

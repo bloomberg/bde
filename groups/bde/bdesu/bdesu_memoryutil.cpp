@@ -7,7 +7,7 @@ BDES_IDENT_RCSID(bdesu_memoryutil_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #ifndef INCLUDED_WINDOWS
 #include <windows.h>
 #define INCLUDED_WINDOWS
@@ -22,7 +22,7 @@ BDES_IDENT_RCSID(bdesu_memoryutil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 // Windows-specific implementations
 

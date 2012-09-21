@@ -558,6 +558,7 @@ namespace test { class MySequenceWithNillable; }
 namespace test { class Sqrt; }
 namespace test { class CustomizedString; }
 namespace test { class BasicRecord; }
+namespace test { class BasicRecordWithVariant; }
 namespace test { class MySequenceWithArray; }
 namespace test { class MySequenceWithAnonymousChoiceChoice; }
 namespace test { class Employee; }
@@ -2391,6 +2392,251 @@ bsl::ostream& operator<<(bsl::ostream& stream, const BasicRecord& rhs);
 // TRAITS
 
 BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::BasicRecord)
+
+namespace test {
+
+                             // ============================
+                             // class BasicRecordWithVariant
+                             // ============================
+
+class BasicRecordWithVariant {
+    // A representative small record type
+
+  private:
+    int                                            d_i1;
+    int                                            d_i2;
+    bdeut_Variant<bdet_Datetime, bdet_DatetimeTz>  d_dt;
+    bsl::string                                    d_s;
+
+  public:
+    // TYPES
+    enum {
+        NUM_ATTRIBUTES = 4 // the number of attributes in this class
+    };
+
+    enum {
+        ATTRIBUTE_INDEX_I1 = 0,
+            // index for "I1" attribute
+        ATTRIBUTE_INDEX_I2 = 1,
+            // index for "I2" attribute
+        ATTRIBUTE_INDEX_DT = 2,
+            // index for "Dt" attribute
+        ATTRIBUTE_INDEX_S = 3
+            // index for "S" attribute
+    };
+
+    enum {
+        ATTRIBUTE_ID_I1 = 0,
+            // id for "I1" attribute
+        ATTRIBUTE_ID_I2 = 1,
+            // id for "I2" attribute
+        ATTRIBUTE_ID_DT = 2,
+            // id for "Dt" attribute
+        ATTRIBUTE_ID_S = 3
+            // id for "S" attribute
+    };
+
+  public:
+    // CONSTANTS
+    static const char CLASS_NAME[];
+        // the name of this class (i.e., "BasicRecord")
+
+    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+        // attribute information for each attribute
+
+  public:
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit BasicRecordWithVariant(bslma_Allocator *basicAllocator = 0);
+        // Create an object of type 'BasicRecord' having the default value.
+        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    BasicRecordWithVariant(const BasicRecordWithVariant& original,
+                bslma_Allocator *basicAllocator = 0);
+        // Create an object of type 'BasicRecord' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
+
+    ~BasicRecordWithVariant();
+        // Destroy this object.
+
+    // MANIPULATORS
+    BasicRecordWithVariant& operator=(const BasicRecordWithVariant& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template<class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    int& i1();
+        // Return a reference to the modifiable "I1" attribute of this object.
+
+    int& i2();
+        // Return a reference to the modifiable "I2" attribute of this object.
+
+    bdeut_Variant<bdet_Datetime, bdet_DatetimeTz>& dt();
+        // Return a reference to the modifiable "Dt" attribute of this object.
+
+    bsl::string& s();
+        // Return a reference to the modifiable "S" attribute of this object.
+
+    // ACCESSORS
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    template<class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    const int& i1() const;
+        // Return a reference to the non-modifiable "I1" attribute of this
+        // object.
+
+    const int& i2() const;
+        // Return a reference to the non-modifiable "I2" attribute of this
+        // object.
+
+    const bdeut_Variant<bdet_Datetime, bdet_DatetimeTz>& dt() const;
+        // Return a reference to the non-modifiable "Dt" attribute of this
+        // object.
+
+    const bsl::string& s() const;
+        // Return a reference to the non-modifiable "S" attribute of this
+        // object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const BasicRecordWithVariant& lhs, const BasicRecordWithVariant& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const BasicRecordWithVariant& lhs,
+                const BasicRecordWithVariant& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream,
+                         const BasicRecordWithVariant& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close package namespace
+
+// TRAITS
+
+BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::BasicRecordWithVariant)
 
 namespace test {
 
@@ -5838,6 +6084,317 @@ const bsl::string& BasicRecord::s() const
     return d_s;
 }
 
+                             // ----------------------------
+                             // class BasicRecordWithVariant
+                             // ----------------------------
+
+// CLASS METHODS
+inline
+int BasicRecordWithVariant::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// CREATORS
+inline
+BasicRecordWithVariant::BasicRecordWithVariant(bslma_Allocator *basicAllocator)
+: d_i1()
+, d_i2()
+, d_dt()
+, d_s(basicAllocator)
+{
+}
+
+inline
+BasicRecordWithVariant::BasicRecordWithVariant(
+        const BasicRecordWithVariant& original,
+        bslma_Allocator *basicAllocator)
+: d_i1(original.d_i1)
+, d_i2(original.d_i2)
+, d_dt(original.d_dt)
+, d_s(original.d_s, basicAllocator)
+{
+}
+
+inline
+BasicRecordWithVariant::~BasicRecordWithVariant()
+{
+}
+
+// MANIPULATORS
+inline
+BasicRecordWithVariant&
+BasicRecordWithVariant::operator=(const BasicRecordWithVariant& rhs)
+{
+    if (this != &rhs) {
+        d_i1 = rhs.d_i1;
+        d_i2 = rhs.d_i2;
+        d_dt = rhs.d_dt;
+        d_s = rhs.d_s;
+    }
+    return *this;
+}
+
+template <class STREAM>
+inline
+STREAM& BasicRecordWithVariant::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {  // Switch on the schema version (starting with 1).
+          case 1: {
+            bdex_InStreamFunctions::streamIn(stream, d_i1, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_i2, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_dt, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_s, 1);
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+inline
+void BasicRecordWithVariant::reset()
+{
+    bdeat_ValueTypeFunctions::reset(&d_i1);
+    bdeat_ValueTypeFunctions::reset(&d_i2);
+    bdeat_ValueTypeFunctions::reset(&d_dt);
+    bdeat_ValueTypeFunctions::reset(&d_s);
+}
+
+template <class MANIPULATOR>
+inline
+int BasicRecordWithVariant::manipulateAttributes(MANIPULATOR& manipulator)
+{
+    int ret;
+
+    ret = manipulator(&d_i1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I1]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&d_i2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I2]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&d_dt, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DT]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&d_s, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_S]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    return ret;
+}
+
+template <class MANIPULATOR>
+inline
+int BasicRecordWithVariant::manipulateAttribute(MANIPULATOR& manipulator, int id)
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_I1: {
+        return manipulator(&d_i1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I1]);
+                                                                      // RETURN
+      } break;
+      case ATTRIBUTE_ID_I2: {
+        return manipulator(&d_i2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I2]);
+                                                                      // RETURN
+      } break;
+      case ATTRIBUTE_ID_DT: {
+        return manipulator(&d_dt, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DT]);
+                                                                      // RETURN
+      } break;
+      case ATTRIBUTE_ID_S: {
+        return manipulator(&d_s, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_S]);
+                                                                      // RETURN
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class MANIPULATOR>
+inline
+int BasicRecordWithVariant::manipulateAttribute(
+        MANIPULATOR&  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+           lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;                                             // RETURN
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+
+inline
+int& BasicRecordWithVariant::i1()
+{
+    return d_i1;
+}
+
+inline
+int& BasicRecordWithVariant::i2()
+{
+    return d_i2;
+}
+
+inline
+bdeut_Variant<bdet_Datetime, bdet_DatetimeTz>& BasicRecordWithVariant::dt()
+{
+    return d_dt;
+}
+
+inline
+bsl::string& BasicRecordWithVariant::s()
+{
+    return d_s;
+}
+
+// ACCESSORS
+template <class STREAM>
+inline
+STREAM& BasicRecordWithVariant::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+        bdex_OutStreamFunctions::streamOut(stream, d_i1, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_i2, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_dt, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_s, 1);
+      } break;
+    }
+    return stream;
+}
+
+template <class ACCESSOR>
+inline
+int BasicRecordWithVariant::accessAttributes(ACCESSOR& accessor) const
+{
+    int ret;
+
+    ret = accessor(d_i1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I1]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_i2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I2]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    if (d_dt.is<bdet_Datetime>()) {
+        ret = accessor(d_dt.the<bdet_Datetime>(),
+                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DT]);
+        if (ret) {
+            return ret;                                               // RETURN
+        }
+    }
+    else {
+        ret = accessor(d_dt.the<bdet_DatetimeTz>(),
+                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DT]);
+        if (ret) {
+            return ret;                                               // RETURN
+        }
+    }
+
+    ret = accessor(d_s, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_S]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    return ret;
+}
+
+template <class ACCESSOR>
+inline
+int BasicRecordWithVariant::accessAttribute(ACCESSOR& accessor, int id) const
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_I1: {
+        return accessor(d_i1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I1]);
+                                                                      // RETURN
+      } break;
+      case ATTRIBUTE_ID_I2: {
+        return accessor(d_i2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I2]);
+                                                                      // RETURN
+      } break;
+      case ATTRIBUTE_ID_DT: {
+        if (d_dt.is<bdet_Datetime>()) {
+            return accessor(d_dt.the<bdet_Datetime>(),
+                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DT]);// RETURN
+        }
+        else {
+            return accessor(d_dt.the<bdet_DatetimeTz>(),
+                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DT]);// RETURN
+        }
+      } break;
+      case ATTRIBUTE_ID_S: {
+        return accessor(d_s, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_S]);
+                                                                      // RETURN
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class ACCESSOR>
+inline
+int BasicRecordWithVariant::accessAttribute(
+        ACCESSOR&   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return NOT_FOUND;                                              // RETURN
+    }
+
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+
+inline
+const int& BasicRecordWithVariant::i1() const
+{
+    return d_i1;
+}
+
+inline
+const int& BasicRecordWithVariant::i2() const
+{
+    return d_i2;
+}
+
+inline
+const bdeut_Variant<bdet_Datetime, bdet_DatetimeTz>&
+BasicRecordWithVariant::dt() const
+{
+    return d_dt;
+}
+
+inline
+const bsl::string& BasicRecordWithVariant::s() const
+{
+    return d_s;
+}
+
                          // -------------------------
                          // class MySequenceWithArray
                          // -------------------------
@@ -7848,6 +8405,36 @@ bsl::ostream& test::operator<<(
 
 inline
 bool test::operator==(
+        const test::BasicRecordWithVariant& lhs,
+        const test::BasicRecordWithVariant& rhs)
+{
+    return  lhs.i1() == rhs.i1()
+         && lhs.i2() == rhs.i2()
+         && lhs.dt() == rhs.dt()
+         && lhs.s() == rhs.s();
+}
+
+inline
+bool test::operator!=(
+        const test::BasicRecordWithVariant& lhs,
+        const test::BasicRecordWithVariant& rhs)
+{
+    return  lhs.i1() != rhs.i1()
+         || lhs.i2() != rhs.i2()
+         || lhs.dt() != rhs.dt()
+         || lhs.s() != rhs.s();
+}
+
+inline
+bsl::ostream& test::operator<<(
+        bsl::ostream& stream,
+        const test::BasicRecordWithVariant& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+inline
+bool test::operator==(
         const test::MySequenceWithArray& lhs,
         const test::MySequenceWithArray& rhs)
 {
@@ -9107,6 +9694,186 @@ bsl::ostream& BasicRecord::print(
     return stream << bsl::flush;
 }
 
+                             // -----------------
+                             // class BasicRecordWithVariant
+                             // -----------------
+
+// CONSTANTS
+
+const char BasicRecordWithVariant::CLASS_NAME[] = "BasicRecordWithVariant";
+    // the name of this class
+
+const bdeat_AttributeInfo BasicRecordWithVariant::ATTRIBUTE_INFO_ARRAY[] = {
+    {
+        ATTRIBUTE_ID_I1,
+        "i1",             // name
+        sizeof("i1") - 1, // name length
+        "",  // annotation
+        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+    },
+    {
+        ATTRIBUTE_ID_I2,
+        "i2",             // name
+        sizeof("i2") - 1, // name length
+        "",  // annotation
+        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+    },
+    {
+        ATTRIBUTE_ID_DT,
+        "dt",             // name
+        sizeof("dt") - 1, // name length
+        "",  // annotation
+        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+    },
+    {
+        ATTRIBUTE_ID_S,
+        "s",             // name
+        sizeof("s") - 1, // name length
+        "",  // annotation
+        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_AttributeInfo *BasicRecordWithVariant::lookupAttributeInfo(
+        const char *name,
+        int         nameLength)
+{
+    switch(nameLength) {
+        case 1: {
+            if (bdeu_CharType::toUpper(name[0])=='S')
+            {
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_S];
+            }
+        } break;
+        case 2: {
+            switch(bdeu_CharType::toUpper(name[0])) {
+                case 'D': {
+                    if (bdeu_CharType::toUpper(name[1])=='T')
+                    {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DT];
+                    }
+                } break;
+                case 'I': {
+                    switch(bdeu_CharType::toUpper(name[1])) {
+                        case '1': {
+                            return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I1];
+                        } break;
+                        case '2': {
+                            return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I2];
+                        } break;
+                    }
+                } break;
+            }
+        } break;
+    }
+    return 0;
+}
+
+const bdeat_AttributeInfo *BasicRecordWithVariant::lookupAttributeInfo(int id)
+{
+    switch (id) {
+      case ATTRIBUTE_ID_I1:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I1];
+      case ATTRIBUTE_ID_I2:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I2];
+      case ATTRIBUTE_ID_DT:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DT];
+      case ATTRIBUTE_ID_S:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_S];
+      default:
+        return 0;
+    }
+}
+
+// ACCESSORS
+
+bsl::ostream& BasicRecordWithVariant::print(
+    bsl::ostream& stream,
+    int           level,
+    int           spacesPerLevel) const
+{
+    if (level < 0) {
+        level = -level;
+    }
+    else {
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+    }
+
+    int levelPlus1 = level + 1;
+
+    if (0 <= spacesPerLevel) {
+        // multiline
+
+        stream << "[\n";
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "I1 = ";
+        bdeu_PrintMethods::print(stream, d_i1,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "I2 = ";
+        bdeu_PrintMethods::print(stream, d_i2,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Dt = ";
+        if (d_dt.is<bdet_Datetime>()) {
+            bdeu_PrintMethods::print(stream, d_dt.the<bdet_Datetime>(),
+                                     -levelPlus1, spacesPerLevel);
+        }
+        else {
+            bdeu_PrintMethods::print(stream, d_dt.the<bdet_DatetimeTz>(),
+                                     -levelPlus1, spacesPerLevel);
+        }
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "S = ";
+        bdeu_PrintMethods::print(stream, d_s,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+        stream << "]\n";
+    }
+    else {
+        // single line
+
+        stream << '[';
+
+        stream << ' ';
+        stream << "I1 = ";
+        bdeu_PrintMethods::print(stream, d_i1,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "I2 = ";
+        bdeu_PrintMethods::print(stream, d_i2,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Dt = ";
+        if (d_dt.is<bdet_Datetime>()) {
+            bdeu_PrintMethods::print(stream, d_dt.the<bdet_Datetime>(),
+                                     -levelPlus1, spacesPerLevel);
+        }
+        else {
+            bdeu_PrintMethods::print(stream, d_dt.the<bdet_DatetimeTz>(),
+                                     -levelPlus1, spacesPerLevel);
+        }
+
+        stream << ' ';
+        stream << "S = ";
+        bdeu_PrintMethods::print(stream, d_s,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << " ]";
+    }
+
+    return stream << bsl::flush;
+}
+
                          // -------------------------
                          // class MySequenceWithArray
                          // -------------------------
@@ -10099,7 +10866,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -10116,6 +10883,614 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING decoding for date/time components using a variant
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout
+                            << "\nTESTING decoding for date/time using variant"
+                            << "\n============================================"
+                            << bsl::endl;
+
+        bdem_BerEncoderOptions options;
+        options.setEncodeDateAndTimeTypesAsBinary(true);
+        const bdem_BerEncoderOptions DEFOPTS;
+
+        if (verbose) bsl::cout << "\nDefine data" << bsl::endl;
+
+        static const struct {
+            int d_lineNum;   // source line number
+            int d_year;      // year under test
+            int d_month;     // month under test
+            int d_day;       // day under test
+            int d_hour;      // hour under test
+            int d_minutes;   // minutes under test
+            int d_seconds;   // seconds under test
+            int d_milliSecs; // milli seconds under test
+            int d_tzoffset;  // time zone offset
+        } DATA[] = {
+   //line no.  year   month   day   hour    min   sec    ms  offset
+   //-------   -----  -----   ---   ----    ---   ---    --  ------
+    {      L_,      1,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,    1,     0,     0,    0,    0,     45     },
+    {      L_,      1,     1,    1,     0,     0,    0,    0,  -1439     },
+
+    {      L_,      1,     1,    1,     1,     1,    1,    1,      0     },
+    {      L_,      1,     1,    1,     1,     1,    1,    1,    500     },
+    {      L_,      1,     1,    1,     0,     0,    0,    0,  -1439     },
+
+    {      L_,      1,     1,    1,     1,    23,   59,   59,      0     },
+    {      L_,      1,     1,    1,     1,    23,   59,   59,   1439     },
+    {      L_,      1,     1,    1,     1,    23,   59,   59,  -1439     },
+
+    {      L_,      1,     1,    2,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,    2,     0,     0,    0,    0,   1439     },
+    {      L_,      1,     1,    2,     0,     0,    0,    0,  -1439     },
+
+    {      L_,      1,     1,    2,     1,     1,    1,    1,      0     },
+    {      L_,      1,     1,    2,     1,     1,    1,    1,    500     },
+
+    {      L_,      1,     1,    2,     1,    23,   59,   59,      0     },
+    {      L_,      1,     1,    2,     1,    23,   59,   59,    500     },
+    {      L_,      1,     1,    2,     1,    23,   59,   59,   -500     },
+
+    {      L_,      1,     1,   10,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,   10,     1,     1,    1,    1,     99     },
+
+    {      L_,      1,     1,   30,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,   31,     0,     0,    0,    0,   1439     },
+    {      L_,      1,     1,   31,     0,     0,    0,    0,  -1439     },
+
+    {      L_,      1,     2,    1,     0,     0,    0,    0,      0     },
+    {      L_,      1,     2,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,      1,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,      1,    12,   31,    23,    59,   59,    0,   1439     },
+
+    {      L_,      2,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,      2,     1,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,      4,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,      4,     1,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,      4,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,      4,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,      4,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,      4,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,      4,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,      4,     2,   29,    23,    59,   59,    0,  -1439     },
+
+    {      L_,      4,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,      4,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,      4,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,      8,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,      8,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,      8,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,      8,     2,   29,    23,    59,   59,    0,   1439     },
+
+    {      L_,      8,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,      8,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,    100,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    100,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,    100,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    100,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    100,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,    100,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    400,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    400,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,    400,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    400,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,    400,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,    400,     2,   29,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    400,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    400,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,    400,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    500,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    500,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,    500,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    500,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,    800,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    800,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,    800,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,    800,     2,   29,    23,    59,   59,    0,   1439     },
+
+    {      L_,    800,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    800,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,   1000,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   1000,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,   1000,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   1000,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,   2000,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   2000,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,   2000,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,   2000,     2,   29,    23,    59,   59,    0,   1439     },
+
+    {      L_,   2000,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   2000,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,   2016,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   2017,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   2018,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   2019,    12,   31,     0,     0,    0,    0,      0     },
+
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,   1439     },
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,  -1439     },
+
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,      0     },
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,   1439     },
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,  -1439     },
+
+    {      L_,   2020,     1,    2,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     1,    2,     0,     0,    0,    0,   1439     },
+    {      L_,   2020,     1,    2,     0,     0,    0,    0,  -1439     },
+
+    {      L_,   2020,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,   2020,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   2020,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,   2020,     2,   29,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   2020,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,   2020,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   2021,     1,    2,     0,     0,    0,    0,      0     },
+    {      L_,   2022,     1,    2,     0,     0,    0,    0,      0     },
+
+    {      L_,   9999,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   9999,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,   9999,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   9999,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   9999,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,   9999,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   9999,    12,   30,     0,     0,    0,    0,      0     },
+    {      L_,   9999,    12,   30,    23,    59,   59,    0,   1439     },
+
+    {      L_,   9999,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   9999,    12,   31,    23,    59,   59,    0,   1439     },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Date'." << bsl::endl;
+        {
+            typedef bdeut_Variant2<bdet_Date, bdet_DateTz> Variant;
+
+            typedef bdet_Date Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int Y    = DATA[i].d_year;
+                const int M    = DATA[i].d_month;
+                const int D    = DATA[i].d_day;
+
+                if (veryVerbose) { P_(Y) P_(M) P(D) }
+
+                const Type VALUE(Y, M, D);
+                Variant    value1, value2;
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&options);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value1));
+                    printDiagnostic(decoder);
+
+                    LOOP_ASSERT(LINE, value1.is<bdet_Date>());
+                    LOOP3_ASSERT(LINE, VALUE, value1,
+                                 VALUE == value1.the<bdet_Date>());
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value1);
+                    }
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&DEFOPTS);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value2));
+                    printDiagnostic(decoder);
+
+                    LOOP_ASSERT(LINE, value2.is<bdet_Date>());
+                    LOOP3_ASSERT(LINE, VALUE, value2,
+                                 VALUE == value2.the<bdet_Date>());
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value2);
+                    }
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_DateTz'." << bsl::endl;
+        {
+            typedef bdeut_Variant2<bdet_Date, bdet_DateTz> Variant;
+
+            typedef bdet_DateTz Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int Y    = DATA[i].d_year;
+                const int M    = DATA[i].d_month;
+                const int D    = DATA[i].d_day;
+                const int OFF  = DATA[i].d_tzoffset;
+
+                const Type VALUE(bdet_Date(Y, M, D), OFF);
+                Variant    value1, value2;
+
+                if (veryVerbose) { P_(Y) P_(M) P_(D) P(OFF) }
+
+                if (OFF) {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&options);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value1));
+                    printDiagnostic(decoder);
+
+                    LOOP_ASSERT(LINE, value1.is<bdet_DateTz>());
+                    LOOP3_ASSERT(LINE, VALUE, value1,
+                                 VALUE == value1.the<bdet_DateTz>());
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value1);
+                    }
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&DEFOPTS);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value2));
+                    printDiagnostic(decoder);
+
+                    LOOP_ASSERT(LINE, value2.is<bdet_DateTz>());
+                    LOOP3_ASSERT(LINE, VALUE, value2,
+                                 VALUE == value2.the<bdet_DateTz>());
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value1);
+                    }
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Time'." << bsl::endl;
+        {
+            typedef bdeut_Variant2<bdet_Time, bdet_TimeTz> Variant;
+
+            typedef bdet_Time Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int H    = DATA[i].d_hour;
+                const int MM   = DATA[i].d_minutes;
+                const int S    = DATA[i].d_seconds;
+                const int MS   = DATA[i].d_milliSecs;
+
+                if (veryVerbose) { P_(H) P_(MM) P_(S) P(MS) }
+
+                const Type VALUE(H, MM, S, MS);
+                Variant    value1, value2;
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&options);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value1));
+                    printDiagnostic(decoder);
+
+                    LOOP_ASSERT(LINE, value1.is<bdet_Time>());
+                    LOOP3_ASSERT(LINE, VALUE, value1,
+                                 VALUE == value1.the<bdet_Time>());
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value1);
+                    }
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&DEFOPTS);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value2));
+                    printDiagnostic(decoder);
+
+                    LOOP_ASSERT(LINE, value2.is<bdet_Time>());
+                    LOOP3_ASSERT(LINE, VALUE, value2,
+                                 VALUE == value2.the<bdet_Time>());
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value2);
+                    }
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_TimeTz'." << bsl::endl;
+        {
+            typedef bdeut_Variant2<bdet_Time, bdet_TimeTz> Variant;
+
+            typedef bdet_TimeTz Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int H    = DATA[i].d_hour;
+                const int MM   = DATA[i].d_minutes;
+                const int S    = DATA[i].d_seconds;
+                const int MS   = DATA[i].d_milliSecs;
+                const int OFF  = DATA[i].d_tzoffset;
+
+                const Type VALUE(bdet_Time(H, MM, S, MS), OFF);
+                Variant    value1, value2;
+
+                if (veryVerbose) { P_(H) P_(MM) P_(S) P_(MS) P(OFF) }
+
+                if (OFF) {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&options);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value1));
+                    printDiagnostic(decoder);
+
+                    LOOP_ASSERT(LINE, value1.is<bdet_TimeTz>());
+                    LOOP3_ASSERT(LINE, VALUE, value1,
+                                 VALUE == value1.the<bdet_TimeTz>());
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value1);
+                    }
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&DEFOPTS);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value2));
+                    printDiagnostic(decoder);
+
+                    LOOP_ASSERT(LINE, value2.is<bdet_TimeTz>());
+                    LOOP3_ASSERT(LINE, VALUE, value2,
+                                 VALUE == value2.the<bdet_TimeTz>());
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value1);
+                    }
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Datetime'." << bsl::endl;
+        {
+            typedef bdeut_Variant2<bdet_Datetime, bdet_DatetimeTz> Variant;
+
+            typedef bdet_Datetime Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int Y    = DATA[i].d_year;
+                const int M    = DATA[i].d_month;
+                const int D    = DATA[i].d_day;
+                const int H    = DATA[i].d_hour;
+                const int MM   = DATA[i].d_minutes;
+                const int S    = DATA[i].d_seconds;
+                const int MS   = DATA[i].d_milliSecs;
+
+                const Type VALUE(Y, M, D, H, MM, S, MS);
+                Variant    value1, value2;
+
+                if (veryVerbose) { P_(Y) P_(M) P_(D) P_(H)
+                                   P_(MM) P_(S) P(MS) }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&options);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (osb.length() > 6) {
+                        // Datetime objects having length greater that 6 bytes
+                        // are always encoded with a time zone.
+
+                        continue;
+                    }
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value1));
+                    printDiagnostic(decoder);
+
+                    LOOP_ASSERT(LINE, value1.is<bdet_Datetime>());
+                    LOOP3_ASSERT(LINE, VALUE, value1,
+                                 VALUE == value1.the<bdet_Datetime>());
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value1);
+                    }
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&DEFOPTS);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value2));
+                    printDiagnostic(decoder);
+
+                    LOOP_ASSERT(LINE, value2.is<bdet_Datetime>());
+                    LOOP3_ASSERT(LINE, VALUE, value2,
+                                 VALUE == value2.the<bdet_Datetime>());
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value2);
+                    }
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_DatetimeTz'." << bsl::endl;
+        {
+            typedef bdeut_Variant2<bdet_Datetime, bdet_DatetimeTz> Variant;
+
+            typedef bdet_DatetimeTz Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int Y    = DATA[i].d_year;
+                const int M    = DATA[i].d_month;
+                const int D    = DATA[i].d_day;
+                const int H    = DATA[i].d_hour;
+                const int MM   = DATA[i].d_minutes;
+                const int S    = DATA[i].d_seconds;
+                const int MS   = DATA[i].d_milliSecs;
+                const int OFF  = DATA[i].d_tzoffset;
+
+                const Type VALUE(bdet_Datetime(Y, M, D, H, MM, S, MS), OFF);
+                Variant    value1, value2;
+
+                if (veryVerbose) { P_(Y) P_(M) P_(D) P_(H)
+                                   P_(MM) P_(S) P_(MS) P(OFF) }
+
+                if (OFF) {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&options);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value1));
+                    printDiagnostic(decoder);
+
+                    LOOP_ASSERT(LINE, value1.is<bdet_DatetimeTz>());
+                    LOOP3_ASSERT(LINE, VALUE, value1,
+                                 VALUE == value1.the<bdet_DatetimeTz>());
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value1);
+                    }
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&DEFOPTS);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value2));
+                    printDiagnostic(decoder);
+
+                    LOOP_ASSERT(LINE, value2.is<bdet_DatetimeTz>());
+                    LOOP3_ASSERT(LINE, VALUE, value2,
+                                 VALUE == value2.the<bdet_DatetimeTz>());
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value2);
+                    }
+                }
+            }
+        }
       } break;
       case 16: {
         // --------------------------------------------------------------------
