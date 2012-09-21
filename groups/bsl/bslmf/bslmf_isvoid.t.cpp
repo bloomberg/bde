@@ -13,11 +13,19 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
+// The objects under test are two meta-functions, 'bsl::is_void' and
+// 'bslmf::IsVoid', that determine whether a template parameter type is a
+// pointer type.  Thus, we need to ensure that the value returned by these
+// meta-functions are correct for each possible category of types.  Since the
+// two meta-functions are functionally equivalent, we will use the same set of
+// types for both.
+//
 //-----------------------------------------------------------------------------
 // [ 4] bslmf::IsVoid conversion to bool
 // [ 4] bslmf::IsVoid conversion to bslmf::MetaInt
 // [ 3] bslmf::IsVoid::Type
 // [ 2] bslmf::IsVoid::VALUE
+// [ 2] bsl::is_void::value
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
@@ -116,7 +124,6 @@ bool isTrueType() { return false; }
 template<>
 bool isTrueType<TrueType>() { return true; }
 
-
 template<class TYPE>
 bool typeDependentTest()
 {
@@ -212,6 +219,25 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Pointer Types
+///- - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is a void type.
+//
+// First, we create two 'typedef's -- a void type and another type:
+//..
+        typedef int  MyType;
+        typedef void MyVoidType;
+//..
+// Now, we instantiate the 'bsl::is_void' template for each of the
+// 'typedef's and assert the 'value' static data member of each instantiation:
+//..
+        ASSERT(false == bsl::is_void<MyType>::value);
+        ASSERT(true == bsl::is_void<MyVoidType>::value);
+//..
 
       } break;
       case 4: {
@@ -353,12 +379,12 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING bslmf::IsVoid::VALUE:
+        // TESTING bslmf::IsVoid::VALUE: and 'bslmf::is_void::value'
         // Concerns:
-        //: 1 The metafunction returns 'true' for any 'void' type, regardless
+        //: 1 The metafunctions returns 'true' for any 'void' type, regardless
         //:   of its cv-qualification.
-        //: 2 The metafunction returns 'false' for every other type.
-        //: 3 The metafunction returns the correct result, even when the
+        //: 2 The metafunctions returns 'false' for every other type.
+        //: 3 The metafunctions returns the correct result, even when the
         //:   potentially 'void' type it is diagnosing is a type alias, such as
         //:   a dependent type name in a template.
         //
@@ -366,10 +392,12 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bslmf::IsVoid::VALUE
+        //   bslmf::is_void::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING bslmf::IsVoid::VALUE"
-                            "\n============================\n");
+        if (verbose) printf("\nTESTING bslmf::IsVoid::VALUE and"
+                            "bslmf::is_void::value"
+                            "\n================================\n");
 
         // Basic test dataset
         ASSERT(bslmf::IsVoid<void>::VALUE);
@@ -384,6 +412,18 @@ int main(int argc, char *argv[])
         ASSERT(!bslmf::IsVoid<bslmf::IsVoid<void> >::VALUE);
         ASSERT(!bslmf::IsVoid<Incomplete>::VALUE);
 
+        ASSERT(bsl::is_void<void>::value);
+        ASSERT(bsl::is_void<const void>::value);
+        ASSERT(bsl::is_void<volatile void>::value);
+        ASSERT(bsl::is_void<const volatile void>::value);
+        ASSERT(!bsl::is_void<void *>::value);
+        ASSERT(!bsl::is_void<void *&>::value);
+        ASSERT(!bsl::is_void<void()>::value);
+        ASSERT(!bsl::is_void<void(*)()>::value);
+        ASSERT(!bsl::is_void<void *Empty::*>::value);
+        ASSERT(!bsl::is_void<bsl::is_void<void> >::value);
+        ASSERT(!bsl::is_void<Incomplete>::value);
+
         // Test nested template typenames with the same dataset
         ASSERT(bslmf::IsVoid<Identity<void>::Type>::VALUE);
         ASSERT(bslmf::IsVoid<Identity<const void>::Type>::VALUE);
@@ -396,6 +436,18 @@ int main(int argc, char *argv[])
         ASSERT(!bslmf::IsVoid<Identity<void *Empty::*>::Type>::VALUE);
         ASSERT(!bslmf::IsVoid<Identity<bslmf::IsVoid<void> >::Type>::VALUE);
         ASSERT(!bslmf::IsVoid<Identity<Incomplete>::Type>::VALUE);
+
+        ASSERT(bsl::is_void<Identity<void>::Type>::value);
+        ASSERT(bsl::is_void<Identity<const void>::Type>::value);
+        ASSERT(bsl::is_void<Identity<volatile void>::Type>::value);
+        ASSERT(bsl::is_void<Identity<const volatile void>::Type>::value);
+        ASSERT(!bsl::is_void<Identity<void *>::Type>::value);
+        ASSERT(!bsl::is_void<Identity<void *&>::Type>::value);
+        ASSERT(!bsl::is_void<Identity<void()>::Type>::value);
+        ASSERT(!bsl::is_void<Identity<void(*)()>::Type>::value);
+        ASSERT(!bsl::is_void<Identity<void *Empty::*>::Type>::value);
+        ASSERT(!bsl::is_void<Identity<bsl::is_void<void> >::Type>::value);
+        ASSERT(!bsl::is_void<Identity<Incomplete>::Type>::value);
 
         // Test type-dependent typenames with the same dataset
         ASSERT(typeDependentTest<void>());
