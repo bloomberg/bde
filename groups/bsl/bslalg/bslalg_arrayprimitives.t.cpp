@@ -3012,10 +3012,12 @@ class MyVector {
 template <class TYPE>
 MyVector<TYPE>::MyVector(const MyVector<TYPE>&  original,
                          bslma::Allocator      *basicAllocator)
-: d_size(original.d_size)
+: d_array_p(0)
+, d_capacity(0)
+, d_size(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    reserve(d_size);
+    reserve(original.d_size);
 //..
 // Here, we call the 'bslalg::ArrayPrimitives::copyConstruct' class method to
 // copy each element from 'original.d_array_p' to 'd_array_p' (When
@@ -3027,6 +3029,8 @@ MyVector<TYPE>::MyVector(const MyVector<TYPE>&  original,
                                           original.d_array_p,
                                           original.d_array_p + original.d_size,
                                           d_allocator_p);
+
+    d_size = original.d_size;
 }
 //..
 // Now, we implement the 'reserve' method of 'MyVector':

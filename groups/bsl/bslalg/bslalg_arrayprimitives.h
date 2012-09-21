@@ -186,7 +186,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //  template <class TYPE>
 //  MyVector<TYPE>::MyVector(const MyVector<TYPE>&  original,
 //                           bslma::Allocator      *basicAllocator)
-//  : d_size(original.d_size)
+//  : d_array_p(0)
+//  , d_capacity(0)
+//  , d_size(0)
 //  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //      reserve(d_size);
@@ -201,6 +203,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //                                        original.d_array_p,
 //                                        original.d_array_p + original.d_size,
 //                                        d_allocator_p);
+//      d_size = original.d_size;
 //  }
 //..
 // Now, we implement the 'reserve' method of 'MyVector':
