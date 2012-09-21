@@ -1,6 +1,7 @@
 // bdealg_typetraits.t.cpp                  -*-C++-*-
 
 #include <bdealg_typetraits.h>
+#include <bslalg_typetraits.h>
 
 #include <bslalg_typetraitnil.h>
 #include <bslma_testallocator.h>
@@ -182,7 +183,7 @@ template <class T>
 struct my_Class2
 {
     // Class template that has nested type traits
-    BDEALG_DECLARE_NESTED_TRAITS2(my_Class2,
+    BSLALG_DECLARE_NESTED_TRAITS2(my_Class2,
                     BloombergLP::bslalg_TypeTraitBitwiseCopyable,
                     BloombergLP::bslalg_TypeTraitHasTrivialDefaultConstructor);
 };

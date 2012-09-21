@@ -6,9 +6,13 @@
 #include <iostream>
 #include <cstdlib>
 
-using namespace std;
 using namespace bsl;
 using namespace BloombergLP;
+
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::atoi;
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO

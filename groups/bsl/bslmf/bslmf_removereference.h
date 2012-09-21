@@ -50,6 +50,8 @@ BSLS_IDENT("$Id: $")
                          // struct RemoveReference
                          // ======================
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
 namespace bsl {
 
 template <typename TYPE>
@@ -64,17 +66,53 @@ struct remove_reference<TYPE &>
     typedef TYPE type;
 };
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+}
+
+#else  // !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
+namespace BloombergLP {
+namespace bslmf {
 
 template <typename TYPE>
-struct remove_reference<TYPE &&>
+struct RemoveRvalueRef_Imp
 {
-    typedef TYPE type;
+    typedef TYPE Type;
 };
 
-#endif
+template <typename TYPE>
+struct RemoveRvalueRef_Imp<TYPE &&>
+{
+    typedef TYPE Type;
+};
+
+template <typename TYPE>
+struct RemoveLvalueRef_Imp
+{
+    typedef TYPE Type;
+};
+
+template <typename TYPE>
+struct RemoveLvalueRef_Imp<TYPE &>
+{
+    typedef TYPE Type;
+};
 
 }
+}
+
+namespace bsl {
+
+template <typename TYPE>
+struct remove_reference
+{
+    typedef typename BloombergLP::bslmf::RemoveLvalueRef_Imp<
+                typename BloombergLP::bslmf::RemoveRvalueRef_Imp<TYPE>::Type
+            >::Type type;
+};
+
+}
+
+#endif
 
 namespace BloombergLP {
 namespace bslmf {
