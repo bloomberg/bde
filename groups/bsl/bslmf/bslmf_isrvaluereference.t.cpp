@@ -14,9 +14,9 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The object under test is a meta-function, 'bsl::is_rvalue_reference', which
-// determine whether a template parameter type is a function type.  Thus, we
-// need to ensure that the value returned by this meta-functions is correct for
-// each possible category of types.
+// determine whether a template parameter type is a rvalue reference type.
+// Thus, we need to ensure that the value returned by this meta-functions is
+// correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
