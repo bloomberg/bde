@@ -4,9 +4,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdlib>    // atoi()
-#include <cstring>    // strcmp()
-#include <iostream>
+#include <cstdlib>
+#include <cstdio>
 
 using namespace BloombergLP;
 using namespace std;
