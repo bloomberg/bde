@@ -67,18 +67,8 @@ namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::is_pointer'.
+   // argument for the template parameter 'TYPE' of 'bsl::is_integral'.
 };
-
-typedef int (TestType::*MethodPtrTestType) ();
-    // This pointer to non-static function member type is intended to be used
-    // during testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_pointer' and 'bslmf::IsPointer'.
-
-typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used during testing as an
-    // argument for the template parameter 'TYPE' of
-    // 'bsl::is_pointer' and 'bslmf::IsPointer'.
 
 }  // close unnamed namespace
 
