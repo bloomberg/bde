@@ -15,15 +15,30 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsl+stdhdrs
 //
 //@AUTHOR: Arthur Chiu (achiu21), Alisdair Meredith (ameredith1)
+//         Stefano Pacifico (spacifico1)
 //
-//@DESCRIPTION: This component provides a namespace for hash functions used by
-// 'unordered_map', 'unordered_set' and 'hashtable'.
+//@DESCRIPTION: This component provides a template unary functor,
+//'bsl::hash', implementing the 'std::hash' functor.  'bsl::hash' applies a C++
+//standard compliant, implementation defined, hash function to fundamental
+//types returning the result of such application.
 //
-//..
+/// Standard Hash Function
+// According to the C++ standard the requirements of a standard hash function
+// 'h' are:
+//
+//: 1 Return a 'size_t' value between 0 and
+//:   'numeric_limits<std::size_t>::max()'
+//:
+//: 2 The value returned must depend only on the argument 'k'.  For multiple
+//:   evaluations with the same argument 'k', the value returned must be
+//:   always the same.
+//:
+//: 3 The function should not modify it's argument.
 //
 ///Usage
 ///-----
 // This component is for use by the 'bsl+stdhdrs' package.
+
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
