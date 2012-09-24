@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 // type.
 //
 // 'bsl::is_reference' meets the requirements of the 'is_reference' template
-// defined in the C++11 standard [meta.unary.cat].
+// defined in the C++11 standard [meta.unary.comp].
 //
 ///Usage
 ///-----
@@ -73,7 +73,7 @@ struct is_reference : integral_constant<bool,
                                         || is_rvalue_reference<TYPE>::value>
 {};
 
-}
+}  // close namespace bsl
 
 #endif
 

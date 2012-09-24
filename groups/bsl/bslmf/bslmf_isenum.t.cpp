@@ -3,6 +3,7 @@
 #include <bslmf_isenum.h>
 
 #include <bsls_types.h>
+#include <bsls_bsltestutil.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -31,27 +32,36 @@ using namespace std;
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 
+//=============================================================================
+//                  STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+void aSsErT(bool b, const char *s, int i)
 {
-    if (c) {
+    if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-// #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
-//#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ printf("\t");             // Print a tab (w/o newline)
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -187,8 +197,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
-                                  << "=============" << endl;
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
 
 // Now, we instantiate the 'bsl::is_enum' template for both types we defined
 // previously, asserting the 'value' static data member of each instantiation:
@@ -226,9 +236,8 @@ int main(int argc, char *argv[])
         //   bslmf::IsEnum::VALUE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "bslmf::IsEnum" << endl
-                          << "=============" << endl;
+        if (verbose) printf("bslmf::IsEnum\n"
+                            "=============\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, int,  0);
@@ -304,9 +313,8 @@ int main(int argc, char *argv[])
         //   bsl::is_enum::value
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "bsl::is_enum" << endl
-                          << "============" << endl;
+        if (verbose) printf("bsl::is_enum\n"
+                            "============\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, int,  false);
