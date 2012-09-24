@@ -34,7 +34,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <glob.h>
 #include <bsl_c_signal.h>
 #include <sys/resource.h>
@@ -42,12 +42,12 @@
 #include <unistd.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #endif
 
 // Note: on Windows -> WinGDI.h:#define ERROR 0
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(ERROR)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(ERROR)
 #undef ERROR
 #endif
 
@@ -192,7 +192,7 @@ bdet_Datetime getCurrentTimestamp()
 {
     time_t currentTime = time(0);
     struct tm localtm;
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     localtm = *localtime(&currentTime);
 #else
     localtime_r(&currentTime, &localtm);
@@ -205,7 +205,7 @@ bdet_Datetime getCurrentTimestamp()
 
 void removeFilesByPrefix(const char *prefix)
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     bsl::string filename = prefix;
     filename += "*";
     WIN32_FIND_DATA findFileData;
@@ -258,12 +258,12 @@ void removeFilesByPrefix(const char *prefix)
 bsl::string tempFileName(bool verboseFlag)
 {
     bsl::string result;
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
     GetTempPath(MAX_PATH, tmpPathBuf);
     GetTempFileName(tmpPathBuf, "bael", 0, tmpNameBuf);
     result = tmpNameBuf;
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
     char tmpPathBuf[L_tmpnam];
     result = tempnam(tmpPathBuf, "bael");
 #else
@@ -554,7 +554,7 @@ int main(int argc, char *argv[])
         removeFilesByPrefix(filename.c_str());
       } break;
       case 4: {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         // don't run this if we're in the debugger because the debugger
         // stops and refuses to continue when we hit the file size limit.
 
@@ -694,7 +694,7 @@ int main(int argc, char *argv[])
 
             bsl::string filename = tempFileName(veryVerbose);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
             ASSERT(X.isFileLoggingEnabled());
 
@@ -740,7 +740,7 @@ int main(int argc, char *argv[])
 
             bsl::string filename = tempFileName(veryVerbose);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             ASSERT(0 == mX.enableFileLogging(filename.c_str(), false));
             ASSERT(X.isFileLoggingEnabled());
 
@@ -786,7 +786,7 @@ int main(int argc, char *argv[])
 
             bsl::string filename = tempFileName(veryVerbose);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
             ASSERT(0 == mX.enableFileLogging((filename + "%s").c_str(),
                                              false));
@@ -862,7 +862,7 @@ int main(int argc, char *argv[])
         bael_MultiplexObserver multiplexObserver;
         bael_LoggerManager::initSingleton(&multiplexObserver, configuration);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         bcema_TestAllocator ta(veryVeryVeryVerbose);
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
@@ -1208,8 +1208,8 @@ int main(int argc, char *argv[])
         ASSERT(bdesu_FileUtil::exists(fileName));
         ASSERT(0 == bdesu_FileUtil::getFileSize(fileName));
 
-#if defined(BSLS_PLATFORM__OS_UNIX) && \
-   (!defined(BSLS_PLATFORM__OS_SOLARIS) || BSLS_PLATFORM__OS_VER_MAJOR >= 10)
+#if defined(BSLS_PLATFORM_OS_UNIX) && \
+   (!defined(BSLS_PLATFORM_OS_SOLARIS) || BSLS_PLATFORM_OS_VER_MAJOR >= 10)
         // For the localtime to be picked to avoid the all.pl env to pollute
         // us.
         unsetenv("TZ");
@@ -1712,7 +1712,7 @@ int main(int argc, char *argv[])
             multiplexObserver.deregisterObserver(&mX);
         }
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         if (verbose) cerr << "Testing file logging with timestamp."
                           << endl;
         {

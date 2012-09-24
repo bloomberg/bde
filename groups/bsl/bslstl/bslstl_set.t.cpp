@@ -558,6 +558,105 @@ class TestComparatorNonConst {
     }
 };
 
+                       // =====================
+                       // class TemplateWrapper
+                       // =====================
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+class TemplateWrapper {
+    // This class inherits from the container, but do nothing otherwise.  A
+    // compiler bug in AIX prevents the compiler from finding the definition of
+    // the default arguments for the constructor.  This class is created to
+    // test this scenario.
+
+    // DATA
+    bsl::set<KEY, COMPARATOR, ALLOCATOR> d_member;
+
+  public:
+    // CREATORS
+    TemplateWrapper()
+    : d_member()
+    {
+    }
+
+    //! TemplateWrapper(const TemplateWrapper&) = default;
+
+    template <class INPUT_ITERATOR>
+    TemplateWrapper(INPUT_ITERATOR begin, INPUT_ITERATOR end)
+    : d_member(begin, end)
+    {
+    }
+};
+
+                       // =====================
+                       // class TemplateWrapper
+                       // =====================
+
+class DummyComparator {
+    // A dummy comparator class.  Must be defined after 'TemplateWrapper' to
+    // reproduce the AIX bug.
+
+  public:
+    bool operator() (int, int)
+    {
+        return true;
+    }
+};
+
+                       // ====================
+                       // class DummyAllocator
+                       // ====================
+
+template <class TYPE>
+class DummyAllocator {
+    // A dummy allocator class.  Must be defined after 'TemplateWrapper' to
+    // reproduce the AIX bug.  Every method is a noop.
+
+  public:
+    // PUBLIC TYPES
+    typedef std::size_t     size_type;
+    typedef std::ptrdiff_t  difference_type;
+    typedef TYPE           *pointer;
+    typedef const TYPE     *const_pointer;
+    typedef TYPE&           reference;
+    typedef const TYPE&     const_reference;
+    typedef TYPE            value_type;
+
+    template <class OTHER_TYPE>
+    struct rebind
+    {
+        typedef DummyAllocator<OTHER_TYPE> other;
+    };
+
+    // CREATORS
+    DummyAllocator() {}
+
+    // DummyAllocator(const DummyAllocator& original) = default;
+
+    template <class OTHER_TYPE>
+    DummyAllocator(const DummyAllocator<OTHER_TYPE>&) {}
+
+    // ~DummyAllocator() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    // DummyAllocator& operator=(const DummyAllocator& rhs) = default;
+
+    pointer allocate(size_type numElements, const void *hint = 0) { return 0; }
+
+    void deallocate(pointer address, size_type numElements = 1) {}
+
+    void construct(pointer address, const TYPE& value) {}
+
+    void destroy(pointer address) {}
+
+    // ACCESSORS
+    pointer address(reference object) const { return 0; }
+
+    const_pointer address(const_reference object) const { return 0; }
+
+    size_type max_size() const { return 0; }
+};
 
 template <class TYPE>
 class GreaterThanFunctor {
@@ -673,8 +772,11 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase24();
+    static void testCase25();
         // Test standard interface coverage.
+
+    static void testCase24();
+        // Test constructor of a template wrapper class.
 
     static void testCase23();
         // Test type traits.
@@ -805,7 +907,7 @@ bsl::set<KEY, COMP, ALLOC> TestDriver<KEY, COMP, ALLOC>::g(const char *spec)
 }
 
 template <class KEY, class COMP, class ALLOC>
-void TestDriver<KEY, COMP, ALLOC>::testCase24()
+void TestDriver<KEY, COMP, ALLOC>::testCase25()
 {
     // ------------------------------------------------------------------------
     // TESTING STANDARD INTERFACE COVERAGE
@@ -1113,6 +1215,43 @@ void TestDriver<KEY, COMP, ALLOC>::testCase24()
 }
 
 template <class KEY, class COMP, class ALLOC>
+void TestDriver<KEY, COMP, ALLOC>::testCase24()
+{
+    // ------------------------------------------------------------------------
+    // TESTING CONSTRUCTOR OF A TEMPLATE WRAPPER CLASS
+    //
+    // Concern:
+    //: 1 The constructor of a templatized wrapper around the container will
+    //:   compile.  (C-1)
+    //
+    // Plan:
+    //: 1 Invoke each constructor of a class that inherits from the container.
+    //
+    // Testing:
+    //   CONCERN: Constructor of a template wrapper class compiles
+    // ------------------------------------------------------------------------
+
+    // The following may fail to compile on AIX
+
+    TemplateWrapper<KEY, DummyComparator, DummyAllocator<KEY> > obj1;
+    (void) obj1;
+
+    // This would compile because the copy constructor doesn't use a default
+    // argument.
+
+    TemplateWrapper<KEY, DummyComparator, DummyAllocator<KEY> > obj2(obj1);
+    (void) obj2;
+
+    // This would also compile, most likely because the constructor is
+    // templatized.
+
+    typename Obj::value_type array[1];
+    TemplateWrapper<KEY, DummyComparator, DummyAllocator<KEY> > obj3(array,
+                                                                     array);
+    (void) obj3;
+}
+
+template <class KEY, class COMP, class ALLOC>
 void TestDriver<KEY, COMP, ALLOC>::testCase23()
 {
     // ------------------------------------------------------------------------
@@ -1272,6 +1411,15 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
     }
 
+    // IBM empty class swap bug test
+
+    {
+        typedef bsl::set<int, std::less<int>, StlAlloc> TestObj;
+        TestObj mX;
+        mX.insert(1);
+        TestObj mY;
+        mY = mX;
+    }
 }
 
 template <class KEY, class COMP, class ALLOC>
@@ -2986,6 +3134,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
         { L_,   "AB",         "AB",        true },
         { L_,   "ABC",        "ABC",       true },
         { L_,   "ABCD",       "ABCD",      true },
+        { L_,   "AABCCDDD",     "ABCD",      true },
         { L_,   "ABCDE",      "ABCDE",     true },
         { L_,   "DABEC",      "ABCDE",    false },
         { L_,   "EDCBACBA",   "ABCDE",    false },
@@ -3064,8 +3213,11 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
                 ASSERTV(LINE, CONFIG, &oa == X.get_allocator());
 
                 if (ORDERED && LENGTH > 0) {
-                    ASSERTV(LINE, CONFIG, LENGTH - 1, X.key_comp().count(),
-                            LENGTH - 1 == X.key_comp().count());
+                    const size_t SPECLEN = strlen(DATA[ti].d_spec);
+                    ASSERTV(LINE, CONFIG, (SPECLEN - 1) * 2,
+                            X.key_comp().count(),
+                            (SPECLEN - 1) * 2 == X.key_comp().count());
+
                 }
                 // Verify no allocation from the non-object allocator.
 
@@ -6020,7 +6172,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -6071,14 +6223,21 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // TESTING STANDARD INTERFACE COVERAGE
         // --------------------------------------------------------------------
         // Test only 'int' and 'char' parameter types, becuase map's
         // 'operator<' and related operators only support parameterized types
         // that defines 'operator<'.
-        RUN_EACH_TYPE(TestDriver, testCase24, int, char);
+        RUN_EACH_TYPE(TestDriver, testCase25, int, char);
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // TESTING CONSTRUCTOR OF TEMPLATE WRAPPER
+        // --------------------------------------------------------------------
+        // KEY doesn't affect the test.  So run test only for 'int'.
+        TestDriver<int>::testCase24();
       } break;
       case 23: {
         // --------------------------------------------------------------------

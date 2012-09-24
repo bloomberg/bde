@@ -27,7 +27,7 @@
 #include <bsl_c_signal.h>
 
 // for collecting CPU time
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #        include <windows.h>
 #else
 #        include <sys/resource.h>
@@ -146,7 +146,7 @@ struct TestJobFunctionArgs1 {
 
 extern "C" {
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 void TestSynchronousSignals(void *ptr)
 {
     sigset_t blockedSet;
@@ -175,7 +175,7 @@ void TestSynchronousSignals(void *ptr)
 
     // verify that thread pool does not, by mistake, leave ALL the signals
     // unblocked.  Testing for 1 signal should be enough.
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
     ASSERT(sigismember(&blockedSet, SIGINT) == 1);
 #endif
 
@@ -234,7 +234,7 @@ static double getCurrentCpuTime()
     // Return the total CPU time (user and system) consumed
     // by the current process since creation; the CPU time unit is seconds.
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     HANDLE me = GetCurrentProcess();
     FILETIME ct, et, kt, ut; // ct & et are unused.
     ULARGE_INTEGER stime, utime;
@@ -906,7 +906,7 @@ int main(int argc, char *argv[])
             };
             Obj x(attr, MIN, MAX, IDLE);
             STARTPOOL(x);
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
             x.enqueueJob(TestSynchronousSignals, NULL);
 #endif
             x.stop();
@@ -1017,7 +1017,7 @@ int main(int argc, char *argv[])
                          percentBusy2,
                          percentBusy1 >= percentBusy2);
 
-#if !defined(BSLS_PLATFORM__CMP_IBM) && !defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BDE_BUILD_TARGET_OPT)
             LOOP_ASSERT(percentBusy1, 50. < percentBusy1);
             // Should be around 100%, but former values of 99% and 95%
             // triggered occasional failures, so we relax it a bit.
@@ -1082,7 +1082,7 @@ int main(int argc, char *argv[])
         {
             const int MIN  = 5;
             const int MAX  = 10;
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
             const int IDLE = 100; // in milliseconds
 #else
             // Windows is pretty bad at timing.

@@ -31,6 +31,53 @@ BSLS_IDENT("$Id: $")
 // implied by the return value.  The user is advised to determine the actual
 // performance on each platform of interest.
 //
+///Accuracy on Windows
+///- - - - - - - - - -
+// On certain windows platform configurations, 'bsls::TimeUtil::getTimer' and
+// 'bsls::TimeUtil::getRawTimer' can produce unreliable results.  On some
+// machines, these high-resolution functions have been observed to run at
+// inconsistent speeds, with worst cases as slow as half the speed of actual
+// wall time.  This is known behavior of the underlying high-performance timer
+// function 'QueryPerformanceCounter', upon which the Windows implementation of
+// 'bsls::TimeUtil' relies.
+//
+///CPU Scaling
+/// -  -  -  -
+// The behavior of the timer on windows platforms depends on the interaction of
+// operating system, BIOS, and processor, and certain combinations of the three
+// (particularly older ones) are vulnerable to timer inaccuracy.  For example,
+// frequently the 'QueryPerformanceCounter' function that 'TmeUtil' uses on
+// Windows will utilize the CPU's timestamp counter (TSC), and CPUs with speed
+// scaling mechanisms such as SpeedStep (frequently used for power management)
+// will generally see the clock speed vary with the CPU frequency.  However,
+// newer processors often provide an 'Invariant TSC' that solves this
+// problem.  Also versions of Windows starting with Vista may internally handle
+// the inconsistency by automatically using a lower resolution, but accurate,
+// counter on processors that do not provide an 'Invariant TSC'.
+//
+///Multi-Core Issues
+/// -  -  -  -  -  -
+// In addition, on multi-core machines, each call to 'QueryPerformanceCounter'
+// may read the TSC from a different CPU.  The TSCs of the CPUs may be out of
+// sync, resulting in slightly inconsistent or even non-monotonic behavior.
+//
+// Reference: http://support.microsoft.com/kb/895980
+//
+///Ensuring Accurate Timers on Windows
+///- - - - - - - - - - - - - - - - - -
+// If a Windows machine appears to have a slow and/or inconsistent
+// high-resolution timer, it can be reconfigured to avoid using the TSC.  On
+// Windows XP and earlier versions, add the parameter '/usepmtimer' to the
+// operating system's boot configuration in 'boot.ini'.  On Windows Vista and
+// later, run the following command as an administrator:
+//..
+//  bcdedit /set useplatformclock true
+//..
+// Note that unless the machine has a High Performance Event Timer (HPET) and
+// it has been enabled in the BIOS, these steps might reduce the resolution of
+// the 'bsls::TimeUtil' high-resolution functions from the nanosecond range to
+// the microsecond range (or worse).
+//
 ///Usage
 ///-----
 // The following snippets of code illustrate how to use 'bsls::TimeUtil'
@@ -137,14 +184,14 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     #ifndef INCLUDED_TIME
     #include <time.h>
     #define INCLUDED_TIME
     #endif
 #endif
 
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
     #ifndef INCLUDED_SYS_TIME
     #include <sys/time.h>
     #define INCLUDED_SYS_TIME
@@ -173,18 +220,18 @@ struct TimeUtil {
     // nanoseconds.
 
     // TYPES
-#if   defined BSLS_PLATFORM__OS_SOLARIS
-        typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
-#elif defined BSLS_PLATFORM__OS_AIX
-        typedef timebasestruct_t                  OpaqueNativeTime;
-#elif defined BSLS_PLATFORM__OS_HPUX
-        typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
-#elif defined BSLS_PLATFORM__OS_LINUX
-        typedef timespec                          OpaqueNativeTime;
-#elif defined BSLS_PLATFORM__OS_UNIX
-        typedef timeval                           OpaqueNativeTime;
-#elif defined BSLS_PLATFORM__OS_WINDOWS
-        typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
+#if   defined BSLS_PLATFORM_OS_SOLARIS
+    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
+#elif defined BSLS_PLATFORM_OS_AIX
+    typedef timebasestruct_t                  OpaqueNativeTime;
+#elif defined BSLS_PLATFORM_OS_HPUX
+    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
+#elif defined BSLS_PLATFORM_OS_LINUX
+    typedef timespec                          OpaqueNativeTime;
+#elif defined BSLS_PLATFORM_OS_UNIX
+    typedef timeval                           OpaqueNativeTime;
+#elif defined BSLS_PLATFORM_OS_WINDOWS
+    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
 #endif
 
     // CLASS METHODS
@@ -237,12 +284,14 @@ struct TimeUtil {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::TimeUtil bsls_TimeUtil;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

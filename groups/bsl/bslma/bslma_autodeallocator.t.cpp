@@ -2,17 +2,18 @@
 
 #include <bslma_autodeallocator.h>
 
+#include <bslma_allocator.h>                // for testing only
 #include <bslma_deallocatorproctor.h>
 #include <bslma_testallocator.h>            // for testing only
 #include <bslma_testallocatorexception.h>   // for testing only
-#include <bslma_allocator.h>                // for testing only
 
-#include <cstdlib>     // atoi(), rand()
-#include <cstring>     // memcpy(), strlen()
-#include <iostream>
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -61,60 +62,50 @@ using namespace std;
 //=============================================================================
 
 //=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
-{
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+static void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -179,7 +170,7 @@ void *TestAllocator::makePointer()
     for (int i = 0; i < NUM_SEGMENTS; ++i) {
         if (!s_segmentAllocated[i]) {
             if (globalVeryVeryVeryVerbose) {
-                cout << "Allocating: " << i << endl;
+                printf("Allocating: %d\n", i);
             }
             s_segmentAllocated[i] = true;
             return s_segmentAllocated + i;
@@ -195,7 +186,8 @@ void TestAllocator::deallocate(void *address)
 {
     bool *segment = (bool *) address;
     if (globalVeryVeryVeryVerbose) {
-        cout << "Deallocating: " << (segment - s_segmentAllocated) << endl;
+        long long int printVal = (segment - s_segmentAllocated);
+        printf("Deallocating: %lld\n", printVal);
     }
     if (segment >= s_segmentAllocated &&
                      segment < s_segmentAllocated + NUM_SEGMENTS && *segment) {
@@ -418,7 +410,7 @@ int TestAllocator::numOutstandingAllocations() const
 //..
         // Copy the character sequences from the 'srcArray'.
         for (int i = 0; i < srcLength; ++i, ++d_length) {
-            std::size_t size = std::strlen(tmpSrc[i]) + 1;
+            size_t size = strlen(tmpSrc[i]) + 1;
             d_array_p[dstIndex + i] = (char *) d_allocator_p->allocate(size);
             memcpy(d_array_p[dstIndex + i], tmpSrc[i], size);
         }
@@ -499,7 +491,7 @@ int TestAllocator::numOutstandingAllocations() const
         // created object.
 
         for (int i = srcLength - 1; i >= 0; --i, --tailDeallocator) {
-            std::size_t size = std::strlen(tmpSrc[i]) + 1;
+            size_t size = strlen(tmpSrc[i]) + 1;
             d_array_p[dstIndex + i] = (char *)d_allocator_p->allocate(size);
             memcpy(d_array_p[dstIndex + i], tmpSrc[i], size);
         }
@@ -558,7 +550,7 @@ void my_StrArray<ALLOCATOR>::append(const char *src)
         }
         d_array_p = newArray;
     }
-    size_t length = std::strlen(src) + 1;
+    size_t length = strlen(src) + 1;
     d_array_p[d_length] = (char *) d_allocator_p->allocate(length);
     memcpy(d_array_p[d_length], src, length);
     ++d_length;
@@ -593,7 +585,7 @@ int main(int argc, char *argv[])
 
     globalVeryVeryVeryVerbose = veryVeryVeryVerbose;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
       case 8: {
@@ -613,14 +605,14 @@ int main(int argc, char *argv[])
         //   Usage example
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLE TEST" << endl
-                                  << "==================" << endl;
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
         bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
         const bslma::TestAllocator& TA = testAllocator;
 
 #ifdef BDE_BUILD_TARGET_EXC
-        if (verbose) cout << "\nTesting with exceptions";
+        if (verbose) printf("\nTesting with exceptions\n");
 #endif
 
         BEGIN_BSLMA_EXCEPTION_TEST {
@@ -761,17 +753,15 @@ int main(int argc, char *argv[])
         //   void operator--();
         // --------------------------------------------------------------------
 
-        if (verbose) cout <<
-                          endl << "'operator++' AND 'operator--' TEST" << endl
-                               << "==================================" << endl;
+        if (verbose) printf("\n'operator++' AND 'operator--' TEST"
+                            "\n==================================\n");
 
         enum { NUM_BLOCKS = 10};
         void *pointers[NUM_BLOCKS];  // dummy pointer passed to the proctor
         bslma::TestAllocator ta(veryVeryVeryVerbose); // dummy allocator passed
                                                       // to the proctor
 
-        if (verbose) cout << "\nTesting 'operator++' with positive length"
-                          << endl;
+        if (verbose) printf("\nTesting 'operator++' with positive length\n");
 
         bslma::AutoDeallocator<bslma::Allocator> proctor(pointers, &ta, 0);
         for (int i = 0; i < NUM_BLOCKS; ++i) {
@@ -780,8 +770,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(NUM_BLOCKS == proctor.length());
 
-        if (verbose) cout << "\nTesting 'operator--' with positive length"
-                          << endl;
+        if (verbose) printf("\nTesting 'operator--' with positive length\n");
 
         for (int i = NUM_BLOCKS - 1; i >= 0; --i) {
             --proctor;
@@ -789,8 +778,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == proctor.length());
 
-        if (verbose) cout << "\nTesting 'operator--' with negative length"
-                          << endl;
+        if (verbose) printf("\nTesting 'operator--' with negative length\n");
 
         for (int i = 0; i < NUM_BLOCKS; ++i) {
             LOOP_ASSERT(i, -i == proctor.length());
@@ -798,8 +786,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(-NUM_BLOCKS == proctor.length());
 
-        if (verbose) cout << "\nTesting 'operator++' with negative length"
-                          << endl;
+        if (verbose) printf("\nTesting 'operator++' with negative length\n");
 
         for (int i = NUM_BLOCKS - 1; i >= 0; --i) {
             ++proctor;
@@ -839,15 +826,15 @@ int main(int argc, char *argv[])
         //   int length();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'setLength' AND 'length' TEST" << endl
-                                  << "=============================" << endl;
+        if (verbose) printf("\n'setLength' AND 'length' TEST"
+                            "\n=============================\n");
 
         TestAllocator t;
         const TestAllocator& T = t;
 
         enum { NUM_BLOCKS = 30 };
 
-        if (verbose) cout << "\nTesting 'setLength'" << endl;
+        if (verbose) printf("\nTesting 'setLength'\n");
 
         for (int i = -NUM_BLOCKS / 2; i < NUM_BLOCKS / 2 + 1; ++i) {
             void *pointers[NUM_BLOCKS];
@@ -902,7 +889,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == T.numOutstandingAllocations());
         }
 
-        if (verbose) cout << "\nTesting 'length'" << endl;
+        if (verbose) printf("\nTesting 'length'\n");
 
         for (int i = -NUM_BLOCKS / 2; i < NUM_BLOCKS / 2 + 1; ++i) {
             void *pointers[NUM_BLOCKS];  // dummy
@@ -942,10 +929,10 @@ int main(int argc, char *argv[])
         //   void reset(origin);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'reset' TEST" << endl
-                                  << "============" << endl;
+        if (verbose) printf("\n'reset' TEST"
+                            "\n============\n");
 
-        if (verbose) cout << "\nTesting the 'reset' method" << endl;
+        if (verbose) printf("\nTesting the 'reset' method\n");
 
         enum { NUM_TEST = 20, SIZE1 = sizeof(int), SIZE2 = sizeof(char) };
 
@@ -1032,10 +1019,10 @@ int main(int argc, char *argv[])
         //   void release();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "'release' TEST" << endl
-                          << "==============" << endl;
+        if (verbose) printf("\n'release' TEST"
+                            "\n==============\n");
 
-        if (verbose) cout << "\nTesting the 'release' method." << endl;
+        if (verbose) printf("\nTesting the 'release' method.\n");
 
         bslma::TestAllocator ta1(veryVeryVerbose);
         bslma::TestAllocator ta2(veryVeryVerbose);
@@ -1127,16 +1114,16 @@ int main(int argc, char *argv[])
         //   CONCERN: the 'deallocate' method for pools is also invoked
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "CTOR / DOTR TEST" << endl
-                                  << "================" << endl;
+        if (verbose) printf("\nCTOR / DOTR TEST"
+                            "\n================\n");
 
-        if (verbose) cout << "\nTesting with bslma_TestAllocator." << endl;
+        if (verbose) printf("\nTesting with bslma_TestAllocator.\n");
 
         enum { NUM_TEST = 20, SIZE = sizeof(int) };
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         const bslma::TestAllocator &TA = ta;
 
-        if (verbose) cout << "\tTesting positive length." << endl;
+        if (verbose) printf("\tTesting positive length.\n");
 
         static void *pointers[NUM_TEST];  // guaranteed to init to 0
 
@@ -1177,7 +1164,7 @@ int main(int argc, char *argv[])
 
         memset(pointers, 0, NUM_TEST * sizeof(void *));
 
-        if (verbose) cout << "\tTesting negative length." << endl;
+        if (verbose) printf("\tTesting negative length.\n");
 
         for (int i = 1; i < NUM_TEST; ++i) {
 
@@ -1216,7 +1203,7 @@ int main(int argc, char *argv[])
 
         memset(pointers, 0, NUM_TEST * sizeof(void *));
 
-        if (verbose) cout << "\tTesting default length." << endl;
+        if (verbose) printf("\tTesting default length.\n");
 
         for (int i = 0; i < NUM_TEST; ++i) {
             pointers[i] = ta.allocate(SIZE);
@@ -1243,19 +1230,18 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == TA.numBytesInUse());
 
-        if (verbose) cout << "\tTesting Construction with null pointer."
-                          << endl;
+        if (verbose) printf("\tTesting Construction with null pointer.\n");
 
         {
             bslma::AutoDeallocator<bslma::Allocator> ad(0, &ta);
         }
 
-        if (verbose) cout << "\nTesting with TestAllocator." << endl;
+        if (verbose) printf("\nTesting with TestAllocator.\n");
 
         TestAllocator t;
         const TestAllocator &T = t;
 
-        if (verbose) cout << "\tTesting positive length." << endl;
+        if (verbose) printf("\tTesting positive length.\n");
 
         for (int i = 1; i < NUM_TEST; ++i) {
 
@@ -1294,7 +1280,7 @@ int main(int argc, char *argv[])
 
         memset(pointers, 0, NUM_TEST * sizeof(void *));
 
-        if (verbose) cout << "\tTesting negative length." << endl;
+        if (verbose) printf("\tTesting negative length.\n");
 
         for (int i = 1; i < NUM_TEST; ++i) {
 
@@ -1335,7 +1321,7 @@ int main(int argc, char *argv[])
 
         memset(pointers, 0, NUM_TEST * sizeof(void *));
 
-        if (verbose) cout << "\tTesting default length." << endl;
+        if (verbose) printf("\tTesting default length.\n");
 
         for (int i = 0; i < NUM_TEST; ++i) {
             pointers[i] = t.makePointer();
@@ -1362,8 +1348,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == T.numOutstandingAllocations());
 
-        if (verbose) cout << "\tTesting Construction with null pointer."
-                          << endl;
+        if (verbose) printf("\tTesting Construction with null pointer.\n");
 
         {
             bslma::AutoDeallocator<TestAllocator> ad(0, &t);
@@ -1387,10 +1372,10 @@ int main(int argc, char *argv[])
         //   Helper Class: 'TestAllocator'
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "HELPER CLASS TEST" << endl
-                                  << "=================" << endl;
+        if (verbose) printf("\nHELPER CLASS TEST"
+                            "\n=================\n");
 
-        if (verbose) cout << "\nTesting 'TestAllocator'." << endl;
+        if (verbose) printf("\nTesting 'TestAllocator'.\n");
 
         enum { MAX_NUM_POINTERS = 30 };
         static void *pointers[MAX_NUM_POINTERS];  // guaranteed to init to 0
@@ -1399,7 +1384,7 @@ int main(int argc, char *argv[])
 
         TestAllocator mX;    const TestAllocator &X = mX;
         for (int i = 0; i < MAX_NUM_POINTERS; ++i) {
-            if (std::rand() & 0x10) {  // allocate
+            if (rand() & 0x10) {  // allocate
 
                 // Find empty slot.
                 int j;
@@ -1432,7 +1417,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "Net allocated: " << numAllocated << endl;
+            if (veryVerbose) printf("Net allocated: %d\n", numAllocated);
 
             maxNumAllocated = intMax(maxNumAllocated, numAllocated);
 
@@ -1440,7 +1425,7 @@ int main(int argc, char *argv[])
                          NUMALLOCATED == mX.numOutstandingAllocations());
         }
 
-        if (verbose) cout << "Max num allocated: " << maxNumAllocated << endl;
+        if (verbose) printf("Max num allocated: %d\n", maxNumAllocated);
 
         for (int j = 0; j < MAX_NUM_POINTERS; ++j) {
             if (pointers[j]) {
@@ -1471,15 +1456,15 @@ int main(int argc, char *argv[])
         //   Breathing Test
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING TEST" << endl
-                                  << "==============" << endl;
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         const bslma::TestAllocator& TA = ta;
 
         enum {NUM_TEST = 10};
 
-        if (verbose) cout << "\nTesting with void **." << endl;
+        if (verbose) printf("\nTesting with void **.\n");
 
         void *memory[NUM_TEST];
 
@@ -1499,7 +1484,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == TA.numBytesInUse());
 
-        if (verbose) cout << "\nTesting with char **." << endl;
+        if (verbose) printf("\nTesting with char **.\n");
 
         char *cmemory[NUM_TEST];
         for (int i = 0; i < NUM_TEST; ++i) {
@@ -1520,14 +1505,15 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 

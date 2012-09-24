@@ -326,9 +326,9 @@ class bcep_TimerEventScheduler {
     // CONSTANTS
     enum {
         BCEP_INVALID_HANDLE = -1  // value of an invalid event or clock handle
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INVALID_HANDLE = BCEP_INVALID_HANDLE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

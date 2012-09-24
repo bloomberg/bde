@@ -2,7 +2,7 @@ Source: bde-core
 Section: unknown
 Priority: extra
 Maintainer: Mike Giroux <mgiroux@bloomberg.net>
-Build-Depends: bde-tools, producemake
+Build-Depends: bde-tools, producemake, rssuite-tools
 Standards-Version: 3.8.4
 
 Package: libbae-dev
@@ -23,7 +23,7 @@ Architecture: any
 Description: BDE
  groups/bde static library and headers
 
-Package: libbsl-rs201208v01
+Package: libbsl-rs${shlib:RSSUITE}
 Architecture: any
 Description: BSL
  groups/bde shared library runtime files Robo Shared Library Suite

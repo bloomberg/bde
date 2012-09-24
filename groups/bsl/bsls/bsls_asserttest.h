@@ -14,18 +14,18 @@ BSLS_IDENT("$Id: $")
 //  bsls::AssertTestHandlerGuard: guard for the negative testing assert-handler
 //
 //@MACROS:
-//  BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION)
+//  BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION): "safe" macro success expected
+//  BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION): no origination check
+//  BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION): "safe" macro failure expected
+//  BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION): no origination check
+//  BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION): macro success expected
+//  BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION): no origination check
+//  BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION): macro failure expected
+//  BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION): no origination check
+//  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION): "opt" macro success expected
+//  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION): no origination check
+//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION): "opt macro failure expected
+//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION): no origination check
 //
 //@SEE_ALSO: bsls_assert, bsls_asserttestexception
 //
@@ -582,7 +582,7 @@ BSLS_IDENT("$Id: $")
 // that the resulting test driver is just as thorough, but will report failure
 // of a buggy library by simply crashing, rather than capturing and reporting
 // the specific error detected.
-#if (defined(BSLS_PLATFORM__CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT))
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT))
 # define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
          { EXPRESSION_UNDER_TEST; }
 
@@ -634,7 +634,7 @@ BSLS_IDENT("$Id: $")
     }                                                                        \
 }
 
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT)
 // The following MSVC specific work-around avoids compilation issues with
 // MSVC optimized builds.
 
@@ -684,7 +684,7 @@ BSLS_IDENT("$Id: $")
 // access to conforming C++0x compilers.
 //# define BSLS_ASSERTTEST_NORETURN [[noreturn]]
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLS_ASSERTTEST_NORETURN __declspec(noreturn)
 #else
 #   define BSLS_ASSERTTEST_NORETURN
@@ -824,6 +824,7 @@ AssertTestHandlerGuard::AssertTestHandlerGuard()
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -833,6 +834,7 @@ typedef bsls::AssertTestHandlerGuard bsls_AssertTestHandlerGuard;
 
 typedef bsls::AssertTest bsls_AssertTest;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

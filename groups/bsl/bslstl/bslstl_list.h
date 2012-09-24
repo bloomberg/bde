@@ -620,11 +620,16 @@ struct List_Node
 
 template <class VALUE, class NODEPTR, class DIFFTYPE>
 class List_Iterator
+#ifdef BSLS_PLATFORM_OS_SOLARIS
+    : public std::iterator<std::bidirectional_iterator_tag, VALUE>
+// On Solaris just to keep studio12-v4 happy, since algorithms takes only
+// iterators inheriting from 'std::iterator'.
+#endif
 {
     // Implementation of std::list::iterator
 
     // FRIENDS
-    template <class T, class A>
+    template <class LIST_VALUE, class LIST_ALLOCATOR>
     friend class list;
 
     friend class List_Iterator<const VALUE, NODEPTR, DIFFTYPE>;
@@ -1045,7 +1050,7 @@ class list
         // destructible state and leaving '*this' fully constructed.
 
         list tmp(this->allocator());
-        tmp.assign(first, last);
+        tmp.insert(tmp.begin(), first, last);
         quick_swap(tmp);
     }
 
@@ -1200,7 +1205,8 @@ class list
         // at least one element.
 
     // 23.3.5.4 modifiers:
-#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
     template <class... Args>
     void emplace_front(Args&&... args);
         // Insert a new element at the front of this list and construct it
@@ -1240,7 +1246,8 @@ class list
         // Remove and destroy the first element of this list.  The behavior is
         // undefined unless this list contains at least one element.
 
-#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
     template <class... Args>
     void emplace_back(Args&&... args);
         // Insert a new element at the back of this list and construct it
@@ -1294,7 +1301,8 @@ class list
     void push_back(VALUE&& value);
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
     template <class... Args>
     iterator emplace(const_iterator position, Args&&... args);
         // Insert a new element into this list before the element at the
@@ -2012,7 +2020,8 @@ list<VALUE, ALLOCATOR>::list(size_type n,
     // '*this' is in an invalid but destructible state (size == -1).
 
     list tmp(this->allocator());
-    tmp.assign(n, value); // 'tmp's destructor will clean up on throw.
+    tmp.insert(tmp.begin(), n, value);  // 'tmp's destructor will clean up on
+                                        // throw.
     quick_swap(tmp);      // Leave 'tmp' in an invalid but destructible state.
 }
 
@@ -2025,8 +2034,11 @@ list<VALUE, ALLOCATOR>::list(const list& original)
     // '*this' is in an invalid but destructible state (size == -1).
 
     list tmp(allocator());
-    tmp.assign(original.begin(), original.end());  // 'tmp's destructor will
-                                                   //  clean up on throw.
+
+    // 'tmp's destructor will clean up on throw.
+
+    tmp.insert(tmp.begin(), original.begin(), original.end());
+
     quick_swap(tmp);  // Leave 'tmp' in an invalid but destructible state.
 }
 
@@ -2037,8 +2049,11 @@ list<VALUE, ALLOCATOR>::list(const list& original, const ALLOCATOR& allocator)
     // '*this' is in an invalid but destructible state (size == -1).
 
     list tmp(this->allocator());
-    tmp.assign(original.begin(), original.end());  // 'tmp's destructor will
-                                                   // clean up on throw.
+
+    // 'tmp's destructor will clean up on throw.
+
+    tmp.insert(tmp.begin(), original.begin(), original.end());
+
     quick_swap(tmp);  // Leave 'tmp' in an invalid but destructible state.
 }
 
@@ -2067,8 +2082,11 @@ list<VALUE, ALLOCATOR>::list(list&& original, const ALLOCATOR& allocator)
     }
     else {
         list tmp(this->allocator());
-        tmp.assign(original.begin(), original.end());  // 'tmp's destructor
-                                                       // will clean up.
+
+        // 'tmp's destructor will clean up on throw.
+
+        tmp.insert(tmp.begin(), original.begin(), original.end());
+
         quick_swap(tmp);  // Leave 'tmp' in an invalid but destructible state.
     }
 }
@@ -2256,7 +2274,8 @@ VALUE& list<VALUE, ALLOCATOR>::back()
 }
 
 // 23.3.5.4 modifiers:
-#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 template <class VALUE, class ALLOCATOR>
 template <class... Args>
 void list<VALUE, ALLOCATOR>::emplace_front(Args&&... args)
@@ -2319,7 +2338,7 @@ void list<VALUE, ALLOCATOR>::emplace_front(const ARG1& a1,
 {
     emplace(begin(), a1, a2, a3, a4, a5);
 }
-#endif // ! BSLS_SIMULATED_VARIADIC_TEMPLATES
+#endif
 
 template <class VALUE, class ALLOCATOR>
 void list<VALUE, ALLOCATOR>::pop_front()
@@ -2329,7 +2348,8 @@ void list<VALUE, ALLOCATOR>::pop_front()
     erase(begin());
 }
 
-#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 template <class VALUE, class ALLOCATOR>
 template <class... Args>
 void list<VALUE, ALLOCATOR>::emplace_back(Args&&... args)
@@ -2392,7 +2412,7 @@ void list<VALUE, ALLOCATOR>::emplace_back(const ARG1& a1,
 {
     emplace(end(), a1, a2, a3, a4, a5);
 }
-#endif // ! BSLS_SIMULATED_VARIADIC_TEMPLATES
+#endif
 
 template <class VALUE, class ALLOCATOR>
 void list<VALUE, ALLOCATOR>::pop_back()
@@ -2428,14 +2448,15 @@ void list<VALUE, ALLOCATOR>::push_back(VALUE&& value)
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-#ifdef BSLS_SIMULATED_VARIADIC_TEMPLATES
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 template <class VALUE, class ALLOCATOR>
 template <class... Args>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position, Args&&... args)
 {
     NodePtr p = allocate_node();
-    NodeProctor proctor(allocator(), p);
+    NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
                            std::forward<Args>(args)...);
@@ -2547,7 +2568,7 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position,
     return insert_node(position, p);
 }
 
-#endif // ! BSLS_SIMULATED_VARIADIC_TEMPLATES
+#endif
 
 template <class VALUE, class ALLOCATOR>
 typename list<VALUE, ALLOCATOR>::iterator

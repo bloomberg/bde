@@ -130,7 +130,7 @@ class btemt_QueryDispatcherEvent {
         BTEMT_QUERY_SUBMITTED,
         BTEMT_UNMATCHED_RESPONSE,
         BTEMT_UNKNOWN
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CONNECT_FAILED     = BTEMT_CONNECT_FAILED
       , PARSE_ERROR        = BTEMT_PARSE_ERROR
       , PROCESSOR_UP       = BTEMT_PROCESSOR_UP
@@ -139,7 +139,7 @@ class btemt_QueryDispatcherEvent {
       , QUERY_SUBMITTED    = BTEMT_QUERY_SUBMITTED
       , UNMATCHED_RESPONSE = BTEMT_UNMATCHED_RESPONSE
       , UNKNOWN            = BTEMT_UNKNOWN
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
   private:
     int               d_processorId;

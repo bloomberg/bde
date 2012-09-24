@@ -38,7 +38,7 @@ BDES_IDENT("$Id: $")
 #include <bces_platform.h>
 #endif
 
-#ifdef BCES_PLATFORM__WIN32_THREADS
+#ifdef BCES_PLATFORM_WIN32_THREADS
 
 // Platform specific implementation starts here.
 
@@ -65,7 +65,7 @@ class bcemt_RecursiveMutexImpl<bces_Platform::Win32Threads> :
 
 }  // close namespace BloombergLP
 
-#endif  // BCES_PLATFORM__WIN32_THREADS
+#endif  // BCES_PLATFORM_WIN32_THREADS
 
 #endif
 
