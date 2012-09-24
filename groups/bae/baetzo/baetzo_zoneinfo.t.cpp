@@ -176,7 +176,7 @@ static void aSsErT(int c, const char *s, int i)
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 #define L_ __LINE__                           // current Line number
 
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
 #define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
 #else  // 64_BIT
 #define SUFFICIENTLY_LONG_STRING "12345678901234567890123456789012" \

@@ -53,7 +53,7 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#if !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if !defined(BSLS_PLATFORM_OS_WINDOWS)
     #ifndef INCLUDED_SYS_POLL
     #include <sys/poll.h>
     #define INCLUDED_SYS_POLL
@@ -66,7 +66,7 @@ namespace BloombergLP {
 template <class POLLING_MECHANISM = bteso_Platform::DEFAULT_POLLING_MECHANISM>
 class bteso_DefaultEventManager;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 // Ascribe 'HANDLE' with 'bslalg_TypeTraitBitwiseCopyable' trait to use it in
 // 'bsl::vector' efficiently.
@@ -83,7 +83,7 @@ struct bslalg_TypeTraits<struct ::pollfd> :
                                        public bslalg_TypeTraitBitwiseCopyable {
 };
 
-#endif // BSLS_PLATFORM__OS_WINDOWS
+#endif // BSLS_PLATFORM_OS_WINDOWS
 
 }  // close namespace BloombergLP
 

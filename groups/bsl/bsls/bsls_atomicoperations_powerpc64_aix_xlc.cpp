@@ -7,8 +7,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_atomicoperations_powerpc64_aix_xlc.h>
 
-#if defined(BSLS_PLATFORM__CPU_POWERPC) && defined(BSLS_PLATFORM__CMP_IBM) \
-    && defined(BSLS_PLATFORM__CPU_64_BIT)
+#if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_IBM) \
+    && defined(BSLS_PLATFORM_CPU_64_BIT)
 
 namespace BloombergLP {
 

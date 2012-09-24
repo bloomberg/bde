@@ -163,7 +163,7 @@ bdet_Time TimeOracle::getCurrentUTCTime()
     bsl::time_t currentTime = bsl::time(0);
     bsl::tm     utcTime;
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS) || ! defined(BDE_BUILD_TARGET_MT)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || ! defined(BDE_BUILD_TARGET_MT)
     utcTime = *bsl::gmtime(&currentTime);
 #else
     gmtime_r(&currentTime, &utcTime);

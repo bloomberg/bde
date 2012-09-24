@@ -88,19 +88,19 @@ struct bteso_IoUtil {
     enum BlockingMode {
         BTESO_BLOCKING           =  0,   // blocking mode
         BTESO_NONBLOCKING        =  1    // non-blocking mode
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BLOCKING    = BTESO_BLOCKING
       , NONBLOCKING = BTESO_NONBLOCKING
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum AsyncMode {
         BTESO_SYNCHRONOUS      =  0,     // synchronous mode turned on
         BTESO_ASYNCHRONOUS     =  1      // synchronous mode turned off
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SYNCHRONOUS  = BTESO_SYNCHRONOUS
       , ASYNCHRONOUS = BTESO_ASYNCHRONOUS
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     static int setBlockingMode(bteso_SocketHandle::Handle handle,

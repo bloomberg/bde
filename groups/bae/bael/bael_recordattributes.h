@@ -180,7 +180,7 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>

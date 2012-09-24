@@ -254,7 +254,7 @@ void testCase3(int verbose, int veryVerbose, int veryVeryVerbose)
         { L_,   0x12345678         },
         { L_,   0xffffffff         },
         { L_,   0x87654321         },
-#if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
         { L_,   0x1010101010101010 },
         { L_,   0xabcdef01abcdef01 },
         { L_,   0x1234567812345678 },

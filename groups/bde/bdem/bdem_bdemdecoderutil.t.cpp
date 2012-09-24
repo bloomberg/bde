@@ -34,7 +34,7 @@
 #include <bsls_platform.h>                // for testing only
 #include <bsls_types.h>
 
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
 #define __STDC_LIMIT_MACROS 1
 #endif
 
@@ -8592,7 +8592,7 @@ int TestValueFunctions::loadTestValue(double *object, int index)
     *object = index;
     return SUCCESS;
 }
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
 inline
@@ -8608,7 +8608,7 @@ int TestValueFunctions::loadTestValue(bsl::string *object, int index)
     *object = buffer;
     return SUCCESS;
 }
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #undef snprintf
 #endif
 inline

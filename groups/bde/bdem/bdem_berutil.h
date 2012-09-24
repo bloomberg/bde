@@ -192,9 +192,9 @@ struct bdem_BerUtil {
         BDEM_INDEFINITE_LENGTH = -1  // used to indicate that the length is
                                      // indefinite
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INDEFINITE_LENGTH = BDEM_INDEFINITE_LENGTH
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS METHODS
@@ -963,7 +963,7 @@ int bdem_BerUtil_Imp::putIntegerGivenLength(bsl::streambuf *streamBuf,
         return BDEM_FAILURE;                                          // RETURN
     }
 
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
     return length == streamBuf->sputn((char *) &value + sizeof(TYPE) - length,
                                       length)
          ? BDEM_SUCCESS

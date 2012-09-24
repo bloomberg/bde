@@ -208,7 +208,7 @@ typedef bdema_ManagedPtr<void> VObj;
 // The 'bsls_IsPolymorphic' trait does not work correctly on the following two
 // platforms, which causes 'bslma_DeleterHelper' to dispatch to an
 // implementation that cannot compile.
-#if !defined(BSLS_PLATFORM__CMP_GNU) && !defined(BSLS_PLATFORM__CMP_HP)
+#if !defined(BSLS_PLATFORM_CMP_GNU) && !defined(BSLS_PLATFORM_CMP_HP)
 #define BDEMA_TESTVIRTUALINHERITANCE
 #endif
 
@@ -1388,7 +1388,7 @@ void doConstructOnullFnullDnull(int callLine, int testLine, int index,
     LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
 
 // A workaround for early GCC compilers
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR < 40000
     bdema_ManagedPtr<POINTER_TYPE> testObject(0, 0);
 #else
     bdema_ManagedPtr<POINTER_TYPE> testObject(0, 0, 0);
@@ -1905,7 +1905,7 @@ void doLoadOnullFnullDnull(int callLine, int testLine, int index,
     const int expectedCount = args->d_deleteDelta;
 
 // A workaround for early GCC compilers
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR < 40000
     args->d_p->load(0, 0);
 #else
     args->d_p->load(0, 0, 0);
