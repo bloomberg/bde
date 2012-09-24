@@ -15,6 +15,14 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::PlatformUtil: namespace for platform-neutral type names and API
 //
+//@MACROS:
+//  BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN: flag set on little-endian platforms
+//  BSLS_PLATFORMUTIL_IS_BIG_ENDIAN:    flag set on    big-endian platforms
+//  BSLS_PLATFORMUTIL_HTONS(x): convert 16-bit from host to network byte order
+//  BSLS_PLATFORMUTIL_HTONL(x): convert 32-bit from host to network byte order
+//  BSLS_PLATFORMUTIL_NTOHS(x): convert 16-bit from network to host byte order
+//  BSLS_PLATFORMUTIL_NTOHL(x): convert 32-bit from network to host byte order
+//
 //@SEE_ALSO: bsls_platform, bsls_types
 //
 //@AUTHOR: John Lakos (jlakos)
@@ -80,8 +88,8 @@ BSLS_IDENT("$Id: $")
 // compile-time constants are also provided as preprocessor macros to
 // facilitate conditional compilation:
 //..
-//  BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
-//  BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+//  BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
+//  BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
 //..
 // These functions and macros are useful for writing platform-independent code,
 // such as a function that converts the bytes in a 'short' to network byte
@@ -90,7 +98,7 @@ BSLS_IDENT("$Id: $")
 //  short convertToNetworkByteOrder(short input)
 //      // Return the specified 'input' in network byte order.
 //  {
-//  #ifdef BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+//  #ifdef BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
 //      return input;
 //  #else
 //      return ((input >> 8) & 0xFF) | ((input & 0xFF) << 8);
@@ -171,7 +179,7 @@ struct PlatformUtil {
         // of data at the lowest byte address) is consistent with network byte
         // order.
         //
-        // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM__IS_BIG_ENDIAN'
+        // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM_IS_BIG_ENDIAN'
         // defined in 'bsls_platform' instead.
 
     static bool isLittleEndian();
@@ -181,7 +189,7 @@ struct PlatformUtil {
         // network byte order.
         //
         // DEPRECATED: Use preprocessor macro
-        // 'BSLS_PLATFORMUTIL__IS_BIG_ENDIAN' defined in 'bsls_platform'
+        // 'BSLS_PLATFORMUTIL_IS_BIG_ENDIAN' defined in 'bsls_platform'
         // instead.
 
     static int roundUpToMaximalAlignment(int size);
@@ -201,49 +209,49 @@ struct PlatformUtil {
 // The following preprocessor macros are DEPRECATED.  Please use their
 // replacements in 'bsls_byteorder' and 'bsls_platform' instead.
 
-#if defined(BSLS_PLATFORM__CPU_X86_64)
-    #define BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN BSLS_PLATFORM__IS_LITTLE_ENDIAN
-        // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM__IS_LITTLE_ENDIAN'
+#if defined(BSLS_PLATFORM_CPU_X86_64)
+    #define BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN BSLS_PLATFORM_IS_LITTLE_ENDIAN
+        // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM_IS_LITTLE_ENDIAN'
         // defined in 'bsls_platform' instead.
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_X86)
-    #define BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN \
-                                                BSLS_PLATFORM__IS_LITTLE_ENDIAN
-        // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM__IS_LITTLE_ENDIAN'
+#if defined(BSLS_PLATFORM_CPU_X86)
+    #define BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN \
+                                                BSLS_PLATFORM_IS_LITTLE_ENDIAN
+        // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM_IS_LITTLE_ENDIAN'
         // defined in 'bsls_platform' instead.
 #endif
 
-#if !defined(BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN)
-   #define BSLS_PLATFORMUTIL__IS_BIG_ENDIAN BSLS_PLATFORM__IS_BIG_ENDIAN
-       // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM__IS_BIG_ENDIAN'
+#if !defined(BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN)
+   #define BSLS_PLATFORMUTIL_IS_BIG_ENDIAN BSLS_PLATFORM_IS_BIG_ENDIAN
+       // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM_IS_BIG_ENDIAN'
        // defined in 'bsls_platform' instead.
 #endif
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
-#if defined(BSLS_PLATFORMUTIL__IS_BIG_ENDIAN)
-#define BSLS_PLATFORMUTIL__HTONL(x) (x)
-#define BSLS_PLATFORMUTIL__HTONS(x) (x)
-#define BSLS_PLATFORMUTIL__NTOHL(x) (x)
-#define BSLS_PLATFORMUTIL__NTOHS(x) (x)
+#if defined(BSLS_PLATFORMUTIL_IS_BIG_ENDIAN)
+#define BSLS_PLATFORMUTIL_HTONL(x) (x)
+#define BSLS_PLATFORMUTIL_HTONS(x) (x)
+#define BSLS_PLATFORMUTIL_NTOHL(x) (x)
+#define BSLS_PLATFORMUTIL_NTOHS(x) (x)
     // DEPRECATED: Use preprocessor macros 'BSLS_BYTEORDER_*TO*' defined in
     // 'bsls_byteorder' instead.
 #else
     // Use built-in if using gcc 4.3.
 
-#if defined(BSLS_PLATFORM__CMP_GNU) \
- && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300
-#define BSLS_PLATFORMUTIL__NTOHL(x) (unsigned) __builtin_bswap32(x)
+#if defined(BSLS_PLATFORM_CMP_GNU) \
+ && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300
+#define BSLS_PLATFORMUTIL_NTOHL(x) (unsigned) __builtin_bswap32(x)
 #else
-#define BSLS_PLATFORMUTIL__NTOHL(x) \
+#define BSLS_PLATFORMUTIL_NTOHL(x) \
                    ((((x) & 0xff000000) >> 24) | (((x) & 0x00ff0000) >>  8) | \
                    (((x) & 0x0000ff00) <<  8) | (((x) & 0x000000ff) << 24))
 #endif
-#define BSLS_PLATFORMUTIL__HTONL(x) BSLS_PLATFORMUTIL__NTOHL(x)
-#define BSLS_PLATFORMUTIL__NTOHS(x) \
+#define BSLS_PLATFORMUTIL_HTONL(x) BSLS_PLATFORMUTIL_NTOHL(x)
+#define BSLS_PLATFORMUTIL_NTOHS(x) \
                                     ((((x) >> 8) & 0xff) | (((x) & 0xff) << 8))
-#define BSLS_PLATFORMUTIL__HTONS(x) BSLS_PLATFORMUTIL__NTOHS(x)
+#define BSLS_PLATFORMUTIL_HTONS(x) BSLS_PLATFORMUTIL_NTOHS(x)
 #endif
 
 #endif
@@ -262,8 +270,8 @@ namespace bsls {
 inline
 bool PlatformUtil::isLittleEndian()
 {
-#if defined(BSLS_PLATFORM__IS_LITTLE_ENDIAN)
-    return BSLS_PLATFORM__IS_LITTLE_ENDIAN;
+#if defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+    return BSLS_PLATFORM_IS_LITTLE_ENDIAN;
 #else
     return false;
 #endif
@@ -272,8 +280,8 @@ bool PlatformUtil::isLittleEndian()
 inline
 bool PlatformUtil::isBigEndian()
 {
-#if defined(BSLS_PLATFORM__IS_BIG_ENDIAN)
-    return BSLS_PLATFORM__IS_BIG_ENDIAN;
+#if defined(BSLS_PLATFORM_IS_BIG_ENDIAN)
+    return BSLS_PLATFORM_IS_BIG_ENDIAN;
 #else
     return false;
 #endif
@@ -296,6 +304,21 @@ typedef bsls::PlatformUtil bsls_PlatformUtil;
     // This alias is defined for backward compatibility.
 
 }  // close enterprise namespace
+
+#if !defined(BSL_DOUBLE_UNDERSCORE_XLAT) || 1 == BSL_DOUBLE_UNDERSCORE_XLAT
+
+#ifdef BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
+# define BSLS_PLATFORMUTIL__IS_BIG_ENDIAN BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
+#endif
+#ifdef BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+# define BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#endif
+#define BSLS_PLATFORMUTIL__HTONL(x) BSLS_PLATFORMUTIL_HTONL(x)
+#define BSLS_PLATFORMUTIL__HTONS(x) BSLS_PLATFORMUTIL_HTONS(x)
+#define BSLS_PLATFORMUTIL__NTOHL(x) BSLS_PLATFORMUTIL_NTOHL(x)
+#define BSLS_PLATFORMUTIL__NTOHS(x) BSLS_PLATFORMUTIL_NTOHS(x)
+
+#endif
 
 #endif
 

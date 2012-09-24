@@ -70,15 +70,15 @@
 #endif
 
 #ifdef BSL_INCLUDE_BSL_SSTREAM
-# ifndef INCLUDED_BSLSTP_SSTREAM
-#   include <bslstp_sstream.h>
+# ifndef INCLUDED_BSLSTL_SSTREAM
+#   include <bslstl_sstream.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
 
 #ifdef BSL_INCLUDE_BSL_IOSFWD
-# ifndef INCLUDED_BSLSTP_IOSFWD
-#   include <bslstp_iosfwd.h>
+# ifndef INCLUDED_BSLSTL_IOSFWD
+#   include <bslstl_iosfwd.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif

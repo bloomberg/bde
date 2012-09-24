@@ -1,3 +1,9 @@
+bde-core (2.15.0.0) unstable; urgency=low
+
+  * Preparing 2.15.0 release
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 29 Aug 2012 13:59:00 -0400
+
 bde-core (2.14.0.201208v01.0) unstable; urgency=low
 
   * Rebase to BSL 2.14.0

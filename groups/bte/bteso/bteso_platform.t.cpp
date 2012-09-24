@@ -85,13 +85,13 @@ int main(int argc, char *argv[]) {
 
             #if defined(BTESO_PLATFORM__BSD_SOCKETS)
                 ASSERT(0 <= BTESO_PLATFORM__BSD_SOCKETS);
-                cout  << "\tBCES_PLATFORM__BSD_SOCKETS = "
+                cout  << "\tBTESO_PLATFORM__BSD_SOCKETS = "
                       <<    BTESO_PLATFORM__BSD_SOCKETS << endl;
             #endif
 
             #if defined(BTESO_PLATFORM__WIN_SOCKETS)
                 ASSERT(0 <= BTESO_PLATFORM__WIN_SOCKETS);
-                cout  << "\tBCES_PLATFORM__WIN_SOCKETS = "
+                cout  << "\tBTESO_PLATFORM__WIN_SOCKETS = "
                       <<    BTESO_PLATFORM__WIN_SOCKETS << endl;
             #endif
 
