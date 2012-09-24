@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirements on 'KEY'
 ///---------------------
-// An 'unordered_map' instantiation is a fully "Value-Semantic Type" (see
+// An 'unordered_multimap' instantiation is a fully "Value-Semantic Type" (see
 // {'bsldoc_glossary'}) only if the supplied 'KEY_TYPE' and 'MAPPED_TYPE'
 // template parameters are fully value-semantic.  It is possible to instantiate
 // an 'unoredered_map' with 'KEY_TYPE' and 'MAPPED_TYPE' parameter arguments
@@ -71,24 +71,25 @@ BSLS_IDENT("$Id: $")
 //
 ///'bslma'-Style Allocators
 /// - - - - - - - - - - - -
-// If the parameterized 'ALLOCATOR' type of an 'unordered_set' instantiation
-// is 'bsl::allocator', then objects of that set type will conform to the
-// standard behavior of a 'bslma'-allocator-enabled type.  Such a set accepts
-// an optional 'bslma::Allocator' argument at construction.  If the address of
-// a 'bslma::Allocator' object is explicitly supplied at construction, it will
-// be used to supply memory for the 'unordered_set' throughout its lifetime;
-// otherwise, the 'unordered_set' will use the default allocator installed at
-// the time of the 'unordered_set's construction (see 'bslma_default').  In
-// addition to directly allocating memory from the indicated
-// 'bslma::Allocator', an 'unordered_set' supplies that allocator's address to
-// the constructors of contained objects of the parameterized 'KEY' types with
-// the 'bslalg::TypeTraitUsesBslmaAllocator' trait.
+// If the parameterized 'ALLOCATOR' type of an 'unordered_multimap'
+// instantiation is 'bsl::allocator', then objects of that set type will
+// conform to the standard behavior of a 'bslma'-allocator-enabled type.  Such
+// a type accepts an optional 'bslma::Allocator' argument at construction.  If
+// the address of a 'bslma::Allocator' object is explicitly supplied at
+// construction, it will be used to supply memory for the 'unordered_multimap'
+// throughout its lifetime; otherwise, the 'unordered_multimap' will use the
+// default allocator installed at the time of the 'unordered_multimap's
+// construction (see 'bslma_default').  In addition to directly allocating
+// memory from the indicated 'bslma::Allocator', an 'unordered_multimap'
+// supplies that allocator's address to the constructors of contained objects
+// of the parameterized 'KEY' types with the
+// 'bslalg::TypeTraitUsesBslmaAllocator' trait.
 //
 //-----------------------------------------------------------------------------
 ///Operations
 ///----------
 // This section describes the run-time complexity of operations on instances
-// of 'map':
+// of 'unsupported_multimap':
 //..
 //  Legend
 //  ------
@@ -101,9 +102,10 @@ BSLS_IDENT("$Id: $")
 //  'al             - an STL-style memory allocator
 //  'i1', 'i2'      - two iterators defining a sequence of 'value_type' objects
 //  'k'             - an object of type 'K'
-//  'v'             - an object of type 'V'
+//  'v'             - an object of type 'value_type'
 //  'p1', 'p2'      - two iterators belonging to 'a'
 //  distance(i1,i2) - the number of elements in the range [i1, i2)
+//  distance(p1,p2) - the number of elements in the range [p1, p2)
 //
 //  +----------------------------------------------------+--------------------+
 //  | Operation                                          | Complexity         |
@@ -121,7 +123,7 @@ BSLS_IDENT("$Id: $")
 //  | map<K, V> a(n, hf, eq, al);                        |                    |
 //  +----------------------------------------------------+--------------------+
 //  | map<K, V> a(i1, i2);                               | Average: O[        |
-//  | map<K, V> a(i1, i2, n)                             |   distance(p1, p2)]|
+//  | map<K, V> a(i1, i2, n)                             |   distance(i1, i2)]|
 //  | map<K, V> a(i1, i2, n, hf);                        | Worst:   O[n^2]    |
 //  | map<K, V> a(i1, i2, n, hf, eq);                    |                    |
 //  | map<K, V> a(i1, i2, n, hf, eq, al);                |                    |
@@ -157,16 +159,16 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //  | a.at(k)                                            | O[n]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(value_type(k, v))                         | Average: O[1]      |
+//  | a.insert(v)                                        | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, value_type(k, v))                     | Average: O[1]      |
+//  | a.insert(p1, v))                                   | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
 //  | a.insert(i1, i2)                                   | Average O[         |
-//  |                                                    |   distance(p1, p2)]|
+//  |                                                    |   distance(i1, i2)]|
 //  |                                                    | Worst:  O[ n *     |
-//  |                                                    |   distance(p1, p2)]|
+//  |                                                    |   distance(i1, i2)]|
 //  +----------------------------------------------------+--------------------+
 //  | a.erase(p1)                                        | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
@@ -210,7 +212,6 @@ BSLS_IDENT("$Id: $")
 //  | a.resize(k)                                        | Average: O[n]      |
 //  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
-//..
 //..
 //
 ///Usage
@@ -582,8 +583,8 @@ template <class KEY_TYPE,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename 
-       unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
+typename
+unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size_type
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::size() const
 {
     return d_impl.size();
@@ -782,11 +783,12 @@ erase(const_iterator first, const_iterator last)
     // 7 Most of the library's algorithmic templates that operate on data
     // structures have interfaces that use ranges.  A range is a pair of
     // iterators that designate the beginning and end of the computation. A
-    // range [i,i) is an empty range; in general, a range [i,j) refers to the
-    // elements in the data structure starting with the element pointed to by i
-    // and up to but not including the element pointed to by j. Range [i,j) is
-    // valid if and only if j is reachable from i. The result of the
-    // application of functions in the library to invalid ranges is undefined.
+    // range '[i,i)' is an empty range; in general, a range '[i,j)' refers to
+    // the elements in the data structure starting with the element pointed to
+    // by 'i' and up to but not including the element pointed to by 'j'. Range
+    // '[i,j)' is valid if and only if 'j' is reachable from 'i'. The result of
+    // the application of functions in the library to invalid ranges is
+    // undefined.
 #if defined BDE_BUILD_TARGET_SAFE2
     // Check that 'first' and 'last' are valid iterators referring to this
     // container.
@@ -800,16 +802,6 @@ erase(const_iterator first, const_iterator last)
         }
     }
 #endif
-
-    // more efficient to:
-    // 1. unlink a set of nodes
-    // 2. destroy their values
-    // 3. reclaim their memory
-    // merge steps 2/3 to avoid multiple list walks?
-    // tricky issue of fixing up bucket indices as well
-
-    // implementation must handle the case that 'last' is 'end()', which will
-    // be invalidated when the preceding element is erased.
 
     while (first != last) {
         first = this->erase(first);
