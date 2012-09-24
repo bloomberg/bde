@@ -239,11 +239,11 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATORATOR
+#ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>  // Can probably escape with a fwd-decl, but not
 #endif                         // very user friendly
 
-#ifndef INCLUDED_BSLSTL_ALLOCATORATORTRAITS
+#ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
 #include <bslstl_allocatortraits.h>
 #endif
 
@@ -332,8 +332,10 @@ class unordered_map {
         // container to extract the 'KEY' value from the key-value pair
         // objects maintained by this map.
 
-    typedef ::BloombergLP::bslstl::HashTable<ListPolicy, HASH, EQUAL, ALLOCATOR>
-                                                                    HashTable;
+    typedef ::BloombergLP::bslstl::HashTable<ListPolicy,
+                                             HASH,
+                                             EQUAL,
+                                             ALLOCATOR> HashTable;
         // This typedef is an alias for the template instantion of the
         // underlying 'bslslt::HashTable' used in this container.
 
@@ -344,7 +346,7 @@ class unordered_map {
     typedef typename HashTable::NodeType HashTableNode;
         // This typedef is an alias for the type of nodes that hold the values
         // in this container.
-  
+
   public:
     // PUBLIC TYPES
     typedef KEY                                        key_type;
@@ -387,7 +389,7 @@ class unordered_map {
         // default-constructed object of type 'hasher' is used.  Optionally
         // specify a key-equality functor 'key_equal' used to verify that two
         // key values are the same.  If 'key_equal' is not supplied, a
-        // default-constructed object of type 'key_equal' is used. Optionally
+        // default-constructed object of type 'key_equal' is used.  Optionally
         // specify an 'allocator' used to supply memory.  If 'allocator' is not
         // supplied, a default-constructed object of the (template parameter)
         // type 'allocator_type' is used.  If the 'allocator_type' is
@@ -398,9 +400,9 @@ class unordered_map {
 
     explicit unordered_map(const allocator_type& allocator);
         // Construct an empty unordered map that uses the specified 'allocator'
-        // to supply memory. Use a default-constructed object of type 'hasher'
+        // to supply memory.  Use a default-constructed object of type 'hasher'
         // to generate the hash values associated to the key-value pairs
-        // contained in this object. Also, use a default-constructed object of
+        // contained in this object.  Also, use a default-constructed object of
         // type 'key_equal' to verify that two key values are the same.  If the
         // 'allocator_type' is 'bsl::allocator' (the default), then 'allocator'
         // shall be convertible to 'bslma::Allocator *'.
@@ -409,9 +411,9 @@ class unordered_map {
     unordered_map(const unordered_map&  original,
                   const allocator_type& allocator);
         // Construct an unordered map having the same value as that of the
-        // specified 'original'. Use a default-constructed object of type
+        // specified 'original'.  Use a default-constructed object of type
         // 'hasher' to generate the hash values associated to the key-value
-        // pairs contained in this object. Also, use a default-constructed
+        // pairs contained in this object.  Also, use a default-constructed
         // object of type 'key_equal' to verify that two key values are the
         // same.  Optionally specify an 'allocator' used to supply memory.  If
         // 'allocator' is not supplied, a default-constructed object of type
@@ -428,14 +430,14 @@ class unordered_map {
         // Construct an empty unordered map and insert each 'value_type' object
         // in the sequence starting at the specified 'first' element, and
         // ending immediately before the specified 'last' element, ignoring
-        // those pairs having a key that appears earlier in the sequence. .
+        // those pairs having a key that appears earlier in the sequence.
         // Optionally specify a 'hasher' used to generate the hash values
         // associated to the key-value pairs contained in this object.  If
         // 'hasher' is not supplied, a default-constructed object of type
         // 'hasher' is used.  Optionally specify a key-equality functor
         // 'key_equal' used to verify that two key values are the same.  If
         // 'key_equal' is not supplied, a default-constructed object of type
-        // 'key_equal' is used. Optionally specify an 'allocator' used to
+        // 'key_equal' is used.  Optionally specify an 'allocator' used to
         // supply memory.  If 'allocator' is not supplied, a
         // default-constructed object of the (template parameter) type
         // 'allocator_type' is used.  If the 'allocator_type' is
@@ -596,7 +598,7 @@ class unordered_map {
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this unordered map having the
         // specified 'key', where the the first iterator is positioned at the
-        // start of  the sequence, and the second is positioned one past the
+        // start of the sequence, and the second is positioned one past the
         // end of the sequence.  If this unordered map contains no 'value_type'
         // objects having 'key', then the two returned iterators will have the
         // same value.  Note that since a map maintains unique keys, the range
@@ -616,7 +618,7 @@ class unordered_map {
         // Return an iterator providing non-modifiable access to the
         // past-the-end element in the sequence of 'value_type' objects
         // maintained by this map.
-    
+
     const_iterator cbegin() const;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the sequence of 'value_type' objects
@@ -673,7 +675,7 @@ class unordered_map {
     hasher hash_function() const;
         // Return (a copy of) the hash unary functor (used in this unordered
         // map) that returns the 'size_t' hash value of a 'value_type' object.
-    
+
     key_equal key_eq() const;
         // Return (a copy of) the key-equality binary functor that returns true
         // if the value of two 'key_type' objects is the same, and false
@@ -688,7 +690,7 @@ class unordered_map {
         // Return the number of 'value_type' objects within this container
         // having the specified 'key'.  Note that since an unordered map
         // maintains unique keys, the returned value will be either 0 or 1.
-    
+
     pair<const_iterator, const_iterator> equal_range(
                                                     const key_type& key) const;
         // Return a pair of iterators providing non-modifiable access to the
@@ -704,17 +706,17 @@ class unordered_map {
     size_type      bucket_count() const;
         // Return the number of buckets in the array of buckets of this
         // unordered map.
-    
+
     size_type max_bucket_count() const;
         // Return a theoretical upper bound on the largest number of buckets
         // that this container could possibly hold.  Note that there is no
         // guarantee that the map can successfully grow to the returned size,
         // or even close to that size without running out of resources.
-    
+
     size_type bucket_size(size_type index) const;
         // Return the number of elements contained (hashed) in the bucket at
         // the specified 'index' in the array of buckets of this container.
-    
+
     size_type bucket(const key_type& key) const;
         // Return the index of the bucket, in the array of buckets of this
         // container, where values having the specified 'key' are inserted
@@ -725,24 +727,24 @@ class unordered_map {
         // Return the current ratio between the 'size' of this container and
         // the number of buckets.  The 'load_factor' is a measure of how full
         // the container is, and a higher load factor leads to an increased
-        // number of collisions, thus resulting in a loss performance. 
-    
+        // number of collisions, thus resulting in a loss performance.
+
     float max_load_factor() const;
         // Return the maximum load factor allowed for this container.  If
         // 'load_factor' exceeds 'max_load_factor' an increase of the number of
         // buckets and rehash of the elements of the container in the new array
-        // of buckets is required (see rehash). 
-    
+        // of buckets is required (see rehash).
+
     void  max_load_factor(float newLoadFactor);
         // Set the maximum load factor of this container to the specified
         // 'newLoadFactor'.
-    
+
     void  rehash(size_type numBuckets);
         // Change the size of the array of buckets of this container to the
         // specified 'numBuckets', and redistribute all the elements contained
         // by this object into the new sequence of buckets, according to their
-        // hash values. 
-    
+        // hash values.
+
     void  reserve(size_type numElements);
         // Rehash the container with a number of buckets such that the
         // 'load_factor' of this container does not exceed the
@@ -839,7 +841,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
-                                               const unordered_map&  other, 
+                                               const unordered_map&  other,
                                                const allocator_type& allocator)
 : d_impl(other.d_impl, allocator)
 {
@@ -965,7 +967,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
-                                                       const_iterator    hint, 
+                                                       const_iterator    hint,
                                                        const value_type& value)
 {   // There is no realistic use-case for the 'hint' in an unordered_map of
     // unique values.  We could quickly test for a duplicate key, and have a
@@ -982,7 +984,7 @@ template <class InputIterator>
 inline
 void
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
-                                                          InputIterator first, 
+                                                          InputIterator first,
                                                           InputIterator last)
 {
     if (size_t maxInsertions =
@@ -1025,7 +1027,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
-                                                         const_iterator first, 
+                                                         const_iterator first,
                                                          const_iterator last)
 {   // bad answer here, need to turn 'first' into a non-const iterator
 
