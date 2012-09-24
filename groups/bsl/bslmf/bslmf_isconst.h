@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // section the C++11 standard [basic.type.qualifier].
 //
 // 'bsl::is_const' meets the requirements of the 'is_const' template defined in
-// the C++11 standard [meta.unary.cat].
+// the C++11 standard [meta.unary.prop].
 //
 ///Usage
 ///-----
