@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Shawn Edwards (sedwards)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's two parameter have the same type.  'bslmf::IsSame'
 // defines a member, 'VALUE', whose value is initialized (at compile-time) to 1
@@ -76,6 +74,7 @@ struct IsSame<U, U> : MetaInt<1>
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -85,6 +84,7 @@ struct IsSame<U, U> : MetaInt<1>
 #endif
 #define bslmf_IsSame bslmf::IsSame
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

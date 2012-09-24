@@ -25,6 +25,8 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bslstl_stringref.h>
+
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
 #include <bsl_c_stdlib.h>
 #include <bsl_c_stdio.h>   // for 'snprintf'
@@ -32,8 +34,6 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bsl_iomanip.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
-
-
 
 namespace {
 
@@ -49,13 +49,13 @@ static void appendToString(bsl::string *result, int value)
 {
     char buffer[16];
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
 
     snprintf(buffer, sizeof buffer, "%d", value);
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #undef snprintf
 #endif
 
@@ -68,13 +68,13 @@ static void appendToString(bsl::string *result, bsls_Types::Uint64 value)
 {
     char buffer[32];
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
 
     snprintf(buffer, sizeof(buffer), "%llu", value);
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #undef snprintf
 #endif
 
@@ -159,7 +159,7 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
     bsl::string output;
     output.reserve(1024);
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
 
@@ -225,7 +225,7 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
               case 'F': {
                 const bsl::string& filename = fixedFields.fileName();
                 bsl::string::size_type rightmostSlashIndex =
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
                     filename.rfind('\\');
 #else
                     filename.rfind('/');
@@ -244,7 +244,8 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                 output += fixedFields.category();
               } break;
               case 'm': {
-                output += fixedFields.message();
+                bslstl_StringRef message = fixedFields.messageRef();
+                output.append(message.data(), message.length());
               } break;
               case 'x': {
                 bsl::stringstream ss;
@@ -314,7 +315,7 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
         }
     }
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #undef snprintf
 #endif
 

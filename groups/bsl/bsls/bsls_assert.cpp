@@ -13,15 +13,15 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <cstdlib>
 #include <cstring>
 
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
 #include <signal.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>    // 'sleep'
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <crtdbg.h>    // '_CrtSetReportMode', to suppress pop-ups
 
 typedef unsigned long DWORD;
@@ -39,7 +39,7 @@ extern "C" {
 // access to conforming C++0x compilers.
 //# define BSLS_ASSERT_NORETURN [[noreturn]]
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #   define BSLS_ASSERT_NORETURN __declspec(noreturn)
 #else
 #   define BSLS_ASSERT_NORETURN
@@ -47,7 +47,7 @@ extern "C" {
 
 namespace BloombergLP {
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // We want to print the error message to 'stderr', not 'stdout'.   The old
 // documentation for 'printError' is:
 //..
@@ -55,7 +55,7 @@ namespace BloombergLP {
 //  processes will send standard output to a log file.)
 //..
 // TBD: find out whether 'stderr' goes to 'act.log'.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 static
 void printError(const char *text, const char *file, int line)
@@ -97,25 +97,31 @@ namespace bsls {
                                 // ------------
 
 // CLASS DATA
-Assert::Handler Assert::s_handler    = Assert::failAbort;
-bool            Assert::s_lockedFlag = false;
+bsls::AtomicOperations::AtomicTypes::Pointer
+    Assert::s_handler = {(void *) &Assert::failAbort};
+bsls::AtomicOperations::AtomicTypes::Int Assert::s_lockedFlag = {0};
 
 // CLASS METHODS
+void Assert::setFailureHandlerRaw(Assert::Handler function)
+{
+    bsls::AtomicOperations::setPtrRelease(&s_handler, (void *) function);
+}
+
 void Assert::setFailureHandler(Assert::Handler function)
 {
-    if (!s_lockedFlag) {
-        s_handler = function;
+    if (!bsls::AtomicOperations::getIntRelaxed(&s_lockedFlag)) {
+        setFailureHandlerRaw(function);
     }
 }
 
 void Assert::lockAssertAdministration()
 {
-    s_lockedFlag = true;
+    bsls::AtomicOperations::setIntRelaxed(&s_lockedFlag, 1);
 }
 
 Assert::Handler Assert::failureHandler()
 {
-    return s_handler;
+    return (Handler) bsls::AtomicOperations::getPtrAcquire(&s_handler);
 }
 
                        // Macro Dispatcher Method
@@ -123,7 +129,7 @@ Assert::Handler Assert::failureHandler()
 BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 void Assert::invokeHandler(const char *text, const char *file, int line)
 {
-    s_handler(text, file, line);
+    failureHandler()(text, file, line);
 }
 
                      // Standard Assertion-Failure Handlers
@@ -133,11 +139,11 @@ void Assert::failAbort(const char *text, const char *file, int line)
 {
     printError(text, file, line);
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // See DRQS 8923441: The following is a work-around for a Fortran compiler bug.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
     sigset_t newset;
     sigemptyset(&newset);
     sigaddset(&newset, SIGABRT);
@@ -148,12 +154,12 @@ void Assert::failAbort(const char *text, const char *file, int line)
     #endif
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // See DRQS 13882128: Note that (according to Oleg) the first line alone may be
 // sufficient.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // The following configures the runtime library on how to report asserts,
     // errors, and warnings in order to avoid pop-up windows when 'abort' is
     // called.
@@ -175,9 +181,9 @@ void Assert::failSleep(const char *text, const char *file, int line)
 
     while (1 == sleepDuration) {
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
         sleep(sleepDuration);
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
         Sleep(sleepDuration * 1000);  // milliseconds
 #else
         #error "Do not know how to sleep on this platform."
@@ -215,14 +221,14 @@ namespace bsls {
                     // -------------------------------
 
 AssertFailureHandlerGuard::AssertFailureHandlerGuard(Assert::Handler temporary)
-: d_original(Assert::s_handler)
+: d_original(Assert::failureHandler())
 {
-    Assert::s_handler = temporary;
+    Assert::setFailureHandlerRaw(temporary);
 }
 
 AssertFailureHandlerGuard::~AssertFailureHandlerGuard()
 {
-    Assert::s_handler = d_original;
+    Assert::setFailureHandlerRaw(d_original);
 }
 
 }  // close package namespace

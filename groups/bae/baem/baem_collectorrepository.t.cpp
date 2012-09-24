@@ -24,7 +24,7 @@
 
 #include <bsl_c_stdio.h>
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf_s
 #endif
 

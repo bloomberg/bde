@@ -22,10 +22,9 @@ BSLS_IDENT("$Id: $")
 // of blocks pointers, each block capable of containing a fixed number of
 // objects.  An element in the deque is identified by an iterator which
 // consists of two pointers:
-//..
-//  - a pointer to the block pointer array, and
-//  - a pointer to a value within the block referred to by the first pointer.
-//..
+//: o a pointer to the block pointer array, and
+//: o a pointer to a value within the block referred to by the first pointer.
+//
 // Dereferencing the iterator dereferences the second pointer.  Incrementing or
 // decrementing the iterator consists of incrementing the value pointer, unless
 // the iterator crosses a block boundary in which case it must increment or
@@ -320,7 +319,7 @@ class DequeIterator<VALUE_TYPE, 1> {
     BlockPtr   *d_blockPtr_p; // pointer to BlockPtr within BlockPtr array
     VALUE_TYPE *d_value_p;    // pointer to element referenced by iterator
 
-#ifdef BSLS_PLATFORM__CMP_SUN
+#ifdef BSLS_PLATFORM_CMP_SUN
     // WARNING: Note that SUN's compiler complains about function "friend
     // declaration is incompatible with function template" when xlC, gcc and
     // windows all accept the form wrapped in the '#else' statement.  Therefore
@@ -846,6 +845,7 @@ bool bslalg::operator<(const DequeIterator<VALUE_TYPE, 1>& lhs,
     return lhs.d_blockPtr_p < rhs.d_blockPtr_p;
 }
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -855,6 +855,7 @@ bool bslalg::operator<(const DequeIterator<VALUE_TYPE, 1>& lhs,
 #endif
 #define bslalg_DequeIterator bslalg::DequeIterator
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

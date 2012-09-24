@@ -47,7 +47,7 @@
 #include <bsl_strstream.h>
 #include <bsl_vector.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     #include <sys/types.h>
     #include <sys/stat.h>
     #include <fcntl.h>
@@ -2073,7 +2073,7 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         {
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             fflush(stderr);
             bsl::string filename = tempnam(0, "bael_log");
             int fd = creat(filename.c_str(), 0777);
@@ -2097,7 +2097,7 @@ int main(int argc, char *argv[])
             BAEL_LOG_ERROR << "No Logger Manager!" << BAEL_LOG_END;
             BAEL_LOG_FATAL << "No Logger Manager!" << BAEL_LOG_END;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             fflush(stderr);
             dup2(saved_stderr_fd, 2);
 
@@ -2181,7 +2181,7 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         {
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             fflush(stderr);
             bsl::string filename = tempnam(0, "bael_log");
             int fd = creat(filename.c_str(), 0777);
@@ -2205,7 +2205,7 @@ int main(int argc, char *argv[])
             BAEL_LOG_ERROR << "No Logger Manager!" << BAEL_LOG_END;
             BAEL_LOG_FATAL << "No Logger Manager!" << BAEL_LOG_END;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             fflush(stderr);
             dup2(saved_stderr_fd, 2);
 
@@ -2252,7 +2252,7 @@ int main(int argc, char *argv[])
             ~LogOnDestruction()
             {
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
                 fflush(stderr);
                 bsl::string filename = tempnam(0, "bael_log");
                 int fd = creat(filename.c_str(), 0777);
@@ -2288,7 +2288,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(3 == numIncCallback);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
                 fflush(stderr);
                 dup2(saved_stderr_fd, 2);
 
@@ -2323,7 +2323,7 @@ int main(int argc, char *argv[])
             bsl::cout << "Safely invoked 'BAEL_LOG_SET_CATEGORY' macro"
                       << bsl::endl;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         fflush(stderr);
         bsl::string filename = tempnam(0, "bael_log");
         int fd = creat(filename.c_str(), 0777);
@@ -2347,7 +2347,7 @@ int main(int argc, char *argv[])
         BAEL_LOGCB_ERROR(callback) << "No Logger Manager!" << BAEL_LOGCB_END;
         BAEL_LOGCB_FATAL(callback) << "No Logger Manager!" << BAEL_LOGCB_END;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         fflush(stderr);
         dup2(saved_stderr_fd, 2);
 
@@ -3322,7 +3322,7 @@ int main(int argc, char *argv[])
         //   BAEL_LOG_FATAL
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         bsl::cout << "TEST 5 TEMPORARILY SUPPRESSED ON WINDOWS -- MUST FIX\n";
 #else
         if (verbose)
@@ -3339,7 +3339,7 @@ int main(int argc, char *argv[])
             {
                 if (verbose) bsl::cout << "Entered ~LogOnDestruction\n";
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
                 // temporarily reroute stderr to a temp file
                 fflush(stderr);
                 bsl::string filename = tempnam(0, "bael_log");
@@ -3385,7 +3385,7 @@ int main(int argc, char *argv[])
                 if (verbose) bsl::cout <<
                                         "Safely invoked printf-style macros\n";
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
                 // restore stderr to the state it was in before we rerouted it.
                 fflush(stderr);
                 dup2(saved_stderr_fd, 2);
@@ -3419,7 +3419,7 @@ int main(int argc, char *argv[])
             bsl::cout << "Safely invoked 'BAEL_LOG_SET_CATEGORY' macro"
                       << bsl::endl;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         // temporarily reroute stderr to a temp file
         fflush(stderr);
         bsl::string filename = tempnam(0, "bael_log");
@@ -3460,7 +3460,7 @@ int main(int argc, char *argv[])
         if (verbose)
             bsl::cout << "Safely invoked printf-style macros" << bsl::endl;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         // restore stderr to the state it was in before we rerouted it.
         fflush(stderr);
         dup2(saved_stderr_fd, 2);

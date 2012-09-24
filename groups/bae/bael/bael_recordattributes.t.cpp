@@ -17,7 +17,7 @@
 
 #include <bsl_cstdlib.h>      // atoi()
 #include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>     // getpid()
 #endif
 
@@ -74,6 +74,7 @@ using namespace bsl;  // automatically added by script
 // [ 2] const char *fileName() const;
 // [ 2] int lineNumber() const;
 // [ 2] const char *message() const;
+// [ 2] bslstl_StringRef messageRef() const;
 // [ 2] int processID() const;
 // [ 2] int severity() const;
 // [ 2] bsls_PlatformUtil::Uint64 threadID() const;
@@ -166,6 +167,32 @@ struct my_RecordAttributes {
     int                        severity;
     const char                *message;
 };
+
+struct my_TestMessage {
+    const char *msg;
+    int         len1;
+    int         len2;
+};
+
+my_TestMessage testMsgs[] = {
+    {"",              0,  0},
+    {"\0",            0,  0},
+    {"a",             1,  1},
+    {"a\0",           1,  1},
+    {"ab",            2,  2},
+    {"ab\0",          2,  2},
+    {"abc",           3,  3},
+    {"abc\0",         3,  3},
+    {"abc\0d",        3,  5},
+    {"abc\0de",       3,  6},
+    {"abc\0def",      3,  7},
+    {"abc\0def\0",    3,  7},
+    {"abc\0def\0g",   3,  9},
+    {"abc\0def\0gh",  3, 10},
+    {"abc\0def\0ghi", 3, 11},
+};
+
+const int NUM_TEST_MSGS = sizeof(testMsgs) / sizeof(testMsgs[0]);
 
 //=============================================================================
 //                             USAGE EXAMPLE 2
@@ -346,7 +373,7 @@ int main(int argc, char *argv[])
             bdet_Datetime now;
             bdetu_Datetime::convertFromTimeT(&now, time(0));
             attributes.setTimestamp(now);
-            #ifdef BSLS_PLATFORM__OS_UNIX
+            #ifdef BSLS_PLATFORM_OS_UNIX
             attributes.setProcessID(getpid());
             #endif
             attributes.setThreadID(-1);        // pthread_self()
@@ -921,6 +948,7 @@ int main(int argc, char *argv[])
         //   const char *fileName() const;
         //   int lineNumber() const;
         //   const char *message() const;
+        //   bslstl_StringRef messageRef() const;
         //   int processID() const;
         //   int severity() const;
         //   bsls_PlatformUtil::Uint64 threadID() const;
@@ -1034,6 +1062,41 @@ int main(int argc, char *argv[])
         ASSERT(1 == (Y == Z));          ASSERT(0 == (Y != Z));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (veryVerbose) {
+             cout << "\tTesting 'setMessage' and 'message'" << endl;
+        }
+        {
+            for (int i = 0;i < NUM_TEST_MSGS; ++i) {
+                Obj mA;
+                ASSERT(0 == strcmp("", mA.message()));
+                mA.setMessage(testMsgs[i].msg);
+                ASSERT(0 == strcmp(testMsgs[i].msg, mA.message()));
+            }
+        }
+
+        if (veryVerbose) {
+             cout << "\tTesting 'messageRef'" << endl;
+        }
+        {
+            bslstl_StringRef emptyMsgRef("", 0);
+            for (int i = 0;i < NUM_TEST_MSGS; ++i) {
+                Obj mA;
+                bslstl_StringRef testMsgRef(testMsgs[i].msg, testMsgs[i].len2);
+                ASSERT(emptyMsgRef == mA.messageRef());
+                mA.messageStreamBuf().pubseekpos(0);
+                mA.messageStreamBuf().sputn(testMsgs[i].msg, testMsgs[i].len2);
+
+                bslstl_StringRef message = mA.messageRef();
+
+                if (veryVeryVerbose) {
+                    P_(testMsgRef); P_(testMsgRef.length()); P_(message);
+                    P(message.length());
+                }
+
+                ASSERT(testMsgRef == message);
+            }
+        }
 
         if (veryVerbose) {
              cout << "\tTesting 'clearMessage'" << endl;
@@ -1392,7 +1455,7 @@ int main(int argc, char *argv[])
                                                 "1066 "
                                                 "category "
                                                 "128 "
-                                                "message "
+                                                "test-message "
                                                 "]"
                 },
 
@@ -1404,7 +1467,7 @@ int main(int argc, char *argv[])
                                                "1066"                        NL
                                                "category"                    NL
                                                "128"                         NL
-                                               "message"                     NL
+                                               "test-message"                NL
                                                "]"                           NL
                 },
 
@@ -1416,7 +1479,7 @@ int main(int argc, char *argv[])
                                              "  1066"                        NL
                                              "  category"                    NL
                                              "  128"                         NL
-                                             "  message"                     NL
+                                             "  test-message"                NL
                                              "]"                             NL
                 },
 
@@ -1428,7 +1491,7 @@ int main(int argc, char *argv[])
                                              "  1066"                        NL
                                              "  category"                    NL
                                              "  128"                         NL
-                                             "  message"                     NL
+                                             "  test-message"                NL
                                              " ]"                            NL
                 },
 
@@ -1440,7 +1503,7 @@ int main(int argc, char *argv[])
                                            "    1066"                        NL
                                            "    category"                    NL
                                            "    128"                         NL
-                                           "    message"                     NL
+                                           "    test-message"                NL
                                            "  ]"                             NL
                 },
 
@@ -1452,7 +1515,7 @@ int main(int argc, char *argv[])
                                            "    1066"                        NL
                                            "    category"                    NL
                                            "    128"                         NL
-                                           "    message"                     NL
+                                           "    test-message"                NL
                                            "  ]"                             NL
                 },
 
@@ -1464,7 +1527,7 @@ int main(int argc, char *argv[])
                                             "   1066"                        NL
                                             "   category"                    NL
                                             "   128"                         NL
-                                            "   message"                     NL
+                                            "   test-message"                NL
                                             "  ]"                            NL
                 },
 
@@ -1476,7 +1539,7 @@ int main(int argc, char *argv[])
                                            "   1066"                         NL
                                            "   category"                     NL
                                            "   128"                          NL
-                                           "   message"                      NL
+                                           "   test-message"                 NL
                                            "  ]"                             NL
                 },
 
@@ -1488,7 +1551,7 @@ int main(int argc, char *argv[])
                                          "      1066"                        NL
                                          "      category"                    NL
                                          "      128"                         NL
-                                         "      message"                     NL
+                                         "      test-message"                NL
                                          "   ]"                              NL
                 },
             };
@@ -1508,7 +1571,8 @@ int main(int argc, char *argv[])
             mX.setCategory("category");
             mX.setFileName("bael_recordattributes.t.cpp");
             mX.setLineNumber(1066);
-            mX.setMessage("message");
+            mX.messageStreamBuf().pubseekpos(0);
+            mX.messageStreamBuf().sputn("test-\0mess\0age", 14);
             mX.setProcessID(74372);
             mX.setSeverity(128);
             mX.setThreadID(19);
@@ -1528,13 +1592,41 @@ int main(int argc, char *argv[])
                 ostrstream out2(buf2, SIZE);  X.print(out2, IND, SPL) << ends;
                 if (veryVerbose) cout << "ACTUAL FORMAT:  "<< endl<<buf1<<endl;
 
-                const int SZ = strlen(FMT) + 1;
+                const int SZ = strlen(FMT) + 3;  // Count in the two '\0'.
                 const int REST = SIZE - SZ;
+
                 LOOP_ASSERT(ti, SZ < SIZE);  // Check buffer is large enough.
                 LOOP_ASSERT(ti, Z1 == buf1[SIZE - 1]);  // Check for overrun.
                 LOOP_ASSERT(ti, Z2 == buf2[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti,  0 == strcmp(buf1, FMT));
-                LOOP_ASSERT(ti,  0 == strcmp(buf2, FMT));
+
+                // Verify 'buf1' and 'buf2' have same conetents as 'FMT', if
+                // ignore the '\0's in the middle of 'buf1' and 'buf2'.
+
+                const char *p1 = FMT;
+                const char *p2 = buf1;
+                int tj, tk;
+                for (tj = 0, tk = 0;tj < strlen(FMT); ++tj, ++tk) {
+                    if (0 == p2[tk]) {  // Skip '\0' in the middle.
+                        ++tk;
+                    }
+                    LOOP2_ASSERT(tj, tk, p1[tj] == p2[tk]);
+                }
+                LOOP_ASSERT(tj, 0 == p1[tj]);
+                LOOP_ASSERT(tk, 0 == p2[tk]);
+
+                p1 = FMT;
+                p2 = buf2;
+                for (tj = 0, tk = 0;tj < strlen(FMT); ++tj, ++tk) {
+                    if (0 == p2[tk]) {  // Skip '\0' in the middle.
+                        ++tk;
+                    }
+                    LOOP2_ASSERT(tj, tk, p1[tj] == p2[tk]);
+                }
+                LOOP_ASSERT(tj, 0 == p1[tj]);
+                LOOP_ASSERT(tk, 0 == p2[tk]);
+
+                // Verify the rest parts of 'buf1' and 'buf2' are untouched.
+
                 LOOP_ASSERT(ti,  0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
                 LOOP_ASSERT(ti,  0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
             }

@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
                       "baesu_StackTraceResolverImpl<Windows> breathing test\n"
                       "====================================================\n";
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS) && !defined(BDE_BUILD_TARGET_DBG)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) && !defined(BDE_BUILD_TARGET_DBG)
         cout << "Resolving not supported without debug symbols\n";
         break;
 #else

@@ -212,6 +212,27 @@ class my_ClassFussy {
     static int assignmentInvocations;
     static int destructorInvocations;
 
+    // CLASS METHODS
+    static void* operator new(std::size_t size)
+        // Should never be invoked
+    {
+        BSLS_ASSERT_OPT(0);
+        return ::operator new(size);
+    }
+
+    static void* operator new(std::size_t size, void *ptr)
+        // Should never be invoked
+    {
+        BSLS_ASSERT_OPT(0);
+        return ptr;
+    }
+
+    static void operator delete(void *ptr)
+        // Should never be invoked
+    {
+        BSLS_ASSERT_OPT(0);
+    }
+
     // CREATORS
     my_ClassFussy() {
         // Should never be invoked by bslalg_ScalarPrimitives.

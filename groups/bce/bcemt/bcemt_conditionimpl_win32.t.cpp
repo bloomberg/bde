@@ -1,7 +1,7 @@
 // bcemt_conditionimpl_win32.t.cpp                                    -*-C++-*-
 #include <bcemt_conditionimpl_win32.h>
 
-#ifdef BCES_PLATFORM__WIN32_THREADS
+#ifdef BCES_PLATFORM_WIN32_THREADS
 
 #include <bcemt_lockguard.h>
 #include <bcemt_mutex.h>
@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
 
         const bdet_TimeInterval SLEEP_SECONDS(0.3);
         const double OVERSHOOT_MIN = -1e-5;
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
         const double OVERSHOOT_MAX = 0.10;
 #else
         const double OVERSHOOT_MAX = 0.05;

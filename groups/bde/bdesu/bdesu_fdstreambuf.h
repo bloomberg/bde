@@ -95,7 +95,7 @@ BDES_IDENT("$Id: $")
 //..
 //  char fileNameBuffer[100];
 //  bsl::sprintf(fileNameBuffer,
-//#ifdef BSLS_PLATFORM__OS_UNIX
+//#ifdef BSLS_PLATFORM_OS_UNIX
 //               "/tmp/bdesu_FdStreamBuf.usage.1.%d.txt",
 //#else // windows
 //               "C:\\TEMP\\bdesu_FdStreamBuf.usage.1.%d.txt";
@@ -163,7 +163,7 @@ BDES_IDENT("$Id: $")
 //          is >> bsl::noskipws >> *pc++;
 //      } while ('\n' != pc[-1]);
 //
-//#ifdef BSLS_PLATFORM__OS_UNIX
+//#ifdef BSLS_PLATFORM_OS_UNIX
 //      assert(!bsl::strcmp("Five times nine point five = 47.5\n", buf));
 //#else
 //      //On Windows we see a CRLF ('\r\n') instead of a simple LF '\n'
@@ -223,7 +223,7 @@ BDES_IDENT("$Id: $")
 //..
 //  char fileNameBuffer[100];
 //  bsl::sprintf(fileNameBuffer,
-//#ifdef BSLS_PLATFORM__OS_UNIX
+//#ifdef BSLS_PLATFORM_OS_UNIX
 //               "/tmp/bdesu_FdStreamBuf.usage.2.%d.txt",
 //#else // windows
 //               "C:\\TEMP\\bdesu_FdStreamBuf.usage.2.%d.txt",
@@ -361,6 +361,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -411,7 +415,7 @@ class bdesu_FdStreamBuf_FileHandler {
 
   private:
     // CLASS DATA
-    static bsls_Types::size_type
+    static bsls::AtomicOperations::AtomicTypes::Int
            s_pageSize;             // page size associated with this operating
                                    // system
 
@@ -447,7 +451,7 @@ class bdesu_FdStreamBuf_FileHandler {
 
   private:
     // PRIVATE MANIPULATORS
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     int windowsWriteText(const char *buffer, int numChars);
         // Write the specified 'numChars' characters from the specified
         // 'buffer' to this object's file descriptor.  Return the number of
@@ -1031,7 +1035,7 @@ class bdesu_FdStreamBuf : public bsl::streambuf {
 inline
 size_t bdesu_FdStreamBuf_FileHandler::pageSize()
 {
-    return s_pageSize;
+    return bsls::AtomicOperations::getIntRelaxed(&s_pageSize);
 }
 
 // MANIPULATORS
@@ -1068,7 +1072,7 @@ bdesu_FdStreamBuf_FileHandler::getOffset(char *first, char *last) const
 inline
 bool bdesu_FdStreamBuf_FileHandler::isInBinaryMode() const
 {
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     return true;
 # else
     // Windows

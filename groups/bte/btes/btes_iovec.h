@@ -77,8 +77,8 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
-#if defined(BSLS_PLATFORM__CMP_MSVC) && !defined(_WINSOCK2API_)
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#if defined(BSLS_PLATFORM_CMP_MSVC) && !defined(_WINSOCK2API_)
     #ifndef INCLUDED_WINSOCK2
     #include <winsock2.h>                    // for WSABUF
     #define INCLUDED_WINSOCK2
@@ -117,7 +117,7 @@ class btes_Iovec {
     // receive operations in addition to write or send operations which do
     // not modify the data buffer.
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
     // For Windows (Winsock2) platforms only.
     typedef WSABUF BUFFER;
 #else
@@ -251,10 +251,10 @@ inline btes_Iovec::btes_Iovec(const btes_Iovec& iovec)
 
 inline btes_Iovec::btes_Iovec(void *buffer, int length)
 {
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
     d_buffer.buf = (char FAR *) buffer;
     d_buffer.len = (u_long) length;
-#elif defined(BSLS_PLATFORM__OS_DARWIN)
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
     d_buffer.iov_base = buffer;
     d_buffer.iov_len = length;
 #else
@@ -275,10 +275,10 @@ inline btes_Iovec& btes_Iovec::operator=(const btes_Iovec& rhs)
 
 inline void btes_Iovec::setBuffer(void *buffer, int length)
 {
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
     d_buffer.buf = (char FAR *) buffer;
     d_buffer.len = (u_long) length;
-#elif defined(BSLS_PLATFORM__OS_DARWIN)
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
     d_buffer.iov_base = buffer;
     d_buffer.iov_len = length;
 #else
@@ -291,7 +291,7 @@ inline void btes_Iovec::setBuffer(void *buffer, int length)
 
 inline void * btes_Iovec::buffer() const
 {
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
     return d_buffer.buf;
 #else
     return d_buffer.iov_base;
@@ -300,7 +300,7 @@ inline void * btes_Iovec::buffer() const
 
 inline int btes_Iovec::length() const
 {
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
     return d_buffer.len;
 #else
     return (int)d_buffer.iov_len;
@@ -330,10 +330,10 @@ inline btes_Ovec::btes_Ovec(const btes_Ovec& iovec)
 
 inline btes_Ovec::btes_Ovec(const void *buffer, int length)
 {
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
     d_buffer.buf = (char FAR *) buffer;
     d_buffer.len = (u_long) length;
-#elif defined(BSLS_PLATFORM__OS_DARWIN)
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
     d_buffer.iov_base = (void *) buffer;
     d_buffer.iov_len = length;
 #else
@@ -354,10 +354,10 @@ inline btes_Ovec& btes_Ovec::operator=(const btes_Ovec& rhs)
 
 inline void btes_Ovec::setBuffer(const void *buffer, int length)
 {
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
     d_buffer.buf = (char FAR *) buffer;
     d_buffer.len = (u_long) length;
-#elif defined(BSLS_PLATFORM__OS_DARWIN)
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
     d_buffer.iov_base = (void *) buffer;
     d_buffer.iov_len = length;
 #else
@@ -370,7 +370,7 @@ inline void btes_Ovec::setBuffer(const void *buffer, int length)
 
 inline const void *btes_Ovec::buffer() const
 {
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
     return d_buffer.buf;
 #else
     return d_buffer.iov_base;
@@ -379,7 +379,7 @@ inline const void *btes_Ovec::buffer() const
 
 inline int btes_Ovec::length() const
 {
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
     return d_buffer.len;
 #else
     return (int)d_buffer.iov_len;

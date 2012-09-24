@@ -555,7 +555,7 @@ bdex_GenericByteOutStream<StreamBuf>&
     // Provide support for all manipulator functions on this stream, e.g.,
     // 'bdexFlush'.
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <class StreamBuf, typename OBJECT>
 inline
@@ -571,7 +571,7 @@ bdex_GenericByteOutStream<StreamBuf>&
     // which case this operator calls the appropriate 'put' method from this
     // component.
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -653,7 +653,7 @@ inline
 bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putInt64(bsls_PlatformUtil::Int64 value)
 {
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     value = BSLS_BYTEORDER_HOST_U64_TO_BE(value);
 #endif
     d_valid = d_valid ? 8 == d_streamBuf->sputn((char *)&value, 8) : false;
@@ -673,7 +673,7 @@ inline
 bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putInt56(bsls_PlatformUtil::Int64 value)
 {
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     char data[7];
     const char *byte = (const char *)&value;
 
@@ -705,7 +705,7 @@ inline
 bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putInt48(bsls_PlatformUtil::Int64 value)
 {
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     char data[6];
     const char *byte = (const char *)&value;
 
@@ -736,7 +736,7 @@ inline
 bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putInt40(bsls_PlatformUtil::Int64 value)
 {
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     char data[5];
     const char *byte = (const char *)&value;
 
@@ -766,7 +766,7 @@ inline
 bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putInt32(int value)
 {
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     value = BSLS_BYTEORDER_HOST_U32_TO_BE(value);
 #endif
     d_valid = d_valid ? 4 == d_streamBuf->sputn((char *)&value, 4) : false;
@@ -786,7 +786,7 @@ inline
 bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putInt24(int value)
 {
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     char data[3];
     const char *byte = (const char *)&value;
 
@@ -814,7 +814,7 @@ inline
 bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putInt16(int value)
 {
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     char data[2];
     const char *byte = (const char *)&value;
 
@@ -841,7 +841,7 @@ inline
 bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putInt8(int value)
 {
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     d_valid = d_valid
      ? StreamBuf::traits_type::eof() != d_streamBuf->sputc(((char *)&value)[0])
      : false;
@@ -869,7 +869,7 @@ inline
 bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putFloat64(double value)
 {
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     typedef union {
         double                    d_variable;
         bsls_PlatformUtil::Uint64 d_longlong;
@@ -890,7 +890,7 @@ inline
 bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putFloat32(float value)
 {
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     typedef union {
         float d_variable;
         int   d_int;
@@ -909,7 +909,7 @@ bdex_GenericByteOutStream<StreamBuf>::putFloat32(float value)
 ///- - - - - - - - - - - - - - - - -
 
 template <class StreamBuf>
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteOutStream<StreamBuf>&
@@ -920,7 +920,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayInt64(
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     const bsls_PlatformUtil::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt64(*array);
@@ -934,7 +934,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayInt64(
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteOutStream<StreamBuf>&
@@ -945,7 +945,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayUint64(
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     const bsls_PlatformUtil::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putUint64(*array);
@@ -1055,7 +1055,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayUint40(
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteOutStream<StreamBuf>&
@@ -1065,7 +1065,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayInt32(const int *array,
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     const int *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt32(*array);
@@ -1079,7 +1079,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayInt32(const int *array,
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteOutStream<StreamBuf>&
@@ -1089,7 +1089,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayUint32(const unsigned int *array,
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     const unsigned int *endArray = array + count;
     for (; array < endArray; ++array) {
         putUint32(*array);
@@ -1133,7 +1133,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayUint24(const unsigned int *array,
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteOutStream<StreamBuf>&
@@ -1143,7 +1143,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayInt16(const short *array,
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     const short *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt16(*array);
@@ -1157,7 +1157,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayInt16(const short *array,
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteOutStream<StreamBuf>&
@@ -1168,7 +1168,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayUint16(
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     const unsigned short *endArray = array + count;
     for (; array < endArray; ++array) {
         putUint16(*array);
@@ -1239,7 +1239,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayUint8(const unsigned char *array,
 ///- - - - - - - - - - - - - - - - - - - -
 
 template <class StreamBuf>
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteOutStream<StreamBuf>&
@@ -1249,7 +1249,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayFloat64(const double *array,
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     const double *endArray = array + count;
     for (; array < endArray; ++array) {
         putFloat64(*array);
@@ -1263,7 +1263,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayFloat64(const double *array,
 }
 
 template <class StreamBuf>
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
 inline
 #endif
 bdex_GenericByteOutStream<StreamBuf>&
@@ -1273,7 +1273,7 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayFloat32(const float *array,
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     const float *endArray = array + count;
     for (; array < endArray; ++array) {
         putFloat32(*array);
@@ -1305,7 +1305,7 @@ bdex_GenericByteOutStream<StreamBuf>&
     return (*pf)(stream);
 }
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <class StreamBuf, typename VALUE>
 inline
@@ -1315,7 +1315,7 @@ bdex_GenericByteOutStream<StreamBuf>&
     return bdex_OutStreamMethodsUtil::streamOutVersionAndObject(stream, value);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 }  // close namespace BloombergLP
 

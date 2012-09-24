@@ -93,7 +93,7 @@ void
 dbg_print(const bslalg::DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& iter)
 {
     if (iter.blockPtr() && iter.valuePtr()) {
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         printf("[0x%06p,0x%016p]", iter.blockPtr(), iter.valuePtr());
         fflush(stdout);
 #else

@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::If: meta-function for compile-time selection of one of two types
 //
-//@AUTHOR: Oleg Grunin (ogrunin)
-//
 //@SEE_ALSO: bslmf_assert, bslmf_nil
+//
+//@AUTHOR: Oleg Grunin (ogrunin)
 //
 //@DESCRIPTION: This component contains the template class meta-function
 // 'bslmf::If' that is parameterized on three arguments.  The first argument is
@@ -133,6 +133,7 @@ struct If<0, IF_TRUE_TYPE, IF_FALSE_TYPE> {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -142,6 +143,7 @@ struct If<0, IF_TRUE_TYPE, IF_FALSE_TYPE> {
 #endif
 #define bslmf_If bslmf::If
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

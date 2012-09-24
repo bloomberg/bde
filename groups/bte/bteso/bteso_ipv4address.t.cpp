@@ -15,13 +15,13 @@
 #include <bsl_cstring.h>     // strcmp()
 #include <bsl_iostream.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <Winsock2.h>
 #else
 #include <netinet/in.h>
 #endif
 
-#if defined(BDES_PLATFORMUTIL__NO_LONG_HEADER_NAMES)
+#if defined(BDES_PLATFORMUTIL_NO_LONG_HEADER_NAMES)
 #include <strstrea.h>
 #else
 #include <bsl_strstream.h>

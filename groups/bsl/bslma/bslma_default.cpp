@@ -21,12 +21,12 @@ class Allocator;
 
                         // *** default allocator ***
 
-Allocator *Default::s_allocator_p = 0;
-int        Default::s_locked      = 0;
+bsls::AtomicOperations::AtomicTypes::Pointer Default::s_allocator = {0};
+bsls::AtomicOperations::AtomicTypes::Int     Default::s_locked    = {0};
 
                         // *** global allocator ***
 
-Allocator *Default::s_globalAllocator_p = 0;
+bsls::AtomicOperations::AtomicTypes::Pointer Default::s_globalAllocator = {0};
 
 // CLASS METHODS
 
@@ -36,10 +36,11 @@ int Default::setDefaultAllocator(Allocator *basicAllocator)
 {
     BSLS_ASSERT(0 != basicAllocator);
 
-    if (!s_locked) {
-        s_allocator_p = basicAllocator;
+    if (!bsls::AtomicOperations::getIntRelaxed(&s_locked)) {
+        bsls::AtomicOperations::setPtrRelease(&s_allocator, basicAllocator);
         return 0;  // success
     }
+
     return -1;     // locked -- 'set' fails
 }
 
@@ -47,20 +48,19 @@ void Default::setDefaultAllocatorRaw(Allocator *basicAllocator)
 {
     BSLS_ASSERT(0 != basicAllocator);
 
-    s_allocator_p = basicAllocator;
+    bsls::AtomicOperations::setPtrRelease(&s_allocator, basicAllocator);
 }
 
                         // *** global allocator ***
 
 Allocator *Default::setGlobalAllocator(Allocator *basicAllocator)
 {
-    Allocator *previous = s_globalAllocator_p
-                                      ? s_globalAllocator_p
-                                      : &NewDeleteAllocator::singleton();
+    Allocator *previous =
+        (Allocator *) bsls::AtomicOperations::swapPtrAcqRel(&s_globalAllocator,
+                                                            basicAllocator);
 
-    s_globalAllocator_p = basicAllocator;
-
-    return previous;
+    return previous ? previous
+                    : &NewDeleteAllocator::singleton();
 }
 
 }  // close package namespace

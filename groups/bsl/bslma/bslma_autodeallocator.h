@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::AutoDeallocator: range proctor to manage a block of memory
 //
-//@AUTHOR: Arthur Chiu (achiu1)
-//
 //@SEE_ALSO: bslma_deallocatorguard, bslma_deallocatorproctor
+//
+//@AUTHOR: Arthur Chiu (achiu1)
 //
 //@DESCRIPTION: This component provides a range proctor class template to
 // manage a sequence of blocks of (otherwise-unmanaged) memory of parameterized
@@ -632,6 +632,7 @@ int AutoDeallocator<ALLOCATOR>::length() const
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -641,6 +642,7 @@ int AutoDeallocator<ALLOCATOR>::length() const
 #endif
 #define bslma_AutoDeallocator bslma::AutoDeallocator
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

@@ -43,7 +43,7 @@ BDES_IDENT("$Id: $")
 #include <bces_platform.h>
 #endif
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
 
 // Platform specific implementation starts here.
 
@@ -145,7 +145,7 @@ bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::
 
 }  // close namespace BloombergLP
 
-#endif  // BCES_PLATFORM__POSIX_THREADS
+#endif  // BCES_PLATFORM_POSIX_THREADS
 
 #endif
 

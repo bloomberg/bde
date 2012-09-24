@@ -32,14 +32,14 @@ BDES_IDENT_RCSID(bteso_eventmanagertester_cpp,"$Id$ $CSID$")
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>                             // abort
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 
 # include <bsl_c_signal.h>
 # include <pthread.h>
 # include <sys/types.h>
 # include <sys/socket.h>                             // ::socketpair
 
-# if defined(BSLS_PLATFORM__OS_LINUX)
+# if defined(BSLS_PLATFORM_OS_LINUX)
 #   include <sys/resource.h>
 # endif
 
@@ -74,12 +74,12 @@ enum {
 // pipe on different platforms, even though the same buffer sizes are set.
 // That's the reason different data buffer sizes are specified on different
 // platforms.
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
     enum {
         READ_SIZE  = 8192,    // the size of buffer to read from the pipe
         WRITE_SIZE = 30000    // the size of buffer to write to the pipe
     };
-#elif defined (BSLS_PLATFORM__OS_UNIX)
+#elif defined (BSLS_PLATFORM_OS_UNIX)
     enum {
         READ_SIZE  = 8192,    // the size of buffer to read from the pipe
         WRITE_SIZE = 73728    // the size of buffer to write to the pipe
@@ -117,7 +117,7 @@ void bteso_eventmanagertester_nullFunctor()
 {
 }
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 extern "C"
 void* bteso_eventmanagertester_threadSignalGenerator(void *arg)
     // Generate signal 'SIGSYS' and deliver it to a thread specified in 'arg'.
@@ -1159,15 +1159,15 @@ bteso_EventManagerTester::testDispatch(bteso_EventManager *mX, int flags)
 
             // Test the event manager when the socket is not writeable, which
             // forces the request to timeout.
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
           {L_, "+0w25710; Dn,1; +0w26000; Dn300,1; Dn120,0; -0w; T0"        },
           {L_, "+0w28720; Dn,1; +0w26000; Dn120,0; -0w; T0"                 },
 #endif
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
           {L_, "+0w131072; Dn,1; +0w8192; Dn300,1; Dn150,0; -0w; T0"        },
           {L_, "+0w131072; Dn,1; +0w8192; Dn120,1; Dn150,0; -0w; T0"        },
 #endif
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
           {L_, "+0w73728; Dn,1; +0w26000; Dn150,0; -0w; T0"                 },
 #endif
         };
@@ -1177,7 +1177,7 @@ bteso_EventManagerTester::testDispatch(bteso_EventManager *mX, int flags)
             enum { NUM_PAIRS = 4 };
             SocketPair socketPairs[NUM_PAIRS];
 
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
             // For some reason, sockets on HPUX are woozy for the first ~ 20 ms
             // or so after they're created, after that they seem to be OK.  In
             // a polling interface, this just means events will take a few
@@ -1207,7 +1207,7 @@ bteso_EventManagerTester::testDispatch(bteso_EventManager *mX, int flags)
             }
         }
     }
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 
     if (flags & bteso_EventManagerTester::BTESO_VERBOSE) {
         std::puts("Testing 'Interrupt options'\n"
@@ -1342,7 +1342,7 @@ bteso_EventManagerTester::testDispatchPerformance(
                                      const char               *pollingMechName,
                                      int                       flags)
 {
-#if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_HPUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
     enum { NUM_MEASUREMENTS = 1 };
 #else
     enum { NUM_MEASUREMENTS = 10 };
@@ -1397,7 +1397,7 @@ bteso_EventManagerTester::testDispatchPerformance(
         timeOut = timeOutDouble;
     }
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     const unsigned filesNeeded = 2 * numSocketPairs + 10;
     struct ::rlimit rl;
     int rc = getrlimit(RLIMIT_NOFILE, &rl);
@@ -1414,20 +1414,22 @@ bteso_EventManagerTester::testDispatchPerformance(
     bsl::stringstream outFileNameSS;
     outFileNameSS << "tmp." << pollingMechName << "_dsp";
 
-#if   defined(BSLS_PLATFORM__OS_LINUX)
+#if   defined(BSLS_PLATFORM_OS_LINUX)
     outFileNameSS << "_lnx";
-#elif defined(BSLS_PLATFORM__OS_SOLARIS)
+#elif defined(BSLS_PLATFORM_OS_SOLARIS)
     outFileNameSS << "_sun";
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
     outFileNameSS << "_hp_";
-#elif defined(BSLS_PLATFORM__OS_AIX)
+#elif defined(BSLS_PLATFORM_OS_AIX)
     outFileNameSS << "_aix";
-#elif defined(BSLS_PLATFORM__OS_FREEBSD)
+#elif defined(BSLS_PLATFORM_OS_FREEBSD)
     outFileNameSS << "_fre";
-#elif defined(BSLS_PLATFORM__OS_CYGWIN)
+#elif defined(BSLS_PLATFORM_OS_CYGWIN)
     outFileNameSS << "_cyg";
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
     outFileNameSS << "_win";
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+    outFileNameSS << "_darwin";
 #else
 #   error unrecognized platform
 #endif
@@ -1476,7 +1478,7 @@ bteso_EventManagerTester::testDispatchPerformance(
             }
         }
 
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
         // On HPUX, newly created sockets need about ~ 20ms to wake up.
 
         bcemt_ThreadUtil::microSleep(40 * 1000);
@@ -1700,7 +1702,7 @@ bteso_EventManagerTester::testRegisterPerformance(bteso_EventManager *mX,
 #endif
         if (0 != ret) {
             std::cout << "Unable to open more than " << ii << " sockets\n";
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             std::cout << "Try 'ulimit -n " << (numSockets + 10) << "'\n";
 #endif
             return 1;
@@ -1766,8 +1768,8 @@ bteso_EventManagerTestPair::bteso_EventManagerTestPair(int verboseFlag)
 #endif
 
     if (d_verboseFlag) {
-        bsl::printf("T%d: socketPair (%d, %d): %d\n",
-                    bcemt_ThreadUtil::self(), d_fds[0], d_fds[1], rc);
+        bsl::printf("T%llu: socketPair (%d, %d): %d\n",
+                   bcemt_ThreadUtil::selfIdAsUint64(), d_fds[0], d_fds[1], rc);
     }
     if (0 != rc ) {
         d_validFlag = -1;
@@ -1776,41 +1778,43 @@ bteso_EventManagerTestPair::bteso_EventManagerTestPair(int verboseFlag)
         bteso_IoUtil::BlockingMode option = bteso_IoUtil::BTESO_NONBLOCKING;
         rc |= bteso_IoUtil::setBlockingMode(d_fds[0], option);
         if (d_verboseFlag) {
-            bsl::printf("T%d: setBlockingMode (%d): %d\n",
-                        bcemt_ThreadUtil::self(), d_fds[0], rc);
+            bsl::printf("T%llu: setBlockingMode (%d): %d\n",
+                        bcemt_ThreadUtil::selfIdAsUint64(), d_fds[0], rc);
         }
 
         rc |= bteso_IoUtil::setBlockingMode(d_fds[1], option);
         if (d_verboseFlag) {
-            bsl::printf("T%d: setBlockingMode (%d): %d\n",
-                        bcemt_ThreadUtil::self(), d_fds[1], rc);
+            bsl::printf("T%llu: setBlockingMode (%d): %d\n",
+                        bcemt_ThreadUtil::selfIdAsUint64(), d_fds[1], rc);
         }
 #if !BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR
         rc |= bteso_SocketOptUtil::setOption(d_fds[0],
                       bteso_SocketOptUtil::BTESO_TCPLEVEL,
                       bteso_SocketOptUtil::BTESO_TCPNODELAY, 1);
         if (d_verboseFlag) {
-            bsl::printf("T%d: setOption (TCPNODELAY) (%d): %d\n",
-                        bcemt_ThreadUtil::self(), d_fds[0], rc);
+            bsl::printf("T%llu: setOption (TCPNODELAY) (%d): %d\n",
+                        bcemt_ThreadUtil::selfIdAsUint64(), d_fds[0], rc);
         }
 
         rc |= bteso_SocketOptUtil::setOption(d_fds[1],
                       bteso_SocketOptUtil::BTESO_TCPLEVEL,
                       bteso_SocketOptUtil::BTESO_TCPNODELAY, 1);
         if (d_verboseFlag) {
-            bsl::printf("T%d: setOption (TCPNODELAY) (%d): %d\n",
-                        bcemt_ThreadUtil::self(), d_fds[1], rc);
+            bsl::printf("T%llu: setOption (TCPNODELAY) (%d): %d\n",
+                        bcemt_ThreadUtil::selfIdAsUint64(), d_fds[1], rc);
         }
 #endif
 
         if (rc) {
             if (d_verboseFlag) {
-                bsl::printf("T%d: Closing %d\n", bcemt_ThreadUtil::self(),
+                bsl::printf("T%llu: Closing %d\n", 
+                            bcemt_ThreadUtil::selfIdAsUint64(),
                             d_fds[1]);
                 bteso_SocketImpUtil::close(d_fds[1]);
             }
             if (d_verboseFlag) {
-                bsl::printf("T%d: Closing %d\n", bcemt_ThreadUtil::self(),
+                bsl::printf("T%llu: Closing %d\n", 
+                            bcemt_ThreadUtil::selfIdAsUint64(),
                             d_fds[0]);
                 bteso_SocketImpUtil::close(d_fds[0]);
             }
@@ -1825,12 +1829,12 @@ bteso_EventManagerTestPair::bteso_EventManagerTestPair(int verboseFlag)
 bteso_EventManagerTestPair::~bteso_EventManagerTestPair()
 {
     if (d_verboseFlag) {
-        bsl::printf("T%d: Closing %d\n", bcemt_ThreadUtil::self(),
+        bsl::printf("T%llu: Closing %d\n", bcemt_ThreadUtil::selfIdAsUint64(),
                     d_fds[1]);
         bteso_SocketImpUtil::close(d_fds[1]);
     }
     if (d_verboseFlag) {
-        bsl::printf("T%d: Closing %d\n", bcemt_ThreadUtil::self(),
+        bsl::printf("T%llu: Closing %d\n", bcemt_ThreadUtil::selfIdAsUint64(),
                     d_fds[0]);
         bteso_SocketImpUtil::close(d_fds[0]);
     }
@@ -1839,7 +1843,7 @@ bteso_EventManagerTestPair::~bteso_EventManagerTestPair()
 int
 bteso_EventManagerTestPair::setObservedBufferOptions(int bufferSize,
 // quell gcc-4.3.2 warnings
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
                                                      int watermark
 #else
                                                      int  // watermark
@@ -1863,7 +1867,7 @@ bteso_EventManagerTestPair::setObservedBufferOptions(int bufferSize,
         return ret;
     }
 
-    #ifdef BSLS_PLATFORM__OS_AIX
+    #ifdef BSLS_PLATFORM_OS_AIX
     ret = bteso_SocketOptUtil::setOption(d_fds[0],
             bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
             SO_SNDLOWAT, watermark);
@@ -1885,7 +1889,7 @@ bteso_EventManagerTestPair::setObservedBufferOptions(int bufferSize,
 int
 bteso_EventManagerTestPair::setControlBufferOptions(int bufferSize,
 // quell gcc-4.3.2 warnings
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
                                                     int watermark
 #else
                                                     int  // watermark
@@ -1909,7 +1913,7 @@ bteso_EventManagerTestPair::setControlBufferOptions(int bufferSize,
         return ret;
     }
 
-    #ifdef BSLS_PLATFORM__OS_AIX
+    #ifdef BSLS_PLATFORM_OS_AIX
     ret = bteso_SocketOptUtil::setOption(d_fds[1],
             bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
             SO_SNDLOWAT, watermark);
@@ -1932,7 +1936,7 @@ bteso_EventManagerTestPair::setControlBufferOptions(int bufferSize,
 int bteso_EventManagerTestPair::getObservedBufferOptions(int *sndBufferSize,
                                                          int *rcvBufferSize,
 // quell gcc-4.3.2 warnings
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
                                                          int *sndLowat,
                                                          int *rcvLowat
 #else
@@ -1955,7 +1959,7 @@ int bteso_EventManagerTestPair::getObservedBufferOptions(int *sndBufferSize,
         return ret;
     }
 
-    #ifdef BSLS_PLATFORM__OS_AIX
+    #ifdef BSLS_PLATFORM_OS_AIX
     ret = bteso_SocketOptUtil::getOption(&rcvLowat, d_fds[0],
             bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
             SO_RCVLOWAT);
@@ -1977,7 +1981,7 @@ int bteso_EventManagerTestPair::getObservedBufferOptions(int *sndBufferSize,
 int bteso_EventManagerTestPair::getControlBufferOptions(int *sndBufferSize,
                                                         int *rcvBufferSize,
 // quell gcc-4.3.2 warnings
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
                                                         int *sndLowat,
                                                         int *rcvLowat
 #else
@@ -2000,7 +2004,7 @@ int bteso_EventManagerTestPair::getControlBufferOptions(int *sndBufferSize,
         return ret;
     }
 
-    #ifdef BSLS_PLATFORM__OS_AIX
+    #ifdef BSLS_PLATFORM_OS_AIX
     ret = bteso_SocketOptUtil::getOption(&rcvLowat, d_fds[1],
             bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
             SO_RCVLOWAT);

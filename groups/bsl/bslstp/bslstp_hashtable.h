@@ -30,6 +30,10 @@
 #ifndef INCLUDED_BSLSTP_HASHTABLE
 #define INCLUDED_BSLSTP_HASHTABLE
 
+#ifdef BDE_OMIT_TRANSITIONAL // STP
+#error "bslstp_hashtable is not for publication"
+#endif
+
 #ifndef INCLUDED_BSLSTP_ALLOC
 #include <bslstp_alloc.h>
 #endif
@@ -58,8 +62,8 @@
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLUNORDERED
-#include <bslalg_typetraitsgroupstlunordered.h>
+#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLUNORDEREDCONTAINER
+#include <bslstl_traitsgroupstlunorderedcontainer.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_VECTOR
@@ -319,8 +323,11 @@ public:
     _M_initialize_buckets(__n);
   }
 
-  typedef BloombergLP::bslalg::TypeTraitsGroupStlUnordered<_Val,_HF,_EqK,_All>
-      HashTableTypeTraits;
+  typedef BloombergLP::bslstl::TraitsGroupStlUnorderedContainer<
+    _Val,
+    _HF,
+    _EqK,
+    _All> HashTableTypeTraits;
   BSLALG_DECLARE_NESTED_TRAITS(hashtable, HashTableTypeTraits);
 
   hashtable(const _Self& __ht)

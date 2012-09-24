@@ -8,7 +8,7 @@
 
 //@PURPOSE: Provide a forward-declaration for the corresponding BDE type.
 //
-//@SEE_ALSO: bslfwd_buildtarget.h
+//@SEE_ALSO: bslfwd_buildtarget
 //
 //@AUTHOR: Alexei Zakharov (azakharov7)
 //

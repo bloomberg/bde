@@ -31,30 +31,30 @@ BDES_IDENT_RCSID(bteso_defaulteventmanager_poll_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 #include <bsl_utility.h>
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS)    \
-    || defined(BSLS_PLATFORM__OS_LINUX)   \
-    || defined(BDES_PLATFORM__OS_FREEBSD) \
-    || defined(BSLS_PLATFORM__OS_AIX)     \
-    || defined(BSLS_PLATFORM__OS_HPUX)    \
-    || defined(BSLS_PLATFORM__OS_CYGWIN)  \
-    || defined(BSLS_PLATFORM__OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)    \
+    || defined(BSLS_PLATFORM_OS_LINUX)   \
+    || defined(BDES_PLATFORM_OS_FREEBSD) \
+    || defined(BSLS_PLATFORM_OS_AIX)     \
+    || defined(BSLS_PLATFORM_OS_HPUX)    \
+    || defined(BSLS_PLATFORM_OS_CYGWIN)  \
+    || defined(BSLS_PLATFORM_OS_DARWIN)
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/file.h>
 #include <bsl_c_errno.h>
 
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
     #include <sys/timers.h>       // timespec
     #define BTESO_EVENTMANAGERIMP_POLL_NO_TIMEOUT  NO_TIMEOUT
     #define BTESO_EVENTMANAGERIMP_POLL_INF_TIMEOUT INF_TIMEOUT
-#elif defined(BSLS_PLATFORM__OS_LINUX) ||   \
-      defined(BSLS_PLATFORM__OS_CYGWIN) ||  \
-      defined(BSLS_PLATFORM__OS_DARWIN)
+#elif defined(BSLS_PLATFORM_OS_LINUX) ||   \
+      defined(BSLS_PLATFORM_OS_CYGWIN) ||  \
+      defined(BSLS_PLATFORM_OS_DARWIN)
     #define BTESO_EVENTMANAGERIMP_POLL_NO_TIMEOUT  0
     #define BTESO_EVENTMANAGERIMP_POLL_INF_TIMEOUT -1
 #else
-    #ifdef BSLS_PLATFORM__OS_SOLARIS
+    #ifdef BSLS_PLATFORM_OS_SOLARIS
     #include <sys/stropts.h>      // INFTIM
     #endif
     #define BTESO_EVENTMANAGERIMP_POLL_NO_TIMEOUT  0
@@ -357,7 +357,7 @@ int bteso_DefaultEventManager<bteso_Platform::POLL>::registerSocketEvent(
       case bteso_EventType::BTESO_WRITE:
         BSLS_ASSERT(0 == (eventmask & ~POLLIN));
         eventmask |= POLLOUT;
-//#ifdef BDES_PLATFORM__OS_FREEBSD
+//#ifdef BDES_PLATFORM_OS_FREEBSD
 //        bteso_SocketOptUtil::setOption(socketHandle,
 //                                      bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
 //                                      bteso_SocketOptUtil::BTESO_SENDLOWATER,

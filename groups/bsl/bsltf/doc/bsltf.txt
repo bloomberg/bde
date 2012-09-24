@@ -1,0 +1,84 @@
+ bsltf.txt
+
+@PURPOSE: Provide a set of utilities and types to help with testing.
+
+@MNEMONIC: Basic Standard Library Test Facility (bsltf)
+
+@AUTHOR: Chen He (che2), Raymond Seehei Chiu (schiu49)
+
+@DESCRIPTION: This package mainly provides a set test types and utilities that
+ operates on those types, which can help simplify, particularly for templates,
+ the implementation of test drivers.
+
+ See {'bsltf_templatetestfacility'|DESCRIPTION} for an overview of the
+ facilities in this package and examples of their use.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bsltf' package currently has 14 components having 3 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
+..
+  3. bsltf_testvaluesarray
+
+  2. bsltf_templatetestfacility
+
+  1. bsltf_allocbitwisemoveabletesttype
+     bsltf_alloctesttype
+     bsltf_bitwisemoveabletesttype
+     bsltf_enumeratedtesttype
+     bsltf_nonassignabletesttype
+     bsltf_noncopyconstructibletesttype
+     bsltf_nondefaultconstructibletesttype
+     bsltf_nonequalcomparabletesttype
+     bsltf_nontypicaloverloadstesttype
+     bsltf_simpletesttype
+     bsltf_stdtestallocator
+     bsltf_uniontesttype
+..
+
+/Component Synopsis
+/------------------
+: 'bsltf_allocbitwisemoveabletesttype':
+:      Provide a class that allocates memory and is bitwise-moveable.
+:
+: 'bsltf_alloctesttype':
+:      Provide a class for testing that allocates with 'bslma::Allocator'.
+:
+: 'bsltf_bitwisemoveabletesttype':
+:      Provide a bitwise-moveable test class.
+:
+: 'bsltf_enumeratedtesttype':
+:      Provide an enumerated test type.
+:
+: 'bsltf_nonassignabletesttype':
+:      Provide an attribute class to which can not be assigned.
+:
+: 'bsltf_noncopyconstructibletesttype':
+:      Provide an attribute class that is not copy constructable.
+:
+: 'bsltf_nondefaultconstructibletesttype':
+:      Provide an attribute class that is not default constructible.
+:
+: 'bsltf_nonequalcomparabletesttype':
+:      Provide an attribute class that is not equal comparable.
+:
+: 'bsltf_nontypicaloverloadstesttype':
+:      Provide a class that overloads the non-typical operators.
+:
+: 'bsltf_simpletesttype':
+:      Provide a non-allocating test class without type traits.
+:
+: 'bsltf_stdtestallocator':
+:      Provide a minimal standard compliant allocator  .
+:
+: 'bsltf_templatetestfacility':
+:      Provide utilities to help with testing templates.
+:
+: 'bsltf_testvaluesarray':
+:      Provide a container for values used for testing.
+:
+: 'bsltf_uniontesttype':
+:      Provide an union test type.
+

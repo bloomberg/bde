@@ -91,8 +91,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLSEQUENCE
-#include <bslalg_typetraitsgroupstlsequence.h>
+#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLSEQUENCECONTAINER
+#include <bslstl_traitsgroupstlsequencecontainer.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ANYTYPE
@@ -144,6 +144,11 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_ISTREAM
 #endif
 
+#ifndef INCLUDED_LIMITS
+#include <limits>
+#define INCLUDED_LIMITS
+#endif
+
 #ifndef INCLUDED_OSTREAM
 #include <ostream>  // for 'std::basic_ostream', 'sentry'
 #define INCLUDED_OSTREAM
@@ -173,7 +178,7 @@ BSL_OVERRIDES_STD mode"
 
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 // For transitive includes.  This is not placed in 'bsl+stdhdrs' because it
 // causes a cycle within the native standard headers.
@@ -202,7 +207,7 @@ BSL_OVERRIDES_STD mode"
 
 #endif
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bsl {
 
@@ -210,7 +215,7 @@ namespace bsl {
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 class basic_string;
 
-#if defined(BSLS_PLATFORM__CMP_SUN) || defined(BSLS_PLATFORM__CMP_HP)
+#if defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_HP)
 template <class ORIGINAL_TRAITS>
 class String_Traits {
     // Workaround for Sun's 'char_traits::find' returning incorrect results for
@@ -446,12 +451,13 @@ class basic_string
     // C++ (2003).  Note that the parameterized 'CHAR_TYPE' must be *equal* to
     // 'ALLOCATOR::value_type'.  In addition, this implementation offers strong
     // exception guarantees (see below), with the general rules that:
-    //..
-    //   (1) any method that would result in a string of length larger than the
-    //       size returned by 'max_size' throws 'std::length_error', and
-    //   (2) any method that attempts to access a position outside the valid
-    //       range of a string throws 'std::out_of_range'.
-    //..
+    //
+    //: 1 any method that would result in a string of length larger than the
+    //:   size returned by 'max_size' throws 'std::length_error', and
+    //:
+    //: 2 any method that attempts to access a position outside the valid range
+    //:   of a string throws 'std::out_of_range'.
+    //
     // Circumstances where a method throws 'bsl::length_error' (1) are clear
     // and not repeated in the individual function-level documentations below.
     //
@@ -724,8 +730,9 @@ class basic_string
 
   public:
     // TRAITS
-    typedef BloombergLP::bslalg::
-            TypeTraitsGroupStlSequence<CHAR_TYPE, ALLOCATOR> StringTypeTraits;
+    typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<
+                                                   CHAR_TYPE,
+                                                   ALLOCATOR> StringTypeTraits;
 
     BSLALG_DECLARE_NESTED_TRAITS(basic_string, StringTypeTraits);
         // Declare nested type traits for this class.  This class is bitwise
@@ -3265,7 +3272,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
     return begin() + pos;
 }
 
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
     // Sun CC compiler doesn't like that 'iterator' return type of 'insert'
     // method with an additional 'INPUT_ITER' template parameter depends on
     // template parameters of the primary template class 'basic_string'.
@@ -4776,12 +4783,12 @@ operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&          os,
         ok = true;
         size_t n = str.size();
         size_t padLen = 0;
-        const bool left = (os.flags() & Ostrm::left) != 0;
-        const size_t w = os.width(0);
+        bool left = (os.flags() & Ostrm::left) != 0;
+        std::streamsize w = os.width(0);
         std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>* buf = os.rdbuf();
 
-        if (n < w) {
-            padLen = w - n;
+        if (w > 0 && size_t(w) > n) {
+            padLen = size_t(w) - n;
         }
 
         if (!left) {
@@ -4819,9 +4826,9 @@ operator>>(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
         const _C_type& ctype = std::use_facet<_C_type>(loc);
 
         str.clear();
-        size_t n = is.width(0);
-        if (n == 0) {
-            n = static_cast<size_t>(-1);
+        std::streamsize n = is.width(0);
+        if (n <= 0) {
+            n = std::numeric_limits<std::streamsize>::max();
         }
         else {
             str.reserve(n);

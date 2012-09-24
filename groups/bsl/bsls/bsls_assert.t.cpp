@@ -13,7 +13,7 @@
 #include <cstring>   // 'strcmp'
 #include <iostream>  // 'cout'
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <signal.h>
 #endif
 
@@ -21,7 +21,7 @@
 // access to conforming C++0x compilers.
 //# define BSLS_ASSERT_NORETURN [[noreturn]]
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLS_ASSERT_NORETURN __declspec(noreturn)
 #else
 #   define BSLS_ASSERT_NORETURN
@@ -1803,7 +1803,7 @@ int main(int argc, char *argv[])
         cout << endl << "Manual Testing 'bsls::Assert::failAbort'" << endl
                      << "========================================" << endl;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         sigset_t newset;
         sigaddset(&newset, SIGABRT);
 
@@ -1871,7 +1871,7 @@ int main(int argc, char *argv[])
 #else
         cout << "\nNON-EXCEPTION BUILD" << endl;
 
-  #ifdef BSLS_PLATFORM__OS_UNIX
+  #ifdef BSLS_PLATFORM_OS_UNIX
         sigset_t newset;
         sigaddset(&newset, SIGABRT);
 
@@ -2078,6 +2078,7 @@ int main(int argc, char *argv[])
 namespace
 {
 
+#if defined(BDE_BUILD_TARGET_EXC)
 struct AssertFailed {
     // This struct contains a static function suitable for registration as an
     // assert handler, and provides a distinct "empty" type that may be thrown
@@ -2088,17 +2089,29 @@ struct AssertFailed {
         throw AssertFailed();
     }
 };
-
+#else
+    // Without exception support, we cannot fail an assert-test by throwing
+    // an exception.  The most practical solution is to simply not compile
+    // those tests, so we do not supply an 'AssertFailed' alternative, to be
+    // sure to catch any compile-time use of this structure in exception-free
+    // builds.
+#endif
 }
 
 #undef BSLS_ASSERT_NORETURN
 
 void TestConfigurationMacros()
 {
+
     if (globalVerbose) cout << endl
                             << "CONFIGURATION MACROS" << endl
                             << "====================" << endl;
 
+#if !defined(BDE_BUILD_TARGET_EXC)
+    if (globalVerbose)
+        cout << "\nThis case is not run as it relies on exception support."
+             << endl;
+#else
     if (globalVerbose) cout << "\nWe need to write a running commentary"
                             << endl;
 
@@ -6820,7 +6833,7 @@ void TestConfigurationMacros()
 
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -//
-
+#endif  // defined BDE_BUILD_TARGET_EXC
 }
 // ---------------------------------------------------------------------------
 // NOTICE:

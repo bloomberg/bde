@@ -10,9 +10,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide implementation meta-functions for alignment computation.
 //
 //@CLASSES:
-//  bsls::AlignmentImpCalc: map 'TYPE' parameter to alignment 'VALUE'
+//  bsls::AlignmentImpCalc: 'TYPE' parameter to alignment 'VALUE' map
 //  bsls::AlignmentImpMatch: namespace for overloaded 'match' functions
-//  bsls::AlignmentImpPriorityToType: map 'PRIORITY' parameter to primitive type
+//  bsls::AlignmentImpPriorityToType: 'PRIORITY' param to primitive type map
 //  bsls::AlignmentImpTag: unique type of size 'SIZE' (parameter)
 //
 //@SEE_ALSO: bsls_alignmentfromtype, bsls_alignmenttotype, bsls_alignmentutil
@@ -76,10 +76,136 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// Since this component is not meant to be used directly by client code, a
-// usage example is not provided.  See 'bsls_alignmentfromtype' and
-// 'bsls_alignmenttotype' for examples of how to use the facilities provided by
-// this component.
+// This section illustrates the intended use of this component.
+//
+///Example 1: 'AlignmentImpCalc' Template
+/// - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to write a program that needs to calculate the
+// alignment requirements of both user-defined types and built-in types.
+// Further suppose that the program will run on a platform where the alignment
+// requirement of 'int' is 4 bytes.
+//
+// First, we define a 'struct', 'MyStruct', for which want to determine the
+// alignment requirement:
+//..
+//  struct MyStruct {
+//      char  d_c;
+//      int   d_i;
+//      short d_s;
+//  };
+//..
+// Note that 'int' is the most alignment-demanding type within 'MyStruct'.
+//..
+// Now, we use 'AlignmentImpCalc' to calculate the alignments of two
+// types, 'short' and the 'MyStruct' we just defined:
+//..
+//  enum {
+//      SHORT_ALIGNMENT     = bsls::AlignmentImpCalc<short   >::VALUE,
+//      MY_STRUCT_ALIGNMENT = bsls::AlignmentImpCalc<MyStruct>::VALUE };
+//..
+// Finally, we observe the values of our alignments, we observe that
+// the size of the 2 objects is a multiple of each object's alignment
+// (which is true for all C++ types), and we observe that the size of
+// 'MyStruct' is greater than its alignment.
+//..
+//  assert(2 == SHORT_ALIGNMENT);
+//  assert(4 == MY_STRUCT_ALIGNMENT);
+//
+//  assert(0 == sizeof(short   ) % SHORT_ALIGNMENT);
+//  assert(0 == sizeof(MyStruct) % MY_STRUCT_ALIGNMENT);
+//
+//  assert(sizeof(MyStruct) > MY_STRUCT_ALIGNMENT);
+//..
+///Example 2: Types Supporting 'AlignmentToType'
+///- - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we to be able to determine a fundamental or pointer type that has
+// both its size and alignment requirement equal to the alignment requirement
+// of a specified template parameter type.  We can use the 'AlignmentImpTag'
+// 'struct' template, the overloads of 'AlignmentImpMatch::match' class method,
+// the 'AiignmentImp_Prioirty' template class, and the
+// 'AlignmentImpPrioriityToType' template class to do this calculation.
+//
+// First, we define a class template, 'ConvertAlignmentToType', that provides a
+// 'Type' alias to a fundamental or pointer type that has both its alignment
+// requirement and size equal to the compile-time constant 'ALIGNMENT' 'int'
+// parameter of the template.
+//..
+//  template <int ALIGNMENT>
+//  struct ConvertAlignmentToType {
+//      // This 'struct' provides a 'typedef', 'Type', that aliases a primitive
+//      // type having the specified 'ALIGNMENT' requirement and size.
+//
+//    private:
+//      // PRIVATE TYPES
+//      typedef typename bsls::AlignmentImpMatch::MaxPriority MaxPriority;
+//          // 'MaxPriority' is a typedef to the 'AlignmentImp_Priority'
+//          // template class having the highest permissible priority value.
+//
+//      typedef          bsls::AlignmentImpTag<ALIGNMENT>     Tag;
+//          // 'Tag' provides a typedef to the 'AlignmentImpTag' class
+//          // configured with this 'struct's 'ALIGNMENT' parameter.
+//
+//      enum {
+//          // Compute the priority of the primitive type corresponding to the
+//          // specified 'ALIGNMENT'.  Many 'match' functions are declared, and
+//          // at least one whose alignment and size fields are identical and
+//          // equal to 'ALIGNMENT'.  Of those who match, the first match will
+//          // be the one with the highest priority 'AlignmentImp_Priority'
+//          // arg.
+//
+//          PRIORITY = sizeof(bsls::AlignmentImpMatch::match(Tag(),
+//                                                           Tag(),
+//                                                           MaxPriority()))
+//      };
+//
+//    public:
+//      // TYPES
+//      typedef typename bsls::AlignmentImpPriorityToType<PRIORITY>::Type Type;
+//          // Convert the 'PRIORITY' value we calculated back to a type that
+//          // has the value 'ALIGNMENT' for both its alignment and it's size.
+//  };
+//..
+// Then, we define two user defined types on which we will use
+// 'ConvertAlignmentToType' on:
+//..
+//  struct MyStructA {
+//      short  d_s;
+//      double d_d;
+//      int    d_i;
+//  };
+//
+//  struct MyStructB {
+//      double d_d[20];
+//  };
+//..
+// Here, we calculate alignments for our 3 types with 'AlignmentImpCalc'.
+//..
+//  const int INT_ALIGNMENT = bsls::AlignmentImpCalc<int      >::VALUE;
+//  const int A_ALIGNMENT   = bsls::AlignmentImpCalc<MyStructA>::VALUE;
+//  const int B_ALIGNMENT   = bsls::AlignmentImpCalc<MyStructB>::VALUE;
+//..
+// Now, for each alignment requirement we just calculated, we utilize
+// 'ConvertAlignmentToType' to determine the fundamental or pointer
+// type having both size and alignment requirement equal to the
+// calculated alignment requirement:
+//..
+//  typedef ConvertAlignmentToType<INT_ALIGNMENT>::Type IntAlignType;
+//  typedef ConvertAlignmentToType<A_ALIGNMENT  >::Type ThisAlignType;
+//  typedef ConvertAlignmentToType<B_ALIGNMENT  >::Type ThatAlignType;
+//..
+// Finally, we observe that the alignments of the '*AlignType's are the
+// same as the alignments of the types from which they are derived, and that
+// all the type determined by 'ConvertAlignmentToType' have sizes
+// equal to their alignment requirements:
+//..
+//  assert(INT_ALIGNMENT == bsls::AlignmentImpCalc<IntAlignType >::VALUE);
+//  assert(A_ALIGNMENT   == bsls::AlignmentImpCalc<ThisAlignType>::VALUE);
+//  assert(B_ALIGNMENT   == bsls::AlignmentImpCalc<ThatAlignType>::VALUE);
+//
+//  assert(INT_ALIGNMENT == sizeof(IntAlignType));
+//  assert(A_ALIGNMENT   == sizeof(ThisAlignType));
+//  assert(B_ALIGNMENT   == sizeof(ThatAlignType));
+//..
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
@@ -127,17 +253,15 @@ struct AlignmentImpCalc {
         char d_c;
         TYPE d_aligned;
 
-        // CREATORS
+      private:
+        // NOT IMPLEMENTED
+        AlignmentCalc();
         AlignmentCalc(const AlignmentCalc&);
-            // The compiler will generate both a default constructor and a copy
-            // constructor if no constructors are explicitly provided.  The
-            // compiler-generated constructors will, in turn, invoke the
-            // default constructor and copy constructor for 'TYPE'.  If 'TYPE'
-            // does not have 'public' default and copy constructors, some
-            // compilers may produce diagnostics.  By declaring (but not
-            // defining) a copy constructor, we prevent the compiler from
-            // generating either constructor and, therefore, suppress
-            // diagnostics.
+        ~AlignmentCalc();
+            // Prevent the compiler from automatically generating
+            // default & copy constructors and destructor, as this could cause
+            // problems if 'TYPE' has constructors / destructor that are
+            // private or unimplmented.
     };
 
   public:
@@ -152,6 +276,20 @@ struct AlignmentImpCalc {
         // Alias for the unique type for each alignment value.
 };
 
+                // ===================================
+                // struct AlignmentImp8ByteAlignedType
+                // ===================================
+
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+struct AlignmentImp8ByteAlignedType {
+    // On Linux x86, no natural type is aligned on an 8-byte boundary, but we
+    // need such a type to implement low-level constructs (e.g., 64-bit atomic
+    // types).
+
+    long long d_dummy __attribute__((__aligned__(8)));
+};
+#endif
+
                 // =================================
                 // struct AlignmentImpPriorityToType
                 // =================================
@@ -161,25 +299,6 @@ struct AlignmentImpPriorityToType {
     // Specializations of this 'struct' provide a primitive type (as a 'Type'
     // 'typedef') that corresponds to the specified 'PRIORITY' level.
 };
-
-}  // close package namespace
-
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
-
-namespace bsls {
-
-// On Linux x86, no natural type is aligned on an 8-byte boundary, but we need
-// such a type to implement low-level constructs (e.g., 64-bit atomic types).
-
-struct AlignmentImp8ByteAlignedType {
-    long long d_dummy __attribute__((__aligned__(8)));
-};
-
-}  // close package namespace
-
-#endif
-
-namespace bsls {
 
 template <>
 struct AlignmentImpPriorityToType< 1> {
@@ -241,22 +360,12 @@ struct AlignmentImpPriorityToType<12> {
     typedef char        Type;
 };
 
-}  // close package namespace
-
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
-
-namespace bsls {
-
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
 template <>
 struct AlignmentImpPriorityToType<13> {
     typedef AlignmentImp8ByteAlignedType Type;
 };
-
-}  // close package namespace
-
 #endif
-
-namespace bsls {
 
                 // ============================
                 // struct AlignmentImp_Priority
@@ -279,11 +388,6 @@ struct AlignmentImp_Priority<1> {
 
 }  // close package namespace
 
-#define BSLS_ALIGNMENTIMP_MATCH_FUNC(T, P)                                  \
-    static bsls::AlignmentImpTag<P> match(bsls::AlignmentImpCalc<T>::Tag,   \
-                                          bsls::AlignmentImpTag<sizeof(T)>, \
-                                          bsls::AlignmentImp_Priority<P>)
-
 namespace bsls {
 
     // Declare a 'match' function that is overloaded based on the alignment and
@@ -303,20 +407,32 @@ struct AlignmentImpMatch {
     // Namespace for a set of overloaded 'match' functions, as defined by the
     // macro 'BSLS_ALIGNMENTIMP_MATCH_FUNC'.
 
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(long double,                         1);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(double,                              2);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(float,                               3);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(void (*)(),                          4);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(void *,                              5);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(wchar_t,                             6);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(bool,                                7);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(long long,                           8);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(long,                                9);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(int,                                10);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(short,                              11);
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(char,                               12);
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
-    BSLS_ALIGNMENTIMP_MATCH_FUNC(AlignmentImp8ByteAlignedType,       13);
+#   define BSLS_ALIGNMENTIMP_MATCH_FUNC(T, P)                               \
+           bsls::AlignmentImpTag<P> match(bsls::AlignmentImpCalc<T>::Tag,   \
+                                          bsls::AlignmentImpTag<sizeof(T)>, \
+                                          bsls::AlignmentImp_Priority<P>)
+
+    // CLASS METHODS
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(long double,                        1);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(double,                             2);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(float,                              3);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(void (*)(),                         4);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(void *,                             5);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(wchar_t,                            6);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(bool,                               7);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(long long,                          8);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(long,                               9);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(int,                               10);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(short,                             11);
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(char,                              12);
+        // This function will match a type with the size and alignment the size
+        // of the type of the first macro argument, and return an object whose
+        // size is the 2nd argument of the macro.
+
+# if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+        // This type only exists, and is only needed, on Linux
+
+    static BSLS_ALIGNMENTIMP_MATCH_FUNC(AlignmentImp8ByteAlignedType,      13);
 #endif
 
     typedef AlignmentImp_Priority<13> MaxPriority;
@@ -326,11 +442,12 @@ struct AlignmentImpMatch {
 
 #undef BSLS_ALIGNMENTIMP_MATCH_FUNC
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
 typedef bsls::AlignmentImp8ByteAlignedType bsls_AlignmentImp8ByteAlignedType;
     // This alias is defined for backward compatibility.
 #endif
@@ -355,6 +472,7 @@ typedef bsls::AlignmentImpMatch bsls_AlignmentImpMatch;
 #endif
 #define bsls_AlignmentImpCalc bsls::AlignmentImpCalc
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

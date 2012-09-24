@@ -1142,7 +1142,7 @@ int main(int argc, char *argv[])
 
         const char VA[] = "A";
 
-#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
         // Specifying larger number of iterations causes these platforms to
         // take a really long time to complete the test.
 
