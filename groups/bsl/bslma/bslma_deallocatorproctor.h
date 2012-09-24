@@ -365,6 +365,7 @@ void DeallocatorProctor<ALLOCATOR>::reset(void *memory)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -374,6 +375,7 @@ void DeallocatorProctor<ALLOCATOR>::reset(void *memory)
 #endif
 #define bslma_DeallocatorProctor bslma::DeallocatorProctor
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

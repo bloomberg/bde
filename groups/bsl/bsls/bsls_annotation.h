@@ -11,6 +11,21 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //
+//@MACROS:
+//  BSLS_ANNOTATION_ALLOC_SIZE(x): optimize when returning memory
+//  BSLS_ANNOTATION_ALLOC_SIZE_MUL(x, y): optimize when returning memory
+//  BSLS_ANNOTATION_ERROR("msg"): emit error message and fail compilation
+//  BSLS_ANNOTATION_WARNING("msg"): emit warning message during compilation
+//  BSLS_ANNOTATION_PRINTF(s, n): validate 'printf' format and arguments
+//  BSLS_ANNOTATION_SCANF(s, n): validate 'scanf' format and arguments
+//  BSLS_ANNOTATION_FORMAT(n): validate 'printf' format in 'n'th argument
+//  BSLS_ANNOTATION_ARG_NON_NULL(...): warn if listed arguments are NULL
+//  BSLS_ANNOTATION_ARGS_NON_NULL: warn if any arguments are NULL
+//  BSLS_ANNOTATION_NULL_TERMINATED: warn if last argument is non-NULL
+//  BSLS_ANNOTATION_NULL_TERMINATED_AT(x): warn if argument at 'x' is non-NULL
+//  BSLS_ANNOTATION_WARN_UNUSED_RESULT: warn if annotated function result used
+//  BSLS_ANNOTATION_DEPRECATED: warn if annotated entity is used
+//
 //@AUTHOR: Andrew Paprocki (apaprock)
 //
 //@DESCRIPTION: This component provides a suite of preprocessor macros that
@@ -19,9 +34,9 @@ BSLS_IDENT("$Id: $")
 // specific compile-time safety checks.
 //
 // For the most part, these compile-time annotations are supported only when
-// the 'BSLS_PLATFORM__CMP_GNU' preprocessor macro is defined.  Other compilers
+// the 'BSLS_PLATFORM_CMP_GNU' preprocessor macro is defined.  Other compilers
 // may implement a few annotations, but the macros should be expected to work
-// only with compilers for which 'BSLS_PLATFORM__CMP_GNU' is defined.
+// only with compilers for which 'BSLS_PLATFORM_CMP_GNU' is defined.
 //
 ///Function Annotations
 ///--------------------
@@ -36,7 +51,7 @@ BSLS_IDENT("$Id: $")
 // size (in bytes) is given by one or two of the function parameters.  Certain
 // compilers use this information to improve the correctness of built-in
 // object-size functions (e.g., '__builtin_object_size' with
-// 'BSLS_PLATFORM__CMP_GNU').
+// 'BSLS_PLATFORM_CMP_GNU').
 //
 // The function parameter(s) denoting the size of the block are specified by
 // one or two integer arguments supplied to the macro.  The allocated size (in
@@ -172,7 +187,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU)
     #define BSLS_ANNOTATION_UNUSED     __attribute__((__unused__))
     #define BSLS_ANNOTATION_ERROR(x)   __attribute__((__error__(x)))
     #define BSLS_ANNOTATION_WARNING(x) __attribute__((__warning__(x)))
@@ -182,7 +197,7 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_WARNING(x)
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300
     #define BSLS_ANNOTATION_ALLOC_SIZE(x) __attribute__((__alloc_size__(x)))
     #define BSLS_ANNOTATION_ALLOC_SIZE_MUL(x, y) \
                                           __attribute__((__alloc_size__(x, y)))
@@ -191,7 +206,7 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_ALLOC_SIZE_MUL(x, y)
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 30300
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 30300
     #define BSLS_ANNOTATION_ARG_NON_NULL(...) \
                                       __attribute__((__nonnull__(__VA_ARGS__)))
     #define BSLS_ANNOTATION_ARGS_NON_NULL     \
@@ -201,19 +216,19 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_ARGS_NON_NULL
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 30100
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 30100
     #define BSLS_ANNOTATION_DEPRECATED __attribute__((__deprecated__))
 #else
     #define BSLS_ANNOTATION_DEPRECATED
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_GNU) || defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_IBM)
     #define BSLS_ANNOTATION_FORMAT(arg) __attribute__((format_arg(arg)))
 #else
     #define BSLS_ANNOTATION_FORMAT(arg)
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40000
     #define BSLS_ANNOTATION_NULL_TERMINATED __attribute__((__sentinel__))
     #define BSLS_ANNOTATION_NULL_TERMINATED_AT(x) \
                                             __attribute__((__sentinel__(x)))
@@ -222,9 +237,9 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_NULL_TERMINATED_AT(x)
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_GNU) || \
-    defined(BSLS_PLATFORM__CMP_HP)  || \
-    defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_GNU) || \
+    defined(BSLS_PLATFORM_CMP_HP)  || \
+    defined(BSLS_PLATFORM_CMP_IBM)
     #define BSLS_ANNOTATION_PRINTF(fmt, arg) \
                                       __attribute__((format(printf, fmt, arg)))
     #define BSLS_ANNOTATION_SCANF(fmt, arg) \
@@ -234,7 +249,7 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_SCANF(fmt, arg)
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 30400
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 30400
     #define BSLS_ANNOTATION_WARN_UNUSED_RESULT \
                                             __attribute__((warn_unused_result))
 #else

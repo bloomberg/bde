@@ -437,7 +437,7 @@ DEFINE_TEST_CASE(16) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS,
                          28+PARAMS == NUM_DFLT_ALLOCS);
@@ -473,7 +473,7 @@ DEFINE_TEST_CASE(16) {
                                       - NUM_DFLT_ALLOCS_BEFORE;
             const int NUM_ALLOCS = Z1->numAllocations() - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS,
                          28+3*PARAMS == NUM_DFLT_ALLOCS);
@@ -631,7 +631,7 @@ DEFINE_TEST_CASE(15) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 2*PARAMS== NUM_DFLT_ALLOCS);
 #endif
@@ -789,7 +789,7 @@ DEFINE_TEST_CASE(14) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 2*PARAMS== NUM_DFLT_ALLOCS);
 #endif
@@ -935,7 +935,7 @@ DEFINE_TEST_CASE(13) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 2*PARAMS== NUM_DFLT_ALLOCS);
 #endif
@@ -1094,7 +1094,7 @@ DEFINE_TEST_CASE(12) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 2*PARAMS== NUM_DFLT_ALLOCS);
 #endif
@@ -1232,7 +1232,7 @@ DEFINE_TEST_CASE(11) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 14 == NUM_DFLT_ALLOCS);
 #endif
@@ -1276,7 +1276,7 @@ DEFINE_TEST_CASE(11) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 14 == NUM_DFLT_ALLOCS);
 #endif
@@ -1490,7 +1490,7 @@ DEFINE_TEST_CASE(10) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
 #endif
@@ -1705,7 +1705,7 @@ DEFINE_TEST_CASE(9) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
 #endif
@@ -1902,7 +1902,7 @@ DEFINE_TEST_CASE(8) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
 #endif
@@ -2115,7 +2115,7 @@ DEFINE_TEST_CASE(7) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
 #endif
@@ -2242,7 +2242,7 @@ DEFINE_TEST_CASE(6) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS,
                          28+PARAMS == NUM_DFLT_ALLOCS);
@@ -2278,7 +2278,7 @@ DEFINE_TEST_CASE(6) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS,
                          28+3*PARAMS == NUM_DFLT_ALLOCS);
@@ -2429,7 +2429,7 @@ DEFINE_TEST_CASE(5) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 2*PARAMS== NUM_DFLT_ALLOCS);
 #endif
@@ -2582,7 +2582,7 @@ DEFINE_TEST_CASE(4) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 2*PARAMS== NUM_DFLT_ALLOCS);
 #endif
@@ -2724,7 +2724,7 @@ DEFINE_TEST_CASE(3) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 2*PARAMS== NUM_DFLT_ALLOCS);
 #endif
@@ -2878,7 +2878,7 @@ DEFINE_TEST_CASE(2) {
             const int NUM_ALLOCS      = Z1->numAllocations()
                                       - NUM_ALLOCS_BEFORE;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 2*PARAMS== NUM_DFLT_ALLOCS);
 #endif

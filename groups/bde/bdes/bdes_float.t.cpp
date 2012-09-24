@@ -8,7 +8,7 @@
 #include <bsl_cstring.h>
 #include <bsl_cfloat.h>
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 // xlC 8 has a more-or-less C99-compliant math library that we can
 // use for more thorough testing.
 #include <bsl_c_math.h>
@@ -137,10 +137,10 @@ typedef bdes_Float Obj;
 // Some platforms do not support signaling NaNs, especially for
 // single-precision floats, and will convert SNaNs to QNaNs during argument
 // passing.
-#if defined(BSLS_PLATFORM__CPU_POWERPC)
+#if defined(BSLS_PLATFORM_CPU_POWERPC)
 const bool hasFSNan = false;
 const bool hasDSNan = true;
-#elif defined(BSLS_PLATFORM__CPU_X86)
+#elif defined(BSLS_PLATFORM_CPU_X86)
 const bool hasFSNan = false;
 const bool hasDSNan = false;
 #else
@@ -456,8 +456,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_FDATA; ++i) {
             int   LINE           = FDATA[i].d_line;
 
-#if ( defined(BSLS_PLATFORM__CPU_X86_64) || defined(BSLS_PLATFORM__CPU_X86) ) \
-    && defined(BSLS_PLATFORM__CMP_GNU) && defined(BDE_BUILD_TARGET_OPT)
+#if ( defined(BSLS_PLATFORM_CPU_X86_64) || defined(BSLS_PLATFORM_CPU_X86) ) \
+    && defined(BSLS_PLATFORM_CMP_GNU) && defined(BDE_BUILD_TARGET_OPT)
             // This is necessary because on linux when building 64-bit
             // optimized with gcc 4.3.5 (at least) some tests will incorrectly
             // fail if 'input' is not 'volatile'.  This probably forces a
@@ -568,8 +568,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DDATA; ++i) {
             int    LINE           = DDATA[i].d_line;
 
-#if ( defined(BSLS_PLATFORM__CPU_X86_64) || defined(BSLS_PLATFORM__CPU_X86) ) \
-    && defined(BSLS_PLATFORM__CMP_GNU) && defined(BDE_BUILD_TARGET_OPT)
+#if ( defined(BSLS_PLATFORM_CPU_X86_64) || defined(BSLS_PLATFORM_CPU_X86) ) \
+    && defined(BSLS_PLATFORM_CMP_GNU) && defined(BDE_BUILD_TARGET_OPT)
             // This is necessary because on linux when building 64-bit
             // optimized with gcc 4.3.5 (at least) some 'float' tests will
             // incorrectly fail if 'input' is not 'volatile'.  The problem does
@@ -739,7 +739,7 @@ int main(int argc, char *argv[])
         ASSERT(! Obj::isSignalingNan(-f));
         ASSERT(! Obj::isSignalingNan(-d));
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
         // Extra testing to ensure consistency with native C math library
         ASSERT(  isinf(finf));
         ASSERT(  isinf(dinf));

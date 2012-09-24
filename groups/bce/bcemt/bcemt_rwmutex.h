@@ -43,13 +43,13 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#if defined(BCES_PLATFORM__WIN32_THREADS) || defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BCES_PLATFORM_WIN32_THREADS) || defined(BSLS_PLATFORM_OS_AIX)
 #ifndef INCLUDED_BCEMT_READERWRITERLOCK
 #include <bcemt_readerwriterlock.h>
 #endif
 #endif
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
 #ifndef INCLUDED_PTHREAD
 #include <pthread.h>
 #define INCLUDED_PTHREAD
@@ -61,7 +61,7 @@ namespace BloombergLP {
 template <typename THREAD_POLICY>
 struct bcemt_RWMutexImpl;
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
 
                    // ======================================
                    // struct bcemt_RWMutexImpl<PosixThreads>
@@ -91,7 +91,7 @@ struct bcemt_RWMutexImpl<bces_Platform::PosixThreads> {
     void unlock();
 };
 
-#endif  // BCES_PLATFORM__POSIX_THREADS
+#endif  // BCES_PLATFORM_POSIX_THREADS
 
                              // ===================
                              // class bcemt_RWMutex
@@ -107,7 +107,7 @@ class bcemt_RWMutex {
     // continuously acquiring the shared lock.
 
     // DATA
-#if defined(BSLS_PLATFORM__OS_AIX) || defined(BCES_PLATFORM__WIN32_THREADS)
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BCES_PLATFORM_WIN32_THREADS)
     bcemt_ReaderWriterLock d_impl;
 #else
     bcemt_RWMutexImpl<bces_Platform::ThreadPolicy> d_impl;
@@ -161,7 +161,7 @@ class bcemt_RWMutex {
         // lock on this RW mutex.
 };
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
 
                           // ------------------------
                           // struct bcemt_RWMutexImpl
@@ -222,7 +222,7 @@ bcemt_RWMutexImpl<bces_Platform::PosixThreads>::unlock()
     pthread_rwlock_unlock(&d_lock);
 }
 
-#endif  // BCES_PLATFORM__POSIX_THREADS
+#endif  // BCES_PLATFORM_POSIX_THREADS
 
                              // -------------------
                              // class bcemt_RWMutex

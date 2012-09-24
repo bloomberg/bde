@@ -136,7 +136,7 @@ void run_test (charT, const char *tname)
             first_non_c = s;
     }
 
-#if !defined(BSLS_PLATFORM__CMP_SUN) && !defined(BSLS_PLATFORM__CMP_AIX)
+#if !defined(BSLS_PLATFORM_CMP_SUN) && !defined(BSLS_PLATFORM_CMP_AIX)
     // Note that there's no non-C locale implemented in stlport for SUN and AIX
 
     // verify that numpunct behaves correctly when LC_ALL is set

@@ -1188,18 +1188,18 @@ void test_limits (FloatT, const char *tname, const char *fmt)
 
 #  if !defined (__EDG__) || __EDG_VERSION__ > 245
 
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
 
 #    define CHECK_CONST(const_int)   \
          enum { e = const_int };
 
-#else  // BSLS_PLATFORM__CMP_SUN
+#else  // BSLS_PLATFORM_CMP_SUN
 
 #    define CHECK_CONST(const_int)   \
          enum { e = const_int };     \
          (void)&const_int
 
-#endif  // BSLS_PLATFORM__CMP_SUN
+#endif  // BSLS_PLATFORM_CMP_SUN
 
 #  else   // if EDG eccp < 3.0
     // working around an EDG eccp 2.4x ICE (not in 3.0)

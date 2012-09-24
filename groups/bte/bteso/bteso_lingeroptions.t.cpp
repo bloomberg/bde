@@ -23,7 +23,7 @@
 #include <bsls_platform.h>
 #include <bteso_platform.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <sys/socket.h>
 #else
 #include <windows.h>
@@ -227,7 +227,7 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //
 // First, we define a cross-platform compatible typedef for a socket handle:
 //..
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
         typedef SOCKET Handle;
     #else
         typedef int Handle;
@@ -243,7 +243,7 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 // Next, we define a 'typedef' for the 'struct' needed to set the linger
 // options:
 //..
-    #if defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BSLS_PLATFORM__OS_CYGWIN)
+    #if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
         typedef LINGER LingerData;
     #else
         typedef linger LingerData;
@@ -258,7 +258,7 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //..
 // Next, we configure the linger options for the socket:
 //..
-    #if defined(BSLS_PLATFORM__OS_WINDOWS)
+    #if defined(BSLS_PLATFORM_OS_WINDOWS)
         return ::setsockopt(handle,
                             SOL_SOCKET,
                             SO_LINGER,

@@ -7,7 +7,7 @@
 #include <bteso_lingeroptions.h>
 #include <bteso_ipv4address.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strcmp()
 #include <bsl_c_sys_time.h>
@@ -564,7 +564,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == result);
             ASSERT(0 == errorcode);
 
-            #ifdef BSLS_PLATFORM__OS_WINDOWS
+            #ifdef BSLS_PLATFORM_OS_WINDOWS
             /*
             WSAPROTOCOL_INFO protoInfo;
             memset(&ProtoInfo,0,sizeof(ProtoInfo));
@@ -612,13 +612,13 @@ int main(int argc, char *argv[])
                   // ----   ----  ---
                   {   L_,   "GN",         0, 0 },
 
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
                   {   L_,   "GY",        -1, -1 },
 #else
                   {   L_,   "GY",         0,  0 },
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
                   {   L_,   "HN",        -1, 0 },
                   {   L_,   "HY",        -1, 0 },
 #else
@@ -628,12 +628,12 @@ int main(int argc, char *argv[])
                   {   L_,   "IN",         0, 0 },
                   {   L_,   "IY",         0, 0 },
 
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
 // TBD on AIX setting this option succeeds for BTESO_SOCKET_DATAGRAM
 //                   {   L_,   "JN",        -1 }, //*
 //                   {   L_,   "JY",        -1 }, //*
 // #else
-# ifdef BSLS_PLATFORM__OS_WINDOWS
+# ifdef BSLS_PLATFORM_OS_WINDOWS
                   {   L_,   "JN",         0, -1 },
                   {   L_,   "JY",         0, -1 },
 # else
@@ -644,7 +644,7 @@ int main(int argc, char *argv[])
                   {   L_,   "KN",         0, 0 },
                   {   L_,   "KY",         0, 0 },
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_HPUX)
                   {   L_,   "LN",         0, -1 },
                   {   L_,   "LY",         0, -1 },
 #else
@@ -652,7 +652,7 @@ int main(int argc, char *argv[])
                   {   L_,   "LY",         0, 0 },
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
                   {   L_,   "GNHN",      -1, 0 },
                   {   L_,   "GNHYIN",    -1, 0 },
                   {   L_,   "GNHYIYKY",  -1, 0 },
@@ -718,8 +718,8 @@ int main(int argc, char *argv[])
               {   L_,   "B1",         0, 0 },
               {   L_,   "B2",         0, 0 },
 
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_LINUX) &&\
-    !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_LINUX) &&\
+    !defined(BSLS_PLATFORM_OS_WINDOWS)
               // Cannot be changed on Linux and not specified on Sun
 
               {   L_,   "C0",         0, 0 },
@@ -731,7 +731,7 @@ int main(int argc, char *argv[])
               {   L_,   "C2",        -1, -1 },
 #endif
 
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_WINDOWS)
               {   L_,   "D0",         0, 0 },
               {   L_,   "D1",         0, 0 },
               {   L_,   "D2",         0, 0 },
@@ -741,7 +741,7 @@ int main(int argc, char *argv[])
               {   L_,   "D2",        -1, -1 },
 #endif
 
-#ifndef BSLS_PLATFORM__OS_HPUX
+#ifndef BSLS_PLATFORM_OS_HPUX
 // TBD on HPUX setting this option succeeds but the timeout value is not what
 // was specified.
 //               {   L_,   "E0",         0, 0 },
@@ -752,7 +752,7 @@ int main(int argc, char *argv[])
 //               {   L_,   "F1",         0, 0 },
 //               {   L_,   "F2",         0, 0 },
 // #else
-# ifdef BSLS_PLATFORM__OS_WINDOWS
+# ifdef BSLS_PLATFORM_OS_WINDOWS
               {   L_,   "E0",        0, 0 },
               {   L_,   "E1",        0, 0 },
               {   L_,   "E2",        0, 0 },
@@ -771,14 +771,14 @@ int main(int argc, char *argv[])
 # endif
 #endif
 
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
               // Works only on IBM.  On other platforms although the return
               // code is 0, the timeout is not set correctly.
 
               {   L_,   "MN1",       0, 0 },
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
               {   L_,   "MY2",       0, -1 },
               {   L_,   "A1B2MY2",   0, -1 },
 #else
@@ -854,7 +854,7 @@ int main(int argc, char *argv[])
                               << "\nNon-listed protocol level and options"
                               << endl;
 
-            #ifdef BSLS_PLATFORM__OS_UNIX
+            #ifdef BSLS_PLATFORM_OS_UNIX
             bteso_SocketImpUtil::Type udp;
             udp = bteso_SocketImpUtil::BTESO_SOCKET_DATAGRAM;
 
@@ -869,19 +869,19 @@ int main(int argc, char *argv[])
               //line   type        opt       onVal  offVal   sockLevel
               //----   ----        ---       -----  ------   ---------
             {
-              #if defined(BSLS_PLATFORM__OS_LINUX)
+              #if defined(BSLS_PLATFORM_OS_LINUX)
               // IP_RECVDSTADDR is not supported on Linux
               // IP_PKTINFO does the job
               { L_,     udp,  IP_PKTINFO,       12,      0, IPPROTO_IP }
-              #elif defined(BSLS_PLATFORM__OS_CYGWIN) || \
-                    defined(BSLS_PLATFORM__OS_HPUX)
+              #elif defined(BSLS_PLATFORM_OS_CYGWIN) || \
+                    defined(BSLS_PLATFORM_OS_HPUX)
               { L_,     udp,  IP_TTL,           12,      0, IPPROTO_IP }
               #else
               { L_,     udp,  IP_RECVDSTADDR,   12,      0, IPPROTO_IP },
               #endif
             };
 
-            #elif defined BSLS_PLATFORM__OS_WINDOWS
+            #elif defined BSLS_PLATFORM_OS_WINDOWS
             bteso_SocketImpUtil::Type udp, tcp;
             udp = bteso_SocketImpUtil::BTESO_SOCKET_DATAGRAM;
             tcp = bteso_SocketImpUtil::BTESO_SOCKET_STREAM;
@@ -928,30 +928,30 @@ int main(int argc, char *argv[])
                          << endl;
                 {
 
-                    #ifdef BSLS_PLATFORM__OS_WINDOWS
+                    #ifdef BSLS_PLATFORM_OS_WINDOWS
                     int optsize = sizeof(optResult);
                     result = getsockopt(serverSocket[i],
                                   SOCK_OPTS[i].sockLevel,
                                   SOCK_OPTS[i].opt,
                                   (char*)&optResult, &optsize);
                     #else
-                    #ifdef BSLS_PLATFORM__OS_AIX
-                      #ifdef BSLS_PLATFORM__CPU_32_BIT
+                    #ifdef BSLS_PLATFORM_OS_AIX
+                      #ifdef BSLS_PLATFORM_CPU_32_BIT
                            unsigned long optsize = sizeof(optResult);
                       #else
                            unsigned int optsize = sizeof(optResult);
                       #endif
                     #endif
-                    #if defined(BSLS_PLATFORM__OS_HPUX)
+                    #if defined(BSLS_PLATFORM_OS_HPUX)
                         int optsize = sizeof(optResult);
                     #endif
-                    #if defined(BSLS_PLATFORM__OS_SOLARIS)
+                    #if defined(BSLS_PLATFORM_OS_SOLARIS)
                         unsigned int optsize = sizeof(optResult);
                     #endif
-                   #if    defined(BSLS_PLATFORM__OS_LINUX) \
-                       || defined(BSLS_PLATFORM__OS_CYGWIN) \
-                       || defined(BSLS_PLATFORM__OS_DARWIN) \
-                       || defined(BDES_PLATFORM__OS_FREEBSD)
+                   #if    defined(BSLS_PLATFORM_OS_LINUX) \
+                       || defined(BSLS_PLATFORM_OS_CYGWIN) \
+                       || defined(BSLS_PLATFORM_OS_DARWIN) \
+                       || defined(BDES_PLATFORM_OS_FREEBSD)
                         socklen_t optsize = sizeof(optResult);
                    #endif
 
@@ -1029,7 +1029,7 @@ int main(int argc, char *argv[])
                               << "\nSOL_SOCKET & TCPLEVEL OPTIONS Not Listed"
                               << endl;
 
-            #ifdef BSLS_PLATFORM__OS_UNIX
+            #ifdef BSLS_PLATFORM_OS_UNIX
             struct {
               int                       d_lineNum;
               bteso_SocketImpUtil::Type type;
@@ -1041,11 +1041,11 @@ int main(int argc, char *argv[])
               //line  type       opt        onVal   offVal   sockLevel
               //----  ----       ---        -----   ------   ---------
             {
-              #ifdef BSLS_PLATFORM__OS_LINUX
+              #ifdef BSLS_PLATFORM_OS_LINUX
               // SO_USELOOPBACK does not exist on Linux
               { L_,    tcp,  SO_KEEPALIVE,     64,       0,   SO_LEVEL },
               { L_,    udp,  SO_KEEPALIVE,     64,       0,   SO_LEVEL },
-              #elif defined(BSLS_PLATFORM__OS_CYGWIN)
+              #elif defined(BSLS_PLATFORM_OS_CYGWIN)
               // SO_USELOOPBACK does not exist on Cygwin
               { L_,    tcp,  SO_DEBUG,          1,       0,   SO_LEVEL },
               { L_,    udp,  SO_DEBUG,          1,       0,   SO_LEVEL },
@@ -1056,7 +1056,7 @@ int main(int argc, char *argv[])
               //{ L_,    udp, SO_DGRAM_ERRIND,   64,       0,   SO_LEVEL }
             };
 
-            #elif defined BSLS_PLATFORM__OS_WINDOWS
+            #elif defined BSLS_PLATFORM_OS_WINDOWS
                struct {
                  int                       d_lineNum;
                  bteso_SocketImpUtil::Type type;
@@ -1100,30 +1100,30 @@ int main(int argc, char *argv[])
                     cout << "Use system getsockopt() to get opt info."
                          << endl;
                 {
-                    #ifdef BSLS_PLATFORM__OS_WINDOWS
+                    #ifdef BSLS_PLATFORM_OS_WINDOWS
                     int optsize = sizeof(optResult);
                     result = getsockopt(serverSocket[i],
                                   SOCK_OPTS[i].sockLevel,
                                   SOCK_OPTS[i].opt,
                                   (char*)&optResult, &optsize);
                     #else
-                    #ifdef BSLS_PLATFORM__OS_AIX
-                      #ifdef BSLS_PLATFORM__CPU_32_BIT
+                    #ifdef BSLS_PLATFORM_OS_AIX
+                      #ifdef BSLS_PLATFORM_CPU_32_BIT
                            unsigned long optsize = sizeof(optResult);
                       #else
                            unsigned int optsize = sizeof(optResult);
                       #endif
                     #endif
-                    #if defined(BSLS_PLATFORM__OS_HPUX)
+                    #if defined(BSLS_PLATFORM_OS_HPUX)
                         int optsize = sizeof(optResult);
                     #endif
-                    #if defined(BSLS_PLATFORM__OS_SOLARIS)
+                    #if defined(BSLS_PLATFORM_OS_SOLARIS)
                       unsigned int optsize = sizeof(optResult);
                     #endif
-                    #if   defined(BSLS_PLATFORM__OS_LINUX) \
-                       || defined(BSLS_PLATFORM__OS_CYGWIN) \
-                       || defined(BSLS_PLATFORM__OS_DARWIN) \
-                       || defined(BDES_PLATFORM__OS_FREEBSD)
+                    #if   defined(BSLS_PLATFORM_OS_LINUX) \
+                       || defined(BSLS_PLATFORM_OS_CYGWIN) \
+                       || defined(BSLS_PLATFORM_OS_DARWIN) \
+                       || defined(BDES_PLATFORM_OS_FREEBSD)
                         socklen_t optsize = sizeof(optResult);
                     #endif
                     result = getsockopt(serverSocket[i],
@@ -1229,7 +1229,7 @@ int main(int argc, char *argv[])
                 //line              opt              enableVal   disableVal
                 //----              ---              ---------   ----------
                 {
-                  #ifdef BSLS_PLATFORM__OS_LINUX
+                  #ifdef BSLS_PLATFORM_OS_LINUX
                   { L_,  bteso_SocketOptUtil::BTESO_BROADCAST,     1,  0 },
                   #else
                   { L_,  bteso_SocketOptUtil::BTESO_DEBUGINFO,     1,  0 },
@@ -1270,7 +1270,7 @@ int main(int argc, char *argv[])
                             cout << "Use system getsockopt() to get opt info."
                                  << endl;
                         {
-                            #ifdef BSLS_PLATFORM__OS_WINDOWS
+                            #ifdef BSLS_PLATFORM_OS_WINDOWS
                             int optsize = sizeof(optResult);
                             result = getsockopt(
                                         serverSocket[i],
@@ -1279,23 +1279,23 @@ int main(int argc, char *argv[])
                                         (char*)&optResult,
                                         &optsize);
                             #else
-                            #ifdef BSLS_PLATFORM__OS_AIX
-                              #ifdef BSLS_PLATFORM__CPU_32_BIT
+                            #ifdef BSLS_PLATFORM_OS_AIX
+                              #ifdef BSLS_PLATFORM_CPU_32_BIT
                                 unsigned long optsize = sizeof(optResult);
                               #else
                                 unsigned int optsize = sizeof(optResult);
                               #endif
                             #endif
-                            #if defined(BSLS_PLATFORM__OS_HPUX)
+                            #if defined(BSLS_PLATFORM_OS_HPUX)
                                 int optsize = sizeof(optResult);
                             #endif
-                            #if defined(BSLS_PLATFORM__OS_SOLARIS)
+                            #if defined(BSLS_PLATFORM_OS_SOLARIS)
                               unsigned int optsize = sizeof(optResult);
                             #endif
-                            #if   defined(BSLS_PLATFORM__OS_LINUX) \
-                               || defined(BSLS_PLATFORM__OS_CYGWIN) \
-                               || defined(BSLS_PLATFORM__OS_DARWIN) \
-                               || defined(BDES_PLATFORM__OS_FREEBSD)
+                            #if   defined(BSLS_PLATFORM_OS_LINUX) \
+                               || defined(BSLS_PLATFORM_OS_CYGWIN) \
+                               || defined(BSLS_PLATFORM_OS_DARWIN) \
+                               || defined(BDES_PLATFORM_OS_FREEBSD)
                               socklen_t optsize = sizeof(optResult);
                             #endif
                             result = getsockopt(
@@ -1379,8 +1379,8 @@ int main(int argc, char *argv[])
                     }
 
                     // Set linger option: windows doesn't support udp linger.
-                    #if   defined(BSLS_PLATFORM__OS_WINDOWS) \
-                       || defined(BSLS_PLATFORM__OS_CYGWIN)
+                    #if   defined(BSLS_PLATFORM_OS_WINDOWS) \
+                       || defined(BSLS_PLATFORM_OS_CYGWIN)
                         if (i != 0) continue;
                     #endif
                     LingerData ld = {1, 2}, ld2;

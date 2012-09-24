@@ -11,7 +11,7 @@ BDES_IDENT_RCSID(bcemt_timedsemaphoreimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
 
 // Platform-specific implementation starts here.
 
@@ -145,7 +145,7 @@ void bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::wait()
 
 }  // close namespace BloombergLP
 
-#endif  // BCES_PLATFORM__POSIX_THREADS
+#endif  // BCES_PLATFORM_POSIX_THREADS
 
 // ---------------------------------------------------------------------------
 // NOTICE:

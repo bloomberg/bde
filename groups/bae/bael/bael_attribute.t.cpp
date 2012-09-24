@@ -734,7 +734,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
 
-#ifdef BSLS_PLATFORM__OS_SOLARIS
+#ifdef BSLS_PLATFORM_OS_SOLARIS
         struct timespec t1, t2;
         const Int64 oneBillion = 1000000000;
         const int numTrials = 1000000;

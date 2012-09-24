@@ -352,6 +352,7 @@ struct AlignmentFromType {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -361,6 +362,7 @@ struct AlignmentFromType {
 #endif
 #define bsls_AlignmentFromType bsls::AlignmentFromType
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

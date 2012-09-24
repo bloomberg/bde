@@ -457,13 +457,13 @@ class bdex_ByteInStreamRaw {
         // extract a valid value, this stream is marked invalid and the value
         // of 'variable' is undefined.
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
     template <typename TYPE>
     bdex_ByteInStreamRaw& get(TYPE& variable);
         // TBD
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
                         // *** scalar integer values ***
 
@@ -860,7 +860,7 @@ bsl::ostream& operator<<(bsl::ostream&               stream,
     // Write the specified 'object' to the specified output 'stream' in some
     // reasonable (multi-line) format, and return a reference to 'stream'
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename OBJECT>
 inline
@@ -880,7 +880,7 @@ bdex_ByteInStreamRaw& operator>>(bdex_ByteInStreamRaw& stream, OBJECT& object);
     // which case this operator calls the appropriate 'get' method from this
     // component.
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -1328,7 +1328,7 @@ bdex_ByteInStreamRaw& bdex_ByteInStreamRaw::getArrayFloat32(float *array,
     return *this;
 }
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename TYPE>
 inline
@@ -1337,7 +1337,7 @@ bdex_ByteInStreamRaw& bdex_ByteInStreamRaw::get(TYPE& variable)
     return bdex_InStreamMethodsUtil::streamInVersionAndObject(*this, variable);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ACCESSORS
 inline
@@ -1372,7 +1372,7 @@ int bdex_ByteInStreamRaw::cursor() const
 
 // FREE OPERATORS
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename OBJECT>
 inline
@@ -1381,7 +1381,7 @@ bdex_ByteInStreamRaw& operator>>(bdex_ByteInStreamRaw& stream, OBJECT& object)
     return stream.get(object);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 }  // close namespace BloombergLP
 

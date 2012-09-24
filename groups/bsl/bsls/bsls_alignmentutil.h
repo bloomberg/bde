@@ -242,7 +242,7 @@ struct AlignmentUtil {
         float        d_float;
         double       d_double;
         long double  d_longDouble;
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
         AlignmentImp8ByteAlignedType
                      d_8bytesAlignedType;
 #endif
@@ -440,12 +440,14 @@ std::size_t AlignmentUtil::roundUpToMaximalAlignment(std::size_t size)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::AlignmentUtil bsls_AlignmentUtil;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 
