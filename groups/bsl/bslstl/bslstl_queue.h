@@ -203,9 +203,9 @@ namespace bslstl {
 template <class CONTAINER, class ALLOCATOR>
 struct Queue_HasAllocatorType {
     template <typename TYPE>
-    static bslmf_MetaInt<1> match(const typename TYPE::allocator_type *);
+    static bslmf::MetaInt<1> match(const typename TYPE::allocator_type *);
     template <typename TYPE>
-    static bslmf_MetaInt<0> match(...);
+    static bslmf::MetaInt<0> match(...);
 
     enum { VALUE = BSLMF_METAINT_TO_BOOL(match<CONTAINER>(0)) };
 };
@@ -284,7 +284,7 @@ class queue
     template <class ALLOCATOR>
     explicit
     queue(const ALLOCATOR& allocator,
-          typename BloombergLP::bslmf_EnableIf<
+          typename BloombergLP::bslmf::EnableIf<
               BloombergLP::bslstl::Queue_HasAllocatorType<
                            CONTAINER,
                            ALLOCATOR>::VALUE>::type * = 0);
@@ -298,7 +298,7 @@ class queue
     template <class ALLOCATOR>
     queue(const CONTAINER& container,
           const ALLOCATOR& allocator,
-          typename BloombergLP::bslmf_EnableIf<
+          typename BloombergLP::bslmf::EnableIf<
               BloombergLP::bslstl::Queue_HasAllocatorType<
                            CONTAINER,
                            ALLOCATOR>::VALUE>::type * = 0);
@@ -311,7 +311,7 @@ class queue
     template <class ALLOCATOR>
     queue(const queue& original,
           const ALLOCATOR& allocator,
-          typename BloombergLP::bslmf_EnableIf<
+          typename BloombergLP::bslmf::EnableIf<
               BloombergLP::bslstl::Queue_HasAllocatorType<
                            CONTAINER,
                            ALLOCATOR>::VALUE>::type * = 0);
@@ -460,7 +460,7 @@ template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
 queue<VALUE, CONTAINER>::queue(const ALLOCATOR& allocator,
-                               typename BloombergLP::bslmf_EnableIf<
+                               typename BloombergLP::bslmf::EnableIf<
                                    BloombergLP::bslstl::Queue_HasAllocatorType<
                                                     CONTAINER,
                                                     ALLOCATOR>::VALUE>::type *)
@@ -473,7 +473,7 @@ template <class ALLOCATOR>
 inline
 queue<VALUE, CONTAINER>::queue(const CONTAINER& container,
                                const ALLOCATOR& allocator,
-                               typename BloombergLP::bslmf_EnableIf<
+                               typename BloombergLP::bslmf::EnableIf<
                                    BloombergLP::bslstl::Queue_HasAllocatorType<
                                                     CONTAINER,
                                                     ALLOCATOR>::VALUE>::type *)
@@ -486,7 +486,7 @@ template <class ALLOCATOR>
 inline
 queue<VALUE, CONTAINER>::queue(const queue&     queue,
                                const ALLOCATOR& allocator,
-                               typename BloombergLP::bslmf_EnableIf<
+                               typename BloombergLP::bslmf::EnableIf<
                                    BloombergLP::bslstl::Queue_HasAllocatorType<
                                                     CONTAINER,
                                                     ALLOCATOR>::VALUE>::type *)
@@ -513,7 +513,7 @@ template <class VALUE, class CONTAINER>
 inline
 void queue<VALUE, CONTAINER>::swap(queue& q)
 {
-    BloombergLP::bslalg_SwapUtil::swap(&c, &q.c);
+    BloombergLP::bslalg::SwapUtil::swap(&c, &q.c);
 }
 
 // ACCESSORS

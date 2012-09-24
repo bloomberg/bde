@@ -375,7 +375,7 @@ BDES_IDENT("$Id: $")
 #include <bsl_deque.h>
 #endif
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     #ifndef INCLUDED_BSL_C_SIGNAL
     #include <bsl_c_signal.h>              // sigfillset
     #endif
@@ -470,7 +470,7 @@ class bcep_ThreadPool {
                                            // (callbacks) across all threads,
                                            // in nanoseconds
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     sigset_t           d_blockSet;         // set of signals to be blocked
                                            // in managed threads
 #endif
@@ -484,7 +484,7 @@ class bcep_ThreadPool {
         // next waiting thread if any.  Note that this method must be called
         // with 'd_mutex' locked.
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     void initBlockSet();
         // Initialize the the set of signals to be blocked in the
         // managed threads.

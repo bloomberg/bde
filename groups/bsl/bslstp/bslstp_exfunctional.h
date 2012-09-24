@@ -58,6 +58,10 @@ BSLS_IDENT("$Id: $")
 // This component is for use by the 'bsl+stdhdrs' package.  Use 'functional'
 // directly.
 
+#ifdef BDE_OMIT_TRANSITIONAL // STP
+#error "bslstp_exfunctional is not for publication"
+#endif
+
 // Prevent 'bslstp' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)

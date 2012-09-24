@@ -1073,7 +1073,7 @@ namespace bdex_InStreamFunctions {
         return stream;
     }
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
     template <typename STREAM, typename TYPE>
     inline
@@ -1102,7 +1102,7 @@ namespace bdex_InStreamFunctions {
         return streamIn(stream, object, version);
     }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 }  // close namespace bdex_InStreamFunctions
 

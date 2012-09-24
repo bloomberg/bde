@@ -51,7 +51,7 @@ BDES_IDENT("$Id: $")
 //
 // First, we define a cross-platform compatible typedef for a socket handle:
 //..
-//  #ifdef BSLS_PLATFORM__OS_WINDOWS
+//  #ifdef BSLS_PLATFORM_OS_WINDOWS
 //      typedef SOCKET Handle;
 //  #else
 //      typedef int Handle;
@@ -67,7 +67,7 @@ BDES_IDENT("$Id: $")
 // Next, we define a 'typedef' for the 'struct' needed to set the linger
 // options:
 //..
-//  #if defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BSLS_PLATFORM__OS_CYGWIN)
+//  #if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
 //      typedef LINGER LingerData;
 //  #else
 //      typedef linger LingerData;
@@ -82,7 +82,7 @@ BDES_IDENT("$Id: $")
 //..
 // Next, we configure the linger options for the socket:
 //..
-//  #if defined(BSLS_PLATFORM__OS_WINDOWS)
+//  #if defined(BSLS_PLATFORM_OS_WINDOWS)
 //      return ::setsockopt(handle,
 //                          SOL_SOCKET,
 //                          SO_LINGER,

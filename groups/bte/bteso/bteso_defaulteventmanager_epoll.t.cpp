@@ -22,7 +22,7 @@
 #include <bsl_set.h>
 
 using namespace BloombergLP;
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
     #define BTESO_EVENTMANAGER_ENABLETEST
     typedef bteso_DefaultEventManager<bteso_Platform::EPOLL> Obj;
 #endif
@@ -134,7 +134,7 @@ enum {
     BUF_LEN    = 8192
 };
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
     enum {
         READ_SIZE = 8192,
         WRITE_SIZE = 30000

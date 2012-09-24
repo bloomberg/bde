@@ -28,7 +28,7 @@ const int bsls::NoMtBuildTarget::d_isMtBuildTarget = 0;
 
 #endif
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
 
 const int bsls::Yes64BitBuildTarget::d_is64BitBuildTarget = 1;
 

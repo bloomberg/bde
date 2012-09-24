@@ -11,7 +11,7 @@ BDES_IDENT_RCSID(bcesb_pooledbufferchainstreambuf_cpp,"$Id$ $CSID$")
 #include <bsl_cstdio.h>
 
 // Note: on Windows -> WinDef.h:#define min(a,b) ...
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(min)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(min)
 #undef min
 #endif
 

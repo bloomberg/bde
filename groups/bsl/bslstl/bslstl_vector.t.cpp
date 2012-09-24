@@ -4078,7 +4078,7 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     if (verbose) printf("Testing 'reverse_iterator', 'rbegin', and 'rend',"
                         " and 'const' variants.\n");
     {
-#ifdef BSLS_PLATFORM__CMP_SUN
+#ifdef BSLS_PLATFORM_CMP_SUN
 #else
         ASSERT(1 == (bslmf::IsSame<reverse_iterator,
                                    bsl::reverse_iterator<TYPE *> >::VALUE));
@@ -8946,7 +8946,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nAdditional tests: traits.\n");
 
-#ifndef BSLS_PLATFORM__CMP_MSVC  // Temporarily does not work
+#ifndef BSLS_PLATFORM_CMP_MSVC  // Temporarily does not work
         ASSERT(  (bslalg::HasTrait<Vector_Imp<char>,
                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
         ASSERT(  (bslalg::HasTrait<Vector_Imp<T>,

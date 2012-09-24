@@ -362,7 +362,7 @@ void putChars(bsl::streambuf *streamBuf, char value, int numChars)
     char buffer[MIN_BINARY_DATETIMETZ_LENGTH];
     bsl::memset(buffer, value, numChars);
 
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
     streamBuf->sputn(buffer, numChars);
 #else
     for (int i = 0; i < numChars; ++i) {
@@ -1008,7 +1008,7 @@ int bdem_BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
     }
 
     // Combine low and high word into a long word.
-#ifdef BSLS_PLATFORM__IS_BIG_ENDIAN
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
     reinterpret_cast<unsigned int*>(value)[1] = valueLo;
     reinterpret_cast<unsigned int*>(value)[0] = valueHi;
 #else

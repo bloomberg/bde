@@ -100,15 +100,15 @@
 //                                            T warn not   14twn
 //..
 // Note that all annotations are defined as empty unless one is on a conforming
-// compiler (e.g., 'BSLS_PLATFORM__CMP_GNU' is defined).  Also note that there
+// compiler (e.g., 'BSLS_PLATFORM_CMP_GNU' is defined).  Also note that there
 // are minimum version requirements for several annotations; otherwise they are
 // undefined.  Finally note that, if defined, the values for
-// 'BSLS_PLATFORM__CMP_GNU' and 'BSLS_PLATFORM__CMP_VER_MAJOR' are output when
+// 'BSLS_PLATFORM_CMP_GNU' and 'BSLS_PLATFORM_CMP_VER_MAJOR' are output when
 // the BREATHING TEST is run in verbose mode.
 //..
 //  +--------------------------------+------------------------------------+
 //  | Minimum                        |                                    |
-//  | 'BSLS_PLATFORM__CMP_VER_MAJOR' | Annotations                        |
+//  | 'BSLS_PLATFORM_CMP_VER_MAJOR' | Annotations                        |
 //  +--------------------------------+------------------------------------+
 //  |                         30100  |'BSLS_ANNOTATION_DEPRECATED'        |
 //  +--------------------------------+------------------------------------+
@@ -523,11 +523,11 @@ int main(int argc, char **argv)
               << "\nThere are no run-time tests for this component."
               << "\nManually run build-time tests using a conforming compiler."
               << endl;
-#ifdef BSLS_PLATFORM__CMP_GNU
-            P(BSLS_PLATFORM__CMP_GNU);
+#ifdef BSLS_PLATFORM_CMP_GNU
+            P(BSLS_PLATFORM_CMP_GNU);
 #endif
-#ifdef BSLS_PLATFORM__CMP_VER_MAJOR
-           P(BSLS_PLATFORM__CMP_VER_MAJOR);
+#ifdef BSLS_PLATFORM_CMP_VER_MAJOR
+           P(BSLS_PLATFORM_CMP_VER_MAJOR);
 #endif
         }
 

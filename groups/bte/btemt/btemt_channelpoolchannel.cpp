@@ -349,7 +349,7 @@ void btemt_ChannelPoolChannel::timeoutCb(ReadQueue::iterator entryIter)
         int dummy1 = 0;
         int dummy2 = 0;
         if (entryIter->d_readCallback.is<BlobBasedReadCallback>()) {
-            const BlobBasedReadCallback& callback =
+            BlobBasedReadCallback callback =
                         entryIter->d_readCallback.the<BlobBasedReadCallback>();
             d_readQueue.erase(entryIter);
             bcemt_LockGuardUnlock<bcemt_Mutex> unlockGuard(&d_mutex);
@@ -362,7 +362,7 @@ void btemt_ChannelPoolChannel::timeoutCb(ReadQueue::iterator entryIter)
         else {
             BSLS_ASSERT_SAFE(entryIter->d_readCallback.is<ReadCallback>());
 
-            const ReadCallback& callback =
+            ReadCallback callback =
                                  entryIter->d_readCallback.the<ReadCallback>();
             d_readQueue.erase(entryIter);
             bcemt_LockGuardUnlock<bcemt_Mutex> unlockGuard(&d_mutex);

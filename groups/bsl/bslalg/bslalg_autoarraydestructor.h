@@ -278,6 +278,7 @@ void AutoArrayDestructor<OBJECT_TYPE>::release()
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -287,6 +288,7 @@ void AutoArrayDestructor<OBJECT_TYPE>::release()
 #endif
 #define bslalg_AutoArrayDestructor bslalg::AutoArrayDestructor
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

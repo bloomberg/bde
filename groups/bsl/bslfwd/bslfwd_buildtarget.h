@@ -4,6 +4,11 @@
 
 //@PURPOSE: Supply a compile-time indicator of whether BSL uses C++ namespaces.
 //
+//@CLASSES:
+//
+//@MACROS:
+// BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES: set if two-level namespace in 'bsl'
+//
 //@AUTHOR: Alexei Zakharov (azakharov7)
 //
 //@DESCRIPTION: This header potentially provides a single macro,
@@ -14,7 +19,7 @@
 // defined then the types in the 'bsl' library are declared using legacy-style
 // namespaces (e.g., 'bslma_Allocator').
 
-// Uncomment the following macro when switching to bsl with namespaces to
+// Uncomment the following macro when switching to 'bsl' with namespaces to
 // enable forward declarations provided by the 'bslfwd' package to be in the
 // appropriate namespace.
 
