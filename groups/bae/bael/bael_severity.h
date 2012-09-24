@@ -107,8 +107,8 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#if defined(BSLS_PLATFORM_CMP_MSVC)
     // Note: on Windows -> WinGDI.h:#define ERROR 0
 
 #if defined(DEBUG)
@@ -124,7 +124,7 @@ BDES_IDENT("$Id: $")
 #endif
 
 #endif
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 
@@ -146,7 +146,7 @@ struct bael_Severity {
         BAEL_TRACE = 192,  // execution trace data
         BAEL_NONE  = 224   // !DEPRECATED! Do not use
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , OFF   = BAEL_OFF
       , FATAL = BAEL_FATAL
       , ERROR = BAEL_ERROR
@@ -155,7 +155,7 @@ struct bael_Severity {
       , DEBUG = BAEL_DEBUG
       , TRACE = BAEL_TRACE
       , NONE  = BAEL_NONE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum { BAEL_LENGTH = 8 };

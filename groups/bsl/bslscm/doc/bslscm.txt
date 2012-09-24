@@ -12,3 +12,24 @@
  by inspection of appropriate '.o' files.  Note that, except for the package
  name, this version functionality is repeated in every package group within the
  BDE library suite.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bslscm' package has 2 components having 2 levels of physical dependency.
+ The table below shows the hierarchical ordering of the components.  The order
+ of components within each level is not architecturally significant, just
+ alphabetical.
+..
+  2. bslscm_version
+
+  1. bslscm_versiontag
+..
+
+/Component Synopsis
+/------------------
+: 'bslscm_version':
+:      Provide source control management (versioning) information.
+:
+: 'bslscm_versiontag':
+:      Provide versioning information for the 'bsl' package group.
+

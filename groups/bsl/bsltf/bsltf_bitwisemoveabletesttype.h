@@ -97,7 +97,7 @@ class BitwiseMoveableTestType {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(BitwiseMoveableTestType,
-                                 bslalg_TypeTraitBitwiseMoveable);
+                                 bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
     BitwiseMoveableTestType();

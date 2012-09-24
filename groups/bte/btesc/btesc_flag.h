@@ -64,10 +64,10 @@ struct btesc_Flag {
                                        // until it either succeeds, fails, or
                                        // returns a partial result for some
                                        // other, authorized reason.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ASYNC_INTERRUPT = BTESC_ASYNC_INTERRUPT
       , RAW             = BTESC_RAW
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum { BTESC_LENGTH = 2 };

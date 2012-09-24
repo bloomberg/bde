@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============");
 
-        bslstl::TraitsGroupStlAssociativeContainer<bslma_Allocator *> mX;
+        bslstl::TraitsGroupStlAssociativeContainer<bslma::Allocator *> mX;
 
       } break;
 

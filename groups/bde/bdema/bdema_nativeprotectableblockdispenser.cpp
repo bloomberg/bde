@@ -17,13 +17,13 @@ BDES_IDENT_RCSID(bdema_nativeprotectableblockdispenser_cpp,"$Id$ $CSID$")
 
 #include <bsl_new.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     #include <stdlib.h>    // 'valloc()'
     #include <sys/mman.h>  // 'mprotect()'
     #include <unistd.h>    // 'sysconf()'
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     #include <windows.h>   // 'GetSystemInfo', 'VirtualAlloc', 'VirtualFree'
 #endif
 
@@ -31,7 +31,7 @@ namespace BloombergLP {
 
 namespace {
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 
 int getUnixPageSizeHelper()
 {
@@ -40,7 +40,7 @@ int getUnixPageSizeHelper()
 
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 int getWindowsPageSizeHelper()
 {
@@ -55,11 +55,11 @@ inline
 int getSystemPageSize()
 {
     static int pageSize =
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
                           getUnixPageSizeHelper();
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
                           getWindowsPageSizeHelper();
 #endif
    return pageSize;
@@ -148,7 +148,7 @@ bdema_NativeProtectableBlockDispenser::~bdema_NativeProtectableBlockDispenser()
 
 // MANIPULATORS
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 
 bdema_MemoryBlockDescriptor
 bdema_NativeProtectableBlockDispenser::allocate(size_type size)
@@ -193,7 +193,7 @@ int bdema_NativeProtectableBlockDispenser::unprotect(
 
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 bdema_MemoryBlockDescriptor
 bdema_NativeProtectableBlockDispenser::allocate(size_type size)

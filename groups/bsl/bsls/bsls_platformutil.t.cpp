@@ -1,5 +1,7 @@
 // bsls_platformutil.t.cpp                                            -*-C++-*-
 
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+
 #include <bsls_platformutil.h>
 
 #include <bsls_alignmentutil.h> // for testing only
@@ -12,11 +14,11 @@
 #include <stdio.h>     // sprintf(), snprintf() [NOT <cstdio>, which does not
                        // include 'snprintf']
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <arpa/inet.h>
 #else
 #include <winsock2.h>
@@ -43,8 +45,8 @@ using namespace std;
 // [ 1] static bool isBigEndian() const;
 // [ 1] static bool isLittleEndian() const;
 // [ 4] static int roundUpToMaximalAlignment(int size);
-// [ 1] BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
-// [ 1] BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+// [ 1] BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+// [ 1] BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
 //-----------------------------------------------------------------------------
 // [ 5] operator<<(ostream&, const bsls::PlatformUtil::Int64&);
 // [ 6] operator<<(ostream&, const bsls::PlatformUtil::Uint64&);
@@ -84,7 +86,7 @@ static void aSsErT(int c, const char *s, int i)
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 //--------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define INT64_FMT_STR  "0x%I64X"
 #else
 #define INT64_FMT_STR  "0x%llX"
@@ -117,7 +119,7 @@ void printBits(bsls::PlatformUtil::Uint64 value)
 
 #undef INT64_FMT_STR
 
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
 // On Linux x86, no natural type is aligned on a 64-bit boundary, but we need
 // such a type to implement low-level constructs (e.g 64-bit atomic types).
 
@@ -212,8 +214,8 @@ static bool isLittleEndian()
 // compile-time constants are also provided as preprocessor macros to
 // facilitate conditional compilation:
 //..
-//  BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
-//  BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+//  BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
+//  BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
 //..
 // These functions and macros are useful for writing platform-independent code,
 // such as a function that converts the bytes in a 'short' to network byte
@@ -222,7 +224,7 @@ static bool isLittleEndian()
     short convertToNetworkByteOrder(short input)
         // Return the specified 'input' in network byte order.
     {
-    #ifdef BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+    #ifdef BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
         return input;
     #else
         return ((input >> 8) & 0xFF) | ((input & 0xFF) << 8);
@@ -349,7 +351,7 @@ if (verbose)
             { L_,   0x7FFFFFFF,         "2147483647"           },
             { L_,   0x80000000,         "2147483648"           },
             { L_,   0xFFFFFFFF,         "4294967295"           },
-#if !defined(BSLS_PLATFORM__NO_64_BIT_LITERALS)
+#if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
             { L_,   0x8000000000000000, "9223372036854775808"  },
@@ -385,7 +387,7 @@ if (verbose)
                 if (veryVerbose)
                     cout << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-                #if defined(BSLS_PLATFORM__CMP_MSVC)
+                #if defined(BSLS_PLATFORM_CMP_MSVC)
                 snprintf(buf1, SIZE, "%I64u", SPEC);
                 snprintf(buf2, SIZE, "%I64u", SPEC);
                 #else
@@ -446,7 +448,7 @@ if (verbose)
                 if (veryVerbose)
                     cout << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-                #if defined(BSLS_PLATFORM__CMP_MSVC)
+                #if defined(BSLS_PLATFORM_CMP_MSVC)
                 snprintf(buf1, SIZE, "%I64u", SPEC);
                 snprintf(buf2, SIZE, "%I64u", SPEC);
                 #else
@@ -516,7 +518,7 @@ if (verbose)
             { L_,   0x7FFFFFFF,         "2147483647"           },
             { L_,   0x80000000,         "2147483648"           },
             { L_,   0xFFFFFFFF,         "4294967295"           },
-#if !defined(BSLS_PLATFORM__NO_64_BIT_LITERALS)
+#if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
             { L_,   0x8000000000000000, "-9223372036854775808" },
@@ -552,7 +554,7 @@ if (verbose)
             if (veryVerbose)
                 cout << "EXPECTED FORMAT:" << endl << FMT << endl;
 
-            #if defined(BSLS_PLATFORM__CMP_MSVC)
+            #if defined(BSLS_PLATFORM_CMP_MSVC)
             snprintf(buf1, SIZE, "%I64d", SPEC);
             snprintf(buf2, SIZE, "%I64d", SPEC);
             #else
@@ -610,7 +612,7 @@ if (verbose)
                 cout << "\tSpec = \t\t      " << SPEC << endl
                      << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-            #if defined(BSLS_PLATFORM__CMP_MSVC)
+            #if defined(BSLS_PLATFORM_CMP_MSVC)
             snprintf(buf1, SIZE, "%I64d", SPEC);
             snprintf(buf2, SIZE, "%I64d", SPEC);
             #else
@@ -676,7 +678,7 @@ if (verbose)
         struct DoubleAlign      { char c; double d_double;          };
         struct LongDoubleAlign  { char c; long double d_longDouble; };
         struct VoidPtrAlign     { char c; void  *d_voidPtr;         };
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
         struct Test8bytesAlign  { char c; Test8BytesAlignedType
                                                d_8BytesAlignedType; };
 #endif
@@ -693,7 +695,7 @@ if (verbose)
                 | (offsetof(DoubleAlign, d_double)         - 1)
                 | (offsetof(LongDoubleAlign, d_longDouble) - 1)
                 | (offsetof(VoidPtrAlign, d_voidPtr)       - 1)
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
                 | (offsetof(Test8bytesAlign,
                             d_8BytesAlignedType)           - 1)
 #endif
@@ -745,7 +747,7 @@ if (verbose)
         typedef bsls::PlatformUtil Util;
 
         // Must be at least as wide as an int.
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         ASSERT(sizeof(Util::size_type) >= sizeof(long int));
 #else
         ASSERT(sizeof(Util::size_type) >= sizeof(int));
@@ -811,10 +813,10 @@ if (verbose)
         // --------------------------------------------------------------------
         // TESTING BIG ENDIAN and LITTLE ENDIAN:
         //   Concerns:
-        //     1. The macros BSLS_PLATFORMUTIL__IS_BIG_ENDIAN and
-        //        BSLS_PLATFORM__IS_LITTLE_ENDIAN must have boolean values.
-        //     2. The macros BSLS_PLATFORMUTIL__IS_BIG_ENDIAN and
-        //        BSLS_PLATFORM__IS_LITTLE_ENDIAN are assigned at compile
+        //     1. The macros BSLS_PLATFORMUTIL_IS_BIG_ENDIAN and
+        //        BSLS_PLATFORM_IS_LITTLE_ENDIAN must have boolean values.
+        //     2. The macros BSLS_PLATFORMUTIL_IS_BIG_ENDIAN and
+        //        BSLS_PLATFORM_IS_LITTLE_ENDIAN are assigned at compile
         //        time based on the platform (see overview above).  If any
         //        one of the flags or inferences is wrong, the "endian-ness"
         //        of a given platform could be wrong.  Similarly, the
@@ -834,8 +836,8 @@ if (verbose)
         // Testing:
         //   static bool isBigEndian();
         //   static bool isLittleEndian();
-        //   BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
-        //   BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+        //   BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+        //   BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -859,10 +861,10 @@ if (verbose)
         ASSERT(::isLittleEndian() != Util::isBigEndian());
 
         // Must be same as preprocessor MACROS.
-#if defined(BSLS_PLATFORMUTIL__IS_BIG_ENDIAN)
-        ASSERT(BSLS_PLATFORMUTIL__IS_BIG_ENDIAN == Util::isBigEndian());
+#if defined(BSLS_PLATFORMUTIL_IS_BIG_ENDIAN)
+        ASSERT(BSLS_PLATFORMUTIL_IS_BIG_ENDIAN == Util::isBigEndian());
 #else
-        ASSERT(BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN == Util::isLittleEndian());
+        ASSERT(BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN == Util::isLittleEndian());
 #endif
       } break;
       default: {
@@ -876,6 +878,16 @@ if (verbose)
     }
     return testStatus;
 }
+
+#else
+
+int main(int argc, char *argv[])
+{
+    return -1;
+}
+
+#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
+
 
 // ---------------------------------------------------------------------------
 // NOTICE:

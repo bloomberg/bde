@@ -946,10 +946,10 @@ int main(int argc, char *argv[])
         bteso_EventManagerTestPair mX(veryVerbose);
         const bteso_EventManagerTestPair& X = mX;
         ASSERT(mX.isValid());
-#if defined(BTESO_PLATFORM__BSD_SOCKETS)
+#if defined(BTESO_PLATFORM_BSD_SOCKETS)
         ASSERT(0 < X.observedFd());         ASSERT(0 < X.controlFd());
 #endif
-#if defined(BTESO_PLATFORM__WIN_SOCKETS)
+#if defined(BTESO_PLATFORM_WIN_SOCKETS)
         ASSERT(NULL != X.observedFd());     ASSERT(NULL != X.controlFd());
 #endif
       } break;
@@ -1697,13 +1697,13 @@ int main(int argc, char *argv[])
             } SCRIPTS[] =
             {
                {L_, 0, "T0; E0r; E0rwa; E1caw; E0rwac"},
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
                {L_, 0, "W0,30; S40; R0,24"},
 #else
                {L_, 0, "W0,30; S1; R0,24"},
 #endif
                {L_, 0, "Di,1; Dn,1;  Di150,1; Dn400,1"},
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
                {L_, 0, "T0; +0w21; W1,20; S40; +1r11"},
 #else
                {L_, 0, "T0; +0w21; W1,20; S1; +1r11"},

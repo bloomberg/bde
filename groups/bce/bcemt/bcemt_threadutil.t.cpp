@@ -20,11 +20,11 @@
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
 #include <pthread.h>
 #endif
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
 #include <alloca.h>
 #endif
 
@@ -310,7 +310,7 @@ void *callCppFunction(void *function)
 template <int BUFFER_SIZE>
 void testStackSize()
 {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     // In test cases -2 and -4, Linux was crashing about 4K away from the stack
     // in 32 & 64 bit.  All other unix platforms were running past the end of
     // the stack without crashing.
@@ -514,14 +514,14 @@ void createKeyTestDestructor5(void *data)
         ASSERT((void *) 1 == data);
         int zeroCount = (0 == Obj::getSpecific(TC::childKey1)) +
                         (0 == Obj::getSpecific(TC::childKey2));
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
         ASSERT(zeroCount == TC::terminated + 1);
 #else
         ASSERT(0 == zeroCount);
 #endif
     }
     else {
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
         ASSERT((void *) 5 == data);
 #else
         ASSERT(0);
@@ -578,7 +578,7 @@ extern "C" void *testCaseMinus1ThreadMain(void *)
 //                                  TEST CASE -2
 //-----------------------------------------------------------------------------
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
 
 enum { CLEARANCE_TEST_START  = 0,
        CLEARANCE_TEST_DONE   = 1234,
@@ -677,7 +677,7 @@ int main(int argc, char *argv[])
         //   at all.  This is just to demonstrate the interface.
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
         // Spawning threads fails on HPUX if 'inheritSchedule != true'.
 
         if (1) break;
@@ -846,7 +846,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(midPri, loPri, midPri > loPri);
             }
             else {
-#if !defined(BSLS_PLATFORM__OS_LINUX) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if !defined(BSLS_PLATFORM_OS_LINUX) && !defined(BSLS_PLATFORM_OS_WINDOWS)
                 // This should only happen on Linux and Windows
                 ASSERT(0);
 #endif
@@ -1054,7 +1054,7 @@ int main(int argc, char *argv[])
         bcemt_ThreadUtil::create(&handle, TC::CreateKeyTestFunctor(true));
         bcemt_ThreadUtil::join(handle);
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
         ASSERT(3 == TC::terminated);
 #else
         ASSERT(2 == TC::terminated);
@@ -1096,7 +1096,7 @@ int main(int argc, char *argv[])
         enum { SLEEP_MICROSECONDS = 300 * 1000 };
         const double SLEEP_SECONDS = SLEEP_MICROSECONDS * 1e-6;
         const double OVERSHOOT_MIN = -1e-5;
-#if defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_LINUX)
             const double TOLERANCE = 2;   // microSleep is obscenely
                                           // imprecise on Sun and to a
                                           // lesser extent Linux
@@ -1339,7 +1339,7 @@ int main(int argc, char *argv[])
 
         bcemt_ThreadUtil::join(handle);
       }  break;
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
       case -2: {
         // --------------------------------------------------------------------
         // CLEARANCE TEST

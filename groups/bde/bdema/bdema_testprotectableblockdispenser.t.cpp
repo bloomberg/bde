@@ -12,7 +12,7 @@
 #include <bsl_cstring.h>              // memset(), strlen()
 #include <bsl_new.h>
 #include <bsl_iostream.h>
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>             // pipe(), close() and dup().
 #endif
 
@@ -587,7 +587,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == a.numErrors());
 
 // The following code uses pipe() and fork(), so only works on Unix.
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         if (verbose) cout << "\tCompare with expected result." <<endl;
 
         const int SIZE = 1000;     // Must be big enough to hold output string.
@@ -646,7 +646,7 @@ int main(int argc, char *argv[])
         ASSERT(sz < SIZE);  // Check buffer is large enough.
         ASSERT(XX == buf[SIZE - 1]);  // Check for overrun.
         ASSERT(0 == memcmp(buf, FMT, sz));
-#endif // defined BSLS_PLATFORM__OS_UNIX
+#endif // defined BSLS_PLATFORM_OS_UNIX
 
         a.deallocate(b1);
         a.deallocate(b2);

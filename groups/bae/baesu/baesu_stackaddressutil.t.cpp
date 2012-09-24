@@ -13,7 +13,7 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 // 'getStackAddresses' will not be able to trace through our stack frames if
 // we're optimized on Windows
 
@@ -100,7 +100,7 @@ int veryVerbose;
 
 // 'lamePlatform' -- on lame platforms where StackAddressUtil doesn't work or
 // executables are stripped, disable some of the tests.
-#if defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM_OS_WINDOWS)
 const bool lamePlatform = true;
 #else
 const bool lamePlatform = false;
@@ -214,9 +214,9 @@ static int func6()
 // function's code, which is a non-trivial and platform-dependent exercise.
 // (Note: this doesn't work on Windows for global routines).
 
-#if   defined(BSLS_PLATFORM__OS_HPUX)
+#if   defined(BSLS_PLATFORM_OS_HPUX)
 # define FUNC_ADDRESS(p) (((void **) (void *) (p))[sizeof(void *) == 4])
-#elif defined(BSLS_PLATFORM__OS_AIX)
+#elif defined(BSLS_PLATFORM_OS_AIX)
 # define FUNC_ADDRESS(p) (((void **) (void *) (p))[0])
 #else
 # define FUNC_ADDRESS(p) ((void *) (p))
@@ -348,10 +348,10 @@ CASE3_FUNC(2, 3)
 CASE3_FUNC(3, 4)
 CASE3_FUNC(4, 5)
 
-#if    defined(BSLS_PLATFORM__OS_HPUX) && defined(BSLS_PLATFORM__CPU_32_BIT)
+#if    defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_32_BIT)
 # define FUNC_ADDRESS(p) (((UintPtr *) (UintPtr) (p))[1])
-#elif (defined(BSLS_PLATFORM__OS_HPUX) && defined(BSLS_PLATFORM__CPU_64_BIT)) \
-    || defined(BSLS_PLATFORM__OS_AIX)
+#elif (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT)) \
+    || defined(BSLS_PLATFORM_OS_AIX)
 # define FUNC_ADDRESS(p) (((UintPtr *) (UintPtr) (p))[0])
 #else
 # define FUNC_ADDRESS(p) ((UintPtr) (p))
@@ -549,7 +549,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Finding Right Functions Test\n"
                              "============================\n";
 
-// #ifndef BSLS_PLATFORM__OS_WINDOWS
+// #ifndef BSLS_PLATFORM_OS_WINDOWS
         // This test case just seems to fail on Windows, something to do with
         // '&' not working correctly, possibly because the compiler is creating
         // 'thunk' functions which just call the actual routine.  I wish they
@@ -593,7 +593,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Finding Right Functions Test\n"
                              "============================\n";
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         // This test case just seems to fail on Windows, something to do with
         // '&' not working correctly, possibly because the compiler is creating
         // 'thunk' functions which just call the actual routine.  I wish they
@@ -685,9 +685,9 @@ int main(int argc, char *argv[])
 
         int depth = TD::RECURSION_DEPTH;
 
-#if   defined(BSLS_PLATFORM__OS_WINDOWS)
+#if   defined(BSLS_PLATFORM_OS_WINDOWS)
         const int iterations = 100;
-#elif defined(BSLS_PLATFORM__OS_SOLARIS)
+#elif defined(BSLS_PLATFORM_OS_SOLARIS)
         const int iterations = 1000;
 #else
         const int iterations = 100 * 1000;

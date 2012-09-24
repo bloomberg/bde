@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#if defined(BSLS_PLATFORM__CPU_X86_64) && defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CPU_X86_64) && defined(BSLS_PLATFORM_CMP_MSVC)
 
 namespace BloombergLP {
 }

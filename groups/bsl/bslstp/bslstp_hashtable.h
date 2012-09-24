@@ -30,6 +30,10 @@
 #ifndef INCLUDED_BSLSTP_HASHTABLE
 #define INCLUDED_BSLSTP_HASHTABLE
 
+#ifdef BDE_OMIT_TRANSITIONAL // STP
+#error "bslstp_hashtable is not for publication"
+#endif
+
 #ifndef INCLUDED_BSLSTP_ALLOC
 #include <bslstp_alloc.h>
 #endif

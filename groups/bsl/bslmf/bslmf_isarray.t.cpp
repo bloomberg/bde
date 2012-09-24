@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsArray<int volatile       []>::VALUE);
         ASSERT(1 == bslmf::IsArray<int const volatile []>::VALUE);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
         ASSERT(1 == bslmf::IsArray<int                (&)[]>::VALUE);
         ASSERT(1 == bslmf::IsArray<int const          (&)[]>::VALUE);
         ASSERT(1 == bslmf::IsArray<int volatile       (&)[]>::VALUE);
@@ -199,14 +199,14 @@ int main(int argc, char *argv[])
 
         ASSERT(1 == bslmf::IsArray<int          [][7]>::VALUE);
         ASSERT(1 == bslmf::IsArray<int const    [][7]>::VALUE);
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
         ASSERT(1 == bslmf::IsArray<int       (&)[][7]>::VALUE);
 #endif
         ASSERT(1 == bslmf::IsArray<int        * [][7]>::VALUE);
         ASSERT(0 == bslmf::IsArray<int       (*)[][7]>::VALUE);
 
         ASSERT(1 == bslmf::IsArray<int *const    [][7]>::VALUE);
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
         ASSERT(1 == bslmf::IsArray<int *const (&)[][7]>::VALUE);
 #endif
         ASSERT(0 == bslmf::IsArray<int *const (*)[][7]>::VALUE);

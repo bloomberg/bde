@@ -9,7 +9,7 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-#ifdef BCES_PLATFORM__WIN32_THREADS
+#ifdef BCES_PLATFORM_WIN32_THREADS
 
 #include <windows.h>
 

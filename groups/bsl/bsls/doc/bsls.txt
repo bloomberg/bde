@@ -6,87 +6,226 @@
 
 @AUTHOR: Herve Bronnimann (hbronnim)
 
-@DESCRIPTION: The 'bsls' package provides a variety of system utilities
- for use by the 'bsl' library.  These utilities include:
+@DESCRIPTION: The 'bsls' package provides a variety of system utilities for use
+ by the 'bsl' library.  These utilities include:
 
-: 1 Various buffer types with different alignment properties.
-: 2 Uniform exception handling, even for non-exception build targets.
-: 3 A platform-dependent 64-bit integer type.
-: 4 Platform-identification routines.
-: 5 A timer component, and access to system time facilities.
+: o Various buffer types with different alignment properties.
+: o Uniform exception handling, even for non-exception build targets.
+: o A platform-dependent 64-bit integer type.
+: o Platform-identification routines.
+: o A timer component, and access to system time facilities.
 
- Note that this list is not meant to be exhaustive.  The sections below provide
- more information about the individual components.
+ Note that the above list is not meant to be exhaustive.  The sections below
+ provide more information about the individual components.
 
 /Hierarchical Synopsis
 /---------------------
- 'bsls' currently has 17 components having 4 levels of physical dependency.
- The table below shows the hierarchical ordering of the components.  The
- package prefix and underscore ('bsls_') are omitted from the full component
- names for layout efficiency.
+ The 'bsls' package currently has 33 components having 11 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
 ..
-  Level 4: stopwatch
+  11. bsls_alignedbuffer
+      bsls_alignment
+      bsls_platformutil
 
-  Level 3: platformutil
+  10. bsls_alignmentutil
 
-  Level 2: alignedbuffer   exceptionutil   int64
-           objectbuffer    protocoltest    timeutil
+   9. bsls_asserttest
+      bsls_exceptionutil
 
-  Level 1: alignment       assert          buildtarget
-           logicerror      platform
+   8. bsls_assert
+
+   7. bsls_performancehint
+
+   6. bsls_objectbuffer
+      bsls_stopwatch
+
+   5. bsls_alignmentfromtype
+      bsls_atomic
+      bsls_timeutil
+
+   4. bsls_alignmenttotype
+      bsls_atomicoperations
+      bsls_byteorder
+      bsls_int64
+      bsls_nullptr
+
+   3. bsls_alignmentimp
+      bsls_annotation
+      bsls_buildtarget
+      bsls_compilerfeatures
+      bsls_nativestd
+      bsls_types
+      bsls_unspecifiedbool
+      bsls_util
+
+   2. bsls_asserttestexception
+      bsls_blockgrowth
+      bsls_bsltestutil
+      bsls_macroincrement
+      bsls_platform
+      bsls_protocoltest
+
+   1. bsls_ident
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bsls'.  For the sake
- of brevity, we sometimes blur the distinction between a component and the
- primary types that the component provides.  We remind the reader that, in
- general, the distinction between a component and a class is important.
-..
-  'bsls_alignedbuffer' - raw buffers with user-specified size and alignment.
+: 'bsls_alignedbuffer':
+:      Provide raw buffers with user-specified size and alignment.
+:
+: 'bsls_alignment':
+:      Provide a namespace for enumerating memory alignment strategies.
+:
+: 'bsls_alignmentfromtype':
+:      Provide a meta-function that maps a 'TYPE' to its alignment.
+:
+: 'bsls_alignmentimp':
+:      Provide implementation meta-functions for alignment computation.
+:
+: 'bsls_alignmenttotype':
+:      Provide a meta-function mapping an 'ALIGNMENT' to a primitive type.
+:
+: 'bsls_alignmentutil':
+:      Provide constants, types, and operations related to alignment.
+:
+: 'bsls_annotation':
+:      Provide support for compiler annotations for compile-time safety.
+:
+: 'bsls_assert':
+:      Provide build-specific, runtime-configurable assertion macros.
+:
+: 'bsls_asserttest':
+:      Provide a test facility for assertion macros.
+:
+: 'bsls_asserttestexception':
+:      Provide an exception type to support testing for failed assertions.
+:
+: 'bsls_atomic':
+:      Provide types with atomic operations.
+:
+: 'bsls_atomicoperations':
+:      Provide platform-independent atomic operations.
+:
+: 'bsls_atomicoperations_default':
+:      Provide default implementation for atomic operations.
+:
+: 'bsls_atomicoperations_ia64_hp_acc':
+:      Provide implentations of atomic operations for HPUX/IA64.
+:
+: 'bsls_atomicoperations_powerpc32_aix_xlc':
+:      Provide implentations of atomic operations for PowerPC/AIX (32bit).
+:
+: 'bsls_atomicoperations_powerpc64_aix_xlc':
+:      Provide implentations of atomic operations for PowerPC/AIX (64bit).
+:
+: 'bsls_atomicoperations_powerpc_aix_gcc':
+:      Provide implentations of atomic operations for PowerPC/AIX/GCC.
+:
+: 'bsls_atomicoperations_powerpc_aix_xlc_default':
+:      Provide default base implentations of atomics for PowerPC/AIX.
+:
+: 'bsls_atomicoperations_sparc32_sun_cc':
+:      Provide implentations of atomic operations for Sparc/Sun (32bit).
+:
+: 'bsls_atomicoperations_sparc64_sun_cc':
+:      Provide implentations of atomic operations for Sparc/Sun (64bit).
+:
+: 'bsls_atomicoperations_sparc_sun_cc_default':
+:      Provide default base implentations of atomics for Sparc/Sun.
+:
+: 'bsls_atomicoperations_x64_all_gcc':
+:      Provide implentations of atomic operations for X86_64/GCC.
+:
+: 'bsls_atomicoperations_x64_win_msvc':
+:      Provide implentations of atomic operations for X86_64/MSVC/Windows.
+:
+: 'bsls_atomicoperations_x86_all_gcc':
+:      Provide implentations of atomic operations for X86/GCC.
+:
+: 'bsls_atomicoperations_x86_win_msvc':
+:      Provide implentations of atomic operations for X86/MSVC/Windows.
+:
+: 'bsls_blockgrowth':
+:      Provide a namespace for memory block growth strategies.
+:
+: 'bsls_bsltestutil':
+:      Provide test utilities for 'bsl' that do not use <iostream>.
+:
+: 'bsls_buildtarget':
+:      Provide build-target information in the object file.
+:
+: 'bsls_byteorder':
+:      Provide byte-order manipulation macros.
+:
+: 'bsls_compilerfeatures':
+:      Provide macros to identify compiler support for C++0x features.
+:
+: 'bsls_exceptionutil':
+:      Simplify exception constructs for non-exception builds
+:
+: 'bsls_ident':
+:      Provide macros for inserting SCM Ids into source files.
+:
+: 'bsls_int64':
+:      Provide namespace for platform-dependent 64-bit integer types.
+:
+: 'bsls_macroincrement':
+:      Provide a macro to increment preprocessor numbers.
+:
+: 'bsls_nativestd':
+:      Define the namespace 'native_std' as an alias for '::std'.
+:
+: 'bsls_nullptr':
+:      Provide a distinct type for null pointer literals.
+:
+: 'bsls_objectbuffer':
+:      Provide raw buffer with size and alignment of user-specified type.
+:
+: 'bsls_performancehint':
+:      Provide performance hints for code optimization.
+:
+: 'bsls_platform':
+:      Provide compile-time support for platform/attribute identification.
+:
+: 'bsls_platformutil':
+:      Provide consistent interface for platform-dependent functionality.
+:
+: 'bsls_protocoltest':
+:      Provide classes and macros for testing abstract protocols.
+:
+: 'bsls_stopwatch':
+:      Provide access to user, system, and wall times of current process.
+:
+: 'bsls_timeutil':
+:      Provide a platform-neutral functional interface to system clocks.
+:
+: 'bsls_types':
+:      Provide a consistent interface for platform-dependent types.
+:
+: 'bsls_unspecifiedbool':
+:      Provide a class supporting the 'unspecified bool' idiom.
+:
+: 'bsls_util':
+:      Provide essential, low-level support for portable generic code.
 
-  'bsls_alignment'     - platform-specific alignment information.
-
-  'bsls_assert'        - macros and mechanisms for user-defined "asserts".
-
-  'bsls_buildtarget'   - types for compile-time build target identification.
-
-  'bsls_exceptionutil' - exception constructs for non-exception builds.
-
-  'bsls_int64'         - platform-dependent 64-bit integer types.
-
-  'bsls_logicerror'    - low-level "logic error" exception.
-
-  'bsls_objectbuffer'  - raw buffer with size and alignment of user-specified
-                         parameterized type.
-
-  'bsls_platform'      - preprocessor support for platform identification.
-
-  'bsls_platformutil'  - encapsulate platform-dependent operations behind
-                         a stable interface.
-
-  'bsls_protocoltest'  - classes and macros for testing abstract protocols.
-
-  'bsls_stopwatch'     - a simple real-time interval timer.
-
-  'bsls_timeutil'      - a platform-neutral interface to system clocks.
-..
-
-@Component Overview:
-
- This Overview section summarizes the components that are available in 'bsls'.
+/Component Overview
+/------------------
+ This section summarizes the components that are available in 'bsls'.
 
 /'bsls_alignedbuffer'
-/--------------------
+/ - - - - - - - - - -
  This component provides a templated buffer type with a user-specified
- compile-time size and user-specified alignment. Typically, such a type is used
- in situations where it is desirable to allocate a block of properly-aligned
- raw memory from somewhere other than the heap, e.g., on the stack or within an
- aggregate object, including within a union.  It is a convenient way to create
- a small heap from which one or more objects are allocated at run-time.
+ compile-time size and user-specified alignment.  Typically, such a type is
+ used in situations where it is desirable to allocate a block of
+ properly-aligned raw memory from somewhere other than the heap, e.g., on the
+ stack or within an aggregate object, including within a union.  It is a
+ convenient way to create a small heap from which one or more objects are
+ allocated at run-time.
 
 /'bsls_alignment'
-/----------------
+/ - - - - - - - -
  This component computes (at compile-time) platform-dependent alignment
  information.  This component also provides a namespace for a suite of
  compile-time constants and pure procedures that yield platform-dependent
@@ -95,8 +234,33 @@
  maximum alignment.  These functions, used in conjunction, are especially
  useful for creating pools and allocators that rely on efficient alignment.
 
+/'bsls_alignmentfromtype'
+/ - - - - - - - - - - - -
+ This component provides a meta-function that provides the alignment for the
+ parameterized 'TYPE'.
+
+/'bsls_alignmentimp'
+/- - - - - - - - - -
+ This component provides a suite of template meta-functions that can be used to
+ compute (at compile-time) various platform-dependent alignment information.
+
+/'bsls_alignmenttotype'
+/ - - - - - - - - - - -
+ This component provides a meta-function that provides a primitive type with an
+ alignment matching the parameterized 'ALLIGNMENT'.
+
+/'bsls_alignmentutil'
+/ - - - - - - - - - -
+ This component provides a suite of template meta-functions that can be used to
+ compute (at compile-time) various platform-dependent alignment information.
+
+/'bsls_annotation'
+/- - - - - - - - -
+ This component provides a suite of preprocessor macros that define
+ compiler-specific compile-time annotations.
+
 /'bsls_assert'
-/-------------
+/- - - - - - -
  This component provides a pair of "assert-like" macros to implement a
  compile-time-selectable and run-time-configurable "defensive" or "safe" mode.
  It also provides a suite of "assert-failure handler" methods suitable for
@@ -106,46 +270,93 @@
  also provides a scoped guard that allows safe, temporary changing of the
  failure handler in a limited scope.
 
+/'bsls_asserttest'
+/- - - - - - - - -
+ This component provides a facility to test that 'BSLS_ASSERT_*' macros are
+ used as intended, in the appropriate build modes, and have the expected
+ effects.
+
+/'bsls_asserttestexception'
+/ - - - - - - - - - - - - -
+ This component implements an exception class, 'bsls::AssertTestException',
+ that provides a mechanism to convey context information from a failing
+ assertion to a test handler.
+
+/'bsls_atomic'
+/- - - - - - -
+ This component provides classes with atomic operations for 'int', 'Int64', and
+ pointer types.
+
+/'bsls_atomicoperations'
+/- - - - - - - - - - - -
+ This utility provides a set of platform-independent atomic operations for
+ fundamental data types, such as 32-bit and 64-bit integer and pointer.
+
+/'bsls_blockgrowth'
+/ - - - - - - - - -
+ This component enumerates the supported block growth strategies.
+
+/'bsls_bsltestutil'
+/ - - - - - - - - -
+ This component provides the standard printing macros used in BDE-style test
+ drivers.
+
 /'bsls_buildtarget'
-/------------------
- This component defines types and runtime constants for identifying the
- build target information (usually specified to the compiler via a set of
- 'BDE_BUILD_...' macros).  This is mostly useful for retrieving such
- information from a linkable or executable binary.
+/ - - - - - - - - -
+ This component defines types and runtime constants for identifying the build
+ target information (usually specified to the compiler via a set of
+ 'BDE_BUILD_*' macros).  This is mostly useful for retrieving such information
+ from a linkable or executable binary.
+
+/'bsls_byteorder'
+/ - - - - - - - -
+ This component provides a set host-to-network and network-to-host byte-order
+ manipulation macros.
+
+/'bsls_compilerfeatures'
+/- - - - - - - - - - - -
+ This component provides a suite of preprocessor macros to identify
+ compiler-specific support of language features that may not be available on
+ all compilers in use across an organization.
 
 /'bsls_exceptionutil'
-/--------------------
+/ - - - - - - - - - -
  This component provides macros to replace 'try', 'throw' and 'catch'.  These
- macros expand to normal exception constructs when exceptions are
- enabled and to reasonable alternatives (usually no-ops) when exceptions are
- disabled, allowing code that uses 'try', 'throw' and 'catch' constructs to
- compile even if exceptions are disabled using a compiler switch.
+ macros expand to normal exception constructs when exceptions are enabled and
+ to reasonable alternatives (usually no-ops) when exceptions are disabled,
+ allowing code that uses 'try', 'throw' and 'catch' constructs to compile even
+ if exceptions are disabled using a compiler switch.
+
+/'bsls_ident'
+/ - - - - - -
+ This component provides macros for inserting SCM (Source Control Management)
+ Ids into source files.
 
 /'bsls_int64'
-/------------
+/ - - - - - -
  This component provides platform-independent type names for both signed and
  unsigned 64-bit integers.  For healthy platforms, the component simply
  provides a BDE-standard 'typedef' for the non-standard native type name.  All
  platforms currently supported are healthy regarding 64-bit integers.
 
-/'bsls_iosfwd'
-/-------------
- This component provides the correct forward declaration for types 'ostream'
- and 'istream', regardless of whether the compiler/library uses the classical
- ARM-style streams or the newer ANSI standard streams.
+/'bsls_macroincrement'
+/- - - - - - - - - - -
+ This component provides a macro, 'BSLS_MACROINCREMENT(NUMBER)', that produces
+ the preprocessor number equal to the number succeeding the supplied argument.
 
-/'bsls_logicerror'
-/-----------------
- This component provides a class 'bsls_LogicError' that formats a file name,
- line number, and message into a single, dynamically-allocated string.  This
- class is particularly convenient for throwing as an exception because (a)
- although it is not derived from 'std::exception', it has a very similar
- interface that makes it familiar to users and (b) although it allocates memory
- using global 'operator new', it never throws an exception even if it runs out
- of memory.
+/'bsls_nativestd'
+/ - - - - - - - -
+ This component defines a namespace alias, 'native_std', that serves as an
+ alias for the 'std' namespace.
+
+/'bsls_nullptr'
+/ - - - - - - -
+ This component provides a limited emulation of the C++11 type,
+ 'std::nullptr_t', which can be used as a function parameter type to create an
+ overload set where null pointer literals are handled specially.
 
 /'bsls_objectbuffer'
-/-------------------
+/- - - - - - - - - -
  This component provides a templated buffer type, 'bsls_ObjectBuffer', which is
  compile-time sized and aligned to hold a specified object type.  Defining a
  'bsls_ObjectBuffer<T>' object does not cause the constructor for 'T' to be
@@ -155,30 +366,34 @@
  initialization or destruction of an object is not possible.  It can also be
  used to create a 'union' containing non-POD element types.
 
+/'bsls_performancehint'
+/ - - - - - - - - - - -
+ This component provides performance hints for the compiler or hardware.
+
 /'bsls_platform'
-/---------------
- This component defines preprocessor macros that identify and
- describe platform-specific attributes (at compile time).  These attributes
- consist of the types and versions of operating system, processor(s), and
- compiler that comprise the platform.
+/- - - - - - - -
+ This component defines preprocessor macros that identify and describe
+ platform-specific attributes (at compile time).  These attributes consist of
+ the types and versions of operating system, processor(s), and compiler that
+ comprise the platform.
 
 /'bsls_platformutil'
-/-------------------
- This component provides a namespace for a collection of typedefs and pure
+/- - - - - - - - - -
+ This component provides a namespace for a collection of 'typedef's and pure
  procedures that would otherwise have platform-dependent interfaces.  For
  example, it defines the preferred fundamental types denoting signed and
- unsigned 64-bit integers,  the preferred integral type denoting a number of
+ unsigned 64-bit integers, the preferred integral type denoting a number of
  elements in allocators and containers, provides the capability of determining
  whether a machine is big or little endian across all supported platforms, and
  defines a set of macros replacing the standard 'htonl', 'htons', 'ntohl', and
  'ntohs' which do not require including any system header.
 
 /'bsls_protocoltest'
-/-------------------
+/- - - - - - - - - -
  This component provides classes and macros for testing abstract protocols.
 
 /'bsls_stopwatch'
-/----------------
+/ - - - - - - - -
  This component implements a real-time (system clock) interval timer.  A
  'bsls_Stopwatch' object can accumulate and return only one interval at a time,
  but may be started and stopped repeatedly without being reset, so the elapsed
@@ -187,14 +402,25 @@
  seconds) is available as a 'double' value.
 
 /'bsls_timeutil'
-/---------------
+/- - - - - - - -
  This component provides a set of platform-neutral pure procedures to access
  real-time system clock functionality.  High-resolution time functions intended
  for interval-timing return an interval in nanoseconds (1 nsec = 1E-9 sec) as a
  64-bit integer.
 
-@Usage Examples
+/'bsls_types'
+/ - - - - - -
+ This component provides a namespace for a set of 'typedef's that provide a
+ stable, portable interface to platform-dependent types.
 
- This package provides disparate functionality close to the system layer.
- There is no natural usage example for the entire package.  It is best to refer
- to the usage example for each individual component.
+/'bsls_unspecifiedbool'
+/ - - - - - - - - - - -
+ This component provides a class template that can be used to manufacture an
+ "unspecified boolean type" that is distinct for each class that instantiates
+ it.  *Not* for use outside the 'bsl' package.
+
+/'bsls_util'
+/- - - - - -
+ This component provides pure functions that supply essential low-level support
+ for implementing portable generic facilities such as might be found the the
+ C++ standard library.
