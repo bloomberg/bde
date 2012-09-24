@@ -159,6 +159,24 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -212,121 +230,117 @@ int main(int argc, char *argv[])
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, char,                   true);
+                       bslmf::IsFundamental, VALUE, char,                   1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, signed char,            true);
+                       bslmf::IsFundamental, VALUE, signed char,            1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, unsigned char,          true);
+                       bslmf::IsFundamental, VALUE, unsigned char,          1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, wchar_t,                true);
+                       bslmf::IsFundamental, VALUE, wchar_t,                1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, short int,              true);
+                       bslmf::IsFundamental, VALUE, short int,              1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, unsigned short int,     true);
+                       bslmf::IsFundamental, VALUE, unsigned short int,     1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, int,                    true);
+                       bslmf::IsFundamental, VALUE, int,                    1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, unsigned int,           true);
+                       bslmf::IsFundamental, VALUE, unsigned int,           1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, long int,               true);
+                       bslmf::IsFundamental, VALUE, long int,               1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, unsigned long int,      true);
+                       bslmf::IsFundamental, VALUE, unsigned long int,      1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, float,                  true);
+                       bslmf::IsFundamental, VALUE, float,                  1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, double,                 true);
+                       bslmf::IsFundamental, VALUE, double,                 1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, long double,            true);
+                       bslmf::IsFundamental, VALUE, long double,            1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, void,                   true);
+                       bslmf::IsFundamental, VALUE, void,                   1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, long long int,          true);
+                       bslmf::IsFundamental, VALUE, long long int,          1);
         TYPE_ASSERT_CVQ_SUFFIX(
-                    bslmf::IsFundamental, VALUE, unsigned long long int, true);
+                       bslmf::IsFundamental, VALUE, unsigned long long int, 1);
 
         // C-2
         TYPE_ASSERT_CVQ_SUFFIX(
-                     bslmf::IsFundamental, VALUE, EnumTestType,         false);
+                         bslmf::IsFundamental, VALUE, EnumTestType,         0);
         TYPE_ASSERT_CVQ_SUFFIX(
-                     bslmf::IsFundamental, VALUE, StructTestType,       false);
+                         bslmf::IsFundamental, VALUE, StructTestType,       0);
         TYPE_ASSERT_CVQ_REF   (
-                     bslmf::IsFundamental, VALUE, StructTestType,       false);
+                         bslmf::IsFundamental, VALUE, StructTestType,       0);
         TYPE_ASSERT_CVQ_SUFFIX(
-                     bslmf::IsFundamental, VALUE, UnionTestType,        false);
+                         bslmf::IsFundamental, VALUE, UnionTestType,        0);
         TYPE_ASSERT_CVQ_REF   (
-                     bslmf::IsFundamental, VALUE, UnionTestType,        false);
+                         bslmf::IsFundamental, VALUE, UnionTestType,        0);
         TYPE_ASSERT_CVQ_SUFFIX(
-                     bslmf::IsFundamental, VALUE, Incomplete,           false);
+                         bslmf::IsFundamental, VALUE, Incomplete,           0);
         TYPE_ASSERT_CVQ_REF   (
-                     bslmf::IsFundamental, VALUE, Incomplete,           false);
+                         bslmf::IsFundamental, VALUE, Incomplete,           0);
         TYPE_ASSERT_CVQ_SUFFIX(
-                     bslmf::IsFundamental, VALUE, BaseClassTestType,    false);
+                         bslmf::IsFundamental, VALUE, BaseClassTestType,    0);
         TYPE_ASSERT_CVQ_REF   (
-                     bslmf::IsFundamental, VALUE, BaseClassTestType,    false);
+                         bslmf::IsFundamental, VALUE, BaseClassTestType,    0);
         TYPE_ASSERT_CVQ_SUFFIX(
-                     bslmf::IsFundamental, VALUE, DerivedClassTestType, false);
+                         bslmf::IsFundamental, VALUE, DerivedClassTestType, 0);
         TYPE_ASSERT_CVQ_REF   (
-                     bslmf::IsFundamental, VALUE, DerivedClassTestType, false);
+                         bslmf::IsFundamental, VALUE, DerivedClassTestType, 0);
 
         // C-3
         TYPE_ASSERT_CVQ(
-               bslmf::IsFundamental, VALUE, int*,                       false);
+                   bslmf::IsFundamental, VALUE, int*,                       0);
         TYPE_ASSERT_CVQ(
-               bslmf::IsFundamental, VALUE, StructTestType*,            false);
+                   bslmf::IsFundamental, VALUE, StructTestType*,            0);
         TYPE_ASSERT_CVQ(
-               bslmf::IsFundamental, VALUE, int StructTestType::* *,    false);
+                   bslmf::IsFundamental, VALUE, int StructTestType::* *,    0);
         TYPE_ASSERT_CVQ(
-               bslmf::IsFundamental, VALUE, UnionTestType*,             false);
+                   bslmf::IsFundamental, VALUE, UnionTestType*,             0);
         TYPE_ASSERT_CVQ(
-               bslmf::IsFundamental, VALUE, PMD BaseClassTestType::* *, false);
+                   bslmf::IsFundamental, VALUE, PMD BaseClassTestType::* *, 0);
         TYPE_ASSERT_CVQ(
-               bslmf::IsFundamental, VALUE, BaseClassTestType*,         false);
+                   bslmf::IsFundamental, VALUE, BaseClassTestType*,         0);
         TYPE_ASSERT_CVQ(
-               bslmf::IsFundamental, VALUE, DerivedClassTestType*,      false);
+                   bslmf::IsFundamental, VALUE, DerivedClassTestType*,      0);
         TYPE_ASSERT_CVQ(
-               bslmf::IsFundamental, VALUE, Incomplete*,                false);
+                   bslmf::IsFundamental, VALUE, Incomplete*,                0);
         TYPE_ASSERT_CVQ_SUFFIX(
-               bslmf::IsFundamental, VALUE, FunctionPtrTestType,        false);
+                   bslmf::IsFundamental, VALUE, FunctionPtrTestType,        0);
         TYPE_ASSERT_CVQ_REF(
-               bslmf::IsFundamental, VALUE, int*,                       false);
+                   bslmf::IsFundamental, VALUE, int*,                       0);
         TYPE_ASSERT_CVQ_REF(
-               bslmf::IsFundamental, VALUE, StructTestType*,            false);
+                   bslmf::IsFundamental, VALUE, StructTestType*,            0);
         TYPE_ASSERT_CVQ_REF(
-               bslmf::IsFundamental, VALUE, int StructTestType::*,      false);
+                   bslmf::IsFundamental, VALUE, int StructTestType::*,      0);
         TYPE_ASSERT_CVQ_REF(
-               bslmf::IsFundamental, VALUE, int StructTestType::* *,    false);
+                   bslmf::IsFundamental, VALUE, int StructTestType::* *,    0);
         TYPE_ASSERT_CVQ_REF(
-               bslmf::IsFundamental, VALUE, UnionTestType*,             false);
+                   bslmf::IsFundamental, VALUE, UnionTestType*,             0);
         TYPE_ASSERT_CVQ_REF(
-               bslmf::IsFundamental, VALUE, PMD BaseClassTestType::*,   false);
+                   bslmf::IsFundamental, VALUE, PMD BaseClassTestType::*,   0);
         TYPE_ASSERT_CVQ_REF(
-               bslmf::IsFundamental, VALUE, PMD BaseClassTestType::* *, false);
+                   bslmf::IsFundamental, VALUE, PMD BaseClassTestType::* *, 0);
         TYPE_ASSERT_CVQ_REF(
-               bslmf::IsFundamental, VALUE, BaseClassTestType*,         false);
+                   bslmf::IsFundamental, VALUE, BaseClassTestType*,         0);
         TYPE_ASSERT_CVQ_REF(
-               bslmf::IsFundamental, VALUE, DerivedClassTestType*,      false);
+                   bslmf::IsFundamental, VALUE, DerivedClassTestType*,      0);
         TYPE_ASSERT_CVQ_REF(
-               bslmf::IsFundamental, VALUE, Incomplete*,                false);
+                   bslmf::IsFundamental, VALUE, Incomplete*,                0);
         TYPE_ASSERT_CVQ_REF(
-               bslmf::IsFundamental, VALUE, FunctionPtrTestType,        false);
+                   bslmf::IsFundamental, VALUE, FunctionPtrTestType,        0);
         TYPE_ASSERT_CVQ_REF(
-               bslmf::IsFundamental, VALUE, MethodPtrTestType,          false);
+                   bslmf::IsFundamental, VALUE, MethodPtrTestType,          0);
         TYPE_ASSERT_CVQ(
-                 bslmf::IsFundamental, VALUE, int StructTestType::*,    false);
+                   bslmf::IsFundamental, VALUE, int StructTestType::*,      0);
         TYPE_ASSERT_CVQ(
-                 bslmf::IsFundamental, VALUE, PMD BaseClassTestType::*, false);
+                   bslmf::IsFundamental, VALUE, PMD BaseClassTestType::*,   0);
         TYPE_ASSERT_CVQ_SUFFIX(
-                 bslmf::IsFundamental, VALUE, MethodPtrTestType,        false);
+                   bslmf::IsFundamental, VALUE, MethodPtrTestType,          0);
 
         // C-5
-        TYPE_ASSERT_CVQ_PREFIX(
-                              bslmf::IsFundamental, VALUE, int  (int),  false);
-        TYPE_ASSERT_CVQ_PREFIX(
-                              bslmf::IsFundamental, VALUE, void (void), false);
-        TYPE_ASSERT_CVQ_PREFIX(
-                              bslmf::IsFundamental, VALUE, int  (void), false);
-        TYPE_ASSERT_CVQ_PREFIX(
-                              bslmf::IsFundamental, VALUE, void (int),  false);
+        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, int  (int),  0);
+        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, void (void), 0);
+        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, int  (void), 0);
+        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, void (int),  0);
 
       } break;
       case 1: {

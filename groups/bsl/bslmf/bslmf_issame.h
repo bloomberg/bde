@@ -10,37 +10,59 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an meta-function for checking if two types are the same.
 //
 //@CLASSES:
+//  bsl::is_same: standard meta-function for checking two same types
 //  bslmf::IsSame: meta-function evaluating whether two types are the same
 //
 //@AUTHOR: Shawn Edwards (sedwards)
 //
-//@DESCRIPTION: This component defines a simple template structure used to
-// evaluate whether it's two parameter have the same type.  'bslmf::IsSame'
-// defines a member, 'value', whose value is initialized (at compile-time) to 1
-// if the two parameters are the same type, and 0 if they are different types.
+///@DESCRIPTION: This component defines two meta-functions, 'bsl::is_same'
+// and 'BloombergLP::bslmf::IsSame', both of which may be used to query whether
+// two types are same.
+//
+// 'bsl::is_same' meets the requirements of the 'is_same' template defined in
+// the C++11 standard [meta.rel], while 'bslmf::IsSame' was devised before
+// 'is_same' was standardized.
+//
+// The two meta-functions are functionally equivalent.  The major difference
+// between them is that the result for 'bsl::is_same' is indicated by the class
+// member 'value', while the result for 'bslmf::IsSame' is indicated by the
+// class member 'VALUE'.
+//
+// Note that 'bsl::is_same' should be preferred over 'bslmf::IsSame', and in
+// general, should be used by new components.
 //
 ///Usage
 ///-----
-// For example:
-//..
-//  typedef int    INT;
-//  typedef double DOUBLE;
+// In this section we show intended use of this component.
 //
-//  const int I = bslmf::IsSame<INT, INT>::value;            assert(1 == I);
-//  const int J = bslmf::IsSame<INT, DOUBLE>::value;         assert(0 == J);
+///Example 1: Determine Same Types
+///- - - - - - - - - - - - - - - -
+// Suppose that we have a couple of pairs of types and want to assert whether
+// the types in each pair are same.
+//
+// First, we create some 'typedef's to define some types:
+//..
+//  typedef       int    INT;
+//  typedef       double DOUBLE;
+//  typedef       short  SHORT;
+//  typedef const short  CONST_SHORT;
+//  typedef       int    INT;
+//  typedef       int&   INT_REF;
+//..
+// Now, we instantiate the 'bsl::is_same' template for each pair of the
+// 'typedef's and assert the 'value' static data member of each instantiation:
+//..
+//  assert(1 == (bsl::is_same<INT, INT>::value));
+//  assert(0 == (bsl::is_same<INT, DOUBLE>::value));
 //..
 // Note that a 'const'-qualified type is considered distinct from the
 // non-'const' (but otherwise identical) type:
 //..
-//  typedef       short       SHORT;
-//  typedef const short CONST_SHORT;
-//  const int K = bslmf::IsSame<SHORT, CONST_SHORT>::value;  assert(0 == K);
+//  assert(0 == (bsl::is_same<SHORT, CONST_SHORT>::value));
 //..
 // Similarly, a 'TYPE' and a reference to 'TYPE' ('TYPE&') are distinct:
 //..
-//  typedef int  INT;
-//  typedef int& INT_REF;
-//  const int L = bslmf::IsSame<INT, INT_REF>::value;        assert(0 == L);
+//  assert(0 == (bsl::is_same<INT, INT_REF>::value));
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -65,7 +87,7 @@ template <typename TYPE>
 struct is_same<TYPE, TYPE> : true_type
 {};
 
-}
+}  // close namespace bsl
 
 namespace BloombergLP {
 
