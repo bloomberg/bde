@@ -209,8 +209,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // 'bsl::is_member_pointer::value'
         //   Ensure that the static data member 'value' of
-        //   'bsl::is_member_pointer' instantiations having various
-        //   (template parameter) 'TYPES' has the correct value.
+        //   'bsl::is_member_pointer' instantiations having various (template
+        //   parameter) 'TYPE' has the correct value.
         //
         // Concerns:
         //: 1 'is_member_pointer::value' is 'false' when 'TYPE' is a (possibly
