@@ -33,7 +33,7 @@
 #include <malloc.h>
 #include <setjmp.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 // 'getStackAddresses' will not be able to trace through our stack frames if
 // we're optimized on Windows
@@ -264,7 +264,7 @@ namespace {
 
 typedef bsls::Types::UintPtr UintPtr;
 
-#if !defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BDE_BUILD_TARGET_DBG)
+#if !defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BDE_BUILD_TARGET_DBG)
 enum { CAN_FIND_SYMBOLS = 1 };
 #else
 enum { CAN_FIND_SYMBOLS = 0 };
@@ -497,7 +497,7 @@ void my_assertHandlerLongJmp(const char *,  // text
                              const char *,  // fail
                              int         )  // lineo
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // setjmp / longjmp is flaky on Windows
 
     ASSERT(0);
@@ -508,7 +508,7 @@ void my_assertHandlerLongJmp(const char *,  // text
 
 void my_failureHandlerLongJmp()
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // setjmp / longjmp is flaky on Windows
 
     ASSERT(0);
@@ -523,7 +523,7 @@ void my_failureHandlerSetFlag()
     my_failureHandlerFlag = true;
 }
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 enum { ABORT_LIMIT = 1 };
 #else
 enum { ABORT_LIMIT = 2 };
@@ -548,7 +548,7 @@ unsigned idxVoidFuncLeakTwiceA;
 unsigned idxVoidFuncLeakTwiceB;
 unsigned idxVoidFuncLeakTwiceC;
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
 static
 const UintPtr my_HIGH_ONES = (UintPtr) 1111111111 * 10 * 1000 * 1000 * 1000;
 #else
@@ -1125,7 +1125,7 @@ int main(int argc, char *argv[])
         }
         ss.str("");
 
-#if defined(BSLS_ASSERT_IS_ACTIVE) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_ASSERT_IS_ACTIVE) && !defined(BSLS_PLATFORM_OS_WINDOWS)
         bsls::Assert::setFailureHandler(my_assertHandlerLongJmp);
 
         bool caught = false;
@@ -1490,12 +1490,12 @@ int main(int argc, char *argv[])
             const bool DEMANGLE_CONFIG = d;
             bool demangleExpected = DEMANGLE_CONFIG;
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CMP_GNU)
             // never on Solaris CC
 
             demangleExpected = false;
 #endif
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
             // always on Windows
 
             demangleExpected = true;
@@ -2283,7 +2283,7 @@ int main(int argc, char *argv[])
             }
         }
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         if (verbose) Q(Longjmp on destruction with segments outstanding);
         {
             bsl::stringstream ss;

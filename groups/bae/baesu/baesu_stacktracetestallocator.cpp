@@ -50,7 +50,7 @@ struct Max {
 // Magic number.  I wanted to make this into an enum, but I also want it to be
 // the size of a pointer, and AIX does not support 64 bit enums.
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
 static
 const UintPtr HIGH_ONES = (UintPtr) 1111111111 * 10 * 1000 * 1000 * 1000;
 #else
