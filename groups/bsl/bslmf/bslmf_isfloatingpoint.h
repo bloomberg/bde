@@ -61,6 +61,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 
+                         // ==========================
+                         // struct IsFloatingPoint_Imp
+                         // ==========================
+
 template <typename TYPE>
 struct IsFloatingPoint_Imp : bsl::false_type {
     // This 'struct' template provides a meta-function to determine whether the
@@ -71,21 +75,21 @@ struct IsFloatingPoint_Imp : bsl::false_type {
 
 template <>
 struct IsFloatingPoint_Imp<float> : bsl::true_type {
-     // This partial specialization of 'IsFloatingPoint_Imp' derives from
+     // This specialization of 'IsFloatingPoint_Imp' derives from
      // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
      // floating-point type.
 };
 
 template <>
 struct IsFloatingPoint_Imp<double> : bsl::true_type {
-     // This partial specialization of 'IsFloatingPoint_Imp' derives from
+     // This specialization of 'IsFloatingPoint_Imp' derives from
      // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
      // floating-point type.
 };
 
 template <>
 struct IsFloatingPoint_Imp<long double> : bsl::true_type {
-     // This partial specialization of 'IsFloatingPoint_Imp' derives from
+     // This specialization of 'IsFloatingPoint_Imp' derives from
      // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
      // floating-point type.
 };
@@ -94,6 +98,10 @@ struct IsFloatingPoint_Imp<long double> : bsl::true_type {
 }
 
 namespace bsl {
+
+                         // ========================
+                         // struct is_floating_point
+                         // ========================
 
 template <typename TYPE>
 struct is_floating_point
