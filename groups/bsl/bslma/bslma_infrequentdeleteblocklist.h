@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide allocation and management of a sequence of memory blocks.
 //
-//@DEPRECATED: Use 'bdema_infrequentdeleteblocklist' instead.
+//@INTERNAL_DEPRECATED: Use 'bdema_infrequentdeleteblocklist' instead.
 //
 //@CLASSES:
 //  bslma::InfrequentDeleteBlockList: list of infrequently deleted blocks
@@ -146,6 +146,10 @@ BSLS_IDENT("$Id: $")
 // its 'bslma::InfrequentDeleteBlockList' member object is also destroyed,
 // which in turn automatically deallocates all of its managed memory blocks.
 
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#error "bslma_infrequentdeleteblocklist is deprecated"
+#endif
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
@@ -241,12 +245,14 @@ void InfrequentDeleteBlockList::deallocate(void *)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::InfrequentDeleteBlockList bslma_InfrequentDeleteBlockList;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

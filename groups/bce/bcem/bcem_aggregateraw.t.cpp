@@ -8089,7 +8089,7 @@ void testCase14() {
 
                 destroyAggData(&mX, &testAllocator);
 
-// #ifndef BSLS_PLATFORM__CMP_MSVC
+// #ifndef BSLS_PLATFORM_CMP_MSVC
 //               } END_BSLMA_EXCEPTION_TEST
 // #endif
           }
@@ -8138,7 +8138,7 @@ void testCase14() {
 
                 bslma_TestAllocator testAllocator(veryVeryVerbose);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
               BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
                 Obj mX(CRP, &testAllocator); const Obj& X = mX;
@@ -8181,7 +8181,7 @@ void testCase14() {
 
                 mA.removeItems(0, 1);
                 ASSERT(LEN + 0 == A.length());
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             } END_BSLMA_EXCEPTION_TEST
 #endif
           }

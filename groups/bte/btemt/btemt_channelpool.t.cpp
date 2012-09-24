@@ -59,7 +59,7 @@
 
 #include <bsls_assert.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
 #include <sys/resource.h>
 #endif
@@ -1118,7 +1118,7 @@ void writerThread(unsigned threadIndex)
     for (iter = 0; iter < maxWritesPerThread &&
                    consecutiveFailures < maxConsecutiveFailures; ++iter) {
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         int randVal = rand();
 #else
         int randVal = rand_r(&threadIndex);
@@ -6035,7 +6035,7 @@ void *case9Read(void *arg)
 {
     case9ReadInfo *info = (case9ReadInfo*) arg;
     const int NUM_THREADS = info->d_numThreads;
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
     // AIX is doing something very very weird.  The following
     // read() calls block even if the client's buffer is full or has
     // more data than we request.  Reading very small chunks works
@@ -6170,7 +6170,7 @@ void runTestCase9(char                                         *progname,
 
         // Control - makes sure everythings goes well with direct writes.
         { L_,   0,    1024,     1024,              1024           },
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
         // Bad AIX seems to have problems read and writing from the same
         // process, takes forever.  Works eventually, but takes several
         // seconds for case above!!!
@@ -6185,14 +6185,14 @@ void runTestCase9(char                                         *progname,
         // On most systems, BTEMT_MAX_IOVEC_SIZE is 16, so we make sure we
         // exercise the callback inside btemt_Channel::writeMessage or
         // btemt_Channel::writeVecMessage.
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
         { L_,   0,    1024,     1024 * 2,          1024           },
         { L_,   0,    1024,     1024 * 4,          1024           },
         { L_,   0,    1024,     1024 * 8,          1024           },
         { L_,   0,    1024,     1024 * 15,         1024           },
 #endif
         { L_,   0,    1024,     1024 * 17,         1024           },
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
         { L_,   0,    1024,     1024 * 18,         1024           },
         { L_,   0,    1024,     1024 * 31,         1024           },
         { L_,   0,    1024,     1024 * 32,         1024           },
@@ -6205,7 +6205,7 @@ void runTestCase9(char                                         *progname,
         // These cases were disabled for the truss traces, but are enabled
         // for the nightly builds.
         { L_,   0,    1024,     1024 * 17 - 128,   1024 - 128     },
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
         { L_,   0,    1024,     1024 * 17 - 128,   1024           },
         { L_,   0,    1024,     1024 * 17,         1024 - 128     },
         { L_,   0,    1024,     1024 * 17 + 128,   1024           },
@@ -6213,7 +6213,7 @@ void runTestCase9(char                                         *progname,
 #endif
         { L_,   0,    1024,     1024 * 17 + 128,   1024 + 128     },
 
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
         { L_,   0,    1024,     1024 * 31 - 128,   1024 - 128     },
         { L_,   0,    1024,     1024 * 31 - 128,   1024           },
         { L_,   0,    1024,     1024 * 31,         1024 - 128     },
@@ -6240,7 +6240,7 @@ void runTestCase9(char                                         *progname,
         // that writev will not be able to write exactly multiple of buffer.
         // These numbers are all prime, big alloc is between 29 and 33 times
         // bigger than buffer alloc, and small alloc about 2.2 times bigger.
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
         { L_,   0,    1229,     35897,             2687           },
         { L_,   0,    1229,     39499,             2687           },
 #endif
@@ -9280,7 +9280,7 @@ void TestDriver::testCase32()
 
             {   L_,   "GN",         0 },
 
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
             {   L_,   "GY",        -1 },
 #else
             {   L_,   "GY",         0 },
@@ -9288,14 +9288,14 @@ void TestDriver::testCase32()
 
             {   L_,   "HN",         0 },
 
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
             {   L_,   "HY",         0 },
 #endif
 
             {   L_,   "IN",         0 },
             {   L_,   "IY",         0 },
 
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
 // TBD on AIX setting this option succeeds for BTESO_SOCKET_DATAGRAM
 //                   {   L_,   "JN",        -1 },
 //                   {   L_,   "JY",        -1 },
@@ -9307,7 +9307,7 @@ void TestDriver::testCase32()
             {   L_,   "KN",         0 },
             {   L_,   "KY",         0 },
 
-#ifndef BSLS_PLATFORM__OS_HPUX
+#ifndef BSLS_PLATFORM_OS_HPUX
 // TBD on HPUX setting this option succeeds for BTESO_SOCKET_DATAGRAM
 //                   {   L_,   "LN",        -1 },
 //                   {   L_,   "LY",        -1 },
@@ -9324,31 +9324,31 @@ void TestDriver::testCase32()
             {   L_,   "A1",         0 },
             {   L_,   "A2",         0 },
 
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
             {   L_,   "B0",         0 },
             {   L_,   "B1",         0 },
             {   L_,   "B2",         0 },
 #endif
 
-// #if !defined(BSLS_PLATFORM__OS_SOLARIS)          \
-//  && !defined(BSLS_PLATFORM__OS_LINUX)            \
-//  && !defined(BSLS_PLATFORM__OS_HPUX)
+// #if !defined(BSLS_PLATFORM_OS_SOLARIS)          \
+//  && !defined(BSLS_PLATFORM_OS_LINUX)            \
+//  && !defined(BSLS_PLATFORM_OS_HPUX)
 //               // Cannot be changed on Linux and not specified on Sun
 
 //             {   L_,   "C0",         0 },
 //             {   L_,   "C1",         0 },
 //             {   L_,   "C2",         0 },
-// #elif !defined(BSLS_PLATFORM__OS_HPUX)
+// #elif !defined(BSLS_PLATFORM_OS_HPUX)
 //             {   L_,   "C0",        -1 },
 //             {   L_,   "C1",        -1 },
 //             {   L_,   "C2",        -1 },
 // #endif
 
-#ifdef BSLS_PLATFORM__OS_SOLARIS
+#ifdef BSLS_PLATFORM_OS_SOLARIS
             {   L_,   "D0",        -1 },
             {   L_,   "D1",        -1 },
             {   L_,   "D2",        -1 },
-#elif !defined(BSLS_PLATFORM__OS_HPUX) && !defined(BSLS_PLATFORM__OS_AIX)
+#elif !defined(BSLS_PLATFORM_OS_HPUX) && !defined(BSLS_PLATFORM_OS_AIX)
             {   L_,   "D0",         0 },
             {   L_,   "D1",         0 },
             {   L_,   "D2",         0 },
@@ -9356,7 +9356,7 @@ void TestDriver::testCase32()
 
             // Fails on all platforms TBD Uncomment
 
-#ifndef BSLS_PLATFORM__OS_HPUX
+#ifndef BSLS_PLATFORM_OS_HPUX
 // TBD on HPUX setting this option succeeds but the timeout value is not what
 // was specified.
 //               {   L_,   "E0",         0 },
@@ -9376,7 +9376,7 @@ void TestDriver::testCase32()
             {   L_,   "F2",        -1 },
 #endif
 
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
             // Works only on IBM.  On other platforms although the return
             // code is 0, the timeout is not set correctly.
 
@@ -9385,7 +9385,7 @@ void TestDriver::testCase32()
 
             {   L_,   "MY2",       0 },
 
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
             {   L_,   "A1B2MY2",   0 },
 #endif
         };
@@ -10544,9 +10544,9 @@ void TestDriver::testCase29()
                                         btemt_ChannelPool::BTEMT_CHANNEL_UP,
                                         bdet_TimeInterval(1.0)));
 
-#if  defined(BSLS_PLATFORM__OS_LINUX)           \
+#if  defined(BSLS_PLATFORM_OS_LINUX)           \
  &&  defined(BDE_BUILD_TARGET_OPT)              \
- &&  defined(BSLS_PLATFORM__CPU_64_BIT)
+ &&  defined(BSLS_PLATFORM_CPU_64_BIT)
             // 64-bit opt builds on Linux this check that the latest imported
             // socket is assigned to the lastClientSocketThreadId fails.  The
             // allocation to a specific event manager thread is not an error
@@ -10985,9 +10985,9 @@ void TestDriver::testCase26()
             if (veryVerbose)
                 cout << "Testing IovecArray constants" << bsl::endl;
 
-#if defined(BSLS_PLATFORM__OS_UNIX) && defined(IOV_MAX) && IOV_MAX > 32
+#if defined(BSLS_PLATFORM_OS_UNIX) && defined(IOV_MAX) && IOV_MAX > 32
             ASSERT(Helper::BTEMT_MAX_IOVEC_SIZE == 32);
-#elif defined(BSLS_PLATFORM__OS_UNIX) && defined(IOV_MAX)
+#elif defined(BSLS_PLATFORM_OS_UNIX) && defined(IOV_MAX)
             ASSERT(Helper::BTEMT_MAX_IOVEC_SIZE == IOV_MAX);
 #else
             ASSERT(Helper::BTEMT_MAX_IOVEC_SIZE == 16);
@@ -11876,8 +11876,8 @@ void TestDriver::testCase22()
             // client, and one server accepting large messages.
 
             enum {
-#if !defined(BSLS_PLATFORM__CPU_X86) && !defined(BSLS_PLATFORM__CPU_X86_64) \
- && !defined(BSLS_PLATFORM__OS_AIX)
+#if !defined(BSLS_PLATFORM_CPU_X86) && !defined(BSLS_PLATFORM_CPU_X86_64) \
+ && !defined(BSLS_PLATFORM_OS_AIX)
                 NUM_THREADS        = 10,
                 NUM_ITERS          = 1005,   // never a multiple of 10
                 LARGE_NUM_ITERS    = 10005,  // never a multiple of 10
@@ -11944,7 +11944,7 @@ void TestDriver::testCase22()
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
 
-#if !defined(BSLS_PLATFORM__OS_AIX)
+#if !defined(BSLS_PLATFORM_OS_AIX)
         // Bad AIX seems to have problems read and writing from the same
         // process, takes forever.  Similar cases commented out in case 9.
         {
@@ -12110,7 +12110,7 @@ void TestDriver::testCase20()
         //   Concern: DRQS 8397003
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         if (verbose) cout << "Testing Concern: DRQS 8397003" << endl
                           << "=============================" << endl;
 
@@ -12298,7 +12298,7 @@ void TestDriver::testCase19()
         //   Concern: DRQS 5425522
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         if (verbose)
              cout << "\nTesting Concern: DRQS 5425522"
                   << "\n=============================" << endl;
@@ -12337,8 +12337,8 @@ void TestDriver::testCase19()
             struct rlimit rlim;
             ASSERT(0 == getrlimit(RLIMIT_NOFILE, &rlim));
 
-#if defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_LINUX) \
- || defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_LINUX) \
+ || defined(BSLS_PLATFORM_OS_HPUX)
             rlim.rlim_cur = 4 * MAX_THREADS + 2;
 #else
             rlim.rlim_cur = 4 * MAX_THREADS + 5;
@@ -12417,7 +12417,7 @@ void TestDriver::testCase19()
 
             if (verbose)
                 cout << "Establishing connection (should succeed)" << endl;
-#ifndef BSLS_PLATFORM__OS_LINUX
+#ifndef BSLS_PLATFORM_OS_LINUX
             // The Linux machine used in the nightly builds does not properly
             // reset the FD limit to its max value (more exactly, it does but
             // it still fails to accept beyond the previous FD limit).  Comment
@@ -13319,7 +13319,7 @@ void TestDriver::testCase14()
                     MTCOUT << "client wrote " << clientBytesWritten
                            << MTENDL;
                 }
-                #ifdef BSLS_PLATFORM__OS_AIX
+                #ifdef BSLS_PLATFORM_OS_AIX
                 if (clientBytesWritten >= 1024) {
                     break; // AIX is brain-dead.
                 }
@@ -13335,7 +13335,7 @@ void TestDriver::testCase14()
             do {
                 LOOP_ASSERT(X.numChannels(), 1 == X.numChannels());
 
-                #ifndef BSLS_PLATFORM__OS_AIX
+                #ifndef BSLS_PLATFORM_OS_AIX
                 int r =  channel.read(buffer, sizeof(buffer), 0);
                 #else
                 // AIX is doing something very very weird.  The following
@@ -13446,7 +13446,7 @@ void TestDriver::testCase14()
                     MTCOUT << "client wrote " << clientBytesWritten
                            << MTENDL;
                 }
-                #ifdef BSLS_PLATFORM__OS_AIX
+                #ifdef BSLS_PLATFORM_OS_AIX
                 if (clientBytesWritten >= 1024) {
                     break; // AIX is brain-dead.
                 }
@@ -13466,7 +13466,7 @@ void TestDriver::testCase14()
             do {
                 ASSERT(1 == X.numChannels());
 
-                #ifndef BSLS_PLATFORM__OS_AIX
+                #ifndef BSLS_PLATFORM_OS_AIX
                 int r =  channel2.read(buffer, sizeof(buffer), 0);
                 #else
                 // AIX is doing something very very weird.  The following
@@ -13591,7 +13591,7 @@ void TestDriver::testCase14()
                     MTCOUT << "client wrote " << clientBytesWritten
                            << MTENDL;
                 }
-                #ifdef BSLS_PLATFORM__OS_AIX
+                #ifdef BSLS_PLATFORM_OS_AIX
                 if (clientBytesWritten >= 1024) {
                     break; // AIX is brain-dead.
                 }
@@ -13607,7 +13607,7 @@ void TestDriver::testCase14()
             do {
                 ASSERT(1 == X.numChannels());
 
-                #ifndef BSLS_PLATFORM__OS_AIX
+                #ifndef BSLS_PLATFORM_OS_AIX
                 int r =  channel3.read(buffer, sizeof(buffer), 0);
                 #else
                 // AIX is doing something very very weird.  The following
@@ -13858,7 +13858,7 @@ void TestDriver::testCase13()
                 cout << "*** Warning: " << ARGV[0] << ":" << L_ << ":\n"
                      << "*** Warning: anomalous timing results ***" << endl;
             }
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
             LOOP2_ASSERT(rr, exp, exp_really_lo < rr && rr < exp_really_hi);
 #endif
             if (verbose) { P_(exp_lo); P_(exp); P_(exp_hi); P(rr); }
@@ -16105,7 +16105,7 @@ int main(int argc, char **argv)
     ARGV = argv;
 
     // TBD: these tests frequently timeout on Windows, disabling until fixed
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     testStatus = -1;
 #else
 
@@ -16114,7 +16114,7 @@ int main(int argc, char **argv)
 
     ASSERT(0 == bteso_SocketImpUtil::startup());
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     // Ignore SIGPIPE - test driver-wide.  This signal is raised when writing
     // into a socket whose peer is down.  It creates havoc in test case 22 esp.
     // but there is no reason it should be raised in any of the other test
@@ -16197,7 +16197,7 @@ int main(int argc, char **argv)
     cout << "TEST CASE " << test << " ENDED "
          << bdetu_SystemTime::nowAsDatetimeUtc() << endl;
 
-#endif // !BSLS_PLATFORM__OS_WINDOWS
+#endif // !BSLS_PLATFORM_OS_WINDOWS
 
     return testStatus;
 }

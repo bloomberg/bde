@@ -110,7 +110,7 @@ BDES_IDENT("$Id: $")
 #include <bdex_versionfunctions.h>
 #endif
 
-#ifdef BSLS_PLATFORM__CMP_IBM
+#ifdef BSLS_PLATFORM_CMP_IBM
 // This is a temporary workaround for a bug that occurs when using AIX xlC
 // compiler.  When compiling a CPP file that uses a nullable value, the AIX xlC
 // compiler incorrectly gives an error that 'bdex_ByteInStreamFormatter' and

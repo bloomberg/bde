@@ -714,7 +714,7 @@ class bdecs_PackedCalendar {
     typedef bsl::reverse_iterator<HolidayCodeConstIterator>
                                                HolidayCodeConstReverseIterator;
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     typedef BusinessDayConstIterator        BusinessDayIterator;
     typedef HolidayConstIterator            HolidayIterator;
     typedef HolidayCodeConstIterator        HolidayCodeIterator;
@@ -722,7 +722,7 @@ class bdecs_PackedCalendar {
     typedef BusinessDayConstReverseIterator BusinessDayReverseIterator;
     typedef HolidayConstReverseIterator     HolidayReverseIterator;
     typedef HolidayCodeConstReverseIterator HolidayCodeReverseIterator;
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     typedef WeekendDaysTransitionSequence::const_iterator
                                             WeekendDaysTransitionConstIterator;
@@ -1396,10 +1396,10 @@ class bdecs_PackedCalendar_HolidayConstIterator {
     typedef bsl::bidirectional_iterator_tag iterator_category;
 
     // CREATORS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     bdecs_PackedCalendar_HolidayConstIterator();
         // Create an uninitialized iterator.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     bdecs_PackedCalendar_HolidayConstIterator(
                     const bdecs_PackedCalendar_HolidayConstIterator& original);
@@ -1500,10 +1500,10 @@ class bdecs_PackedCalendar_HolidayCodeConstIterator {
     typedef bsl::bidirectional_iterator_tag iterator_category;
 
     // CREATORS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     bdecs_PackedCalendar_HolidayCodeConstIterator();
         // Create an uninitialized iterator.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     bdecs_PackedCalendar_HolidayCodeConstIterator(
                 const bdecs_PackedCalendar_HolidayCodeConstIterator& original);
@@ -1632,10 +1632,10 @@ class bdecs_PackedCalendar_BusinessDayConstIterator {
     typedef bsl::bidirectional_iterator_tag iterator_category;
 
     // CREATORS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     bdecs_PackedCalendar_BusinessDayConstIterator();
         // Create an uninitialized iterator.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     bdecs_PackedCalendar_BusinessDayConstIterator(
                const bdecs_PackedCalendar_BusinessDayConstIterator& original);
@@ -1778,13 +1778,13 @@ bdecs_PackedCalendar_DateRef::operator&() const
                     // -----------------------------------------------
 
 // CREATORS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 bdecs_PackedCalendar_HolidayConstIterator::
 bdecs_PackedCalendar_HolidayConstIterator()
 {
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 bdecs_PackedCalendar_HolidayConstIterator::
@@ -1891,13 +1891,13 @@ bool operator!=(const bdecs_PackedCalendar_HolidayConstIterator& lhs,
                 // ---------------------------------------------------
 
 // CREATORS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 bdecs_PackedCalendar_HolidayCodeConstIterator::
 bdecs_PackedCalendar_HolidayCodeConstIterator()
 {
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 bdecs_PackedCalendar_HolidayCodeConstIterator::
@@ -1991,13 +1991,13 @@ bool operator!=(const bdecs_PackedCalendar_HolidayCodeConstIterator& lhs,
               // ---------------------------------------------------
 
 // CREATORS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 bdecs_PackedCalendar_BusinessDayConstIterator::
 bdecs_PackedCalendar_BusinessDayConstIterator()
 {
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 bdecs_PackedCalendar_BusinessDayConstIterator::
@@ -2856,7 +2856,7 @@ void swap(bdecs_PackedCalendar& a, bdecs_PackedCalendar& b)
 }
 
 // Backwards Compatibility Types
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 typedef bdecs_PackedCalendar_BusinessDayConstIterator
                                        bdecs_PackedCalendarBusinessDayIterator;
 typedef bdecs_PackedCalendar_IteratorDateProxy
@@ -2865,7 +2865,7 @@ typedef bdecs_PackedCalendar_HolidayConstIterator
                                        bdecs_HolidayIter;
 typedef bdecs_PackedCalendar_HolidayCodeConstIterator
                                        bdecs_HolidayCodeIter;
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

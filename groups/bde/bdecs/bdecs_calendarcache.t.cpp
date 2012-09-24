@@ -19,7 +19,7 @@
 #include <bdecs_calendarloader.h>
 #include <bdecs_packedcalendar.h>
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #include <windows.h>
 #include <crtdbg.h>  // '_CrtSetReportMode', to suppress popups
 #else
@@ -181,7 +181,7 @@ void testLoader::getFirstDate(bdet_Date *date)
 
 int main(int argc, char *argv[])
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // Suppress all windows debugging popups
     _CrtSetReportMode(_CRT_ASSERT,0);
     _CrtSetReportMode(_CRT_ERROR, 0);
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
                 cal = X.calendar("VALID1");
                 ASSERT(0 != cal);
 
-                #ifdef BSLS_PLATFORM__CMP_MSVC
+                #ifdef BSLS_PLATFORM_CMP_MSVC
                 Sleep(2 * 1000);
                 #else
                 sleep(2);
@@ -594,7 +594,7 @@ int main(int argc, char *argv[])
         ASSERT(0 != cal);
         calValid = cal;
 
-        #ifdef BSLS_PLATFORM__CMP_MSVC
+        #ifdef BSLS_PLATFORM_CMP_MSVC
         Sleep(2 * 1000);
         #else
         sleep(2);
@@ -606,7 +606,7 @@ int main(int argc, char *argv[])
         ASSERT(0 != cal);
         calValid1 = cal;
 
-        #ifdef BSLS_PLATFORM__CMP_MSVC
+        #ifdef BSLS_PLATFORM_CMP_MSVC
         Sleep(1 * 1000);
         #else
         sleep(1);
@@ -627,7 +627,7 @@ int main(int argc, char *argv[])
         loaderY.getFirstDate(&date2);
         ASSERT(date1 == date2); // Verify 'load' method is not called.
 
-        #ifdef BSLS_PLATFORM__CMP_MSVC
+        #ifdef BSLS_PLATFORM_CMP_MSVC
         Sleep(2 * 1000);
         #else
         sleep(2);
@@ -648,7 +648,7 @@ int main(int argc, char *argv[])
         loaderY.getFirstDate(&date2);
         ASSERT(date1 != date2); // Verify 'load' method is called.
 
-        #ifdef BSLS_PLATFORM__CMP_MSVC
+        #ifdef BSLS_PLATFORM_CMP_MSVC
         Sleep(2 * 1000);
         #else
         sleep(2);

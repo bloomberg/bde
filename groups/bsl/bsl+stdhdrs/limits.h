@@ -36,12 +36,12 @@ BSLS_IDENT("$Id: $")
 // fixed to compile by a C compiler.
 #if !defined(__cplusplus)
     #if defined (__GNUC__)
-        #define BSLS_PLATFORM__CMP_GNU 1
+        #define BSLS_PLATFORM_CMP_GNU 1
         #if defined(__GNU_PATCHLEVEL__)
-            #define BSLS_PLATFORM__CMP_VER_MAJOR (__GNUC__ * 10000 \
+            #define BSLS_PLATFORM_CMP_VER_MAJOR (__GNUC__ * 10000 \
                         + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
         #else
-            #define BSLS_PLATFORM__CMP_VER_MAJOR (__GNUC__ * 10000 \
+            #define BSLS_PLATFORM_CMP_VER_MAJOR (__GNUC__ * 10000 \
                         + __GNUC_MINOR__ * 100)
         #endif
     #endif
@@ -57,8 +57,8 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM__CMP_GNU) && \
-       (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_PLATFORM_CMP_GNU) && \
+       (BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)
 #     include_next <limits.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(limits.h)
@@ -79,8 +79,8 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM__CMP_GNU) && \
-       (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_PLATFORM_CMP_GNU) && \
+       (BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)
 #     include_next <limits.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(limits.h)

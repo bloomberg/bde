@@ -1297,7 +1297,7 @@ class bdex_TestInStreamFormatter {
 };
 
 // FREE FUNCTIONS
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename VALUE>
 inline
@@ -1318,7 +1318,7 @@ bdex_TestInStreamFormatter& operator>>(bdex_TestInStreamFormatter& stream,
     // which case this operator calls the appropriate 'get' method from this
     // component.
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -1404,7 +1404,7 @@ int bdex_TestInStreamFormatter::inputLimit() const
 }
 
 // FREE OPERATORS
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename VALUE>
 inline
@@ -1414,7 +1414,7 @@ bdex_TestInStreamFormatter& operator>>(bdex_TestInStreamFormatter& stream,
     return bdex_InStreamFunctions::streamInVersionAndObject(stream, value);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 }  // close namespace BloombergLP
 

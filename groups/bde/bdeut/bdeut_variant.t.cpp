@@ -1007,7 +1007,7 @@ struct VariantTestDriverException {};
 // access to conforming C++0x compilers.
 //# define BDEUT_VARIANT_NORETURN [[noreturn]]
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BDEUT_VARIANT_NORETURN __declspec(noreturn)
 #else
 #   define BDEUT_VARIANT_NORETURN
@@ -1968,7 +1968,7 @@ Obj g(const char *spec)
 // work-around for DRQS 22791105 (xlC compiler crash unless case 18 is
 // commented out).
 
-#ifdef BSLS_PLATFORM__CMP_IBM
+#ifdef BSLS_PLATFORM_CMP_IBM
 template class BloombergLP::bdeut_Variant<int,double,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>;
 template struct BloombergLP::bslalg_HasTrait<UsesAllocator<1>,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
 template struct BloombergLP::bslalg_HasTrait<UsesAllocator<10>,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
@@ -3131,7 +3131,7 @@ int main(int argc, char *argv[])
                                   NT13, NT14, NT15, NT16,
                                   NT17, NT18, NT19, UA20>   BigVar20;
 
-#if BSLS_PLATFORM__CPU_64_BIT
+#if BSLS_PLATFORM_CPU_64_BIT
             LOOP_ASSERT(sizeof(BigVar1),  24 == sizeof(BigVar1));
             LOOP_ASSERT(sizeof(BigVar2),  24 == sizeof(BigVar2));
             LOOP_ASSERT(sizeof(BigVar3),  24 == sizeof(BigVar3));
