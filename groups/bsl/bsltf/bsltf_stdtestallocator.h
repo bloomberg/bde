@@ -162,15 +162,15 @@ struct StdTestAllocatorConfiguration {
 
   private:
     // CLASS DATA
-    static bslma_Allocator *s_allocator_p; // the delegate allocator
+    static bslma::Allocator *s_allocator_p; // the delegate allocator
 
   public:
     // CLASS METHODS
-    static void setDelegateAllocatorRaw(bslma_Allocator *basicAllocator);
+    static void setDelegateAllocatorRaw(bslma::Allocator *basicAllocator);
         // Set the address of the delegate allocator to the specified
         // 'basicAllocator'.
 
-    static bslma_Allocator* delegateAllocator();
+    static bslma::Allocator* delegateAllocator();
         // Return the address of the delegate allocator.  Note that, this
         // method will initially return
         // '&bslma_NewDeleteAllocator::singleton()' if the
@@ -189,7 +189,7 @@ class StdTestAllocatorConfigurationGuard {
     // delegate their operations.  On destruction, the original delegate
     // allocator is restored.
 
-    bslma_Allocator *d_original_p;  // original (to be restored at destruction)
+    bslma::Allocator *d_original_p;  // original (restore at destruction)
 
   private:
     // NOT IMPLEMENTED
@@ -200,7 +200,7 @@ class StdTestAllocatorConfigurationGuard {
 
   public:
     // CREATORS
-    StdTestAllocatorConfigurationGuard(bslma_Allocator *temporaryAllocator);
+    StdTestAllocatorConfigurationGuard(bslma::Allocator *temporaryAllocator);
         // Create a scoped guard that installs the specified
         // 'temporaryAllocator' as the delegate allocator.
 
@@ -383,10 +383,10 @@ bool operator!=(const StdTestAllocator<TYPE1>& lhs,
 
 // CLASS METHODS
 inline
-bslma_Allocator* StdTestAllocatorConfiguration::delegateAllocator()
+bslma::Allocator* StdTestAllocatorConfiguration::delegateAllocator()
 {
     return s_allocator_p ?
-                        s_allocator_p : &bslma_NewDeleteAllocator::singleton();
+                        s_allocator_p : &bslma::NewDeleteAllocator::singleton();
 }
                         // ----------------------------------------
                         // class StdTestAllocatorConfigurationGuard
@@ -395,7 +395,7 @@ bslma_Allocator* StdTestAllocatorConfiguration::delegateAllocator()
 // CREATORS
 inline
 StdTestAllocatorConfigurationGuard::StdTestAllocatorConfigurationGuard(
-                                                   bslma_Allocator *temporary)
+                                                   bslma::Allocator *temporary)
 : d_original_p(StdTestAllocatorConfiguration::delegateAllocator())
 {
     BSLS_ASSERT(temporary);
@@ -438,7 +438,7 @@ StdTestAllocator<TYPE>::allocate(
 {
     return static_cast<pointer>(
         StdTestAllocatorConfiguration::delegateAllocator()->allocate(
-         BloombergLP::bslma_Allocator::size_type(numElements * sizeof(TYPE))));
+         BloombergLP::bslma::Allocator::size_type(numElements * sizeof(TYPE))));
 }
 
 template <class TYPE>
@@ -487,7 +487,7 @@ StdTestAllocator<TYPE>::max_size() const
     // 'size_type' (copied from bslstl_allocator).
 
     static const bool BSLMA_SIZE_IS_SIGNED =
-                              ~BloombergLP::bslma_Allocator::size_type(0) < 0;
+                              ~BloombergLP::bslma::Allocator::size_type(0) < 0;
     static const std::size_t MAX_NUM_BYTES =
                               ~std::size_t(0) / (BSLMA_SIZE_IS_SIGNED ? 2 : 1);
     static const std::size_t MAX_NUM_ELEMENTS =

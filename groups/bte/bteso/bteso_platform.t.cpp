@@ -70,12 +70,12 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << endl << "Verify typedefs are set" << endl;
 
-        #ifdef BSLS_PLATFORM__OS_UNIX
+        #ifdef BSLS_PLATFORM_OS_UNIX
         bteso_Platform::SocketFamily implementation;
         ASSERT(1 == typeTest(implementation));
         #endif
 
-        #ifdef BSLS_PLATFORM__OS_WINDOWS
+        #ifdef BSLS_PLATFORM_OS_WINDOWS
         bteso_Platform::SocketFamily implementation;
         ASSERT(2 == typeTest(implementation));
         #endif
@@ -83,16 +83,16 @@ int main(int argc, char *argv[]) {
         if (verbose) {
             cout << endl << "Print defined symbols" << endl;
 
-            #if defined(BTESO_PLATFORM__BSD_SOCKETS)
-                ASSERT(0 <= BTESO_PLATFORM__BSD_SOCKETS);
-                cout  << "\tBCES_PLATFORM__BSD_SOCKETS = "
-                      <<    BTESO_PLATFORM__BSD_SOCKETS << endl;
+            #if defined(BTESO_PLATFORM_BSD_SOCKETS)
+                ASSERT(0 <= BTESO_PLATFORM_BSD_SOCKETS);
+                cout  << "\tBTESO_PLATFORM_BSD_SOCKETS = "
+                      <<    BTESO_PLATFORM_BSD_SOCKETS << endl;
             #endif
 
-            #if defined(BTESO_PLATFORM__WIN_SOCKETS)
-                ASSERT(0 <= BTESO_PLATFORM__WIN_SOCKETS);
-                cout  << "\tBCES_PLATFORM__WIN_SOCKETS = "
-                      <<    BTESO_PLATFORM__WIN_SOCKETS << endl;
+            #if defined(BTESO_PLATFORM_WIN_SOCKETS)
+                ASSERT(0 <= BTESO_PLATFORM_WIN_SOCKETS);
+                cout  << "\tBTESO_PLATFORM_WIN_SOCKETS = "
+                      <<    BTESO_PLATFORM_WIN_SOCKETS << endl;
             #endif
 
         }

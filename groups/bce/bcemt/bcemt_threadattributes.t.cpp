@@ -6,7 +6,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
 #include <pthread.h>
 #endif
 
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
                 5, 0, 0, 0, 3 },
            {L_, Obj::BCEMT_CREATE_DETACHED, Obj::BCEMT_SCHED_FIFO,
                 4, true, 0, 0, 4 },
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
            {L_, Obj::BCEMT_CREATE_DETACHED, Obj::BCEMT_SCHED_FIFO,
                 3, 0, 300000, 0, 5 },
 #else
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
         //   Li 64: Other (0, 0, 0), Fifo (1, 0, 99), RR (1, 0, 99)
         // --------------------------------------------------------------------
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
         int rc = 0;
 
         pthread_attr_t attr;

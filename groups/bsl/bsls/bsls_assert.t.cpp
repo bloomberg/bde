@@ -13,7 +13,7 @@
 #include <cstring>   // 'strcmp'
 #include <iostream>  // 'cout'
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <signal.h>
 #endif
 
@@ -21,7 +21,7 @@
 // access to conforming C++0x compilers.
 //# define BSLS_ASSERT_NORETURN [[noreturn]]
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLS_ASSERT_NORETURN __declspec(noreturn)
 #else
 #   define BSLS_ASSERT_NORETURN
@@ -1803,7 +1803,7 @@ int main(int argc, char *argv[])
         cout << endl << "Manual Testing 'bsls::Assert::failAbort'" << endl
                      << "========================================" << endl;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         sigset_t newset;
         sigaddset(&newset, SIGABRT);
 
@@ -1871,7 +1871,7 @@ int main(int argc, char *argv[])
 #else
         cout << "\nNON-EXCEPTION BUILD" << endl;
 
-  #ifdef BSLS_PLATFORM__OS_UNIX
+  #ifdef BSLS_PLATFORM_OS_UNIX
         sigset_t newset;
         sigaddset(&newset, SIGABRT);
 

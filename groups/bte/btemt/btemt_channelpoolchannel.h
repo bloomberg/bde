@@ -87,10 +87,10 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
 
         BTEMT_DATAMSG_BASED = 0,     // 'btemt_DataMsg' based callback
         BTEMT_BLOB_BASED             // 'bcema_Blob' based callback
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , DATAMSG_BASED = BTEMT_DATAMSG_BASED
       , BLOB_BASED    = BTEMT_BLOB_BASED
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     struct ReadQueueEntry {

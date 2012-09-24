@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations_default.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_POWERPC) && defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_IBM)
 
 #include <builtins.h>
 

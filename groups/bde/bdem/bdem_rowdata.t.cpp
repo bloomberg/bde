@@ -48,7 +48,7 @@
 #include <bsl_cstring.h>
 #include <bsl_c_ctype.h>                            // isspace()
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <crtdbg.h>  // _CrtSetReportMode, to suppress popups
 #endif
 
@@ -1692,7 +1692,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // Suppress all windows debugging popups
     _CrtSetReportMode(_CRT_ASSERT, 0);
     _CrtSetReportMode(_CRT_ERROR,  0);
@@ -3520,7 +3520,7 @@ int main(int argc, char *argv[])
                                   " DATE 31DEC9999 }" },
             { L_, "J2",           " { TIME 04:05:06.789 }" },
             { L_, "BuCu",         " { SHORT -32768 INT -2147483648 }" },
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
             { L_, "DuEuFu",       " { INT64 -9223372036854775808"
                                   " FLOAT -6.56419e-015"
                                   " DOUBLE -2.42454e-014 }" },
@@ -3786,7 +3786,7 @@ int main(int argc, char *argv[])
                             ta.setQuiet(1);
                         }
 
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
                       BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
                         Obj mX(&L, strategy, &ta); const Obj &X = mX;
@@ -3832,7 +3832,7 @@ int main(int argc, char *argv[])
                                                           SPEC_CHAR));
                         }
 
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
                       } END_BSLMA_EXCEPTION_TEST
 #endif
                     }
@@ -3846,7 +3846,7 @@ int main(int argc, char *argv[])
                         }
                         bslma_DefaultAllocatorGuard dag(&da);
 
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
                       BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
                         Obj mX(&L, strategy); const Obj &X = mX;
@@ -3890,7 +3890,7 @@ int main(int argc, char *argv[])
                                                           SPEC_CHAR));
                         }
 
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
                       } END_BSLMA_EXCEPTION_TEST
 #endif
                     }

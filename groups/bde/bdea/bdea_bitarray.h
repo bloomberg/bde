@@ -481,11 +481,11 @@ class bdea_BitArray {
         BDEA_BYTES_PER_INT = sizeof(int),
         BDEA_BITS_PER_INT  = BDEA_BYTES_PER_INT * BDEA_BITS_PER_BYTE
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         , BITS_PER_BYTE = BDEA_BITS_PER_BYTE
         , BYTES_PER_INT = BDEA_BYTES_PER_INT
         , BITS_PER_INT  = BDEA_BITS_PER_INT
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     };
 
@@ -1092,7 +1092,7 @@ class bdea_BitArray {
         // the 'bdex' package-level documentation for more information on
         // 'bdex' streaming of value-semantic types and containers.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     int findBit0AtLargestIndex() const;
         // Return the index of the most-significant 0 bit in this array, if
         // such a bit exists, and a negative value otherwise.
@@ -1252,7 +1252,7 @@ class bdea_BitArray {
         //
         // DEPRECATED: Use 'maxSupportedBdexVersion' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // FREE OPERATORS
@@ -1640,7 +1640,7 @@ STREAM& bdea_BitArray::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int bdea_BitArray::findBit0AtLargestIndex() const
@@ -1768,7 +1768,7 @@ int bdea_BitArray::maxSupportedVersion()
     return maxSupportedBdexVersion();
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE OPERATORS
 inline

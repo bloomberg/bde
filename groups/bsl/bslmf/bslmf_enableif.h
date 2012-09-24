@@ -439,6 +439,7 @@ struct EnableIf <false, BSLMA_TYPE> {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -448,6 +449,7 @@ struct EnableIf <false, BSLMA_TYPE> {
 #endif
 #define bslmf_EnableIf bslmf::EnableIf
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

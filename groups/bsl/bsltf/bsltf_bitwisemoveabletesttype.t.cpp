@@ -164,20 +164,20 @@ template <class TYPE>
 void printTypeTraits()
     // Prints the traits of the parameterized 'TYPE' to the console.
 {
-    if (bslmf_IsConvertible<bslalg_TypeTraits<TYPE>,
-        bslalg_TypeTraitUsesBslmaAllocator>::VALUE) {
-        printf("Type defines bslalg_TypeTraitUsesBslmaAllocator.\n");
+    if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
+        bslalg::TypeTraitUsesBslmaAllocator>::VALUE) {
+        printf("Type defines bslalg::TypeTraitUsesBslmaAllocator.\n");
     }
     else {
-        printf("Type does not define bslalg_TypeTraitUsesBslmaAllocator.\n");
+        printf("Type does not define bslalg::TypeTraitUsesBslmaAllocator.\n");
     }
 
-    if (bslmf_IsConvertible<bslalg_TypeTraits<TYPE>,
-        bslalg_TypeTraitBitwiseMoveable>::VALUE) {
-        printf("Type defines bslalg_TypeTraitBitwiseMoveable.\n");
+    if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
+        bslalg::TypeTraitBitwiseMoveable>::VALUE) {
+        printf("Type defines bslalg::TypeTraitBitwiseMoveable.\n");
     }
     else {
-        printf("Type does not define bslalg_TypeTraitBitwiseMoveable.\n");
+        printf("Type does not define bslalg::TypeTraitBitwiseMoveable.\n");
     }
 }
 //..
@@ -197,11 +197,11 @@ int main(int argc, char *argv[]) {
 
     // CONCERN: No memory is ever allocated.
 
-    bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    bslma_TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma_Default::setDefaultAllocator(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 12: {
@@ -232,8 +232,8 @@ int main(int argc, char *argv[]) {
         //   CONCERN: The object has the necessary type traits
         // --------------------------------------------------------------------
         BSLMF_ASSERT((1 ==
-                      bslalg_HasTrait<Obj,
-                                     bslalg_TypeTraitBitwiseMoveable>::VALUE));
+                      bslalg::HasTrait<Obj,
+                                     bslalg::TypeTraitBitwiseMoveable>::VALUE));
       } break;
       case 10: {
         // --------------------------------------------------------------------

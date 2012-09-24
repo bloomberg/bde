@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
         bslstl::TraitsGroupStlUnorderedContainer<T,
                                                  Eq,
                                                  Hash,
-                                                 bslma_Allocator *> mX;
+                                                 bslma::Allocator *> mX;
 
       } break;
 

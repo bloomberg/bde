@@ -180,7 +180,7 @@ void testFunction()
 //..
 
 template <class BINARY_PREDICATE>
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 // Visual studio compiler fails to resolve the conversion operator in
 // 'bslalg::FunctorAdapter_FunctionPointer' when using private inheritance.
 // Below is a workaround until a more suitable way the resolve this issue can
@@ -329,7 +329,7 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\n\tTesting alias 'Type' for functors");
         {
-          ASSERT(1 == (bslmf_IsSame<FunctorType,
+            ASSERT(1 == (bslmf::IsSame<FunctorType,
                        FunctorAdapter<FunctorType>::Type>::VALUE));
         }
 
