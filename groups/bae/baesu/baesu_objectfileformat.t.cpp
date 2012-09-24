@@ -220,25 +220,21 @@ int main(int argc, char *argv[])
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Windows>()));
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::MachO>()));
 
-#endif
-
-#if defined(BSLS_PLATFORM_OS_AIX)
+#elif defined(BSLS_PLATFORM_OS_AIX)
 
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
         ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Windows>()));
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::MachO>()));
 
-#endif
-
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
         ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::Windows>()));
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::MachO>()));
 
-#elif defined(BSLS_PLATFORM__OS_DARWIN)
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
 
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
@@ -337,7 +333,7 @@ int main(int argc, char *argv[])
 # endif
 
 
-#elif defined(BSLS_PLATFORM__OS_DARWIN)
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
 
         ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO);
 

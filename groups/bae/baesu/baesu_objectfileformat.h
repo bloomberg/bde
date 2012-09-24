@@ -130,7 +130,7 @@ struct baesu_ObjectFileFormat {
     typedef Windows Policy;
 #   define BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS 1
 
-#elif defined(BSLS_PLATFORM__OS_DARWIN)
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
 
     typedef MachO Policy;
 #   define BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO 1
