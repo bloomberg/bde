@@ -631,6 +631,7 @@ class Printer {
         // 'suppressBracket' is false, print a closing square bracket, indented
         // by 'absLevel() * spacesPerLevel()' blank spaces.
 
+#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
     template <class TYPE>
     void print(const TYPE& data, const char *name) const;
         // [!DEPRECATED!  -- use 'printAttribute' instead, or 'printValue' if
@@ -646,7 +647,7 @@ class Printer {
         //:   stream as a null-terminated C-style string enclosed in quotes if
         //:   'data' is not 0, and print the string "NULL" otherwise.
         //:
-        //: o If 'TYPE' is 'void * or 'const void *', print the address value
+        //: o If 'TYPE' is 'void *' or 'const void *', print the address value
         //:   of 'data' in hexadecimal format if it is not 0, and print the
         //:   string "NULL" otherwise.
         //:
@@ -667,6 +668,7 @@ class Printer {
         // If 'spacesPerLevel() >= 0', indent 'data' by
         // '(absLevel() + 1) * spacesPerLevel()' blank spaces.  The behavior is
         // undefined if 'TYPE' is a 'char *', but not a null-terminated string.
+#endif  // BDE_OMIT_TRANSITIONAL
 
     template <class TYPE>
     void printAttribute(const char *name, const TYPE& data) const;
@@ -832,53 +834,6 @@ class Printer {
         // Return 'true' if the initial output indentation will be
         // suppressed, and 'false' otherwise.  The initial indentation will be
         // suppressed if the 'level' supplied at construction is negative.
-};
-
-                            // ====================
-                            // Printer_TreatAsArray
-                            // ====================
-
-template <typename TYPE>
-struct Printer_TreatAsArray {
-    // bslim_IsArray is unsuitable for our purposes -- if an object is declared
-    // '[]', it reports it as an array, and it also reports '""' strings as
-    // arrays.  This facility wants to handle arrays of non-chars, of length
-    // >= 1, as containers like STL containers.
-
-    enum { VALUE = 0 };
-};
-
-template <typename ELEMENT, std::size_t NUM>
-struct Printer_TreatAsArray<ELEMENT[NUM]> {
-    // This is an array with a known length of >= 1 element.
-
-    enum { VALUE = 1 };
-};
-
-template <typename TYPE>
-struct Printer_TreatAsArray<TYPE[]> {
-    // We don't know the length of the array -- treat it as a pointer
-
-    enum { VALUE = 0 };
-};
-
-template <std::size_t NUM>
-struct Printer_TreatAsArray<char[NUM]> {
-    // Char buffer -- treat as pointer.
-
-    enum { VALUE = 0 };
-};
-
-template <std::size_t NUM>
-struct Printer_TreatAsArray<const char[NUM]> {
-    // Const char string -- treat as pointer.
-
-    enum { VALUE = 0 };
-};
-
-template <typename ARRAY>
-struct Printer_TreatAsArray<ARRAY&> : Printer_TreatAsArray<ARRAY> {
-    // Strip the reference.
 };
 
                         // =======================
@@ -1082,6 +1037,7 @@ struct Printer_Helper {
                              // -------------
 
 // ACCESSORS
+#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
 template <class TYPE>
 void Printer::print(const TYPE& data, const char *name) const
 {
@@ -1096,6 +1052,7 @@ void Printer::print(const TYPE& data, const char *name) const
                           -d_levelPlusOne,
                           d_spacesPerLevel);
 }
+#endif  // BDE_OMIT_TRANSITIONAL
 
 template <class TYPE>
 void Printer::printAttribute(const char *name, const TYPE& data) const

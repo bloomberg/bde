@@ -1,5 +1,8 @@
 bdeu_bitstringutil
 bdeu_chartype
+bdeu_cstringequalto
+bdeu_cstringhash
+bdeu_cstringless
 bdeu_hashutil
 bdeu_print
 bdeu_printmethods

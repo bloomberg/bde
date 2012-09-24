@@ -564,7 +564,7 @@ struct ScalarPrimitives {
         // argument, then 'allocator' is passed to the 'TARGET_TYPE'
         // constructor in the last position.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     template <typename TARGET_TYPE>
     static void destruct(TARGET_TYPE *object,
                          void        *allocator);
@@ -576,7 +576,7 @@ struct ScalarPrimitives {
     static void destruct(TARGET_TYPE *object);
         // DEPRECATED.
         // Use 'ScalarDestructionPrimitives::destroy' instead.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename LHS_TYPE, typename RHS_TYPE>
     static void swap(LHS_TYPE& lhs, RHS_TYPE& rhs);
@@ -1343,7 +1343,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    new (address) TARGET_TYPE(a1);
+    ::new (address) TARGET_TYPE(a1);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2>
@@ -1377,7 +1377,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    new (address) TARGET_TYPE(a1, a2);
+    ::new (address) TARGET_TYPE(a1, a2);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3>
@@ -1411,7 +1411,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    new (address) TARGET_TYPE(a1, a2, a3);
+    ::new (address) TARGET_TYPE(a1, a2, a3);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
@@ -1452,7 +1452,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    new (address) TARGET_TYPE(a1, a2, a3, a4);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
@@ -1495,7 +1495,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
@@ -1540,7 +1540,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
@@ -1587,7 +1587,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
@@ -1638,7 +1638,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
@@ -1691,7 +1691,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
@@ -1746,7 +1746,7 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
@@ -1803,7 +1803,7 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
@@ -1864,8 +1864,8 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    new (address) TARGET_TYPE(a1,  a2,  a3, a4, a5, a6, a7, a8, a9,
-                              a10, a11, a12);
+    ::new (address) TARGET_TYPE(a1,  a2,  a3, a4, a5, a6, a7, a8, a9,
+                                a10, a11, a12);
 }
 
 template <typename TARGET_TYPE,  typename ARG1, typename ARG2,  typename ARG3,
@@ -1928,7 +1928,7 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    new (address) TARGET_TYPE(
+    ::new (address) TARGET_TYPE(
                        a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
 }
 
@@ -1994,7 +1994,7 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    new (address) TARGET_TYPE(
+    ::new (address) TARGET_TYPE(
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
 }
 
@@ -2002,7 +2002,7 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
 
                           // *** destruct overloads: ***
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bslalg {
 
@@ -2022,7 +2022,7 @@ void ScalarPrimitives::destruct(TARGET_TYPE *address)
 
 }  // close package namespace
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bslalg {
 
@@ -2063,7 +2063,7 @@ ScalarPrimitives_Imp::defaultConstruct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(allocator);
+    ::new (address) TARGET_TYPE(allocator);
 }
 
 template <typename TARGET_TYPE>
@@ -2104,7 +2104,7 @@ ScalarPrimitives_Imp::defaultConstruct(TARGET_TYPE                *address,
                                        bslma::Allocator           *,
                                        bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE();
+    ::new (address) TARGET_TYPE();
 }
 
 template <typename TARGET_TYPE>
@@ -2120,7 +2120,7 @@ ScalarPrimitives_Imp::defaultConstruct(
         // call library functions for fundamental or pointer types.  Note that
         // assignment can't throw.
 
-        new (address) TARGET_TYPE();
+        ::new (address) TARGET_TYPE();
     } else {
         std::memset((char *)address, 0, sizeof *address);
     }
@@ -2132,7 +2132,7 @@ void
 ScalarPrimitives_Imp::defaultConstruct(TARGET_TYPE                *address,
                                        bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE();
+    ::new (address) TARGET_TYPE();
 }
 
                       // *** copyConstruct overloads: ***
@@ -2146,7 +2146,7 @@ ScalarPrimitives_Imp::copyConstruct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(original, allocator);
+    ::new (address) TARGET_TYPE(original, allocator);
 }
 
 template <typename TARGET_TYPE>
@@ -2188,7 +2188,7 @@ ScalarPrimitives_Imp::copyConstruct(
         // likely produce equivalent code) can't be used, in case 'TARGET_TYPE'
         // is 'const'-qualified.
 
-        new (address) TARGET_TYPE(original);
+        ::new (address) TARGET_TYPE(original);
     } else {
         std::memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
     }
@@ -2202,7 +2202,7 @@ ScalarPrimitives_Imp::copyConstruct(TARGET_TYPE                *address,
                                     bslma::Allocator           *,
                                     bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(original);
+    ::new (address) TARGET_TYPE(original);
 }
 
 template <typename TARGET_TYPE>
@@ -2221,7 +2221,7 @@ ScalarPrimitives_Imp::copyConstruct(
         // likely produce equivalent code) can't be used, in case 'TARGET_TYPE'
         // is 'const'-qualified.
 
-        new (address) TARGET_TYPE(original);
+        ::new (address) TARGET_TYPE(original);
     } else {
         std::memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
     }
@@ -2234,7 +2234,7 @@ ScalarPrimitives_Imp::copyConstruct(TARGET_TYPE                *address,
                                     const TARGET_TYPE&          original,
                                     bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(original);
+    ::new (address) TARGET_TYPE(original);
 }
 
                      // *** destructiveMove overloads: ***
@@ -2256,7 +2256,7 @@ ScalarPrimitives_Imp::destructiveMove(
         // likely produce equivalent code) can't be used, in case 'TARGET_TYPE'
         // is 'const'-qualified.
 
-        new (address) TARGET_TYPE(*original);
+        ::new (address) TARGET_TYPE(*original);
     } else {
         std::memcpy(address, original, sizeof *original);   // no overlap
     }
@@ -2293,7 +2293,7 @@ ScalarPrimitives_Imp::construct(
         // likely produce equivalent code) can't be used, in case 'TARGET_TYPE'
         // is 'const'-qualified.
 
-        new (address) TARGET_TYPE(a1);
+        ::new (address) TARGET_TYPE(a1);
     } else {
         std::memcpy(address, BSLS_UTIL_ADDRESSOF(a1), sizeof a1); // no overlap
     }
@@ -2349,7 +2349,7 @@ ScalarPrimitives_Imp::construct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, allocator);
+    ::new (address) TARGET_TYPE(a1, allocator);
 }
 
 template <typename TARGET_TYPE, typename ARG1>
@@ -2360,7 +2360,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                 bslma::Allocator           *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1);
+    ::new (address) TARGET_TYPE(a1);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2>
@@ -2373,7 +2373,7 @@ ScalarPrimitives_Imp::construct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, allocator);
+    ::new (address) TARGET_TYPE(a1, a2, allocator);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2>
@@ -2385,7 +2385,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                 bslma::Allocator           *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2);
+    ::new (address) TARGET_TYPE(a1, a2);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3>
@@ -2399,7 +2399,7 @@ ScalarPrimitives_Imp::construct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, allocator);
+    ::new (address) TARGET_TYPE(a1, a2, a3, allocator);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3>
@@ -2412,7 +2412,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                 bslma::Allocator           *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3);
+    ::new (address) TARGET_TYPE(a1, a2, a3);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
@@ -2428,7 +2428,7 @@ ScalarPrimitives_Imp::construct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, allocator);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, allocator);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
@@ -2443,7 +2443,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                 bslma::Allocator           *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
@@ -2460,7 +2460,7 @@ ScalarPrimitives_Imp::construct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, allocator);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, allocator);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
@@ -2476,7 +2476,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                 bslma::Allocator           *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
@@ -2494,7 +2494,7 @@ ScalarPrimitives_Imp::construct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, allocator);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, allocator);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
@@ -2511,7 +2511,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                 bslma::Allocator           *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
@@ -2530,7 +2530,7 @@ ScalarPrimitives_Imp::construct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, allocator);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, allocator);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
@@ -2548,7 +2548,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                 bslma::Allocator           *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
@@ -2569,7 +2569,7 @@ ScalarPrimitives_Imp::construct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, allocator);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, allocator);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
@@ -2589,7 +2589,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                 bslma::Allocator           *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
@@ -2611,7 +2611,7 @@ ScalarPrimitives_Imp::construct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, allocator);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, allocator);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
@@ -2632,7 +2632,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                 bslma::Allocator           *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
@@ -2655,8 +2655,8 @@ ScalarPrimitives_Imp::construct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
-                              allocator);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
+                                allocator);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
@@ -2678,7 +2678,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                 bslma::Allocator           *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
@@ -2702,8 +2702,8 @@ ScalarPrimitives_Imp::construct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
-                              allocator);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
+                                allocator);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
@@ -2726,7 +2726,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                 bslma::Allocator           *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+    ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
 }
 
 template <typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
@@ -2752,7 +2752,7 @@ ScalarPrimitives_Imp::construct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(
+    ::new (address) TARGET_TYPE(
                              a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
                              allocator);
 }
@@ -2779,7 +2779,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                 bslma::Allocator           *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(
+    ::new (address) TARGET_TYPE(
                             a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
 }
 
@@ -2807,7 +2807,7 @@ ScalarPrimitives_Imp::construct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(
+    ::new (address) TARGET_TYPE(
                         a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13,
                         allocator);
 }
@@ -2835,7 +2835,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                 bslma::Allocator           *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(
+    ::new (address) TARGET_TYPE(
                        a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
 }
 
@@ -2864,7 +2864,7 @@ ScalarPrimitives_Imp::construct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    new (address) TARGET_TYPE(
+    ::new (address) TARGET_TYPE(
                    a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14,
                    allocator);
 }
@@ -2893,7 +2893,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                 bslma::Allocator           *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    new (address) TARGET_TYPE(
+    ::new (address) TARGET_TYPE(
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
 }
 
@@ -2940,12 +2940,14 @@ void ScalarPrimitives_Imp::swap(LHS_TYPE&                   lhs,
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslalg::ScalarPrimitives bslalg_ScalarPrimitives;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

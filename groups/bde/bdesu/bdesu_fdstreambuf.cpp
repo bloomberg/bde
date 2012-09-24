@@ -36,11 +36,11 @@ BDES_IDENT_RCSID(bdesu_fdstreambuf_cpp,"$Id$ $CSID$")
 
 # include <sys/stat.h>
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 extern "C" {
 # include <unistd.h>
 }  // extern "C"
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
 extern "C" {
@@ -67,7 +67,7 @@ bool getRegularFileInfo(FdType fd)
     // file and 'false' otherwise.  Note that a regular file is a file and not
     // a directory, pipe, printer, keyboard or other device.
 {
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     struct stat buf;
     return 0 == fstat(fd, &buf) && S_ISREG(buf.st_mode);
 #else
@@ -87,7 +87,8 @@ bool getRegularFileInfo(FdType fd)
                     // class bdesu_FdStreamBuf_FileHandler
                     // ===================================
 
-bsls_Types::size_type bdesu_FdStreamBuf_FileHandler::s_pageSize = 0;
+bsls::AtomicOperations::AtomicTypes::Int
+                               bdesu_FdStreamBuf_FileHandler::s_pageSize = {0};
 
 // CREATORS
 bdesu_FdStreamBuf_FileHandler::bdesu_FdStreamBuf_FileHandler()
@@ -98,8 +99,9 @@ bdesu_FdStreamBuf_FileHandler::bdesu_FdStreamBuf_FileHandler()
 , d_willCloseOnResetFlag(false)
 , d_peekBufferFlag(false)
 {
-    if (s_pageSize <= 0) {
-        s_pageSize = bdesu_MemoryUtil::pageSize();
+    if (bsls::AtomicOperations::getIntRelaxed(&s_pageSize) <= 0) {
+        bsls::AtomicOperations::setIntRelaxed(&s_pageSize,
+                                              bdesu_MemoryUtil::pageSize());
     }
 }
 
@@ -140,7 +142,7 @@ int bdesu_FdStreamBuf_FileHandler::reset(
 
     d_openModeFlags    = bsl::ios_base::in;
     d_openModeFlags   |= writableFlag ? bsl::ios_base::out : iosBaseZero;
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     (void) binaryFile;    // suppress unused warning
 
     d_openModeFlags   |= bsl::ios_base::binary;
@@ -159,7 +161,7 @@ int bdesu_FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
 {
     BSLS_ASSERT_OPT(0 <= numBytes);
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     enum { CTRLZ = 26 };    // ^Z means EOF in Windows.  A ^Z character is
                             // allowed to occur at most once in a Windows text
                             // file, and then it must be the last character in
@@ -241,7 +243,7 @@ int bdesu_FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
 #endif
 }
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 int bdesu_FdStreamBuf_FileHandler::windowsWriteText(const char *buffer,
                                                     int         numChars)
 {
@@ -316,7 +318,7 @@ int bdesu_FdStreamBuf_FileHandler::write(const char *buffer, int numBytes)
 {
     BSLS_ASSERT_OPT(0 <= numBytes);
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     if (d_peekBufferFlag) {
         const int status = this->seek(0, FileUtil::BDESU_SEEK_FROM_CURRENT);
         if (status < 0) {
@@ -331,7 +333,7 @@ int bdesu_FdStreamBuf_FileHandler::write(const char *buffer, int numBytes)
     while (true) {
         int written;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         if (d_openModeFlags & bsl::ios_base::binary) {
             written = FileUtil::write(d_fileId, buffer, numBytes);
         }
@@ -362,7 +364,7 @@ bsl::streampos bdesu_FdStreamBuf_FileHandler::seek(
                                                  bsl::streamoff         offset,
                                                  bdesu_FileUtil::Whence dir)
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     if (d_peekBufferFlag) {
         if (FileUtil::BDESU_SEEK_FROM_CURRENT == dir) {
             --offset;
@@ -446,7 +448,7 @@ bdesu_FdStreamBuf_FileHandler::fileSize() const
 {
     bsl::streamoff ret = 0;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     struct stat buf;
     if (fstat(d_fileId, &buf) == 0 && S_ISREG(buf.st_mode)) {
         ret = buf.st_size > 0 ? buf.st_size : 0;

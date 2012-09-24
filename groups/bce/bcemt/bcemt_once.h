@@ -345,7 +345,7 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BCEMT_ONCE_UNIQNUM __COUNTER__
         // MSVC: The '__LINE__' macro breaks when '/ZI' is used (see Q199057 or
         // KB199057).  Fortunately the '__COUNTER__' extension provided by MSVC
@@ -355,7 +355,7 @@ namespace BloombergLP {
 #endif
 
 #define BCEMT_ONCE_DO \
-    BCEMT_ONCE_DO_IMP(BCEMT_ONCE__CAT(bcemt_doOnceObj, BCEMT_ONCE_UNIQNUM))
+    BCEMT_ONCE_DO_IMP(BCEMT_ONCE_CAT(bcemt_doOnceObj, BCEMT_ONCE_UNIQNUM))
     // This macro provides a simple control construct to bracket a piece of
     // code that should only be executed once during the course of a
     // multithreaded program.  Usage:
@@ -548,8 +548,8 @@ class bcemt_OnceGuard {
 
 // Second layer needed to ensure that arguments are expanded before
 // concatenation.
-#define BCEMT_ONCE__CAT(X, Y) BCEMT_ONCE__CAT_IMP(X, Y)
-#define BCEMT_ONCE__CAT_IMP(X, Y) X##Y
+#define BCEMT_ONCE_CAT(X, Y) BCEMT_ONCE_CAT_IMP(X, Y)
+#define BCEMT_ONCE_CAT_IMP(X, Y) X##Y
 
                         // -------------------------------------
                         // Implementation of BCEMT_ONCE_DO Macro
@@ -636,6 +636,10 @@ void bcemt_Once::callOnce(const FUNC& function)
 }
 
 }  // close namespace BloombergLP
+
+#if !defined(BSL_DOUBLE_UNDERSCORE_XLAT) || 1 == BSL_DOUBLE_UNDERSCORE_XLAT
+#define BCEMT_ONCE__CAT(X, Y) BCEMT_ONCE_CAT(X, Y)
+#endif
 
 #endif
 

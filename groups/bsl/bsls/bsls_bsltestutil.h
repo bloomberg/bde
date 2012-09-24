@@ -13,27 +13,58 @@ BSLS_IDENT("$Id: $")
 //  bsls::BslTestUtil: utilities to aid writing 'bsl' test drivers
 //
 //@MACROS:
-//  BSLS_BSLTESTUTIL_LOOP_ASSERT(I, X)
-//  BSLS_BSLTESTUTIL_LOOP2_ASSERT(I, J, X)
-//  BSLS_BSLTESTUTIL_LOOP3_ASSERT(I, J, K, X)
-//  BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, X)
-//  BSLS_BSLTESTUTIL_LOOP5_ASSERT(I, J, K, L, M, X)
-//  BSLS_BSLTESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, X)
-//  BSLS_BSLTESTUTIL_Q(X)
-//  BSLS_BSLTESTUTIL_P(X)
-//  BSLS_BSLTESTUTIL_P_(X)
-//  BSLS_BSLTESTUTIL_L_
-//  BSLS_BSLTESTUTIL_T_
+//  BSLS_BSLTESTUTIL_LOOP_ASSERT(I, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP2_ASSERT(I, J, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP3_ASSERT(I, J, K, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP5_ASSERT(I, J, K, L, M, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_Q(X): quote identifier literally
+//  BSLS_BSLTESTUTIL_P(X): print identifier and value
+//  BSLS_BSLTESTUTIL_P_(X): print identifer and value without '\n'
+//  BSLS_BSLTESTUTIL_L_: current line number
+//  BSLS_BSLTESTUTIL_T_: print tab without '\n'
 //
-//@AUTHOR: Alisdair Meredith (ameredit)
+//@AUTHOR: Alisdair Meredith (ameredit), Chen He (che2)
 //
-//@DESCRIPTION: This component provides a set of macros and utility functions
-// to support writing test drivers in the 'bsl' package group.  This utility is
-// necessary because parts of 'bsl' reside below the standard library,
-// precluding the use of 'iostreams'.  The intent is for the clients of this
-// component to use only the macros listed below to implement standard test
-// driver macros.  Instead of the standard 'ASSERT' macro, it is required that
-// a client test driver define the standard 'aSsErT' function.
+//@DESCRIPTION: This component provides the standard printing macros used in
+// BDE-style test drivers ('ASSERT', 'LOOP_ASSERT', 'ASSERTV', 'P', 'Q', 'L',
+// and 'T') for components in the 'bsl' package group.
+//
+// Many components in the 'bsl' package group reside below the standard
+// library; therefore, hierarchical design dictates that the test driver for
+// these components shall not use 'iostream' (which is part of the standard
+// library), and instead they shall only rely on the 'printf' function to print
+// objects' values.  Using 'printf' over 'iostream' has the following
+// disadvantages:
+//
+//: o The 'printf' function requires a format string to specify the way to
+//:   print an object; so, unlike 'iostream', printing different types of
+//:   objects using 'printf' requires different synatxes due to the need for
+//:   different format strings.
+//:
+//: o While the format strings for built-in types can be included as part of
+//:   the standard boiler plate code of the test driver, printing a
+//:   user-defined type often requires additional code that is not part of the
+//:   standard boilerplate.
+//
+// This component provides solutions to the these issues by (1) encapsulating
+// all the standard printing macros in a single place and (2) providing a way
+// to extend the supplied macros to support user-defined types.
+//
+// The macros in this component use a class method template,
+// 'BslTestUtil::callDebugprint', to print the value of an object of the
+// parameterized type, along with an optional leading string and an optional
+// trailing string, to the console.  The value of the object of the
+// parameterized type will be printed using a free function named 'debugprint'.
+//
+// The macros defined in this component natively support built-in type through
+// the 'debugprint' function overloads for these types defined in this
+// component.  The macros can be extended support additional user-defined types
+// by defining function overloads for 'debugprint' that takes a single
+// parameter of each user-defined type, in the same namespace in which the
+// user-defined type is defined.  See the second usage example for more
+// details.
 //
 ///Usage
 ///-----
@@ -43,7 +74,9 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - -
 // First, we write a component to test, which provides a utility class:
 //..
-//  struct xyza_BslExampleUtil {
+//  namespace bslabc {
+//
+//  struct BslExampleUtil {
 //      // This utility class provides sample functionality to demonstrate how
 //      // a test driver might be written validating its only method.
 //
@@ -52,10 +85,12 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  inline
-//  int xyza_BslExampleUtil::fortyTwo()
+//  int BslExampleUtil::fortyTwo()
 //  {
 //      return 42;
 //  }
+//
+//  }  // close package namespace
 //..
 // Then, we can write a test driver for this component.  We start by providing
 // the standard BDE assert test macro:
@@ -75,8 +110,8 @@ BSLS_IDENT("$Id: $")
 //
 //  # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //..
-// Next, we define the standard print and LOOP_ASSERT macros, as aliases to the
-// macros defined by this component:
+// Next, we define the standard print and 'LOOP_ASSERT' macros, as aliases to
+// the macros defined by this component:
 //..
 //  //=========================================================================
 //  //                       STANDARD BDE TEST DRIVER MACROS
@@ -90,90 +125,198 @@ BSLS_IDENT("$Id: $")
 //
 //  #define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
 //  #define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-//  #define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+//  #define P_  BSLS_BSLTESTUTIL_P_  // 'P(X)' without '\n'.
 //  #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 //  #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 //..
-// Finally, we write the test case for the 'static' 'fortyTwo' method, using
-// the (standard) abbreviated macro names we have just defined.
+// Now, using the (standard) abbreviated macro names we have just defined, we
+// write a test function for the 'static' 'fortyTwo' method, to be called from
+// a test case in a test driver.
 //..
-//  case 2: {
-//    // --------------------------------------------------------------------
-//    // TESTING USAGE EXAMPLE
-//    //
-//    // Concerns
-//    //: 1 The usage example provided in the component header file must
-//    //:   compile, link, and run on all platforms as shown.
-//    //
-//    // Plan:
-//    //: 1 Incorporate usage example from header into driver, remove leading
-//    //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
-//    //
-//    // Testing:
-//    //   USAGE EXAMPLE
-//    // --------------------------------------------------------------------
-//
-//    if (verbose) printf("\nTESTING USAGE EXAMPLE"
-//                        "\n---------------------\n");
-//
-//    const int value = bsls::BslTestUtil_FortyTwo::value();
-//    if (verbose) P(value);
-//    LOOP_ASSERT(value, 42 == value);
-//  } break;
+//  void testFortyTwo(bool verbose)
+//  {
+//      const int value = bslabc::BslExampleUtil::fortyTwo();
+//      if (verbose) P(value);
+//      LOOP_ASSERT(value, 42 == value);
+//  }
 //..
+// Finally, when 'testFortyTwo' is called from a test case in verbose mode we
+// observe the console output:
+//..
+//  value = 42
+//..
+///Example 2: Adding Support For A New User-Defined Type
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we define a new user-defined type, 'MyType':
+//..
+//  namespace xyza {
+//
+//  class MyType {
+//      // This elided class provides a type intended to show how the macros in
+//      // 'bsls_bsltestutil' can be extended to support a new user-defined
+//      // type.
+//
+//    private:
+//      // DATA
+//      int d_value;  // the value of MyType
+//
+//      // ...
+//
+//    public:
+//      // CREATORS
+//
+//      // ...
+//
+//      explicit MyType(int value);
+//          // Create a 'MyType' object with 'd_value' set to the specified
+//          // 'value'.
+//
+//      // ACCESSORS
+//
+//      // ...
+//
+//      int value() const;
+//          // Return the value of 'd_value'.
+//
+//      // ...
+//  };
+//
+//  // ...
+//
+//  inline
+//  MyType::MyType(int value)
+//  : d_value(value)
+//  {
+//  }
+//
+//  // ...
+//
+//  inline
+//  int MyType::value() const
+//  {
+//      return d_value;
+//  }
+//..
+// Then, in the same namespace in which 'MyType' is defined, we define a
+// function 'debugprint' that prints the value of a 'MyType' object to the
+// console.  (In this case, we will simply print a string literal for
+// simplicity):
+//..
+//  void debugprint(const MyType& obj)
+//  {
+//      printf("MyType<%d>", obj.value());
+//  }
+//
+//  }  // close namespace xyza
+//..
+// Now, using the (standard) abbreviated macro names previously defined, we
+// write a test function for the 'MyType' constructor, to be called from a test
+// case in a test driver.
+//..
+//  void testMyTypeSetValue(bool verbose) {
+//      xyza::MyType obj(9);
+//      if (verbose) P(obj);
+//      LOOP_ASSERT(obj.value(), obj.value() == 9);
+//  }
+//..
+// Finally, when 'testMyTypeSetValue' is called from a test case in verbose
+// mode we observe the console output:
+//..
+//  obj = MyType<9>
+//..
+
+#if defined(_MSC_VER)
+#include <stddef.h>
+#else
+#include <stdint.h>
+#endif
 
                        // =================
                        // Macro Definitions
                        // =================
 
-# define BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, ",\t"); \
+#define BSLS_BSLTESTUTIL_ASSERT(X)                                            \
+    { aSsErT(!(X), #X, __LINE__); }
+
+#define BSLS_BSLTESTUTIL_LOOP0_ASSERT                                         \
+    BSLS_BSLTESTUTIL_ASSERT
+
+#define BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X) {                                   \
+    if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\n");         \
                 aSsErT(!(X), #X, __LINE__); } }
 
-# define BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, "\t");  \
-                bsls::BslTestUtil::debugPrint(#J ": ", J, ",\t"); \
+#define BSLS_BSLTESTUTIL_LOOP1_ASSERT                                         \
+    BSLS_BSLTESTUTIL_LOOP_ASSERT
+
+#define BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X) {                                \
+    if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(J, #J ": ", "\n");         \
                 aSsErT(!(X), #X, __LINE__); } }
 
-#define BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, "\t");  \
-                bsls::BslTestUtil::debugPrint(#J ": ", J, "\t");  \
-                bsls::BslTestUtil::debugPrint(#K ": ", K, ",\t"); \
+#define BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X) {                              \
+    if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(K, #K ": ", "\n");         \
                 aSsErT(!(X), #X, __LINE__); } }
 
-#define BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, "\t");  \
-                bsls::BslTestUtil::debugPrint(#J ": ", J, "\t");  \
-                bsls::BslTestUtil::debugPrint(#K ": ", K, "\t");  \
-                bsls::BslTestUtil::debugPrint(#L ": ", L, ",\t"); \
+#define BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X) {                            \
+    if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(K, #K ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(L, #L ": ", "\n");         \
                 aSsErT(!(X), #X, __LINE__); } }
 
-#define BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X) { \
-    if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, "\t");  \
-                bsls::BslTestUtil::debugPrint(#J ": ", J, "\t");  \
-                bsls::BslTestUtil::debugPrint(#K ": ", K, "\t");  \
-                bsls::BslTestUtil::debugPrint(#L ": ", L, "\t");  \
-                bsls::BslTestUtil::debugPrint(#M ": ", M, ",\t"); \
+#define BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X) {                          \
+    if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(K, #K ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(L, #L ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(M, #M ": ", "\n");         \
                 aSsErT(!(X), #X, __LINE__); } }
 
-#define BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-    if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, "\t");  \
-                bsls::BslTestUtil::debugPrint(#J ": ", J, "\t");  \
-                bsls::BslTestUtil::debugPrint(#K ": ", K, "\t");  \
-                bsls::BslTestUtil::debugPrint(#L ": ", L, "\t");  \
-                bsls::BslTestUtil::debugPrint(#M ": ", M, "\t");  \
-                bsls::BslTestUtil::debugPrint(#N ": ", N, ",\t"); \
+#define BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X) {                        \
+    if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(K, #K ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(L, #L ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(M, #M ": ", "\t");          \
+                bsls::BslTestUtil::callDebugprint(N, #N ": ", "\n");         \
                 aSsErT(!(X), #X, __LINE__); } }
+
+// The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
+// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
+// the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
+#define BSLS_BSLTESTUTIL_EXPAND(X)                                            \
+    X
+
+#define BSLS_BSLTESTUTIL_NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)        \
+    N
+
+#define BSLS_BSLTESTUTIL_NUM_ARGS(...)                                        \
+    BSLS_BSLTESTUTIL_EXPAND(BSLS_BSLTESTUTIL_NUM_ARGS_IMPL(                   \
+                                            __VA_ARGS__, 5, 4, 3, 2, 1, 0, ""))
+
+#define BSLS_BSLTESTUTIL_LOOPN_ASSERT_IMPL(N, ...)                            \
+    BSLS_BSLTESTUTIL_EXPAND(BSLS_BSLTESTUTIL_LOOP ## N ## _ASSERT(__VA_ARGS__))
+
+#define BSLS_BSLTESTUTIL_LOOPN_ASSERT(N, ...)                                 \
+    BSLS_BSLTESTUTIL_LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
+
+#define BSLS_BSLTESTUTIL_ASSERTV(...)                                         \
+    BSLS_BSLTESTUTIL_LOOPN_ASSERT(                                            \
+                           BSLS_BSLTESTUTIL_NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+
 
 #define BSLS_BSLTESTUTIL_Q(X)                                                 \
                        bsls::BslTestUtil::printStringNoFlush("<| " #X " |>\n");
     // Quote identifier literally.
 
-#define BSLS_BSLTESTUTIL_P(X) bsls::BslTestUtil::debugPrint(#X " = ", X, "\n");
+#define BSLS_BSLTESTUTIL_P(X)                                                 \
+                          bsls::BslTestUtil::callDebugprint(X, #X " = ", "\n");
     // Print identifier and its value.
 
 #define BSLS_BSLTESTUTIL_P_(X)                                                \
-                              bsls::BslTestUtil::debugPrint(#X " = ", X, ", ");
+                          bsls::BslTestUtil::callDebugprint(X, #X " = ", ", ");
     // P(X) without '\n'.
 
 #define BSLS_BSLTESTUTIL_L_ __LINE__
@@ -186,78 +329,132 @@ namespace BloombergLP {
 
 namespace bsls {
 
+                   // ==================
+                   // struct BslTestUtil
+                   // ==================
+
+
 struct BslTestUtil {
     // This class provides a namespace for utilities that are useful when
     // writing a test driver that is not permitted to use the standard C++
     // iostream facilities, which is typical of test drivers in the 'bsl'
     // package group.
 
-  public:
-    static void debugPrint(const char *s, bool b, const char *t);
-        // Print a message to the console, consististing of the specified
-        // initial string, 's', followed by the string "true" if the specified
-        // 'b' is true, and the string "false" otherwise, followed by the
-        // specified trailing string 't'; then 'flush' the underlying stream to
-        // ensure the text is written.
-
-    static void debugPrint(const char *s, char c, const char *t);
-        // Print a message to the console consististing of the specified
-        // initial string, 's', followed by the specified character, 'c',
-        // enclosed by single-quote characters ('), followed by the specified
-        // trailing string, 't'; then 'flush' the stream to ensure the text is
-        // written.
-
-    static void debugPrint(const char *s, signed char v, const char *t);
-    static void debugPrint(const char *s, unsigned char v, const char *t);
-    static void debugPrint(const char *s, short v, const char *t);
-    static void debugPrint(const char *s, unsigned short v, const char *t);
-    static void debugPrint(const char *s, int v, const char *t);
-    static void debugPrint(const char *s, unsigned int v, const char *t);
-    static void debugPrint(const char *s, long v, const char *t);
-    static void debugPrint(const char *s, unsigned long v, const char *t);
-    static void debugPrint(const char *s, long long v, const char *t);
-    static void debugPrint(const char *s, unsigned long long v, const char *t);
-        // Print a message to the console, consististing of the specified
-        // initial string, 's', followed by the specified integer value, 'v',
-        // formatted as a string, followed by the specified trailing string,
-        // 't'; then 'flush' the underlying stream to ensure the text is
-        // written.
-
-    static void debugPrint(const char *s, float v, const char *t);
-    static void debugPrint(const char *s, double v, const char *t);
-    static void debugPrint(const char *s, long double v, const char *t);
-        // Print a message to the console, consististing of the specified
-        // initial string, 's', followed by the specified value, 'v', formatted
-        // as a string enclosed by single-quote characters ('), followed by the
-        // specified trailing string 't'; then 'flush' the underlying stream to
-        // ensure the text is written.
-
-    static void debugPrint(const char *s, char *str, const char *t);
-    static void debugPrint(const char *s, const char *str, const char *t);
-        // Print a message to the console, consististing of the specified
-        // initial string, 's', followed by the specified string, 'str',
-        // enclosed by quote characters ("), followed by the specified trailing
-        // string, 't'; then 'flush' the underlying stream to ensure the text
-        // is written.
-
-    static void debugPrint(const char *s, void *p, const char *t);
-    static void debugPrint(const char *s, const void *p, const char *t);
-        // Print a message to the console, consististing of the specified
-        // initial string, 's', followed by the specified memory address, 'p',
-        // formatted as a hexadecimal integer, followed by the specified
-        // trailing string, 't'; then 'flush' the underlying stream to ensure
-        // the text is written.
+    // CLASS METHODS
+    static void flush();
+        // Write any unwritten text in the output buffer to 'stdout'.
 
     static void printStringNoFlush(const char *s);
-        // Print the specified string, 's', to the console.  Note that the
+        // Print to the console the specified string, 's'.  Note that the
         // underlying stream is *not* flushed.
 
     static void printTab();
-        // Print a tab character to the console, and then 'flush' the
+        // Print to the console a tab character, and then 'flush' the
         // underlying stream to ensure the text is written.
+
+    template <class TYPE>
+    static void callDebugprint(const TYPE& object,
+                               const char *leadingString = 0,
+                               const char *trailingString = 0);
+        // Print the value of the specified 'object' of the parameterized
+        // 'TYPE' to the console.  Optionally specify a 'leadingString', which
+        // will be printed before 'object', and a 'trailingString', which will
+        // be printed after 'object'.  If 'leadingString' is 0, then nothing
+        // will be printed before 'object'.  If 'trailingString' is 0, then
+        // nothing will be printed after 'object'.
 };
 
+// FREE FUNCTIONS
+void debugprint(bool v);
+    // Print to the console the string "true" if the specified 'v' is true,
+    // and the string "false" otherwise.
+
+void debugprint(char v);
+    // Print to the console the specified character, 'v', enclosed by
+    // single-quote characters (').
+
+void debugprint(signed char v);
+void debugprint(unsigned char v);
+void debugprint(short v);
+void debugprint(unsigned short v);
+void debugprint(int v);
+void debugprint(unsigned int v);
+void debugprint(long v);
+void debugprint(unsigned long v);
+void debugprint(long long v);
+void debugprint(unsigned long long v);
+    // Print to the console the specified integer value, 'v', formatted as
+    // a string.
+
+void debugprint(float v);
+void debugprint(double v);
+void debugprint(long double v);
+    // Print to the console the specified value, 'v', formatted as a string
+    // enclosed by single-quote characters (').
+
+void debugprint(const char *v);
+void debugprint(char *v);
+void debugprint(const volatile char *v);
+void debugprint(volatile char *v);
+    // Print to the console the specified string, 'v', enclosed by quote
+    // characters ("), unless 'v' is null, in which case print '(null)'
+    // (without quotes of any kind).
+
+void debugprint(void *v);
+void debugprint(volatile void *v);
+void debugprint(const void *v);
+void debugprint(const volatile void *v);
+    // Print to the console the specified memory address, 'v', formatted as
+    // a hexadecimal integer.
+
+template <typename RESULT>
+void debugprint(RESULT (*v)());
+    // Print to the console the specified function pointer, 'v', formatted as a
+    // hexidecimal integer. On some platforms (notably Windows), a function
+    // pointer is treated differently from an object pointer, and the compiler
+    // will not be able to determine which 'void *' overload of 'debugprint'
+    // should be used for a function pointer. Therefore an overload of
+    // 'debugprint' is provided specifically for function pointers. Because the
+    // type signature of a function pointer varies with its return type as well
+    // as with its argument list, a template function is used, to provide
+    // matches for all return types.
+
+// ===========================================================================
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                   // ------------------
+                   // struct BslTestUtil
+                   // ------------------
+
+// CLASS METHODS
+template <class TYPE>
+void BslTestUtil::callDebugprint(const TYPE& obj,
+                                 const char *leadingString,
+                                 const char *trailingString)
+{
+    if (leadingString) {
+        BloombergLP::bsls::BslTestUtil::printStringNoFlush(leadingString);
+    }
+
+    debugprint(obj);
+
+    if (trailingString) {
+        BloombergLP::bsls::BslTestUtil::printStringNoFlush(trailingString);
+    }
+    flush();
+}
+
 }  // close package namespace
+
+// FREE FUNCTIONS
+
+template <typename RESULT>
+void bsls::debugprint(RESULT (*v)())
+{
+    uintptr_t address = reinterpret_cast<uintptr_t>(v);
+    debugprint(reinterpret_cast<void *>(address));
+}
 
 }  // close enterprise namespace
 

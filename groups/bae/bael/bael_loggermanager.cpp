@@ -37,6 +37,8 @@ BDES_IDENT_RCSID(bael_loggermanager_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_platformutil.h>
 
+#include <bslstl_stringref.h>
+
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_new.h>            // placement 'new' syntax
@@ -643,15 +645,19 @@ void bael_LoggerManager::logMessage(int severity, bael_Record *record)
     bael_Severity::Level severityLevel = (bael_Severity::Level)severity;
 
     bsl::fprintf(stderr,
-                 "\n%s %d %llu %s %s %d %s %s\n",
+                 "\n%s %d %llu %s %s %d %s ",
                  datetimeStream.str().c_str(),
                  pid,
                  bcemt_ThreadUtil::selfIdAsUint64(),
                  bael_Severity::toAscii(severityLevel),
                  record->fixedFields().fileName(),
                  record->fixedFields().lineNumber(),
-                 "UNINITIALIZED_LOGGER_MANAGER",
-                 record->fixedFields().message());
+                 "UNINITIALIZED_LOGGER_MANAGER");
+
+    bslstl_StringRef message = record->fixedFields().messageRef();
+    bsl::fwrite(message.data(), 1, message.length(), stderr);
+
+    bsl::fprintf(stderr, "\n");
 
     // This static method is called to log a message when the logger manager
     // singleton is not available (either has not been initialized or has been

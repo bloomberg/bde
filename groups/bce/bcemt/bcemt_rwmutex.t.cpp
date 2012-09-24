@@ -11,6 +11,7 @@
 #include <bdef_bind.h>
 #include <bdetu_systemtime.h>
 
+#include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_algorithm.h>
@@ -724,10 +725,10 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case -1: {
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
          cout << "Running POSIX speed test" << endl;
 
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
          bcemt_RWMutexImpl<bces_Platform::PosixThreads> lock;
 #else
          bcemt_RWMutex lock;
@@ -745,10 +746,10 @@ int main(int argc, char *argv[])
          ASSERT(0 == benchmarkSpeed(&lock, "PURE BCE", writers, readers));
       } break;
       case -3: {
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
          cout << "Running POSIX bias test" << endl;
 
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
          bcemt_RWMutexImpl<bces_Platform::PosixThreads> lock;
 #else
          bcemt_RWMutex lock;
@@ -766,7 +767,7 @@ int main(int argc, char *argv[])
       } break;
       case -5: {
          cout << "Running POSIX recursion test" << endl;
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
          bcemt_RWMutexImpl<bces_Platform::PosixThreads> lock;
 #else
          bcemt_RWMutex lock;

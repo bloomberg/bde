@@ -5519,7 +5519,7 @@ DEFINE_TEST_CASE(10) {
                 "",      "A",      "BC",     "CDE",    "DEAB",   "EABCD",
                 "=6+0ABCDE", "=6+1ABCED", "=6+2ABDCE", "=6+3ACBDE",
 // TBD exception handling is *extremely* slow on HP
-#if !defined(BSLS_PLATFORM__CMP_HP) || !defined(BDE_BUILD_TARGET_EXC)
+#if !defined(BSLS_PLATFORM_CMP_HP) || !defined(BDE_BUILD_TARGET_EXC)
                 "=6+4BACDE", "=6+5ACBED", "=6+6BACED", "=6+7ABECD",
 #endif
             0}; // Null string required as last element.
@@ -5628,7 +5628,7 @@ DEFINE_TEST_CASE(10) {
                 "",      "A",      "BC",     "CDE",    "DEAB",   "EABCD",
                 "=6+0ABCDE", "=6+1ABCED", "=6+2ABDCE", "=6+3ACBDE",
 // TBD exception handling is *extremely* slow on HP
-#if !defined(BSLS_PLATFORM__CMP_HP) || !defined(BDE_BUILD_TARGET_EXC)
+#if !defined(BSLS_PLATFORM_CMP_HP) || !defined(BDE_BUILD_TARGET_EXC)
                 "=6+4ABCDE", "=6+5ABCED", "=6+6ABDCE", "=6+7ACBDE",
                 "ABCDEAB",         "ABCDEABC",         "ABCDEABCD",
                 "ABCDEABCDEABCDE", "ABCDEABCDEABCDEA", "ABCDEABCDEABCDEAB",

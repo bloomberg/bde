@@ -11,7 +11,8 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //
-//@SEE_ALSO:
+//@MACROS:
+//  BSLS_MACROINCREMENT(NUMBER): expand to evalued 'NUMBER + 1'
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //

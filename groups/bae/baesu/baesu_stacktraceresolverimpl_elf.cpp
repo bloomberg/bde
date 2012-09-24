@@ -25,23 +25,23 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 #include <limits.h>
 #include <unistd.h>
 
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
 
 # include <dl.h>
 # include <aCC/acxx_demangle.h>
 
-#elif defined(BSLS_PLATFORM__OS_LINUX)
+#elif defined(BSLS_PLATFORM_OS_LINUX)
 
 # include <cxxabi.h>
 # include <dlfcn.h>
 # include <execinfo.h>
 # include <link.h>
 
-#elif defined(BSLS_PLATFORM__OS_SOLARIS)
+#elif defined(BSLS_PLATFORM_OS_SOLARIS)
 
 # include <link.h>
 
-# ifdef BSLS_PLATFORM__CMP_GNU
+# ifdef BSLS_PLATFORM_CMP_GNU
 #   include <cxxabi.h>
 # endif
 
@@ -419,16 +419,16 @@ typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf>
                             // Run-Time Platform Switches
                             // --------------------------
 
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
 enum { IS_LINUX = 1 };
 #else
 enum { IS_LINUX = 0 };
 #endif
 
-#if   defined(BSLS_PLATFORM__IS_BIG_ENDIAN)
+#if   defined(BSLS_PLATFORM_IS_BIG_ENDIAN)
 enum { IS_BIG_ENDIAN = 1,
        IS_LITTLE_ENDIAN = 0 };
-#elif defined(BSLS_PLATFORM__IS_LITTLE_ENDIAN)
+#elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
 enum { IS_BIG_ENDIAN = 0,
        IS_LITTLE_ENDIAN = 1 };
 #else
@@ -452,7 +452,7 @@ enum {
                                 // ---------------
 
 #undef   SPLICE
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
 # define SPLICE(suffix)  Elf64_ ## suffix
 #else
 # define SPLICE(suffix)  Elf32_ ## suffix
@@ -928,7 +928,7 @@ int Local::StackTraceResolver::processLoadedImage(
 
     d_seg_p->reset();
 
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
     const char *name = fileName;
 #else
     const char *name = 0;
@@ -1011,7 +1011,7 @@ int Local::StackTraceResolver::processLoadedImage(
 void Local::StackTraceResolver::setFrameSymbolName(
                                             baesu_StackTraceFrame *frame) const
 {
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__CMP_GNU)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_CMP_GNU)
     // Linux or Sun g++ or HPUX
 
     int status = -1;
@@ -1019,7 +1019,7 @@ void Local::StackTraceResolver::setFrameSymbolName(
     if (d_demangle) {
         // note the demangler uses malloc to allocate its result
 
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
         demangledSymbol = __cxa_demangle(frame->mangledSymbolName().c_str(),
                                          0,
                                          0,
@@ -1044,14 +1044,14 @@ void Local::StackTraceResolver::setFrameSymbolName(
         free(demangledSymbol);
     }
 #endif
-#if defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CMP_GNU)
     // Sun CC only -- no demangling is available
 
     frame->setSymbolName(frame->mangledSymbolName());
 #endif
 }
 
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
 // Linux could use the same method as Solaris, but we would need a special case
 // for statically linked apps.  Instead of that we're going to use the
 // 'dl_iterate_phdr' function, which works for static and dynamic apps (you get
@@ -1090,7 +1090,7 @@ int linkmapCallback(struct dl_phdr_info *info,
 }  // extern "C"
 
 #endif
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
 
 // modern Solaris applications are NEVER statically linked, so we always
 // have a link_map.
@@ -1104,7 +1104,7 @@ int Local::StackTraceResolver::resolve(
                                      baesu_StackTrace *stackTrace,
                                      bool              demanglingPreferredFlag)
 {
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
 
     int rc;
 
@@ -1180,7 +1180,7 @@ int Local::StackTraceResolver::resolve(
         }
     }
 
-#elif defined(BSLS_PLATFORM__OS_LINUX)
+#elif defined(BSLS_PLATFORM_OS_LINUX)
 
     Local::StackTraceResolver resolver(stackTrace,
                                        demanglingPreferredFlag);
@@ -1191,7 +1191,7 @@ int Local::StackTraceResolver::resolve(
     dl_iterate_phdr(&linkmapCallback,
                     &resolver);
 
-#elif defined(BSLS_PLATFORM__OS_SOLARIS)
+#elif defined(BSLS_PLATFORM_OS_SOLARIS)
 
     Local::StackTraceResolver resolver(stackTrace,
                                        demanglingPreferredFlag);

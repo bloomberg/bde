@@ -46,45 +46,57 @@ struct bteso_Platform {
 
     struct SELECT {};
 
-    #ifdef BSLS_PLATFORM__OS_UNIX
+    #ifdef BSLS_PLATFORM_OS_UNIX
         typedef BsdSockets SocketFamily;
-        #define BTESO_PLATFORM__BSD_SOCKETS 1
+        #define BTESO_PLATFORM_BSD_SOCKETS 1
 
         struct POLL {};       // 'poll' syscall is available
         struct SIGNAL {};
         struct DEVPOLL {};
 
-        #if defined(BSLS_PLATFORM__OS_AIX)
+        #if defined(BSLS_PLATFORM_OS_AIX)
             struct POLLSET {};
             typedef POLLSET DEFAULT_POLLING_MECHANISM;
         #endif
 
-        #if defined(BSLS_PLATFORM__OS_SOLARIS)
+        #if defined(BSLS_PLATFORM_OS_SOLARIS)
             typedef DEVPOLL DEFAULT_POLLING_MECHANISM;
         #endif
 
-        #ifdef BSLS_PLATFORM__OS_LINUX
+        #ifdef BSLS_PLATFORM_OS_LINUX
             struct EPOLL {};
             typedef EPOLL   DEFAULT_POLLING_MECHANISM;
         #endif
 
-        #if defined(BSLS_PLATFORM__OS_CYGWIN)  \
-         || defined(BSLS_PLATFORM__OS_FREEBSD) \
-         || defined(BSLS_PLATFORM__OS_HPUX)
+        #if defined(BSLS_PLATFORM_OS_CYGWIN)  \
+         || defined(BSLS_PLATFORM_OS_FREEBSD) \
+         || defined(BSLS_PLATFORM_OS_DARWIN)  \
+         || defined(BSLS_PLATFORM_OS_HPUX)
             typedef POLL    DEFAULT_POLLING_MECHANISM;
         #endif
 
     #endif
 
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
         typedef WinSockets SocketFamily;
-        #define BTESO_PLATFORM__WIN_SOCKETS 1
+        #define BTESO_PLATFORM_WIN_SOCKETS 1
 
         typedef SELECT  DEFAULT_POLLING_MECHANISM;
     #endif
 };
 
 }  // close namespace BloombergLP
+
+#if !defined(BSL_DOUBLE_UNDERSCORE_XLAT) || 1 == BSL_DOUBLE_UNDERSCORE_XLAT
+
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
+# define BTESO_PLATFORM__BSD_SOCKETS BTESO_PLATFORM_BSD_SOCKETS
+#endif
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+# define BTESO_PLATFORM__WIN_SOCKETS BTESO_PLATFORM_WIN_SOCKETS
+#endif
+
+#endif
 
 #endif
 

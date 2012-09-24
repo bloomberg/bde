@@ -1,6 +1,8 @@
 // bslstl_allocatorproxy.cpp                                          -*-C++-*-
 #include <bslstl_allocatorproxy.h>
 
+#include <bslstl_allocator.h>  // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 

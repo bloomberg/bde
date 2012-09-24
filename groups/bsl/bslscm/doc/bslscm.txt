@@ -2,14 +2,34 @@
 
 @PURPOSE: Provide versioning information for BDE library components.
 
-@AUTHOR: Tom Marshall (tmarshal)
+@SEE_ALSO: bdescm
 
-@SEE ALSO: bdescm
+@AUTHOR: Tom Marshall (tmarshal)
 
 @DESCRIPTION: This package provides versioning information that is incorporated
  into every release of the 'bsl' Package Group Library.  This versioning
  information is in turn available to all clients of 'bsl' both at run-time and
- by inspection of appropriate '.o' files.  See '{BP BDE_SCM<GO>}' for a
- detailed specification of the BDE source control contract.  Note that, except
- for the package name, this version functionality is repeated in every package
- group within the BDE library suite.
+ by inspection of appropriate '.o' files.  Note that, except for the package
+ name, this version functionality is repeated in every package group within the
+ BDE library suite.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bslscm' package has 2 components having 2 levels of physical dependency.
+ The table below shows the hierarchical ordering of the components.  The order
+ of components within each level is not architecturally significant, just
+ alphabetical.
+..
+  2. bslscm_version
+
+  1. bslscm_versiontag
+..
+
+/Component Synopsis
+/------------------
+: 'bslscm_version':
+:      Provide source control management (versioning) information.
+:
+: 'bslscm_versiontag':
+:      Provide versioning information for the 'bsl' package group.
+

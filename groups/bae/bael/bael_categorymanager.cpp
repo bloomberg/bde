@@ -22,7 +22,7 @@ BDES_IDENT_RCSID(bael_categorymanager_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 
 // Note: on Windows -> WinDef.h:#define max(a,b) ...
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(max)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(max)
 #undef max
 #endif
 
