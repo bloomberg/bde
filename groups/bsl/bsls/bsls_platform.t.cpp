@@ -2,6 +2,7 @@
 
 #include <bsls_platform.h>
 
+#include <cstdio>     // 'atoi'
 #include <cstdlib>     // 'atoi'
 #include <iostream>
 
