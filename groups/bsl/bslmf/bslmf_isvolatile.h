@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // in section the C++11 standard [basic.type.qualifier].
 //
 // 'bsl::is_volatile' meets the requirements of the 'is_volatile' template
-// defined in the C++11 standard [meta.unary.cat].
+// defined in the C++11 standard [meta.unary.prop].
 //
 ///Usage
 ///-----
