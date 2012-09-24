@@ -14,18 +14,18 @@ BSLS_IDENT("$Id: $")
 //  bsls::AssertTestHandlerGuard: guard for the negative testing assert-handler
 //
 //@MACROS:
-//  BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION)
-//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION)
+//  BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION): "safe" macro success expected
+//  BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION): no origination check
+//  BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION): "safe" macro failure expected
+//  BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION): no origination check
+//  BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION): macro success expected
+//  BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION): no origination check
+//  BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION): macro failure expected
+//  BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION): no origination check
+//  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION): "opt" macro success expected
+//  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION): no origination check
+//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION): "opt macro failure expected
+//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION): no origination check
 //
 //@SEE_ALSO: bsls_assert, bsls_asserttestexception
 //
@@ -537,13 +537,52 @@ BSLS_IDENT("$Id: $")
     }                                                                     \
 }
 
+#if !defined(BDE_BUILD_TARGET_EXC)
+// In non-exception enabled builds there is no way to safely use the
+// ASSERT_FAIL macros as they require installing an assert-handler that throws
+// a specific exception.  As ASSERT_FAIL negative tests require calling a
+// method under test with out-of-contract values, running those tests, without
+// a functioning assert-handler, would trigger undefined behavior with no
+// protection, so we choose to simple not execute the test calls that are
+// designed to fail by expanding the test macros to an empty statement, '{ }'.
+// All of the ASSERT_PASS macros are expanded however, as such tests call
+// methods with in-contract values, and they may still be needed to guarantee
+// stateful side-effects required by the test-driver.
+
+# define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION_UNDER_TEST) { }
+
+#else // defined BDE_BUILD_TARGET_EXC
+
 // The following macros are not expanded on the Microsoft compiler to avoid
 // internal compiler errors in optimized builds, which are the result of
 // attempts to optimize many try/catch blocks in large switch statements.  Note
-// that the resulting test driver is just as thorough, but will crash on
-// failure rather than capturing and reporting the error.
-
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT)
+// that the resulting test driver is just as thorough, but will report failure
+// of a buggy library by simply crashing, rather than capturing and reporting
+// the specific error detected.
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT))
 # define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
          { EXPRESSION_UNDER_TEST; }
 
@@ -563,21 +602,21 @@ BSLS_IDENT("$Id: $")
          BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 #   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST) \
        BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
 #else
 #   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_IS_ACTIVE
+#if defined(BSLS_ASSERT_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
 #else
     #define BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
 #else
@@ -595,6 +634,19 @@ BSLS_IDENT("$Id: $")
     }                                                                        \
 }
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT)
+// The following MSVC specific work-around avoids compilation issues with
+// MSVC optimized builds.
+
+# define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+#else
 #define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', EXPRESSION_UNDER_TEST)
 
@@ -603,33 +655,36 @@ BSLS_IDENT("$Id: $")
 
 #define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', EXPRESSION_UNDER_TEST)
+#endif
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', EXPRESSION_UNDER_TEST)
 #else
     #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_IS_ACTIVE
+#if defined(BSLS_ASSERT_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', EXPRESSION_UNDER_TEST)
 #else
     #define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', EXPRESSION_UNDER_TEST)
 #else
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION_UNDER_TEST)
 #endif
 
+#endif  // BDE_BUILD_TARGET_EXC
+
 // Note that a portable syntax for 'noreturn' will be available once we have
 // access to conforming C++0x compilers.
 //# define BSLS_ASSERTTEST_NORETURN [[noreturn]]
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLS_ASSERTTEST_NORETURN __declspec(noreturn)
 #else
 #   define BSLS_ASSERTTEST_NORETURN
@@ -769,6 +824,7 @@ AssertTestHandlerGuard::AssertTestHandlerGuard()
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -778,6 +834,7 @@ typedef bsls::AssertTestHandlerGuard bsls_AssertTestHandlerGuard;
 
 typedef bsls::AssertTest bsls_AssertTest;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

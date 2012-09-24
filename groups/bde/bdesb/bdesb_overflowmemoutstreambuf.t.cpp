@@ -32,8 +32,8 @@ using bsl::memcmp; using bsl::streambuf;
 //                              --------
 //
 // This test driver exercises all the public methods from the 'basic_streambuf'
-// protocol that are implemented by the class 'bdesb_OverflowMemOutStreambuf',
-// as well as each public method in the 'bdesb_OverflowMemOutStreambuf' class
+// protocol that are implemented by the class 'bdesb_OverflowMemOutStreamBuf',
+// as well as each public method in the 'bdesb_OverflowMemOutStreamBuf' class
 // that is not part of the 'basic_streambuf' protocol.
 //
 // Our goal here is to ensure that the implementations comply exactly with the
@@ -47,17 +47,17 @@ using bsl::memcmp; using bsl::streambuf;
 //       Primary Constructors, Primary Manipulators, and Basic Accessors
 //       ---------------------------------------------------------------
 // Primary Constructors:
-//   A 'bdesb_OverflowMemOutStreambuf' is created with a client-supplied C
+//   A 'bdesb_OverflowMemOutStreamBuf' is created with a client-supplied C
 //   char array, a length specification, and a allocator.  The allocator is
 //   used for the overflow buffer.  This is the only constructor, so our set of
 //   primary constructors will be:
 //
-//    o bdesb_OverflowMemOutStreambuf(char            *initialBuffer,
+//    o bdesb_OverflowMemOutStreamBuf(char            *initialBuffer,
 //                                    int              initialBufferSize,
 //                                    bslma_Allocator *basicAllocator = 0);
 //
 // Primary Manipulators:
-//   We can bring a 'bdesb_OverflowMemOutStreambuf' to any achievable
+//   We can bring a 'bdesb_OverflowMemOutStreamBuf' to any achievable
 //   white-box state by using a combination of 'pubseekpos', which allows us to
 //   reposition the "cursor" (i.e., the position that the next write operation
 //   will output to) anywhere in the stream buffer, and 'sputc', which writes a
@@ -71,7 +71,7 @@ using bsl::memcmp; using bsl::streambuf;
 // Basic Accessors:
 //   We would like to find the largest set of *direct* accessors that can be
 //   used generally to report back on the state of the object.  The
-//   'bdesb_OverflowMemOutStreambuf' component has 'dataLength',
+//   'bdesb_OverflowMemOutStreamBuf' component has 'dataLength',
 //   'dataLengthInInitialBuffer', 'dataLengthInOverflowBuffer',
 //   'initialBuffer', 'overflowBuffer', 'initialBufferSize' and
 //   'overflowBufferSize' as accessors, and so they form our accessor set:
@@ -97,7 +97,7 @@ using bsl::memcmp; using bsl::streambuf;
 //                            int_type c = bsl::streambuf::traits_type::eof());
 //
 // CREATORS
-// [ 3] bdesb_OverflowMemOutStreambuf(char            *buffer,
+// [ 3] bdesb_OverflowMemOutStreamBuf(char            *buffer,
 //                            int              size,
 //                            bslma_Allocator *basicAllocator = 0);
 //
@@ -201,19 +201,19 @@ const int TOTAL_CAP = INITIAL_BUFSIZE + FIRST_OVER_BUFSIZE;
 //-----------------------------------------------------------------------------
 
               // ================================================
-              // operator<< for bdesb_OverflowMemOutStreambuf
+              // operator<< for bdesb_OverflowMemOutStreamBuf
               // ================================================
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&                     stream,
-                         const bdesb_OverflowMemOutStreambuf&
+                         const bdesb_OverflowMemOutStreamBuf&
                                                            streamBuffer);
 // Write the contents of the specified 'streamBuffer' (as well as a marker
 // indicating eight bytes groupings) to the specified output 'stream' in
 // binary format, and return a reference to the modifiable 'stream'.
 
 bsl::ostream& operator<<(bsl::ostream&                     stream,
-                         const bdesb_OverflowMemOutStreambuf&
+                         const bdesb_OverflowMemOutStreamBuf&
                                                            streamBuffer)
 {
     int   len  = streamBuffer.dataLengthInInitialBuffer();
@@ -268,7 +268,7 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
 
         // DATA
         char                          *d_buffer;      // initial buffer (owned)
-        bdesb_OverflowMemOutStreambuf *d_streamBuf;   // stream buffer (owned)
+        bdesb_OverflowMemOutStreamBuf *d_streamBuf;   // stream buffer (owned)
         bslma_Allocator               *d_allocator_p; // memory allocator
                                                       // (held, not owned)
 
@@ -292,7 +292,7 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
             // Destroy this object.
 
         // ACCESSORS
-        const bdesb_OverflowMemOutStreambuf *streamBuf() {
+        const bdesb_OverflowMemOutStreamBuf *streamBuf() {
             return d_streamBuf;
         }
             // Return the stream buffer used by this stream.  Note that this
@@ -323,7 +323,7 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
         d_buffer = reinterpret_cast<char*>(
                                   d_allocator_p->allocate(STREAMBUF_CAPACITY));
 
-        d_streamBuf = new(*d_allocator_p) bdesb_OverflowMemOutStreambuf(
+        d_streamBuf = new(*d_allocator_p) bdesb_OverflowMemOutStreamBuf(
                                                             d_buffer,
                                                             STREAMBUF_CAPACITY,
                                                             d_allocator_p);
@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
                 // Testing sputn grow.
 
                 char *bytes = new char[INITIAL_BUFSIZE];
-                bdesb_OverflowMemOutStreambuf sb(bytes,
+                bdesb_OverflowMemOutStreamBuf sb(bytes,
                                                      INITIAL_BUFSIZE, &ta);
                 ASSERT(0 == sb.overflowBufferSize());
                 ASSERT(0 == sb.overflowBuffer());
@@ -515,7 +515,7 @@ int main(int argc, char *argv[])
                 // Testing sputc grow.
 
                 char *bytes = new char[INITIAL_BUFSIZE];
-                bdesb_OverflowMemOutStreambuf sb(bytes,
+                bdesb_OverflowMemOutStreamBuf sb(bytes,
                                              INITIAL_BUFSIZE, &ta);
                 ASSERT(0 == sb.overflowBufferSize());
                 ASSERT(0 == sb.overflowBuffer());
@@ -570,7 +570,7 @@ int main(int argc, char *argv[])
                 // Testing seekoff grow.
 
                 char *bytes = new char[INITIAL_BUFSIZE];
-                bdesb_OverflowMemOutStreambuf sb(bytes,
+                bdesb_OverflowMemOutStreamBuf sb(bytes,
                                              INITIAL_BUFSIZE, &ta);
                 ASSERT(0 == sb.overflowBufferSize());
                 ASSERT(0 == sb.overflowBuffer());
@@ -615,7 +615,7 @@ int main(int argc, char *argv[])
                 // Testing seekpos grow.
 
                 char *bytes = new char[INITIAL_BUFSIZE];
-                bdesb_OverflowMemOutStreambuf sb(bytes,
+                bdesb_OverflowMemOutStreamBuf sb(bytes,
                                              INITIAL_BUFSIZE, &ta);
                 ASSERT(0 == sb.overflowBufferSize());
                 ASSERT(0 == sb.overflowBuffer());
@@ -675,7 +675,7 @@ int main(int argc, char *argv[])
         //     in a buffer (the static or the additional buffer).
         //
         // Plan:
-        //   Instantiate an 'bdesb_OverflowMemOutStreambuf', use sputc to
+        //   Instantiate an 'bdesb_OverflowMemOutStreamBuf', use sputc to
         //   insert a EOF at the beginning of the initial buffer, the end of
         //   the initial buffer and the first char of overflow buffer via
         //   overflow().  Then seek to the end of the overflow buffer, and use
@@ -695,7 +695,7 @@ int main(int argc, char *argv[])
 
         bslma_TestAllocator ta(veryVeryVerbose);
         {
-            typedef bdesb_OverflowMemOutStreambuf Obj;
+            typedef bdesb_OverflowMemOutStreamBuf Obj;
             const int EOF_VAL = bsl::streambuf::traits_type::eof();
 
             enum {
@@ -1017,7 +1017,7 @@ int main(int argc, char *argv[])
                     char buffer[INITIAL_BUFSIZE];
 
                     {
-                        bdesb_OverflowMemOutStreambuf
+                        bdesb_OverflowMemOutStreamBuf
                                              mSB(buffer, INITIAL_BUFSIZE, &ta);
 
                         // Initialize start position.
@@ -1042,7 +1042,7 @@ int main(int argc, char *argv[])
                         }
                     }
                     {
-                        bdesb_OverflowMemOutStreambuf
+                        bdesb_OverflowMemOutStreamBuf
                                              mSB(buffer, INITIAL_BUFSIZE, &ta);
 
                         // Initialize start position.
@@ -1066,7 +1066,7 @@ int main(int argc, char *argv[])
                         }
                     }
                     {
-                        bdesb_OverflowMemOutStreambuf
+                        bdesb_OverflowMemOutStreamBuf
                                              mSB(buffer, INITIAL_BUFSIZE, &ta);
 
                         // Initialize start position.
@@ -1097,7 +1097,7 @@ int main(int argc, char *argv[])
                     // Moving bsl::ios_base::in should always fail.
 
                     {
-                        bdesb_OverflowMemOutStreambuf
+                        bdesb_OverflowMemOutStreamBuf
                                              mSB(buffer, INITIAL_BUFSIZE, &ta);
                         for (int i = 0; i < start; i++ ) {
                             mSB.sputc('A');
@@ -1126,7 +1126,7 @@ int main(int argc, char *argv[])
             for (int offset = offsetRangeBeg; offset < offsetRangeEnd;
                                                                 offset++) {
                 char buffer[INITIAL_BUFSIZE];
-                bdesb_OverflowMemOutStreambuf
+                bdesb_OverflowMemOutStreamBuf
                                          mSB(buffer, INITIAL_BUFSIZE, &ta);
 
                 int ret;
@@ -1235,7 +1235,7 @@ int main(int argc, char *argv[])
                 const int LINE      = DATA[i].d_line;
 
                 char *bytes = new char[DATA[i].d_initSize];
-                bdesb_OverflowMemOutStreambuf sb(bytes,
+                bdesb_OverflowMemOutStreamBuf sb(bytes,
                                                      DATA[i].d_initSize, &ta);
                 for(unsigned j = 0; j < strlen(DATA[i].d_initData); ++j ) {
                     sb.sputc(DATA[i].d_initData[j]);
@@ -1328,8 +1328,8 @@ int main(int argc, char *argv[])
 
             char buffer[INITIAL_BUFSIZE];
             memset(buffer, 'Z', INITIAL_BUFSIZE);
-            bdesb_OverflowMemOutStreambuf mSB(buffer, INITIAL_BUFSIZE);
-            const bdesb_OverflowMemOutStreambuf& SB = mSB;
+            bdesb_OverflowMemOutStreamBuf mSB(buffer, INITIAL_BUFSIZE);
+            const bdesb_OverflowMemOutStreamBuf& SB = mSB;
 
             const int SIZE = 100;
             char buf1[SIZE], buf2[SIZE];
@@ -1344,9 +1344,9 @@ int main(int argc, char *argv[])
 
             char buffer[INITIAL_BUFSIZE];
             memset(buffer, 'Z', INITIAL_BUFSIZE);
-            bdesb_OverflowMemOutStreambuf mSB(buffer,
+            bdesb_OverflowMemOutStreamBuf mSB(buffer,
                                                   INITIAL_BUFSIZE);
-            const bdesb_OverflowMemOutStreambuf& SB = mSB;
+            const bdesb_OverflowMemOutStreamBuf& SB = mSB;
 
             mSB.sputn("hello", 5);
 
@@ -1381,9 +1381,9 @@ int main(int argc, char *argv[])
 
             char buffer[INITIAL_BUFSIZE];
             memset(buffer, 'Z', INITIAL_BUFSIZE);
-            bdesb_OverflowMemOutStreambuf mSB(buffer,
+            bdesb_OverflowMemOutStreamBuf mSB(buffer,
                                                   INITIAL_BUFSIZE);
-            const bdesb_OverflowMemOutStreambuf& SB = mSB;
+            const bdesb_OverflowMemOutStreamBuf& SB = mSB;
 
             mSB.sputc('0');  mSB.sputc('1');  mSB.sputc('2');  mSB.sputc('3');
             mSB.sputc('4');  mSB.sputc('5');  mSB.sputc('6');  mSB.sputc('7');
@@ -1416,9 +1416,9 @@ int main(int argc, char *argv[])
 
             char buffer[INITIAL_BUFSIZE];
             memset(buffer, 'Z', INITIAL_BUFSIZE);
-            bdesb_OverflowMemOutStreambuf mSB(buffer,
+            bdesb_OverflowMemOutStreamBuf mSB(buffer,
                                                   INITIAL_BUFSIZE);
-            const bdesb_OverflowMemOutStreambuf& SB = mSB;
+            const bdesb_OverflowMemOutStreamBuf& SB = mSB;
 
             mSB.sputc('0');  mSB.sputc('1');  mSB.sputc('2');  mSB.sputc('3');
             mSB.sputc('4');  mSB.sputc('5');  mSB.sputc('6');  mSB.sputc('7');
@@ -1455,7 +1455,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS/BASIC ACCESSORS
         //   Verify the most basic functionality of a
-        //   'bdesb_OverflowMemOutStreambuf'.
+        //   'bdesb_OverflowMemOutStreamBuf'.
         //
         // Concerns:
         //   (sputc) MANIPULATOR
@@ -1502,7 +1502,7 @@ int main(int argc, char *argv[])
         //     as to address various combinations of the above concerns.
         //
         //   (data and length)
-        //   - Create an empty 'bdesb_OverflowMemOutStreambuf' and verify
+        //   - Create an empty 'bdesb_OverflowMemOutStreamBuf' and verify
         //     its length.
         //   - Add a character, and verify the length and content.
         //   - Add enough characters to use all the initial capacity, and then
@@ -1543,9 +1543,9 @@ int main(int argc, char *argv[])
         {
             char buffer[INITIAL_BUFSIZE];
             memset(buffer, 'Z', INITIAL_BUFSIZE);
-            bdesb_OverflowMemOutStreambuf mSB(buffer,
+            bdesb_OverflowMemOutStreamBuf mSB(buffer,
                                                   INITIAL_BUFSIZE, &ta);
-            const bdesb_OverflowMemOutStreambuf& SB = mSB;
+            const bdesb_OverflowMemOutStreamBuf& SB = mSB;
             ASSERT(0                   == SB.dataLength());
 
             ASSERT(INITIAL_BUFSIZE     == SB.initialBufferSize());
@@ -1561,7 +1561,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting sputc." << endl;
         {
-            typedef bdesb_OverflowMemOutStreambuf::char_type T;
+            typedef bdesb_OverflowMemOutStreamBuf::char_type T;
 
             static const struct {
                 int            d_line;       // line number
@@ -1594,10 +1594,10 @@ int main(int argc, char *argv[])
                 const int LINE      = DATA[i].d_line;
                 char buffer[INITIAL_BUFSIZE];
                 memset(buffer, 'Z', INITIAL_BUFSIZE);
-                bdesb_OverflowMemOutStreambuf mSB(buffer,
+                bdesb_OverflowMemOutStreamBuf mSB(buffer,
                                                       INITIAL_BUFSIZE - 1,
                                                       &ta);
-                const bdesb_OverflowMemOutStreambuf& SB = mSB;
+                const bdesb_OverflowMemOutStreamBuf& SB = mSB;
 
                 mSB.sputc(DATA[i].d_outChar);
                 mSB.pubsync();
@@ -1671,9 +1671,9 @@ int main(int argc, char *argv[])
             for(int i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
                 char *bytes         = new char[DATA[i].d_initSize];
-                bdesb_OverflowMemOutStreambuf mSB(bytes,
+                bdesb_OverflowMemOutStreamBuf mSB(bytes,
                                                       DATA[i].d_initSize, &ta);
-                const bdesb_OverflowMemOutStreambuf& SB = mSB;
+                const bdesb_OverflowMemOutStreamBuf& SB = mSB;
 
                 for (unsigned j = 0; j < strlen(DATA[i].d_initBufInit); ++j) {
                     mSB.sputc(DATA[i].d_initBufInit[j]);
@@ -1720,7 +1720,7 @@ int main(int argc, char *argv[])
             // the stream.
             char buffer[5];
             memset(buffer, 'X', 5);
-            bdesb_OverflowMemOutStreambuf x(buffer, 5, &ta);
+            bdesb_OverflowMemOutStreamBuf x(buffer, 5, &ta);
             x.sputc('a'); x.sputc('b'); x.sputc('c'); x.sputc('d');
             x.sputc('e');
 
@@ -1799,7 +1799,7 @@ int main(int argc, char *argv[])
         //   - Brute-Force Implementation Technique
         //
         // Testing:
-        // bdesb_OverflowMemOutStreambuf(char            *buffer,
+        // bdesb_OverflowMemOutStreamBuf(char            *buffer,
         //                       int              size,
         //                       bslma_Allocator *basicAllocator = 0)
         //
@@ -1821,9 +1821,9 @@ int main(int argc, char *argv[])
 
              char buffer[INITIAL_BUFSIZE];
              memset(buffer, 'Z', INITIAL_BUFSIZE);
-             bdesb_OverflowMemOutStreambuf mSB(buffer,
+             bdesb_OverflowMemOutStreamBuf mSB(buffer,
                                                    INITIAL_BUFSIZE - 1, &ta);
-             const bdesb_OverflowMemOutStreambuf& SB = mSB;
+             const bdesb_OverflowMemOutStreamBuf& SB = mSB;
 
              for (int i = 0; i < INITIAL_BUFSIZE - 1; ++i) {
                  mSB.sputc('a');
@@ -1919,15 +1919,15 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         if (verbose) cout << "\nMake sure we can create and use a "
-                          << "'bdesb_OverflowMemOutStreambuf'."
+                          << "'bdesb_OverflowMemOutStreamBuf'."
                           << endl;
 
         bslma_TestAllocator ta(veryVeryVerbose);
         {
             char buffer[INITIAL_BUFSIZE];
-            bdesb_OverflowMemOutStreambuf mSB(buffer,
+            bdesb_OverflowMemOutStreamBuf mSB(buffer,
                                                   INITIAL_BUFSIZE, &ta);
-            const bdesb_OverflowMemOutStreambuf& SB = mSB;
+            const bdesb_OverflowMemOutStreamBuf& SB = mSB;
             char source[] = "hellos, This is 30 chars long.";
             ASSERT(30 == bsl::strlen(source));
 

@@ -41,6 +41,10 @@
 #ifndef INCLUDED_BSLSTP_SLIST
 #define INCLUDED_BSLSTP_SLIST
 
+#ifdef BDE_OMIT_TRANSITIONAL // STP
+#error "bslstp_slist is not for publication"
+#endif
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
@@ -79,6 +83,10 @@
 
 #ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
 #include <bslalg_scalardestructionprimitives.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_ALLOCATOR
+#include <bslstl_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL

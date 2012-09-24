@@ -174,7 +174,7 @@ class CountedDelete
 
 public:
     CountedDelete() : isTemp(true) {}
-    CountedDelete(const CountedDelete& rhs) : isTemp(false) {}
+    CountedDelete(const CountedDelete&) : isTemp(false) {}
 
     ~CountedDelete() {
         if (!isTemp) {
@@ -186,7 +186,7 @@ public:
         return deleteCount;
     }
 
-    CountedDelete& operator= (const CountedDelete& rhs) {
+    CountedDelete& operator= (const CountedDelete&) {
         isTemp = false;
         return *this;
     }
@@ -207,7 +207,7 @@ void case20(bcec_SkipList<int, CountedDelete>* list, int maxRefCount)
     for (int numReferencesAdded = 1; numReferencesAdded < maxRefCount; )
     {
         list->addPairReferenceRaw(front);
-#if defined BSLS_PLATFORM__OS_WINDOWS
+#if defined BSLS_PLATFORM_OS_WINDOWS
         double random = rand() / (double)RAND_MAX;
 #else
         double random = rand_r(&seed) / (double)RAND_MAX;
@@ -1775,19 +1775,19 @@ int main(int argc, char *argv[])
         // iteration test
         // --------------------------------------------------------------------
         DATA VALUES1[] = {
-            { L_ , 1, "1"},
-            { L_ , 3, "3"},
-            { L_ , 0, "0"},
-            { L_ , 2, "2"},
-            { L_ , 4, "4"},
+            { L_ , 1, "1", 0 },
+            { L_ , 3, "3", 0 },
+            { L_ , 0, "0", 0 },
+            { L_ , 2, "2", 0 },
+            { L_ , 4, "4", 0 },
         };
 
         DATA VALUES2[] = {
-            { L_ , 0, "0"},
-            { L_ , 1, "1"},
-            { L_ , 2, "2"},
-            { L_ , 3, "3"},
-            { L_ , 4, "4"},
+            { L_ , 0, "0", 0},
+            { L_ , 1, "1", 0},
+            { L_ , 2, "2", 0},
+            { L_ , 3, "3", 0},
+            { L_ , 4, "4", 0},
         };
 
         if (verbose) cout << endl

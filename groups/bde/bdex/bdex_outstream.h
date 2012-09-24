@@ -473,7 +473,7 @@ class bdex_OutStream {
 };
 
 // FREE OPERATORS
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <class OBJECT>
 inline
@@ -488,14 +488,14 @@ bdex_OutStream& operator<<(bdex_OutStream& stream, const OBJECT& object);
     // which case this operator calls the appropriate 'put' method from this
     // component.
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
 // FREE OPERATORS
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <class OBJECT>
 inline
@@ -505,7 +505,7 @@ bdex_OutStream& operator<<(bdex_OutStream& stream, const OBJECT& object)
                                                                 object);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 }  // close namespace BloombergLP
 

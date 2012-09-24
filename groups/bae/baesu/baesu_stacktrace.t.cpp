@@ -3401,7 +3401,7 @@ int main(int argc, char *argv[])
                             "library file name = \"\""                      NL
                             "line number = -1"                              NL
                             "mangled symbol name = \"\""                    NL
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
                             "offset from symbol = 4294967295"               NL
 #else
                             "offset from symbol = 18446744073709551615"     NL

@@ -29,27 +29,26 @@ BSLS_IDENT("$Id: $")
 // The use of (abstract) allocators provide at least three distinct advantages
 // over direct (hard-coded) calls to global 'new' and 'delete' (see
 // 'bslma_newdeleteallocator'):
-//..
-//  (1) The particular choice of allocator can be selected to improve
-//      performance on a per-object basis.  Without allocators, the best
-//      we can do in C++ is to overload the class-specific new and delete.
-//      Class-specific allocators tend to hoard memory even when most
-//      objects of the class have been deallocated, and often mask
-//      memory leaks that would otherwise have been detected.
-//      See Lakos-96, Section 10.3.4.2, pp 705-711.
 //
-//  (2) By providing extra capabilities (beyond 'new' and 'delete') in the
-//      derived class (see 'bslma_managedallocator'), we can bypass the
-//      individual destructors in a dynamically allocated type and remove
-//      all memory for one or more associated object almost instantly.
+//: 1 The particular choice of allocator can be selected to improve performance
+//:   on a per-object basis.  Without allocators, the best we can do in C++ is
+//:   to overload the class-specific new and delete.  Class-specific allocators
+//:   tend to hoard memory even when most objects of the class have been
+//:   deallocated, and often mask memory leaks that would otherwise have been
+//:   detected.  See Lakos-96, Section 10.3.4.2, pp 705-711.
+//:
+//: 2 By providing extra capabilities (beyond 'new' and 'delete') in the
+//:   derived class (see 'bslma_managedallocator'), we can bypass the
+//:   individual destructors in a dynamically allocated type and remove all
+//:   memory for one or more associated object almost instantly.
+//:
+//: 3 The 'bslma::Allocator' protocol, like any other protocol, isolates
+//:   clients from direct coupling with platform level facilities that are not
+//:   fully under their control.  By installing a test allocator (see
+//:   'bslma_testallocator'), we are able to orchestrate the white-box testing
+//:   of internal calls to global operators 'new' and 'delete' in a
+//:   platform-neutral manner.
 //
-//  (3) The 'bslma::Allocator' protocol, like any other protocol, isolates
-//      clients from direct coupling with platform level facilities that
-//      are not fully under their control.  By installing a test allocator
-//      (see 'bslma_testallocator'), we are able to orchestrate the white-box
-//      testing of internal calls to global operators 'new' and 'delete' in a
-//      platform-neutral manner.
-//..
 ///Thread Safety
 ///-------------
 // Unless otherwise documented, a single allocator object is not safe for
@@ -467,12 +466,14 @@ class Allocator {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::Allocator bslma_Allocator;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 
@@ -584,6 +585,7 @@ void Allocator::deleteObjectRaw(const TYPE *object)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -591,10 +593,10 @@ void Allocator::deleteObjectRaw(const TYPE *object)
 typedef bslma::Allocator bslma_Allocator;
     // This alias is defined for backward compatibility.
 
-#ifdef bdema_Allocator
-#undef bdema_Allocator
-#endif
+#ifndef bdema_Allocator
 #define bdema_Allocator bslma::Allocator
+#endif
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

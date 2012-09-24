@@ -12,9 +12,11 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::Tag: map integral constants to C++ types
 //
-//@AUTHOR: Pablo Halpern (phalpern)
+//@MACROS:
+//: BSLMF_TAG_TO_INT(EXPR): map tag to integral value
+//: BSLMF_TAG_TO_BOOL(EXPR): map tag to boolean value
 //
-//@SEE_ALSO:
+//@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component defines a simple template structure used to map
 // an integral constant to a C++ type.  'bslmf::Tag<unsigned>' defines a
@@ -31,18 +33,17 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // This section provides a brief description of the macros defined in this
 // component.
-//..
-//  BSLMF_TAG_TO_INT(EXPR)
-//    Given an integral value, 'V', and an expression, 'EXPR', of type
-//    'bslmf::Tag<V>', this macro returns a compile-time constant with the
-//    value 'V'.  'EXPR' is not evaluated at run-time.
 //
-//  BSLMF_TAG_TO_BOOL(EXPR)
-//    Given an integral value, 'V', and an expression, 'EXPR', of type
-//    'bslmf::Tag<V>', this macro returns a compile-time constant with the
-//    value 'true' or 'false', depending on the boolean value of 'V'.  'EXPR'
-//    is not evaluated at run-time.
-//..
+//: 'BSLMF_TAG_TO_INT(EXPR)'
+//:     Given an integral value, 'V', and an expression, 'EXPR', of type
+//:     'bslmf::Tag<V>', this macro returns a compile-time constant with the
+//:     value 'V'.  'EXPR' is not evaluated at run-time.
+//:
+//: 'BSLMF_TAG_TO_BOOL(EXPR)'
+//:     Given an integral value, 'V', and an expression, 'EXPR', of type
+//:     'bslmf::Tag<V>', this macro returns a compile-time constant with the
+//:     value 'true' or 'false', depending on the boolean value of 'V'.  'EXPR'
+//:     is not evaluated at run-time.
 //
 ///Usage
 ///-----
@@ -143,6 +144,7 @@ struct Tag {
 
 #define BSLMF_TAG_TO_BOOL(BSLMF_EXPR) (BSLMF_TAG_TO_INT(BSLMF_EXPR) != 0)
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -152,6 +154,7 @@ struct Tag {
 #endif
 #define bslmf_Tag bslmf::Tag
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

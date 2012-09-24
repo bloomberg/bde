@@ -6,7 +6,7 @@ BDES_IDENT_RCSID(bcemt_conditionimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <bdet_timeinterval.h>
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
 
 namespace BloombergLP {
 

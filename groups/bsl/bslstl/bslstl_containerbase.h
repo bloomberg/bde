@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstl::ContainerBase: base class for STL-style containers
 //
-//@SEE_ALSO:
-//
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component defines a class, 'bslstl::ContainerBase', that
@@ -33,10 +31,6 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_ALLOCATOR
-#include <bslstl_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_ALLOCATORPROXY

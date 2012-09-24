@@ -7,7 +7,7 @@
 #include <iostream>
 
 // For thread support
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 typedef HANDLE thread_t;
 #else
@@ -335,7 +335,7 @@ typedef void *(*thread_func)(void *arg);
 
 thread_t createThread(thread_func func, void *arg)
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     return CreateThread(0, 0, (LPTHREAD_START_ROUTINE) func, arg, 0, 0);
 #else
     thread_t thr;
@@ -346,7 +346,7 @@ thread_t createThread(thread_func func, void *arg)
 
 void joinThread(thread_t thr)
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     WaitForSingleObject(thr, INFINITE);
     CloseHandle(thr);
 #else
@@ -789,7 +789,7 @@ int my_CountedHandle<INSTANCE>::numReferences() const
 template <class TYPE>
 class my_PtrStack {
     // TYPES
-    typedef struct Node {
+    struct Node {
         TYPE                 *d_item_p;
         Node                 *d_next_p;
         bsls::AtomicInt       d_inUseFlag; // used to lock this node

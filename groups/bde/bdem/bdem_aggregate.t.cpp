@@ -27,11 +27,11 @@
 #include <bsl_cstring.h>                // memset(), memcpy()
 #include <bsl_c_ctype.h>                // isspace()
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <crtdbg.h>  // _CrtSetReportMode, to suppress popups
 #endif
 
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
     #define hex bsl::hex
     #define dec bsl::dec
 #endif
@@ -435,7 +435,7 @@ typedef bsls_Types::Int64  Int64;
 
 const int NUM_TYPES = bdem_ElemType::BDEM_NUM_TYPES;
 
-#if defined(BDE_BUILD_TARGET_EXC) && !defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BDE_BUILD_TARGET_EXC) && !defined(BSLS_PLATFORM_CMP_MSVC)
 
 static bool EXCEPTIONS_ON = true;
 
@@ -2962,7 +2962,7 @@ DEFINE_TEST_CASE(38) {
                 { L_,   "xE",          0,         1,    "{"             NL
                                                         " FLOAT 105.5"  NL
                                                         "}"             NL   },
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
                 { L_,   "uE",          0,         1,    "{"             NL
                                                   " FLOAT -6.56419e-015" NL
                                                         "}"             NL   },
@@ -2974,7 +2974,7 @@ DEFINE_TEST_CASE(38) {
                 { L_,   "xF",          0,         1,    "{"             NL
                                                       " DOUBLE 106.006" NL
                                                         "}"             NL   },
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
                 { L_,   "uF",          0,         1,    "{"             NL
                                                  " DOUBLE -2.42454e-014" NL
                                                         "}"             NL   },
@@ -3059,7 +3059,7 @@ DEFINE_TEST_CASE(38) {
                                                        " INT64_ARRAY [" NL
                                                        " ]"             NL
                                                         "}"             NL   },
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
                 { L_,   "xO",          0,         1,    "{"             NL
                                                        " FLOAT_ARRAY [" NL
                                                        "  105.5"        NL
@@ -3080,7 +3080,7 @@ DEFINE_TEST_CASE(38) {
                                                        " ]"             NL
                                                         "}"             NL   },
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
                 { L_,   "xP",          0,         1,    "{"             NL
                                                       " DOUBLE_ARRAY [" NL
                                                       "  106.006"       NL
@@ -3433,7 +3433,7 @@ DEFINE_TEST_CASE(38) {
                                                     "  ]\n"
                                                     " }\n"
                                                     "}\n"                    },
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
                 { L_,   "O;x;",          0,         1,  "{\n"
                                                         " Column Types: [\n"
                                                         "  FLOAT_ARRAY\n"
@@ -7906,7 +7906,7 @@ DEFINE_TEST_CASE(23) {
                 "EAB;xyx;xxx;uuu;xyy;yyx;",
                 "QTC;xyx;xxx;yyy;xxx;uyu;xxx;yyu;",
 // exception handling is *extremely* slow on HP
-#if !defined(BSLS_PLATFORM__CMP_HP) || !defined(BDE_BUILD_TARGET_EXC)
+#if !defined(BSLS_PLATFORM_CMP_HP) || !defined(BDE_BUILD_TARGET_EXC)
                 "TUH;xxy;yyy;xxx;uuu;xyx;yyy;xxx;yxx;",
                 "BA;xx;yy;uu;xy;yx;xu;yu;ux;uy;",
 #endif
@@ -10063,7 +10063,7 @@ DEFINE_TEST_CASE(19) {
                 List DD(g(X_SPEC));    // control for destination
                 List EE(g(E_SPEC));    // control for expected value
 
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
                 if (veryVerbose) {
                     cout << "\t  =================================="
                                 "==================================" << endl;
@@ -10218,7 +10218,7 @@ DEFINE_TEST_CASE(18) {
                 LOOP_ASSERT(X_SPEC, EE.length() > YI);
                 replaceListElements(EE, DI, SS.theList(YI).row(), SI, NE);
 
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
                 if (veryVerbose) {
                     cout << "\t  =================================="
                                 "==================================" << endl;
@@ -17223,13 +17223,13 @@ DEFINE_TEST_CASE(5) {
                 { L_,   "xD",          "{ INT64 10004 }"                     },
                 { L_,   "uD",          "{ INT64 -9223372036854775808 }"      },
                 { L_,   "xE",          "{ FLOAT 105.5 }"                     },
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
                 { L_,   "uE",          "{ FLOAT -6.56419e-015 }"             },
 #else
                 { L_,   "uE",          "{ FLOAT -6.56419e-15 }"              },
 #endif
                 { L_,   "xF",          "{ DOUBLE 106.006 }"                  },
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
                 { L_,   "uF",          "{ DOUBLE -2.42454e-014 }"            },
 #else
                 { L_,   "uF",          "{ DOUBLE -2.42454e-14 }"             },
@@ -17251,7 +17251,7 @@ DEFINE_TEST_CASE(5) {
                 { L_,   "xN",          "{ INT64_ARRAY [ 10004 "
                                        "-9223372036854775808 ] }"            },
                 { L_,   "uN",          "{ INT64_ARRAY [ ] }"                 },
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
                 { L_,   "xO",          "{ FLOAT_ARRAY [ 105.5 "
                                        "-6.56419e-015 ] }"                   },
 #else
@@ -17259,7 +17259,7 @@ DEFINE_TEST_CASE(5) {
                                        "-6.56419e-15 ] }"                    },
 #endif
                 { L_,   "uO",          "{ FLOAT_ARRAY [ ] }"                 },
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
                 { L_,   "xP",          "{ DOUBLE_ARRAY [ 106.006 "
                                        "-2.42454e-014 ] }"                   },
 #else
@@ -17390,7 +17390,7 @@ DEFINE_TEST_CASE(5) {
                 { L_,   "N;x;",        "{ Column Types: [ INT64_ARRAY ] "
                                        "Row 0: { [ 10004 "
                                        "-9223372036854775808 ] }}"           },
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
                 { L_,   "O;x;",        "{ Column Types: [ FLOAT_ARRAY ] "
                                        "Row 0: { [ 105.5 -6.56419e-015 ] }}" },
                 { L_,   "P;x;",        "{ Column Types: [ DOUBLE_ARRAY ] "
@@ -19250,7 +19250,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // Suppress all windows debugging popups
     _CrtSetReportMode(_CRT_ASSERT, 0);
     _CrtSetReportMode(_CRT_ERROR,  0);

@@ -34,8 +34,6 @@ BSLS_IDENT("$Id: $")
 //  bslmf::TypeList19: Typelist of 19 types
 //  bslmf::TypeList20: Typelist of 20 types
 //
-//@SEE_ALSO:
-//
 //@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: 'bslmf::TypeList' provides a compile time list that holds up to
@@ -974,6 +972,7 @@ struct TypeListTypeOf<20,LIST,DEFAULTTYPE,1> {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -1118,6 +1117,7 @@ typedef bslmf::TypeList0 bslmf_TypeList0;
 #endif
 #define bslmf_TypeListNil bslmf::TypeListNil
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

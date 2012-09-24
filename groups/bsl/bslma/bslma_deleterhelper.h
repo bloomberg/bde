@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::DeleterHelper: non-primitive pure procedures for deleting objects
 //
-//@AUTHOR: Arthur Chiu (achiu21)
+//@SEE_ALSO: bslma_rawdeleterguard, bslmf_ispolymporphic
 //
-//@SEE_ALSO: bslma_rawdeleterguard
+//@AUTHOR: Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component provides non-primitive procedures used to delete
 // objects of parameterized 'TYPE' by first calling the destructor of the
@@ -24,7 +24,10 @@ BSLS_IDENT("$Id: $")
 // the supplied object is !not! of a type that is a secondary base class --
 // i.e., the object's address is (numerically) the same as when it was
 // originally dispensed by 'ALLOCATOR'.  The non-"raw" 'deleteObject' has no
-// such restriction.
+// such restriction.  Note that this component will fail to compile when
+// instantiated for a class that gives a false-positive for the type trait
+// 'bslmf::IsPolymorphic'.  See the 'bslmf_ispolymporphic' component for more
+// details.
 //
 ///Usage
 ///-----
@@ -173,7 +176,7 @@ void DeleterHelper::deleteObject(const TYPE *object,
                             bslmf::IsPolymorphic<TYPE>::VALUE>::caster(object);
         BSLS_ASSERT_OPT(address);
 
-#ifndef BSLS_PLATFORM__CMP_SUN
+#ifndef BSLS_PLATFORM_CMP_SUN
         object->~TYPE();
 #else
         const_cast<TYPE *>(object)->~TYPE();
@@ -193,7 +196,7 @@ void DeleterHelper::deleteObjectRaw(const TYPE *object,
     if (0 != object) {
         void *address = const_cast<TYPE *>(object);
 
-#ifndef BSLS_PLATFORM__CMP_SUN
+#ifndef BSLS_PLATFORM_CMP_SUN
         object->~TYPE();
 #else
         const_cast<TYPE *>(object)->~TYPE();
@@ -205,12 +208,14 @@ void DeleterHelper::deleteObjectRaw(const TYPE *object,
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::DeleterHelper bslma_DeleterHelper;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

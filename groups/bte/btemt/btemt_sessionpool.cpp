@@ -31,10 +31,10 @@ BDES_IDENT_RCSID(btemt_sessionpool_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
                       // ===============================
-                      // class btemt_SessionPool__Handle
+                      // class btemt_SessionPool_Handle
                       // ===============================
 
-struct btemt_SessionPool__Handle {
+struct btemt_SessionPool_Handle {
     // This opaque handle is used privately in this implementation.
 
     // PRIVATE TYPES
@@ -59,11 +59,11 @@ struct btemt_SessionPool__Handle {
     btemt_SessionFactory                   *d_sessionFactory_p;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(btemt_SessionPool__Handle,
+    BSLALG_DECLARE_NESTED_TRAITS(btemt_SessionPool_Handle,
                                  bslalg_TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    btemt_SessionPool__Handle(bslma_Allocator *basicAllocator = 0)
+    btemt_SessionPool_Handle(bslma_Allocator *basicAllocator = 0)
     : d_sessionStateCB(basicAllocator)
     {
     }
@@ -79,7 +79,7 @@ btemt_SessionPoolSessionIterator::btemt_SessionPoolSessionIterator(
 {
     if(d_iterator) {
         d_current_p = &d_current;
-        bsl::pair<int, bcema_SharedPtr<btemt_SessionPool__Handle> >
+        bsl::pair<int, bcema_SharedPtr<btemt_SessionPool_Handle> >
                                                             curr(d_iterator());
         d_current.second = curr.second->d_session_p;
         d_current.first = curr.first;
@@ -101,7 +101,7 @@ void btemt_SessionPoolSessionIterator::operator++()
                 d_current_p = 0;
                 break;
             }
-            bsl::pair<int, bcema_SharedPtr<btemt_SessionPool__Handle> >
+            bsl::pair<int, bcema_SharedPtr<btemt_SessionPool_Handle> >
                                                             curr(d_iterator());
             d_current.second = curr.second->d_session_p;
             if (!d_current.second) {
@@ -113,7 +113,7 @@ void btemt_SessionPoolSessionIterator::operator++()
     }
 }
 
-typedef bcema_SharedPtr<btemt_SessionPool__Handle> HandlePtr;
+typedef bcema_SharedPtr<btemt_SessionPool_Handle> HandlePtr;
 
                           // -----------------------
                           // class btemt_SessionPool
@@ -133,8 +133,8 @@ void btemt_SessionPool::channelStateCb(int   channelId,
               break;
           }
 
-          btemt_SessionPool__Handle *handlePtr =
-                                         (btemt_SessionPool__Handle*) userData;
+          btemt_SessionPool_Handle *handlePtr =
+                                         (btemt_SessionPool_Handle*) userData;
           HandlePtr handle;
 
           if (d_handles.find(handlePtr->d_handleId, &handle)) {
@@ -171,18 +171,18 @@ void btemt_SessionPool::channelStateCb(int   channelId,
                                         btemt_ChannelPool::BTEMT_IMMEDIATE);
               return;
           }
-          if (btemt_SessionPool__Handle::LISTENER == handle->d_type) {
+          if (btemt_SessionPool_Handle::LISTENER == handle->d_type) {
               // This connection originate from a listener socket,
               // create a new handle for the new channel
 
               HandlePtr newHandle(
-                              new (*d_allocator_p) btemt_SessionPool__Handle(),
+                              new (*d_allocator_p) btemt_SessionPool_Handle(),
                               bdef_MemFnUtil::memFn(
                                              &btemt_SessionPool::handleDeleter,
                                              this),
                               d_allocator_p);
 
-              newHandle->d_type = btemt_SessionPool__Handle::REGULAR_SESSION;
+              newHandle->d_type = btemt_SessionPool_Handle::REGULAR_SESSION;
               newHandle->d_sessionStateCB = handle->d_sessionStateCB;
               newHandle->d_userData_p = handle->d_userData_p;
               newHandle->d_channel_p  = 0;
@@ -200,7 +200,7 @@ void btemt_SessionPool::channelStateCb(int   channelId,
           // ignored.
 
           bcemt_LockGuard<bcemt_Mutex> lock(&handle->d_mutex);
-          if (btemt_SessionPool__Handle::ABORTED_CONNECT_SESSION ==
+          if (btemt_SessionPool_Handle::ABORTED_CONNECT_SESSION ==
                                                               handle->d_type) {
               // We raced against 'closeHandle()'.
 
@@ -210,25 +210,14 @@ void btemt_SessionPool::channelStateCb(int   channelId,
           }
           d_channelPool_p->setChannelContext(channelId, handle.ptr());
 
-          if (d_useBlobForDataReads) {
-              handle->d_channel_p = new (*d_allocator_p)
-                                 btemt_ChannelPoolChannel(
-                                                        channelId,
+          handle->d_channel_p = new (*d_allocator_p)
+                                btemt_ChannelPoolChannel(channelId,
                                                         d_channelPool_p,
+                                                        &d_bufferChainFactory,
                                                         &d_blobBufferFactory,
                                                         &d_spAllocator,
                                                         d_allocator_p,
-                                                        &d_bufferChainFactory);
-          }
-          else {
-              handle->d_channel_p = new (*d_allocator_p)
-                                btemt_ChannelPoolChannel(channelId,
-                                                         d_channelPool_p,
-                                                         &d_bufferChainFactory,
-                                                         &d_spAllocator,
-                                                         d_allocator_p,
-                                                         &d_blobBufferFactory);
-          }
+                                                        d_useBlobForDataReads);
 
           lock.release()->unlock();
 
@@ -247,8 +236,8 @@ void btemt_SessionPool::channelStateCb(int   channelId,
           if (0 == userData) {
               break;
           }
-          btemt_SessionPool__Handle *handle =
-                                         (btemt_SessionPool__Handle*) userData;
+          btemt_SessionPool_Handle *handle =
+                                         (btemt_SessionPool_Handle*) userData;
           if (handle->d_session_p) {
               handle->d_sessionStateCB(WRITE_CACHE_LOWWAT, handle->d_handleId,
                                        handle->d_session_p,
@@ -259,8 +248,8 @@ void btemt_SessionPool::channelStateCb(int   channelId,
           if (0 == userData) {
               break;
           }
-          btemt_SessionPool__Handle *handle =
-              (btemt_SessionPool__Handle*)userData;
+          btemt_SessionPool_Handle *handle =
+              (btemt_SessionPool_Handle*)userData;
           if (handle->d_session_p) {
               handle->d_sessionStateCB(WRITE_CACHE_HIWAT,
                                        handle->d_handleId,
@@ -272,7 +261,7 @@ void btemt_SessionPool::channelStateCb(int   channelId,
 }
 
 void btemt_SessionPool::connectAbortTimerCb(
-                     const bcema_SharedPtr<btemt_SessionPool__Handle>& handle)
+                     const bcema_SharedPtr<btemt_SessionPool_Handle>& handle)
 {
     d_channelPool_p->deregisterClock(handle->d_handleId);
     do {
@@ -290,7 +279,7 @@ void btemt_SessionPool::pooledBufferChainBasedReadCb(
                         // until the callback is complete
 
 
-    btemt_SessionPool__Handle *handle = (btemt_SessionPool__Handle*) userData;
+    btemt_SessionPool_Handle *handle = (btemt_SessionPool_Handle*) userData;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!handle)
         || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!handle->d_channel_p)
@@ -318,7 +307,7 @@ void btemt_SessionPool::blobBasedReadCb(int        *numNeeded,
                         // until the callback is complete
 
 
-    btemt_SessionPool__Handle *handle = (btemt_SessionPool__Handle*) userData;
+    btemt_SessionPool_Handle *handle = (btemt_SessionPool_Handle*) userData;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!handle)
         || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!handle->d_channel_p)
@@ -336,11 +325,11 @@ void btemt_SessionPool::blobBasedReadCb(int        *numNeeded,
     handle->d_channel_p->blobBasedDataCb(numNeeded, data);
 }
 
-void btemt_SessionPool::handleDeleter(btemt_SessionPool__Handle *handle)
+void btemt_SessionPool::handleDeleter(btemt_SessionPool_Handle *handle)
 {
     if (0 != handle->d_handleId ) {
 
-        if (btemt_SessionPool__Handle::LISTENER == handle->d_type) {
+        if (btemt_SessionPool_Handle::LISTENER == handle->d_type) {
             d_channelPool_p->close(handle->d_handleId);
         }
         else if (handle->d_session_p) {
@@ -351,9 +340,9 @@ void btemt_SessionPool::handleDeleter(btemt_SessionPool__Handle *handle)
                                      handle->d_userData_p);
             handle->d_handleId = 0;
         }
-        else if (btemt_SessionPool__Handle::CONNECT_SESSION ==
+        else if (btemt_SessionPool_Handle::CONNECT_SESSION ==
                                                               handle->d_type
-              || btemt_SessionPool__Handle::ABORTED_CONNECT_SESSION ==
+              || btemt_SessionPool_Handle::ABORTED_CONNECT_SESSION ==
                                                               handle->d_type) {
             handle->d_sessionStateCB(CONNECT_ABORTED, handle->d_handleId, 0,
                                      handle->d_userData_p);
@@ -406,13 +395,13 @@ void btemt_SessionPool::poolStateCb(int state, int source, int)
             return;
         }
         bcemt_LockGuard<bcemt_Mutex> lock(&handle->d_mutex);
-        if (btemt_SessionPool__Handle::ABORTED_CONNECT_SESSION ==
+        if (btemt_SessionPool_Handle::ABORTED_CONNECT_SESSION ==
                                                               handle->d_type) {
             return;
         }
 
         if (!--handle->d_numAttemptsRemaining) {
-            handle->d_type = btemt_SessionPool__Handle::INVALID_SESSION;
+            handle->d_type = btemt_SessionPool_Handle::INVALID_SESSION;
             lock.release()->unlock();
             handle->d_sessionStateCB(CONNECT_FAILED, handle->d_handleId, 0,
                                      handle->d_userData_p);
@@ -636,7 +625,7 @@ int btemt_SessionPool::closeHandle(int handleId)
         return -1;
     }
 
-    if(btemt_SessionPool__Handle::LISTENER == handle->d_type) {
+    if(btemt_SessionPool_Handle::LISTENER == handle->d_type) {
         d_channelPool_p->close(handle->d_handleId);
         d_handles.remove(handle->d_handleId);
 
@@ -662,10 +651,10 @@ int btemt_SessionPool::closeHandle(int handleId)
             // in the future we might want to call a callback in
             // 'handleDeleter' when the session became invalid.
 
-            if (handle->d_type == btemt_SessionPool__Handle::CONNECT_SESSION) {
+            if (handle->d_type == btemt_SessionPool_Handle::CONNECT_SESSION) {
 
                 handle->d_type =
-                            btemt_SessionPool__Handle::ABORTED_CONNECT_SESSION;
+                            btemt_SessionPool_Handle::ABORTED_CONNECT_SESSION;
             }
 
             lock.release()->unlock();
@@ -729,11 +718,11 @@ int btemt_SessionPool::connect(
 
     int handleId;
     {
-        HandlePtr handle(new(*d_allocator_p) btemt_SessionPool__Handle(),
+        HandlePtr handle(new(*d_allocator_p) btemt_SessionPool_Handle(),
                        bdef_MemFnUtil::memFn(&btemt_SessionPool::handleDeleter,
                                              this),
                          d_allocator_p);
-        handle->d_type = btemt_SessionPool__Handle::CONNECT_SESSION;
+        handle->d_type = btemt_SessionPool_Handle::CONNECT_SESSION;
         handle->d_sessionStateCB = cb;
         handle->d_session_p = 0;
         handle->d_channel_p = 0;
@@ -794,12 +783,12 @@ int btemt_SessionPool::connect(
 
     int handleId;
     {
-        HandlePtr handle(new (*d_allocator_p) btemt_SessionPool__Handle(),
+        HandlePtr handle(new (*d_allocator_p) btemt_SessionPool_Handle(),
                        bdef_MemFnUtil::memFn(&btemt_SessionPool::handleDeleter,
                                              this),
                        d_allocator_p);
 
-        handle->d_type = btemt_SessionPool__Handle::CONNECT_SESSION;
+        handle->d_type = btemt_SessionPool_Handle::CONNECT_SESSION;
         handle->d_sessionStateCB = cb;
         handle->d_session_p = 0;
         handle->d_channel_p = 0;
@@ -837,12 +826,12 @@ int btemt_SessionPool::import(int *handleBuffer,
 {
     BSLS_ASSERT(d_channelPool_p);
 
-    HandlePtr handle(new (*d_allocator_p) btemt_SessionPool__Handle(),
+    HandlePtr handle(new (*d_allocator_p) btemt_SessionPool_Handle(),
                      bdef_MemFnUtil::memFn(&btemt_SessionPool::handleDeleter,
                                            this),
                      d_allocator_p);
 
-    handle->d_type = btemt_SessionPool__Handle::IMPORTED_SESSION;
+    handle->d_type = btemt_SessionPool_Handle::IMPORTED_SESSION;
     handle->d_sessionStateCB = cb;
     handle->d_session_p  = 0;
     handle->d_channel_p  = 0;
@@ -936,12 +925,12 @@ int btemt_SessionPool::listen(
 {
     BSLS_ASSERT(d_channelPool_p);
 
-    HandlePtr handle(new (*d_allocator_p) btemt_SessionPool__Handle(),
+    HandlePtr handle(new (*d_allocator_p) btemt_SessionPool_Handle(),
                      bdef_MemFnUtil::memFn(&btemt_SessionPool::handleDeleter,
                                            this),
                      d_allocator_p);
 
-    handle->d_type = btemt_SessionPool__Handle::LISTENER;
+    handle->d_type = btemt_SessionPool_Handle::LISTENER;
     handle->d_sessionStateCB = cb;
     handle->d_session_p  = 0;
     handle->d_channel_p  = 0;

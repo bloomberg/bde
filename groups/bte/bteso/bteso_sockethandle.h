@@ -32,7 +32,7 @@ BDES_IDENT("$Id: $")
 #include <bteso_platform.h>
 #endif
 
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
     #ifndef INCLUDED_WINSOCK2
     #include <winsock2.h>
     #define INCLUDED_WINSOCK2
@@ -68,7 +68,7 @@ struct bteso_SocketHandle {
             // was transferred.
         BTESO_ERROR_TIMEDOUT      = -7
             // A system call timed out.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ERROR_EOF          = BTESO_ERROR_EOF
       , ERROR_UNCLASSIFIED = BTESO_ERROR_UNCLASSIFIED
       , ERROR_CONNDEAD     = BTESO_ERROR_CONNDEAD
@@ -76,16 +76,14 @@ struct bteso_SocketHandle {
       , ERROR_NORESOURCES  = BTESO_ERROR_NORESOURCES
       , ERROR_INTERRUPTED  = BTESO_ERROR_INTERRUPTED
       , ERROR_TIMEDOUT     = BTESO_ERROR_TIMEDOUT
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // TYPES
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
     typedef SOCKET Handle;
 #else
-  #ifdef BTESO_PLATFORM__BSD_SOCKETS
     typedef int Handle;
-  #endif
 #endif
 };
 

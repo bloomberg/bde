@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //  bslstl::Util: namespace for utility functions
 //  bslstl::UtilIterator: discriminates integral formal parameters
 //
-//@SEE_ALSO:
-//
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component defines a class, 'bslstl::Util', that provides a
@@ -203,6 +201,7 @@ void Util::swapContainers(CONTAINER&            c1,
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -212,6 +211,7 @@ typedef bslstl::UtilIterator bslstl_UtilIterator;
 
 typedef bslstl::Util bslstl_Util;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

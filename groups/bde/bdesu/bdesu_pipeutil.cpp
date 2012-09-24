@@ -10,7 +10,7 @@ BDES_IDENT_RCSID(bdesu_pipeutil_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -33,7 +33,7 @@ namespace BloombergLP {
 
 // STATIC HELPER FUNCTIONS
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 
 static
 void getPipeDir(bsl::string *dir)
@@ -87,7 +87,7 @@ bdesu_PipeUtil::makeCanonicalName(bsl::string           *pipeName,
     return 0;
 }
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 int
 bdesu_PipeUtil::send(const bdeut_StringRef& pipeName,

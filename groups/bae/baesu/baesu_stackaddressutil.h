@@ -117,9 +117,9 @@ BDES_IDENT("$Id: $")
 // function's code, which is a non-trivial and platform-dependent exercise.
 // (Note: this doesn't work on Windows for global routines).
 //..
-//  #if   defined(BSLS_PLATFORM__OS_HPUX)
+//  #if   defined(BSLS_PLATFORM_OS_HPUX)
 //  # define FUNC_ADDRESS(p) (((void **) (void *) (p))[sizeof(void *) == 4])
-//  #elif defined(BSLS_PLATFORM__OS_AIX)
+//  #elif defined(BSLS_PLATFORM_OS_AIX)
 //  # define FUNC_ADDRESS(p) (((void **) (void *) (p))[0])
 //  #else
 //  # define FUNC_ADDRESS(p) ((void *) (p))
@@ -208,8 +208,8 @@ struct baesu_StackAddressUtil {
     // 'BAESU_IGNORE_FRAMES' instructs the caller as to whether the first frame
     // is such an unwanted frame.
 
-#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_WINDOWS) || \
-    defined(BSLS_PLATFORM__OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_WINDOWS) ||
+    defined(BSLS_PLATFORM_OS_DARWIN)
     enum { BAESU_IGNORE_FRAMES = 1 };
 #else
     enum { BAESU_IGNORE_FRAMES = 0 };

@@ -1641,10 +1641,11 @@ int main(int argc, char *argv[])
 
         // Add some bogus data
         baetzo_LocalTimeDescriptor nyType(-10, true, "NYTIME", Z);
-        const bdet_Datetime        NY_DATETIME  =
-                                                 bdet_Datetime(2009, 12, 1, 1);
-        const bsls_Types::Int64    NY_INT64     =
+
+        const bdet_Datetime     NY_DATETIME = bdet_Datetime(2009, 12, 1, 1);
+        const bsls_Types::Int64 NY_INT64    =
                                     bdetu_Epoch::convertToTimeT64(NY_DATETIME);
+
         newYork.addTransition(NY_INT64, nyType);
 
         if (verbose) cout << "\nTesting with various allocator configurations."
@@ -1689,13 +1690,13 @@ int main(int argc, char *argv[])
             bslma_TestAllocator&  oa = *objAllocatorPtr;
             bslma_TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
-            // -------------------------------------------------
-            // Verify allocation only from the proper allocator.
-            // -------------------------------------------------
+            // -----------------------------------------------------
+            // QOA: Default allocated 'TestLoaders' do not allocate.
+            // -----------------------------------------------------
 
             LOOP2_ASSERT(CONFIG,
                          oa.numBlocksTotal(),
-                         0 != oa.numBlocksTotal());
+                         0 == oa.numBlocksTotal());
 
             LOOP2_ASSERT(CONFIG,
                          noa.numBlocksTotal(),

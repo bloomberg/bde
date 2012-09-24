@@ -41,7 +41,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsl_utility.h>
 #include <bsl_vector.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -354,6 +354,8 @@ class btemt_Channel {
     bcema_BlobBufferFactory        *d_readBlobFactory_p;  // for d_blobReadData
     bcema_Blob                      d_blobReadData;       // blob for read data
 
+    bteso_IPv4Address               d_peerAddress;        // peer address
+
     bcema_PoolAllocator            *d_sharedPtrRepAllocator_p;
 
     bslma_Allocator                *d_allocator_p;        // for memory
@@ -540,8 +542,10 @@ class btemt_Channel {
         // Destroy this channel.
 
     // MANIPULATORS
-    void disableRead(ChannelHandle self);
-        // Disable automatic reading of data from this channel.
+    void disableRead(ChannelHandle self, bool enqueueStateChangeCb);
+        // Disable automatic reading of data from this channel enqueuing the
+        // change state callback if the specified 'enqueueStateChangeCb' is
+        // 'true', and invoking it inline otherwise.
 
     int initiateReadSequence(ChannelHandle self);
         // Schedule an asynchronous timed reading from this channel and also
@@ -602,6 +606,9 @@ class btemt_Channel {
     btemt_TcpTimerEventManager *eventManager() const;
         // Return a pointer to this channel's event manager.
 
+    const bteso_IPv4Address& peerAddress() const;
+        // Return the address of the peer that this channel is connected to.
+
     bool isChannelDown(ChannelDownMask mask) const;
         // Return 'true' is this channel is down for the specified 'mask'
         // (meaning completely down if 'mask' is CLOSED_BOTH_MASK, and
@@ -627,7 +634,7 @@ class btemt_Channel {
 
     int recordedMaxWriteCacheSize() const;
         // Return a snapshot of the maximum recorded size, in bytes, of the
-        // cache of data to be written to this channeel.
+        // cache of data to be written to this channel.
 
     StreamSocket *socket() const;
         // Return a pointer to this channel's underlying socket.
@@ -693,6 +700,12 @@ inline
 bool btemt_Channel::isChannelDown(ChannelDownMask mask) const
 {
     return mask == (d_channelDownFlag.relaxedLoad() & mask);
+}
+
+inline
+const bteso_IPv4Address& btemt_Channel::peerAddress() const
+{
+    return d_peerAddress;
 }
 
 inline
@@ -1141,7 +1154,7 @@ void btemt_Channel::processReadData(int numBytes,
     // since the 'numBytesConsumed' returned would be zero anyway.
 
     if (numBytesAvailable >= d_currentMsg.userDataField2()) {
-        int minAdditional = -1;
+        int minAdditional    = -1;
         int numBytesConsumed = -1;
 
         // Invariant (must be verified prior to callback): this can shed
@@ -1178,6 +1191,7 @@ void btemt_Channel::processReadData(int numBytes,
         // need is the buffers for the next iovec read; see DRQS 12198484).
 
         const int newLength = chain->length() + minAdditional;
+
         d_currentMsg.setUserDataField2(newLength);
     }
     BSLS_ASSERT(0 < d_currentMsg.userDataField2());
@@ -1201,9 +1215,6 @@ void btemt_Channel::processReadData(int numBytes,
                           &d_blobReadData,
                           d_channelId,
                           d_userData);
-        // TBD: can minAdditional be 0 ? PooledBufferChain based reads don't
-        // allow it but why not ?
-        //         BSLS_ASSERT(0 <= minAdditional);
         BSLS_ASSERT(0 < minAdditional);
 
         d_minBytesBeforeNextCb = minAdditional;
@@ -1467,7 +1478,7 @@ void btemt_Channel::readCb(ChannelHandle self)
                                          isChannelDown(CLOSED_RECEIVE_MASK))) {
         // This readCb was invoked by a socket event after we executed
         // 'notifyChannelDown' in a different thread (from 'shutdown') and the
-        // socket hasn't yet been deregistered (in pending
+        // socket has not yet been deregistered (in pending
         // 'invokeChannelDown').  We abort.  The reason the test is performed
         // so late in 'readCb' is to allow picking up such events as late as
         // possible.  Note that this test is done again in the loop below.
@@ -1476,7 +1487,7 @@ void btemt_Channel::readCb(ChannelHandle self)
         return;
     }
 
-    // Note that 'lastRead' is only used to re-initialize the read timeout.
+    // Note that 'lastRead' is used only to re-initialize the read timeout.
     bdet_TimeInterval lastRead;
     if (d_useReadTimeout) {
         lastRead = bdetu_SystemTime::now();
@@ -1535,6 +1546,10 @@ void btemt_Channel::readCb(ChannelHandle self)
 
         processReadData(readRet, HINT_OBJ);
         allocateNextReadBuffers(readRet, totalBufferSize, HINT_OBJ);
+
+        if (!d_enableReadFlag) {
+            return;                                                   // RETURN
+        }
 
         if (readRet != totalBufferSize) {
             break;
@@ -1762,8 +1777,7 @@ void btemt_Channel::writeCb(ChannelHandle self)
             d_writeActiveCacheSize.relaxedAdd(-writeRet);
 
             if (d_hiWatermarkHitFlag
-             && (d_writeEnqueuedCacheSize
-               + d_writeActiveCacheSize.relaxedLoad() <= d_writeCacheLowWat)) {
+             && (currentWriteCacheSize() <= d_writeCacheLowWat)) {
                 d_hiWatermarkHitFlag = false;
                 oGuard.release()->unlock();
                 d_channelStateCb(d_channelId, d_sourceId,
@@ -1902,8 +1916,9 @@ btemt_Channel::btemt_Channel(
     BSLS_ASSERT(socket);
 
     socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    socket->peerAddress(&d_peerAddress);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     // Set close-on-exec flag (DRQS 6748730): this only makes sense in Unix,
     // there is no equivalent for Windows.
 
@@ -1954,7 +1969,7 @@ btemt_Channel::~btemt_Channel()
 }
 
 // MANIPULATORS
-void btemt_Channel::disableRead(ChannelHandle self)
+void btemt_Channel::disableRead(ChannelHandle self, bool enqueueStateChangeCb)
 {
     BSLS_ASSERT(bcemt_ThreadUtil::isEqual(bcemt_ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
@@ -1967,10 +1982,24 @@ void btemt_Channel::disableRead(ChannelHandle self)
     }
     d_enableReadFlag = false;
 
-    d_channelStateCb(d_channelId,
-                     d_sourceId,
-                     btemt_ChannelPool::BTEMT_AUTO_READ_DISABLED,
-                     d_userData);
+    if (enqueueStateChangeCb) {
+        bdef_Function<void (*)()> stateCbFunctor(
+                    bdef_BindUtil::bindA(
+                                   d_allocator_p,
+                                   d_channelStateCb,
+                                   d_channelId,
+                                   d_sourceId,
+                                   btemt_ChannelPool::BTEMT_AUTO_READ_DISABLED,
+                                   d_userData));
+
+        d_eventManager_p->execute(stateCbFunctor);
+    }
+    else {
+        d_channelStateCb(d_channelId,
+                         d_sourceId,
+                         btemt_ChannelPool::BTEMT_AUTO_READ_DISABLED,
+                         d_userData);
+    }
 }
 
 int btemt_Channel::initiateReadSequence(ChannelHandle self)
@@ -2080,8 +2109,7 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
 
     d_numBytesRequestedToBeWritten += dataLength;
 
-    const int writeCacheSize =
-               d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
+    const int writeCacheSize = currentWriteCacheSize();
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                          writeCacheSize > d_writeCacheHiWat)) {
@@ -2092,6 +2120,7 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                           writeCacheSize > enqueueWatermark)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        d_hiWatermarkHitFlag = true;
         return ENQUEUE_WAT;
     }
 
@@ -2123,11 +2152,8 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
-    int currentWriteCacheSize = d_writeEnqueuedCacheSize
-                              + d_writeActiveCacheSize.relaxedLoad();
-
-    if (d_recordedMaxWriteCacheSize.relaxedLoad() < currentWriteCacheSize) {
-        d_recordedMaxWriteCacheSize.relaxedStore(currentWriteCacheSize);
+    if (d_recordedMaxWriteCacheSize.relaxedLoad() < writeCacheSize) {
+        d_recordedMaxWriteCacheSize.relaxedStore(writeCacheSize);
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
@@ -2264,8 +2290,7 @@ int btemt_Channel::setWriteCacheHiWatermark(int numBytes)
     // Generate a 'HIWAT' alert if the new cache size limit is smaller than the
     // existing cache size and a 'HIWAT' alert has not already been generated.
 
-    const int writeCacheSize =
-               d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
+    const int writeCacheSize = currentWriteCacheSize();
 
     if (!d_hiWatermarkHitFlag && writeCacheSize >= numBytes) {
         d_hiWatermarkHitFlag = true;
@@ -2304,8 +2329,7 @@ int btemt_Channel::setWriteCacheLowWatermark(int numBytes)
     d_writeCacheLowWat = numBytes;
 
     if (d_hiWatermarkHitFlag
-     && (d_writeEnqueuedCacheSize
-               + d_writeActiveCacheSize.relaxedLoad() <= d_writeCacheLowWat)) {
+     && (currentWriteCacheSize() <= d_writeCacheLowWat)) {
 
         d_hiWatermarkHitFlag = false;
         bdef_Function<void (*)()> functor(bdef_BindUtil::bindA(
@@ -2768,7 +2792,7 @@ int btemt_ChannelPool::listen(const bteso_IPv4Address&   endpoint,
         return LISTEN_FAILED;                                         // RETURN
     }
 
-#ifndef BTESO_PLATFORM__WIN_SOCKETS
+#ifndef BTESO_PLATFORM_WIN_SOCKETS
         // Windows has a bug -- setting listening socket to non-blocking
         // mode will force subsequent 'accept' calls to return
         // WSAEWOULDBLOCK *even when connection is present*.
@@ -2779,7 +2803,7 @@ int btemt_ChannelPool::listen(const bteso_IPv4Address&   endpoint,
     }
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     // Set close-on-exec flag (DRQS 10646260): this only makes sense in Unix,
     // there is no equivalent for Windows.
 
@@ -3807,15 +3831,25 @@ int btemt_ChannelPool::disableRead(int channelId)
     if (0 != findChannelHandle(&channelHandle, channelId)) {
         return NOT_FOUND;
     }
+
     btemt_Channel *channel = channelHandle.ptr();
 
-    bdef_Function<void (*)()> disableReadCommand(bdef_BindUtil::bindA(
-                d_allocator_p
-              , &btemt_Channel::disableRead
-              , channel
-              , channelHandle));
+    if (bcemt_ThreadUtil::isEqual(
+                          bcemt_ThreadUtil::self(),
+                          channel->eventManager()->dispatcherThreadHandle())) {
 
-    channel->eventManager()->execute(disableReadCommand);
+        channel->disableRead(channelHandle, true);
+    }
+    else {
+        bdef_Function<void (*)()> disableReadCommand(bdef_BindUtil::bindA(
+                                                   d_allocator_p,
+                                                   &btemt_Channel::disableRead,
+                                                   channel,
+                                                   channelHandle,
+                                                   false));
+
+        channel->eventManager()->execute(disableReadCommand);
+    }
     return 0;
 }
 
@@ -4594,11 +4628,11 @@ btemt_ChannelPool::getPeerAddress(bteso_IPv4Address *result,
     BSLS_ASSERT(result);
 
     ChannelHandle channelHandle;
-    if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return -1;
+    if (0 == findChannelHandle(&channelHandle, channelId)) {
+        *result = channelHandle->peerAddress();
+        return 0;
     }
-
-    return channelHandle->socket()->peerAddress(result);
+    return 1;
 }
 
 int btemt_ChannelPool::numBytesRead(bsls_PlatformUtil::Int64 *result,

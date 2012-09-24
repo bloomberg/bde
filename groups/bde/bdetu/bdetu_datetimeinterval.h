@@ -73,9 +73,9 @@ struct bdetu_DatetimeInterval {
     enum {
         BDETU_NANOSECS_PER_MILLISEC = 1000000
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NANOSECS_PER_MILLISEC = BDETU_NANOSECS_PER_MILLISEC
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   public:

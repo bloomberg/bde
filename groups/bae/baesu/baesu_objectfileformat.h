@@ -113,19 +113,19 @@ struct baesu_ObjectFileFormat {
 
     struct Dummy {};
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS) || \
-    defined(BSLS_PLATFORM__OS_LINUX)   || \
-    defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || \
+    defined(BSLS_PLATFORM_OS_LINUX)   || \
+    defined(BSLS_PLATFORM_OS_HPUX)
 
     typedef Elf Policy;
 #   define BAESU_OBJECTFILEFORMAT_RESOLVER_ELF 1
 
-#elif defined(BSLS_PLATFORM__OS_AIX)
+#elif defined(BSLS_PLATFORM_OS_AIX)
 
     typedef Xcoff Policy;
 #   define BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF 1
 
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
     typedef Windows Policy;
 #   define BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS 1

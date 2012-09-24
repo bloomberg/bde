@@ -8,9 +8,13 @@ bslalg_constructorproxy
 bslalg_dequeimputil
 bslalg_dequeiterator
 bslalg_dequeprimitives
+bslalg_functoradapter
 bslalg_hastrait
 bslalg_passthroughtrait
 bslalg_rangecompare
+bslalg_rbtreeanchor
+bslalg_rbtreenode
+bslalg_rbtreeutil
 bslalg_scalardestructionprimitives
 bslalg_scalarprimitives
 bslalg_selecttrait
@@ -25,7 +29,4 @@ bslalg_typetraitnil
 bslalg_typetraitpair
 bslalg_typetraits
 bslalg_typetraitsgrouppod
-bslalg_typetraitsgroupstlordered
-bslalg_typetraitsgroupstlsequence
-bslalg_typetraitsgroupstlunordered
 bslalg_typetraitusesbslmaallocator

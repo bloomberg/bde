@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations_default.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
 
 namespace BloombergLP {
 
@@ -227,7 +227,7 @@ inline
 int AtomicOperations_X86_ALL_GCC::
     addIntNv(AtomicTypes::Int *atomicInt, int value)
 {
-#if BSLS_PLATFORM__CMP_VER_MAJOR >= 40100 // gcc >= 4.1
+#if BSLS_PLATFORM_CMP_VER_MAJOR >= 40100 // gcc >= 4.1
     return __sync_add_and_fetch(&atomicInt->d_value, value);
 #else
     const int orig = value;
@@ -316,7 +316,13 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
 #endif
                   "c" ((int) (swapValue >> 32)),
                   "A" (*atomicInt)
-                : "memory", "cc");
+                :
+#if defined(BSLS_PLATFORM_CMP_CLANG) && defined(__PIC__)
+                  "ebx",    // Clang wants to reuse 'ebx' even in PIC mode
+                            // and generates invalid code.
+                            // Mark 'ebx' as clobbered to prevent that.
+#endif
+                  "memory", "cc");
 
     return result;
 }
@@ -356,7 +362,7 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
     addInt64Nv(AtomicTypes::Int64 *atomicInt,
                Types::Int64 value)
 {
-#if BSLS_PLATFORM__CMP_VER_MAJOR >= 40100 // gcc >= 4.1
+#if BSLS_PLATFORM_CMP_VER_MAJOR >= 40100 // gcc >= 4.1
     return __sync_add_and_fetch(&atomicInt->d_value, value);
 #else
     Types::Int64 result;
@@ -395,7 +401,7 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
 
 }  // close enterprise namespace
 
-#endif  // defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#endif  // defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
 
 #endif
 

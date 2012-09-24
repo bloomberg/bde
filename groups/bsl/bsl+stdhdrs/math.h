@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // <math.h> header on Sun defines 'struct exception' which interferes with
 // 'std::exception'.  RW library has a workaround for this, but STLPort
 // doesn't.
-#if defined(BSLS_PLATFORM__CMP_SUN) && defined(BDE_BUILD_TARGET_STLPORT)
+#if defined(BSLS_PLATFORM_CMP_SUN) && defined(BDE_BUILD_TARGET_STLPORT)
 #   define exception math_exception
 #endif
 
@@ -43,8 +43,8 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM__CMP_GNU) && \
-                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_PLATFORM_CMP_GNU) && \
+                                        (BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)
 #     include_next <math.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(math.h)
@@ -65,8 +65,8 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM__CMP_GNU) && \
-                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_PLATFORM_CMP_GNU) && \
+                                        (BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)
 #     include_next <math.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(math.h)
@@ -83,7 +83,7 @@ BSLS_IDENT("$Id: $")
 
 #endif  /* BSL_OVERRIDES_STD */
 
-#if defined(BSLS_PLATFORM__CMP_SUN) && defined(BDE_BUILD_TARGET_STLPORT)
+#if defined(BSLS_PLATFORM_CMP_SUN) && defined(BDE_BUILD_TARGET_STLPORT)
 #   undef exception
 #endif
 

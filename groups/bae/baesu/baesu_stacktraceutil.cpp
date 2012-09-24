@@ -20,7 +20,7 @@ BDES_IDENT_RCSID(baesu_stacktraceutil_cpp,"$Id$ $CSID$")
 
 #include <bsl_ostream.h>
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BDE_BUILD_TARGET_OPT)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_OPT)
 // 'getStackAddresses' will not be able to trace through our stack frames if
 // we're optimized on Windows
 
@@ -37,7 +37,7 @@ const char *findBasename(const char *pathName)
 {
     const char *ptr = pathName + bsl::strlen(pathName);
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     const char separator = '\\';
 #else
     const char separator = '/';
