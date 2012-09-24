@@ -12,7 +12,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_sstream.h>
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
 #include <errno.h>
 #include <utime.h>
 #include <unistd.h>
@@ -20,7 +20,7 @@
 #include <sys/un.h>
 
 // Needed for using 'stat64' on HP
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
     #ifndef _LARGEFILE64_SOURCE
         #define _LARGEFILE64_SOURCE 1
     #endif
@@ -110,7 +110,7 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef bdesu_FileUtil Obj;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 inline
 bool isBackslash (char t)
 {
@@ -136,7 +136,7 @@ void localTouch(const char *fileName)
 
 void localSleep(int seconds)
 {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     sleep(seconds);
 #else
     ::Sleep(seconds * 1000);
@@ -151,7 +151,7 @@ void localForkExec(const char *command)
     BSLS_ASSERT(sizeof(buf) >= cmdLen + 1);
     bsl::strcpy(buf, command);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     if (0 == fork()) {
         // child process
 
@@ -206,7 +206,7 @@ string rollupPaths(vector<bsl::string>& paths)
       result.erase(result.end()-1);
    }
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
    replace_if(result.begin(), result.end(), isBackslash, '/');
 #endif
    return result;
@@ -225,12 +225,12 @@ inline
 bsl::string tempFileName()
 {
     bsl::string result;
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
     GetTempPath(MAX_PATH, tmpPathBuf);
     GetTempFileName(tmpPathBuf, "bde", 0, tmpNameBuf);
     result = tmpNameBuf;
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
     char tmpPathBuf[L_tmpnam];
     result = tmpnam(tmpPathBuf);
 #else
@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         bdesu_FileUtil::remove("temp.2", true);
         bsl::string logPath =  "temp.2\\logs2\\";
 #else
@@ -408,7 +408,7 @@ int main(int argc, char *argv[])
             bdesu_FileUtil::write(fd, buffer, bytes);
             bdesu_FileUtil::close(fd);
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             Sleep(1000);  // 'Sleep' is in milliseconds on Windows.
 #else
             sleep(1);
@@ -457,7 +457,7 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         bdesu_FileUtil::remove("temp.1");
         bsl::string logPath =  "temp.1\\logs";
 #else
@@ -634,7 +634,7 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Parent finished);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             wait(0);
 #endif
         }
@@ -706,7 +706,7 @@ int main(int argc, char *argv[])
         // WINDOWS TRYLOCK TEST
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         typedef bdesu_FileUtil::FileDescriptor FD;
 
         int rc;
@@ -906,7 +906,7 @@ int main(int argc, char *argv[])
         //   does not return an error status on Unix.
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         typedef bdesu_FileUtil::FileDescriptor FD;
         enum { BEGINNING = bdesu_FileUtil::BDESU_SEEK_FROM_BEGINNING };
 
@@ -1021,7 +1021,7 @@ int main(int argc, char *argv[])
             ASSERT(4 == rc);
             ASSERT(WOOF == buf);
 
-#if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_HPUX) || defined(BSLS_PLATFORM_OS_AIX)
             enum { COLLIDE = EACCES };
 #else
             enum { COLLIDE = EAGAIN };
@@ -1219,7 +1219,7 @@ int main(int argc, char *argv[])
                           << "\n=====================" << endl;
 
         // Setup by first creating a tmp file
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         string fileName("getFileSizeTest.txt");  // not sure where to put it
 #else
         string fileName("/tmp/getFileSizeTest.txt");
@@ -1259,7 +1259,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\n2. Normal directory" << endl;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             string dirName("getFileSizeDir");
 
             // windows directories are 0 sized
@@ -1275,7 +1275,7 @@ int main(int argc, char *argv[])
             // On UNIX use stat64 as an oracle: the file size of a directory
             // depends on the file system.
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             struct stat64 oracleInfo;
             int rc = ::stat64(dirName.c_str(), &oracleInfo);
             ASSERT(0 == rc);
@@ -1332,7 +1332,7 @@ int main(int argc, char *argv[])
             bdesu_FileUtil::remove(fileName);
         }
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         // Concern 4
         // No symbolic links on windows.
 
@@ -1426,7 +1426,7 @@ int main(int argc, char *argv[])
                           << "\n===============================" << endl;
 
         enum { MAXSUFFIX=3 };
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         bsl::string SEP = "\\";
 #else
         bsl::string SEP = "/";
@@ -1524,7 +1524,7 @@ int main(int argc, char *argv[])
             Parameters regular;
             Parameters directory;
         } parameters = {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             { "case4\\file", "case4\\file2", "case4\\dir" },
             { "case4\\dir", "case4\\dir2", "case4\\file"}
 #else
@@ -1550,7 +1550,7 @@ int main(int argc, char *argv[])
         ASSERT(false == bdesu_FileUtil::isDirectory(d.badNoExist));
         ASSERT(false == bdesu_FileUtil::isDirectory(d.badWrongType));
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         if (veryVerbose) {
            cout << "...symbolic link tests..." << endl;
         }
@@ -1642,7 +1642,7 @@ int main(int argc, char *argv[])
 
 #endif  // Symbolic link testing on non-Windows
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS  // (unix domain socket)
+#ifndef BSLS_PLATFORM_OS_WINDOWS  // (unix domain socket)
         {
             // Unix domain sockets should return 'false' for 'isRegularFile'
             // and 'isDirectory' (DRQS 2071065).
@@ -1675,7 +1675,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(filename, !bdesu_FileUtil::isRegularFile(filename));
             bdesu_FileUtil::remove(filename);
         }
-#endif  // BSLS_PLATFORM__OS_WINDOWS (unix domain socket)
+#endif  // BSLS_PLATFORM_OS_WINDOWS (unix domain socket)
 
         //clean up
 
@@ -1723,7 +1723,7 @@ int main(int argc, char *argv[])
                             "futc3/beta/abc.def:futc3/beta/abcd"},
             {tripleQMarkLiteral, "futc3/beta/abc.def:futc3/beta/abcd"},
             {"futc3/*b*", "futc3/beta"},
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             {"futc3/*b*/*.?","futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"},
             {"futc?/*b*/*.?","futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"},
             {"futc?/*/abcd.*","futc3/alpha/abcd:futc3/beta/abcd"},
@@ -1772,7 +1772,7 @@ int main(int argc, char *argv[])
         enum { NUM_PARAMETERS = sizeof(parameters) / sizeof(*parameters) };
         for (int i = 0; i < NUM_PARAMETERS; ++i) {
             const Parameters& p = parameters[i];
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             string filename(p.pattern);
             replace_if(filename.begin(), filename.end(), isForwardSlash, '\\');
             bdesu_FileUtil::findMatchingPaths(&resultPaths, filename.c_str());
@@ -1815,7 +1815,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nUsage Example like Testing"
                           << "\n==========================" << endl;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         bdesu_FileUtil::remove("temp2", true);
         bsl::string logPath =  "temp2\\logs";
 #else
@@ -1843,7 +1843,7 @@ int main(int argc, char *argv[])
 
         enum {
             NUM_TOTAL_FILES = 10,
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             NUM_OLD_FILES = 0,
 #else
             NUM_OLD_FILES = 3,
@@ -1876,7 +1876,7 @@ int main(int argc, char *argv[])
                                                            filenameLength));
             ASSERT(0 == bdesu_FileUtil::close(f));
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             bdet_TimeInterval threeDaysAgo = bdetu_SystemTime::now() -
                                            bdet_TimeInterval(3 * 24 * 3600, 0);
             if (isOld) {
@@ -1944,7 +1944,7 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         // Not sure how to create large files on windows, so test only on UNIX.
         // However, this function had been tested on windows by creating the
         // large file through cygwin.

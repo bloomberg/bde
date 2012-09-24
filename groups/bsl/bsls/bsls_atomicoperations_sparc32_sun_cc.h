@@ -31,8 +31,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations_sparc_sun_cc_default.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_SPARC_32) \
-    && (defined(BSLS_PLATFORM__CMP_GNU) || defined(BSLS_PLATFORM__CMP_SUN))
+#if defined(BSLS_PLATFORM_CPU_SPARC_32) \
+    && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN))
 
 namespace BloombergLP {
 
@@ -91,7 +91,7 @@ struct Atomic_TypeTraits<AtomicOperations_SPARC32_SUN_CC>
 {
     struct Int
     {
-#ifdef BSLS_PLATFORM__CMP_GNU
+#ifdef BSLS_PLATFORM_CMP_GNU
         volatile int d_value __attribute__((__aligned__(sizeof(int))));
 #else
 #       pragma align 4 (d_value)
@@ -101,7 +101,7 @@ struct Atomic_TypeTraits<AtomicOperations_SPARC32_SUN_CC>
 
     struct Int64
     {
-#ifdef BSLS_PLATFORM__CMP_GNU
+#ifdef BSLS_PLATFORM_CMP_GNU
         volatile Types::Int64 d_value
                        __attribute__((__aligned__(sizeof(Types::Int64))));
 #else
@@ -112,7 +112,7 @@ struct Atomic_TypeTraits<AtomicOperations_SPARC32_SUN_CC>
 
     struct Pointer
     {
-#ifdef BSLS_PLATFORM__CMP_GNU
+#ifdef BSLS_PLATFORM_CMP_GNU
         void const * volatile d_value
                                   __attribute__((__aligned__(sizeof(void *))));
 #else

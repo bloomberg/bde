@@ -142,12 +142,12 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 // a local subroutine and not a legitimate native operation.
 
 template <typename MAPTYPE>
-typename MAPTYPE::data_type& mmGet(MAPTYPE *mm, typename MAPTYPE::key_type key)
+typename MAPTYPE::mapped_type& mmGet(MAPTYPE *mm, typename MAPTYPE::key_type key)
 {
     typedef typename MAPTYPE::iterator ItType;
     ItType it = mm->find(key);
     if (mm->end() == it) {
-        typename MAPTYPE::data_type d = typename MAPTYPE::data_type();
+        typename MAPTYPE::mapped_type d = typename MAPTYPE::mapped_type();
         it = mm->insert(bsl::make_pair(key, d));
         ASSERT(mm->end() != it);
         ASSERT(it->first == key);
@@ -923,6 +923,9 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase5()
 
     bslma::TestAllocator ta;
 
+    bsl::less<KEY_TYPE> lessTYPE;
+    Greaterp<KEY_TYPE> greaterTYPE;
+
     bsl::map<KEY_TYPE, VALUE_TYPE> ma(&ta), mb(&ta);
     int j;
 
@@ -993,7 +996,10 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase5()
     }
 
     {
-        bsl::map<KEY_TYPE, VALUE_TYPE> mTmp(ma.begin(), ma.end(), &ta);
+        bsl::map<KEY_TYPE, VALUE_TYPE> mTmp(ma.begin(),
+                                            ma.end(),
+                                            lessTYPE,
+                                            &ta);
         ASSERT(!mTmp.empty());
         ASSERT(mTmp == ma);
     }
@@ -1033,7 +1039,7 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase5()
     {
         typedef bsl::map<KEY_TYPE, VALUE_TYPE, Greaterp<KEY_TYPE> >
                                                                    BackMap;
-        BackMap mBackwards(ma.begin(), ma.end(), &ta);
+        BackMap mBackwards(ma.begin(), ma.end(), greaterTYPE, &ta);
 
         ASSERT(mBackwards.size() == 4);
         ASSERT(mBackwards.size() < mBackwards.max_size());
@@ -1251,6 +1257,9 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase6()
 
     bslma::TestAllocator ta;
 
+    bsl::less<KEY_TYPE> lessTYPE;
+    Greaterp<KEY_TYPE> greaterTYPE;
+
     bsl::multimap<KEY_TYPE, VALUE_TYPE> ma(&ta), mb(&ta);
     int j;
 
@@ -1325,7 +1334,10 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase6()
     }
 
     {
-        bsl::multimap<KEY_TYPE, VALUE_TYPE> mTmp(ma.begin(), ma.end(), &ta);
+        bsl::multimap<KEY_TYPE, VALUE_TYPE> mTmp(ma.begin(),
+                                                 ma.end(),
+                                                 lessTYPE,
+                                                 &ta);
         ASSERT(!mTmp.empty());
         ASSERT(mTmp == ma);
     }
@@ -1367,7 +1379,7 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase6()
         typedef bsl::multimap<KEY_TYPE,
                               VALUE_TYPE,
                               Greaterp<KEY_TYPE> > BackMap;
-        BackMap mBackwards(ma.begin(), ma.end(), &ta);
+        BackMap mBackwards(ma.begin(), ma.end(), greaterTYPE, &ta);
 
         ASSERT(mBackwards.size() == 4);
         ASSERT(mBackwards.size() < mBackwards.max_size());

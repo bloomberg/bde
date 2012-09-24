@@ -626,7 +626,7 @@ class bdex_InStream {
 };
 
 // FREE OPERATORS
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename OBJECT>
 inline
@@ -646,7 +646,7 @@ bdex_InStream& operator>>(bdex_InStream& stream, OBJECT& object);
     // (scalar) types and for 'bsl::string' are also provided, in which case
     // this operator calls the appropriate 'get' method from this component.
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -654,7 +654,7 @@ bdex_InStream& operator>>(bdex_InStream& stream, OBJECT& object);
 
 // FREE OPERATORS
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename OBJECT>
 inline
@@ -663,7 +663,7 @@ bdex_InStream& operator>>(bdex_InStream& stream, OBJECT& object)
     return bdex_InStreamMethodsUtil::streamInVersionAndObject(stream, object);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 }  // close namespace BloombergLP
 

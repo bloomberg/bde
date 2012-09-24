@@ -109,14 +109,14 @@ BDES_IDENT("$Id: $")
 #include <bteso_platform.h>
 #endif
 
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
   #ifndef INCLUDED_WINSOCK2
     #include <winsock2.h>
     #define INCLUDED_WINSOCK2
   #endif
 #endif
 
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
   #ifndef INCLUDED_SYS_SELECT
     #include <sys/select.h>
     #define INCLUDED_SYS_SELECT
@@ -173,9 +173,9 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
         BTESO_MAX_NUM_HANDLES = FD_SETSIZE  // maximum number of socket handles
                                             // that can be registered with an
                                             // event manager (of this type)
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , MAX_NUM_HANDLES = BTESO_MAX_NUM_HANDLES
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

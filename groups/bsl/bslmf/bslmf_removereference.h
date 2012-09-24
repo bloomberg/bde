@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Oleg Grunin (ogrunin)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template structure used to
 // strip reference-ness from its single template type parameter.  Types that
 // are not reference types are unmodified.  The "de-referenced" type can be
@@ -64,6 +62,7 @@ struct RemoveReference<TYPE&> {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -73,6 +72,7 @@ struct RemoveReference<TYPE&> {
 #endif
 #define bslmf_RemoveReference bslmf::RemoveReference
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

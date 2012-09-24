@@ -405,7 +405,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
-#if defined(BDES_PLATFORM__CMP_EPC)
+#if defined(BDES_PLATFORM_CMP_EPC)
     // The EPC C++ compiler on DGUX has a bug in the constructor for
     // ostrstream that take abuffer and a length.  The constructor will
     // destroy the last byte of the variable immediately preceeding the

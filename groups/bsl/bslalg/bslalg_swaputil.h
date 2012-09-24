@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::SwapUtil: namespace for the 'swap' utility function.
 //
-//@SEE_ALSO: bsl_algorithm.h
+//@SEE_ALSO: bsl_algorithm
 //
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
@@ -118,7 +118,7 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 // A workaround for GCC which before version 4.0 had some problems with ADL.
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR < 40000
 
 class bslalg_SwapUtil_Dummy;
 
@@ -166,7 +166,7 @@ void SwapUtil::swap(T *a, T *b)
     using std::swap;
 
 // A workaround for GCC which before version 4.0 had some problems with ADL.
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR < 40000
     using BloombergLP::swap;
 #endif
 
@@ -175,12 +175,14 @@ void SwapUtil::swap(T *a, T *b)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslalg::SwapUtil bslalg_SwapUtil;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

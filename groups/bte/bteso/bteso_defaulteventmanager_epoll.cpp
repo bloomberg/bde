@@ -4,7 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bteso_defaulteventmanager_epoll_cpp,"$Id$ $CSID$")
 
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
 
 #include <bteso_eventmanagertester.h>           // for testing only
 #include <bteso_flag.h>
@@ -310,8 +310,12 @@ void EventManagerName::deregisterAll()
         // epoll removes closed file descriptors automatically.
 
         BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
-        d_entriesBeingRemoved.push_back(it);
+
         it->second.d_isValid = false;
+        it->second.d_mask = 0;
+        it->second.d_writeCallback = bteso_EventManager::Callback();
+        it->second.d_readCallback = bteso_EventManager::Callback();
+        d_entriesBeingRemoved.push_back(it);
     }
 
     // If we're in a user-specified callback, we'll clean up in
@@ -562,6 +566,23 @@ int EventManagerName::registerSocketEvent(
     const int ret = epoll_ctl(d_epollFd, epollCmd, handle, &epollEvent);
     BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
     if (0 == ret) {
+
+        if (wasRevalidated) {
+            // We successfully re-registered an entry of this socket handle
+            // that is still in 'd_entriesBeingRemoved'.  Remove it from
+            // 'd_entriesBeingRemoved'.
+
+            BSLS_ASSERT(d_isInvokingCb);
+            bsl::vector<EventMap::iterator>::iterator v_it;
+            for (v_it  = d_entriesBeingRemoved.begin();
+                 v_it != d_entriesBeingRemoved.end()  ; ++v_it) {
+
+                if (*v_it == it) {
+                    d_entriesBeingRemoved.erase(v_it);
+                    break;
+                }
+            }
+        }
         return 0;
     }
     regEvents->d_mask = oldMask;

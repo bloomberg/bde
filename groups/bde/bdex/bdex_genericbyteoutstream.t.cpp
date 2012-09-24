@@ -437,7 +437,7 @@ int main(int argc, char *argv[])
         //   operator<<(bdex_BdexByteOutStream&, bdexFlush);
         // --------------------------------------------------------------------
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
         if (verbose) cout << endl
                           << "FLUSH" << endl
                           << "=====" << endl;

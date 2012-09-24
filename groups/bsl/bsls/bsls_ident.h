@@ -6,6 +6,11 @@
 //
 //@CLASSES:
 //
+//@MCROS:
+//: BSLS_IDENT(identifier): inset 'identifier' into '.comment' section
+//: BSLS_IDENT_RCSID(tag, identifier): alternatively, use add 'tag' as static
+//: BSLS_IDENT_PRAGMA_ONCE: encapsulate '_Pragma("once")'
+//
 //@AUTHOR: Anthony Comerico (acomeric), Glenn Strauss (gstrauss)
 //
 //@DESCRIPTION: The purpose of this component is to provide macros for
@@ -45,23 +50,23 @@
 ///Macro Summary
 ///-------------
 // The following are the macros provided by this component.
-//..
-//  BSLS_IDENT(identifier)
-//      This macro inserts the specified 'identifier' into the object's
-//      .comment section, if supported on the current platform.
 //
-//  BSLS_IDENT_RCSID(tag, identifier)
-//      This macro inserts the specified 'identifier' into the object, using
-//      BSLS_IDENT, if possible on the current platform.  If BSLS_IDENT is not
-//      available, the specified 'tag' may be used to declare a static char
-//      array containing the 'tag'.
+//: 'BSLS_IDENT(identifier)'
+//:   This macro inserts the specified 'identifier' into the object's
+//:   '.comment' section, if supported on the current platform.
+//:
+//: 'BSLS_IDENT_RCSID(tag, identifier)'
+//:   This macro inserts the specified 'identifier' into the object, using
+//:   'BSLS_IDENT', if possible on the current platform.  If 'BSLS_IDENT' is
+//:   not available, the specified 'tag' may be used to declare a static char
+//:   array containing the 'tag'.
+//:
+//: 'BSLS_IDENT_PRAGMA_ONCE'
+//:   This macro encapsulates the '_Pragma("once")' functionality if available
+//:   on the current platform.  If available, this functions in the same way as
+//:   redundant include guards, avoiding re-opening already-included header
+//:   files.
 //
-//  BSLS_IDENT_PRAGMA_ONCE
-//      This macro encapsulates the '_Pragma("once")' functionality if
-//      available on the current platform.  If available, this functions in the
-//      same way as redundant include guards, avoiding re-opening
-//      already-included header files.
-//..
 ///Usage
 ///-----
 // Include 'bsls_ident.h' and use the BSLS_IDENT macro.  For header files this
@@ -98,7 +103,7 @@
 BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
 #endif
 
-// Enabling BSLS_IDENT by default causes too much bloat - DRQS 29644737.
+// Enabling BSLS_IDENT by default causes significant bloat - see DRQS 29644737.
 #ifndef BSLS_IDENT_ON
 #ifndef BSLS_IDENT_OFF
 #define BSLS_IDENT_OFF

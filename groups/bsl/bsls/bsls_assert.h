@@ -13,6 +13,11 @@ BSLS_IDENT("$Id: $")
 //  bsls::Assert: namespace for "assert" management functions
 //  bsls::AssertFailureHandlerGuard: scoped guard for changing handlers safely
 //
+//@MACROS:
+// BSLS_ASSERT: runtime check typically enabled in safe and non-opt build modes
+// BSLS_ASSERT_SAFE: runtime check typically only enabled in safe build modes
+// BSLS_ASSERT_OPT: runtime check typically enabled in all build modes
+//
 //@SEE_ALSO: bsls_buildtarget
 //
 //@AUTHOR: Tom Marshall (tmarshal), John Lakos (jlakos)
@@ -1184,6 +1189,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
+#endif
+
                     // =================================
                     // (BSLS) "ASSERT" Macro Definitions
                     // =================================
@@ -1286,7 +1295,7 @@ BSLS_IDENT("$Id: $")
 // access to conforming C++0x compilers.
 //# define BSLS_ASSERT_NORETURN [[noreturn]]
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLS_ASSERT_NORETURN __declspec(noreturn)
 #else
 #   define BSLS_ASSERT_NORETURN
@@ -1337,12 +1346,19 @@ class Assert {
         //..
 
   private:
-    // CLASS DATA
-    static Handler s_handler;     // assertion-failure handler function
-    static bool    s_lockedFlag;  // lock to disable 'setFailureHandler'
-
     // FRIENDS
     friend class AssertFailureHandlerGuard;
+
+    // CLASS DATA
+    static bsls::AtomicOperations::AtomicTypes::Pointer
+                        s_handler;     // assertion-failure handler function
+    static bsls::AtomicOperations::AtomicTypes::Int
+                        s_lockedFlag;  // lock to disable 'setFailureHandler'
+
+    // PRIVATE CLASS METHODS
+    static void setFailureHandlerRaw(Assert::Handler function);
+        // Make the specified handler 'function' the current assertion-failure
+        // handler.
 
   public:
     // CLASS METHODS
@@ -1352,9 +1368,7 @@ class Assert {
     static void setFailureHandler(Assert::Handler function);
         // Make the specified handler 'function' the current assertion-failure
         // handler.  This method has no effect if the
-        // 'lockAssertAdministration' method has been called.  The behavior is
-        // undefined if this method is called from within a multi-threaded
-        // program after multiple threads have been started.
+        // 'lockAssertAdministration' method has been called.
 
     static void lockAssertAdministration();
         // Disable all subsequent calls to 'setFailureHandler'.  Note that this
@@ -1446,12 +1460,13 @@ class AssertFailureHandlerGuard {
 
 }  // close package namespace
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                         // =========================
                         // BDE_ASSERT_H (deprecated)
                         // =========================
@@ -1492,13 +1507,15 @@ typedef bsls::AssertFailureHandlerGuard AssertFailureHandlerGuard;
 #define bdes_Assert bdes::Assert
     // This alias is defined for backward compatibility.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 typedef bsls::Assert bsls_Assert;
     // This alias is defined for backward compatibility.
 
 typedef bsls::AssertFailureHandlerGuard bsls_AssertFailureHandlerGuard;
     // This alias is defined for backward compatibility.
+
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS

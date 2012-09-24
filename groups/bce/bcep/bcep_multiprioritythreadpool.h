@@ -405,7 +405,7 @@ BDES_IDENT("$Id: $")
 #include <bslfwd_bslma_allocator.h>
 #endif
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     #ifndef INCLUDED_BSL_C_SIGNAL
     #include <bsl_c_signal.h>
     #endif
@@ -434,9 +434,9 @@ class bcep_MultipriorityThreadPool {
 
     enum {
         BCEP_MAX_NUM_PRIORITIES = sizeof(int) * CHAR_BIT  // bits per 'int'
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , MAX_NUM_PRIORITIES = BCEP_MAX_NUM_PRIORITIES
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

@@ -320,11 +320,11 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // Write the value of this string reference to the specified output
         // 'stream' in the unformatted way.
 
-    template <typename C>
+    template <typename OTHER_CHAR_TYPE>
     friend
-    std::basic_ostream<C>& operator<<(
-                                     std::basic_ostream<C>&         stream,
-                                     const bslstl::StringRefImp<C>& stringRef);
+    std::basic_ostream<OTHER_CHAR_TYPE>& operator<<(
+                       std::basic_ostream<OTHER_CHAR_TYPE>&         stream,
+                       const bslstl::StringRefImp<OTHER_CHAR_TYPE>& stringRef);
 
   public:
     // PUBLIC TYPES
@@ -1336,6 +1336,7 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
     return stream;
 }
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -1357,6 +1358,7 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
 #endif
 #define bslstl_StringRef bslstl::StringRef
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

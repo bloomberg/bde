@@ -56,7 +56,7 @@ static void aSsErT(bool b, const char *s, int i) {
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT_SAME(X, Y) ASSERT((bslmf_IsSame<X, Y>::VALUE))
+#define ASSERT_SAME(X, Y) ASSERT((bslmf::IsSame<X, Y>::VALUE))
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
         //   that its 'Type' typedef is set to a non-reference type.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nbslmf_AddReference"
+        if (verbose) printf("\nbslmf::AddReference"
                             "\n==================\n");
 
         ASSERT_SAME(bslmf::AddReference<int       >::Type, int&);

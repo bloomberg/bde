@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component contains the class template 'bslma::EnableIf', a
 // "meta-function" that can cause a deduced function template instantiation to
 // fail in a way compatible with the C++ SFINAE rules, and so remove that
@@ -441,6 +439,7 @@ struct EnableIf <false, BSLMA_TYPE> {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -450,6 +449,7 @@ struct EnableIf <false, BSLMA_TYPE> {
 #endif
 #define bslmf_EnableIf bslmf::EnableIf
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

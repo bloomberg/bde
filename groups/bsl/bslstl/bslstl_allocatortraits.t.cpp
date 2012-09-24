@@ -2,8 +2,8 @@
 #include <bslstl_allocatortraits.h>
 
 #include <bslstl_allocator.h>
+#include <bslstl_traitsgroupstlsequencecontainer.h>
 
-#include <bslalg_typetraitsgroupstlsequence.h>
 #include <bslalg_typetraits.h>
 #include <bslma_testallocator.h>
 #include <bslma_default.h>
@@ -610,7 +610,7 @@ inline bool isMutable(const T& /* x */) { return false; }
 //..
     #include <bslstl_allocatortraits.h>
     #include <bslstl_allocator.h>
-    #include <bslalg_typetraitsgroupstlsequence.h>
+    #include <bslstl_traitsgroupstlsequencecontainer.h>
 
     using namespace BloombergLP;
 
@@ -629,7 +629,7 @@ inline bool isMutable(const T& /* x */) { return false; }
 
       public:
         // TRAITS
-        typedef bslalg::TypeTraitsGroupStlSequence<TYPE,ALLOC> TypeTraits;
+        typedef bslstl::TraitsGroupStlSequenceContainer<TYPE,ALLOC> TypeTraits;
         BSLALG_DECLARE_NESTED_TRAITS(MyContainer, TypeTraits);
             // Declare nested type traits for this class.
 

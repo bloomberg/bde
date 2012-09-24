@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Shawn Edwards (sedwards)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's parameter is a pointer.  'bslmf::IsPointer' defines a
 // member, 'VALUE', whose value is initialized (at compile-time) to 1 if the
@@ -72,6 +70,7 @@ struct IsPointer<T* const volatile> : MetaInt<1> { };
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -81,6 +80,7 @@ struct IsPointer<T* const volatile> : MetaInt<1> { };
 #endif
 #define bslmf_IsPointer bslmf::IsPointer
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

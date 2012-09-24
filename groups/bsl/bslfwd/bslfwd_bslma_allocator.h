@@ -8,7 +8,7 @@
 
 //@PURPOSE: Provide a forward-declaration for the corresponding BDE type.
 //
-//@SEE_ALSO: bslfwd_buildtarget.h
+//@SEE_ALSO: bslfwd_buildtarget
 //
 //@AUTHOR: Alexei Zakharov (azakharov7)
 //
@@ -38,12 +38,10 @@ namespace BloombergLP {
 
 #endif
 
-#ifdef bdema_Allocator
-#undef bdema_Allocator
-#endif
+#ifndef bdema_Allocator
 #define bdema_Allocator bslma_Allocator
     // This alias is defined for backward compatibility.
-
+#endif
 #endif
 
 // ---------------------------------------------------------------------------

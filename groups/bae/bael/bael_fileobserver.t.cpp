@@ -34,7 +34,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <glob.h>
 #include <bsl_c_signal.h>
 #include <sys/resource.h>
@@ -42,12 +42,12 @@
 #include <unistd.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #endif
 
 // Note: on Windows -> WinGDI.h:#define ERROR 0
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(ERROR)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(ERROR)
 #undef ERROR
 #endif
 
@@ -188,10 +188,11 @@ bsl::string::size_type replaceSecondSpace(bsl::string *s, char value)
     return index;
 }
 
-bdet_Datetime getCurrentTimestamp() {
+bdet_Datetime getCurrentTimestamp()
+{
     time_t currentTime = time(0);
     struct tm localtm;
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     localtm = *localtime(&currentTime);
 #else
     localtime_r(&currentTime, &localtm);
@@ -204,7 +205,46 @@ bdet_Datetime getCurrentTimestamp() {
 
 void removeFilesByPrefix(const char *prefix)
 {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    bsl::string filename = prefix;
+    filename += "*";
+    WIN32_FIND_DATA findFileData;
+
+    bsl::vector<bsl::string> fileNames;
+    HANDLE hFind = FindFirstFile(filename.c_str(), &findFileData);
+    if (hFind != INVALID_HANDLE_VALUE) {
+        fileNames.push_back(findFileData.cFileName);
+        while(FindNextFile(hFind, &findFileData)) {
+            fileNames.push_back(findFileData.cFileName);
+        }
+        FindClose(hFind);
+    }
+
+    char tmpPathBuf[MAX_PATH];
+    GetTempPath(MAX_PATH, tmpPathBuf);
+    bsl::string tmpPath(tmpPathBuf);
+
+    bsl::vector<bsl::string>::iterator itr;
+    for (itr = fileNames.begin(); itr != fileNames.end(); ++itr) {
+        bsl::string fn = tmpPath + (*itr);
+        if (!DeleteFile(fn.c_str()))
+        {
+            LPVOID lpMsgBuf;
+            FormatMessage(
+                FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                FORMAT_MESSAGE_FROM_SYSTEM |
+                FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL,
+                GetLastError(),
+                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+                (LPTSTR) &lpMsgBuf,
+                0,
+                NULL);
+            cerr << "Error, " << (char*)lpMsgBuf << endl;
+            LocalFree(lpMsgBuf);
+        }
+    }
+#else
     glob_t globbuf;
     bsl::string filename = prefix;
     filename += "*";
@@ -218,12 +258,12 @@ void removeFilesByPrefix(const char *prefix)
 bsl::string tempFileName(bool verboseFlag)
 {
     bsl::string result;
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
     GetTempPath(MAX_PATH, tmpPathBuf);
     GetTempFileName(tmpPathBuf, "bael", 0, tmpNameBuf);
     result = tmpNameBuf;
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
     char tmpPathBuf[L_tmpnam];
     result = tempnam(tmpPathBuf, "bael");
 #else
@@ -478,6 +518,7 @@ int main(int argc, char *argv[])
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
         }
+        mX.disableFileLogging();
         removeFilesByPrefix(BASENAME.c_str());
       } break;
       case 5: {
@@ -509,10 +550,11 @@ int main(int argc, char *argv[])
         mX.forceRotation();
 
         ASSERT(1 == cb.numInvocations());
+        mX.disableFileLogging();
         removeFilesByPrefix(filename.c_str());
       } break;
       case 4: {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         // don't run this if we're in the debugger because the debugger
         // stops and refuses to continue when we hit the file size limit.
 
@@ -652,7 +694,7 @@ int main(int argc, char *argv[])
 
             bsl::string filename = tempFileName(veryVerbose);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
             ASSERT(X.isFileLoggingEnabled());
 
@@ -698,7 +740,7 @@ int main(int argc, char *argv[])
 
             bsl::string filename = tempFileName(veryVerbose);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             ASSERT(0 == mX.enableFileLogging(filename.c_str(), false));
             ASSERT(X.isFileLoggingEnabled());
 
@@ -744,7 +786,7 @@ int main(int argc, char *argv[])
 
             bsl::string filename = tempFileName(veryVerbose);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
             ASSERT(0 == mX.enableFileLogging((filename + "%s").c_str(),
                                              false));
@@ -820,7 +862,7 @@ int main(int argc, char *argv[])
         bael_MultiplexObserver multiplexObserver;
         bael_LoggerManager::initSingleton(&multiplexObserver, configuration);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         bcema_TestAllocator ta(veryVeryVeryVerbose);
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
@@ -1166,8 +1208,8 @@ int main(int argc, char *argv[])
         ASSERT(bdesu_FileUtil::exists(fileName));
         ASSERT(0 == bdesu_FileUtil::getFileSize(fileName));
 
-#if defined(BSLS_PLATFORM__OS_UNIX) && \
-   (!defined(BSLS_PLATFORM__OS_SOLARIS) || BSLS_PLATFORM__OS_VER_MAJOR >= 10)
+#if defined(BSLS_PLATFORM_OS_UNIX) && \
+   (!defined(BSLS_PLATFORM_OS_SOLARIS) || BSLS_PLATFORM_OS_VER_MAJOR >= 10)
         // For the localtime to be picked to avoid the all.pl env to pollute
         // us.
         unsetenv("TZ");
@@ -1283,6 +1325,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            localMultiObserver.deregisterObserver(&defaultObserver);
+            localMultiObserver.deregisterObserver(&mX);
         }
 
         if (verbose) cerr << "Testing constructor threshold." << endl;
@@ -1346,6 +1390,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            localMultiObserver.deregisterObserver(&defaultObserver);
+            localMultiObserver.deregisterObserver(&mX);
         }
 
         if (verbose) cerr << "Testing short format." << endl;
@@ -1428,6 +1474,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            localMultiObserver.deregisterObserver(&defaultObserver);
+            localMultiObserver.deregisterObserver(&mX);
         }
 
         if (verbose) cerr << "Testing short format with local time "
@@ -1562,6 +1610,8 @@ int main(int argc, char *argv[])
 
                 bsl::cout.rdbuf(coutSbuf);
                 multiplexObserver.deregisterObserver(&localMultiObserver);
+                localMultiObserver.deregisterObserver(&defaultObserver);
+                localMultiObserver.deregisterObserver(&mX);
             }
         }
 
@@ -1662,7 +1712,7 @@ int main(int argc, char *argv[])
             multiplexObserver.deregisterObserver(&mX);
         }
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         if (verbose) cerr << "Testing file logging with timestamp."
                           << endl;
         {
@@ -2154,6 +2204,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
             ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
         }
+        fclose(stdout);
         removeFilesByPrefix(fileName.c_str());
       } break;
       default: {

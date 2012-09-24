@@ -689,41 +689,47 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_X86)
+#if defined(BSLS_PLATFORM_CPU_X86)
 
-#   if defined(BSLS_PLATFORM__CMP_GNU)
+#   if defined(BSLS_PLATFORM_CMP_GNU)
 #       include <bsls_atomicoperations_x86_all_gcc.h>
-#   elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#   elif defined(BSLS_PLATFORM_CMP_MSVC)
 #       include <bsls_atomicoperations_x86_win_msvc.h>
 #   else
 #       define BSLS_ATOMICOPERATIONS_ERROR
 #   endif
 
-#elif defined(BSLS_PLATFORM__CPU_X86_64)
+#elif defined(BSLS_PLATFORM_CPU_X86_64)
 
-#   if defined(BSLS_PLATFORM__CMP_GNU)
+#   if defined(BSLS_PLATFORM_CMP_GNU)
 #       include <bsls_atomicoperations_x64_all_gcc.h>
-#   elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#   elif defined(BSLS_PLATFORM_CMP_MSVC)
 #       include <bsls_atomicoperations_x64_win_msvc.h>
 #   else
 #       define BSLS_ATOMICOPERATIONS_ERROR
 #   endif
 
-#elif defined(BSLS_PLATFORM__CPU_POWERPC) && defined(BSLS_PLATFORM__CMP_IBM)
+#elif defined(BSLS_PLATFORM_CPU_POWERPC)
 
-#   if defined(BSLS_PLATFORM__CPU_64_BIT)
-#       include <bsls_atomicoperations_powerpc64_aix_xlc.h>
+#   if defined(BSLS_PLATFORM_CMP_IBM)
+#       if defined(BSLS_PLATFORM_CPU_64_BIT)
+#           include <bsls_atomicoperations_powerpc64_aix_xlc.h>
+#       else
+#           include <bsls_atomicoperations_powerpc32_aix_xlc.h>
+#       endif
+#   elif defined(BSLS_PLATFORM_CMP_GNU)
+#       include <bsls_atomicoperations_powerpc_aix_gcc.h>
 #   else
-#       include <bsls_atomicoperations_powerpc32_aix_xlc.h>
+#       define BSLS_ATOMICOPERATIONS_ERROR
 #   endif
 
-#elif defined(BSLS_PLATFORM__CPU_SPARC_32) \
-      && (defined(BSLS_PLATFORM__CMP_GNU) || defined(BSLS_PLATFORM__CMP_SUN))
+#elif defined(BSLS_PLATFORM_CPU_SPARC_32) \
+      && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN))
 #   include <bsls_atomicoperations_sparc32_sun_cc.h>
-#elif defined(BSLS_PLATFORM__CPU_SPARC_V9) \
-      && (defined(BSLS_PLATFORM__CMP_GNU) || defined(BSLS_PLATFORM__CMP_SUN))
+#elif defined(BSLS_PLATFORM_CPU_SPARC_V9) \
+      && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN))
 #   include <bsls_atomicoperations_sparc64_sun_cc.h>
-#elif defined(BSLS_PLATFORM__CPU_IA64) && defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_PLATFORM_CPU_IA64) && defined(BSLS_PLATFORM_OS_HPUX)
 #   include <bsls_atomicoperations_ia64_hp_acc.h>
 
 #else

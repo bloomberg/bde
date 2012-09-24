@@ -280,7 +280,11 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#if defined(BSLS_PLATFORM__OS_AIX)
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
+#if defined(BSLS_PLATFORM_OS_AIX)
 
 #ifndef INCLUDED_SYS_POLL
 #include <sys/poll.h>
@@ -294,7 +298,6 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-class bslma_Allocator;
 class bdet_TimeInterval;
 class bteso_TimeMetrics;
 
@@ -472,7 +475,7 @@ class bteso_DefaultEventManager<bteso_Platform::POLLSET>
 
 }  // close namespace BloombergLP
 
-#endif // BSLS_PLATFORM__OS_AIX
+#endif // BSLS_PLATFORM_OS_AIX
 
 #endif
 

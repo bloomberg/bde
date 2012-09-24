@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Clay Wilson (cwilson9)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's single type parameter is of array type.
 // 'bslmf::IsArray' defines a 'VALUE' member that is initialized (at
@@ -84,6 +82,7 @@ struct IsArray<TYPE &> : IsArray<TYPE>::Type {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -93,6 +92,7 @@ struct IsArray<TYPE &> : IsArray<TYPE>::Type {
 #endif
 #define bslmf_IsArray bslmf::IsArray
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

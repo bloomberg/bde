@@ -11,6 +11,7 @@
 #include <cstdio>   // printf()
 #include <iostream>
 #include <sstream>
+#include <algorithm> // sort
 
 using namespace BloombergLP;
 using namespace std;
@@ -278,7 +279,7 @@ struct Wrap { int data; };
 }
 
 //=============================================================================
-//                  CLASSES FOR TESTING USAGE EXAMPLES
+//                            CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
 template<typename T>
@@ -365,6 +366,308 @@ class my_Array
     const T& operator[](int index) const { return d_data[index]; }
 };
 
+//=============================================================================
+//                            USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+namespace testcontainer {
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Defining a Standard Compliant Random Access Iterator
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to create a standard compliant random access iterator for a
+// container.
+//
+// First, we define an iterator, 'MyArrayIterator', that meets the requirements
+// of the 'IMP_ITER' template parameter of 'RandomAccessIterator' class (see
+// class level documentation), but does not meet the full set of requirements
+// for a random access iterator as defined by the C++ standard.  Note that the
+// following shows only the public interface required.  Private members and
+// additional methods that may be needed to implement this class are elided in
+// this example:
+//..
+    template <class VALUE>
+    class MyArrayIterator {
+        // This class implements the minimal requirements to implement a random
+        // access iterator using 'bslstl::RandomAccessIterator'.
+//
+// *** Remove the following from usage example to emphasis on the interface ***
+        // DATA
+        VALUE *d_value_p;  // address of an element in an array (held, not
+                           // owned)
+      private:
+        // FRIENDS
+        template <class OTHER_VALUE>
+        friend bool operator==(const MyArrayIterator<OTHER_VALUE>&,
+                               const MyArrayIterator<OTHER_VALUE>&);
+        template <class OTHER_VALUE>
+        friend bool operator<(const MyArrayIterator<OTHER_VALUE>&,
+                              const MyArrayIterator<OTHER_VALUE>&);
+        template <class OTHER_VALUE>
+        friend std::ptrdiff_t operator-(const MyArrayIterator<OTHER_VALUE>&,
+                                        const MyArrayIterator<OTHER_VALUE>&);
+//
+      public:
+        explicit MyArrayIterator(VALUE* address);
+            // Create a 'MyArrayIterator' object referring to the
+            // element of type 'VALUE' at the specified 'address'.
+// ****************************************************************************
+      public:
+        // CREATORS
+        MyArrayIterator();
+            // Create a 'MyArrayIterator' object that does not refer to any
+            // value.
+//
+        MyArrayIterator(const MyArrayIterator& original);
+            // Create a 'MyArrayIterator' object having the same value
+            // as the specified 'original' object.
+//
+        ~MyArrayIterator();
+            // Destroy this object;
+//
+        // MANIPULATORS
+        MyArrayIterator& operator=(const MyArrayIterator& rhs);
+            // Assign to this object the value of the specified 'rhs' object,
+            // and return a reference providing modifiable access to this
+            // object.
+//
+        void operator++();
+            // Increment this object to refer to the next element in an array.
+//
+        void operator--();
+            // Decrement this object to refer to the previous element in an
+            // array.
+//
+        void operator+=(std::ptrdiff_t n);
+            // Move this object by the specified 'n' element in the array.
+//
+        // ACCESSORS
+        VALUE& operator*() const;
+            // Return a reference providing modifiable access to the value (of
+            // the parameterized 'VALUE' type) of the element referred to by
+            // this object.
+    };
+//
+    template <class VALUE>
+    bool operator==(const MyArrayIterator<VALUE>&,
+                    const MyArrayIterator<VALUE>&);
+    template <class VALUE>
+    bool operator<(const MyArrayIterator<VALUE>&,
+                   const MyArrayIterator<VALUE>&);
+    template <class VALUE>
+    std::ptrdiff_t operator-(const MyArrayIterator<VALUE>&,
+                             const MyArrayIterator<VALUE>&);
+//..
+// Notice that 'MyArrayIterator' does not implement a complete standard
+// compliant random access iterator.  It is missing methods such as 'operator+'
+// and 'operator[]'.
+//
+// Then, we define the interface for our container class template,
+// 'MyFixedSizeArray'.  The implementation of the interface is elided for
+// brevity:
+//..
+    template <class VALUE, int SIZE>
+    class MyFixedSizeArray {
+        // This class implements a container that contains the parameterized
+        // 'SIZE' number of elements of the parameterized 'VALUE' type.
+//
+        // DATA
+        VALUE d_array[SIZE];   // storage of the container
+//
+      public:
+        // PUBLIC TYPES
+        typedef VALUE value_type;
+//..
+// Now, we use 'RandomAccessIterator' to create a standard compliant iterator
+// for this container:
+//..
+        typedef bslstl::RandomAccessIterator<VALUE,
+                                             MyArrayIterator<VALUE> > iterator;
+        typedef bslstl::RandomAccessIterator<const VALUE,
+                                             MyArrayIterator<VALUE> >
+                                                                const_iterator;
+//..
+// Notice that the implementation for 'const_iterator' is
+// 'MyArrayIterator<VALUE>' and *not* 'MyArrayIterator<const VALUE>'.
+//
+// Next, we continue defining the rest of the class.
+//..
+        // CREATORS
+        //! MyFixedSizeArray() = default;
+            // Create a 'MyFixedSizeArray' object having the parameterized
+            // 'SIZE' number of elements of the parameterized type 'VALUE'.
+//
+        //! MyFixedSizeArray(const MyFixedSizeArray& original) = default;
+            // Create a 'MyFixedSizeArray' object having same number of
+            // elements as that of the specified 'original', the same value of
+            // each element as that of corresponding element in 'original'.
+//
+        //! ~MyFixedSizeArray() = default;
+            // Destroy this object.
+//
+        // MANIPULATORS
+        iterator begin();
+            // Return a random access iterator providing modifiable access to
+            // the first valid element of this object.
+//
+        iterator end();
+            // Return a random access iterator providing modifiable access to
+            // the last valid element of this object.
+//
+        VALUE& operator[](int position);
+            // Return a reference providing modifiable access to the element at
+            // the specified 'position'.
+//
+        // ACCESSORS
+        const_iterator begin() const;
+            // Return a random access iterator providing non-modifiable access
+            // to the first valid element of this object.
+//
+        const_iterator end() const;
+            // Return a random access iterator providing non-modifiable access
+            // to the last valid element of this object.
+//
+        const VALUE& operator[](int position) const;
+            // Return a reference providing non-modifiable access to the
+            // specified 'i'th element in this object.
+    };
+//..
+
+                        // ---------------
+                        // MyArrayIterator
+                        // ---------------
+
+// CREATORS
+template <class VALUE>
+MyArrayIterator<VALUE>::MyArrayIterator(VALUE *address)
+: d_value_p(address)
+{
+}
+
+template <class VALUE>
+MyArrayIterator<VALUE>::MyArrayIterator()
+: d_value_p(0)
+{
+}
+
+template <class VALUE>
+MyArrayIterator<VALUE>::MyArrayIterator(const MyArrayIterator& original)
+: d_value_p(original.d_value_p)
+{
+}
+
+template <class VALUE>
+MyArrayIterator<VALUE>& MyArrayIterator<VALUE>::operator=(
+                                             const MyArrayIterator<VALUE>& rhs)
+{
+    d_value_p = rhs.d_value_p;
+    return *this;
+}
+
+template <class VALUE>
+MyArrayIterator<VALUE>::~MyArrayIterator()
+{
+}
+
+
+// MANIPULATORS
+template <class VALUE>
+void MyArrayIterator<VALUE>::operator++()
+{
+    ++d_value_p;
+}
+
+template <class VALUE>
+void MyArrayIterator<VALUE>::operator--()
+{
+    --d_value_p;
+}
+
+template <class VALUE>
+void MyArrayIterator<VALUE>::operator+=(std::ptrdiff_t n)
+{
+    d_value_p += n;
+}
+
+// ACCESSORS
+template <class VALUE>
+VALUE& MyArrayIterator<VALUE>::operator*() const
+{
+    return *d_value_p;
+}
+
+// FREE FUNCTIONS
+template <class VALUE>
+bool operator==(const MyArrayIterator<VALUE>& lhs,
+                const MyArrayIterator<VALUE>& rhs)
+{
+    return lhs.d_value_p == rhs.d_value_p;
+}
+
+template <class VALUE>
+bool operator<(const MyArrayIterator<VALUE>& lhs,
+               const MyArrayIterator<VALUE>& rhs)
+{
+    return lhs.d_value_p < rhs.d_value_p;
+}
+
+template <class VALUE>
+std::ptrdiff_t operator-(const MyArrayIterator<VALUE>& lhs,
+                         const MyArrayIterator<VALUE>& rhs)
+{
+    return lhs.d_value_p - rhs.d_value_p;
+}
+
+                        // ----------------
+                        // MyFixedSizeArray
+                        // ----------------
+
+// MANIPULATORS
+template <class VALUE, int SIZE>
+typename MyFixedSizeArray<VALUE, SIZE>::iterator
+MyFixedSizeArray<VALUE, SIZE>::begin()
+{
+    return MyArrayIterator<VALUE>(d_array);
+}
+
+template <class VALUE, int SIZE>
+typename MyFixedSizeArray<VALUE, SIZE>::iterator
+MyFixedSizeArray<VALUE, SIZE>::end()
+{
+    return MyArrayIterator<VALUE>(d_array + SIZE);
+}
+
+template <class VALUE, int SIZE>
+VALUE& MyFixedSizeArray<VALUE, SIZE>::operator[](int position)
+{
+    return d_array[position];
+}
+
+// ACCESSORS
+template <class VALUE, int SIZE>
+typename MyFixedSizeArray<VALUE, SIZE>::const_iterator
+MyFixedSizeArray<VALUE, SIZE>::begin() const
+{
+    return MyArrayIterator<VALUE>(d_array);
+}
+
+template <class VALUE, int SIZE>
+typename MyFixedSizeArray<VALUE, SIZE>::const_iterator
+MyFixedSizeArray<VALUE, SIZE>::end() const
+{
+    return MyArrayIterator<VALUE>(d_array + SIZE);
+}
+
+template <class VALUE, int SIZE>
+const VALUE& MyFixedSizeArray<VALUE, SIZE>::operator[](int i) const
+{
+    return d_array[i];
+}
+
+}  // close namespace testcontainer
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -381,6 +684,52 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 17: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============");
+
+        using namespace testcontainer;
+
+// Then, we create a 'MyFixedSizeArray' and initialize its elements:
+//..
+    MyFixedSizeArray<int, 5> fixedArray;
+    fixedArray[0] = 3;
+    fixedArray[1] = 2;
+    fixedArray[2] = 5;
+    fixedArray[3] = 4;
+    fixedArray[4] = 1;
+//..
+// Finally, to show that 'MyFixedSizeArray::iterator' can be used as a random
+// access iterator, we invoke a function that takes random iterators as
+// parameters, such as 'std::sort', on the 'begin' and 'end' iterators
+// and verify the results:
+//..
+    std::sort(fixedArray.begin(), fixedArray.end());
+//
+    ASSERT(fixedArray[0] == 1);
+    ASSERT(fixedArray[1] == 2);
+    ASSERT(fixedArray[2] == 3);
+    ASSERT(fixedArray[3] == 4);
+    ASSERT(fixedArray[4] == 5);
+//..
+
+      } break;
       case 16: {
         // --------------------------------------------------------------------
         // TESTING ITERATOR ARITHMETIC

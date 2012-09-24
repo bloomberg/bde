@@ -2063,7 +2063,7 @@ int main(int argc, char *argv[])
             vector<char> buffer(&testAllocator);
             const char *UNFILLED = "?????????????????????????????????????????";
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define ZERO   "0"
 #else
 #define ZERO
@@ -2081,7 +2081,7 @@ int main(int argc, char *argv[])
                 { L_,   "abc",  0.1F,                 "abc0.1"               },
                 { L_,   "abc",  0.01F,                "abc0.01"              },
                 { L_,   "abc",  0.001F,               "abc0.001"             },
-#ifndef BSLS_PLATFORM__OS_LINUX
+#ifndef BSLS_PLATFORM_OS_LINUX
     // On Linux, for some reason, the statement 'printf("%.6g", 0.0001)' prints
     // 1e-04.
                 { L_,   "abc",  0.0001F,              "abc0.0001"            },
@@ -2350,7 +2350,7 @@ int main(int argc, char *argv[])
             vector<char> buffer(&testAllocator);
             const char *UNFILLED = "?????????????????????????????????????????";
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define ZERO   "0"
 #else
 #define ZERO

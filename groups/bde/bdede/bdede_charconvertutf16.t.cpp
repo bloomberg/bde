@@ -8340,7 +8340,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
         Conversion<unsigned short, char>
                                 u8ToU16(bdede_CharConvertUtf16::utf8ToUtf16);
 
-#if BSLS_PLATFORM__OS_WINDOWS
+#if BSLS_PLATFORM_OS_WINDOWS
         enum { BUFFER_ZONE = 256        // How much memory to check before and
                                         // after the output buffer, in order to
                                         // detect stray writes.

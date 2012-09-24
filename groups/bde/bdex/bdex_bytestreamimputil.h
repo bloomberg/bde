@@ -798,7 +798,7 @@ void bdex_ByteStreamImpUtil::putInt64(char                     *buffer,
         char                     d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[7];
     buffer[1] = T(value).d_bytes[6];
     buffer[2] = T(value).d_bytes[5];
@@ -830,7 +830,7 @@ void bdex_ByteStreamImpUtil::putInt56(char                     *buffer,
         char                     d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[6];
     buffer[1] = T(value).d_bytes[5];
     buffer[2] = T(value).d_bytes[4];
@@ -860,7 +860,7 @@ void bdex_ByteStreamImpUtil::putInt48(char                     *buffer,
         char                     d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[5];
     buffer[1] = T(value).d_bytes[4];
     buffer[2] = T(value).d_bytes[3];
@@ -888,7 +888,7 @@ void bdex_ByteStreamImpUtil::putInt40(char                     *buffer,
         char                     d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[4];
     buffer[1] = T(value).d_bytes[3];
     buffer[2] = T(value).d_bytes[2];
@@ -913,7 +913,7 @@ void bdex_ByteStreamImpUtil::putInt32(char *buffer, int value)
         char d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[3];
     buffer[1] = T(value).d_bytes[2];
     buffer[2] = T(value).d_bytes[1];
@@ -936,7 +936,7 @@ void bdex_ByteStreamImpUtil::putInt24(char *buffer, int value)
         char d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[2];
     buffer[1] = T(value).d_bytes[1];
     buffer[2] = T(value).d_bytes[0];
@@ -957,7 +957,7 @@ void bdex_ByteStreamImpUtil::putInt16(char *buffer, int value)
         char d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[1];
     buffer[1] = T(value).d_bytes[0];
 #else
@@ -979,7 +979,7 @@ void bdex_ByteStreamImpUtil::putInt8(char *buffer, int value)
 //        char d_bytes[1];
 //    }& T;
 //
-//#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+//#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
 //    buffer[0] = T(value).d_bytes[0];
 //#else
 //    buffer[0] = T(value).d_bytes[sizeof value - 1];
@@ -990,7 +990,7 @@ void bdex_ByteStreamImpUtil::putInt8(char *buffer, int value)
         char d_bytes[1];
     }* T;
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     buffer[0] = ((T)&value)->d_bytes[0];
 #else
     buffer[0] = ((T)&value)->d_bytes[sizeof value - 1];
@@ -1008,7 +1008,7 @@ void bdex_ByteStreamImpUtil::putFloat64(char *buffer, double value)
         char   d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[sizeof value - 1];
     buffer[1] = T(value).d_bytes[sizeof value - 2];
     buffer[2] = T(value).d_bytes[sizeof value - 3];
@@ -1039,7 +1039,7 @@ void bdex_ByteStreamImpUtil::putFloat32(char *buffer, float value)
         char  d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[sizeof value - 1];
     buffer[1] = T(value).d_bytes[sizeof value - 2];
     buffer[2] = T(value).d_bytes[sizeof value - 3];
@@ -1070,7 +1070,7 @@ void bdex_ByteStreamImpUtil::getInt64(bsls_PlatformUtil::Int64 *variable,
         *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
     }
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[7] = buffer[0];
     T(*variable).d_bytes[6] = buffer[1];
     T(*variable).d_bytes[5] = buffer[2];
@@ -1107,7 +1107,7 @@ void bdex_ByteStreamImpUtil::getUint64(bsls_PlatformUtil::Uint64 *variable,
         *variable = 0;  // zero extend
     }
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[7] = buffer[0];
     T(*variable).d_bytes[6] = buffer[1];
     T(*variable).d_bytes[5] = buffer[2];
@@ -1142,7 +1142,7 @@ void bdex_ByteStreamImpUtil::getInt56(bsls_PlatformUtil::Int64 *variable,
 
     *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[6] = buffer[0];
     T(*variable).d_bytes[5] = buffer[1];
     T(*variable).d_bytes[4] = buffer[2];
@@ -1175,7 +1175,7 @@ void bdex_ByteStreamImpUtil::getUint56(bsls_PlatformUtil::Uint64 *variable,
 
     *variable = 0;  // zero extend
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[6] = buffer[0];
     T(*variable).d_bytes[5] = buffer[1];
     T(*variable).d_bytes[4] = buffer[2];
@@ -1208,7 +1208,7 @@ void bdex_ByteStreamImpUtil::getInt48(bsls_PlatformUtil::Int64 *variable,
 
     *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[5] = buffer[0];
     T(*variable).d_bytes[4] = buffer[1];
     T(*variable).d_bytes[3] = buffer[2];
@@ -1239,7 +1239,7 @@ void bdex_ByteStreamImpUtil::getUint48(bsls_PlatformUtil::Uint64 *variable,
 
     *variable = 0;  // zero extend
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[5] = buffer[0];
     T(*variable).d_bytes[4] = buffer[1];
     T(*variable).d_bytes[3] = buffer[2];
@@ -1270,7 +1270,7 @@ void bdex_ByteStreamImpUtil::getInt40(bsls_PlatformUtil::Int64 *variable,
 
     *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[4] = buffer[0];
     T(*variable).d_bytes[3] = buffer[1];
     T(*variable).d_bytes[2] = buffer[2];
@@ -1299,7 +1299,7 @@ void bdex_ByteStreamImpUtil::getUint40(bsls_PlatformUtil::Uint64 *variable,
 
     *variable = 0;  // zero extend
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[4] = buffer[0];
     T(*variable).d_bytes[3] = buffer[1];
     T(*variable).d_bytes[2] = buffer[2];
@@ -1329,7 +1329,7 @@ void bdex_ByteStreamImpUtil::getInt32(int *variable, const char *buffer)
         *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
     }
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[3] = buffer[0];
     T(*variable).d_bytes[2] = buffer[1];
     T(*variable).d_bytes[1] = buffer[2];
@@ -1358,7 +1358,7 @@ void bdex_ByteStreamImpUtil::getUint32(unsigned int *variable,
         *variable = 0;  // zero extend
     }
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[3] = buffer[0];
     T(*variable).d_bytes[2] = buffer[1];
     T(*variable).d_bytes[1] = buffer[2];
@@ -1384,7 +1384,7 @@ void bdex_ByteStreamImpUtil::getInt24(int *variable, const char *buffer)
 
     *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[2] = buffer[0];
     T(*variable).d_bytes[1] = buffer[1];
     T(*variable).d_bytes[0] = buffer[2];
@@ -1409,7 +1409,7 @@ void bdex_ByteStreamImpUtil::getUint24(unsigned int *variable,
 
     *variable = 0;  // zero extend
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[2] = buffer[0];
     T(*variable).d_bytes[1] = buffer[1];
     T(*variable).d_bytes[0] = buffer[2];
@@ -1435,7 +1435,7 @@ void bdex_ByteStreamImpUtil::getInt16(short *variable, const char *buffer)
         *variable = (short)(0x80 & buffer[0] ? -1 : 0);  // sign extend
     }
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[1] = buffer[0];
     T(*variable).d_bytes[0] = buffer[1];
 #else
@@ -1460,7 +1460,7 @@ void bdex_ByteStreamImpUtil::getUint16(unsigned short *variable,
         *variable = 0;  // zero extend
     }
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[1] = buffer[0];
     T(*variable).d_bytes[0] = buffer[1];
 #else
@@ -1514,7 +1514,7 @@ void bdex_ByteStreamImpUtil::getFloat64(double *variable, const char *buffer)
         *variable = 0;  // zero fill mantissa
     }
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[sizeof *variable - 1] = buffer[0];
     T(*variable).d_bytes[sizeof *variable - 2] = buffer[1];
     T(*variable).d_bytes[sizeof *variable - 3] = buffer[2];
@@ -1550,7 +1550,7 @@ void bdex_ByteStreamImpUtil::getFloat32(float *variable, const char *buffer)
         *variable = 0;  // zero fill mantissa
     }
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[sizeof *variable - 1] = buffer[0];
     T(*variable).d_bytes[sizeof *variable - 2] = buffer[1];
     T(*variable).d_bytes[sizeof *variable - 3] = buffer[2];

@@ -91,7 +91,7 @@ struct Types{
     // platform-dependent types.
 
     // TYPES
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
     typedef std::ptrdiff_t size_type;
 #else
     typedef int            size_type;
@@ -110,7 +110,7 @@ struct Types{
         // The aliases 'UintPtr' and 'IntPtr' are guaranteed to have the same
         // size as pointers.
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     typedef          __int64 Int64;
     typedef unsigned __int64 Uint64;
 #else
@@ -124,12 +124,14 @@ struct Types{
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::Types bsls_Types;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

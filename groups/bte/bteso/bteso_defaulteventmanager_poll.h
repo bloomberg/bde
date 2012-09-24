@@ -277,13 +277,13 @@ BDES_IDENT("$Id: $")
 #include <bslfwd_bslma_allocator.h>
 #endif
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS)    \
-    || defined(BSLS_PLATFORM__OS_LINUX)   \
-    || defined(BDES_PLATFORM__OS_FREEBSD) \
-    || defined(BSLS_PLATFORM__OS_AIX)     \
-    || defined(BSLS_PLATFORM__OS_HPUX)    \
-    || defined(BSLS_PLATFORM__OS_CYGWIN)  \
-    || defined(BSLS_PLATFORM__OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)    \
+    || defined(BSLS_PLATFORM_OS_LINUX)   \
+    || defined(BDES_PLATFORM_OS_FREEBSD) \
+    || defined(BSLS_PLATFORM_OS_AIX)     \
+    || defined(BSLS_PLATFORM_OS_HPUX)    \
+    || defined(BSLS_PLATFORM_OS_CYGWIN)  \
+    || defined(BSLS_PLATFORM_OS_DARWIN)
 
 #ifndef INCLUDED_SYS_POLL
 #include <sys/poll.h>
@@ -455,8 +455,8 @@ bool bteso_DefaultEventManager<bteso_Platform::POLL>::
 
 }  // close namespace BloombergLP
 
-#endif // BSLS_PLATFORM__OS_SOLARIS
-       // || BSLS_PLATFORM__OS_LINUX || BSLS_PLATFORM__OS_AIX
+#endif // BSLS_PLATFORM_OS_SOLARIS
+       // || BSLS_PLATFORM_OS_LINUX || BSLS_PLATFORM_OS_AIX
 
 #endif
 

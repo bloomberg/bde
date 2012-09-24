@@ -149,6 +149,14 @@ BDES_IDENT("$Id: $")
 #include <bcem_aggregate.h>
 #endif
 
+#ifndef INCLUDED_BCEM_AGGREGATERAW
+#include <bcem_aggregateraw.h>
+#endif
+
+#ifndef INCLUDED_BCEM_ERRORATTRIBUTES
+#include <bcem_errorattributes.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -286,6 +294,34 @@ int baexml_ListParser<bcem_Aggregate>::appendElement(const char *data,
     bcem_Aggregate agg = (*d_object_p)[i];
 
     if (0 != d_parseElementCallback(&agg, data, dataLength)) {
+        // remove the new object from the array
+        bdeat_ArrayFunctions::resize(d_object_p, i);
+
+        return BAEXML_FAILURE;
+    }
+
+     return BAEXML_SUCCESS;
+}
+
+template <>
+inline
+int baexml_ListParser<bcem_AggregateRaw>::appendElement(const char *data,
+                                                        int         dataLength)
+{
+    BSLS_ASSERT_SAFE(data);
+    BSLS_ASSERT_SAFE(0 < dataLength);
+
+    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+
+    const int i = static_cast<int>(bdeat_ArrayFunctions::size(*d_object_p));
+
+    bdeat_ArrayFunctions::resize(d_object_p, i + 1);
+
+    bcem_AggregateRaw    field;
+    bcem_ErrorAttributes error;
+    int rc = d_object_p->getArrayItem(&field, &error, i);
+
+    if (rc || 0 != d_parseElementCallback(&field, data, dataLength)) {
         // remove the new object from the array
         bdeat_ArrayFunctions::resize(d_object_p, i);
 
