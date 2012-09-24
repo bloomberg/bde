@@ -72,7 +72,7 @@ struct is_const<TYPE const> : true_type {
      // for when the (template parameter) 'TYPE' is 'const'-qualified.
 };
 
-}
+}  // close namespace bsl
 
 #endif
 

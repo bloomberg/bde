@@ -64,7 +64,7 @@ namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::is_pointer'.
+   // argument for the template parameter 'TYPE' of 'bsl::is_const'.
 };
 
 }  // close unnamed namespace
@@ -78,6 +78,49 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE\n"
+                            "\n=============\n");
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify 'Const' Types
+///- - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is a
+// 'const'-qualified.
+//
+// First, we create two 'typedef's -- a 'const'-qualified type and a
+// unqualified type:
+//..
+        typedef int        MyType;
+        typedef const int  MyConstType;
+//..
+// Now, we instantiate the 'bsl::is_const' template for each of the
+// 'typedef's and assert the 'value' static data member of each instantiation:
+//..
+        ASSERT(false == bsl::is_const<MyType>::value);
+        ASSERT(true == bsl::is_const<MyConstType>::value);
+//..
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::is_const::value'
@@ -93,12 +136,15 @@ int main(int argc, char *argv[])
         //:    cv-qualified type.
         //
         // Plan:
-        //   Verify that 'bsl::is_integral::value' has the correct value for
+        //   Verify that 'bsl::is_const::value' has the correct value for
         //   each (template parameter) 'TYPE' in the concerns.
         //
         // Testing:
-        //   bsl::is_integral::value
+        //   bsl::is_const::value
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nbsl::is_const::value\n"
+                            "\n====================\n");
 
         // C-1
         ASSERT(false == is_const<int>::value);
@@ -113,7 +159,6 @@ int main(int argc, char *argv[])
 
         ASSERT(true == is_const<TestType const>::value);
         ASSERT(true == is_const<TestType const volatile>::value);
-
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
