@@ -324,7 +324,7 @@ BDES_IDENT("$Id: $")
 #include <bslfwd_bslma_allocator.h>
 #endif
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 #ifndef INCLUDED_BSL_C_SIGNAL
 #include <bsl_c_signal.h>              // sigset_t
 #endif
@@ -356,12 +356,12 @@ class bcep_FixedThreadPool {
       , BCEP_RUN
       , BCEP_SUSPEND
       , BCEP_DRAIN
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , TP_STOP    = BCEP_STOP
       , TP_RUN     = BCEP_RUN
       , TP_SUSPEND = BCEP_SUSPEND
       , TP_DRAIN   = BCEP_DRAIN
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -407,7 +407,7 @@ class bcep_FixedThreadPool {
     const int         d_numThreads;        // number of configured processing
                                            // threads.
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     sigset_t          d_blockSet;          // set of signals to be blocked
                                            // in managed threads
 #endif

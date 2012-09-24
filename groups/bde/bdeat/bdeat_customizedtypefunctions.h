@@ -512,7 +512,7 @@ namespace bdeat_CustomizedTypeFunctions {
     // documentation for more information.
 
     // META-FUNCTIONS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
     bslmf_MetaInt<0> isCustomizedTypeMetaFunction(const TYPE&);
@@ -524,7 +524,7 @@ namespace bdeat_CustomizedTypeFunctions {
         // This function is *DEPRECATED*.  User's should specialize the
         // 'IsCustomizedType' meta-function.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     template <typename TYPE>
     struct IsCustomizedType {
         // This 'struct' should be specialized for third-party types that need
@@ -534,10 +534,10 @@ namespace bdeat_CustomizedTypeFunctions {
         enum {
             VALUE = bslalg_HasTrait<TYPE,
                                     bdeat_TypeTraitBasicCustomizedType>::VALUE
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isCustomizedTypeMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
 
@@ -564,7 +564,7 @@ namespace bdeat_CustomizedTypeFunctions {
         // Load into the specified 'result' the value of the specified
         // 'object'.
 
-#if ! defined(BSLS_PLATFORM__CMP_IBM)
+#if ! defined(BSLS_PLATFORM_CMP_IBM)
     // OVERLOADABLE FUNCTIONS
     // The following functions should be overloaded for other types (in their
     // respective namespaces).  The following functions are the default
@@ -759,7 +759,7 @@ bdeat_CustomizedTypeFunctions::convertToBaseType(const TYPE&  object)
       // namespace bdeat_CustomizedTypeFunctions (OVERLOADABLE FUNCTIONS)
       // ----------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 namespace bdeat_CustomizedTypeFunctions {
     // xlC 6 will not do Koenig (argument-dependent) lookup if the function
     // being called has already been declared in some scope at the point of

@@ -168,7 +168,7 @@ void test_auto_ptr (T*, const char *tname)
 
 // verify that a member function is accessible and has the appropriate
 // signature, including return type and exception specification
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
 # define FUN(result, T, name, arg_list) do {                               \
         result (std::auto_ptr<T>::*pf) arg_list = &std::auto_ptr<T>::name; \
         _RWSTD_UNUSED (pf);                                                \

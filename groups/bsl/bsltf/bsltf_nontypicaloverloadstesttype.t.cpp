@@ -231,7 +231,7 @@ int main(int argc, char *argv[]) {
 
           scratch.deallocate(reinterpret_cast<void*>(arr));
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
           NonTypicalOverloadsTestType X;
           BSLS_ASSERTTEST_ASSERT_OPT_FAIL(&X);
 #endif

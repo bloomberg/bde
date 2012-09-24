@@ -1425,6 +1425,15 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
     }
 
+    // IBM empty class swap bug test
+
+    {
+        typedef bsl::multiset<int, std::less<int>, StlAlloc> TestObj;
+        TestObj mX;
+        mX.insert(1);
+        TestObj mY;
+        mY = mX;
+    }
 }
 
 template <class KEY, class COMP, class ALLOC>
@@ -6290,7 +6299,7 @@ int main(int argc, char *argv[])
         // TESTING CONSTRUCTOR OF TEMPLATE WRAPPER
         // --------------------------------------------------------------------
         // KEY doesn't affect the test.  So run test only for 'int'.
-        TestDriver<int>::testCase24;
+        TestDriver<int>::testCase24();
       } break;
       case 23: {
         // --------------------------------------------------------------------

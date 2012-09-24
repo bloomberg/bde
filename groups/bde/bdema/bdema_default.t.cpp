@@ -15,9 +15,10 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-#if BSL_LEGACY == 0
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#else
 typedef bslma_Default bdema_Default;
-#endif
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 //=============================================================================
 //                             TEST PLAN

@@ -11,6 +11,35 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //
+//@MACROS:
+//  BSLS_BYTEORDER_HTONS(x):  Convert 16-bit value from host to network order
+//  BSLS_BYTEORDER_HTONL(x):  Convert 32-bit value from host to network order
+//  BSLS_BYTEORDER_HTONLL(x): Convert 64-bit value from host to network order
+//  BSLS_BYTEORDER_NTOHS(x):  Convert 16-bit value from network to host order
+//  BSLS_BYTEORDER_NTOHL(x):  Convert 32-bit value from network to host order
+//  BSLS_BYTEORDER_NTOHLL(x): Convert 64-bit value from network to host order
+//
+//  BSLS_BYTEORDER_HTONS_CONSTANT(x):  static 16-bit network to host order
+//  BSLS_BYTEORDER_HTONL_CONSTANT(x):  static 32-bit network to host order
+//  BSLS_BYTEORDER_HTONLL_CONSTANT(x): static 64-bit network to host order
+//  BSLS_BYTEORDER_NTOHS_CONSTANT(x):  static 16-bit network to host order
+//  BSLS_BYTEORDER_NTOHL_CONSTANT(x):  static 32-bit network to host order
+//  BSLS_BYTEORDER_NTOHLL_CONSTANT(x): static 64-bit network to host order
+//
+//  BSLS_BYTEORDER_LE_U16_TO_HOST(x): 16-bit little-endian to host-endian
+//  BSLS_BYTEORDER_LE_U32_TO_HOST(x): 32-bit little-endian to host-endian
+//  BSLS_BYTEORDER_LE_U64_TO_HOST(x): 64-bit little-endian to host-endian
+//  BSLS_BYTEORDER_BE_U16_TO_HOST(x): 16-bit    big-endian to host-endian
+//  BSLS_BYTEORDER_BE_U32_TO_HOST(x): 32-bit    big-endian to host-endian
+//  BSLS_BYTEORDER_BE_U64_TO_HOST(x): 64-bit    big-endian to host-endian
+//
+//  BSLS_BYTEORDER_HOST_U16_TO_LE(x): 16-bit host-endian to little-endian
+//  BSLS_BYTEORDER_HOST_U32_TO_LE(x): 32-bit host-endian to little-endian
+//  BSLS_BYTEORDER_HOST_U64_TO_LE(x): 64-bit host-endian to little-endian
+//  BSLS_BYTEORDER_HOST_U16_TO_BE(x): 16-bit host-endian to    big-endian
+//  BSLS_BYTEORDER_HOST_U32_TO_BE(x): 32-bit host-endian to    big-endian
+//  BSLS_BYTEORDER_HOST_U64_TO_BE(x): 64-bit host-endian to    big-endian
+//
 //@AUTHOR: Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component provides a set of byte-order manipulation macros
@@ -145,7 +174,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#ifdef BSLS_PLATFORM__CMP_HP
+#ifdef BSLS_PLATFORM_CMP_HP
 
 #ifndef INCLUDED_MACHINE_SYS_BUILTINS
 #include <machine/sys/builtins.h>  // '_Asm_xchg'
@@ -159,7 +188,7 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 
 #ifndef INCLUDED_STDLIB
 #include <stdlib.h>        // '_byteswap_*'
@@ -173,10 +202,10 @@ namespace BloombergLP {
 namespace bsls {
 
                      // ======================
-                     // struct ByteOrder__Util
+                     // struct ByteOrder_Util
                      // ======================
 
-struct ByteOrder__Util {
+struct ByteOrder_Util {
     // This 'struct' provides a namespace for a suite of platform-dependent
     // byte-swapping operations.  Do *not* use this directly; it is meant for
     // *internal* use only.  Use the macros provided for endian conversion
@@ -201,7 +230,7 @@ struct ByteOrder__Util {
 
 // STANDARD NETWORK AND HOST CONVERSIONS
 
-#if defined(BSLS_PLATFORM__IS_BIG_ENDIAN)
+#if defined(BSLS_PLATFORM_IS_BIG_ENDIAN)
 
 #define BSLS_BYTEORDER_NTOHS(x)  (x)
 #define BSLS_BYTEORDER_NTOHL(x)  (x)
@@ -219,16 +248,16 @@ struct ByteOrder__Util {
 #define BSLS_BYTEORDER_HTONL_CONSTANT(x)  (x)
 #define BSLS_BYTEORDER_HTONLL_CONSTANT(x) (x)
 
-#else  // BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#else  // BSLS_PLATFORM_IS_LITTLE_ENDIAN
 
 #define BSLS_BYTEORDER_NTOHS(x)                                               \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_16(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_16(x)
 
 #define BSLS_BYTEORDER_NTOHL(x)                                               \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_32(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_32(x)
 
 #define BSLS_BYTEORDER_NTOHLL(x)                                              \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_64(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_64(x)
 
 #define BSLS_BYTEORDER_HTONS(x)  BSLS_BYTEORDER_NTOHS(x)
 
@@ -259,13 +288,13 @@ struct ByteOrder__Util {
 
 #define BSLS_BYTEORDER_HTONLL_CONSTANT(x) BSLS_BYTEORDER_NTOHLL_CONSTANT(x)
 
-#endif  // BSLS_PLATFORM__IS_BIG_ENDIAN
+#endif  // BSLS_PLATFORM_IS_BIG_ENDIAN
 
 // ---------------------------------------------------------------------------
 
 // ENDIAN CONVERSION MACROS
 
-#if defined(BSLS_PLATFORM__IS_LITTLE_ENDIAN)
+#if defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
 
 #define BSLS_BYTEORDER_LE_U16_TO_HOST(x) (x)
 #define BSLS_BYTEORDER_LE_U32_TO_HOST(x) (x)
@@ -276,34 +305,34 @@ struct ByteOrder__Util {
 #define BSLS_BYTEORDER_HOST_U64_TO_LE(x) (x)
 
 #define BSLS_BYTEORDER_BE_U16_TO_HOST(x)                                      \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_16(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_16(x)
 #define BSLS_BYTEORDER_BE_U32_TO_HOST(x)                                      \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_32(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_32(x)
 #define BSLS_BYTEORDER_BE_U64_TO_HOST(x)                                      \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_64(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_64(x)
 
 #define BSLS_BYTEORDER_HOST_U16_TO_BE(x)                                      \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_16(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_16(x)
 #define BSLS_BYTEORDER_HOST_U32_TO_BE(x)                                      \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_32(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_32(x)
 #define BSLS_BYTEORDER_HOST_U64_TO_BE(x)                                      \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_64(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_64(x)
 
-#else  // BSLS_PLATFORM__IS_BIG_ENDIAN
+#else  // BSLS_PLATFORM_IS_BIG_ENDIAN
 
 #define BSLS_BYTEORDER_LE_U16_TO_HOST(x)                                      \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_16(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_16(x)
 #define BSLS_BYTEORDER_LE_U32_TO_HOST(x)                                      \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_32(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_32(x)
 #define BSLS_BYTEORDER_LE_U64_TO_HOST(x)                                      \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_64(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_64(x)
 
 #define BSLS_BYTEORDER_HOST_U16_TO_LE(x)                                      \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_16(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_16(x)
 #define BSLS_BYTEORDER_HOST_U32_TO_LE(x)                                      \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_32(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_32(x)
 #define BSLS_BYTEORDER_HOST_U64_TO_LE(x)                                      \
-                         BloombergLP::bsls::ByteOrder__Util::generic_swap_64(x)
+                         BloombergLP::bsls::ByteOrder_Util::generic_swap_64(x)
 
 #define BSLS_BYTEORDER_BE_U16_TO_HOST(x) (x)
 #define BSLS_BYTEORDER_BE_U32_TO_HOST(x) (x)
@@ -313,7 +342,7 @@ struct ByteOrder__Util {
 #define BSLS_BYTEORDER_HOST_U32_TO_BE(x) (x)
 #define BSLS_BYTEORDER_HOST_U64_TO_BE(x) (x)
 
-#endif  // BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#endif  // BSLS_PLATFORM_IS_LITTLE_ENDIAN
 
 // ===========================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -323,14 +352,14 @@ struct ByteOrder__Util {
 
 // ----------------------------------------------------------------------------
 // LINUX
-#if (defined(BSLS_PLATFORM__CPU_X86) || defined(BSLS_PLATFORM__CPU_X86_64))   \
-  && defined(BSLS_PLATFORM__CMP_GNU)
+#if (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64))   \
+  && defined(BSLS_PLATFORM_CMP_GNU)
 
 namespace bsls {
 
 inline
 unsigned short
-ByteOrder__Util_x86_swap_16(const unsigned short x)
+ByteOrder_Util_x86_swap_16(const unsigned short x)
 {
     register unsigned short y;
     __asm__ ("xchg %b0, %h0" : "=Q" (y) : "0" (x));
@@ -339,7 +368,7 @@ ByteOrder__Util_x86_swap_16(const unsigned short x)
 
 inline
 unsigned int
-ByteOrder__Util_x86_swap_32(const unsigned int x)
+ByteOrder_Util_x86_swap_32(const unsigned int x)
 {
     register unsigned int y;
     __asm__ ("bswap %0" : "=r" (y) : "0" (x));
@@ -348,13 +377,13 @@ ByteOrder__Util_x86_swap_32(const unsigned int x)
 
 }  // close package namespace
 
-#if BSLS_PLATFORM__CPU_32_BIT
+#if BSLS_PLATFORM_CPU_32_BIT
 
 namespace bsls {
 
 inline
 Types::Uint64
-ByteOrder__Util_x86_swap_64(const Types::Uint64 x)
+ByteOrder_Util_x86_swap_64(const Types::Uint64 x)
 {
     register unsigned int res, tmp;
     __asm__ ("bswap %0\n\t"
@@ -368,13 +397,13 @@ ByteOrder__Util_x86_swap_64(const Types::Uint64 x)
 
 }  // close package namespace
 
-#else  // BSLS_PLATFORM__CPU_64_BIT
+#else  // BSLS_PLATFORM_CPU_64_BIT
 
 namespace bsls {
 
 inline
 Types::Uint64
-ByteOrder__Util_x86_swap_64(const Types::Uint64 x)
+ByteOrder_Util_x86_swap_64(const Types::Uint64 x)
 {
     register Types::Uint64 y;
     __asm__ ("bswap %0" : "=r" (y) : "0" (x));
@@ -383,18 +412,18 @@ ByteOrder__Util_x86_swap_64(const Types::Uint64 x)
 
 }  // close package namespace
 
-#endif  // BSLS_PLATFORM__CPU_32_BIT
-#endif  // BSLS_PLATFORM__CMP_GNU && X86
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+#endif  // BSLS_PLATFORM_CMP_GNU && X86
 
 // ----------------------------------------------------------------------------
 // HP
-#if defined(BSLS_PLATFORM__CPU_IA64) && defined(BSLS_PLATFORM__CMP_HP)
+#if defined(BSLS_PLATFORM_CPU_IA64) && defined(BSLS_PLATFORM_CMP_HP)
 
 namespace bsls {
 
 inline
 unsigned short
-ByteOrder__Util_ia64_swap_16(const unsigned short x)
+ByteOrder_Util_ia64_swap_16(const unsigned short x)
 {
     register Types::Uint64 y;
     y = _Asm_shl(x, 48);
@@ -403,7 +432,7 @@ ByteOrder__Util_ia64_swap_16(const unsigned short x)
 
 inline
 unsigned int
-ByteOrder__Util_ia64_swap_32(const unsigned int x)
+ByteOrder_Util_ia64_swap_32(const unsigned int x)
 {
     register Types::Uint64 y;
     y = _Asm_shl(x, 32);
@@ -412,36 +441,36 @@ ByteOrder__Util_ia64_swap_32(const unsigned int x)
 
 inline
 Types::Uint64
-ByteOrder__Util_ia64_swap_64(const Types::Uint64 x)
+ByteOrder_Util_ia64_swap_64(const Types::Uint64 x)
 {
     return _Asm_mux1(_MBTYPE_REV, x);
 }
 
 }  // close package namespace
 
-#endif  // BSLS_PLATFORM__CMP_HP && IA64
+#endif  // BSLS_PLATFORM_CMP_HP && IA64
 
 // ----------------------------------------------------------------------------
 // SUN
 
-#if defined(BSLS_PLATFORM__CPU_SPARC)
+#if defined(BSLS_PLATFORM_CPU_SPARC)
 
 // Note that inline assembly fails with '-O' (default '-O3') with Studio12, so
 // disabling on Sun for now.
 //..
-//#if ((defined(BSLS_PLATFORM__CMP_SUN)
-//   && BSLS_PLATFORM__CMP_VER_MAJOR >= 0x590
+//#if ((defined(BSLS_PLATFORM_CMP_SUN)
+//   && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x590
 //   && defined(BDE_BUILD_TARGET_OPT))
-// || defined(BSLS_PLATFORM__CMP_GNU))
+// || defined(BSLS_PLATFORM_CMP_GNU))
 //..
 
-#if defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU)
 
 namespace bsls {
 
 inline
 unsigned short
-ByteOrder__Util_sparc_swap_16(const unsigned short *x)
+ByteOrder_Util_sparc_swap_16(const unsigned short *x)
 {
     register unsigned int y;
     asm("lduha [%1] %2, %0"
@@ -457,7 +486,7 @@ ByteOrder__Util_sparc_swap_16(const unsigned short *x)
 
 inline
 unsigned int
-ByteOrder__Util_sparc_swap_32(const unsigned int *x)
+ByteOrder_Util_sparc_swap_32(const unsigned int *x)
 {
     register unsigned int y;
     asm("lduwa [%1] %2, %0"
@@ -469,11 +498,11 @@ ByteOrder__Util_sparc_swap_32(const unsigned int *x)
 
 }  // close package namespace
 
-#if defined(BSLS_PLATFORM__CPU_64_BIT)
+#if defined(BSLS_PLATFORM_CPU_64_BIT)
 
 inline
 bsls::Types::Uint64
-bsls_ByteOrder__Util_sparc_swap_64(const bsls::Types::Uint64 *x)
+bsls_ByteOrder_Util_sparc_swap_64(const bsls::Types::Uint64 *x)
 {
     register bsls::Types::Uint64 y;
     asm("ldxa [%1] %2, %0"
@@ -487,7 +516,7 @@ bsls_ByteOrder__Util_sparc_swap_64(const bsls::Types::Uint64 *x)
 
 inline
 bsls::Types::Uint64
-bsls_ByteOrder__Util_sparc_swap_64(const bsls::Types::Uint64 *x)
+bsls_ByteOrder_Util_sparc_swap_64(const bsls::Types::Uint64 *x)
 {
     register bsls::Types::Uint64 y;
     asm("ldxa [%1] %2, %0\n\t"  // After the load, the full data is in '%0'.
@@ -506,9 +535,9 @@ bsls_ByteOrder__Util_sparc_swap_64(const bsls::Types::Uint64 *x)
     return y;
 }
 
-#endif  // BSLS_PLATFORM__CPU_64_BIT
+#endif  // BSLS_PLATFORM_CPU_64_BIT
 
-#else  // BSLS_PLATFORM__CMP_GNU
+#else  // BSLS_PLATFORM_CMP_GNU
 
 namespace bsls {
 
@@ -518,14 +547,14 @@ namespace bsls {
 // level.
 
 inline
-unsigned short ByteOrder__Util_sparc_swap_16(const unsigned short *x)
+unsigned short ByteOrder_Util_sparc_swap_16(const unsigned short *x)
 {
     register const unsigned short y = *x;
     return (y >> 8) | (y << 8);
 }
 
 inline
-unsigned int ByteOrder__Util_sparc_swap_32(const unsigned int *x)
+unsigned int ByteOrder_Util_sparc_swap_32(const unsigned int *x)
 {
     register const unsigned int y = *x;
     return ((y & 0x000000FF) << 24)
@@ -537,32 +566,32 @@ unsigned int ByteOrder__Util_sparc_swap_32(const unsigned int *x)
 }  // close package namespace
 
 extern "C" {
-// unsigned short bsls_ByteOrder__Util_sparc_swap_16(const unsigned short *x);
-// unsigned int bsls_ByteOrder__Util_sparc_swap_32(const unsigned int *x);
-unsigned long long bsls_ByteOrder__Util_sparc_swap_64(
+// unsigned short bsls_ByteOrder_Util_sparc_swap_16(const unsigned short *x);
+// unsigned int bsls_ByteOrder_Util_sparc_swap_32(const unsigned int *x);
+unsigned long long bsls_ByteOrder_Util_sparc_swap_64(
                                                   const unsigned long long *x);
 }
 
-#endif  // BSLS_PLATFORM__CMP_GNU
+#endif  // BSLS_PLATFORM_CMP_GNU
 
-#endif  // BSLS_PLATFORM__CPU_SPARC
+#endif  // BSLS_PLATFORM_CPU_SPARC
 
 // ----------------------------------------------------------------------------
 // AIX
-#if defined(BSLS_PLATFORM__CPU_POWERPC) && defined(BSLS_PLATFORM__CMP_IBM)    \
-    && BSLS_PLATFORM__CMP_VER_MAJOR >= 0x0800
+#if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_IBM)    \
+    && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0800
 
-unsigned short bsls_ByteOrder__Util_powerpc_swap_16(const unsigned short *x);
+unsigned short bsls_ByteOrder_Util_powerpc_swap_16(const unsigned short *x);
 // The following is equivalent to:
 //..
 //  lhbrx r3,0,r3
 //..
 // The following is necessary to work around the bug reported in DRQS 16073004
 // using inline assembly with xlC10:
-#pragma mc_func bsls_ByteOrder__Util_powerpc_swap_16 { "7c601e2c" }
-#pragma reg_killed_by bsls_ByteOrder__Util_powerpc_swap_16 gr3
+#pragma mc_func bsls_ByteOrder_Util_powerpc_swap_16 { "7c601e2c" }
+#pragma reg_killed_by bsls_ByteOrder_Util_powerpc_swap_16 gr3
 
-unsigned int bsls_ByteOrder__Util_powerpc_swap_32(const unsigned int *x);
+unsigned int bsls_ByteOrder_Util_powerpc_swap_32(const unsigned int *x);
 // The following is equivalent to:
 //..
 //  lwbrx r3,0,r3
@@ -571,23 +600,23 @@ unsigned int bsls_ByteOrder__Util_powerpc_swap_32(const unsigned int *x);
 // return value is stored in 'r3'.  The hex value specified for 'mc_func' is
 // the opcode of the above code.
 
-#pragma mc_func bsls_ByteOrder__Util_powerpc_swap_32 { "7c601c2c" }
-#pragma reg_killed_by bsls_ByteOrder__Util_powerpc_swap_32 gr3
+#pragma mc_func bsls_ByteOrder_Util_powerpc_swap_32 { "7c601c2c" }
+#pragma reg_killed_by bsls_ByteOrder_Util_powerpc_swap_32 gr3
 
-unsigned long long bsls_ByteOrder__Util_powerpc_swap_64(
+unsigned long long bsls_ByteOrder_Util_powerpc_swap_64(
                                                   const unsigned long long *x);
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
 // The following is equivalent to:
 //..
 //  lwbrx r4,0,r3      // reverse the 4 higher-order bytes
 //  addi r3,r3,4       // change r3 to point to the 4 lower-order bytes
 //  lwbrx r3,0,r3      // reverse the 4 lower-order bytes
 //..
-#pragma mc_func bsls_ByteOrder__Util_powerpc_swap_64                   \
+#pragma mc_func bsls_ByteOrder_Util_powerpc_swap_64                   \
                                             { "7c801c2c" "38630004" "7c601c2c"}
-#pragma reg_killed_by bsls_ByteOrder__Util_powerpc_swap_64 gr3,gr4
+#pragma reg_killed_by bsls_ByteOrder_Util_powerpc_swap_64 gr3,gr4
 
-#else  // BSLS_PLATFORM__CPU_64_BIT
+#else  // BSLS_PLATFORM_CPU_64_BIT
 // The following is equivalent to:
 //..
 //  addi r4,r3,4       // move address of the 4 lower-order bytes to 'r4'
@@ -595,43 +624,43 @@ unsigned long long bsls_ByteOrder__Util_powerpc_swap_64(
 //  lwbrx r4,0,r4      // reverse the 4 lower-order bytes
 //  rldimi r3,r4,32,0  // rotate 'r4' left and insert to 'r3' with a mask
 //..
-#pragma mc_func bsls_ByteOrder__Util_powerpc_swap_64                   \
+#pragma mc_func bsls_ByteOrder_Util_powerpc_swap_64                   \
                                 { "38830004" "7c601c2c" "7c80242c" "7883000e" }
-#pragma reg_killed_by bsls_ByteOrder__Util_powerpc_swap_64 gr3,gr4,cr0
+#pragma reg_killed_by bsls_ByteOrder_Util_powerpc_swap_64 gr3,gr4,cr0
 
-#endif  // BSLS_PLATFORM__CPU_32_BIT
-#endif  // BSLS_PLATFORM__CPU_POWERPC
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+#endif  // BSLS_PLATFORM_CPU_POWERPC
 
 namespace bsls {
 
 // ----------------------------------------------------------------------------
 
                          // ----------------------
-                         // struct ByteOrder__Util
+                         // struct ByteOrder_Util
                          // ----------------------
 
 // CLASS METHODS
 inline
 unsigned short
-ByteOrder__Util::generic_swap_16(unsigned short x)
+ByteOrder_Util::generic_swap_16(unsigned short x)
 {
 // Use built-in if possible; provided by Windows intrinsics.
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
     return _byteswap_ushort(x);
 
-#elif (defined(BSLS_PLATFORM__CPU_X86) || defined(BSLS_PLATFORM__CPU_X86_64)) \
-    && defined(BSLS_PLATFORM__CMP_GNU)
-    return ByteOrder__Util_x86_swap_16(x);
+#elif (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)) \
+    && defined(BSLS_PLATFORM_CMP_GNU)
+    return ByteOrder_Util_x86_swap_16(x);
 
-#elif defined(BSLS_PLATFORM__CPU_SPARC)
-    return ByteOrder__Util_sparc_swap_16(&x);
+#elif defined(BSLS_PLATFORM_CPU_SPARC)
+    return ByteOrder_Util_sparc_swap_16(&x);
 
-#elif defined(BSLS_PLATFORM__CPU_POWERPC) && defined(BSLS_PLATFORM__CMP_IBM)  \
-   && BSLS_PLATFORM__CMP_VER_MAJOR >= 0x0800
-    return bsls_ByteOrder__Util_powerpc_swap_16(&x);
+#elif defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_IBM)  \
+   && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0800
+    return bsls_ByteOrder_Util_powerpc_swap_16(&x);
 
-#elif defined(BSLS_PLATFORM__CPU_IA64) && defined(BSLS_PLATFORM__CMP_HP)
-    return ByteOrder__Util_ia64_swap_16(x);
+#elif defined(BSLS_PLATFORM_CPU_IA64) && defined(BSLS_PLATFORM_CMP_HP)
+    return ByteOrder_Util_ia64_swap_16(x);
 
 #else
     return (x >> 8) | (x << 8);
@@ -641,29 +670,29 @@ ByteOrder__Util::generic_swap_16(unsigned short x)
 
 inline
 unsigned int
-ByteOrder__Util::generic_swap_32(unsigned int x)
+ByteOrder_Util::generic_swap_32(unsigned int x)
 {
 // Use built-in if possible; provided in gcc 4.3+.
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300
     return __builtin_bswap32((int)x);
 
 // Use built-in if possible; provided by Windows intrinsics.
-#elif defined(BSLS_PLATFORM__CMP_MSVC)
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
     return _byteswap_ulong(x);
 
-#elif (defined(BSLS_PLATFORM__CPU_X86) || defined(BSLS_PLATFORM__CPU_X86_64)) \
-   && defined(BSLS_PLATFORM__CMP_GNU)
-    return ByteOrder__Util_x86_swap_32(x);
+#elif (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)) \
+   && defined(BSLS_PLATFORM_CMP_GNU)
+    return ByteOrder_Util_x86_swap_32(x);
 
-#elif defined(BSLS_PLATFORM__CPU_SPARC)
-    return ByteOrder__Util_sparc_swap_32(&x);
+#elif defined(BSLS_PLATFORM_CPU_SPARC)
+    return ByteOrder_Util_sparc_swap_32(&x);
 
-#elif defined(BSLS_PLATFORM__CPU_POWERPC) && defined(BSLS_PLATFORM__CMP_IBM)  \
-   && BSLS_PLATFORM__CMP_VER_MAJOR >= 0x0800
-    return bsls_ByteOrder__Util_powerpc_swap_32(&x);
+#elif defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_IBM)  \
+   && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0800
+    return bsls_ByteOrder_Util_powerpc_swap_32(&x);
 
-#elif defined(BSLS_PLATFORM__CPU_IA64) && defined(BSLS_PLATFORM__CMP_HP)
-    return ByteOrder__Util_ia64_swap_32(x);
+#elif defined(BSLS_PLATFORM_CPU_IA64) && defined(BSLS_PLATFORM_CMP_HP)
+    return ByteOrder_Util_ia64_swap_32(x);
 
 #else
     return ((x & 0x000000FF) << 24)
@@ -675,29 +704,29 @@ ByteOrder__Util::generic_swap_32(unsigned int x)
 
 inline
 Types::Uint64
-ByteOrder__Util::generic_swap_64(Types::Uint64 x)
+ByteOrder_Util::generic_swap_64(Types::Uint64 x)
 {
 // Use built-in if possible; provided in gcc 4.3+.
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300
     return __builtin_bswap64((Types::Int64)x);
 
 // Use built-in if possible; provided by Windows intrinsics.
-#elif defined(BSLS_PLATFORM__CMP_MSVC)
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
     return _byteswap_uint64(x);
 
-#elif (defined(BSLS_PLATFORM__CPU_X86) || defined(BSLS_PLATFORM__CPU_X86_64)) \
-    && defined(BSLS_PLATFORM__CMP_GNU)
-    return ByteOrder__Util_x86_swap_64(x);
+#elif (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)) \
+    && defined(BSLS_PLATFORM_CMP_GNU)
+    return ByteOrder_Util_x86_swap_64(x);
 
-#elif defined(BSLS_PLATFORM__CPU_SPARC)
-    return bsls_ByteOrder__Util_sparc_swap_64(&x);
+#elif defined(BSLS_PLATFORM_CPU_SPARC)
+    return bsls_ByteOrder_Util_sparc_swap_64(&x);
 
-#elif defined(BSLS_PLATFORM__CPU_POWERPC) && defined(BSLS_PLATFORM__CMP_IBM)  \
-   && BSLS_PLATFORM__CMP_VER_MAJOR >= 0x0800
-    return bsls_ByteOrder__Util_powerpc_swap_64(&x);
+#elif defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_IBM)  \
+   && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0800
+    return bsls_ByteOrder_Util_powerpc_swap_64(&x);
 
-#elif defined(BSLS_PLATFORM__CPU_IA64) && defined(BSLS_PLATFORM__CMP_HP)
-    return ByteOrder__Util_ia64_swap_64(x);
+#elif defined(BSLS_PLATFORM_CPU_IA64) && defined(BSLS_PLATFORM_CMP_HP)
+    return ByteOrder_Util_ia64_swap_64(x);
 
 #else
     return ((x & 0x00000000000000FFLL) << 56)

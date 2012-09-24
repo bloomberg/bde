@@ -12,10 +12,10 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #endif
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <sys/resource.h>
 #endif
 
@@ -73,14 +73,14 @@ int main(int argc, char *argv[])
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     {
         // disable popup on crash
 
          SetErrorMode(SEM_NOGPFAULTERRORBOX);
     }
 #endif
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     // disable core dumps
 
     {
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 
         for (int mode=0; mode<sizeof(modes)/sizeof(*modes); ++mode) {
             // do not try to set executable bit when on HP-UX
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
             if (mode & bdesu_MemoryUtil::BDESU_ACCESS_EXECUTE) {
                 continue;
             }
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
                     ARBITRARY_BUT_SUFFICIENT_BUFFER_SIZE = 1000
                 };
                 char buffer[ARBITRARY_BUT_SUFFICIENT_BUFFER_SIZE];
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
                 const char* redirectToNull = " >NUL 2>&1";
 #else
                 const char* redirectToNull = " >/dev/null 2>&1";

@@ -15,7 +15,7 @@ BDES_IDENT_RCSID(bcem_aggregateraw_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 
 #include <stdio.h>   // for 'snprintf'
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #   define snprintf _snprintf // MSVC names snprintf _snprintf
 #endif
 
