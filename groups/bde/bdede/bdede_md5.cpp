@@ -406,7 +406,7 @@ static void padLengthToBuffer(unsigned int      *state,
     {
         char *tmp = (char *)&length;
 
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
         // We want it in little-endian format, so reverse byte ordering.
         for (int i = 0; i < 8; ++i) {
             buffer[PADLENGTHINDEX + i] = tmp[7 - i];

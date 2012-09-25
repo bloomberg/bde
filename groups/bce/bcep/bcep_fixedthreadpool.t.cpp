@@ -25,7 +25,7 @@
 #include <bsl_c_signal.h>
 
 // for collecting CPU time
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #        include <windows.h>
 #else
 #        include <sys/resource.h>
@@ -154,7 +154,7 @@ struct TestJobFunctionArgs1 {
 
 extern "C" {
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 void TestSynchronousSignals(void *ptr)
 {
     sigset_t blockedSet;
@@ -183,7 +183,7 @@ void TestSynchronousSignals(void *ptr)
 
     // verify that thread pool does not, by mistake, leave ALL the signals
     // unblocked.  Testing for 1 signal should be enough.
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
     ASSERT(sigismember(&blockedSet, SIGINT) == 1);
 #endif
 
@@ -260,7 +260,7 @@ static double getCurrentCpuTime()
     // Return the total CPU time (user and system) consumed
     // by the current process since creation; the CPU time unit is seconds.
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     HANDLE me = GetCurrentProcess();
     FILETIME ct, et, kt, ut; // ct & et are unused.
     ULARGE_INTEGER stime, utime;
@@ -715,14 +715,14 @@ int main(int argc, char *argv[])
                                                    THREADPOOL_QUEUE_SIZE);
         }
 
-#       ifdef BSLS_PLATFORM__OS_LINUX
+#       ifdef BSLS_PLATFORM_OS_LINUX
             enum {
                 NUM_ITERATIONS = 10,
                 NUM_ITERATIONS_PER_LINE = 10,
                 NUM_ITERATIONS_PER_DOT = 1
             };
 #       else
-#           ifdef BSLS_PLATFORM__OS_AIX
+#           ifdef BSLS_PLATFORM_OS_AIX
                 enum {
                     NUM_ITERATIONS = 800,
                     NUM_ITERATIONS_PER_LINE = 200,
@@ -1005,7 +1005,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
         if (verbose) cout << "TESTING SYNCHRONOUS SIGNALS" << endl
                           << "===========================" << endl ;
         {

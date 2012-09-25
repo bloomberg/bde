@@ -388,7 +388,7 @@ const size_t INITIAL_CAPACITY_FOR_NON_EMPTY_OBJECT = 1;
 const int NUM_ALLOCS[] = {
     // Number of allocations (blocks) to create a string of the following size
     // by using 'push_back' repeatedly (without initial reserve):
-#if BSLS_PLATFORM__CPU_64_BIT
+#if BSLS_PLATFORM_CPU_64_BIT
     // 0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16
     // --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
        0,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  2,  2,  3,  3,
@@ -3920,7 +3920,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20()
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
@@ -4226,7 +4226,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
@@ -4253,7 +4253,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -5861,7 +5861,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
@@ -6310,7 +6310,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
@@ -6337,7 +6337,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -7051,7 +7051,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
@@ -7297,7 +7297,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
@@ -7324,7 +7324,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -7994,7 +7994,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase16()
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -8125,7 +8125,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15()
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -8246,7 +8246,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15Negative()
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
         { L_,   "ABCDEABCDEABCDEABCDE"               }, // 20
-#ifndef BSLS_PLATFORM__CPU_64_BIT
+#ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -8658,7 +8658,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
             { L_,        4   },
             { L_,        5   },
             { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
             { L_,       11   },
             { L_,       12   },
             { L_,       13   },
@@ -8831,7 +8831,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
@@ -8858,7 +8858,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -9683,7 +9683,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -10123,7 +10123,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
             "ABCD",                              // 4
             "ABCDEABC",                          // 8
             "ABCDEABCD",                         // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
             "ABCDEABCDEA",                       // 11
             "ABCDEABCDEAB",                      // 12
             "ABCDEABCDEABC",                     // 13
@@ -14235,7 +14235,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nAdditional tests: traits.\n");
 
-#ifndef BSLS_PLATFORM__CMP_MSVC  // Temporarily does not work
+#ifndef BSLS_PLATFORM_CMP_MSVC  // Temporarily does not work
         ASSERT(
              (bslalg::HasTrait<bsl::basic_string<char,bsl::char_traits<char> >,
                                bslalg::TypeTraitBitwiseMoveable>::VALUE));

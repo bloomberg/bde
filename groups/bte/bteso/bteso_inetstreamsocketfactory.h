@@ -174,7 +174,7 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 
     #ifndef INCLUDED_BSL_C_SYS_TIME
     #include <bsl_c_sys_time.h>
@@ -766,7 +766,7 @@ int bteso_InetStreamSocket<ADDRESS>::waitForConnect(
 
     int rc = bteso_SocketHandle::BTESO_ERROR_UNCLASSIFIED;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     struct pollfd fds;
     fds.fd = d_handle;
     fds.events = POLLOUT;
@@ -848,7 +848,7 @@ int bteso_InetStreamSocket<ADDRESS>::waitForIO(
     {
       case bteso_Flag::BTESO_IO_READ:
         {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             struct pollfd fds;
             fds.fd = d_handle;
             fds.events = POLLIN;
@@ -895,7 +895,7 @@ int bteso_InetStreamSocket<ADDRESS>::waitForIO(
         } break;
       case bteso_Flag::BTESO_IO_WRITE:
         {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             struct pollfd fds;
             fds.fd = d_handle;
             fds.events = POLLOUT;
@@ -942,7 +942,7 @@ int bteso_InetStreamSocket<ADDRESS>::waitForIO(
         } break;
       case bteso_Flag::BTESO_IO_RW:
         {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             struct pollfd fds;
             fds.fd = d_handle;
             fds.events = POLLIN | POLLOUT;
@@ -1020,7 +1020,7 @@ int bteso_InetStreamSocket<ADDRESS>::waitForIO(bteso_Flag::IOWaitType type)
     {
       case bteso_Flag::BTESO_IO_READ:
         {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             struct pollfd fds;
             fds.fd = d_handle;
             fds.events = POLLIN;
@@ -1057,7 +1057,7 @@ int bteso_InetStreamSocket<ADDRESS>::waitForIO(bteso_Flag::IOWaitType type)
         } break;
       case bteso_Flag::BTESO_IO_WRITE:
         {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             struct pollfd fds;
             fds.fd = d_handle;
             fds.events = POLLOUT;
@@ -1094,7 +1094,7 @@ int bteso_InetStreamSocket<ADDRESS>::waitForIO(bteso_Flag::IOWaitType type)
         } break;
       case bteso_Flag::BTESO_IO_RW:
         {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             struct pollfd fds;
             fds.fd = d_handle;
             fds.events = POLLIN | POLLOUT;

@@ -1042,11 +1042,11 @@ template <typename TARGET_TYPE>
 inline
 void legacyDestruct(TARGET_TYPE *object)
 {
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     bslalg_ScalarPrimitives::destruct(object);
 #else
     bslalg_ScalarDestructionPrimitives::destroy(object);
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 }
 
 //=============================================================================
@@ -1244,7 +1244,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Value and allocator testing.\n");
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         // my_Class                   Expected
         //      #      Operation     Val Alloc
         //      == ================= === =====
@@ -1279,7 +1279,7 @@ int main(int argc, char *argv[])
             ASSERT(DI == my_ClassFussy::destructorInvocations);
             if (veryVerbose) { P_(rawBuf.d_value); PP(rawBuf.d_allocator_p); }
         }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 6: {
         // --------------------------------------------------------------------

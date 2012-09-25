@@ -301,6 +301,7 @@ void DestructorProctor<TYPE>::reset(TYPE *object)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -310,6 +311,7 @@ void DestructorProctor<TYPE>::reset(TYPE *object)
 #endif
 #define bslma_DestructorProctor bslma::DestructorProctor
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

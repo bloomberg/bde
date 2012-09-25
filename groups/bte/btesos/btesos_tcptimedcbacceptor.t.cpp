@@ -448,7 +448,7 @@ my_Tick::my_Tick(const char *ticker)
 : d_bestBid(0)
 , d_bestOffer(0)
 {
-    #ifdef BSLS_PLATFORM__OS_UNIX
+    #ifdef BSLS_PLATFORM_OS_UNIX
     snprintf(d_name, sizeof d_name, "%s",ticker);
     #else
     if (_snprintf(d_name, sizeof d_name, "%s",ticker) < 0) {
@@ -461,7 +461,7 @@ my_Tick::my_Tick(const char *ticker, double bestBid, double bestOffer)
 : d_bestBid(bestBid)
 , d_bestOffer(bestOffer)
 {
-    #ifdef BSLS_PLATFORM__OS_UNIX
+    #ifdef BSLS_PLATFORM_OS_UNIX
     snprintf(d_name, sizeof d_name, "%s",ticker);
     #else
     if (_snprintf(d_name, sizeof d_name, "%s",ticker) < 0) {

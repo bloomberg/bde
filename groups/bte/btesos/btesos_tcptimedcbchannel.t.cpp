@@ -22,7 +22,7 @@
 #include <bsl_iostream.h>
 #include <bsl_c_ctype.h>      // isdigit()
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
 #include <winbase.h>    // sleep().
 #include <windows.h>
 #endif
@@ -157,14 +157,14 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 typedef btesos_TcpTimedCbChannel Obj;
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 const int MAX_BUF     = 99000;     // the biggest length of a buffer for write
 
-    #if defined BSLS_PLATFORM__OS_AIX
+    #if defined BSLS_PLATFORM_OS_AIX
     const int BUF_WRITE   = 1000;  // the last buffer length for ioVec/oVec
     const int BUF_WRITE2  = 500;   // the last second buffer length for vector
     const int BUF_LIMIT   = 1024;  // to set the snd/rcv buffer size
-    #elif defined BSLS_PLATFORM__OS_LINUX
+    #elif defined BSLS_PLATFORM_OS_LINUX
     const int BUF_WRITE   = 15343;  // the last buffer length for ioVec/oVec
     const int BUF_WRITE2  = 1000;   // the last second buffer length for vector
     const int BUF_LIMIT   = 4096;  // to set the snd/rcv buffer size
@@ -221,7 +221,7 @@ btes_Ovec oVec[MAX_VEC];   // global object to be used in the gg() for vector
                            // read or write
 char readBuf[MAX_BUF],
      str[BUF_WRITE+1], str2[BUF_WRITE2+1];  // to be written to a channel
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
 char str3[4096];
 #endif
 
@@ -237,7 +237,7 @@ gg(btesos_TcpTimedCbChannel *channel, Buffer *buffer,
    bteso_TcpTimerEventManager *wManager,
    const char                 *script);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 
 static void sigPipeHandler(int sig)
 {
@@ -355,7 +355,7 @@ static void helpBuildVector()
     oVec[5].setBuffer(str2, strlen(str2));
     ioVec[6].setBuffer(str, strlen(str));
     oVec[6].setBuffer(str, strlen(str));
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
     memset(str3,'8', sizeof(str3));
     str3[sizeof(str3) - 1] = '\0';
     ioVec[7].setBuffer(str3, strlen(str3));
@@ -961,7 +961,7 @@ gg(btesos_TcpTimedCbChannel   *channel,
           int milliSeconds = 0;
           ret = sscanf(script, "s%d", &milliSeconds);
           ASSERT(1 == ret);    // Return the length to be written numbers.
-          #ifdef BSLS_PLATFORM__OS_UNIX // unix systems
+          #ifdef BSLS_PLATFORM_OS_UNIX // unix systems
               usleep(milliSeconds * 1000);
           #else                         // windows
               Sleep(milliSeconds);
@@ -1688,14 +1688,14 @@ void adjustBufferSizes(bteso_SocketHandle::Handle sockFd, int bufferSize,
     ret = bteso_SocketOptUtil::setOption(sockFd,
             bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
             SO_SNDLOWAT, watermark);
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
     ASSERT(0 == ret);
 #endif
 
     ret = bteso_SocketOptUtil::setOption(sockFd,
             bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
             SO_RCVLOWAT, watermark);
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
     ASSERT(0 == ret);
 #endif
 }
@@ -1721,7 +1721,7 @@ void printBufferSizes(bteso_SocketHandle::Handle sockFd)
             bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
             SO_RCVLOWAT);
 
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
     ASSERT(0 == ret);
 #endif
 
@@ -1729,7 +1729,7 @@ void printBufferSizes(bteso_SocketHandle::Handle sockFd)
             bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
             SO_SNDLOWAT);
 
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
     ASSERT(0 == ret);
 #endif
     if (veryVeryVerbose) {
@@ -1751,11 +1751,11 @@ int main(int argc, char *argv[])
     int errCode = 0;
 
     // TBD: these tests frequently timeout on Windows, disabling until fixed
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     testStatus = -1;
 #else
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     mySignal(SIGPIPE, sigPipeHandler);    // register a handler for SIGPIPE.
     // A write() on the closed socket will generate SIGPIPE.
 #endif
@@ -1772,7 +1772,7 @@ int main(int argc, char *argv[])
       case 26: {
 // TBD FIX ME
 #if 0
-// #if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS)
+// #if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // -------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -1954,7 +1954,7 @@ int main(int argc, char *argv[])
       } break;
       case 25: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_SOLARIS
+#ifndef BSLS_PLATFORM_OS_SOLARIS
         // --------------------------------------------------------------------
         // TESTING 'timedBufferedWritev(btes_Iovec)' FUNCTION:
         //   Initiate a non-blocking operation to *atomically* write *up *to*
@@ -2027,7 +2027,7 @@ int main(int argc, char *argv[])
 {
  // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
  // ------ -----               ----- ----- ----- ------ ----- ---- ------
- #if defined(BSLS_PLATFORM__OS_WINDOWS) // windows test data
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wbvit5,(255,90),1,40,0",  0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
@@ -2134,7 +2134,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif defined(BSLS_PLATFORM__OS_AIX)   // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wbvit5,(255,90),1,40,0",  0,   0,    0,    0,    0, NVEC,   ""  },
@@ -2233,7 +2233,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
  */
- #elif BSLS_PLATFORM__OS_LINUX
+ #elif BSLS_PLATFORM_OS_LINUX
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wbvit5,(20,90),1,40,0",   0,   0,    0,    0,    0, NVEC,   ""  },
@@ -2561,7 +2561,7 @@ int main(int argc, char *argv[])
       } break;
       case 24: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__CPU_X86_64)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CPU_X86_64)
         // --------------------------------------------------------------------
         // TESTING 'bufferedWritev(btes_Iovec)' FUNCTION:
         //   Initiate a non-blocking operation to *atomically* write *up *to*
@@ -2633,7 +2633,7 @@ int main(int argc, char *argv[])
 {
  // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
  // ------ -----               ----- ----- ----- ------ ----- ---- ------
- #if defined(BSLS_PLATFORM__OS_WINDOWS) // windows test data
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wbvi5,1,40,0",            0,   0,    0,    0,    0, NVEC,   ""  },
@@ -2695,7 +2695,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif defined(BSLS_PLATFORM__OS_AIX)   // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wbvi5,1,40,0",            0,   0,    0,    0,    0, NVEC,   ""  },
@@ -2784,7 +2784,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif defined(BSLS_PLATFORM__OS_AIX)   // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wbvi5,1,40,0",            0,   0,    0,    0,    0, NVEC,   ""  },
@@ -2873,7 +2873,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif BSLS_PLATFORM__OS_LINUX
+ #elif BSLS_PLATFORM_OS_LINUX
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wbvi5,1,40,0",            0,   0,    0,    0,    0, NVEC,   ""  },
@@ -3180,7 +3180,7 @@ int main(int argc, char *argv[])
       } break;
       case 23: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_LINUX)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_LINUX)
         // --------------------------------------------------------------------
         // TESTING 'timedBufferedWrite()' FUNCTION:
         //   Initiate a non-blocking operation to write *up *to*
@@ -3252,7 +3252,7 @@ int main(int argc, char *argv[])
 {
  // d_line d_cmd                     PendR ReadE PendW WriteE Timer Type d_expD
  // ------ -----                     ----- ----- ----- ------ ----- ---- ------
- #if defined(BSLS_PLATFORM__OS_WINDOWS) // windows test data
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
  {
    {L_, "wbt1040,(20,100),1,1040,0",    0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "iw",                           0,   0,    0,    0,    0, NVEC,  ""  },
@@ -3355,7 +3355,7 @@ int main(int argc, char *argv[])
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  },
 
- #elif defined(BSLS_PLATFORM__OS_AIX)   // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Invalidate the channel, then issue 1 request and try dispatching.
 
@@ -3473,7 +3473,7 @@ int main(int argc, char *argv[])
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  },
  */
- #elif BSLS_PLATFORM__OS_LINUX
+ #elif BSLS_PLATFORM_OS_LINUX
 
  { // Invalidate the channel, then issue 1 request and try dispatching.
 
@@ -3877,7 +3877,7 @@ int main(int argc, char *argv[])
       } break;
       case 22: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_LINUX)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_LINUX)
         // --------------------------------------------------------------------
         // TESTING 'bufferedWrite()' FUNCTION:
         //   Initiate a non-blocking operation to write *up *to*
@@ -3949,7 +3949,7 @@ int main(int argc, char *argv[])
 {
  // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
  // ------ -----               ----- ----- ----- ------ ----- ---- ------
- #if defined(BSLS_PLATFORM__OS_WINDOWS) // windows test data
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
  {
    {L_, "wb1040,1,1040,0",         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -4033,7 +4033,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif defined(BSLS_PLATFORM__OS_AIX)   // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Invalidate the channel, then issue 1 request and try dispatching.
    {L_, "wb140,1,140,0",           0,   0,    0,    0,    0, NVEC,   ""  },
@@ -4137,7 +4137,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif BSLS_PLATFORM__OS_LINUX
+ #elif BSLS_PLATFORM_OS_LINUX
  { // Invalidate the channel, then issue 1 request and try dispatching.
 
    {L_, "wb1040,1,1040,0",         0,   0,    0,    0,    0, NVEC,   ""  },
@@ -4485,7 +4485,7 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_LINUX)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_LINUX)
         // --------------------------------------------------------------------
         // TESTING 'timedWritev(btes_Iovec)' FUNCTION:
         //   Initiate a non-blocking operation to *atomically* write *up *to*
@@ -4557,7 +4557,7 @@ int main(int argc, char *argv[])
 {
  // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
  // ------ -----               ----- ----- ----- ------ ----- ---- ------
- #if defined(BSLS_PLATFORM__OS_WINDOWS) // windows test data
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wvit5,(250,100),1,40,0",   0,   0,    0,    0,    0, NVEC,   ""  },
@@ -4640,7 +4640,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif defined(BSLS_PLATFORM__OS_AIX)   // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wvit5,(255,100),1,40,0",  0,   0,    0,    0,    0, NVEC,   ""  },
@@ -4733,7 +4733,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif BSLS_PLATFORM__OS_LINUX
+ #elif BSLS_PLATFORM_OS_LINUX
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wvit5,(250,10),1,40,0",   0,   0,    0,    0,    0, NVEC,   ""  },
@@ -4943,7 +4943,7 @@ int main(int argc, char *argv[])
                       bteso_SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
             LOOP_ASSERT(i, 0 == ret);
 
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
             ret = bteso_SocketOptUtil::setOption(handles[1],
                       bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
                       bteso_SocketOptUtil::BTESO_RECEIVEBUFFER, BUF_LIMIT);
@@ -5086,7 +5086,7 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__CPU_X86_64)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CPU_X86_64)
         // --------------------------------------------------------------------
         // TESTING 'writev(btes_Iovec)' FUNCTION:
         //   Initiate a non-blocking operation to *atomically* write *up *to*
@@ -5158,7 +5158,7 @@ int main(int argc, char *argv[])
 {
  // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
  // ------ -----               ----- ----- ----- ------ ----- ---- ------
- #if defined(BSLS_PLATFORM__OS_WINDOWS) // windows test data
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
   { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wvi5,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
@@ -5227,7 +5227,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif defined(BSLS_PLATFORM__OS_AIX)   // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wvi5,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
@@ -5311,7 +5311,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif BSLS_PLATFORM__OS_LINUX
+ #elif BSLS_PLATFORM_OS_LINUX
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wvi5,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
@@ -5619,8 +5619,8 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS) \
-                                    && !defined(BSLS_PLATFORM__CPU_X86_64)
+#if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS) \
+                                    && !defined(BSLS_PLATFORM_CPU_X86_64)
         // --------------------------------------------------------------------
         // TESTING 'timedWrite()' FUNCTION:
         //   Initiate a non-blocking operation to write *up *to*
@@ -5692,7 +5692,7 @@ int main(int argc, char *argv[])
 {
  // d_line d_cmd                     PendR ReadE PendW WriteE Timer Type d_expD
  // ------ -----                     ----- ----- ----- ------ ----- ---- ------
- #if defined(BSLS_PLATFORM__OS_WINDOWS) // windows test data
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wt40,(255,150),1,40,0",         0,   0,    0,    0,    0, NVEC,  "" },
@@ -5767,7 +5767,7 @@ int main(int argc, char *argv[])
    {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
  },
 
- #elif defined(BSLS_PLATFORM__OS_AIX)    // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)    // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wt40,(225,150),1,40,0",         0,   0,    0,    0,    0, NVEC,  "" },
@@ -5866,7 +5866,7 @@ int main(int argc, char *argv[])
    {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
  },
 
- #elif BSLS_PLATFORM__OS_LINUX
+ #elif BSLS_PLATFORM_OS_LINUX
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wt40,(20,150),1,40,0",          0,   0,    0,    0,    0, NVEC,  "" },
@@ -6217,7 +6217,7 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__CPU_X86_64)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CPU_X86_64)
         // --------------------------------------------------------------------
         // TESTING 'write()' FUNCTION:
         //   Initiate a non-blocking operation to write *up *to*
@@ -6289,7 +6289,7 @@ int main(int argc, char *argv[])
 {
  // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
  // ------ -----               ----- ----- ----- ------ ----- ---- ------
- #if defined(BSLS_PLATFORM__OS_WINDOWS) // windows test data
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "w40,1,40,0",              0,   0,    0,    0,    0, NVEC,   ""  },
@@ -6359,7 +6359,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif defined(BSLS_PLATFORM__OS_AIX)   // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "w40,1,40,0",              0,   0,    0,    0,    0, NVEC,   ""  },
@@ -6447,7 +6447,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif BSLS_PLATFORM__OS_LINUX
+ #elif BSLS_PLATFORM_OS_LINUX
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "w40,1,40,0",              0,   0,    0,    0,    0, NVEC,   ""  },
@@ -6766,7 +6766,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_LINUX)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_LINUX)
         // --------------------------------------------------------------------
         // TESTING 'timedWriteRaw()' FUNCTION:
         //   Initiate a non-blocking operation to  *atomically* write *up *to*
@@ -6838,7 +6838,7 @@ int main(int argc, char *argv[])
 {
  // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
  // ------ -----               ----- ----- ----- ------ ----- ---- ------
- #if defined(BSLS_PLATFORM__OS_WINDOWS) // windows test data
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wrt40,(20,100),1,40,0",       0,   0,    0,    0,    0, NVEC,   ""  },
@@ -6922,7 +6922,7 @@ int main(int argc, char *argv[])
    {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif defined(BSLS_PLATFORM__OS_AIX)   // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
   // Try writing 0 bytes.
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wrt40,(20,100),1,40,0",       0,   0,    0,    0,    0, NVEC,   ""  },
@@ -7013,7 +7013,7 @@ int main(int argc, char *argv[])
    {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif BSLS_PLATFORM__OS_LINUX
+ #elif BSLS_PLATFORM_OS_LINUX
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wrt40,(20,100),1,40,0",       0,   0,    0,    0,    0, NVEC,   ""  },
@@ -7378,7 +7378,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__CPU_X86_64)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CPU_X86_64)
         // --------------------------------------------------------------------
         // TESTING 'writeRaw()' FUNCTION:
         //   Initiate a non-blocking operation to  *atomically* write *up *to*
@@ -7450,7 +7450,7 @@ int main(int argc, char *argv[])
 {
  // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
  // ------ -----               ----- ----- ----- ------ ----- ---- ------
- #if defined(BSLS_PLATFORM__OS_WINDOWS) // windows test data
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wr40,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
@@ -7527,7 +7527,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif defined(BSLS_PLATFORM__OS_AIX)   // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wr40,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
@@ -7611,7 +7611,7 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
 
- #elif BSLS_PLATFORM__OS_LINUX
+ #elif BSLS_PLATFORM_OS_LINUX
 
   // Try writing 0 bytes.
  { // Issue 1 request, which should be finished without being enqueued.
@@ -7923,7 +7923,7 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS)
+#if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // ------------------------------------------------------------------
         // TESTING 'timedReadv' and 'timedReadvRaw()' FUNCTION:
         //   Initiate a non-blocking operation to *atomically* read *up *to*
@@ -8061,7 +8061,7 @@ int main(int argc, char *argv[])
    {L_, "dr0",                    0,    0,    0,   0,    0,  IOVEC, "4567890"},
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
-#ifndef BSLS_PLATFORM__OS_LINUX
+#ifndef BSLS_PLATFORM_OS_LINUX
  { // Enqueue 2 requests, then dispatch when enough data in the pipe:
    {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rvrt3,(255,100),0,7,0",  1,    2,    0,   2,    1,  NVEC,  ""       },
@@ -8091,7 +8091,7 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "12345"  },
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
-#ifndef BSLS_PLATFORM__OS_LINUX
+#ifndef BSLS_PLATFORM_OS_LINUX
  { // Concern: if this channel can work correctly for new read
    // requests from the user-installed callback function.
    {L_, "W10",                    0,    0,    0,   0,    0,  NVEC,  ""       },
@@ -8240,7 +8240,7 @@ int main(int argc, char *argv[])
       case 14: {
 // TBD FIX ME
 #if 0
-// #if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS)
+// #if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // ------------------------------------------------------------------
         // TESTING 'readv' and 'readvRaw()' FUNCTION:
         //   Initiate a non-blocking operation to *atomically* read *up *to*
@@ -9710,7 +9710,7 @@ int main(int argc, char *argv[])
       case 9: {
 // TBD FIX ME
 #if 0
-// #if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS)
+// #if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // --------------------------------------------------------------------
         // TESTING 'timedReadRaw()' FUNCTION:
         //   Initiate a non-blocking operation to *atomically* read *up *to*
@@ -10027,7 +10027,7 @@ int main(int argc, char *argv[])
       case 8: {
 // TBD FIX ME
 #if 0
-// #if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS)
+// #if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // --------------------------------------------------------------------
         // TESTING 'readRaw()' FUNCTION:
         //   Initiate a non-blocking operation to *atomically* read *up *to*
@@ -10333,7 +10333,7 @@ int main(int argc, char *argv[])
       case 7: {
 // TBD FIX ME
 #if 0
-// #if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS)
+// #if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // --------------------------------------------------------------------
         // TESTING 'timedRead()' FUNCTION:
         //   Initiate a non-blocking operation to read *up *to*
@@ -10672,7 +10672,7 @@ int main(int argc, char *argv[])
       case 6: {
 // TBD FIX ME
 #if 0
-// #if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS)
+// #if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // ------------------------------------------------------------------
         // TESTING 'read()' FUNCTION:
         //   Initiate a non-blocking operation to read *up *to*
@@ -10975,7 +10975,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_LINUX)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_LINUX)
         // --------------------------------------------------------------------
         // TESTING MANIPULATORS:
         //   The main concern for the test is that: 1.  if a new event
@@ -11069,7 +11069,7 @@ int main(int argc, char *argv[])
 {
  // d_line d_cmd             PendR ReadE PendW WriteE rTimer wTimer
  // ------ -----             ----- ----- ----- ------ ------ ------
- #if defined(BSLS_PLATFORM__OS_WINDOWS) // windows test data
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
    {L_, "rbt1,(6,8),0,0,-1",     1,    2,    0,    0,    1,    0},
    {L_, "rb4,1,0,-1",            2,    2,    0,    0,    1,    0},
@@ -11088,7 +11088,7 @@ int main(int argc, char *argv[])
    {L_, "w9,1,0,-1",             1,    1,    1,    2,    0,    1},
    {L_,  0,                      0,    0,    0,    0,    0,    0}
 
- #elif defined(BSLS_PLATFORM__OS_AIX)   // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
    {L_, "rbt1,(6,8),0,0,-1",     1,    2,    0,    0,    1,    0},
    {L_, "rb4,1,0,-1",            2,    2,    0,    0,    1,    0},
@@ -11107,7 +11107,7 @@ int main(int argc, char *argv[])
    {L_, "w9,1,0,-1",             1,    1,    1,    2,    0,    1},
    {L_,  0,                      0,    0,    0,    0,    0,    0}
 
- #elif BSLS_PLATFORM__OS_LINUX
+ #elif BSLS_PLATFORM_OS_LINUX
 
    {L_, "rbt1,(6,8),0,0,-1",     1,    2,    0,    0,    1,    0},
    {L_, "rb4,1,0,-1",            2,    2,    0,    0,    1,    0},
@@ -11331,7 +11331,7 @@ int main(int argc, char *argv[])
 {
  // d_line d_cmd                PendR ReadE PendW WriteE rTimer wTimer
  // ------ -----                ----- ----- ----- ------ ------ ------
- #if defined(BSLS_PLATFORM__OS_WINDOWS) // windows test data
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
   {
    { L_, "rbt1,(5,90),0,0,-1",      1,    2,    0,    2,    1,    1},
@@ -11412,7 +11412,7 @@ int main(int argc, char *argv[])
    { L_,  0,                        0,    0,    0,    0,    0,    0}
  },
 
- #elif defined(BSLS_PLATFORM__OS_AIX)   // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  {
    { L_, "rbt1,(255,90),0,0,-1",    1,    2,    0,    2,    1,    1},
@@ -11488,7 +11488,7 @@ int main(int argc, char *argv[])
    { L_,  0,                        0,    0,    0,    0,    0,    0}
  },
 
- #elif BSLS_PLATFORM__OS_LINUX
+ #elif BSLS_PLATFORM_OS_LINUX
 
  {
    { L_, "rbt1,(5,90),0,0,-1",      1,    2,    0,    2,    1,    1},
@@ -11842,7 +11842,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_SOLARIS
+#ifndef BSLS_PLATFORM_OS_SOLARIS
         // --------------------------------------------------------------------
         // TESTING DIRECT ACCESSORS:
         //   Each accessor directly returns the internal representations of
@@ -11921,7 +11921,7 @@ int main(int argc, char *argv[])
 {
  // d_line d_cmd          PendR ReadE PendW WriteE validR validW rTimer wTimer
  // ------ -----          ----- ----- ----- ------ ------ ------ ------ ------
- #if defined(BSLS_PLATFORM__OS_WINDOWS) // windows test data
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  {
    {L_, "rbt1,(4,6),0,0,-1",  1,    2,    0,    2,    0,    0,    1,    1},
@@ -11976,7 +11976,7 @@ int main(int argc, char *argv[])
    {L_,  0,                   0,    0,    0,    0,    0,    0,    0,    0}
  },
 
- #elif defined(BSLS_PLATFORM__OS_AIX)   // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
  {
    {L_, "rbt1,(4,6),0,0,-1",  1,    2,    0,    2,    0,    0,    1,    1},
    {L_, "rb4,1,0,-1",         2,    2,    0,    2,    0,    0,    1,    1},
@@ -12030,7 +12030,7 @@ int main(int argc, char *argv[])
    {L_,  0,                   0,    0,    0,    0,    0,    0,    0,    0}
  },
 
- #elif BSLS_PLATFORM__OS_LINUX
+ #elif BSLS_PLATFORM_OS_LINUX
  {
    {L_, "rbt1,(4,6),0,0,-1",  1,    2,    0,    2,    0,    0,    1,    1},
    {L_, "rb4,1,0,-1",         2,    2,    0,    2,    0,    0,    1,    1},
@@ -12299,7 +12299,7 @@ int main(int argc, char *argv[])
       case 2: {
 // TBD FIX ME
 #if 0
-// #if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS)
+// #if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // --------------------------------------------------------------------
         // TESTING PRIMARY MANIPULATORS (BOOTSTRAP):
         //   The main concern is to make sure: 1.  Every constructors can
@@ -12387,7 +12387,7 @@ int main(int argc, char *argv[])
 {
  // d_line d_cmd                       PendR ReadE PendW WriteE Timer Type expD
  // ------ -----                       ----- ----- ----- ------ ----- ---- ----
- #if defined(BSLS_PLATFORM__OS_WINDOWS) // windows test data
+ #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
    // Issue 1 request, which should be finished without being enqueued.
    // Issue 1 request, which should be finished without being enqueued.
@@ -12418,7 +12418,7 @@ int main(int argc, char *argv[])
    {L_, "dr1",                            0,   0,   0,    0,    0,  NVEC, "" },
    {L_,  0,                               0,   0,   0,    0,    0,  NVEC, "" }
 
- #elif defined(BSLS_PLATFORM__OS_AIX)   // ibm test data
+ #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
    {L_, "rbt1,(20,100),0,0,-1",           1,   2,   0,    2,    1,  NVEC, "" },
    {L_, "rb4,1,0,-1",                     2,   2,   0,    2,    1,  NVEC, "" },
    // Issue 1 request, which should be finished without being enqueued.
@@ -12449,7 +12449,7 @@ int main(int argc, char *argv[])
    {L_, "dr2",                            0,   0,   0,    0,    0,  NVEC, "" },
    {L_,  0,                               0,   0,   0,    0,    0,  NVEC, "" }
 
- #elif defined(BSLS_PLATFORM__OS_LINUX)
+ #elif defined(BSLS_PLATFORM_OS_LINUX)
 
    // Issue 1 request, which should be finished without being enqueued.
    {L_, "rbt1,(20,100),0,0,-1",           1,   2,   0,    2,    1,  NVEC, "" },
@@ -12597,7 +12597,7 @@ int main(int argc, char *argv[])
                                                  OBJECTS[i].d_rManager,
                                                  &testAllocator);
                 // Verify the initial state values.
-                #ifndef  BSLS_PLATFORM__OS_WINDOWS
+                #ifndef  BSLS_PLATFORM_OS_WINDOWS
                 bteso_Flag::BlockingMode bm;
                 LOOP_ASSERT(i, 0 == sSocket->blockingMode(&bm));
                 LOOP_ASSERT(i,
@@ -12727,7 +12727,7 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
       case 1: {
 // TBD FIX ME
 #if 0
-// #if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS)
+// #if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // ------------------------------------------------------------------
         // BREATHING TEST:
         //   We need to exercise basic value-semantic functionalities.  In
@@ -13007,7 +13007,7 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
 
-#endif // !BSLS_PLATFORM__OS_WINDOWS
+#endif // !BSLS_PLATFORM_OS_WINDOWS
 
     return testStatus;
 }

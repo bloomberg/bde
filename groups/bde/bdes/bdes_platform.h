@@ -80,9 +80,9 @@ BDES_IDENT("$Id: $")
 //..
 // Where possible, the macros described above are configured automatically.
 // At a minimum, the generic operating system type (i.e., either
-// 'BDES_PLATFORM__OS_UNIX' or 'BDES_PLATFORM__OS_WINDOWS') is defined along
-// with exactly one processor macro (e.g., 'BDES_PLATFORM__CPU_SPARC') and
-// exactly one compiler macro (e.g., 'BDES_PLATFORM__CMP_SUN').  Clients may be
+// 'BDES_PLATFORM_OS_UNIX' or 'BDES_PLATFORM_OS_WINDOWS') is defined along
+// with exactly one processor macro (e.g., 'BDES_PLATFORM_CPU_SPARC') and
+// exactly one compiler macro (e.g., 'BDES_PLATFORM_CMP_SUN').  Clients may be
 // required to supply user-defined macros (typically specified via the '-D'
 // option of a compiler) if the client software needs to discriminate further
 // based on operating system subtypes or individual versions of the specific
@@ -101,7 +101,7 @@ BDES_IDENT("$Id: $")
 //    // my_socket.h
 //    #include <bdes_platform.h>
 //
-//    #ifdef BDES_PLATFORM__OS_WINDOWS
+//    #ifdef BDES_PLATFORM_OS_WINDOWS
 //    #  ifndef INCLUDED_WINSOCK2
 //    #  include <winsock2.h>
 //    #  define INCLUDED_WINSOCK2
@@ -109,7 +109,7 @@ BDES_IDENT("$Id: $")
 //    #endif
 //
 //    class my_Socket {
-//    #ifdef BDES_PLATFORM__OS_WINDOWS
+//    #ifdef BDES_PLATFORM_OS_WINDOWS
 //        SOCKET d_sockfd;   // Windows SOCKET handler
 //    #else
 //        int d_sockfd;      // UNIX socket descriptor
@@ -129,9 +129,10 @@ BDES_IDENT("$Id: $")
 #endif
 
 
-// Check using legacy macros only if 'BSL_LEGACY' is not 0.
+// Check using legacy macros only if 'BDE_OMIT_INTERNAL_DEPRECATED' is not 
+// defined.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     // No symbols or macros are defined here (see 'bsls_platform' component).
     // No aliases or macros for the 'bdes_Platform' types or 'BDES_PLATFORM_*'
@@ -144,7 +145,7 @@ BDES_IDENT("$Id: $")
                                  // ==========
 
 // Unix flag must be set by the compiler if Unix detected (except for AIX).
-#if defined(BDES_PLATFORM__OS_UNIX) && !defined(BDES_PLATFORM__OS_AIX)
+#if defined(BDES_PLATFORM_OS_UNIX) && !defined(BDES_PLATFORM_OS_AIX)
     #if !defined(unix) && !defined(__unix__) && !defined(__unix)
         #error "Unix platform assumed, but unix flag not set by compiler"
         char assertion[0];                     // stop non-compliant compilers
@@ -152,79 +153,79 @@ BDES_IDENT("$Id: $")
 #endif
 
 // Exactly one CMP type.
-#if BDES_PLATFORM__CMP_AIX \
-  + BDES_PLATFORM__CMP_EPC \
-  + BDES_PLATFORM__CMP_GNU \
-  + BDES_PLATFORM__CMP_EDG \
-  + BDES_PLATFORM__CMP_HP \
-  + BDES_PLATFORM__CMP_MSVC \
-  + BDES_PLATFORM__CMP_SUN != 1
+#if BDES_PLATFORM_CMP_AIX \
+  + BDES_PLATFORM_CMP_EPC \
+  + BDES_PLATFORM_CMP_GNU \
+  + BDES_PLATFORM_CMP_EDG \
+  + BDES_PLATFORM_CMP_HP \
+  + BDES_PLATFORM_CMP_MSVC \
+  + BDES_PLATFORM_CMP_SUN != 1
     #error "Exactly one compiler must be set."
     char assertion[0];                         // stop non-compliant compilers
 #endif
 
 // Exactly one OS type.
-#if BDES_PLATFORM__OS_UNIX \
-  + BDES_PLATFORM__OS_WINDOWS != 1
+#if BDES_PLATFORM_OS_UNIX \
+  + BDES_PLATFORM_OS_WINDOWS != 1
     #error "Exactly one operating system must be set."
     char assertion[0];                         // stop non-compliant compilers
 #endif
 
 // At most one OS subtype.
-#define BDES_PLATFORM__OS_SUBTYPE_COUNT \
-    BDES_PLATFORM__OS_AIX \
-  + BDES_PLATFORM__OS_DGUX \
-  + BDES_PLATFORM__OS_HPUX \
-  + BDES_PLATFORM__OS_LINUX \
-  + BDES_PLATFORM__OS_SOLARIS \
-  + BDES_PLATFORM__OS_SUNOS \
-  + BDES_PLATFORM__OS_CYGWIN \
-  + BDES_PLATFORM__OS_WIN9X \
-  + BDES_PLATFORM__OS_WINNT \
-  + BDES_PLATFORM__OS_WIN2K \
-  + BDES_PLATFORM__OS_WINXP
-#if BDES_PLATFORM__OS_SUBTYPE_COUNT > 1
+#define BDES_PLATFORM_OS_SUBTYPE_COUNT \
+    BDES_PLATFORM_OS_AIX \
+  + BDES_PLATFORM_OS_DGUX \
+  + BDES_PLATFORM_OS_HPUX \
+  + BDES_PLATFORM_OS_LINUX \
+  + BDES_PLATFORM_OS_SOLARIS \
+  + BDES_PLATFORM_OS_SUNOS \
+  + BDES_PLATFORM_OS_CYGWIN \
+  + BDES_PLATFORM_OS_WIN9X \
+  + BDES_PLATFORM_OS_WINNT \
+  + BDES_PLATFORM_OS_WIN2K \
+  + BDES_PLATFORM_OS_WINXP
+#if BDES_PLATFORM_OS_SUBTYPE_COUNT > 1
     #error "At most one operating system subtype must be set."
     char assertion[0];                         // stop non-compliant compilers
 #endif
 
 // Exactly one CPU type.
-#if BDES_PLATFORM__CPU_88000 \
-  + BDES_PLATFORM__CPU_ALPHA \
-  + BDES_PLATFORM__CPU_HPPA \
-  + BDES_PLATFORM__CPU_IA64 \
-  + BDES_PLATFORM__CPU_X86 \
-  + BDES_PLATFORM__CPU_X86_64 \
-  + BDES_PLATFORM__CPU_MIPS \
-  + BDES_PLATFORM__CPU_POWERPC \
-  + BDES_PLATFORM__CPU_SPARC != 1
+#if BDES_PLATFORM_CPU_88000 \
+  + BDES_PLATFORM_CPU_ALPHA \
+  + BDES_PLATFORM_CPU_HPPA \
+  + BDES_PLATFORM_CPU_IA64 \
+  + BDES_PLATFORM_CPU_X86 \
+  + BDES_PLATFORM_CPU_X86_64 \
+  + BDES_PLATFORM_CPU_MIPS \
+  + BDES_PLATFORM_CPU_POWERPC \
+  + BDES_PLATFORM_CPU_SPARC != 1
     #error "Exactly one processor must be set."
     char assertion[0];                         // stop non-compliant compilers
 #endif
 
 
-#if defined(BDES_PLATFORM__OS_VER_MAJOR) \
-         && BDES_PLATFORM__OS_SUBTYPE_COUNT != 1
+#if defined(BDES_PLATFORM_OS_VER_MAJOR) \
+         && BDES_PLATFORM_OS_SUBTYPE_COUNT != 1
         // For OS, MAJOR VERSION implies SUBTYPE.
     #error "Operating system major version but not subtype defined."
     char assertion[0];                         // stop non-compliant compilers
 #endif
 
-#undef BDES_PLATFORM__OS_SUBTYPE_COUNT
+#undef BDES_PLATFORM_OS_SUBTYPE_COUNT
 
-#if defined(BDES_PLATFORM__OS_VER_MINOR) && \
-   !defined(BDES_PLATFORM__OS_VER_MAJOR)
+#if defined(BDES_PLATFORM_OS_VER_MINOR) && \
+   !defined(BDES_PLATFORM_OS_VER_MAJOR)
     #error "Operating System minor but not major version defined."
     char assertion[0];                         // stop non-compliant compilers
 #endif
 
-#if defined(BDES_PLATFORM__CPU_VER_MINOR) && \
-   !defined(BDES_PLATFORM__CPU_VER_MAJOR)
+#if defined(BDES_PLATFORM_CPU_VER_MINOR) && \
+   !defined(BDES_PLATFORM_CPU_VER_MAJOR)
     #error "Processor minor but not major version defined."
     char assertion[0];                         // stop non-compliant compilers
 #endif
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 

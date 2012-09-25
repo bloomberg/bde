@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations_default.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_POWERPC) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_GNU)
 
 namespace BloombergLP {
 
@@ -153,7 +153,7 @@ struct AtomicOperations_POWERPC_AIX_GCC
 
 }  // close enterprise namespace
 
-#endif  // BSLS_PLATFORM__CPU_POWERPC && BSLS_PLATFORM__CMP_GNU
+#endif  // BSLS_PLATFORM_CPU_POWERPC && BSLS_PLATFORM_CMP_GNU
 
 #endif
 

@@ -93,7 +93,7 @@ const char *bdescm_Version::version()
 
 // Force linker to pull in this component's object file.
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 static const char **bdescm_version_assertion =
                                              &bdescm_Version::BDESCM_D_VERSION;
 #else

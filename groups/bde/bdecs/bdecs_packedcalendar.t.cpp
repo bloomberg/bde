@@ -16,6 +16,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_cctype.h>      // isdigit() isupper() islower()
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>
@@ -24,7 +25,7 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <crtdbg.h>  // '_CrtSetReportMode', to suppress popups
 #endif
 
@@ -3858,7 +3859,7 @@ DEFINE_TEST_CASE(15) {
                                  ++d) {
                                 LOOP_ASSERT(d,
                                             X.isWeekendDay(d) ||
-                                            0 < std::count(holidays.begin(),
+                                            0 < bsl::count(holidays.begin(),
                                                            holidays.end(),
                                                            d));
                             }
@@ -3868,7 +3869,7 @@ DEFINE_TEST_CASE(15) {
                         // holiday.
                         LOOP_ASSERT(curDate,
                                     !(X.isWeekendDay(curDate) ||
-                                      0 < std::count(holidays.begin(),
+                                      0 < bsl::count(holidays.begin(),
                                                      holidays.end(),
                                                      curDate)));
 
@@ -3883,7 +3884,7 @@ DEFINE_TEST_CASE(15) {
                         for (bdet_Date d = prevDate + 1; d <= LAST_DATE; ++d) {
                             LOOP_ASSERT(d,
                                         X.isWeekendDay(d) ||
-                                        0 < std::count(holidays.begin(),
+                                        0 < bsl::count(holidays.begin(),
                                                        holidays.end(),
                                                        d));
                         }
@@ -9307,7 +9308,7 @@ DEFINE_TEST_CASE(1) {
 
 int main(int argc, char *argv[])
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // Suppress all windows debugging popups
     _CrtSetReportMode(_CRT_ASSERT,0);
     _CrtSetReportMode(_CRT_ERROR, 0);

@@ -11,6 +11,9 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //
+//@MACROS:
+//  BSLS_MACROINCREMENT(NUMBER): expand to evalued 'NUMBER + 1'
+//
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component provides a macro, 'BSLS_MACROINCREMENT(NUMBER)',

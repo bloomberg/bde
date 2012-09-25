@@ -281,7 +281,7 @@ class btemt_ChannelMsg {
       , BTEMT_WRITE_CACHE_LOWWAT  // write cache low watermark
       , BTEMT_WRITE_CACHE_HIWAT   // write cache hi watermark
           = BTEMT_SEND_BUFFER_FULL
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CHANNEL_DOWN       = BTEMT_CHANNEL_DOWN
       , CHANNEL_UP         = BTEMT_CHANNEL_UP
       , READ_TIMEOUT       = BTEMT_READ_TIMEOUT
@@ -291,13 +291,13 @@ class btemt_ChannelMsg {
       , AUTO_READ_DISABLED = BTEMT_AUTO_READ_DISABLED
       , WRITE_CACHE_LOWWAT = BTEMT_WRITE_CACHE_LOWWAT
       , WRITE_CACHE_HIWAT  = BTEMT_WRITE_CACHE_HIWAT
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
     enum {
         BTEMT_INVALID_ID = -1     // invalid channel and channel allocator ID
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INVALID_ID = BTEMT_INVALID_ID
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -489,19 +489,19 @@ class btemt_PoolMsg {
         BTEMT_ERROR_SETTING_OPTIONS,        // error setting socket options
         BTEMT_EVENT_MANAGER_LIMIT           // event manager limit reached
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ACCEPT_TIMEOUT   = BTEMT_ACCEPT_TIMEOUT
       , ERROR_ACCEPTING  = BTEMT_ERROR_ACCEPTING
       , ERROR_CONNECTING = BTEMT_ERROR_CONNECTING
       , CHANNEL_LIMIT    = BTEMT_CHANNEL_LIMIT
       , CAPACITY_LIMIT   = BTEMT_CAPACITY_LIMIT
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
     enum {
         BTEMT_INVALID_ID = -1
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INVALID_ID = BTEMT_INVALID_ID
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -580,9 +580,9 @@ class btemt_TimerMsg {
     // ENUMERATIONS
     enum {
         BTEMT_INVALID_ID = -1
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INVALID_ID = BTEMT_INVALID_ID
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -647,11 +647,11 @@ class btemt_UserMsg {
         BTEMT_INVALID_INT_DATA     = -1
       , BTEMT_INVALID_VOID_DATA    =  0
       , BTEMT_INVALID_MESSAGE_TYPE = -1
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INVALID_INT_DATA     = BTEMT_INVALID_INT_DATA
       , INVALID_VOID_DATA    = BTEMT_INVALID_VOID_DATA
       , INVALID_MESSAGE_TYPE = BTEMT_INVALID_MESSAGE_TYPE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
   private:
     enum {
@@ -762,14 +762,14 @@ class btemt_Message {
       , BTEMT_POOL_STATE
       , BTEMT_USER_DATA
       , BTEMT_BLOB
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , DATA          = BTEMT_DATA
       , CHANNEL_STATE = BTEMT_CHANNEL_STATE
       , TIMER         = BTEMT_TIMER
       , POOL_STATE    = BTEMT_POOL_STATE
       , USER_DATA     = BTEMT_USER_DATA
       , BLOB          = BTEMT_BLOB
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

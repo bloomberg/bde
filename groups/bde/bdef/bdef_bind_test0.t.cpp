@@ -305,7 +305,7 @@ DEFINE_TEST_CASE(16) {
             ASSERT(0 == bdef_BindUtil::bindR<ConvertibleFromToInt>(mX) ());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS+28 == Z0->numAllocations());
@@ -369,7 +369,7 @@ DEFINE_TEST_CASE(15) {
             ASSERT(0 == bdef_BindUtil::bindR<ConvertibleFromToInt>(&mX) ());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -437,7 +437,7 @@ DEFINE_TEST_CASE(14) {
                                           &AllocTestType::testFunc0, &mX) () );
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -494,7 +494,7 @@ DEFINE_TEST_CASE(13) {
                                   bdef_Bind_TestFunctionsAlloc::func0, &mX)());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -564,7 +564,7 @@ DEFINE_TEST_CASE(12) {
                                  &bdef_Bind_TestFunctionsAlloc::func0, &mX)());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -620,7 +620,7 @@ DEFINE_TEST_CASE(11) {
             ASSERT(0 == bdef_BindUtil::bindA(Z2, mX) ());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -654,7 +654,7 @@ DEFINE_TEST_CASE(11) {
             ASSERT(0 == bdef_BindUtil::bindA(Z2, mX) ());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS+14 == Z0->numAllocations());
@@ -710,7 +710,7 @@ DEFINE_TEST_CASE(10) {
             ASSERT(0 == bdef_BindUtil::bindA(Z2, &mX) ());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -736,7 +736,7 @@ DEFINE_TEST_CASE(10) {
             ASSERT(0 == bdef_BindUtil::bindA(Z2, &mX) ());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -793,7 +793,7 @@ DEFINE_TEST_CASE(9) {
                                          &NoAllocTestType::testFunc0, &mX) ());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -820,7 +820,7 @@ DEFINE_TEST_CASE(9) {
                                            &AllocTestType::testFunc0, &mX) ());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -864,7 +864,7 @@ DEFINE_TEST_CASE(8) {
                                 bdef_Bind_TestFunctionsNoAlloc::func0, &mX)());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -891,7 +891,7 @@ DEFINE_TEST_CASE(8) {
                                   bdef_Bind_TestFunctionsAlloc::func0, &mX)());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -949,7 +949,7 @@ DEFINE_TEST_CASE(7) {
                                &bdef_Bind_TestFunctionsNoAlloc::func0, &mX)());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -976,7 +976,7 @@ DEFINE_TEST_CASE(7) {
                                  &bdef_Bind_TestFunctionsAlloc::func0, &mX)());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -1051,7 +1051,7 @@ DEFINE_TEST_CASE(6) {
             ASSERT(0 == bdef_BindUtil::bind(mX)());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
             ASSERT(NUM_DFLT_ALLOCS+28 == Z0->numAllocations());
 #endif
@@ -1113,7 +1113,7 @@ DEFINE_TEST_CASE(5) {
             ASSERT(0 == bdef_BindUtil::bind(&mX)());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -1178,7 +1178,7 @@ DEFINE_TEST_CASE(4) {
                                           &AllocTestType::testFunc0, &mX) () );
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -1235,7 +1235,7 @@ DEFINE_TEST_CASE(3) {
                                   bdef_Bind_TestFunctionsAlloc::func0, &mX)());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());
@@ -1301,7 +1301,7 @@ DEFINE_TEST_CASE(2) {
                                  &bdef_Bind_TestFunctionsAlloc::func0, &mX)());
             ASSERT(EXPECTED == X);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             ASSERT(NUM_DEFAULT_ALLOCS == Z0->numAllocations());

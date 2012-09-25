@@ -33,7 +33,7 @@
 #include <ctype.h>
 
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 // for 'EnumWindows'
 
 # pragma comment(lib, "user32.lib")
@@ -134,11 +134,11 @@ typedef baesu_StackTracePrintUtil_Test      PrintUtilTest;
 #if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
     enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0 };
 
-# if   defined(BSLS_PLATFORM__OS_SOLARIS)
+# if   defined(BSLS_PLATFORM_OS_SOLARIS)
     enum { PLAT_SUN=1, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
-# elif defined(BSLS_PLATFORM__OS_LINUX)
+# elif defined(BSLS_PLATFORM_OS_LINUX)
     enum { PLAT_SUN=0, PLAT_LINUX=1, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
-# elif defined(BSLS_PLATFORM__OS_HPUX)
+# elif defined(BSLS_PLATFORM_OS_HPUX)
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=1, PLAT_AIX=0, PLAT_WIN=0 };
 # else
 #   error unknown platform
@@ -161,7 +161,7 @@ typedef baesu_StackTracePrintUtil_Test      PrintUtilTest;
 #endif
 
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BSLS_PLATFORM__CPU_64_BIT)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
 // On Windows, longs aren't big enough to hold pointers or 'size_t's
 
 #define SIZE_T_CONTROL_STRING "%llx"
@@ -335,7 +335,7 @@ void top()
 
 extern "C" {
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 BOOL CALLBACK phonyEnumWindowsProc(HWND, LPARAM)
 {
@@ -790,7 +790,7 @@ int main(int argc, char *argv[])
         //   CONCERN: 'printStackTrace' works for routine in static library
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
         if (verbose) cout << "TEST USING ENUMWINDOWS\n"
                              "======================\n";

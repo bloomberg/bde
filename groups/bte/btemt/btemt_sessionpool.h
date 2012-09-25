@@ -538,7 +538,7 @@ class btemt_DataMsg;
 class btemt_Session;
 class btemt_SessionFactory;
 
-struct btemt_SessionPool__Handle;
+struct btemt_SessionPool_Handle;
 class btemt_SessionPool;
 
 class bteso_SocketOptions;
@@ -552,7 +552,7 @@ class btemt_SessionPoolSessionIterator {
     // 'btemt_SessionPool' object.
 
     // PRIVATE TYPES
-    typedef bcec_ObjectCatalogIter<bcema_SharedPtr<btemt_SessionPool__Handle> >
+    typedef bcec_ObjectCatalogIter<bcema_SharedPtr<btemt_SessionPool_Handle> >
                                                                CatalogIterator;
 
     // DATA
@@ -662,7 +662,7 @@ class btemt_SessionPool {
 
   private:
     // PRIVATE TYPES
-    typedef bcec_ObjectCatalog<bcema_SharedPtr<btemt_SessionPool__Handle> >
+    typedef bcec_ObjectCatalog<bcema_SharedPtr<btemt_SessionPool_Handle> >
                                                                  HandleCatalog;
 
     // DATA
@@ -702,7 +702,7 @@ class btemt_SessionPool {
         // callback.
 
     void connectAbortTimerCb(
-                     const bcema_SharedPtr<btemt_SessionPool__Handle>& handle);
+                     const bcema_SharedPtr<btemt_SessionPool_Handle>& handle);
         // Invokes the user callbacks for aborted connects.
 
     void pooledBufferChainBasedReadCb(int                  *numConsumed,
@@ -717,7 +717,7 @@ class btemt_SessionPool {
                          void       *userData);
         // Channel pool's blob based read callback.
 
-    void handleDeleter(btemt_SessionPool__Handle *handle);
+    void handleDeleter(btemt_SessionPool_Handle *handle);
         // Delete the specified 'handle'.
 
     void poolStateCb(int state, int source, int severity);
