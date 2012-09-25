@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, we strip the the 'volatile'-qualifier from 'MyVolatileType' using
 // 'bsl::remove_volatile' and verify that the resulting type is the same as
-// 'MyType'.
+// 'MyType':
 //..
 //  assert(true ==
 //  (bsl::is_same<bsl::remove_volatile<MyVolatileType>::type, MyType>::value));

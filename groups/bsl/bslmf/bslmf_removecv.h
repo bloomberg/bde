@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //  typedef const volatile int MyCvType;
 //..
 // Now, we strip the the cv-qualifier from 'MyCvType' using 'bsl::remove_cv'
-// and verify that the resulting type is the same as 'MyType'.
+// and verify that the resulting type is the same as 'MyType':
 //..
 //  assert(true == (bsl::is_same<bsl::remove_cv<MyCvType>::type,
 //                                                            MyType>::value));
@@ -61,9 +61,9 @@ namespace bsl {
 template <typename TYPE>
 struct remove_cv {
     // This 'struct' template implements the 'remove_cv' meta-function defined
-    // in the C++11 standard [meta.trans.cv].  This 'struct' template provides
-    // a 'typedef' 'type' that has the same type as the (template parameter)
-    // 'TYPE' except that any top-level cv-qualifier has been removed.
+    // in the C++11 standard [meta.trans.cv] to provide a 'typedef' 'type' that
+    // has the same type as the (template parameter) 'TYPE' except that any
+    // top-level cv-qualifier has been removed.
 
     typedef typename remove_const<typename remove_volatile<TYPE>::type>::type
                                                                           type;
@@ -72,7 +72,7 @@ struct remove_cv {
         // removed.
 };
 
-}
+}  // close namespace bsl
 
 #endif
 
