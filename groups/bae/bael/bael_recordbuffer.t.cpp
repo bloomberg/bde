@@ -19,7 +19,7 @@
 #include <bsl_cstdlib.h>                  // atoi()
 
 // Note: on Windows -> WinGDI.h:#define ERROR 0
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(ERROR)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(ERROR)
 #undef ERROR
 #endif
 

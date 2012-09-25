@@ -18,19 +18,19 @@ BDES_IDENT_RCSID(bteso_ioutil_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_assert.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/file.h>
 #include <bsl_c_errno.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
 #include <stropts.h>
 #include <sys/pstat.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_CYGWIN
+#ifdef BSLS_PLATFORM_OS_CYGWIN
 #include <sys/ioctl.h>
 #endif
 
@@ -44,7 +44,7 @@ int bteso_IoUtil::setBlockingMode(bteso_SocketHandle::Handle handle,
                                   bteso_IoUtil::BlockingMode value,
                                   int                       *errorCode)
 {
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
         unsigned long temp = (unsigned long) value;
         if (ioctlsocket(handle, FIONBIO, &temp) != 0) {
             if (errorCode) {
@@ -53,7 +53,7 @@ int bteso_IoUtil::setBlockingMode(bteso_SocketHandle::Handle handle,
             return -1;
         }
         return 0;
-    #elif defined(BSLS_PLATFORM__OS_CYGWIN)
+    #elif defined(BSLS_PLATFORM_OS_CYGWIN)
         if (ioctl(handle, FIONBIO, (unsigned int *) &value) != 0) {
             if (errorCode) {
                 *errorCode = errno;
@@ -93,7 +93,7 @@ int bteso_IoUtil::setCloseOnExec(bteso_SocketHandle::Handle handle,
                                  int                        value,
                                  int                       *errorCode)
 {
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
         return -1;          // not available
     #else
         if (fcntl(handle,F_SETFD, !!value) == -1) {
@@ -110,13 +110,13 @@ int bteso_IoUtil::setAsync(bteso_SocketHandle::Handle handle,
                            bteso_IoUtil::AsyncMode    value,
                            int                       *errorCode)
 {
-    #if defined(BSLS_PLATFORM__OS_WINDOWS)
+    #if defined(BSLS_PLATFORM_OS_WINDOWS)
 
         // 'fcntl' does not work for FASYNC on Cygwin.  'ioctl' could work
         // but Cygwin does not have a pstat facility.
 
         return -1;          // not available
-    #elif defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_CYGWIN)
+    #elif defined(BSLS_PLATFORM_OS_HPUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
         // HPUX does not support setting ASYNC flag through 'fcntl'.
         // Therefore, we must 'ioctl' with 'FIOASYNC' flag.
         int flag = (BTESO_ASYNCHRONOUS == value) ? 1 : 0;
@@ -176,7 +176,7 @@ int bteso_IoUtil::getBlockingMode(bteso_IoUtil::BlockingMode  *result,
                                   int                         *errorCode)
 {
     BSLS_ASSERT(result);
-    #if defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BSLS_PLATFORM__OS_CYGWIN)
+    #if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
         return -1;         // not available
     #else
         int flags;
@@ -198,7 +198,7 @@ int bteso_IoUtil::getCloseOnExec(int                        *result,
                                  int                        *errorCode)
 {
     BSLS_ASSERT(result);
-    #if defined(BSLS_PLATFORM__OS_WINDOWS)
+    #if defined(BSLS_PLATFORM_OS_WINDOWS)
         return -1;          // not available
     #else
         if((*result=fcntl(handle, F_GETFD, 0)) == -1) {
@@ -216,9 +216,9 @@ int bteso_IoUtil::getAsync(bteso_IoUtil::AsyncMode   *result,
                            int                       *errorCode)
 {
     BSLS_ASSERT(result);
-    #if defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BSLS_PLATFORM__OS_CYGWIN)
+    #if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
         return -1;          // not available
-    #elif defined(BSLS_PLATFORM__OS_HPUX)
+    #elif defined(BSLS_PLATFORM_OS_HPUX)
         struct pst_fileinfo2 f_info;
         struct pst_socket    s_info;
 

@@ -207,7 +207,7 @@ void case20(bcec_SkipList<int, CountedDelete>* list, int maxRefCount)
     for (int numReferencesAdded = 1; numReferencesAdded < maxRefCount; )
     {
         list->addPairReferenceRaw(front);
-#if defined BSLS_PLATFORM__OS_WINDOWS
+#if defined BSLS_PLATFORM_OS_WINDOWS
         double random = rand() / (double)RAND_MAX;
 #else
         double random = rand_r(&seed) / (double)RAND_MAX;

@@ -3,13 +3,15 @@
 #include <bslma_allocator.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_bsltestutil.h>
 
-#include <cstdlib>     // atoi()
-#include <cstring>     // memcpy()
-#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <new>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                              TEST PLAN
@@ -39,27 +41,50 @@ using namespace std;
 //=============================================================================
 
 //=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
-{
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+
+static void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define T_()  cout << "\t" << flush;          // Print a tab (w/o newline)
-#define L_ __LINE__                           // current Line number
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                      CONCRETE DERIVED TYPES
@@ -331,13 +356,12 @@ class my_DoubleStackIter {
     const double& operator()() const { return d_stack_p[d_index]; }
 };
 
-ostream& operator<<(ostream& stream, const my_DoubleStack& stack)
-{
-    stream << "(top) [";
-    for (my_DoubleStackIter it(stack); it; ++it) {
-        stream << ' ' << it();
+void debugprint(const my_DoubleStack& val) {
+    printf("(top) [");
+    for (my_DoubleStackIter it(val); it; ++it) {
+        printf(" %g", it());
     }
-    return stream << " ] (bottom)" << flush;
+    printf(" ] (bottom)");
 }
 
 //-----------------------------------------------------------------------------
@@ -398,7 +422,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     // int veryVerbose = argc > 3;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
       case 6: {
@@ -415,13 +439,12 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING USAGE EXAMPLE" << endl
-                                  << "=====================" << endl;
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
-        if (verbose) cout << "\nMain example usage test." << endl;
+        if (verbose) printf("\nMain example usage test.\n");
 
-        if (verbose) cout <<
-                "\tCreating a stack with a specified allocator." << endl;
+        if (verbose) printf("\tCreating a stack with a specified allocatorn");
         {
             my_NewDeleteAllocator myA;
             bslma::Allocator& a = myA;
@@ -431,12 +454,12 @@ int main(int argc, char *argv[])
             s.push(1.75);
 
             if (verbose) {
-                cout << "\t\t" << s << endl;
+                T_ T_ P(s);
             }
         }
 
-        if (verbose) cout <<
-                "\tCreating a stack without a specified allocator." << endl;
+        if (verbose) printf(
+                "\tCreating a stack without a specified allocator\n");
         {
             my_DoubleStack s;
             s.push(2.25);
@@ -444,11 +467,11 @@ int main(int argc, char *argv[])
             s.push(2.75);
 
             if (verbose) {
-                cout << "\t\t" << s << endl;
+                T_ T_ P(s);
             }
         }
 
-        if (verbose) cout << "\nUsage test for 'new' operator." << endl;
+        if (verbose) printf("\nUsage test for 'new' operator.\n");
         {
             my_NewDeleteAllocator myA;
             bslma::Allocator& a = myA;
@@ -475,9 +498,8 @@ int main(int argc, char *argv[])
         //   EXCEPTION SAFETY
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "EXCEPTION SAFETY OF OPERATOR NEW TEST" << endl
-                          << "=====================================" << endl;
+        if (verbose) printf("\nEXCEPTION SAFETY OF OPERATOR NEW TEST"
+                            "\n=====================================\n");
         {
             my_Allocator myA;
             bslma::Allocator& a = myA;
@@ -495,7 +517,7 @@ int main(int argc, char *argv[])
 #ifdef BDE_BUILD_TARGET_EXC
             catch(int n)
             {
-                if (verbose) cout << "\nCaught exception." << endl;
+                if (verbose) printf("\nCaught exception.\n");
                 ASSERT(13 == n);
             }
 #endif
@@ -520,12 +542,12 @@ int main(int argc, char *argv[])
         //   void *operator new(int size, bslma::Allocator& basicAllocator);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "OPERATOR TEST" << endl
-                                  << "=============" << endl;
+        if (verbose) printf("\nOPERATOR TEST"
+                            "\n=============\n");
         my_Allocator myA;
         bslma::Allocator& a = myA;
 
-        if (verbose) cout << "\nTesting scalar input operators." << endl;
+        if (verbose) printf("\nTesting scalar input operators.\n");
         {
             ASSERT((char *) &myA == new(a) char);
             ASSERT(1 == myA.fun());     ASSERT(1 == myA.arg());
@@ -562,16 +584,16 @@ int main(int argc, char *argv[])
         //   template<typename TYPE> deleteObjectRaw(const TYPE *)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'deleteObjectRaw' TEST" << endl
-                                  << "======================" << endl;
+        if (verbose) printf("\n'deleteObjectRaw' TEST"
+                            "\n======================\n");
 
-        if (verbose) cout << "\nTesting 'deleteObjectRaw':" << endl;
+        if (verbose) printf("\nTesting 'deleteObjectRaw':\n");
         {
             my_NewDeleteAllocator myA;  bslma::Allocator& a = myA;
 
-            if (verbose) cout << "\twith a my_Class1 object" << endl;
+            if (verbose) printf("\twith a my_Class1 object\n");
 
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(0 == myA.getCount());
@@ -580,17 +602,17 @@ int main(int argc, char *argv[])
             ASSERT(1 == myA.getCount());
 
             new(pC1) my_Class1;
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(1 == globalObjectStatus);
 
             ASSERT(1 == myA.getCount());
             a.deleteObjectRaw(pC1CONST);
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);   ASSERT(2 == myA.getCount());
 
-            if (verbose) cout << "\twith a my_Class2 object" << endl;
+            if (verbose) printf("\twith a my_Class2 object\n");
 
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(2 == myA.getCount());
@@ -599,15 +621,15 @@ int main(int argc, char *argv[])
             ASSERT(3 == myA.getCount());
 
             new(pC2) my_Class2;
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(1 == globalObjectStatus);
 
             ASSERT(3 == myA.getCount());
             a.deleteObjectRaw(pC2CONST);
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);   ASSERT(4 == myA.getCount());
 
-            if (verbose) cout << "\tWith a polymorphic object" << endl;
+            if (verbose) printf("\tWith a polymorphic object\n");
 
             ASSERT(0 == class3ObjectCount);
             my_Class3 *pC3 = (my_Class3 *) a.allocate(sizeof(my_Class3));
@@ -617,22 +639,22 @@ int main(int argc, char *argv[])
             ASSERT(5 == myA.getCount());
 
             new(pC3) my_Class3;
-            if (verbose) { T_();  T_();  P(class3ObjectCount); }
+            if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(1 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(5 == myA.getCount());
             a.deleteObjectRaw(pC3);
-            if (verbose) { T_();  T_();  P(class3ObjectCount); }
+            if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(6 == myA.getCount());
 
-            if (verbose) cout << "\tWith a null my_Class3 pointer" << endl;
+            if (verbose) printf("\tWith a null my_Class3 pointer\n");
 
             pC3 = 0;
             a.deleteObject(pC3);
-            if (verbose) { T_();  T_();  P(class3ObjectCount); }
+            if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(6 == myA.getCount());
@@ -640,7 +662,7 @@ int main(int argc, char *argv[])
         {
             my_NewDeleteAllocator myA;  bslma::Allocator& a = myA;
 
-            if (verbose) cout << "\tdeleteObjectRaw(my_MostDerived*)" << endl;
+            if (verbose) printf("\tdeleteObjectRaw(my_MostDerived*)\n");
 
             ASSERT(0 == myA.getCount());
             my_MostDerived *pMost =
@@ -685,16 +707,16 @@ int main(int argc, char *argv[])
         //   template<typename TYPE> deleteObject(const TYPE *)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'deleteObject' TEST" << endl
-                                  << "===================" << endl;
+        if (verbose) printf("\n'deleteObject' TEST"
+                            "\n===================\n");
 
-        if (verbose) cout << "\nTesting 'deleteObject':" << endl;
+        if (verbose) printf("\nTesting 'deleteObject':\n");
         {
             my_NewDeleteAllocator myA;  bslma::Allocator& a = myA;
 
-            if (verbose) cout << "\twith a my_Class1 object" << endl;
+            if (verbose) printf("\twith a my_Class1 object\n");
 
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(0 == myA.getCount());
@@ -703,17 +725,17 @@ int main(int argc, char *argv[])
             ASSERT(1 == myA.getCount());
 
             new(pC1) my_Class1;
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(1 == globalObjectStatus);
 
             ASSERT(1 == myA.getCount());
             a.deleteObject(pC1CONST);
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);   ASSERT(2 == myA.getCount());
 
-            if (verbose) cout << "\twith a my_Class2 object" << endl;
+            if (verbose) printf("\twith a my_Class2 object\n");
 
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(2 == myA.getCount());
@@ -722,15 +744,15 @@ int main(int argc, char *argv[])
             ASSERT(3 == myA.getCount());
 
             new(pC2) my_Class2;
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(1 == globalObjectStatus);
 
             ASSERT(3 == myA.getCount());
             a.deleteObject(pC2CONST);
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);   ASSERT(4 == myA.getCount());
 
-            if (verbose) cout << "\tWith a my_Class3Base object" << endl;
+            if (verbose) printf("\tWith a my_Class3Base object\n");
 
             ASSERT(0 == class3ObjectCount);
             my_Class3 *pC3 = (my_Class3 *) a.allocate(sizeof(my_Class3));
@@ -740,22 +762,22 @@ int main(int argc, char *argv[])
             ASSERT(5 == myA.getCount());
 
             new(pC3) my_Class3;
-            if (verbose) { T_();  T_();  P(class3ObjectCount); }
+            if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(1 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(5 == myA.getCount());
             a.deleteObject(pC3bCONST);
-            if (verbose) { T_();  T_();  P(class3ObjectCount); }
+            if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(6 == myA.getCount());
 
-            if (verbose) cout << "\tWith a null my_Class3 pointer" << endl;
+            if (verbose) printf("\tWith a null my_Class3 pointer\n");
 
             pC3 = 0;
             a.deleteObject(pC3);
-            if (verbose) { T_();  T_();  P(class3ObjectCount); }
+            if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(6 == myA.getCount());
@@ -763,7 +785,7 @@ int main(int argc, char *argv[])
         {
             my_NewDeleteAllocator myA;  bslma::Allocator& a = myA;
 
-            if (verbose) cout << "\tdeleteObject(my_MostDerived*)" << endl;
+            if (verbose) printf("\tdeleteObject(my_MostDerived*)\n");
 
             ASSERT(0 == myA.getCount());
             my_MostDerived *pMost =
@@ -788,7 +810,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == leftBaseObjectCount);
             ASSERT(0 == virtualBaseObjectCount);
 
-            if (verbose) cout << "\tdeleteObject(my_LeftBase*)" << endl;
+            if (verbose) printf("\tdeleteObject(my_LeftBase*)\n");
 
             pMost = (my_MostDerived *) a.allocate(sizeof(my_MostDerived));
             ASSERT(3 == myA.getCount());
@@ -807,7 +829,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == leftBaseObjectCount);
             ASSERT(0 == virtualBaseObjectCount);
 
-            if (verbose) cout << "\tdeleteObject(my_RightBase*)" << endl;
+            if (verbose) printf("\tdeleteObject(my_RightBase*)\n");
 
             pMost = (my_MostDerived *) a.allocate(sizeof(my_MostDerived));
             ASSERT(5 == myA.getCount());
@@ -828,7 +850,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == leftBaseObjectCount);
             ASSERT(0 == virtualBaseObjectCount);
 
-            if (verbose) cout << "\tdeleteObject(my_VirtualBase*)" << endl;
+            if (verbose) printf("\tdeleteObject(my_VirtualBase*)\n");
 
             pMost = (my_MostDerived *) a.allocate(sizeof(my_MostDerived));
             ASSERT(7 == myA.getCount());
@@ -869,12 +891,12 @@ int main(int argc, char *argv[])
         //   virtual void deallocate(void *address) = 0;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "PROTOCOL TEST" << endl
-                                  << "=============" << endl;
+        if (verbose) printf("\nPROTOCOL TEST"
+                            "\n=============\n");
         my_Allocator myA;
         bslma::Allocator& a = myA;
 
-        if (verbose) cout << "\nTesting allocate/deallocate" << endl;
+        if (verbose) printf("\nTesting allocate/deallocate\n");
         {
             ASSERT(&myA == a.allocate(100));    ASSERT(1 == myA.fun());
             a.deallocate(&myA);                 ASSERT(2 == myA.fun());
@@ -882,14 +904,15 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 

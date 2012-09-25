@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 
 #   include BSL_NATIVE_CPP_LIB_HEADER(stdexcept)
 
-#   if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#   ifndef BDE_OMIT_INTERNAL_DEPRECATED
         // Permit reliance on transitive includes within robo.
 #   include <cstdio>
 
@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 #   define BSL_INCLUDE_NATIVE_STRING
 #   endif
 
-#   endif  // BSL_LEGACY
+#   endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 #   include <bsl_stdexcept.h>
 

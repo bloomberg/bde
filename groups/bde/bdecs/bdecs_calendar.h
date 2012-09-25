@@ -491,7 +491,7 @@ class bdecs_Calendar {
     typedef bdecs_PackedCalendar::WeekendDaysTransitionConstIterator
                                             WeekendDaysTransitionConstIterator;
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     typedef BusinessDayConstIterator        BusinessDayIterator;
     typedef HolidayConstIterator            HolidayIterator;
     typedef HolidayCodeConstIterator        HolidayCodeIterator;
@@ -499,7 +499,7 @@ class bdecs_Calendar {
     typedef BusinessDayConstReverseIterator BusinessDayReverseIterator;
     typedef HolidayConstReverseIterator     HolidayReverseIterator;
     typedef HolidayCodeConstReverseIterator HolidayCodeReverseIterator;
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CLASS METHODS
     static int maxSupportedBdexVersion();
@@ -1103,10 +1103,10 @@ class bdecs_Calendar_BusinessDayConstIter {
     typedef bsl::bidirectional_iterator_tag iterator_category;
 
     // CREATORS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     bdecs_Calendar_BusinessDayConstIter();
         // Create an uninitialized iterator.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     bdecs_Calendar_BusinessDayConstIter(
                           const bdecs_Calendar_BusinessDayConstIter& original);
@@ -1144,9 +1144,9 @@ class bdecs_Calendar_BusinessDayConstIter {
         // iterator.
 };
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 typedef bdecs_Calendar_BusinessDayConstIter bdecs_CalendarBusinessDayIter;
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE OPERATORS
 bool operator==(const bdecs_Calendar_BusinessDayConstIter& lhs,
@@ -1664,12 +1664,12 @@ void swap(bdecs_Calendar& a, bdecs_Calendar& b)
                     // -----------------------------------------
 
 // CREATORS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 bdecs_Calendar_BusinessDayConstIter::bdecs_Calendar_BusinessDayConstIter()
 {
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 bdecs_Calendar_BusinessDayConstIter::bdecs_Calendar_BusinessDayConstIter(

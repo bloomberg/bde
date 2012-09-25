@@ -165,12 +165,12 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(PASSTHROUGH)
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(PASSTHROUGH)
     // Note: on Windows -> WinGDI.h:#define PASSTHROUGH 19
 #undef PASSTHROUGH
 #endif
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 
@@ -192,13 +192,13 @@ struct bael_Transmission {
         BAEL_MANUAL_PUBLISH_ALL = 4,  // manually publish all records
         BAEL_END                = 5   // end flag for asynchronous publication
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , PASSTHROUGH        = BAEL_PASSTHROUGH
       , TRIGGER            = BAEL_TRIGGER
       , TRIGGER_ALL        = BAEL_TRIGGER_ALL
       , MANUAL_PUBLISH     = BAEL_MANUAL_PUBLISH
       , MANUAL_PUBLISH_ALL = BAEL_MANUAL_PUBLISH_ALL
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum { BAEL_LENGTH = BAEL_MANUAL_PUBLISH_ALL + 1 };

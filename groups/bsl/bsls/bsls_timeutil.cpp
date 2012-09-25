@@ -6,15 +6,15 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsls_platform.h>     // BSLS_PLATFORM__OS_UNIX, etc.
+#include <bsls_platform.h>     // BSLS_PLATFORM_OS_UNIX, etc.
 #include <bsls_atomicoperations.h>
 
-#if defined BSLS_PLATFORM__OS_UNIX
+#if defined BSLS_PLATFORM_OS_UNIX
     #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
     #include <sys/time.h>  // gethrtime()
     #include <sys/times.h> // struct tms, times()
     #include <unistd.h>    // sysconf(), _SC_CLK_TCK
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
     #include <windows.h>
     #include <winbase.h>   // QueryPerformanceCounter(), GetProcessTimes()
     #include <sys/timeb.h> // ftime(struct timeb *)
@@ -26,7 +26,7 @@ namespace BloombergLP {
 
 namespace {
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 struct UnixTimerUtil {
     // Provides access to UNIX process user and system timers.
 
@@ -135,7 +135,7 @@ void UnixTimerUtil::processTimers(bsls::Types::Int64 *systemTimer,
 }
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 struct WindowsTimerUtil {
     // Provides access to Windows process user and system timers.
 
@@ -455,9 +455,9 @@ namespace bsls {
 // CLASS METHODS
 void TimeUtil::initialize()
 {
-#if defined BSLS_PLATFORM__OS_UNIX
+#if defined BSLS_PLATFORM_OS_UNIX
     UnixTimerUtil::initialize();
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
     WindowsTimerUtil::initialize();
 #else
     #error "Don't know how to get nanosecond time for this platform"
@@ -467,11 +467,11 @@ void TimeUtil::initialize()
 Types::Int64
 TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 {
-#if defined BSLS_PLATFORM__OS_SOLARIS
+#if defined BSLS_PLATFORM_OS_SOLARIS
 
     return rawTime.d_opaque;
 
-#elif defined BSLS_PLATFORM__OS_AIX
+#elif defined BSLS_PLATFORM_OS_AIX
 
     // Imp Note:
     // 'time_base_to_time' takes much more time (~1.2 usec) than actually
@@ -481,22 +481,22 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
     time_base_to_time(&rawTime, TIMEBASE_SZ);
     return (Types::Int64) rawTime.tb_high * G + rawTime.tb_low;
 
-#elif defined BSLS_PLATFORM__OS_HPUX
+#elif defined BSLS_PLATFORM_OS_HPUX
 
     return rawTime.d_opaque;
 
-#elif defined BSLS_PLATFORM__OS_LINUX
+#elif defined BSLS_PLATFORM_OS_LINUX
 
     const Types::Int64 G = 1000000000;
     return ((Types::Int64) rawTime.tv_sec * G + rawTime.tv_nsec);
 
-#elif defined BSLS_PLATFORM__OS_UNIX
+#elif defined BSLS_PLATFORM_OS_UNIX
 
     const Types::Int64 K = 1000;
     const Types::Int64 M = 1000000;
     return ((Types::Int64) rawTime.tv_sec * M + rawTime.tv_usec) * K;
 
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
 
     return WindowsTimerUtil::convertRawTime(rawTime.d_opaque);
 
@@ -507,23 +507,23 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 
 Types::Int64 TimeUtil::getTimer()
 {
-#if defined BSLS_PLATFORM__OS_SOLARIS
+#if defined BSLS_PLATFORM_OS_SOLARIS
 
     // Call the platform-specific function directly, since it is reliable and
     // requires no conversion.
 
     return gethrtime();
 
-#elif defined BSLS_PLATFORM__OS_AIX   || \
-      defined BSLS_PLATFORM__OS_HPUX  || \
-      defined BSLS_PLATFORM__OS_LINUX || \
-      defined BSLS_PLATFORM__OS_UNIX
+#elif defined BSLS_PLATFORM_OS_AIX   || \
+      defined BSLS_PLATFORM_OS_HPUX  || \
+      defined BSLS_PLATFORM_OS_LINUX || \
+      defined BSLS_PLATFORM_OS_UNIX
 
     TimeUtil::OpaqueNativeTime rawTime;
     getTimerRaw(&rawTime);
     return convertRawTime(rawTime);
 
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
 
     return WindowsTimerUtil::wallTimer();
 
@@ -552,13 +552,13 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
     // two successive *calls* may yield *the same* return value, and so a new
     // return value may need to be explicitly confirmed.
 
-#if defined BSLS_PLATFORM__OS_SOLARIS
+#if defined BSLS_PLATFORM_OS_SOLARIS
 
     // 'gethrtime' has not been observed to fail on any 'sundev' machine.
 
     timeValue->d_opaque = gethrtime();
 
-#elif defined BSLS_PLATFORM__OS_AIX
+#elif defined BSLS_PLATFORM_OS_AIX
 
     // Imp Note:
     // 'read_wall_time' is very fast (<100 nsec), and guaranteed monotonic per
@@ -569,7 +569,7 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 
     read_wall_time(timeValue, TIMEBASE_SZ);
 
-#elif defined BSLS_PLATFORM__OS_HPUX
+#elif defined BSLS_PLATFORM_OS_HPUX
 
     // The following Imp Note applies to behavior observed on 'hp2' in late
     // July and early August of 2004.
@@ -587,7 +587,7 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
     Types::Int64 t2 = (Types::Int64) gethrtime();
     timeValue->d_opaque = t2 > t1 ? t2 : t1;
 
-#elif defined BSLS_PLATFORM__OS_LINUX
+#elif defined BSLS_PLATFORM_OS_LINUX
 
     // The call to 'clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts)' has never
     // been observed to be non-monotonic when tested at better than 1 parts in
@@ -607,7 +607,7 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
     clock_gettime(CLOCK_MONOTONIC, timeValue);         // significantly slower
                                                        // ~1.8 usec
 
-#elif defined BSLS_PLATFORM__OS_UNIX
+#elif defined BSLS_PLATFORM_OS_UNIX
 
     // A generic implementation having microsecond resolution is used.  There
     // is no attempt to defend against possible non-monotonic
@@ -617,7 +617,7 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 
     gettimeofday(timeValue, 0);
 
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
 
     timeValue->d_opaque = WindowsTimerUtil::getTimerRaw();
 
@@ -628,9 +628,9 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 
 Types::Int64 TimeUtil::getProcessSystemTimer()
 {
-#if defined BSLS_PLATFORM__OS_UNIX
+#if defined BSLS_PLATFORM_OS_UNIX
     return UnixTimerUtil::systemTimer();
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
     return WindowsTimerUtil::systemTimer();
 #else
     #error "Don't know how to get nanosecond time for this platform"
@@ -639,9 +639,9 @@ Types::Int64 TimeUtil::getProcessSystemTimer()
 
 Types::Int64 TimeUtil::getProcessUserTimer()
 {
-#if defined BSLS_PLATFORM__OS_UNIX
+#if defined BSLS_PLATFORM_OS_UNIX
     return UnixTimerUtil::userTimer();
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
     return WindowsTimerUtil::userTimer();
 #else
     #error "Don't know how to get nanosecond time for this platform"
@@ -651,9 +651,9 @@ Types::Int64 TimeUtil::getProcessUserTimer()
 void TimeUtil::getProcessTimers(Types::Int64 *systemTimer,
                                 Types::Int64 *userTimer)
 {
-#if defined BSLS_PLATFORM__OS_UNIX
+#if defined BSLS_PLATFORM_OS_UNIX
     UnixTimerUtil::processTimers(systemTimer, userTimer);
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
     WindowsTimerUtil::processTimers(systemTimer, userTimer);
 #else
     #error "Don't know how to get nanosecond time for this platform"

@@ -4158,7 +4158,7 @@ int main(int argc, const char *argv[])  {
         {
             bsl::vector<bsl::string> files;
             OptionInfo       specTable[1];
-#ifndef BSLS_PLATFORM__CMP_SUN
+#ifndef BSLS_PLATFORM_CMP_SUN
             const OptionInfo SPEC_TABLE[1] =
 #else
             // For some reason, SunPro doesn't like const OptionInfo[]...
@@ -6401,13 +6401,13 @@ int main(int argc, const char *argv[])  {
                 mX.setDefaultValue(DEFAULT_VALUE);
             }
 
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
             BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
                 Obj mY(X, &testAllocator);  const Obj& Y = mY;  // TEST HERE
 
                 ASSERT(X == Y);
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
             } END_BSLMA_EXCEPTION_TEST
 #endif
         }

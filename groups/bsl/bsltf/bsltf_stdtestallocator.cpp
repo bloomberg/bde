@@ -15,12 +15,12 @@ namespace bsltf {
                         // -----------------------------------
 
 // STATIC DATA
-bslma_Allocator *StdTestAllocatorConfiguration::s_allocator_p = 0;
+bslma::Allocator *StdTestAllocatorConfiguration::s_allocator_p = 0;
 
 
 // CLASS METHODS
 void StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
-                                              bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 {
     s_allocator_p = basicAllocator;
 }

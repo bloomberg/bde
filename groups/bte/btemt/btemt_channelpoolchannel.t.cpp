@@ -31,7 +31,7 @@
 #include <bsl_c_stdlib.h>     // atoi()
 #include <bsl_iostream.h>
 
-#if defined(BDES_PLATFORMUTIL__NO_LONG_HEADER_NAMES)
+#if defined(BDES_PLATFORMUTIL_NO_LONG_HEADER_NAMES)
 #include <strstrea.h>
 #else
 #include <bsl_strstream.h>

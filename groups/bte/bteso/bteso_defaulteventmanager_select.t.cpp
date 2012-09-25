@@ -147,7 +147,7 @@ enum {
     BUF_LEN    = 8192
 };
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
     enum {
         READ_SIZE = 8192,
         WRITE_SIZE = 30000
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
     int veryVeryVerbose = argc > 4;
 
     // TBD: these tests frequently timeout on Windows, disabling until fixed
-#if 0 && defined(BSLS_PLATFORM__OS_WINDOWS)
+#if 0 && defined(BSLS_PLATFORM_OS_WINDOWS)
     cout << "Test driver disabled\n";
 
     testStatus = -1;
@@ -460,8 +460,8 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS) && \
-    !defined(BSLS_PLATFORM__OS_HPUX)
+#if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS) && \
+    !defined(BSLS_PLATFORM_OS_HPUX)
         // -----------------------------------------------------------------
         // TESTING 'dispatch' FUNCTION:
         //   The goal is to ensure that 'dispatch' invokes the callback
@@ -656,7 +656,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TESTING 'deregisterSocket'" << endl
                                   << "==========================" << endl;
         {
-#ifndef BSLS_PLATFORM__CPU_64_BIT
+#ifndef BSLS_PLATFORM_CPU_64_BIT
             // This test fails on 64 bit platforms.  @FIXME @TODO @TBD
 
             Obj mX(&timeMetric, &testAllocator);
@@ -847,8 +847,8 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS) && \
-    !defined(BSLS_PLATFORM__OS_HPUX)
+#if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS) && \
+    !defined(BSLS_PLATFORM_OS_HPUX)
         // -----------------------------------------------------------------
         // TESTING 'dispatch' FUNCTION:
         //   The goal is to ensure that 'dispatch' invokes the callback
@@ -1303,7 +1303,7 @@ int main(int argc, char *argv[])
             }
 
             fd_set readSet, writeSet;
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
             LOOP_ASSERT(i, testPairs[i].observedFd() < FD_SETSIZE);
 #endif
             Obj mX(0, &testAllocator);
@@ -1313,7 +1313,7 @@ int main(int argc, char *argv[])
             tv.tv_usec = 0;
             int maxFd = 0;
 
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
             maxFd = testPairs[i].observedFd() + 1;
 #endif
 
@@ -1379,7 +1379,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\tAddressing concern #3." << endl;
         {
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
             {
                 // The behavior of such a system call on UNIX is blocking.
                 if (veryVerbose) cout << "\tEmpty sets, no timeout" << endl;
@@ -1392,10 +1392,10 @@ int main(int argc, char *argv[])
                 struct timeval tv;
                 tv.tv_sec = 1;
                 tv.tv_usec = 0;
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
                 ASSERT(-1 == ::select(0, NULL, NULL, NULL, &tv));
 #endif
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
                 ASSERT(0 == ::select(0, NULL, NULL, NULL, &tv));
 #endif
             }
@@ -1416,14 +1416,14 @@ int main(int argc, char *argv[])
                     fd_set testSet;
                     FD_ZERO(&testSet);
                     FD_SET(testPairs[i].controlFd(), &testSet);
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
                     ASSERT(0 == ::select(testPairs[i].controlFd() + 1,
                                          &testSet,
                                          NULL,
                                          NULL,
                                          &tv));
 #endif
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
                     ASSERT(0 == ::select(0, &testSet, NULL, NULL, &tv));
 #endif
                 }
@@ -1532,12 +1532,12 @@ int main(int argc, char *argv[])
         if (verbose)
         cout << "\t Testing 'canBeRegistered' method." << endl;
         {
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
             bteso_SocketHandle::Handle testHandle = 0xAB;
             Obj mX(0, &testAllocator);
             ASSERT(1 == mX.canBeRegistered(testHandle));
 #endif
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
             enum { GOOD_HANDLE = 0, BAD_HANDLE = FD_SETSIZE };
             Obj mX(0, &testAllocator);
             ASSERT(1 == mX.canBeRegistered(GOOD_HANDLE));
@@ -1684,7 +1684,7 @@ int main(int argc, char *argv[])
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
 
-#endif // !BSLS_PLATFORM__OS_WINDOWS
+#endif // !BSLS_PLATFORM_OS_WINDOWS
 
     return testStatus;
 }

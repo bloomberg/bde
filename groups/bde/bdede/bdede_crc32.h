@@ -210,12 +210,12 @@ class bdede_Crc32 {
         // the initial indentation (as governed by 'level').  If 'stream' is
         // not valid on entry, this operation has no effect.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     unsigned int view() const;
         // Return the current value of this checksum.
         //
         // DEPRECATED: use method 'checksum' instead.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -330,13 +330,13 @@ unsigned int bdede_Crc32::checksum() const
     return d_crc ^ 0xffffffff;
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 unsigned int bdede_Crc32::view() const
 {
     return d_crc ^ 0xffffffff;
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE OPERATORS
 inline

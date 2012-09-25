@@ -109,7 +109,7 @@ typedef bsls_AlignmentUtil Class;
     // Abbreviation for 'bsls_AlignmentUtil' -- mostly to keep text under 80
     // columns.
 
-#if defined(BSLS_PLATFORM__CMP_GNU) && defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_OS_AIX)
 // case 6
 const int BUF_SIZE = 3 * bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
 static union {
@@ -316,7 +316,7 @@ struct S1 { char d_buff[8]; S1(char); };
 struct S2 { char d_buff[8]; int d_int; S2(); private: S2(const S2&); };
 struct S3 { S1 d_s1; double d_double; short d_short; };
 struct S4 { short d_shorts[5]; char d_c;  S4(int); private: S4(const S4&); };
-#if defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_X86)
+#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CPU_X86)
 struct S5 { long long d_longLong __attribute__((__aligned__(8))); };
 #endif
 union  U1 { char d_c; int *d_pointer; };
@@ -486,7 +486,7 @@ int main(int argc, char *argv[])
         // necessary to force the alignment of a stack variable beyond what
         // the compiler requires.  Moreover, this trick does not even work for
         // gcc builds on AIX.
-#if !defined(BSLS_PLATFORM__CMP_GNU) || !defined(BSLS_PLATFORM__OS_AIX)
+#if !defined(BSLS_PLATFORM_CMP_GNU) || !defined(BSLS_PLATFORM_OS_AIX)
         const int BUF_SIZE = 3 * bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
         static union {
@@ -770,7 +770,7 @@ int main(int argc, char *argv[])
             S2_ALIGNMENT          = bdes_AlignmentOf<S2>::VALUE,
             S3_ALIGNMENT          = bdes_AlignmentOf<S3>::VALUE,
             S4_ALIGNMENT          = bdes_AlignmentOf<S4>::VALUE,
-#if defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_X86)
+#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CPU_X86)
             S5_ALIGNMENT          = bdes_AlignmentOf<S5>::VALUE,
 #endif
             U1_ALIGNMENT          = bdes_AlignmentOf<U1>::VALUE
@@ -794,7 +794,7 @@ int main(int argc, char *argv[])
         typedef bdes_AlignmentToType<S2_ALIGNMENT>::Type       S2Align;
         typedef bdes_AlignmentToType<S3_ALIGNMENT>::Type       S3Align;
         typedef bdes_AlignmentToType<S4_ALIGNMENT>::Type       S4Align;
-#if defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_X86)
+#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CPU_X86)
         typedef bsls_AlignmentToType<S5_ALIGNMENT>::Type       S5Align;
 #endif
         typedef bdes_AlignmentToType<U1_ALIGNMENT>::Type       U1Align;
@@ -820,7 +820,7 @@ int main(int argc, char *argv[])
         ASSERT(sameType(S2Align(),       bdes_AlignmentOf<S2>::Type()));
         ASSERT(sameType(S3Align(),       bdes_AlignmentOf<S3>::Type()));
         ASSERT(sameType(S4Align(),       bdes_AlignmentOf<S4>::Type()));
-#if defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_X86)
+#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CPU_X86)
         ASSERT(sameType(S5Align(),       bdes_AlignmentOf<S5>::Type()));
 #endif
         ASSERT(sameType(U1Align(),       bdes_AlignmentOf<U1>::Type()));
@@ -848,7 +848,7 @@ int main(int argc, char *argv[])
         ASSERT(S2_ALIGNMENT     == (int) bdes_AlignmentOf<S2Align>::VALUE);
         ASSERT(S3_ALIGNMENT     == (int) bdes_AlignmentOf<S3Align>::VALUE);
         ASSERT(S4_ALIGNMENT     == (int) bdes_AlignmentOf<S4Align>::VALUE);
-#if defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_X86)
+#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CPU_X86)
         ASSERT(S5_ALIGNMENT     == (int) bdes_AlignmentOf<S5Align>::VALUE);
 #endif
         ASSERT(U1_ALIGNMENT     == (int) bdes_AlignmentOf<U1Align>::VALUE);
@@ -922,7 +922,7 @@ int main(int argc, char *argv[])
                (int) bdes_AlignmentOf<S4>::VALUE);
         ASSERT(bdes_AlignmentOf<void*>::VALUE  ==
                (int) bdes_AlignmentOf<U1>::VALUE);
-#if defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_X86)
+#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CPU_X86)
         ASSERT(bdes_AlignmentOf<bsls_AlignmentImp8ByteAlignedType>::VALUE ==
                (int) bdes_AlignmentOf<S5>::VALUE);
 #endif
