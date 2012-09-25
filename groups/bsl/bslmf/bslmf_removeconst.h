@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Removing The Const-Qualifier of A Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to strip the 'const'-qualifier from a particular type..
+// Suppose that we want to strip the 'const'-qualifier from a particular type.
 //
 // First, we create two 'typedef's -- a 'const'-qualified type ('MyConstType')
 // and the same type without the 'const'-qualifier ('MyType'):

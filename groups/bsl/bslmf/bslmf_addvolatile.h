@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Adding The Volatile-Qualifier to A Type
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to add the 'volatile'-qualifier to a particular type..
+// Suppose that we want to add the 'volatile'-qualifier to a particular type.
 //
 // First, we create two 'typedef's -- a 'volatile'-qualified type
 // ('MyVolatileType') and the same type without the 'volatile'-qualifier
@@ -111,7 +111,7 @@ struct add_volatile {
         // parameter) 'TYPE' except with 'volatile'-qualifier added.
 };
 
-}
+}  // close namespace bsl
 
 #endif
 

@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Removing The Volatile-Qualifier of A Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to strip the 'volatile'-qualifier from a particular
-// type..
+// type.
 //
 // First, we create two 'typedef's -- a 'volatile'-qualified type
 // ('MyVolatileType') and the same type without the 'volatile'-qualifier

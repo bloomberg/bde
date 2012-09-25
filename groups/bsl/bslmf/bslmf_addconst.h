@@ -16,9 +16,9 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::remove_const',
-// that may be used to add a top-level 'const'-qualifier to a type if it is not
-// a reference, function or already 'const'-qualified at the top-level.
+//@DESCRIPTION: This component defines a meta-function, 'bsl::add_const', that
+// may be used to add a top-level 'const'-qualifier to a type if it is not a
+// reference, function or already 'const'-qualified at the top-level.
 //
 // 'bsl::add_const' meets the requirements of the 'add_const' template defined
 // in the C++11 standard [meta.unary.cv].
@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Adding The Const-Qualifier to A Type
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to add the 'const'-qualifier to a particular type..
+// Suppose that we want to add the 'const'-qualifier to a particular type.
 //
 // First, we create two 'typedef's -- a 'const'-qualified type ('MyConstType')
 // and the same type without the 'const'-qualifier ('MyType'):
