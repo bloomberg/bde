@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function for add top-level 'const'-qualifier
+//@PURPOSE: Provide a meta-function for adding a top-level 'const'-qualifier
 //
 //@CLASSES:
-//  bsl::add_const: meta-function for adding top-level 'const'-qualifier
+//  bsl::add_const: meta-function for adding a top-level 'const'-qualifier
 //
 //@SEE_ALSO: bslmf_removeconst
 //
@@ -70,7 +70,10 @@ struct AddConst_Imp {
     // parameter) 'ADD_CONST' is 'true'.  This generic default template adds
     // the 'const'-qualifier to 'TYPE'.  A template specialization (below) does
     // not modify 'TYPE'.
+
     typedef TYPE const Type;
+        // This 'typedef' to a type that is the same as the (template
+        // parameter) 'TYPE' except with 'const'-qualifier added.
 };
 
 template <typename TYPE>
@@ -78,7 +81,10 @@ struct AddConst_Imp<TYPE, false> {
     // This partial specialization of 'AddConst_Imp' provides an alias 'Type'
     // that has the same type as 'TYPE' for when the (template parameter)
     // 'ADD_CONST' is 'false'.
+
     typedef TYPE Type;
+        // This 'typedef' to a type that is the same as the (template
+        // parameter) 'TYPE' except with 'const'-qualifier added.
 };
 
 }  // close package namespace
