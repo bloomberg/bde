@@ -25,6 +25,9 @@
 #include <bsltf_testvaluesarray.h>
 #include <bsltf_stdtestallocator.h>
 
+#include <bslalg_hastrait.h>
+#include <bslalg_typetraits.h>
+
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -1392,9 +1395,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase24()
     //   const VALUE& at(const key_type& key) const;
     // ------------------------------------------------------------------------
 
-    const int TYPE_ALLOC =
-           bslalg::HasTrait<KEY, bslalg::TypeTraitUsesBslmaAllocator>::VALUE
-           + bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value
+                         + bslma::UsesBslmaAllocator<VALUE>::value;
 
     const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -1526,19 +1528,14 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase23()
     // ------------------------------------------------------------------------
 
     // Verify set defines the expected traits.
-    BSLMF_ASSERT((1 ==
-                  bslalg::HasTrait<Obj,
-                                  bslalg::TypeTraitHasStlIterators>::VALUE));
-    BSLMF_ASSERT((1 ==
-                  bslalg::HasTrait<Obj,
-                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+    BSLMF_ASSERT((1 == bslalg::HasStlIterators<Obj>::value));
+    BSLMF_ASSERT((1 == bslma::UsesBslmaAllocator<Obj>::value));
 
     // Verify the bslma-allocator trait is not defined for non
     // bslma-allocators.
 
-    BSLMF_ASSERT((0 ==
-                bslalg::HasTrait<bsl::map<KEY, VALUE, std::less<KEY>, StlAlloc>,
-                                bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+    BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<bsl::map<KEY, VALUE,
+                                          std::less<KEY>, StlAlloc> >::value));
 
     // Verify set does not define other common traits.
 

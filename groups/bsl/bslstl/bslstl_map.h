@@ -89,7 +89,7 @@ BSLS_IDENT("$Id: $")
 // memory from the indicated 'bslma::Allocator', a map supplies that
 // allocator's address to the constructors of contained objects of the
 // parameterized 'KEY' and 'VALUE' types, if respectively, the parameterized
-// types define the 'bslalg::TypeTraitUsesBslmaAllocator' trait.
+// types define the 'bslma::UsesBslmaAllocator' trait.
 //
 ///Operations
 ///----------
@@ -496,8 +496,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_rbtreeutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL

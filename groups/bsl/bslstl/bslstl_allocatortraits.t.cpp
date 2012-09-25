@@ -3,12 +3,11 @@
 
 #include <bslstl_allocator.h>
 
-#include <bslalg_hastrait.h>
-#include <bslalg_typetraits.h>
 #include <bslma_testallocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_usesbslmaallocator.h>
+#include <bslalg_typetraithasstliterators.h>       // for testing only
 #include <bslmf_issame.h>
 #include <bslmf_removecvq.h>
 #include <bsls_bsltestutil.h>
@@ -230,11 +229,11 @@ class BslmaAllocator
     // 'bslma::Allocator*'.
     bslma::Allocator *d_mechanism;
 
-    void doConstruct(T *p, const T& val, bslmf::MetaInt<0>) {
+    void doConstruct(T *p, const T& val, bsl::false_type) {
         ::new ((void*)p) T(val);
     }
 
-    void doConstruct(T *p, const T& val, bslmf::MetaInt<1>) {
+    void doConstruct(T *p, const T& val, bsl::true_type) {
         ::new ((void*)p) T(val, this->d_mechanism);
     }
 
@@ -267,9 +266,7 @@ class BslmaAllocator
 
     void construct(T *p, const T& val)
     {
-        typedef
-        typename bslalg::HasTrait<T, bslalg::TypeTraitUsesBslmaAllocator>::Type
-                                                            UsesBslmaAllocator;
+        typedef typename bslma::UsesBslmaAllocator<T>::type UsesBslmaAllocator;
         doConstruct(p, val, UsesBslmaAllocator());
     }
     void destroy(T *p) { p->~T(); }
@@ -340,11 +337,11 @@ class FunkyAllocator
     // 'bslma::Allocator*'.
     bslma::Allocator *d_mechanism;
 
-    void doConstruct(T *p, const T& val, bslmf::MetaInt<0>) {
+    void doConstruct(T *p, const T& val, bsl::false_type) {
         ::new ((void*)p) T(val);
     }
 
-    void doConstruct(T *p, const T& val, bslmf::MetaInt<1>) {
+    void doConstruct(T *p, const T& val, bsl::true_type) {
         ::new ((void*)p) T(val, this->d_mechanism);
     }
 
@@ -377,9 +374,7 @@ class FunkyAllocator
 
     void construct(T *p, const T& val)
     {
-        typedef
-        typename bslalg::HasTrait<T, bslalg::TypeTraitUsesBslmaAllocator>::Type
-                                                            UsesBslmaAllocator;
+        typedef typename bslma::UsesBslmaAllocator<T>::Type UsesBslmaAllocator;
         doConstruct(p, val, UsesBslmaAllocator());
     }
     void destroy(T *p) { p->~T(); }
@@ -796,8 +791,7 @@ inline bool isMutable(const T& /* x */) { return false; }
         // etc.
       public:
         // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(MyType,
-                                     bslalg::TypeTraitUsesBslmaAllocator);
+        BSLMF_NESTED_TRAIT_DECLARATION(MyType, bslma::UsesBslmaAllocator);
 
         // CREATORS
         explicit MyType(bslma::Allocator* basicAlloc = 0)
@@ -1245,15 +1239,15 @@ void testNestedTypedefs(const char* allocName)
     LOOP_ASSERT(allocName,
                 (bslmf::IsConvertible<
                  typename Traits::propagate_on_container_copy_assignment*,
-                 bslmf::MetaInt<0>* >::VALUE));
+                 bsl::false_type* >::VALUE));
     LOOP_ASSERT(allocName,
                 (bslmf::IsConvertible<
                  typename Traits::propagate_on_container_move_assignment*,
-                 bslmf::MetaInt<0>* >::VALUE));
+                 bsl::false_type* >::VALUE));
     LOOP_ASSERT(allocName,
                 (bslmf::IsConvertible<
                  typename Traits::propagate_on_container_swap*,
-                 bslmf::MetaInt<0>* >::VALUE));
+                 bsl::false_type* >::VALUE));
 }
 
 template <template <class X> class ALLOC_TMPL, class T, class U>
@@ -1713,7 +1707,7 @@ int main(int argc, char *argv[])
         //:   expression of type 'T' will result in the copy constructor for
         //:   'T' being invoked to make a copy of 'v'.
         //: 3 If 'T' is a type which has the trait
-        //:   'bslalg::TypeTraitUsesBslmaAllocator', and 'ALLOC' is convertible
+        //:   'bslma::UsesBslmaAllocator', and 'ALLOC' is convertible
         //:   from 'bslma::Allocator*', then 'a' is passed as an additional
         //:   constructor argument to 'allocator_traits<ALLOC>::construct'.
         //: 4 Calling 'allocator_traits<ALLOC>::destroy(a, p)' invokes the
@@ -1729,7 +1723,7 @@ int main(int argc, char *argv[])
         //:   'testConstructDestruct' a boolean parameter, 'scoped', that the
         //:   caller sets to 'true' if 'ALLOC' is convertible from
         //:   'bslma::Allocator*' and 'T' has the trait
-        //:   'bslalg::TypeTraitUsesBslmaAllocator' (C1-C5)
+        //:   'bslma::UsesBslmaAllocator' (C1-C5)
         //: o Within 'testConstructDestruct', create an aligned buffer 'b' for
         //:   an object of type 'T'.  Create an allocator 'a' and call
         //:   'allocator_traits<ALLOC>::construct(a, &b, args)', where args is
@@ -1991,7 +1985,7 @@ int main(int argc, char *argv[])
         //: 4 The types 'propagate_on_container_copy_assignment'
         //:   'propagate_on_container_move_assignment'
         //:   'propagate_on_container_swap' are each derived from
-        //:   'bslmf::MetaInt<0>'.
+        //:   'bsl::false_type'.
         //: 5 Concerns 1-4 apply to any allocator type.
         //
         // Plan:

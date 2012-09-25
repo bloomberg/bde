@@ -45,7 +45,7 @@ BSLS_IDENT("$Id: $")
 // a type that uses 'bslma::Allocator' for memory allocation, then each
 // constructor also has an optional 'bslma::Allocator' pointer argument.
 // Whether or not a type uses 'bslma::Allocator' is determined by querying the
-// 'bslalg::TypeTraitUsesBslmaAllocator' trait for that type.  This component
+// 'bslma::UsesBslmaAllocator' trait for that type.  This component
 // also defines a full set of equality and relational operators which can be
 // instantiated if 'T1' and 'T2' both provide those operators.
 //
@@ -54,12 +54,13 @@ BSLS_IDENT("$Id: $")
 // given specialization of 'bsl::pair' has that trait if and only if *both*
 // 'T1' and 'T2' have that trait.  Supported traits are:
 //..
-//  bslalg::TypeTraitBitwiseMoveable
-//  bslalg::TypeTraitBitwiseCopyable
-//  bslalg::TypeTraitHasTrivialDefaultConstructor
+//  bslmf::IsBitwiseMoveable
+//  bslmf::IsBitwiseEqualityComparible
+//  bsl::is_trivially_copyable
+//  bsl::is_trivially_default_constructible
 //..
 // In addition, a 'bsl::pair' specialization has the
-// 'bslalg::TypeTraitUsesBslmaAllocator' trait if *either* 'T1' or 'T2' have
+// 'bslma::UsesBslmaAllocator' trait if *either* 'T1' or 'T2' have
 // that trait, or both.
 //
 ///Usage
@@ -90,8 +91,7 @@ BSLS_IDENT("$Id: $")
 //      char            *d_data;
 //
 //    public:
-//      BSLALG_DECLARE_NESTED_TRAITS(my_String,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
+//      BSLMF_NESTED_TRAIT_DECLARATION(my_String, bslma::UsesBslmaAllocator);
 //
 //      explicit my_String(bslma::Allocator *basicAllocator = 0);
 //          // Construct an empty string using the optionally-specified
@@ -252,24 +252,32 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISPAIR
+#include <bslmf_ispair.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITPAIR
-#include <bslalg_typetraitpair.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
+#include <bslmf_isbitwiseequalitycomparable.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -434,8 +442,8 @@ struct Pair_Imp<T1, T2, 1, 1> {
 
 template <typename T1, typename T2>
 class pair : private Pair_Imp<T1, T2,
-                              BloombergLP::bslalg::HasTrait<T1, BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
-                              BloombergLP::bslalg::HasTrait<T2, BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE>
+                             BloombergLP::bslma::UsesBslmaAllocator<T1>::value,
+                             BloombergLP::bslma::UsesBslmaAllocator<T2>::value>
 {
     // Provide a pair of public data members, 'first' and 'second', of type
     // 'T1' and 'T2' respectively.  If either 'T1' or 'T2' uses
@@ -447,9 +455,8 @@ class pair : private Pair_Imp<T1, T2,
 
     // PRIVATE TYPES
     typedef Pair_Imp<T1, T2,
-                     BloombergLP::bslalg::HasTrait<T1, BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
-                     BloombergLP::bslalg::HasTrait<T2, BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE>
-                 Base;
+                     BloombergLP::bslma::UsesBslmaAllocator<T1>::value,
+                     BloombergLP::bslma::UsesBslmaAllocator<T2>::value> Base;
 
   public:
     // PUBLIC TYPES

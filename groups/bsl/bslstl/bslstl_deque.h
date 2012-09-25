@@ -103,8 +103,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ANYTYPE
@@ -450,10 +450,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
   private:
     // ASSERTIONS
 
-    BSLMF_ASSERT((BloombergLP::bslmf::IsSame<reference,
-                                            typename Base::reference>::VALUE));
-    BSLMF_ASSERT((BloombergLP::bslmf::IsSame<const_reference,
-                                      typename Base::const_reference>::VALUE));
+    BSLMF_ASSERT((is_same<reference, typename Base::reference>::VALUE));
+    BSLMF_ASSERT((is_same<const_reference,
+                  typename Base::const_reference>::VALUE));
         // This need not necessarily be true as per the C++ standard, but is a
         // safe assumption for this implementation and allows to implement the
         // element access within the 'Base' type (that is parameterized by

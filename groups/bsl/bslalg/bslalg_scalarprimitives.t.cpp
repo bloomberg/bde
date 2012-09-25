@@ -365,7 +365,7 @@ template <> struct UsesBslmaAllocator<my_Class5> : bsl::true_type { };
 
 namespace bslmf {
 template <> struct IsBitwiseMoveable<my_Class5> : bsl::true_type { };
-}  // close namesace bsl
+}  // close namesace bslmf
 
 }  // close enterprise namespace
 

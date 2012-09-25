@@ -354,16 +354,28 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
+#include <bslmf_isbitwiseequalitycomparable.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -389,18 +401,6 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_CSTDDEF
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
-#include <bslalg_typetraitbitwisecopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
-#include <bslalg_typetraitbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEEQUALITYCOMPARABLE
-#include <bslalg_typetraitbitwiseequalitycomparable.h>
-#endif
-
 namespace bsl {
 
                              // ===============
@@ -423,10 +423,11 @@ class allocator {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS3(allocator
-                                , BloombergLP::bslalg::TypeTraitBitwiseCopyable
-                                , BloombergLP::bslalg::TypeTraitBitwiseMoveable
-                                , BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator,
+                                   BloombergLP::bslmf::IsBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator,
+                              BloombergLP::bslmf::IsBitwiseEqualityComparable);
         // Declare nested type traits for this class.
 
     // PUBLIC TYPES
@@ -539,6 +540,13 @@ class allocator<void> {
     BloombergLP::bslma::Allocator *d_mechanism;
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator,
+                                   BloombergLP::bslmf::IsBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator,
+                              BloombergLP::bslmf::IsBitwiseEqualityComparable);
+        // Declare nested type traits for this class.
     // PUBLIC TYPES
     typedef std::size_t     size_type;
     typedef std::ptrdiff_t  difference_type;
@@ -550,12 +558,6 @@ class allocator<void> {
     {
         typedef allocator<U> other;
     };
-
-    BSLALG_DECLARE_NESTED_TRAITS3(allocator
-                                , BloombergLP::bslalg::TypeTraitBitwiseCopyable
-                                , BloombergLP::bslalg::TypeTraitBitwiseMoveable
-                                , BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
-        // Declare nested type traits for this class.
 
     // CREATORS
     allocator();
