@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function, 'bsl::is_intgeral' ,
-// which may be used to query whether a type is a integeral type as defined in
+// that may be used to query whether a type is a integeral type as defined in
 // section 3.9.1.7 of the C++11 standard [basic.fundamental] (excluding those
 // types that are only available in C++11).
 //

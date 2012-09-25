@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::is_const' , which
+//@DESCRIPTION: This component defines a meta-function, 'bsl::is_const' , that
 // may be used to query whether a type is 'const'-qualified as defined in
 // section the C++11 standard [basic.type.qualifier].
 //

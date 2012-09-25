@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function, 'bsl::is_volatile' ,
-// which may be used to query whether a type is 'volatile'-qualified as defined
+// that may be used to query whether a type is 'volatile'-qualified as defined
 // in section the C++11 standard [basic.type.qualifier].
 //
 // 'bsl::is_volatile' meets the requirements of the 'is_volatile' template
