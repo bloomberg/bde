@@ -10,26 +10,31 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time type conversion checker.
 //
 //@CLASSES:
-//  bslmf::IsConvertible: compile-time type conversion checker
+//  bsl::is_convertible: standard meta-function for type conversion checking
+//  bslmf::IsConvertible: meta-function for type conversion checking
 //
 //@SEE_ALSO: bslmf_integralconstant
 //
 //@AUTHOR: Paul Staniforth (pstaniforth)
 //
-//@DESCRIPTION: This component defines a meta-function (i.e., a compile-time
-// function using the C++ type system) for checking whether a conversion exists
-// from one C++ type to another.  'bslmf::IsConvertible' is a template struct
-// that takes two parameters and provides an enumerator with a predicate value
-// of '1' if a conversion from the first parameter to the second exists, and a
-// value of '0' otherwise.  For example, a conversion exists from an 'int' to a
-// 'char', but one does not exists from an 'int' to an 'char' pointer.
-//..
-//  static const int A = bslmf::IsConvertible<int, char >::value; // A is 1
-//  static const int B = bslmf::IsConvertible<int, char*>::value; // B is 0
-//..
-// Note that the result is undefined if either parameter is 'void'.  Note also
-// that 'bslmf::IsConvertible' can produce compiler errors if the conversion is
-// ambiguous.  For example,
+///@DESCRIPTION: This component defines two meta-functions,
+// 'bsl::is_convertible' and 'BloombergLP::bslmf::IsConvertible', both of which
+// may be used to check whether a conversion exists from one type to another.
+//
+// 'bsl::is_convertible' meets the requirements of the 'is_convertible'
+// template defined in the C++11 standard [meta.rel], while
+// 'bslmf::IsConvertible' was devised before 'is_convertible' was standardized.
+//
+// The two meta-functions are functionally equivalent.  The major difference
+// between them is that the result for 'bsl::is_convertible' is indicated by
+// the class member 'value', while the result for 'bslmf::IsConvertible' is
+// indicated by the class member 'VALUE'.
+//
+// Note that 'bsl::is_convertible' should be preferred over
+// 'bslmf::IsConvertible', and in general, should be used by new components.
+// Note also that the result is undefined if either parameter is 'void'.  Note
+// also that 'bslmf::IsConvertible' can produce compiler errors if the
+// conversion is ambiguous.  For example,
 //..
 //  struct A {};
 //  struct B : public A {};
@@ -38,76 +43,139 @@ BSLS_IDENT("$Id: $")
 //
 //  static int const C = bslmf::IsConvertible<D*, A*>::value; // ERROR!
 //..
+//
 ///Usage
 ///-----
-// This meta-function can be used to select an appropriate function (at compile
-// time) based on the convertibility of one type to another without causing a
-// compiler error by actually trying the conversion.  This implementation
-// technique is especially useful when building generic containers that use an
-// allocator protocol to acquire resources.  As a design goal, we want to pass
-// the container's allocator to contained types if they provide an appropriate
-// constructor.
+// In this section we show intended use of this component.
 //
-// Consider the following example of an implementation of some container's
-// 'addObj' method that adds a new object of its contained type (in the type's
-// default state).  The method calls an overloaded function 'createObj' to
-// create a new object of the parameterized type in its internal array.  The
-// idea is to invoke one version of 'createObj' if the type provides a
-// constructor that takes a pointer to an allocator as its sole argument, and
-// another version if the type provides only a default constructor.
+///Example 1: Select Function Based on Convertibility
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// This 'bsl::is_convertible' meta-function can be used to select an
+// appropriate function (at compile time) based on the convertibility of one
+// type to another without causing a compiler error by actually trying the
+// conversion.  This implementation technique is especially useful when
+// building generic containers that use an allocator protocol to acquire
+// resources.  As a design goal, we want to pass the container's allocator to
+// contained types if they provide an appropriate constructor.
 //
-// The first 'createObj' function takes a 'bslmf::MetaInt<0>' as its last
-// argument, whereas the second 'createObj' function takes a
-// 'bslmf::MetaInt<1>' object.  The result of the 'isConvertible' meta-function
-// (i.e., its 'Type' member) is used to create the last argument to
-// 'createObj'.  Neither version of 'createObj' makes use of this argument --
-// it is used only to differentiate the argument list so we can overload the
-// function.
+// Suppose we are implementing some container's 'addObj' method that adds a new
+// object (in its default state) of the container's template parameter 'TYPE'.
+// The method calls an overloaded function 'createObj' to create a new object
+// of the parameterized type in its internal array.  The idea is to invoke one
+// version of 'createObj' if the type provides a constructor that takes a
+// pointer to an allocator as its sole argument, and another version if the
+// type provides only a default constructor.
+//
+// First, we define the allocator to be used:
 //..
-//  template<class T>
-//  void createObj(T *space, MyAllocator *, bslmf::MetaInt<1>)
+//  struct MyAllocator {
+//      // This is a user-defined allocator.
+//
+//      void *allocate(size_t sz)
+//      {
+//          return operator new(sz);
+//      }
+//
+//      void  deallocate(void *address)
+//      {
+//          operator delete(address);
+//      }
+//  };
+//..
+// Then, we define two 'struct's, 'Foo' and 'Bar'.  The constructor of 'Foo'
+// takes a 'MyAllocator' object pointer while that of 'Bar' does not:
+//..
+//  struct Foo {
+//      Foo(MyAllocator *) {}
+//  };
+//
+//  struct Bar {
+//      Bar() {}
+//  };
+//..
+// Next, we define the first 'createObj' function that takes a
+// 'bsl::false_type' as its last argument, whereas the second 'createObj'
+// function takes a 'bsl::true_type' object.  The result of the
+// 'bsl::is_convertible' meta-function (i.e., its 'Type' member) is used to
+// create the last argument passed to 'createObj'.  Neither version of
+// 'createObj' makes use of this argument -- it is used only to differentiate
+// the argument list so we can overload the function.
+//..
+//  template<class TYPE>
+//  void createObj(TYPE *space, MyAllocator *, bsl::false_type)
 //  {
 //     // Use the type's default constructor if
-//     // bslmf::IsConvertible<MyAllocator*, T>::value == 0 -- i.e., there is
-//     // no conversion from a MyAllocator pointer to a T.
+//     // 'bsl::is_convertible<MyAllocator*, TYPE>::value == false', i.e.,
+//     // there is no conversion from a 'MyAllocator' pointer to a 'TYPE'.
 //
-//     new (space) T();
+//     new (space) TYPE();
 //  }
 //
-//  template<class T>
-//  void createObj(T *space, MyAllocator *alloc, bslmf::MetaInt<0>)
+//  template<class TYPE>
+//  void createObj(TYPE *space, MyAllocator *alloc, bsl::true_type)
 //  {
 //     // Use the type's constructor that takes a pointer to an allocator if
-//     // bslmf::IsConvertible<MyAllocator*, T>::value == 1, i.e., there is
-//     // a conversion from a MyAllocator pointer to a T.
+//     // 'bsl::is_convertible<MyAllocator*, TYPE>::value == true', i.e., there
+//     // is a conversion from a 'MyAllocator' pointer to a 'TYPE'.
 //
-//     new (space) T(alloc);
+//     new (space) TYPE(alloc);
 //  }
-//
-//  template <class T>
+//..
+// Now, we define our 'MyContainer' type and implement the 'addObj' method:
+//..
+//  template <class TYPE>
 //  class MyContainer {
-//      T *d_array_p;           // underlying array
-//      MyAllocator *d_alloc_p; // allocator protocol
-//      int d_length;           // logical length of array
+//      // DATA
+//      TYPE *d_array_p;         // underlying array
+//
+//      MyAllocator *d_alloc_p;  // allocator protocol
+//
+//      int d_length;            // logical length of array
+//
 //      // ...
 //
 //      void resizeInternalArrayIfNeeded() { /* ... */ };
+//
 //    public:
+//      // CREATORS
 //      MyContainer(MyAllocator *alloc)
 //      : d_alloc_p(alloc)
 //      , d_length(0)
 //      {
-//          d_array_p = (T*) d_alloc_p->allocate(sizeof(T));
+//          d_array_p = (TYPE*) d_alloc_p->allocate(sizeof(TYPE));
 //      }
 //
+//      ~MyContainer()
+//      {
+//          d_alloc_p->deallocate(d_array_p);
+//      }
+//
+//      // MANIPULATORS
 //      void addObj()
 //      {
 //          resizeInternalArrayIfNeeded();
-//          createObj(d_array_p + d_length++,
-//                    d_alloc_p,
-//                    bslmf::IsConvertible<MyAllocator*, T>::Type());
+//          // Work around some Sun's compiler weirdness the code won't compile
+//          // with just the typename
+//          typedef typename bsl::is_convertible<MyAllocator*, TYPE>::type
+//                                                                     isAlloc;
+//          createObj(d_array_p + d_length++, d_alloc_p, isAlloc());
 //      }
 //  };
+//..
+// Notice that in 'addObj' method we use 'bsl::is_convertible' to get a
+// 'bsl::false_type' or 'bsl::true_type', and then call the corresponding
+// overloaded 'createObj' method.
+//
+// Finally, we instantiate 'MyContainer' with both 'Foo' and 'Bar' types, and
+// call 'addObj' on both containers:
+//..
+//  MyAllocator a;
+//
+//  MyContainer<Foo> fc(&a);
+//  fc.addObj();
+//
+//  MyContainer<Bar> bc(&a);
+//  bc.addObj();
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -204,8 +272,10 @@ struct IsConvertible_Match {
     typedef struct { char a[2]; } no_type;
 
     static yes_type match(IsConvertible_Match&);
-    template <typename T> static no_type match(const T&);
-    template <typename T> static no_type match(const volatile T&);
+    template <typename T>
+    static no_type match(const T&);
+    template <typename T>
+    static no_type match(const volatile T&);
         // Return 'yes_type' if called on an argument of type
         // 'IsConvertible_Match' and 'no_type' otherwise.
 };

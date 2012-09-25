@@ -5,7 +5,7 @@
 #include <bsls_bsltestutil.h>
 
 #include <cstdlib>     // atoi()
-#include <iostream>
+#include <cstdio>
 
 using namespace BloombergLP;
 using namespace std;
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     (void) verbose;          // eliminate unused variable warning
     (void) veryVerbose;      // eliminate unused variable warning
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
@@ -354,14 +354,13 @@ int main(int argc, char *argv[])
         ASSERT(false == (bsl::is_same<PFi, Fi>::value));
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = "
-             << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
     return testStatus;
 }
