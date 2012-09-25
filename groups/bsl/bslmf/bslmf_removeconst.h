@@ -7,10 +7,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
-#endif
-
 //@PURPOSE: Provide a meta-function for removing top-level 'const'-qualifier
 //
 //@CLASSES:
@@ -20,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::remove_const' ,
+//@DESCRIPTION: This component defines a meta-function, 'bsl::remove_const',
 // that may be used to remove the top-level 'const'-qualifier from a type.
 //
 // 'bsl::remove_const' meets the requirements of the 'remove_const' template
@@ -47,6 +43,10 @@ BSLS_IDENT("$Id: $")
 //  assert(true ==
 //        (bsl::is_same<bsl::remove_const<MyConstType>::type, MyType>::value));
 //..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
 
 namespace bsl {
 

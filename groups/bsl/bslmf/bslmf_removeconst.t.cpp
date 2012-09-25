@@ -3,8 +3,8 @@
 
 #include <bslmf_issame.h>
 
-#include <iostream>
 #include <cstdlib>
+#include <cstdio>
 
 using namespace std;
 using namespace bsl;
@@ -22,7 +22,7 @@ using namespace BloombergLP;
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 1] bsl::reomve_const
+// [ 1] bsl::remove_const
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -68,7 +68,7 @@ namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::is_integral'.
+   // argument for the template parameter 'TYPE' of 'bsl::remove_const'.
 };
 
 }  // close unnamed namespace
@@ -143,28 +143,43 @@ int main(int argc, char *argv[])
         //:
         //: 3 'bsl::remove_const::type' is 'T volatile' when 'TYPE' is
         //:   'T const volatile'.
+        //:
+        //: 4 'bsl::remove_const::type' is 'T const *' when 'TYPE' is
+        //:   'T const *'.
         //
         // Plan:
-        //   Verify that 'bsl::remote_const::type' has the correct type for
+        //   Verify that 'bsl::remove_const::type' has the correct type for
         //   each (template parameter) 'TYPE' in the concerns.
         //
         // Testing:
-        //   bsl::is_const::value
+        //   bsl::remove_const
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\n'bsl::remove_const'\n"
+                            "\n===================\n");
 
         // C-1
         ASSERT((is_same<remove_const<int>::type, int>::value));
+        ASSERT((is_same<remove_const<int *>::type, int *>::value));
         ASSERT((is_same<remove_const<TestType>::type, TestType>::value));
 
         // C-2
         ASSERT((is_same<remove_const<int const>::type, int>::value));
+        ASSERT((is_same<remove_const<int * const>::type, int *>::value));
         ASSERT((is_same<remove_const<TestType const>::type, TestType>::value));
 
         // C-3
         ASSERT((is_same<remove_const<int const volatile>::type,
                                                         int volatile>::value));
+        ASSERT((is_same<remove_const<int * const volatile>::type,
+                                                      int * volatile>::value));
         ASSERT((is_same<remove_const<TestType const volatile>::type,
                                                    TestType volatile>::value));
+
+        // C-4
+        ASSERT((is_same<remove_const<int const *>::type,
+                                                         int const *>::value));
+
       } break;
       default: {
 

@@ -7,6 +7,43 @@
 #endif
 BSLS_IDENT("$Id: $")
 
+//@PURPOSE: Provide a meta-function for removing top-level cv-qualifier
+//
+//@CLASSES:
+//  bsl::remove_const: meta-function for removing top-level cv-qualifier
+//
+//@SEE_ALSO: bslmf_addcv
+//
+//@AUTHOR:
+//
+//@DESCRIPTION: This component defines a meta-function, 'bsl::remove_cv', that
+// may be used to remove the top-level cv-qualifier ('const'-qualifier and
+// 'volatile'-qualifier) from a type.
+//
+// 'bsl::remove_const' meets the requirements of the 'remove_cv' template
+// defined in the C++11 standard [meta.unary.cv].
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Removing The CV-Qualifier of A Type
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to strip the cv-qualifier from a particular type..
+//
+// First, we create two 'typedef's -- a cv-qualified type ('MyCvType') and the
+// same type without the cv-qualifier ('MyType'):
+//..
+//  typedef int                MyType;
+//  typedef const volatile int MyCvType;
+//..
+// Now, we strip the the cv-qualifier from 'MyCvType' using 'bsl::remove_cv'
+// and verify that the resulting type is the same as 'MyType'.
+//..
+//  assert(true == (bsl::is_same<bsl::remove_cv<MyCvType>::type,
+//                                                            MyType>::value));
+//..
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
@@ -22,10 +59,17 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
 
 template <typename TYPE>
-struct remove_cv
-{
+struct remove_cv {
+    // This 'struct' template implements the 'remove_cv' meta-function defined
+    // in the C++11 standard [meta.trans.cv].  This 'struct' template provides
+    // a 'typedef' 'type' that has the same type as the (template parameter)
+    // 'TYPE' except that any top-level cv-qualifier has been removed.
+
     typedef typename remove_const<typename remove_volatile<TYPE>::type>::type
-        type;
+                                                                          type;
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE' except that any top-level cv-qualifier has been
+        // removed.
 };
 
 }
