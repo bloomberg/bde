@@ -665,8 +665,8 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
     // If 'whence' is 'ios_base::cur' (the current position), 'modeBitMask'
     // may not be both input and output mode.
 
-    if (((modeBitMask & (ios_base::in | ios_base::out)) == 
-                        (ios_base::in | ios_base::out)) 
+    if (((modeBitMask & (ios_base::in | ios_base::out)) ==
+                        (ios_base::in | ios_base::out))
         && whence == ios_base::cur) {
         return pos_type(off_type(-1));                                // RETURN
     }
