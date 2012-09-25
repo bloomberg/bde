@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstl_Deque: standard-compliant 'bsl::deque' implementation
 //
-//@SEE_ALSO: bslstl_vector, bsl+stlport
+//@SEE_ALSO: bslstl_vector, bsl+stlhdrs
 //
 //@AUTHOR: Pablo Halpern (phalpern),  Herve Bronnimann (hbronnim),
 //         Arthur Chiu (achiu)
