@@ -75,6 +75,20 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+//=============================================================================
+//                GLOBAL TYPEDEFS AND VARIABLES FOR TESTING
+//-----------------------------------------------------------------------------
+
+template <typename FIRST_TYPE, typename SECOND_TYPE>
+struct MyPair {
+    // PUBLIC TYPES
+    typedef FIRST_TYPE  first_type;
+    typedef SECOND_TYPE second_type;
+
+    // DATA
+    first_type  first;
+    second_type second;
+};
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -110,6 +124,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+        typedef MyPair<int, int> VTypeII;
+        typedef bslstl::UnorderedMapKeyPolicy<VTypeII> PolicyII;
+
+        const VTypeII v1 = { 5, 7 };
+
+        ASSERT(5 == PolicyII::extractKey(v1));
+
+
+        typedef MyPair<double, int> VTypeDI;
+        typedef bslstl::UnorderedMapKeyPolicy<VTypeDI> PolicyDI;
+
+        const double x = 7.3;
+
+        const VTypeDI v2 = { x, 5 };
+
+        ASSERT(x == PolicyDI::extractKey(v2));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

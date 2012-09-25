@@ -15,7 +15,13 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
 //
-//@DESCRIPTION: This component provides ...
+//@DESCRIPTION: This component provides an identity transformation.
+// 'bslalg::HashTableImpUtil' has a static 'extractKey' function template
+// that, given a 'value type', will represent objects stored in a data
+// structure, will abstract out the 'key type' portion of that object.  In the
+// case of the 'unordered_set' data structure, the 'key type' and the
+// 'value type' are one and the same, so the 'extractKey' transformation is a
+// trivial identity transformation.
 //-----------------------------------------------------------------------------
 //..
 //
@@ -26,11 +32,9 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-namespace BloombergLP
-{
+namespace BloombergLP {
 
-namespace bslstl
-{
+namespace bslstl {
 
                           // ============================
                           // struct UnorderedSetKeyPolicy
@@ -47,7 +51,10 @@ struct UnorderedSetKeyPolicy {
     // class to provide a common implementation.
 
     // CLASS METHODS
-    static const KeyType& extractKey(const VALUE_TYPE& obj);
+    static const KeyType& extractKey(const VALUE_TYPE& object);
+        // Given a specified 'object', return a reference to the 'KeyType'
+        // contained within that object.  In this case, the 'KeyType' returned
+        // is simply the object itself.
 };
 
 // ===========================================================================
@@ -62,14 +69,14 @@ struct UnorderedSetKeyPolicy {
 template <class VALUE_TYPE>
 inline
 const typename UnorderedSetKeyPolicy<VALUE_TYPE>::KeyType&
-UnorderedSetKeyPolicy<VALUE_TYPE>::extractKey(const VALUE_TYPE& obj)
+UnorderedSetKeyPolicy<VALUE_TYPE>::extractKey(const VALUE_TYPE& object)
 {
-    return obj;
+    return object;
 }
 
-} // namespace BloombergLP::bslalg
+}  // close namespace bslalg
 
-} // namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

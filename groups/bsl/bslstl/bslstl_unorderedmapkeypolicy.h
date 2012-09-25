@@ -10,15 +10,25 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a policy class to extract keys as the 'first' attribute.
 //
 //@CLASSES:
-//   bslalg::UnorderedMapKeyPolicy :
+//   bslalg::UnorderedMapKeyPolicy : extracts 'key' from 'value' type
 //
 //@SEE_ALSO: bslalg_hashtableimputil
 //
 //@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
 //
-//@DESCRIPTION: This component provides ...
+//@DESCRIPTION: This component will, given an object of a value type consisting
+// of a key type and some other information, return a const reference to only
+// the key type within that object.  The object passed will be of parametrized
+// type 'VALUE_TYPE', for which a type 'VALUE_TYPE::first_type' must be
+// defined and be of the key type, and for which the operation '.first' must be
+// defined and must yield the object of the key type.
+//
+// 'bslalg::HashTableImpUtil' has a static 'extractKey' function template that,
+// given a 'value type', will represent objects stored in a data structure,
+// will abstract out the 'key type' portion of that object.  In the case of the
+// 'unordered_map' data structure, the 'value type' will be 'bsl::pair', and
+// the key type will 'bsl::pair::first_type'.
 //-----------------------------------------------------------------------------
-//..
 //
 ///Usage
 ///-----
@@ -27,10 +37,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-namespace BloombergLP
-{
-namespace bslstl
-{
+namespace BloombergLP {
+namespace bslstl {
 
                           // ============================
                           // struct UnorderedMapKeyPolicy
@@ -50,17 +58,18 @@ struct UnorderedMapKeyPolicy {
 
     // CLASS METHODS
     static const KeyType& extractKey(const VALUE_TYPE& obj);
+        // Return the member 'first' of the specified object 'obj'.
+        // 'obj.first' must of of type 'VALUE_TYPE::first_type', which is the
+        // 'key' portion of 'obj'.
 };
-
 
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-
-                  //-----------------------------------------
-                  // class UnorderedMapKeyPolicy
-                  //-----------------------------------------
+                          //----------------------------
+                          // class UnorderedMapKeyPolicy
+                          //----------------------------
 
 // CLASS METHODS
 template <class VALUE_TYPE>
@@ -71,9 +80,9 @@ UnorderedMapKeyPolicy<VALUE_TYPE>::extractKey(const VALUE_TYPE& obj)
     return obj.first;
 }
 
-} // namespace BloombergLP::bslalg
+}  // close namespace bslalg
 
-} // namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

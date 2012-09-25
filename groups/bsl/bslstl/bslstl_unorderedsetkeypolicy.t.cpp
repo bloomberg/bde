@@ -84,9 +84,9 @@ int main(int argc, char *argv[])
 {
     int  test                = argc > 1 ? atoi(argv[1]) : 0;
     bool verbose             = argc > 2;
-    bool veryVerbose         = argc > 3;
-    bool veryVeryVerbose     = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+//  bool veryVerbose         = argc > 3;
+//  bool veryVeryVerbose     = argc > 4;
+//  bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -110,6 +110,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+        typedef bslstl::UnorderedSetKeyPolicy<int>    IntPolicy;
+
+        ASSERT(5 == IntPolicy::extractKey(5));
+
+        typedef bslstl::UnorderedSetKeyPolicy<double> DoublePolicy;
+
+        const double D = 47.5;
+
+        ASSERT(D == DoublePolicy::extractKey(D));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
