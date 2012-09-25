@@ -514,7 +514,7 @@ template <class VALUE, class CONTAINER>
 inline
 void queue<VALUE, CONTAINER>::swap(queue& q)
 {
-    BloombergLP::bslalg_SwapUtil::swap(&c, &q.c);
+    BloombergLP::bslalg::SwapUtil::swap(&c, &q.c);
 }
 
 // ACCESSORS

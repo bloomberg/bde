@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
                           << "====================" << endl;
 
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC) || \
-    defined(BSLS_PLATFORM__CMP_IBM)
+    defined(BSLS_PLATFORM_CMP_IBM)
         static const int EXP = 0;
 #else
         static const int EXP = 1;

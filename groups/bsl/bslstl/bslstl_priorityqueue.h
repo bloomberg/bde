@@ -115,7 +115,7 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      // CREATORS
 //      explicit Task(int taskId, TaskFunction taskFunction, int priority);
-//          // Construct a 'Task' object having the specified 'taskId', the
+//          // Create a 'Task' object having the specified 'taskId', the
 //          // specified 'd_taskFunction_p', and the specified 'priority'.
 //
 //      // ACCESSORS
@@ -388,26 +388,33 @@ class priority_queue
     typedef          CONTAINER                  container_type;
 
     // CREATORS
-    explicit priority_queue();
-        // Construct an empty priority, adapting a default-constructed
-        // container of the parameterized 'CONTAINER' type.  Use a
-        // default-constructed comparator of the parameterized 'COMPARATOR'
-        // type to order priorities of elements.
-
     priority_queue(const COMPARATOR& comparator,
                    const CONTAINER&  container);
-        // Construct a priority queue, adapting the specified 'container',
-        // having the specified 'comparator' to order priorities of elements
-        // held in 'container'.
+        // Create a priority queue, adapting the specified 'container' of the
+        // (template parameter) type 'CONTAINER', and having the specified
+        // 'comparator' of the (template parameter) type 'COMPARATOR' to order
+        // priorities of elements held in 'container'.
+
+    explicit priority_queue();
+        // Create an empty priority queue, adapting a default-constructed
+        // container of the (template parameter) type 'CONTAINER'.  Use a
+        // default-constructed comparator of the (template parameter) type
+        // 'COMPARATOR' to order priorities of elements.
+
+    explicit priority_queue(const COMPARATOR& comparator);
+        // Create an empty priority queue, adapting a default-constructed
+        // container of the parameterized 'CONTAINER' type, and having the
+        // sepcified 'comparator' of the (template parameter) type 'COMPARATOR'
+        // to order priorities of elements in 'container'.
 
     template <class INPUT_ITERATOR>
-    priority_queue(INPUT_ITERATOR    first,
-                   INPUT_ITERATOR    last);
-        // Construct an empty priority queue, adapting a default-constructed
-        // container of the parameterized 'CONTAINER' type, and insert into the
-        // container a sequence of 'value_type' elements starting at the
-        // specified 'first', and ending immediately before the specified
-        // 'last'.  Use a default-constructed comparator of the parameterized
+    priority_queue(INPUT_ITERATOR first,
+                   INPUT_ITERATOR last);
+        // Create a priority queue, adapting a default-constructed container of
+        // the (template parameter) type 'CONTAINER', and inserting into the
+        // container a sequence of 'value_type' elements that starts at the
+        // specified 'first' and ends immediately before the specified 'last'.
+        // Use a default-constructed comparator of the parameterized
         // 'COMPARATOR' type to order the priorities of elements.
 
     template <class INPUT_ITERATOR>
@@ -415,15 +422,15 @@ class priority_queue
                    INPUT_ITERATOR    last,
                    const COMPARATOR& comparator,
                    const CONTAINER&  container);
-        // Construct a priority queue, adapting the specified 'container',
-        // having the specified 'comparator' to order the priorities of
-        // elements, including those originally existed in 'container', and
-        // those inserted into the 'container' from a sequence of 'value_type'
+        // Create a priority queue, adapting the specified 'container', having
+        // the specified 'comparator' to order the priorities of elements,
+        // including those originally existed in 'container', and those
+        // inserted into the 'container' from a sequence of 'value_type'
         // elements starting at the specified 'first', and ending immediately
         // before the specified 'last'.
 
     priority_queue(const priority_queue& original);
-        // Construct a priority queue having the same value as the specified
+        // Create a priority queue having the same value as the specified
         // 'original'.  Use the comparator from 'original' to order the
         // priorities of elements.
 
@@ -434,7 +441,7 @@ class priority_queue
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                CONTAINER,
                                                ALLOCATOR>::VALUE>::type * = 0);
-        // Construct an empty priority queue that adapts a default-constructed
+        // Create an empty priority queue that adapts a default-constructed
         // container of the parameterized 'CONTAINER' type and will use the
         // specified 'allocator' to supply memory.  Use a default-constructed
         // comparator of the parameterized 'COMPARATOR' type to order the
@@ -450,7 +457,7 @@ class priority_queue
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                CONTAINER,
                                                ALLOCATOR>::VALUE>::type * = 0);
-        // Construct an empty priority queue that adapts a default-constructed
+        // Create an empty priority queue that adapts a default-constructed
         // container of the parameterized 'CONTAINER'type and will use the
         // specified 'allocator' to supply memory, and the specified
         // 'comparator' to order priorities of elements in a
@@ -468,9 +475,9 @@ class priority_queue
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                CONTAINER,
                                                ALLOCATOR>::VALUE>::type * = 0);
-        // Construct a priority queue that will use the specified 'allocator'
-        // to supply memory, and the specified 'comparator' to order priorities
-        // of elements in the specified 'container'.  Note that the 'ALLOCATOR'
+        // Create a priority queue that will use the specified 'allocator' to
+        // supply memory, and the specified 'comparator' to order priorities of
+        // elements in the specified 'container'.  Note that the 'ALLOCATOR'
         // parameter type has to be convertible to the allocator of the
         // 'CONTAINER' parameter type, 'CONTAINER::allocator_type'.  Otherwise
         // this constructor is disabled.
@@ -482,7 +489,7 @@ class priority_queue
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                CONTAINER,
                                                ALLOCATOR>::VALUE>::type * = 0);
-        // Construct a priority queue having the same value as the specified
+        // Create a priority queue having the same value as the specified
         // 'original' that will use the specified 'allocator' to supply memory.
         // Use the comparator from 'original' to order the priorities of
         // elements.  Note that the 'ALLOCATOR' parameter type has to be
@@ -538,12 +545,6 @@ void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& lhs,
 // CREATORS
 template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
-priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue()
-{
-}
-
-template <class VALUE, class CONTAINER, class COMPARATOR>
-inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                                                   const COMPARATOR& comparator,
                                                   const CONTAINER&  container)
@@ -551,6 +552,20 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 , comp(comparator)
 {
     native_std::make_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue()
+{
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
+                                                  const COMPARATOR& comparator)
+: comp(comparator)
+{
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -673,8 +688,8 @@ template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
 void priority_queue<VALUE, CONTAINER, COMPARATOR>::swap(priority_queue& other)
 {
-    BloombergLP::bslalg_SwapUtil::swap(&c   , &other.c   );
-    BloombergLP::bslalg_SwapUtil::swap(&comp, &other.comp);
+    BloombergLP::bslalg::SwapUtil::swap(&c   , &other.c   );
+    BloombergLP::bslalg::SwapUtil::swap(&comp, &other.comp);
 }
 
 // ACCESSORS

@@ -1676,6 +1676,15 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase22()
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
     }
 
+    // IBM empty class swap bug test
+
+    {
+        typedef bsl::map<int, int, std::less<int>, StlAlloc> TestObj;
+        TestObj mX;
+        mX.insert(typename TestObj::value_type(1, 1));
+        TestObj mY;
+        mY = mX;
+    }
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
@@ -3061,13 +3070,13 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase14()
     if (verbose) printf("Testing 'iterator', 'begin', and 'end',"
                         " and 'const' variants.\n");
     {
-        ASSERTV(1 == (bslmf_IsSame<typename Iter::pointer,
+        ASSERTV(1 == (bslmf::IsSame<typename Iter::pointer,
                                    bsl::pair<const KEY, VALUE>*>::VALUE));
-        ASSERTV(1 == (bslmf_IsSame<typename Iter::reference,
+        ASSERTV(1 == (bslmf::IsSame<typename Iter::reference,
                                    bsl::pair<const KEY, VALUE>&>::VALUE));
-        ASSERTV(1 == (bslmf_IsSame<typename CIter::pointer,
+        ASSERTV(1 == (bslmf::IsSame<typename CIter::pointer,
                                    const bsl::pair<const KEY, VALUE>*>::VALUE));
-        ASSERTV(1 == (bslmf_IsSame<typename CIter::reference,
+        ASSERTV(1 == (bslmf::IsSame<typename CIter::reference,
                                    const bsl::pair<const KEY, VALUE>&>::VALUE));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -3101,9 +3110,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase14()
     if (verbose) printf("Testing 'reverse_iterator', 'rbegin', and 'rend',"
                         " and 'const' variants.\n");
     {
-        ASSERTV(1 == (bslmf_IsSame<RIter,
+        ASSERTV(1 == (bslmf::IsSame<RIter,
                                    bsl::reverse_iterator<Iter> >::VALUE));
-        ASSERTV(1 == (bslmf_IsSame<CRIter,
+        ASSERTV(1 == (bslmf::IsSame<CRIter,
                                    bsl::reverse_iterator<CIter> >::VALUE));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -3393,6 +3402,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
         { L_,   "ABC",        "ABC",       true },
         { L_,   "ABCD",       "ABCD",      true },
         { L_,   "ABCDE",      "ABCDE",     true },
+        { L_,   "AABCCDDDE",  "ABCDE",     true },
         { L_,   "DABEC",      "ABCDE",    false },
         { L_,   "EDCBACBA",   "ABCDE",    false },
         { L_,   "ABCDEABCD",  "ABCDE",    false }
@@ -3470,8 +3480,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
                 ASSERTV(LINE, CONFIG, &oa == X.get_allocator());
 
                 if (ORDERED && LENGTH > 0) {
-                    ASSERTV(LINE, CONFIG, LENGTH - 1, X.key_comp().count(),
-                            LENGTH - 1 == X.key_comp().count());
+                    const size_t SPECLEN = strlen(DATA[ti].d_spec);
+                    ASSERTV(LINE, CONFIG, (SPECLEN - 1) * 2,
+                            X.key_comp().count(),
+                            (SPECLEN - 1) * 2 == X.key_comp().count());
                 }
                 // Verify no allocation from the non-object allocator.
 
@@ -6145,7 +6157,7 @@ namespace UsageExample {
 class TradeMatcher {
     // This class provides a mechanism that characterizes a simple trade
     // matching system for one stock.  An object of this class allows clients
-    // to place orders and view the active orders and past executions.
+    // to place orders and view the active orders.
 //..
 // Here, we create two type aliases, 'SellOrdersMap' and 'BuyOrdersMap', for
 // two 'bsl::map' instantiations that maps the price of an order (type
@@ -6174,8 +6186,6 @@ class TradeMatcher {
     SellOrdersMap   d_sellOrders;  // current sell orders
     BuyOrdersMap    d_buyOrders;   // current buy orders
 
-    ExecutionVector d_executions;  // executed trades
-
   private:
     // This class does not support copy-construction and copy-assignment.
     TradeMatcher& operator=(const TradeMatcher&);
@@ -6190,10 +6200,6 @@ class TradeMatcher {
     typedef BuyOrdersMap::const_iterator BuyOrdersConstIterator;
         // This 'typedef' provides an alias for the type of an iterator
         // providing non-modifiable access to buy orders in a 'TradeMatcher'.
-
-    typedef ExecutionVector::const_iterator ExecutionsConstIterator;
-        // This 'typedef' provides an alias for the type of an iterator
-        // providing non-modifiable access to executions in a 'TradeMatcher'.
 
     // CREATORS
     TradeMatcher(bslma::Allocator *basicAllocator = 0);
@@ -6237,16 +6243,6 @@ class TradeMatcher {
         // Return an iterator providing non-modifiable access to the
         // past-the-end buy order in the ordered sequence (from high price to
         // low price) of buy orders maintained by this object.
-
-    ExecutionsConstIterator beginExecutions() const;
-        // Return an iterator providing non-modifiable access to the first
-        // trade execution in the ordered sequence of executions maintained by
-        // this object.
-
-    ExecutionsConstIterator endExecutions() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end trade execution in the ordered sequence of executions
-        // maintained by this object.
 };
 
 //..
@@ -6256,7 +6252,6 @@ class TradeMatcher {
 TradeMatcher::TradeMatcher(bslma::Allocator *basicAllocator)
 : d_sellOrders(basicAllocator)
 , d_buyOrders(basicAllocator)
-, d_executions(basicAllocator)
 {
 }
 //..
@@ -6278,15 +6273,11 @@ void TradeMatcher::placeBuyOrder(double price, int numShares)
     while (numShares && itr != d_sellOrders.upper_bound(price))
     {
         if (itr->second > numShares) {
-            d_executions.push_back(
-                           ExecutionVector::value_type(itr->first, numShares));
             itr->second -= numShares;
             numShares = 0;
             break;
         }
 
-        d_executions.push_back(
-                         ExecutionVector::value_type(itr->first, itr->second));
         itr = d_sellOrders.erase(itr);
         numShares -= itr->second;
     }
@@ -6310,15 +6301,11 @@ void TradeMatcher::placeSellOrder(double price, int numShares)
     while (numShares && itr != d_buyOrders.upper_bound(price))
     {
         if (itr->second > numShares) {
-            d_executions.push_back(
-                           ExecutionVector::value_type(itr->first, numShares));
             itr->second -= numShares;
             numShares = 0;
             break;
         }
 
-        d_executions.push_back(
-                         ExecutionVector::value_type(itr->first, itr->second));
         itr = d_buyOrders.erase(itr);
         numShares -= itr->second;
     }
@@ -6347,16 +6334,6 @@ TradeMatcher::BuyOrdersConstIterator TradeMatcher::beginBuyOrders() const
 TradeMatcher::BuyOrdersConstIterator TradeMatcher::endBuyOrders() const
 {
     return d_buyOrders.end();
-}
-
-TradeMatcher::ExecutionsConstIterator TradeMatcher::beginExecutions() const
-{
-    return d_executions.begin();
-}
-
-TradeMatcher::ExecutionsConstIterator TradeMatcher::endExecutions() const
-{
-    return d_executions.end();
 }
 //..
 
@@ -6424,31 +6401,6 @@ int main(int argc, char *argv[])
             matcher.placeSellOrder(16, 10);
             matcher.placeBuyOrder(17, 9);
             matcher.placeBuyOrder(16, 2);
-
-            if (veryVerbose) {
-                for (TradeMatcher::ExecutionsConstIterator itr =
-                         matcher.beginExecutions();
-                     itr != matcher.endExecutions();
-                     ++itr)
-                {
-                    printf("price: %f, quantity: %d\n",
-                           itr->first,
-                           itr->second);
-                }
-            }
-
-            bsl::vector<bsl::pair<double, int> > executions(
-                                                     matcher.beginExecutions(),
-                                                     matcher.endExecutions(),
-                                                     &scratch);
-
-            ASSERT(3  == executions.size());
-            ASSERT(20 == executions[0].first);
-            ASSERT(1  == executions[0].second);
-            ASSERT(16 == executions[1].first);
-            ASSERT(9  == executions[1].second);
-            ASSERT(16 == executions[2].first);
-            ASSERT(1  == executions[2].second);
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 < objectAllocator.numBytesInUse());

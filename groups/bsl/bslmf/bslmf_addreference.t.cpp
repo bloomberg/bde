@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
         //   that its 'Type' typedef is set to a non-reference type.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nbslmf_AddReference"
+        if (verbose) printf("\nbslmf::AddReference"
                             "\n==================\n");
 
         ASSERT_SAME(bslmf::AddReference<int       >::Type, int&);

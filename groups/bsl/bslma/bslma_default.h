@@ -808,12 +808,13 @@ Allocator *Default::globalAllocator(Allocator *basicAllocator)
 
 }  // close package namespace
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                         // ====================
                         // struct bdema_Default
                         // ====================
@@ -823,10 +824,12 @@ typedef bslma::Default bdema_Default;
     // the default and global allocator pointers.  This alias is defined for
     // backward compatibility.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 typedef bslma::Default bslma_Default;
     // This alias is defined for backward compatibility.
+
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

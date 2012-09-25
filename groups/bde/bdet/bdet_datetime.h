@@ -558,7 +558,7 @@ class bdet_Datetime {
         // 'bdex' package-level documentation for more information on 'bdex'
         // streaming of value-semantic types and containers.)
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     static int maxSupportedVersion();
         // Return the most current 'bdex' streaming version number supported by
@@ -595,7 +595,7 @@ class bdet_Datetime {
         //
         // DEPRECATED: Use 'print' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -1032,7 +1032,7 @@ STREAM& bdet_Datetime::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int bdet_Datetime::maxSupportedVersion()
@@ -1070,7 +1070,7 @@ bsl::ostream& bdet_Datetime::streamOut(bsl::ostream& stream) const
     return stream << *this;
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE OPERATORS
 inline

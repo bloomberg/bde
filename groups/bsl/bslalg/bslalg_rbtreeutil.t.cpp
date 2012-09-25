@@ -21,11 +21,11 @@
 #include <ctype.h>
 #include <time.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>
 #endif
 
@@ -780,13 +780,13 @@ const char *tempFileName(bool verboseFlag)
     enum { MAX_LENGTH = 4096 };
     static char result[MAX_LENGTH];
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     BSLMF_ASSERT(MAX_LENGTH > MAX_PATH);
 
     char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
     GetTempPath(MAX_PATH, tmpPathBuf);
     GetTempFileName(tmpPathBuf, "bael", 0, result);
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
     char tmpPathBuf[L_tmpnam];
     char *temp = tempnam(tmpPathBuf, "bael");
     strncpy(result, temp, MAX_LENGTH);
@@ -804,7 +804,7 @@ const char *tempFileName(bool verboseFlag)
 void removeFile(const char *fileName)
     // Remove the file having the specified 'fileName' from the file-system.
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     DeleteFile(fileName);
 #else
     unlink(fileName);

@@ -635,6 +635,7 @@ bool bslstl::operator>=(const RandomAccessIterator<T1,ITER_IMP,TAG_TYPE>& lhs,
     return !(lhs < rhs);
 }
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -644,6 +645,7 @@ bool bslstl::operator>=(const RandomAccessIterator<T1,ITER_IMP,TAG_TYPE>& lhs,
 #endif
 #define bslstl_RandomAccessIterator bslstl::RandomAccessIterator
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

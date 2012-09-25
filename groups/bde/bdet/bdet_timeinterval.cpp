@@ -43,7 +43,7 @@ bdet_TimeInterval::bdet_TimeInterval(double seconds)
 {
     if (seconds < 0) {
         d_seconds = -bsls_PlatformUtil::Int64(-seconds);
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
         const volatile double nanoseconds =
 #else
         const double nanoseconds =
@@ -57,7 +57,7 @@ bdet_TimeInterval::bdet_TimeInterval(double seconds)
     }
     else {
         d_seconds = (bsls_PlatformUtil::Int64)seconds;
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
         const volatile double nanoseconds =
 #else
         const double nanoseconds =

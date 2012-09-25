@@ -28,6 +28,8 @@
 #include <typeinfo>
 #include <cstdio>
 
+#include <cstdio>
+#include <cstdlib>
 #include <string.h>
 
 #include <bslalg_typetraits.h>
@@ -262,7 +264,7 @@ static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
 # define TEST_TYPES_REGULAR(containerArg)                                     \
         containerArg<signed char>,                                            \
         containerArg<size_t>,                                                 \
@@ -519,7 +521,7 @@ void verifyStack(const stack<typename CONTAINER::value_type,
                  const VALUES&            expectedValues,
                  size_t                   expectedSize,
                  const int                LINE,
-                 bslma_Allocator         *allocator = 0)
+                 bslma::Allocator         *allocator = 0)
 {
     stack<typename CONTAINER::value_type, CONTAINER>
                                 copyX(X, bslma::Default::allocator(allocator));
@@ -614,7 +616,7 @@ struct ExceptionGuard {
     // CREATORS
     ExceptionGuard(const OBJECT    *object,
                    int              line,
-                   bslma_Allocator *basicAllocator = 0)
+                   bslma::Allocator *basicAllocator = 0)
     : d_line(line)
     , d_copy(*object, basicAllocator)
     , d_object_p(object)
@@ -860,7 +862,7 @@ class TestDriver {
         // Creating an empty 'deque' allocates memory, creating an empty
         // 'vector' does not.
 
-        return bslmf_IsSame<CONTAINER, deque<value_type> >::VALUE;
+        return bslmf::IsSame<CONTAINER, deque<value_type> >::VALUE;
     }
 
   public:
@@ -919,7 +921,7 @@ int TestDriver<CONTAINER>::ggg(Obj        *object,
                                const char *spec,
                                int         verbose)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma_NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -955,7 +957,7 @@ template <class CONTAINER>
 bsl::stack<typename CONTAINER::value_type, CONTAINER>
 TestDriver<CONTAINER>::g(const char *spec)
 {
-    Obj object((bslma_Allocator *)0);
+    Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
 
@@ -2379,8 +2381,8 @@ void TestDriver<CONTAINER>::testCase4()
                     ASSERTV(LINE, SPEC, CONFIG, EXP[LENGTH - 1] ==  X.top());
                 }
                 else {
-                    bsls_AssertFailureHandlerGuard
-                                           hG(bsls_AssertTest::failTestDriver);
+                    bsls::AssertFailureHandlerGuard
+                                           hG(bsls::AssertTest::failTestDriver);
 
                     ASSERT_SAFE_FAIL(mX.top());
                 }
@@ -2731,8 +2733,8 @@ void TestDriver<CONTAINER>::testCase2()
             ASSERTV(LENGTH, CONFIG, X.empty());
 
             {
-                bsls_AssertFailureHandlerGuard
-                                           hG(bsls_AssertTest::failTestDriver);
+                bsls::AssertFailureHandlerGuard
+                                           hG(bsls::AssertTest::failTestDriver);
 
                 ASSERT_SAFE_FAIL(mX.pop());
             }

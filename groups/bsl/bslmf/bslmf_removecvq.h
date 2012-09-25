@@ -149,6 +149,7 @@ struct RemoveCvq
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -164,6 +165,7 @@ struct RemoveCvq
 #endif
 #define bslmf_RemovePtrCvq bslmf::RemovePtrCvq
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

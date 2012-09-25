@@ -183,6 +183,7 @@ struct is_fundamental
 
 }
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -192,6 +193,7 @@ struct is_fundamental
 #endif
 #define bslmf_IsFundamental bslmf::IsFundamental
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #endif
 

@@ -620,7 +620,7 @@ struct List_Node
 
 template <class VALUE, class NODEPTR, class DIFFTYPE>
 class List_Iterator
-#ifdef BSLS_PLATFORM__OS_SOLARIS
+#ifdef BSLS_PLATFORM_OS_SOLARIS
     : public std::iterator<std::bidirectional_iterator_tag, VALUE>
 // On Solaris just to keep studio12-v4 happy, since algorithms takes only
 // iterators inheriting from 'std::iterator'.
@@ -629,7 +629,7 @@ class List_Iterator
     // Implementation of std::list::iterator
 
     // FRIENDS
-    template <class T, class A>
+    template <class LIST_VALUE, class LIST_ALLOCATOR>
     friend class list;
 
     friend class List_Iterator<const VALUE, NODEPTR, DIFFTYPE>;
@@ -1042,7 +1042,7 @@ class list
         // destructible state and leaving '*this' fully constructed.
 
         list tmp(this->allocator());
-        tmp.assign(first, last);
+        tmp.insert(tmp.begin(), first, last);
         quick_swap(tmp);
     }
 
@@ -2004,7 +2004,8 @@ list<VALUE, ALLOCATOR>::list(size_type n,
     // '*this' is in an invalid but destructible state (size == -1).
 
     list tmp(this->allocator());
-    tmp.assign(n, value); // 'tmp's destructor will clean up on throw.
+    tmp.insert(tmp.begin(), n, value);  // 'tmp's destructor will clean up on
+                                        // throw.
     quick_swap(tmp);      // Leave 'tmp' in an invalid but destructible state.
 }
 
@@ -2017,8 +2018,11 @@ list<VALUE, ALLOCATOR>::list(const list& original)
     // '*this' is in an invalid but destructible state (size == -1).
 
     list tmp(allocator());
-    tmp.assign(original.begin(), original.end());  // 'tmp's destructor will
-                                                   //  clean up on throw.
+
+    // 'tmp's destructor will clean up on throw.
+
+    tmp.insert(tmp.begin(), original.begin(), original.end());
+
     quick_swap(tmp);  // Leave 'tmp' in an invalid but destructible state.
 }
 
@@ -2029,8 +2033,11 @@ list<VALUE, ALLOCATOR>::list(const list& original, const ALLOCATOR& allocator)
     // '*this' is in an invalid but destructible state (size == -1).
 
     list tmp(this->allocator());
-    tmp.assign(original.begin(), original.end());  // 'tmp's destructor will
-                                                   // clean up on throw.
+
+    // 'tmp's destructor will clean up on throw.
+
+    tmp.insert(tmp.begin(), original.begin(), original.end());
+
     quick_swap(tmp);  // Leave 'tmp' in an invalid but destructible state.
 }
 
@@ -2059,8 +2066,11 @@ list<VALUE, ALLOCATOR>::list(list&& original, const ALLOCATOR& allocator)
     }
     else {
         list tmp(this->allocator());
-        tmp.assign(original.begin(), original.end());  // 'tmp's destructor
-                                                       // will clean up.
+
+        // 'tmp's destructor will clean up on throw.
+
+        tmp.insert(tmp.begin(), original.begin(), original.end());
+
         quick_swap(tmp);  // Leave 'tmp' in an invalid but destructible state.
     }
 }

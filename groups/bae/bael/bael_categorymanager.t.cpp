@@ -1550,7 +1550,7 @@ int main(int argc, char *argv[])
             if (veryVeryVerbose) {
                 T_();
                 P_(i);
-                #if !defined(BSLS_PLATFORM__CMP_MSVC)
+                #if !defined(BSLS_PLATFORM_CMP_MSVC)
                 P_(threads[i].d_handle);
                 #else
                 P_(threads[i].d_handle.d_handle);
@@ -1579,7 +1579,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 T_();
                 P_(i);
-                #if !defined(BSLS_PLATFORM__CMP_MSVC)
+                #if !defined(BSLS_PLATFORM_CMP_MSVC)
                 P_(threads[i].d_handle);
                 #else
                 P_(threads[i].d_handle.d_handle);

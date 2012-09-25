@@ -271,6 +271,7 @@ const CHAR_TYPE *StringRefData<CHAR_TYPE>::end() const
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -280,6 +281,7 @@ const CHAR_TYPE *StringRefData<CHAR_TYPE>::end() const
 #endif
 #define bslstl_StringRefData bslstl::StringRefData
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

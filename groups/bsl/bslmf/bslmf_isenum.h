@@ -151,6 +151,7 @@ struct is_enum
 
 }
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -160,6 +161,7 @@ struct is_enum
 #endif
 #define bslmf_IsEnum bslmf::IsEnum
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #endif
 

@@ -201,13 +201,13 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
 
         void *ret = 0;
 
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
         errno = 0;
         ret = _aligned_malloc(size, alignment);
         if (0 != errno) {
             bslma_Allocator::throwBadAlloc();
         }
-    #elif defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_HPUX)
+    #elif defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_HPUX)
         ret = memalign(alignment, size);
         if (0 == ret) {
             bslma_Allocator::throwBadAlloc();

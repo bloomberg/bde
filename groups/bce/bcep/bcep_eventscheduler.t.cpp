@@ -19,7 +19,7 @@
 #include <bdet_datetime.h>
 #include <bdetu_systemtime.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_sys_time.h>
 #include <unistd.h>
 #endif

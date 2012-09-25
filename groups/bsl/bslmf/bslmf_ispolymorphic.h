@@ -117,8 +117,8 @@ BSLS_IDENT("$Id: $")
 #define BSLMF_ISPOLYMORPHIC_NOTHROW
 #endif
 
-#if (defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)\
- || (defined(BSLS_PLATFORM__CMP_MSVC) && BSLS_PLATFORM__CMP_VER_MAJOR >= 1500)
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)\
+ || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR >= 1500)
 #define BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC
 #endif
 
@@ -201,6 +201,7 @@ struct IsPolymorphic : bsl::is_polymorphic<TYPE>::type
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -210,6 +211,7 @@ struct IsPolymorphic : bsl::is_polymorphic<TYPE>::type
 #endif
 #define bslmf_IsPolymorphic bslmf::IsPolymorphic
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

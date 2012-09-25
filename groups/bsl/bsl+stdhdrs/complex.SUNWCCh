@@ -46,10 +46,10 @@ BSLS_IDENT("$Id: $")
 
 #   include BSL_NATIVE_CPP_LIB_HEADER(complex)
 
-#   if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#   ifndef BDE_OMIT_INTERNAL_DEPRECATED
         // Permit reliance on transitive includes within robo.
 #   include <cmath>
-#   endif
+#   endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #   include <bsl_complex.h>
 

@@ -86,6 +86,7 @@ struct IsPointer : bsl::is_pointer<T>::type
 }  // close package namespace
 }  // close enterprise namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -95,6 +96,7 @@ struct IsPointer : bsl::is_pointer<T>::type
 #endif
 #define bslmf_IsPointer bslmf::IsPointer
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #endif
 
