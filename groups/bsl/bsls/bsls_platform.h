@@ -12,6 +12,11 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::Platform: namespace for platform traits
 //
+//@MACROS:
+//  BSLS_PLATFORM_OS_*: operating system type, sub-type, and version
+//  BSLS_PLATFORM_CPU_* instruction set, instruction width, and version
+//  BSLS_PLATFORM_CMP_*: compiler vendor, and version
+//
 //@AUTHOR: John Lakos (jlakos)
 //
 //@DESCRIPTION: This component implements a suite of preprocessor macros
@@ -175,10 +180,10 @@ struct bsls_Platform_Assert;
     #define BSLS_PLATFORM_CMP_IBM 1
     #define BSLS_PLATFORM_CMP_VERSION __xlC__
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     #define BSLS_PLATFORM_CMP_AIX 1
          // DEPRECATED: use 'BSLS_PLATFORM_CMP_IBM' instead.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // which OS -- this compiler should only be used on AIX
     #define BSLS_PLATFORM_OS_UNIX 1
@@ -943,7 +948,8 @@ struct Platform {
 
 }  // close package namespace
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
                       // ======================
                       // BACKWARD COMPATIBILITY
@@ -1118,10 +1124,11 @@ typedef bsls::Platform Platform;
 #define bdes_Platform bdes::Platform
     // This alias is defined for backward compatibility.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 typedef bsls::Platform bsls_Platform;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 
@@ -1367,3 +1374,4 @@ typedef bsls::Platform bsls_Platform;
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
+

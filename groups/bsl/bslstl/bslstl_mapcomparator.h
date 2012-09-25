@@ -147,7 +147,7 @@ namespace bslstl {
                        // ===================
 
 template <class KEY, class VALUE, class COMPARATOR>
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 // Visual studio compiler fails to resolve the conversion operator in
 // 'bslalg::FunctorAdapter_FunctionPointer' when using private inheritance.
 // Below is a workaround until a more suitable way the resolve this issue can

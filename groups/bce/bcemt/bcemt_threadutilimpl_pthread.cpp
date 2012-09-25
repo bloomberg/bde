@@ -9,7 +9,7 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <bces_platform.h>
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
 
 #include <bdet_timeinterval.h>
 
@@ -21,7 +21,7 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <pthread.h>
 
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
 # include <sys/types.h>    // geteuid
 # include <unistd.h>       // geteuid
 #endif
@@ -40,7 +40,7 @@ int localPthreadsPolicy(int policy)
       case Attr::BCEMT_SCHED_OTHER:   return SCHED_OTHER;             // RETURN
       case Attr::BCEMT_SCHED_FIFO:    return SCHED_FIFO;              // RETURN
       case Attr::BCEMT_SCHED_RR:      return SCHED_RR;                // RETURN
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
       case Attr::BCEMT_SCHED_DEFAULT:
       default:                        return SCHED_HPUX;              // RETURN
 #else
@@ -107,7 +107,7 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 
         BSLS_ASSERT_OPT(stackSize > 0);
 
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
         // The Itanium divides the stack into two sections: a variable stack
         // and a control stack.  To make 'stackSize' have the same meaning
         // across platforms, we must double it on this platform.
@@ -187,7 +187,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
         pPolicy = SCHED_OTHER;
       }  break;
       case Attr::BCEMT_SCHED_DEFAULT: {
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
         pPolicy = SCHED_HPUX;
 #else
         pPolicy = SCHED_OTHER;
@@ -200,7 +200,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
 
     int priority = sched_get_priority_min(pPolicy);
 
-# if defined(BSLS_PLATFORM__OS_AIX)
+# if defined(BSLS_PLATFORM_OS_AIX)
     // Note that on AIX all priorities below 40 are equivalent to a priority of
     // 40.  See AIX doc "http://publib.boulder.ibm.com/infocenter/aix/v6r1/
     // index.jsp?topic=%2Fcom.ibm.aix.basetechref%2Fdoc%2Fbasetrf1%2F
@@ -236,7 +236,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
         pPolicy = SCHED_OTHER;
       }  break;
       case Attr::BCEMT_SCHED_DEFAULT: {
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
         pPolicy = SCHED_HPUX;
 #else
         pPolicy = SCHED_OTHER;
@@ -249,7 +249,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
 
     int priority = sched_get_priority_max(pPolicy);
 
-# if defined(BSLS_PLATFORM__OS_AIX)
+# if defined(BSLS_PLATFORM_OS_AIX)
     // Note that the max prirority returned above is 127 regardless of policy
     // on AIX, yet for non-superusers, thread creation fails if
     // 'priority > 60'.  See AIX doc "http://publib.boulder.ibm.com/

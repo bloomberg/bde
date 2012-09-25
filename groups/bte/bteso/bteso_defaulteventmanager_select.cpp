@@ -30,7 +30,7 @@ BDES_IDENT_RCSID(bteso_defaulteventmanager_select_cpp,"$Id$ $CSID$")
 // Also, Microsoft's errno.h contains an erroneous definition of EINTR which
 // actually means ERROR_TOO_MANY_OPEN_FILES. Fixing EINTR definition here:
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #ifdef EINTR
 #undef EINTR
 #endif
@@ -43,10 +43,10 @@ static bool compareFdSets(const fd_set& lhs, const fd_set& rhs)
     // Return 'true' if the specified 'lhs' and 'rhs' file descriptor sets are
     // equal, and 'false' otherwise.
 {
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
     return !bsl::memcmp(&lhs, &rhs, sizeof(fd_set));                  // RETURN
 #endif
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
     if (lhs.fd_count != rhs.fd_count) {
         return false;                                                 // RETURN
     }
@@ -75,7 +75,7 @@ static inline void copySet(fd_set *dst, const fd_set& src)
      // Assign to the specified 'dst' file descriptor set the value of the
      // specified 'src' file descriptor set.
 {
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
     dst->fd_count = src.fd_count;
     bsl::memcpy(&dst->fd_array,
                 &src.fd_array,
@@ -129,7 +129,7 @@ bool bteso_DefaultEventManager<bteso_Platform::SELECT>::
         }
         else {
             FD_SET(event.handle(), &writeControl);
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
             FD_SET(event.handle(), &exceptControl);
 #endif
         }
@@ -161,7 +161,7 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatchCallbacks(
             }
         }
         else {
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
             if (FD_ISSET(event.handle(), &writeSet)
              || FD_ISSET(event.handle(), &exceptSet)) {
 #else
@@ -300,7 +300,7 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatch(
     copySet(&writeSet, d_writeSet);
     copySet(&exceptSet, d_exceptSet);
 
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
     enum {
        RESOLUTION_MS = 10,   // in milliseconds
        MILLISECOND   = 1000, // in microseconds
@@ -360,7 +360,7 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatch(
         }
     } while (ret < 0 && EINTR == savedErrno
           && !(flags & bteso_Flag::BTESO_ASYNC_INTERRUPT)
-             #ifdef BSLS_PLATFORM__OS_LINUX
+             #ifdef BSLS_PLATFORM_OS_LINUX
              // Linux select() returns at one tick *preceding* the expiration
              // of the timeout.  Since code usually expects that select() will
              // sleep a bit more than the timeout (i.e select() will return at
@@ -386,7 +386,7 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::registerSocketEvent(
                                  const bteso_EventType::Type         eventType,
                                  const bteso_EventManager::Callback& callback)
 {
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
     BSLS_ASSERT(handle < BTESO_MAX_NUM_HANDLES);
 #else
     BSLS_ASSERT(canRegisterSockets());
@@ -405,13 +405,13 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::registerSocketEvent(
     else {
         if (!FD_ISSET(handle, &d_writeSet)) {
             FD_SET(handle, &d_writeSet);
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
             FD_SET(handle, &d_exceptSet);
 #endif
             ++d_numWrite;
         }
     }
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
     if (handle >= d_maxFd) {
         d_maxFd = handle + 1;
     }
@@ -433,7 +433,7 @@ void bteso_DefaultEventManager<bteso_Platform::SELECT>::deregisterSocketEvent(
         }
         else {
             FD_CLR(handle, &d_writeSet);
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
             FD_CLR(handle, &d_exceptSet);
 #endif
             --d_numWrite;
@@ -444,7 +444,7 @@ void bteso_DefaultEventManager<bteso_Platform::SELECT>::deregisterSocketEvent(
 int bteso_DefaultEventManager<bteso_Platform::SELECT>::deregisterSocket(
                                       const bteso_SocketHandle::Handle& handle)
 {
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
     if (handle == d_maxFd - 1) {
         d_maxFd = 0;
         EventMap::iterator it(d_events.begin()), end(d_events.end());
@@ -491,7 +491,7 @@ void bteso_DefaultEventManager<bteso_Platform::SELECT>::deregisterAll()
 bool bteso_DefaultEventManager<bteso_Platform::SELECT>::canRegisterSockets()
                                                                           const
 {
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
     return bsl::max(d_numRead, d_numWrite) < BTESO_MAX_NUM_HANDLES;
 #else
     return d_maxFd < BTESO_MAX_NUM_HANDLES;

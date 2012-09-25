@@ -701,7 +701,7 @@ BSL_OVERRIDES_STD mode"
 
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 // For transitive includes.  This is not placed in 'bsl+stdhdrs' because it
 // causes a cycle within the native standard headers.
@@ -730,14 +730,14 @@ BSL_OVERRIDES_STD mode"
 
 #endif
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bsl {
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 class basic_string;
 
-#if defined(BSLS_PLATFORM__CMP_SUN) || defined(BSLS_PLATFORM__CMP_HP)
+#if defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_HP)
 template <class ORIGINAL_TRAITS>
 class String_Traits {
     // This 'class' provides an implementation of the 'find' function for the
@@ -3830,7 +3830,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
     return begin() + pos;
 }
 
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
     // Sun CC compiler doesn't like that 'iterator' return type of 'insert'
     // method with an additional 'INPUT_ITER' template parameter depends on
     // template parameters of the primary template class 'basic_string'.

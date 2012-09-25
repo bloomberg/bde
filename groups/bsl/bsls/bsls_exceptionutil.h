@@ -10,7 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide simplified exception constructs for non-exception builds.
 //
 //@CLASSES:
-//  bsls::ExceptionUtil: namespace for exception utility functions
+//
+//@MACROS:
+//  BSLS_TRY: begin a 'try'-block
+//  BSLS_CATCH(X): begin a 'catch'-block for exception 'X'
+//  BSLS_THROW(X): 'throw' exception 'X'
+//  BSLS_RETHROW: re-'throw' the current exception
+//  BSLS_EXCEPTION_SPEC(SPEC): add 'SPEC' to function exception specification
+//  BSLS_NOTHROW_SPEC: declare that a function throws no exceptions
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //

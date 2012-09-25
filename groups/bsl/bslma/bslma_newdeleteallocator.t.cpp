@@ -15,7 +15,7 @@
 #include <new>  // 'std::bad_alloc' for standard exception specification
 #endif
 
-#ifdef BSLS_PLATFORM__CMP_MSVC       // Microsoft Compiler
+#ifdef BSLS_PLATFORM_CMP_MSVC       // Microsoft Compiler
 #ifdef _MSC_EXTENSIONS               // Microsoft Extensions Enabled
 #include <new>                       // if so, need to include new as well
 #endif

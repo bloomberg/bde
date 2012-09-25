@@ -129,9 +129,10 @@ BDES_IDENT("$Id: $")
 #endif
 
 
-// Check using legacy macros only if 'BSL_LEGACY' is not 0.
+// Check using legacy macros only if 'BDE_OMIT_INTERNAL_DEPRECATED' is not 
+// defined.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     // No symbols or macros are defined here (see 'bsls_platform' component).
     // No aliases or macros for the 'bdes_Platform' types or 'BDES_PLATFORM_*'
@@ -224,7 +225,7 @@ BDES_IDENT("$Id: $")
     char assertion[0];                         // stop non-compliant compilers
 #endif
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 

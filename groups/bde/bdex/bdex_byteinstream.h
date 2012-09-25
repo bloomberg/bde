@@ -452,7 +452,7 @@ class bdex_ByteInStream {
         // Consume one byte interpreted as an unsigned integer to provide the
         // value for 'version'.
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
     template <typename TYPE>
     bdex_ByteInStream& get(TYPE& variable);
@@ -468,7 +468,7 @@ class bdex_ByteInStream {
         // function is called.  If not,
         // 'bdex_InStreamFunctions::streamInVersionAndObject' is called.
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
                         // *** scalar integer values ***
 
@@ -1014,7 +1014,7 @@ bsl::ostream& operator<<(bsl::ostream&            stream,
     // Write the specified 'object' to the specified output 'stream' in some
     // reasonable (multi-line) format, and return a reference to 'stream'.
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename OBJECT>
 inline
@@ -1034,7 +1034,7 @@ bdex_ByteInStream& operator>>(bdex_ByteInStream& stream, OBJECT& object);
     // (scalar) types and for 'bsl::string' are also provided, in which case
     // this operator calls the appropriate 'get' method from this component.
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -1499,7 +1499,7 @@ bdex_ByteInStream& bdex_ByteInStream::getArrayFloat32(float *array,
     return *this;
 }
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename TYPE>
 inline
@@ -1508,7 +1508,7 @@ bdex_ByteInStream& bdex_ByteInStream::get(TYPE& variable)
     return bdex_InStreamMethodsUtil::streamInVersionAndObject(*this, variable);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ACCESSORS
 inline
@@ -1543,7 +1543,7 @@ int bdex_ByteInStream::cursor() const
 
 // FREE OPERATORS
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename OBJECT>
 inline
@@ -1552,7 +1552,7 @@ bdex_ByteInStream& operator>>(bdex_ByteInStream& stream, OBJECT& object)
     return stream.get(object);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 }  // close namespace BloombergLP
 

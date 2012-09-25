@@ -53,9 +53,9 @@ BSLS_IDENT("$Id: $")
 // backward/backward_warning.h header, so we block its effect by defining its
 // include guard.  We only want to suppress this warning locally, so we
 // undefine the guard below if we define it here.
-#if defined(BSLS_PLATFORM__OS_SOLARIS) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) && defined(BSLS_PLATFORM_CMP_GNU)
 #ifndef _BACKWARD_BACKWARD_WARNING_H
-#define BSL_STRSTREAM__UNDEF_BACKWARD_GUARD
+#define BSL_STRSTREAM_UNDEF_BACKWARD_GUARD
 #define _BACKWARD_BACKWARD_WARNING_H 1
 #endif
 #endif
@@ -64,8 +64,8 @@ BSLS_IDENT("$Id: $")
 
 // Undefine the backward/backward_warning.h guard preventing backward
 // compatibility warnings.
-#ifdef BSL_STRSTREAM__UNDEF_BACKWARD_GUARD
-#undef BSL_STRSTREAM__UNDEF_BACKWARD_GUARD
+#ifdef BSL_STRSTREAM_UNDEF_BACKWARD_GUARD
+#undef BSL_STRSTREAM_UNDEF_BACKWARD_GUARD
 #undef _BACKWARD_BACKWARD_WARNING_H
 #endif
 

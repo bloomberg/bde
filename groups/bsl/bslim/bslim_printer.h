@@ -631,6 +631,7 @@ class Printer {
         // 'suppressBracket' is false, print a closing square bracket, indented
         // by 'absLevel() * spacesPerLevel()' blank spaces.
 
+#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
     template <class TYPE>
     void print(const TYPE& data, const char *name) const;
         // [!DEPRECATED!  -- use 'printAttribute' instead, or 'printValue' if
@@ -667,6 +668,7 @@ class Printer {
         // If 'spacesPerLevel() >= 0', indent 'data' by
         // '(absLevel() + 1) * spacesPerLevel()' blank spaces.  The behavior is
         // undefined if 'TYPE' is a 'char *', but not a null-terminated string.
+#endif  // BDE_OMIT_TRANSITIONAL
 
     template <class TYPE>
     void printAttribute(const char *name, const TYPE& data) const;
@@ -1035,6 +1037,7 @@ struct Printer_Helper {
                              // -------------
 
 // ACCESSORS
+#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
 template <class TYPE>
 void Printer::print(const TYPE& data, const char *name) const
 {
@@ -1049,6 +1052,7 @@ void Printer::print(const TYPE& data, const char *name) const
                           -d_levelPlusOne,
                           d_spacesPerLevel);
 }
+#endif  // BDE_OMIT_TRANSITIONAL
 
 template <class TYPE>
 void Printer::printAttribute(const char *name, const TYPE& data) const
