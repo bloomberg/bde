@@ -281,10 +281,8 @@ BSLS_IDENT("$Id: $")
 #include <cstddef>
 #endif
 
-namespace BloombergLP
-{
-namespace bslalg
-{
+namespace BloombergLP {
+namespace bslalg {
 
 class BidirectionalLink;
 
@@ -302,7 +300,8 @@ struct HashTableBucket {
     BSLALG_DECLARE_NESTED_TRAITS(HashTableBucket, bslalg::TypeTraitsGroupPod);
 
   public:
-    // No creators -- must be a POD.
+    // No creators -- must be a POD so that aggregate initialization can be
+    // done.
 
     // MANIPULATORS
     void setFirst(BidirectionalLink *node);

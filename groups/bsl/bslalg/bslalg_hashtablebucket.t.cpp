@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // VALUE C'TOR
+        // VALUE C'TOR AND ACCESSORS
         //
         // Concern:
         //   That the value c'tor properly initializes the object.  Note this
