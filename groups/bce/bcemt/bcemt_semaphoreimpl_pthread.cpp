@@ -4,7 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_semaphoreimpl_pthread_cpp,"$Id$ $CSID$")
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
 
 #include <bcemt_lockguard.h>    // for testing only
 #include <bcemt_mutex.h>        // for testing only
@@ -36,7 +36,7 @@ bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::wait()
 
 }  // close namespace BloombergLP
 
-#endif  // BCES_PLATFORM__POSIX_THREADS
+#endif  // BCES_PLATFORM_POSIX_THREADS
 
 // ---------------------------------------------------------------------------
 // NOTICE:

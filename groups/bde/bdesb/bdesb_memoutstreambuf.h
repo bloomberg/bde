@@ -179,10 +179,10 @@ class bdesb_MemOutStreamBuf : public bsl::streambuf {
         BDESB_GROWTH_FACTOR       =   2   // geometric growth factor to use
                                           // when resizing internal buffer
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INITIAL_BUFFER_SIZE = BDESB_INITIAL_BUFFER_SIZE
       , GROWTH_FACTOR       = BDESB_GROWTH_FACTOR
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // DATA

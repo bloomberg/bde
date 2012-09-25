@@ -10,7 +10,7 @@ BDES_IDENT_RCSID(bcemt_semaphoreimpl_win32_cpp,"$Id$ $CSID$")
 
 #include <bces_platform.h>
 
-#ifdef BCES_PLATFORM__WIN32_THREADS
+#ifdef BCES_PLATFORM_WIN32_THREADS
 
 namespace BloombergLP {
 
@@ -38,7 +38,7 @@ int bcemt_SemaphoreImpl<bces_Platform::Win32Semaphore>::tryWait()
 
 }  // close namespace BloombergLP
 
-#endif  // BCES_PLATFORM__WIN32_THREADS
+#endif  // BCES_PLATFORM_WIN32_THREADS
 
 // ---------------------------------------------------------------------------
 // NOTICE:

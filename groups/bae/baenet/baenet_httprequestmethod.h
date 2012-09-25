@@ -54,8 +54,8 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bsl_ostream.h>
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#if defined(BSLS_PLATFORM_CMP_MSVC)
     // Note: on Windows -> WinNT.h:#define DELETE (0x00010000L)
 
 #if defined(DELETE)
@@ -65,7 +65,7 @@ BDES_IDENT_PRAGMA_ONCE
 #endif
 
 #endif
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 

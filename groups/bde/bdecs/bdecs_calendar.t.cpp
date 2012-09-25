@@ -22,7 +22,7 @@
 #include <bsl_cstdlib.h>      // atoi()
 #include <bsl_cstring.h>      // strcmp()
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <crtdbg.h>  // '_CrtSetReportMode', to suppress popups
 #endif
 
@@ -1030,7 +1030,7 @@ bdecs_Calendar g(const char *spec)
 
 int main(int argc, char *argv[])
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // Suppress all windows debugging popups
     _CrtSetReportMode(_CRT_ASSERT,0);
     _CrtSetReportMode(_CRT_ERROR, 0);

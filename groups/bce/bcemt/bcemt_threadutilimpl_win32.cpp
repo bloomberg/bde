@@ -4,7 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 
-#ifdef BCES_PLATFORM__WIN32_THREADS
+#ifdef BCES_PLATFORM_WIN32_THREADS
 
 #include <windows.h>
 
@@ -17,7 +17,7 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 
 #include <process.h>      // '_begintthreadex', '_endthreadex'
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BSLS_PLATFORM__CPU_64_BIT)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
     // On 64-bit Windows, we have to deal with the fact that Windows ThreadProc
     // thread procedures only return a 32-bit DWORD value.  We use an
     // intermediate map to store the actual 'void *' return or exit values,
@@ -496,7 +496,7 @@ bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::areEqual(
 
 }  // close namespace BloombergLP
 
-#endif  // BCES_PLATFORM__WIN32_THREADS
+#endif  // BCES_PLATFORM_WIN32_THREADS
 
 // ---------------------------------------------------------------------------
 // NOTICE:

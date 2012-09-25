@@ -460,6 +460,7 @@ bool AllocatorProxy<ALLOCATOR>::equalAllocator(const AllocatorProxy& rhs) const
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -481,6 +482,7 @@ bool AllocatorProxy<ALLOCATOR>::equalAllocator(const AllocatorProxy& rhs) const
 #endif
 #define bslstl_AllocatorProxyNonBslmaBase bslstl::AllocatorProxyNonBslmaBase
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

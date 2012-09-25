@@ -6,7 +6,7 @@ BDES_IDENT_RCSID(baesu_dbghelpdllimpl_windows_cpp,"$Id$ $CSID$")
 
 #include <bsls_platform.h>
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
 
 #include <bcemt_qlock.h>
 
@@ -45,7 +45,7 @@ struct Dbghelp_Util {
     // TYPES
     typedef DWORD __stdcall SymSetOptionsProc(DWORD);
     typedef BOOL  __stdcall SymInitializeProc(HANDLE, PCSTR, BOOL);
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
     typedef BOOL  __stdcall SymFromAddrProc(HANDLE,
                                             DWORD64,
                                             PDWORD64,
@@ -83,7 +83,7 @@ struct Dbghelp_Util {
 
     SymInitializeProc               *d_symInitialize; // 'SymInitialize' func
 
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
     SymFromAddrProc                 *d_symFromAddr;   // 'SymFromAddr' func
 #else
     SymGetSymFromAddr64Proc         *d_symGetSymFromAddr64;
@@ -139,7 +139,7 @@ int Dbghelp_Util::load()
     BSLS_ASSERT(0 == d_moduleHandle);
     BSLS_ASSERT(0 == d_symSetOptions);
     BSLS_ASSERT(0 == d_symInitialize);
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
     BSLS_ASSERT(0 == d_symFromAddr);
 #else
     BSLS_ASSERT(0 == d_symGetSymFromAddr64);
@@ -162,7 +162,7 @@ int Dbghelp_Util::load()
                     GetProcAddress(d_moduleHandle, "SymSetOptions");
     d_symInitialize = (SymInitializeProc *)
                     GetProcAddress(d_moduleHandle, "SymInitialize");
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
     d_symFromAddr = (SymFromAddrProc *)
                     GetProcAddress(d_moduleHandle, "SymFromAddr");
 #else
@@ -232,7 +232,7 @@ void Dbghelp_Util::wipeClean()
     d_moduleHandle             = 0;
     d_symSetOptions            = 0;
     d_symInitialize            = 0;
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
     d_symFromAddr              = 0;
 #else
     d_symGetSymFromAddr64      = 0;
@@ -251,7 +251,7 @@ bool Dbghelp_Util::isLoaded()
     return  0 != d_moduleHandle
          && 0 != d_symSetOptions
          && 0 != d_symInitialize
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
          && 0 != d_symFromAddr
 #else
          && 0 != d_symGetSymFromAddr64
@@ -292,7 +292,7 @@ DWORD baesu_DbghelpDllImpl_Windows::symSetOptions(DWORD symOptions)
     return (*dbghelp_util.d_symSetOptions)(symOptions);
 }
 
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
 
 BOOL baesu_DbghelpDllImpl_Windows::symFromAddr(DWORD64      address,
                                                PDWORD64     displacement,

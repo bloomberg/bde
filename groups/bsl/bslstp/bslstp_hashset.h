@@ -46,6 +46,10 @@
 #ifndef INCLUDED_BSLSTP_HASHSET
 #define INCLUDED_BSLSTP_HASHSET
 
+#ifdef BDE_OMIT_TRANSITIONAL // STP
+#error "bslstp_hashset is not for publication"
+#endif
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif

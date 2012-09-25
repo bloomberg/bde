@@ -29,8 +29,8 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM__CMP_GNU) && \
-                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_PLATFORM_CMP_GNU) && \
+                                        (BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)
 #     include_next <setjmp.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(setjmp.h)
@@ -51,8 +51,8 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM__CMP_GNU) && \
-                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_PLATFORM_CMP_GNU) && \
+                                        (BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)
 #     include_next <setjmp.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(setjmp.h)

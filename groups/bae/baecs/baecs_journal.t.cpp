@@ -2,7 +2,7 @@
 // The _CRT_RAND_S macro MUST be defined on Windows *PRIOR* to inclusion of
 // stdlib.h in order to defined 'rand_s'.
 #include <bsls_platform.h>
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 // Remembering to define _CRT_RAND_S prior to inclusion statement
 #define _CRT_RAND_S
 #endif
@@ -102,13 +102,13 @@ static void aSsErT(int c, const char *s, int i)
 
 #define MAX_TMPFILENAME (L_tmpnam+64)
 
-#if defined(BSLS_PLATFORM__OS_AIX) ||   \
-    defined(BSLS_PLATFORM__OS_HPUX) ||  \
-    defined(BSLS_PLATFORM__OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_AIX) ||   \
+    defined(BSLS_PLATFORM_OS_HPUX) ||  \
+    defined(BSLS_PLATFORM_OS_DARWIN)
 #define tmpnam_r tmpnam
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #define snprintf _snprintf
 #define rand_r   rand_s
 #define tmpnam_r tmpnam_s
@@ -183,7 +183,7 @@ void getTmpFileName(char* filename, int testCase) {
                 "%s%s%d",
                 envPrefix, randLetters, bdesu_ProcessUtil::getProcessId());
    } else {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
        const char *tmpdirName = getenv("TMP");
 #else
        const char* tmpdirName = getenv("TMPDIR");
@@ -2011,7 +2011,7 @@ int main(int argc, char *argv[]) {
       } break;
 
       case 12: {
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
           // ----------------------
           // Concern: appending to an existing journal
           //
@@ -2630,7 +2630,7 @@ int main(int argc, char *argv[]) {
           bdesu_FileUtil::remove(filename);
       } break;
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
       case -7: {
           // ------------------
           // CHILD PROCESS for case 7

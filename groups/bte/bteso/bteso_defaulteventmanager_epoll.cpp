@@ -4,7 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bteso_defaulteventmanager_epoll_cpp,"$Id$ $CSID$")
 
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
 
 #include <bteso_eventmanagertester.h>           // for testing only
 #include <bteso_flag.h>
