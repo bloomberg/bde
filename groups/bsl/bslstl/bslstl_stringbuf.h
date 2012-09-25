@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a C++03-compatible 'stringbuf' class.
 //
 //@CLASSES:
-//  bsl::stringbuf:          C++03-compatible 'stringbuf' class
-//  bsl::StringbufContainer: wrapper for 'basic_stringbuf'
+//  bsl::stringbuf: C++03-compatible 'stringbuf' class
+//  bsl::StringBufContainer: wrapper for 'basic_stringbuf'
 //
 //@SEE_ALSO: bslstl_stringstream, bslstl_ostringstream, bslstl_istringstream
 //
@@ -482,15 +482,15 @@ typedef basic_stringbuf<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
                                                                     wstringbuf;
 
                       // =========================
-                      // struct StringbufContainer
+                      // struct StringBufContainer
                       // =========================
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-class StringbufContainer {
+class StringBufContainer {
     // This class enables the implementation of string-stream types by
     // providing a trivial type containing a 'basic_stringbuf' that is suitable
     // as a ('private') base class for a string-stream.  Inheriting from
-    // 'StringbufContainer' allows the string-stream to ensure that the
+    // 'StringBufContainer' allows the string-stream to ensure that the
     // contained 'basic_stringbuf' is initialized before initializing other
     // base classes or data members without potentially overriding 'virtual'
     // methods in the 'basic_stringbuf' type.  Note that implementations of
@@ -513,37 +513,37 @@ class StringbufContainer {
 
   private:
     // NOT IMPLEMENTED
-    StringbufContainer(const StringbufContainer&);             // = delete
-    StringbufContainer& operator=(const StringbufContainer&);  // = delete
+    StringBufContainer(const StringBufContainer&);             // = delete
+    StringBufContainer& operator=(const StringBufContainer&);  // = delete
 
   public:
     // CREATORS
     explicit
-    StringbufContainer(const ALLOCATOR& allocator)
+    StringBufContainer(const ALLOCATOR& allocator)
     : d_bufObj(allocator)
     {
     }
 
-    StringbufContainer(ios_base::openmode modeBitMask,
+    StringBufContainer(ios_base::openmode modeBitMask,
                        const ALLOCATOR&   allocator)
     : d_bufObj(modeBitMask, allocator)
     {
     }
 
-    StringbufContainer(const StringType& initialString,
+    StringBufContainer(const StringType& initialString,
                        const ALLOCATOR&  allocator)
     : d_bufObj(initialString, allocator)
     {
     }
 
-    StringbufContainer(const StringType&  initialString,
+    StringBufContainer(const StringType&  initialString,
                        ios_base::openmode modeBitMask,
                        const ALLOCATOR&   allocator)
     : d_bufObj(initialString, modeBitMask, allocator)
     {
     }
 
-    //! ~StringbufContainer() = default;
+    //! ~StringBufContainer() = default;
 
     // ACCESSORS
     StreamBufType *rdbuf() const
@@ -665,9 +665,9 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
     // If 'whence' is 'ios_base::cur' (the current position), 'modeBitMask'
     // may not be both input and output mode.
 
-    if ((modeBitMask & (ios_base::in | ios_base::out))
-                    == (ios_base::in | ios_base::out)
-        && !(whence == ios_base::beg || whence == ios_base::end)) {
+    if (((modeBitMask & (ios_base::in | ios_base::out)) == 
+                        (ios_base::in | ios_base::out)) 
+        && whence == ios_base::cur) {
         return pos_type(off_type(-1));                                // RETURN
     }
 

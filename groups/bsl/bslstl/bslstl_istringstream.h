@@ -138,7 +138,7 @@ namespace bsl {
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 class basic_istringstream
-    : private StringbufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
+    : private StringBufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
     , public native_std::basic_istream<CHAR_TYPE, CHAR_TRAITS> {
     // This class implements a standard input stream that provides a
     // constructor and manipulator for setting the sequence of characters from
@@ -147,7 +147,7 @@ class basic_istringstream
   private:
     // PRIVATE TYPES
     typedef basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>   StreamBufType;
-    typedef StringbufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
+    typedef StringBufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
                                                                  BaseType;
     typedef bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> StringType;
     typedef native_std::basic_istream<CHAR_TYPE, CHAR_TRAITS>    BaseStream;

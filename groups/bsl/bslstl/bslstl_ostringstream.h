@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Basic Output Operations
-///- - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - -
 // The following example demonstrates the use of 'bsl::ostringstream' to write
 // data of various types into a 'bsl::string' object.
 //
@@ -137,7 +137,7 @@ namespace bsl {
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 class basic_ostringstream
-    : private StringbufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
+    : private StringBufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
     , public native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS> {
     // This class implements a standard output stream that provides an accessor
     // for obtaining a 'bsl::basic_string' containing the sequence of
@@ -146,7 +146,7 @@ class basic_ostringstream
   private:
     // PRIVATE TYPES
     typedef basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>   StreamBufType;
-    typedef StringbufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
+    typedef StringBufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
                                                                  BaseType;
     typedef bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> StringType;
     typedef native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>    BaseStream;
