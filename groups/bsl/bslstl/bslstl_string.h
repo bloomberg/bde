@@ -812,17 +812,17 @@ String_Traits<native_std::char_traits<char> >::find(const char  *s,
 
 template <typename CHAR_TYPE, typename SIZE_TYPE>
 class String_Imp {
-    // This 'class' describes the basic data layout for a string class and
-    // provides methods to help encapsulate internal string implementation
-    // details.  It is parameterized by 'CHAR_TYPE' and 'SIZE_TYPE' only, and
-    // implements the portion of 'basic_string' that does not need to know
-    // about its parameterized 'CHAR_TRAITS' or 'ALLOCATOR'.  It contains the
-    // following data fields: pointer to string, short string buffer, length,
-    // and capacity.  The purpose of the short string buffer is to implement a
-    // "short string optimization" such that strings with lengths shorter than
-    // a certain number of characters are stored directly inside the string
-    // object (inside the short string buffer), and thereby avoid memory
-    // allocations/deallocations.
+    // This component private 'class' describes the basic data layout for a
+    // string class and provides methods to help encapsulate internal string
+    // implementation details.  It is parameterized by 'CHAR_TYPE' and
+    // 'SIZE_TYPE' only, and implements the portion of 'basic_string' that does
+    // not need to know about its parameterized 'CHAR_TRAITS' or 'ALLOCATOR'.
+    // It contains the following data fields: pointer to string, short string
+    // buffer, length, and capacity.  The purpose of the short string buffer is
+    // to implement a "short string optimization" such that strings with
+    // lengths shorter than a certain number of characters are stored directly
+    // inside the string object (inside the short string buffer), and thereby
+    // avoid memory allocations/deallocations.
 
   public:
     // TYPES
