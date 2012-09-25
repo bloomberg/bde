@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an meta-function for checking if two types are the same.
+//@PURPOSE: Provide a meta-function for checking if two types are the same.
 //
 //@CLASSES:
 //  bsl::is_same: standard meta-function for checking two same types
