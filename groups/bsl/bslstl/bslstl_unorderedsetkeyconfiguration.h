@@ -1,13 +1,13 @@
-// bslstl_unorderedsetkeypolicy.h                                     -*-C++-*-
-#ifndef INCLUDED_BSLSTL_UNORDEREDSETKEYPOLICY
-#define INCLUDED_BSLSTL_UNORDEREDSETKEYPOLICY
+// bslstl_unorderedsetkeyconfiguration.h                              -*-C++-*-
+#ifndef INCLUDED_BSLSTL_UNORDEREDSETKEYCONFIGURATION
+#define INCLUDED_BSLSTL_UNORDEREDSETKEYCONFIGURATION
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a policy class to use a whole object as its own key.
+//@PURPOSE: Provide a configuration class to use a whole object as its own key.
 //
 //@CLASSES:
 //
@@ -36,19 +36,19 @@ namespace BloombergLP {
 
 namespace bslstl {
 
-                          // ============================
-                          // struct UnorderedSetKeyPolicy
-                          // ============================
+                       // ===================================
+                       // struct UnorderedSetKeyConfiguration
+                       // ===================================
 
 template <class VALUE_TYPE>
-struct UnorderedSetKeyPolicy {
+struct UnorderedSetKeyConfiguration {
   public:
     typedef VALUE_TYPE ValueType;
     typedef ValueType  KeyType;
 
-    // Choosing to implement for each policy, to reduce the template mess.
-    // With only two policies, not much is saved using a shared dependent base
-    // class to provide a common implementation.
+    // Choosing to implement for each configuration, to reduce the template
+    // mess.  With only two policies, not much is saved using a shared
+    // dependent base class to provide a common implementation.
 
     // CLASS METHODS
     static const KeyType& extractKey(const VALUE_TYPE& object);
@@ -61,15 +61,15 @@ struct UnorderedSetKeyPolicy {
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                        //-----------------------------
-                        // struct UnorderedSetKeyPolicy
-                        //-----------------------------
+                      //------------------------------------
+                      // struct UnorderedSetKeyConfiguration
+                      //------------------------------------
 
 
 template <class VALUE_TYPE>
 inline
-const typename UnorderedSetKeyPolicy<VALUE_TYPE>::KeyType&
-UnorderedSetKeyPolicy<VALUE_TYPE>::extractKey(const VALUE_TYPE& object)
+const typename UnorderedSetKeyConfiguration<VALUE_TYPE>::KeyType&
+UnorderedSetKeyConfiguration<VALUE_TYPE>::extractKey(const VALUE_TYPE& object)
 {
     return object;
 }

@@ -45,9 +45,9 @@ bslstl_treenode
 bslstl_treenodepool
 bslstl_util
 bslstl_unorderedmap
-bslstl_unorderedmapkeypolicy
+bslstl_unorderedmapkeyconfiguration
 bslstl_unorderedmultimap
 bslstl_unorderedmultiset
 bslstl_unorderedset
-bslstl_unorderedsetkeypolicy
+bslstl_unorderedsetkeyconfiguration
 bslstl_vector

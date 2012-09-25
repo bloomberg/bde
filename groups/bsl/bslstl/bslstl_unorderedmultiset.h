@@ -85,8 +85,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_pair.h>  // result type of 'equal_range' method
 #endif
 
-#ifndef INCLUDED_BSLSTL_UNORDEREDSETKEYPOLICY
-#include <bslstl_unorderedsetkeypolicy.h>
+#ifndef INCLUDED_BSLSTL_UNORDEREDSETKEYCONFIGURATION
+#include <bslstl_unorderedsetkeyconfiguration.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
@@ -143,10 +143,12 @@ class unordered_multiset
   private:
     typedef ::BloombergLP::bslalg::BidirectionalLink             HashTableLink;
 
-    typedef ::BloombergLP::bslstl::UnorderedSetKeyPolicy<value_type> 
-                                                                    ListPolicy;
-    typedef ::BloombergLP::bslstl::HashTable<ListPolicy, HASH, EQUAL, ALLOC>
-                                                                          Impl;
+    typedef ::BloombergLP::bslstl::UnorderedSetKeyConfiguration<value_type> 
+                                                             ListConfiguration;
+    typedef ::BloombergLP::bslstl::HashTable<ListConfiguration,
+                                             HASH,
+                                             EQUAL,
+                                             ALLOC> Impl;
 
   public:
     typedef ::BloombergLP::bslstl::HashTableIterator<value_type,
@@ -536,7 +538,8 @@ unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::erase(const key_type& k)
         size_type result = 1;
         while (target && this->key_eq()(
               k,
-              ListPolicy::extractKey(static_cast<BNode *>(target)->value()))) {
+              ListConfiguration::extractKey(
+                                     static_cast<BNode *>(target)->value()))) {
             target = d_impl.remove(target);
             ++result;
         }
@@ -677,7 +680,8 @@ count(const key_type& k) const
          ++result, cursor = cursor->nextLink()) {
 
         BNode *cursorNode = static_cast<BNode *>(cursor);
-        if (!this->key_eq()(k, ListPolicy::extractKey(cursorNode->value()))) {
+        if (!this->key_eq()(k, ListConfiguration::extractKey(
+                                                       cursorNode->value()))) {
             break;
         }
     }

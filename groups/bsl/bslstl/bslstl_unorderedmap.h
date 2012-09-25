@@ -274,8 +274,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_pair.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYPOLICY
-#include <bslstl_unorderedmapkeypolicy.h>
+#ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYCONFIGURATION
+#include <bslstl_unorderedmapkeyconfiguration.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
@@ -334,10 +334,12 @@ class unordered_map
     typedef typename AllocatorTraits::const_pointer    const_pointer;
 
   private:
-    typedef ::BloombergLP::bslstl::UnorderedMapKeyPolicy<value_type>
-                                                                    ListPolicy;
-    typedef ::BloombergLP::bslstl::HashTable<ListPolicy, HASH, EQUAL, ALLOC>
-                                                                     HashTable;
+    typedef ::BloombergLP::bslstl::UnorderedMapKeyConfiguration<value_type>
+                                                             ListConfiguration;
+    typedef ::BloombergLP::bslstl::HashTable<ListConfiguration,
+                                             HASH,
+                                             EQUAL,
+                                             ALLOC> HashTable;
     typedef ::BloombergLP::bslalg::BidirectionalLink             HashTableLink;
     typedef typename HashTable::NodeType                         HashTableNode;
 

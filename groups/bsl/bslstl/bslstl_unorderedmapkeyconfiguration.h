@@ -1,16 +1,16 @@
-// bslstl_unorderedmapkeypolicy.h                                     -*-C++-*-
-#ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYPOLICY
-#define INCLUDED_BSLSTL_UNORDEREDMAPKEYPOLICY
+// bslstl_unorderedmapkeyconfiguration.h                              -*-C++-*-
+#ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYCONFIGURATION
+#define INCLUDED_BSLSTL_UNORDEREDMAPKEYCONFIGURATION
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a policy class to extract keys as the 'first' attribute.
+//@PURPOSE: Provide a class template to extract keys as the 'first' attribute.
 //
 //@CLASSES:
-//   bslalg::UnorderedMapKeyPolicy : extracts 'key' from 'value' type
+//   bslalg::UnorderedMapKeyConfiguration : extracts 'key' from 'value' type
 //
 //@SEE_ALSO: bslalg_hashtableimputil
 //
@@ -40,21 +40,20 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslstl {
 
-                          // ============================
-                          // struct UnorderedMapKeyPolicy
-                          // ============================
+                      // ===================================
+                      // struct UnorderedMapKeyConfiguration
+                      // ===================================
 
 template <class VALUE_TYPE>
-struct UnorderedMapKeyPolicy {
+struct UnorderedMapKeyConfiguration {
   public:
     typedef          VALUE_TYPE             ValueType;
     typedef typename ValueType::first_type  KeyType;
 
-    // Choosing to implement for each policy, to reduce the template mess.
-    // With only two policies, not much is saved using a shared dependent base
-    // class to provide a common implementation.
-    // This is the key abstraction, turning 'bslalg::BidirectionalLink*' into
-    // 'VALUE_TYPE&'
+    // Choosing to implement for each configuration, to reduce the template
+    // mess.  With only two policies, not much is saved using a shared
+    // dependent base class to provide a common implementation.  This is the
+    // key abstraction, turning 'bslalg::BidirectionalLink*' into 'VALUE_TYPE&'
 
     // CLASS METHODS
     static const KeyType& extractKey(const VALUE_TYPE& obj);
@@ -67,15 +66,15 @@ struct UnorderedMapKeyPolicy {
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                          //----------------------------
-                          // class UnorderedMapKeyPolicy
-                          //----------------------------
+                       //-----------------------------------
+                       // class UnorderedMapKeyConfiguration
+                       //-----------------------------------
 
 // CLASS METHODS
 template <class VALUE_TYPE>
 inline
-const typename UnorderedMapKeyPolicy<VALUE_TYPE>::KeyType&
-UnorderedMapKeyPolicy<VALUE_TYPE>::extractKey(const VALUE_TYPE& obj)
+const typename UnorderedMapKeyConfiguration<VALUE_TYPE>::KeyType&
+UnorderedMapKeyConfiguration<VALUE_TYPE>::extractKey(const VALUE_TYPE& obj)
 {
     return obj.first;
 }
