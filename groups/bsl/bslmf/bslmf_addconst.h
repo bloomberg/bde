@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 // reference, function or already 'const'-qualified at the top-level.
 //
 // 'bsl::add_const' meets the requirements of the 'add_const' template defined
-// in the C++11 standard [meta.unary.cv].
+// in the C++11 standard [meta.trans.cv].
 //
 ///Usage
 ///-----
@@ -95,7 +95,7 @@ namespace bsl {
 template <typename TYPE>
 struct add_const {
     // This 'struct' template implements the 'add_const' meta-function defined
-    // in the C++11 standard [meta.unary.cv] to provide an alias 'type' that
+    // in the C++11 standard [meta.trans.cv] to provide an alias 'type' that
     // has the same type as the (template parameter) 'TYPE' except that the
     // top-level 'const'-qualifier has been added, unless 'TYPE' is a
     // reference, a function, or already 'const'-qualified at the top-level.

@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // that may be used to remove the top-level 'const'-qualifier from a type.
 //
 // 'bsl::remove_const' meets the requirements of the 'remove_const' template
-// defined in the C++11 standard [meta.unary.cv].
+// defined in the C++11 standard [meta.trans.cv].
 //
 ///Usage
 ///-----

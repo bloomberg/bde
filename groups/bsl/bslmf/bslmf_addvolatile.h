@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 // not a reference, function or already 'volatile'-qualified at the top-level.
 //
 // 'bsl::add_volatile' meets the requirements of the 'add_volatile' template
-// defined in the C++11 standard [meta.unary.cv].
+// defined in the C++11 standard [meta.trans.cv].
 //
 ///Usage
 ///-----
@@ -97,7 +97,7 @@ namespace bsl {
 template <typename TYPE>
 struct add_volatile {
     // This 'struct' template implements the 'add_volatile' meta-function
-    // defined in the C++11 standard [meta.unary.cv] to provide an alias 'type'
+    // defined in the C++11 standard [meta.trans.cv] to provide an alias 'type'
     // that has the same type as the (template parameter) 'TYPE' except that
     // the top-level 'volatile'-qualifier has been added, unless 'TYPE' is a
     // reference, a function, or already 'volatile'-qualified at the top-level.

@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // 'volatile'-qualified at the top-level.
 //
 // 'bsl::add_cv' meets the requirements of the 'add_cv' template defined in the
-// C++11 standard [meta.unary.cv].
+// C++11 standard [meta.trans.cv].
 //
 ///Usage
 ///-----
@@ -65,7 +65,7 @@ namespace bsl {
 template <typename TYPE>
 struct add_cv {
     // This 'struct' template implements the 'add_cv' meta-function defined in
-    // the C++11 standard [meta.unary.cv] to provide an alias 'type' that has
+    // the C++11 standard [meta.trans.cv] to provide an alias 'type' that has
     // the same type as the (template parameter) 'TYPE' except that the
     // top-level 'const'-qualifier and 'volatile'-qualifier has been added,
     // unless 'TYPE' is a reference, a function, or already 'const'-qualified
