@@ -342,6 +342,18 @@ struct HashTableBucket {
 };
 
 // ===========================================================================
+//                               FREE OPERATORS
+// ===========================================================================
+
+bool operator==(const HashTableBucket& lhs, const HashTableBucket& rhs);
+    // Return 'true' if the specified hash table buckets 'lhs' and 'rhs' are
+    // equivalent and 'false' otherwise.
+
+bool operator!=(const HashTableBucket& lhs, const HashTableBucket& rhs);
+    // Return 'true' if the specified hash table buckets 'lhs' and 'rhs' are
+    // not equivalent and 'false' otherwise.
+
+// ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
@@ -396,6 +408,22 @@ BidirectionalLink *HashTableBucket::last() const
 }
 
 }  // close namespace bslalg
+
+// FREE OPERATORS
+inline
+bool bslalg::operator==(const bslalg::HashTableBucket& lhs,
+                        const bslalg::HashTableBucket& rhs)
+{
+    return lhs.first() == rhs.first() && lhs.last() == rhs.last();
+}
+
+inline
+bool bslalg::operator!=(const bslalg::HashTableBucket& lhs,
+                        const bslalg::HashTableBucket& rhs)
+{
+    return lhs.first() != rhs.first() || lhs.last() != rhs.last();
+}
+
 
 }  // close enterprise namespace
 

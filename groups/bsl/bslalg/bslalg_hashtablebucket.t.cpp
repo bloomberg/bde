@@ -293,7 +293,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         // --------------------------------------------------------------------
@@ -354,9 +354,113 @@ int main(int argc, char *argv[])
         ASSERT(oa.numBlocksTotal() > 0);
         ASSERT(0 == oa.numBlocksInUse());
       } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // EQUALITY, COPY C'TOR, and ASSIGNMENT
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("EQUALITY, COPY C'TOR, and ASSIGNMENT\n"
+                            "====================================\n");
+
+        Link l1;
+        Link l2;
+        Link l3;
+        Link l4;
+        Link l5;
+
+        l1.setNextLink(&l2);
+        l2.setNextLink(&l3);
+        l3.setNextLink(&l4);
+        l4.setNextLink(&l5);
+        l5.setNextLink(0);
+
+        l1.setPreviousLink(0);
+        l2.setPreviousLink(&l1);
+        l3.setPreviousLink(&l2);
+        l4.setPreviousLink(&l3);
+        l5.setPreviousLink(&l4);
+
+        Obj mX = { &l1, &l3 }; const Obj& X = mX;
+        myCheckInvariants(X);
+        ASSERT(3 == X.countElements());
+        ASSERT(&l1 == X.first());
+        ASSERT(&l3 == X.last());
+
+        ASSERT(X == X);         ASSERT(!(X != X));
+
+        Obj mY(X);             const Obj& Y = mY;
+        myCheckInvariants(Y);
+        ASSERT(3 == Y.countElements());
+        ASSERT(&l1 == Y.first());
+        ASSERT(&l3 == Y.last());
+
+        ASSERT(X == Y);         ASSERT(!(X != Y));
+        ASSERT(Y == X);         ASSERT(!(Y != X));
+
+        mX.reset();
+        myCheckInvariants(X);
+        ASSERT(0 == X.countElements());
+        ASSERT(0 == X.first());
+        ASSERT(0 == X.last());
+
+        ASSERT(X == X);         ASSERT(!(X != X));
+
+        ASSERT(X != Y);         ASSERT(!(X == Y));
+        ASSERT(Y != X);         ASSERT(!(Y == X));
+
+        mX = Y;
+        myCheckInvariants(X);
+        ASSERT(3 == X.countElements());
+        ASSERT(&l1 == X.first());
+        ASSERT(&l3 == X.last());
+
+        ASSERT(X == X);         ASSERT(!(X != X));
+
+        ASSERT(X == Y);         ASSERT(!(X != Y));
+        ASSERT(Y == X);         ASSERT(!(Y != X));
+
+        mY.setLast(&l5);
+        myCheckInvariants(Y);
+        ASSERT(5 == Y.countElements());
+        ASSERT(&l1 == Y.first());
+        ASSERT(&l5 == Y.last());
+
+        ASSERT(Y == Y);         ASSERT(!(Y != Y));
+
+        ASSERT(X != Y);         ASSERT(!(X == Y));
+        ASSERT(Y != X);         ASSERT(!(Y == X));
+
+        mX = Y;
+
+        ASSERT(X == X);         ASSERT(!(X != X));
+
+        ASSERT(X == Y);         ASSERT(!(X != Y));
+        ASSERT(Y == X);         ASSERT(!(Y != X));
+
+        Obj mZ = { 0, 0 };      const Obj& Z = mZ;
+        myCheckInvariants(Z);
+        ASSERT(0 == Z.countElements());
+        ASSERT(0 == Z.first());
+        ASSERT(0 == Z.last());
+
+        ASSERT(Z == Z);         ASSERT(!(Z != Z));
+
+        ASSERT(X != Z);         ASSERT(!(X == Z));
+        ASSERT(Z != X);         ASSERT(!(Z == X));
+
+        Obj mA(Z);              const Obj& A = mA;
+
+        ASSERT(A == A);         ASSERT(!(A != A));
+
+        ASSERT(A == Z);         ASSERT(!(A != Z));
+        ASSERT(Z == A);         ASSERT(!(Z != A));
+
+        ASSERT(X != A);         ASSERT(!(X == A));
+        ASSERT(A != X);         ASSERT(!(A == X));
+      } break;
       case 3: {
         // --------------------------------------------------------------------
-        // VALUE C'TOR AND ACCESSORS
+        // VALUE C'TOR AND BASIC ACCESSORS
         //
         // Concern:
         //   That the value c'tor properly initializes the object.  Note this
