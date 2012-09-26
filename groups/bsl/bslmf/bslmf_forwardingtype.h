@@ -64,25 +64,25 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, check that they match:
 //..
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T1>::Type,
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T1>::Type,
 //                             EXP1>::value));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T2>::Type,
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T2>::Type,
 //                             EXP2>::value));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T3>::Type,
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T3>::Type,
 //                             EXP3>::value));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T4>::Type,
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T4>::Type,
 //                             EXP4>::value));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T5>::Type,
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T5>::Type,
 //                             EXP5>::value));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T6>::Type,
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T6>::Type,
 //                             EXP6>::value));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T7>::Type,
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T7>::Type,
 //                             EXP7>::value));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T8>::Type,
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T8>::Type,
 //                             EXP8>::value));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T9>::Type,
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T9>::Type,
 //                             EXP9>::value));
-//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T10>::Type,
+//  assert(1 == (bsl::is_same<bslmf::ForwardingType<T10>::Type,
 //                             EXP10>::value));
 //..
 

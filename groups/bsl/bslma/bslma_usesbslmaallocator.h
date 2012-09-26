@@ -66,7 +66,7 @@ private:
 
         // If a pointer to 'UniqueType' is convertible to 'T', it can only mean
         // that ANY POINTER is convertible to 'T'.
-        ANY_POINTER_CTOR = bslmf::IsConvertible<UniqueType*, TYPE>::VALUE,
+        ANY_POINTER_CTOR = bslmf::IsConvertible<UniqueType*, TYPE>::value,
 
         // 'SNIFFED_BSLMA_IDIOM' will be true if the old traits mechanism
         // would have detected an idiomatic type through trait sniffing.
@@ -86,7 +86,7 @@ public:
 
 template <class TYPE>
 struct UsesBslmaAllocator : UsesBslmaAllocator_Imp<TYPE,
-    bslmf::DetectNestedTrait<TYPE, UsesBslmaAllocator>::VALUE>::type
+    bslmf::DetectNestedTrait<TYPE, UsesBslmaAllocator>::value>::type
 {
     // This metafunction is derived from 'true_type' if 'TYPE' adheres to the
     // 'bslma' allocator usage idiom and 'false_type' otherwise.  Note that

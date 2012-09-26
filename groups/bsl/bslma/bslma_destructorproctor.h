@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 //      static void copyConstruct(TYPE             *address,
 //                                const TYPE&       original,
 //                                bslma::Allocator *basicAllocator,
-//                                bslmf::MetaInt<PAIR_TRAIT> *);
+//                                bsl::integral_constant<bool, PAIR_TRAIT> *);
 //          // Copy construct the specified 'original' into the specified
 //          // 'address' using the specified 'basicAllocator' (if the
 //          // copy constructor of 'TYPE' takes an allocator).  Note that
@@ -119,7 +119,7 @@ BSLS_IDENT("$Id: $")
 //      static void copyConstruct(TYPE             *address,
 //                                const TYPE&       original,
 //                                bslma::Allocator *basicAllocator,
-//                                bslmf::MetaInt<NIL_TRAIT> *);
+//                                bsl::integral_constant<bool, NIL_TRAIT> *);
 //          // Copy construct the specified 'original' into the specified
 //          // 'address' using the specified 'basicAllocator' (if the
 //          // copy constructor of 'TYPE' takes an allocator).  Note that
@@ -135,7 +135,7 @@ BSLS_IDENT("$Id: $")
 //      copyConstruct(address,
 //                    original,
 //                    basicAllocator,
-//                    (bslmf::MetaInt<my_HasPairTrait<TYPE>::VALUE> *)0);
+//                    (typename my_HasPairTrait<TYPE>::type *)0);
 //  }
 //..
 // The implementation of 'copyConstruct' constructs the pair object in two

@@ -1311,7 +1311,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
               ? Imp::USES_BSLMA_ALLOCATOR_TRAITS
-              : bslmf::IsSame<ARG1, TARGET_TYPE>::value
+              : bsl::is_same<ARG1, TARGET_TYPE>::value
                 && bsl::is_trivially_copyable<TARGET_TYPE>::value
                   ? Imp::BITWISE_COPYABLE_TRAITS
                   : bslmf::IsPair<TARGET_TYPE>::value
@@ -2006,7 +2006,7 @@ template <typename LHS_TYPE, typename RHS_TYPE>
 void ScalarPrimitives::swap(LHS_TYPE& lhs, RHS_TYPE& rhs)
 {
     enum {
-        VALUE = bslmf::IsSame<LHS_TYPE, RHS_TYPE>::value
+        VALUE = bsl::is_same<LHS_TYPE, RHS_TYPE>::value
                 && bslmf::IsBitwiseMoveable<LHS_TYPE>::value
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
@@ -2877,7 +2877,7 @@ void ScalarPrimitives_Imp::swap(LHS_TYPE&                                lhs,
                                 RHS_TYPE&                                rhs,
                                 bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
-    if (bslmf::IsSame<LHS_TYPE, RHS_TYPE>::value
+    if (bsl::is_same<LHS_TYPE, RHS_TYPE>::value
      && !bslmf::IsFundamental<LHS_TYPE>::value
      && !bslmf::IsPointer<LHS_TYPE>::value
      && !bslma::UsesBslmaAllocator<LHS_TYPE>::value) {

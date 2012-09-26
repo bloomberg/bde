@@ -593,43 +593,43 @@ int main(int argc, char *argv[])
         {
             {
                 const bool R =
-                    bslmf::IsSame<bool,
+                    bsl::is_same<bool,
                                   bslmf::EnableIf<true, bool>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
-                    bslmf::IsSame<int,
+                    bsl::is_same<int,
                                   bslmf::EnableIf<true, int>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
-                    bslmf::IsSame<void *,
+                    bsl::is_same<void *,
                                   bslmf::EnableIf<true, void *>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
-                    bslmf::IsSame<const void *,
+                    bsl::is_same<const void *,
                             bslmf::EnableIf<true, const void *>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
-                  bslmf::IsSame<const volatile void *,
+                  bsl::is_same<const volatile void *,
                    bslmf::EnableIf<true, const volatile void *>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
-                  bslmf::IsSame<DummyClass,
+                  bsl::is_same<DummyClass,
                     bslmf::EnableIf<true, DummyClass>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
-                  bslmf::IsSame<DummyClass&,
+                  bsl::is_same<DummyClass&,
                     bslmf::EnableIf<true, DummyClass&>::type >::value;
                 ASSERT(R);
             }

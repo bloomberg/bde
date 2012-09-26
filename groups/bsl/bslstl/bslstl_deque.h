@@ -560,9 +560,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
   private:
     // ASSERTIONS
 
-    BSLMF_ASSERT((is_same<reference, typename Base::reference>::VALUE));
+    BSLMF_ASSERT((is_same<reference, typename Base::reference>::value));
     BSLMF_ASSERT((is_same<const_reference,
-                  typename Base::const_reference>::VALUE));
+                  typename Base::const_reference>::value));
         // This need not necessarily be true as per the C++ standard, but is a
         // safe assumption for this implementation and allows to implement the
         // element access within the 'Base' type (that is parameterized by

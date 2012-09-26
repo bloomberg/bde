@@ -184,9 +184,7 @@ class my_Pair {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // !!!Warning: Modified usage example in order to test it
 template <class TYPE>
-struct my_HasPairTrait {
-    enum { VALUE = 0 };
-};
+struct my_HasPairTrait : bsl::false_type { };
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 // my_primitives.h
@@ -215,7 +213,7 @@ struct my_Primitives {
     static void copyConstruct(TYPE                       *address,
                               const TYPE&                 original,
                               bslma::Allocator           *basicAllocator,
-                              bslmf::MetaInt<PAIR_TRAIT> *);
+                              bsl::integral_constant<bool, PAIR_TRAIT> *);
         // Copy construct the specified 'original' into the specified
         // 'address' using the specified 'basicAllocator' (if the
         // copy constructor of 'TYPE' takes an allocator).  Note that
@@ -225,7 +223,7 @@ struct my_Primitives {
     static void copyConstruct(TYPE                      *address,
                               const TYPE&                original,
                               bslma::Allocator          *basicAllocator,
-                              bslmf::MetaInt<NIL_TRAIT> *);
+                              bsl::integral_constant<bool, NIL_TRAIT> *);
         // Copy construct the specified 'original' into the specified
         // 'address' using the specified 'basicAllocator' (if the
         // copy constructor of 'TYPE' takes an allocator).  Note that
@@ -241,7 +239,7 @@ void my_Primitives::copyConstruct(TYPE             *address,
     copyConstruct(address,
                   original,
                   basicAllocator,
-                  (bslmf::MetaInt<my_HasPairTrait<TYPE>::VALUE> *)0);
+                  (typename my_HasPairTrait<TYPE>::type *)0);
 }
 
 template <class TYPE>
@@ -249,7 +247,7 @@ inline
 void my_Primitives::copyConstruct(TYPE                       *address,
                                   const TYPE&                 original,
                                   bslma::Allocator           *basicAllocator,
-                                  bslmf::MetaInt<PAIR_TRAIT> *)
+                                  bsl::integral_constant<bool, PAIR_TRAIT> *)
 {
     copyConstruct(&address->first, original.first, basicAllocator);
 
@@ -274,7 +272,7 @@ inline
 void my_Primitives::copyConstruct(TYPE                      *address,
                                   const TYPE&                original,
                                   bslma::Allocator          *basicAllocator,
-                                  bslmf::MetaInt<NIL_TRAIT> *)
+                                  bsl::integral_constant<bool, NIL_TRAIT> *)
 {
     new(address)TYPE(original, basicAllocator);
 }
@@ -345,9 +343,8 @@ class my_AllocatingClass {
 };
 
 template <>
-struct my_HasPairTrait<my_Pair<my_AllocatingClass, my_AllocatingClass> > {
-    enum { VALUE = 1 };
-};
+struct my_HasPairTrait<my_Pair<my_AllocatingClass, my_AllocatingClass> >
+    : bsl::true_type { };
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -387,7 +384,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Test not run without exception support.\n");
 #else
         bslma::TestAllocator z(veryVeryVerbose);
-        const bslma::TestAllocator &Z = z;
+//      const bslma::TestAllocator &Z = z;
 
         int counter1 = 0;
         int counter2 = 0;

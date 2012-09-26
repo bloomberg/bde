@@ -885,12 +885,12 @@ class Printer_DetectType {
   public:
     // PUBLIC TYPES
     enum {
-        VALUE = bslmf::IsFundamental<TYPE>::VALUE || bslmf::IsEnum<TYPE>::VALUE
+        VALUE = bslmf::IsFundamental<TYPE>::value || bslmf::IsEnum<TYPE>::value
                 ? Printer_Selector::BSLIM_FUNDAMENTAL
-                : bslmf::IsFunctionPointer<TYPE>::VALUE
+                : bslmf::IsFunctionPointer<TYPE>::value
                   ? Printer_Selector::BSLIM_FUNCTION_POINTER
-                  : bslmf::IsPointer<TYPE>::VALUE ||
-                                                 bslmf::IsArray<TYPE>::VALUE
+                  : bslmf::IsPointer<TYPE>::value ||
+                                                 bsl::is_array<TYPE>::value
                     ? Printer_Selector::BSLIM_POINTER
                     : bslalg::HasTrait<TYPE, HasIterators>::VALUE
                       ? Printer_Selector::BSLIM_HAS_STL_ITERATORS

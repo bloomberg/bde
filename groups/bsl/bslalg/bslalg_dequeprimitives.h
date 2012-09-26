@@ -1959,9 +1959,9 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
                                                 ALLOCATOR         *allocator)
 {
     enum {
-        IS_FUNCTION_POINTER = bslmf::IsFunctionPointer<VALUE_TYPE>::VALUE,
-        IS_FUNDAMENTAL      = bslmf::IsFundamental<VALUE_TYPE>::VALUE,
-        IS_POINTER          = bslmf::IsPointer<VALUE_TYPE>::VALUE,
+        IS_FUNCTION_POINTER = bslmf::IsFunctionPointer<VALUE_TYPE>::value,
+        IS_FUNDAMENTAL      = bslmf::IsFundamental<VALUE_TYPE>::value,
+        IS_POINTER          = bslmf::IsPointer<VALUE_TYPE>::value,
 
         IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                     (IS_POINTER && !IS_FUNCTION_POINTER),
@@ -2034,9 +2034,9 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
                                                 ALLOCATOR         *allocator)
 {
     enum {
-        IS_FUNCTION_POINTER = bslmf::IsFunctionPointer<VALUE_TYPE>::VALUE,
-        IS_FUNDAMENTAL      = bslmf::IsFundamental<VALUE_TYPE>::VALUE,
-        IS_POINTER          = bslmf::IsPointer<VALUE_TYPE>::VALUE,
+        IS_FUNCTION_POINTER = bslmf::IsFunctionPointer<VALUE_TYPE>::value,
+        IS_FUNDAMENTAL      = bslmf::IsFundamental<VALUE_TYPE>::value,
+        IS_POINTER          = bslmf::IsPointer<VALUE_TYPE>::value,
 
         IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                     (IS_POINTER && !IS_FUNCTION_POINTER),
