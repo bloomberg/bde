@@ -380,15 +380,15 @@ class unordered_map {
   public:
     // CREATORS
     explicit unordered_map(size_type n = 0,
-                           const hasher& hasher = hasher(),
-                           const key_equal& key_equal = key_equal(),
+                           const hasher& hash = hasher(),
+                           const key_equal& equal = key_equal(),
                            const allocator_type& allocator = allocator_type());
         // Construct an empty unordered map.  Optionally specify a 'hasher'
         // used to generate the hash values associated to the key-value pairs
-        // contained in this object.  If 'hasher' is not supplied, a
+        // contained in this object.  If 'hash' is not supplied, a
         // default-constructed object of type 'hasher' is used.  Optionally
-        // specify a key-equality functor 'key_equal' used to verify that two
-        // key values are the same.  If 'key_equal' is not supplied, a
+        // specify a key-equality functor 'equal' used to verify that two
+        // key values are the same.  If 'equal' is not supplied, a
         // default-constructed object of type 'key_equal' is used.  Optionally
         // specify an 'allocator' used to supply memory.  If 'allocator' is not
         // supplied, a default-constructed object of the (template parameter)
@@ -424,8 +424,8 @@ class unordered_map {
     template <class InputIterator>
     unordered_map(InputIterator first, InputIterator last,
                   size_type n = 0,
-                  const hasher& hasher = hasher(),
-                  const key_equal& key_equal = key_equal(),
+                  const hasher& hash = hasher(),
+                  const key_equal& equal = key_equal(),
                   const allocator_type& allocator = allocator_type());
         // Construct an empty unordered map and insert each 'value_type' object
         // in the sequence starting at the specified 'first' element, and
@@ -433,11 +433,11 @@ class unordered_map {
         // those pairs having a key that appears earlier in the sequence.
         // Optionally specify a 'hasher' used to generate the hash values
         // associated to the key-value pairs contained in this object.  If
-        // 'hasher' is not supplied, a default-constructed object of type
+        // 'hash' is not supplied, a default-constructed object of type
         // 'hasher' is used.  Optionally specify a key-equality functor
-        // 'key_equal' used to verify that two key values are the same.  If
-        // 'key_equal' is not supplied, a default-constructed object of type
-        // 'key_equal' is used.  Optionally specify an 'allocator' used to
+        // 'equal' used to verify that two key values are the same.  If
+        // 'equal' is not supplied, a default-constructed object of type
+        // 'key_equal' is used. Optionally specify an 'allocator' used to
         // supply memory.  If 'allocator' is not supplied, a
         // default-constructed object of the (template parameter) type
         // 'allocator_type' is used.  If the 'allocator_type' is
@@ -798,10 +798,10 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
 unordered_map(size_type             n,
-              const hasher&         hasher,
-              const key_equal&      key_equal,
+              const hasher&         hash,
+              const key_equal&      equal,
               const allocator_type& allocator)
-: d_impl(hasher, key_equal, n, allocator)
+: d_impl(hash, equal, n, allocator)
 {
 }
 
@@ -812,10 +812,10 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
                                                InputIterator         first,
                                                InputIterator         last,
                                                size_type             n,
-                                               const hasher&         hasher,
-                                               const key_equal&      key_equal,
+                                               const hasher&         hash,
+                                               const key_equal&      equal,
                                                const allocator_type& allocator)
-: d_impl(hasher, key_equal, n, allocator)
+: d_impl(hash, equal, n, allocator)
 {
     this->insert(first, last);
 }
@@ -878,7 +878,7 @@ inline
 bool
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::empty() const
 {
-    return d_impl.isEmpty();
+    return 0 == d_impl.size();
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1172,7 +1172,7 @@ typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
                                                            const key_type& key)
 {
-    HashTableLink *node = d_impl.findOrInsertDefault(key);
+    HashTableLink *node = d_impl.insertIfMissing(key);
     return static_cast<HashTableNode *>(node)->value().second;
 }
 

@@ -72,7 +72,7 @@ using namespace BloombergLP;
 //   Accessors and manipulators
 //     'HashTable::allocator'
 //     'HashTable::elementListRoot'
-//     insertValue        - a test function using 'insertContiguous' resticted
+//     insertValue        - a test function using 'insert' resticted
 //                          to ValueType
 //     verifyListContents - key accessor to validate the list root points to a
 //                          list having the right set of values, and arranged
@@ -123,10 +123,10 @@ using namespace BloombergLP;
 //                                          bool               *isInsertedFlag,
 //                                          const SOURCE_TYPE&  obj);
 // [  ] bslalg::BidirectionalLink *remove(bslalg::BidirectionalLink *node);
-// [  ] bslalg::BidirectionalLink *findOrInsertDefault(const KeyType& key);
+// [  ] bslalg::BidirectionalLink *insertIfMissing(const KeyType& key);
 //      template <class SOURCE_TYPE>
-// [  ] bslalg::BidirectionalLink *insertContiguous(const SOURCE_TYPE& obj);
-// [  ] bslalg::BidirectionalLink *insertWithHint(
+// [  ] bslalg::BidirectionalLink *insert(const SOURCE_TYPE& obj);
+// [  ] bslalg::BidirectionalLink *insert(
 //                                      const ValueType& obj,
 //                                      const bslalg::BidirectionalLink *hint);
 // [  ] void rehashForNumBuckets(SizeType newNumBuckets);
@@ -151,7 +151,6 @@ using namespace BloombergLP;
 //                   const KeyType&              k) const;
 // [  ] bslalg::BidirectionalLink *findEndOfRange(
 //                                     bslalg::BidirectionalLink *first) const;
-// [  ] bool isEmpty() const;
 // [  ] float loadFactor() const;
 // [  ] SizeType maxNumBuckets() const;
 // [  ] SizeType maxSize() const;
@@ -261,7 +260,7 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void debugprint(
          const bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& t)
 {
-    if (t.isEmpty()) {
+    if (0 == t.size()) {
         printf("<empty>");
     }
     else {
@@ -410,7 +409,7 @@ int verifyContainer(const CONTAINER& container,
 
     // Check to avoid creating an array of length zero.
     if (0 == expectedSize) {
-        ASSERTV(container.isEmpty());
+        ASSERTV(0 == container.size());
         return 0;                                                     // RETURN
     }
 
@@ -706,7 +705,7 @@ Link* insertElement(
    ::BloombergLP::bslstl::HashTable<KEY_CONFIG, HASH, EQUAL, ALLOC> *hashTable,
    const typename KEY_CONFIG::ValueType&                             value)
 {
-    return hashTable->insertContiguous(value);
+    return hashTable->insert(value);
 }
 
 #if 0
@@ -1469,7 +1468,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             ASSERTV(LENGTH, CONFIG, 0 == X.size());
             ASSERTV(LENGTH, CONFIG, 0 < X.numBuckets());
             ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
-            ASSERTV(LENGTH, CONFIG, X.isEmpty());
             ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
             ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
             ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
@@ -1497,7 +1495,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             ASSERTV(LENGTH, CONFIG, 0 == X.size());
             ASSERTV(LENGTH, CONFIG, 0 < X.numBuckets());
             ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
-            ASSERTV(LENGTH, CONFIG, X.isEmpty());
             ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
             ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
             ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
@@ -1624,7 +1621,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 ASSERTV(LENGTH, CONFIG, 0 == X.size());
                 ASSERTV(LENGTH, CONFIG, 0 < X.numBuckets());
                 ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
-                ASSERTV(LENGTH, CONFIG, X.isEmpty());
                 ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
                 ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
                 ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
@@ -1756,7 +1752,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 ASSERTV(LENGTH, CONFIG, 0 == X.size());
                 ASSERTV(LENGTH, CONFIG, bucketCount == X.numBuckets());
                 ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
-                ASSERTV(LENGTH, CONFIG, X.isEmpty());
                 ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
                 ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
                 ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
@@ -1821,7 +1816,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 ASSERTV(LENGTH, CONFIG, 0 == X.size());
                 ASSERTV(LENGTH, CONFIG, bucketCountWithDups == X.numBuckets());
                 ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
-                ASSERTV(LENGTH, CONFIG, X.isEmpty());
                 ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
                 ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
                 ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
@@ -1884,7 +1878,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 ASSERTV(LENGTH, CONFIG, 0 == X.size());
                 ASSERTV(LENGTH, CONFIG, bucketCountWithDups == X.numBuckets());
                 ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
-                ASSERTV(LENGTH, CONFIG, X.isEmpty());
                 ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
                 ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
                 ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
@@ -1961,7 +1954,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         // must explicitly supply a default for each attribute.
         Obj x(HASHER(), COMPARATOR(), 0, &objectAllocator); const Obj& X = x;
         ASSERTV(0    == X.size());
-        ASSERTV(true == X.isEmpty());
         ASSERTV(0    <  X.maxSize());
         ASSERTV(0    == defaultAllocator.numBytesInUse());
         ASSERTV(0    == objectAllocator.numBytesInUse());
@@ -1980,8 +1972,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
 
        for (size_t i = 0; i < numValues; ++i) {
-//           o1.insertContiguous(Value(testKeys[i], testValues[i]));
-           o1.insertContiguous(Value(testKeys[i]));
+//           o1.insert(Value(testKeys[i], testValues[i]));
+           o1.insert(Value(testKeys[i]));
        }
        ASSERTV(numValues == O1.size());
        ASSERTV(0 <  objectAllocator1.numBytesInUse());
@@ -2013,7 +2005,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
 
        for (size_t i = 0; i < numValues; ++i) {
-           o1.findOrInsertDefault(testKeys[i]);
+           o1.insertIfMissing(testKeys[i]);
        }
 
        ASSERTV(numValues == O1.size());
@@ -2110,7 +2102,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
 
             // Test size, empty.
             ASSERTV(i + 1 == X.size());
-            ASSERTV(false == X.isEmpty());
+            ASSERTV(0 != X.size());
 
             // Test insert duplicate key
             ASSERTV(link    == x.insertIfMissing(&isInsertedFlag, value));
@@ -2126,11 +2118,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
 
 #if 0
             // This test is supported only for 'std::pair' elements
-            // Test findOrInsertDefault
+            // Test insertIfMissing
             ASSERTV(!(X == Z));
             ASSERTV(  X != Z);
             const Value& V = ImpUtil::extractValue<KEY_CONFIG>(
-                                           z.findOrInsertDefault(testKeys[i]));
+                                           z.insertIfMissing(testKeys[i]));
             ASSERTV(Value(testKeys[i], typename KEY_CONFIG::MappedType()) == V);
             //z[testKeys[i]] = testValues[i];
             //ASSERTV(testValues[i] == z[testKeys[i]]);
@@ -2180,9 +2172,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         Obj x(HASHER(), COMPARATOR(), 0, &objectAllocator); const Obj& X = x;
         for (size_t i = 0; i < numValues; ++i) {
             Value value(testKeys[i]);
-            Link *result1 = x.insertContiguous(value);
+            Link *result1 = x.insert(value);
             ASSERTV(0 != result1);
-            Link *result2 = x.insertContiguous(value);
+            Link *result2 = x.insert(value);
             ASSERTV(0 != result2);
             ASSERTV(result1 != result2);
             ASSERTV(2 * (i + 1) == X.size());

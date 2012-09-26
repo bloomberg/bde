@@ -561,7 +561,7 @@ template <class KEY_TYPE,
 bool
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::empty() const
 {
-    return d_impl.isEmpty();
+    return 0 == d_impl.size();
 }
 
 template <class KEY_TYPE,
