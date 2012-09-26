@@ -7,7 +7,6 @@
 #include <bslstl_iterator.h>
 #include <bslstl_forwarditerator.h>
 
-#include <bslalg_hastrait.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>   // for testing only
@@ -29,8 +28,6 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 #include <bsltf_stdtestallocator.h>
-
-#include <bslalg_typetraits.h>
 
 // ============================================================================
 //                          ADL SWAP TEST HELPER
@@ -1094,8 +1091,7 @@ void TestDriver<VALUE, CONTAINER>::testCase12()
     //   queue(const CONTAINER& container, const ALLOCATOR& allocator);
     // ------------------------------------------------------------------------
 
-    const int TYPE_ALLOC =
-           bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -1421,8 +1417,7 @@ void TestDriver<VALUE, CONTAINER>::testCase9()
     // ------------------------------------------------------------------------
 
 
-    const int TYPE_ALLOC =
-           bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -1647,8 +1642,7 @@ void TestDriver<VALUE, CONTAINER>::testCase8()
     if (verbose) printf("\nSWAP MEMBER AND FREE FUNCTIONS"
                         "\n==============================\n");
 
-    const int TYPE_ALLOC =
-           bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     if (verbose) printf(
                      "\nAssign the address of each function to a variable.\n");
@@ -1861,8 +1855,7 @@ void TestDriver<VALUE, CONTAINER>::testCase7()
 
     bslma::TestAllocator oa(veryVeryVerbose);
 
-    const int TYPE_ALLOC =
-           bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     if (verbose)
         printf("\nTesting parameters: TYPE_ALLOC = %d.\n", TYPE_ALLOC);
@@ -2511,8 +2504,7 @@ void TestDriver<VALUE, CONTAINER>::testCase2()
     //   void pop();
     // ------------------------------------------------------------------------
 
-    const int TYPE_ALLOC =
-             bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     if (verbose) { P(TYPE_ALLOC); }
 

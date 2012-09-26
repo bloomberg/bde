@@ -1190,7 +1190,7 @@ namespace bslma {
 
 template <typename ALLOCATOR>
 struct UsesBslmaAllocator<LimitAllocator<ALLOCATOR> >
-    : bslmf::IsConvertible<Allocator*, ALLOCATOR>
+    : bsl::is_convertible<Allocator*, ALLOCATOR>
 {};
 
 }
@@ -1671,7 +1671,7 @@ struct TestDriver {
         // Shorthand.
 
     typedef typename
-        bslmf::IsConvertible<bslma::Allocator*,ALLOC>::Type ObjHasBslmaAlloc;
+        bsl::is_convertible<bslma::Allocator*,ALLOC>::type ObjHasBslmaAlloc;
         // true_type if ALLOC is a bslma allocator type
 
     typedef typename bslma::UsesBslmaAllocator<TYPE>::type TypeHasBslmaAlloc;
@@ -1837,8 +1837,8 @@ struct TestDriver {
         // Test user-supplied constructor templates.
 
     static void testAllocator(const char *t, const char *a);
-    static void testAllocator(bslmf::MetaInt<0>, const char *t, const char *a);
-    static void testAllocator(bslmf::MetaInt<1>, const char *t, const char *a);
+    static void testAllocator(bsl::false_type, const char *t, const char *a);
+    static void testAllocator(bsl::true_type, const char *t, const char *a);
         // Test allocator-related concerns.  The first overload is called from
         // the main test driver.  The second overload is dispatched when
         // 'ALLOC' is not a bslma-compliant allocator.  The third overload is
@@ -3050,7 +3050,7 @@ void TestDriver<TYPE,ALLOC>::testUnique()
                 // If 'TYPE' is 'TestType', then test that no constructors or
                 // assignments were called and the expected number of
                 // destructors were called.
-                if (bslmf::IsSame<TYPE, TestType>::VALUE) {
+                if (bsl::is_same<TYPE, TestType>::value) {
                     LOOP3_ASSERT(op, X, RES_EXP, CTORS_AFTER  == CTORS_BEFORE);
                     LOOP3_ASSERT(op, X, RES_EXP,
                                  ASSIGN_AFTER == ASSIGN_BEFORE);
@@ -3222,7 +3222,7 @@ void TestDriver<TYPE,ALLOC>::testRemove()
                 // If 'TYPE' is 'TestType', then test that no constructors or
                 // assignments were called and the expected number of
                 // destructors were called.
-                if (bslmf::IsSame<TYPE, TestType>::VALUE) {
+                if (bsl::is_same<TYPE, TestType>::value) {
                     LOOP2_ASSERT(SPEC, res_spec, CTORS_AFTER  == CTORS_BEFORE);
                     LOOP2_ASSERT(SPEC, res_spec,
                                  ASSIGN_AFTER == ASSIGN_BEFORE);
@@ -5000,14 +5000,14 @@ void TestDriver<TYPE,ALLOC>::testIterators()
         const const_reverse_iterator criter =  X.rbegin();
 
         // Check iterator category
-        ASSERT((bslmf::IsSame<typename iterator::iterator_category,
-                             bidirectional_iterator_tag>::VALUE));
-        ASSERT((bslmf::IsSame<typename reverse_iterator::iterator_category,
-                             bidirectional_iterator_tag>::VALUE));
-        ASSERT((bslmf::IsSame<typename const_iterator::iterator_category,
-                             bidirectional_iterator_tag>::VALUE));
-        ASSERT((bslmf::IsSame<typename const_reverse_iterator::iterator_category
-                            ,bidirectional_iterator_tag>::VALUE));
+        ASSERT((bsl::is_same<typename iterator::iterator_category,
+                             bidirectional_iterator_tag>::value));
+        ASSERT((bsl::is_same<typename reverse_iterator::iterator_category,
+                             bidirectional_iterator_tag>::value));
+        ASSERT((bsl::is_same<typename const_iterator::iterator_category,
+                             bidirectional_iterator_tag>::value));
+        ASSERT((bsl::is_same<typename const_reverse_iterator::iterator_category
+                            ,bidirectional_iterator_tag>::value));
 
         // Test mutability
         ASSERT(  is_mutable(*mX.begin()));
@@ -6274,10 +6274,10 @@ void TestDriver<TYPE,ALLOC>::testConstructorRange(const CONTAINER&)
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     const int INPUT_ITERATOR_TAG =
-          bslmf::IsSame<std::input_iterator_tag,
+          bsl::is_same<std::input_iterator_tag,
                        typename bsl::iterator_traits<
                          typename CONTAINER::const_iterator>::iterator_category
-                      >::VALUE;
+                      >::value;
     (void) INPUT_ITERATOR_TAG;
 
     static const struct {
@@ -6423,8 +6423,8 @@ void TestDriver<TYPE,ALLOC>::testConstructorRange(const CONTAINER&)
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE,ALLOC>::testAllocator(bslmf::MetaInt<1>,
-                                        const char *t, const char *a)
+void TestDriver<TYPE,ALLOC>::testAllocator(bsl::true_type,
+                                           const char *t, const char *a)
 {
     // --------------------------------------------------------------------
     // TEST ALLOCATOR-RELATED CONCERNS
@@ -6539,8 +6539,8 @@ void TestDriver<TYPE,ALLOC>::testAllocator(bslmf::MetaInt<1>,
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE,ALLOC>::testAllocator(bslmf::MetaInt<0>,
-                                        const char *t, const char *a)
+void TestDriver<TYPE,ALLOC>::testAllocator(bsl::false_type,
+                                           const char *t, const char *a)
 {
     // --------------------------------------------------------------------
     // TEST ALLOCATOR-RELATED CONCERNS FOR NON-BSLMA ALLOCATORS
@@ -8965,23 +8965,23 @@ int main(int argc, char *argv[])
             typedef bsl::allocator<T> Alloc;
             typedef list<T,Alloc>     Obj;
 
-            ASSERT((bslmf::IsSame<Alloc::reference,
-                                 Obj::reference>::VALUE));
-            ASSERT((bslmf::IsSame<Alloc::const_reference,
-                                 Obj::const_reference>::VALUE));
+            ASSERT((bsl::is_same<Alloc::reference,
+                                 Obj::reference>::value));
+            ASSERT((bsl::is_same<Alloc::const_reference,
+                                 Obj::const_reference>::value));
 
-            ASSERT((bslmf::IsSame<Alloc::pointer,
-                                 Obj::pointer>::VALUE));
-            ASSERT((bslmf::IsSame<Alloc::const_pointer,
-                                 Obj::const_pointer>::VALUE));
+            ASSERT((bsl::is_same<Alloc::pointer,
+                                 Obj::pointer>::value));
+            ASSERT((bsl::is_same<Alloc::const_pointer,
+                                 Obj::const_pointer>::value));
 
-            ASSERT((bslmf::IsSame<Alloc::size_type,
-                                 Obj::size_type>::VALUE));
-            ASSERT((bslmf::IsSame<Alloc::difference_type,
-                                 Obj::difference_type>::VALUE));
+            ASSERT((bsl::is_same<Alloc::size_type,
+                                 Obj::size_type>::value));
+            ASSERT((bsl::is_same<Alloc::difference_type,
+                                 Obj::difference_type>::value));
 
-            ASSERT((bslmf::IsSame<T, Obj::value_type>::VALUE));
-            ASSERT((bslmf::IsSame<Alloc, Obj::allocator_type>::VALUE));
+            ASSERT((bsl::is_same<T, Obj::value_type>::value));
+            ASSERT((bsl::is_same<Alloc, Obj::allocator_type>::value));
         }
 
         if (verbose) printf("\nWith 'SmallAllocator'\n");
@@ -8989,23 +8989,23 @@ int main(int argc, char *argv[])
             typedef SmallAllocator<T> Alloc;
             typedef list<T,Alloc>     Obj;
 
-            ASSERT((bslmf::IsSame<Alloc::reference,
-                                 Obj::reference>::VALUE));
-            ASSERT((bslmf::IsSame<Alloc::const_reference,
-                                 Obj::const_reference>::VALUE));
+            ASSERT((bsl::is_same<Alloc::reference,
+                                 Obj::reference>::value));
+            ASSERT((bsl::is_same<Alloc::const_reference,
+                                 Obj::const_reference>::value));
 
-            ASSERT((bslmf::IsSame<Alloc::pointer,
-                                 Obj::pointer>::VALUE));
-            ASSERT((bslmf::IsSame<Alloc::const_pointer,
-                                 Obj::const_pointer>::VALUE));
+            ASSERT((bsl::is_same<Alloc::pointer,
+                                 Obj::pointer>::value));
+            ASSERT((bsl::is_same<Alloc::const_pointer,
+                                 Obj::const_pointer>::value));
 
-            ASSERT((bslmf::IsSame<Alloc::size_type,
-                                 Obj::size_type>::VALUE));
-            ASSERT((bslmf::IsSame<Alloc::difference_type,
-                                 Obj::difference_type>::VALUE));
+            ASSERT((bsl::is_same<Alloc::size_type,
+                                 Obj::size_type>::value));
+            ASSERT((bsl::is_same<Alloc::difference_type,
+                                 Obj::difference_type>::value));
 
-            ASSERT((bslmf::IsSame<T, Obj::value_type>::VALUE));
-            ASSERT((bslmf::IsSame<Alloc, Obj::allocator_type>::VALUE));
+            ASSERT((bsl::is_same<T, Obj::value_type>::value));
+            ASSERT((bsl::is_same<Alloc, Obj::allocator_type>::value));
         }
 
       } break;
