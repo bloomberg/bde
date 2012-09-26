@@ -199,103 +199,14 @@ namespace BloombergLP {
 
 namespace bslstl {
 
-template <class KEY_CONFIG,
-          class HASHER,
-          class COMPARATOR,
-          class ALLOCATOR = ::bsl::allocator<typename KEY_CONFIG::ValueType> >
-class HashTable;
-
-                           // ==========================
-                           // class HashTable_Parameters
-                           // ==========================
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-class HashTable_Parameters : private bslalg::FunctorAdapter<HASHER>::Type
-                           , private bslalg::FunctorAdapter<COMPARATOR>::Type
-{
-    // This class holds all the parameterized parts of a 'HashTable' class,
-    // efficiently exploiting the empty base optimization without adding
-    // unforeseen associations to the 'HashTable' class itself due to the
-    // structural inheritance.
-
-  public:
-#if 0
-    typedef ALLOCATOR                              AllocatorType;
-    typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
-    typedef typename KEY_CONFIG::KeyType           KeyType;
-    typedef typename KEY_CONFIG::ValueType         ValueType;
-    typedef bslalg::BidirectionalNode<ValueType>   NodeType;
-    typedef typename AllocatorTraits::size_type    SizeType;
-#else
-    typedef HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR> HashTableType;
-    typedef typename HashTableType::AllocatorType   AllocatorType;
-    typedef typename HashTableType::AllocatorTraits AllocatorTraits;
-    typedef typename HashTableType::KeyType         KeyType;
-    typedef typename HashTableType::ValueType       ValueType;
-    typedef typename HashTableType::NodeType        NodeType;
-    typedef typename HashTableType::SizeType        SizeType;
-#endif
-
-  private:
-    // PRIVATE TYPES
-    typedef typename AllocatorTraits::template
-                         rebind_traits<NodeType>::allocator_type NodeAllocator;
-
-    // These two aliases simplify naming the base classes in the constructor
-    typedef typename bslalg::FunctorAdapter<HASHER>::Type       HasherBaseType;
-    typedef typename bslalg::FunctorAdapter<COMPARATOR>::Type
-                                                            ComparatorBaseType;
-
-  public:
-    typedef BidirectionalNodePool<ValueType, NodeAllocator>      NodeFactory;
-
-  private:
-    // DATA
-    NodeFactory  d_nodeFactory;
-
-  private:
-    // NOT IMPLEMENTED
-    HashTable_Parameters(const HashTable_Parameters&); // = delete;
-    HashTable_Parameters& operator=(const HashTable_Parameters&); // = delete;
-
-  public:
-    // CREATORS
-    HashTable_Parameters(const HASHER&        hash,
-                         const COMPARATOR&    compare,
-                         const AllocatorType& allocator);
-        // Create a 'HashTable_Parameters' object having the specified 'hash',
-        // and 'compare' functors, and using the specified 'allocator' to
-        // provide a 'BidirectionalNodePool'.
-
-    HashTable_Parameters(const HashTable_Parameters& original,
-                         const AllocatorType&        allocator);
-        // Create a 'HashTable_Parameters' object having the same 'hasher' and
-        // 'comparator' attributes as the specified original, and proving a
-        // 'BidirectionalNodePool' using the specified allocator.
-
-    // MANIPULATORS
-    NodeFactory& nodeFactory();
-
-    void swap(HashTable_Parameters& other);
-
-    // ACCESSORS
-    const HASHER&       hasher()      const;
-    const COMPARATOR&   comparator()  const;
-    const NodeFactory&  nodeFactory() const;
-};
-
                            // ===============
                            // class HashTable
                            // ===============
 
-#if 0
 template <class KEY_CONFIG,
           class HASHER,
           class COMPARATOR,
           class ALLOCATOR = ::bsl::allocator<typename KEY_CONFIG::ValueType> >
-#else
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-#endif
 class HashTable {
     // This class template implements a value-semantic container type holding
     // an unordered sequence of (possibly duplicate) elements, that can be
@@ -341,20 +252,6 @@ class HashTable {
     //: o is 'const' *thread-safe*
     // For terminology see {'bsldoc_glossary'}.
 
-  private:
-    // PRIVATE TYPES
-    typedef HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>
-                                                                ImplParameters;
-#if 0
-    typedef typename ImplParameters::AllocatorTraits AllocatorTraits;
-
-  public:
-    typedef typename ImplParameters::KeyType   KeyType;
-    typedef typename ImplParameters::ValueType ValueType;
-    typedef typename ImplParameters::NodeType  NodeType;
-    typedef typename ImplParameters::SizeType  SizeType;
-#endif
-
   public:
     typedef ALLOCATOR                              AllocatorType;
     typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
@@ -364,6 +261,63 @@ class HashTable {
     typedef typename AllocatorTraits::size_type    SizeType;
 
   private:
+    // PRIVATE TYPES
+    struct ImplParameters : private bslalg::FunctorAdapter<HASHER>::Type
+                          , private bslalg::FunctorAdapter<COMPARATOR>::Type
+    {
+        // This class holds all the parameterized parts of a 'HashTable' class,
+        // efficiently exploiting the empty base optimization without adding
+        // unforeseen namespace associations to the 'HashTable' class itself
+        // due to the structural inheritance.
+      private:
+        // NOT IMPLEMENTED
+        ImplParameters(const ImplParameters&); // = delete;
+        ImplParameters& operator=(const ImplParameters&); // = delete;
+
+      public:
+        typedef HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>
+                                                                 HashTableType;
+
+        typedef typename HashTableType::AllocatorTraits::template
+                         rebind_traits<NodeType>::allocator_type NodeAllocator;
+
+        // These aliases simplify naming the base classes in the constructor
+        typedef typename bslalg::FunctorAdapter<HASHER>::Type   HasherBaseType;
+        typedef typename bslalg::FunctorAdapter<COMPARATOR>::Type
+                                                            ComparatorBaseType;
+
+        typedef BidirectionalNodePool<HashTableType::ValueType, NodeAllocator>
+                                                                   NodeFactory;
+
+        // DATA
+        NodeFactory  d_nodeFactory;
+
+        // CREATORS
+        ImplParameters(const HASHER&     hash,
+                       const COMPARATOR& compare,
+                       const ALLOCATOR&  allocator);
+            // Create an 'ImplParameters' object having the specified 'hash',
+            // and 'compare' functors, and using the specified 'allocator' to
+            // provide a 'BidirectionalNodePool'.
+
+        ImplParameters(const ImplParameters& original,
+                       const ALLOCATOR&      allocator);
+            // Create an 'ImplParameters' object having the same 'hasher' and
+            // 'comparator' attributes as the specified original, and proving a
+            // 'BidirectionalNodePool' using the specified allocator.
+
+        // MANIPULATORS
+        NodeFactory& nodeFactory();
+
+        void swap(ImplParameters& other);
+
+        // ACCESSORS
+        const HASHER&       hasher()      const;
+        const COMPARATOR&   comparator()  const;
+        const NodeFactory&  nodeFactory() const;
+    };
+
+  private:
     // DATA
     ImplParameters      d_parameters;    // policies governing table behavior
     bslalg::HashTableAnchor
@@ -371,7 +325,7 @@ class HashTable {
 
     SizeType            d_size;          // number of elements in this table
 
-    size_t              d_capacity;      // max number of elements before a
+    SizeType            d_capacity;      // max number of elements before a
                                          // rehash is required (computed from
                                          // 'd_maxLoadFactor')
 
@@ -948,17 +902,17 @@ void HashTable_ArrayProctor<ALLOCATOR>::release()
     d_array = 0;
 }
 
-                    // --------------------------
-                    // class HashTable_Parameters
-                    // --------------------------
+                    // -------------------------------
+                    // class HashTable::ImplParameters
+                    // -------------------------------
 
 // CREATORS
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
-HashTable_Parameters(const HASHER&        hash,
-                     const COMPARATOR&    compare,
-                     const AllocatorType& allocator)
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
+ImplParameters(const HASHER&        hash,
+               const COMPARATOR&    compare,
+               const AllocatorType& allocator)
 : HasherBaseType(hash)
 , ComparatorBaseType(compare)
 , d_nodeFactory(allocator)
@@ -967,9 +921,9 @@ HashTable_Parameters(const HASHER&        hash,
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
-HashTable_Parameters(const HashTable_Parameters& original,
-                     const AllocatorType&        allocator)
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
+ImplParameters(const ImplParameters& original,
+               const AllocatorType&  allocator)
 : HasherBaseType(static_cast<const HasherBaseType&>(original))
 , ComparatorBaseType(static_cast<const ComparatorBaseType&>(original))
 , d_nodeFactory(allocator)
@@ -979,9 +933,10 @@ HashTable_Parameters(const HashTable_Parameters& original,
 // MANIPULATORS
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-typename
-  HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::NodeFactory&
-HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::nodeFactory()
+typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
+                                                                   NodeFactory&
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
+nodeFactory()
 {
     return d_nodeFactory;
 }
@@ -989,8 +944,8 @@ HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::nodeFactory()
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 void
-HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
-swap(HashTable_Parameters& other)
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
+swap(ImplParameters& other)
 {
     using native_std::swap;  // otherwise it is hidden by this very definition!
 
@@ -1010,7 +965,8 @@ swap(HashTable_Parameters& other)
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 const HASHER&
-HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasher() const
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
+hasher() const
 {
     return *this;
 }
@@ -1018,7 +974,7 @@ HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasher() const
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 const COMPARATOR&
-HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
                                                              comparator() const
 {
     return *this;
@@ -1027,8 +983,9 @@ HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 const typename
-  HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::NodeFactory&
-HashTable_Parameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+         HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
+                                                                   NodeFactory&
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
                                                             nodeFactory() const
 {
     return d_nodeFactory;
@@ -1354,8 +1311,6 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>&
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::operator=(
                                                           const HashTable& rhs)
 {
-    typedef typename ImplParameters::AllocatorTraits AllocatorTraits;
-
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
 
         if (AllocatorTraits::propagate_on_container_copy_assignment::VALUE) {
