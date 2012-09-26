@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // that may be used to remove the top-level 'volatile'-qualifier from a type.
 //
 // 'bsl::remove_volatile' meets the requirements of the 'remove_volatile'
-// template defined in the C++11 standard [meta.unary.cv].
+// template defined in the C++11 standard [meta.trans.cv].
 //
 ///Usage
 ///-----
@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Removing The Volatile-Qualifier of A Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to strip the 'volatile'-qualifier from a particular
-// type..
+// type.
 //
 // First, we create two 'typedef's -- a 'volatile'-qualified type
 // ('MyVolatileType') and the same type without the 'volatile'-qualifier

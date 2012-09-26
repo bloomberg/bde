@@ -291,7 +291,7 @@ BDES_IDENT("$Id: $")
 #include <bslfwd_bslma_allocator.h>
 #endif
 
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
 
 #ifndef INCLUDED_SYS_EPOLL
 #include <sys/epoll.h>
@@ -493,7 +493,7 @@ bool bteso_DefaultEventManager<bteso_Platform::EPOLL>::
 
 }  // close namespace BloombergLP
 
-#endif // BSLS_PLATFORM__OS_LINUX
+#endif // BSLS_PLATFORM_OS_LINUX
 
 #endif
 

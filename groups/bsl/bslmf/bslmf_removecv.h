@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 // 'volatile'-qualifier) from a type.
 //
 // 'bsl::remove_const' meets the requirements of the 'remove_cv' template
-// defined in the C++11 standard [meta.unary.cv].
+// defined in the C++11 standard [meta.trans.cv].
 //
 ///Usage
 ///-----
@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Removing The CV-Qualifier of A Type
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to strip the cv-qualifier from a particular type..
+// Suppose that we want to strip the cv-qualifier from a particular type.
 //
 // First, we create two 'typedef's -- a cv-qualified type ('MyCvType') and the
 // same type without the cv-qualifier ('MyType'):

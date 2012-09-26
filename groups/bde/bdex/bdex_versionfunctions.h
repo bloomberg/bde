@@ -166,12 +166,12 @@ namespace bdex_VersionFunctions {
                                               // other types that do not have
                                               // versions.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NO_VERSION_NUMBER = BDEX_NO_VERSION_NUMBER
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma warning(push)
 #pragma warning(disable : 4100)  // VC2008 fails to detect use of 'object'.
 #endif
@@ -190,7 +190,7 @@ namespace bdex_VersionFunctions {
 
         return object.maxSupportedBdexVersion();
     }
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma warning(pop)
 #endif
 

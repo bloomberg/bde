@@ -107,7 +107,7 @@ namespace TestCase3 {
 
 const int SIZE = 10 * 1024 * 1024;  // big enough so not all data sits in cache
 
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
     // For some reason the sun machine is A LOT slower than the other
     // platforms, even in optimized mode.
 const int TESTSIZE = 10;
@@ -234,8 +234,8 @@ void testCase1(int argc, bool assert)
 #if defined(BDE_BUILD_TARGET_OPT)
     // Only check under optimized build.
 
-#if defined(BSLS_PLATFORM__CMP_GNU) || defined(BSLS_PLATFORM__CMP_SUN) ||     \
-   (defined(BSLS_PLATFORM__CMP_IBM) && BSLS_PLATFORM__CMP_VER_MAJOR >= 0x0900)\
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN) ||     \
+   (defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900)\
     // Only check when 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' and
     // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY' expands into something
     // meaningful.
@@ -258,7 +258,7 @@ namespace TestCase3 {
 
 void init(volatile int *arrayA, volatile int *arrayB)
 {
-#if defined(BSLS_PLATFORM__CMP_IBM) && BSLS_PLATFORM__CMP_VER_MAJOR >= 0x0900
+#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
     // Only available under xlc 10.
 
     for (int i = 0; i < SIZE; ++i){
@@ -356,8 +356,8 @@ void testCase3(int argc, bool assert)
 #if defined(BDE_BUILD_TARGET_OPT)
     // Only check under optimized build.
 
-#if defined(BSLS_PLATFORM__CMP_GNU) || defined(BSLS_PLATFORM__CMP_IBM) ||     \
-    defined(BSLS_PLATFORM__CMP_SUN) || defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_IBM) ||     \
+    defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_OS_WINDOWS)
     // Only check when 'prefetchForReading' or 'prefetchForWriting' expands
     // expands into something meaningful.
 

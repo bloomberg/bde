@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::TypeTraitPair: for 'std::pair'-like classes
 //
-//@SEE_ALSO: bslmf_typetraits
+//@SEE_ALSO: bslalg_typetraits
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
@@ -34,6 +34,10 @@ BSLS_IDENT("$Id: $")
 //  X.second             const second_type
 //..
 // Note that 'first' and 'second' are *not* member functions, but data members.
+
+//TDB #ifdef BDE_OMIT_DEPRECATED // DEPRECATED
+//TBD #error "bslalg_typetraitpair is deprecated"
+//TBD #endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -82,12 +86,14 @@ struct TypeTraitPair {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslalg::TypeTraitPair bslalg_TypeTraitPair;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

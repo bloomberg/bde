@@ -38,7 +38,7 @@ BDES_IDENT_RCSID(btemt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 
 #include <bsl_c_errno.h>
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 #include <bsl_c_signal.h>              // sigfillset
 #endif
 
@@ -611,7 +611,7 @@ btemt_TcpTimerEventManager_ControlChannel::
 , d_numServerBytesRead(0)
 {
 
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
     // Use UNIX domain sockets, if possible, rather than a standard socket
     // pair, to avoid using ephemeral ports for the control channel.  AIX and
     // Sun platforms have a more restrictive number of epheremal ports, and
@@ -627,7 +627,7 @@ btemt_TcpTimerEventManager_ControlChannel::
                                      bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
 #endif
     if (rc) {
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
         d_fds[0] = d_fds[1] = INVALID_SOCKET;
 #else
         d_fds[0] = d_fds[1] = -1;
@@ -695,7 +695,7 @@ void btemt_TcpTimerEventManager::initialize()
     bteso_TimeMetrics *metrics = d_collectMetrics ? &d_metrics : 0;
 
     // Initialize the (managed) event manager.
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
     if (bteso_DefaultEventManager<>::isSupported()) {
         d_manager_p = new (*d_allocator_p)
                            bteso_DefaultEventManager<>(metrics, d_allocator_p);
@@ -1146,7 +1146,7 @@ int btemt_TcpTimerEventManager::enable(const bcemt_Attribute& attr)
               new (*d_allocator_p) btemt_TcpTimerEventManager_ControlChannel(),
               d_allocator_p);
 
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
         if (INVALID_SOCKET == d_controlChannel_p->serverFd())
 #else
         if (-1 == d_controlChannel_p->serverFd())
@@ -1177,7 +1177,7 @@ int btemt_TcpTimerEventManager::enable(const bcemt_Attribute& attr)
             return rc;
         }
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
         sigset_t newset, oldset;
         sigfillset(&newset);
         static const int synchronousSignals[] = {
@@ -1188,7 +1188,7 @@ int btemt_TcpTimerEventManager::enable(const bcemt_Attribute& attr)
             SIGSYS,
             SIGABRT,
             SIGTRAP,
-        #if !defined(BSLS_PLATFORM__OS_CYGWIN) || defined(SIGIOT)
+        #if !defined(BSLS_PLATFORM_OS_CYGWIN) || defined(SIGIOT)
             SIGIOT
         #endif
          };
@@ -1206,7 +1206,7 @@ int btemt_TcpTimerEventManager::enable(const bcemt_Attribute& attr)
                                       attr,
                                       d_dispatchThreadEntryPoint);
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
         // Restore the mask.
         pthread_sigmask(SIG_SETMASK, &oldset, &newset);
 #endif

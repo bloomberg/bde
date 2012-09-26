@@ -22,6 +22,9 @@
 #include <bsltf_testvaluesarray.h>
 #include <bsltf_stdtestallocator.h>
 
+#include <bslalg_hastrait.h>
+#include <bslalg_typetraits.h>
+
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -1470,6 +1473,15 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase22()
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
     }
 
+    // IBM empty class swap bug test
+
+    {
+        typedef bsl::multimap<int, int, std::less<int>, StlAlloc> TestObj;
+        TestObj mX;
+        mX.insert(typename TestObj::value_type(1, 1));
+        TestObj mY;
+        mY = mX;
+    }
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>

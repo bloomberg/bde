@@ -5,12 +5,15 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
 
-#include <cstdlib>     // atoi()
-#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <new>
 
 using namespace BloombergLP;
-using namespace std;
+//using namespace std;
 
 //=============================================================================
 //                                 TEST PLAN
@@ -29,63 +32,50 @@ using namespace std;
 //=============================================================================
 
 //=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
-{
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+static void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_() cout << "\t" << flush;             // Print tab w/o newline
-
-#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
-#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -264,7 +254,7 @@ int main(int argc, char *argv[])
 //  int veryVerbose = argc > 3;        // unused so far
 //  int veryVeryVerbose = argc > 4;    // unused so far
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
@@ -283,8 +273,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLE TEST" << endl
-                                  << "==================" << endl;
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
         // The Usage example from the component header file is replicated
         // above.
@@ -307,16 +297,16 @@ int main(int argc, char *argv[])
         //   template <TYPE, ALLOC> deleteObject(const TYPE *, ALLOC *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'deleteObjectRaw' TEST" << endl
-                                  << "======================" << endl;
+        if (verbose) printf("\n'deleteObjectRaw' TEST"
+                            "\n======================\n");
 
-        if (verbose) cout << "\nTesting 'deleteObject':" << endl;
+        if (verbose) printf("\nTesting 'deleteObject':\n");
         {
             my_NewDeleteAllocator a;
 
-            if (verbose) cout << "\twith a my_Class1 object" << endl;
+            if (verbose) printf("\twith a my_Class1 object\n");
 
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(0 == a.getCount());
@@ -325,17 +315,17 @@ int main(int argc, char *argv[])
             ASSERT(1 == a.getCount());
 
             new(pC1) my_Class1;
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(1 == globalObjectStatus);
 
             ASSERT(1 == a.getCount());
             Obj::deleteObject(pC1CONST, &a);
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);   ASSERT(2 == a.getCount());
 
-            if (verbose) cout << "\twith a my_Class2 object" << endl;
+            if (verbose) printf("\twith a my_Class2 object\n");
 
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(2 == a.getCount());
@@ -344,15 +334,15 @@ int main(int argc, char *argv[])
             ASSERT(3 == a.getCount());
 
             new(pC2) my_Class2;
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(1 == globalObjectStatus);
 
             ASSERT(3 == a.getCount());
             Obj::deleteObject(pC2CONST, &a);
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);   ASSERT(4 == a.getCount());
 
-            if (verbose) cout << "\tWith a polymorphic object" << endl;
+            if (verbose) printf("\tWith a polymorphic object\n");
 
             ASSERT(0 == class3ObjectCount);
             my_Class3 *pC3 = (my_Class3 *) a.allocate(sizeof(my_Class3));
@@ -361,22 +351,22 @@ int main(int argc, char *argv[])
             ASSERT(5 == a.getCount());
 
             new(pC3) my_Class3;
-            if (verbose) { T_();  T_();  P(class3ObjectCount); }
+            if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(1 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(5 == a.getCount());
             Obj::deleteObject(pC3, &a);
-            if (verbose) { T_();  T_();  P(class3ObjectCount); }
+            if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(6 == a.getCount());
 
-            if (verbose) cout << "\tWith a null my_Class3 pointer" << endl;
+            if (verbose) printf("\tWith a null my_Class3 pointer\n");
 
             pC3 = 0;
             Obj::deleteObject(pC3, &a);
-            if (verbose) { T_();  T_();  P(class3ObjectCount); }
+            if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(6 == a.getCount());
@@ -384,7 +374,7 @@ int main(int argc, char *argv[])
         {
             my_NewDeleteAllocator a;
 
-            if (verbose) cout << "\tdeleteObject(my_MostDerived*)" << endl;
+            if (verbose) printf("\tdeleteObject(my_MostDerived*)\n");
 
             ASSERT(0 == a.getCount());
             my_MostDerived *pMost =
@@ -412,8 +402,8 @@ int main(int argc, char *argv[])
         {
             my_NewDeleteAllocator a;
 
-            if (verbose) cout <<
-                    "\tdeleteObject(my_RightBase*) with TestAllocator\n";
+            if (verbose) printf(
+                         "\tdeleteObject(my_RightBase*) with TestAllocator\n");
 
             my_MostDerived *pMost =
                          (my_MostDerived *) a.allocate(sizeof(my_MostDerived));
@@ -439,7 +429,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == virtualBaseObjectCount);
         }
         {
-            if (verbose) cout << "\tNegative testing" << endl;
+            if (verbose) printf("\tNegative testing\n");
 
             bsls::AssertFailureHandlerGuard guard(
                                             &bsls::AssertTest::failTestDriver);
@@ -471,16 +461,16 @@ int main(int argc, char *argv[])
         //   template <TYPE, ALLOC> deleteObjectRaw(const TYPE *, ALLOC *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'deleteObjectRaw' TEST" << endl
-                                  << "======================" << endl;
+        if (verbose) printf("\n'deleteObjectRaw' TEST"
+                            "\n======================\n");
 
-        if (verbose) cout << "\nTesting 'deleteObjectRaw':" << endl;
+        if (verbose) printf("\nTesting 'deleteObjectRaw':\n");
         {
             my_NewDeleteAllocator a;
 
-            if (verbose) cout << "\twith a my_Class1 object" << endl;
+            if (verbose) printf("\twith a my_Class1 object\n");
 
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(0 == a.getCount());
@@ -489,17 +479,17 @@ int main(int argc, char *argv[])
             ASSERT(1 == a.getCount());
 
             new(pC1) my_Class1;
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(1 == globalObjectStatus);
 
             ASSERT(1 == a.getCount());
             Obj::deleteObjectRaw(pC1CONST, &a);
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);   ASSERT(2 == a.getCount());
 
-            if (verbose) cout << "\twith a my_Class2 object" << endl;
+            if (verbose) printf("\twith a my_Class2 object\n");
 
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(2 == a.getCount());
@@ -508,15 +498,15 @@ int main(int argc, char *argv[])
             ASSERT(3 == a.getCount());
 
             new(pC2) my_Class2;
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(1 == globalObjectStatus);
 
             ASSERT(3 == a.getCount());
             Obj::deleteObjectRaw(pC2CONST, &a);
-            if (verbose) { T_();  T_();  P(globalObjectStatus); }
+            if (verbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);   ASSERT(4 == a.getCount());
 
-            if (verbose) cout << "\tWith a polymorphic object" << endl;
+            if (verbose) printf("\tWith a polymorphic object\n");
 
             ASSERT(0 == class3ObjectCount);
             my_Class3 *pC3 = (my_Class3 *) a.allocate(sizeof(my_Class3));
@@ -525,22 +515,22 @@ int main(int argc, char *argv[])
             ASSERT(5 == a.getCount());
 
             new(pC3) my_Class3;
-            if (verbose) { T_();  T_();  P(class3ObjectCount); }
+            if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(1 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(5 == a.getCount());
             Obj::deleteObjectRaw(pC3, &a);
-            if (verbose) { T_();  T_();  P(class3ObjectCount); }
+            if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(6 == a.getCount());
 
-            if (verbose) cout << "\tWith a null my_Class3 pointer" << endl;
+            if (verbose) printf("\tWith a null my_Class3 pointer\n");
 
             pC3 = 0;
             Obj::deleteObject(pC3, &a);
-            if (verbose) { T_();  T_();  P(class3ObjectCount); }
+            if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(6 == a.getCount());
@@ -548,7 +538,7 @@ int main(int argc, char *argv[])
         {
             my_NewDeleteAllocator a;
 
-            if (verbose) cout << "\tdeleteObjectRaw(my_MostDerived*)" << endl;
+            if (verbose) printf("\tdeleteObjectRaw(my_MostDerived*)\n");
 
             ASSERT(0 == a.getCount());
             my_MostDerived *pMost =
@@ -574,7 +564,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == virtualBaseObjectCount);
         }
         {
-            if (verbose) cout << "\tNegative testing" << endl;
+            if (verbose) printf("\tNegative testing\n");
 
             bsls::AssertFailureHandlerGuard guard(
                                             &bsls::AssertTest::failTestDriver);
@@ -591,13 +581,13 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
 
     return testStatus;

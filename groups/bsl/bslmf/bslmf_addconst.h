@@ -7,21 +7,21 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function for add top-level 'const'-qualifier
+//@PURPOSE: Provide a meta-function for adding a top-level 'const'-qualifier
 //
 //@CLASSES:
-//  bsl::add_const: meta-function for adding top-level 'const'-qualifier
+//  bsl::add_const: meta-function for adding a top-level 'const'-qualifier
 //
 //@SEE_ALSO: bslmf_removeconst
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::remove_const',
-// that may be used to add a top-level 'const'-qualifier to a type if it is not
-// a reference, function or already 'const'-qualified at the top-level.
+//@DESCRIPTION: This component defines a meta-function, 'bsl::add_const', that
+// may be used to add a top-level 'const'-qualifier to a type if it is not a
+// reference, function or already 'const'-qualified at the top-level.
 //
 // 'bsl::add_const' meets the requirements of the 'add_const' template defined
-// in the C++11 standard [meta.unary.cv].
+// in the C++11 standard [meta.trans.cv].
 //
 ///Usage
 ///-----
@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Adding The Const-Qualifier to A Type
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to add the 'const'-qualifier to a particular type..
+// Suppose that we want to add the 'const'-qualifier to a particular type.
 //
 // First, we create two 'typedef's -- a 'const'-qualified type ('MyConstType')
 // and the same type without the 'const'-qualifier ('MyType'):
@@ -70,7 +70,10 @@ struct AddConst_Imp {
     // parameter) 'ADD_CONST' is 'true'.  This generic default template adds
     // the 'const'-qualifier to 'TYPE'.  A template specialization (below) does
     // not modify 'TYPE'.
+
     typedef TYPE const Type;
+        // This 'typedef' to a type that is the same as the (template
+        // parameter) 'TYPE' except with 'const'-qualifier added.
 };
 
 template <typename TYPE>
@@ -78,7 +81,10 @@ struct AddConst_Imp<TYPE, false> {
     // This partial specialization of 'AddConst_Imp' provides an alias 'Type'
     // that has the same type as 'TYPE' for when the (template parameter)
     // 'ADD_CONST' is 'false'.
+
     typedef TYPE Type;
+        // This 'typedef' to a type that is the same as the (template
+        // parameter) 'TYPE' except with 'const'-qualifier added.
 };
 
 }  // close package namespace
@@ -89,7 +95,7 @@ namespace bsl {
 template <typename TYPE>
 struct add_const {
     // This 'struct' template implements the 'add_const' meta-function defined
-    // in the C++11 standard [meta.unary.cv] to provide an alias 'type' that
+    // in the C++11 standard [meta.trans.cv] to provide an alias 'type' that
     // has the same type as the (template parameter) 'TYPE' except that the
     // top-level 'const'-qualifier has been added, unless 'TYPE' is a
     // reference, a function, or already 'const'-qualified at the top-level.

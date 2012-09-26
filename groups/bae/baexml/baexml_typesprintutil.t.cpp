@@ -1782,7 +1782,7 @@ int main(int argc, char *argv[])
                 Type        d_input;
                 const char *d_result;
             } DATA[] = {
-#if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
                 //line    input                     result
                 //----    -----                     ------
                 { L_,     -9223372036854775808LL,   "-9223372036854775808"   },
@@ -1981,7 +1981,7 @@ int main(int argc, char *argv[])
         {
             typedef float Type;
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define ZERO   "0"
 #else
 #define ZERO
@@ -2537,7 +2537,7 @@ int main(int argc, char *argv[])
                     "123456789012345"         // output
                 },
 
-#if BSLS_PLATFORM__OS_SOLARIS
+#if BSLS_PLATFORM_OS_SOLARIS
                 {
                     L_,                       // line
                     DBL_MAX,                  // input
@@ -2682,7 +2682,7 @@ int main(int argc, char *argv[])
                     "32229481658085593321233482747978262041447231687381771809"
                     "19299881250404026184124858368" // output
                 },
-#else BSLS_PLATFORM__OS_AIX
+#else BSLS_PLATFORM_OS_AIX
                 {
                     L_,                       // line
                     DBL_MAX,                  // input
@@ -2827,7 +2827,7 @@ int main(int argc, char *argv[])
                     "00000000000000000000000000000000000000000000000000000000"
                     "00000000000000000000000000000"  // output
                 },
-#endif //#if BSLS_PLATFORM__OS_SOLARIS
+#endif //#if BSLS_PLATFORM_OS_SOLARIS
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -4646,7 +4646,7 @@ int main(int argc, char *argv[])
                 Type        d_input;
                 const char *d_result;
             } DATA[] = {
-#if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
                 //line    input                     result
                 //----    -----                     ------
                 { L_,     -9223372036854775808LL,   "-9223372036854775808"   },
@@ -4819,7 +4819,7 @@ int main(int argc, char *argv[])
                 Type        d_input;
                 const char *d_result;
             } DATA[] = {
-#if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
                 //line    input                     result
                 //----    -----                     ------
                 { L_,     0LL,                      "0"                      },

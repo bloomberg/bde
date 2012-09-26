@@ -125,7 +125,7 @@ const char LOG_CATEGORY[] = "BAEA_SERIALIZABLEOBJECTPROXYUTIL.TEST";
 // Disable test of gcc Sun because it is too slow that the nightly build has to
 // kill it, causing the build to fail.
 
-#if !(defined(BSLS_PLATFORM__CMP_GNU) && defined(BSLS_PLATFORM__CPU_SPARC))
+#if !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
 
 static const char* TEST_MESSAGES[] = {
 
@@ -1568,7 +1568,7 @@ int main(int argc, char *argv[])
                                                       bael_Severity::BAEL_OFF);
 
     switch (test) { case 0: // Zero is always the leading case.
-#if !(defined(BSLS_PLATFORM__CMP_GNU) && defined(BSLS_PLATFORM__CPU_SPARC))
+#if !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
       case 15: {
 #else
       case 11: {
@@ -1683,7 +1683,7 @@ int main(int argc, char *argv[])
     ASSERT(13 == decodeMessage.simpleRequest().responseLength());
 //..
       } break;
-#if !(defined(BSLS_PLATFORM__CMP_GNU) && defined(BSLS_PLATFORM__CPU_SPARC))
+#if !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
       case 14: {
         // --------------------------------------------------------------------
         // XML decoder feature test
@@ -2575,7 +2575,7 @@ int main(int argc, char *argv[])
             ASSERTV(Category::BDEAT_SIMPLE_CATEGORY == X.category());
         }
       } break;
-#if !(defined(BSLS_PLATFORM__CMP_GNU) && defined(BSLS_PLATFORM__CPU_SPARC))
+#if !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
       case -2: {
         // --------------------------------------------------------------------
         // Codec performance test: SERIALIZABLEOBJECTPROXY

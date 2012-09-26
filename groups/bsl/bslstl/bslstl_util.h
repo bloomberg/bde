@@ -38,10 +38,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_isconvertible.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -66,7 +62,7 @@ class Util {
             // Return the appropriate allocator for use when copy-constructing
             // a container.  'rhsAlloc' is intended to be the allocator from
             // the container being copied.  If 'isBslmaAlloc' is of type
-            // 'bslmf::MetaInt<1>' then ignore 'rhsAlloc' and return the
+            // 'bsl::true_type' then ignore 'rhsAlloc' and return the
             // default allocator.  Otherwise, return 'rhsAlloc' unchanged.
     };
 
@@ -78,7 +74,7 @@ class Util {
             // Return the appropriate allocator for use when copy-constructing
             // a container.  'rhsAlloc' is intended to be the allocator from
             // the container being copied.  If 'isBslmaAlloc' is of type
-            // 'bslmf::MetaInt<1>' then ignore 'rhsAlloc' and return the
+            // 'bsl::true_type' then ignore 'rhsAlloc' and return the
             // default allocator.  Otherwise, return 'rhsAlloc' unchanged.
     };
 
@@ -167,7 +163,7 @@ inline
 ALLOCATOR Util::copyContainerAllocator(const ALLOCATOR& rhsAlloc)
 {
     typedef typename
-        bslmf::IsConvertible<bslma::Allocator*,ALLOCATOR>::Type IsBslma;
+        bsl::is_convertible<bslma::Allocator*,ALLOCATOR>::type IsBslma;
 
     return AllocatorUtil<ALLOCATOR, IsBslma::VALUE>::copyContainerAllocator(
                                                                      rhsAlloc);
@@ -201,6 +197,7 @@ void Util::swapContainers(CONTAINER&            c1,
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -210,6 +207,7 @@ typedef bslstl::UtilIterator bslstl_UtilIterator;
 
 typedef bslstl::Util bslstl_Util;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

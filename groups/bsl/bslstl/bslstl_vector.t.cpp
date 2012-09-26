@@ -4087,7 +4087,7 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     if (verbose) printf("Testing 'reverse_iterator', 'rbegin', and 'rend',"
                         " and 'const' variants.\n");
     {
-#ifdef BSLS_PLATFORM__CMP_SUN
+#ifdef BSLS_PLATFORM_CMP_SUN
 #else
         ASSERT(1 == (bslmf::IsSame<reverse_iterator,
                                    bsl::reverse_iterator<TYPE *> >::VALUE));

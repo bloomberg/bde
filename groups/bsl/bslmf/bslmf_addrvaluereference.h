@@ -43,15 +43,13 @@ BSLS_IDENT("$Id: $")
 //  assert(false ==
 //       (bsl::is_same<bsl::add_rvalue_reference<int>::type,   int  >::value));
 //  assert(true  ==
-//       (bsl::is_same<bsl::add_rvalue_reference<int&>::type,  int& >::value));
+//       (bsl::is_same<bsl::add_rvalue_reference<int&>::type,  int&&>::value));
 //  assert(true  ==
 //       (bsl::is_same<bsl::add_rvalue_reference<int&&>::type, int&&>::value));
 //#endif
 //..
 // Note that rvalue is introduced in C++11 and may not be supported by all
-// compilers.  Note also that according to 'reference collapsing' semantics
-// [8.3.2], 'add_rvalue_reference' does not transform 'TYPE' to rvalue
-// reference type if 'TYPE' is a lvalue reference type.
+// compilers.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -67,6 +65,12 @@ namespace bsl {
 
 template <typename TYPE>
 struct add_rvalue_reference
+{
+    typedef TYPE&& type;
+};
+
+template <typename TYPE>
+struct add_rvalue_reference<TYPE&>
 {
     typedef TYPE&& type;
 };

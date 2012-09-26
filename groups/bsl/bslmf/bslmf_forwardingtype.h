@@ -136,7 +136,7 @@ struct ForwardingType {
     // This template is used to specialize 'TYPE' such that arguments of type
     // 'TYPE' can be efficiently forwarded by reference or pointer.
 
-    enum { BSLMF_FORWARDING_TYPE__ID = 1 };  // For testing only.
+    enum { BSLMF_FORWARDING_TYPE_ID = 1 };  // For testing only.
     enum {
         IS_BASIC_TYPE = IsFundamental<TYPE>::value ||
                         IsPointerToMember<TYPE>::value ||
@@ -158,7 +158,7 @@ struct ForwardingType<const TYPE&> {
     // that case, it may be advantageous to pass an argument by value if 'T' is
     // a basic type, but not if it is a user-defined type.
 
-    enum { BSLMF_FORWARDING_TYPE__ID = 2 };  // For testing only.
+    enum { BSLMF_FORWARDING_TYPE_ID = 2 };  // For testing only.
     enum {
         IS_BASIC_TYPE = IsFundamental<TYPE>::value ||
                         IsPointerToMember<TYPE>::value ||
@@ -178,7 +178,7 @@ struct ForwardingType<const volatile TYPE&> {
     // 'ForwardingType' is a 'const volatile T&'.  In that case, this template
     // parameter cannot be forwarded as any other type.
 
-    enum { BSLMF_FORWARDING_TYPE__ID = 3 };  // For testing only.
+    enum { BSLMF_FORWARDING_TYPE_ID = 3 };  // For testing only.
 
     typedef const volatile TYPE& Type;
 };
@@ -189,7 +189,7 @@ struct ForwardingType<volatile TYPE&> {
     // 'ForwardingType' is a 'const volatile T&'.  In that case, this template
     // parameter cannot be forwarded as any other type.
 
-    enum { BSLMF_FORWARDING_TYPE__ID = 4 };  // For testing only.
+    enum { BSLMF_FORWARDING_TYPE_ID = 4 };  // For testing only.
 
     typedef volatile TYPE* Type;
 };
@@ -200,14 +200,14 @@ struct ForwardingType<TYPE&>
     // This specialization is used when the template parameter of
     // 'ForwardingType' is a 'T&' and 'T' is not cv-qualified.
 
-    enum { BSLMF_FORWARDING_TYPE__ID = 5 };  // For testing only.
+    enum { BSLMF_FORWARDING_TYPE_ID = 5 };  // For testing only.
 };
 
 template <typename TYPE>
 struct ForwardingType<TYPE*> {
     // Pointer rvalues should not be forwarded any other way.
 
-    enum { BSLMF_FORWARDING_TYPE__ID = 6 };  // For testing only.
+    enum { BSLMF_FORWARDING_TYPE_ID = 6 };  // For testing only.
     typedef TYPE* Type;
 };
 
@@ -215,7 +215,7 @@ template <typename TYPE>
 struct ForwardingType<TYPE* const&> {
     // Pointer rvalues should not be forwarded any other way.
 
-    enum { BSLMF_FORWARDING_TYPE__ID = 7 };  // For testing only.
+    enum { BSLMF_FORWARDING_TYPE_ID = 7 };  // For testing only.
     typedef TYPE* Type;
 };
 
@@ -272,6 +272,7 @@ struct ForwardingType_Imp<TYPE,1, 0> {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -287,6 +288,7 @@ struct ForwardingType_Imp<TYPE,1, 0> {
 #endif
 #define bslmf_ForwardingType bslmf::ForwardingType
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

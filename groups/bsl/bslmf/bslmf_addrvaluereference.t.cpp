@@ -8,8 +8,8 @@
 #include <cstdlib>
 #include <cstdio>
 
-using namespace std;
 using namespace BloombergLP;
+using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
     ASSERT(false ==
          (bsl::is_same<bsl::add_rvalue_reference<int>::type,   int  >::value));
     ASSERT(true  ==
-         (bsl::is_same<bsl::add_rvalue_reference<int&>::type,  int& >::value));
+         (bsl::is_same<bsl::add_rvalue_reference<int&>::type,  int&&>::value));
     ASSERT(true  ==
          (bsl::is_same<bsl::add_rvalue_reference<int&&>::type, int&&>::value));
   #endif
@@ -223,7 +223,6 @@ int main(int argc, char *argv[])
 // compilers.  Note also that according to 'reference collapsing' semantics
 // [8.3.2], 'add_rvalue_reference' does not transform 'TYPE' to rvalue
 // reference type if 'TYPE' is a lvalue reference type.
-
 
       } break;
       case 1: {
@@ -255,128 +254,100 @@ int main(int argc, char *argv[])
 
         ASSERT_RVALUE_REF_TRUE (int );
         ASSERT_RVALUE_REF_FALSE(int );
-        ASSERT_RVALUE_REF_SAME (int&);
         ASSERT_RVALUE_REF_SAME (int&&);
         ASSERT_RVALUE_REF_TRUE (int* );
         ASSERT_RVALUE_REF_FALSE(int* );
-        ASSERT_RVALUE_REF_SAME (int*&);
         ASSERT_RVALUE_REF_SAME (int*&&);
 
         ASSERT_RVALUE_REF_TRUE (EnumTestType );
         ASSERT_RVALUE_REF_FALSE(EnumTestType );
-        ASSERT_RVALUE_REF_SAME (EnumTestType&);
         ASSERT_RVALUE_REF_SAME (EnumTestType&&);
         ASSERT_RVALUE_REF_TRUE (EnumTestType* );
         ASSERT_RVALUE_REF_FALSE(EnumTestType* );
-        ASSERT_RVALUE_REF_SAME (EnumTestType*&);
         ASSERT_RVALUE_REF_SAME (EnumTestType*&&);
 
         ASSERT_RVALUE_REF_TRUE (StructTestType );
         ASSERT_RVALUE_REF_FALSE(StructTestType );
-        ASSERT_RVALUE_REF_SAME (StructTestType&);
         ASSERT_RVALUE_REF_SAME (StructTestType&&);
         ASSERT_RVALUE_REF_TRUE (StructTestType* );
         ASSERT_RVALUE_REF_FALSE(StructTestType* );
-        ASSERT_RVALUE_REF_SAME (StructTestType*&);
         ASSERT_RVALUE_REF_SAME (StructTestType*&&);
 
         ASSERT_RVALUE_REF_TRUE (UnionTestType );
         ASSERT_RVALUE_REF_FALSE(UnionTestType );
-        ASSERT_RVALUE_REF_SAME (UnionTestType&);
         ASSERT_RVALUE_REF_SAME (UnionTestType&&);
         ASSERT_RVALUE_REF_TRUE (UnionTestType* );
         ASSERT_RVALUE_REF_FALSE(UnionTestType* );
-        ASSERT_RVALUE_REF_SAME (UnionTestType*&);
         ASSERT_RVALUE_REF_SAME (UnionTestType*&&);
 
         ASSERT_RVALUE_REF_TRUE (BaseClassTestType );
         ASSERT_RVALUE_REF_FALSE(BaseClassTestType );
-        ASSERT_RVALUE_REF_SAME (BaseClassTestType&);
         ASSERT_RVALUE_REF_SAME (BaseClassTestType&&);
         ASSERT_RVALUE_REF_TRUE (BaseClassTestType* );
         ASSERT_RVALUE_REF_FALSE(BaseClassTestType* );
-        ASSERT_RVALUE_REF_SAME (BaseClassTestType*&);
         ASSERT_RVALUE_REF_SAME (BaseClassTestType*&&);
 
         ASSERT_RVALUE_REF_TRUE (DerivedClassTestType );
         ASSERT_RVALUE_REF_FALSE(DerivedClassTestType );
-        ASSERT_RVALUE_REF_SAME (DerivedClassTestType&);
         ASSERT_RVALUE_REF_SAME (DerivedClassTestType&&);
         ASSERT_RVALUE_REF_TRUE (DerivedClassTestType* );
         ASSERT_RVALUE_REF_FALSE(DerivedClassTestType* );
-        ASSERT_RVALUE_REF_SAME (DerivedClassTestType*&);
         ASSERT_RVALUE_REF_SAME (DerivedClassTestType*&&);
 
         ASSERT_RVALUE_REF_TRUE (MethodPtrTestType );
         ASSERT_RVALUE_REF_FALSE(MethodPtrTestType );
-        ASSERT_RVALUE_REF_SAME (MethodPtrTestType&);
         ASSERT_RVALUE_REF_SAME (MethodPtrTestType&&);
         ASSERT_RVALUE_REF_TRUE (MethodPtrTestType* );
         ASSERT_RVALUE_REF_FALSE(MethodPtrTestType* );
-        ASSERT_RVALUE_REF_SAME (MethodPtrTestType*&);
         ASSERT_RVALUE_REF_SAME (MethodPtrTestType*&&);
 
         ASSERT_RVALUE_REF_TRUE (FunctionPtrTestType );
         ASSERT_RVALUE_REF_FALSE(FunctionPtrTestType );
-        ASSERT_RVALUE_REF_SAME (FunctionPtrTestType&);
         ASSERT_RVALUE_REF_SAME (FunctionPtrTestType&&);
         ASSERT_RVALUE_REF_TRUE (FunctionPtrTestType* );
         ASSERT_RVALUE_REF_FALSE(FunctionPtrTestType* );
-        ASSERT_RVALUE_REF_SAME (FunctionPtrTestType*&);
         ASSERT_RVALUE_REF_SAME (FunctionPtrTestType*&&);
 
         ASSERT_RVALUE_REF_TRUE (PMD );
         ASSERT_RVALUE_REF_FALSE(PMD );
-        ASSERT_RVALUE_REF_SAME (PMD&);
         ASSERT_RVALUE_REF_SAME (PMD&&);
         ASSERT_RVALUE_REF_TRUE (PMD* );
         ASSERT_RVALUE_REF_FALSE(PMD* );
-        ASSERT_RVALUE_REF_SAME (PMD*&);
         ASSERT_RVALUE_REF_SAME (PMD*&&);
 
         ASSERT_RVALUE_REF_TRUE (int StructTestType::* );
         ASSERT_RVALUE_REF_FALSE(int StructTestType::* );
-        ASSERT_RVALUE_REF_SAME (int StructTestType::*&);
         ASSERT_RVALUE_REF_SAME (int StructTestType::*&&);
         ASSERT_RVALUE_REF_TRUE (int StructTestType::* * );
         ASSERT_RVALUE_REF_FALSE(int StructTestType::* * );
-        ASSERT_RVALUE_REF_SAME (int StructTestType::* *&);
         ASSERT_RVALUE_REF_SAME (int StructTestType::* *&&);
 
         ASSERT_RVALUE_REF_TRUE (int StructTestType::* * );
         ASSERT_RVALUE_REF_FALSE(int StructTestType::* * );
-        ASSERT_RVALUE_REF_SAME (int StructTestType::* *&);
         ASSERT_RVALUE_REF_SAME (int StructTestType::* *&&);
         ASSERT_RVALUE_REF_TRUE (int StructTestType::* * * );
         ASSERT_RVALUE_REF_FALSE(int StructTestType::* * * );
-        ASSERT_RVALUE_REF_SAME (int StructTestType::* * *&);
         ASSERT_RVALUE_REF_SAME (int StructTestType::* * *&&);
 
         ASSERT_RVALUE_REF_TRUE (PMD BaseClassTestType::* );
         ASSERT_RVALUE_REF_FALSE(PMD BaseClassTestType::* );
-        ASSERT_RVALUE_REF_SAME (PMD BaseClassTestType::*&);
         ASSERT_RVALUE_REF_SAME (PMD BaseClassTestType::*&&);
         ASSERT_RVALUE_REF_TRUE (PMD BaseClassTestType::* * );
         ASSERT_RVALUE_REF_FALSE(PMD BaseClassTestType::* * );
-        ASSERT_RVALUE_REF_SAME (PMD BaseClassTestType::* *&);
         ASSERT_RVALUE_REF_SAME (PMD BaseClassTestType::* *&&);
 
         ASSERT_RVALUE_REF_TRUE (PMD BaseClassTestType::* * );
         ASSERT_RVALUE_REF_FALSE(PMD BaseClassTestType::* * );
-        ASSERT_RVALUE_REF_SAME (PMD BaseClassTestType::* *&);
         ASSERT_RVALUE_REF_SAME (PMD BaseClassTestType::* *&&);
         ASSERT_RVALUE_REF_TRUE (PMD BaseClassTestType::* * * );
         ASSERT_RVALUE_REF_FALSE(PMD BaseClassTestType::* * * );
-        ASSERT_RVALUE_REF_SAME (PMD BaseClassTestType::* * *&);
         ASSERT_RVALUE_REF_SAME (PMD BaseClassTestType::* * *&&);
 
         ASSERT_RVALUE_REF_TRUE (Incomplete );
         ASSERT_RVALUE_REF_FALSE(Incomplete );
-        ASSERT_RVALUE_REF_SAME (Incomplete&);
         ASSERT_RVALUE_REF_SAME (Incomplete&&);
         ASSERT_RVALUE_REF_TRUE (Incomplete* );
         ASSERT_RVALUE_REF_FALSE(Incomplete* );
-        ASSERT_RVALUE_REF_SAME (Incomplete*&);
         ASSERT_RVALUE_REF_SAME (Incomplete*&&);
 
 #ifndef BSLS_PLATFORM__CMP_IBM
@@ -385,11 +356,9 @@ int main(int argc, char *argv[])
         typedef int F(int);
         ASSERT_RVALUE_REF_TRUE (F);
         ASSERT_RVALUE_REF_FALSE(F);
-        ASSERT_RVALUE_REF_SAME (F&);
         ASSERT_RVALUE_REF_SAME (F&&);
         ASSERT_RVALUE_REF_TRUE (F*);
         ASSERT_RVALUE_REF_FALSE(F*);
-        ASSERT_RVALUE_REF_SAME (F*&);
         ASSERT_RVALUE_REF_SAME (F*&&);
 #endif
 

@@ -314,6 +314,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -335,6 +336,7 @@ typedef bslmf::FunctionPointerCLinkage bslmf_FunctionPointerCLinkage;
 #endif
 #define bslmf_IsFunctionPointer bslmf::IsFunctionPointer
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

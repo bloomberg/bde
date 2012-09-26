@@ -12,23 +12,23 @@ BDES_IDENT_RCSID(bdesu_processutil_cpp,"$Id$ $CSID$")
 
 #include <bsl_iostream.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #else
 #include <unistd.h>
 #endif
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
 #include <procfs.h>
 #include <fcntl.h>
-#elif defined(BSLS_PLATFORM__OS_AIX)
+#elif defined(BSLS_PLATFORM_OS_AIX)
 #include <sys/procfs.h>
 #include <fcntl.h>
-#elif defined(BSLS_PLATFORM__OS_LINUX)
+#elif defined(BSLS_PLATFORM_OS_LINUX)
 #include <fcntl.h>
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
 #include <sys/pstat.h>
-#elif defined(BSLS_PLATFORM__OS_DARWIN)
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
 #include <libproc.h>
 #endif
 
@@ -40,7 +40,7 @@ namespace BloombergLP {
 
 // CLASS METHODS
 int bdesu_ProcessUtil::getProcessId() {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     return static_cast<int>(GetCurrentProcessId());
 #else
     return static_cast<int>(getpid());
@@ -53,7 +53,7 @@ int bdesu_ProcessUtil::getProcessName(bsl::string *result)
 
     result->clear();
 
-#if defined BSLS_PLATFORM__OS_WINDOWS
+#if defined BSLS_PLATFORM_OS_WINDOWS
     int  rc = 0;
 
     result->resize(MAX_PATH);
@@ -64,7 +64,7 @@ int bdesu_ProcessUtil::getProcessName(bsl::string *result)
 
     return length <= 0;
 #else
-# if defined BSLS_PLATFORM__OS_HPUX
+# if defined BSLS_PLATFORM_OS_HPUX
     result->resize(256);
     int rc = pstat_getcommandline(&(*result->begin()),
                                   result->size(), 1,
@@ -78,7 +78,7 @@ int bdesu_ProcessUtil::getProcessName(bsl::string *result)
     if (bsl::string::npos != pos) {
         result->resize(pos);
     }
-# elif defined BSLS_PLATFORM__OS_LINUX
+# elif defined BSLS_PLATFORM_OS_LINUX
     enum { NUM_ELEMENTS = 14 + 16 };  // "/proc/<pid>/cmdline"
 
     bdesb_MemOutStreamBuf osb(NUM_ELEMENTS);
@@ -99,14 +99,14 @@ int bdesu_ProcessUtil::getProcessName(bsl::string *result)
     if (bsl::string::npos != pos) {
         result->resize(pos);
     }
-# elif defined BSLS_PLATFORM__OS_DARWIN
+# elif defined BSLS_PLATFORM_OS_DARWIN
     char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
     if (proc_pidpath (getpid(), pathbuf, sizeof(pathbuf)) <= 0) {
         return -1;
     }
     result->assign(pathbuf);
 # else
-#  if defined BSLS_PLATFORM__OS_AIX
+#  if defined BSLS_PLATFORM_OS_AIX
     enum { NUM_ELEMENTS = 14 + 16 };  // "/proc/<pid>/psinfo"
 
     bdesb_MemOutStreamBuf osb(NUM_ELEMENTS);

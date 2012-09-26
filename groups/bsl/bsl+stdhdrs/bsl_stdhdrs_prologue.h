@@ -73,13 +73,13 @@ namespace bsl
 
 }  // extern "C++"
 
-#if !defined(BSL_LEGACY) || BSL_LEGACY == 1
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // We define 'BloombergLP_std' for backwards compatibility (a lot of code
     // still uses this according to OpenGrok).
 #define BloombergLP_std bsl
-#endif
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
   // Force the SUN compiler to find *.cc files when including native headers.
   // Without this macro, .cc files are included lazily, which is usually AFTER
   // 'std' has been defined as a macro, breaking their compilation.

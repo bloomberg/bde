@@ -88,7 +88,7 @@ BSL_OVERRIDES_STD mode"
 // access to conforming C++0x compilers.
 //# define BSLSTL_STDEXCEPTUTIL_NORETURN [[noreturn]]
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLSTL_STDEXCEPTUTIL_NORETURN __declspec(noreturn)
 #else
 #   define BSLSTL_STDEXCEPTUTIL_NORETURN
@@ -157,12 +157,14 @@ struct StdExceptUtil {
 
 #undef BSLSTL_STDEXCEPTUTIL_NORETURN
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslstl::StdExceptUtil bslstl_StdExceptUtil;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 
