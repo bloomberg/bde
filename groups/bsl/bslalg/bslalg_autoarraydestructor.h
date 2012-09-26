@@ -23,9 +23,9 @@ BSLS_IDENT("$Id: $")
 // 'bslalg_arraydestructionprimitives'.
 //
 // In most instances, 'bslma::AutoDestructor' can also be used, but this
-// component is more useful in cases where it is conceptually simpler to think
-// in terms of two pointers at the ends of the array being managed, rather than
-// an origin and offset.
+// component is more useful in cases where it is simpler to think in terms of
+// two pointers at the ends of the array being managed, rather than an origin
+// and offset.
 //
 ///Usage
 ///-----
@@ -33,39 +33,44 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Managing an Array Under Construction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have a class, 'TestType' that allocates a block of
-// memory upon construction, and whose c'tor takes a char.  Suppose we
-// want to create an array of elements of such objects in an
-// exception-safe manner.
+// In most instances, the use of a 'bslalg::AutoArrayDestructor' could be
+// handled by a 'bslma::AutoDeallocator', but sometimes it is conceptually
+// clearer to frame the problem in terms of a pair of pointers rather than a
+// pointer and an offset.
 //
-// First, we create the type 'TestType':
+// Suppose we have a class, 'UsageType' that allocates a block of memory upon
+// construction, and whose c'tor takes a char.  Suppose we want to create an
+// array of elements of such objects in an exception-safe manner.
+//
+// First, we create the type 'UsageType':
 //..
-//  class TestType {
-//..
-// This test type contains a 'char' in some allocated storage.  It counts
-// the number of default and copy constructions, assignments, and
-// destructions.  It has no traits other than using a 'bslma' allocator.
-// It could have the bit-wise moveable traits but we defer that trait to
-// the 'MoveableTestType'.
-//..
-//      char             *d_data_p;
-//      bslma::Allocator *d_allocator_p;
+//                                 // ===============
+//                                 // class UsageType
+//                                 // ===============
+//
+//  class UsageType {
+//      // This test type contains a 'char' in some allocated storage.  It has
+//      // no traits other than using a 'bslma' allocator.
+//
+//      char             *d_data_p;         // managed single char
+//      bslma::Allocator *d_allocator_p;    // allocator (held, not owned)
 //
 //    public:
+//      // TRAITS
+//      BSLALG_DECLARE_NESTED_TRAITS(UsageType,
+//                                   bslalg::TypeTraitUsesBslmaAllocator);
+//
 //      // CREATORS
-//      explicit
-//      TestType(char c, bslma::Allocator *ba = 0)
+//      explicit UsageType(char c, bslma::Allocator *basicAllocator = 0)
 //      : d_data_p(0)
-//      , d_allocator_p(bslma::Default::allocator(ba))
+//      , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
-//          ++numCharCtorCalls;
 //          d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
 //          *d_data_p = c;
 //      }
 //
-//      ~TestType()
+//      ~UsageType()
 //      {
-//          ++numDestructorCalls;
 //          *d_data_p = '_';
 //          d_allocator_p->deallocate(d_data_p);
 //          d_data_p = 0;
@@ -76,42 +81,63 @@ BSLS_IDENT("$Id: $")
 //      {
 //          return *d_data_p;
 //      }
-//
-//      // Then, we verify that even right after exceptions have been
-//      // thrown and caught, no memory is outstanding:
-//
-//      ASSERT(0 == ta.numBlocksInUse());
-//
-//      // Next, we allocate our array and create a guard to free it if
-//      // we subsequently throw:
-//
-//      array = (TestType *) ta.allocate(DATA_LEN * sizeof(TestType));
+//  };
+//..
+// Then, we create a 'TestAllocator' to supply memory (and to verify
+// that no memory is leaked.
+//..
+//  bslma::TestAllocator ta;
+//..
+// Next, we create the pointer for our array:
+//..
+//  UsageType *array;
+//..
+// Then, we declare a string of chars we will use to initialize the 'UsageType'
+// objects in our array.
+//..
+//  const char *DATA = "Hello";
+//  const int   DATA_LEN = std::strlen(DATA);
+//..
+// Next, we enter an 'exception test' block, which will repetetively enter a
+// block of code, catching exceptions throw by the test allocator 'ta' each
+// time:
+//..
+//  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta)
+//..
+// Then, we verify that even right after exceptions have been thrown and
+// caught, no memory is outstanding:
+//..
+//      assert(0 == ta.numBlocksInUse());
+//..
+// Next, we allocate our array and create a guard to free it if we subsequently
+// throw:
+//..
+//      array = (UsageType *) ta.allocate(DATA_LEN * sizeof(UsageType));
 //      bslma::DeallocatorProctor<bslma::Allocator> dProctor(array, &ta);
-//
-//      // Then, we establish an 'AutoArrayDestructor' on 'array' to
-//      // destroy any valid elements in it if we throw:
-//
-//      bslalg::AutoArrayDestructor<TestType> aadGuard(array, array);
-//
-//      // Next, we iterate through the valid chars in 'DATA'
-//      // construct the elements of the array:
-//
-//      TestType *ptt = array;
+//..
+// Then, we establish an 'AutoArrayDestructor' on 'array' to destroy any valid
+// elements in it if we throw:
+//..
+//      bslalg::AutoArrayDestructor<UsageType> aadGuard(array, array);
+//..
+// Next, we iterate through the valid chars in 'DATA' construct the elements of
+// the array:
+//..
+//      UsageType *ptt = array;
 //      for (const char *pc = DATA; *pc; ++pc) {
 //          // Then, construct the next element of 'array':
-//
-//          new (ptt++) TestType(*pc, &ta);
-//
+//..
+// new (ptt++) UsageType(*pc, &ta);
+//..
 //          // Next, move the end of 'add' to cover the most recently
 //          // constructed element:
-//
-//          aadGuard.moveEnd(1);;
-//      }
+//..
+// aadGuard.moveEnd(1);; }
 //..
 // At this point, we have successfully created our array.
 //
-// Then, release the guards so they won't destroy our work when they go out of
-// scope:
+// Then, release the guards so they won't destroy our work when
+// they go out of scope:
 //..
 //      dProctor.release();
 //      aadGuard.release();
@@ -122,21 +148,21 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, verify that the array we have created is as expected:
 //..
-//  ASSERT('H' == array[0].datum());
-//  ASSERT('e' == array[1].datum());
-//  ASSERT('l' == array[2].datum());
-//  ASSERT('l' == array[3].datum());
-//  ASSERT('o' == array[4].datum());
+//  assert('H' == array[0].datum());
+//  assert('e' == array[1].datum());
+//  assert('l' == array[2].datum());
+//  assert('l' == array[3].datum());
+//  assert('o' == array[4].datum());
 //..
 // Finally, destroy & free our work and verify that no memory is
 // leaked:
 //..
 //  for (int i = 0; i < DATA_LEN; ++i) {
-//      array[i].~TestType();
+//      array[i].~UsageType();
 //  }
 //  ta.deallocate(array);
-//
-//  ASSERT(0 == ta.numBlocksInUse());
+//..
+//  assert(0 == ta.numBlocksInUse());
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION

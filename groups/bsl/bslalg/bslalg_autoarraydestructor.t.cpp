@@ -173,9 +173,9 @@ class TestType {
     {
         ++numCopyCtorCalls;
         if (&original != this) {
-        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
-        *d_data_p = *original.d_data_p;
-    }
+            d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+            *d_data_p = *original.d_data_p;
+        }
     }
 
     ~TestType()
@@ -191,12 +191,13 @@ class TestType {
     {
         ++numAssignmentCalls;
         if (&rhs != this) {
-        char *newData = (char *)d_allocator_p->allocate(sizeof(char));
-        *d_data_p = '_';
-        d_allocator_p->deallocate(d_data_p);
-        d_data_p  = newData;
-        *d_data_p = *rhs.d_data_p;
+            char *newData = (char *)d_allocator_p->allocate(sizeof(char));
+            *d_data_p = '_';
+            d_allocator_p->deallocate(d_data_p);
+            d_data_p  = newData;
+            *d_data_p = *rhs.d_data_p;
         }
+
         return *this;
     }
 
@@ -231,7 +232,50 @@ bool operator==(const TestType& lhs, const TestType& rhs)
 }
 
 //=============================================================================
-//                            USAGE EXAMPLE
+//                                USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+                               // ===============
+                               // class UsageType
+                               // ===============
+
+class UsageType {
+    // This test type contains a 'char' in some allocated storage.  It has no
+    // traits other than using a 'bslma' allocator.
+
+    char             *d_data_p;         // managed single char
+    bslma::Allocator *d_allocator_p;    // allocator (held, not owned)
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(UsageType,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    explicit UsageType(char c, bslma::Allocator *basicAllocator = 0)
+    : d_data_p(0)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+        *d_data_p = c;
+    }
+
+    ~UsageType()
+    {
+        *d_data_p = '_';
+        d_allocator_p->deallocate(d_data_p);
+        d_data_p = 0;
+    }
+
+    // ACCESSORS
+    char datum() const
+    {
+        return *d_data_p;
+    }
+};
+
+//=============================================================================
+//                            OBSOLETE USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // my_string.h
@@ -556,20 +600,20 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING OBSOLETE USAGE\n"
-                            "======================\n");
+        if (verbose) printf("TESTING USAGE\n"
+                            "=============\n");
 
         // In most instances, the use of a 'bslalg::AutoArrayDestructor' could
         // be handled by a 'bslma::AutoDeallocator', but sometimes it is
         // conceptually clearer to frame the problem in terms of a pair of
         // pointers rather than a pointer and an offset.
 
-        // Suppose we have a class, 'TestType' that allocates a block of
+        // Suppose we have a class, 'UsageType' that allocates a block of
         // memory upon construction, and whose c'tor takes a char.  Suppose we
         // want to create an array of elements of such objects in an
         // exception-safe manner.
 
-        // First, we create the type 'TestType':
+        // First, we create the type 'UsageType':
 
         // Then, we create a 'TestAllocator' to supply memory (and to verify
         // that no memory is leaked.
@@ -578,10 +622,10 @@ int main(int argc, char *argv[])
 
         // Next, we create the pointer for our array:
 
-        TestType *array;
+        UsageType *array;
 
         // Then, we declare a string of chars we will use to initialize the
-        // 'TestType' objects in our array.
+        // 'UsageType' objects in our array.
 
         const char *DATA = "Hello";
         const int   DATA_LEN = std::strlen(DATA);
@@ -600,27 +644,27 @@ int main(int argc, char *argv[])
             // Next, we allocate our array and create a guard to free it if
             // we subsequently throw:
 
-            array = (TestType *) ta.allocate(DATA_LEN * sizeof(TestType));
+            array = (UsageType *) ta.allocate(DATA_LEN * sizeof(UsageType));
             bslma::DeallocatorProctor<bslma::Allocator> dProctor(array, &ta);
 
             // Then, we establish an 'AutoArrayDestructor' on 'array' to
             // destroy any valid elements in it if we throw:
 
-            bslalg::AutoArrayDestructor<TestType> aadGuard(array, array);
+            bslalg::AutoArrayDestructor<UsageType> aadGuard(array, array);
 
             // Next, we iterate through the valid chars in 'DATA'
             // construct the elements of the array:
 
-            TestType *ptt = array;
+            UsageType *ptt = array;
             for (const char *pc = DATA; *pc; ++pc) {
                 // Then, construct the next element of 'array':
 
-                new (ptt++) TestType(*pc, &ta);
+                new (ptt++) UsageType(*pc, &ta);
 
                 // Next, move the end of 'add' to cover the most recently
                 // constructed element:
 
-                aadGuard.moveEnd(1);;
+                aadGuard.moveEnd(1);
             }
 
             // At this point, we have successfully created our array.
@@ -647,7 +691,7 @@ int main(int argc, char *argv[])
         // leaked:
 
         for (int i = 0; i < DATA_LEN; ++i) {
-            array[i].~TestType();
+            array[i].~UsageType();
         }
         ta.deallocate(array);
 
@@ -664,7 +708,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING OBSOLETE USAGE."
-                            "\n============--------==\n");
+                            "\n======================\n");
 
         if (verbose)
             printf("Testing 'my_Array::insert' and 'my_Array::remove'.\n");

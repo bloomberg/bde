@@ -145,29 +145,27 @@ class TestType {
                                   bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
-    explicit
-    TestType(bslma::Allocator *ba = 0)
+    explicit TestType(bslma::Allocator *basicAllocator = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma::Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         ++numDefaultCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = '?';
     }
 
-    explicit
-    TestType(char c, bslma::Allocator *ba = 0)
+    explicit TestType(char c, bslma::Allocator *basicAllocator = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma::Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         ++numCharCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = c;
     }
 
-    TestType(const TestType& original, bslma::Allocator *ba = 0)
+    TestType(const TestType& original, bslma::Allocator *basicAllocator = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma::Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         ++numCopyCtorCalls;
         if (&original != this) {
@@ -226,60 +224,18 @@ bool operator==(const TestType& lhs, const TestType& rhs)
 //                            USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-// Overview of the operation of 'AutoArrayMoveDestructor':
-// ------------------------------------------------------
-// Supposee we want to double the length of an array by inserting copies of a
-// specified 'value' at the beginning.  We are to assume there is ample
-// uninitialized memory after the end of the initial array.
-//
-// Legend:
-//..
-//    'A' - 'E' -- valid elements in array at beginning
-//    'v'       -- copy of specified 'value' to be inserted.
-//    '.'       -- (period) uninitialized memory.
-//    '^(,)'    -- area guarded by 'AutoArrayMoveDestructor', where,
-//                 '^' -- means position of 'guard.destination()'
-//                 '(' -- means position of 'guard.begin()'
-//                 ',' -- (comma) means position of 'guard.middle()'
-//                 ')' -- means position of 'guard.end()'
-//
-// The copy c'tor for the type being inserted may throw, so we need to have a
-// guard object which can allow us to make some guarantee about the state of
-// things after the guard is destroyed.  What we want to guarantee is that
-// there are as many valid objects at the start of the array as before with no
-// other valid objects in existence.
-//..
-//    'ABCDE.....'     -- initial memory.
-//    '.....ABCDE'     -- memory after first 'std::memcpy'.
-//    '^.....(,ABCDE)' -- memory immediately after 'guard' is set
-//    'vv^...(AB,CDE)' -- memory after 2 copies of 'value' have been created,
-//                        and 'guard.advance()' has been called twice.
-//..
-// Now suppose we throw at this point, destroying guard.
-//..
-//    'vv^CDE(AB,...)' -- memory after 'guard's d'tor moves 'CDE' back to their
-//                        position before we began
-//    'vv^CDE(..,...)' -- memory after 'guard's d'tor destroys 'A' and 'B'
-//    'vvCDE.....'     -- memory after 'guard's d'tor completes
-//..
-// We now have 5 valid elements in the beginning of the range, as it was when
-// we started, making the situation predictable for our next d'tor.
-//
-// This was a very simple case, but using this guard in conjunction with
-// 'bslalg::AutoArrayDestructor', we can implment the more general cases of
-// inserting arbitrary numbers of elements at the beginning of an array.
-
 // Then, we define the function 'insertItems' which uses
-// 'AutoArrayMoveDestructor' to preserve the property that if the routine
-// throws, there will be the same number of elements in the same part of the
-// array as there were when the function began:
+// 'AutoArrayMoveDestructor' to ensure that if an exception is thrown (e.g.,
+// when allocating memory), the array will be left in a state where it has the
+// same number of elements, in the same location, as when the function begin
+// (though not necessarily the same value).
 
 void insertItems(TestType         *start,
                  TestType         *divider,
                  const TestType    value,
                  bslma::Allocator *allocator)
-    // The memory in the range '[ start, divider )' contains valid elements,
-    // and the range of valid elements is to be doubled by inserting
+    // The memory in the specified range '[ start, divider )' contains valid
+    // elements, and the range of valid elements is to be doubled by inserting
     // 'divider - start' copies of the specified 'value' at 'start', shifting
     // the existing valid values back in memory.  Assume that following the
     // pointer 'divider' is sufficient uninitialized memory, and that the type
@@ -305,6 +261,11 @@ void insertItems(TestType         *start,
     // '[ start, divider )' will contain valid elements, and that no other
     // valid elements will exist.
     //
+    // Note that the existing elements, which are bitwise-moveable, may be
+    // *moved* about the container without the possibility of throwing an
+    // exception, but the newly inserted elements must be copy-constructed
+    // (requiring memory allocation).
+    //
     // First, move the valid elements from '[ start, divider )' to
     // '[ divider, finish )'.  This can be done without risk of a throw
     // occurring.
@@ -316,12 +277,6 @@ void insertItems(TestType         *start,
                                                     divider,
                                                     finish);
 
-    // The variables 'numGuardWill{Destroy,Move}' have no real function in this
-    // routine, they just help to illustrate what 'guard' will do if it is
-    // destroyed.
-
-    int numGuardWillDestroy = 0, numGuardWillMove = finish - divider;
-
     while (guard.middle() < guard.end()) {
         // Test some invariants:
 
@@ -332,13 +287,6 @@ void insertItems(TestType         *start,
         ASSERT(guard.middle()      <  finish);
         ASSERT(guard.end()         == finish);
 
-        // If 'guard' is destroyed, it will destroy elements in the range
-        // '[ guard.begin(), guard.middle() )', and it will move elements in
-        // the range '[ guard.middle(), guard.end() )'.
-
-        ASSERT(guard.middle() - guard.begin()  == numGuardWillDestroy);
-        ASSERT(guard.end()    - guard.middle() == numGuardWillMove);
-
         // Call the copy c'tor, which may throw.
 
         new (guard.destination()) TestType(value, allocator);
@@ -347,11 +295,7 @@ void insertItems(TestType         *start,
         // 'guard.middle()' by one.
 
         guard.advance();
-        ++numGuardWillDestroy;
-        --numGuardWillMove;
     }
-    numGuardWillDestroy = 0;
-    ASSERT(0 == numGuardWillMove);
 
     // 'guard.middle() == guard.end()' -- which means that, when 'guard' is
     // destroyed, its destructor will do nothing.
@@ -393,8 +337,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("TESTING USAGE EXAMPLE\n"
                             "=====================\n");
 
-        // Next, we create our 'value' object, whose value with be 'v', to be
-        // inserted into the front of our range.
+        // Next, within the 'main' function of our task, we create our 'value'
+        // object, whose value with be 'v', to be inserted into the front of
+        // our range.
 
         TestType value('v');
 
@@ -406,7 +351,7 @@ int main(int argc, char *argv[])
         TestType *array = (TestType *) ta.allocate(10 * sizeof(TestType));
 
         // Next, we construct the first 5 elements of the array to have the
-        // values 'A' - 'E'.
+        // values 'ABCDE'.
 
         TestType *p = array;
         new (p++) TestType('A', &ta);
@@ -421,7 +366,7 @@ int main(int argc, char *argv[])
 
         // Next, we enter an 'exception test' block, which will repetetively
         // enter a block of code, catching exceptions throw by the test
-        // allocator 'ta' each time:
+        // allocator 'ta' on each iteration:
 
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta)
 
@@ -445,20 +390,11 @@ int main(int argc, char *argv[])
             if ('v' == array[3].datum()) array[3].setDatum('D');
             if ('v' == array[4].datum()) array[4].setDatum('E');
 
-            // Then, we verify that all the elements of the array have the
-            // values they had before entering the block:
-
-            ASSERT('A' == array[0].datum());
-            ASSERT('B' == array[1].datum());
-            ASSERT('C' == array[2].datum());
-            ASSERT('D' == array[3].datum());
-            ASSERT('E' == array[4].datum());
-
-            // Next, we call 'insertItems', which may throw:
+            // Then, we call 'insertItems', which may throw:
 
             insertItems(array, p, value, &ta);
 
-            // Then, we exit the except testing block.
+            // Next, we exit the except testing block.
 
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
