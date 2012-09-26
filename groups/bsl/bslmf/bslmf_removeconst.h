@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, we strip the the 'const'-qualifier from 'MyConstType' using
 // 'bsl::remove_const' and verify that the resulting type is the same as
-// 'MyType'.
+// 'MyType':
 //..
 //  assert(true ==
 //        (bsl::is_same<bsl::remove_const<MyConstType>::type, MyType>::value));
