@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 // having the 'ALIGNMENT' requirement.  The class definition of
 // 'my_AlignedBuffer' is as follows:
 //..
-//  template <typename TYPE, int ALIGNMENT>
+//  template <class TYPE, int ALIGNMENT>
 //  union my_AlignedBuffer {
 //    private:
 //      // DATA
@@ -71,14 +71,14 @@ BSLS_IDENT("$Id: $")
 // The function definitions of 'my_AlignedBuffer' are as follows:
 //..
 //  // MANIPULATORS
-//  template <typename TYPE, int ALIGNMENT>
+//  template <class TYPE, int ALIGNMENT>
 //  inline
 //  char *my_AlignedBuffer<TYPE, ALIGNMENT>::buffer()
 //  {
 //      return d_buffer;
 //  }
 //
-//  template <typename TYPE, int ALIGNMENT>
+//  template <class TYPE, int ALIGNMENT>
 //  inline
 //  TYPE& my_AlignedBuffer<TYPE, ALIGNMENT>::object()
 //  {
@@ -86,14 +86,14 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // ACCESSORS
-//  template <typename TYPE, int ALIGNMENT>
+//  template <class TYPE, int ALIGNMENT>
 //  inline
 //  const char *my_AlignedBuffer<TYPE, ALIGNMENT>::buffer() const
 //  {
 //      return d_buffer;
 //  }
 //
-//  template <typename TYPE, int ALIGNMENT>
+//  template <class TYPE, int ALIGNMENT>
 //  inline
 //  const TYPE& my_AlignedBuffer<TYPE, ALIGNMENT>::object() const
 //  {
