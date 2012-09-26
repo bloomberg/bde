@@ -942,8 +942,7 @@ int main(int argc, char *argv[])
 #if 1
         // This assert will fail once the typetraits in slist are fixed
 
-        ASSERT(!(bslalg::HasTrait<bsl::slist<int>,
-                                bslalg::TypeTraitHasStlIterators>::VALUE));
+        ASSERT(!(bslalg::HasStlIterators<bsl::slist<int> >::value));
 #else
         {
             bsl::slist<int> sl(&uniqKeys[0], uniqKeys + NUM_DATA);
