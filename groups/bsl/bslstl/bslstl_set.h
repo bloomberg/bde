@@ -687,12 +687,14 @@ class set {
     set(const set& original);
         // Construct a set having the same value as the specified 'original'.
         // Use a copy of 'original.key_comp()' to order the keys contained in
-        // this set.  Use a default-constructed object of the (template
-        // parameter) type 'ALLOCATOR' to allocate memory.  If the template
-        // parameter 'ALLOCATOR' argument is of type 'bsl::allocator' (the
-        // default), the currently installed default allocator will be used to
-        // supply memory.  This method requires that the (template parameter)
-        // type 'KEY' be "copy-constructible" (see {Requirements on 'KEY'}).
+        // this set.  Use the allocator returned by
+        // 'bsl::allocator_traits<ALLOCATOR>::
+        // select_on_container_copy_construction(original.allocator())' to
+        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is
+        // of type 'bsl::allocator' (the default), the currently installed
+        // default allocator will be used to supply memory.  This method
+        // requires that the (template parameter) type 'KEY' be
+        // "copy-constructible" (see {Requirements on 'KEY'}).
 
     set(const set& original, const ALLOCATOR& allocator);
         // Construct a set having the same value as that of the specified
@@ -1225,7 +1227,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(INPUT_ITERATOR    first,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(const set& original)
-: d_compAndAlloc(original.comparator().keyComparator(), ALLOCATOR())
+: d_compAndAlloc(original.comparator().keyComparator(),
+                 AllocatorTraits::select_on_container_copy_construction(
+                                           original.nodeFactory().allocator()))
 , d_tree()
 {
     if (0 < original.size()) {
