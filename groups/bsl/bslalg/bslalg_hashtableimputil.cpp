@@ -17,22 +17,6 @@ namespace BloombergLP
 namespace bslalg
 {
 
-// PRIVATE CLASS METHODS
-bool HashTableImpUtil::isReachable(const BidirectionalLink *dst,
-                                   const BidirectionalLink *src)
-{
-    BSLS_ASSERT_SAFE(dst);
-    BSLS_ASSERT_SAFE(src);
-
-    while(src) {
-        if(src == dst) {
-            return true;                                              // RETURN
-        }
-        src = src->nextLink();
-    }
-    return false;
-}
-
 // CLASS METHODS
 void HashTableImpUtil::remove(HashTableAnchor    *anchor,
                               BidirectionalLink  *link,
@@ -130,35 +114,37 @@ void HashTableImpUtil::insertAtFrontOfBucket(HashTableAnchor    *anchor,
     }
 }
 
-void HashTableImpUtil::spliceSegmentIntoBucket(BidirectionalLink  *cursor,
-                                               BidirectionalLink  *nextCursor,
-                                               HashTableBucket    *bucket,
-                                               BidirectionalLink **newRoot)
+void HashTableImpUtil::spliceListIntoBucket(HashTableAnchor    *anchor,
+                                            native_std::size_t  bucketIndex,
+                                            BidirectionalLink  *first,
+                                            BidirectionalLink  *last)
 {
-    BSLS_ASSERT_SAFE(cursor);
-    BSLS_ASSERT_SAFE(nextCursor);
-    BSLS_ASSERT_SAFE(bucket);
-    BSLS_ASSERT_SAFE(newRoot);
+    BSLS_ASSERT_SAFE(anchor);
+    BSLS_ASSERT_SAFE(anchor->bucketArraySize() > bucketIndex);
+    BSLS_ASSERT_SAFE(first);
+    BSLS_ASSERT_SAFE(last);
+
+    BidirectionalLink *root   = anchor->listRootAddress();
+    HashTableBucket   *bucket = &anchor->bucketArrayAddress()[bucketIndex];
 
     if (!bucket->first()) {
-        bucket->setFirstAndLast(cursor, nextCursor);
-        BidirectionalLinkListUtil::spliceListBeforeTarget(cursor,
-                                                          nextCursor,
-                                                          *newRoot);
-        *newRoot = cursor;
+        bucket->setFirstAndLast(first, last);
+
+        BidirectionalLinkListUtil::spliceListBeforeTarget(first, last, root);
+        anchor->setListRootAddress(first);
     }
     else {
-        BidirectionalLinkListUtil::spliceListBeforeTarget(cursor,
-                                                          nextCursor,
+        BidirectionalLinkListUtil::spliceListBeforeTarget(first,
+                                                          last,
                                                           bucket->first());
-        if (bucket->first() == *newRoot) { // Check before updating 'first'!
-            *newRoot = cursor;
+        if (bucket->first() == root) {
+            anchor->setListRootAddress(first);
         }
-        bucket->setFirst(cursor);
+        bucket->setFirst(first);
     }
 }
 
-}  // close namespace BloobmergLP::bslalg
+}  // close namespace BloombergLP::bslalg
 
 }  // close namespace BloombergLP
 // ---------------------------------------------------------------------------

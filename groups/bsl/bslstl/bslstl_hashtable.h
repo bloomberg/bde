@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
+//@AUTHOR: Alisdair Meredith (ameredith1) Stefano Pacifico (spacifico1)
 //
 //@DESCRIPTION: This component defines a single class template, 'HashTable',
 // implementing a value-semantic container that can be used to easily implememt
@@ -1491,7 +1491,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAllAndDeallocate()
                                                  d_anchor.bucketArraySize(),
                                                  this->allocator());
 }
-
+ 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::remove(
@@ -1722,7 +1722,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
         // the anchor in the table.  Would it be better for 'initAnchor' to
         // be replaced with a 'createArrayOfEmptyBuckets' function, and we use
         // the result to construct the 'newAnchor'?
-        bslalg::HashTableAnchor newAnchor = d_anchor;
+        bslalg::HashTableAnchor newAnchor(0, 0, 0);
         HashTable_Util<ALLOCATOR>::initAnchor(&newAnchor,
                                               newNumBuckets,
                                               this->allocator());

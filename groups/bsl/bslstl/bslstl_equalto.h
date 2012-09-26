@@ -7,25 +7,32 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a functor enabling C strings as unordered containers keys.
+//@PURPOSE: Provide a binary functor conforming to the C++11 'equal_to' spec.
 //
 //@CLASSES:
-//  equal_to: functor enabling C strings as 'unordered_map' keys
+//  equal_to: C++11-compliant binary functor applying 'operator=='
 //
-//@AUTHOR: Alisdair Meredith (ameredit)
+//@AUTHOR: Alisdair Meredith (ameredit) Stefano Pacifico (spacifico1)
 //
 //@SEE_ALSO: bslstp_hashmap, bslstp_hashset
 //
-//@DESCRIPTION: This component provides a functor to compare two
-// null-terminated strings using a case-sensitive string comparison, rather
-// than simply comparing the two addresses (as the 'std::equal_to' functor
-// would do).  This comparison functor is suitable for supporting C strings as
-// keys in unordered associative containers.  Note that the container behavior
-// would be undefined if the strings referenced by such pointers were to
-// change value.
+//@DESCRIPTION: This component provides the C+11 standard binary comparison
+// functor, 'bsl::equal_to', that evaluates equality of two 'VALUE_TYPE'
+// objects through the 'operator=='.  The application of the functor to two
+// different objects 'o1' and 'o2' returns true if 'o1 == o2'.  Note that this
+// the for use as keys in the standard unordered associative containers such as
+// 'bsl::unordered_map' and 'bsl::unordered_set'.  Also note that this class is
+// an empty POD type.
 //
 ///Usage
 ///-----
+
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "<bslstl_equalto.h> header can't be included directly in \
+BSL_OVERRIDES_STD mode"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -44,10 +51,10 @@ namespace bsl
 
 template<class VALUE_TYPE>
 struct equal_to {
-    // This 'struct' defines a comparison functor...
-    // ... for use as keys in the standard unordered associative containers
-    // such as 'bsl::unordered_map' and 'bsl::unordered_set'.
-    // Note that this class is an empty POD type.
+    // This 'struct' defines a binary comparison functor applying 'operator=='
+    // to two 'VALUE_TYPE' objects.  This class conforms to the C++11 standard
+    // specification of 'std::equal_to' that does not require inheriting from
+    // 'std::binary_function'.  Note that this class is an empty POD type.
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(equal_to,
@@ -79,16 +86,16 @@ struct equal_to {
     // ACCESSORS
     bool operator()(const VALUE_TYPE& lhs, const VALUE_TYPE& rhs) const;
         // Return 'true' if the specified 'lhs' compares equal to the specified
-        // 'rhs' using the equality-comaprision operator, 'lhs == rhs'.
+        // 'rhs' using the equality-comparison operator, 'lhs == rhs'.
 };
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                       // --------------------------
-                       // struct equal_to
-                       // --------------------------
+                       // --------------------
+                       // struct bsl::equal_to
+                       // --------------------
 
 // ACCESSORS
 template<class VALUE_TYPE>

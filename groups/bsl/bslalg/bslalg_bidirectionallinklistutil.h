@@ -18,14 +18,14 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a namespace,
 // 'bslalg::BidirectionalLinkListUtil', containing utility functions for
-// operating on 'bslalg::BidirectionalLink' linked-list nodes.  The main
-// operations include insertion and removal of a node from a list of nodes, and
-// the *splicing* of ranges from one list into another one.  Splicing is the
-// operation of moving a sub-list, or range, of elements from one linked list
-// and into a second list, at a specified position.  Note that for the use of
-// these utilities, no assumptions are made on the actual structure of the
-// linked list (e.g., circular, sentinel terminated, null terminated, etc).
-//
+// operating on doubly linked lists with nodes of type
+// 'bslalg::BidirectionalLink'.  The operations assume that the linked lists
+// are either 0 terminated (on both ends) or terminate with sentinel (valid)
+// nodes.  The main operations include insertion and removal of a node from a
+// list of nodes, and the *splicing* of ranges from one list into another one.
+// Splicing is the operation of moving a sub-list, or range, of elements from
+// one linked list and into a second list, at a
+// specified position.
 //
 ///Usage
 ///-----
@@ -62,7 +62,7 @@ struct BidirectionalLinkListUtil {
        // the 'previousLink' and 'nextLink' attributes of all the links in the
        // list appropriately reflect the operation.  The behavior is undefined
        // unless '0 == target->previousLink()' is true or
-       // 'isWellFormedList(target->previousLink(), target)' is true.
+       // 'isWellFormed(target->previousLink(), target)' is true.
 
     static
     void insertLinkAfterTarget(BidirectionalLink *newNode,
@@ -73,23 +73,35 @@ struct BidirectionalLinkListUtil {
        // After successful execution of this function the values of the
        // 'previousLink' and 'nextLink' attributes of all the links in the list
        // appropriately reflect the operation.  The behavior is undefined
-       // unless 'isWellFormedList(target, target->nextLink())' is true.
+       // unless 'isWellFormed(target, target->nextLink())' is true.
 
     static
-    bool isWellFormedList(BidirectionalLink *head,
-                                           BidirectionalLink *tail);
+    bool isWellFormed(BidirectionalLink *head, BidirectionalLink *tail);
         // Return true if the bidirectional list starting from the specified
         // 'head', and ending with the specified 'tail' is well formed.  A
-        // bidirectional list is well formed if all of the following conditions
-        // are met:
+        // bidirectional list is well formed if 'tail == head' (0 values are
+        // allowed) or all of the following conditions are met (note that
+        // 'head' is renamed to 'h' and 'tail' to 't' for brevity):
         //
-        //: 1 'head->nextLink()->previousLink() == head' is true.
+        //: 1 'h' and 't' are valid addresses.
         //:
-        //: 2 'tail->previousLink()->nextLink() == tail' is true.
+        //: 2 'h->nextLink()->previousLink() == h' is true.
         //:
-        //: 3 For each 'link' in the list different than 'head' and 'tail' both
-        //    'link->nextLink()->previousLink() == link' and
-        //    'link->previousLink()->nextLink() == link' are true.
+        //: 3 '!h->previousLink() || h->previousLink()->nextLink() == h'
+        //:    is true.
+        //:
+        //: 4 't->previousLink()->nextLink() == t' is true.
+        //:
+        //: 5 '!t->nextLink() || t->nextLink()->previousLink() == t'
+        //:    is true.
+        //:
+        //: 6 For each 'link' in the list different than 'h' and 't' both
+        //:   'link->nextLink()->previousLink() == link' and
+        //:   'link->previousLink()->nextLink() == link' are true.
+        //
+        // The behavior is undefined unless 'tail' can be reached from 'head'
+        // following the chain of 'nextLink' attributes of all the nodes in the
+        // open range '[head, tail)'.
 
     static
     void spliceListBeforeTarget(BidirectionalLink *first,
@@ -104,9 +116,10 @@ struct BidirectionalLinkListUtil {
         // function the values of the 'previousLink' and 'nextLink' attributes
         // of all the links in the origin and destination lists appropriately
         // reflect the operation.  The behavior is undefined unless both
-        // 'first' and 'last' are members of the same linked list, 'first'
-        // precedes 'last' in the list, or 'first == last', and
-        // 'isWellFormedList(first, last)' is true.
+        // 'first' and 'last' are members of the same linked list; 'first'
+        // precedes 'last' in the list, or 'first == last'; 'target' is not a
+        // node contained in the closed range '[first, last]'; and
+        // 'isWellFormed(first, last)' is true.
 
     static
     void unlink(BidirectionalLink *node);
@@ -117,7 +130,7 @@ struct BidirectionalLinkListUtil {
         // Note that this method does *not* change the value for the 'nextLink'
         // and 'previousLink' attributes of 'node'.  The behavior is
         // undefined unless
-        // 'isWellFormedList(node->previousLink(), node->nextLink())' is true.
+        // 'isWellFormed(node->previousLink(), node->nextLink())' is true.
 };
 
 } // namespace BloombergLP::bslalg

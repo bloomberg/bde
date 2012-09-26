@@ -38,10 +38,11 @@ BSLS_IDENT("$Id: $")
 //
 //
 //  Complex Constraint
-//  ----------------------------------------------------------------------
+//  -------------------------------------------------------------------------
 //  'bucketArrayAddress' must refer to a contiguous sequence of valid
 //  'bslalg::HashTableBucket' objects of at least the specified
-//  'bucketArraySize'.
+//  'bucketArraySize' or both 'bucketArrayAddress' and 'bucketArraySize' must
+//  be 0.
 //..
 //
 //: o 'listRootAddress': address of the head of the linked list of nodes
@@ -87,6 +88,7 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>
+(0, 0, 0)#define INCLUDED_CSTDDEF
 #endif
 
 namespace BloombergLP {
@@ -100,7 +102,7 @@ class HashTableBucket;
                         // =============================
 
 class HashTableAnchor {
-    // This  complex constrained *in*-*core* (value-semantic) attribute class
+    // This complex constrained *in*-*core* (value-semantic) attribute class
     // characterizes the key data elements of a hash table.  See the
     // "Attributes" section under @DESCRIPTION in the component-level
     // documentation for/ information on the class attributes.  Note that the
@@ -138,7 +140,8 @@ class HashTableAnchor {
         // 'bucketArrayAddress', 'bucketArraySize', and 'listRootAddress'
         // attributes.  The behavior is undefined unless 'bucketArrayAddress'
         // refers to a contiguous sequence of valid 'bslalg::HashTableBucket'
-        // objects of at least 'bucketArraySize'.
+        // objects of at least 'bucketArraySize' or unless both
+        // 'bucketArrayAddress' and 'bucketArraySize' are 0.
 
     HashTableAnchor(const HashTableAnchor& original);
         // Create a 'bslalg::HashTableAnchor' object having the same value
@@ -158,7 +161,8 @@ class HashTableAnchor {
         // this object to the specified 'bucketArrayAddress' and
         // 'bucketArraySize' values.  The behavior is undefined unless
         // 'bucketArrayAddress' refers to a contiguous sequence of valid
-        // 'bslalg::HashTableBucket' objects of at least 'bucketArraySize'.
+        // 'bslalg::HashTableBucket' objects of at least 'bucketArraySize', or
+        // unless both 'bucketArrayAddress' and 'bucketArraySize' are 0.
 
     void setListRootAddress(BidirectionalLink *value);
         // Set the 'listRootAddress' attribute of this object to the
@@ -169,7 +173,7 @@ class HashTableAnchor {
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
         // exception-safety guarantee.
-    
+
     // ACCESSORS
     HashTableBucket *bucketArrayAddress() const;
         // Return the value of the 'bucketArrayAddress' attribute of this
@@ -221,8 +225,8 @@ HashTableAnchor::HashTableAnchor(bslalg::HashTableBucket   *bucketArrayAddress,
 , d_bucketArraySize(bucketArraySize)
 , d_listRootAddress_p(listRootAddress)
 {
-    BSLS_ASSERT_SAFE(bucketArrayAddress);
-    BSLS_ASSERT_SAFE(0 < bucketArraySize);
+    BSLS_ASSERT_SAFE(   (!bucketArrayAddress && !bucketArraySize)
+                     || (bucketArrayAddress && 0 < bucketArraySize));
     BSLS_ASSERT_SAFE(!listRootAddress || !(listRootAddress->previousLink()));
 }
 
@@ -248,8 +252,7 @@ inline
 void HashTableAnchor::setBucketArrayAddressAndSize(HashTableBucket    *array,
                                                    native_std::size_t  size)
 {
-    BSLS_ASSERT_SAFE(array);
-    BSLS_ASSERT_SAFE(0 < size);
+    BSLS_ASSERT_SAFE((array && 0 < size) || (!array && !size));
 
     d_bucketArrayAddress_p = array;
     d_bucketArraySize      = size;

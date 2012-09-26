@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_bidirectionallinklistutil, bslalg_hashtableimputil
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
+//@AUTHOR: Alisdair Meredith (ameredith1) Stefano Pacifico (spacifico1)
 //
 //@DESCRIPTION: This component provides a single POD-like class,
 // 'BidirectionalLink', used to represent a node in a doubly-linked list.  A

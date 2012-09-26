@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::unordered_set : STL-compatible unordered set container
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
+//@AUTHOR: Alisdair Meredith (ameredith1) Stefano Pacifico (spacifico1)
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
@@ -91,6 +91,132 @@ BSLS_IDENT("$Id: $")
 // 'bslma::Allocator', an 'unordered_set' supplies that allocator's address to
 // the constructors of contained objects of the parameterized 'KEY' types with
 // the 'bslalg::TypeTraitUsesBslmaAllocator' trait.
+//
+///Operations
+///----------
+// This section describes the run-time complexity of operations on instances
+// of 'unordered_set':
+//..
+//  Legend
+//  ------
+//  'K'             - parameterized 'KEY' type of the unordered multiset
+//  'a', 'b'        - two distinct objects of type 'unordered_multiset<K>'
+//  'n', 'm'        - number of elements in 'a' and 'b' respectively
+//  'value_type'    - unoredered_multiset<K>::value_type
+//  'c'             - comparator providing an ordering for objects of type 'K'
+//  'al             - an STL-style memory allocator
+//  'i1', 'i2'      - two iterators defining a sequence of 'value_type' objects
+//  'k'             - an object of type 'K'
+//  'v'             - an object of type 'value_type'
+//  'p1', 'p2'      - two iterators belonging to 'a'
+//  distance(i1,i2) - the number of elements in the range [i1, i2)
+//  distance(p1,p2) - the number of elements in the range [p1, p2)
+//
+//  +----------------------------------------------------+--------------------+
+//  | Operation                                          | Complexity         |
+//  +====================================================+====================+
+//  | unordered_set<K> a;    (default construction)      | O[1]               |
+//  | unordered_set<K> a(al);                            |                    |
+//  | unordered_set<K> a(c, al);                         |                    |
+//  +----------------------------------------------------+--------------------+
+//  | unordered_set<K> a(b); (copy construction)         | Average: O[n]      |
+//  | unordered_set<K> a(b, al);                         | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//  | unordered_set<K> a(n);                             | O[n]               |
+//  | unordered_set<K> a(n, hf);                         |                    |
+//  | unordered_set<K> a(n, hf, eq);                     |                    |
+//  | unordered_set<K> a(n, hf, eq, al);                 |                    |
+//  +-------------------------------------------------+-----------------------+
+//  | unordered_set<K> a(i1, i2);                        | Average: O[        |
+//  | unordered_set<K> a(i1, i2, n)                      |   distance(i1, i2)]|
+//  | unordered_set<K> a(i1, i2, n, hf);                 | Worst:   O[n^2]    |
+//  | unordered_set<K> a(i1, i2, n, hf, eq);             |                    |
+//  | unordered_set<K> a(i1, i2, n, hf, eq, al);         |                    |
+//  |                                                    |                    |
+//  | a.~unordered_set<K>(); (destruction)               | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a = b;          (assignment)                       | Average: O[n]      |
+//  |                                                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a == b, a != b                                     | Best:  O[n]        |
+//  |                                                    | Worst: O[n^2]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.swap(b), swap(a,b)                               | O[1] if 'a' and    |
+//  |                                                    | 'b' use the same   |
+//  |                                                    | allocator,         |
+//  |                                                    | O[n + m] otherwise |
+//  +----------------------------------------------------+--------------------+
+//  | a.key_eq()                                         | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.hash_function()                                  | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.size()                                           | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_size()                                       | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.empty()                                          | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | get_allocator()                                    | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a[k]                                               | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.at(k)                                            | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(v))                                       | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(p1, v))                                   | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(i1, i2)                                   | Average O[         |
+//  |                                                    |   distance(i1, i2)]|
+//  |                                                    | Worst:  O[ n *     |
+//  |                                                    |   distance(i1, i2)]|
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1)                                        | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(k)                                         | Average: O[        |
+//  |                                                    |         a.count(k)]|
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1, p2)                                    | Average: O[        |
+//  |                                                    |   distance(p1, p2)]|
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.clear()                                          | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.find(k)                                          | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.count(k)                                         | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.equal_range(k)                                   | Average: O[        |
+//  |                                                    |         a.count(k)]|
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.bucket_count()                                   | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_bucket_count()                               | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.bucket(k)                                        | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.bucket_size(k)                                   | O[a.bucket_size(k)]|
+//  +----------------------------------------------------+--------------------+
+//  | a.load_factor()                                    | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_load_factor()                                | O[1]               |
+//  | a.max_load_factor(z)                               | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.rehash(k)                                        | Average: O[n]      |
+//  |                                                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//  | a.resize(k)                                        | Average: O[n]      |
+//  |                                                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
 //
 //..
 //
@@ -533,7 +659,7 @@ unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::insert(const value_type& obj)
     typedef bsl::pair<iterator, bool> ResultType;
 
     bool isInsertedFlag = false;
-    
+
     HashTableLink *result = d_impl.insertIfMissing(&isInsertedFlag, obj);
 
     return ResultType(iterator(result), isInsertedFlag);
@@ -615,12 +741,13 @@ erase(const_iterator first, const_iterator last)
 
     // 7 Most of the library's algorithmic templates that operate on data
     // structures have interfaces that use ranges.  A range is a pair of
-    // iterators that designate the beginning and end of the computation. A
-    // range [i,i) is an empty range; in general, a range [i,j) refers to the
-    // elements in the data structure starting with the element pointed to by i
-    // and up to but not including the element pointed to by j. Range [i,j) is
-    // valid if and only if j is reachable from i. The result of the
-    // application of functions in the library to invalid ranges is undefined.
+    // iterators that designate the beginning and end of the computation.  A
+    // range '[i,i)' is an empty range; in general, a range '[i,j)' refers to
+    // the elements in the data structure starting with the element pointed to
+    // by i and up to but not including the element pointed to by 'j'.  Range
+    // '[i,j)' is valid if and only if 'j' is reachable from 'i'.  The result
+    // of the application of functions in the library to invalid ranges is
+    // undefined.
 #if defined BDE_BUILD_TARGET_SAFE2
     // Check that 'first' and 'last' are valid iterators referring to this
     // container.
@@ -635,18 +762,6 @@ erase(const_iterator first, const_iterator last)
     }
 #endif
 
-    // more efficient to:
-    // 1. unlink a set of nodes
-    // 2. destroy their values
-    // 3. reclaim their memory
-    // merge steps 2/3 to avoid multiple list walks?
-    // tricky issue of fixing up bucket indices as well
-
-    // implementation must handle the case that 'last' is 'end()', which will
-    // be invalidated when the preceding element is erased.
-
-    // At a minimum this should be optimized to work with node pointers, rather
-    // than construct iterators on each iteration of the loop.
     while (first != last) {
         first = this->erase(first);
     }
@@ -909,7 +1024,7 @@ typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::cend(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    // invoke end(n) ? 
+    // invoke end(n) ?
     return const_local_iterator(0, &d_impl.bucketAtIndex(n));
 }
 
