@@ -9,11 +9,6 @@
 using namespace bsl;
 using namespace BloombergLP;
 
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::atoi;
-
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
@@ -30,7 +25,6 @@ using std::atoi;
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
-
 
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACRO
@@ -69,7 +63,7 @@ namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::remove_const'.
+   // argument for a template parameter..
 };
 
 }  // close unnamed namespace
@@ -152,6 +146,9 @@ int main(int argc, char *argv[])
         // Testing:
         //   bsl::remove_pointer
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nbsl::remove_pointer\n"
+                            "\n===================\n");
 
         // C-1
         ASSERT((is_same<remove_pointer<int *>::type, int>::value));
