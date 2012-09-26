@@ -575,7 +575,7 @@ template <class KEY_TYPE,
 bool
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::empty() const
 {
-    return d_impl.isEmpty();
+    return 0 == d_impl.size();
 }
 
 template <class KEY_TYPE,
@@ -687,7 +687,7 @@ typename
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::insert(
                                                          const value_type& obj)
 {
-    return iterator(d_impl.insertContiguous(obj));
+    return iterator(d_impl.insert(obj));
 }
 
 template <class KEY_TYPE,
@@ -700,7 +700,7 @@ typename
 unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::
 insert(const_iterator hint, const value_type& obj)
 {
-    return iterator(d_impl.insertWithHint(obj, hint.node()));
+    return iterator(d_impl.insert(obj, hint.node()));
 }
 
 template <class KEY_TYPE,
