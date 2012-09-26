@@ -4,6 +4,7 @@
 
 #include <bsls_bsltestutil.h>
 
+#include <cstdio>     // printf()
 #include <cstdlib>    // atoi()
 #include <cstring>    // strcmp()
 #include <iostream>
