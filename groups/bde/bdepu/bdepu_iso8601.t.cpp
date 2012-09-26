@@ -167,7 +167,7 @@ typedef bdepu_Iso8601 Util;
 static char *cloneStr(const char *str, int len)
 {
     char *ret = (char *) malloc(len);
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
     // 'malloc(0) return 0 on AIX, which complicates life later
 
     if (0 == len) {
@@ -182,7 +182,7 @@ static char *cloneStr(const char *str, int len)
 
 static void freeStr(char *str, int len)
 {
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
     if (0 == len) {
         str -= 4;
     }

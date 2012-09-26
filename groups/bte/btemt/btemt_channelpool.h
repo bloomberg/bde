@@ -635,7 +635,7 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #ifndef INCLUDED_BSL_C_LIMITS
 #include <bsl_c_limits.h>      // for IOV_MAX
 #endif
@@ -831,7 +831,7 @@ class btemt_ChannelPool {
                                                    // write cache hi watermark
         BTEMT_CHANNEL_DOWN_READ    = 8,
         BTEMT_CHANNEL_DOWN_WRITE   = 9
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CHANNEL_DOWN       = BTEMT_CHANNEL_DOWN
       , CHANNEL_UP         = BTEMT_CHANNEL_UP
       , READ_TIMEOUT       = BTEMT_READ_TIMEOUT
@@ -843,7 +843,7 @@ class btemt_ChannelPool {
       , WRITE_CACHE_HIWAT  = BTEMT_WRITE_CACHE_HIWAT
       , CHANNEL_DOWN_READ  = BTEMT_CHANNEL_DOWN_READ
       , CHANNEL_DOWN_WRITE = BTEMT_CHANNEL_DOWN_WRITE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum ConnectResolutionMode {
@@ -855,10 +855,10 @@ class btemt_ChannelPool {
 
         BTEMT_RESOLVE_AT_EACH_ATTEMPT = 1   // perform resolution prior to each
                                             // connect attempt
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , RESOLVE_ONCE            = BTEMT_RESOLVE_ONCE
       , RESOLVE_AT_EACH_ATTEMPT = BTEMT_RESOLVE_AT_EACH_ATTEMPT
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum KeepHalfOpenMode {
@@ -871,10 +871,10 @@ class btemt_ChannelPool {
         BTEMT_KEEP_HALF_OPEN     = 1   // keep either part alive, if the other
                                        // half senses a closed connection by
                                        // the peer
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CLOSE_BOTH     = BTEMT_CLOSE_BOTH
       , KEEP_HALF_OPEN = BTEMT_KEEP_HALF_OPEN
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum ShutdownMode {
@@ -882,9 +882,9 @@ class btemt_ChannelPool {
 
         BTEMT_IMMEDIATE = 0  // The channel is terminated immediately, all
                              // pending messages are discarded.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , IMMEDIATE = BTEMT_IMMEDIATE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum Severity {
@@ -895,10 +895,10 @@ class btemt_ChannelPool {
 
         BTEMT_ALERT     = 1  // An alerting condition occurred and the channel
                              // pool can operate normally.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CRITICAL = BTEMT_CRITICAL
       , ALERT    = BTEMT_ALERT
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     struct HandleInfo {
@@ -2022,7 +2022,7 @@ struct btemt_ChannelPool_MessageUtil {
         // indicates the  maximum number of iovecs that can be supplied to
         // 'writev'.
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #ifdef IOV_MAX
 #if IOV_MAX > 32
 // If too big, this would make 'btemt_Channel' really big.

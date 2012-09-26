@@ -91,6 +91,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+#include <bslstl_string.h>   // for testing only
 #include <bslstl_vector.h>   // for testing only
 
 namespace bsl {

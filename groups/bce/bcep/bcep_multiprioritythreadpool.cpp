@@ -218,14 +218,14 @@ int bcep_MultipriorityThreadPool::startThreads()
     }
     BSLS_ASSERT(STOPPED == d_threadStartState);
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     sigset_t oldBlockSet, newBlockSet;  // set of signals to be blocked in
                                         // managed threads
     sigfillset(&newBlockSet);
 
     static const int signals[] = {      // synchronous signals
          SIGBUS, SIGFPE, SIGILL, SIGSEGV, SIGSYS, SIGABRT, SIGTRAP
-        #if !defined(BSLS_PLATFORM__OS_CYGWIN) || defined(SIGIOT)
+        #if !defined(BSLS_PLATFORM_OS_CYGWIN) || defined(SIGIOT)
         ,SIGIOT
         #endif
     };
@@ -301,7 +301,7 @@ int bcep_MultipriorityThreadPool::startThreads()
         }
     }
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     // Restore the mask.
     pthread_sigmask(SIG_SETMASK, &oldBlockSet, &newBlockSet);
 #endif

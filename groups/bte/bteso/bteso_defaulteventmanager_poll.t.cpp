@@ -30,13 +30,13 @@
 
 using namespace BloombergLP;
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS)    \
-    || defined(BSLS_PLATFORM__OS_LINUX)   \
-    || defined(BDES_PLATFORM__OS_FREEBSD) \
-    || defined(BSLS_PLATFORM__OS_AIX)     \
-    || defined(BSLS_PLATFORM__OS_HPUX)    \
-    || defined(BSLS_PLATFORM__OS_CYGWIN)  \
-    || defined(BSLS_PLATFORM__OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)    \
+    || defined(BSLS_PLATFORM_OS_LINUX)   \
+    || defined(BDES_PLATFORM_OS_FREEBSD) \
+    || defined(BSLS_PLATFORM_OS_AIX)     \
+    || defined(BSLS_PLATFORM_OS_HPUX)    \
+    || defined(BSLS_PLATFORM_OS_CYGWIN)  \
+    || defined(BSLS_PLATFORM_OS_DARWIN)
     #define BTESO_EVENTMANAGER_ENABLETEST
     typedef bteso_DefaultEventManager<bteso_Platform::POLL> Obj;
 #endif
@@ -144,7 +144,7 @@ enum {
     BUF_LEN    = 8192
 };
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
     enum {
         READ_SIZE  = 8192,
         WRITE_SIZE = 30000
@@ -282,7 +282,7 @@ struct ShouldntBeCalled {
     }
 };
 
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
 // HPUX sometimes seems to need a lag between when events are set up and
 // when the dispatcher is called.  In production this shouldn't be a
 // problem since this is a polling interface -- the events would just
@@ -595,7 +595,7 @@ int main(int argc, char *argv[]) {
             ASSERT(!mX.registerSocketEvent(handle,
                                            bteso_EventType::BTESO_CONNECT,
                                            connectCb));
-#ifdef BSLS_PLATFORM__OS_SOLARIS
+#ifdef BSLS_PLATFORM_OS_SOLARIS
             const double MAX_DELAY = 20.0;    // 20 sec
 #else
             const double MAX_DELAY =  5.0;    //  5 sec
@@ -729,7 +729,7 @@ int main(int argc, char *argv[]) {
       } break;
 
       case 7: {
-// #ifndef BSLS_PLATFORM__OS_AIX
+// #ifndef BSLS_PLATFORM_OS_AIX
         // -----------------------------------------------------------------
         // TESTING 'dispatch' FUNCTION:
         //   The goal is to ensure that 'dispatch' invokes the callback
@@ -861,7 +861,7 @@ int main(int argc, char *argv[]) {
                 enum { NUM_PAIR = 4 };
                 bteso_EventManagerTestPair socketPairs[NUM_PAIR];
 
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
                 // For some reason, sockets on HPUX are woozy for the first
                 // ~ 20 ms or so after they're created, after that they seem
                 // to be OK.  In a polling interface, this just means events
@@ -918,7 +918,7 @@ int main(int argc, char *argv[]) {
                     ++nowFailures;
                     cout << "*WARNING*  0 sockets: Time going backwards.  ";
                     P(dormant);
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
                     LOOP_ASSERT(nowFailures, nowFailures <= 2);
 #else
                     LOOP_ASSERT(nowFailures, 0 == nowFailures);
@@ -983,7 +983,7 @@ int main(int argc, char *argv[]) {
                                          nowFailures << " times. dormant = " <<
                                                                dormant << endl;
                     }
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
                     // Linux isn't really very important here because polling
                     // is not the default event mananger for Linux.
 
@@ -1006,7 +1006,7 @@ int main(int argc, char *argv[]) {
                         P_(delay);    P_(dub(deadline - finish));  P(dormant);
                     }
 
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
                     // Linux isn't really very important here because polling
                     // is not the default event mananger for Linux.
 
@@ -1026,7 +1026,7 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
             if (nowFailures) P(nowFailures);
             if (intFailures) P(intFailures);
 #endif

@@ -8,9 +8,10 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-#if BSL_LEGACY == 0
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#else
 typedef bslalg_TypeTraitUsesBslmaAllocator bdealg_TypeTraitUsesBdemaAllocator;
-#endif
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 //=============================================================================
 //                             TEST PLAN

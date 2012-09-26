@@ -1,5 +1,5 @@
-// bslstp_iosfwd.t.cpp                                                -*-C++-*-
-#include <bslstp_iosfwd.h>
+// bslstl_iosfwd.t.cpp                                                -*-C++-*-
+#include <bslstl_iosfwd.h>
 
 int main()
 {

@@ -209,7 +209,7 @@ struct my_Class5
     template <class T> my_Class5(const T& t);
     template <class T> my_Class5(const volatile T& t);
 
-#if defined(BSLS_PLATFORM__CMP_IBM) || defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_OS_LINUX)
     // Workaround for AIX xlC 6.0 and and Linux gcc compilers.  Without this
     // declaration, the compiler tries to instantiate the templated
     // constructors when probing for 'bslma::Allocator*' conversions.  This

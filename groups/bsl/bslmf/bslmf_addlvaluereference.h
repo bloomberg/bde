@@ -66,11 +66,23 @@ struct add_lvalue_reference
     typedef TYPE& type;
 };
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
 template <typename TYPE>
 struct add_lvalue_reference<TYPE&>
 {
     typedef TYPE& type;
 };
+
+#else  // defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
+template <typename TYPE>
+struct add_lvalue_reference<TYPE&&>
+{
+    typedef TYPE& type;
+};
+
+#endif
 
 #define BSL_DEFINE_ADD_LVALUE_REFERENCE(TYPE, REF_TYPE) \
 template <>                                             \

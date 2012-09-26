@@ -101,7 +101,7 @@ using namespace bsl;  // automatically added by script
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 // disable warning about decorated name length being exceeded
 #pragma warning( disable : 4503 )
 #endif
@@ -1132,7 +1132,7 @@ using namespace bdef_PlaceHolders;
 // from the default allocator:
 //..
         ASSERT(NUM_ALLOCS != allocator.numAllocations());
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
         // MSVC 2005 does NOT use the RVO, so bindA does a copy
         // construction with the default allocator.
         ASSERT(NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
@@ -1716,7 +1716,7 @@ DEFINE_TEST_CASE(5) {
         using namespace BDEF_BIND_TEST_CASE_5;
         using namespace bdef_PlaceHolders;
 
-#if !defined(BSLS_PLATFORM__CMP_IBM)
+#if !defined(BSLS_PLATFORM_CMP_IBM)
         // xlC compiler on AIX does not distinguish between the manglings of
         // extern "C" and C++ linkages.
 
@@ -1808,7 +1808,7 @@ DEFINE_TEST_CASE(5) {
             ASSERT(&X2 != mX4); // Will pass 'X2' by value since the 'const&'
                                 // will be removed by the forwarding type.
 
-#if !defined(BSLS_PLATFORM__CMP_IBM)
+#if !defined(BSLS_PLATFORM_CMP_IBM)
             // The IBM xlC compiler is broken in ellipsis matching, meaning
             // 'bdef_Bind_FuncTraitsHasNoEllipsis' will return 0 even for
             // functions that does not have an ellipsis in its function
@@ -1973,8 +1973,8 @@ DEFINE_TEST_CASE(4) {
             ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS_DEFAULT,
                                              veryVerbose));
 
-#if    !defined(BSLS_PLATFORM__CMP_IBM) \
-   && (!defined(BSLS_PLATFORM__CMP_SUN) || __SUNPRO_CC < 0x580)
+#if    !defined(BSLS_PLATFORM_CMP_IBM) \
+   && (!defined(BSLS_PLATFORM_CMP_SUN) || __SUNPRO_CC < 0x580)
             ASSERT(14 == bdef_BindUtil::bind(&mX,
                               // first bound argument below
                               bdef_BindUtil::bind(&selectArgument1,
@@ -2081,8 +2081,8 @@ DEFINE_TEST_CASE(4) {
             const int NUM_DEFAULT_ALLOCS_BEFORE = Z0->numAllocations();
             const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
-#if !defined(BSLS_PLATFORM__CMP_IBM)  \
-  && (!defined(BSLS_PLATFORM__CMP_SUN) || __SUNPRO_CC < 0x580)
+#if !defined(BSLS_PLATFORM_CMP_IBM)  \
+  && (!defined(BSLS_PLATFORM_CMP_SUN) || __SUNPRO_CC < 0x580)
             ASSERT(14 == bdef_BindUtil::bindA(Z2, mX,
                              // first bound argument below
                              bdef_BindUtil::bind(&selectAllocArgument1,
@@ -2171,7 +2171,7 @@ DEFINE_TEST_CASE(4) {
             const int NUM_DEFAULT_ALLOCS = Z0->numAllocations()
                                          - NUM_DEFAULT_ALLOCS_BEFORE;
             const int NUM_ALLOCS = Z1->numAllocations() - NUM_ALLOCS_BEFORE;
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             LOOP_ASSERT(NUM_DEFAULT_ALLOCS, 14 == NUM_DEFAULT_ALLOCS);
@@ -2198,8 +2198,8 @@ DEFINE_TEST_CASE(4) {
             const int NUM_DEFAULT_ALLOCS_BEFORE = Z0->numAllocations();
             const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
-#if !defined(BSLS_PLATFORM__CMP_IBM)  \
-  && (!defined(BSLS_PLATFORM__CMP_SUN) || __SUNPRO_CC < 0x580)
+#if !defined(BSLS_PLATFORM_CMP_IBM)  \
+  && (!defined(BSLS_PLATFORM_CMP_SUN) || __SUNPRO_CC < 0x580)
             ASSERT(14 == bdef_BindUtil::bindA(Z2, mX,
                              // first bound argument below
                              bdef_BindUtil::bind(&selectAllocArgument1,
@@ -2262,7 +2262,7 @@ DEFINE_TEST_CASE(4) {
 
             const int NUM_DEFAULT_ALLOCS = Z0->numAllocations()
                                          - NUM_DEFAULT_ALLOCS_BEFORE;
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO, so bindA does a copy
             // construction with the default allocator.
             LOOP_ASSERT(NUM_DEFAULT_ALLOCS, 406 == NUM_DEFAULT_ALLOCS);
@@ -2456,7 +2456,7 @@ DEFINE_TEST_CASE(3) {
                             I14,N1,N1,N1,N1,N1,N1,N1,N1,N1,N1,N1,N1,N1);
         }
 
-#if !defined(BSLS_PLATFORM__CMP_GNU)
+#if !defined(BSLS_PLATFORM_CMP_GNU)
         // Gcc takes quite a bit longer than other compilers with many template
         // instantiations, and exceeds the prescribed timeout.  Since the
         // logic of this is not especially dependent on the compiler, it's

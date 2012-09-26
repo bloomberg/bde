@@ -4,7 +4,7 @@
 
 #include <bsls_platform.h>
 
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
     #define BTESO_EVENTMANAGER_ENABLETEST
 #endif
 
@@ -134,7 +134,7 @@ enum {
     BUF_LEN    = 8192
 };
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
     enum {
         READ_SIZE  = 8192,
         WRITE_SIZE = 30000
@@ -533,7 +533,7 @@ int main(int argc, char *argv[])
 
             ASSERT(result != 0); // connection failed
 
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
             LOOP_ASSERT(result, bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK
                                                                     == result);
 #else
@@ -566,7 +566,7 @@ int main(int argc, char *argv[])
 
             bteso_SocketImpUtil::close(handle);
 
-#ifdef BSLS_PLATFORM__OS_SOLARIS
+#ifdef BSLS_PLATFORM_OS_SOLARIS
             const double MAX_DELAY = 20.0;    // 20 sec
 #else
             const double MAX_DELAY =  5.0;    //  5 sec
@@ -701,7 +701,7 @@ int main(int argc, char *argv[])
       } break;
 
       case 7: {
-// #ifndef BSLS_PLATFORM__OS_AIX
+// #ifndef BSLS_PLATFORM_OS_AIX
         // -----------------------------------------------------------------
         // TESTING 'dispatch' FUNCTION:
         //   The goal is to ensure that 'dispatch' invokes the callback
@@ -736,7 +736,7 @@ int main(int argc, char *argv[])
                  << "============================" << endl;
         {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_SOLARIS
+#ifndef BSLS_PLATFORM_OS_SOLARIS
             Obj mX(&timeMetric, &testAllocator);
 
             int fails = bteso_EventManagerTester::testDispatch(&mX,

@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations_default.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_IA64) && defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_CPU_IA64) && defined(BSLS_PLATFORM_OS_HPUX)
 
 #include <machine/sys/inline.h>
 
@@ -75,7 +75,7 @@ struct Atomic_TypeTraits<AtomicOperations_IA64_HP_ACC>
     };
 };
 
-#if defined(BSLS_PLATFORM__CPU_64_BIT)
+#if defined(BSLS_PLATFORM_CPU_64_BIT)
 
 template <typename IMP>
 struct AtomicOperations_IA64_HP_ACC_Default

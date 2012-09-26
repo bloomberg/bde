@@ -15,10 +15,10 @@
 // The following OS-dependent includes are for the 'osSystemCall' helper
 // function below.
 
-#if defined BSLS_PLATFORM__OS_UNIX
+#if defined BSLS_PLATFORM_OS_UNIX
     #include <sys/times.h>
     #include <unistd.h>
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
     #include <windows.h>
 #endif
 
@@ -146,11 +146,11 @@ Int64 osUserCall(RawTimerFunction timerFn)
 
 Int64 osSystemCall(RawTimerFunction timerFn)
 {
-#if defined BSLS_PLATFORM__OS_UNIX
+#if defined BSLS_PLATFORM_OS_UNIX
     pid_t p = getpid();
     struct tms tt;
     clock_t c = times(&tt);
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
     HANDLE ph = ::GetCurrentProcess();
     FILETIME crtnTm, exitTm, krnlTm, userTm;
     ::GetProcessTimes(ph, &crtnTm, &exitTm, &krnlTm, &userTm);

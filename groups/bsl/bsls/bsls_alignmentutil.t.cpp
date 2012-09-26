@@ -108,7 +108,7 @@ static void aSsErT(int c, const char *s, int i) {
 
 typedef bsls::AlignmentUtil Class;
 
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
 // On Linux x86, no natural type is aligned on a 64-bit boundary, but we need
 // such a type to implement low-level constructs (e.g 64-bit atomic types).
 
@@ -189,7 +189,7 @@ struct S1 { char d_buff[8]; S1(char); };
 struct S2 { char d_buff[8]; int d_int; S2(); private: S2(const S2&); };
 struct S3 { S1 d_s1; double d_double; short d_short; };
 struct S4 { short d_shorts[5]; char d_c;  S4(int); private: S4(const S4&); };
-#if defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_X86)
+#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CPU_X86)
 struct S5 { long long d_longLong __attribute__((__aligned__(8))); };
 #endif
 union  U1 { char d_c; int *d_pointer; };
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
 // _HOWEVER_
 // when variables of these types are on the stack, the compiler does not
 // make any effort to align the stack frame to 8 bytes.
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
         static
 #endif
         union {
@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
         // necessary to force the alignment of a stack variable beyond what
         // the compiler requires.  Moreover, this trick does not even work for
         // gcc builds on AIX.
-#if !defined(BSLS_PLATFORM__CMP_GNU) || !defined(BSLS_PLATFORM__OS_AIX)
+#if !defined(BSLS_PLATFORM_CMP_GNU) || !defined(BSLS_PLATFORM_OS_AIX)
         const int BUF_SIZE = 3 * bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
         static union {
@@ -791,13 +791,13 @@ int main(int argc, char *argv[])
         struct DoubleAlign      { char c; double d_double;          };
         struct LongDoubleAlign  { char c; long double d_longDouble; };
         struct VoidPtrAlign     { char c; void  *d_voidPtr;         };
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
         struct Test8bytesAlign  { char c; Test8BytesAlignedType
                                                d_8BytesAlignedType; };
 #endif
 // TBD broke *lots* of stuff (bdem, etc.)
 #if 0
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
         struct Test16bytesAlign { char c; __float80 d_float80;      };
 #endif
 #endif
@@ -814,13 +814,13 @@ int main(int argc, char *argv[])
                 | (offsetof(DoubleAlign, d_double)         - 1)
                 | (offsetof(LongDoubleAlign, d_longDouble) - 1)
                 | (offsetof(VoidPtrAlign, d_voidPtr)       - 1)
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
                 | (offsetof(Test8bytesAlign,
                             d_8BytesAlignedType)           - 1)
 #endif
 // TBD broke *lots* of stuff (bdem, etc.)
 #if 0
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
                 | (offsetof(Test16bytesAlign, d_float80)   - 1)
 #endif
 #endif

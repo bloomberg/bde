@@ -25,7 +25,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstddef>
+#include <cstring>
 #include <iomanip>
+#include <ostream>
+#include <istream>
 #include <sstream>
 #include <stdexcept>
 #include <typeinfo>
@@ -388,7 +391,7 @@ const size_t INITIAL_CAPACITY_FOR_NON_EMPTY_OBJECT = 1;
 const int NUM_ALLOCS[] = {
     // Number of allocations (blocks) to create a string of the following size
     // by using 'push_back' repeatedly (without initial reserve):
-#if BSLS_PLATFORM__CPU_64_BIT
+#if BSLS_PLATFORM_CPU_64_BIT
     // 0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16
     // --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
        0,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  2,  2,  3,  3,
@@ -3923,7 +3926,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20()
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
@@ -4229,7 +4232,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
@@ -4256,7 +4259,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -5864,7 +5867,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
@@ -6313,7 +6316,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
@@ -6340,7 +6343,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -7054,7 +7057,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
@@ -7299,7 +7302,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
@@ -7326,7 +7329,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -7979,7 +7982,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase16()
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -8110,7 +8113,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15()
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -8231,7 +8234,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15Negative()
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
         { L_,   "ABCDEABCDEABCDEABCDE"               }, // 20
-#ifndef BSLS_PLATFORM__CPU_64_BIT
+#ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -8643,7 +8646,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
             { L_,        4   },
             { L_,        5   },
             { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
             { L_,       11   },
             { L_,       12   },
             { L_,       13   },
@@ -8816,7 +8819,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
@@ -8843,7 +8846,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -9668,7 +9671,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
@@ -10108,7 +10111,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
             "ABCD",                              // 4
             "ABCDEABC",                          // 8
             "ABCDEABCD",                         // 9
-#if 1  // #ifndef BSLS_PLATFORM__CPU_64_BIT
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
             "ABCDEABCDEA",                       // 11
             "ABCDEABCDEAB",                      // 12
             "ABCDEABCDEABC",                     // 13
@@ -13256,6 +13259,342 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int NITER,
 }
 
 //=============================================================================
+//                                USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+namespace BloombergLP {
+
+namespace bslstl {
+
+class StringRef {
+    // This 'class' provides a dummy implementation for use with the usage
+    // example.   The interface is minimal and only supports functions needed
+    // for testing.
+
+    // DATA
+    const char *d_begin_p;
+    const char *d_end_p;
+
+  public:
+    // CREATORS
+    StringRef(const char *begin, const char *end)
+    : d_begin_p(begin)
+    , d_end_p(end)
+    {
+    }
+
+    // ACCESSORS
+    const char *begin() const { return d_begin_p; }
+    const char *end() const   { return d_end_p;   }
+
+    bool isEmpty() const { return d_begin_p == d_end_p; }
+};
+
+}
+
+}
+
+namespace UsageExample {
+
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 2: 'string' as a data member
+///- - - - - - - - - - - - - - - - - -
+// The most common use of 'string' objects are as data members in user-defined
+// classes.  In this example, we will show how 'string' objects can be used as
+// data members.
+//
+// First, we begin to define a 'class', 'Employee', that represents the data
+// corresponding to an employee of a company:
+//..
+    class Employee {
+        // This simply constrained (value-semantic) attribute class represents
+        // the information about an employee.  An employee's first and last
+        // name are represented as 'string' objects and their employee
+        // identification number is represented by an 'int'.  Note that the
+        // class invariants are identically the constraints on the individual
+        // attributes.
+        //
+        // This class:
+        //: o supports a complete set of *value-semantic* operations
+        //:   o except for 'bslx' serialization
+        //: o is *exception-neutral* (agnostic)
+        //: o is *alias-safe*
+        //: o is 'const' *thread-safe*
+//
+        // DATA
+        bsl::string d_firstName;       // first name
+        bsl::string d_lastName;        // last name
+        int         d_id;              // identification number
+//..
+//  Next, we define the creators for this class:
+//..
+      public:
+        // CREATORS
+        Employee(bslma::Allocator *basicAllocator = 0);
+            // Create a 'Employee' object having the (default) attribute
+            // values:
+            //..
+            //  firstName() == ""
+            //  lastName()  == ""
+            //  id()        == 0
+            //..
+            // Optionally specify a 'basicAllocator' used to supply memory.  If
+            // 'basicAllocator' is 0, the currently installed default
+            // allocator is used.
+//
+        Employee(const bslstl::StringRef&  firstName,
+                 const bslstl::StringRef&  lastName,
+                 int                       id,
+                 bslma::Allocator         *basicAllocator = 0);
+            // Create a 'Employee' object having the specified 'firstName',
+            // 'lastName', and 'id'' attribute values.  Optionally specify a
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
+//
+        Employee(const Employee&   original,
+                 bslma::Allocator *basicAllocator = 0);
+            // Create a 'Employee' object having the same value as the
+            // specified 'original' object.  Optionally specify a
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
+//
+        //! ~Employee() = default;
+            // Destroy this object.
+//..
+// Notice that all constructors of the 'Employee' class are optionally provided
+// an allocator that is then passed through to the 'string' data members of
+// 'Employee'.  This allows the user to control how memory is allocated by
+// 'Employee' objects.  Also note that the type of the 'firstName' and
+// 'lastName' arguments of the value constructor is 'bslstl::StringRef'.  The
+// 'bslstl::StringRef' allows specifying a 'string' or a 'const char *' to
+// represent a string value.  For the sake of brevity its implementation is
+// not explored here.
+//
+// Then, declare the remaining methods of the class:
+//..
+        // MANIPULATORS
+        Employee& operator=(const Employee& rhs);
+            // Assign to this object the value of the specified 'rhs' object,
+            // and return a reference providing modifiable access to this
+            // object.
+//
+        void setFirstName(const bslstl::StringRef& value);
+            // Set the 'firstName' attribute of this object to the specified
+            // 'value'.
+//
+        void setLastName(const bslstl::StringRef& value);
+            // Set the 'lastName' attribute of this object to the specified
+            // 'value'.
+//
+        void setId(int value);
+            // Set the 'id' attribute of this object to the specified 'value'.
+//
+        // ACCESSORS
+        const bsl::string& firstName() const;
+            // Return a reference providing non-modifiable access to the
+            // 'firstName' attribute of this object.
+//
+        const bsl::string& lastName() const;
+            // Return a reference providing non-modifiable access to the
+            // 'lastName' attribute of this object.
+//
+        int id() const;
+            // Return the value of the 'id' attribute of this object.
+    };
+//..
+// Next, we declare the free operators for 'Employee':
+//..
+    inline
+    bool operator==(const Employee& lhs, const Employee& rhs);
+        // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+        // value, and 'false' otherwise.  Two 'Employee' objects have the
+        // same value if all of their corresponding values of their
+        // 'firstName', 'lastName', and 'id' attributes are the same.
+//
+    inline
+    bool operator!=(const Employee& lhs, const Employee& rhs);
+        // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
+        // the same value, and 'false' otherwise.  Two 'Employee' objects do
+        // not have the same value if any of the corresponding values of their
+        // 'firstName', 'lastName', or 'id' attributes are not the same.
+//..
+// Then, we implement the various methods of the 'Employee' class:
+//..
+    // CREATORS
+    inline
+    Employee::Employee(bslma::Allocator *basicAllocator)
+    : d_firstName(basicAllocator)
+    , d_lastName(basicAllocator)
+    , d_id(0)
+    {
+    }
+//
+    inline
+    Employee::Employee(const bslstl::StringRef&  firstName,
+                       const bslstl::StringRef&  lastName,
+                       int                       id,
+                       bslma::Allocator         *basicAllocator)
+    : d_firstName(firstName.begin(), firstName.end(), basicAllocator)
+    , d_lastName(lastName.begin(), lastName.end(), basicAllocator)
+    , d_id(id)
+    {
+        BSLS_ASSERT_SAFE(!firstName.isEmpty());
+        BSLS_ASSERT_SAFE(!lastName.isEmpty());
+    }
+//
+    inline
+    Employee::Employee(const Employee&   original,
+                       bslma::Allocator *basicAllocator)
+    : d_firstName(original.d_firstName, basicAllocator)
+    , d_lastName(original.d_lastName, basicAllocator)
+    , d_id(original.d_id)
+    {
+    }
+//..
+// Notice that the 'basicAllocator' parameter can simply be passed as an
+// argument to the constructor of 'bsl::string'.
+//
+// Now, we implement the remaining manipulators of the 'Employee' class:
+//..
+    // MANIPULATORS
+    inline
+    Employee& Employee::operator=(const Employee& rhs)
+    {
+        d_firstName = rhs.d_firstName;
+        d_lastName  = rhs.d_lastName;
+        d_id        = rhs.d_id;
+        return *this;
+    }
+//
+    inline
+    void Employee::setFirstName(const bslstl::StringRef& value)
+    {
+        BSLS_ASSERT_SAFE(!value.isEmpty());
+//
+        d_firstName.assign(value.begin(), value.end());
+    }
+//
+    inline
+    void Employee::setLastName(const bslstl::StringRef& value)
+    {
+        BSLS_ASSERT_SAFE(!value.isEmpty());
+//
+        d_lastName.assign(value.begin(), value.end());
+    }
+//
+    inline
+    void Employee::setId(int value)
+    {
+        d_id = value;
+    }
+//
+    // ACCESSORS
+    inline
+    const bsl::string& Employee::firstName() const
+    {
+        return d_firstName;
+    }
+//
+    inline
+    const bsl::string& Employee::lastName() const
+    {
+        return d_lastName;
+    }
+//
+    inline
+    int Employee::id() const
+    {
+        return d_id;
+    }
+//..
+// Finally, we implement the free operators for 'Employee' class:
+//..
+    inline
+    bool operator==(const Employee& lhs, const Employee& rhs)
+    {
+        return lhs.firstName() == rhs.firstName()
+            && lhs.lastName()  == rhs.lastName()
+            && lhs.id()        == rhs.id();
+    }
+//
+    inline
+    bool operator!=(const Employee& lhs, const Employee& rhs)
+    {
+        return lhs.firstName() != rhs.firstName()
+            || lhs.lastName()  != rhs.lastName()
+            || lhs.id()        != rhs.id();
+    }
+//..
+//
+///Example 3: A stream text replacement filter
+///- - - - - - - - - - - - - - - - - - - - - -
+// In this example, we will utilize the 'string' type and its associated
+// utility functions to define a function that reads data from an input stream,
+// replaces all occurrences of a specified text fragment with another text
+// fragment, and writes the resulting text to an output stream.
+//
+// First, we define the signature of the function, 'replace':
+//..
+    void replace(std::ostream&      outputStream,
+                 std::istream&      inputStream,
+                 const bsl::string& oldString,
+                 const bsl::string& newString)
+        // Read data from the specified 'inputStream' and replace all
+        // occurrences of the text contained in the specified 'oldString' in
+        // the stream with the text contained in the specified 'newString'.
+        // Write the modified data to the specified 'outputStream'.
+//..
+// Then, we provide the implementation for 'replace':
+//..
+    {
+        const int   oldStringSize = oldString.size();
+        const int   newStringSize = newString.size();
+        bsl::string line;
+//
+        bsl::getline(inputStream, line);
+//..
+// Notice that we can use the 'getline' free function defined in this component
+// to read a single line of data from an input stream into a 'bsl::string'.
+//..
+        if (!inputStream) {
+            return;                                                   // RETURN
+        }
+//
+        do {
+//..
+// Next, we use the 'find' function to search the contents of 'line' for
+// characters matching the contents of 'oldString':
+//..
+            int pos = line.find(oldString);
+            while (bsl::string::npos != pos) {
+//..
+// Now, we use the 'replace' method to modify the contents of 'line' matching
+// 'oldString' to 'newString':
+//..
+                line.replace(pos, oldStringSize, newString);
+                pos = line.find(oldString, pos + newStringSize);
+//..
+// Notice that we provide 'find' with the starting position from which to start
+// searching.
+//..
+            }
+//..
+// Finally, we write the updated contents of 'line' to the output stream:
+//..
+            outputStream << line;
+//
+            bsl::getline(inputStream, line);
+        } while (inputStream);
+    }
+//..
+
+} // close namespace 'UsageExample'
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -13294,6 +13633,217 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 29: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+
+        {
+            using namespace UsageExample;
+            bslma::TestAllocator defaultAllocator("defaultAllocator");
+            bslma::DefaultAllocatorGuard defaultGuard(&defaultAllocator);
+
+            bslma::TestAllocator objectAllocator("objectAllocator");
+            bslma::TestAllocator scratch("scratch");
+
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// In this example, we will show how to create and use the 'string' typedef.
+//
+// First, we will default-construct a 'string' object:
+//..
+    bsl::string s;
+    ASSERT(s.empty());
+    ASSERT(0  == s.size());
+    ASSERT("" == s);
+//..
+// Then, we will construct a 'string' object from a string literal:
+//..
+    bsl::string t = "Hello World";
+    ASSERT(!t.empty());
+    ASSERT(11 == t.size());
+    ASSERT("Hello World" == t);
+//..
+// Next, we will clear the contents of 't' and assign it a couple of values:
+// first from a string literal; and second from another 'string' object:
+//..
+    t.clear();
+    ASSERT(t.empty());
+    ASSERT("" == t);
+//
+    t = "Good Morning";
+    ASSERT(!t.empty());
+    ASSERT("Good Morning" == t);
+//
+    t = s;
+    ASSERT(t.empty());
+    ASSERT("" == t);
+    ASSERT(t == s);
+//..
+// Then, we will create three 'string' objects: the first representing a street
+// name, the second a state, and the third a zipcode.  We will then concatenate
+// them into a single address 'string' and print the contents of that 'string'
+// on standard output:
+//..
+    const bsl::string street  = "731 Lexington Avenue";
+    const bsl::string state   = "NY";
+    const bsl::string zipcode = "10022";
+//
+    const bsl::string fullAddress = street + " " + state + " " + zipcode;
+//
+  if (veryVerbose) {
+      dbg_print(fullAddress);
+  }
+//..
+// The above print statement should produce a single line of output:
+//..
+//  731 Lexington Avenue NY 10022
+//..
+// Then, we search the contents of 'address' (using the 'find' function) to
+// determine if it lies on a specified street:
+//..
+    const bsl::string streetName = "Lexington";
+//
+    if (bsl::string::npos != fullAddress.find(streetName, 0)) {
+      if (veryVerbose) {
+          dbg_print("The address " + fullAddress + " is located on "
+                    + streetName + ".");
+      }
+    }
+//..
+// Next, we show how to get a reference providing modifiable access to the
+// null-terminated string literal stored by a 'string' object using the 'c_str'
+// function.  Note that the returned string literal can be passed to various
+// standard functions expecting a null-terminated string:
+//..
+    const bsl::string  v = "Another string";
+    const char        *cs = v.c_str();
+    ASSERT(strlen(cs) == v.size());
+//..
+// Then, we construct two 'string' objects, 'x' and 'y', using a user-specified
+// allocator:
+//..
+    bslma::TestAllocator allocator1, allocator2;
+//
+    const char *SHORT_STRING = "A small string";
+    const char *LONG_STRING  = "This long string would definitely cause "
+                               "memory to be allocated on creation";
+//
+    const bsl::string x(SHORT_STRING, &allocator1);
+    const bsl::string y(LONG_STRING,  &allocator2);
+//
+    ASSERT(SHORT_STRING == x);
+    ASSERT(LONG_STRING  == y);
+//..
+// Notice that, no memory was allocated from the allocator for object 'x'
+// because of the short-string optimization used in the 'string' type.
+//
+// Finally, we can track memory usage of 'x' and 'y' using 'allocator1' and
+// 'allocator2' and check that memory was allocated only by 'allocator2':
+//..
+    ASSERT(0 == allocator1.numBlocksInUse());
+    ASSERT(1 == allocator2.numBlocksInUse());
+//..
+//
+        }
+
+///Example 2: 'string' as a data member
+///- - - - - - - - - - - - - - - - - -
+        {
+            using namespace UsageExample;
+
+            // Default ctor
+            Employee e1;  const Employee& E1 = e1;
+            ASSERT("" == E1.firstName());
+            ASSERT("" == E1.lastName());
+            ASSERT(0  == E1.id());
+
+            // Value ctor
+            bsl::string       FIRST_NAME = "Joe";
+            bsl::string       LAST_NAME  = "Smith";
+            bslstl::StringRef FIRST(FIRST_NAME.begin(), FIRST_NAME.end());
+            bslstl::StringRef LAST(LAST_NAME.begin(), LAST_NAME.end());
+            int               ID         = 1;
+
+            Employee e2(FIRST, LAST, ID);  const Employee& E2 = e2;
+            ASSERT(FIRST_NAME == E2.firstName());
+            ASSERT(LAST_NAME  == E2.lastName());
+            ASSERT(ID         == E2.id());
+
+            // Equality operators
+            ASSERT(! (e1 == e2));
+            ASSERT(   e1 != e2);
+
+            // Manipulators and accessors
+            e1.setFirstName(FIRST);
+            ASSERT(FIRST_NAME == e1.firstName());
+
+            e1.setLastName(LAST);
+            ASSERT(LAST_NAME == e1.lastName());
+
+            e1.setId(ID);
+            ASSERT(ID == e1.id());
+
+            ASSERT(   e1 == e2);
+            ASSERT(! (e1 != e2));
+
+            // Copy constructor
+            Employee e3(e1);  const Employee& E3 = e3;
+
+            ASSERT(   e1 == e3);
+            ASSERT(! (e1 != e3));
+        }
+
+///Example 3: A 'string' replace function
+///- - - - - - - - - - - - - - - - - - -
+        {
+            using namespace UsageExample;
+
+            static const struct {
+                int         d_lineNum;         // source line number
+                const char *d_old_p;           // old string to replace
+                const char *d_new_p;           // new string to replace with
+                const char *d_orig_p;          // original result
+                const char *d_exp_p;           // expected result
+            } DATA[] = {
+            //line  old           new           orig          exp
+            //----  ----          ----          ----          ----
+            { L_,  "a",          "b",          "abcdeabc",   "bbcdebbc"    },
+            { L_,  "b",          "a",          "abcdeabc",   "aacdeaac"    },
+            { L_,  "ab",         "xy",         "ababefgh",   "xyxyefgh"    },
+            { L_,  "abc",        "xyz",        "abcdefgh",   "xyzdefgh"    },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA ; ++ti) {
+                const int    LINE  = DATA[ti].d_lineNum;
+                const string OLD   = DATA[ti].d_old_p;
+                const string NEW   = DATA[ti].d_new_p;
+                const string ORIG  = DATA[ti].d_orig_p;
+                const string EXP   = DATA[ti].d_exp_p;
+
+                std::istringstream is(ORIG);
+                std::ostringstream os;
+                replace(os, is, OLD, NEW);
+                LOOP_ASSERT(LINE, EXP == os.str());
+            }
+        }
+      } break;
       case 28: {
         // --------------------------------------------------------------------
         // TESTING THE SHORT STRING OPTIMIZATION
@@ -14220,7 +14770,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nAdditional tests: traits.\n");
 
-#ifndef BSLS_PLATFORM__CMP_MSVC  // Temporarily does not work
+#ifndef BSLS_PLATFORM_CMP_MSVC  // Temporarily does not work
         ASSERT(
              (bslalg::HasTrait<bsl::basic_string<char,bsl::char_traits<char> >,
                                bslalg::TypeTraitBitwiseMoveable>::VALUE));

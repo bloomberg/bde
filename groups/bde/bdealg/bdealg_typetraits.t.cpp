@@ -1,6 +1,7 @@
 // bdealg_typetraits.t.cpp                  -*-C++-*-
 
 #include <bdealg_typetraits.h>
+#include <bslalg_typetraits.h>
 
 #include <bslalg_typetraitnil.h>
 #include <bslma_testallocator.h>
@@ -15,12 +16,13 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-#if BSL_LEGACY == 0
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#else
 #define bdealg_TypeTraits bslalg_TypeTraits
 #define bdealg_HasTrait bslalg_HasTrait
 #define BDEALG_DECLARE_NESTED_TRAITS(T, TRAITS)                               \
     BSLALG_DECLARE_NESTED_TRAITS(T, TRAITS)
-#endif
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 //=============================================================================
 //                             TEST PLAN
@@ -182,7 +184,7 @@ template <class T>
 struct my_Class2
 {
     // Class template that has nested type traits
-    BDEALG_DECLARE_NESTED_TRAITS2(my_Class2,
+    BSLALG_DECLARE_NESTED_TRAITS2(my_Class2,
                     BloombergLP::bslalg_TypeTraitBitwiseCopyable,
                     BloombergLP::bslalg_TypeTraitHasTrivialDefaultConstructor);
 };
@@ -209,7 +211,7 @@ struct my_Class5
     template <class T> my_Class5(const T& t);
     template <class T> my_Class5(const volatile T& t);
 
-#if defined(BSLS_PLATFORM__CMP_IBM) || defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_OS_LINUX)
     // Workaround for AIX xlC 6.0 and and Linux gcc compilers.  Without this
     // declaration, the compiler tries to instantiate the templated
     // constructors when probing for 'bslma_Allocator*' conversions.  This

@@ -22,7 +22,7 @@
 #include <bsl_typeinfo.h>
 #include <bsl_c_time.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
 #endif
 
@@ -209,8 +209,8 @@ bslma_TestAllocator testAllocator;
 //                      HELPER FUNCTIONS/CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-#if !defined(BSLS_PLATFORM__CMP_SUN) \
-    || BSLS_PLATFORM__CMP_VER_MAJOR >= 1360
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
 #endif
 void* threadAsServer(void *arg)
@@ -226,7 +226,7 @@ void* threadAsServer(void *arg)
         PT(info.d_numConnections);
     }
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     int signals = info.d_signals;    // This flag also indicates the number
                                      // of signals to be generated.
     while (signals-- > 0) {
@@ -280,7 +280,7 @@ void* threadAsServer(void *arg)
     return 0;
 }
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 
 extern "C" {
 static void signalHandler(int sig)
@@ -479,7 +479,7 @@ void generatePattern(char *buffer, int length)
     // specified 'length'.
 {
     if (buffer) {
-        #ifdef BSLS_PLATFORM__OS_UNIX
+        #ifdef BSLS_PLATFORM_OS_UNIX
         snprintf(buffer, length, "%d", length);
         #else
         _snprintf(buffer, length, "%d", length);
@@ -504,7 +504,7 @@ int main(int argc, char *argv[]) {
     testAllocator.setNoAbort(1);
     bteso_InetStreamSocketFactory<bteso_IPv4Address> factory(&testAllocator);
 
-    #ifdef BSLS_PLATFORM__OS_UNIX
+    #ifdef BSLS_PLATFORM_OS_UNIX
     registerSignal(SIGSYS, signalHandler);
     #endif
 
@@ -839,7 +839,7 @@ int main(int argc, char *argv[]) {
       } break;
       case 5: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_SOLARIS
+#ifndef BSLS_PLATFORM_OS_SOLARIS
           // ----------------------------------------------------------------
           // TESTING 'allocateTimed' METHOD:
           //
@@ -1045,14 +1045,14 @@ int main(int argc, char *argv[]) {
                       // accordingly, the test will fail otherwise.
                       TestCommand DATA[] =
 // ===================>
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
   // New channels can still be established: concern (5).
   {L_, 'A', T_CHANNEL,  interruptible, INFINITED,  1,         0,     existing},
-#if defined(BSLS_PLATFORM__OS_SOLARIS) ||  \
-  defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) ||  \
+  defined(BSLS_PLATFORM_OS_AIX)
   // Solaris and AIX will incorrectly return very quickly from this
   // call to connect.  The other platforms would timeout at some point but
   // it would have taken a very long time.
@@ -1272,7 +1272,7 @@ int main(int argc, char *argv[]) {
       } break;
       case 4: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_SOLARIS
+#ifndef BSLS_PLATFORM_OS_SOLARIS
           // ----------------------------------------------------------------
           // TESTING 'allocate' METHOD:
           //
@@ -1478,14 +1478,14 @@ int main(int argc, char *argv[]) {
                       // accordingly, the test will fail otherwise.
                       TestCommand DATA[] =
 // ===================>
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
   // New channels can still be established: concern (5).
   {L_, 'A',  CHANNEL,  interruptible, INFINITED,  1,         0,     existing},
-#if defined(BSLS_PLATFORM__OS_SOLARIS) ||  \
-  defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) ||  \
+  defined(BSLS_PLATFORM_OS_AIX)
   // Solaris and AIX will incorrectly return very quickly from this
   // call to connect.  The other platforms would timeout at some point but
   // it would have taken a very long time.

@@ -91,7 +91,7 @@ std::vector<int, std::allocator<int> >;
 
 /**************************************************************************/
 
-#if !defined(BSLS_PLATFORM__OS_AIX) && \
+#if !defined(BSLS_PLATFORM_OS_AIX) && \
                                 (!defined (__SUNPRO_CC) || __SUNPRO_CC > 0x530)
 #  define FUN(ignore, result, name, arg_list) do {  \
           result (*pf) arg_list = &name;            \
@@ -476,7 +476,7 @@ run_test (int, char**)
 
     // verify that rel_ops operators can be instantiated
     // on iterators of the containers below
-#if !defined(BSLS_PLATFORM__OS_AIX)
+#if !defined(BSLS_PLATFORM_OS_AIX)
     TEST_OPERATORS (std::deque<int>);
 #endif
 
@@ -500,7 +500,7 @@ run_test (int, char**)
 #endif   // MSVC > 7.0
 
     TEST_OPERATORS (std::vector<int>);
-#if !defined(BSLS_PLATFORM__OS_AIX)
+#if !defined(BSLS_PLATFORM_OS_AIX)
     TEST_OPERATORS (std::vector<bool>);
 #endif
 

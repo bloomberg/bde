@@ -131,7 +131,7 @@ void ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
 
 }  // close package namespace
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma warning( push )           //  For some reason, VC2008 does not detect
 #pragma warning( disable : 4100 ) //  that 'address' is used.
 #endif
@@ -143,7 +143,7 @@ inline
 void ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
                                           bsl::false_type)
 {
-#ifndef BSLS_PLATFORM__CMP_SUN
+#ifndef BSLS_PLATFORM_CMP_SUN
     address->~TARGET_TYPE();
 #else
     // Workaround for a bug in Sun's CC whereby destructors cannot be called on
@@ -156,7 +156,7 @@ void ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
 
 }  // close package namespace
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma warning( pop )
 #endif
 
@@ -174,12 +174,14 @@ void ScalarDestructionPrimitives::destroy(TARGET_TYPE *object)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslalg::ScalarDestructionPrimitives bslalg_ScalarDestructionPrimitives;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

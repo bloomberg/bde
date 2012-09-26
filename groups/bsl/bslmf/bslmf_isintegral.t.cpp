@@ -6,8 +6,9 @@
 #include <cstdlib>
 #include <cstdio>
 
-using namespace BloombergLP;
 using namespace std;
+using namespace bsl;
+using namespace BloombergLP;
 
 //=============================================================================
 //                                TEST PLAN
