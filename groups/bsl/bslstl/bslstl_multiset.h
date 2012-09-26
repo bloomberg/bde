@@ -624,12 +624,14 @@ class multiset {
     multiset(const multiset& original);
         // Construct a multiset having the same value as the specified
         // 'original'.  Use a copy of 'original.key_comp()' to order the keys
-        // contained in this multiset.  If the parameterized 'ALLOCATOR' is of
-        // type 'bsl::allocator' (the default), the currently installed default
-        // allocator will be used to supply memory.  Use the allocator of
-        // 'original' to supply memory otherwise.  This method requires that
-        // the parameterized 'KEY' type be "copy-constructible" (see
-        // {Requirements on 'KEY'}).
+        // contained in this multiset.  Use the allocator returned by
+        // 'bsl::allocator_traits<ALLOCATOR>::
+        // select_on_container_copy_construction(original.allocator())' to
+        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is
+        // of type 'bsl::allocator' (the default), the currently installed
+        // default allocator will be used to supply memory.  This method
+        // requires that the (template parameter) type 'KEY' be
+        // "copy-constructible" (see {Requirements on 'KEY'}).
 
     multiset(const multiset& original, const ALLOCATOR& allocator);
         // Construct a multiset having the same value as that of the specified
