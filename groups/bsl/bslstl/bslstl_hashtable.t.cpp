@@ -24,7 +24,7 @@
 #include <stdlib.h>
 
 // To resolve gcc warnings, while printing 'size_t' arguments portably on
-// Windows, we use a macro and string literal concatenion to produce the
+// Windows, we use a macro and string literal concatenation to produce the
 // correct 'printf' format flag.
 #ifdef ZU
 #undef ZU
@@ -57,11 +57,11 @@ using namespace BloombergLP;
 //
 // First we will validate that HashTable is a valid value-semantic type.  This
 // is difficult in the case that the stored elements are not themselves value-
-// semantic, so this early testing will be limitted to only those types that
+// semantic, so this early testing will be limited to only those types that
 // provide a full range of required behavior; testing of non-value semantic
 // elements, or awkward hash and compare functors, will be deferred past the
 // initial 10 cases.
-// To establish value semnatics, we will test the following class members, and
+// To establish value semantics, we will test the following class members, and
 // a couple of specific test-support functions that simplify the test space:
 //     default constructor
 //     copy constructor
@@ -72,7 +72,7 @@ using namespace BloombergLP;
 //   Accessors and manipulators
 //     'HashTable::allocator'
 //     'HashTable::elementListRoot'
-//     insertValue        - a test function using 'insert' resticted
+//     insertValue        - a test function using 'insert' restricted
 //                          to ValueType
 //     verifyListContents - key accessor to validate the list root points to a
 //                          list having the right set of values, and arranged
@@ -83,21 +83,15 @@ using namespace BloombergLP;
 // value ultimately depends on 'comparator' to define key-equivalent groups.
 // Likewise, no 'insert*' operation forms the primary manipulator, nor is
 // 'maxLoadFactor' a concern in establishing value - insert operations must
-// satisfy contraints implied by all these additional moving parts, and will
+// satisfy constraints implied by all these additional moving parts, and will
 // all be established in test cases following the value-semantic test sequence.
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-//  Chief concerns are that operator() is callable by const-objects, accepts
-//  const-references to arguments of the user-specified type, calls the
-//  correctly overloaded operator, has the standard-mandated typedefs (but not
-//  the base class, not required by C++11 spec) and is both bitwise movable
-//  and bitwise copyable.
-//  As QoI the class should be an empty class, and no operation should allocate
-//  or consume memory, unless the user-suppled overloaded 'operator==' does so.
+//  TBD....
 //
 //
-//           ( A '!' IN THE TABLE BELOW INDICATES THE TEST CASE HAS )
+//           ( A '*' IN THE TABLE BELOW INDICATES THE TEST CASE HAS )
 //           (   BEEN IDENTIFIED BUT HAS NOT YET BEEN COMPLETED.    )
 //
 //           ( NOTE THAT ALL TESTING AT THE MOMENT ASSUMES A 'set'- )
@@ -108,72 +102,84 @@ using namespace BloombergLP;
 //           ( OF FUNCTORS AND NON-BDE ALLOCATORS TO COMPRISE TEST  )
 //           (          KITS TO INVOKE FOR EACH TEST CASE.          )
 //
+// TYPES
+//*[23] typedef ALLOCATOR                              AllocatorType;
+//*[23] typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
+//*[23] typedef typename KEY_CONFIG::KeyType           KeyType;
+//*[23] typedef typename KEY_CONFIG::ValueType         ValueType;
+//*[23] typedef bslalg::BidirectionalNode<ValueType>   NodeType;
+//*[23] typedef typename AllocatorTraits::size_type    SizeType;
 //
-//![ 2] HashTable(const ALLOCATOR&  allocator = ALLOCATOR());
-// [  ] HashTable(const HASHER&     hash,
-//                const COMPARATOR& compare,
-//                SizeType          initialBucketCount,
-//                const ALLOCATOR&  allocator = ALLOCATOR());
-//![ 7] HashTable(const HashTable& original);
-//![ 7] HashTable(const HashTable& original, const ALLOCATOR& allocator);
-//![ 2] ~HashTable();
-// [  ] HashTable& operator=(const HashTable& rhs);
-//      template <class SOURCE_TYPE>
-// [  ] bslalg::BidirectionalLink *insertIfMissing(
-//                                          bool               *isInsertedFlag,
-//                                          const SOURCE_TYPE&  obj);
-// [  ] bslalg::BidirectionalLink *remove(bslalg::BidirectionalLink *node);
-// [  ] bslalg::BidirectionalLink *insertIfMissing(const KeyType& key);
-//      template <class SOURCE_TYPE>
-// [  ] bslalg::BidirectionalLink *insert(const SOURCE_TYPE& obj);
-// [  ] bslalg::BidirectionalLink *insert(
-//                                      const ValueType& obj,
-//                                      const bslalg::BidirectionalLink *hint);
-// [  ] void rehashForNumBuckets(SizeType newNumBuckets);
-// [  ] void rehashForNumElements(SizeType numElements);
-// [  ] void removeAll();
-// [  ] void setMaxLoadFactor(float loadFactor);
-//![ 8] void swap(HashTable& other);
+// CREATORS
+//*[11] HashTable(const ALLOCATOR&  allocator = ALLOCATOR());
+//*[ 2] HashTable(const HASHER&, const COMPARATOR&, SizeType, const ALLOCATOR&)
+//*[ 7] HashTable(const HashTable& original);
+//*[ 7] HashTable(const HashTable& original, const ALLOCATOR& allocator);
+//*[ 2] ~HashTable();
+//
+// MANIPULATORS
+//*[ 9] operator=(const HashTable& rhs);
+//*[15] insert(const SOURCE_TYPE& obj);
+//*[15] insert(const ValueType& obj, const bslalg::BidirectionalLink *hint);
+//*[16] insertIfMissing(bool *isInsertedFlag, const SOURCE_TYPE& obj);
+//*[17] insertIfMissing(const KeyType& key);
+//*[12] remove(bslalg::BidirectionalLink *node);
+//*[ 2] removeAll();
+//*[13] rehashForNumBuckets(SizeType newNumBuckets);
+//*[13] rehashForNumElements(SizeType numElements);
+//*[18] setMaxLoadFactor(float loadFactor);
+//*[ 8] swap(HashTable& other);
 //
 //      ACCESSORS
-//![ 4] bslalg::BidirectionalLink *elementListRoot() const;
-//![13] bslalg::BidirectionalLink *find(const KeyType& key) const;
-//![ 4] SizeType size() const;
-//![ 4] ALLOCATOR allocator() const;
-// [  ] const COMPARATOR& comparator() const;
-// [  ] const HASHER& hasher()     const;
-// [  ] float maxLoadFactor() const;
-// [  ] SizeType bucketIndexForKey(const KeyType& key) const;
-// [  ] const bslalg::HashTableBucket& bucketAtIndex(SizeType index) const;
-// [  ] SizeType countElementsInBucket(SizeType index) const;
-// [  ] void findRange(bslalg::BidirectionalLink **first,
-//                   bslalg::BidirectionalLink **last,
-//                   const KeyType&              k) const;
-// [  ] bslalg::BidirectionalLink *findEndOfRange(
-//                                     bslalg::BidirectionalLink *first) const;
-// [  ] float loadFactor() const;
-// [  ] SizeType maxNumBuckets() const;
-// [  ] SizeType maxSize() const;
-// [  ] SizeType numBuckets() const;
+//*[ 4] allocator() const;
+//*[ 4] comparator() const;
+//*[ 4] hasher() const;
+//*[ 4] size() const;
+//*[22] maxSize() const;
+//*[ 4] numBuckets() const;
+//*[22] maxNumBuckets() const;
+//*[ 4] loadFactor() const;
+//*[ 4] maxLoadFactor() const;
+//*[ 4] elementListRoot() const;
+//*[19] find(const KeyType& key) const;
+//*[20] findRange(BLink **first, BLink **last, const KeyType& k) const;
+//*[ 6] findEndOfRange(bslalg::BidirectionalLink *first) const;
+//*[ 4] bucketAtIndex(SizeType index) const;
+//*[ 4] bucketIndexForKey(const KeyType& key) const;
+//*[21] countElementsInBucket(SizeType index) const;
 //
-//![ 6] bool operator==(const HashTable& lhs, const HashTable& rhs);
-//![ 6] bool operator!=(const HashTable& lhs, const HashTable& rhs);
+//*[ 6] bool operator==(const HashTable& lhs, const HashTable& rhs);
+//*[ 6] bool operator!=(const HashTable& lhs, const HashTable& rhs);
 //
 //// specialized algorithms:
-//![ 8] void swap(HashTable& a, HashTable& b);
+//*[ 8] void swap(HashTable& a, HashTable& b);
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE
 //
-// TEST APPARATUS: GENERATOR FUNCTIONS
-//![ 3] int ggg(HashTable *object, const char *spec, int verbose = 1);
-//![ 3] HashTable& gg(HashTable *object, const char *spec);
-//![11] HashTable g(const char *spec);
+// Class HashTable_ImpDetails
+// [  ] size_t nextPrime(size_t n);
+// [  ] bslalg::HashTableBucket *getDefaultBucketAddress();
+//
+// Class HashTable_Util<ALLOCATOR> 
+// [  ] initAnchor(bslalg::HashTableAnchor *, SizeType, const ALLOC&); 
+// [  ] destroyBucketArray(bslalg::HashTableBucket *, SizeType, const ALLOC&) 
+//
+// Class HashTable_ListProctor
+// [  ] TBD...
+//
+// Class HashTable_ArrayProctor 
+// [  ] TBD...
+//
+// TEST TEST APPARATUS AND GENERATOR FUNCTIONS
+//*[ 3] int ggg(HashTable *object, const char *spec, int verbose = 1);
+//*[ 3] HashTable& gg(HashTable *object, const char *spec);
+//*[ 2] insertElement(HashTable<K, H, E, A> *, const K::ValueType&)
+//*[ 3] verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
 //
 // [  ] CONCERN: The type is compatible with STL allocator.
 // [  ] CONCERN: The type has the necessary type traits.
-// [  ] CONCERN: The type provides the full interface defined by the standard.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -244,13 +250,14 @@ typedef ::bsl::equal_to<int> TestIntEqual;
 namespace bsl {
 
 template <class FIRST, class SECOND>
-inline void debugprint(const bsl::pair<FIRST, SECOND>& p)
+inline
+void debugprint(const bsl::pair<FIRST, SECOND>& p)
 {
     bsls::BslTestUtil::callDebugprint(p.first);
     bsls::BslTestUtil::callDebugprint(p.second);
 }
 
-} // close namespace bsl
+}  // close namespace bsl
 
 
 namespace BloombergLP {
@@ -275,8 +282,8 @@ void debugprint(
     fflush(stdout);
 }
 
-} // close namespace BloombergLP::bslstl
-} // close namespace BloombergLP
+}  // close namespace BloombergLP::bslstl
+}  // close namespace BloombergLP
 
 
 namespace {
@@ -311,7 +318,7 @@ int verifyListContents(Link              *containerList,
     // number of elements, and contains the same values as the array in the
     // specified 'expectedValues', and that the elements in the list are
     // arranged so that elements whose keys compare equal using the specified
-    // 'compareKeys' prediate are all arranged contiguously within the list.
+    // 'compareKeys' predicate are all arranged contiguously within the list.
     // Return 0 if 'container' has the expected values, and a non-zero value
     // otherwise.
 {
@@ -670,7 +677,8 @@ class StatefulHash : bsl::hash<KEY> {
     {
     }
 
-    native_std::size_t operator()(const KEY& k) const {
+    native_std::size_t operator()(const KEY& k) const
+    {
         return Base::operator()(k) ^ d_mixer;
     }
 };
@@ -867,7 +875,8 @@ struct BasicKeyConfig {
     typedef ELEMENT KeyType;
     typedef ELEMENT ValueType;
 
-    static const KeyType& extractKey(const ValueType& value) {
+    static const KeyType& extractKey(const ValueType& value)
+    {
         return value;
     }
 };
@@ -998,9 +1007,16 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
     //:       there is no change in total memory allocation.  (C-3)
     //
     // Testing:
-    //   bslalg::BidirectionalLink *elementListRoot() const;
-    //   SizeType size() const;
-    //   ALLOCATOR allocator() const;
+    //*  allocator() const;
+    //*  comparator() const;
+    //*  hasher() const;
+    //*  size() const;
+    //*  numBuckets() const;
+    //*  loadFactor() const;
+    //*  maxLoadFactor() const;
+    //*  elementListRoot() const;
+    //*  bucketAtIndex(SizeType index) const;
+    //*  bucketIndexForKey(const KeyType& key) const;
     // ------------------------------------------------------------------------
 
     static const struct {
@@ -1151,6 +1167,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
     // Testing:
     //   unordered_multiset<K,H,E,A>& gg(unordered_multiset<K,H,E,A> *object, const char *spec);
     //   int ggg(unordered_multiset<K,H,E,A> *object, const char *spec, int verbose = 1);
+//*[ 3] int ggg(HashTable *object, const char *spec, int verbose = 1);
+//*[ 3] HashTable& gg(HashTable *object, const char *spec);
+//*[ 3] verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator oa(veryVeryVerbose);
@@ -1388,7 +1407,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //
     //
     // Testing:
-    //   default constructor (bootstrap) 
+    //*  HashTable(const HASHER&, const COMPARATOR&, SizeType, const ALLOC&)
+    //   default constructor (bootstrap)
     //   ~HashTable();
     //   insertElement  (test driver function, proxy for basic manipulator)
     //   void removeAll();
@@ -1675,7 +1695,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                     // does not allow for rehashes as the container grows.
                     // Hence we run the same test sequence a second time after
                     // clearing the container, so we can validate knowing that
-                    // no rehashes should be necesssary, and will in fact show
+                    // no rehashes should be necessary, and will in fact show
                     // up as a memory use error.
 //                    if (VALUE_TYPE_USES_ALLOC || expectToAllocate(LENGTH)) {
                     if (VALUE_TYPE_USES_ALLOC) {
@@ -2220,7 +2240,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-#if 0  // Planned test caes, not yet implemented
+#if 0  // Planned test cases, not yet implemented
       case 13: {
         // --------------------------------------------------------------------
         // TESTING 'find'
@@ -2393,7 +2413,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // BOOSTSTRAP CONSTRUCTOR AND PRIMARY MANIPULATORS
+        // BOOTSTRAP CONSTRUCTOR AND PRIMARY MANIPULATORS
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Primary Manipulators"

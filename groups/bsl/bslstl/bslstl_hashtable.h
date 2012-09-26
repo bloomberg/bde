@@ -253,6 +253,7 @@ class HashTable {
     // For terminology see {'bsldoc_glossary'}.
 
   public:
+    // TYPES
     typedef ALLOCATOR                              AllocatorType;
     typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
     typedef typename KEY_CONFIG::KeyType           KeyType;
@@ -303,18 +304,31 @@ class HashTable {
         ImplParameters(const ImplParameters& original,
                        const ALLOCATOR&      allocator);
             // Create an 'ImplParameters' object having the same 'hasher' and
-            // 'comparator' attributes as the specified original, and proving a
-            // 'BidirectionalNodePool' using the specified allocator.
+            // 'comparator' attributes as the specified 'original', and
+            // providing a 'BidirectionalNodePool' using the specified
+            // 'allocator'.
 
         // MANIPULATORS
         NodeFactory& nodeFactory();
+            // Return a modifiable reference to the 'nodeFactory' owned by
+            // this object.
 
         void swap(ImplParameters& other);
+            // TBD document 'swap' behavior, paying careful attention to
+            // allocators
 
         // ACCESSORS
         const HASHER&       hasher()      const;
+            // Return a non-modifiable reference to the 'hasher' functor owned
+            // by this object.
+
         const COMPARATOR&   comparator()  const;
+            // Return a non-modifiable reference to the 'comparator' functor
+            // owned by this object.
+
         const NodeFactory&  nodeFactory() const;
+            // Return a non-modifiable reference to the 'nodeFactory' owned by
+            // this object.
     };
 
   private:
@@ -460,35 +474,6 @@ class HashTable {
         // 'propagate_on_container_copy_assignment'.
 
     template <class SOURCE_TYPE>
-    bslalg::BidirectionalLink *insertIfMissing(
-                                            bool               *isInsertedFlag,
-                                            const SOURCE_TYPE&  value);
-        // Return the address of an element in this hash table having a key
-        // that compares equal to the key of the specified 'value' using the
-        // 'comparator' functor of this hash-table.  If no such element exists,
-        // insert a 'value' into this hash-table and return the address
-        // of that newly inserted node.  Load 'true' into the specified
-        // 'isInsertedFlag' if insertion is performed, and 'false' if an
-        // existing element having a matching key was found.  If this
-        // hash-table contains more than one element with a matching key,
-        // return the first such element (from the contiguous sequence of
-        // elements having a matching key).
-
-    bslalg::BidirectionalLink *remove(bslalg::BidirectionalLink *node);
-        // Return the address of the node following the specified 'node in the
-        // list owned by this hash table, after removing the 'node' from the
-        // list and destroying the element stored in the 'node'.
-
-    bslalg::BidirectionalLink *insertIfMissing(const KeyType& key);
-        // Return the address of a link holding an element whose key has the
-        // same value as the specified 'key' (according to this hash-table's
-        // 'comparator'), and, if no such link exists, insert a new link
-        // having a default value with a key that is the same as 'key'.  If
-        // this hash-table contains more than one element with the supplied
-        // 'key', return the first such element (from the contiguous sequence
-        // of elements having a matching key).
-
-    template <class SOURCE_TYPE>
     bslalg::BidirectionalLink *insert(const SOURCE_TYPE& value);
         // Insert the specified 'value' into this hash-table, and return the
         // address of the new node.  If this hash-table already contains an
@@ -505,6 +490,41 @@ class HashTable {
         // 'value' then 'value' will be inserted immediately preceding 'hint'
         // in the list of this hash table.  The behavior is undefined unless
         // 'hint' points to a node in this hash table.
+
+    template <class SOURCE_TYPE>
+    bslalg::BidirectionalLink *insertIfMissing(
+                                            bool               *isInsertedFlag,
+                                            const SOURCE_TYPE&  value);
+        // Return the address of an element in this hash table having a key
+        // that compares equal to the key of the specified 'value' using the
+        // 'comparator' functor of this hash-table.  If no such element exists,
+        // insert a 'value' into this hash-table and return the address
+        // of that newly inserted node.  Load 'true' into the specified
+        // 'isInsertedFlag' if insertion is performed, and 'false' if an
+        // existing element having a matching key was found.  If this
+        // hash-table contains more than one element with a matching key,
+        // return the first such element (from the contiguous sequence of
+        // elements having a matching key).
+
+    bslalg::BidirectionalLink *insertIfMissing(const KeyType& key);
+        // Return the address of a link holding an element whose key has the
+        // same value as the specified 'key' (according to this hash-table's
+        // 'comparator'), and, if no such link exists, insert a new link
+        // having a default value with a key that is the same as 'key'.  If
+        // this hash-table contains more than one element with the supplied
+        // 'key', return the first such element (from the contiguous sequence
+        // of elements having a matching key).
+
+    bslalg::BidirectionalLink *remove(bslalg::BidirectionalLink *node);
+        // Return the address of the node following the specified 'node in the
+        // list owned by this hash table, after removing the 'node' from the
+        // list and destroying the element stored in the 'node'.
+
+    void removeAll();
+        // Remove all the elements from this hash-table.  Note that this
+        // hash-table is empty after this call, but allocated memory may be
+        // retained for future use.  The destructor of each (non-trivial)
+        // element that is remove shall be run.
 
     void rehashForNumBuckets(SizeType newNumBuckets);
         // Re-organize this hash-table to have at least the specified
@@ -524,12 +544,6 @@ class HashTable {
         // 'comparator' throws, in which case this operation provides the basic
         // exception guarantee, leaving the hash-table in a valid, but
         // otherwise unspecified (and potentially empty), state.
-
-    void removeAll();
-        // Remove all the elements from this hash-table.  Note that this
-        // hash-table is empty after this call, but allocated memory may be
-        // retained for future use.  The destructor of each (non-trivial)
-        // element that is remove shall be run.
 
     void setMaxLoadFactor(float loadFactor);
         // Set the maximum load factor permitted by this hash table to the
@@ -557,21 +571,6 @@ class HashTable {
 
 
     // ACCESSORS
-    bslalg::BidirectionalLink *elementListRoot() const;
-        // Return the address of the first element in this hash table, or a
-        // null pointer value if this hash table is empty.
-
-    bslalg::BidirectionalLink *find(const KeyType& key) const;
-        // Return the address of a link whose key has the same value as the
-        // specified 'key' (according to this hash-table's 'comparator'), and
-        // a null pointer value if no such link exists.  If this hash-table
-        // contains more than one element having the supplied 'key', return the
-        // first such element (from the contiguous sequence of elements having
-        // the same key).
-
-    SizeType size() const;
-        // Return the number of elements in this hash table.
-
     ALLOCATOR allocator() const;
         // Return a copy of the allocator used to construct this hash table.
         // Note that this is not the allocator used to allocate elements for
@@ -587,6 +586,29 @@ class HashTable {
         // Return a reference providing non-modifiable access to the
         // hash functor used by this hash-table.
 
+    SizeType size() const;
+        // Return the number of elements in this hash table.
+
+    SizeType maxSize() const;
+        // Return a theoretical upper bound on the largest number of elements
+        // that this hash-table could possibly hold.  Note that there is no
+        // guarantee that the hash-table can successfully grow to the returned
+        // size, or even close to that size without running out of resources.
+
+    SizeType numBuckets() const;
+        // Return the number of buckets contained in this hash table.
+
+    SizeType maxNumBuckets() const;
+        // Return a theoretical upper bound on the largest number of buckets
+        // that this hash-table could possibly have.  Note that there is no
+        // guarantee that the hash-table can successfully maintain that number
+        // of buckets, or even close to that number of buckets without running
+        // out of resources.
+
+    float loadFactor() const;
+        // Return the current load factor for this table.  The load factor is
+        // the statical mean number of elements per bucket.
+
     float maxLoadFactor() const;
         // Return the maximum load factor permitted by this hash table object,
         // where the load factor is the statistical mean number of elements per
@@ -594,19 +616,17 @@ class HashTable {
         // factor by rehashing into a larger array of buckets if an insertion
         // would cause the maximum load factor to be exceeded.
 
-    SizeType bucketIndexForKey(const KeyType& key) const;
-        // Return the index of the bucket that would contain all the elements
-        // having the specified 'key'.
+    bslalg::BidirectionalLink *elementListRoot() const;
+        // Return the address of the first element in this hash table, or a
+        // null pointer value if this hash table is empty.
 
-    const bslalg::HashTableBucket& bucketAtIndex(SizeType index) const;
-        // Return a non-modifiable reference to the 'HashTableBucket' at the
-        // specified 'index' position in the array of buckets of this table.
-        // The behavior is undefined unless 'index < numBuckets()'.
-
-    SizeType countElementsInBucket(SizeType index) const;
-        // Return the number elements contained in the bucket at the specified
-        // 'index'.  Note that this operation has linear run-time complexity
-        // with respect to the number of elements in the indexed bucket.
+    bslalg::BidirectionalLink *find(const KeyType& key) const;
+        // Return the address of a link whose key has the same value as the
+        // specified 'key' (according to this hash-table's 'comparator'), and
+        // a null pointer value if no such link exists.  If this hash-table
+        // contains more than one element having the supplied 'key', return the
+        // first such element (from the contiguous sequence of elements having
+        // the same key).
 
     void findRange(bslalg::BidirectionalLink **first,
                    bslalg::BidirectionalLink **last,
@@ -623,7 +643,6 @@ class HashTable {
         // hash-table ensures all elements having the same key form a
         // contiguous sequence.
 
-
     bslalg::BidirectionalLink *findEndOfRange(
                                        bslalg::BidirectionalLink *first) const;
         // Return the address of the first node after any nodes holding a
@@ -634,25 +653,20 @@ class HashTable {
         // table.  Note that this hash-table ensures all elements having the
         // same key form a contiguous sequence.
 
-    float loadFactor() const;
-        // Return the current load factor for this table.  The load factor is
-        // the statical mean number of elements per bucket.
+    SizeType bucketIndexForKey(const KeyType& key) const;
+        // Return the index of the bucket that would contain all the elements
+        // having the specified 'key'.
 
-    SizeType maxNumBuckets() const;
-        // Return a theoretical upper bound on the largest number of buckets
-        // that this hash-table could possibly have.  Note that there is no
-        // guarantee that the hash-table can successfully maintain that number
-        // of buckets, or even close to that number of buckets without running
-        // out of resources.
+    const bslalg::HashTableBucket& bucketAtIndex(SizeType index) const;
+        // Return a non-modifiable reference to the 'HashTableBucket' at the
+        // specified 'index' position in the array of buckets of this table.
+        // The behavior is undefined unless 'index < numBuckets()'.
 
-    SizeType maxSize() const;
-        // Return a theoretical upper bound on the largest number of elements
-        // that this hash-table could possibly hold.  Note that there is no
-        // guarantee that the hash-table can successfully grow to the returned
-        // size, or even close to that size without running out of resources.
+    SizeType countElementsInBucket(SizeType index) const;
+        // Return the number elements contained in the bucket at the specified
+        // 'index'.  Note that this operation has linear run-time complexity
+        // with respect to the number of elements in the indexed bucket.
 
-    SizeType numBuckets() const;
-        // Return the number of buckets contained in this hash table.
 };
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
