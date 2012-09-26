@@ -23,7 +23,7 @@ using namespace BloombergLP;
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 1] bsl::is_lvalue_reference::value
+// [ 1] bsl::add_lvalue_reference::type
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -69,52 +69,52 @@ namespace {
 enum   EnumTestType {
     // This user-defined 'enum' type is intended to be used during testing as
     // an argument for the template parameter 'TYPE' of
-    // 'bsl::is_lvalue_reference'.
+    // 'bsl::add_lvalue_reference'.
 };
 
 struct StructTestType {
     // This user-defined 'struct' type is intended to be used during testing as
     // an argument for the template parameter 'TYPE' of
-    // 'bsl::is_lvalue_reference'.
+    // 'bsl::add_lvalue_reference'.
 };
 
 union  UnionTestType {
     // This user-defined 'union' type is intended to be used during testing as
     // an argument for the template parameter 'TYPE' of
-    // 'bsl::is_lvalue_reference'.
+    // 'bsl::add_lvalue_reference'.
 };
 
 class  BaseClassTestType {
     // This user-defined base class type is intended to be used during testing
     // as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_lvalue_reference'.
+    // 'bsl::add_lvalue_reference'.
 };
 
 class  DerivedClassTestType : public BaseClassTestType {
     // This user-defined derived class type is intended to be used during
     // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_lvalue_reference'.
+    // 'bsl::add_lvalue_reference'.
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
     // This non-static function member type is intended to be used during
     // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_lvalue_reference'.
+    // 'bsl::add_lvalue_reference'.
 
 typedef void (*FunctionPtrTestType) ();
     // This function pointer type is intended to be used during testing as an
     // argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_lvalue_reference'.
+    // 'bsl::add_lvalue_reference'.
 
 typedef int StructTestType::* PMD;
     // This class public data member pointer type is intended to be used during
     // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::is_lvalue_reference'.
+    // of 'bsl::add_lvalue_reference'.
 
 struct Incomplete;
     // This incomplete 'struct' type is intended to be used during testing as
     // an argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_lvalue_reference'.
+    // 'bsl::add_lvalue_reference'.
 
 }  // close unnamed namespace
 
@@ -231,10 +231,10 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 'add_lvalue_reference::type' correctly transforms 'TYPE' to its
-        //:   reference type when 'TYPE' is an object or a function.
+        //:   lvalue reference type when 'TYPE' is an object or a function.
         //:
         //: 2 'add_lvalue_reference::type' does not transform 'TYPE' when
-        //:   'TYPE' is neither an object or function.
+        //:   'TYPE' is neither an object nor function.
         //
         // Plan:
         //   Instantiate 'bsl::add_lvalue_reference' with various types and
@@ -244,8 +244,8 @@ int main(int argc, char *argv[])
         //   bsl::add_lvalue_reference::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::is_same\n"
-                            "============\n");
+        if (verbose) printf("bsl::add_lvalue_reference\n"
+                            "=========================\n");
 
         ASSERT_LVALUE_REF_TRUE (int );
         ASSERT_LVALUE_REF_FALSE(int );
@@ -346,6 +346,8 @@ int main(int argc, char *argv[])
         ASSERT_LVALUE_REF_SAME (Incomplete*&);
 
 #ifndef BSLS_PLATFORM__CMP_IBM
+        // Some function types are not compilable on AIX.
+
         typedef int F(int);
         ASSERT_LVALUE_REF_TRUE (F);
         ASSERT_LVALUE_REF_FALSE(F);

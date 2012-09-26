@@ -17,8 +17,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::add_lvalue_reference', which may be used to transfer a type to a
-// reference type.
+// 'bsl::add_lvalue_reference', which may be used to transform a type to a
+// its lvalue reference type.
 //
 // 'bsl::add_lvalue_reference' meets the requirements of the
 // 'add_lvalue_reference' template defined in the C++11 standard
@@ -30,7 +30,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Transform to Lvalue Reference Types
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to transform a couple of types to reference types.
+// Suppose that we want to transform a couple of types to lvalue reference
+// types.
 //
 // Now, we instantiate the 'bsl::add_lvalue_reference' template for these
 // types, and use the 'bsl::is_same' meta-function to assert the 'type' static
