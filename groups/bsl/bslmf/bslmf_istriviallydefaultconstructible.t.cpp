@@ -2,11 +2,8 @@
 
 #include <bslmf_istriviallydefaultconstructible.h>
 
-#include <new>
-
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 
 using namespace BloombergLP;
 using namespace std;
@@ -111,7 +108,7 @@ struct MyNonTriviallyDefaultConstructibleType {
     }
 };
 
-} // close unnamed namespace
+}  // close unnamed namespace
 
 namespace bsl {
 
@@ -241,7 +238,8 @@ int main(int argc, char *argv[])
         //:   specifies it has the trait using the
         //:   'BSLMF_NESTED_TRAIT_DECLARATION' macro.
         //
-        // Plan: Verify that 'bsl::is_trivially_default_constructible' returns
+        // Plan:
+        //   Verify that 'bsl::is_trivially_default_constructible' returns
         //   the correct value for each type listed in the concerns.
         //
         // Testing:
@@ -282,7 +280,8 @@ int main(int argc, char *argv[])
         //:
         //: 5 The meta-function returns true for pointer to member types.
         //
-        // Plan: Verify that 'bsl::is_trivially_default_constructible' returns
+        // Plan:
+        //   Verify that 'bsl::is_trivially_default_constructible' returns
         //   the correct value for each type listed in the concerns.
         //
         // Testing:

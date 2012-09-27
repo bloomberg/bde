@@ -77,7 +77,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// Then, since user-defined types can not be automatically determined by the
+// Then, since user-defined types can not be automatically evaluated by
 // 'is_trivially_default_constructible', we define a template specialization to
 // specify that 'MyTriviallyDefaultConstructibleType' is trivially
 // default-constructible:
@@ -95,7 +95,7 @@ BSLS_IDENT("$Id: $")
 //
 //  }  // close namespace bsl
 //..
-// Now, we verify whether each type is default-constructible using
+// Now, we verify whether each type is trivially default-constructible using
 // 'bsl::is_trivially_default_constructible':
 //..
 //  assert(true ==
@@ -165,7 +165,7 @@ struct IsTriviallyDefaultConstructible_Imp
                         || bslmf::IsPointerToMember<TYPE>::value
                         || DetectNestedTrait<TYPE,
                             bsl::is_trivially_default_constructible>::value)> {
-    // This 'struct' template implement es a meta-function to determine whether
+    // This 'struct' template implement a meta-function to determine whether
     // the (non-cv-qualified) template parameter 'TYPE' is trivially
     // default-constructible.
 };
@@ -181,7 +181,9 @@ struct is_trivially_default_constructible
                                               typename remove_cv<TYPE>::type> {
     // This 'struct' template implements a meta-function to determine whether
     // the (template parameter) 'TYPE' is trivially default-constructible.
-    // This meta-function has the same syntax as the
+    // This 'struct' derives from 'bsl::true_type', if the 'TYPE' is trivially
+    // defaul-constructible, and 'bsl::false_type' otherwise.  This
+    // meta-function has the same syntax as the
     // 'is_trivially_default_constructible' meta-function defined in the C++11
     // standard [meta.unary.prop]; however, this meta-function can only
     // automatically determine the value for the following types: reference
