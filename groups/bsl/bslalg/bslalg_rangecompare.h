@@ -337,12 +337,12 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_METAINT
@@ -521,7 +521,7 @@ struct RangeCompare_Imp {
                       INPUT_ITER        end1,
                       INPUT_ITER        start2,
                       const VALUE_TYPE&,
-                      bslmf::AnyType);
+                      bslmf::MatchAnyType);
     template <typename INPUT_ITER, typename VALUE_TYPE>
     static bool equal(INPUT_ITER        start1,
                       INPUT_ITER        end1,
@@ -633,24 +633,14 @@ struct RangeCompare_Imp {
     static int lexicographical(const unsigned char *start1,
                                const unsigned char *end1,
                                const unsigned char *start2);
-    static int lexicographical(const wchar_t       *start1,
-                               const wchar_t       *end1,
-                               const wchar_t       *start2);
-        // Compare the range beginning at the specified 'start1' position and
-        // ending immediately before the specified 'end1' position with the
-        // range beginning at the specified 'start2' position of the same
-        // length (namely, 'end1 - start1'), using a bit-wise comparison
-        // across the entire range.  Return a negative value if the
-        // first range compares lexicographically less than the second range, 0
-        // if they are the same length and compare lexicographically equal, and
-        // a positive value if the first range compares lexicographically
-        // greater than the second range.
-
+    static int lexicographical(const wchar_t *start1,
+                               const wchar_t *end1,
+                               const wchar_t *start2);
     template <typename INPUT_ITER>
-    static int lexicographical(INPUT_ITER     start1,
-                               INPUT_ITER     end1,
-                               INPUT_ITER     start2,
-                               bslmf::AnyType);
+    static int lexicographical(INPUT_ITER           start1,
+                               INPUT_ITER           end1,
+                               INPUT_ITER           start2,
+                               bslmf::MatchAnyType);
     template <typename INPUT_ITER>
     static int lexicographical(INPUT_ITER     start1,
                                INPUT_ITER     end1,
@@ -851,7 +841,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        end1,
                              INPUT_ITER        start2,
                              const VALUE_TYPE&,
-                             bslmf::AnyType)
+                             bslmf::MatchAnyType)
 {
     for ( ; start1 != end1; ++start1, ++start2) {
         if (!(*start1 == *start2)) {
@@ -901,7 +891,7 @@ bool RangeCompare_Imp::equalBitwiseEqualityComparable(INPUT_ITER        start1,
 {
     // We can't be as optimized as above.
 
-    return equal(start1, end1, start2, *start1, bslmf::AnyType(0));
+    return equal(start1, end1, start2, *start1, bslmf::MatchAnyType(0));
 }
 
                      // *** lexicographical overloads: ***
@@ -998,7 +988,7 @@ template <typename INPUT_ITER>
 int RangeCompare_Imp::lexicographical(INPUT_ITER start1,
                                       INPUT_ITER end1,
                                       INPUT_ITER start2,
-                                      bslmf::AnyType)
+                                      bslmf::MatchAnyType)
 {
     for ( ; start1 != end1; ++start1, ++start2) {
         if (*start1 < *start2) {

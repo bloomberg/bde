@@ -1,5 +1,4 @@
 bslmf_addreference
-bslmf_anytype
 bslmf_arraytopointer
 bslmf_assert
 bslmf_enableif
@@ -16,6 +15,8 @@ bslmf_ispointertomember
 bslmf_ispolymorphic
 bslmf_issame
 bslmf_isvoid
+bslmf_matchanytype
+bslmf_matcharithmetictype
 bslmf_memberfunctionpointertraits
 bslmf_metaint
 bslmf_nil

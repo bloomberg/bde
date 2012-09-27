@@ -1,6 +1,6 @@
-// bslmf_anytype.t.cpp                                                -*-C++-*-
+// bslmf_matchanytype.t.cpp                                           -*-C++-*-
 
-#include <bslmf_anytype.h>
+#include <bslmf_matchanytype.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -79,20 +79,20 @@ struct MetaInt { char d_array[i + 1]; };
 #define METAINT_TO_UINT(metaint)   (sizeof(metaint) - 1)
 
 MetaInt<1> isX(const X&);
-MetaInt<0> isX(const bslmf::AnyType&);
+MetaInt<0> isX(const bslmf::MatchAnyType&);
 
 }  // namespace USAGE_TYPEREP_NAMESPACE
 
-namespace USAGE_ANYTYPE_NAMESPACE {
+namespace USAGE_MATCHANYTYPE_NAMESPACE {
 
 struct X { };
 struct Y { };
 struct Z : public Y { };
 
-inline bool isY(const bslmf::AnyType&) { return false; }
-inline bool isY(const Y&)              { return true;  }
+inline bool isY(const bslmf::MatchAnyType&) { return false; }
+inline bool isY(const Y&)                   { return true;  }
 
-}  // namespace USAGE_ANYTYPE_NAMESPACE
+}  // namespace USAGE_MATCHANYTYPE_NAMESPACE
 
 //=============================================================================
 //                         CLASSES FOR BREATHING TEST
@@ -110,8 +110,8 @@ template <class T> struct my_Traits : my_Atraits { };
 template <> struct my_Traits<my_B> : my_Atraits, my_Btraits { };
 template <> struct my_Traits<my_C> : my_Atraits, my_Btraits { };
 
-inline bool my_isBtraits(my_Btraits) { return true; }
-inline bool my_isBtraits(bslmf::AnyType) { return false; }
+inline bool my_isBtraits(my_Btraits)          { return true; }
+inline bool my_isBtraits(bslmf::MatchAnyType) { return false; }
 
 template <class T>
 inline bool my_isB(const T&) { return my_isBtraits(my_Traits<T>()); }
@@ -166,16 +166,16 @@ int main(int argc, char *argv[])
         // Anytype Usage Example
         //
         // Concerns:
-        //   Demonstrate a use for bslmf_AnyType.
+        //   Demonstrate a use for 'bslmf::MatchAnyType'.
         //
         // Plan:
         //   Overload a function such that one version of it take an argument
         //   of type 'Y' and the other takes an argument of type
-        //   'bslmf::AnyType', and the combination produces a function that
-        //   can evaluate whether a type is 'Y' or not.
+        //   'bslmf::MatchAnyType', and the combination produces a function
+        //   that can evaluate whether a type is 'Y' or not.
         // --------------------------------------------------------------------
 
-        using namespace USAGE_ANYTYPE_NAMESPACE;
+        using namespace USAGE_MATCHANYTYPE_NAMESPACE;
 
         ASSERT(! isY(X()));
         ASSERT(  isY(Y()));
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
         ASSERT(! my_isBtraits(ta));
         ASSERT(  my_isBtraits(tb));
 
-        // int or void* matches bslmf::AnyType
+        // int or void* matches bslmf::MatchAnyType
         ASSERT(! my_isBtraits(0));
         ASSERT(! my_isBtraits((void*) 0));
 

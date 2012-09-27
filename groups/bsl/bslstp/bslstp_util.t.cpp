@@ -1,6 +1,6 @@
-// bslstl_util.t.cpp                                                  -*-C++-*-
+// bslstp_util.t.cpp                                                  -*-C++-*-
 
-#include <bslstl_util.h>
+#include <bslstp_util.h>
 
 #include <cstdio>
 #include <cstdlib>

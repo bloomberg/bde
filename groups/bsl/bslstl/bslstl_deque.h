@@ -185,10 +185,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_stdexceptutil.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_UTIL
-#include <bslstl_util.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_DEQUEIMPUTIL
 #include <bslalg_dequeimputil.h>
 #endif
@@ -221,16 +217,24 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_traitsgroupstlsequencecontainer.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
+#include <bslmf_matcharithmetictype.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NIL
+#include <bslmf_nil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -611,11 +615,12 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // may call it for a temporary object).
 
     template <class INTEGER_TYPE>
-    void privateInsertDispatch(const_iterator          position,
-                               INTEGER_TYPE            numElements,
-                               INTEGER_TYPE            value,
-                               BloombergLP::bslstl::UtilIterator,
-                               int);
+    void privateInsertDispatch(
+                           const_iterator                          position,
+                           INTEGER_TYPE                            numElements,
+                           INTEGER_TYPE                            value,
+                           BloombergLP::bslmf::MatchArithmeticType ,
+                           BloombergLP::bslmf::Nil                 );
         // Insert the specified 'numElements' copies of the specified 'value'
         // into this deque at the specified 'position'.  This overload matches
         // 'privateInsert' when the second and third arguments are of the same
@@ -623,11 +628,11 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // arguments are used only for overload resolution.
 
     template <class INPUT_ITER>
-    void privateInsertDispatch(const_iterator position,
-                               INPUT_ITER     first,
-                               INPUT_ITER     last,
-                               BloombergLP::bslmf::AnyType,
-                               BloombergLP::bslmf::AnyType);
+    void privateInsertDispatch(const_iterator                   position,
+                               INPUT_ITER                       first,
+                               INPUT_ITER                       last,
+                               BloombergLP::bslmf::MatchAnyType ,
+                               BloombergLP::bslmf::MatchAnyType );
         // Insert the elements in the range specified as '[first, last)' into
         // this deque at the specified 'position'.  The third and fourth
         // arguments are used only for overload resolution so that this
@@ -1533,11 +1538,11 @@ template <class VALUE_TYPE, class ALLOCATOR>
 template <class INTEGRAL_TYPE>
 inline
 void deque<VALUE_TYPE,ALLOCATOR>::privateInsertDispatch(
-                                          const_iterator           position,
-                                          INTEGRAL_TYPE            numElements,
-                                          INTEGRAL_TYPE            value,
-                                          BloombergLP::bslstl::UtilIterator,
-                                          int)
+                           const_iterator                          position,
+                           INTEGRAL_TYPE                           numElements,
+                           INTEGRAL_TYPE                           value,
+                           BloombergLP::bslmf::MatchArithmeticType ,
+                           BloombergLP::bslmf::Nil                 )
 {
     insert(position,
            static_cast<size_type>(numElements),
@@ -1547,11 +1552,11 @@ void deque<VALUE_TYPE,ALLOCATOR>::privateInsertDispatch(
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 void deque<VALUE_TYPE,ALLOCATOR>::privateInsertDispatch(
-                                                   const_iterator position,
-                                                   INPUT_ITER     first,
-                                                   INPUT_ITER     last,
-                                                   BloombergLP::bslmf::AnyType,
-                                                   BloombergLP::bslmf::AnyType)
+                                     const_iterator                   position,
+                                     INPUT_ITER                       first,
+                                     INPUT_ITER                       last,
+                                     BloombergLP::bslmf::MatchAnyType ,
+                                     BloombergLP::bslmf::MatchAnyType )
 {
     typedef typename iterator_traits<INPUT_ITER>::iterator_category Tag;
 
@@ -2477,7 +2482,11 @@ void deque<VALUE_TYPE,ALLOCATOR>::insert(const_iterator position,
     BSLS_ASSERT_SAFE(position >= this->begin());
     BSLS_ASSERT_SAFE(position <= this->end());
 
-    privateInsertDispatch(position, first, last, first, 0);
+    privateInsertDispatch(position,
+                          first,
+                          last,
+                          first,
+                          BloombergLP::bslmf::Nil());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>

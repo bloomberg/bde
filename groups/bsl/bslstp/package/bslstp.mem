@@ -7,3 +7,4 @@ bslstp_hashtable
 bslstp_iterator
 bslstp_slist
 bslstp_slistbase
+bslstp_util

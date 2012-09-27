@@ -1,6 +1,6 @@
-// bslstl_util.h                                                      -*-C++-*-
-#ifndef INCLUDED_BSLSTL_UTIL
-#define INCLUDED_BSLSTL_UTIL
+// bslstp_util.h                                                      -*-C++-*-
+#ifndef INCLUDED_BSLSTP_UTIL
+#define INCLUDED_BSLSTP_UTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,23 +10,22 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace for utility functions for STL functionality.
 //
 //@CLASSES:
-//  bslstl::Util: namespace for utility functions
-//  bslstl::UtilIterator: discriminates integral formal parameters
+//  bslstp::Util: namespace for utility functions
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: This component defines a class, 'bslstl::Util', that provides a
+//@DESCRIPTION: This component defines a class, 'bslstp::Util', that provides a
 // namespace for utility functions used to implement STL functionality in the
-// 'bslstl' package.
+// 'bslstp' package.
 //
 ///Usage
 ///-----
 // This component is for internal use only.  A usage example is not provided.
 
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// Prevent 'bslstp' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "<bslstl_util.h> header can't be included directly in \
+#error "<bslstp_util.h> header can't be included directly in \
 BSL_OVERRIDES_STD mode"
 #endif
 
@@ -48,7 +47,7 @@ BSL_OVERRIDES_STD mode"
 
 namespace BloombergLP {
 
-namespace bslstl {
+namespace bslstp {
 
                         // ==========
                         // class Util
@@ -107,22 +106,6 @@ class Util {
         // unchanged.  The 'quickswap' function must not throw an exception.
 };
 
-                        // ==================
-                        // class UtilIterator
-                        // ==================
-
-struct UtilIterator {
-    // Use as formal parameter for functions where an integral type can be
-    // confused with an iterator type.  This class will match any integral
-    // value.  If a type has a user-defined conversion to integral value, this
-    // will NOT match because passing such an object would require two
-    // user-defined conversions.  Note this c'tor must be implicit.
-
-    // CREATORS
-    UtilIterator(int) { }
-        // Conversion constructor.  Does nothing.
-};
-
 }  // close package namespace
 
 // ===========================================================================
@@ -136,7 +119,7 @@ struct UtilIterator {
 // PRIVATE CLASS METHODS
 template <class ALLOCATOR, int IS_BSLMA_ALLOC>
 inline
-ALLOCATOR bslstl::Util::AllocatorUtil<ALLOCATOR, IS_BSLMA_ALLOC>::
+ALLOCATOR bslstp::Util::AllocatorUtil<ALLOCATOR, IS_BSLMA_ALLOC>::
 copyContainerAllocator(const ALLOCATOR&)
 {
     return ALLOCATOR();
@@ -149,13 +132,13 @@ copyContainerAllocator(const ALLOCATOR&)
 // PRIVATE CLASS METHODS
 template <class ALLOCATOR>
 inline
-ALLOCATOR bslstl::Util::AllocatorUtil<ALLOCATOR, 0>::
+ALLOCATOR bslstp::Util::AllocatorUtil<ALLOCATOR, 0>::
 copyContainerAllocator(const ALLOCATOR& rhsAlloc)
 {
     return rhsAlloc;
 }
 
-namespace bslstl {
+namespace bslstp {
 
                               //-----------
                               // class Util
@@ -206,10 +189,7 @@ void Util::swapContainers(CONTAINER&            c1,
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
-typedef bslstl::UtilIterator bslstl_UtilIterator;
-    // This alias is defined for backward compatibility.
-
-typedef bslstl::Util bslstl_Util;
+typedef bslstp::Util bslstp_Util;
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
