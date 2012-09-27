@@ -19,6 +19,7 @@
 
 using namespace BloombergLP;
 using namespace bsl;
+using namespace bslstl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -78,6 +79,65 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+typedef IteratorUtil Obj;
+
+template<class CATEGORY, 
+         class VALUE, 
+         class DISTANCE = ptrdiff_t,
+         class POINTER = VALUE*, 
+         class REFERENCE = VALUE&>
+struct TestIterator {
+    // PUBLIC TYPES
+    typedef VALUE     value_type;
+    typedef DISTANCE  difference_type;
+    typedef POINTER   pointer;
+    typedef REFERENCE reference;
+    typedef CATEGORY  iterator_category;
+
+    // DATA
+    pointer d_ptr;  // address of the element referred to by 'this'
+    
+    // MANIPULATORS
+    TestIterator& operator++ ()
+    {
+        ++d_ptr;
+        return *this;
+    }
+
+    TestIterator operator++ (int)
+    {
+        TestIterator tmp(*this);
+        ++d_ptr;
+        return tmp;
+    }
+};
+
+template<class CATEGORY, 
+         class VALUE, 
+         class DISTANCE, 
+         class POINTER, 
+         class REFERENCE>
+bool operator==(
+        const TestIterator<CATEGORY, VALUE, DISTANCE, POINTER, REFERENCE>& lhs,
+        const TestIterator<CATEGORY, VALUE, DISTANCE, POINTER, REFERENCE>& rhs)
+{
+    return lhs.d_ptr == rhs.d_ptr;
+}
+
+template<class CATEGORY, 
+         class VALUE, 
+         class DISTANCE, 
+         class POINTER, 
+         class REFERENCE>
+bool operator!=(
+        const TestIterator<CATEGORY, VALUE, DISTANCE, POINTER, REFERENCE>& lhs,
+        const TestIterator<CATEGORY, VALUE, DISTANCE, POINTER, REFERENCE>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+typedef TestIterator<bsl::input_iterator_tag,   int>  IntTestInputIterator;
+typedef TestIterator<bsl::forward_iterator_tag, int>  IntTestForwardIterator;
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -121,6 +181,79 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+
+        if (veryVerbose) printf("\n\t\t Test uninitialized input iterators\n");
+        {
+            IntTestInputIterator a; const IntTestInputIterator& A = a;
+            IntTestInputIterator b; const IntTestInputIterator& B = b;
+        
+            const size_t DIST = Obj::insertDistance(A, B);
+            ASSERTV(DIST, 0 == DIST);
+        }
+        
+        if (veryVerbose) printf("\n\t\t Test initialized input iterators\n");
+        {
+            IntTestInputIterator a; const IntTestInputIterator& A = a;
+            IntTestInputIterator b; const IntTestInputIterator& B = b;
+        
+            a.d_ptr = 0;
+            b.d_ptr = 0;
+            
+            const size_t DIST = Obj::insertDistance(A, B);
+            ASSERTV(DIST, 0 == DIST);
+            ASSERTV(A.d_ptr, 0 == A.d_ptr);
+            ASSERTV(B.d_ptr, 0 == B.d_ptr);
+            
+            IntTestInputIterator::pointer DEADBEEF = 
+                                    (IntTestInputIterator::pointer) 0xdeadbeef;
+            b.d_ptr = DEADBEEF;
+            
+            const size_t DIST2 = Obj::insertDistance(A, B);
+            ASSERTV(DIST2, 0 == DIST2);
+            ASSERTV(A.d_ptr,     0 == A.d_ptr);
+            ASSERTV(B.d_ptr, DEADBEEF == B.d_ptr);
+        }
+
+        if (veryVerbose) printf("\n\t\t Test initialized forward iterators\n");
+        {
+            IntTestForwardIterator a; const IntTestForwardIterator& A = a;
+            IntTestForwardIterator b; const IntTestForwardIterator& B = b;
+        
+            a.d_ptr = 0;
+            b.d_ptr = 0;
+            
+            size_t DIST = Obj::insertDistance(A, B);
+            ASSERTV(DIST, 0 == DIST);
+            ASSERTV(A.d_ptr, 0 == A.d_ptr);
+            ASSERTV(B.d_ptr, 0 == B.d_ptr);
+            
+            b++;
+           
+            DIST = Obj::insertDistance(A, B);
+            ASSERTV(DIST, 1 == DIST);
+            ASSERTV(A.d_ptr, 0 == A.d_ptr);
+            ASSERTV(B.d_ptr, A.d_ptr + 1 == B.d_ptr);
+            
+            a++; 
+
+            DIST = Obj::insertDistance(A, B);
+            ASSERTV(DIST, 0 == DIST);
+            ASSERTV(A.d_ptr, B.d_ptr, B.d_ptr == A.d_ptr);
+
+            // Choose 0xdeadbeec instead of 0xdeadbeef because of alignement.
+            
+            IntTestInputIterator::pointer PTR = 
+                                    (IntTestInputIterator::pointer) 0x10;
+            a.d_ptr = 0;
+            b.d_ptr = PTR;
+             
+            const size_t EXP_DIST2 = 4;
+            
+            const size_t DIST2 = Obj::insertDistance(A, B);
+            ASSERTV(DIST2,   EXP_DIST2 == DIST2);
+            ASSERTV(A.d_ptr,         0 == A.d_ptr);
+            ASSERTV(B.d_ptr,       PTR == B.d_ptr);
+        }
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
