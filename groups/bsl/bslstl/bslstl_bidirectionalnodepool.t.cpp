@@ -49,7 +49,7 @@ using namespace bslstl;
 // MANIPULATORS
 // [ 4] AllocatorType& allocator();
 // [ 2] bslalg::BidirectionalLink *createNode();
-// [ 7] bslalg::BidirectionalLink *createNode(const bslalg::BidirectionalLink& original);
+// [ 7] bslalg::BidirectionalLink *createNode(constl BidirectionalLink&);
 // [ 7] bslalg::BidirectionalLink *createNode(const VALUE& value);
 // [ 5] void deleteNode(bslalg::BidirectionalLink *node);
 // [ 6] void reserveNodes(std::size_t numNodes);
@@ -564,7 +564,8 @@ void TestDriver<VALUE>::testCase7()
     //: 4 Verify all memory is released on destruction.  (C-4)
     //
     // Testing:
-    //   bslalg::BidirectionalLink *createNode(const bslalg::BidirectionalLink& original);
+    //   bslalg::BidirectionalLink *createNode(
+    //                              const bslalg::BidirectionalLink& original);
     //   bslalg::BidirectionalLink *createNode(const VALUE& value);
     // -----------------------------------------------------------------------
 
@@ -904,7 +905,7 @@ void TestDriver<VALUE>::testCase4()
     // Plan:
     //: 1 For each allocator configuration:
     //:
-    //:   1 Create a 'bslstl_TreeNodePool' with an allocator.
+    //:   1 Create a 'bslstl::BidirectionalNodePool' with an allocator.
     //:
     //:   2 Use the basic accessor to verify the allocator is installed
     //:     properly.  (C-1..2)
@@ -1027,7 +1028,7 @@ void TestDriver<VALUE>::testCase2()
     //
     // Testing:
     //   explicit BidirectionalNodePool(const ALLOCATOR& allocator);
-    //   ~TreeNodePool();
+    //   ~BidirectionalNodePool();
     //   VALUE *createNode();
     // --------------------------------------------------------------------
 

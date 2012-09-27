@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide efficient creation of nodes used in tree-based container.
+//@PURPOSE: Provide efficient creation of nodes used in node-based container.
 //
 //@CLASSES:
 //   bslstl:: memory manager to allocate hash table nodes
@@ -31,187 +31,7 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
-//
-///Example 1: Creating a 'IntSet' Container
-/// - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create a container type, 'IntSet' using
-// 'bslalg::HashTableImpUtil'.
-//
-// First, we define a comparison functor for comparing a
-// 'bslstl::RbTreeNode<int>' object and an 'int' value.  This functor conforms
-// to the requirements of 'bslalg::RbTreeUtil':
-//..
-//  struct IntNodeComparator {
-//      // This class defines a comparator providing comparison operations
-//      // between 'bslstl::TreeNode<int>' objects, and 'int' values.
-//
-//    private:
-//      // PRIVATE TYPES
-//      typedef bslstl::TreeNode<int> Node;
-//          // Alias for a node type containing an 'int' value.
-//
-//    public:
-//      // CLASS METHODS
-//      bool operator()(const bslalg::RbTreeNode& lhs, int rhs) const
-//      {
-//          return static_cast<const Node&>(lhs).value() < rhs;
-//      }
-//
-//      bool operator()(int lhs, const bslalg::RbTreeNode& rhs) const
-//      {
-//          return lhs < static_cast<const Node&>(rhs).value();
-//      }
-//  };
-//..
-// Then, we define the public interface of 'IntSet'.  Note that it contains a
-// 'TreeNodePool' that will be used by 'bslalg::RbTreeUtil' as a 'FACTORY' to
-// create and delete nodes.  Also note that a number of simplifications have
-// been made for the purpose of illustration.  For example, this implementation
-// provides only a minimal set of critical operations, and it does not use the
-// empty base-class optimization for the comparator.
-//..
-//  template <class ALLOCATOR = bsl::allocator<int> >
-//  class IntSet {
-//      // This class implements a set of (unique) 'int' values.
-//
-//      // PRIVATE TYPES
-//      typedef bslstl::TreeNodePool<int, ALLOCATOR> TreeNodePool;
-//
-//      // DATA
-//      bslalg::RbTreeAnchor d_tree;      // tree of node objects
-//      TreeNodePool         d_nodePool;  // allocator for node objects
-//
-//      // NOT IMPLEMENTED
-//      IntSet(const IntSet&);
-//      IntSet& operator=(const IntSet&);
-//
-//    public:
-//      // CREATORS
-//      IntSet(const ALLOCATOR& allocator = ALLOCATOR());
-//          // Create an empty set.  Optionally specify an 'allocator' used to
-//          // supply memory.  If 'allocator' is not specified, a default
-//          // constructed 'ALLOCATOR' object is used.
-//
-//      //! ~IntSet() = 0;
-//          // Destroy this object.
-//
-//      // MANIPULATORS
-//      void insert(int value);
-//          // Insert the specified 'value' into this set.
-//
-//      bool remove(int value);
-//          // If 'value' is a member of this set, then remove it from the set
-//          // and return 'true'.  Otherwise, return 'false' with no effect.
-//
-//      // ACCESSORS
-//      bool isElement(int value) const;
-//          // Return 'true' if the specified 'value' is a member of this set,
-//          // and 'false' otherwise.
-//
-//      int numElements() const;
-//          // Return the number of elements in this set.
-//  };
-//..
-// Now, we implement the methods of 'IntSet' using 'RbTreeUtil'.
-//..
-//  // CREATORS
-//  template <class ALLOCATOR>
-//  inline
-//  IntSet<ALLOCATOR>::IntSet(const ALLOCATOR& allocator)
-//  : d_tree()
-//  , d_nodePool(allocator)
-//  {
-//  }
-//
-//  // MANIPULATORS
-//  template <class ALLOCATOR>
-//  void IntSet<ALLOCATOR>::insert(int value)
-//  {
-//      int comparisonResult;
-//      bslalg::RbTreeNode *parent =
-//          bslalg::RbTreeUtil::findUniqueInsertLocation(&comparisonResult,
-//                                                       &d_tree,
-//                                                       IntNodeComparator(),
-//                                                       value);
-//..
-// Here we use the 'TreeNodePool' object, 'd_nodePool', to create the node that
-// was inserted into the set.
-//..
-//      if (0 != comparisonResult) {
-//          bslalg::RbTreeNode *node = d_nodePool.createNode(value);
-//          bslalg::RbTreeUtil::insertAt(&d_tree,
-//                                       parent,
-//                                       comparisonResult < 0,
-//                                       node);
-//      }
-//  }
-//
-//  template <class ALLOCATOR>
-//  bool IntSet<ALLOCATOR>::remove(int value)
-//  {
-//      bslalg::RbTreeNode *node =
-//                bslalg::RbTreeUtil::find(d_tree, IntNodeComparator(), value);
-//..
-// Here we use the 'TreeNodePool' object, 'd_nodePool', to delete a node that
-// was removed from the set.
-//..
-//      if (node) {
-//          bslalg::RbTreeUtil::remove(&d_tree, node);
-//          d_nodePool.deleteNode(node);
-//      }
-//      return node;
-//  }
-//
-//  // ACCESSORS
-//  template <class ALLOCATOR>
-//  inline
-//  bool IntSet<ALLOCATOR>::isElement(int value) const
-//  {
-//      return bslalg::RbTreeUtil::find(d_tree, IntNodeComparator(), value);
-//  }
-//
-//  template <class ALLOCATOR>
-//  inline
-//  int IntSet<ALLOCATOR>::numElements() const
-//  {
-//      return d_tree.numNodes();
-//  }
-//..
-// Finally, we create a sample 'IntSet' object and insert 3 values into the
-// 'IntSet'.  We verify the attributes of the 'Set' before and after each
-// insertion.
-//..
-//  bslma::TestAllocator defaultAllocator("defaultAllocator");
-//  bslma::DefaultAllocatorGuard defaultGuard(&defaultAllocator);
-//
-//  bslma::TestAllocator objectAllocator("objectAllocator");
-//
-//  IntSet<bsl::allocator<int> > set(&objectAllocator);
-//  assert(0 == defaultAllocator.numBytesInUse());
-//  assert(0 == objectAllocator.numBytesInUse());
-//  assert(0 == set.numElements());
-//
-//  set.insert(1);
-//  assert(set.isElement(1));
-//  assert(1 == set.numElements());
-//
-//  set.insert(1);
-//  assert(set.isElement(1));
-//  assert(1 == set.numElements());
-//
-//  set.insert(2);
-//  assert(set.isElement(1));
-//  assert(set.isElement(2));
-//  assert(2 == set.numElements());
-//
-//  assert(0 == defaultAllocator.numBytesInUse());
-//  assert(0 <  objectAllocator.numBytesInUse());
-//..
 
-
-#ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
-#include <bslma_deallocatorproctor.h>
-#endif
 
 #ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
 #include <bslstl_allocatortraits.h>
@@ -229,8 +49,21 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_bidirectionalnode.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
+#include <bslma_deallocatorproctor.h>
+#endif
+
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
+#endif
+
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include <cstddef>
+#define INCLUDED_CSTDDEF
 #endif
 
 namespace BloombergLP {
@@ -286,20 +119,21 @@ class BidirectionalNodePool {
 
     bslalg::BidirectionalLink *createNode(
                                     const bslalg::BidirectionalLink& original);
-        // Allocate a node object having a copy-constructed 'VALUE' of
-        // 'value()' of the specified 'original'.  The behavior is undefined
-        // unless 'original' refers to a 'TreeNode<VALUE>'.
+        // Allocate a node object having a copy-constructed 'VALUE' of 'value'
+        // of the specified 'original'.  The behavior is undefined unless
+        // 'original' is an instance of 'bslalg::BidirectionalNode<VALUE>'.
 
     bslalg::BidirectionalLink *createNode(const VALUE& value);
         // Allocate a node object having the specified 'value'.  This operation
         // will copy-construct 'value' into the value of the returned node.
 
-    void deleteNode(bslalg::BidirectionalLink *node);
-        // Destroy the 'VALUE' value of the specified 'node' and return the
-        // memory footprint of 'node' to this pool for potential reuse.  The
-        // behavior is undefined unless 'node' refers to a 'TreeNode<VALUE>'.
+    void deleteNode(bslalg::BidirectionalLink *linkNode);
+        // Destroy the 'VALUE' value of the specified 'linkNode' and return the
+        // memory footprint of 'linkNode' to this pool for potential reuse.
+        // The behavior is undefined unless 'linkNode' is an instance of
+        // 'bslalg::BidirectionalNode<VALUE>'.
 
-    void reserveNodes(std::size_t numNodes);
+    void reserveNodes(native_std::size_t numNodes);
         // Reserve memory from this pool to satisfy memory requests for at
         // least the specified 'numBlocks' before the pool replenishes.  The
         // behavior is undefined unless '0 < numBlocks'.
@@ -307,7 +141,7 @@ class BidirectionalNodePool {
     void swap(BidirectionalNodePool& other);
         // Efficiently exchange the management of nodes of this object and
         // the specified 'other' object.  The behavior is undefined unless the
-        // underlying mechanisms of 'allocator()' refers to the same allocator.
+        // underlying mechanisms of 'allocator' refers to the same allocator.
 
     // ACCESSORS
     const AllocatorType& allocator() const;
@@ -319,7 +153,7 @@ class BidirectionalNodePool {
 
 // FREE FUNCTIONS
 template <class VALUE, class ALLOCATOR>
-void swap(BidirectionalNodePool<VALUE, ALLOCATOR>& a, 
+void swap(BidirectionalNodePool<VALUE, ALLOCATOR>& a,
           BidirectionalNodePool<VALUE, ALLOCATOR>& b);
     // Swap... TBD.
 
@@ -390,21 +224,21 @@ BidirectionalNodePool<VALUE, ALLOCATOR>::createNode(
 template <class VALUE, class ALLOCATOR>
 inline
 void BidirectionalNodePool<VALUE, ALLOCATOR>::deleteNode(
-                                               bslalg::BidirectionalLink *node)
+                                           bslalg::BidirectionalLink *linkNode)
 {
-    BSLS_ASSERT(node);
+    BSLS_ASSERT(linkNode);
 
-    bslalg::BidirectionalNode<VALUE> *treeNode =
-                 static_cast<bslalg::BidirectionalNode<VALUE> *>(node);
+    bslalg::BidirectionalNode<VALUE> *node =
+                     static_cast<bslalg::BidirectionalNode<VALUE> *>(linkNode);
     AllocatorTraits::destroy(allocator(),
-                             BSLS_UTIL_ADDRESSOF(treeNode->value()));
-    d_pool.deallocate(treeNode);
+                             BSLS_UTIL_ADDRESSOF(node->value()));
+    d_pool.deallocate(node);
 }
 
 template <class VALUE, class ALLOCATOR>
 inline
 void BidirectionalNodePool<VALUE, ALLOCATOR>::reserveNodes(
-        std::size_t numNodes)
+                                                   native_std::size_t numNodes)
 {
     BSLS_ASSERT_SAFE(0 < numNodes);
 
@@ -424,7 +258,7 @@ void BidirectionalNodePool<VALUE, ALLOCATOR>::swap(
 // ACCESSORS
 template <class VALUE, class ALLOCATOR>
 inline
-const typename 
+const typename
               SimplePool<bslalg::BidirectionalNode<VALUE>, ALLOCATOR>::
                                                                  AllocatorType&
 BidirectionalNodePool<VALUE, ALLOCATOR>::allocator() const
@@ -435,8 +269,8 @@ BidirectionalNodePool<VALUE, ALLOCATOR>::allocator() const
 }  // close namespace bslstl
 
 template <class VALUE, class ALLOCATOR>
-inline 
-void bslstl::swap(bslstl::BidirectionalNodePool<VALUE, ALLOCATOR>& a, 
+inline
+void bslstl::swap(bslstl::BidirectionalNodePool<VALUE, ALLOCATOR>& a,
                   bslstl::BidirectionalNodePool<VALUE, ALLOCATOR>& b)
 {
     a.swap(b);

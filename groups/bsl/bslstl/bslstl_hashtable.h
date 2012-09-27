@@ -185,6 +185,11 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CMATH
 #endif
 
+#ifndef INCLUDED_CSTDDEF
+#include <cstddef> // for 'size_t'
+#define INCLUDED_CSTDDEF
+#endif
+
 #ifndef INCLUDED_ITERATOR
 #include <iterator>  // for tag dispatch on iterator traits
 #define INCLUDED_ITERATOR
@@ -286,8 +291,8 @@ class HashTable {
         typedef typename bslalg::FunctorAdapter<COMPARATOR>::Type
                                                             ComparatorBaseType;
 
-        typedef BidirectionalNodePool<HashTableType::ValueType, NodeAllocator>
-                                                                   NodeFactory;
+        typedef BidirectionalNodePool<typename HashTableType::ValueType, 
+                                                    NodeAllocator> NodeFactory;
 
         // DATA
         NodeFactory  d_nodeFactory;
