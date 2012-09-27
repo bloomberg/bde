@@ -10,15 +10,18 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide utilities operating on iterators and iterator ranges.
 //
 //@CLASSES:
-//  bslstl::IteratorUtil: 
+//  bslstl::IteratorUtil:
 //
 //@AUTHOR: Alisdair Meredith (ameredit) Stefano Pacifico (spacifico1)
 //
-//@SEE_ALSO: bslstp_hashmap, bslstp_hashset
+//@SEE_ALSO: bslstl_hashtable
 //
 //@DESCRIPTION: This component provides a namespace, 'bslstl::IteratorUtil',
-// contaning utility functions for iterator types.  In particular this component
-// includes 
+// contaning utility functions for iterator types.  In particular this
+// component includes a function 'insertDistance' that returns the the
+// number of elements that should be accounted for when range-inserting in a
+// container, given a pair of iterator 'a' and 'b' describing a half-open range
+// '[a,b)'.
 //
 ///Usage
 ///-----
@@ -86,6 +89,7 @@ native_std::size_t IteratorUtil::insertDistance(InputIterator first,
         // number of elements that may be inserted by a range-insert
         // operation on a standard container, by performing tag dispatch
         // on the iterator's category type.
+
         static native_std::size_t calc(InputIterator, // first
                                        InputIterator, // last
                                        native_std::input_iterator_tag)
