@@ -38,16 +38,19 @@ BSLS_IDENT("$Id: $")
 // component is for use by the 'bslstl' package.  Other clients should use the
 // STL algorithms (in header '<algorithm>' and '<memory>').
 //
-///Example 1: Destroy Arrays of Integers
-///- - - - - - - - - - - - - - - - - - -
+///Example 1: Destroy Arrays of 'int' and 'Integer' Wrapper Objects
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we will use 'bslalg::ArrayDestructionPrimitives' to destroy
 // both an array of integer scalars and an array of 'MyInteger' objects.
+// Calling the 'destory' method on an array of integers is a no-op while
+// calling the 'destroy' method on an array of objects of 'MyInteger' class
+// invokes the destructor of each of the objects in the array.
 //
 // First, we define a 'MyInteger' class that contains an integer value:
 //..
-//  class MyInteger
+//  class MyInteger {
 //      // This class represents an integer value.
-//  {
+//
 //      int d_intValue;  // integer value
 //
 //    public:
@@ -66,7 +69,9 @@ BSLS_IDENT("$Id: $")
 //          // Return the integer value contained in this object.
 //  };
 //..
-// Then, we create an array of 'MyInteger' objects:
+// Then, we create an array of of objects, 'myIntegers', of type 'MyInteger'
+// (note that we 'bsls::ObjectBuffer' to allow us to safely invoke the
+// destructor explicitly):
 //..
 //  bsls::ObjectBuffer<MyInteger> arrayBuffer[5];
 //  MyInteger *myIntegers = &arrayBuffer[0].object();
@@ -81,9 +86,9 @@ BSLS_IDENT("$Id: $")
 // Finally, we use the uniform 'bslalg::ArrayDestructionPrimitives:destroy'
 // method to destroy both 'myIntegers' and 'scalarIntegers':
 //..
-//   bslalg::ArrayDestructionPrimitives::destroy(myIntegers, myIntegers + 5);
-//   bslalg::ArrayDestructionPrimitives::destroy(scalarIntegers,
-//                                               scalarIntegers + 5);
+//  bslalg::ArrayDestructionPrimitives::destroy(myIntegers, myIntegers + 5);
+//  bslalg::ArrayDestructionPrimitives::destroy(scalarIntegers,
+//                                              scalarIntegers + 5);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
