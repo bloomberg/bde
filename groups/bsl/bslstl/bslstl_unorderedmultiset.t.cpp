@@ -117,8 +117,8 @@ using std::endl;
 // [  ] bsl::pair<iterator, iterator> equal_range(const key_type& key);
 // [  ] bsl::pair<const_iter, const_iter> equal_range(const key_type&) const;
 //
-// [  ] bool operator==(unordered_multiset<K, H, E, A>& a, unordered_multiset<K, H, E, A>& b);
-// [  ] bool operator!=(unordered_multiset<K, H, E, A>& a, unordered_multiset<K, H, E, A>& b);
+// [  ] bool operator==(u_multiset<K, H, E, A>& a, u_multiset<K, H, E, A>& b);
+// [  ] bool operator!=(u_multiset<K, H, E, A>& a, u_multiset<K, H, E, A>& b);
 //
 // bucket interface:
 // [  ] size_type bucket_count() const;
@@ -134,7 +134,7 @@ using std::endl;
 // [  ] void reserve(size_type n);
 //
 // specialized algorithms:
-// [  ] void swap(unordered_multiset<K, H, E, A>& a, unordered_multiset<K, H, E, A>& b);
+// [  ] void swap(multiset<K, H, E, A>& a, multiset<K, H, E, A>& b);
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -142,8 +142,8 @@ using std::endl;
 // [  ] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
-// [ 3] int ggg(unordered_multiset<T,H,E,A> *object, const char *spec, int verbose = 1);
-// [ 3] unordered_multiset<T,H,E,A>& gg(unordered_multiset<T,H,E,A> *object, const char *spec);
+// [ 3] int ggg(unordered_multiset<T,H,E,A> *o, const char *s, int verbose = 1);
+// [ 3] unordered_multiset<T,H,E,A>& gg(u_multiset<T,H,E,A> *o, const char *s);
 // [  ] unordered_multiset<T,H,E,A> g(const char *spec);
 //
 // [  ] CONCERN: The object is comppatible with STL allocator.
@@ -276,7 +276,9 @@ void testEmptyContainer(CONTAINER& x)
 
     ASSERT(x.begin() == x.end());
     ASSERT(x.cbegin() == x.cend());
+
     // Check iterator/const_iterator comparisons compile
+
     ASSERT(x.begin() == x.cend());
     ASSERT(x.cbegin() == x.end());
 
@@ -297,7 +299,7 @@ void testEmptyContainer(CONTAINER& x)
     ASSERT(0 == x.count(37));
     ASSERT(x.end() == x.find(26));
 
-    typename TestType::iterator it = x.erase(x.begin(), x.end());  // should not assert
+    typename TestType::iterator it = x.erase(x.begin(), x.end());
     ASSERT(x.end() == it);
 
     ASSERT(0 == x.erase(93));
@@ -329,9 +331,14 @@ void testContainerHasData(const CONTAINER& x,
 
         bsl::pair<TestIterator, TestIterator> range =
                               x.equal_range(keyForValue<CONTAINER>(testValue));
+
+#ifndef BSLS_PLATFORM_CMP_SUN
         const int rangeDist = native_std::distance(range.first, range.second);
         LOOP2_ASSERT(countValues,   rangeDist,
                      countValues == rangeDist);
+#else
+        ASSERT(0);
+#endif
 
         ASSERT(range.first == it);
         for(int iterations = nCopies; --iterations; ++it) {
