@@ -1693,7 +1693,7 @@ int bcem_AggregateUtil::toAggregateImp(bcem_Aggregate *destination,
                                        const TYPE&     source,
                                        bslmf_MetaInt<BCEM_ENUMERATION>)
 {
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = destination->fieldById(fieldId);
     if (field.isError()) {
@@ -1743,7 +1743,7 @@ int bcem_AggregateUtil::toAggregateImp(
         const bdeut_NullableValue<TYPE>& source,
         bslmf_MetaInt<BCEM_ENUMERATION>)
 {
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = destination->fieldById(fieldId);
     if (field.isError()) {
@@ -1799,7 +1799,7 @@ int bcem_AggregateUtil::toAggregateImp(
         const bdeut_NullableAllocatedValue<TYPE>&  source,
         bslmf_MetaInt<BCEM_ENUMERATION>)
 {
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = destination->fieldById(fieldId);
     if (field.isError()) {
@@ -1858,7 +1858,7 @@ int bcem_AggregateUtil::toAggregateImp(
         const bsl::vector<TYPE>&  source,
         bslmf_MetaInt<BCEM_ENUMERATION>)
 {
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     int            size  = static_cast<int>(source.size());
     bcem_Aggregate field = destination->fieldById(fieldId);
@@ -1927,7 +1927,7 @@ int bcem_AggregateUtil::toAggregateImp(
         const bsl::vector< bdeut_NullableValue<TYPE> >&  source,
         bslmf_MetaInt<BCEM_ENUMERATION>)
 {
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     int            size  = static_cast<int>(source.size());
     bcem_Aggregate field = destination->fieldById(fieldId);
@@ -2002,7 +2002,7 @@ int bcem_AggregateUtil::toAggregateImp(
         const bsl::vector< bdeut_NullableAllocatedValue<TYPE> >&  source,
         bslmf_MetaInt<BCEM_ENUMERATION>)
 {
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     int            size  = static_cast<int>(source.size());
     bcem_Aggregate field = destination->fieldById(fieldId);
@@ -2063,7 +2063,7 @@ int bcem_AggregateUtil::fromAggregateImp(TYPE                  *destination,
                                          int                    fieldId,
                                          bslmf_MetaInt<BCEM_ENUMERATION>)
 {
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = source.fieldById(fieldId);
     if (field.isError()) {
@@ -2120,7 +2120,7 @@ int bcem_AggregateUtil::fromAggregateImp(
         int                        fieldId,
         bslmf_MetaInt<BCEM_ENUMERATION>)
 {
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = source.fieldById(fieldId);
     if (field.isError()) {
@@ -2183,7 +2183,7 @@ int bcem_AggregateUtil::fromAggregateImp(
         int                                 fieldId,
         bslmf_MetaInt<BCEM_ENUMERATION>)
 {
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = source.fieldById(fieldId);
     if (field.isError()) {
@@ -2251,7 +2251,7 @@ int bcem_AggregateUtil::fromAggregateImp(
         int                    fieldId,
         bslmf_MetaInt<BCEM_ENUMERATION>)
 {
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = source.fieldById(fieldId);
 
@@ -2331,7 +2331,7 @@ int bcem_AggregateUtil::fromAggregateImp(
         int                                       fieldId,
         bslmf_MetaInt<BCEM_ENUMERATION>)
 {
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = source.fieldById(fieldId);
 
@@ -2414,7 +2414,7 @@ int bcem_AggregateUtil::fromAggregateImp(
         int                                                fieldId,
         bslmf_MetaInt<BCEM_ENUMERATION>)
 {
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = source.fieldById(fieldId);
 

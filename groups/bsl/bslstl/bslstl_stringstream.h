@@ -140,11 +140,6 @@ class basic_stringstream
     typedef typename traits_type::off_type  off_type;
     typedef typename traits_type::pos_type  pos_type;
 
-    // TYPETRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                             basic_stringstream,
-                             BloombergLP::bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     explicit
     basic_stringstream(const allocator_type& allocator = allocator_type());
@@ -199,6 +194,22 @@ typedef basic_stringstream<char, char_traits<char>, allocator<char> >
 typedef basic_stringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
                                                                  wstringstream;
 
+}
+
+// TYPE TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+struct UsesBslmaAllocator<
+        bsl::basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
+    : bsl::true_type
+{};
+
+}
+}
+
+namespace bsl {
 
 // ==========================================================================
 //                       TEMPLATE FUNCTION DEFINITIONS

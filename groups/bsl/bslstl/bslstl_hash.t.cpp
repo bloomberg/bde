@@ -1,14 +1,15 @@
 // bslstl_hash.t.cpp                                                  -*-C++-*-
 #include <bslstl_hash.h>
 
-#include <bslalg_hastrait.h>
-
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_issame.h>
+#include <bslmf_isbitwisemoveable.h>
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_istriviallydefaultconstructible.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -216,12 +217,10 @@ int main(int argc, char *argv[])
 
         typedef int TYPE;
 
-        ASSERT((bslalg::HasTrait<hash<TYPE>,
-                                 bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT((bslalg::HasTrait<hash<TYPE>,
-                                 bslalg::TypeTraitBitwiseCopyable>::VALUE));
-        ASSERT((bslalg::HasTrait<hash<TYPE>,
-                       bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE));
+        ASSERT(bslmf::IsBitwiseMoveable<hash<TYPE> >::value);
+        ASSERT(bsl::is_trivially_copyable<hash<TYPE> >::value);
+        ASSERT(bsl::is_trivially_default_constructible<hash<TYPE> >::value);
+
       } break;
       case 4: {
         // --------------------------------------------------------------------

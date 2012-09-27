@@ -109,18 +109,18 @@ int main(int argc, char *argv[])
                                   << "=============" << endl;
 
 // ... continued from above
-     ASSERT(1 == bslmf::IsClass<MyStruct >::VALUE);
-     ASSERT(1 == bslmf::IsClass<MyStruct&>::VALUE);
-     ASSERT(0 == bslmf::IsClass<MyStruct*>::VALUE);
+     ASSERT(1 == bslmf::IsClass<MyStruct >::value);
+     ASSERT(1 == bslmf::IsClass<MyStruct&>::value);
+     ASSERT(0 == bslmf::IsClass<MyStruct*>::value);
 //
-     ASSERT(1 == bslmf::IsClass<const MyClass          >::VALUE);
-     ASSERT(1 == bslmf::IsClass<const MyDerivedClass&  >::VALUE);
-     ASSERT(0 == bslmf::IsClass<const MyDerivedClass*  >::VALUE);
-     ASSERT(0 == bslmf::IsClass<      MyDerivedClass[1]>::VALUE);
+     ASSERT(1 == bslmf::IsClass<const MyClass          >::value);
+     ASSERT(1 == bslmf::IsClass<const MyDerivedClass&  >::value);
+     ASSERT(0 == bslmf::IsClass<const MyDerivedClass*  >::value);
+     ASSERT(0 == bslmf::IsClass<      MyDerivedClass[1]>::value);
 //
-     ASSERT(0 == bslmf::IsClass<int   >::VALUE);
-     ASSERT(0 == bslmf::IsClass<int * >::VALUE);
-     ASSERT(0 == bslmf::IsClass<MyEnum>::VALUE);
+     ASSERT(0 == bslmf::IsClass<int   >::value);
+     ASSERT(0 == bslmf::IsClass<int * >::value);
+     ASSERT(0 == bslmf::IsClass<MyEnum>::value);
 //..
 
       } break;
@@ -128,118 +128,118 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // Test Plan:
         //   Instantiate 'bslmf::IsClass' with various types and verify
-        //   that their 'VALUE' member is initialized properly.
+        //   that their 'value' member is initialized properly.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "bslmf::IsClass" << endl
                           << "==============" << endl;
 
-        ASSERT(0 == bslmf::IsClass<void>::VALUE);
+        ASSERT(0 == bslmf::IsClass<void>::value);
 
-        ASSERT(0 == bslmf::IsClass<int               >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int const         >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int volatile      >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int const volatile>::VALUE);
+        ASSERT(0 == bslmf::IsClass<int               >::value);
+        ASSERT(0 == bslmf::IsClass<int const         >::value);
+        ASSERT(0 == bslmf::IsClass<int volatile      >::value);
+        ASSERT(0 == bslmf::IsClass<int const volatile>::value);
 
-        ASSERT(0 == bslmf::IsClass<int&               >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int const&         >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int volatile&      >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int const volatile&>::VALUE);
+        ASSERT(0 == bslmf::IsClass<int&               >::value);
+        ASSERT(0 == bslmf::IsClass<int const&         >::value);
+        ASSERT(0 == bslmf::IsClass<int volatile&      >::value);
+        ASSERT(0 == bslmf::IsClass<int const volatile&>::value);
 
-        ASSERT(0 == bslmf::IsClass<Enum               >::VALUE);
-        ASSERT(0 == bslmf::IsClass<Enum const         >::VALUE);
-        ASSERT(0 == bslmf::IsClass<Enum volatile      >::VALUE);
-        ASSERT(0 == bslmf::IsClass<Enum const volatile>::VALUE);
+        ASSERT(0 == bslmf::IsClass<Enum               >::value);
+        ASSERT(0 == bslmf::IsClass<Enum const         >::value);
+        ASSERT(0 == bslmf::IsClass<Enum volatile      >::value);
+        ASSERT(0 == bslmf::IsClass<Enum const volatile>::value);
 
-        ASSERT(0 == bslmf::IsClass<int *                             >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int *const                        >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int *volatile                     >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int *const volatile               >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int const *                       >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int const *const                  >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int const *volatile               >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int const *const volatile         >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int volatile *                    >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int volatile *const               >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int volatile *volatile            >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int volatile *const volatile      >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int const volatile *              >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int const volatile *const         >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int const volatile *volatile      >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int const volatile *const volatile>::VALUE);
+        ASSERT(0 == bslmf::IsClass<int *                             >::value);
+        ASSERT(0 == bslmf::IsClass<int *const                        >::value);
+        ASSERT(0 == bslmf::IsClass<int *volatile                     >::value);
+        ASSERT(0 == bslmf::IsClass<int *const volatile               >::value);
+        ASSERT(0 == bslmf::IsClass<int const *                       >::value);
+        ASSERT(0 == bslmf::IsClass<int const *const                  >::value);
+        ASSERT(0 == bslmf::IsClass<int const *volatile               >::value);
+        ASSERT(0 == bslmf::IsClass<int const *const volatile         >::value);
+        ASSERT(0 == bslmf::IsClass<int volatile *                    >::value);
+        ASSERT(0 == bslmf::IsClass<int volatile *const               >::value);
+        ASSERT(0 == bslmf::IsClass<int volatile *volatile            >::value);
+        ASSERT(0 == bslmf::IsClass<int volatile *const volatile      >::value);
+        ASSERT(0 == bslmf::IsClass<int const volatile *              >::value);
+        ASSERT(0 == bslmf::IsClass<int const volatile *const         >::value);
+        ASSERT(0 == bslmf::IsClass<int const volatile *volatile      >::value);
+        ASSERT(0 == bslmf::IsClass<int const volatile *const volatile>::value);
 
-        ASSERT(1 == bslmf::IsClass<Struct               >::VALUE);
-        ASSERT(1 == bslmf::IsClass<Struct const         >::VALUE);
-        ASSERT(1 == bslmf::IsClass<Struct volatile      >::VALUE);
-        ASSERT(1 == bslmf::IsClass<Struct const volatile>::VALUE);
+        ASSERT(1 == bslmf::IsClass<Struct               >::value);
+        ASSERT(1 == bslmf::IsClass<Struct const         >::value);
+        ASSERT(1 == bslmf::IsClass<Struct volatile      >::value);
+        ASSERT(1 == bslmf::IsClass<Struct const volatile>::value);
 
-        ASSERT(1 == bslmf::IsClass<Struct&               >::VALUE);
-        ASSERT(1 == bslmf::IsClass<Struct const&         >::VALUE);
-        ASSERT(1 == bslmf::IsClass<Struct volatile&      >::VALUE);
-        ASSERT(1 == bslmf::IsClass<Struct const volatile&>::VALUE);
+        ASSERT(1 == bslmf::IsClass<Struct&               >::value);
+        ASSERT(1 == bslmf::IsClass<Struct const&         >::value);
+        ASSERT(1 == bslmf::IsClass<Struct volatile&      >::value);
+        ASSERT(1 == bslmf::IsClass<Struct const volatile&>::value);
 
-        ASSERT(0 == bslmf::IsClass<Struct *              >::VALUE);
-        ASSERT(0 == bslmf::IsClass<Struct *const         >::VALUE);
-        ASSERT(0 == bslmf::IsClass<Struct *volatile      >::VALUE);
-        ASSERT(0 == bslmf::IsClass<Struct *const volatile>::VALUE);
+        ASSERT(0 == bslmf::IsClass<Struct *              >::value);
+        ASSERT(0 == bslmf::IsClass<Struct *const         >::value);
+        ASSERT(0 == bslmf::IsClass<Struct *volatile      >::value);
+        ASSERT(0 == bslmf::IsClass<Struct *const volatile>::value);
 
-        ASSERT(1 == bslmf::IsClass<Union               >::VALUE);
-        ASSERT(1 == bslmf::IsClass<Union const         >::VALUE);
-        ASSERT(1 == bslmf::IsClass<Union volatile      >::VALUE);
-        ASSERT(1 == bslmf::IsClass<Union const volatile>::VALUE);
+        ASSERT(1 == bslmf::IsClass<Union               >::value);
+        ASSERT(1 == bslmf::IsClass<Union const         >::value);
+        ASSERT(1 == bslmf::IsClass<Union volatile      >::value);
+        ASSERT(1 == bslmf::IsClass<Union const volatile>::value);
 
-        ASSERT(1 == bslmf::IsClass<Union&               >::VALUE);
-        ASSERT(1 == bslmf::IsClass<Union const&         >::VALUE);
-        ASSERT(1 == bslmf::IsClass<Union volatile&      >::VALUE);
-        ASSERT(1 == bslmf::IsClass<Union const volatile&>::VALUE);
+        ASSERT(1 == bslmf::IsClass<Union&               >::value);
+        ASSERT(1 == bslmf::IsClass<Union const&         >::value);
+        ASSERT(1 == bslmf::IsClass<Union volatile&      >::value);
+        ASSERT(1 == bslmf::IsClass<Union const volatile&>::value);
 
-        ASSERT(0 == bslmf::IsClass<Union *              >::VALUE);
-        ASSERT(0 == bslmf::IsClass<Union *const         >::VALUE);
-        ASSERT(0 == bslmf::IsClass<Union *volatile      >::VALUE);
-        ASSERT(0 == bslmf::IsClass<Union *const volatile>::VALUE);
+        ASSERT(0 == bslmf::IsClass<Union *              >::value);
+        ASSERT(0 == bslmf::IsClass<Union *const         >::value);
+        ASSERT(0 == bslmf::IsClass<Union *volatile      >::value);
+        ASSERT(0 == bslmf::IsClass<Union *const volatile>::value);
 
-        ASSERT(1 == bslmf::IsClass<BaseClass               >::VALUE);
-        ASSERT(1 == bslmf::IsClass<BaseClass const         >::VALUE);
-        ASSERT(1 == bslmf::IsClass<BaseClass volatile      >::VALUE);
-        ASSERT(1 == bslmf::IsClass<BaseClass const volatile>::VALUE);
+        ASSERT(1 == bslmf::IsClass<BaseClass               >::value);
+        ASSERT(1 == bslmf::IsClass<BaseClass const         >::value);
+        ASSERT(1 == bslmf::IsClass<BaseClass volatile      >::value);
+        ASSERT(1 == bslmf::IsClass<BaseClass const volatile>::value);
 
-        ASSERT(1 == bslmf::IsClass<BaseClass&               >::VALUE);
-        ASSERT(1 == bslmf::IsClass<BaseClass const&         >::VALUE);
-        ASSERT(1 == bslmf::IsClass<BaseClass volatile&      >::VALUE);
-        ASSERT(1 == bslmf::IsClass<BaseClass const volatile&>::VALUE);
+        ASSERT(1 == bslmf::IsClass<BaseClass&               >::value);
+        ASSERT(1 == bslmf::IsClass<BaseClass const&         >::value);
+        ASSERT(1 == bslmf::IsClass<BaseClass volatile&      >::value);
+        ASSERT(1 == bslmf::IsClass<BaseClass const volatile&>::value);
 
-        ASSERT(0 == bslmf::IsClass<BaseClass *              >::VALUE);
-        ASSERT(0 == bslmf::IsClass<BaseClass *const         >::VALUE);
-        ASSERT(0 == bslmf::IsClass<BaseClass *volatile      >::VALUE);
-        ASSERT(0 == bslmf::IsClass<BaseClass *const volatile>::VALUE);
+        ASSERT(0 == bslmf::IsClass<BaseClass *              >::value);
+        ASSERT(0 == bslmf::IsClass<BaseClass *const         >::value);
+        ASSERT(0 == bslmf::IsClass<BaseClass *volatile      >::value);
+        ASSERT(0 == bslmf::IsClass<BaseClass *const volatile>::value);
 
-        ASSERT(1 == bslmf::IsClass<DerivedClass               >::VALUE);
-        ASSERT(1 == bslmf::IsClass<DerivedClass const         >::VALUE);
-        ASSERT(1 == bslmf::IsClass<DerivedClass volatile      >::VALUE);
-        ASSERT(1 == bslmf::IsClass<DerivedClass const volatile>::VALUE);
+        ASSERT(1 == bslmf::IsClass<DerivedClass               >::value);
+        ASSERT(1 == bslmf::IsClass<DerivedClass const         >::value);
+        ASSERT(1 == bslmf::IsClass<DerivedClass volatile      >::value);
+        ASSERT(1 == bslmf::IsClass<DerivedClass const volatile>::value);
 
-        ASSERT(1 == bslmf::IsClass<DerivedClass&               >::VALUE);
-        ASSERT(1 == bslmf::IsClass<DerivedClass const&         >::VALUE);
-        ASSERT(1 == bslmf::IsClass<DerivedClass volatile&      >::VALUE);
-        ASSERT(1 == bslmf::IsClass<DerivedClass const volatile&>::VALUE);
+        ASSERT(1 == bslmf::IsClass<DerivedClass&               >::value);
+        ASSERT(1 == bslmf::IsClass<DerivedClass const&         >::value);
+        ASSERT(1 == bslmf::IsClass<DerivedClass volatile&      >::value);
+        ASSERT(1 == bslmf::IsClass<DerivedClass const volatile&>::value);
 
-        ASSERT(0 == bslmf::IsClass<DerivedClass *              >::VALUE);
-        ASSERT(0 == bslmf::IsClass<DerivedClass *const         >::VALUE);
-        ASSERT(0 == bslmf::IsClass<DerivedClass *volatile      >::VALUE);
-        ASSERT(0 == bslmf::IsClass<DerivedClass *const volatile>::VALUE);
+        ASSERT(0 == bslmf::IsClass<DerivedClass *              >::value);
+        ASSERT(0 == bslmf::IsClass<DerivedClass *const         >::value);
+        ASSERT(0 == bslmf::IsClass<DerivedClass *volatile      >::value);
+        ASSERT(0 == bslmf::IsClass<DerivedClass *const volatile>::value);
 
-        ASSERT(1 == bslmf::IsClass<Incomplete  >::VALUE);
-        ASSERT(1 == bslmf::IsClass<Incomplete& >::VALUE);
-        ASSERT(0 == bslmf::IsClass<Incomplete *>::VALUE);
+        ASSERT(1 == bslmf::IsClass<Incomplete  >::value);
+        ASSERT(1 == bslmf::IsClass<Incomplete& >::value);
+        ASSERT(0 == bslmf::IsClass<Incomplete *>::value);
 
-        ASSERT(0 == bslmf::IsClass<int Struct::*  >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int Struct::*& >::VALUE);
-        ASSERT(0 == bslmf::IsClass<int Struct::* *>::VALUE);
+        ASSERT(0 == bslmf::IsClass<int Struct::*  >::value);
+        ASSERT(0 == bslmf::IsClass<int Struct::*& >::value);
+        ASSERT(0 == bslmf::IsClass<int Struct::* *>::value);
 
-        ASSERT(0 == bslmf::IsClass<PMD BaseClass::*  >::VALUE);
-        ASSERT(0 == bslmf::IsClass<PMD BaseClass::*& >::VALUE);
-        ASSERT(0 == bslmf::IsClass<PMD BaseClass::* *>::VALUE);
+        ASSERT(0 == bslmf::IsClass<PMD BaseClass::*  >::value);
+        ASSERT(0 == bslmf::IsClass<PMD BaseClass::*& >::value);
+        ASSERT(0 == bslmf::IsClass<PMD BaseClass::* *>::value);
 
       } break;
       default: {

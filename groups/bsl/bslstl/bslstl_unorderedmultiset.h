@@ -273,6 +273,22 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_bidirectionalnode.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for 'std::size_t'
 #define INCLUDED_CSTDDEF
@@ -282,11 +298,6 @@ BSL_OVERRIDES_STD mode"
 #include <iterator>  // for 'std::iterator_traits'
 #define INCLUDED_ITERATOR
 #endif
-
-namespace BloombergLP
-{
-namespace bslalg { class BidirectionalLink; }
-}
 
 namespace bsl {
 
@@ -325,6 +336,12 @@ class unordered_multiset
                                                                           Impl;
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+                         unordered_multiset,
+                         ::BloombergLP::bslmf::IsBitwiseMoveable,
+                         ::BloombergLP::bslmf::IsBitwiseMoveable<Impl>::value);
+
     typedef ::BloombergLP::bslstl::HashTableIterator<value_type,
                                                      difference_type> iterator;
     typedef iterator                                            const_iterator;
@@ -440,10 +457,45 @@ template <class KEY_TYPE, class HASH, class EQUAL, class ALLOC>
 bool operator!=(const unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& lhs,
                 const unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& rhs);
 
+}  // close namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *unordered* *associative* containers:
+//: o An unordered associative container defines STL iterators.
+//: o An unordered associative container is bitwise moveable if the both
+//:      functors and the allocator are bitwise moveable.
+//: o An unordered associative container uses 'bslma' allocators if the
+//:      parameterized 'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+struct HasStlIterators<bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR> >
+     : bsl::true_type
+{};
+
+}  // close namespace bslalg
+
+namespace bslma {
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+struct UsesBslmaAllocator<bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOC> >
+    : bsl::is_convertible<Allocator*, ALLOC>::type
+{};
+
+}  // close namespace bslma
+}  // close namespace BloombergLP
 
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
+
+namespace bsl
+{
 
                         //-------------------------
                         // class unordered_multiset
@@ -700,18 +752,18 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::erase(const key_type& k)
+unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::erase(const key_type& key)
 {   // As an alternative implementation, the table could return an extracted
     // "slice" list from the underlying table, and now need merely:
     //   iterate each node, destroying the associated value
     //   reclaim each node (potentially returning to a node-pool)
     typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
 
-    if (HashTableLink *target = d_impl.find(k)) {
+    if (HashTableLink *target = d_impl.find(key)) {
         target = d_impl.remove(target);
         size_type result = 1;
         while (target && this->key_eq()(
-              k,
+              key,
               ListPolicy::extractKey(static_cast<BNode *>(target)->value()))) {
             target = d_impl.remove(target);
             ++result;

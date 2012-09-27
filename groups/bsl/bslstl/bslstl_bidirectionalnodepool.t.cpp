@@ -11,6 +11,7 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -149,7 +150,7 @@ bool expectToAllocate(int n)
 class AllocatingIntType {
     // DATA
     bslma::Allocator *d_allocator_p;
-    int             *d_value_p;
+    int              *d_value_p;
 
   private:
     // NOT IMPLEMENTED
@@ -182,6 +183,15 @@ class AllocatingIntType {
 
     const int& value() const { return *d_value_p; }
 };
+
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<AllocatingIntType> : bsl::true_type {};
+
+}
+}
 
 //=============================================================================
 //                               TEST FACILITIES
@@ -572,10 +582,7 @@ void TestDriver<VALUE>::testCase7()
     if (verbose) printf("\nMANIPULATOR 'createNode'"
                         "\n========================\n");
 
-
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -692,9 +699,7 @@ void TestDriver<VALUE>::testCase6()
     if (verbose) printf("\nMANIPULATOR 'reserve'"
                         "\n======================\n");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     for (int ti = 1; ti < 8; ++ti) {
         for(int tj = 0; tj < 8; ++tj) {
@@ -791,9 +796,7 @@ void TestDriver<VALUE>::testCase5()
     if (verbose) printf("\nMANIPULATOR 'deleteNode'"
                         "\n========================");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     struct {
         int         d_line;
@@ -1038,9 +1041,7 @@ void TestDriver<VALUE>::testCase2()
 
     if (verbose) printf("\nTesting with various allocator configurations.\n");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
 

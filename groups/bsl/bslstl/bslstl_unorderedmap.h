@@ -235,10 +235,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>  // Can probably escape with a fwd-decl, but not
 #endif                         // very user friendly
@@ -275,23 +271,42 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_pair.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
+#include <bslstl_stdexceptutil.h> // required to implement 'at'
+#endif
+
 #ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYCONFIGURATION
 #include <bslstl_unorderedmapkeyconfiguration.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
-#include <bslstl_stdexceptutil.h> // required to implement 'at'
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
+#include <bslalg_bidirectionallink.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for 'std::size_t'
 #define INCLUDED_CSTDDEF
 #endif
-
-namespace BloombergLP
-{
-namespace bslalg { class BidirectionalLink; }
-}
 
 namespace bsl {
                         // =======================
@@ -349,6 +364,12 @@ class unordered_map {
         // in this container.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+                    unordered_map,
+                    ::BloombergLP::bslmf::IsBitwiseMoveable,
+                    ::BloombergLP::bslmf::IsBitwiseMoveable<HashTable>::value);
+
     // PUBLIC TYPES
     typedef KEY                                        key_type;
     typedef VALUE                                      mapped_type;
@@ -784,12 +805,46 @@ bool operator!=(
     // "equality-comparable" (see {Requirements on 'KEY' and
     // 'VALUE'}).
 
+}  // close namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *unordered* *associative* containers:
+//: o An unordered associative container defines STL iterators.
+//: o An unordered associative container is bitwise moveable if the both
+//:      functors and the allocator are bitwise moveable.
+//: o An unordered associative container uses 'bslma' allocators if the
+//:      parameterized 'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+struct HasStlIterators<bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR> >
+     : bsl::true_type
+{};
+
+}  // close namespace bslalg
+
+namespace bslma {
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+struct UsesBslmaAllocator<bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOC> >
+     : bsl::is_convertible<Allocator*, ALLOC>::type
+{};
+
+}  // close namespace bslma
+}  // close namespace BloombergLP
 
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
 
+namespace bsl
+{
                         //--------------------
                         // class unordered_map
                         //--------------------

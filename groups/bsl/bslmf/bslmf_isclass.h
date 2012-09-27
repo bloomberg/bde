@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's parameter is a 'class', 'struct', or 'union',
 // optionally qualified with 'const' or 'volatile'.  'bslmf::IsClass' defines a
-// 'VALUE' member that is initialized (at compile-time) to 1 if the parameter
+// 'value' member that is initialized (at compile-time) to 1 if the parameter
 // is of 'class', 'struct', or 'union' type (or a reference to such a type),
 // and to 0 otherwise.  Note that 'bslmf::IsClass' will evaluate to true (i.e.,
 // 1) when applied to an incomplete 'class', 'struct', or 'union' type.
@@ -31,18 +31,18 @@ BSLS_IDENT("$Id: $")
 //  class  MyClass {};
 //  class  MyDerivedClass : public MyClass {};
 //
-//  assert(1 == bslmf::IsClass<MyStruct >::VALUE);
-//  assert(1 == bslmf::IsClass<MyStruct&>::VALUE);
-//  assert(0 == bslmf::IsClass<MyStruct*>::VALUE);
+//  assert(1 == bslmf::IsClass<MyStruct >::value);
+//  assert(1 == bslmf::IsClass<MyStruct&>::value);
+//  assert(0 == bslmf::IsClass<MyStruct*>::value);
 //
-//  assert(1 == bslmf::IsClass<const MyClass          >::VALUE);
-//  assert(1 == bslmf::IsClass<const MyDerivedClass&  >::VALUE);
-//  assert(0 == bslmf::IsClass<const MyDerivedClass*  >::VALUE);
-//  assert(0 == bslmf::IsClass<      MyDerivedClass[1]>::VALUE);
+//  assert(1 == bslmf::IsClass<const MyClass          >::value);
+//  assert(1 == bslmf::IsClass<const MyDerivedClass&  >::value);
+//  assert(0 == bslmf::IsClass<const MyDerivedClass*  >::value);
+//  assert(0 == bslmf::IsClass<      MyDerivedClass[1]>::value);
 //
-//  assert(0 == bslmf::IsClass<int   >::VALUE);
-//  assert(0 == bslmf::IsClass<int * >::VALUE);
-//  assert(0 == bslmf::IsClass<MyEnum>::VALUE);
+//  assert(0 == bslmf::IsClass<int   >::value);
+//  assert(0 == bslmf::IsClass<int * >::value);
+//  assert(0 == bslmf::IsClass<MyEnum>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -53,15 +53,19 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
 
 #ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_CSTDLIB
 #include <cstdlib>  // TBD Robo transitively needs this for 'bsl::atoi', etc.
@@ -71,49 +75,53 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bslmf {
-
-typedef char ISCLASS_TYPE;
-
-struct ISNOTCLASS_TYPE {
-    char padding[8];
-};
-
-template <class TYPE>
-ISCLASS_TYPE IsClass_Tester(int TYPE::*);
-
-template <class TYPE>
-ISNOTCLASS_TYPE IsClass_Tester(...);
-
-                       // ==================
-                       // struct IsClass_Imp
-                       // ==================
 
 template <typename TYPE>
 struct IsClass_Imp
-: MetaInt<sizeof(IsClass_Tester<TYPE>(0)) == sizeof(ISCLASS_TYPE)>
 {
+    typedef struct { char a; }    YesType;
+    typedef struct { char a[2]; } NoType;
+
+    template <typename TEST_TYPE>
+    static
+    YesType test(int TEST_TYPE::*);
+
+    template <typename TEST_TYPE>
+    static
+    NoType test(...);
+
+    enum { Value = (sizeof(test<TYPE>(0)) == sizeof(YesType)) };
 };
+
+}  // close package namespace
+}  // close enterprise namespace
+
+namespace bsl {
+
+template <typename TYPE>
+struct is_class : integral_constant<bool,
+                                    BloombergLP::bslmf::IsClass_Imp<
+                                        typename remove_cv<
+                                            typename remove_reference<TYPE>::type>
+                                                ::type>::Value>
+{};
+
+}
+
+namespace BloombergLP {
+namespace bslmf {
 
                          // ==============
                          // struct IsClass
                          // ==============
 
 template <typename TYPE>
-struct IsClass
-: IsClass_Imp<typename RemoveCvq<TYPE>::Type>::Type {
-    // This metafunction derives from 'MetaInt<1>' if the specified 'TYPE' is a
-    // class type, or is a reference to a class type, and from 'MetaInt<0>'
-    // otherwise.
-};
-
-template <typename TYPE>
-struct IsClass<TYPE &> : IsClass<TYPE>::Type {
-    // This metafunction derives from 'MetaInt<1>' if the specified 'TYPE' is a
-    // class type, or is a reference to a class type, and from 'MetaInt<0>'
-    // otherwise.
-};
+struct IsClass : bsl::is_class<TYPE>::type
+    // This metafunction derives from 'bsl::true_type' if the specified 'TYPE'
+    // is a class type, or is a reference to a class type, and from
+    // 'bsl::false_type' otherwise.
+{};
 
 }  // close package namespace
 

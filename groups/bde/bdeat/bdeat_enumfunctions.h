@@ -465,11 +465,10 @@ template <typename TYPE>
 inline
 int bdeat_EnumFunctions::bdeat_enumFromInt(TYPE *result, int number)
 {
-    BSLMF_ASSERT(
-              (bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
+    BSLMF_ASSERT(bdeat_IsBasicEnumeration<TYPE>::value);
 
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Type;
-    return Type::fromInt(result, number);
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    return Wrapper::fromInt(result, number);
 }
 
 template <typename TYPE>
@@ -481,8 +480,8 @@ int bdeat_EnumFunctions::bdeat_enumFromString(TYPE       *result,
     BSLMF_ASSERT(
               (bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
 
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Type;
-    return Type::fromString(result, string, stringLength);
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    return Wrapper::fromString(result, string, stringLength);
 }
 
 // ACCESSORS
@@ -505,7 +504,7 @@ void bdeat_EnumFunctions::bdeat_enumToString(bsl::string *result,
     BSLMF_ASSERT(
               (bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
 
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
     *result = Wrapper::toString(value);
 }
 

@@ -45,7 +45,7 @@ BSLS_IDENT("$Id: $")
 // a type that uses 'bslma::Allocator' for memory allocation, then each
 // constructor also has an optional 'bslma::Allocator' pointer argument.
 // Whether or not a type uses 'bslma::Allocator' is determined by querying the
-// 'bslalg::TypeTraitUsesBslmaAllocator' trait for that type.  This component
+// 'bslma::UsesBslmaAllocator' trait for that type.  This component
 // also defines a full set of equality and relational operators which can be
 // instantiated if 'T1' and 'T2' both provide those operators.
 //
@@ -54,12 +54,13 @@ BSLS_IDENT("$Id: $")
 // given specialization of 'bsl::pair' has that trait if and only if *both*
 // 'T1' and 'T2' have that trait.  Supported traits are:
 //..
-//  bslalg::TypeTraitBitwiseMoveable
-//  bslalg::TypeTraitBitwiseCopyable
-//  bslalg::TypeTraitHasTrivialDefaultConstructor
+//  bslmf::IsBitwiseMoveable
+//  bslmf::IsBitwiseEqualityComparible
+//  bsl::is_trivially_copyable
+//  bsl::is_trivially_default_constructible
 //..
 // In addition, a 'bsl::pair' specialization has the
-// 'bslalg::TypeTraitUsesBslmaAllocator' trait if *either* 'T1' or 'T2' have
+// 'bslma::UsesBslmaAllocator' trait if *either* 'T1' or 'T2' have
 // that trait, or both.
 //
 ///Usage
@@ -90,8 +91,7 @@ BSLS_IDENT("$Id: $")
 //      char            *d_data;
 //
 //    public:
-//      BSLALG_DECLARE_NESTED_TRAITS(my_String,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
+//      BSLMF_NESTED_TRAIT_DECLARATION(my_String, bslma::UsesBslmaAllocator);
 //
 //      explicit my_String(bslma::Allocator *basicAllocator = 0);
 //          // Construct an empty string using the optionally-specified
@@ -252,20 +252,32 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISPAIR
+#include <bslmf_ispair.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
+#include <bslmf_isbitwiseequalitycomparable.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -424,94 +436,14 @@ struct Pair_Imp<T1, T2, 1, 1> {
         // Destroy this object.
 };
 
-}  // close namespace bsl
-
-namespace BloombergLP {
-
-namespace bslstl {
-
-                // ==========================
-                // struct TypeTraitsGroupPair
-                // ==========================
-
-// This struct is defined in the BloombergLP namespace because repeating
-// 'BloombergLP::' for every trait and meta-function below would be too
-// cumbersome.  This struct should not be used outside of this component,
-// anyway.
-template <class T1, class T2>
-struct TypeTraitsGroupPair : public
-    bslalg::TypeTraitPair,
-    bslmf::If<bslalg::HasTrait<T1,bslalg::TypeTraitBitwiseMoveable>::VALUE &&
-             bslalg::HasTrait<T2,bslalg::TypeTraitBitwiseMoveable>::VALUE,
-             bslalg::TypeTraitBitwiseMoveable,
-             bslalg::TypeTraits_NotTrait<bslalg::TypeTraitBitwiseMoveable>
-            >::Type,
-    bslmf::If<bslalg::HasTrait<T1,bslalg::TypeTraitBitwiseCopyable>::VALUE &&
-             bslalg::HasTrait<T2,bslalg::TypeTraitBitwiseCopyable>::VALUE,
-             bslalg::TypeTraitBitwiseCopyable,
-             bslalg::TypeTraits_NotTrait<bslalg::TypeTraitBitwiseCopyable>
-            >::Type,
-    bslmf::If<bslalg::HasTrait<T1,
-                       bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE &&
-             bslalg::HasTrait<T2,
-                         bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE,
-             bslalg::TypeTraitHasTrivialDefaultConstructor,
-             bslalg::TypeTraits_NotTrait<
-                                 bslalg::TypeTraitHasTrivialDefaultConstructor>
-            >::Type,
-   bslmf::If<bslalg::HasTrait<T1,bslalg::TypeTraitUsesBslmaAllocator>::VALUE ||
-             bslalg::HasTrait<T2,bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
-             bslalg::TypeTraitUsesBslmaAllocator,
-             bslalg::TypeTraits_NotTrait<bslalg::TypeTraitUsesBslmaAllocator>
-            >::Type,
-    bslmf::If<bslalg::HasTrait<T1,
-                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE &&
-             bslalg::HasTrait<T2,
-                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE &&
-             sizeof(T1) + sizeof(T2) == sizeof(bsl::Pair_Imp<T1,T2,0,0>),
-             bslalg::TypeTraitBitwiseEqualityComparable,
-             bslalg::TypeTraits_NotTrait<
-                                    bslalg::TypeTraitBitwiseEqualityComparable>
-            >::Type
-{
-    // Traits group for a pair of 'T1' and 'T2'.  In addition to the pair
-    // traits, this group specifies traits for bitwise moveable if BOTH 'T1'
-    // and 'T2' are bitwise moveable, bitwise copyable if BOTH 'T1' and 'T2'
-    // are bitwise copyable, trivial default constructor if BOTH 'T1' and 'T2'
-    // have trivial default constructors, uses 'bslma' allocator if EITHER 'T1'
-    // and 'T2' uses 'bslma' allocator, and are bitwise equality comparable if
-    // 'T1' and 'T2' are both bitwise equality comparable and the size of the
-    // pair equals the sum of the sizes of 'T1' and 'T2'.
-};
-
-}  // close package namespace
-
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-// ===========================================================================
-//                           BACKWARD COMPATIBILITY
-// ===========================================================================
-
-#ifdef bslstl_TypeTraitsGroupPair
-#undef bslstl_TypeTraitsGroupPair
-#endif
-#define bslstl_TypeTraitsGroupPair bslstl::TypeTraitsGroupPair
-    // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
-
-}  // close enterprise namespace
-
-namespace bsl {
-
                         // ==========
                         // class pair
                         // ==========
 
 template <typename T1, typename T2>
 class pair : private Pair_Imp<T1, T2,
-                   BloombergLP::bslalg::HasTrait<T1,
-                      BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
-                   BloombergLP::bslalg::HasTrait<T2,
-                      BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE>
+                             BloombergLP::bslma::UsesBslmaAllocator<T1>::value,
+                             BloombergLP::bslma::UsesBslmaAllocator<T2>::value>
 {
     // Provide a pair of public data members, 'first' and 'second', of type
     // 'T1' and 'T2' respectively.  If either 'T1' or 'T2' uses
@@ -523,16 +455,10 @@ class pair : private Pair_Imp<T1, T2,
 
     // PRIVATE TYPES
     typedef Pair_Imp<T1, T2,
-        BloombergLP::bslalg::HasTrait<T1,
-            BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
-        BloombergLP::bslalg::HasTrait<T2,
-            BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE>     Base;
-    typedef BloombergLP::bslstl::TypeTraitsGroupPair<T1, T2>        PairTraits;
+                     BloombergLP::bslma::UsesBslmaAllocator<T1>::value,
+                     BloombergLP::bslma::UsesBslmaAllocator<T2>::value> Base;
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(pair, PairTraits);
-
     // PUBLIC TYPES
     typedef T1 first_type;
     typedef T2 second_type;
@@ -543,7 +469,7 @@ class pair : private Pair_Imp<T1, T2,
 
     // CREATORS
     pair();
-    pair(BloombergLP::bslma::Allocator *basicAllocator);
+    explicit pair(BloombergLP::bslma::Allocator *basicAllocator);
         // Construct a pair.  Default construct for 'first' and 'second'.
         // Optionally specify a 'basicAllocator' used to supply memory for the
         // constructor(s) of which ever data member(s) accept an allocator.
@@ -633,6 +559,24 @@ class pair : private Pair_Imp<T1, T2,
         // field is no-throw.
 };
 
+}  // namespace bsl
+
+// ===========================================================================
+//                                TYPE TRAITS
+// ===========================================================================
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <typename T1, typename T2>
+struct IsPair<bsl::pair<T1, T2> > : bsl::true_type
+{};
+
+}
+}
+
+namespace bsl {
+
 // FREE OPERATORS
 template <typename T1, typename T2>
 inline
@@ -693,6 +637,56 @@ void swap(pair<T1, T2>& a, pair<T1, T2>& b);
     // no-throw only if 'swap' on each field is no-throw.
 
 }  // close namespace bsl
+
+// ===========================================================================
+//                                TYPE TRAITS
+// ===========================================================================
+
+namespace bsl {
+
+template <typename T1, typename T2>
+struct is_trivially_copyable<pair<T1, T2> >
+    : bsl::integral_constant<bool, is_trivially_copyable<T1>::value
+                                  && is_trivially_copyable<T2>::value>
+{};
+
+template <typename T1, typename T2>
+struct is_trivially_default_constructible<bsl::pair<T1, T2> >
+    : bsl::integral_constant<bool, is_trivially_default_constructible<T1>::value
+                                  && is_trivially_default_constructible<T2>::value>
+{};
+
+}
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <typename T1, typename T2>
+struct IsBitwiseMoveable<bsl::pair<T1, T2> >
+    : bsl::integral_constant<bool, bslmf::IsBitwiseMoveable<T1>::value
+                                  && bslmf::IsBitwiseMoveable<T2>::value>
+{};
+
+template <typename T1, typename T2>
+struct IsBitwiseEqualityComparable<bsl::pair<T1, T2> >
+    : bsl::integral_constant<bool, bslmf::IsBitwiseEqualityComparable<T1>::value
+                                  && bslmf::IsBitwiseEqualityComparable<T2>::value
+                                  && sizeof(T1) + sizeof(T2) == sizeof(bsl::Pair_Imp<T1, T2, 0, 0>)>
+{};
+
+}  // bslmf
+
+namespace bslma {
+
+template <typename T1, typename T2>
+struct UsesBslmaAllocator<bsl::pair<T1, T2> >
+    : bsl::integral_constant<bool, bslma::UsesBslmaAllocator<T1>::value
+                                  || bslma::UsesBslmaAllocator<T2>::value>
+{};
+
+}  // bslma
+
+}  // BloombergLP
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS

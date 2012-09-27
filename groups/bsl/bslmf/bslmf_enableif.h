@@ -56,11 +56,9 @@ BSLS_IDENT("$Id: $")
 // method:
 //..
 //  template<class T>
-//  struct HasMemberSwap {
+//  struct HasMemberSwap : bsl::false_type {
 //      // This traits class indicates whether the specified template type
 //      // parameter 'T' has a public 'swap' method to exchange values.
-//
-//      static const bool VALUE = false;
 //  };
 //..
 // Now we can implement a generic 'Swap' function template that will invoke the
@@ -76,14 +74,14 @@ BSLS_IDENT("$Id: $")
 // will ever be present in an overload set.
 //..
 //  template<class T>
-//  typename bslmf::EnableIf<HasMemberSwap<T>::VALUE>::type
+//  typename bslmf::EnableIf<HasMemberSwap<T>::value>::type
 //  Swap(T& a, T& b)
 //  {
 //      a.swap(b);
 //  }
 //
 //  template<class T>
-//  typename bslmf::EnableIf< ! HasMemberSwap<T>::VALUE>::type
+//  typename bslmf::EnableIf< ! HasMemberSwap<T>::value>::type
 //  Swap(T& a, T& b)
 //  {
 //      T temp(a);
@@ -133,8 +131,7 @@ BSLS_IDENT("$Id: $")
 // Then we specialize our 'HasMemberSwap' trait for this new container type.
 //..
 //  template<class T>
-//  struct HasMemberSwap<MyContainer<T> > {
-//      static const bool VALUE = true;
+//  struct HasMemberSwap<MyContainer<T> > : bsl::true_type {
 //  };
 //..
 // Next we implement the methods of this class:
@@ -210,8 +207,8 @@ BSLS_IDENT("$Id: $")
 //
 //..
 //  template<class TO, class FROM>
-//  typename bslmf::EnableIf<bslmf::IsPolymorphic<FROM>::VALUE &&
-//                                             bslmf::IsPolymorphic<TO>::VALUE,
+//  typename bslmf::EnableIf<bslmf::IsPolymorphic<FROM>::value &&
+//                                             bslmf::IsPolymorphic<TO>::value,
 //                          TO>::type *
 //  smart_cast(FROM *from)
 //      // Returns a pointer to the specified 'TO' type if the specified 'from'
@@ -222,8 +219,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  template<class TO, class FROM>
-//  typename bslmf::EnableIf<not(bslmf::IsPolymorphic<FROM>::VALUE &&
-//                                            bslmf::IsPolymorphic<TO>::VALUE),
+//  typename bslmf::EnableIf<not(bslmf::IsPolymorphic<FROM>::value &&
+//                                            bslmf::IsPolymorphic<TO>::value),
 //                          TO>::type *
 //  smart_cast(FROM *from)
 //      // Return the specified 'from' pointer value cast as a pointer to type
@@ -326,7 +323,7 @@ BSLS_IDENT("$Id: $")
 //      template<typename FORWARD_ITERATOR>
 //      MyVector(FORWARD_ITERATOR first, FORWARD_ITERATOR last,
 //                  typename bslmf::EnableIf<
-//                               !bslmf::IsFundamental<FORWARD_ITERATOR>::VALUE
+//                               !bslmf::IsFundamental<FORWARD_ITERATOR>::value
 //                                                              >::type * = 0)
 //          // Create a 'MyVector' object having the same sequence of values as
 //          // found in range described by the iterators '[first, last)'.
@@ -412,13 +409,33 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+namespace bsl {
+
+template <bool COND, typename TYPE = void>
+struct enable_if
+    // This metafunction class defines a type alias, 'type', to the specified
+    // type-parameter 'TYPE' if, and only if, 'COND' parameter is 'true'.
+{
+    typedef TYPE type;
+};
+
+template <typename TYPE>
+struct enable_if<false, TYPE>
+    // This partial specialization of the meta-function class guarantees that
+    // no type alias 'type' is supplied when the specified boolean value is
+    // 'false'.  Note that this class definition is intentionally empty.
+{
+};
+
+}  // close namespace bsl
+
 namespace BloombergLP {
 
 namespace bslmf {
 
-                         // =========
-                         // struct If
-                         // =========
+                               // ===============
+                               // struct EnableIf
+                               // ===============
 
 
 template<bool BSLMA_CONDITION, class BSLMA_TYPE = void>

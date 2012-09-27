@@ -52,7 +52,7 @@ static void aSsErT(int c, const char *s, int i) {
 //-----------------------------------------------------------------------------
 
 #define ASSERT_REFTYPE_ISSAME(T)  \
-    BSLMF_ASSERT((bslmf::IsSame<T, bslmf::RemoveCvq<T>::Type>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<T, bslmf::RemoveCvq<T>::Type>::value));
 
 // from component doc
 

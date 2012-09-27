@@ -9,6 +9,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocatormonitor.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_issame.h>
 
@@ -1583,8 +1584,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
     //   void clear();
     // ------------------------------------------------------------------------
 
-    const bool VALUE_TYPE_USES_ALLOC  =
-             bslalg::HasTrait<KEY, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const bool VALUE_TYPE_USES_ALLOC = bslma::UsesBslmaAllocator<KEY>::value;
 
     if (verbose) { P(VALUE_TYPE_USES_ALLOC); }
 

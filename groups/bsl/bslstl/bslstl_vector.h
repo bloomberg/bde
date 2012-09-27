@@ -82,12 +82,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLSEQUENCECONTAINER
-#include <bslstl_traitsgroupstlsequencecontainer.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEFAULT
@@ -459,15 +455,6 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // undefined unless this vector is empty and has no capacity.
 
   public:
-    // TRAITS
-    typedef BloombergLP::
-
-    bslstl::TraitsGroupStlSequenceContainer<VALUE_TYPE,
-                                            ALLOCATOR> VectorTypeTraits;
-
-    BSLALG_DECLARE_NESTED_TRAITS(Vector_Imp, VectorTypeTraits);
-        // Declare nested type traits for this class.
-
     // CREATORS
 
                   // *** 23.2.5.1 construct/copy/destroy: ***
@@ -755,10 +742,6 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
     // PUBLIC TYPES
     typedef typename Base::size_type          size_type;
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(vector,
-                                 BloombergLP::bslalg_TypeTraits<Base>);
-
   public:
     // 23.2.4.1 construct/copy/destroy:
 
@@ -874,9 +857,6 @@ class vector< VALUE_TYPE *, ALLOCATOR >
     typedef typename ALLOCATOR::const_pointer     const_pointer;
     typedef bsl::reverse_iterator<iterator>       reverse_iterator;
     typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
-
-    BSLALG_DECLARE_NESTED_TRAITS(vector,
-                                 BloombergLP::bslalg_TypeTraits<Base>);
 
     // 23.2.4.1 construct/copy/destroy:
 
@@ -1043,6 +1023,49 @@ class vector< VALUE_TYPE *, ALLOCATOR >
         { return (VALUE_TYPE *const *)Base::data(); }
 };
 
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct HasStlIterators<bsl::vector<VALUE_TYPE, ALLOCATOR> > : bsl::true_type
+{};
+
+}
+
+namespace bslmf {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct IsBitwiseMoveable<bsl::vector<VALUE_TYPE, ALLOCATOR> >
+    : IsBitwiseMoveable<ALLOCATOR>
+{};
+
+}
+
+namespace bslma {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::vector<VALUE_TYPE, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>::type
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
+
 // FREE OPERATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator==(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
@@ -1073,7 +1096,7 @@ void swap(vector<VALUE_TYPE *, ALLOCATOR>& a,
           vector<VALUE_TYPE *, ALLOCATOR>& b);
 
              // ===========================================
-             // class vector<const VALUE_TYPE *, ALLCOATOR>
+             // class vector<const VALUE_TYPE *, ALLOCATOR>
              // ===========================================
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -1106,9 +1129,6 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
     typedef typename ALLOCATOR::const_pointer     const_pointer;
     typedef bsl::reverse_iterator<iterator>       reverse_iterator;
     typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
-
-    BSLALG_DECLARE_NESTED_TRAITS(vector,
-                                 BloombergLP::bslalg_TypeTraits<Base>);
 
     // 23.2.4.1 construct/copy/destroy:
 
@@ -1327,9 +1347,9 @@ struct Vector_DeduceIteratorCategory<BSLSTL_ITERATOR, true> {
 
 template<class BSLSTL_ITERATOR>
 struct Vector_IsRandomAccessIterator :
-       BloombergLP::bslmf::IsSame<
-         typename Vector_DeduceIteratorCategory<BSLSTL_ITERATOR>::type,
-                                               bsl::random_access_iterator_tag>
+    bsl::is_same<
+        typename Vector_DeduceIteratorCategory<BSLSTL_ITERATOR>::type,
+                                         bsl::random_access_iterator_tag>::type
 {
 };
 
@@ -1339,13 +1359,13 @@ struct Vector_RangeCheck {
     // pair of iterators do *not* form a valid range.  This support is offered
     // only for random access iterators, and identifies only the case of two
     // valid iterators into the same range forming a "reverse" range.  Note
-    // that these two functions declared using 'bslmf::EnableIf' must be
+    // that these two functions declared using 'enable_if' must be
     // defined inline in the class definition due to a bug in the Microsoft
     // C++ compiler (see 'bslmf_enableif').
 
     template<class BSLSTL_ITERATOR>
     static
-    typename BloombergLP::bslmf::EnableIf<
+    typename bsl::enable_if<
            !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
     isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR)
         // Return 'false' as we know of no way to identify an input iterator
@@ -1356,7 +1376,7 @@ struct Vector_RangeCheck {
 
     template<class BSLSTL_ITERATOR>
     static
-    typename BloombergLP::bslmf::EnableIf<
+    typename bsl::enable_if<
            Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
     isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
         // Return 'true' if 'first <= last', and 'false' otherwise.  Behavior

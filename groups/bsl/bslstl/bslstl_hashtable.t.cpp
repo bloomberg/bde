@@ -11,6 +11,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -1481,10 +1482,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //   setBootstrapMaxLoadFactor();
     // ------------------------------------------------------------------------
 
-    typedef typename KEY_CONFIG::ValueType     Element;
+    typedef typename KEY_CONFIG::ValueType Element;
 
-    const bool VALUE_TYPE_USES_ALLOC  =
-         bslalg::HasTrait<Element, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const bool VALUE_TYPE_USES_ALLOC =
+                                     bslma::UsesBslmaAllocator<Element>::value;
 
     if (verbose) { P(VALUE_TYPE_USES_ALLOC); }
 

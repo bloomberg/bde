@@ -4,6 +4,7 @@
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bsls_bsltestutil.h>
 

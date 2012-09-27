@@ -265,8 +265,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -279,6 +283,7 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>
+#define INCLUDED_CSTDDEF
 #endif
 
 namespace BloombergLP {
@@ -297,7 +302,8 @@ struct HashTableBucket {
     BidirectionalLink *d_last_p;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(HashTableBucket, bslalg::TypeTraitsGroupPod);
+    BSLMF_NESTED_TRAIT_DECLARATION(HashTableBucket,
+                                   bsl::is_trivially_copyable);
 
   public:
     // No creators -- must be a POD so that aggregate initialization can be
