@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component provides a single, mechanism class,
-// 'bslstl::ContainerBase', that can used as a common base class for all
+// 'bslalg::ContainerBase', that can used as a common base class for all
 // STL-style containers.  A container should derive from this class to take
 // advantage of empty-base optimization when a non-'bslma' allocator is used.
 //
