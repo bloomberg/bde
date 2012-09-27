@@ -69,16 +69,22 @@ void BidirectionalLinkListUtil::insertLinkAfterTarget(
 bool BidirectionalLinkListUtil::isWellFormed(BidirectionalLink *head,
                                              BidirectionalLink *tail)
 {
-    BSLS_ASSERT_SAFE(!head == !tail);
+    if (!head != !tail) {
+        return false;                                                 // RETURN
+    }
+
+    if (!head) {          // empty list
+        return true;                                                  // RETURN
+    }
 
     if (head->previousLink() && head->previousLink()->nextLink() != head) {
-        return false;
+        return false;                                                 // RETURN
     }
     if (tail->nextLink() && tail->nextLink()->previousLink() != tail) {
-        return false;
+        return false;                                                 // RETURN
     }
 
-    if(head == tail) {
+    if(head == tail) {    // single element list
         return true;                                                  // RETURN
     }
 
@@ -102,7 +108,7 @@ bool BidirectionalLinkListUtil::isWellFormed(BidirectionalLink *head,
     // 'tail' must have a valid 'previousLink' at this point
 
     if(tail->previousLink()->nextLink() != tail) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     return true;
