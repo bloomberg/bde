@@ -7,12 +7,12 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compile-time check for pointer types.
+//@PURPOSE: Check for whether a type is trivially default-constructible.
 //
 //@CLASSES:
 //  bsl::is_trivially_default_constructible: meta-function for determining
 //                                           whether a type is
-//                                           trivially-default-constructible.
+//                                           trivially default-constructible.
 //
 //@SEE_ALSO: bslmf_integerconstant, bslmf_nestedtraitdeclaration
 //
@@ -35,34 +35,65 @@ BSLS_IDENT("$Id: $")
 //  reference types      false
 //  fundamental types    true
 //  enums                true
+//  pointers             true
 //  pointers to members  true
 //..
 // For all other types, 'bsl::is_trivially_default_constructible' returns
-// false, unless the type is explicitly specified to be
-// trivially-default-constructible, which can be done in 2 ways:
+// false, unless the type is explicitly specified to be trivially
+// default-constructible, which can be done in 2 ways:
 //
-//     1.  The preferred way is to define a template specialization for
-//         'bsl::is_trivially_default_constructible' having the type as the
-//         template parameter that inherits directly from 'bsl::true_type'.
-//
-//     2.  The other way is to use the 'BSLMF_NESTED_TRAIT_DECLARATION' macro
-//         to define 'bsl::is_trivially_default_constructible' as the trait in
-//         the class definition of the type.
+//:    1 Define a template specialization for
+//:      'bsl::is_trivially_default_constructible' having the type as the
+//:      template parameter that inherits directly from 'bsl::true_type'.
+//:
+//:    2 Use the 'BSLMF_NESTED_TRAIT_DECLARATION' macro to define
+//:      'bsl::is_trivially_default_constructible' as the trait in the class
+//:      definition of the type.
 //
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Verify A Supported Trivially-Default-Constructible Type
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a type is
-// trivially-default-constructible.
+///Example 1: Verify Whether Types are Trivially Default-Constructible
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a type is trivially
+// default-constructible.
 //
-// First, we define a set of types to be evaluated:
+// First, we define a set types to evaluate:
 //..
 //  typedef int MyFundamentalType;
 //  typedef int& MyFundamentalTypeReference;
-//  class MyTriviallyDefaultConstructibleType {};
+//
+//  class MyTriviallyDefaultConstructibleType {
+//  };
+//
+//  struct MyNonTriviallyDefaultConstructibleType {
+//
+//      int d_data;
+//
+//      MyNonTriviallyDefaultConstructibleType()
+//      : d_data(1)
+//      {
+//      }
+//  };
+//..
+// Then, since user-defined types can not be automatically determined by the
+// 'is_trivially_default_constructible', we define a template specialization to
+// specify that 'MyTriviallyDefaultConstructibleType' is trivially
+// default-constructible:
+//..
+//  namespace bsl {
+//
+//  template <>
+//  struct is_trivially_default_constructible<
+//                      MyTriviallyDefaultConstructibleType> : bsl::true_type {
+//      // This template specialization for
+//      // 'is_trivially_default_constructible' indicates that
+//      // 'MyTriviallyDefaultConstructibleType' is a trivially
+//      // default-constructible type.
+//  };
+//
+//  }  // close namespace bsl
 //..
 // Now, we verify whether each type is default-constructible using
 // 'bsl::is_trivially_default_constructible':
@@ -72,49 +103,12 @@ BSLS_IDENT("$Id: $")
 //  assert(false ==
 //      bsl::is_trivially_default_constructible<
 //                                         MyFundamentalTypeReference>::value);
-//  assert(false ==
+//  assert(true ==
 //      bsl::is_trivially_default_constructible<
 //                                MyTriviallyDefaultConstructibleType>::value);
-//..
-// Notice that 'bsl::is_trivially_default_constructible' incorrectly found
-// 'MyTriviallyDefaultConstructibleType' to be
-// non-trivially-default-constructible, because the type can not be
-// automatically evaluated by the meta-function and must be explicitly
-// specified as such a type (See Example 2).
-//
-///Example 2: Explicitly Specify The Value For A User-Defined Type
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to explicitly specify that a user-defined type is
-// trivially-default-constructible.
-//
-// First, we define a trivially-default-constructible user-defined type,
-// 'MyTriviallyDefaultConstructibleType2':
-//..
-//  class MyTriviallyDefaultConstructibleType2 {};
-//..
-// Now, we define template specialization for
-// 'bsl::is_trivially_default_constructible' to specify that
-// 'MyTriviallyDefaultConstructibleType2' is trivially-default-constructible:
-//..
-//  namespace bsl {
-//
-//  template <>
-//  struct is_trivially_default_constructible<
-//                     MyTriviallyDefaultConstructibleType2> : bsl::true_type {
-//      // This template specialization for
-//      // 'is_trivially_default_constructible' indicates that
-//      // 'MyTriviallyDefaultConstructibleType2' is a
-//      // trivially-default-constructible type.
-//  };
-//
-//  }  // close namespace bsl
-//..
-// Finally, we verify that 'bsl::is_trivially_default_constructible' correctly
-// evaluate the value of 'MyTriviallyDefaultConstructibleType2':
-//..
-//  ASSERT(true ==
-//         bsl::is_trivially_default_constructible<
-//                               MyTriviallyDefaultConstructibleType2>::value);
+//  assert(false ==
+//      bsl::is_trivially_default_constructible<
+//                             MyNonTriviallyDefaultConstructibleType>::value);
 //..
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
@@ -154,7 +148,7 @@ namespace bsl {
 template <typename TYPE>
 struct is_trivially_default_constructible;
 
-}
+}  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslmf {
@@ -172,12 +166,12 @@ struct IsTriviallyDefaultConstructible_Imp
                         || DetectNestedTrait<TYPE,
                             bsl::is_trivially_default_constructible>::value)> {
     // This 'struct' template implement es a meta-function to determine whether
-    // the (non-cv-qualified) template parameter 'TYPE' is
-    // trivially-default-constructible.
+    // the (non-cv-qualified) template parameter 'TYPE' is trivially
+    // default-constructible.
 };
 
-}
-}
+}  // close package namespace
+}  // close enterprise namespace
 
 namespace bsl {
 
@@ -186,20 +180,20 @@ struct is_trivially_default_constructible
     : BloombergLP::bslmf::IsTriviallyDefaultConstructible_Imp<
                                               typename remove_cv<TYPE>::type> {
     // This 'struct' template implements a meta-function to determine whether
-    // the (template parameter) 'TYPE' is trivially-default-constructible.
+    // the (template parameter) 'TYPE' is trivially default-constructible.
     // This meta-function has the same syntax as the
     // 'is_trivially_default_constructible' meta-function defined in the C++11
     // standard [meta.unary.prop]; however, this meta-function can only
     // automatically determine the value for the following types: reference
-    // types, fundamental types, enums, pointers to members, and types
-    // declared to have the 'bsl::is_trivially_default_constructible' trait
-    // using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro (and the value for
-    // other types defaults to 'false').  To support other
-    // trivially-default-constructible types, this template must be specialized
-    // to inherit from 'bsl::true_type' for them.
+    // types, fundamental types, enums, pointers to members, and types declared
+    // to have the 'bsl::is_trivially_default_constructible' trait using the
+    // 'BSLMF_NESTED_TRAIT_DECLARATION' macro (and the value for other types
+    // defaults to 'false').  To support other trivially default-constructible
+    // types, this template must be specialized to inherit from
+    // 'bsl::true_type' for them.
 };
 
-}
+}  // close namespace bsl
 
 #endif
 
