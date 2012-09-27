@@ -33,9 +33,9 @@ BSLS_IDENT("$Id: $")
 // Suppose that we want to transform a couple of types to lvalue reference
 // types.
 //
-// Now, we instantiate the 'bsl::add_lvalue_reference' template for these
-// types, and use the 'bsl::is_same' meta-function to assert the 'type' static
-// data member of each instantiation:
+// Now, we instantiate the 'bsl::add_lvalue_reference' template for each of
+// these types, and use the 'bsl::is_same' meta-function to assert the 'type'
+// static data member of each instantiation:
 //..
 //  assert(true ==
 //        (bsl::is_same<bsl::add_lvalue_reference<int>::type,   int&>::value));
