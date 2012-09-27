@@ -1,6 +1,6 @@
-// bslstl_allocatorproxy.h                                            -*-C++-*-
-#ifndef INCLUDED_BSLSTL_ALLOCATORPROXY
-#define INCLUDED_BSLSTL_ALLOCATORPROXY
+// bslalg_containerbase.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLALG_CONTAINERBASE
+#define INCLUDED_BSLALG_CONTAINERBASE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,31 +10,85 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Wrapper for STL-style allocators to encapsulate 'bslma' semantics.
 //
 //@CLASSES:
-//  bslstl::AllocatorProxy: proxy class for STL-style containers
-//  bslstl::AllocatorProxyBslmaBase: base class for 'bslstl::AllocatorProxy'
-//  bslstl::AllocatorProxyNonBslmaBase: base class for 'bslstl::AllocatorProxy'
+//  bslalg::ContainerBase: proxy class for STL-style containers
+//
+//@SEE_ALSO: bslstl_allocator
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION:
+//@DESCRIPTION: This component provides a single, mechanism class,
+// 'bslstl::ContainerBase', that can used as a common base class for all
+// STL-style containers.  A container should derive from this class to take
+// advantage of empty-base optimization when a non-'bslma' allocator is used.
 //
 ///Usage
 ///-----
-// This component is for use by 'bslstl_containerbase' only.
-
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "<bslstl_allocatorproxy.h> can't be included directly in \
-BSL_OVERRIDES_STD mode"
-#endif
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a Fixed-Size Array with 'bslalg::ContainerBase'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we would like to implement a fixed-size array that allocates memory
+// on the heap at construction.
+//
+// First, we define the interface of the container, 'MyFixedSizeArray', that
+// derives from 'ContainerBase'.  The implementation is elided for brevity:
+//..
+//  template <class VALUE, class ALLOCATOR>
+//  class MyFixedSizeArray : private bslalg::ContainerBase<ALLOCATOR>
+//      // This class implements a container that contains a fixed number of
+//      // elements of the parameterized type 'VALUE' using the parameterized
+//      // 'ALLOCATOR' to allocate memory.  The number of elements is specified
+//      // on construction.
+//  {
+//..
+// Notice that to use this component, a class should derive from
+// 'ContainerBase' in order to take advantage of empty-base optimization.
+//..
+//      // DATA
+//      VALUE     *d_array;  // head pointer to the array of elements
+//      const int  d_size;   // (fixed) number of elements in 'd_array'
+//
+//    public:
+//      // CREATORS
+//      MyFixedSizeArray(int size, const ALLOCATOR& allocator = ALLOCATOR());
+//          // Create a 'MyFixedSizeArray' object having the specified 'size'
+//          // elements, and using the specified 'allocator' to supply memory.
+//
+//      MyFixedSizeArray(const MyFixedSizeArray& original,
+//                       const ALLOCATOR&        allocator = ALLOCATOR());
+//          // Create a 'MyFixedSizeArray' object having same number of
+//          // elements as that of the specified 'original', the same value of
+//          // each element as that of corresponding element in 'original', and
+//          // using the specified 'allocator' to supply memory.
+//
+//      ~MyFixedSizeArray();
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      VALUE& operator[](int i);
+//          // Return the reference of the specified 'i'th element of this
+//          // object.  The behavior is undefined unless 'i < size()'.
+//
+//      // ACCESSORS
+//      int size() const;
+//          // Return the number of elements contained in this object.
+//  };
+//..
+// Finally, assuming we have a STL compliant allocator named 'Allocator', we
+// can create a 'MyFixedSizeArray' object and populate it with data.
+//..
+//  MyFixedSizeArray<int, Allocator<int> > fixedArray(3);
+//  fixedArray[0] = 1;
+//  fixedArray[1] = 2;
+//  fixedArray[2] = 3;
+//
+//  ASSERT(fixedArray[0] == 1);
+//  ASSERT(fixedArray[1] == 2);
+//  ASSERT(fixedArray[2] == 3);
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_IF
@@ -47,26 +101,28 @@ BSL_OVERRIDES_STD mode"
 
 namespace BloombergLP {
 
-namespace bslstl {
+namespace bslma { class Allocator; }
+
+namespace bslalg {
 
                         // =============================
-                        // class AllocatorProxyBslmaBase
+                        // class ContainerBase_BslmaBase
                         // =============================
 
 template <class ALLOCATOR>
-class AllocatorProxyBslmaBase {
-    // One of two possible base classes for 'AllocatorProxy'.  This class
+class ContainerBase_BslmaBase {
+    // One of two possible base classes for 'ContainerBase'.  This class
     // should only be used for allocators that are based on 'bslma::Allocator'.
     // Provides access to the allocator.  Since 'ALLOCATOR' always has state
     // (at least a 'bslma::Allocator *'), there is no empty-base initialization
     // opportunity, so we don't inherit from 'ALLOCATOR' the way
-    // 'AllocatorProxyNonBslmaBase' does, below.  (Inheritance of this type can
+    // 'ContainerBase_NonBslmaBase' does, below.  (Inheritance of this type can
     // cause ambiguous conversions and should be avoided or insulated.)
 
     ALLOCATOR d_allocator;
 
     // NOT IMPLEMENTED
-    AllocatorProxyBslmaBase& operator=(const AllocatorProxyBslmaBase&);
+    ContainerBase_BslmaBase& operator=(const ContainerBase_BslmaBase&);
 
   public:
     // TYPES
@@ -78,11 +134,11 @@ class AllocatorProxyBslmaBase {
 
     // CREATORS
     explicit
-    AllocatorProxyBslmaBase(const ALLOCATOR& allocator);
+    ContainerBase_BslmaBase(const ALLOCATOR& allocator);
         // Construct this object using the specified 'allocator' of the
         // 'ALLOCATOR' parameterized type.
 
-    AllocatorProxyBslmaBase(const AllocatorProxyBslmaBase& original);
+    ContainerBase_BslmaBase(const ContainerBase_BslmaBase& original);
         // Construct this object using the default allocator.  The 'original'
         // argument is ignored.  NOTE: This is obviously not a copy constructor
         // as is does not do any copying.  It does implement BSL-style
@@ -91,7 +147,7 @@ class AllocatorProxyBslmaBase {
         // allocator object.  Under no circumstances is a BSL-style allocator
         // copied during copy construction or assignment.
 
-    ~AllocatorProxyBslmaBase();
+    ~ContainerBase_BslmaBase();
         // Destroy this object.
 
     // MANIPULATORS
@@ -109,24 +165,24 @@ class AllocatorProxyBslmaBase {
 };
 
                         // ================================
-                        // class AllocatorProxyNonBslmaBase
+                        // class ContainerBase_NonBslmaBase
                         // ================================
 
 template <class ALLOCATOR>
-class AllocatorProxyNonBslmaBase : public ALLOCATOR {
-    // One of two possible base classes for 'AllocatorProxy'.  This class is
+class ContainerBase_NonBslmaBase : public ALLOCATOR {
+    // One of two possible base classes for 'ContainerBase'.  This class is
     // for allocators that are not based on 'bslma::Allocator'.  Provides
     // access to the allocator.
     //
     // Because this class inherits from 'ALLOCATOR' it can take advantage of
     // empty-base optimization.  In other words, if 'ALLOCATOR' has no state
     // then it will not contribute to the footprint of the
-    // 'AllocatorProxyNonBslmaBase' object.  'AllocatorProxyNonBslmaBase'
+    // 'ContainerBase_NonBslmaBase' object.  'ContainerBase_NonBslmaBase'
     // itself adds no state and will not increase the footprint of subsequently
     // derived classes.
 
     // NOT IMPLEMENTED
-    AllocatorProxyNonBslmaBase& operator=(const AllocatorProxyNonBslmaBase&);
+    ContainerBase_NonBslmaBase& operator=(const ContainerBase_NonBslmaBase&);
 
   public:
     // TYPES
@@ -142,17 +198,17 @@ class AllocatorProxyNonBslmaBase : public ALLOCATOR {
         // components.)
 
     // CREATORS
-    AllocatorProxyNonBslmaBase(const ALLOCATOR& allocator);
+    ContainerBase_NonBslmaBase(const ALLOCATOR& allocator);
         // Construct this object using the specified 'allocator' or the
         // parameterized 'ALLOCATOR' type.
 
-    AllocatorProxyNonBslmaBase(const AllocatorProxyNonBslmaBase& rhs);
+    ContainerBase_NonBslmaBase(const ContainerBase_NonBslmaBase& rhs);
         // Construct this object by copying the allocator from rhs.  NOTE:
         // Although this constructor does copy the allocator, the copy
-        // constructor in the 'bslma'-specific 'AllocatorProxyBslmaBase' class
+        // constructor in the 'bslma'-specific 'ContainerBase_BslmaBase' class
         // (above) does not.
 
-    ~AllocatorProxyNonBslmaBase();
+    ~ContainerBase_NonBslmaBase();
         // Destroy this object.
 
     // MANIPULATORS
@@ -169,19 +225,19 @@ class AllocatorProxyNonBslmaBase : public ALLOCATOR {
         // Return a null pointer.  (This container's allocator does not use
         // 'bslma').  Note that the return type for this function differs from
         // the (typedef'ed) return type for the same function in the
-        // 'AllocatorProxyBslmaBase' class and can thus be used to choose one
+        // 'ContainerBase_BslmaBase' class and can thus be used to choose one
         // overloaded function over another.
 };
 
                         // ====================
-                        // class AllocatorProxy
+                        // class ContainerBase
                         // ====================
 
 template <class ALLOCATOR>
-class AllocatorProxy : public
+class ContainerBase : public
     bslmf::If<bslmf::IsConvertible<bslma::Allocator*, ALLOCATOR>::VALUE,
-              AllocatorProxyBslmaBase<ALLOCATOR>,
-              AllocatorProxyNonBslmaBase<ALLOCATOR> >::Type {
+              ContainerBase_BslmaBase<ALLOCATOR>,
+              ContainerBase_NonBslmaBase<ALLOCATOR> >::Type {
     // Allocator proxy class for STL-style containers.  Provides access to the
     // allocator.  Implements the entire STL allocator interface, redirecting
     // allocation and deallocation calls to the proxied allocator.  One of two
@@ -191,11 +247,11 @@ class AllocatorProxy : public
     // PRIVATE TYPES
     typedef typename
         bslmf::If<bslmf::IsConvertible<bslma::Allocator*, ALLOCATOR>::VALUE,
-                  AllocatorProxyBslmaBase<ALLOCATOR>,
-                  AllocatorProxyNonBslmaBase<ALLOCATOR> >::Type Base;
+                  ContainerBase_BslmaBase<ALLOCATOR>,
+                  ContainerBase_NonBslmaBase<ALLOCATOR> >::Type Base;
 
     // NOT IMPLEMENTED
-    AllocatorProxy& operator=(const AllocatorProxy&);
+    ContainerBase& operator=(const ContainerBase&);
 
   private:
     // PRIVATE MANIPULATORS
@@ -224,11 +280,11 @@ class AllocatorProxy : public
         // interface.)
 
     // CREATORS
-    AllocatorProxy(const ALLOCATOR& allocator);
+    ContainerBase(const ALLOCATOR& allocator);
         // Construct this object using the specified 'allocator' of the
         // parameterized 'ALLOCATOR' type.
 
-    AllocatorProxy(const AllocatorProxy& rhs);
+    ContainerBase(const ContainerBase& rhs);
         // Initialize this container base with rhs.  NOTE: This is not a true
         // copy constructor.  The allocator does not get copied if the
         // allocator is 'bslma'-based.  Using BSL allocator semantics, the
@@ -237,7 +293,7 @@ class AllocatorProxy : public
         // allocators ARE copied because that is the way the ISO standard is
         // currently written.
 
-    ~AllocatorProxy();
+    ~ContainerBase();
         // Destroy this object.
 
     // MANIPULATORS
@@ -281,7 +337,7 @@ class AllocatorProxy : public
         // directly deallocate any memory.
 
     // ACCESSORS
-    bool equalAllocator(const AllocatorProxy& rhs) const;
+    bool equalAllocator(const ContainerBase& rhs) const;
         // Returns 'this->allocator() == rhs.allocator()'.
 };
 
@@ -290,36 +346,36 @@ class AllocatorProxy : public
 // ===========================================================================
 
                   // -----------------------------
-                  // class AllocatorProxyBslmaBase
+                  // class ContainerBase_BslmaBase
                   // -----------------------------
 
 // CREATORS
 template <class ALLOCATOR>
 inline
-AllocatorProxyBslmaBase<ALLOCATOR>::
-AllocatorProxyBslmaBase(const ALLOCATOR& allocator)
+ContainerBase_BslmaBase<ALLOCATOR>::
+ContainerBase_BslmaBase(const ALLOCATOR& allocator)
 : d_allocator(allocator)
 {
 }
 
 template <class ALLOCATOR>
 inline
-AllocatorProxyBslmaBase<ALLOCATOR>::
-AllocatorProxyBslmaBase(const AllocatorProxyBslmaBase&)
+ContainerBase_BslmaBase<ALLOCATOR>::
+ContainerBase_BslmaBase(const ContainerBase_BslmaBase&)
 : d_allocator()
 {
 }
 
 template <class ALLOCATOR>
 inline
-AllocatorProxyBslmaBase<ALLOCATOR>::~AllocatorProxyBslmaBase()
+ContainerBase_BslmaBase<ALLOCATOR>::~ContainerBase_BslmaBase()
 {
 }
 
 // MANIPULATORS
 template <class ALLOCATOR>
 inline
-ALLOCATOR& AllocatorProxyBslmaBase<ALLOCATOR>::allocator()
+ALLOCATOR& ContainerBase_BslmaBase<ALLOCATOR>::allocator()
 {
     return d_allocator;
 }
@@ -327,50 +383,50 @@ ALLOCATOR& AllocatorProxyBslmaBase<ALLOCATOR>::allocator()
 // ACCESSORS
 template <class ALLOCATOR>
 inline
-const ALLOCATOR& AllocatorProxyBslmaBase<ALLOCATOR>::allocator() const
+const ALLOCATOR& ContainerBase_BslmaBase<ALLOCATOR>::allocator() const
 {
     return d_allocator;
 }
 
 template <class ALLOCATOR>
 inline
-typename AllocatorProxyBslmaBase<ALLOCATOR>::bslmaAllocatorPtr
-AllocatorProxyBslmaBase<ALLOCATOR>::bslmaAllocator() const
+typename ContainerBase_BslmaBase<ALLOCATOR>::bslmaAllocatorPtr
+ContainerBase_BslmaBase<ALLOCATOR>::bslmaAllocator() const
 {
     return d_allocator.mechanism();
 }
 
                         // --------------------------------
-                        // class AllocatorProxyNonBslmaBase
+                        // class ContainerBase_NonBslmaBase
                         // --------------------------------
 
 // CREATORS
 template <class ALLOCATOR>
 inline
-AllocatorProxyNonBslmaBase<ALLOCATOR>::
-AllocatorProxyNonBslmaBase(const ALLOCATOR& allocator)
+ContainerBase_NonBslmaBase<ALLOCATOR>::
+ContainerBase_NonBslmaBase(const ALLOCATOR& allocator)
 : ALLOCATOR(allocator)
 {
 }
 
 template <class ALLOCATOR>
 inline
-AllocatorProxyNonBslmaBase<ALLOCATOR>::
-AllocatorProxyNonBslmaBase(const AllocatorProxyNonBslmaBase& rhs)
+ContainerBase_NonBslmaBase<ALLOCATOR>::
+ContainerBase_NonBslmaBase(const ContainerBase_NonBslmaBase& rhs)
 : ALLOCATOR(rhs.allocator())
 {
 }
 
 template <class ALLOCATOR>
 inline
-AllocatorProxyNonBslmaBase<ALLOCATOR>::~AllocatorProxyNonBslmaBase()
+ContainerBase_NonBslmaBase<ALLOCATOR>::~ContainerBase_NonBslmaBase()
 {
 }
 
 // MANIPULATORS
 template <class ALLOCATOR>
 inline
-ALLOCATOR& AllocatorProxyNonBslmaBase<ALLOCATOR>::allocator()
+ALLOCATOR& ContainerBase_NonBslmaBase<ALLOCATOR>::allocator()
 {
     return *this;
 }
@@ -379,73 +435,73 @@ ALLOCATOR& AllocatorProxyNonBslmaBase<ALLOCATOR>::allocator()
 template <class ALLOCATOR>
 inline
 const ALLOCATOR&
-AllocatorProxyNonBslmaBase<ALLOCATOR>::allocator() const
+ContainerBase_NonBslmaBase<ALLOCATOR>::allocator() const
 {
     return *this;
 }
 
 template <class ALLOCATOR>
 inline
-typename AllocatorProxyNonBslmaBase<ALLOCATOR>::bslmaAllocatorPtr
-AllocatorProxyNonBslmaBase<ALLOCATOR>::bslmaAllocator() const
+typename ContainerBase_NonBslmaBase<ALLOCATOR>::bslmaAllocatorPtr
+ContainerBase_NonBslmaBase<ALLOCATOR>::bslmaAllocator() const
 {
     return 0;
 }
 
                         // --------------------
-                        // class AllocatorProxy
+                        // class ContainerBase
                         // --------------------
 
 // CREATORS
 template <class ALLOCATOR>
 inline
-AllocatorProxy<ALLOCATOR>::
-AllocatorProxy(const ALLOCATOR& allocator)
+ContainerBase<ALLOCATOR>::
+ContainerBase(const ALLOCATOR& allocator)
 : Base(allocator)
 {
 }
 
 template <class ALLOCATOR>
 inline
-AllocatorProxy<ALLOCATOR>::
-AllocatorProxy(const AllocatorProxy<ALLOCATOR>& rhs)
+ContainerBase<ALLOCATOR>::
+ContainerBase(const ContainerBase<ALLOCATOR>& rhs)
 : Base(rhs)
 {
 }
 
 template <class ALLOCATOR>
 inline
-AllocatorProxy<ALLOCATOR>::~AllocatorProxy()
+ContainerBase<ALLOCATOR>::~ContainerBase()
 {
 }
 
 // MANIPULATORS
 template <class ALLOCATOR>
 inline
-typename AllocatorProxy<ALLOCATOR>::pointer
-AllocatorProxy<ALLOCATOR>::allocate(size_type n, const void *hint)
+typename ContainerBase<ALLOCATOR>::pointer
+ContainerBase<ALLOCATOR>::allocate(size_type n, const void *hint)
 {
     return this->allocator().allocate(n, hint);
 }
 
 template <class ALLOCATOR>
 inline
-void AllocatorProxy<ALLOCATOR>::deallocate(pointer p, size_type n)
+void ContainerBase<ALLOCATOR>::deallocate(pointer p, size_type n)
 {
     this->allocator().deallocate(p, n);
 }
 
 template <class ALLOCATOR>
 inline
-void AllocatorProxy<ALLOCATOR>::construct(pointer           p,
-                                          const value_type& val)
+void ContainerBase<ALLOCATOR>::construct(pointer           p,
+                                         const value_type& val)
 {
     this->allocator().construct(p, val);
 }
 
 template <class ALLOCATOR>
 inline
-void AllocatorProxy<ALLOCATOR>::destroy(pointer p)
+void ContainerBase<ALLOCATOR>::destroy(pointer p)
 {
     this->allocator().destroy(p);
 }
@@ -453,7 +509,7 @@ void AllocatorProxy<ALLOCATOR>::destroy(pointer p)
 // ACCESSORS
 template <class ALLOCATOR>
 inline
-bool AllocatorProxy<ALLOCATOR>::equalAllocator(const AllocatorProxy& rhs) const
+bool ContainerBase<ALLOCATOR>::equalAllocator(const ContainerBase& rhs) const
 {
     return this->allocator() == rhs.allocator();
 }
@@ -465,22 +521,22 @@ bool AllocatorProxy<ALLOCATOR>::equalAllocator(const AllocatorProxy& rhs) const
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
-#ifdef bslstl_AllocatorProxy
-#undef bslstl_AllocatorProxy
+#ifdef bslalg_ContainerBase
+#undef bslalg_ContainerBase
 #endif
-#define bslstl_AllocatorProxy bslstl::AllocatorProxy
+#define bslalg_ContainerBase bslalg::ContainerBase
     // This alias is defined for backward compatibility.
 
-#ifdef bslstl_AllocatorProxyBslmaBase
-#undef bslstl_AllocatorProxyBslmaBase
+#ifdef bslalg_ContainerBase_BslmaBase
+#undef bslalg_ContainerBase_BslmaBase
 #endif
-#define bslstl_AllocatorProxyBslmaBase bslstl::AllocatorProxyBslmaBase
+#define bslalg_ContainerBase_BslmaBase bslalg::ContainerBase_BslmaBase
     // This alias is defined for backward compatibility.
 
-#ifdef bslstl_AllocatorProxyNonBslmaBase
-#undef bslstl_AllocatorProxyNonBslmaBase
+#ifdef bslalg_ContainerBase_NonBslmaBase
+#undef bslalg_ContainerBase_NonBslmaBase
 #endif
-#define bslstl_AllocatorProxyNonBslmaBase bslstl::AllocatorProxyNonBslmaBase
+#define bslalg_ContainerBase_NonBslmaBase bslalg::ContainerBase_NonBslmaBase
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
