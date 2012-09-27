@@ -613,37 +613,39 @@ namespace UsageExample {
 ///Usage
 ///-----
 // In this section we show intended use of this component.  Note that this
-// component is for use by the 'bslstl' package.  Other clients should use
-// the STL algorithms (in header '<algorithm>' and '<memory>').
+// component is for use by the 'bslstl' package.  Other clients should use the
+// STL algorithms (in header '<algorithm>' and '<memory>').
 //
-///Example 1: Destroy Arrays of Integers
-///- - - - - - - - - - - - - - - - - - -
-// In this example, we will use 'bslalg::ArrayDestructionPrimitives' to
-// destroy both an array of integer scalars and an array of 'MyInteger' type
-// objects.
+///Example 1: Destroy Arrays of 'int' and 'Integer' Wrapper Objects
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we will use 'bslalg::ArrayDestructionPrimitives' to destroy
+// both an array of integer scalars and an array of 'MyInteger' objects.
+// Calling the 'destory' method on an array of integers is a no-op while
+// calling the 'destroy' method on an array of objects of 'MyInteger' class
+// invokes the destructor of each of the objects in the array.
 //
 // First, we define a 'MyInteger' class that contains an integer value:
 //..
-class MyInteger
-    // This class represents an integer value.
-{
-    int d_intValue;  // integer value
-
-  public:
-    // CREATORS
-    MyInteger();
-        // Create a 'MyInteger' object having integer value '0'.
-
-    explicit MyInteger(int value);
-        // Create a 'MyInteger' object having the specified 'value'.
-
-    ~MyInteger();
-        // Destroy this object.
-
-    // ACCESSORS
-    int getValue() const;
-        // Return the integer value contained in this object.
-};
+    class MyInteger {
+        // This class represents an integer value.
+//
+        int d_intValue;  // integer value
+//
+      public:
+        // CREATORS
+        MyInteger();
+            // Create a 'MyInteger' object having integer value '0'.
+//
+        explicit MyInteger(int value);
+            // Create a 'MyInteger' object having the specified 'value'.
+//
+        ~MyInteger();
+            // Destroy this object.
+//
+        // ACCESSORS
+        int getValue() const;
+            // Return the integer value contained in this object.
+    };
 //..
 
 // CREATORS
@@ -698,7 +700,10 @@ int main(int argc, char *argv[])
                             "\n=====================\n");
         using namespace UsageExample;
 
-// Then, we create an array of 'MyInteger' objects:
+//..
+// Then, we create an array of of objects, 'myIntegers', of type 'MyInteger'
+// (note that we 'bsls::ObjectBuffer' to allow us to safely invoke the
+// destructor explicitly):
 //..
     bsls::ObjectBuffer<MyInteger> arrayBuffer[5];
     MyInteger *myIntegers = &arrayBuffer[0].object();
@@ -713,9 +718,9 @@ int main(int argc, char *argv[])
 // Finally, we use the uniform 'bslalg::ArrayDestructionPrimitives:destroy'
 // method to destroy both 'myIntegers' and 'scalarIntegers':
 //..
-     bslalg::ArrayDestructionPrimitives::destroy(myIntegers, myIntegers + 5);
-     bslalg::ArrayDestructionPrimitives::destroy(scalarIntegers,
-                                                 scalarIntegers + 5);
+    bslalg::ArrayDestructionPrimitives::destroy(myIntegers, myIntegers + 5);
+    bslalg::ArrayDestructionPrimitives::destroy(scalarIntegers,
+                                                scalarIntegers + 5);
 //..
       } break;
       case 2: {
