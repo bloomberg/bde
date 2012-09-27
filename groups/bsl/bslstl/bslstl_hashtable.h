@@ -287,8 +287,8 @@ class HashTable {
         typedef typename bslalg::FunctorAdapter<COMPARATOR>::Type
                                                             ComparatorBaseType;
 
-        typedef BidirectionalNodePool<HashTableType::ValueType, NodeAllocator>
-                                                                   NodeFactory;
+        typedef BidirectionalNodePool<typename HashTableType::ValueType,
+                                      NodeAllocator>               NodeFactory;
 
         // DATA
         NodeFactory  d_nodeFactory;
@@ -489,8 +489,8 @@ class HashTable {
         // first element having the same key.
 
     template <class SOURCE_TYPE>
-    bslalg::BidirectionalLink *insert(const SOURCE_TYPE&               value,
-                                      const bslalg::BidirectionalLink *hint);
+    bslalg::BidirectionalLink *insert(const SOURCE_TYPE&         value,
+                                      bslalg::BidirectionalLink *hint);
         // Insert the specified 'value' into this hash table, and return the
         // address of the new node.  If the element stored in the node pointer
         // to by the specified 'hint' has a key that compares equal to that of
@@ -1386,8 +1386,8 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class SOURCE_TYPE>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
-                                        const SOURCE_TYPE&               value,
-                                        const bslalg::BidirectionalLink *hint)
+                                              const SOURCE_TYPE&         value,
+                                              bslalg::BidirectionalLink *hint)
 {
     BSLS_ASSERT(hint);
 
