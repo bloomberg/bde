@@ -212,7 +212,7 @@ BDES_IDENT("$Id: $")
 #include <bslmf_issame.h>
 #endif
 
-#ifdef BSLS_PLATFORM__CMP_SUN
+#ifdef BSLS_PLATFORM_CMP_SUN
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
 #endif
@@ -554,7 +554,7 @@ struct bdem_Convert {
         // the specified '*dstAddr'.  Return 0 on success, and a non-zero value
         // otherwise.
 
-#ifdef BSLS_PLATFORM__CMP_SUN
+#ifdef BSLS_PLATFORM_CMP_SUN
 
     template <typename SRCTYPE, bsl::size_t SRCARRAYSIZE, typename DSTTYPE>
     static int constConvert(DSTTYPE *dstAddr,
@@ -607,7 +607,7 @@ struct bdem_Convert {
     // CLASS METHODS
     template <typename SRCTYPE, typename DSTTYPE>
     static int convert(DSTTYPE *dstAddr, const SRCTYPE& srcValue);
-#ifdef BSLS_PLATFORM__CMP_SUN
+#ifdef BSLS_PLATFORM_CMP_SUN
     template <typename SRCTYPE, typename DSTTYPE>
     static int convert(DSTTYPE *dstAddr, SRCTYPE& srcValue);
 #endif
@@ -725,7 +725,7 @@ struct bdem_Convert {
         // format 'srcValue' according to ISO 8601 and load the resulting
         // string into '*dstAddr'.  Return 0 in any case.
 
-#ifndef BSLS_PLATFORM__CMP_SUN
+#ifndef BSLS_PLATFORM_CMP_SUN
 
     template <typename SRCTYPE, bsl::size_t SRCARRAYSIZE, typename DSTTYPE>
     static int convert(DSTTYPE *dstAddr, SRCTYPE (&srcValue)[SRCARRAYSIZE])
@@ -767,7 +767,7 @@ struct bdem_Convert {
         // The behavior is undefined unless the type of the 'bdem' element at
         // 'dstAddr' is of 'dstType'.
 
-#ifndef BSLS_PLATFORM__CMP_SUN
+#ifndef BSLS_PLATFORM_CMP_SUN
 
     template <typename SRCTYPE, bsl::size_t SRCARRAYSIZE>
     static int toBdemType(void                *dstAddr,
@@ -1244,7 +1244,7 @@ int bdem_Convert::doConvert(bdem_ConstElemRef *,
     return -1;  // destination is 'const'-qualified
 }
 
-#ifdef BSLS_PLATFORM__CMP_SUN
+#ifdef BSLS_PLATFORM_CMP_SUN
 
 template <typename SRCTYPE, bsl::size_t SRCARRAYSIZE, typename DSTTYPE>
 inline
@@ -1331,7 +1331,7 @@ int bdem_Convert::convert(DSTTYPE *dstAddr, const SRCTYPE& srcValue)
     return bdem_Convert::constConvert(dstAddr, srcValue);
 }
 
-#ifdef BSLS_PLATFORM__CMP_SUN
+#ifdef BSLS_PLATFORM_CMP_SUN
 
 template <typename SRCTYPE, typename DSTTYPE>
 inline
@@ -1512,7 +1512,7 @@ int bdem_Convert::doToBdemType(void                *dstAddr,
     return result;
 }
 
-#ifdef BSLS_PLATFORM__CMP_SUN
+#ifdef BSLS_PLATFORM_CMP_SUN
 
 template <typename SRCTYPE, bsl::size_t SRCARRAYSIZE>
 inline

@@ -48,17 +48,17 @@ void debugprint(signed char v)
 
 void debugprint(unsigned char v)
 {
-    printf("%hhd", v);
+    printf("%hhu", v);
 }
 
 void debugprint(short v)
 {
-    printf("%hd", (int)v);
+    printf("%hd", v);
 }
 
 void debugprint(unsigned short v)
 {
-    printf("%hu", (int)v);
+    printf("%hu", v);
 }
 
 void debugprint(int v)
@@ -93,7 +93,7 @@ void debugprint(unsigned long long v)
 
 void debugprint(float v)
 {
-    printf("'%g'", (double)v);
+    printf("'%f'", v);
 }
 
 void debugprint(double v)
@@ -112,15 +112,56 @@ void debugprint(long double v)
 
 void debugprint(const char *v)
 {
-    printf("\"%s\"", v);
+    if (v) {
+        printf("\"%s\"", v);
+    } else {
+        printf("(null)");
+    }
 }
 
 void debugprint(char *v)
 {
-    printf("\"%s\"", v);
+    if (v) {
+        printf("\"%s\"", v);
+    } else {
+        printf("(null)");
+    }
+}
+
+void debugprint(const volatile char *v)
+{
+    if (v) {
+        printf("\"%s\"", v);
+    } else {
+        printf("(null)");
+    }
+}
+
+void debugprint(volatile char *v)
+{
+    if (v) {
+        printf("\"%s\"", v);
+    } else {
+        printf("(null)");
+    }
+}
+
+void debugprint(void *v)
+{
+    printf("%p", v);
+}
+
+void debugprint(volatile void *v)
+{
+    printf("%p", v);
 }
 
 void debugprint(const void *v)
+{
+    printf("%p", v);
+}
+
+void debugprint(const volatile void *v)
 {
     printf("%p", v);
 }

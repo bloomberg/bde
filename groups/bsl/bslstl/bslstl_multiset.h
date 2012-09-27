@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::multiset: STL-compatible multiset template
 //
-//@AUTHOR:  Henry Verschell (hverschell)
-//
 //@SEE_ALSO: bslstl_set, bslstl_multimap
+//
+//@AUTHOR:  Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component defines a single class template 'multiset',
 // implementing the standard container holding an ordered sequence of possibly
@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 // by) C++11 compiler support.
 //
 ///Requirements on 'KEY'
-///---------------------------------
+///---------------------
 // A 'multiset' is a fully "Value-Semantic Type" (see {'bsldoc_glossary'}) only
 // if the supplied 'KEY' template parameters is fully value-semantic.  It is
 // possible to instantiate a 'multiset' with 'KEY' parameter arguments that do
@@ -76,8 +76,8 @@ BSLS_IDENT("$Id: $")
 //
 ///'bslma'-Style Allocators
 /// - - - - - - - - - - - -
-// If the parameterized 'ALLOCATOR' type of an 'multiset' instantiation' is
-// 'bsl::allocator', then objects of that multiset type will conform to the
+// If the (template parameter) type 'ALLOCATOR' of an 'multiset' instantiation'
+// is 'bsl::allocator', then objects of that multiset type will conform to the
 // standard behavior of a 'bslma'-allocator-enabled type.  Such a multiset
 // accepts an optional 'bslma::Allocator' argument at construction.  If the
 // address of a 'bslma::Allocator' object is explicitly supplied at
@@ -86,8 +86,8 @@ BSLS_IDENT("$Id: $")
 // installed at the time of the multiset's construction (see 'bslma_default').
 // In addition to directly allocating memory from the indicated
 // 'bslma::Allocator', a multiset supplies that allocator's address to the
-// constructors of contained objects of the parameterized 'KEY' types with the
-// 'bslalg::TypeTraitUsesBslmaAllocator' trait.
+// constructors of contained objects of the (template parameter) type 'KEY'
+// with the 'bslalg::TypeTraitUsesBslmaAllocator' trait.
 //
 ///Operations
 ///----------
@@ -96,7 +96,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  Legend
 //  ------
-//  'K'             - parameterized 'KEY' type of the multiset
+//  'K'             - (template parameter) type 'KEY' of the multiset
 //  'a', 'b'        - two distinct objects of type 'multiset<K>'
 //  'n', 'm'        - number of elements in 'a' and 'b' respectively
 //  'c'             - comparator providing an ordering for objects of type 'K'
@@ -404,6 +404,15 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "include <bsl_set.h> instead of <bslstl_multiset.h> in \
+BSL_OVERRIDES_STD mode"
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>
 #endif
@@ -474,11 +483,10 @@ namespace bsl {
 template <class KEY,
           class COMPARATOR  = std::less<KEY>,
           class ALLOCATOR = bsl::allocator<KEY> >
-class multiset : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
-                 private BloombergLP::bslstl::SetComparator<KEY, COMPARATOR> {
+class multiset {
     // This class template implements a value-semantic container type holding
-    // an ordered sequence of possibly duplicate keys (of the parameterized
-    // type, 'KEY').
+    // an ordered sequence of possibly duplicate keys (of the template
+    // parameter type, 'KEY').
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
@@ -509,7 +517,28 @@ class multiset : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
         // This typedef is an alias for the allocator traits type associated
         // with this container.
 
+    struct DataWrapper : public Comparator {
+        // This struct is wrapper around the comparator and allocator data
+        // members.  It takes advantage of the empty-base optimization (EBO) so
+        // that if the allocator is stateless, it takes up no space.
+        //
+        // TBD: This struct should eventually be replaced by the use of a
+        // general EBO-enabled component that provides a 'pair'-like
+        // interface or a 'tuple'.
+
+        NodeFactory d_pool;  // pool of 'Node' objects
+
+        explicit DataWrapper(const COMPARATOR&  comparator,
+                             const ALLOCATOR&   allocator);
+            // Create a 'DataWrapper' object with the specified 'comparator'
+            // and 'allocator'.
+    };
+
     // DATA
+    DataWrapper                       d_compAndAlloc;
+                                               // comparator and pool of 'Node'
+                                               // objects
+
     BloombergLP::bslalg::RbTreeAnchor d_tree;  // balanced tree of 'Node'
                                                // objects
 
@@ -541,17 +570,11 @@ class multiset : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
     // PRIVATE MANIPULATORS
     NodeFactory& nodeFactory();
         // Return a reference providing modifiable access to the
-        // node-allocator for this tree.  Note that this class inherits from
-        // (rather than contains) a node-allocator to take advantage of the
-        // empty-base optimization, and this operation returns a base-class
-        // reference to this object.
+        // node-allocator for this tree.
 
     Comparator& comparator();
         // Return a reference providing modifiable access to the
-        // comparator for this tree.  Note that this class inherits from
-        // (rather than contains) a comparator to take advantage of the
-        // empty-base optimization, and this operation returns a base-class
-        // reference to this object.
+        // comparator for this tree.
 
     void quickSwap(multiset& other);
         // Efficiently exchange the value and comparator of this object with
@@ -562,17 +585,11 @@ class multiset : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
     // PRIVATE ACCESSORS
     const NodeFactory& nodeFactory() const;
         // Return a reference providing non-modifiable access to the
-        // node-allocator for this tree.  Note that this class inherits from
-        // (rather than contains) a node-allocator to take advantage of the
-        // empty-base optimization, and this operation returns a base-class
-        // reference to this object.
+        // node-allocator for this tree.
 
     const Comparator& comparator() const;
         // Return a reference providing non-modifiable access to the
-        // comparator for this tree.  Note that this class inherits from
-        // (rather than contains) a comparator to take advantage of the
-        // empty-base optimization, and this operation returns a base-class
-        // reference to this object.
+        // comparator for this tree.
 
   public:
     // TRAITS
@@ -582,24 +599,33 @@ class multiset : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
 
     // CREATORS
     explicit multiset(const COMPARATOR&  comparator = COMPARATOR(),
-                      const ALLOCATOR& allocator = ALLOCATOR());
+                      const ALLOCATOR& allocator = ALLOCATOR())
         // Construct an empty multiset.  Optionally specify a 'comparator' used
         // to order keys contained in this object.  If 'comparator' is not
-        // supplied, a default-constructed object of the parameterized
-        // 'COMPARATOR' type is used.  Optionally specify an 'allocator' used
+        // supplied, a default-constructed object of the (template parameter)
+        // type 'COMPARATOR' is used.  Optionally specify an 'allocator' used
         // to supply memory.  If 'allocator' is not supplied, a
-        // default-constructed object of the parameterized 'ALLOCATOR' type is
-        // used.  If the template parameter 'ALLOCATOR' argument is of type
+        // default-constructed object of the (template parameter) type
+        // 'ALLOCATOR' is used.  If the 'ALLOCATOR' argument is of type
         // 'bsl::allocator' (the default), then 'allocator', if supplied, shall
-        // be convertible to 'bslma::Allocator *'.  If the template parameter
-        // 'ALLOCATOR' argument is of type 'bsl::allocator' and 'allocator' is
-        // not supplied, the currently installed default allocator will be used
-        // to supply memory.
+        // be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR'
+        // argument is of type 'bsl::allocator' and 'allocator' is not
+        // supplied, the currently installed default allocator will be used to
+        // supply memory.
+    : d_compAndAlloc(comparator, allocator)
+    , d_tree()
+    {
+        // The implementation is placed here in the class definition to
+        // workaround an AIX compiler bug, where the constructor can fail to
+        // compile because it is unable to find the definition of the default
+        // argument.  This occurs when a templatized class wraps around the
+        // container and the comparator is defined after the new class.
+    }
 
     explicit multiset(const ALLOCATOR& allocator);
         // Construct an empty multiset that will use the specified 'allocator'
-        // to supply memory.  Use a default-constructed object of the
-        // parameterized 'COMPARATOR' type to order the keys contained in this
+        // to supply memory.  Use a default-constructed object of the (template
+        // parameter) type 'COMPARATOR' to order the keys contained in this
         // multiset.  If the template parameter 'ALLOCATOR' argument is of type
         // 'bsl::allocator' (the default) then 'allocator' shall be convertible
         // to 'bslma::Allocator *'.
@@ -607,12 +633,14 @@ class multiset : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
     multiset(const multiset& original);
         // Construct a multiset having the same value as the specified
         // 'original'.  Use a copy of 'original.key_comp()' to order the keys
-        // contained in this multiset.  Use a default-constructed object of the
-        // parameterized 'ALLOCATOR' type to allocate memory.  If the template
-        // parameter 'ALLOCATOR' argument is of type 'bsl::allocator' (the
-        // default), the currently installed default allocator will be used to
-        // supply memory.  This method requires that the parameterized 'KEY'
-        // type be "copy-constructible" (see {Requirements on 'KEY'}).
+        // contained in this multiset.  Use the allocator returned by
+        // 'bsl::allocator_traits<ALLOCATOR>::
+        // select_on_container_copy_construction(original.allocator())' to
+        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is
+        // of type 'bsl::allocator' (the default), the currently installed
+        // default allocator will be used to supply memory.  This method
+        // requires that the (template parameter) type 'KEY' be
+        // "copy-constructible" (see {Requirements on 'KEY'}).
 
     multiset(const multiset& original, const ALLOCATOR& allocator);
         // Construct a multiset having the same value as that of the specified
@@ -621,8 +649,8 @@ class multiset : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
         // this multiset.  If the template parameter 'ALLOCATOR' argument is of
         // type 'bsl::allocator' (the default) then 'allocator' shall be
         // convertible to 'bslma::Allocator *'.  This method requires that the
-        // parameterized 'KEY' type be "copy-constructible" (see {Requirements
-        // on 'KEY'}).
+        // (template parameter) type 'KEY' be "copy-constructible" (see
+        // {Requirements on 'KEY'}).
 
     template <class INPUT_ITERATOR>
     multiset(INPUT_ITERATOR first,
@@ -634,26 +662,27 @@ class multiset : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
         // before the specified 'last' element, ignoring those keys that
         // appears earlier in the sequence.  Optionally specify a 'comparator'
         // used to order keys contained in this object.  If 'comparator' is not
-        // supplied, a default-constructed object of the parameterized
-        // 'COMPARATOR' type is used.  Optionally specify a 'allocator' used to
+        // supplied, a default-constructed object of the (template parameter)
+        // type 'COMPARATOR' is used.  Optionally specify a 'allocator' used to
         // supply memory.  If 'allocator' is not supplied, a
-        // default-constructed object of the parameterized 'ALLOCATOR' type is
-        // used.  If the template parameter 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default) then 'allocator', if supplied, shall
-        // be convertible to 'bslma::Allocator *'.  If the template parameter
-        // 'ALLOCATOR' argument is of type 'bsl::allocator' and 'allocator' is
-        // not supplied, the currently installed default allocator will be used
-        // to supply memory.  If the sequence 'first' and 'last' is ordered
-        // according to the identified 'comparator' then this operation will
-        // have O[N] complexity, where N is the number of elements between
-        // 'first' and 'last', otherwise this operation will have O[N * log(N)]
-        // complexity.  The parameterized 'INPUT_ITERATOR' shall meet the
-        // requirements of an input iterator defined in the C++11 standard
-        // [24.2.3] providing access to values of a type convertible to
-        // 'value_type'.  The behavior is undefined unless 'first' and 'last'
-        // refer to a sequence of valid values where 'first' is at a position
-        // at or before 'last'.  This method requires that the parameterized
-        // 'KEY' type be "copy-constructible" (see {Requirements on 'KEY'}).
+        // default-constructed object of the (template parameter) type
+        // 'ALLOCATOR' is used.  If the template parameter 'ALLOCATOR' argument
+        // is of type 'bsl::allocator' (the default) then 'allocator', if
+        // supplied, shall be convertible to 'bslma::Allocator *'.  If the
+        // template parameter 'ALLOCATOR' argument is of type 'bsl::allocator'
+        // and 'allocator' is not supplied, the currently installed default
+        // allocator will be used to supply memory.  If the sequence 'first'
+        // and 'last' is ordered according to the identified 'comparator' then
+        // this operation will have O[N] complexity, where N is the number of
+        // elements between 'first' and 'last', otherwise this operation will
+        // have O[N * log(N)] complexity.  The (template parameter) type
+        // 'INPUT_ITERATOR' shall meet the requirements of an input iterator
+        // defined in the C++11 standard [24.2.3] providing access to values of
+        // a type convertible to 'value_type'.  The behavior is undefined
+        // unless 'first' and 'last' refer to a sequence of valid values where
+        // 'first' is at a position at or before 'last'.  This method requires
+        // that the (template parameter) type 'KEY' be "copy-constructible"
+        // (see {Requirements on 'KEY'}).
 
     ~multiset();
         // Destroy this object.
@@ -665,7 +694,7 @@ class multiset : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
         // 'rhs' object, propagate to this object the allocator of 'rhs' if the
         // 'ALLOCATOR' type has trait 'propagate_on_container_copy_assignment',
         // and return a reference providing modifiable access to this object.
-        // This method requires that the parameterized 'KEY' type be
+        // This method requires that the (template parameter) type 'KEY' be
         // "copy-constructible" (see {Requirements on 'KEY'}).
 
     iterator begin();
@@ -693,7 +722,7 @@ class multiset : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
         // Insert the specified 'value' into this multiset.  If a range
         // containing elements equivalent to 'value' already exist, insert
         // 'value' at the end of that range.  This method requires that the
-        // parameterized 'KEY' types both be "copy-constructible" (see
+        // (template parameter) type 'KEY' be "copy-constructible" (see
         // {Requirements on 'KEY'}).
 
     iterator insert(const_iterator hint, const value_type& value);
@@ -704,19 +733,19 @@ class multiset : private BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>,
         // 'value', this operation will have O[log(N)] complexity, where 'N' is
         // the size of this set.  The behavior is undefined unless 'hint' is a
         // valid iterator into this set.  This method requires that the
-        // parameterized 'KEY' type be "copy-constructible" (see {Requirements
-        // on 'KEY'}).
+        // (template parameter) type 'KEY' be "copy-constructible" (see
+        // {Requirements on 'KEY'}).
 
     template <class InputIterator>
     void insert(InputIterator first, InputIterator last);
         // Insert into this multiset the value of each 'value_type' object in
         // the range starting at the specified 'first' iterator and ending
-        // immediately before the specified 'last' iterator.  The parameterized
-        // 'INPUT_ITERATOR' shall meet the requirements of an input iterator
-        // defined in the C++11 standard [24.2.3] providing access to values of
-        // a type convertible to 'value_type'.  This method requires that the
-        // parameterized 'KEY' type be "copy-constructible" (see {Requirements
-        // on 'KEY'}).
+        // immediately before the specified 'last' iterator.  The (template
+        // parameter) type 'INPUT_ITERATOR' shall meet the requirements of an
+        // input iterator defined in the C++11 standard [24.2.3] providing
+        // access to values of a type convertible to 'value_type'.  This method
+        // requires that the (template parameter) type 'KEY' be
+        // "copy-constructible" (see {Requirements on 'KEY'}).
 
     iterator erase(const_iterator position);
         // Remove from this set the 'value_type' object at the specified
@@ -942,7 +971,7 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
     // value, and 'false' otherwise.  Two 'multiset' objects have the same
     // value if they have the same number of keys, and each key that is
     // contained in one of the objects is also contained in the other object.
-    // This method requires that the parameterized 'KEY' type be
+    // This method requires that the (template parameter) type 'KEY' be
     // "equality-comparable" (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -952,8 +981,8 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
     // same value, and 'false' otherwise.  Two 'multiset' objects do not have
     // the same value if they do not have the same number of keys, or some keys
     // that is contained in one of the objects is not also contained in the
-    // other object.  This method requires that the parameterized 'KEY'type be
-    // "equality-comparable" (see {Requirements on 'KEY'}).
+    // other object.  This method requires that the (template parameter) type
+    // 'KEY' be "equality-comparable" (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
     bool operator< (const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
@@ -963,8 +992,8 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
     // is less than that of 'rhs', if, for the first non-equal corresponding
     // key in their respective sequences, the 'lhs' key is less than the 'rhs'
     // key, or, if all their corresponding keys compare equal, 'lhs' has fewer
-    // keys than 'rhs'.  This method requires that the parameterized 'KEY' type
-    // be "less-than-comparable" (see {Requirements on 'KEY'}).
+    // keys than 'rhs'.  This method requires that the (template parameter)
+    // type 'KEY' be "less-than-comparable" (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
     bool operator> (const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
@@ -974,7 +1003,7 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
     // is greater than that of 'rhs', if, for the first non-equal corresponding
     // key in their respective sequences, the 'lhs' key is greater than the
     // 'rhs' key, or, if all their keys compare equal, 'lhs' has more keys than
-    // 'rhs'.  This method requires that the parameterized 'KEY' type be
+    // 'rhs'.  This method requires that the (template parameter) type 'KEY' be
     // "less-than-comparable" (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -986,7 +1015,7 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
     // non-equal corresponding key in their respective sequences, the 'lhs' key
     // is less than the 'rhs' key, or, if all of their corresponding keys
     // compare equal, 'lhs' has less-than or equal number of keys as 'rhs'.
-    // This method requires that the parameterized 'KEY' type be
+    // This method requires that the (template parameter) type 'KEY' be
     // "less-than-comparable" (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -998,7 +1027,7 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
     // first corresponding key in their respective sequences, the 'lhs' key is
     // greater than the 'rhs' key, or, if all of their corresponding keys
     // compare equal, 'lhs' has greater-than or equal number of keys 'rhs'.
-    // This method requires that the parameterized 'KEY' type be
+    // This method requires that the (template parameter) type 'KEY' be
     // "less-than-comparable" (see {Requirements on 'KEY'}).
 
 // specialized algorithms:
@@ -1018,6 +1047,20 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
+                             // -----------------
+                             // class DataWrapper
+                             // -----------------
+
+// CREATORS
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+multiset<KEY, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
+                                                  const COMPARATOR& comparator,
+                                                  const ALLOCATOR&  allocator)
+: ::bsl::multiset<KEY, COMPARATOR, ALLOCATOR>::Comparator(comparator)
+, d_pool(allocator)
+{
+}
 
                              // --------------
                              // class multiset
@@ -1029,7 +1072,7 @@ inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
 multiset<KEY, COMPARATOR, ALLOCATOR>::nodeFactory()
 {
-    return *this;
+    return d_compAndAlloc.d_pool;
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1037,7 +1080,7 @@ inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::Comparator&
 multiset<KEY, COMPARATOR, ALLOCATOR>::comparator()
 {
-    return *this;
+    return d_compAndAlloc;
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1045,8 +1088,14 @@ inline
 void multiset<KEY, COMPARATOR, ALLOCATOR>::quickSwap(multiset& other)
 {
     BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
-    static_cast<NodeFactory *>(this)->swap(other);
-    comparator().swap(other.comparator());
+    nodeFactory().swap(other.nodeFactory());
+
+    // Work around to avoid the 1-byte swap problem on AIX for an empty class
+    // under empty-base optimization.
+
+    if (sizeof(NodeFactory) != sizeof(DataWrapper)) {
+        comparator().swap(other.comparator());
+    }
 }
 
 // PRIVATE ACCESSORS
@@ -1055,7 +1104,7 @@ inline
 const typename multiset<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
 multiset<KEY, COMPARATOR, ALLOCATOR>::nodeFactory() const
 {
-    return *this;
+    return d_compAndAlloc.d_pool;
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1063,20 +1112,10 @@ inline
 const typename multiset<KEY, COMPARATOR, ALLOCATOR>::Comparator&
 multiset<KEY, COMPARATOR, ALLOCATOR>::comparator() const
 {
-    return *this;
+    return d_compAndAlloc;
 }
 
 // CREATORS
-template <class KEY, class COMPARATOR, class ALLOCATOR>
-inline
-multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const COMPARATOR& comparator,
-                                               const ALLOCATOR&  allocator)
-: NodeFactory(allocator)
-, Comparator(comparator)
-, d_tree()
-{
-}
-
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class INPUT_ITERATOR>
 inline
@@ -1084,12 +1123,11 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(INPUT_ITERATOR    first,
                                                INPUT_ITERATOR    last,
                                                const COMPARATOR& comparator,
                                                const ALLOCATOR&  allocator)
-: NodeFactory(allocator)
-, Comparator(comparator)
+: d_compAndAlloc(comparator, allocator)
 , d_tree()
 {
     if (first != last) {
-        BloombergLP::bslalg::RbTreeUtil_TreeProctor<NodeFactory> proctor(
+        BloombergLP::bslalg::RbTreeUtilTreeProctor<NodeFactory> proctor(
                                                                &d_tree,
                                                                &nodeFactory());
 
@@ -1127,8 +1165,9 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(INPUT_ITERATOR    first,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset& original)
-: NodeFactory(ALLOCATOR())
-, Comparator(original.comparator().keyComparator())
+: d_compAndAlloc(original.comparator().keyComparator(),
+                 AllocatorTraits::select_on_container_copy_construction(
+                                           original.nodeFactory().allocator()))
 , d_tree()
 {
     if (0 < original.size()) {
@@ -1142,8 +1181,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset& original)
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const ALLOCATOR& allocator)
-: NodeFactory(allocator)
-, Comparator(COMPARATOR())
+: d_compAndAlloc(COMPARATOR(), allocator)
 , d_tree()
 {
 }
@@ -1152,8 +1190,7 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset&  original,
                                                const ALLOCATOR& allocator)
-: NodeFactory(allocator)
-, Comparator(original.comparator().keyComparator())
+: d_compAndAlloc(original.comparator().keyComparator(), allocator)
 , d_tree()
 {
     if (0 < original.size()) {

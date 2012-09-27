@@ -16,7 +16,7 @@
 
 #include <bsl_c_stdio.h>   // snprintf() (<cstdio> doesn't declare 'snprintf')
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>             // pipe(), close() and dup().
 #endif
 
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'print' (ostream)." << endl;
 
 // The following code uses pipe() and fork(), so only works on Unix.
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 
         struct {
             void           *d_address;

@@ -108,6 +108,17 @@ BSLS_IDENT("$Id: $")
 //  Node value: (4, 8)
 //..
 
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "<bslstl_mapcomparator.h> header can't be included directly in \
+BSL_OVERRIDES_STD mode"
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>
 #endif
@@ -136,7 +147,7 @@ namespace bslstl {
                        // ===================
 
 template <class KEY, class VALUE, class COMPARATOR>
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 // Visual studio compiler fails to resolve the conversion operator in
 // 'bslalg::FunctorAdapter_FunctionPointer' when using private inheritance.
 // Below is a workaround until a more suitable way the resolve this issue can

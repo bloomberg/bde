@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::IsFundamental: meta-function for fundamental type checking
 //
-//@AUTHOR: Shawn Edwards (sedwards)
-//
 //@SEE_ALSO: bslmf_isenum, bslmf_ispointer
+//
+//@AUTHOR: Shawn Edwards (sedwards)
 //
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's parameter is a fundamental type.
@@ -158,6 +158,7 @@ struct IsFundamental<TYPE&>
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -167,6 +168,7 @@ struct IsFundamental<TYPE&>
 #endif
 #define bslmf_IsFundamental bslmf::IsFundamental
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

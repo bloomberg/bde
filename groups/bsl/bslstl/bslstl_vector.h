@@ -344,13 +344,13 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
     // consult the second revision of the "ISO/IEC 14882 Programming Language
     // C++ (Working Paper, 2009)".  In particular, this implementation offers
     // the general rules that:
-    //..
-    //   (1) a call to any methods that would result in a vector of size larger
-    //       than 'max_size()' triggers a 'std::throwLengthError' exception.
-    //   (2) a call to the 'at' method that attempts to access a position
-    //       outside the valid range of a vector triggers a 'std::out_of_range'
-    //       exception.
-    //..
+    //
+    //: 1 a call to any methods that would result in a vector of size larger
+    //:   than 'max_size()' triggers a 'std::throwLengthError' exception.
+    //:
+    //: 2 a call to the 'at' method that attempts to access a position outside
+    //:   the valid range of a vector triggers a 'std::out_of_range' exception.
+    //
     // More generally, this class supports an almost complete set of *in-core*
     // *value* *semantic* operations, including copy construction, assignment,
     // equality comparison (but excluding 'ostream' printing since this is
@@ -710,7 +710,7 @@ bool operator> (const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically larger
+    // Return 'true' if the specified 'lhs' vector is lexicographically smaller
     // than or equal to the specified 'rhs' vector, and 'false' otherwise.
     // This operator may only be used when the class 'VALUE_TYPE' defines the
     // operator:
@@ -855,7 +855,7 @@ class vector< VALUE_TYPE *, ALLOCATOR >
     // 'Vector_Imp<void *>' to reduce the amount of code generated.  Note
     // that this specialization rebinds the parameterized 'ALLOCATOR' type to
     // an allocator of 'void *' so as to satisfy the invariant in 'Vector_Imp'.
-    // Also note that members which don't need to be redefined are inherited
+    // Also note that members which do not need to be redefined are inherited
     // straightforwardly from the 'Base', although if an overloaded method
     // needs to be redefined, then all its overloads need to be redefined.
 
@@ -1086,7 +1086,7 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
     // 'Vector_Imp<const void *>' to reduce the amount of code generated.
     // Note that this specialization rebinds the parameterized 'ALLOCATOR' type
     // to an allocator of 'const void *' so as to satisfy the invariant in
-    // 'Vector_Imp'.  Also note that members which don't need to be redefined
+    // 'Vector_Imp'.  Also note that members which do not need to be redefined
     // are inherited straightforwardly from the 'Base', although if an
     // overloaded method needs to be redefined, then all its overloads need to
     // be redefined.

@@ -481,7 +481,7 @@ class bdex_TestOutStreamFormatter {
 };
 
 // FREE OPERATORS
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename OBJECT>
 inline
@@ -496,7 +496,7 @@ bdex_TestOutStreamFormatter& operator<<(bdex_TestOutStreamFormatter& stream,
     // which case this operator calls the appropriate 'put' method from this
     // component.
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -531,7 +531,7 @@ bdex_TestOutStreamFormatter::operator const void *() const
 }
 
 // FREE OPERATORS
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename VALUE>
 inline
@@ -541,7 +541,7 @@ bdex_TestOutStreamFormatter& operator<<(bdex_TestOutStreamFormatter& stream,
     return bdex_OutStreamFunctions::streamOutVersionAndObject(stream, value);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 }  // close namespace BloombergLP
 

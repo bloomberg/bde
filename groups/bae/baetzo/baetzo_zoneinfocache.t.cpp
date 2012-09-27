@@ -1272,7 +1272,6 @@ int main(int argc, char *argv[])
             TestDriverTestLoader testLoader(Z);
             Obj mX(&testLoader, Z); const Obj& X = mX;
 
-            ASSERT(0  < testAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
             ASSERT(NO_REQ == testLoader.lastRequestedTimeZone());
@@ -1402,7 +1401,6 @@ int main(int argc, char *argv[])
             ASSERT(                U == mX.loadTimeZone(&zone, "A"));
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
-            ASSERT(0 != testAllocator.numBytesInUse());
         }
         ASSERT(0 == defaultAllocator.numBytesInUse());
         ASSERT(0 == testAllocator.numBytesInUse());

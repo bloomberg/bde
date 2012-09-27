@@ -23,16 +23,14 @@ BSLS_IDENT("$Id: $")
 ///Block Growth Strategy
 ///---------------------
 // This component supports two memory block growth strategies:
-//..
-//  1) GEOMETRIC GROWTH: A container, pool or allocator that employs this
-//                       strategy, as indicated by the enumerator
-//                       'BSLS_GEOMETRIC', grows its buffer geometrically.
 //
-//  2) CONSTANT GROWTH:  A container, pool or allocator that employs this
-//                       strategy, as indicated by the enumerator
-//                       'BSLS_CONSTANT', locks the buffer growth.  The new
-//                       buffer is always the same size as the current buffer.
-//..
+//: GEOMETRIC GROWTH: A container, pool or allocator that employs this
+//:   strategy, as indicated by the enumerator 'BSLS_GEOMETRIC', grows its
+//:   buffer geometrically.
+//:
+//: CONSTANT GROWTH: A container, pool or allocator that employs this strategy,
+//:   as indicated by the enumerator 'BSLS_CONSTANT', locks the buffer growth.
+//:   The new buffer is always the same size as the current buffer.
 //
 ///Usage
 ///-----
@@ -148,12 +146,14 @@ struct BlockGrowth {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::BlockGrowth bsls_BlockGrowth;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

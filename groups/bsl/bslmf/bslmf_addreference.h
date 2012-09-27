@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template 'struct',
 // 'bslmf::AddReference', that is used to define a reference type from the type
 // supplied as its single template type parameter.  Types that are 'void' or
@@ -196,6 +194,7 @@ struct AddReference<const volatile void> {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -205,6 +204,7 @@ struct AddReference<const volatile void> {
 #endif
 #define bslmf_AddReference bslmf::AddReference
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

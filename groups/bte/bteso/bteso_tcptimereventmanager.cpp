@@ -56,7 +56,7 @@ bteso_TcpTimerEventManager::bteso_TcpTimerEventManager(
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 , d_metrics(NUM_CATEGORIES, CPU_BOUND, basicAllocator)
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     d_manager_p = new (*d_allocator_p)
         bteso_DefaultEventManager<bteso_Platform::SELECT>(&d_metrics,
                                                            basicAllocator);
@@ -75,11 +75,11 @@ bteso_TcpTimerEventManager::bteso_TcpTimerEventManager(
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 , d_metrics(NUM_CATEGORIES, CPU_BOUND, basicAllocator)
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     d_manager_p = new (*d_allocator_p)
         bteso_DefaultEventManager<bteso_Platform::SELECT>(&d_metrics,
                                                           basicAllocator);
-#elif defined(BSLS_PLATFORM__OS_SOLARIS)
+#elif defined(BSLS_PLATFORM_OS_SOLARIS)
     switch (infrequentRegistrationHint) {
       case BTESO_NO_HINT: {
         d_manager_p = new (*d_allocator_p)
@@ -95,7 +95,7 @@ bteso_TcpTimerEventManager::bteso_TcpTimerEventManager(
           BSLS_ASSERT(0);
       }
     }
-#elif defined(BSLS_PLATFORM__OS_LINUX)
+#elif defined(BSLS_PLATFORM_OS_LINUX)
     d_manager_p = new (*d_allocator_p)
         bteso_DefaultEventManager<bteso_Platform::EPOLL>(&d_metrics,
                                                          basicAllocator);

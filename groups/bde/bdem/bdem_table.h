@@ -1281,7 +1281,7 @@ class bdem_Table {
         // the initial indentation (as governed by 'level').  If 'stream' is
         // not valid on entry, this operation has no effect.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     static int maxSupportedVersion();
         // Return the most current 'bdex' streaming version number supported by
@@ -1302,7 +1302,7 @@ class bdem_Table {
         // 'insertRow(int dstIndex, const bdem_Table& table, int index)'
         // instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // FREE OPERATORS
@@ -1503,13 +1503,13 @@ void bdem_Table::appendNullRows(int numRows)
     insertNullRows(this->numRows(), numRows);
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 void bdem_Table::appendRow(const bdem_Row& srcRow)
 {
     insertRow(numRows(), srcRow);
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 void bdem_Table::appendRow(const bdem_List& srcList)
@@ -2179,7 +2179,7 @@ bsl::ostream& bdem_Table::print(bsl::ostream& stream,
     return d_tableImp.print(stream, level, spacesPerLevel);
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int bdem_Table::maxSupportedVersion()
@@ -2194,7 +2194,7 @@ void bdem_Table::insertRow(int dstIndex, const bdem_Row& srcRow)
                          reinterpret_cast<const bdem_RowData&>(srcRow));
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE OPERATORS
 inline

@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Chen He (che2)
 //
-//@SEE ALSO:
-//
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'NonTypicalOverloadsTestType', that
 // defines overloads to some non-typically-overloaded operators ('operator
@@ -128,7 +126,7 @@ class NonTypicalOverloadsTestType {
         // Set the 'data' attribute of this object to the specified 'value'.
 
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
     // ACCESSORS
     NonTypicalOverloadsTestType* operator&();
         // Overload 'operator&' and assert this method is not called.  This is
@@ -220,7 +218,7 @@ void NonTypicalOverloadsTestType::setData(int value)
     d_data = value;
 }
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 // ACCESSORS
 inline
 NonTypicalOverloadsTestType* NonTypicalOverloadsTestType::operator&()

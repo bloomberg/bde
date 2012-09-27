@@ -33,34 +33,10 @@ namespace BloombergLP {
                        // ------------------------------
 
 // PRIVATE MANIPULATORS
-template <typename CALLBCK>
-void btemt_ChannelPoolChannel::assignCallback(
-                                    ReadQueueEntry::ReadDataCallback& cbEntry,
-                                    const CALLBCK&                    callback,
-                                    const bslmf_MetaInt<BTEMT_BLOB_BASED>&)
-{
-    bsls_ObjectBuffer<BlobBasedReadCallback>& callbackBuffer =
-                                                         cbEntry.d_blobBasedCb;
-    new (callbackBuffer.buffer()) BlobBasedReadCallback();
-    callbackBuffer.object() = callback;
-}
-
-template <typename CALLBCK>
-void btemt_ChannelPoolChannel::assignCallback(
-                                    ReadQueueEntry::ReadDataCallback& cbEntry,
-                                    const CALLBCK&                    callback,
-                                    const bslmf_MetaInt<BTEMT_DATAMSG_BASED>&)
-{
-    bsls_ObjectBuffer<ReadCallback>& callbackBuffer =
-                                            cbEntry.d_pooledBufferChainBasedCb;
-    new (callbackBuffer.buffer()) ReadCallback();
-    callbackBuffer.object() = callback;
-}
-
-template <typename CALLBCK, int CALLBACK_TYPE>
+template <typename BTEMT_CALLBACK>
 int btemt_ChannelPoolChannel::addReadQueueEntry(
                                              int                      numBytes,
-                                             const CALLBCK&          callback,
+                                             const BTEMT_CALLBACK&    callback,
                                              const bdet_TimeInterval& timeOut)
 {
     if (d_closed) {
@@ -76,11 +52,7 @@ int btemt_ChannelPoolChannel::addReadQueueEntry(
     entry.d_timeOut        = timeOut;
     entry.d_timeOutTimerId = 0;
     entry.d_progress       = btemt_AsyncChannel::BTEMT_SUCCESS;
-    entry.d_callbackType   = (CallbackType) CALLBACK_TYPE;
-
-    assignCallback(entry.d_readCallback,
-                   callback,
-                   bslmf_MetaInt<CALLBACK_TYPE>());
+    entry.d_readCallback   = callback;
 
     if (0 != timeOut.totalMicroseconds()) {
         registerTimeoutAndUpdateClockId(timeOut);
@@ -128,8 +100,7 @@ void btemt_ChannelPoolChannel::removeTopReadEntry(bool invokeCallback)
     ReadQueueEntry&                  entry            = d_readQueue.front();
     int                              timerId          = entry.d_timeOutTimerId;
     int                              cancellationCode = entry.d_progress;
-    ReadQueueEntry::ReadDataCallback callbackObj      = entry.d_readCallback;
-    CallbackType                     callbackType     = entry.d_callbackType;
+    ReadQueueEntry::ReadCb           callback         = entry.d_readCallback;
 
     d_readQueue.pop_front();
 
@@ -139,18 +110,21 @@ void btemt_ChannelPoolChannel::removeTopReadEntry(bool invokeCallback)
 
     int dummy1, dummy2;
     if (invokeCallback) {
-        if (BTEMT_BLOB_BASED == callbackType) {
+        if (callback.is<BlobBasedReadCallback>()) {
             bcema_Blob dummyBlob;
-            callbackObj.d_blobBasedCb.object()(cancellationCode,
-                                               &dummy1,
-                                               &dummyBlob,
-                                               0);
+            callback.the<BlobBasedReadCallback>()(cancellationCode,
+                                                  &dummy1,
+                                                  &dummyBlob,
+                                                  0);
+
         }
         else {
-            callbackObj.d_pooledBufferChainBasedCb.object()(cancellationCode,
-                                                            &dummy1,
-                                                            &dummy2,
-                                                            btemt_DataMsg());
+            BSLS_ASSERT_SAFE(callback.is<ReadCallback>());
+
+            callback.the<ReadCallback>()(cancellationCode,
+                                         &dummy1,
+                                         &dummy2,
+                                         btemt_DataMsg());
         }
     }
 }
@@ -294,26 +268,19 @@ btemt_ChannelPoolChannel::~btemt_ChannelPoolChannel()
 }
 
 // MANIPULATORS
-int btemt_ChannelPoolChannel::read(int           numBytes,
-                                   const ReadCallback& callback)
+int btemt_ChannelPoolChannel::read(int numBytes, const ReadCallback& callback)
 {
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
 
-    return addReadQueueEntry<ReadCallback, BTEMT_DATAMSG_BASED>(
-                                                         numBytes,
-                                                         callback,
-                                                         bdet_TimeInterval(0));
+    return addReadQueueEntry(numBytes, callback, bdet_TimeInterval(0));
 }
 
-int btemt_ChannelPoolChannel::read(int                    numBytes,
+int btemt_ChannelPoolChannel::read(int                          numBytes,
                                    const BlobBasedReadCallback& callback)
 {
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
 
-    return addReadQueueEntry<BlobBasedReadCallback, BTEMT_BLOB_BASED>(
-                                                         numBytes,
-                                                         callback,
-                                                         bdet_TimeInterval(0));
+    return addReadQueueEntry(numBytes, callback, bdet_TimeInterval(0));
 }
 
 int btemt_ChannelPoolChannel::timedRead(int                      numBytes,
@@ -322,9 +289,7 @@ int btemt_ChannelPoolChannel::timedRead(int                      numBytes,
 {
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
 
-    return addReadQueueEntry<ReadCallback, BTEMT_DATAMSG_BASED>(numBytes,
-                                                          callback,
-                                                          timeOut);
+    return addReadQueueEntry(numBytes, callback, timeOut);
 }
 
 int btemt_ChannelPoolChannel::timedRead(int                          numBytes,
@@ -333,9 +298,7 @@ int btemt_ChannelPoolChannel::timedRead(int                          numBytes,
 {
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
 
-    return addReadQueueEntry<BlobBasedReadCallback, BTEMT_BLOB_BASED>(numBytes,
-                                                                callback,
-                                                                timeOut);
+    return addReadQueueEntry(numBytes, callback, timeOut);
 }
 
 int btemt_ChannelPoolChannel::write(const bcema_Blob& blob,
@@ -385,9 +348,9 @@ void btemt_ChannelPoolChannel::timeoutCb(ReadQueue::iterator entryIter)
 
         int dummy1 = 0;
         int dummy2 = 0;
-        if (BTEMT_BLOB_BASED == entryIter->d_callbackType) {
+        if (entryIter->d_readCallback.is<BlobBasedReadCallback>()) {
             BlobBasedReadCallback callback =
-                              entryIter->d_readCallback.d_blobBasedCb.object();
+                        entryIter->d_readCallback.the<BlobBasedReadCallback>();
             d_readQueue.erase(entryIter);
             bcemt_LockGuardUnlock<bcemt_Mutex> unlockGuard(&d_mutex);
             bcema_Blob emptyBlob;
@@ -397,8 +360,10 @@ void btemt_ChannelPoolChannel::timeoutCb(ReadQueue::iterator entryIter)
                      d_channelId);
         }
         else {
+            BSLS_ASSERT_SAFE(entryIter->d_readCallback.is<ReadCallback>());
+
             ReadCallback callback =
-                 entryIter->d_readCallback.d_pooledBufferChainBasedCb.object();
+                                 entryIter->d_readCallback.the<ReadCallback>();
             d_readQueue.erase(entryIter);
             bcemt_LockGuardUnlock<bcemt_Mutex> unlockGuard(&d_mutex);
             callback(btemt_AsyncChannel::BTEMT_TIMEOUT,
@@ -455,13 +420,12 @@ void btemt_ChannelPoolChannel::dataCb(int                  *numConsumed,
             continue;
         }
 
-        CallbackType callbackType = entry.d_callbackType;
-        int          nConsumed    = 0;
-        int          nNeeded      = 0;
+        int nConsumed = 0;
+        int nNeeded   = 0;
 
-        if (BTEMT_BLOB_BASED == callbackType) {
-            BlobBasedReadCallback callback =
-                                   entry.d_readCallback.d_blobBasedCb.object();
+        if (entry.d_readCallback.is<BlobBasedReadCallback>()) {
+            const BlobBasedReadCallback& callback =
+                             entry.d_readCallback.the<BlobBasedReadCallback>();
 
             bcema_Blob blob(d_blobBufferFactory_p.ptr());
             btemt_MessageUtil::assignData(&blob,
@@ -475,8 +439,10 @@ void btemt_ChannelPoolChannel::dataCb(int                  *numConsumed,
             }
         }
         else {
-            ReadCallback callback =
-                      entry.d_readCallback.d_pooledBufferChainBasedCb.object();
+            BSLS_ASSERT_SAFE(entry.d_readCallback.is<ReadCallback>());
+
+            const ReadCallback& callback =
+                                      entry.d_readCallback.the<ReadCallback>();
             {
                 bcemt_LockGuardUnlock<bcemt_Mutex> guard(&d_mutex);
                 callback(BTEMT_SUCCESS, &nConsumed, &nNeeded, *currentMsg);
@@ -576,14 +542,13 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
             continue;
         }
 
-        CallbackType callbackType = entry.d_callbackType;
-        int          numConsumed  = 0;
-        int          nNeeded      = 0;
+        int numConsumed = 0;
+        int nNeeded     = 0;
 
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                                           BTEMT_BLOB_BASED == callbackType)) {
-            BlobBasedReadCallback callback =
-                                   entry.d_readCallback.d_blobBasedCb.object();
+                           entry.d_readCallback.is<BlobBasedReadCallback>())) {
+            const BlobBasedReadCallback& callback =
+                             entry.d_readCallback.the<BlobBasedReadCallback>();
             numBytesAvailable = msg->length();
 
             {
@@ -594,8 +559,11 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
         }
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            ReadCallback callback =
-                      entry.d_readCallback.d_pooledBufferChainBasedCb.object();
+
+            BSLS_ASSERT_SAFE(entry.d_readCallback.is<ReadCallback>());
+
+            const ReadCallback& callback =
+                                      entry.d_readCallback.the<ReadCallback>();
 
             btemt_DataMsg dataMsg;
             btemt_MessageUtil::assignData(&dataMsg,
@@ -687,9 +655,9 @@ void btemt_ChannelPoolChannel::cancelRead()
                                                it != cancelQueue.end(); ++it) {
                 bdef_Function<void (*)()> cancelNotifyCallback(
                         bdef_BindUtil::bind(
-                                    it->d_readCallback.d_blobBasedCb.object(),
-                                    btemt_AsyncChannel::BTEMT_CANCELED,
-                                    &dummy1, &dummyBlob, d_channelId));
+                               it->d_readCallback.the<BlobBasedReadCallback>(),
+                               btemt_AsyncChannel::BTEMT_CANCELED,
+                               &dummy1, &dummyBlob, d_channelId));
 
                 int rc;
                 while (1 == (rc = d_channelPool_p->registerClock(
@@ -716,10 +684,9 @@ void btemt_ChannelPoolChannel::cancelRead()
             for (ReadQueue::iterator it = cancelQueue.begin();
                                                it != cancelQueue.end(); ++it) {
                 bdef_Function<void (*)()> cancelNotifyCallback(
-                    bdef_BindUtil::bind(
-                        it->d_readCallback.d_pooledBufferChainBasedCb.object(),
-                        btemt_AsyncChannel::BTEMT_CANCELED,
-                        &dummy1, &dummy2, dummyMsg));
+                    bdef_BindUtil::bind(it->d_readCallback.the<ReadCallback>(),
+                                        btemt_AsyncChannel::BTEMT_CANCELED,
+                                        &dummy1, &dummy2, dummyMsg));
 
                 int rc;
                 while (1 == (rc = d_channelPool_p->registerClock(

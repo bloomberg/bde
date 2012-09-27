@@ -250,7 +250,7 @@ struct ChoiceRep {
 struct ChoiceArrayRep {
     AllocatorContainerRep        d_allocContainer;
     CatalogContainerRep          d_catalogContainer;
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
     bsl::vector<ChoiceHeaderRep> d_headers;
 #else
     int                          d_headers;  // lie to avoid Windows internal
@@ -1121,7 +1121,7 @@ int main(int argc, char *argv[])
             {  L_,   "ABC",   "ABC",   {  6,  4,  0 },       7            },
             {  L_,   "CBA",   "ABC",   {  0,  4,  6 },       7            },
             {  L_,   "DCBA",  "ABCD",  {  0,  8, 12, 14 },  15             },
-#if (defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_32_BIT))
+#if (defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CPU_32_BIT))
             // This is a proof of the above comment.  Since the 'int' and
             // 'int64' have the same alignment on linux 32 bit, the later
             // inserted one, this time 'int64' (D), will go after 'int' (C).
@@ -1135,8 +1135,8 @@ int main(int argc, char *argv[])
             {  L_,   "BBCC",  "CCBB",  {  8, 10,  0,  4 },  12             },
             {  L_,   "CCBB",  "CCBB",  {  0,  4,  8, 10 },  12             },
             {  L_,   "FAFA",  "FFAA",  {  0, 16,  8, 17 },  18             },
-#if (defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_32_BIT)) \
-  || defined(BSLS_PLATFORM__OS_AIX)
+#if (defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CPU_32_BIT)) \
+  || defined(BSLS_PLATFORM_OS_AIX)
             // The alignment of double on ibm & 32 bit linux is 4, while on
             // other platforms it is 8.  So we have to special case ibm &
             // 32-bit linux.
@@ -1302,7 +1302,7 @@ int main(int argc, char *argv[])
             {  L_,   "ABC",   "ABC",   {  6,  4,  0 },       7             },
             {  L_,   "CBA",   "ABC",   {  0,  4,  6 },       7             },
             {  L_,   "DCBA",  "ABCD",  {  0,  8, 12, 14 },  15             },
-#if (defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_32_BIT))
+#if (defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CPU_32_BIT))
             // These is a proof of the above comment.  Since the 'int' and
             // 'int64' have the same alignment, the later inserted one, this
             // time 'int64' (D), will go in front of 'int' (C), as shown by the
@@ -1317,8 +1317,8 @@ int main(int argc, char *argv[])
             {  L_,   "BBCC",  "CCBB",  {  8, 10,  0,  4 },  12             },
             {  L_,   "CCBB",  "CCBB",  {  0,  4,  8, 10 },  12             },
             {  L_,   "FAFA",  "FFAA",  {  0, 16,  8, 17 },  18             },
-#if (defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_32_BIT)) \
-  || defined(BSLS_PLATFORM__OS_AIX)
+#if (defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CPU_32_BIT)) \
+  || defined(BSLS_PLATFORM_OS_AIX)
             // The alignment of double on ibm & 32 bit linux is 4, while on
             // other platforms it is 8.  So we have to special case ibm &
             // 32-bit linux.

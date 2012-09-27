@@ -367,6 +367,72 @@ int verifyContainer(const CONTAINER&  container,
     return 0;
 }
 
+                            // ==========================
+                            // class StatefulStlAllocator
+                            // ==========================
+
+template <class VALUE>
+class StatefulStlAllocator : public bsltf::StdTestAllocator<VALUE>
+    // This class implements a standard compliant allocator that has an
+    // attribute, 'id'.
+{
+    // DATA
+    int d_id;  // identifier
+
+  private:
+    // TYPES
+    typedef bsltf::StdTestAllocator<VALUE> StlAlloc;
+        // Alias for the base class.
+
+  public:
+    template <class OTHER_TYPE>
+    struct rebind
+    {
+        // This nested 'struct' template, parameterized by some 'OTHER_TYPE',
+        // provides a namespace for an 'other' type alias, which is an
+        // allocator type following the same template as this one but that
+        // allocates elements of 'OTHER_TYPE'.  Note that this allocator type
+        // is convertible to and from 'other' for any 'OTHER_TYPE' including
+        // 'void'.
+
+        typedef StatefulStlAllocator<OTHER_TYPE> other;
+    };
+
+    // CREATORS
+    StatefulStlAllocator()
+        // Create a 'StatefulStlAllocator' object.
+    : StlAlloc()
+    {
+    }
+
+    // StatefulStlAllocator(const StatefulStlAllocator& original) = default;
+        // Create a 'StatefulStlAllocator' object having the same id as the
+        // specified 'original'.
+
+    template <class OTHER_TYPE>
+    StatefulStlAllocator(const StatefulStlAllocator<OTHER_TYPE>& original)
+        // Create a 'StatefulStlAllocator' object having the same id as the
+        // specified 'original' with a different template type.
+    : StlAlloc(original)
+    , d_id(original.id())
+    {
+    }
+
+    // MANIPULATORS
+    void setId(int value)
+        // Set the 'id' attribute of this object to the specified 'value'.
+    {
+        d_id = value;
+    }
+
+    // ACCESSORS
+    int id() const
+        // Return the value of the 'id' attribute of this object.
+    {
+        return d_id;
+    }
+};
+
                             // ====================
                             // class ExceptionGuard
                             // ====================
@@ -578,8 +644,115 @@ class TestComparatorNonConst {
     }
 };
 
+                       // =====================
+                       // class TemplateWrapper
+                       // =====================
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+class TemplateWrapper {
+    // This class inherits from the container, but do nothing otherwise.  A
+    // compiler bug in AIX prevents the compiler from finding the definition of
+    // the default arguments for the constructor.  This class is created to
+    // test this scenario.
+
+    // DATA
+    bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR> d_member;
+
+  public:
+    // CREATORS
+    TemplateWrapper()
+    : d_member()
+    {
+    }
+
+    //! TemplateWrapper(const TemplateWrapper&) = default;
+
+    template <class INPUT_ITERATOR>
+    TemplateWrapper(INPUT_ITERATOR begin, INPUT_ITERATOR end)
+    : d_member(begin, end)
+    {
+    }
+};
+
+                       // =====================
+                       // class TemplateWrapper
+                       // =====================
+
+class DummyComparator {
+    // A dummy comparator class.  Must be defined after 'TemplateWrapper' to
+    // reproduce the AIX bug.
+
+  public:
+    bool operator() (int, int)
+    {
+        return true;
+    }
+};
+
+                       // ====================
+                       // class DummyAllocator
+                       // ====================
+
+template <class TYPE>
+class DummyAllocator {
+    // A dummy allocator class.  Must be defined after 'TemplateWrapper' to
+    // reproduce the AIX bug.  Every method is a noop.
+
+  public:
+    // PUBLIC TYPES
+    typedef std::size_t     size_type;
+    typedef std::ptrdiff_t  difference_type;
+    typedef TYPE           *pointer;
+    typedef const TYPE     *const_pointer;
+    typedef TYPE&           reference;
+    typedef const TYPE&     const_reference;
+    typedef TYPE            value_type;
+
+    template <class OTHER_TYPE>
+    struct rebind
+    {
+        typedef DummyAllocator<OTHER_TYPE> other;
+    };
+
+    // CREATORS
+    DummyAllocator() {}
+
+    // DummyAllocator(const DummyAllocator& original) = default;
+
+    template <class OTHER_TYPE>
+    DummyAllocator(const DummyAllocator<OTHER_TYPE>&) {}
+
+    // ~DummyAllocator() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    // DummyAllocator& operator=(const DummyAllocator& rhs) = default;
+
+    pointer allocate(size_type numElements, const void *hint = 0) { return 0; }
+
+    void deallocate(pointer address, size_type numElements = 1) {}
+
+    void construct(pointer address, const TYPE& value) {}
+
+    void destroy(pointer address) {}
+
+    // ACCESSORS
+    pointer address(reference object) const { return 0; }
+
+    const_pointer address(const_reference object) const { return 0; }
+
+    size_type max_size() const { return 0; }
+};
+
+                       // =========================
+                       // class CharToPairConverter
+                       // =========================
+
 template <class KEY, class VALUE>
 class CharToPairConverter {
+    // Convert a 'char' value to a 'bsl::pair' of the parameterized 'KEY' and
+    // 'VALUE' type.
+
   public:
     bsl::pair<const KEY, VALUE> operator()(char value)
     {
@@ -707,8 +880,11 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase25();
+    static void testCase26();
         // Test standard interface coverage.
+
+    static void testCase25();
+        // Test constructor of a template wrapper class.
 
     static void testCase24();
         // Test element access.  'VALUE' must be default constructible.
@@ -767,6 +943,9 @@ class TestDriver {
 
     static void testCase8();
         // Test 'swap' member and free functions.
+
+    static void testCase7_1();
+        // Test 'select_on_container_copy_construction'
 
     static void testCase7();
         // Test copy constructor.
@@ -844,7 +1023,7 @@ bsl::map<KEY, VALUE, COMP, ALLOC> TestDriver<KEY, VALUE, COMP, ALLOC>::g(
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
-void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase25()
+void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase26()
 {
     // ------------------------------------------------------------------------
     // TESTING STANDARD INTERFACE COVERAGE
@@ -1176,6 +1355,52 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase25()
     // map<Key,T,Compare,Allocator>& y);
     void (*functionSwap) (Obj&, Obj&) = &swap;
     (void) functionSwap;
+}
+
+template <class KEY, class VALUE, class COMP, class ALLOC>
+void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase25()
+{
+    // ------------------------------------------------------------------------
+    // TESTING CONSTRUCTOR OF A TEMPLATE WRAPPER CLASS
+    //
+    // Concern:
+    //: 1 The constructor of a templatized wrapper around the container will
+    //:   compile.  (C-1)
+    //
+    // Plan:
+    //: 1 Invoke each constructor of a class that inherits from the container.
+    //
+    // Testing:
+    //   CONCERN: Constructor of a template wrapper class compiles
+    // ------------------------------------------------------------------------
+
+    // The following may fail to compile on AIX
+
+    TemplateWrapper<KEY,
+                    VALUE,
+                    DummyComparator,
+                    DummyAllocator<bsl::pair<const KEY, VALUE> > > obj1;
+    (void) obj1;
+
+    // This would compile because the copy constructor doesn't use a default
+    // argument.
+
+    TemplateWrapper<KEY,
+                    VALUE,
+                    DummyComparator,
+                    DummyAllocator<bsl::pair<const KEY, VALUE> > > obj2(obj1);
+    (void) obj2;
+
+    // This would also compile, most likely because the constructor is
+    // templatized.
+
+    typename Obj::value_type array[1];
+    TemplateWrapper<KEY,
+                    VALUE,
+                    DummyComparator,
+                    DummyAllocator<bsl::pair<const KEY, VALUE> > > obj3(array,
+                                                                        array);
+    (void) obj3;
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
@@ -1523,6 +1748,15 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase22()
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
     }
 
+    // IBM empty class swap bug test
+
+    {
+        typedef bsl::map<int, int, std::less<int>, StlAlloc> TestObj;
+        TestObj mX;
+        mX.insert(typename TestObj::value_type(1, 1));
+        TestObj mY;
+        mY = mX;
+    }
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
@@ -2908,13 +3142,13 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase14()
     if (verbose) printf("Testing 'iterator', 'begin', and 'end',"
                         " and 'const' variants.\n");
     {
-        ASSERTV(1 == (bslmf_IsSame<typename Iter::pointer,
+        ASSERTV(1 == (bslmf::IsSame<typename Iter::pointer,
                                    bsl::pair<const KEY, VALUE>*>::VALUE));
-        ASSERTV(1 == (bslmf_IsSame<typename Iter::reference,
+        ASSERTV(1 == (bslmf::IsSame<typename Iter::reference,
                                    bsl::pair<const KEY, VALUE>&>::VALUE));
-        ASSERTV(1 == (bslmf_IsSame<typename CIter::pointer,
+        ASSERTV(1 == (bslmf::IsSame<typename CIter::pointer,
                                    const bsl::pair<const KEY, VALUE>*>::VALUE));
-        ASSERTV(1 == (bslmf_IsSame<typename CIter::reference,
+        ASSERTV(1 == (bslmf::IsSame<typename CIter::reference,
                                    const bsl::pair<const KEY, VALUE>&>::VALUE));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -2948,9 +3182,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase14()
     if (verbose) printf("Testing 'reverse_iterator', 'rbegin', and 'rend',"
                         " and 'const' variants.\n");
     {
-        ASSERTV(1 == (bslmf_IsSame<RIter,
+        ASSERTV(1 == (bslmf::IsSame<RIter,
                                    bsl::reverse_iterator<Iter> >::VALUE));
-        ASSERTV(1 == (bslmf_IsSame<CRIter,
+        ASSERTV(1 == (bslmf::IsSame<CRIter,
                                    bsl::reverse_iterator<CIter> >::VALUE));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -3240,6 +3474,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
         { L_,   "ABC",        "ABC",       true },
         { L_,   "ABCD",       "ABCD",      true },
         { L_,   "ABCDE",      "ABCDE",     true },
+        { L_,   "AABCCDDDE",  "ABCDE",     true },
         { L_,   "DABEC",      "ABCDE",    false },
         { L_,   "EDCBACBA",   "ABCDE",    false },
         { L_,   "ABCDEABCD",  "ABCDE",    false }
@@ -3317,8 +3552,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
                 ASSERTV(LINE, CONFIG, &oa == X.get_allocator());
 
                 if (ORDERED && LENGTH > 0) {
-                    ASSERTV(LINE, CONFIG, LENGTH - 1, X.key_comp().count(),
-                            LENGTH - 1 == X.key_comp().count());
+                    const size_t SPECLEN = strlen(DATA[ti].d_spec);
+                    ASSERTV(LINE, CONFIG, (SPECLEN - 1) * 2,
+                            X.key_comp().count(),
+                            (SPECLEN - 1) * 2 == X.key_comp().count());
                 }
                 // Verify no allocation from the non-object allocator.
 
@@ -4398,6 +4635,89 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
         ASSERT(oam.isTotalSame());
 
         if (veryVerbose) { T_ P_(X) P(Y) }
+    }
+}
+
+template <class KEY, class VALUE, class COMP, class ALLOC>
+void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase7_1()
+{
+    // ------------------------------------------------------------------------
+    // TESTING COPY CONSTRUCTOR:
+    //
+    // Concerns:
+    //: 1 The allocator of an object using a standard allocator is copied to
+    //:   the newly constructed object.
+    //
+    // Plan:
+    //: 1 Specify a set S of object values with varied differences, ordered by
+    //:   increasing length, to be used in the following tests.
+    //:
+    //: 2 For each value in S, initialize objects W and X with a stateful
+    //:   standard allocator of different states, copy construct Y from x and
+    //:   use 'operator==' to verify that both X and Y subsequently have the
+    //:   same value as W.
+    //:
+    //: 3 Use the get_allocator method to verify the allocator of Y has the
+    //:   same value as X.
+    //
+    // Testing:
+    //   map(const map& original);
+    // ------------------------------------------------------------------------
+
+    bslma::TestAllocator oa(veryVeryVerbose);
+
+    const TestValues VALUES;
+
+    const int TYPE_ALLOC =
+             bslalg::HasTrait<KEY, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+
+    typedef StatefulStlAllocator<KEY> Allocator;
+    typedef bsl::map<KEY, VALUE, COMP, Allocator> StlObj;
+
+    if (verbose)
+        printf("\nTesting parameters: TYPE_ALLOC = %d.\n", TYPE_ALLOC);
+    {
+        static const char *SPECS[] = {
+            "",
+            "A",
+            "BC",
+            "CDE",
+        };
+
+        const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
+
+        for (int ti = 0; ti < NUM_SPECS; ++ti) {
+            const char *const SPEC   = SPECS[ti];
+            const size_t      LENGTH = (int) strlen(SPEC);
+            TestValues VALUES(SPEC);
+
+            if (verbose) {
+                printf("\nFor an object of length %d:\n", LENGTH);
+                P(SPEC);
+            }
+
+            // Create control object w.
+            Allocator a;  a.setId(ti);
+            StlObj mW(VALUES.begin(), VALUES.end(), COMP(), a);
+            const StlObj& W = mW;
+
+            ASSERTV(ti, LENGTH == W.size()); // same lengths
+            if (veryVerbose) { printf("\tControl Obj: "); P(W); }
+
+            VALUES.resetIterators();
+            StlObj mX(VALUES.begin(), VALUES.end(), COMP(), a);
+            const StlObj& X = mX;
+
+            if (veryVerbose) { printf("\t\tDynamic Obj: "); P(X); }
+
+            const StlObj Y(X);
+
+            ASSERTV(SPEC, W == Y);
+            ASSERTV(SPEC, W == X);
+            ASSERTV(SPEC, ti == Y.get_allocator().id());
+
+            ASSERTV(SPEC, W == Y);
+        }
     }
 }
 
@@ -5992,7 +6312,7 @@ namespace UsageExample {
 class TradeMatcher {
     // This class provides a mechanism that characterizes a simple trade
     // matching system for one stock.  An object of this class allows clients
-    // to place orders and view the active orders and past executions.
+    // to place orders and view the active orders.
 //..
 // Here, we create two type aliases, 'SellOrdersMap' and 'BuyOrdersMap', for
 // two 'bsl::map' instantiations that maps the price of an order (type
@@ -6021,8 +6341,6 @@ class TradeMatcher {
     SellOrdersMap   d_sellOrders;  // current sell orders
     BuyOrdersMap    d_buyOrders;   // current buy orders
 
-    ExecutionVector d_executions;  // executed trades
-
   private:
     // This class does not support copy-construction and copy-assignment.
     TradeMatcher& operator=(const TradeMatcher&);
@@ -6037,10 +6355,6 @@ class TradeMatcher {
     typedef BuyOrdersMap::const_iterator BuyOrdersConstIterator;
         // This 'typedef' provides an alias for the type of an iterator
         // providing non-modifiable access to buy orders in a 'TradeMatcher'.
-
-    typedef ExecutionVector::const_iterator ExecutionsConstIterator;
-        // This 'typedef' provides an alias for the type of an iterator
-        // providing non-modifiable access to executions in a 'TradeMatcher'.
 
     // CREATORS
     TradeMatcher(bslma::Allocator *basicAllocator = 0);
@@ -6084,16 +6398,6 @@ class TradeMatcher {
         // Return an iterator providing non-modifiable access to the
         // past-the-end buy order in the ordered sequence (from high price to
         // low price) of buy orders maintained by this object.
-
-    ExecutionsConstIterator beginExecutions() const;
-        // Return an iterator providing non-modifiable access to the first
-        // trade execution in the ordered sequence of executions maintained by
-        // this object.
-
-    ExecutionsConstIterator endExecutions() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end trade execution in the ordered sequence of executions
-        // maintained by this object.
 };
 
 //..
@@ -6103,7 +6407,6 @@ class TradeMatcher {
 TradeMatcher::TradeMatcher(bslma::Allocator *basicAllocator)
 : d_sellOrders(basicAllocator)
 , d_buyOrders(basicAllocator)
-, d_executions(basicAllocator)
 {
 }
 //..
@@ -6125,15 +6428,11 @@ void TradeMatcher::placeBuyOrder(double price, int numShares)
     while (numShares && itr != d_sellOrders.upper_bound(price))
     {
         if (itr->second > numShares) {
-            d_executions.push_back(
-                           ExecutionVector::value_type(itr->first, numShares));
             itr->second -= numShares;
             numShares = 0;
             break;
         }
 
-        d_executions.push_back(
-                         ExecutionVector::value_type(itr->first, itr->second));
         itr = d_sellOrders.erase(itr);
         numShares -= itr->second;
     }
@@ -6157,15 +6456,11 @@ void TradeMatcher::placeSellOrder(double price, int numShares)
     while (numShares && itr != d_buyOrders.upper_bound(price))
     {
         if (itr->second > numShares) {
-            d_executions.push_back(
-                           ExecutionVector::value_type(itr->first, numShares));
             itr->second -= numShares;
             numShares = 0;
             break;
         }
 
-        d_executions.push_back(
-                         ExecutionVector::value_type(itr->first, itr->second));
         itr = d_buyOrders.erase(itr);
         numShares -= itr->second;
     }
@@ -6195,16 +6490,6 @@ TradeMatcher::BuyOrdersConstIterator TradeMatcher::endBuyOrders() const
 {
     return d_buyOrders.end();
 }
-
-TradeMatcher::ExecutionsConstIterator TradeMatcher::beginExecutions() const
-{
-    return d_executions.begin();
-}
-
-TradeMatcher::ExecutionsConstIterator TradeMatcher::endExecutions() const
-{
-    return d_executions.end();
-}
 //..
 
 } // close namespace UsageExample
@@ -6233,7 +6518,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -6272,43 +6557,25 @@ int main(int argc, char *argv[])
             matcher.placeBuyOrder(17, 9);
             matcher.placeBuyOrder(16, 2);
 
-            if (veryVerbose) {
-                for (TradeMatcher::ExecutionsConstIterator itr =
-                         matcher.beginExecutions();
-                     itr != matcher.endExecutions();
-                     ++itr)
-                {
-                    printf("price: %f, quantity: %d\n",
-                           itr->first,
-                           itr->second);
-                }
-            }
-
-            bsl::vector<bsl::pair<double, int> > executions(
-                                                     matcher.beginExecutions(),
-                                                     matcher.endExecutions(),
-                                                     &scratch);
-
-            ASSERT(3  == executions.size());
-            ASSERT(20 == executions[0].first);
-            ASSERT(1  == executions[0].second);
-            ASSERT(16 == executions[1].first);
-            ASSERT(9  == executions[1].second);
-            ASSERT(16 == executions[2].first);
-            ASSERT(1  == executions[2].second);
-
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 < objectAllocator.numBytesInUse());
         }
       } break;
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // TESTING STANDARD INTERFACE COVERAGE
         // --------------------------------------------------------------------
         // Test only 'int' and 'char' parameter types, becuase map's
         // 'operator<' and related operators only support parameterized types
         // that defines 'operator<'.
-        RUN_EACH_TYPE(TestDriver, testCase25, int, char);
+        RUN_EACH_TYPE(TestDriver, testCase26, int, char);
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // TESTING CONSTRUCTOR OF TEMPLATE WRAPPER
+        // --------------------------------------------------------------------
+        // KEY/VALUE doesn't affect the test.  So run test only for 'int'.
+        TestDriver<int, int>::testCase25();
       } break;
       case 24: {
         // --------------------------------------------------------------------
@@ -6496,6 +6763,8 @@ int main(int argc, char *argv[])
                       testCase7,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
         TestDriver<TestKeyType, TestValueType>::testCase7();
+
+        RUN_EACH_TYPE(TestDriver, testCase7_1, int);
       } break;
       case 6: {
         // --------------------------------------------------------------------

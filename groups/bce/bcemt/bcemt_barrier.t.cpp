@@ -307,7 +307,7 @@ extern "C" void * testThread4(void *arg)
     duration -= timeOut;
     if (res) {
         // relax timing by 50us for Windows
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         const int relax = 50;
 #else
         const int relax = 0;
@@ -322,7 +322,7 @@ extern "C" void * testThread4(void *arg)
 
     ++args->d_stopCount;
     while (args->d_nThreads + 1 != args->d_stopCount) {
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
         // Avoid spinning as it can block on some overoptimized platforms.
 
         bcemt_ThreadUtil::yield();
@@ -839,7 +839,7 @@ int main(int argc, char *argv[])
             // Wait until all the threads have stopped.
             ++args.d_stopCount;
             while (NTHREADS + 1 != args.d_stopCount) {
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
                 bcemt_ThreadUtil::yield();
 #endif
             }
@@ -885,7 +885,7 @@ int main(int argc, char *argv[])
             if (0 == res ) {
                 ++args.d_stopCount;
                 while(NTHREADS + 1 != args.d_stopCount) {
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
                     bcemt_ThreadUtil::yield();
 #endif
                 }
@@ -956,7 +956,7 @@ int main(int argc, char *argv[])
                             testThread3, &args);
                 }
                 while (NTHREADS != args.d_waitCount) {
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
                     // avoid spinning as this can preempt on some platforms
 
                     bcemt_ThreadUtil::yield();
@@ -971,7 +971,7 @@ int main(int argc, char *argv[])
                 args.d_barrier.wait();
 
                 while (0 != args.d_waitCount) {
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
                     bcemt_ThreadUtil::yield();
 #endif
                 }

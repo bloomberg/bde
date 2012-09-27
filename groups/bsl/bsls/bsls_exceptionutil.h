@@ -7,12 +7,17 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Simplify exception constructs for non-exception builds
+//@PURPOSE: Provide simplified exception constructs for non-exception builds.
 //
 //@CLASSES:
-//  bsls::ExceptionUtil: namespace for exception utility functions
 //
-//@SEE_ALSO:
+//@MACROS:
+//  BSLS_TRY: begin a 'try'-block
+//  BSLS_CATCH(X): begin a 'catch'-block for exception 'X'
+//  BSLS_THROW(X): 'throw' exception 'X'
+//  BSLS_RETHROW: re-'throw' the current exception
+//  BSLS_EXCEPTION_SPEC(SPEC): add 'SPEC' to function exception specification
+//  BSLS_NOTHROW_SPEC: declare that a function throws no exceptions
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
@@ -27,7 +32,81 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// Define a few exception classes:
+// This section illustrates intended use of this component.
+//
+///Example 1: Using 'bsls_exceptionutil' to Implement 'vector'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we wanted to define an implementation of a standard-defined
+// 'vector' template.  Unfortunately, the C++ standard requires that 'vector'
+// provide an 'at' method that throws an 'out_of_range' exception
+// if the supplied index is not in the valid range of elements in the vector.
+// In this example we show using 'BSLS_THROW' so that such an implementation
+// will compile in both exception enabled and non-exception enabled builds.
+// Note that apart from memory allocation, and where required by the C++
+// standard, types defined in the BDE libraries do not throw exceptions, and
+// are typically "exception neutral" (see {'bsldoc_glossary'}), meaning they
+// behave reasonably in the presence of injected exceptions, but do not
+// themselves throw any exceptions.
+//
+// First we open a namespace 'myStd' and define an 'out_of_range' exception
+// that the 'at' method will throw (note that in practice, 'out_of_range'
+// would inherit from 'logic_error')':
+//..
+//  namespace myStd {
+//
+//  class out_of_range  // ...
+//  {
+//     // ...
+//  };
+//..
+// Next, we declare the 'vector' template and its template parameters (note
+// that the majority of the implementation is elided, for clarity):
+//..
+//  template <typename VALUE, typename ALLOCATOR /* ... */>
+//  class vector {
+//      // DATA
+//      VALUE *d_begin_p;
+//      VALUE *d_end_p;
+//      // ...
+//
+//    public:
+//
+//      typedef typename ALLOCATOR::size_type size_type;
+//
+//      //...
+//..
+// Then, we define the 'at' method, which is required to throw an
+// 'out_of_range' exception.
+//..
+//      const VALUE& at(size_type index) const
+//      {
+//          if (d_begin_p + index < d_end_p) {
+//              return d_begin_p[index];                              // RETURN
+//          }
+//..
+// Now, we use 'BSLS_THROW' to throw an 'out_of_range' exception:
+//..
+//          BSLS_THROW(out_of_range(/* ... */));
+//      }
+//..
+// Finally, we complete the (mostly elided) 'vector' implementation:
+//..
+//      // ...
+//
+//  };
+//
+//  }  // close namespace myStd
+//..
+//
+///Example 2: Using 'bsls_exceptionutil' to Throw and Catch Exceptions
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates the macros defined in the
+// 'bsls_exceptionutil' component to both throw and catch exceptions in a way
+// that will allow the code to compile in non-exception enabled builds.
+//
+// First, we define a couple of example exception classes (note that we cannot
+// use 'bsl::exception' in this example, as this component is defined below
+//'bsl_exception.h'):
 //..
 //  class my_ExClass1
 //  {
@@ -37,16 +116,22 @@ BSLS_IDENT("$Id: $")
 //  {
 //  };
 //..
-// Define a function that never throws an exception:
+// Then, we define a function that never throws an exception, and use the
+// 'BSLS_NOTHROW_SPEC' to ensure the no-throw exception specification will be
+// present in exception enabled builds, and elided in non-exception enabled
+// builds:
 //..
 //  int noThrowFunc() BSLS_NOTHROW_SPEC
 //  {
 //      return -1;
 //  }
 //..
-// Define a function that might throw 'my_ExClass1' or 'my_ExClass2':
+// Next, we define a function that might throw 'my_ExClass1' or 'my_ExClass2',
+// and we use the 'BSLS_EXCEPTION_SPEC' to ensure the exception specification
+// will be present in exception enabled builds, and elided in non-exception
+// builds:
 //..
-//  int doThrowSome(int i) BSLS_EXCEPTION_SPEC((my_ExClass1, my_ExClass2))
+//  int mightThrowFunc(int i) BSLS_EXCEPTION_SPEC((my_ExClass1, my_ExClass2))
 //  {
 //      switch (i) {
 //        case 0: break;
@@ -56,12 +141,18 @@ BSLS_IDENT("$Id: $")
 //      return i;
 //  }
 //..
-// In the main program, loop three times if exceptions are enabled, but only
-// once if exceptions are disabled.  The only conditional compilation is for
-// the loop counter:
+// Then, we start the definition of a 'testMain' function:
 //..
-//  int main()
+//  int testMain()
 //  {
+//..
+// Next, we use the 'BDE_BUILD_TARGET_EXC' exception build flag to determine,
+// at compile time, whether to initialize 'ITERATIONS' to 3 (for exception
+// enabled builds) or 1 (for non-exception enabled builds).  The different
+// values of the 'ITERATOR' ensure the subsequent for-loop calls
+// 'mightThrowFunc' in a way that generates expections for only exception
+// enabled builds:
+//..
 //  #ifdef BDE_BUILD_TARGET_EXC
 //      const int ITERATIONS = 3;
 //  #else
@@ -70,31 +161,38 @@ BSLS_IDENT("$Id: $")
 //
 //      for (int i = 0; i < ITERATIONS; ++i) {
 //..
-// The loop contains a pair of nested 'try' blocks constructed using the
-// macros so that it will compile and run whether or not exceptions are
-// enabled.  Note that the curly brace placement is identical to normal 'try'
-// and 'catch' constructs.  The outer 'try' block catches 'my_ExClass2':
+// Then, we use a pair of nested 'try' blocks constructed using
+// 'BSLS_TRY', so that the code will compile whether or not exceptions are
+// enabled (note that the curly brace placement is identical to normal
+// 'try' and 'catch' constructs):
 //..
-//  int caught = -1;
-//  BSLS_TRY {
-//..
-// The inner 'try' block catches 'my_ExClass1' and also has a "catch-all"
-// handler:
-//..
+//          int caught = -1;
+//          BSLS_TRY {
 //
-//  BSLS_TRY {
-//      noThrowFunc();
-//      doThrowSome(i);
-//
-//      caught = 0; // Got here if no throw
-//  }
-//  BSLS_CATCH(my_ExClass1) {
-//      caught = 1;
-//  }
-//  BSLS_CATCH(...) {
+//              BSLS_TRY {
+//                  noThrowFunc();
+//                  mightThrowFunc(i);
 //..
-// Within the catch-all handler, use the 'BSLS_RETHROW' macro to re-throw the
-// exception to the outer 'try' block:
+// Notice that this example is careful to call 'mightThrowFunc' in such a way
+// that it will not throw in non-exception builds.  Although the use of
+// 'BSLS_TRY', 'BSLS_THROW', and 'BSLS_CATCH' ensures the code *compiles* in
+// both exception, and non-exception enabled builds, attempting to
+// 'BSLS_THROW' an exception in a non-exception enabled build will invoke the
+// assert handler and will typically abort the task.
+//..
+//                  caught = 0; // Got here if no throw
+//              }
+//..
+// Next, we use 'BSLS_CATCH' to define blocks for handling exceptions that may
+// have been thrown from the preceding 'BSLS_TRY':
+//..
+//              BSLS_CATCH(my_ExClass1) {
+//                  caught = 1;
+//              }
+//              BSLS_CATCH(...) {
+//..
+// Here, within the catch-all handler, we use the 'BSLS_RETHROW' macro to
+// re-throw the exception to the outer 'try' block:
 //..
 //                  BSLS_RETHROW;
 //              } // end inner try-catch
@@ -107,10 +205,12 @@ BSLS_IDENT("$Id: $")
 //          } // end outer try-catch
 //
 //          if (0 != caught) {
-//              std::printf("Caught exception my_ExClass%d\n", caught);
+//              if (verbose)
+//              printf("Caught exception my_ExClass: %d\n", caught);
 //          }
 //          else {
-//              std::printf("Caught no exceptions\n", caught);
+//              if (verbose)
+//              printf("Caught no exceptions: %d\n", caught);
 //          }
 //          assert(i == caught);
 //
@@ -204,13 +304,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP
 {
-}
+}  // close namespace BloombergLP
 
 #endif // ! defined(INCLUDED_BSLS_EXCEPTIONUTIL)
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

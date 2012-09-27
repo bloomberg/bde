@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Clay Wilson (cwilson9)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's parameter is a 'class', 'struct', or 'union',
 // optionally qualified with 'const' or 'volatile'.  'bslmf::IsClass' defines a
@@ -119,6 +117,7 @@ struct IsClass<TYPE &> : IsClass<TYPE>::Type {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -128,6 +127,7 @@ struct IsClass<TYPE &> : IsClass<TYPE>::Type {
 #endif
 #define bslmf_IsClass bslmf::IsClass
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

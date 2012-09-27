@@ -528,7 +528,7 @@ BDES_IDENT("$Id: $")
 ///Implicit Conversion
 /// -  -  -  -  -  - -
 // As with native pointers, a pointer of the type 'B' that is publicly derived
-// from the type 'A', can be directly assigned a 'bcema_SharedPtr' of 'A'.
+// from the type 'A', can be directly assigned a 'bdema_ManagedPtr' of 'A'.
 //
 // First, consider the following code snippets:
 //..
@@ -1165,7 +1165,7 @@ class bdema_ManagedPtr {
         // pointer as empty.  Note that the specified 'factory' will be
         // ignored, as empty managed pointers do not invoke a deleter.
 
-#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 40000
+#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VER_MAJOR >= 40000
     template <class MANAGED_TYPE>
     void load(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
         // Destroy the currently managed object, if any.  Then, set the target
@@ -1599,7 +1599,7 @@ void bdema_ManagedPtr<TARGET_TYPE>::load(TARGET_TYPE *ptr,
     d_members.set(stripBasePointerType(ptr), cookie, deleter);
 }
 
-#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 40000
+#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VER_MAJOR >= 40000
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE>
 inline
@@ -1688,7 +1688,7 @@ void bdema_ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
                                         void (*deleter)(MANAGED_BASE *, void*))
 {
     BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
-#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 40000
+#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VER_MAJOR >= 40000
     BSLMF_ASSERT((!bslmf::IsVoid<MANAGED_BASE>::VALUE));
     BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *,
                                        MANAGED_BASE *>::VALUE));
@@ -1813,7 +1813,7 @@ bdema_ManagedPtr<TARGET_TYPE>::operator bdema_ManagedPtr_Ref<REFERENCED_TYPE>()
 // ACCESSORS
 template <class TARGET_TYPE>
 inline
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 bdema_ManagedPtr<TARGET_TYPE>::operator
                                     typename bdema_ManagedPtr::BoolType() const
 #else

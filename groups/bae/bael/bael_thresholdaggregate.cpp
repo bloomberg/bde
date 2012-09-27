@@ -13,7 +13,7 @@ BDES_IDENT_RCSID(bael_thresholdaggregate_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 // Note: on Windows -> WinDef.h:#define max(a,b) ...
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(max)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(max)
 #undef max
 #endif
 
@@ -27,7 +27,7 @@ namespace BloombergLP {
 int bael_ThresholdAggregate::hash(const bael_ThresholdAggregate& aggregate,
                                   int                            size)
 {
-#ifdef BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#ifdef BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
     int value = (aggregate.recordLevel()  << 24)
               + (aggregate.passLevel()    << 16)
               + (aggregate.triggerLevel() <<  8)

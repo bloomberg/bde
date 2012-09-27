@@ -46,12 +46,20 @@
 #ifndef INCLUDED_BSLSTP_HASHMAP
 #define INCLUDED_BSLSTP_HASHMAP
 
+#ifdef BDE_OMIT_TRANSITIONAL // STP
+#error "bslstp_hashmap is not for publication"
+#endif
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLSTP_ALLOC
 #include <bslstp_alloc.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_EXFUNCTIONAL
+#include <bslstp_exfunctional.h>
 #endif
 
 #ifndef INCLUDED_BSLSTP_ITERATOR
@@ -64,10 +72,6 @@
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_EXFUNCTIONAL
-#include <bslstl_exfunctional.h>
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL
