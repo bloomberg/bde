@@ -162,7 +162,7 @@ using namespace BloombergLP;
 //
 // Class HashTable_ImpDetails
 // [  ] size_t nextPrime(size_t n);
-// [  ] bslalg::HashTableBucket *getDefaultBucketAddress();
+// [  ] bslalg::HashTableBucket *defaultBucketAddress();
 //
 // Class HashTable_Util<ALLOCATOR> 
 // [  ] initAnchor(bslalg::HashTableAnchor *, SizeType, const ALLOC&); 
@@ -1600,7 +1600,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                     Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
 
                     bool BUCKET_ARRAY_GREW = bucketCount != X.numBuckets();
-#if 1
+#if 0
                     // These tests assume that the object allocator is used
                     // only is stored elements also allocate memory.  This
                     // does not allow for rehashes as the container grows.
@@ -1749,7 +1749,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                         ASSERTV(CONFIG, tam.isInUseSame());
                     }
 
-#if 1
+#if 0
                     ASSERTV(LENGTH, CONFIG, oa.numBlocksTotal(),
                                             oa.numBlocksInUse(),
                             oa.numBlocksTotal() == oa.numBlocksInUse());
