@@ -791,10 +791,35 @@ bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
 // test support function
 template <class KEY_CONFIG, class HASH, class EQUAL, class ALLOC>
 Link* insertElement(
-   ::BloombergLP::bslstl::HashTable<KEY_CONFIG, HASH, EQUAL, ALLOC> *hashTable,
-   const typename KEY_CONFIG::ValueType&                             value)
+                  bslstl::HashTable<KEY_CONFIG, HASH, EQUAL, ALLOC> *hashTable,
+                  const typename KEY_CONFIG::ValueType&              value)
+    // Insert an element into the specified 'hashTable' and return the address
+    // of the new node, unless the insertion would cause the hash table to
+    // exceed its 'maxLoadFactor' and rehash, in which case return a null
+    // pointer value.
 {
+    BSLS_ASSERT(hashTable);
+    if ((hashTable->size() + 1.0) / hashTable->numBuckets()
+        > hashTable->maxLoadFactor() ) {
+        return 0;
+    }
     return hashTable->insert(value);
+}
+
+template <class KEY_CONFIG, class HASHER>
+bool isValidHashTable(bslalg::BidirectionalLink      *listRoot,
+                      const bslalg::HashTableBucket&  arrayRoot,
+                      native_std::size_t              arrayLength)
+{
+    // We perform the const-cast inside this function as we know:
+    // i/  The function we call does not make any writes to the bucket array.
+    // ii/ It is much simpler to cast in this one place than in each of our
+    //     call sites.
+    bslalg::HashTableAnchor anchor(
+                             const_cast<bslalg::HashTableBucket *>(&arrayRoot),
+                             arrayLength,
+                             listRoot);
+    return bslalg::HashTableImpUtil::isWellFormed<KEY_CONFIG, HASHER>(anchor);
 }
 
 #if 0
@@ -1302,10 +1327,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
     //:     location of the first invalid value of the 'spec'.  (C-2)
     //
     // Testing:
-    //*[ 3] int ggg(HashTable *object, const char *spec, int verbose = 1);
-    //*[ 3] HashTable& gg(HashTable *object, const char *spec);
-    //*[ 3] verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
-    //*[ 3] bool isValidHashTable(Link *, const HashTableBucket&, int numbucket);
+    //*  int ggg(HashTable *object, const char *spec, int verbose = 1);
+    //*  HashTable& gg(HashTable *object, const char *spec);
+    //*  verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
+    //*  bool isValidHashTable(Link *, const HashTableBucket&, int numbucket);
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator oa(veryVeryVerbose);

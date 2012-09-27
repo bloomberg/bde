@@ -185,6 +185,11 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CMATH
 #endif
 
+#ifndef INCLUDED_CSTDDEF
+#include <cstddef> // for 'size_t'
+#define INCLUDED_CSTDDEF
+#endif
+
 #ifndef INCLUDED_ITERATOR
 #include <iterator>  // for tag dispatch on iterator traits
 #define INCLUDED_ITERATOR
@@ -527,7 +532,7 @@ class HashTable {
         // address of the node immediately after 'node' this hash-table (prior
         // to its removal), or a null pointer value if 'node' is the last node
         // in the table.  The behavior is undefined unless 'node' refers to a
-        // node in this hash-table. 
+        // node in this hash-table.
 
     void removeAll();
         // Remove all the elements from this hash-table.  Note that this
@@ -787,7 +792,7 @@ class HashTable_ListProctor {
   public:
     HashTable_ListProctor(FACTORY                   *factory,
                           bslalg::BidirectionalLink *listRoot);
-        // Create a new list-proctor that conditionally manages the list 
+        // Create a new list-proctor that conditionally manages the list
         // rooted at the specified 'listRoot' (if non-zero), and that uses the
         // specified 'factory' to to delete elements of the managed list
         // (unless released) upon its destruction.  The behavior is undefined
@@ -805,7 +810,7 @@ class HashTable_ListProctor {
     // MANIPULATORS
     void release();
         // Release from management the list currently managed by this proctor.
-        // If no object is currently being managed, this method has  no effect.
+        // If no object is currently being managed, this method has no effect.
 };
 
                     // ==========================
