@@ -138,7 +138,7 @@ using namespace BloombergLP;
 //*[22] maxSize() const;
 //*[ 4] numBuckets() const;
 //*[22] maxNumBuckets() const;
-//*[ 4] loadFactor() const;
+//*[14] loadFactor() const;
 //*[ 4] maxLoadFactor() const;
 //*[ 4] elementListRoot() const;
 //*[19] find(const KeyType& key) const;
@@ -153,6 +153,8 @@ using namespace BloombergLP;
 //
 //// specialized algorithms:
 //*[ 8] void swap(HashTable& a, HashTable& b);
+//
+// [ 2] insert (boostrap)
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -984,8 +986,17 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
     //:
     //: 3 No accessor allocates any memory.
     //:
-    //: 4 The range '[cbegin(), cend())' contains inserted elements, but not
-    //:   necessarily in any give order.
+    //: 4 'elementListRoot' refers to the root of a list with exactly 'size()'
+    //:   elements, and a null pointer value if 'size() == 0'.
+    //:
+    //: 5 'bucketAtIndex' returns a valid bucket for all 0 <= index <
+    //:   'numBuckets'.
+    //:
+    //: 6 QoI: Assert precondition violations for 'bucketAtIndex' when
+    //:   'size <= index' are detected in SAFE builds.
+    //:
+    //: 7 For any value of key, 'bucketIndexForKey' returns a bucket number
+    //:   less than 'numBuckets'.
     //
     // Plan:
     //: 1 For each set of 'SPEC' of different length:
@@ -1012,7 +1023,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
     //*  hasher() const;
     //*  size() const;
     //*  numBuckets() const;
-    //*  loadFactor() const;
     //*  maxLoadFactor() const;
     //*  elementListRoot() const;
     //*  bucketAtIndex(SizeType index) const;
@@ -1143,6 +1153,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
     //: 1 Valid generator syntax produces expected results
     //:
     //: 2 Invalid syntax is detected and reported.
+    //:
+    //: 3 'verifyListContents' confirms there is a one-to-one mapping between
+    //:   the supplied list and the expected values array, or both are empty.
+    //:
+    //: 4 'isValidHashTable' returns 'true' if the supplied arguments can
+    //:   create a well-formed hash table anchor, and 'false' otherwise.
     //
     // Plan:
     //: 1 For each of an enumerated sequence of 'spec' values, ordered by
@@ -1165,11 +1181,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
     //:     location of the first invalid value of the 'spec'.  (C-2)
     //
     // Testing:
-    //   unordered_multiset<K,H,E,A>& gg(unordered_multiset<K,H,E,A> *object, const char *spec);
-    //   int ggg(unordered_multiset<K,H,E,A> *object, const char *spec, int verbose = 1);
-//*[ 3] int ggg(HashTable *object, const char *spec, int verbose = 1);
-//*[ 3] HashTable& gg(HashTable *object, const char *spec);
-//*[ 3] verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
+    //*[ 3] int ggg(HashTable *object, const char *spec, int verbose = 1);
+    //*[ 3] HashTable& gg(HashTable *object, const char *spec);
+    //*[ 3] verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
+    //*[ 3] bool isValidHashTable(Link *, const HashTableBucket&, int numbucket);
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator oa(veryVeryVerbose);
@@ -1316,43 +1331,70 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //   the purpose of testing) and the 'removeAll' method.
     //
     // Concerns:
-    //: 1 An object created with the default constructor (with or without a
-    //:   supplied allocator) has the contractually specified default value.
+    //: 1 An object created with the value constructor (with or without a
+    //:   supplied allocator) has the supplied hasher, comparator, at least the
+    //:   initial number of buckets and allocator.
     //:
-    //: 2 If an allocator is NOT supplied to the default constructor, the
-    //:   default allocator in effect at the time of construction becomes the
-    //:   object allocator for the resulting object.
+    //: 2 The number of buckets is 1 or a prime number.
     //:
-    //: 3 If an allocator IS supplied to the default constructor, that
+    //: 3 If the allocator is a 'bsl::allocator' and an allocator is NOT
+    //:   supplied to the value constructor, the default allocator in effect at
+    //:   the time of construction becomes the object allocator for the
+    //:   resulting object.
+    //:
+    //: 4 If the allocator is not a 'bsl::allocator' and an allocator is NOT
+    //:   supplied to the value constructor, the default constructed allocator
+    //:   becomes the object allocator for the resulting object.
+    //:
+    //: 5 If an allocator IS supplied to the default constructor, that
     //:   allocator becomes the object allocator for the resulting object.
     //:
-    //: 4 Supplying a null allocator address has the same effect as not
-    //:   supplying an allocator.
+    //: 6 If the allocator is a 'bsl::allocator', supplying a null allocator
+    //:   address has the same effect as not supplying an allocator.
     //:
-    //: 5 Supplying an allocator to the default constructor has no effect on
+    //: 7 Supplying an allocator to the value constructor has no effect on
     //:   subsequent object values.
     //:
-    //: 6 Any memory allocation is from the object allocator.
+    //: 8 Any memory allocation is from the object allocator.
     //:
-    //: 7 There is no temporary allocation from any allocator.
+    //: 9 There is no temporary allocation from any allocator.
     //:
-    //: 8 Every object releases any allocated memory at destruction.
+    //:10 Every object releases any allocated memory at destruction.
     //:
-    //: 9 QoI: The default constructor allocates no memory.
+    //:11 QoI: The value constructor allocates no memory if the initial number
+    //:   of bucket is 0.
     //:
-    //:10 'insert' adds an additional element to the object and returns the
-    //:   iterator to the newly added element.
+    //:12 'insertElement' increase the size of the object by 1.
     //:
-    //:11 Duplicated values are inserted contiguously in the range of existing
-    //:   equivalent elements, without changing their relative order.
+    //:13 'insertElement' returns the address of the newly added element.
     //:
-    //:12 'removeAll' properly destroys each contained element value.
+    //:14 'insertElement' puts the element into the list of element defined by
+    //:   'elementListRoot'.
     //:
-    //:13 'removeAll' does not allocate memory.
+    //:15 'insertElement' adds an additional element in the bucket returned by
+    //:   the 'bucketFromKey' method.
     //:
-    //:14 Any argument can be 'const'.
+    //:16 'insertElement' returns a null pointer if adding one more element
+    //:   will exceed the 'maxLoadFactor'.
     //:
-    //:15 Any memory allocation is exception neutral.
+    //:17 Elements having the same keys (retrieved from the 'extractKey' method
+    //:   of the KEY_CONFIG) according to the supplied comparator are inserted
+    //:   contiguously of the beginning of the range of existing equivalent
+    //:   elements, without changing their relative order.
+    //:
+    //:18 'removeAll' properly destroys each contained element value.
+    //:
+    //:19 'removeAll' does not allocate memory.
+    //:
+    //:20 'setBootstrapMaxLoadFactor' modifies the 'maxLoadFactor' attribute
+    //:   unless the supplied value is less than or equal to 'loadFactor'.
+    //:
+    //:21 'setBootstrapMaxLoadFactor' returns 'true' if it successessfully
+    //:   changes the 'maxLoadFactor', and 'false' otherwise.
+    //:
+    //:22 Any argument can be 'const'.
+    //:
+    //:23 Any memory allocation is exception neutral.
     //
     // Plan:
     //: 1 For each value of increasing length, 'L':
@@ -1408,10 +1450,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //
     // Testing:
     //*  HashTable(const HASHER&, const COMPARATOR&, SizeType, const ALLOC&)
-    //   default constructor (bootstrap)
     //   ~HashTable();
     //   insertElement  (test driver function, proxy for basic manipulator)
     //   void removeAll();
+    //   setBootstrapMaxLoadFactor();
     // ------------------------------------------------------------------------
 
     typedef typename KEY_CONFIG::ValueType     Element;
