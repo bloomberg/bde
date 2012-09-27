@@ -319,7 +319,7 @@ class unordered_multiset
   private:
     typedef ::BloombergLP::bslalg::BidirectionalLink             HashTableLink;
 
-    typedef ::BloombergLP::bslstl::UnorderedSetKeyPolicy<value_type>
+    typedef ::BloombergLP::bslstl::UnorderedSetKeyConfiguration<value_type>
                                                                     ListPolicy;
     typedef ::BloombergLP::bslstl::HashTable<ListPolicy, HASH, EQUAL, ALLOC>
                                                                           Impl;
@@ -712,8 +712,7 @@ unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::erase(const key_type& k)
         size_type result = 1;
         while (target && this->key_eq()(
               k,
-              ListConfiguration::extractKey(
-                                     static_cast<BNode *>(target)->value()))) {
+              ListPolicy::extractKey(static_cast<BNode *>(target)->value()))) {
             target = d_impl.remove(target);
             ++result;
         }
@@ -855,8 +854,7 @@ count(const key_type& k) const
          ++result, cursor = cursor->nextLink()) {
 
         BNode *cursorNode = static_cast<BNode *>(cursor);
-        if (!this->key_eq()(k, ListConfiguration::extractKey(
-                                                       cursorNode->value()))) {
+        if (!this->key_eq()(k, ListPolicy::extractKey(cursorNode->value()))) {
             break;
         }
     }

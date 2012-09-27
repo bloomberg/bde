@@ -1527,8 +1527,6 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
 {
-    typedef typename ImplParameters::AllocatorTraits AllocatorTraits;
-
     if (AllocatorTraits::propagate_on_container_swap::VALUE) {
         bslalg::SwapUtil::swap(&this->d_parameters.nodeFactory().allocator(),
                                &other.d_parameters.nodeFactory().allocator());

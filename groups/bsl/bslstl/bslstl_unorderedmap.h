@@ -327,7 +327,8 @@ class unordered_map {
         // This typedef is an alias for the type of key-value pair objects
         // maintained by this map.
 
-    typedef ::BloombergLP::bslstl::UnorderedMapKeyPolicy<ValueType> ListPolicy;
+    typedef ::BloombergLP::bslstl::UnorderedMapKeyConfiguration<ValueType>
+                                                                    ListPolicy;
         // This typedef is an alias for the policy used internally by this
         // container to extract the 'KEY' value from the key-value pair
         // objects maintained by this map.
