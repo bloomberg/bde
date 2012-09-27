@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bslmf::RemoveReference'.
+        //   Simple example illustrating use of 'bsl::remove_reference'.
         //
         // Concerns:
         //

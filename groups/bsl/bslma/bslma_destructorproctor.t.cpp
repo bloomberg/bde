@@ -6,8 +6,6 @@
 #include <bslma_default.h>             // for testing only
 #include <bslma_testallocator.h>       // for testing only
 
-#include <bslmf_metaint.h>             // for testing only
-
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
@@ -277,10 +275,6 @@ void my_Primitives::copyConstruct(TYPE                      *address,
     new(address)TYPE(original, basicAllocator);
 }
 //..
-// Note that the implementation of 'my_HasTrait' is not shown.  It is
-// used to detect whether 'TYPE' has 'my_PairTrait' or not
-// (see bslalg_typetraits).
-//
 // In the above implementation, if the copy construction of the second object
 // in the pair throws, all memory (and any other resources) acquired as a
 // result of copying the (not-yet-managed) object would be leaked.  Using the

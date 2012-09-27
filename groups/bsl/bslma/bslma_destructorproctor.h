@@ -149,7 +149,7 @@ BSLS_IDENT("$Id: $")
 //  void my_Primitives::copyConstruct(TYPE             *address,
 //                                    const TYPE&       original,
 //                                    bslma::Allocator *basicAllocator,
-//                                    bslmf::MetaInt<PAIR_TRAIT> *)
+//                                    bsl::integral_constant<int, PAIR_TRAIT> *)
 //  {
 //      copyConstruct(&address->first, original.first, basicAllocator);
 //
@@ -174,7 +174,7 @@ BSLS_IDENT("$Id: $")
 //  void my_Primitives::copyConstruct(TYPE             *address,
 //                                    const TYPE&       original,
 //                                    bslma::Allocator *basicAllocator,
-//                                    bslmf::MetaInt<NIL_TRAIT> *)
+//                                    bsl::integral_constant<int, NIL_TRAIT> *)
 //  {
 //      new(address)TYPE(original, basicAllocator);
 //  }

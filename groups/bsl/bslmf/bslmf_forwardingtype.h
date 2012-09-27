@@ -138,12 +138,11 @@ struct ForwardingType {
 
     enum { BSLMF_FORWARDING_TYPE_ID = 1 };  // For testing only.
     enum {
-        IS_BASIC_TYPE = IsFundamental<TYPE>::value ||
-                        IsPointerToMember<TYPE>::value ||
-                        IsMemberFunctionPointer<TYPE>::value ||
+        IS_BASIC_TYPE = bsl::is_fundamental<TYPE>::value ||
+                        bsl::is_member_pointer<TYPE>::value ||
                         IsFunctionPointer<TYPE>::value ||
                         IsFunctionPointer<TYPE*>::value ||
-                        IsEnum<TYPE>::value
+                        bsl::is_enum<TYPE>::value
     };
 
     typedef typename
@@ -160,12 +159,11 @@ struct ForwardingType<const TYPE&> {
 
     enum { BSLMF_FORWARDING_TYPE_ID = 2 };  // For testing only.
     enum {
-        IS_BASIC_TYPE = IsFundamental<TYPE>::value ||
-                        IsPointerToMember<TYPE>::value ||
-                        IsMemberFunctionPointer<TYPE>::value ||
+        IS_BASIC_TYPE = bsl::is_fundamental<TYPE>::value ||
+                        bsl::is_member_pointer<TYPE>::value ||
                         IsFunctionPointer<TYPE>::value ||
                         IsFunctionPointer<TYPE*>::value ||
-                        IsEnum<TYPE>::value
+                        bsl::is_enum<TYPE>::value
     };
 
     typedef typename
@@ -267,7 +265,7 @@ struct ForwardingType_Imp<TYPE [NUM_ELEMENTS], 0, 1> {
 
 template <typename TYPE>
 struct ForwardingType_Imp<TYPE,1, 0> {
-    typedef typename RemoveCvq<TYPE>::Type Type;
+    typedef typename bsl::remove_cv<TYPE>::type Type;
 };
 
 }  // close package namespace
