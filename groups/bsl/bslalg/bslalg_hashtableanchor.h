@@ -88,14 +88,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>
-(0, 0, 0)#define INCLUDED_CSTDDEF
+#define INCLUDED_CSTDDEF
 #endif
 
 namespace BloombergLP {
 
 namespace bslalg {
 
-class HashTableBucket;
+struct HashTableBucket;  // This is known to be a POD struct.
 
                         // =============================
                         // class bslalg::HashTableAnchor

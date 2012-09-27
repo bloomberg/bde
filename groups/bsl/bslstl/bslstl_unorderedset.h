@@ -270,8 +270,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_pair.h>  // result type of 'equal_range' method
 #endif
 
-#ifndef INCLUDED_BSLSTL_UNORDEREDSETKEYPOLICY
-#include <bslstl_unorderedsetkeypolicy.h>
+#ifndef INCLUDED_BSLSTL_UNORDEREDSETKEYCONFIGURATION
+#include <bslstl_unorderedsetkeyconfiguration.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -330,10 +330,12 @@ class unordered_set
   private:
     typedef ::BloombergLP::bslalg::BidirectionalLink   HashTableLink;
 
-    typedef ::BloombergLP::bslstl::UnorderedSetKeyPolicy<value_type>
-                                                                    ListPolicy;
-    typedef ::BloombergLP::bslstl::HashTable<ListPolicy, HASH, EQUAL, ALLOC>
-                                                                          Impl;
+    typedef ::BloombergLP::bslstl::UnorderedSetKeyConfiguration<value_type>
+                                                             ListConfiguration;
+    typedef ::BloombergLP::bslstl::HashTable<ListConfiguration,
+                                             HASH,
+                                             EQUAL,
+                                             ALLOC> Impl;
 
   public:
     typedef ::BloombergLP::bslstl::HashTableIterator<value_type,

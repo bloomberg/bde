@@ -5,12 +5,11 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslalg_bidirectionallink.h>
+#include <bslalg_bidirectionallinklistutil.h>    // Testing only
 
-namespace BloombergLP
-{
+namespace BloombergLP {
 
-namespace bslalg
-{
+namespace bslalg {
 
 native_std::size_t HashTableBucket::countElements() const
 {
@@ -20,15 +19,14 @@ native_std::size_t HashTableBucket::countElements() const
             cursor = cursor->nextLink();
             ++result;
         }
-        return result;
+        return result;                                                // RETURN
     }
     else {
-        return 0;
+        return 0;                                                     // RETURN
     }
 }
 
-
-}  // close namespace BloobmergLP::bslalg
+}  // close namespace bslalg
 }  // close namespace BloombergLP
 // ---------------------------------------------------------------------------
 // NOTICE:

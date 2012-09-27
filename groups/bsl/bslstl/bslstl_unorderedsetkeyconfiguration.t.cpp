@@ -1,5 +1,5 @@
-// bslstl_unorderedmapkeypolicy.t.cpp                                 -*-C++-*-
-#include <bslstl_unorderedmapkeypolicy.h>
+// bslstl_unorderedsetkeyconfiguration.t.cpp                          -*-C++-*-
+#include <bslstl_unorderedsetkeyconfiguration.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -84,9 +84,9 @@ int main(int argc, char *argv[])
 {
     int  test                = argc > 1 ? atoi(argv[1]) : 0;
     bool verbose             = argc > 2;
-    bool veryVerbose         = argc > 3;
-    bool veryVeryVerbose     = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+//  bool veryVerbose         = argc > 3;
+//  bool veryVeryVerbose     = argc > 4;
+//  bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -110,6 +110,16 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+        typedef bslstl::UnorderedSetKeyConfiguration<int>  IntConfiguration;
+
+        ASSERT(5 == IntConfiguration::extractKey(5));
+
+        typedef bslstl::UnorderedSetKeyConfiguration<double>
+                                                           DoubleConfiguration;
+
+        const double D = 47.5;
+
+        ASSERT(D == DoubleConfiguration::extractKey(D));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

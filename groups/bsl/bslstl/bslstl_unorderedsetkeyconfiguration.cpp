@@ -1,17 +1,16 @@
-// bslstl_unorderedmapkeypolicy.cpp                                   -*-C++-*-
-#include <bslstl_unorderedmapkeypolicy.h>
+// bslstl_unorderedsetkeyconfiguration.cpp                            -*-C++-*-
+#include <bslstl_unorderedsetkeyconfiguration.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-namespace BloombergLP
-{
+namespace BloombergLP {
 
-namespace bslstl
-{
+namespace bslalg {
 
-}  // close namespace BloombergLP::bslstl
-}  // close namespace BloombergLP
+}  // close namespace bslalg
+}  // close enterprise namespace
+
 // ---------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012

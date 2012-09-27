@@ -264,8 +264,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_pair.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYPOLICY
-#include <bslstl_unorderedmapkeypolicy.h>
+#ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYCONFIGURATION
+#include <bslstl_unorderedmapkeyconfiguration.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -322,11 +322,12 @@ class unordered_multimap
   private:
     typedef ::BloombergLP::bslalg::BidirectionalLink   HashTableLink;
 
-    typedef ::BloombergLP::bslstl::UnorderedMapKeyPolicy<value_type>
+    typedef ::BloombergLP::bslstl::UnorderedMapKeyConfiguration<value_type>
                                                                     ListPolicy;
-    typedef ::BloombergLP::bslstl::HashTable<ListPolicy, HASH, EQUAL, ALLOC>
-                                                                          Impl;
-
+    typedef ::BloombergLP::bslstl::HashTable<ListPolicy,
+                                             HASH,
+                                             EQUAL,
+                                             ALLOC> Impl;
   public:
     typedef ::BloombergLP::bslstl::HashTableIterator<value_type,
                                                      difference_type> iterator;
@@ -758,7 +759,8 @@ unordered_multimap<KEY_TYPE, MAPPED_TYPE, HASH, EQUAL, ALLOC>::erase(
         size_type result = 1;
         while (target && this->key_eq()(
               k,
-              ListPolicy::extractKey(static_cast<BNode *>(target)->value()))) {
+              ListPolicy::extractKey(
+                                    static_cast<BNode *>(target)->value()))) {
             target = d_impl.remove(target);
             ++result;
         }
@@ -907,6 +909,7 @@ count(const key_type& k) const
     {
         BNode *cursorNode = static_cast<BNode *>(cursor);
         if (!this->key_eq()(k, ListPolicy::extractKey(cursorNode->value()))) {
+
             break;
         }
     }

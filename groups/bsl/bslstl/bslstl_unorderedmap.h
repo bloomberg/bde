@@ -275,8 +275,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_pair.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYPOLICY
-#include <bslstl_unorderedmapkeypolicy.h>
+#ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYCONFIGURATION
+#include <bslstl_unorderedmapkeyconfiguration.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
@@ -327,7 +327,8 @@ class unordered_map {
         // This typedef is an alias for the type of key-value pair objects
         // maintained by this map.
 
-    typedef ::BloombergLP::bslstl::UnorderedMapKeyPolicy<ValueType> ListPolicy;
+    typedef ::BloombergLP::bslstl::UnorderedMapKeyConfiguration<ValueType>
+                                                                    ListPolicy;
         // This typedef is an alias for the policy used internally by this
         // container to extract the 'KEY' value from the key-value pair
         // objects maintained by this map.
