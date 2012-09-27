@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Transform a pointer type to type pointed by pointer type
 //
 //@CLASSES:
-//  bsl::remove_const: transform a pointer type to type pointed by pointer type
+//  bsl::remove_pointer: transform a pointer type to type pointed by pointer
 //
 //@SEE_ALSO: bslmf_addpointer
 //
@@ -73,6 +73,10 @@ struct RemovePointer_Imp {
         // This 'typedef' is an alias to the (template parameter) 'TYPE'.
 };
 
+                         // ================================
+                         // struct RemovePointer_Imp<TYPE *>
+                         // ================================
+
 template <typename TYPE>
 struct RemovePointer_Imp<TYPE *> {
      // This partial specialization of 'RemovePointer_Imp' for when the
@@ -89,13 +93,17 @@ struct RemovePointer_Imp<TYPE *> {
 
 namespace bsl {
 
+                         // =====================
+                         // struct remove_pointer
+                         // =====================
+
 template <typename TYPE>
 struct remove_pointer {
     // This 'struct' template implements the 'remove_pointer' meta-function
     // defined in the C++11 standard [meta.trans.ptr] to provide a 'typedef'
     // 'type'.  'type' is an alias to the type pointed to by the (template
     // parameter) 'TYPE' if 'TYPE' is a (possibly cv-qualified) pointer type.
-    // Otherwise.  Otherwise, 'type' is an alias to 'TYPE'.
+    // Otherwise, 'type' is an alias to 'TYPE'.
 
     typedef typename BloombergLP::bslmf::RemovePointer_Imp<
                 typename remove_cv<TYPE>::type>::Type
