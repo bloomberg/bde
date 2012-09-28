@@ -1864,10 +1864,11 @@ bool bslstl::operator==(
                                     ImpUtil::extractValue<KEY_CONFIG>(marker);
 
             if (cursor != marker) {  // skip on first pass only
+                // Check if the value at 'marker' has already be seen.
+
                 bslalg::BidirectionalLink *scanner = cursor;
                 while (scanner != marker &&
-                   ImpUtil::extractValue<KEY_CONFIG>(scanner) == valueAtMarker)
-                                                                              {
+                 ImpUtil::extractValue<KEY_CONFIG>(scanner) != valueAtMarker) {
                     scanner = scanner->nextLink();
                 }
                 if (scanner != marker) {
