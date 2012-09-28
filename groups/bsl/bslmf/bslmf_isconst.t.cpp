@@ -11,6 +11,7 @@ using namespace BloombergLP;
 
 using std::printf;
 using std::fprintf;
+using std::atoi;
 
 //=============================================================================
 //                                TEST PLAN
