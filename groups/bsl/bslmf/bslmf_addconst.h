@@ -63,6 +63,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 
+                         // ===================
+                         // struct AddConst_Imp
+                         // ===================
+
 template <typename TYPE, bool ADD_CONST>
 struct AddConst_Imp {
     // This 'struct' template provides an alias 'Type' that add the
@@ -72,9 +76,13 @@ struct AddConst_Imp {
     // not modify 'TYPE'.
 
     typedef TYPE const Type;
-        // This 'typedef' to a type that is the same as the (template
-        // parameter) 'TYPE' except with 'const'-qualifier added.
+        // This 'typedef' is an alias to a type that is the same as the
+        // (template parameter) 'TYPE' except with 'const'-qualifier added.
 };
+
+                         // ================================
+                         // struct AddConst_Imp<TYPE, false>
+                         // ================================
 
 template <typename TYPE>
 struct AddConst_Imp<TYPE, false> {
@@ -83,8 +91,8 @@ struct AddConst_Imp<TYPE, false> {
     // 'ADD_CONST' is 'false'.
 
     typedef TYPE Type;
-        // This 'typedef' to a type that is the same as the (template
-        // parameter) 'TYPE' except with 'const'-qualifier added.
+        // This 'typedef' is an alias to a type that is the same as the
+        // (template parameter) 'TYPE' except with 'const'-qualifier added.
 };
 
 }  // close package namespace
@@ -92,21 +100,28 @@ struct AddConst_Imp<TYPE, false> {
 
 namespace bsl {
 
+                         // ================
+                         // struct add_const
+                         // ================
+
 template <typename TYPE>
 struct add_const {
     // This 'struct' template implements the 'add_const' meta-function defined
-    // in the C++11 standard [meta.trans.cv] to provide an alias 'type' that
-    // has the same type as the (template parameter) 'TYPE' except that the
-    // top-level 'const'-qualifier has been added, unless 'TYPE' is a
-    // reference, a function, or already 'const'-qualified at the top-level.
+    // in the C++11 standard [meta.trans.cv] to provide an alias 'type'.  If
+    // the (template parameter) 'TYPE' is not a reference, nor a function, nor
+    // already 'const'-qualified, then 'type' is an alias to 'TYPE' with the
+    // top-level 'const'-qualifier added; otherwise, 'type' is an alias to
+    // 'TYPE'.
 
     typedef typename BloombergLP::bslmf::AddConst_Imp<
                             TYPE,
                             !is_reference<TYPE>::value
                             && !is_function<TYPE>::value
                             && !is_const<TYPE>::value>::Type type;
-        // This 'typedef' to a type that is the same as the (template
-        // parameter) 'TYPE' except with 'const'-qualifier added.
+        // This 'typedef' is an alias to the (template parameter) 'TYPE' with
+        // the top-level 'const'-qualifier added if 'TYPE' is not a reference,
+        // nor a function, nor already 'const'-qualified; otherwise, 'type' is
+        // an alias to 'TYPE'.
 };
 
 }  // close namespace bsl

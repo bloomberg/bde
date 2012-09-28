@@ -16,7 +16,7 @@ using namespace std;
 // The object under test is a meta-function,
 // 'bsl::is_trivially_default_constructible', that determines whether a
 // template parameter type is trivially default-constructible.  The
-// meta-function by defualt support a set of type categories and can be
+// meta-function by default support a set of type categories and can be
 // extended to support other type through either template specialization or a
 // macro.
 //
@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
         // C-2
         ASSERT(bsl::is_trivially_default_constructible<int>::value);
         ASSERT(bsl::is_trivially_default_constructible<char>::value);
-        // ASSERT(bsl::is_trivially_default_constructible<void>::value);
+        ASSERT(bsl::is_trivially_default_constructible<void>::value);
 
         // C-3
         ASSERT(bsl::is_trivially_default_constructible<EnumTestType>::value);

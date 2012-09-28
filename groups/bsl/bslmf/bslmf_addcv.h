@@ -62,19 +62,26 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
+                         // =============
+                         // struct add_cv
+                         // =============
+
 template <typename TYPE>
 struct add_cv {
     // This 'struct' template implements the 'add_cv' meta-function defined in
-    // the C++11 standard [meta.trans.cv] to provide an alias 'type' that has
-    // the same type as the (template parameter) 'TYPE' except that the
-    // top-level 'const'-qualifier and 'volatile'-qualifier has been added,
-    // unless 'TYPE' is a reference, a function, or already 'const'-qualified
-    // and 'volatile'-qualified at the top-level.
+    // the C++11 standard [meta.trans.cv] to provide a 'typedef' 'type'.  If
+    // the (template parameter) 'TYPE' is not a reference, nor a function, nor
+    // already 'const'-qualified and 'volatile'-qualified, then 'type' is an
+    // alias to the same type as 'TYPE' except that the top-level
+    // 'const'-qualifier and 'volatile'-qualifier has been added; otherwise,
+    // 'type' is an alias to 'TYPE'.
 
     typedef typename add_const<typename add_volatile<TYPE>::type>::type type;
-        // This 'typedef' to a type that is the same as the (template
-        // parameter) 'TYPE' except with the 'const'-qualifier and the
-        // 'volatile'-qualifier added.
+        // This 'typedef' is an alias alias to the same type as the (template
+        // parameter) 'TYPE' except that the top-level 'const'-qualifier and
+        // 'volatile'-qualifier has been added if 'TYPE' is not a reference,
+        // nor a function, nor already 'const'-qualified and
+        // 'volatile'-qualified; otherwise, 'type' is an alias to 'TYPE'.
 
 };
 

@@ -10,9 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Check for whether a type is trivially default-constructible.
 //
 //@CLASSES:
-//  bsl::is_trivially_default_constructible: meta-function for determining
-//                                           whether a type is
-//                                           trivially default-constructible.
+//  bsl::is_trivially_default_constructible: traits meta-function
 //
 //@SEE_ALSO: bslmf_integerconstant, bslmf_nestedtraitdeclaration
 //
@@ -155,6 +153,10 @@ namespace bslmf {
 
 template <typename TYPE>
 
+                         // ==========================================
+                         // struct IsTriviallyDefaultConstructible_Imp
+                         // ==========================================
+
 struct IsTriviallyDefaultConstructible_Imp
 : bsl::integral_constant<
                      bool,
@@ -174,6 +176,10 @@ struct IsTriviallyDefaultConstructible_Imp
 }  // close enterprise namespace
 
 namespace bsl {
+
+                         // =========================================
+                         // struct is_trivially_default_constructible
+                         // =========================================
 
 template <typename TYPE>
 struct is_trivially_default_constructible

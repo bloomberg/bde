@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a meta-function for determining trivially copyable types
 //
 //@CLASSES:
-//  bsl::is_trivially_copyable: determine whether a type is trivially copyable
+//  bsl::is_trivially_copyable: type-traits meta-function
 //
 //@SEE_ALSO:
 //
@@ -135,6 +135,10 @@ struct is_trivially_copyable;
 namespace BloombergLP {
 namespace bslmf {
 
+                         // ==============================
+                         // struct IsTriviallyCopyable_Imp
+                         // ==============================
+
 template <typename TYPE>
 struct IsTriviallyCopyable_Imp
     : bsl::integral_constant<
@@ -153,6 +157,10 @@ struct IsTriviallyCopyable_Imp
 }  // close enterprise namespace
 
 namespace bsl {
+
+                         // ============================
+                         // struct is_trivially_copyable
+                         // ============================
 
 template <typename TYPE>
 struct is_trivially_copyable
