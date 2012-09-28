@@ -104,12 +104,12 @@ using namespace BloombergLP;
 //           (          KITS TO INVOKE FOR EACH TEST CASE.          )
 //
 // TYPES
-//*[23] typedef ALLOCATOR                              AllocatorType;
-//*[23] typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
-//*[23] typedef typename KEY_CONFIG::KeyType           KeyType;
-//*[23] typedef typename KEY_CONFIG::ValueType         ValueType;
-//*[23] typedef bslalg::BidirectionalNode<ValueType>   NodeType;
-//*[23] typedef typename AllocatorTraits::size_type    SizeType;
+//*[22] typedef ALLOCATOR                              AllocatorType;
+//*[22] typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
+//*[22] typedef typename KEY_CONFIG::KeyType           KeyType;
+//*[22] typedef typename KEY_CONFIG::ValueType         ValueType;
+//*[22] typedef bslalg::BidirectionalNode<ValueType>   NodeType;
+//*[22] typedef typename AllocatorTraits::size_type    SizeType;
 //
 // CREATORS
 //*[11] HashTable(const ALLOCATOR&  allocator = ALLOCATOR());
@@ -128,7 +128,7 @@ using namespace BloombergLP;
 //*[ 2] removeAll();
 //*[13] rehashForNumBuckets(SizeType newNumBuckets);
 //*[13] rehashForNumElements(SizeType numElements);
-//*[18] setMaxLoadFactor(float loadFactor);
+//*[ 2] setMaxLoadFactor(float loadFactor);
 //*[ 8] swap(HashTable& other);
 //
 //      ACCESSORS
@@ -136,18 +136,18 @@ using namespace BloombergLP;
 //*[ 4] comparator() const;
 //*[ 4] hasher() const;
 //*[ 4] size() const;
-//*[22] maxSize() const;
+//*[21] maxSize() const;
 //*[ 4] numBuckets() const;
-//*[22] maxNumBuckets() const;
+//*[21] maxNumBuckets() const;
 //*[14] loadFactor() const;
 //*[ 4] maxLoadFactor() const;
 //*[ 4] elementListRoot() const;
-//*[19] find(const KeyType& key) const;
-//*[20] findRange(BLink **first, BLink **last, const KeyType& k) const;
+//*[18] find(const KeyType& key) const;
+//*[19] findRange(BLink **first, BLink **last, const KeyType& k) const;
 //*[ 6] findEndOfRange(bslalg::BidirectionalLink *first) const;
 //*[ 4] bucketAtIndex(SizeType index) const;
 //*[ 4] bucketIndexForKey(const KeyType& key) const;
-//*[21] countElementsInBucket(SizeType index) const;
+//*[20] countElementsInBucket(SizeType index) const;
 //
 //*[ 6] bool operator==(const HashTable& lhs, const HashTable& rhs);
 //*[ 6] bool operator!=(const HashTable& lhs, const HashTable& rhs);
@@ -404,64 +404,6 @@ int verifyListContents(Link              *containerList,
 
     return 0;  // 0 indicates a successful test!
 }
-#if 0
-// This may be brought back as an optimized 'verifyListContents' that can be
-// used for test cases subsequent to some to-be-determined test case higher
-// than 10.
-template<class KEY_CONFIG, class CONTAINER, class VALUES>
-int verifyContainer(const CONTAINER& container,
-                    const VALUES&    expectedValues,
-                    size_t           expectedSize)
-    // Verify the specified 'container' has the specified 'expectedSize' and
-    // contains the same values as the array in the specified 'expectedValues'.
-    // Return 0 if 'container' has the expected values, and a non-zero value
-    // otherwise.
-{
-    typedef typename KEY_CONFIG::ValueType ValueType;
-
-    ASSERTV(expectedSize, container.size(), expectedSize == container.size());
-
-    if(expectedSize != container.size()) {
-        return -1;                                                    // RETURN
-    }
-
-    // Check to avoid creating an array of length zero.
-    if (0 == expectedSize) {
-        ASSERTV(0 == container.size());
-        return 0;                                                     // RETURN
-    }
-
-    BoolArray foundValues(container.size());
-    size_t i = 0;
-    for (Link *it = container.elementListRoot(); it; it = it->nextLink(),++i) {
-        const ValueType& element = ImpUtil::extractKey<KEY_CONFIG>(it);
-        const int nextId = bsltf::TemplateTestFacility::getIdentifier(element);
-        size_t j = 0;
-        do {
-            if (bsltf::TemplateTestFacility::getIdentifier(expectedValues[j])
-                                                                   == nextId) {
-                ASSERTV(j, expectedValues[j], element, !foundValues[j]);
-                foundValues[j] = true;
-                break;
-            }
-        }
-        while (++j != container.size());
-    }
-    ASSERTV(expectedSize, i, expectedSize == i);
-    if (expectedSize != i) {
-        return -2;                                                    // RETURN
-    }
-
-    size_t missing = 0;
-    for (size_t j = 0; j != expectedSize; ++j) {
-        if (!foundValues[j]) {
-            ++missing;
-        }
-    }
-
-    return missing;  // 0 indicates a successful test!
-}
-#endif
 
                             // ====================
                             // class ExceptionGuard
@@ -1599,7 +1541,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //*  ~HashTable();
     //*  insertElement  (test driver function, proxy for basic manipulator)
     //*  void removeAll();
-    //*  setBootstrapMaxLoadFactor();
+    //*  setMaxLoadFactor(float);
     // ------------------------------------------------------------------------
 
     typedef typename KEY_CONFIG::ValueType Element;
@@ -1650,7 +1592,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                   objAllocatorPtr = &da;
               } break;
               case 'c': {
-                  objPtr = new (fa) Obj(HASHER(), COMPARATOR(), 3 * LENGTH, &sa);
+                  objPtr = new (fa) Obj(HASHER(),
+                                        COMPARATOR(),
+                                        3 * LENGTH,
+                                        &sa);
                   objAllocatorPtr = &sa;
               } break;
               default: {
@@ -1677,11 +1622,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             // Record blocks used by the initial bucket array
             const unsigned long long INITIAL_OA_BLOCKS  =  oa.numBlocksTotal();
-            //const unsigned long long INITIAL_NOA_BLOCKS = noa.numBlocksTotal();
 
             // Verify attributes of an empty container.
             // Note that not all of these attributes are salient to value.
-
+            // None of these accessors are deemed tested until their own test
+            // case, but many witnesses give us some confidence in the state.
             ASSERTV(LENGTH, CONFIG, 0 == X.size());
             ASSERTV(LENGTH, CONFIG, 0 < X.numBuckets());
             ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
@@ -1750,14 +1695,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     ExceptionGuard<Obj> guard(&X, L_, &scratch);
 
-//                    const typename Obj::SizeType bucketCount = X.numBuckets();
 
                     bslma::TestAllocatorMonitor tam(&oa);
                     Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
                     ASSERT(0 != RESULT);
 
-//                    bool BUCKET_ARRAY_GREW = bucketCount != X.numBuckets();
-#if 1
                     // These tests assume that the object allocator is used
                     // only is stored elements also allocate memory.  This
                     // does not allow for rehashes as the container grows.
@@ -1780,7 +1722,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                     ASSERTV(LENGTH, CONFIG, oa.numBlocksTotal(),
                                                            oa.numBlocksInUse(),
                             oa.numBlocksTotal() == oa.numBlocksInUse());
-#endif
 
                     ASSERTV(LENGTH, CONFIG,
                             VALUES[LENGTH - 1] ==
@@ -1834,7 +1775,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             if (veryVerbose) { printf("\n\tTesting 'removeAll'.\n"); }
             {
                 const bsls::Types::Int64 BB = oa.numBlocksTotal();
-//                const bsls::Types::Int64 B  = oa.numBlocksInUse();
 
                 mX.removeAll();
 
@@ -1846,11 +1786,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
 
                 const bsls::Types::Int64 AA = oa.numBlocksTotal();
-//                const bsls::Types::Int64 A  = oa.numBlocksInUse();
 
                 ASSERTV(LENGTH, CONFIG, BB == AA);
-//                ASSERTV(LENGTH, CONFIG, B, A,
-//                        B - (int)LENGTH * TYPE_ALLOC == A);
             }
 
             // ----------------------------------------------------------------
@@ -1963,7 +1900,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             if (veryVerbose) { printf("\n\tTesting 'removeAll'.\n"); }
             {
                 const bsls::Types::Int64 BB = oa.numBlocksTotal();
-//                const bsls::Types::Int64 B  = oa.numBlocksInUse();
 
                 mX.removeAll();
 
@@ -1975,11 +1911,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
 
                 const bsls::Types::Int64 AA = oa.numBlocksTotal();
-//                const bsls::Types::Int64 A  = oa.numBlocksInUse();
 
                 ASSERTV(LENGTH, CONFIG, BB == AA);
-//                ASSERTV(LENGTH, CONFIG, B, A,
-//                        B - (int)LENGTH * TYPE_ALLOC == A);
             }
 
             // ----------------------------------------------------------------
@@ -2030,7 +1963,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             if (veryVerbose) { printf("\n\tTesting 'removeAll'.\n"); }
             {
                 const bsls::Types::Int64 BB = oa.numBlocksTotal();
-//                const bsls::Types::Int64 B  = oa.numBlocksInUse();
 
                 mX.removeAll();
 
@@ -2042,7 +1974,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
 
                 const bsls::Types::Int64 AA = oa.numBlocksTotal();
-//                const bsls::Types::Int64 A  = oa.numBlocksInUse();
 
                 ASSERTV(LENGTH, CONFIG, BB == AA);
 //                ASSERTV(LENGTH, CONFIG, B, A,
@@ -2088,30 +2019,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 }
 
                 ASSERTV(LENGTH, CONFIG, 3 * LENGTH == X.size());
-            }
-
-            // ----------------------------------------------------------------
-
-            if (veryVerbose) { printf("\n\tTesting 'removeAll'.\n"); }
-            {
-                const bsls::Types::Int64 BB = oa.numBlocksTotal();
-//                const bsls::Types::Int64 B  = oa.numBlocksInUse();
-
-                mX.removeAll();
-
-                ASSERTV(LENGTH, CONFIG, 0 == X.size());
-                ASSERTV(LENGTH, CONFIG, bucketCountWithDups == X.numBuckets());
-                ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
-                ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
-                ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
-                ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
-
-                const bsls::Types::Int64 AA = oa.numBlocksTotal();
-//                const bsls::Types::Int64 A  = oa.numBlocksInUse();
-
-                ASSERTV(LENGTH, CONFIG, BB == AA);
-//                ASSERTV(LENGTH, CONFIG, B, A,
-//                        B - (int)LENGTH * TYPE_ALLOC == A);
             }
 
             // ----------------------------------------------------------------

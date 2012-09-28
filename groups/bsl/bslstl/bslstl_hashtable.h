@@ -572,12 +572,13 @@ class HashTable {
     void setMaxLoadFactor(float loadFactor);
         // Set the maximum load factor permitted by this hash table to the
         // specified 'loadFactor', where load factor is the statistical mean
-        // number of elements per bucket.  This hash table will rehash using a
-        // larger number of buckets if any insert operation (or this function
-        // call) would cause it to exceed the 'maxLoadFactor', and explicit
-        // calls to 'rehash' will have the number of buckets adjusted in a way
-        // that respects the 'maxLoadFactor'.  The behavior is undefined
-        // '0 < loadFactor'.
+        // number of elements per bucket.  This hash table will enforce the
+        // maximum load factor by rehashing into a larger array of buckets on
+        // any any insertion operation where a successful insertion would
+        // exceed the maximum load factor.  The maximum load factor may
+        // actually be less than the current load factor after calling this
+        // method, until the next insertion operation is called.  The behavior
+        // is undefined unless '0 < loadFactor'.
 
     void swap(HashTable& other);
         // Exchange the value of this object, its 'comparator' functor and its
@@ -637,8 +638,11 @@ class HashTable {
         // Return the maximum load factor permitted by this hash table object,
         // where the load factor is the statistical mean number of elements per
         // bucket.  Note that this hash table will enforce the maximum load
-        // factor by rehashing into a larger array of buckets if an insertion
-        // would cause the maximum load factor to be exceeded.
+        // factor by rehashing into a larger array of buckets on any any
+        // insertion operation where a successful insertion would exceed the
+        // maximum load factor.  The maximum load factor may actually be less
+        // than the current load factor if the maximum load factor has been
+        // reset, but no insert operations have yet occurred.
 
     bslalg::BidirectionalLink *elementListRoot() const;
         // Return the address of the first element in this hash table, or a
@@ -1755,13 +1759,11 @@ inline
 void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
                                                               float loadFactor)
 {
+    BSLS_ASSERT_SAFE(0.0f < loadFactor);
+
     d_maxLoadFactor = loadFactor;
     d_capacity = static_cast<native_std::size_t>(native_std::ceil(
                          static_cast<float>(this->numBuckets()) * loadFactor));
-
-    if (d_capacity < this->size()) {
-        this->rehashForNumElements(this->size());
-    }
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
