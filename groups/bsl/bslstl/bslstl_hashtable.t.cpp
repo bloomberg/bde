@@ -1084,6 +1084,8 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase12();
+
     static void testCase11();
 
     static void testCase9();
@@ -1129,6 +1131,8 @@ struct TestDriver_BasicConfiguation {
                       > Type;
 
     // TEST CASES
+    static void testCase12() { Type::testCase12(); }
+
     static void testCase11() { Type::testCase11(); }
 
     static void testCase9() { Type::testCase9(); }
@@ -1153,6 +1157,8 @@ struct TestDriver_StatefulConfiguation {
                       > Type;
 
     // TEST CASES
+    static void testCase12() { Type::testCase12(); }
+
     static void testCase11() { Type::testCase11(); }
 
     static void testCase9() { Type::testCase9(); }
@@ -1233,6 +1239,106 @@ TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::g(const char *spec)
 {
     Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
+{
+    // ------------------------------------------------------------------------
+    // TESTING REHASH
+    //
+    // Concerns:
+    //: 1 'rehashForNumBuckets' allocates at least the specified number of
+    //:   buckets.
+    //:
+    //: 2 Rehash does not affect the value of the object.
+    //:
+    //: 3 Rehash does not affect the order of the inserted elements with the
+    //:   same value.
+    //:
+    //: 4 Rehash is a no-op if the requested number of buckets is less than the
+    //:   current 'numBuckets' in the object.
+    //:
+    //: 5 Any memory allocation is from the object allocator.
+    //:
+    //: 6 'rehashForNumBuckets' provide strong exception guaruantee if the
+    //:   hasher and comparator does not throw.
+    //
+    //*[13] rehashForNumBuckets(SizeType newNumBuckets);
+    //*[13] rehashForNumElements(SizeType numElements);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf(
+                 "\nCreate a test allocator and install it as the default.\n");
+
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    if (verbose) printf(
+       "\nUse a table of distinct object values and expected memory usage.\n");
+
+    const size_t REHASH_SIZE[] = {
+        0,
+        1,
+        2,
+        3,
+        5,
+        8,
+        12,
+        13,
+        2099
+    };
+    const int NUM_REHASH_SIZE = sizeof REHASH_SIZE / sizeof *REHASH_SIZE;
+
+    const int NUM_DATA                     = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int         LINE   = DATA[ti].d_line;
+        const char *const SPEC   = DATA[ti].d_spec;
+        const size_t      LENGTH = (int) strlen(SPEC);
+
+        bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+        Obj mZ(HASHER(), COMPARATOR(), LENGTH, &scratch);
+        const Obj& Z = gg(&mZ,  SPEC);
+
+        for (int tj = 0; tj < NUM_REHASH_SIZE; ++tj) {
+            Obj mX(Z, &oa); const Obj& X = mX;
+
+            if (veryVerbose) { T_ P_(LINE) P_(Z) P(X) }
+
+            const size_t OLD_NUM_BUCKETS = X.numBuckets();
+            const size_t NEW_NUM_BUCKETS = REHASH_SIZE[tj];
+
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            mX.rehashForNumBuckets(NEW_NUM_BUCKETS);
+
+            ASSERTV(LINE, tj, X == Z);
+
+            ASSERTV(LINE, tj, NEW_NUM_BUCKETS <= X.numBuckets());
+
+            if (NEW_NUM_BUCKETS <= OLD_NUM_BUCKETS) {
+                ASSERTV(LINE, tj, OLD_NUM_BUCKETS == X.numBuckets());
+                ASSERTV(LINE, tj, oam.isTotalSame());
+                ASSERTV(LINE, tj, oam.isInUseSame());
+            }
+            else {
+                ASSERTV(LINE, tj, oam.numBlocksTotalChange(),
+                        1 == oam.numBlocksTotalChange());
+
+                if (0 < LENGTH ) {
+                    ASSERTV(LINE, tj, oam.isInUseSame());
+                }
+                else {
+                    ASSERTV(LINE, tj, oam.numBlocksInUseChange(),
+                            1 == oam.numBlocksInUseChange());
+                }
+            }
+        }
+    }
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -3847,13 +3953,14 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
       } break;
+#endif
       case 12: {
         // --------------------------------------------------------------------
         // VALUE CONSTRUCTORS
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Value Constructor"
-                            "\n=========================\n");
+        if (verbose) printf("\nTesting 'rehash'"
+                            "\n================\n");
 
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase12,
@@ -3863,7 +3970,6 @@ int main(int argc, char *argv[])
                       testCase12,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
-#endif
       case 11: {
         // --------------------------------------------------------------------
         // DEFAULT CONSTRUCTOR
