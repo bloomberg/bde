@@ -155,8 +155,6 @@ using namespace BloombergLP;
 //// specialized algorithms:
 //*[ 8] void swap(HashTable& a, HashTable& b);
 //
-// [ 2] insert (boostrap)
-//
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE
@@ -165,14 +163,14 @@ using namespace BloombergLP;
 // [  ] size_t nextPrime(size_t n);
 // [  ] bslalg::HashTableBucket *defaultBucketAddress();
 //
-// Class HashTable_Util<ALLOCATOR> 
-// [  ] initAnchor(bslalg::HashTableAnchor *, SizeType, const ALLOC&); 
-// [  ] destroyBucketArray(bslalg::HashTableBucket *, SizeType, const ALLOC&) 
+// Class HashTable_Util<ALLOCATOR>
+// [  ] initAnchor(bslalg::HashTableAnchor *, SizeType, const ALLOC&);
+// [  ] destroyBucketArray(bslalg::HashTableBucket *, SizeType, const ALLOC&)
 //
 // Class HashTable_ListProctor
 // [  ] TBD...
 //
-// Class HashTable_ArrayProctor 
+// Class HashTable_ArrayProctor
 // [  ] TBD...
 //
 // TEST TEST APPARATUS AND GENERATOR FUNCTIONS
@@ -289,6 +287,17 @@ void debugprint(
 
 
 namespace {
+
+bool expectPoolToAllocate(int n)
+    // Return 'true' if the memory pool used by the container under test is
+    // expected to allocate memory on the inserting the specified 'n'th
+    // element, and 'false' otherwise.
+{
+    if (n > 32) {
+        return (0 == n % 32);                                         // RETURN
+    }
+    return (((n - 1) & n) == 0);  // Allocate when 'n' is a power of 2
+}
 
 struct BoolArray {
     // This class holds a set of boolean flags...
@@ -1330,7 +1339,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
     //*  int ggg(HashTable *object, const char *spec, int verbose = 1);
     //*  HashTable& gg(HashTable *object, const char *spec);
     //*  verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
-    //*  bool isValidHashTable(Link *, const HashTableBucket&, int numbucket);
+    //*  bool isValidHashTable(Link *, const HashTableBucket&, int numBuckets);
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator oa(veryVeryVerbose);
@@ -1526,8 +1535,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //:20 'setBootstrapMaxLoadFactor' modifies the 'maxLoadFactor' attribute
     //:   unless the supplied value is less than or equal to 'loadFactor'.
     //:
-    //:21 'setBootstrapMaxLoadFactor' returns 'true' if it successessfully
-    //:   changes the 'maxLoadFactor', and 'false' otherwise.
+    //:21 'setBootstrapMaxLoadFactor' returns 'true' if it successfully changes
+    //:   the 'maxLoadFactor', and 'false' otherwise.
     //:
     //:22 Any argument can be 'const'.
     //:
@@ -1536,7 +1545,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     // Plan:
     //: 1 For each value of increasing length, 'L':
     //:
-    //:   2 Using a loop-based approach, default-construct three distinct
+    //:   2 Using a loop-based approach, value-construct three distinct empty
     //:     objects, in turn, but configured differently: (a) without passing
     //:     an allocator, (b) passing a null allocator address explicitly,
     //:     and (c) passing the address of a test allocator distinct from the
@@ -1587,18 +1596,18 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //
     // Testing:
     //*  HashTable(const HASHER&, const COMPARATOR&, SizeType, const ALLOC&)
-    //   ~HashTable();
-    //   insertElement  (test driver function, proxy for basic manipulator)
-    //   void removeAll();
-    //   setBootstrapMaxLoadFactor();
+    //*  ~HashTable();
+    //*  insertElement  (test driver function, proxy for basic manipulator)
+    //*  void removeAll();
+    //*  setBootstrapMaxLoadFactor();
     // ------------------------------------------------------------------------
 
     typedef typename KEY_CONFIG::ValueType Element;
 
-    const bool VALUE_TYPE_USES_ALLOC =
+    const bool VALUE_TYPE_USES_ALLOCATOR =
                                      bslma::UsesBslmaAllocator<Element>::value;
 
-    if (verbose) { P(VALUE_TYPE_USES_ALLOC); }
+    if (verbose) { P(VALUE_TYPE_USES_ALLOCATOR); }
 
     const TestValues VALUES;  // contains 52 distinct increasing values
 
@@ -1634,7 +1643,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                   objAllocatorPtr = &da;
               } break;
               case 'b': {
-                  objPtr = new (fa) Obj(HASHER(), COMPARATOR(), 3 * LENGTH, (bslma::Allocator *)0);
+                  objPtr = new (fa) Obj(HASHER(),
+                                        COMPARATOR(),
+                                        3 * LENGTH,
+                                        (bslma::Allocator *)0);
                   objAllocatorPtr = &da;
               } break;
               case 'c': {
@@ -1738,18 +1750,19 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     ExceptionGuard<Obj> guard(&X, L_, &scratch);
 
-                    const typename Obj::SizeType bucketCount = X.numBuckets();
+//                    const typename Obj::SizeType bucketCount = X.numBuckets();
 
                     bslma::TestAllocatorMonitor tam(&oa);
                     Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
                     ASSERT(0 != RESULT);
 
-                    bool BUCKET_ARRAY_GREW = bucketCount != X.numBuckets();
-#if 0
+//                    bool BUCKET_ARRAY_GREW = bucketCount != X.numBuckets();
+#if 1
                     // These tests assume that the object allocator is used
                     // only is stored elements also allocate memory.  This
                     // does not allow for rehashes as the container grows.
-                    if (VALUE_TYPE_USES_ALLOC || BUCKET_ARRAY_GREW) {
+                    if (VALUE_TYPE_USES_ALLOCATOR  ||
+                                                expectPoolToAllocate(LENGTH)) {
                         ASSERTV(CONFIG, tam.isTotalUp());
                         ASSERTV(CONFIG, tam.isInUseUp());
                     }
@@ -1885,22 +1898,18 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                     // Hence we run the same test sequence a second time after
                     // clearing the container, so we can validate knowing that
                     // no rehashes should be necessary, and will in fact show
-                    // up as a memory use error.
-//                    if (VALUE_TYPE_USES_ALLOC || expectToAllocate(LENGTH)) {
-                    if (VALUE_TYPE_USES_ALLOC) {
-                        ASSERTV(CONFIG, tam.isTotalUp());
-                        ASSERTV(CONFIG, tam.isInUseUp());
+                    // up as a memory use error.  'LENGTH' was the high-water
+                    // mark of the initial run on the container before removing
+                    // all elements.
+                    if ((LENGTH < X.size() && expectPoolToAllocate(LENGTH))
+                        || VALUE_TYPE_USES_ALLOCATOR) {
+                        ASSERTV(CONFIG, LENGTH, tam.isTotalUp());
+                        ASSERTV(CONFIG, LENGTH, tam.isInUseUp());
                     }
                     else {
-                        ASSERTV(CONFIG, tam.isTotalSame());
-                        ASSERTV(CONFIG, tam.isInUseSame());
+                        ASSERTV(CONFIG, LENGTH, tam.isTotalSame());
+                        ASSERTV(CONFIG, LENGTH, tam.isInUseSame());
                     }
-
-#if 0
-                    ASSERTV(LENGTH, CONFIG, oa.numBlocksTotal(),
-                                            oa.numBlocksInUse(),
-                            oa.numBlocksTotal() == oa.numBlocksInUse());
-#endif
 
                     ASSERTV(LENGTH, CONFIG,
                             VALUES[LENGTH - 1] ==
