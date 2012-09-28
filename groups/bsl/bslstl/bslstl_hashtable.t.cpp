@@ -274,7 +274,6 @@ void debugprint(
         printf("<empty>");
     }
     else {
-
         for (Link *it = t.elementListRoot(); it; it = it->nextLink()) {
             const typename KEY_CONFIG::KeyType& key =
                                            ImpUtil::extractKey<KEY_CONFIG>(it);
@@ -959,7 +958,16 @@ int TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ggg(
     for (int i = 0; spec[i]; ++i) {
         if ('A' <= spec[i] && spec[i] <= 'Z') {
 //            object->insert(VALUES[spec[i] - 'A']);
-            insertElement(object, VALUES[spec[i] - 'A']);
+            if (!insertElement(object, VALUES[spec[i] - 'A'])) {
+                if (verbose) {
+                    printf("Error, spec string longer ('%d') than the"
+                           "'HashTable' can support without a rehash.\n", spec[i], spec, i);
+                }
+
+                // Discontinue processing this spec.
+
+                return i;                                             // RETURN
+            }
         }
         else {
             if (verbose) {
@@ -983,15 +991,6 @@ TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::gg(Obj        *object,
     ASSERTV(ggg(object, spec) < 0);
     return *object;
 }
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>
-TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::g(const char *spec)
-{
-    Obj object((bslma::Allocator *)0);
-    return gg(&object, spec);
-}
-
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
@@ -1246,11 +1245,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
             const TestValues  EXP(DATA[ti].d_results);
             const int         curLen = (int)strlen(SPEC);
 
-            Obj mX(&oa);
+            Obj mX(HASHER(), COMPARATOR(), LENGTH, &oa);
             const Obj& X = gg(&mX, SPEC);   // original spec
-
-            Obj mY(&oa);
-            const Obj& Y = gg(&mY, SPEC);    // extended spec
 
             if (curLen != oldLen) {
                 if (verbose) printf("\tof length %d:\n", curLen);
@@ -1261,16 +1257,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
             if (veryVerbose) {
                 printf("\t\tSpec = \"%s\"\n", SPEC);
                 T_ T_ T_ P(X);
-                T_ T_ T_ P(Y);
             }
 
             ASSERTV(LINE, LENGTH == X.size());
-            ASSERTV(LINE, LENGTH == Y.size());
             ASSERT(0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
-                                                       EQUAL,
-                                                       EXP,
-                                                       LENGTH));
-            ASSERT(0 == verifyListContents<KEY_CONFIG>(Y.elementListRoot(),
                                                        EQUAL,
                                                        EXP,
                                                        LENGTH));
@@ -1324,7 +1314,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
             const int         INDEX  = DATA[ti].d_index;
             const size_t      LENGTH = (int)strlen(SPEC);
 
-            Obj mX(&oa);
+            Obj mX(HASHER(), COMPARATOR(), LENGTH, &oa);
 
             if ((int)LENGTH != oldLen) {
                 if (verbose) printf("\tof length %d:\n", LENGTH);
@@ -1519,15 +1509,15 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             switch (CONFIG) {
               case 'a': {
-                  objPtr = new (fa) Obj();
+                  objPtr = new (fa) Obj(HASHER(), COMPARATOR(), 3 * LENGTH);
                   objAllocatorPtr = &da;
               } break;
               case 'b': {
-                  objPtr = new (fa) Obj((bslma::Allocator *)0);
+                  objPtr = new (fa) Obj(HASHER(), COMPARATOR(), 3 * LENGTH, (bslma::Allocator *)0);
                   objAllocatorPtr = &da;
               } break;
               case 'c': {
-                  objPtr = new (fa) Obj(&sa);
+                  objPtr = new (fa) Obj(HASHER(), COMPARATOR(), 3 * LENGTH, &sa);
                   objAllocatorPtr = &sa;
               } break;
               default: {
@@ -1543,12 +1533,18 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             ASSERTV(LENGTH, CONFIG, &oa == X.allocator());
 
-            // Verify no allocation from the object/non-object allocators.
-
-            ASSERTV(LENGTH, CONFIG, oa.numBlocksTotal(),
-                    0 ==  oa.numBlocksTotal());
+            // QoI: Verify no allocation from the object/non-object allocators
+            // if no buckets are requested (as per the default constructor).
+            if (0 == LENGTH) {
+                ASSERTV(LENGTH, CONFIG, oa.numBlocksTotal(),
+                        0 ==  oa.numBlocksTotal());
+            }
             ASSERTV(LENGTH, CONFIG, noa.numBlocksTotal(),
                     0 == noa.numBlocksTotal());
+
+            // Record blocks used by the initial bucket array
+            const unsigned long long INITIAL_OA_BLOCKS  =  oa.numBlocksTotal();
+            //const unsigned long long INITIAL_NOA_BLOCKS = noa.numBlocksTotal();
 
             // Verify attributes of an empty container.
             // Note that not all of these attributes are salient to value.
@@ -1573,7 +1569,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             // Verify no allocation from the object/non-object allocators.
 
             ASSERTV(LENGTH, CONFIG, oa.numBlocksTotal(),
-                    0 ==  oa.numBlocksTotal());
+                    INITIAL_OA_BLOCKS ==  oa.numBlocksTotal());
             ASSERTV(LENGTH, CONFIG, noa.numBlocksTotal(),
                     0 == noa.numBlocksTotal());
 
@@ -1605,6 +1601,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                 for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);
+                    ASSERT(0 != RESULT);
                     ASSERTV(LENGTH, tj, CONFIG,
                         VALUES[tj] == ImpUtil::extractKey<KEY_CONFIG>(RESULT));
                 }
@@ -1624,6 +1621,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                     bslma::TestAllocatorMonitor tam(&oa);
                     Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
+                    ASSERT(0 != RESULT);
 
                     bool BUCKET_ARRAY_GREW = bucketCount != X.numBuckets();
 #if 0
@@ -1735,6 +1733,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                 for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);
+                    ASSERT(0 != RESULT);
                     ASSERTV(LENGTH, tj, CONFIG,
                         VALUES[tj] == ImpUtil::extractKey<KEY_CONFIG>(RESULT));
                 }
@@ -1752,6 +1751,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                     bslma::TestAllocatorMonitor tam(&oa);
                     Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
+                    ASSERT(0 != RESULT);
 
                     // The number of buckets should not have changed, so no
                     // reason to allocate a fresh bucket array
@@ -1861,6 +1861,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
                     ITER[tj] = insertElement(&mX, VALUES[tj]);
+                    ASSERT(0 != ITER[tj]);
                     ASSERTV(LENGTH, tj, CONFIG,
                             VALUES[tj] ==
                                     ImpUtil::extractKey<KEY_CONFIG>(ITER[tj]));
@@ -1871,6 +1872,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);
+                    ASSERT(0 != RESULT);
                     ASSERTV(LENGTH, tj, CONFIG,
                         VALUES[tj] == ImpUtil::extractKey<KEY_CONFIG>(RESULT));
                     RESULT = RESULT->nextLink();
@@ -1881,6 +1883,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);
+                    ASSERT(0 != RESULT);
                     ASSERTV(LENGTH, tj, CONFIG,
                         VALUES[tj] == ImpUtil::extractKey<KEY_CONFIG>(RESULT));
                     RESULT = RESULT->nextLink();
@@ -1925,6 +1928,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
                     ITER[tj] = insertElement(&mX, VALUES[tj]);
+                    ASSERT(0 != ITER[tj]);
                     ASSERTV(LENGTH, tj, CONFIG,
                             VALUES[tj] ==
                                     ImpUtil::extractKey<KEY_CONFIG>(ITER[tj]));
@@ -1935,6 +1939,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);
+                    ASSERT(0 != RESULT);
                     ASSERTV(LENGTH, tj, CONFIG,
                         VALUES[tj] == ImpUtil::extractKey<KEY_CONFIG>(RESULT));
                     RESULT = RESULT->nextLink();
@@ -1945,6 +1950,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);
+                    ASSERT(0 != RESULT);
                     ASSERTV(LENGTH, tj, CONFIG,
                         VALUES[tj] == ImpUtil::extractKey<KEY_CONFIG>(RESULT));
                     RESULT = RESULT->nextLink();
@@ -2431,7 +2437,6 @@ int main(int argc, char *argv[])
                       testCase6,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
-#endif
       case 5: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR
@@ -2443,6 +2448,7 @@ int main(int argc, char *argv[])
         if (verbose)
                    printf("There is no output operator for this component.\n");
       } break;
+#endif
       case 4: {
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
