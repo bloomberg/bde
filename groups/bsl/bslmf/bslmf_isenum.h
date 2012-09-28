@@ -10,34 +10,48 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide compile-time detection of enumerated types.
 //
 //@CLASSES:
+//  bsl::is_class: standard meta-function for determining enumerated types
 //  bslmf::IsEnum: meta-function for detecting enumerated types
 //
 //@SEE_ALSO: bslmf_isfundamental
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: This component defines a simple template structure used to
-// evaluate whether it's single type parameter is of enumeration type.
-// 'bslmf::IsEnum' defines a 'value' enumerator that is initialized (at
-// compile-time) to 1 if the parameter is of enumeration type, and to 0
-// otherwise.
+//@DESCRIPTION: This component defines two meta-functions, 'bsl::is_enum' and
+// 'BloombergLP::bslmf::IsEnum', both of which may be used to query whether a
+// type is a enumerated, optionally qualified with 'const' or volatile'.
+//
+// 'bsl::is_enum' meets the requirements of the 'is_enum' template defined in
+// the C++11 standard [meta.unary.cat], while 'bslmf::IsEnum' was devised
+// before 'is_class' was standardized.
+//
+// The two meta-functions are functionally equivalent.  The major difference
+// between them is that the result for 'bsl::is_enum' is indicated by the class
+// member 'value', while the result for 'bslmf::IsEnum' is indicated by the
+// class member 'VALUE'.
+//
+// Note that 'bsl::is_enum' should be preferred over 'bslmf::IsEnum', and in
+// general, should be used by new components.
 //
 ///Usage
 ///-----
-// For example:
-//..
-//  enum Enum { MY_ENUMERATOR = 5 };
-//  class Class { Class(Enum); };
+// In this section we show intended use of this component.
 //
-//  assert(1 == bslmf::IsEnum<Enum>::value);
-//  assert(0 == bslmf::IsEnum<Class>::value);
-//  assert(0 == bslmf::IsEnum<int>::value);
-//  assert(0 == bslmf::IsEnum<int *>::value);
+///Example 1: Verify Enumerated Types
+/// - - - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is a class type.
+//
+// First, we create an enumerated type, 'MyEnum', and a non-enumerated class
+// type, 'MyClass':
 //..
-// Note that the 'bslmf::IsEnum' meta-function also evaluates to true (i.e., 1)
-// when applied to references to enumeration types:
+//  enum MyEnum { MY_ENUMERATOR = 5 };
+//  class MyClass { MyClass(MyEnum); };
 //..
-//  assert(1 == bslmf::IsEnum<const Enum&>::value);
+// Now, we instantiate the 'bsl::is_enum' template for both types we defined
+// previously, asserting the 'value' static data member of each instantiation:
+//..
+//  assert(true  == bsl::is_enum<MyEnum>::value);
+//  assert(false == bsl::is_enum<MyClass>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -149,7 +163,7 @@ struct is_enum
                           BloombergLP::bslmf::IsEnum_AnyArithmeticType>::value>
 {};
 
-}
+}  // close namespace bsl
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================

@@ -1,6 +1,6 @@
-// bslmf_anytype.h                                                    -*-C++-*-
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#define INCLUDED_BSLMF_ANYTYPE
+// bslmf_matchanytype.h                                               -*-C++-*-
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#define INCLUDED_BSLMF_MATCHANYTYPE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,31 +10,32 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a generic type to which any type can be converted.
 //
 //@CLASSES:
-//  bslmf::AnyType: generic type to which any type can be converted
+//  bslmf::MatchAnyType: generic type to which any type can be converted
 //  bslmf::TypeRep: meta-function for providing a reference to 'TYPE'
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: 'bslmf::AnyType' is a type to which any type can be implicitly
-// converted.  This is useful for creating an overloaded function that is a
-// catch-all for all types not explicitly provided for in other overloaded
-// functions with the same name.  'bslmf::TypeRep' allows one to create a
-// reference to a type.  In complex template programming, one is often dealing
-// with unknown types, about the constructors of which one knows nothing.  One
-// often needs an object of the given type, but since nothing is known about
-// the constructors, one can't just construct and object of the type.
-// 'bslmf::TypeRep' allows one to create a reference to the type.  Note that
-// the 'rep' function in 'bslma::TypeRep' is not implemented, it must never be
-// called at run time.
+//@DESCRIPTION: 'bslmf::MatchAnyType' is a type to which any type can be
+// implicitly converted.  This is useful for creating an overloaded function
+// that is a catch-all for all types not explicitly provided for in other
+// overloaded functions with the same name.
 //
-///Usage Example 1: 'bslmf::AnyType'
-///-------------------------------
+// 'bslmf::TypeRep' allows one to create a reference to a type.  In complex
+// template programming, one is often dealing with unknown types, about the
+// constructors of which one knows nothing.  One often needs an object of the
+// given type, but since nothing is known about the constructors, one can't
+// just construct and object of the type.  'bslmf::TypeRep' allows one to
+// create a reference to the type.  Note that the 'rep' function in
+// 'bslma::TypeRep' is not implemented, it must never be called at run time.
+//
+///Usage Example 1: 'bslmf::MatchAnyType'
+///--------------------------------------
 //..
 //  struct X { };
 //  struct Y { };
 //  struct Z : public Y { };
 //
-//  inline bool isY(const bslmf::AnyType&) { return false; }
+//  inline bool isY(const bslmf::MatchAnyType&) { return false; }
 //  inline bool isY(const Y&)              { return true;  }
 //
 //  assert(! isY(X()));
@@ -77,7 +78,7 @@ BSLS_IDENT("$Id: $")
 //  #define METAINT_TO_UINT(metaint)   (sizeof(metaint) - 1)
 //
 //  MetaInt<1> isX(const X&);
-//  MetaInt<0> isX(const bslmf::AnyType&);
+//  MetaInt<0> isX(const bslmf::MatchAnyType&);
 //
 //  assert(1 == METAINT_TO_UINT(isX(X())));
 //  assert(0 == METAINT_TO_UINT(isX(Y())));
@@ -96,19 +97,19 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-                        // =============
-                        // class AnyType
-                        // =============
+                        // ==================
+                        // class MatchAnyType
+                        // ==================
 
-struct AnyType {
+struct MatchAnyType {
     // Any type can be converted into this type.
 
-    template <typename TYPE> AnyType(const TYPE&) { }
+    template <typename TYPE> MatchAnyType(const TYPE&) { }
         // This constructor will match any rvalue or any non-volatile lvalue.
         // A non-const version of this constructor is not necessary and will
         // cause some compilers to complain of ambiguities.
 
-    template <typename TYPE> AnyType(const volatile TYPE&) { }
+    template <typename TYPE> MatchAnyType(const volatile TYPE&) { }
         // This constructor will match any volatile lvalue.  According to the
         // standard, it should NOT match an rvalue.  A non-const version of
         // this constructor is not necessary and will cause some compilers to
@@ -140,6 +141,14 @@ struct TypeRep<TYPE&> {
         // 'TYPE' has a default constructor or not.
 };
 
+struct DummyType {
+};
+
+template <>
+struct TypeRep<void> {
+    static DummyType& rep();
+};
+
 }  // close package namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
@@ -153,7 +162,7 @@ struct TypeRep<TYPE&> {
 #define bslmf_TypeRep bslmf::TypeRep
     // This alias is defined for backward compatibility.
 
-typedef bslmf::AnyType bslmf_AnyType;
+typedef bslmf::MatchAnyType bslmf_AnyType;
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 

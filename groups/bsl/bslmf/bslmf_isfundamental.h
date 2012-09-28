@@ -10,21 +10,28 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time check for fundamental types.
 //
 //@CLASSES:
+//  bsl::is_fundamental: standard meta-function for fundamental type checking
 //  bslmf::IsFundamental: meta-function for fundamental type checking
 //
 //@SEE_ALSO: bslmf_isenum, bslmf_ispointer
 //
 //@AUTHOR: Shawn Edwards (sedwards)
 //
-//@DESCRIPTION: This component defines a simple template structure used to
-// evaluate whether it's parameter is a fundamental type.
-// 'bslmf::IsFundamental' defines a member, 'value', whose value is initialized
-// (at compile-time) to 1 if the parameter is a fundamental type (ignoring any
-// 'const' or 'volatile' qualification), and 0 if it is not.  Instantiating
-// 'bslmf::IsFundamental' on a reference type is the same as instantiating it
-// under underlying (non-reference) type.  Instantiating 'bslmf::IsFundamental'
-// on a pointer type yields a 'value' of zero.  (Pointers are not fundamental
-// types, but see 'bslmf_ispointer'.)
+///@DESCRIPTION: This component defines two meta-functions,
+// 'bsl::is_fundamental' and 'BloombergLP::bslmf::IsFundamental', both of which
+// may be used to query whether a type is a pointer type.
+//
+// 'bsl::is_fundamental' meets the requirements of the 'is_fundamental'
+// template defined in the C++11 standard [meta.unary.comp], while
+// 'bslmf::Fundamental' was devised before 'is_fundamental' was standardized.
+//
+// The two meta-functions are functionally equivalent.  The major difference
+// between them is that the result for 'bsl::is_fundamental' is indicated by
+// the class member 'value', while the result for 'bslmf::Fundamental' is
+// indicated by the class member 'VALUE'.
+//
+// Note that 'bsl::is_fundamental' should be preferred over
+// 'bslmf::Fundamental', and in general, should be used by new components.
 //
 // The C++ fundamental types are described in the C++ standard, section 3.9.1
 // ("Fundamental types"), and consist of the following distinct types:
@@ -54,17 +61,21 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following example shows the result of instantiating
-// 'bslmf::IsFundamental' on a number of different types.
-//..
-//  struct MyType {};
+// In this section we show intended use of this component.
 //
-//  static const int a1 = bslmf::IsFundamental<int>::value;          // a1 == 1
-//  static const int a1 = bslmf::IsFundamental<int&>::value;         // a1 == 1
-//  static const int a2 = bslmf::IsFundamental<const int>::value;    // a2 == 1
-//  static const int a3 = bslmf::IsFundamental<volatile int>::value; // a3 == 1
-//  static const int a4 = bslmf::IsFundamental<int *>::value;        // a4 == 0
-//  static const int a5 = bslmf::IsFundamental<MyType>::value;       // a5 == 0
+///Example 1: Verify Fundamental Types
+///- - - - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is a fundamental
+// type.
+//
+// Now, we instantiate the 'bsl::is_fundamental' template for a couple of
+// non-fundamental and fundamental types, and assert the 'value' static data
+// member of each instantiation:
+//..
+//  assert(true  == bsl::is_fundamental<int>::value);
+//  assert(false == bsl::is_fundamental<int&>::value);
+//  assert(true  == bsl::is_fundamental<long long>::value);
+//  assert(false == bsl::is_fundamental<long long*>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -181,7 +192,7 @@ struct is_fundamental
     // the exception of 'nullptr_t' which is not supported yet.
 };
 
-}
+}  // close namespace bsl
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================

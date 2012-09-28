@@ -1,32 +1,103 @@
 // bslmf_isfloatingpoint.t.cpp                                        -*-C++-*-
 #include <bslmf_isfloatingpoint.h>
 
-#include <iostream>
-#include <cstdlib>
+#include <bsls_bsltestutil.h>
 
+#include <cstdlib>
+#include <cstdio>
+
+using namespace std;
 using namespace bsl;
 using namespace BloombergLP;
 
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::atoi;
+//=============================================================================
+//                                TEST PLAN
+//-----------------------------------------------------------------------------
+//                                Overview
+//                                --------
+// The object under test is a meta-functions, 'bsl::is_floating_point', that
+// determine whether a template parameter type is a floating-point type.  Thus,
+// we need to ensure that the values returned by the meta-functions is correct
+// for each possible category of types.
+//
+// ----------------------------------------------------------------------------
+// PUBLIC CLASS DATA
+// [ 1] bsl::is_floating_point::value
+//
+// ----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
 
 //=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
+//                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+void aSsErT(bool b, const char *s, int i)
+{
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+//=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+
+//=============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
+namespace {
+
+struct TestType {
+   // This user-defined type is intended to be used during testing as an
+   // argument for the template parameter 'TYPE' of 'bsl::is_pointer'.
+};
+
+typedef int (TestType::*MethodPtrTestType) ();
+    // This pointer to non-static function member type is intended to be used
+    // during testing as an argument for the template parameter 'TYPE' of
+    // 'bsl::is_pointer' and 'bslmf::IsPointer'.
+
+typedef void (*FunctionPtrTestType) ();
+    // This function pointer type is intended to be used during testing as an
+    // argument for the template parameter 'TYPE' of
+    // 'bsl::is_pointer' and 'bslmf::IsPointer'.
+
+}  // close unnamed namespace
+
+#define TYPE_ASSERT_CVQ(metaFunc, member, type, result)                      \
+    ASSERT(result == metaFunc<type>::member);                                 \
+    ASSERT(result == metaFunc<type const>::member);                           \
+    ASSERT(result == metaFunc<type volatile>::member);                        \
+    ASSERT(result == metaFunc<type const volatile>::member);
+
+#define TYPE_ASSERT_CVQ_REF(metaFunc, member, type, result)                   \
+    ASSERT(result == metaFunc<type&>::member);                                \
+    ASSERT(result == metaFunc<type const&>::member);                          \
+    ASSERT(result == metaFunc<type volatile&>::member);                       \
+    ASSERT(result == metaFunc<type const volatile&>::member);
+
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -37,29 +108,101 @@ int main(int argc, char *argv[])
     (void) verbose;
     (void) veryVerbose;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE\n"
+                            "\n=============\n");
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Floating-Point Types
+///- - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is a floating-point
+// type.
+//
+// First, we create two 'typedef's -- a floating-point type and a
+// non-floating-point type:
+//..
+        typedef void MyType;
+        typedef float  MyFloatingPointType;
+//..
+// Now, we instantiate the 'bsl::is_floating_point' template for each of the
+// 'typedef's and assert the 'value' static data member of each instantiation:
+//..
+        ASSERT(false == bsl::is_floating_point<MyType>::value);
+        ASSERT(true == bsl::is_floating_point<MyFloatingPointType>::value);
+//..
+
+      } break;
       case 1: {
-        ASSERT(!is_floating_point<bool>::value);
-        ASSERT(!is_floating_point<int>::value);
-        ASSERT(!is_floating_point<void>::value);
-        ASSERT(!is_floating_point<int *>::value);
-        ASSERT(is_floating_point<float>::value);
-        ASSERT(is_floating_point<float const>::value);
-        ASSERT(is_floating_point<double>::value);
-        ASSERT(is_floating_point<double volatile>::value);
-        ASSERT(is_floating_point<long double>::value);
+        // --------------------------------------------------------------------
+        // 'bsl::is_floating_point::value'
+        //   Ensure that the static data member 'value' of
+        //   'bsl::is_floating_point' instantiations having various (template
+        //   parameter) 'TYPES' has the correct value.
+        //
+        // Concerns:
+        //: 1 'is_floating_point::value' is 'false' when 'TYPE' is a (possibly
+        //:   cv-qualified) non-integral primitve type.
+        //
+        //: 2 'is_floating_point::value' is 'false' when 'TYPE' is a (possibly
+        //:   cv-qualified) user-defined type.
+        //:
+        //: 3 'is_floating_point::value' is 'true' when 'TYPE' is a (possibly
+        //:   cv-qualified) floating-point type.
+        //
+        // Plan:
+        //   Verify that 'bsl::is_floating_point::value' has the correct value
+        //   for each (template parameter) 'TYPE' in the concerns.
+        //
+        // Testing:
+        //   bsl::is_floating_point::value
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nbsl::is_floating_point::value\n"
+                            "\n=============================\n");
+
+        // C-1
+        TYPE_ASSERT_CVQ(bsl::is_floating_point, value, int, false);
+        TYPE_ASSERT_CVQ(bsl::is_floating_point, value, long int, false);
+
+        // C-2
+        TYPE_ASSERT_CVQ(bsl::is_floating_point, value, TestType, false);
+
+        // C-3
+        TYPE_ASSERT_CVQ(bsl::is_floating_point, value, float, true);
+        TYPE_ASSERT_CVQ(bsl::is_floating_point, value, double, true);
+        TYPE_ASSERT_CVQ(bsl::is_floating_point, value, long double, true);
+
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = "
-             << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
 
     return testStatus;

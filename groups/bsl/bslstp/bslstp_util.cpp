@@ -1,5 +1,5 @@
-// bslstl_util.cpp                                                    -*-C++-*-
-#include <bslstl_util.h>
+// bslstp_util.cpp                                                    -*-C++-*-
+#include <bslstp_util.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
