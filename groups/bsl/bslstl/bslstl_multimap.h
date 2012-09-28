@@ -740,13 +740,14 @@ class multimap {
     multimap(const multimap& original);
         // Construct a multimap having the same value as the specified
         // 'original'.  Use a copy of 'original.key_comp()' to order the
-        // key-value pairs contained in this multimap.  Use a
-        // default-constructed object of the (template parameter) type
-        // 'ALLOCATOR' to allocate memory.  If the template parameter
-        // 'ALLOCATOR' argument is of type 'bsl::allocator' (the default), the
-        // currently installed default allocator will be used to supply memory.
-        // This method requires that the (template parameter) types 'KEY' and
-        // 'VALUE' both be "copy-constructible" (see {Requirements on 'KEY' and
+        // key-value pairs contained in this multimap.  Use the allocator
+        // returned by 'bsl::allocator_traits<ALLOCATOR>::
+        // select_on_container_copy_construction(original.allocator())' to
+        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is
+        // of type 'bsl::allocator' (the default), the currently installed
+        // default allocator will be used to supply memory.  This method
+        // requires that the (template parameter) types 'KEY' and 'VALUE'
+        // both be "copy-constructible" (see {Requirements on 'KEY' and
         // 'VALUE'}).
 
     multimap(const multimap& original, const ALLOCATOR& allocator);
@@ -1329,7 +1330,9 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(const multimap& original)
-: d_compAndAlloc(original.comparator().keyComparator(), ALLOCATOR())
+: d_compAndAlloc(original.comparator().keyComparator(),
+                 AllocatorTraits::select_on_container_copy_construction(
+                                           original.nodeFactory().allocator()))
 , d_tree()
 {
     if (0 < original.size()) {
